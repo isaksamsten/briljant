@@ -1,0 +1,257 @@
+/*
+ * ADEB - machine learning pipelines made easy
+ * Copyright (C) 2014  Isak Karlsson
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package org.briljantframework.learning.evaluation.tune;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableTable;
+import org.briljantframework.chart.Chartable;
+import org.briljantframework.Utils;
+import org.briljantframework.learning.Classifier;
+import org.briljantframework.learning.evaluation.Evaluator;
+import org.briljantframework.learning.evaluation.result.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.briljantframework.learning.evaluation.result.Metric.Sample;
+
+/**
+ * The type Configurations.
+ *
+ * @param <C> the type parameter
+ */
+public class Configurations<C extends Classifier> implements Iterable<Configuration<C>>, Chartable {
+    private final List<Configuration<C>> configurations;
+    private final Evaluator<?, ?> evaluator;
+
+    /**
+     * Instantiates a new Configurations.
+     *
+     * @param configurations the configurations
+     * @param evaluator      the evaluator
+     */
+    protected Configurations(List<Configuration<C>> configurations, Evaluator<?, ?> evaluator) {
+        this.configurations = configurations;
+        this.evaluator = evaluator;
+    }
+
+    /**
+     * Create configurations.
+     *
+     * @param <C>            the type parameter
+     * @param configurations the configurations
+     * @param evaluator      the evaluator
+     * @return the configurations
+     */
+    public static <C extends Classifier> Configurations<C> create(List<Configuration<C>> configurations,
+                                                                  Evaluator<?, ?> evaluator) {
+        Preconditions.checkArgument(configurations.size() > 0);
+        return new Configurations<>(configurations, evaluator);
+    }
+
+    /**
+     * Size int.
+     *
+     * @return the int
+     */
+    public int size() {
+        return configurations.size();
+    }
+
+    /**
+     * Is empty.
+     *
+     * @return the boolean
+     */
+    public boolean isEmpty() {
+        return configurations.isEmpty();
+    }
+
+    /**
+     * Iterator iterator.
+     *
+     * @return the iterator
+     */
+    public Iterator<Configuration<C>> iterator() {
+        return configurations.iterator();
+    }
+
+    /**
+     * Best configuration.
+     *
+     * @return the configuration
+     */
+    public Configuration<C> best() {
+        return get(0);
+    }
+
+    /**
+     * Sort void.
+     *
+     * @param cmp the cmp
+     */
+    public void sort(Comparator<Configuration<C>> cmp) {
+        Collections.sort(configurations, cmp);
+    }
+
+    /**
+     * Sort void.
+     */
+    public void sort() {
+        Collections.sort(configurations);
+    }
+
+    /**
+     * Get configuration.
+     *
+     * @param index the index
+     * @return the configuration
+     */
+    public Configuration<C> get(int index) {
+        return configurations.get(index);
+    }
+
+    /**
+     * Gets parameters.
+     *
+     * @return the parameters
+     */
+    public Set<String> getParameters() {
+        Set<String> set = new HashSet<>();
+        for (Configuration<?> c : configurations) {
+            set.addAll(c.keys());
+        }
+        return set;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder out = new StringBuilder(configurations.get(0).getClassifier().toString());
+        out.append("\n\n")
+                .append("Resampling: ")
+                .append(evaluator)
+                .append("\n\n")
+                .append("Results across tuning parameters:\n\n");
+
+        ImmutableTable.Builder<Integer, String, Object> table = ImmutableTable.builder();
+        int index = 0;
+        for (Configuration<?> configuration : configurations) {
+            for (Map.Entry<String, Object> params : configuration.entries()) {
+                if (params.getValue() instanceof Double) {
+                    table.put(index, params.getKey(), String.format("%.4f", (double) params.getValue()));
+                } else {
+                    table.put(index, params.getKey(), params.getValue());
+                }
+            }
+            for (Metric metric : configuration.getResult().getMetrics()) {
+                table.put(index, metric.getName(), String.format("%.4f", metric.getAverage()));
+            }
+            ConfusionMatrix m = configuration.getAverageConfusionMatrix();
+            table.put(index, "Precision", String.format("%.4f", m.getAveragePrecision()));
+            table.put(index, "Recall", String.format("%.4f", m.getAverageRecall()));
+            table.put(index, "F-Measure", String.format("%.4f", m.getAverageFMeasure(2)));
+            index += 1;
+        }
+        out.append(Utils.prettyPrintTable(table.build(), 3, 2, false, true));
+        return out.toString();
+    }
+
+    /**
+     * Gets plot for parameter.
+     *
+     * @param key the key
+     * @return the plot for parameter
+     */
+    public Plot getPlotForParameter(String key, Class<? extends Metric> metricKey) {
+        Map<Number, Double> map = new HashMap<>();
+        for (Configuration<?> configuration : configurations) {
+            Metric metric = configuration.getMetric(metricKey);
+            double average = metric.getAverage(Sample.OUT);
+            Number param = (Number) configuration.get(key);
+            map.compute(param, (k, v) -> v == null ? average : v + average);
+        }
+
+        XYSeriesCollection collection = new XYSeriesCollection();
+        XYSeries series = new XYSeries(configurations.get(0).getMetric(metricKey).getName(), true);
+
+        int noParams = getParameters().size();
+        for (Map.Entry<Number, Double> entry : map.entrySet()) {
+            series.add(entry.getKey(), entry.getValue() / noParams);
+        }
+        collection.addSeries(series);
+
+
+        NumberAxis xAxis = new NumberAxis(key + " value");
+        xAxis.setAutoRangeIncludesZero(false);
+
+        return new XYPlot(collection, xAxis, new NumberAxis(configurations.get(0).getMetric(metricKey).getName()),
+                new XYLineAndShapeRenderer());
+    }
+
+    public JFreeChart getChartForParameter(String key, Class<? extends Metric> metric) {
+        JFreeChart chart = new JFreeChart("Configurations", getPlotForParameter(key, metric));
+        ChartFactory.getChartTheme().apply(chart);
+        return chart;
+    }
+
+    @Override
+    public JFreeChart getChart() {
+        JFreeChart chart = new JFreeChart("Configurations", getPlot());
+        ChartFactory.getChartTheme().apply(chart);
+        return chart;
+    }
+
+    @Override
+    public Plot getPlot() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (Configuration<?> configuration : configurations) {
+            dataset.addValue(configuration.getAverage(ErrorRate.class),
+                    "Error",
+                    configuration.entries()
+                            .stream()
+                            .map(kv -> kv.getKey() + ":" + kv.getValue())
+                            .collect(Collectors.joining(","))
+
+            );
+        }
+
+        NumberAxis numberAxis = new NumberAxis("Error");
+        CategoryAxis categoryAxis = new CategoryAxis();
+        categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
+        BarRenderer barRenderer = new BarRenderer();
+        barRenderer.setSeriesToolTipGenerator(0, (dataset1, row, column) -> (String) dataset1.getColumnKey(column));
+
+        return new CategoryPlot(dataset, categoryAxis, numberAxis, barRenderer);
+    }
+
+}
