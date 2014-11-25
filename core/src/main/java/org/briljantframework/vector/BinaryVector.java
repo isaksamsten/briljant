@@ -3,6 +3,7 @@ package org.briljantframework.vector;
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.UnmodifiableIterator;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -30,7 +31,12 @@ public class BinaryVector implements Vector, Iterable<Binary> {
 
         @Override
         public int compare(int a, Vector va, int b, Vector ba) {
-            return va.getAsInteger(a) - ba.getAsInteger(b);
+            return va.getAsInt(a) - ba.getAsInt(b);
+        }
+
+        @Override
+        public String toString() {
+            return "binary";
         }
     };
 
@@ -66,32 +72,42 @@ public class BinaryVector implements Vector, Iterable<Binary> {
 
     @Override
     public double getAsDouble(int index) {
-        return getAsInteger(index);
+        int i = getAsInt(index);
+        if (i == IntVector.NA) {
+            return DoubleVector.NA;
+        } else {
+            return i;
+        }
     }
 
     @Override
-    public int getAsInteger(int index) {
+    public int getAsInt(int index) {
         return values[index];
     }
 
     @Override
     public Binary getAsBinary(int index) {
-        return Binary.valueOf(getAsInteger(index));
+        return Binary.valueOf(getAsInt(index));
     }
 
     @Override
     public String getAsString(int index) {
-        return Binary.valueOf(index).name();
+        Binary bin = Binary.valueOf(index);
+        if (bin == Binary.NA) {
+            return StringVector.NA;
+        } else {
+            return bin.name();
+        }
     }
 
     @Override
     public boolean isNA(int index) {
-        return getAsInteger(index) == IntVector.NA;
+        return getAsInt(index) == IntVector.NA;
     }
 
     @Override
     public int compare(int a, int b) {
-        return getAsInteger(a) - getAsInteger(b);
+        return getAsInt(a) - getAsInt(b);
     }
 
     @Override
@@ -127,16 +143,34 @@ public class BinaryVector implements Vector, Iterable<Binary> {
         return new Builder(size);
     }
 
+    @Override
+    public String toString(int index) {
+        return getAsBinary(index).name();
+    }
+
+    public static Builder newBuilderWithInitialValues(Object... values) {
+        Builder builder = new Builder(0, values.length);
+        builder.addAll(Arrays.asList(values));
+        return builder;
+    }
+
     public static class Builder implements Vector.Builder {
 
         private IntArrayList buffer;
 
-        public Builder(int size) {
-            this.buffer = new IntArrayList(size);
+        public Builder() {
+            this(0);
         }
 
-        public Builder() {
-            this(INITIAL_CAPACITY);
+        public Builder(int size) {
+            this(size, Math.max(INITIAL_CAPACITY, size));
+        }
+
+        public Builder(int size, int capacity) {
+            buffer = new IntArrayList(capacity);
+            for (int i = 0; i < size; i++) {
+                buffer.add(IntVector.NA);
+            }
         }
 
         public Builder(int[] ints) {
@@ -144,52 +178,77 @@ public class BinaryVector implements Vector, Iterable<Binary> {
         }
 
         @Override
-        public Builder addNA(int index) {
-            buffer.set(index, IntVector.NA);
+        public Builder setNA(int index) {
+            ensureCapacity(index);
+            buffer.buffer[index] = IntVector.NA;
             return this;
         }
 
         @Override
         public Builder addNA() {
-            buffer.add(IntVector.NA);
+            return setNA(size());
+        }
+
+        @Override
+        public Builder add(Vector from, int fromIndex) {
+            return set(size(), from, fromIndex);
+        }
+
+        @Override
+        public Builder set(int atIndex, Vector from, int fromIndex) {
+            ensureCapacity(atIndex);
+            buffer.buffer[atIndex] = from.getAsInt(fromIndex);
             return this;
         }
 
         @Override
-        public Vector.Builder add(Vector from, int fromIndex) {
-            buffer.add(from.getAsInteger(fromIndex));
-            return this;
-        }
-
-        @Override
-        public Builder add(int atIndex, Vector from, int fromIndex) {
-            buffer.set(atIndex, from.getAsInteger(fromIndex));
-            return this;
-        }
-
-        @Override
-        public Builder add(int index, Object value) {
+        public Builder set(int index, Object value) {
+            ensureCapacity(index);
+            int intValue = IntVector.NA;
             if (value instanceof Number) {
-                buffer.set(index, ((Number) value).intValue());
-            } else {
-                buffer.add(index, IntVector.NA);
+                intValue = ((Number) value).intValue();
+            } else if (value instanceof Binary) {
+                intValue = ((Binary) value).asInt();
             }
+            buffer.buffer[index] = intValue;
             return this;
         }
 
         @Override
         public Builder add(Object value) {
-            if (value instanceof Number) {
-                buffer.add(((Number) value).intValue());
-            } else {
-                buffer.add(IntVector.NA);
+            return set(size(), value);
+        }
+
+        @Override
+        public Builder addAll(Vector from) {
+            for (int i = 0; i < from.size(); i++) {
+                add(from.getAsBinary(i));
             }
+            return this;
+        }
+
+        public Builder add(Binary binary) {
+            return add(binary.asInt());
+        }
+
+        public Builder add(int value) {
+            ensureCapacity(size());
+            buffer.buffer[size()] = value;
             return this;
         }
 
         @Override
         public int size() {
             return buffer.size();
+        }
+
+        private void ensureCapacity(int index) {
+            buffer.ensureCapacity(index + 1);
+            int i = buffer.size();
+            while (i <= index) {
+                buffer.buffer[i++] = IntVector.NA;
+                buffer.elementsCount++;
+            }
         }
 
         @Override

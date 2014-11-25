@@ -31,4 +31,8 @@ public enum Binary {
                 return NA;
         }
     }
+
+    public int asInt() {
+        return value;
+    }
 }

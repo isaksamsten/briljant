@@ -19,60 +19,49 @@
 
 package org.briljantframework.data.transform;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.types.Type;
+
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Created by Isak Karlsson on 18/08/14.
  */
-public class RemoveIncompleteColumns<D extends DataFrame<?>> implements Transformer<D> {
+public class RemoveIncompleteColumns implements Transformer {
 
     @Override
-    public Transformation<D> fit(D dataset) {
-        boolean[] hasMissing = new boolean[dataset.columns()];
-
-        for (Row e : dataset) {
-            for (int i = 0; i < e.size(); i++) {
-                if (e.getValue(i).na()) {
-                    hasMissing[i] = true;
-                }
+    public Transformation fit(DataFrame dataset) {
+        boolean[] hasNA = new boolean[dataset.columns()];
+        for (int i = 0; i < dataset.columns(); i++) {
+            if (dataset.getColumn(i).hasNA()) {
+                hasNA[i] = true;
             }
         }
 
-        return new DoRemoveIncompleteColumns<>(hasMissing);
+
+        return new DoRemoveIncompleteColumns(hasNA);
     }
 
-    private static class DoRemoveIncompleteColumns<C extends DataFrame<?>> implements Transformation<C> {
+    private static class DoRemoveIncompleteColumns implements Transformation {
 
-        private final boolean[] hasMissing;
+        private final boolean[] hasNA;
 
-        private DoRemoveIncompleteColumns(boolean[] hasMissing) {
-            this.hasMissing = hasMissing;
+        private DoRemoveIncompleteColumns(boolean[] hasNA) {
+            this.hasNA = hasNA;
         }
 
         @Override
-        public C transform(C dataset, DataFrame.CopyTo<C> copyTo) {
-            List<Type> presentTypes = IntStream.range(0, dataset.getTypes().size())
-                    .filter(x -> !hasMissing[x])
-                    .mapToObj(dataset::getType)
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            DataFrame.Builder<C> builder = copyTo.newBuilder(presentTypes);
-            for (Row row : dataset) {
-                for (int i = 0; i < dataset.columns(); i++) {
-                    if (!hasMissing[i]) {
-                        builder.add(row.getValue(i));
-                    }
+        public DataFrame transform(DataFrame dataset) {
+            List<Vector> vectors = new ArrayList<>();
+            for (int i = 0; i < dataset.columns(); i++) {
+                if (!hasNA[i]) {
+                    vectors.add(dataset.getColumn(0).newCopyBuilder().create());
                 }
             }
 
-            return builder.create();
+            return dataset.newDataFrame(vectors);
         }
     }
 }

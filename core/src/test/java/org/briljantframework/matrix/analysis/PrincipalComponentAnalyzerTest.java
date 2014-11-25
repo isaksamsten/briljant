@@ -26,13 +26,13 @@ public class PrincipalComponentAnalyzerTest {
 
     @Test
     public void testTransform() throws Exception {
-        PrincipalComponentAnalyzer<MatrixDataFrame> pca = new PrincipalComponentAnalyzer<>(2);
-        MatrixDataFrame frame = new MatrixDataFrame(Types.range(NumericType::new, 4), matrix);
-
-
-        System.out.println(frame);
-        Transformation<MatrixDataFrame> pcaTransformation = pca.fit(frame);
-        System.out.println(pcaTransformation.transform(frame, MatrixDataFrame.copyTo()));
+//        PrincipalComponentAnalyzer pca = new PrincipalComponentAnalyzer(2);
+//        MatrixDataFrame frame = new MatrixDataFrame(Types.range(NumericType::new, 4), matrix);
+//
+//
+//        System.out.println(frame);
+//        Transformation<MatrixDataFrame> pcaTransformation = pca.fit(frame);
+//        System.out.println(pcaTransformation.transform(frame, MatrixDataFrame.copyTo()));
 
     }
 

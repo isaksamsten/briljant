@@ -19,12 +19,12 @@
 
 package org.briljantframework.data.transform;
 
-import org.briljantframework.data.DataFrame;
+import org.briljantframework.dataframe.DataFrame;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
  */
-public interface InvertibleTransformation<D extends DataFrame<?>> extends Transformation<D> {
+public interface InvertibleTransformation extends Transformation {
 
     /**
      * Recover using dataset
@@ -32,5 +32,5 @@ public interface InvertibleTransformation<D extends DataFrame<?>> extends Transf
      * @param dataset a dataset to recover
      * @return the recovered dataset
      */
-    D inverseTransform(D dataset, DataFrame.CopyTo<D> copyTo);
+    DataFrame inverseTransform(DataFrame dataset);
 }

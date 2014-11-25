@@ -1,9 +1,6 @@
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.data.types.NumericType;
-import org.briljantframework.data.types.Types;
 import org.briljantframework.matrix.*;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.math.LinearAlgebra;
 import org.junit.Before;
@@ -22,7 +19,7 @@ public class PseudoInverseTransformerTest {
                 2, 2, 3, 2,
                 4, -3, 0, 1.,
                 6, 1, -6, -5
-//                0, 1, 1, 1
+                //                0, 1, 1, 1
         );
 
     }
@@ -43,9 +40,9 @@ public class PseudoInverseTransformerTest {
         Matrix a = Matrices.parseMatrix(DenseMatrix::new, "1,2,3; 1,2,3; 1,2,3; 1,2,3");
         Diagonal x = Diagonal.of(3, 3, 1, 1, 1);
 
-//        System.out.println(matrix);
-//
-//        System.out.println(Matrices.multiplyByDiagonal(a, x, DenseMatrix::new));
+        //        System.out.println(matrix);
+        //
+        //        System.out.println(Matrices.multiplyByDiagonal(a, x, DenseMatrix::new));
 
         Matrix A = DenseMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
         System.out.println(A);
@@ -57,11 +54,11 @@ public class PseudoInverseTransformerTest {
 
 
         svd.s.apply(y -> 1.0 / y);
-//        System.out.println(svd.s.transpose());
+        //        System.out.println(svd.s.transpose());
 
 
-//        System.out.println("PINV");
-//        System.out.println(svd.v.multiply(svd.s.transpose()).multiply(svd.u.transpose()));
+        //        System.out.println("PINV");
+        //        System.out.println(svd.v.multiply(svd.s.transpose()).multiply(svd.u.transpose()));
 
         System.out.println(svd.v.mmul(svd.s.transpose()));
 
@@ -71,19 +68,12 @@ public class PseudoInverseTransformerTest {
         System.out.println("Working by diagnoal");
         System.out.println(svd.v.mmul(svd.s.transpose()));
 
-        System.out.println(Matrices.mmul(DenseMatrix::new, svd.v.mmuld(svd.s.transpose()),
-                Transpose.NO, svd.u, Transpose.YES));
-//
+        DenseMatrix mmul = Matrices.mmul(DenseMatrix::new, svd.v.mmuld(svd.s.transpose()), Transpose.NO, svd.u, Transpose.YES);
+        System.out.println(mmul);
 
 
         DenseMatrix large = Matrices.randn(DenseMatrix::new, 1000, 100);
 
         System.out.println(LinearAlgebra.pinv(A));
-
-
-        MatrixDataFrame frame = new MatrixDataFrame(Types.range(NumericType::new, 2), A);
-        System.out.println(new PseudoInverseTransformer<>().fitTransform(frame, MatrixDataFrame.copyTo()));
-
-
     }
 }

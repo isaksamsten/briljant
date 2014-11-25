@@ -21,11 +21,11 @@ package org.briljantframework.matrix.analysis;
 
 import org.briljantframework.data.transform.InvertibleTransformation;
 import org.briljantframework.data.transform.InvertibleTransformer;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Transpose;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposer;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
 
@@ -41,8 +41,8 @@ import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
  * <p>
  * Created by Isak Karlsson on 11/08/14.
  */
-public class PrincipalComponentAnalyzer<E extends MatrixDataFrame>
-        implements Analyzer<PrincipalComponentAnalysis>, InvertibleTransformer<E> {
+public class PrincipalComponentAnalyzer
+        implements Analyzer<PrincipalComponentAnalysis>, InvertibleTransformer {
 
     private final SingularValueDecomposer decomposer;
     private final int components;
@@ -86,16 +86,16 @@ public class PrincipalComponentAnalyzer<E extends MatrixDataFrame>
         return decomposer.decompose(sigma);
     }
 
-//    @Override
-//    public <E extends Frame, F extends Target> InvertibleTransformation<E, F> fit(Container<E, F> container) {
-//        E matrix = container.getDataset();
-//        SingularValueDecomposition svd = getSingularValueDecomposition(matrix.getMatrix());
-//        return new PrincipalComponentAnalysis<>(svd.getLeftSingularValues(), components);
-//    }
+    //    @Override
+    //    public <E extends Frame, F extends Target> InvertibleTransformation<E, F> fit(Container<E, F> container) {
+    //        E matrix = container.getDataset();
+    //        SingularValueDecomposition svd = getSingularValueDecomposition(matrix.getMatrix());
+    //        return new PrincipalComponentAnalysis<>(svd.getLeftSingularValues(), components);
+    //    }
 
     @Override
-    public InvertibleTransformation<E> fit(E frame) {
+    public InvertibleTransformation fit(DataFrame frame) {
         SingularValueDecomposition svd = getSingularValueDecomposition(frame.asMatrix());
-        return new PrincipalComponentAnalysis<E>(svd.getLeftSingularValues(), components);
+        return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
     }
 }

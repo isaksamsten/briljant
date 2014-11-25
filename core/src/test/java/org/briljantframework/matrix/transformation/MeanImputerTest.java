@@ -42,12 +42,12 @@ public class MeanImputerTest {
 
         MatrixDataFrame frame = new MatrixDataFrame(new Types(types), matrix);
         //
-        PipelineTransformer<MatrixDataFrame> pipe = PipelineTransformer.of(MatrixDataFrame.copyTo(),
-                new MeanImputer<>(), new ZNormalizer<>()
-        );
+//        PipelineTransformer<MatrixDataFrame> pipe = PipelineTransformer.of(MatrixDataFrame.copyTo(),
+//                new MeanImputer<>(), new ZNormalizer<>()
+//        );
 
-        MatrixDataFrame transformation = pipe.fitTransform(frame, MatrixDataFrame.copyTo());
-        System.out.println(transformation);
+//        MatrixDataFrame transformation = pipe.fitTransform(frame, MatrixDataFrame.copyTo());
+//        System.out.println(transformation);
 
 
         //        System.out.println();

@@ -269,18 +269,6 @@ public class Datasets {
         return builder.toString();
     }
 
-    /**
-     * Remove incomplete cases.
-     *
-     * @param <D>     the type parameter
-     * @param dataset the dataset
-     * @param copyTo  the factory
-     * @return the d
-     */
-    public static <D extends DataFrame<?>> D removeIncompleteCases(D dataset, DataFrame.CopyTo<D> copyTo) {
-        return new RemoveIncompleteColumns<D>().fitTransform(dataset, copyTo);
-    }
-
     private static class IncludeIndexIterator<R extends Row> implements Iterator<R> {
         private final DataFrame<? extends R> dataFrame;
         private final Iterator<Integer> rows;

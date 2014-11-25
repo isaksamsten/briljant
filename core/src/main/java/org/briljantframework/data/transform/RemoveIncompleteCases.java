@@ -19,25 +19,38 @@
 
 package org.briljantframework.data.transform;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.values.Value;
+
+import org.briljantframework.dataframe.DataFrame;
 
 /**
  * Created by Isak Karlsson on 15/08/14.
  */
-public class RemoveIncompleteCases<D extends DataFrame<?>> implements Transformer<D> {
+public class RemoveIncompleteCases implements Transformer {
 
     @Override
-    public Transformation<D> fit(D container) {
-        return new DoRemoveIncompleteCases<>();
+    public Transformation fit(DataFrame dataFrame) {
+        return new DoRemoveIncompleteCases();
     }
 
-    private static final class DoRemoveIncompleteCases<E extends DataFrame<?>> implements Transformation<E> {
+    private static final class DoRemoveIncompleteCases implements Transformation {
 
         @Override
-        public E transform(E dataset, DataFrame.CopyTo<E> copyTo) {
-            DataFrame.Builder<E> builder = copyTo.newBuilder(dataset.getTypes());
-            dataset.stream().filter(x -> !x.stream().anyMatch(Value::na)).forEach(builder::addRow);
+        public DataFrame transform(DataFrame dataFrame) {
+            DataFrame.Builder builder = dataFrame.newBuilder();
+            for (int i = 0; i < dataFrame.rows(); i++) {
+                boolean hasNA = false;
+                for (int j = 0; j < dataFrame.columns(); j++) {
+                    if (dataFrame.isNA(i, j)) {
+                        hasNA = true;
+                        break;
+                    }
+                }
+                if (!hasNA) {
+                    for (int j = 0; j < dataFrame.columns(); j++) {
+                        builder.add(j, dataFrame, i, j);
+                    }
+                }
+            }
             return builder.create();
         }
     }

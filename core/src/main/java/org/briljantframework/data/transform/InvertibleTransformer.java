@@ -19,19 +19,19 @@
 
 package org.briljantframework.data.transform;
 
-import org.briljantframework.data.DataFrame;
+import org.briljantframework.dataframe.DataFrame;
 
 /**
  * Created by Isak Karlsson on 13/08/14.
  */
-public interface InvertibleTransformer<D extends DataFrame<?>> extends Transformer<D> {
+public interface InvertibleTransformer extends Transformer {
 
     /**
      * Perform an invertible tranformation
      *
-     * @param container dataset to transform
+     * @param dataFrame dataset to transform
      * @return the invertable transformation
      */
     @Override
-    InvertibleTransformation<D> fit(D container);
+    InvertibleTransformation fit(DataFrame dataFrame);
 }

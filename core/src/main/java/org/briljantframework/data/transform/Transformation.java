@@ -20,7 +20,7 @@
 package org.briljantframework.data.transform;
 
 
-import org.briljantframework.data.DataFrame;
+import org.briljantframework.dataframe.DataFrame;
 
 /**
  * A transformation takes a dataset D and applies a transformation, resulting in an new dataset D'
@@ -28,13 +28,13 @@ import org.briljantframework.data.DataFrame;
  * Created by Isak Karlsson on 11/08/14.
  */
 @FunctionalInterface
-public interface Transformation<D extends DataFrame<?>> {
+public interface Transformation {
 
     /**
      * Apply transformation to <code>t</code>, resulting in D'
      *
-     * @param dataset T to transform
+     * @param dataFrame T to transform
      * @return transformation of d
      */
-    D transform(D dataset, DataFrame.CopyTo<D> copyTo);
+    DataFrame transform(DataFrame dataFrame);
 }

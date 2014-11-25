@@ -3,25 +3,29 @@ package org.briljantframework.vector;
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.UnmodifiableIterator;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class IntVector implements Vector, Iterable<Integer>  {
-
-    private final int size;
-    private final int[] values;
-
-    protected IntVector(int[] values) {
-        this.size = values.length;
-        this.values = values;
-    }
+public class IntVector implements Vector, Iterable<Integer> {
 
     /**
      * The constant NA.
      */
     public static final int NA = Integer.MIN_VALUE;
+    private final int[] values;
+
+    public IntVector(int... values) {
+        this.values = Arrays.copyOf(values, values.length);
+    }
+
+    public IntVector(int[] values, int size) {
+        this.values = Arrays.copyOf(values, size);
+    }
 
     public static final Type TYPE = new Type() {
         @Override
@@ -41,34 +45,40 @@ public class IntVector implements Vector, Iterable<Integer>  {
 
         @Override
         public int compare(int a, Vector va, int b, Vector ba) {
-            return !va.isNA(a) && !ba.isNA(b) ? va.getAsInteger(a) - ba.getAsInteger(b) : 0;
+            return !va.isNA(a) && !ba.isNA(b) ? va.getAsInt(a) - ba.getAsInt(b) : 0;
+        }
+
+        @Override
+        public String toString() {
+            return "int";
         }
     };
 
 
     @Override
     public double getAsDouble(int index) {
-        return getAsInteger(index);
+        return getAsInt(index);
     }
 
     @Override
     public Binary getAsBinary(int index) {
-        return Binary.valueOf(getAsInteger(index));
+        return Binary.valueOf(getAsInt(index));
     }
 
     @Override
     public String getAsString(int index) {
-        return String.valueOf(getAsInteger(index));
+        int value = getAsInt(index);
+        return value == NA ? StringVector.NA : String.valueOf(value);
     }
 
     @Override
     public boolean isTrue(int index) {
-        return getAsInteger(index) == 1;
+        return getAsInt(index) == 1;
     }
 
     @Override
     public boolean isNA(int index) {
-        return getAsInteger(index) == NA;
+        return getAsInt(index) == NA;
     }
 
     public int[] asIntArray() {
@@ -91,24 +101,24 @@ public class IntVector implements Vector, Iterable<Integer>  {
 
             @Override
             public Integer next() {
-                return getAsInteger(current++);
+                return getAsInt(current++);
             }
         };
     }
 
     @Override
-    public int getAsInteger(int index) {
+    public int getAsInt(int index) {
         return values[index];
     }
 
     @Override
     public int compare(int a, int b) {
-        return getAsInteger(a) - getAsInteger(b);
+        return getAsInt(a) - getAsInt(b);
     }
 
     @Override
     public int size() {
-        return size;
+        return values.length;
     }
 
     @Override
@@ -131,16 +141,42 @@ public class IntVector implements Vector, Iterable<Integer>  {
         return new Builder(size);
     }
 
+    @Override
+    public String toString(int index) {
+        int value = getAsInt(index);
+        return value == NA ? "NA" : String.valueOf(value);
+    }
+
+    @Override
+    public String toString() {
+        return IntStream.of(values).mapToObj(x -> x == NA ? "NA" : String.valueOf(x)).collect(Collectors.joining(","));
+    }
+
+    public static Vector.Builder newBuilderWithInitialValues(int... values) {
+        Builder builder = new Builder(0, values.length);
+        for (int value : values) {
+            builder.add(value);
+        }
+        return builder;
+    }
+
     public static final class Builder implements Vector.Builder {
 
         private IntArrayList buffer;
 
         public Builder() {
-            this(INITIAL_CAPACITY);
+            this(0, INITIAL_CAPACITY);
         }
 
-        public Builder(int capacity) {
-            buffer = new IntArrayList(capacity);
+        public Builder(int size) {
+            this(size, size);
+        }
+
+        public Builder(int size, int capacity) {
+            buffer = new IntArrayList(Math.max(size, capacity));
+            for (int i = 0; i < size; i++) {
+                buffer.add(NA);
+            }
         }
 
         Builder(int[] values) {
@@ -148,66 +184,73 @@ public class IntVector implements Vector, Iterable<Integer>  {
         }
 
         @Override
-        public Builder addNA(int index) {
-            if (index == size()) {
-                buffer.add(IntVector.NA);
-            } else {
-                buffer.set(index, IntVector.NA);
-            }
+        public Builder setNA(int index) {
+            ensureCapacity(index);
+            buffer.buffer[index] = IntVector.NA;
             return this;
         }
 
         @Override
         public Builder addNA() {
-            return addNA(size());
+            return setNA(size());
         }
 
         @Override
         public Builder add(Vector from, int fromIndex) {
-            return add(size(), from, fromIndex);
+            return set(size(), from, fromIndex);
         }
 
         @Override
-        public Builder add(int atIndex, Vector from, int fromIndex) {
-            if (atIndex == buffer.size()) {
-                buffer.add(from.getAsInteger(fromIndex));
-            } else {
-                buffer.set(atIndex, from.getAsInteger(fromIndex));
-            }
+        public Builder set(int atIndex, Vector from, int fromIndex) {
+            ensureCapacity(atIndex);
+            buffer.buffer[atIndex] = from.getAsInt(fromIndex);
             return this;
         }
 
         @Override
-        public Builder add(int index, Object value) {
+        public Builder set(int index, Object value) {
             if (value instanceof Number) {
+                ensureCapacity(index);
                 int intValue = ((Number) value).intValue();
-                if (index == size()) {
-                    buffer.add(intValue);
-                } else {
-                    buffer.set(index, intValue);
-                }
+                buffer.buffer[index] = intValue;
             } else {
-                addNA();
+                setNA(index);
             }
+
             return this;
         }
 
         @Override
         public Builder add(Object value) {
-            return null;
+            return set(size(), value);
+        }
+
+        @Override
+        public Builder addAll(Vector from) {
+            for (int i = 0; i < from.size(); i++) {
+                add(from.getAsInt(i));
+            }
+
+            return this;
         }
 
         public Builder add(int value) {
-            return add(size(), value);
+            return set(size(), value);
         }
 
-        public Builder add(int index, int value) {
-            if (index == size()) {
-                buffer.add(value);
-            } else {
-                buffer.set(index, value);
-            }
+        public Builder set(int index, int value) {
+            ensureCapacity(index);
+            buffer.buffer[index] = value;
             return this;
+        }
+
+        private void ensureCapacity(int index) {
+            buffer.ensureCapacity(index + 1);
+            int i = buffer.size();
+            while (i <= index) {
+                buffer.buffer[i++] = NA;
+                buffer.elementsCount++;
+            }
         }
 
         @Override
@@ -217,7 +260,7 @@ public class IntVector implements Vector, Iterable<Integer>  {
 
         @Override
         public IntVector create() {
-            IntVector vector = new IntVector(buffer.toArray());
+            IntVector vector = new IntVector(buffer.buffer, buffer.size());
             buffer = null;
             return vector;
         }

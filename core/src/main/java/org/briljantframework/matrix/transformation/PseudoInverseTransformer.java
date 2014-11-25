@@ -19,12 +19,10 @@
 
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.data.DataFrame;
 import org.briljantframework.data.transform.Transformation;
 import org.briljantframework.data.transform.Transformer;
-import org.briljantframework.data.types.Types;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.math.LinearAlgebra;
 
 /**
@@ -32,20 +30,20 @@ import org.briljantframework.matrix.math.LinearAlgebra;
  * <p>
  * Created by Isak Karlsson on 11/08/14.
  */
-public class PseudoInverseTransformer<E extends MatrixDataFrame> implements Transformer<E> {
+public class PseudoInverseTransformer implements Transformer {
 
     @Override
-    public Transformation<E> fit(E container) {
-        return new PinvTransformation<>();
+    public Transformation fit(DataFrame container) {
+        return new PinvTransformation();
     }
 
-    private static class PinvTransformation<E extends MatrixDataFrame> implements Transformation<E> {
+    private static class PinvTransformation implements Transformation {
         @Override
-        public E transform(E frame, DataFrame.CopyTo<E> factory) {
+        public DataFrame transform(DataFrame frame) {
             Matrix matrix = LinearAlgebra.pinv(frame.asMatrix());
-            E copy = factory.newBuilder(frame.getTypes()).create();
-            copy.setMatrix(new Types(frame.getTypes()), matrix);
-            return copy;
+            //            E copy = factory.newBuilder(frame.getTypes()).create();
+            //            copy.setMatrix(new Types(frame.getTypes()), matrix);
+            return null;
         }
     }
 }

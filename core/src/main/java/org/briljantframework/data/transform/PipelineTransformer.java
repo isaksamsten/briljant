@@ -19,7 +19,7 @@
 
 package org.briljantframework.data.transform;
 
-import org.briljantframework.data.DataFrame;
+import org.briljantframework.dataframe.DataFrame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,57 +28,52 @@ import java.util.List;
 /**
  * Created by Isak Karlsson on 18/08/14.
  */
-public class PipelineTransformer<C extends DataFrame<?>> implements Transformer<C> {
+public class PipelineTransformer implements Transformer {
 
-    private final List<Transformer<C>> transformers;
-    private final DataFrame.CopyTo<C> copyTo;
+    private final List<Transformer> transformers;
 
-    public PipelineTransformer(DataFrame.CopyTo<C> copyTo, List<Transformer<C>> transformers) {
+    public PipelineTransformer(List<Transformer> transformers) {
         this.transformers = transformers;
-        this.copyTo = copyTo;
     }
 
     /**
      * Of pipeline transformer.
      *
-     * @param <C>          the type parameter
      * @param transformers the transformers
      * @return the pipeline transformer
      */
-    @SafeVarargs
-    public static <C extends DataFrame<?>> PipelineTransformer<C> of(
-            DataFrame.CopyTo<C> copyTo, Transformer<C>... transformers) {
+    public static PipelineTransformer of(Transformer... transformers) {
         if (transformers.length < 1) {
             throw new IllegalArgumentException("Cannot construct a PipelineTransformer without transformers");
         }
 
-        return new PipelineTransformer<>(copyTo, Arrays.asList(transformers));
+        return new PipelineTransformer(Arrays.asList(transformers));
     }
 
     @Override
-    public Transformation<C> fit(C dataset) {
-        List<Transformation<C>> transformations = new ArrayList<>();
-        for (Transformer<C> transformer : transformers) {
-            Transformation<C> transformation = transformer.fit(dataset);
-            dataset = transformation.transform(dataset, copyTo);
+    public Transformation fit(DataFrame dataset) {
+        List<Transformation> transformations = new ArrayList<>();
+        for (Transformer transformer : transformers) {
+            Transformation transformation = transformer.fit(dataset);
+            dataset = transformation.transform(dataset);
             transformations.add(transformation);
         }
 
-        return new PipelineTransformation<>(transformations);
+        return new PipelineTransformation(transformations);
     }
 
-    private static class PipelineTransformation<E extends DataFrame<?>> implements Transformation<E> {
+    private static class PipelineTransformation implements Transformation {
 
-        private final List<Transformation<E>> transformations;
+        private final List<Transformation> transformations;
 
-        public PipelineTransformation(List<Transformation<E>> transformations) {
+        public PipelineTransformation(List<Transformation> transformations) {
             this.transformations = transformations;
         }
 
         @Override
-        public E transform(E dataset, DataFrame.CopyTo<E> copyTo) {
-            for (Transformation<E> transformation : transformations) {
-                dataset = transformation.transform(dataset, copyTo);
+        public DataFrame transform(DataFrame dataset) {
+            for (Transformation transformation : transformations) {
+                dataset = transformation.transform(dataset);
             }
             return dataset;
         }

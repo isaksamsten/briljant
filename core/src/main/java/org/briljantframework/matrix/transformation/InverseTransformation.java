@@ -19,18 +19,17 @@
 
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.data.DataFrame;
 import org.briljantframework.data.transform.Transformation;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.natives.BlasException;
 import org.briljantframework.matrix.natives.Lapack;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
  */
-public class InverseTransformation<E extends MatrixDataFrame> implements Transformation<E> {
+public class InverseTransformation implements Transformation {
 
 
     /**
@@ -59,15 +58,15 @@ public class InverseTransformation<E extends MatrixDataFrame> implements Transfo
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public E transform(E frame, DataFrame.CopyTo<E> copyTo) {
-        if (!frame.isSquare()) {
-            throw new IllegalArgumentException("Square matrix is required.");
-        }
-
-        E out = copyTo.copyDataset(frame);
-        invert(out.asMatrix());
-
-        return out;
+    public DataFrame transform(DataFrame dataFrame) {
+        //        if (!frame.isSquare()) {
+        //            throw new IllegalArgumentException("Square matrix is required.");
+        //        }
+        //
+        //        E out = copyTo.copyDataset(frame);
+        //        invert(out.asMatrix());
+        //
+        //        return out;
+        return null;
     }
 }

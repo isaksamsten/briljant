@@ -6,16 +6,16 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class IntVectorTest {
+public class DoubleVectorTest {
 
-    public static final int[] INT_ARRAY = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    private IntVector vector;
-    private IntVector hasNA = new IntVector.Builder().addNA().addNA().add(1).add(2).create();
+    public static final double[] DOUBLE_ARRAY = new double[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    private DoubleVector vector;
+    private DoubleVector hasNA = new DoubleVector.Builder().addNA().addNA().add(1).add(2).create();
 
 
     @Before
     public void setUp() throws Exception {
-        IntVector.Builder builder = new IntVector.Builder();
+        DoubleVector.Builder builder = new DoubleVector.Builder();
         for (int i = 0; i < 10; i++) {
             builder.add(i);
         }
@@ -24,30 +24,28 @@ public class IntVectorTest {
 
     @Test
     public void testAddAtIndex() throws Exception {
-        IntVector.Builder builder = new IntVector.Builder();
+        DoubleVector.Builder builder = new DoubleVector.Builder();
         builder.set(3, 10);
         builder.set(10, 10);
         System.out.println(builder.size());
 
         System.out.println(builder.create());
-
-
     }
 
     @Test
     public void testAsIntArray() throws Exception {
-        assertArrayEquals(INT_ARRAY, vector.asIntArray());
+        assertArrayEquals(DOUBLE_ARRAY, vector.asDoubleArray(), 0);
     }
 
     @Test
     public void testToIntArray() throws Exception {
-        assertArrayEquals(INT_ARRAY, vector.toIntArray());
+        assertArrayEquals(DOUBLE_ARRAY, vector.toDoubleArray(), 0);
     }
 
     @Test
     public void testIterator() throws Exception {
-        for (Integer integer : vector) {
-            assertEquals((int) integer, INT_ARRAY[integer]);
+        for (Double value : vector) {
+            assertEquals(value, DOUBLE_ARRAY[value.intValue()], 0.0);
         }
     }
 
@@ -78,12 +76,12 @@ public class IntVectorTest {
 
     @Test
     public void testGetType() throws Exception {
-        assertEquals(IntVector.TYPE, vector.getType());
+        assertEquals(DoubleVector.TYPE, vector.getType());
     }
 
     @Test
     public void testNewCopyBuilder() throws Exception {
-        IntVector copy = vector.newCopyBuilder().add(10).create();
+        DoubleVector copy = vector.newCopyBuilder().add(10).create();
         assertEquals(11, copy.size());
         assertEquals(copy.getAsInt(2), vector.getAsInt(2));
     }
@@ -102,7 +100,7 @@ public class IntVectorTest {
 
     @Test
     public void testGetAsString() throws Exception {
-        assertEquals("9", vector.getAsString(9));
+        assertEquals("9.0", vector.getAsString(9));
     }
 
     @Test
@@ -119,13 +117,13 @@ public class IntVectorTest {
 
     @Test
     public void testNewBuilder() throws Exception {
-        IntVector.Builder builder = vector.newBuilder();
+        DoubleVector.Builder builder = vector.newBuilder();
 
         builder.add(hasNA, 0);
         builder.add(vector, 0);
         builder.add(vector, 9);
 
-        assertArrayEquals(new int[]{IntVector.NA, 0, 9}, builder.create().asIntArray());
+        assertArrayEquals(new double[]{DoubleVector.NA, 0, 9}, builder.create().asDoubleArray(), 0);
 
     }
 
@@ -133,4 +131,5 @@ public class IntVectorTest {
     public void testNewBuilder1() throws Exception {
 
     }
+
 }

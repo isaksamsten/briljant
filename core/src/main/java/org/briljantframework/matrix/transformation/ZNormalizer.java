@@ -19,14 +19,13 @@
 
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.data.DataFrame;
 import org.briljantframework.data.transform.Transformation;
 import org.briljantframework.data.transform.Transformer;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned by found in Goldin &
@@ -37,10 +36,10 @@ import org.briljantframework.matrix.dataset.MatrixDataFrame;
  * <p>
  * Created by Isak Karlsson on 26/09/14.
  */
-public class ZNormalizer<E extends MatrixDataFrame> implements Transformer<E> {
+public class ZNormalizer implements Transformer {
 
     @Override
-    public Transformation<E> fit(E frame) {
+    public Transformation fit(DataFrame frame) {
         Matrix mean = Matrices.mean(DenseMatrix::new, frame.asMatrix(), Axis.COLUMN);
 
         Matrix x = frame.asMatrix();
@@ -53,10 +52,10 @@ public class ZNormalizer<E extends MatrixDataFrame> implements Transformer<E> {
         }
 
         Matrix sigma = Matrices.std(DenseMatrix::new, xNorm, Axis.COLUMN);
-        return new ZNormalization<>(mean, sigma);
+        return new ZNormalization(mean, sigma);
     }
 
-    private static class ZNormalization<E extends MatrixDataFrame> implements Transformation<E> {
+    private static class ZNormalization implements Transformation {
 
         private final Matrix sigma;
         private final Matrix mean;
@@ -67,19 +66,19 @@ public class ZNormalizer<E extends MatrixDataFrame> implements Transformer<E> {
         }
 
         @Override
-        public E transform(E frame, DataFrame.CopyTo<E> copyTo) {
-            E newFrame = copyTo.newEmptyDataset(frame);
+        public DataFrame transform(DataFrame frame) {
+            //            E newFrame = copyTo.newEmptyDataset(frame);
+            //
+            //            Matrix x = frame.asMatrix();
+            //            Matrix xNorm = newFrame.asMatrix();
+            //
+            //            for (int i = 0; i < xNorm.rows(); i++) {
+            //                for (int j = 0; j < xNorm.columns(); j++) {
+            //                    xNorm.put(i, j, (x.get(i, j) - mean.get(j)) / sigma.get(j));
+            //                }
+            //            }
 
-            Matrix x = frame.asMatrix();
-            Matrix xNorm = newFrame.asMatrix();
-
-            for (int i = 0; i < xNorm.rows(); i++) {
-                for (int j = 0; j < xNorm.columns(); j++) {
-                    xNorm.put(i, j, (x.get(i, j) - mean.get(j)) / sigma.get(j));
-                }
-            }
-
-            return newFrame;
+            return null;
         }
     }
 }

@@ -19,21 +19,14 @@
 
 package org.briljantframework.matrix.analysis;
 
-import org.briljantframework.data.DataFrame;
 import org.briljantframework.data.transform.InvertibleTransformation;
-import org.briljantframework.data.types.NumericType;
-import org.briljantframework.data.types.Types;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.Transpose;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
-import org.briljantframework.matrix.slice.Range;
 
 /**
  * Created by Isak Karlsson on 24/06/14.
  */
-public class PrincipalComponentAnalysis<E extends MatrixDataFrame> implements Analysis, InvertibleTransformation<E> {
+public class PrincipalComponentAnalysis implements Analysis, InvertibleTransformation {
 
     private final Matrix u;
     private int components;
@@ -56,26 +49,26 @@ public class PrincipalComponentAnalysis<E extends MatrixDataFrame> implements An
     }
 
     @Override
-    public E inverseTransform(E frame, DataFrame.CopyTo<E> factory) {
-        Matrix m = frame.asMatrix();
-        E copy = factory.copyDataset(frame);
-
-        Types types = Types.range(NumericType::new, components(m));
-        Matrix original = Matrices.mmul(DenseMatrix::new, m, Transpose.NO,
-                u.getColumns(Range.exclusive(0, components(m))), Transpose.YES);
-
-        copy.setMatrix(types, original);
-        return copy;
+    public DataFrame inverseTransform(DataFrame frame) {
+        //        Matrix m = frame.asMatrix();
+        //        E copy = factory.copyDataset(frame);
+        //        Types types = Types.range(NumericType::new, components(m));
+        //        Matrix original = Matrices.mmul(DenseMatrix::new, m, Transpose.NO,
+        //                u.getColumns(Range.exclusive(0, components(m))), Transpose.YES);
+        //
+        //        copy.setMatrix(types, original);
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public E transform(E frame, DataFrame.CopyTo<E> factory) {
-        Matrix m = frame.asMatrix();
-        E copy = factory.copyDataset(frame);
-        Types types = Types.range(NumericType::new, components(m));
-
-        DenseMatrix pca = Matrices.mmul(DenseMatrix::new, copy, u.getColumns(Range.exclusive(0, components(m))));
-        copy.setMatrix(types, pca);
-        return copy;
+    public DataFrame transform(DataFrame frame) {
+        //        Matrix m = frame.asMatrix();
+        //        E copy = factory.copyDataset(frame);
+        //        Types types = Types.range(NumericType::new, components(m));
+        //
+        //        DenseMatrix pca = Matrices.mmul(DenseMatrix::new, copy, u.getColumns(Range.exclusive(0, components(m))));
+        //        copy.setMatrix(types, pca);
+        //        return copy;
+        throw new UnsupportedOperationException();
     }
 }

@@ -21,16 +21,17 @@ package org.briljantframework.matrix.transformation;
 
 import org.briljantframework.data.transform.Transformation;
 import org.briljantframework.data.transform.Transformer;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.exceptions.ArgumentException;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 
 /**
  * Created by Isak Karlsson on 12/08/14.
  */
-public class MinMaxNormalizer<E extends MatrixDataFrame> implements Transformer<E> {
+public class MinMaxNormalizer implements Transformer {
 
     @Override
-    public Transformation<E> fit(E frame) {
+    public Transformation fit(DataFrame frame) {
         Matrix matrix = frame.asMatrix();
         double[] min = new double[matrix.columns()];
         double[] max = new double[matrix.columns()];
@@ -52,6 +53,45 @@ public class MinMaxNormalizer<E extends MatrixDataFrame> implements Transformer<
             max[j] = maxTemp;
         }
 
-        return new MinMaxNormalization<>(min, max);
+        return new MinMaxNormalization(min, max);
+    }
+
+    /**
+     * Created by Isak Karlsson on 12/08/14.
+     *
+     * @param <E> the type parameter
+     */
+    public static class MinMaxNormalization implements Transformation {
+
+        private final double[] min, max;
+
+        /**
+         * Instantiates a new Min max normalization.
+         *
+         * @param min the min
+         * @param max the max
+         */
+        public MinMaxNormalization(double[] min, double[] max) {
+            if (min.length != max.length) {
+                throw new ArgumentException("min.length != max.length");
+            }
+            this.min = min;
+            this.max = max;
+        }
+
+        @Override
+        public DataFrame transform(DataFrame frame) {
+            //        E newFrame = copyTo.newEmptyDataset(frame);
+            //        Matrix matrix = newFrame.asMatrix();
+            //        for (int j = 0; j < matrix.columns(); j++) {
+            //            double min = this.min[j];
+            //            double max = this.max[j];
+            //            for (int i = 0; i < matrix.rows(); i++) {
+            //                matrix.put(i, j, (frame.get(i, j) - min) / (max - min));
+            //            }
+            //        }
+
+            return null;
+        }
     }
 }

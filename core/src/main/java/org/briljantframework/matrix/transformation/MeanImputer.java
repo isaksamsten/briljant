@@ -19,20 +19,19 @@
 
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.data.DataFrame;
 import org.briljantframework.data.transform.Transformation;
 import org.briljantframework.data.transform.Transformer;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.MismatchException;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 
 /**
  * Created by Isak Karlsson on 12/08/14.
  */
-public class MeanImputer<E extends MatrixDataFrame> implements Transformer<E> {
+public class MeanImputer implements Transformer {
 
     @Override
-    public Transformation<E> fit(E frame) {
+    public Transformation fit(DataFrame frame) {
         Matrix matrix = frame.asMatrix();
         double[] means = new double[matrix.columns()];
 
@@ -49,10 +48,10 @@ public class MeanImputer<E extends MatrixDataFrame> implements Transformer<E> {
             means[j] = mean / rows;
         }
 
-        return new MeanImputation<>(means);
+        return new MeanImputation(means);
     }
 
-    private static class MeanImputation<E extends MatrixDataFrame> implements Transformation<E> {
+    private static class MeanImputation implements Transformation {
 
         private final double[] means;
 
@@ -61,21 +60,20 @@ public class MeanImputer<E extends MatrixDataFrame> implements Transformer<E> {
         }
 
         @Override
-        public E transform(E frame, DataFrame.CopyTo<E> factory) {
+        public DataFrame transform(DataFrame frame) {
             if (frame.columns() != means.length) {
                 throw new MismatchException("transform", "can't impute missing values for " +
-                        "matrix with shape %s using %d values", frame.getShape(), means.length);
+                        "matrix with shape %s using %d values", frame.asMatrix().getShape(), means.length);
             }
-            E copy = factory.copyDataset(frame);
-            Matrix matrix = copy.asMatrix();
-            for (int j = 0; j < matrix.columns(); j++) {
-                for (int i = 0; i < matrix.rows(); i++) {
-                    if (Double.isNaN(frame.get(i, j))) {
-                        matrix.put(i, j, means[j]);
-                    }
-                }
-            }
-            return copy;
+            //            for (int j = 0; j < matrix.columns(); j++) {
+            //                for (int i = 0; i < matrix.rows(); i++) {
+            //                    if (Double.isNaN(frame.get(i, j))) {
+            //                        matrix.put(i, j, means[j]);
+            //                    }
+            //                }
+            //            }
+            //            return copy;
+            return null;
         }
     }
 

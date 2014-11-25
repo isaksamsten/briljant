@@ -19,41 +19,34 @@
 
 package org.briljantframework.data.transform;
 
-import org.briljantframework.data.DataFrame;
+import org.briljantframework.dataframe.DataFrame;
 
 /**
  * Fit a Transformer to a dataset and return a transformation which can be used to transform other datasets using the
  * parameters of the fitted dataset. This can be particularly useful when a transformation must be fitted on a dataset
  * and applied on another. For example, in the case of normalizing training and testing data.
  * <p>
- * <pre>
- *  Transformation<? extends Dataset> transformation = new MinMaxTransformer().fit(train);
- *  Dataset normalizedTrain = transformation.transform(train);
- *  Dataset normalizedTest = transformation.transform(test);
- *  /// fit classifier etc.
- * </pre>
- * <p>
  * <p>
  * Created by Isak Karlsson on 12/08/14.
  */
 @FunctionalInterface
-public interface Transformer<D extends DataFrame<?>> {
+public interface Transformer {
 
     /**
-     * Fit a transformation to the parameters in <code>dataset</code>
+     * Fit a transformation to data frame
      *
-     * @param container the dataset to use in the fit procedure
+     * @param dataFrame the dataset to use in the fit procedure
      * @return the transformation
      */
-    Transformation<D> fit(D container);
+    Transformation fit(DataFrame dataFrame);
 
     /**
-     * Fit and transform the <code>dataset</code> in a single operation
+     * Fit and transform the data frame in a single operation
      *
-     * @param container the <code>dataset</code> to be transformed
-     * @return the transformation of <code>dataset</code>
+     * @param dataFrame the data frame
+     * @return the transformed data frame
      */
-    default D fitTransform(D container, DataFrame.CopyTo<D> copyTo) {
-        return fit(container).transform(container, copyTo);
+    default DataFrame fitTransform(DataFrame dataFrame) {
+        return fit(dataFrame).transform(dataFrame);
     }
 }
