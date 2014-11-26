@@ -3,16 +3,13 @@ package org.briljantframework.dataframe;
 import com.google.common.collect.ImmutableTable;
 import org.briljantframework.Utils;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Complex;
-import org.briljantframework.vector.Vector;
-
-import java.util.Collection;
+import org.briljantframework.vector.*;
 
 /**
  * Created by Isak Karlsson on 21/11/14.
  */
-public interface DataFrame {
+public interface DataFrame extends Iterable<Sequence> {
+
     /**
      * To string.
      *
@@ -37,15 +34,15 @@ public interface DataFrame {
             b.put(0, i + 1, dataFrame.getColumnName(i));
         }
 
-        b.put(1, 0, " ");
-        for (int i = 0; i < dataFrame.columns(); i++) {
-            b.put(1, i + 1, dataFrame.getColumn(i).getType());
-        }
+        //        b.put(1, 0, " ");
+        //        for (int i = 0; i < dataFrame.columns(); i++) {
+        //            b.put(1, i + 1, dataFrame.getColumn(i).getType());
+        //        }
 
         for (int i = 0; i < dataFrame.rows() && i < max; i++) {
-            b.put(i + 2, 0, String.format("[%d,]   ", i));
+            b.put(i + 1, 0, String.format("[%d,]   ", i));
             for (int j = 0; j < dataFrame.columns(); j++) {
-                b.put(i + 2, j + 1, dataFrame.getColumn(j).toString(i));
+                b.put(i + 1, j + 1, dataFrame.getColumn(j).toString(i));
             }
         }
 
@@ -109,12 +106,20 @@ public interface DataFrame {
     boolean isNA(int row, int column);
 
     /**
-     * Get vector at {@code column}
+     * Get vector at {@code index}
      *
      * @param index the index
      * @return the vector
      */
     Vector getColumn(int index);
+
+    /**
+     * Get the type of vector at {@code index}
+     *
+     * @param index the index
+     * @return the type
+     */
+    Type getColumnType(int index);
 
     /**
      * Get the name for the column vector at {@code index}.
@@ -123,6 +128,16 @@ public interface DataFrame {
      * @return the name
      */
     String getColumnName(int index);
+
+    /**
+     * Get the row at {@code index}. Since a {@code DataFrame} can have columns of
+     * multiple types, the returned type is a Sequence i.e. a heterogeneous vector
+     * of values.
+     *
+     * @param index the index
+     * @return the row sequence
+     */
+    Sequence getRow(int index);
 
     /**
      * Returns the number of rows in this data frame
@@ -137,9 +152,6 @@ public interface DataFrame {
      * @return the number of columns
      */
     int columns();
-
-
-    DataFrame newDataFrame(Collection<? extends Vector> vectors);
 
     /**
      * Creates a new builder with the same column types as this data frame

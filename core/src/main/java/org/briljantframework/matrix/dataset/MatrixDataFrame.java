@@ -270,8 +270,8 @@ public class MatrixDataFrame implements MatrixLike, DataFrame<RowVector> {
     }
 
     @Override
-    public double[] toArray() {
-        return matrix.toArray();
+    public double[] asDoubleArray() {
+        return matrix.asDoubleArray();
     }
 
     @Override

@@ -102,7 +102,7 @@ public class Series implements MatrixLike, NumericColumn, Column.CopyTo<Series> 
 
     @Override
     public String toString() {
-        return String.format("Series(%s, types=%s, shape=%s)", Arrays.toString(vector.toArray()),
+        return String.format("Series(%s, types=%s, shape=%s)", Arrays.toString(vector.asDoubleArray()),
                 getType().getName(), getShape());
     }
 
@@ -126,15 +126,6 @@ public class Series implements MatrixLike, NumericColumn, Column.CopyTo<Series> 
         return new Series(vector.copy(), type);
     }
 
-    /**
-     * Transpose matrix like.
-     *
-     * @return the matrix like
-     */
-    public MatrixLike transpose() {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public int rows() {
         return vector.rows();
@@ -156,8 +147,17 @@ public class Series implements MatrixLike, NumericColumn, Column.CopyTo<Series> 
     }
 
     @Override
-    public double[] toArray() {
-        return vector.toArray();
+    public double[] asDoubleArray() {
+        return vector.asDoubleArray();
+    }
+
+    /**
+     * Transpose matrix like.
+     *
+     * @return the matrix like
+     */
+    public MatrixLike transpose() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

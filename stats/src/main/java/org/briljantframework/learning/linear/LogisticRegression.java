@@ -166,7 +166,7 @@ public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame
             for (int i : indicies) {
                 RowVector row = x.getRow(i);
                 double update = learningRate * (y.get(i) - Matrices.sigmoid(row, theta));
-                Matrices.add(row, update, theta, 1, theta.toArray());
+                Matrices.add(row, update, theta, 1, theta.asDoubleArray());
                 theta.muli(1.0 - (learningRate * regularization) / x.rows());
             }
         }

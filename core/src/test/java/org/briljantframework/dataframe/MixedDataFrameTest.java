@@ -1,8 +1,13 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.data.transform.RemoveIncompleteCases;
+import org.briljantframework.data.transform.RemoveIncompleteColumns;
 import org.briljantframework.vector.*;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,12 +42,17 @@ public class MixedDataFrameTest {
 
         System.out.println(builder.create());
 
+        System.out.println(new MixedDataFrame(
+                new IntVector(1, 2, 3, 4),
+                new StringVector("a", "b", "c", "d")
+        ));
+
 
         DataFrame.Builder bu = new MixedDataFrame.Builder(
                 StringVector.newBuilderWithInitialValues("one", "two", "three", "four", "four"),
-                BinaryVector.newBuilderWithInitialValues(Binary.TRUE, Binary.FALSE, Binary.NA, 1),
+                BinaryVector.newBuilderWithInitialValues(Binary.TRUE, Binary.FALSE, Binary.TRUE, 1),
                 IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
-                ComplexVector.newBuilderWithInitialValues(Complex.I, new Complex(2, 3), null, null, Complex.ZERO, 0.0),
+                ComplexVector.newBuilderWithInitialValues(Complex.I, new Complex(2, 3), new Complex(2, 2), null, Complex.ZERO, 0.0),
                 DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3, 4, 4, 5, 6));
 
         for (int i = 10; i < 20; i++) {
@@ -61,7 +71,7 @@ public class MixedDataFrameTest {
 
         DataFrame.Builder simple = new MixedDataFrame.Builder(
                 StringVector.newBuilderWithInitialValues("a", "b", "c"),
-                IntVector.newBuilderWithInitialValues(1, 2, 3, 4)
+                IntVector.newBuilderWithInitialValues(IntStream.range(0, 1000).toArray())
         );
         DataFrame s = simple.create();
         System.out.println(s);
@@ -70,5 +80,40 @@ public class MixedDataFrameTest {
 
 
         assertEquals(1, 1, 1);
+    }
+
+    @Test
+    public void testMapConstructor() throws Exception {
+        Map<String, Vector> vectors = new HashMap<>();
+        vectors.put("engines", StringVector.newBuilderWithInitialValues("hybrid", "electric", "electric", "steam").create());
+        vectors.put("bhp", IntVector.newBuilderWithInitialValues(150, 130, 75).addNA().create());
+        vectors.put("brand", StringVector.newBuilderWithInitialValues("toyota", "tesla", "tesla", "volvo").create());
+
+        DataFrame frame = new MixedDataFrame(vectors);
+        System.out.println(new RemoveIncompleteColumns().fitTransform(frame));
+        System.out.println(new RemoveIncompleteCases().fitTransform(frame));
+
+        //        for (Sequence sequence : frame) {
+        //            System.out.println(StreamSupport.stream(sequence.spliterator(), false).map(Object::toString).collect(Collectors.joining(",")));
+        //        }
+
+        System.out.println(frame);
+        DataFrame c2 = new MixedDataFrame(frame);
+
+        System.out.println(c2.asMatrix());
+    }
+
+    @Test
+    public void testRemoveColumnUsingBuilder() throws Exception {
+        StringVector a = new StringVector.Builder()
+                .add("a").add("b").add("c").addNA().create();
+        DoubleVector b = new DoubleVector.Builder()
+                .add(1).add(1).add(2).add(100.23).create();
+
+        DataFrame frame = new MixedDataFrame(a, b);
+        frame = new RemoveIncompleteColumns().fitTransform(frame);
+        System.out.println(frame);
+        assertEquals("The second column should be removed", 1, frame.columns());
+        assertEquals("The column names should be retained", "1", frame.getColumnName(0));
     }
 }

@@ -820,9 +820,9 @@ public class Matrices {
 
         cblas_dgemm(CblasColMajor, transA.getCblasTranspose(), transB.getCblasTranspose(),
                 //M   N  K
-                am, bn, bm, alpha, a.toArray(),
+                am, bn, bm, alpha, a.asDoubleArray(),
                 // LDA                 LDB                        LDC
-                a.rows(), b.toArray(), b.rows(), beta, out, am);
+                a.rows(), b.asDoubleArray(), b.rows(), beta, out, am);
     }
 
     /**
@@ -958,9 +958,9 @@ public class Matrices {
 
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
                 // M            N         K
-                a.rows(), b.columns(), b.rows(), alpha, a.toArray(),
+                a.rows(), b.columns(), b.rows(), alpha, a.asDoubleArray(),
                 // LDA                  LDB                       LDC
-                a.rows(), b.toArray(), b.rows(), beta, out, a.rows());
+                a.rows(), b.asDoubleArray(), b.rows(), beta, out, a.rows());
     }
 
     /**
@@ -970,7 +970,7 @@ public class Matrices {
      * @param out out
      */
     public static void abs(MatrixLike in, MatrixLike out) {
-        Javablas.abs(in.toArray(), out.toArray());
+        Javablas.abs(in.asDoubleArray(), out.asDoubleArray());
     }
 
     /**
@@ -1037,7 +1037,7 @@ public class Matrices {
      */
     public static <T extends MatrixLike> T mul(Matrix.New<T> f, MatrixLike in, double scalar) {
         double[] outArray = in.getShape().getArrayOfShape();
-        Javablas.mul(in.toArray(), scalar, outArray);
+        Javablas.mul(in.asDoubleArray(), scalar, outArray);
         return f.newMatrix(in.getShape(), outArray);
     }
 
@@ -1067,7 +1067,7 @@ public class Matrices {
         }
         Shape shape = Shape.of(a.rows(), b.columns());
         double[] outArray = shape.getArrayOfShape();
-        Javablas.mul(a.toArray(), 1.0, b.toArray(), 1.0, outArray);
+        Javablas.mul(a.asDoubleArray(), 1.0, b.asDoubleArray(), 1.0, outArray);
         return factory.newMatrix(shape, outArray);
     }
 
@@ -1097,7 +1097,7 @@ public class Matrices {
         }
         Shape shape = Shape.of(a.rows(), b.columns());
         double[] outArray = shape.getArrayOfShape();
-        Javablas.add(a.toArray(), 1.0, b.toArray(), 1.0, outArray);
+        Javablas.add(a.asDoubleArray(), 1.0, b.asDoubleArray(), 1.0, outArray);
         return factory.newMatrix(shape, outArray);
     }
 
@@ -1123,7 +1123,7 @@ public class Matrices {
      */
     public static <T extends MatrixLike> T add(Matrix.New<T> factory, MatrixLike a, double b) {
         double[] out = a.getShape().getArrayOfShape();
-        Javablas.add(a.toArray(), b, out);
+        Javablas.add(a.asDoubleArray(), b, out);
         return factory.newMatrix(a.getShape(), out);
     }
 
@@ -1149,7 +1149,7 @@ public class Matrices {
      */
     public static <T extends MatrixLike> T sub(Matrix.New<T> factory, MatrixLike a, double b) {
         double[] out = a.getShape().getArrayOfShape();
-        Javablas.sub(a.toArray(), b, out);
+        Javablas.sub(a.asDoubleArray(), b, out);
         return factory.newMatrix(a.getShape(), out);
     }
 
@@ -1175,7 +1175,7 @@ public class Matrices {
      */
     public static <T extends MatrixLike> T sub(Matrix.New<T> factory, double b, MatrixLike a) {
         double[] out = a.getShape().getArrayOfShape();
-        Javablas.sub(b, a.toArray(), out);
+        Javablas.sub(b, a.asDoubleArray(), out);
         return factory.newMatrix(a.getShape(), out);
     }
 
@@ -1205,7 +1205,7 @@ public class Matrices {
             throw new NonConformantException(denominator, numerator);
         }
         double[] out = numerator.getShape().getArrayOfShape(); //denominator.rows(), numerator.columns());
-        Javablas.div(denominator.toArray(), 1.0, numerator.toArray(), 1.0, out);
+        Javablas.div(denominator.asDoubleArray(), 1.0, numerator.asDoubleArray(), 1.0, out);
         return factory.newMatrix(numerator.getShape(), out);
     }
 
@@ -1231,7 +1231,7 @@ public class Matrices {
      */
     public static <T extends MatrixLike> T div(Matrix.New<T> factory, double numerator, MatrixLike denominator) {
         double[] out = denominator.getShape().getArrayOfShape(); //denominator.rows(), numerator.columns());
-        Javablas.div(numerator, denominator.toArray(), out);
+        Javablas.div(numerator, denominator.asDoubleArray(), out);
         return factory.newMatrix(denominator.getShape(), out);
     }
 
@@ -1260,7 +1260,7 @@ public class Matrices {
             throw new ArithmeticException("division by zero");
         }
         double[] out = numerator.getShape().getArrayOfShape();
-        Javablas.div(numerator.toArray(), denominator, out);
+        Javablas.div(numerator.asDoubleArray(), denominator, out);
         return factory.newMatrix(numerator.getShape(), out);
     }
 
@@ -1339,7 +1339,7 @@ public class Matrices {
     public static <Out extends MatrixLike> Out sort(Matrix.Copy<Out> f, MatrixLike in,
                                                     Comparator<Double> comparator) {
         Out newTensor = f.copyMatrix(in);
-        List<Double> doubles = Doubles.asList(newTensor.toArray());
+        List<Double> doubles = Doubles.asList(newTensor.asDoubleArray());
         Collections.sort(doubles, comparator);
         return newTensor;
     }
@@ -1354,7 +1354,7 @@ public class Matrices {
      */
     public static <Out extends MatrixLike> Out sort(Matrix.Copy<Out> f, MatrixLike in) {
         Out newTensor = f.copyMatrix(in);
-        Arrays.sort(newTensor.toArray());
+        Arrays.sort(newTensor.asDoubleArray());
         return newTensor;
     }
 
@@ -1366,7 +1366,7 @@ public class Matrices {
      * @return the in
      */
     public static <In extends MatrixLike> In sort(In in) {
-        Arrays.sort(in.toArray());
+        Arrays.sort(in.asDoubleArray());
         return in;
     }
 
@@ -1406,7 +1406,7 @@ public class Matrices {
      * @return the in
      */
     public static <In extends MatrixLike> In sort(In in, Comparator<Double> comparator) {
-        List<Double> doubles = Doubles.asList(in.toArray());
+        List<Double> doubles = Doubles.asList(in.asDoubleArray());
         Collections.sort(doubles, comparator);
         return in;
     }
@@ -1594,7 +1594,7 @@ public class Matrices {
      * @return the squared norm || x ||_2
      */
     public static double norm2(MatrixLike x) {
-        double[] array = x.toArray();
+        double[] array = x.asDoubleArray();
         return cblas_dnrm2(array.length, array, 1);
     }
 
@@ -1605,7 +1605,7 @@ public class Matrices {
      * @return the absolute sum
      */
     public static double dasum(MatrixLike a) {
-        double[] values = a.toArray();
+        double[] values = a.asDoubleArray();
         return cblas_dasum(values.length, values, 1);
     }
 

@@ -35,7 +35,7 @@ public class PseudoInverseTransformerTest {
                 0.06410256410256417, 0.051282051282051266, -0.0085470085470086, -0.10256410256410259
         };
 
-        assertArrayEquals(expected, inverse.toArray(), 0.001);
+        assertArrayEquals(expected, inverse.asDoubleArray(), 0.001);
 
         Matrix a = Matrices.parseMatrix(DenseMatrix::new, "1,2,3; 1,2,3; 1,2,3; 1,2,3");
         Diagonal x = Diagonal.of(3, 3, 1, 1, 1);

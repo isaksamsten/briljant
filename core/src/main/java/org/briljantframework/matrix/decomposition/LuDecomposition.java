@@ -20,8 +20,8 @@
 package org.briljantframework.matrix.decomposition;
 
 import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.natives.BlasException;
 
 import java.util.Optional;
@@ -73,7 +73,7 @@ public class LuDecomposition implements Decomposition {
         }
         Matrix inv = lu.copy();
         int n = inv.rows(), error;
-        if ((error = LAPACKE_dgetri(LAPACK_COL_MAJOR, n, inv.toArray(), n, pivots)) != 0) {
+        if ((error = LAPACKE_dgetri(LAPACK_COL_MAJOR, n, inv.asDoubleArray(), n, pivots)) != 0) {
             throw new BlasException("LAPACKE_dgetri", error, "Inverse failed.");
         }
         return inv;

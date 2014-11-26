@@ -3,14 +3,17 @@ package org.briljantframework.vector;
 import java.io.Serializable;
 
 /**
- * A vector is a homogeneous list of values which supports missing values (i.e. NA).
+ * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents cannot change)
+ * array of values supporting missing entries (i.e. NA). Since NA values are implemented differently depending value
+ * type, checking for NA-values are done via the {@link #isNA(int)} method. For the default types, the
+ * {@link Is#NA} is available.
  * <p>
  * Created by Isak Karlsson on 20/11/14.
  */
 public interface Vector extends Serializable {
 
     /**
-     * Returns value as {@code double} if applicable. Otherwise returns {@link org.briljantframework.vector.DoubleVector#NA}.
+     * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
      *
      * @param index the index
      * @return a double
@@ -18,7 +21,7 @@ public interface Vector extends Serializable {
     double getAsDouble(int index);
 
     /**
-     * Returns value as {@code int} if applicable. Otherwise returns {@link org.briljantframework.vector.IntVector#NA}
+     * Returns value as {@code int} if applicable. Otherwise returns {@link IntVector#NA}
      *
      * @param index the index
      * @return an int
@@ -26,15 +29,15 @@ public interface Vector extends Serializable {
     int getAsInt(int index);
 
     /**
-     * Returns value as {@link org.briljantframework.vector.Binary}.
+     * Returns value as {@link Binary}.
      *
      * @param index the index
-     * @return a {@link org.briljantframework.vector.Binary}
+     * @return a {@link Binary}
      */
     Binary getAsBinary(int index);
 
     /**
-     * Returns value as {@link java.lang.String}, {@code null} is used to denot missing values.
+     * Returns value as {@link String}, {@code null} is used to denote missing values.
      *
      * @param index the index
      * @return a {@code String} or {@code null}
@@ -42,19 +45,20 @@ public interface Vector extends Serializable {
     String getAsString(int index);
 
     /**
-     * Return the string representation of the value at {@code index}
+     * Returns value as {@link org.briljantframework.vector.Vector}. {@link org.briljantframework.vector.Undefined}
+     * denotes missing values.
      *
      * @param index the index
-     * @return the string representation. Returns "NA" if value is missing.
+     * @return a {@code Vector}
      */
-    String toString(int index);
+    Vector getAsVector(int index);
 
     /**
-     * Returns value as {@link org.briljantframework.vector.Complex} or
-     * {@link org.briljantframework.vector.ComplexVector#NA} if missing.
+     * Returns value as {@link Complex} or
+     * {@link ComplexVector#NA} if missing.
      *
      * @param index the index
-     * @return a {@link org.briljantframework.vector.Complex}
+     * @return a {@link Complex}
      */
     default Complex getAsComplex(int index) {
         double value = getAsDouble(index);
@@ -63,6 +67,14 @@ public interface Vector extends Serializable {
         }
         return new Complex(value, 0);
     }
+
+    /**
+     * Return the string representation of the value at {@code index}
+     *
+     * @param index the index
+     * @return the string representation. Returns "NA" if value is missing.
+     */
+    String toString(int index);
 
     /**
      * Returns {@code true} if value at {@code index} is considered to be true.
@@ -105,20 +117,6 @@ public interface Vector extends Serializable {
         }
         return false;
     }
-
-    /**
-     * Follows the conventions from {@link java.lang.Comparable#compareTo(Object)}.
-     * <p>
-     * Returns value {@code <} 0 if value at index {@code a} is less than {@code b}.
-     * value {@code > 0} if value at index {@code b} is larger than {@code a} and 0
-     * if they are equal.
-     *
-     * @param a the index a
-     * @param b the index b
-     * @return comparing int
-     * @see java.lang.Comparable#compareTo(Object)
-     */
-    int compare(int a, int b);
 
     /**
      * Returns the size of the vector
@@ -219,6 +217,20 @@ public interface Vector extends Serializable {
     }
 
     /**
+     * Follows the conventions from {@link Comparable#compareTo(Object)}.
+     * <p>
+     * Returns value {@code <} 0 if value at index {@code a} is less than {@code b}.
+     * value {@code > 0} if value at index {@code b} is larger than {@code a} and 0
+     * if they are equal.
+     *
+     * @param a the index a
+     * @param b the index b
+     * @return comparing int
+     * @see Comparable#compareTo(Object)
+     */
+    int compare(int a, int b);
+
+    /**
      * Builds new vectors
      */
     public static interface Builder {
@@ -241,6 +253,7 @@ public interface Vector extends Serializable {
          * Same as {@code addNA(size())}
          *
          * @return a modified builder
+         * @see #setNA(int)
          */
         Builder addNA();
 
@@ -319,68 +332,4 @@ public interface Vector extends Serializable {
     }
 
 
-    /**
-     * Provides information of a particular vectors type. The common choice is that referential equality is used
-     * when comparing types.
-     */
-    public static interface Type {
-
-        /**
-         * Creates a new builder able to build vectors of this type
-         *
-         * @return a new builder
-         */
-        Builder newBuilder();
-
-        /**
-         * Creates a new builder able to build vectors of this type
-         *
-         * @param size initial size (the vector is padded with NA)
-         * @return a new builder
-         */
-        Builder newBuilder(int size);
-
-        /**
-         * Copy (and perhaps convert) {@code vector} to this type
-         *
-         * @param vector the vector to copy
-         * @return a new vector
-         */
-        default Vector copyFrom(Vector vector) {
-            return newBuilder(vector.size()).addAll(vector).create();
-        }
-
-        /**
-         * Get the underlying class used to represent values of this vector type
-         *
-         * @return the class
-         */
-        Class<?> getDataClass();
-
-        /**
-         * Compare value at position {@code a} from {@code va} to value at
-         * position {@code b} from {@code va}.
-         *
-         * @param a  the index in va
-         * @param va the vector
-         * @param b  the index in ba
-         * @param ba the vector
-         * @return the comparison
-         */
-        int compare(int a, Vector va, int b, Vector ba);
-
-        /**
-         * Check if value at position {@code a} from {@code va} and value at
-         * position {@code b} from {@code va} are equal.
-         *
-         * @param a  the index in va
-         * @param va the vector
-         * @param b  the index in ba
-         * @param ba the vector
-         * @return true if equal false otherwise
-         */
-        default boolean equals(int a, Vector va, int b, Vector ba) {
-            return compare(a, va, b, ba) == 0;
-        }
-    }
 }

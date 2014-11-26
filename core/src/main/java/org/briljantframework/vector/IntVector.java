@@ -17,16 +17,6 @@ public class IntVector implements Vector, Iterable<Integer> {
      * The constant NA.
      */
     public static final int NA = Integer.MIN_VALUE;
-    private final int[] values;
-
-    public IntVector(int... values) {
-        this.values = Arrays.copyOf(values, values.length);
-    }
-
-    public IntVector(int[] values, int size) {
-        this.values = Arrays.copyOf(values, size);
-    }
-
     public static final Type TYPE = new Type() {
         @Override
         public IntVector.Builder newBuilder() {
@@ -44,6 +34,11 @@ public class IntVector implements Vector, Iterable<Integer> {
         }
 
         @Override
+        public boolean isNA(Object value) {
+            return value == null || (value instanceof Integer && (int) value == NA);
+        }
+
+        @Override
         public int compare(int a, Vector va, int b, Vector ba) {
             return !va.isNA(a) && !ba.isNA(b) ? va.getAsInt(a) - ba.getAsInt(b) : 0;
         }
@@ -53,11 +48,33 @@ public class IntVector implements Vector, Iterable<Integer> {
             return "int";
         }
     };
+    private final int[] values;
 
+    public IntVector(int... values) {
+        this.values = Arrays.copyOf(values, values.length);
+    }
+
+    public IntVector(int[] values, int size) {
+        this.values = Arrays.copyOf(values, size);
+    }
+
+    public static Vector.Builder newBuilderWithInitialValues(int... values) {
+        Builder builder = new Builder(0, values.length);
+        for (int value : values) {
+            builder.add(value);
+        }
+        return builder;
+    }
 
     @Override
     public double getAsDouble(int index) {
-        return getAsInt(index);
+        int value = getAsInt(index);
+        return value == NA ? DoubleVector.NA : value;
+    }
+
+    @Override
+    public int getAsInt(int index) {
+        return values[index];
     }
 
     @Override
@@ -72,6 +89,18 @@ public class IntVector implements Vector, Iterable<Integer> {
     }
 
     @Override
+    public Vector getAsVector(int index) {
+        int value = getAsInt(index);
+        return Is.NA(value) ? Undefined.INSTANCE : new IntVector(value);
+    }
+
+    @Override
+    public String toString(int index) {
+        int value = getAsInt(index);
+        return value == NA ? "NA" : String.valueOf(value);
+    }
+
+    @Override
     public boolean isTrue(int index) {
         return getAsInt(index) == 1;
     }
@@ -79,41 +108,6 @@ public class IntVector implements Vector, Iterable<Integer> {
     @Override
     public boolean isNA(int index) {
         return getAsInt(index) == NA;
-    }
-
-    public int[] asIntArray() {
-        return values;
-    }
-
-    public int[] toIntArray() {
-        return values.clone();
-    }
-
-    @Override
-    public Iterator<Integer> iterator() {
-        return new UnmodifiableIterator<Integer>() {
-            private int current = 0;
-
-            @Override
-            public boolean hasNext() {
-                return current < size();
-            }
-
-            @Override
-            public Integer next() {
-                return getAsInt(current++);
-            }
-        };
-    }
-
-    @Override
-    public int getAsInt(int index) {
-        return values[index];
-    }
-
-    @Override
-    public int compare(int a, int b) {
-        return getAsInt(a) - getAsInt(b);
     }
 
     @Override
@@ -141,23 +135,39 @@ public class IntVector implements Vector, Iterable<Integer> {
         return new Builder(size);
     }
 
+    public int[] toIntArray() {
+        return values.clone();
+    }
+
+    public int[] asIntArray() {
+        return values;
+    }
+
     @Override
-    public String toString(int index) {
-        int value = getAsInt(index);
-        return value == NA ? "NA" : String.valueOf(value);
+    public int compare(int a, int b) {
+        return getAsInt(a) - getAsInt(b);
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+        return new UnmodifiableIterator<Integer>() {
+            private int current = 0;
+
+            @Override
+            public boolean hasNext() {
+                return current < size();
+            }
+
+            @Override
+            public Integer next() {
+                return getAsInt(current++);
+            }
+        };
     }
 
     @Override
     public String toString() {
         return IntStream.of(values).mapToObj(x -> x == NA ? "NA" : String.valueOf(x)).collect(Collectors.joining(","));
-    }
-
-    public static Vector.Builder newBuilderWithInitialValues(int... values) {
-        Builder builder = new Builder(0, values.length);
-        for (int value : values) {
-            builder.add(value);
-        }
-        return builder;
     }
 
     public static final class Builder implements Vector.Builder {
@@ -234,6 +244,18 @@ public class IntVector implements Vector, Iterable<Integer> {
             return this;
         }
 
+        @Override
+        public int size() {
+            return buffer.size();
+        }
+
+        @Override
+        public IntVector create() {
+            IntVector vector = new IntVector(buffer.buffer, buffer.size());
+            buffer = null;
+            return vector;
+        }
+
         public Builder add(int value) {
             return set(size(), value);
         }
@@ -252,17 +274,7 @@ public class IntVector implements Vector, Iterable<Integer> {
                 buffer.elementsCount++;
             }
         }
-
-        @Override
-        public int size() {
-            return buffer.size();
-        }
-
-        @Override
-        public IntVector create() {
-            IntVector vector = new IntVector(buffer.buffer, buffer.size());
-            buffer = null;
-            return vector;
-        }
     }
+
+
 }

@@ -34,11 +34,9 @@ import java.util.function.DoubleUnaryOperator;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * Note: writing and reading is not thread-safe
- * <p>
  * Created by Isak Karlsson on 13/06/14.
  */
-public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMixin<DenseMatrix> {
+public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
 
     /**
      * Instantiates a new Dense matrix.
@@ -110,7 +108,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
         if (!hasCompatibleShape(tensor.getShape())) {
             throw new MismatchException("DenseMatrix", "cant fit tensor");
         }
-        System.arraycopy(tensor.toArray(), 0, values, 0, this.cols * this.rows);
+        System.arraycopy(tensor.asDoubleArray(), 0, values, 0, this.cols * this.rows);
     }
 
     /**
@@ -124,35 +122,6 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
             for (int j = 0; j < values[i].length; j++) {
                 put(i, j, values[i][j]);
             }
-        }
-    }
-
-    @Override
-    public void put(int i, int j, double value) {
-        values[index(i, j)] = value;
-    }
-
-    @Override
-    public double get(int i, int j) {
-        return values[index(i, j)];
-    }
-
-    /**
-     * Index int.
-     *
-     * @param row the row
-     * @param col the col
-     * @return the int
-     */
-    protected int index(int row, int col) {
-        if (col >= this.columns() || col < 0) {
-            throw new IllegalArgumentException(String.format("index out of bounds; value %d out of bound %d", col,
-                    this.cols));
-        } else if (row >= this.rows() || row < 0) {
-            throw new IllegalArgumentException(String.format("index out of bounds; value %d out of bound %d", row,
-                    this.rows));
-        } else {
-            return col * this.rows + row;
         }
     }
 
@@ -287,8 +256,30 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
     }
 
     @Override
-    public DenseMatrix newMatrix(Shape tensor, double[] values) {
-        return new DenseMatrix(tensor, values);
+    public void put(int i, int j, double value) {
+        values[Matrix.columnMajorIndex(i, j, rows(), columns())] = value;
+    }
+
+    @Override
+    public double get(int i, int j) {
+        return values[Matrix.columnMajorIndex(i, j, rows(), columns())];
+    }
+
+    @Override
+    public void put(int index, double value) {
+        checkArgument(index >= 0 && index < values.length);
+        values[index] = value;
+    }
+
+    @Override
+    public int size() {
+        return rows() * columns();
+    }
+
+    @Override
+    public double get(int index) {
+        checkArgument(index >= 0 && index < values.length);
+        return values[index];
     }
 
     /**
@@ -317,7 +308,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
      */
     public Matrix map(DoubleUnaryOperator operator) {
         DenseMatrix n = new DenseMatrix(this.rows(), this.columns());
-        double[] values = n.toArray(), array = toArray();
+        double[] values = n.asDoubleArray(), array = asDoubleArray();
         for (int i = 0; i < array.length; i++) {
             values[i] = operator.applyAsDouble(array[i]);
         }
@@ -473,20 +464,20 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
      */
     @Override
     public DenseMatrix mmuld(Diagonal diagonal) {
-//        if (diagonal.rows() != this.columns()) {
-//            throw new NonConformantException(this, diagonal);
-//        }
-//        DenseMatrix y = new DenseMatrix(this.rows(), diagonal.columns());
-//
-//        int rows = y.rows();
-//        for (int column = 0; column < this.columns(); column++) {
-//            for (int row = 0; row < rows; row++) {
-//                double xv = this.get(row, column);
-//                double dv = diagonal.get(column);
-//                y.put(row, column, xv * dv);
-//            }
-//        }
-//        return y;
+        //        if (diagonal.rows() != this.columns()) {
+        //            throw new NonConformantException(this, diagonal);
+        //        }
+        //        DenseMatrix y = new DenseMatrix(this.rows(), diagonal.columns());
+        //
+        //        int rows = y.rows();
+        //        for (int column = 0; column < this.columns(); column++) {
+        //            for (int row = 0; row < rows; row++) {
+        //                double xv = this.get(row, column);
+        //                double dv = diagonal.get(column);
+        //                y.put(row, column, xv * dv);
+        //            }
+        //        }
+        //        return y;
         return Matrices.mdmul(DenseMatrix::new, this, diagonal);
     }
 
@@ -540,7 +531,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
     @Override
     public DenseMatrix add(double scalar) {
         DenseMatrix tmp = new DenseMatrix(this.rows(), this.columns());
-        Javablas.add(values, scalar, tmp.toArray());
+        Javablas.add(values, scalar, tmp.asDoubleArray());
         return tmp;
     }
 
@@ -561,27 +552,10 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
         return sub(1, other, 1);
     }
 
-    /**
-     * Subtract dense matrix.
-     *
-     * @param alpha the alpha
-     * @param other the other
-     * @param beta  the beta
-     * @return dense matrix
-     */
-    public DenseMatrix sub(double alpha, MatrixLike other, double beta) {
-        if (!hasEqualShape(other)) {
-            throw new NonConformantException(this, other);
-        }
-        DenseMatrix tmp = new DenseMatrix(this.rows(), this.columns());
-        Javablas.sub(values, alpha, other.toArray(), beta, tmp.toArray());
-        return tmp;
-    }
-
     @Override
     public DenseMatrix sub(double scalar) {
         DenseMatrix tmp = new DenseMatrix(this.rows(), this.columns());
-        Javablas.sub(values, scalar, tmp.toArray());
+        Javablas.sub(values, scalar, tmp.asDoubleArray());
         return tmp;
     }
 
@@ -599,33 +573,33 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
     @Override
     public Matrix rsub(MatrixLike other) {
         DenseMatrix n = new DenseMatrix(getShape());
-        Javablas.sub(other.toArray(), 1, toArray(), 1, n.toArray());
+        Javablas.sub(other.asDoubleArray(), 1, asDoubleArray(), 1, n.asDoubleArray());
         return n;
     }
 
     @Override
     public Matrix rsub(double scalar) {
         DenseMatrix n = new DenseMatrix(rows(), columns());
-        Javablas.sub(scalar, toArray(), n.toArray());
+        Javablas.sub(scalar, asDoubleArray(), n.asDoubleArray());
         return n;
     }
 
     @Override
     public Matrix rsubi(MatrixLike other) {
-        Javablas.sub(other.toArray(), 1, toArray(), 1, toArray());
+        Javablas.sub(other.asDoubleArray(), 1, asDoubleArray(), 1, asDoubleArray());
         return this;
     }
 
     @Override
     public Matrix rsubi(double scalar) {
-        Javablas.sub(scalar, toArray(), toArray());
+        Javablas.sub(scalar, asDoubleArray(), asDoubleArray());
         return this;
     }
 
     @Override
     public DenseMatrix div(MatrixLike other) {
         double[] result = new double[rows * cols];
-        Javablas.div(values, 1.0, other.toArray(), 1.0, result);
+        Javablas.div(values, 1.0, other.asDoubleArray(), 1.0, result);
         return new DenseMatrix(this.rows(), this.columns(), result);
     }
 
@@ -642,7 +616,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
 
     @Override
     public DenseMatrix divi(MatrixLike other) {
-        Javablas.div(values, 1, other.toArray(), 1, values);
+        Javablas.div(values, 1, other.asDoubleArray(), 1, values);
         return this;
     }
 
@@ -655,13 +629,13 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
     @Override
     public DenseMatrix rdiv(MatrixLike other) {
         double[] result = new double[rows * cols];
-        Javablas.div(other.toArray(), 1.0, toArray(), 1.0, result);
+        Javablas.div(other.asDoubleArray(), 1.0, asDoubleArray(), 1.0, result);
         return new DenseMatrix(this.rows(), this.columns(), result);
     }
 
     @Override
     public DenseMatrix rdivi(MatrixLike other) {
-        Javablas.div(other.toArray(), 1.0, toArray(), 1.0, toArray());
+        Javablas.div(other.asDoubleArray(), 1.0, asDoubleArray(), 1.0, asDoubleArray());
         return this;
     }
 
@@ -687,6 +661,23 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
     }
 
     /**
+     * Subtract dense matrix.
+     *
+     * @param alpha the alpha
+     * @param other the other
+     * @param beta  the beta
+     * @return dense matrix
+     */
+    public DenseMatrix sub(double alpha, MatrixLike other, double beta) {
+        if (!hasEqualShape(other)) {
+            throw new NonConformantException(this, other);
+        }
+        DenseMatrix tmp = new DenseMatrix(this.rows(), this.columns());
+        Javablas.sub(values, alpha, other.asDoubleArray(), beta, tmp.asDoubleArray());
+        return tmp;
+    }
+
+    /**
      * Add inplace.
      *
      * @param alpha the alpha
@@ -698,7 +689,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
         if (!hasEqualShape(other)) {
             throw new NonConformantException(this, other);
         }
-        Javablas.add(values, alpha, other.toArray(), beta, values);
+        Javablas.add(values, alpha, other.asDoubleArray(), beta, values);
         return this;
     }
 
@@ -715,7 +706,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
             throw new NonConformantException(this, other);
         }
         DenseMatrix tmp = new DenseMatrix(this.rows(), this.columns());
-        Javablas.add(values, alpha, other.toArray(), beta, tmp.toArray());
+        Javablas.add(values, alpha, other.asDoubleArray(), beta, tmp.asDoubleArray());
         return tmp;
     }
 
@@ -729,7 +720,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
      */
     public DenseMatrix muli(double alpha, MatrixLike other, double beta) {
         double[] result = new double[rows * cols];
-        Javablas.mul(values, alpha, other.toArray(), beta, result);
+        Javablas.mul(values, alpha, other.asDoubleArray(), beta, result);
         return new DenseMatrix(this.rows(), this.columns(), result);
     }
 
@@ -779,23 +770,6 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
     }
 
     @Override
-    public int size() {
-        return rows() * columns();
-    }
-
-    @Override
-    public double get(int index) {
-        checkArgument(index >= 0 && index < values.length);
-        return values[index];
-    }
-
-    @Override
-    public void put(int index, double value) {
-        checkArgument(index >= 0 && index < values.length);
-        values[index] = value;
-    }
-
-    @Override
     public int hashCode() {
         return Arrays.hashCode(values);
     }
@@ -809,7 +783,8 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
                 double[] values = this.values, ovalues = o.values;
                 for (int i = 0; i < rows; i++) {
                     for (int j = 0; j < cols; j++) {
-                        if (values[index(i, j)] != ovalues[index(i, j)]) {
+                        if (values[Matrix.columnMajorIndex(i, j, rows(), columns())] !=
+                                ovalues[Matrix.columnMajorIndex(i, j, rows(), columns())]) {
                             return false;
                         }
                     }
@@ -838,11 +813,6 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix, TensorMi
         Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
         out.append("Shape: ").append(getShape());
         return out.toString();
-    }
-
-    @Override
-    public DenseMatrix copyMatrix(Shape shape, MatrixLike tensorLike) {
-        return new DenseMatrix(shape, tensorLike);
     }
 
     /**

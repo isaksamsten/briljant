@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * A StringVector contains string values or NA.
  * <p>
- * TODO(isak): Perhaps string vectors should just be ObjectVector and store raw objects
  * TODO(isak): It might be wasteful to store equal objects multiple times. Consider having a subclass CompressedObjectVector or similar.
+ * TODO(isak): The CompressedStringVector requires StringVector to be abstract
  * Created by Isak Karlsson on 20/11/14.
  */
 public class StringVector implements Vector, Iterable<String> {
@@ -29,9 +29,15 @@ public class StringVector implements Vector, Iterable<String> {
             return new Builder(size);
         }
 
+
         @Override
         public Class<?> getDataClass() {
             return String.class;
+        }
+
+        @Override
+        public boolean isNA(Object value) {
+            return value == NA; // i.e. null checking
         }
 
         @Override
@@ -57,6 +63,16 @@ public class StringVector implements Vector, Iterable<String> {
 
     public StringVector(List<String> values) {
         this(values, true);
+    }
+
+    public StringVector(String... values) {
+        this(Arrays.asList(values), false);
+    }
+
+    public static Builder newBuilderWithInitialValues(Object... values) {
+        Builder builder = new Builder(0, values.length);
+        builder.addAll(Arrays.asList(values));
+        return builder;
     }
 
     @Override
@@ -106,13 +122,20 @@ public class StringVector implements Vector, Iterable<String> {
     }
 
     @Override
-    public boolean isNA(int index) {
-        return getAsString(index) == NA;
+    public Vector getAsVector(int index) {
+        String value = getAsString(index);
+        return Is.NA(value) ? Undefined.INSTANCE : new StringVector(value);
     }
 
     @Override
-    public int compare(int a, int b) {
-        return !isNA(a) && !isNA(b) ? getAsString(a).compareTo(getAsString(b)) : 0;
+    public String toString(int index) {
+        String value = getAsString(index);
+        return value == StringVector.NA ? "NA" : value;
+    }
+
+    @Override
+    public boolean isNA(int index) {
+        return getAsString(index) == NA;
     }
 
     @Override
@@ -141,9 +164,8 @@ public class StringVector implements Vector, Iterable<String> {
     }
 
     @Override
-    public String toString(int index) {
-        String value = getAsString(index);
-        return value == StringVector.NA ? "NA" : value;
+    public int compare(int a, int b) {
+        return !isNA(a) && !isNA(b) ? getAsString(a).compareTo(getAsString(b)) : 0;
     }
 
     protected double tryParseDouble(String str) {
@@ -168,12 +190,6 @@ public class StringVector implements Vector, Iterable<String> {
         } else {
             return IntVector.NA;
         }
-    }
-
-    public static Builder newBuilderWithInitialValues(Object... values) {
-        Builder builder = new Builder(0, values.length);
-        builder.addAll(Arrays.asList(values));
-        return builder;
     }
 
     public static class Builder implements Vector.Builder {
@@ -247,12 +263,6 @@ public class StringVector implements Vector, Iterable<String> {
             return this;
         }
 
-        private void ensureCapacity(int index) {
-            while (buffer.size() <= index) {
-                buffer.add(StringVector.NA);
-            }
-        }
-
         @Override
         public int size() {
             return buffer.size();
@@ -261,6 +271,12 @@ public class StringVector implements Vector, Iterable<String> {
         @Override
         public StringVector create() {
             return new StringVector(buffer, false);
+        }
+
+        private void ensureCapacity(int index) {
+            while (buffer.size() <= index) {
+                buffer.add(StringVector.NA);
+            }
         }
     }
 }

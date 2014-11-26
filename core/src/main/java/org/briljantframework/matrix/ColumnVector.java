@@ -65,8 +65,8 @@ public class ColumnVector extends ColumnView implements MatrixLike {
     }
 
     @Override
-    public double[] toArray() {
-        return copy().toArray();
+    public double[] asDoubleArray() {
+        return copy().asDoubleArray();
     }
 
     public Matrix asColumnVector() {

@@ -67,15 +67,6 @@ public class RowVector extends RowView implements MatrixLike {
         return copy;
     }
 
-    /**
-     * Transpose matrix like.
-     *
-     * @return the matrix like
-     */
-    public MatrixLike transpose() {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public int rows() {
         return 1;
@@ -103,12 +94,21 @@ public class RowVector extends RowView implements MatrixLike {
      * @return
      */
     @Override
-    public double[] toArray() {
+    public double[] asDoubleArray() {
         double[] array = new double[this.size()];
         for (int i = 0; i < array.length; i++) {
             array[i] = get(i);
         }
         return array;
+    }
+
+    /**
+     * Transpose matrix like.
+     *
+     * @return the matrix like
+     */
+    public MatrixLike transpose() {
+        throw new UnsupportedOperationException();
     }
 
     public Matrix asRowVector() {

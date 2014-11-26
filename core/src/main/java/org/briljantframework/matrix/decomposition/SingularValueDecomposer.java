@@ -19,7 +19,10 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import org.briljantframework.matrix.*;
+import org.briljantframework.matrix.DenseMatrix;
+import org.briljantframework.matrix.Diagonal;
+import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.MatrixLike;
 import org.briljantframework.matrix.natives.BlasException;
 
 import static org.briljantframework.matrix.natives.Lapack.LAPACKE_dgesvd;
@@ -46,7 +49,7 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
         double[] vt = new double[n * n];
         Matrix copy = new DenseMatrix(matrix);
 
-        int err = LAPACKE_dgesvd(LAPACK_COL_MAJOR, 'a', 'a', m, n, copy.toArray(), m, sigma, u, m, vt, n, work);
+        int err = LAPACKE_dgesvd(LAPACK_COL_MAJOR, 'a', 'a', m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work);
         if (err != 0) {
             throw new BlasException("LAPACKE_dgesvd", err, "SVD failed to converge.");
         }

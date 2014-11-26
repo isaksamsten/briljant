@@ -30,6 +30,11 @@ public class DoubleVector implements Vector, Iterable<Double> {
         }
 
         @Override
+        public boolean isNA(Object value) {
+            return value == null || (value instanceof Double && Double.isNaN((Double) value));
+        }
+
+        @Override
         public int compare(int a, Vector va, int b, Vector ba) {
             return !va.isNA(a) && ba.isNA(b) ? Double.compare(va.getAsDouble(a), ba.getAsDouble(b)) : 0;
         }
@@ -52,6 +57,13 @@ public class DoubleVector implements Vector, Iterable<Double> {
         this.values = Arrays.copyOf(values, size);
     }
 
+    public static Vector.Builder newBuilderWithInitialValues(double... values) {
+        Builder builder = new Builder(0, values.length);
+        for (double value : values) {
+            builder.add(value);
+        }
+        return builder;
+    }
 
     @Override
     public Iterator<Double> iterator() {
@@ -93,15 +105,20 @@ public class DoubleVector implements Vector, Iterable<Double> {
     }
 
     @Override
-    public boolean isNA(int index) {
-        return Double.isNaN(getAsDouble(index));
+    public Vector getAsVector(int index) {
+        double value = getAsDouble(index);
+        return Is.NA(value) ? Undefined.INSTANCE : new DoubleVector(value);
     }
 
     @Override
-    public int compare(int a, int b) {
-        double va = getAsDouble(a);
-        double vb = getAsDouble(b);
-        return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
+    public String toString(int index) {
+        String value = getAsString(index);
+        return value == StringVector.NA ? "NA" : value;
+    }
+
+    @Override
+    public boolean isNA(int index) {
+        return Double.isNaN(getAsDouble(index));
     }
 
     @Override
@@ -129,10 +146,8 @@ public class DoubleVector implements Vector, Iterable<Double> {
         return new Builder(size);
     }
 
-    @Override
-    public String toString(int index) {
-        String value = getAsString(index);
-        return value == StringVector.NA ? "NA" : value;
+    public double[] toDoubleArray() {
+        return values.clone();
     }
 
     @Override
@@ -140,20 +155,15 @@ public class DoubleVector implements Vector, Iterable<Double> {
         return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
     }
 
-    public double[] toDoubleArray() {
-        return values.clone();
-    }
-
     public double[] asDoubleArray() {
         return values;
     }
 
-    public static Vector.Builder newBuilderWithInitialValues(double... values) {
-        Builder builder = new Builder(0, values.length);
-        for (double value : values) {
-            builder.add(value);
-        }
-        return builder;
+    @Override
+    public int compare(int a, int b) {
+        double va = getAsDouble(a);
+        double vb = getAsDouble(b);
+        return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
     }
 
     public static class Builder implements Vector.Builder {
@@ -186,6 +196,9 @@ public class DoubleVector implements Vector, Iterable<Double> {
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Builder addNA() {
             setNA(size());
@@ -224,16 +237,6 @@ public class DoubleVector implements Vector, Iterable<Double> {
             return this;
         }
 
-        public Builder add(double value) {
-            return set(size(), value);
-        }
-
-        public Builder set(int index, double value) {
-            ensureCapacity(index);
-            buffer.buffer[index] = value;
-            return this;
-        }
-
         @Override
         public Builder addAll(Vector from) {
             for (int i = 0; i < from.size(); i++) {
@@ -247,6 +250,23 @@ public class DoubleVector implements Vector, Iterable<Double> {
             return buffer.size();
         }
 
+        @Override
+        public DoubleVector create() {
+            DoubleVector vec = new DoubleVector(buffer.buffer, size());
+            buffer = null;
+            return vec;
+        }
+
+        public Builder add(double value) {
+            return set(size(), value);
+        }
+
+        public Builder set(int index, double value) {
+            ensureCapacity(index);
+            buffer.buffer[index] = value;
+            return this;
+        }
+
         private void ensureCapacity(int index) {
             buffer.ensureCapacity(index + 1);
             int i = buffer.size();
@@ -256,12 +276,7 @@ public class DoubleVector implements Vector, Iterable<Double> {
             }
         }
 
-        @Override
-        public DoubleVector create() {
-            DoubleVector vec = new DoubleVector(buffer.buffer, size());
-            buffer = null;
-            return vec;
-        }
-
     }
+
+
 }

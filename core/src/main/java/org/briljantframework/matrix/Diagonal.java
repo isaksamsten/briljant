@@ -86,23 +86,9 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
      * @return the matrix
      */
     public Matrix reshape(int rows, int cols) {
-        DenseMatrix ret = DenseMatrix.fromColumnOrder(this.rows(), this.columns(), toArray());
+        DenseMatrix ret = DenseMatrix.fromColumnOrder(this.rows(), this.columns(), asDoubleArray());
         ret.reshapei(rows, cols);
         return ret;
-    }
-
-    /**
-     * @return a dense representation of this diagonal
-     */
-    @Override
-    public double[] toArray() {
-        int rows = rows(), cols = columns();
-        double[] dense = new double[rows * cols];
-        int n = Math.min(cols, rows);
-        for (int j = 0; j < n; j++) {
-            dense[j * rows + j] = values[j];
-        }
-        return dense;
     }
 
     @Override
@@ -110,6 +96,20 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
         double[] values = new double[this.values.length];
         System.arraycopy(this.values, 0, values, 0, this.values.length);
         return new Diagonal(this.rows(), this.columns(), values);
+    }
+
+    /**
+     * @return a dense representation of this diagonal
+     */
+    @Override
+    public double[] asDoubleArray() {
+        int rows = rows(), cols = columns();
+        double[] dense = new double[rows * cols];
+        int n = Math.min(cols, rows);
+        for (int j = 0; j < n; j++) {
+            dense[j * rows + j] = values[j];
+        }
+        return dense;
     }
 
     /**

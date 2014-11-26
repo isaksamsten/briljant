@@ -30,6 +30,13 @@ public class BinaryVector implements Vector, Iterable<Binary> {
         }
 
         @Override
+        public boolean isNA(Object value) {
+            return value == null ||
+                    (value instanceof Binary && value == NA) ||
+                    (value instanceof Integer && (int) value == IntVector.NA);
+        }
+
+        @Override
         public int compare(int a, Vector va, int b, Vector ba) {
             return va.getAsInt(a) - ba.getAsInt(b);
         }
@@ -51,6 +58,16 @@ public class BinaryVector implements Vector, Iterable<Binary> {
         for (int i = 0; i < values.length; i++) {
             this.values[i] = values[i] ? 1 : 0;
         }
+    }
+
+    public BinaryVector(int... values) {
+        this.values = Arrays.copyOf(values, values.length);
+    }
+
+    public static Builder newBuilderWithInitialValues(Object... values) {
+        Builder builder = new Builder(0, values.length);
+        builder.addAll(Arrays.asList(values));
+        return builder;
     }
 
     @Override
@@ -101,13 +118,19 @@ public class BinaryVector implements Vector, Iterable<Binary> {
     }
 
     @Override
-    public boolean isNA(int index) {
-        return getAsInt(index) == IntVector.NA;
+    public Vector getAsVector(int index) {
+        Binary binary = getAsBinary(index);
+        return binary == NA ? Undefined.INSTANCE : new BinaryVector(binary.asInt());
     }
 
     @Override
-    public int compare(int a, int b) {
-        return getAsInt(a) - getAsInt(b);
+    public String toString(int index) {
+        return getAsBinary(index).name();
+    }
+
+    @Override
+    public boolean isNA(int index) {
+        return getAsInt(index) == IntVector.NA;
     }
 
     @Override
@@ -125,14 +148,6 @@ public class BinaryVector implements Vector, Iterable<Binary> {
         return new Builder(toIntArray());
     }
 
-    public int[] toIntArray() {
-        return values.clone();
-    }
-
-    public int[] asIntArray() {
-        return values;
-    }
-
     @Override
     public Builder newBuilder() {
         return new Builder();
@@ -143,15 +158,17 @@ public class BinaryVector implements Vector, Iterable<Binary> {
         return new Builder(size);
     }
 
-    @Override
-    public String toString(int index) {
-        return getAsBinary(index).name();
+    public int[] toIntArray() {
+        return values.clone();
     }
 
-    public static Builder newBuilderWithInitialValues(Object... values) {
-        Builder builder = new Builder(0, values.length);
-        builder.addAll(Arrays.asList(values));
-        return builder;
+    public int[] asIntArray() {
+        return values;
+    }
+
+    @Override
+    public int compare(int a, int b) {
+        return getAsInt(a) - getAsInt(b);
     }
 
     public static class Builder implements Vector.Builder {
@@ -227,6 +244,18 @@ public class BinaryVector implements Vector, Iterable<Binary> {
             return this;
         }
 
+        @Override
+        public int size() {
+            return buffer.size();
+        }
+
+        @Override
+        public BinaryVector create() {
+            BinaryVector vector = new BinaryVector(buffer);
+            buffer = null;
+            return vector;
+        }
+
         public Builder add(Binary binary) {
             return add(binary.asInt());
         }
@@ -237,11 +266,6 @@ public class BinaryVector implements Vector, Iterable<Binary> {
             return this;
         }
 
-        @Override
-        public int size() {
-            return buffer.size();
-        }
-
         private void ensureCapacity(int index) {
             buffer.ensureCapacity(index + 1);
             int i = buffer.size();
@@ -249,13 +273,6 @@ public class BinaryVector implements Vector, Iterable<Binary> {
                 buffer.buffer[i++] = IntVector.NA;
                 buffer.elementsCount++;
             }
-        }
-
-        @Override
-        public BinaryVector create() {
-            BinaryVector vector = new BinaryVector(buffer);
-            buffer = null;
-            return vector;
         }
     }
 }

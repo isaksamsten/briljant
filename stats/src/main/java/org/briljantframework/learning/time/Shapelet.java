@@ -77,11 +77,6 @@ public class Shapelet implements MatrixLike {
     }
 
     @Override
-    public int size() {
-        return length;
-    }
-
-    @Override
     public void put(int i, int j, double value) {
 
     }
@@ -92,14 +87,13 @@ public class Shapelet implements MatrixLike {
     }
 
     @Override
-    public double get(int index) {
-        Preconditions.checkElementIndex(index, size());
-        return vector.get(start + index);
+    public void put(int index, double value) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void put(int index, double value) {
-        throw new UnsupportedOperationException();
+    public MatrixLike copy() {
+        return new Shapelet(start, length, vector.copy());
     }
 
     @Override
@@ -113,13 +107,19 @@ public class Shapelet implements MatrixLike {
     }
 
     @Override
-    public double[] toArray() {
-        throw new UnsupportedOperationException();
+    public int size() {
+        return length;
     }
 
     @Override
-    public MatrixLike copy() {
-        return new Shapelet(start, length, vector.copy());
+    public double get(int index) {
+        Preconditions.checkElementIndex(index, size());
+        return vector.get(start + index);
+    }
+
+    @Override
+    public double[] asDoubleArray() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

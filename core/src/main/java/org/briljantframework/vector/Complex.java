@@ -66,6 +66,22 @@ public class Complex {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof Complex) {
+            Complex c = (Complex) other;
+            if (c.isNaN) {
+                return isNaN;
+            } else {
+                return real == c.real && imag == c.imag;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         if (imag >= 0) {
             return real + " + " + imag + "i";

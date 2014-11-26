@@ -48,11 +48,11 @@ public class InverseTransformation implements Transformation {
         int n = out.rows();
         int[] ipiv = new int[n];
         int error;
-        if ((error = Lapack.LAPACKE_dgetrf(Lapack.LAPACK_COL_MAJOR, n, n, out.toArray(), n, ipiv)) != 0) {
+        if ((error = Lapack.LAPACKE_dgetrf(Lapack.LAPACK_COL_MAJOR, n, n, out.asDoubleArray(), n, ipiv)) != 0) {
             throw new BlasException("LAPACKE_dgtref", error, "LU decomposition failed.");
         }
 
-        if ((error = Lapack.LAPACKE_dgetri(Lapack.LAPACK_COL_MAJOR, n, out.toArray(), n, ipiv)) != 0) {
+        if ((error = Lapack.LAPACKE_dgetri(Lapack.LAPACK_COL_MAJOR, n, out.asDoubleArray(), n, ipiv)) != 0) {
             throw new BlasException("LAPACKE_dgetri", error, "Inverse failed, the matrix is singular.");
         }
     }

@@ -1,14 +1,17 @@
 package org.briljantframework.dataframe;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.UnmodifiableIterator;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Complex;
+import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
@@ -24,30 +27,102 @@ public class MixedDataFrame implements DataFrame {
     /**
      * Constructs a new mixed data frame from balanced vectors
      *
-     * @param columns the vectors of values
+     * @param columns the vectors
      */
     public MixedDataFrame(Vector... columns) {
         this(Arrays.asList(columns));
     }
 
-    protected MixedDataFrame(Collection<? extends Vector> vectors) {
-        Preconditions.checkArgument(vectors.size() > 0);
-        Iterator<? extends Vector> it = vectors.iterator();
-        names = new ArrayList<>(vectors.size());
-        columns = new ArrayList<>(vectors.size());
-        names.add("0");
+    /**
+     * Construct a new mixed data frame from a collection of balanced vectors
+     *
+     * @param vectors the collection of vectors
+     */
+    public MixedDataFrame(Collection<? extends Vector> vectors) {
+        checkArgument(vectors.size() > 0);
 
-        Vector vector = it.next();
-        columns.add(vector);
-        rows = vector.size();
-
-        int index = 1;
-        while (it.hasNext()) {
-            names.add(String.valueOf(index++));
-            vector = it.next();
-            columns.add(vector);
-            Preconditions.checkArgument(vector.size() == rows, "Column vector lengths does not match.");
+        this.names = Lists.newArrayList("0");
+        this.columns = new ArrayList<>(vectors.size());
+        int rows = 0, index = 0;
+        for (Vector vector : vectors) {
+            if (rows == 0) {
+                rows = vector.size();
+            }
+            checkArgument(vector.size() == rows, "Arguments imply different numbers of rows: %s, %s.", rows, vector.size());
+            this.columns.add(vector);
+            this.names.add(String.valueOf(index++));
         }
+        this.rows = rows;
+    }
+
+    /**
+     * Constructs a new mixed data frame from a map of strings (column names) and
+     * balanced (i.e. of same size) vectors.
+     *
+     * @param vectors the map of vectors and names
+     */
+    public MixedDataFrame(Map<String, ? extends Vector> vectors) {
+        checkArgument(vectors.size() > 0);
+        this.names = new ArrayList<>(vectors.size());
+        this.columns = new ArrayList<>(vectors.size());
+
+        int rows = 0;
+        for (Map.Entry<String, ? extends Vector> kv : vectors.entrySet()) {
+            Vector vector = kv.getValue();
+            String name = kv.getKey();
+            if (rows == 0) {
+                rows = vector.size();
+            }
+
+            checkArgument(vector.size() == rows, "Arguments imply different numbers of rows: %s, %s.", rows, vector.size());
+            this.names.add(name);
+            this.columns.add(vector);
+        }
+        this.rows = rows;
+    }
+
+    public MixedDataFrame(Iterable<? extends Sequence> sequences) {
+        this.names = new ArrayList<>();
+        this.columns = new ArrayList<>();
+
+        List<Vector.Builder> builders = new ArrayList<>();
+        int columns = 0, rows = 0;
+        for (Sequence row : sequences) {
+            if (columns == 0) {
+                columns = row.size();
+            }
+            checkArgument(row.size() == columns, "Arguments imply different numbers of rows: %s, %s.", columns, row.size());
+            for (int i = 0; i < row.size(); i++) {
+                if (builders.size() <= i) {
+                    checkArgument(row.getType(i) != Sequence.TYPE, "Can't create untyped vector as column.");
+                    builders.add(row.getType(i).newBuilder());
+                }
+                builders.get(i).add(row.getAsVector(i), 0);
+            }
+            rows++;
+        }
+        int index = 0;
+        for (Vector.Builder builder : builders) {
+            this.names.add(String.valueOf(index++));
+            this.columns.add(builder.create());
+        }
+
+        this.rows = rows;
+    }
+
+    /**
+     * Unsafe construction of a mixed data frame. Performs no sanity checking (should only
+     * be used for performance by checked builder).
+     *
+     * @param names   the names
+     * @param vectors the vectors
+     * @param rows    the expected size of the vectors (not checked but should be enforced)
+     */
+    protected MixedDataFrame(List<String> names, List<Vector> vectors, int rows) {
+        checkArgument(names.size() == vectors.size());
+        this.names = names;
+        this.columns = vectors;
+        this.rows = rows;
     }
 
     /**
@@ -107,8 +182,24 @@ public class MixedDataFrame implements DataFrame {
      * {@inheritDoc}
      */
     @Override
+    public Type getColumnType(int index) {
+        return columns.get(index).getType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getColumnName(int index) {
         return names.get(index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Sequence getRow(int index) {
+        return new MixedDataFrameRow(this, index);
     }
 
     /**
@@ -125,11 +216,6 @@ public class MixedDataFrame implements DataFrame {
     @Override
     public int columns() {
         return columns.size();
-    }
-
-    @Override
-    public DataFrame newDataFrame(Collection<? extends Vector> vectors) {
-        return new MixedDataFrame(vectors);
     }
 
     /**
@@ -173,6 +259,23 @@ public class MixedDataFrame implements DataFrame {
         return DataFrame.toString(this, 100);
     }
 
+    @Override
+    public Iterator<Sequence> iterator() {
+        return new UnmodifiableIterator<Sequence>() {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < rows();
+            }
+
+            @Override
+            public Sequence next() {
+                return getRow(index++);
+            }
+        };
+    }
+
     /**
      * Type for constructing a new MixedDataFrame by mutation.
      */
@@ -181,7 +284,7 @@ public class MixedDataFrame implements DataFrame {
         private List<Vector.Builder> buffers = null;
         private List<String> colNames = null;
 
-        public Builder(Vector.Type... types) {
+        public Builder(Type... types) {
             buffers = new ArrayList<>(types.length);
             colNames = new ArrayList<>(types.length);
             for (int i = 0; i < types.length; i++) {
@@ -303,19 +406,21 @@ public class MixedDataFrame implements DataFrame {
             return buffers.stream().mapToInt(Vector.Builder::size).reduce(0, Integer::max);
         }
 
-        private Vector createVector(Vector.Builder builder, int maximumRows) {
+        @Override
+        public DataFrame create() {
+            int rows = rows();
+            List<Vector> vectors = buffers.stream()
+                    .map(x -> padVectorWithNA(x, rows))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            buffers = null;
+            return new MixedDataFrame(colNames, vectors, rows);
+        }
+
+        private Vector padVectorWithNA(Vector.Builder builder, int maximumRows) {
             if (builder.size() < maximumRows) {
                 builder.setNA(maximumRows - 1);
             }
             return builder.create();
-        }
-
-        @Override
-        public DataFrame create() {
-            List<Vector> vectors = new ArrayList<>(buffers.size());
-            int rows = rows();
-            buffers.forEach(x -> vectors.add(createVector(x, rows)));
-            return new MixedDataFrame(vectors);
         }
     }
 }

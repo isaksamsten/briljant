@@ -21,10 +21,6 @@ package org.briljantframework.data.transform;
 
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Isak Karlsson on 18/08/14.
@@ -54,14 +50,14 @@ public class RemoveIncompleteColumns implements Transformer {
 
         @Override
         public DataFrame transform(DataFrame dataset) {
-            List<Vector> vectors = new ArrayList<>();
+            DataFrame.Builder builder = dataset.newCopyBuilder();
             for (int i = 0; i < dataset.columns(); i++) {
-                if (!hasNA[i]) {
-                    vectors.add(dataset.getColumn(0).newCopyBuilder().create());
+                if (hasNA[i]) {
+                    builder.removeColumn(i);
                 }
             }
 
-            return dataset.newDataFrame(vectors);
+            return builder.create();
         }
     }
 }

@@ -38,7 +38,7 @@ public class LuDecomposer implements Decomposer<LuDecomposition> {
 
         Matrix lu = new DenseMatrix(matrix);
         int error;
-        if ((error = LAPACKE_dgetrf(LAPACK_COL_MAJOR, m, n, lu.toArray(), m, pivots)) != 0) {
+        if ((error = LAPACKE_dgetrf(LAPACK_COL_MAJOR, m, n, lu.asDoubleArray(), m, pivots)) != 0) {
             throw new BlasException("LAPACKE_dgetrf", error, "LU decomposition failed.");
         }
 

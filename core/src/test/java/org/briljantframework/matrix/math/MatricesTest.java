@@ -6,7 +6,8 @@ import org.junit.Test;
 
 import java.util.stream.IntStream;
 
-import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.Matrices.parseMatrix;
+import static org.briljantframework.matrix.Matrices.sum;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -48,7 +49,7 @@ public class MatricesTest {
                 3, 3
         );
         Matrix result = DenseMatrix.of(2, 2, 13, 13, 13, 13);
-        assertArrayEquals(result.toArray(), Matrices.mmul(DenseMatrix::new, a, b).toArray(), 0.0001);
+        assertArrayEquals(result.asDoubleArray(), Matrices.mmul(DenseMatrix::new, a, b).asDoubleArray(), 0.0001);
     }
 
     @Test
@@ -67,8 +68,8 @@ public class MatricesTest {
         DenseMatrix c = Matrices.n(2, 2, 10);
 
         // calculates c = a * b + 2c
-        Matrices.mmuli(a, Transpose.NO, 1, b, Transpose.NO, 2, c.toArray());
-        assertArrayEquals(new double[]{42.0, 34.0, 48.0, 40.0}, c.toArray(), 0.01);
+        Matrices.mmuli(a, Transpose.NO, 1, b, Transpose.NO, 2, c.asDoubleArray());
+        assertArrayEquals(new double[]{42.0, 34.0, 48.0, 40.0}, c.asDoubleArray(), 0.01);
     }
 
     @Test
@@ -114,12 +115,12 @@ public class MatricesTest {
 
         DenseMatrix y = Matrices.mdmul(DenseMatrix::new, x, eye);
         assertArrayEquals(new double[]{2.0, 2.0, 2.0, 2.0, 4.0, 4.0, 4.0, 4.0, 6.0, 6.0, 6.0, 6.0},
-                y.toArray(), 0.001);
+                y.asDoubleArray(), 0.001);
 
 
         y = Matrices.dmmul(DenseMatrix::new, eye, x.transpose());
         assertArrayEquals(new double[]{2.0, 4.0, 6.0, 2.0, 4.0, 6.0, 2.0, 4.0, 6.0, 2.0, 4.0, 6.0},
-                y.toArray(), 0.001);
+                y.asDoubleArray(), 0.001);
     }
 
     @Test

@@ -31,6 +31,11 @@ public class ComplexVector implements Vector, Iterable<Complex> {
         }
 
         @Override
+        public boolean isNA(Object value) {
+            return value == null || (value instanceof Complex && ((Complex) value).isNaN());
+        }
+
+        @Override
         public int compare(int a, Vector va, int b, Vector ba) {
             throw new UnsupportedOperationException("Can't compare complex numbers");
         }
@@ -57,6 +62,17 @@ public class ComplexVector implements Vector, Iterable<Complex> {
         this.size = values.length / 2;
     }
 
+    public ComplexVector(Complex... values) {
+        Preconditions.checkArgument(values.length > 0);
+        this.values = new double[values.length * 2];
+        this.size = values.length;
+        for (int i = 0; i < values.length; i++) {
+            Complex c = values[i];
+            this.values[i] = c.getReal();
+            this.values[i + 1] = c.getImag();
+        }
+    }
+
     /**
      * Constructs a new complex vectors. The double buffer is interpreted as complex
      * numbers where position {@code i} is the real part and {@code i + 1} is the
@@ -70,6 +86,12 @@ public class ComplexVector implements Vector, Iterable<Complex> {
         Preconditions.checkArgument(size * 2 <= buffer.length, "Un-even number of doubles.");
         this.values = Arrays.copyOf(buffer, size * 2);
         this.size = size;
+    }
+
+    public static Vector.Builder newBuilderWithInitialValues(Object... values) {
+        Builder builder = new Builder(0, values.length);
+        builder.addAll(Arrays.asList(values));
+        return builder;
     }
 
     /**
@@ -114,6 +136,12 @@ public class ComplexVector implements Vector, Iterable<Complex> {
         }
     }
 
+    @Override
+    public Vector getAsVector(int index) {
+        Complex complex = getAsComplex(index);
+        return complex.isNaN() ? Undefined.INSTANCE : new ComplexVector(complex);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -132,16 +160,17 @@ public class ComplexVector implements Vector, Iterable<Complex> {
      * {@inheritDoc}
      */
     @Override
-    public boolean isNA(int index) {
-        return Double.isNaN(getAsDouble(index));
+    public String toString(int index) {
+        Complex complex = getAsComplex(index);
+        return complex.isNaN() ? "NA" : complex.toString();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int compare(int a, int b) {
-        throw new UnsupportedOperationException("Can't compare complex numbers");
+    public boolean isNA(int index) {
+        return Double.isNaN(getAsDouble(index));
     }
 
     /**
@@ -188,9 +217,8 @@ public class ComplexVector implements Vector, Iterable<Complex> {
      * {@inheritDoc}
      */
     @Override
-    public String toString(int index) {
-        Complex complex = getAsComplex(index);
-        return complex.isNaN() ? "NA" : complex.toString();
+    public double[] toDoubleArray() {
+        return values.clone();
     }
 
     /**
@@ -200,6 +228,28 @@ public class ComplexVector implements Vector, Iterable<Complex> {
     public String toString() {
         System.out.println(size);
         return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
+    }
+
+    /**
+     * Returns the underlying array which represents complex numbers as
+     * two consecutive positions in the array.
+     * <p>
+     * The number of complex numbers are {@code array.length / 2}.
+     * This array can be used in suitable BLAS operations.
+     *
+     * @return the underlying array
+     */
+    @Override
+    public double[] asDoubleArray() {
+        return values;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compare(int a, int b) {
+        throw new UnsupportedOperationException("Can't compare complex numbers");
     }
 
     /**
@@ -220,35 +270,6 @@ public class ComplexVector implements Vector, Iterable<Complex> {
                 return getAsComplex(current++);
             }
         };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double[] toDoubleArray() {
-        return values.clone();
-    }
-
-    /**
-     * Returns the underlying array which represents complex numbers as
-     * two consecutive positions in the array.
-     * <p>
-     * The number of complex numbers are {@code array.length / 2}.
-     * This array can be used in suitable BLAS operations.
-     *
-     * @return the underlying array
-     */
-    @Override
-    public double[] asDoubleArray() {
-        return values;
-    }
-
-
-    public static Vector.Builder newBuilderWithInitialValues(Object... values) {
-        Builder builder = new Builder(0, values.length);
-        builder.addAll(Arrays.asList(values));
-        return builder;
     }
 
     public static final class Builder implements Vector.Builder {
@@ -342,6 +363,11 @@ public class ComplexVector implements Vector, Iterable<Complex> {
             return buffer.size() / 2;
         }
 
+        @Override
+        public ComplexVector create() {
+            return new ComplexVector(buffer.buffer, size());
+        }
+
         private void ensureCapacity(int index) {
             buffer.ensureCapacity(index + 2);
             int i = buffer.size();
@@ -350,10 +376,7 @@ public class ComplexVector implements Vector, Iterable<Complex> {
                 buffer.elementsCount++;
             }
         }
-
-        @Override
-        public ComplexVector create() {
-            return new ComplexVector(buffer.buffer, size());
-        }
     }
+
+
 }

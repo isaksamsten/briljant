@@ -62,7 +62,7 @@ public class MatrixOutputStream extends DatasetOutputStream {
         }
         if (dataset instanceof MatrixDataFrame) {
             MatrixDataFrame matrix = (MatrixDataFrame) dataset;
-            double[] values = matrix.toArray();
+            double[] values = matrix.asDoubleArray();
 
             ByteBuffer buf = ByteBuffer.allocate(8 + values.length * 8).order(order);
 

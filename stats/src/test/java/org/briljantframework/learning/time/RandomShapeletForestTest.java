@@ -7,7 +7,6 @@ import org.briljantframework.data.Row;
 import org.briljantframework.data.column.CategoricColumn;
 import org.briljantframework.data.column.Column;
 import org.briljantframework.data.column.DefaultCategoricColumn;
-import org.briljantframework.data.transform.RemoveIncompleteCases;
 import org.briljantframework.data.types.CategoricType;
 import org.briljantframework.io.CSVInputStream;
 import org.briljantframework.learning.SupervisedDataset;
@@ -50,9 +49,6 @@ public class RandomShapeletForestTest {
     public void testName() throws Exception {
         try (CSVInputStream in = new CSVInputStream(new FileInputStream("/Users/isak/Projects/adeb/erlang/adeb-rr/deps/rr/data/iris.txt"))) {
             DenseDataFrame dataset = in.read(DenseDataFrame.copyTo());
-
-            dataset = new RemoveIncompleteCases<DenseDataFrame>().fitTransform(dataset, DenseDataFrame.copyTo());
-
             SupervisedDataset<DenseDataFrame, CategoricColumn> supervisedDataset = SupervisedDataset.createClassificationInput(dataset,
                     DenseDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
 

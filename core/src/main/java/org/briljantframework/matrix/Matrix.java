@@ -32,6 +32,23 @@ import static com.google.common.base.Preconditions.checkArgument;
 public interface Matrix extends MatrixLike, Iterable<Double> {
 
     /**
+     * Index int.
+     *
+     * @param row the row
+     * @param col the col
+     * @return the int
+     */
+    public static int columnMajorIndex(int row, int col, int nrows, int ncols) {
+        if (col >= ncols || col < 0) {
+            throw new IllegalArgumentException(String.format("index out of bounds; value %d out of bound %d", col, ncols));
+        } else if (row >= nrows || row < 0) {
+            throw new IllegalArgumentException(String.format("index out of bounds; value %d out of bound %d", row, nrows));
+        } else {
+            return col * nrows + row;
+        }
+    }
+
+    /**
      * Get vector at row
      *
      * @param i row
@@ -58,9 +75,9 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
 
     Matrix dropRow(int i);
 
-//    Matrix dropRows(int start, int end);
-//
-//    Matrix dropRows(Slicer slicer);
+    //    Matrix dropRows(int start, int end);
+    //
+    //    Matrix dropRows(Slicer slicer);
 
     /**
      * Gets column.
@@ -89,9 +106,9 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
 
     Matrix dropColumn(int index);
 
-//    Matrix dropColumns(int start, int end);
-//
-//    Matrix dropColumns(Slicer slicer);
+    //    Matrix dropColumns(int start, int end);
+    //
+    //    Matrix dropColumns(Slicer slicer);
 
     /**
      * Slice matrix.
@@ -102,7 +119,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      */
     Matrix slice(Slicer rows, Slicer cols);
 
-//    Matrix drop(Slicer rows, Slicer cols);
+    //    Matrix drop(Slicer rows, Slicer cols);
 
     /**
      * Multiply by diagonal.

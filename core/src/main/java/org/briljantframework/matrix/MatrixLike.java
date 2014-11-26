@@ -52,8 +52,8 @@ public interface MatrixLike {
     void put(int index, double value);
 
     /**
-     * Create a copy of this matrix. This contract stipulates that modifications of the copy does not affect the
-     * original.
+     * Create a copy of this matrix. This contract stipulates that modifications
+     * of the copy does not affect the original.
      *
      * @return the copy
      */
@@ -92,8 +92,9 @@ public interface MatrixLike {
     int size();
 
     /**
-     * Treat matrix as vector. If {@link #rows()} == 1 or {@link #columns()} == 1, <code>get(index)</code> behaves as
-     * expected. If not, the matrix is expected to be traversed in column-major order, i.e.
+     * Flattens the traversal of the matrix in column-major order.
+     * If {@link #rows()} == 1 or {@link #columns()} == 1, <code>get(index)</code> behaves as
+     * expected. If not, the matrix is traversed in column-major order, i.e.
      * <p>
      * For example, given the following matrix
      * <pre>
@@ -166,5 +167,5 @@ public interface MatrixLike {
      *
      * @return the underlying array. Touch with caution.
      */
-    double[] toArray();
+    double[] asDoubleArray();
 }

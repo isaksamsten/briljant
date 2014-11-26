@@ -26,18 +26,8 @@ import java.util.function.DoubleUnaryOperator;
  */
 public abstract class AbstractDenseMatrix implements MatrixLike {
 
-    /**
-     * The Values.
-     */
     protected final double[] values;
-    /**
-     * The Rows.
-     */
     protected int rows;
-
-    /**
-     * The Cols.
-     */
     protected int cols;
 
     /**
@@ -65,6 +55,22 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
+     * Copy tensor like.
+     *
+     * @return the tensor like
+     */
+    public abstract MatrixLike copy();
+
+    /**
+     * Is square.
+     *
+     * @return true if rows() == columns()
+     */
+    public boolean isSquare() {
+        return rows() == columns();
+    }
+
+    /**
      * Rows int.
      *
      * @return number or rows
@@ -83,31 +89,22 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Is square.
-     *
-     * @return true if rows() == columns()
-     */
-    public boolean isSquare() {
-        return rows() == columns();
-    }
-
-    /**
-     * Array double [ ].
-     *
-     * @return the underlying array. Touch with caution.
-     */
-    public double[] toArray() {
-        return values;
-    }
-
-
-    /**
      * Shape shape.
      *
      * @return the shape
      */
     public Shape getShape() {
         return Shape.of(rows(), columns());
+    }
+
+    /**
+     * Has compatible shape.
+     *
+     * @param shape the shape
+     * @return the boolean
+     */
+    public boolean hasCompatibleShape(Shape shape) {
+        return hasCompatibleShape(shape.rows, shape.columns);
     }
 
     /**
@@ -123,16 +120,6 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Has compatible shape.
-     *
-     * @param shape the shape
-     * @return the boolean
-     */
-    public boolean hasCompatibleShape(Shape shape) {
-        return hasCompatibleShape(shape.rows, shape.columns);
-    }
-
-    /**
      * Has equal size.
      *
      * @param other the other
@@ -143,9 +130,11 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Copy tensor like.
+     * Array double [ ].
      *
-     * @return the tensor like
+     * @return the underlying array. Touch with caution.
      */
-    public abstract MatrixLike copy();
+    public double[] asDoubleArray() {
+        return values;
+    }
 }

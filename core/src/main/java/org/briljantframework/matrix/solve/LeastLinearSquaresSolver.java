@@ -51,11 +51,11 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
         int[] jpvt = new int[n];
 
         double[] result = new double[m];
-        System.arraycopy(b.toArray(), 0, result, 0, result.length);
+        System.arraycopy(b.asDoubleArray(), 0, result, 0, result.length);
 
         IntByReference out = new IntByReference();
         int error;
-        if ((error = LAPACKE_dgelsy(LAPACK_COL_MAJOR, m, n, nrhs, matrix.copy().toArray(),
+        if ((error = LAPACKE_dgelsy(LAPACK_COL_MAJOR, m, n, nrhs, matrix.copy().asDoubleArray(),
                 m, result, m, jpvt, 0.01, out)) != 0) {
             throw new BlasException("LAPAKE_dgelsy", error, "failed to solve equation");
         }

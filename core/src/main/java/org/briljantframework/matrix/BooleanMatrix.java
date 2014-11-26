@@ -57,10 +57,46 @@ public class BooleanMatrix implements MatrixLike {
     }
 
     @Override
+    public void put(int index, double value) {
+        checkArgument(index > 0 && index < values.length);
+        values[index] = value != 0;
+    }
+
+    @Override
     public BooleanMatrix copy() {
         BooleanMatrix bm = new BooleanMatrix(getShape());
         System.arraycopy(values, 0, bm.values, 0, values.length);
         return bm;
+    }
+
+    @Override
+    public int rows() {
+        return rows;
+    }
+
+    @Override
+    public int columns() {
+        return cols;
+    }
+
+    @Override
+    public int size() {
+        return rows() * columns();
+    }
+
+    @Override
+    public double get(int index) {
+        checkArgument(index > 0 && index < values.length);
+        return values[index] ? 1 : 0;
+    }
+
+    @Override
+    public double[] asDoubleArray() {
+        double[] array = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            array[i] = values[i] ? 1 : 0;
+        }
+        return array;
     }
 
     /**
@@ -89,25 +125,6 @@ public class BooleanMatrix implements MatrixLike {
         } else {
             return col * this.rows() + row;
         }
-    }
-
-    @Override
-    public int rows() {
-        return rows;
-    }
-
-    @Override
-    public int columns() {
-        return cols;
-    }
-
-    @Override
-    public double[] toArray() {
-        double[] array = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            array[i] = values[i] ? 1 : 0;
-        }
-        return array;
     }
 
     /**
@@ -159,23 +176,6 @@ public class BooleanMatrix implements MatrixLike {
             }
         }
         return bm;
-    }
-
-    @Override
-    public int size() {
-        return rows() * columns();
-    }
-
-    @Override
-    public double get(int index) {
-        checkArgument(index > 0 && index < values.length);
-        return values[index] ? 1 : 0;
-    }
-
-    @Override
-    public void put(int index, double value) {
-        checkArgument(index > 0 && index < values.length);
-        values[index] = value != 0;
     }
 
     @Override
