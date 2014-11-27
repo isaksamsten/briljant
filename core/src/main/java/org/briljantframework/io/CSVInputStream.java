@@ -19,21 +19,22 @@
 
 package org.briljantframework.io;
 
-import com.google.common.base.Preconditions;
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.types.DataType;
-import org.briljantframework.data.types.Type;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.Type;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Isak Karlsson on 14/08/14.
  */
 public class CSVInputStream extends DataFrameInputStream {
-    private final String missingValue;
+
+    protected static final String MISSMATCH = "Types and values does not match (%d, %d)";
+
     private final BufferedReader reader;
+
+    private int currentType = -1, currentName = -1, currentValue = -1;
+    private String[] types = null, names = null, values = null;
 
     /**
      * Instantiates a new CSV input stream.
@@ -41,116 +42,97 @@ public class CSVInputStream extends DataFrameInputStream {
      * @param inputStream the input stream
      */
     public CSVInputStream(InputStream inputStream) {
-        this(inputStream, "?");
-    }
-
-    /**
-     * Instantiates a new CSV input stream.
-     *
-     * @param inputStream  the input stream
-     * @param missingValue the missing value
-     */
-    public CSVInputStream(InputStream inputStream, String missingValue) {
         super(inputStream);
         reader = new BufferedReader(new InputStreamReader(in));
-        this.missingValue = Preconditions.checkNotNull(missingValue);
     }
 
-    /**
-     * Load storage.
-     *
-     * @param <D>  the type parameter
-     * @param file the file
-     * @param df   the df
-     * @return the storage
-     * @throws IOException the iO exception
-     */
-    public static <D extends DataFrame<?>> D load(String file, DataFrame.CopyTo<D> df) throws IOException {
-        return new CSVInputStream(new FileInputStream(file)).read(df);
+    public CSVInputStream(File file) throws FileNotFoundException {
+        this(new FileInputStream(file));
     }
 
     @Override
-    public <D extends DataFrame<?>> D read(DataFrame.CopyTo<D> copyTo) throws IOException {
-        String line = reader.readLine();
-        if (line == null) {
-            throw new IOException("invalid csv types (reached EOF while parsing)");
+    public Type readColumnType() throws IOException {
+        initializeTypes();
+        if (currentType < types.length) {
+            String type = types[currentType++];
+            return typeFactory.getTypeForName(type);
+        } else {
+            return null;
         }
-        String[] types = line.split(",");
-
-        line = reader.readLine();
-        if (line == null) {
-            throw new IOException("invalid csv types (reached EOF while parsing)");
-
-        }
-        String[] names = line.split(",");
-        if (types.length != names.length) {
-            throw new IOException(String.format("the number of types and names does not match (%d != %d)",
-                    types.length, names.length));
-        }
-
-        List<Type> headers = parseHeader(types, names);
-        DataFrame.Builder<D> datasetBuilder = copyTo.newBuilder(headers);
-
-        parseValues(reader, headers, datasetBuilder);
-
-        return datasetBuilder.create();
     }
 
-    private List<Type> parseHeader(String[] types, String[] names) throws IOException {
-        List<Type> headers = new ArrayList<>(types.length);
-        for (int i = 0; i < types.length; i++) {
-            headers.add(typeFactory.create(names[i].trim(), getType(types[i].trim())));
+    @Override
+    public String readColumnName() throws IOException {
+        if (types == null) {
+            throw new IOException(NAMES_BEFORE_TYPE);
         }
-        return headers;
+        initializeNames();
+        if (currentName < names.length) {
+            return names[currentName++].trim();
+        } else {
+            return null;
+        }
     }
 
-    private void parseValues(BufferedReader reader, List<Type> types, DataFrame.Builder<?> datasetBuilder) throws
-            IOException {
-        int rows = 0, cols = types.size();
-
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            String[] value = line.split(",");
-            if (cols != value.length) {
-                throw new IOException(String.format("invalid row (at line %d). To few values?", rows));
+    @Override
+    public boolean readValue(DataFrame.Builder builder, int index) throws IOException {
+        if (names == null || types == null) {
+            throw new IOException(VALUES_BEFORE_NAMES_AND_TYPES);
+        }
+        if (!initializeValues()) {
+            return false;
+        }
+        if (values != null && currentValue < values.length) {
+            String value = values[currentValue];
+            builder.parseAndAdd(index, value);
+            currentValue++;
+            if (currentValue == types.length) {
+                values = null;
             }
-
-            for (int i = 0; i < value.length; i++) {
-                Type col = types.get(i);
-                String val = value[i].trim();
-                if (val.equalsIgnoreCase(this.missingValue)) {
-                    datasetBuilder.add((String) null);
-                } else {
-                    switch (col.getDataType()) {
-                        case CATEGORIC:
-                            datasetBuilder.add(val);
-                            break;
-                        case NUMERIC:
-                            datasetBuilder.add(Double.parseDouble(val));
-                            break;
-                        case FACTOR:
-                            datasetBuilder.add(Integer.parseInt(val));
-                            break;
-                        default:
-                            throw new IOException("not implemented yet " + col.getDataType());
-                    }
-                }
-            }
+            return true;
+        } else {
+            return false;
         }
     }
 
-    private DataType getType(String type) throws IOException {
-        switch (type.toLowerCase()) {
-            case "regressor":
-            case "numeric":
-                return DataType.NUMERIC;
-            case "integer":
-                return DataType.FACTOR;
-            case "class":
-            case "categoric":
-                return DataType.CATEGORIC;
-            default:
-                throw new IOException(String.format("unexpected types type %s", type));
+    private void initializeTypes() throws IOException {
+        if (types == null) {
+            String typeLine = reader.readLine();
+            if (typeLine == null) {
+                throw new IOException(UNEXPECTED_EOF);
+            }
+            types = typeLine.split(",");
+            currentType = 0;
         }
+    }
+
+    private void initializeNames() throws IOException {
+        if (names == null) {
+            String namesLine = reader.readLine();
+            if (namesLine == null) {
+                throw new IOException(UNEXPECTED_EOF);
+            }
+            names = namesLine.split(",");
+            if (names.length != types.length) {
+                throw new IOException(String.format(MISSMATCH, types.length, names.length));
+            }
+            currentName = 0;
+        }
+    }
+
+    private boolean initializeValues() throws IOException {
+        if (values == null) {
+            String valueLine = reader.readLine();
+            if (valueLine == null) {
+                return false;
+            }
+            values = valueLine.split(",");
+            if (values.length != types.length) {
+                throw new IOException(String.format(MISSMATCH, types.length, values.length));
+            }
+            currentValue = 0;
+        }
+        return true;
     }
 
     @Override

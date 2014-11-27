@@ -1,11 +1,7 @@
 package org.briljantframework.matrix.analysis;
 
-import org.briljantframework.data.transform.Transformation;
-import org.briljantframework.data.types.NumericType;
-import org.briljantframework.data.types.Types;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,27 +22,27 @@ public class PrincipalComponentAnalyzerTest {
 
     @Test
     public void testTransform() throws Exception {
-//        PrincipalComponentAnalyzer pca = new PrincipalComponentAnalyzer(2);
-//        MatrixDataFrame frame = new MatrixDataFrame(Types.range(NumericType::new, 4), matrix);
-//
-//
-//        System.out.println(frame);
-//        Transformation<MatrixDataFrame> pcaTransformation = pca.fit(frame);
-//        System.out.println(pcaTransformation.transform(frame, MatrixDataFrame.copyTo()));
+        //        PrincipalComponentAnalyzer pca = new PrincipalComponentAnalyzer(2);
+        //        MatrixDataFrame frame = new MatrixDataFrame(Types.range(NumericType::new, 4), matrix);
+        //
+        //
+        //        System.out.println(frame);
+        //        Transformation<MatrixDataFrame> pcaTransformation = pca.fit(frame);
+        //        System.out.println(pcaTransformation.transform(frame, MatrixDataFrame.copyTo()));
 
     }
 
     @Test
     public void testDimensionalityReduction() throws Exception {
-//        InvertibleTransformer<Matrix> dimensionalityReducer = new PrincipalComponentAnalyzer();
-//        InvertibleTransformation<Matrix> invertibleTransformation = dimensionalityReducer.fit(matrix);
-//
-//        Matrix reduced = invertibleTransformation.transform(matrix);
-//        System.out.println(invertibleTransformation.inverseTransform(reduced));
-//        System.out.println(matrix);
+        //        InvertibleTransformer<Matrix> dimensionalityReducer = new PrincipalComponentAnalyzer();
+        //        InvertibleTransformation<Matrix> invertibleTransformation = dimensionalityReducer.fit(matrix);
+        //
+        //        Matrix reduced = invertibleTransformation.transform(matrix);
+        //        System.out.println(invertibleTransformation.inverseTransform(reduced));
+        //        System.out.println(matrix);
 
 
-//        System.out.println(invertibleTransformation.transform(matrix));
+        //        System.out.println(invertibleTransformation.transform(matrix));
 
 
     }

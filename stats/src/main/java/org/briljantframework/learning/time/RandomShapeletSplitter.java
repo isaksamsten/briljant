@@ -23,16 +23,15 @@ import com.carrotsearch.hppc.IntDoubleMap;
 import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.example.Example;
 import org.briljantframework.learning.example.Examples;
 import org.briljantframework.learning.tree.Gain;
 import org.briljantframework.learning.tree.Splitter;
 import org.briljantframework.learning.tree.Tree;
-import org.briljantframework.matrix.RowVector;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.vector.CompoundVector;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +45,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     /**
      * The Metric.
      */
-//    final Distance metric;
+    //    final Distance metric;
     private final Random random = new Random();
     private final int inspectedShapelets;
 
@@ -60,7 +59,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
      */
     public RandomShapeletSplitter(Builder builder) {
         super(builder.distance.create(), builder.gain);
-//        this.metric = builder.distance.create();
+        //        this.metric = builder.distance.create();
         this.inspectedShapelets = builder.shapelets;
         this.upperLength = builder.upper;
         this.lowerLength = builder.lower;
@@ -114,8 +113,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     }
 
     @Override
-    public Tree.Split<ShapeletThreshold> find(Examples examples, MatrixDataFrame dataset, Column column) {
-        int timeSeriesLength = dataset.columns();
+    public Tree.Split<ShapeletThreshold> find(Examples examples, DataFrame x, Vector y) {
+        int timeSeriesLength = x.columns();
         int upper = this.upperLength;
         int lower = this.lowerLength;
 
@@ -135,34 +134,32 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
         List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
         for (int i = 0; i < maxShapelets; i++) {
-            RowVector timeSeries = dataset.getRow(examples.getRandomSample().getRandomExample().getIndex());
+            CompoundVector timeSeries = x.getRow(examples.getRandomSample().getRandomExample().getIndex());
             int length = random.nextInt(upper) + lower;
             int start = random.nextInt(timeSeriesLength - length);
             shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
         }
 
 
-        return findBestSplit(examples, dataset, column, shapelets);
+        return findBestSplit(examples, x, y, shapelets);
     }
 
     /**
      * Find best split.
      *
      * @param examples  the examples
-     * @param container the storage
-     * @param column
+     * @param x         the storage
+     * @param y
      * @param shapelets the shapelets  @return the tree . split
      */
-    protected Tree.Split<ShapeletThreshold> findBestSplit(Examples examples, MatrixDataFrame container,
-                                                          Column column, List<Shapelet> shapelets) {
+    protected Tree.Split<ShapeletThreshold> findBestSplit(Examples examples, DataFrame x, Vector y, List<Shapelet> shapelets) {
         Tree.Split<ShapeletThreshold> bestSplit = null;
         Threshold bestThreshold = Threshold.create(Double.NaN, Double.POSITIVE_INFINITY,
                 Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, null);
 
         for (Shapelet shapelet : shapelets) {
             IntDoubleMap distanceMap = new IntDoubleOpenHashMap();
-            Threshold threshold = bestDistanceThresholdInSample(examples, container, column,
-                    shapelet, distanceMap);
+            Threshold threshold = bestDistanceThresholdInSample(examples, x, y, shapelet, distanceMap);
 
             // TODO(isak) - don't split before we know the split is good
             Tree.Split<ShapeletThreshold> split = split(distanceMap, examples, threshold.threshold, shapelet);
@@ -188,19 +185,19 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
      * Best distance threshold in sample.
      *
      * @param examples    the examples
-     * @param frame       the frame
-     * @param column      the target
+     * @param x           the frame
+     * @param y           the target
      * @param shapelet    the shapelet
      * @param distanceMap the distance map
      * @return the double [ ]
      */
-    protected Threshold bestDistanceThresholdInSample(Examples examples, MatrixDataFrame frame, Column column,
+    protected Threshold bestDistanceThresholdInSample(Examples examples, DataFrame x, Vector y,
                                                       Shapelet shapelet, IntDoubleMap distanceMap) {
 
         List<ExampleDistance> exampleDistances = new ArrayList<>();
         double distanceSum = 0.0;
         for (Example example : examples) {
-            double distance = getDistanceMetric().distance(frame.getRow(example.getIndex()), shapelet);
+            double distance = getDistanceMetric().distance(x.getRow(example.getIndex()), shapelet);
             distanceSum += distance;
 
             exampleDistances.add(ExampleDistance.create(distance, example));
@@ -208,7 +205,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
         }
 
         Collections.sort(exampleDistances);
-        return findBestThreshold(exampleDistances, examples, column, distanceSum);
+        return findBestThreshold(exampleDistances, examples, y, distanceSum);
     }
 
     /**
@@ -229,7 +226,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
          * Partition every class separately
          */
         for (Examples.Sample sample : examples.samples()) {
-            Value target = sample.getTarget();
+            String target = sample.getTarget();
 
             Examples.Sample leftSample = Examples.Sample.create(target);
             Examples.Sample rightSample = Examples.Sample.create(target);
@@ -265,16 +262,15 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
      *
      * @param exampleDistances the example distances
      * @param examples         the examples
-     * @param targets          the targets
+     * @param y                the targets
      * @param distanceSum      the distance sum
      * @return the double [ ]
      */
-    public Threshold findBestThreshold(List<ExampleDistance> exampleDistances, Examples examples,
-                                       Column targets, double distanceSum) {
-        ObjectDoubleMap<Value> lt = new ObjectDoubleOpenHashMap<>();
-        ObjectDoubleMap<Value> gt = new ObjectDoubleOpenHashMap<>();
+    public Threshold findBestThreshold(List<ExampleDistance> exampleDistances, Examples examples, Vector y, double distanceSum) {
+        ObjectDoubleMap<String> lt = new ObjectDoubleOpenHashMap<>();
+        ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
-        List<Value> presentTargets = examples.getTargets();
+        List<String> presentTargets = examples.getTargets();
         double[] ltRelativeFrequency = new double[presentTargets.size()];
         double[] gtRelativeFrequency = new double[presentTargets.size()];
 
@@ -292,7 +288,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
         // Transfer weights from the initial example
         Example first = exampleDistances.get(0).example;
-        Value prevTarget = targets.getValue(first.getIndex());
+        String prevTarget = y.getAsString(first.getIndex());
         gt.addTo(prevTarget, -first.getWeight());
         lt.addTo(prevTarget, first.getWeight());
         gtWeight -= first.getWeight();
@@ -307,7 +303,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
         double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
         for (int i = 1; i < exampleDistances.size(); i++) {
             ExampleDistance ed = exampleDistances.get(i);
-            Value target = targets.getValue(ed.example.getIndex());
+            String target = y.getAsString(ed.example.getIndex());
 
 
             // IF previous target NOT EQUALS current target and the previous distance equals the current (except for
@@ -316,7 +312,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
                 // Generate the relative frequency distribution
                 for (int j = 0; j < presentTargets.size(); j++) {
-                    Value presentTarget = presentTargets.get(j);
+                    String presentTarget = presentTargets.get(j);
                     ltRelativeFrequency[j] = ltWeight != 0 ? lt.get(presentTarget) / ltWeight : 0;
                     gtRelativeFrequency[j] = gtWeight != 0 ? gt.get(presentTarget) / gtWeight : 0;
                 }
@@ -360,12 +356,12 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
         }
 
         double minimumMargin = Double.POSITIVE_INFINITY;
-//        for (ExampleDistance exampleDistance : exampleDistances) {
-//            double residual = Math.abs(threshold - exampleDistance.distance);
-//            if (residual < minimumMargin) {
-//                minimumMargin = residual;
-//            }
-//        }
+        //        for (ExampleDistance exampleDistance : exampleDistances) {
+        //            double residual = Math.abs(threshold - exampleDistance.distance);
+        //            if (residual < minimumMargin) {
+        //                minimumMargin = residual;
+        //            }
+        //        }
 
         return Threshold.create(threshold, lowestImpurity, largestGap, minimumMargin, bestLeftRight);
     }

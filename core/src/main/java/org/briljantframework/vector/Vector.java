@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.matrix.MatrixLike;
+
 import java.io.Serializable;
 
 /**
@@ -10,7 +12,7 @@ import java.io.Serializable;
  * <p>
  * Created by Isak Karlsson on 20/11/14.
  */
-public interface Vector extends Serializable {
+public interface Vector extends Serializable, MatrixLike {
 
     /**
      * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
@@ -45,13 +47,13 @@ public interface Vector extends Serializable {
     String getAsString(int index);
 
     /**
-     * Returns value as {@link org.briljantframework.vector.Vector}. {@link org.briljantframework.vector.Undefined}
-     * denotes missing values.
+     * Returns value as {@link org.briljantframework.vector.Value}.
+     * {@link org.briljantframework.vector.Undefined} denotes missing values.
      *
      * @param index the index
      * @return a {@code Vector}
      */
-    Vector getAsVector(int index);
+    Value getAsValue(int index);
 
     /**
      * Returns value as {@link Complex} or
@@ -116,6 +118,44 @@ public interface Vector extends Serializable {
             }
         }
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default double get(int i, int j) {
+        if (i == 1) {
+            return get(j);
+        } else if (j == 1) {
+            return get(i);
+        } else {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default double get(int index) {
+        return getAsDouble(index);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default int rows() {
+        return size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default int columns() {
+        return 1;
     }
 
     /**
@@ -231,6 +271,32 @@ public interface Vector extends Serializable {
     int compare(int a, int b);
 
     /**
+     * Compare value at {@code a} in {@code this} to value at {@code b} in {@code ba}.
+     * Equivalent to {@code this.getAsValue(a).compareTo(other.getAsValue(b))},
+     * but in most circumstances with greater performance.
+     *
+     * @param a     the index in {@code this}
+     * @param b     the index in {@code other}
+     * @param other the other vector
+     * @return the comparison
+     * @see java.lang.Comparable#compareTo(Object)
+     */
+    int compare(int a, int b, Vector other);
+
+    /**
+     * Compare value at position {@code a} in {@code this} to {@code other}. Equivalent
+     * to {@code this.getAsValue(a).compareTo(other)} but in most circumstances with
+     * greater performance.
+     *
+     * @param a     the index in {@code this}
+     * @param other the value
+     * @return the comparison
+     */
+    default int compare(int a, Value other) {
+        return compare(a, 0, other);
+    }
+
+    /**
      * Builds new vectors
      */
     public static interface Builder {
@@ -313,6 +379,8 @@ public interface Vector extends Serializable {
         default void addAll(Iterable<?> iterable) {
             iterable.forEach(this::add);
         }
+
+        void parseAndAdd(String value);
 
         /**
          * Returns the size of the resulting vector

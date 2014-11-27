@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
 import org.briljantframework.Utils;
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.data.values.Value;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
@@ -117,15 +116,15 @@ public class Result implements Chartable {
      * @return the confusion matrix
      */
     public ConfusionMatrix getAverageConfusionMatrix() {
-        Map<Value, Map<Value, Double>> matrix = new HashMap<>();
-        Set<Value> valueSet = new HashSet<>();
+        Map<String, Map<String, Double>> matrix = new HashMap<>();
+        Set<String> valueSet = new HashSet<>();
 
         double sum = 0.0;
         for (ConfusionMatrix cm : confusionMatrices) {
-            Set<Value> labels = cm.getLabels();
-            for (Value predicted : labels) {
-                for (Value actual : labels) {
-                    Map<Value, Double> actuals = matrix.get(predicted);
+            Set<String> labels = cm.getLabels();
+            for (String predicted : labels) {
+                for (String actual : labels) {
+                    Map<String, Double> actuals = matrix.get(predicted);
                     if (actuals == null) {
                         actuals = new HashMap<>();
                         matrix.put(predicted, actuals);
@@ -296,6 +295,11 @@ public class Result implements Chartable {
     }
 
     @Override
+    public JFreeChart getChart() {
+        return Chartable.create("Combined Result Metrics", getPlot());
+    }
+
+    @Override
     public Plot getPlot() {
         CombinedDomainCategoryPlot cdcp = new CombinedDomainCategoryPlot();
         for (Metric metric : metrics.values()) {
@@ -308,10 +312,5 @@ public class Result implements Chartable {
         }
         cdcp.getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
         return cdcp;
-    }
-
-    @Override
-    public JFreeChart getChart() {
-        return Chartable.create("Combined Result Metrics", getPlot());
     }
 }

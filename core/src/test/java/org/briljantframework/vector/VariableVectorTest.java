@@ -79,7 +79,7 @@ public class VariableVectorTest {
         VariableVector copy = builder.create();
         assertEquals(7, copy.size());
         assertEquals("hello", copy.getAsString(5));
-        assertEquals(Sequence.NA, copy.getAsVector(6));
+        assertEquals(CompoundVector.NA, copy.getAsValue(6));
 
     }
 
@@ -100,14 +100,14 @@ public class VariableVectorTest {
 
     @Test
     public void testGetAsObject() throws Exception {
-        assertEquals("1", sequence.getAsVector(0));
-        assertEquals("2", sequence.getAsVector(1));
-        assertEquals("hello", sequence.getAsVector(2));
-        assertEquals(Sequence.NA, sequence.getAsVector(4));
+        assertEquals("1", sequence.getAsValue(0));
+        assertEquals("2", sequence.getAsValue(1));
+        assertEquals("hello", sequence.getAsValue(2));
+        assertEquals(CompoundVector.NA, sequence.getAsValue(4));
     }
 
     @Test
     public void testGetType() throws Exception {
-        assertEquals(Sequence.TYPE, sequence.getType());
+        assertEquals(CompoundVector.TYPE, sequence.getType());
     }
 }

@@ -19,6 +19,8 @@
 
 package org.briljantframework.matrix;
 
+import com.google.common.base.Preconditions;
+
 import java.util.stream.DoubleStream;
 
 /**
@@ -56,7 +58,8 @@ public class Scalars {
      * @return the double
      */
     public static double min(double... args) {
-        return DoubleStream.of(args).min().orElseThrow(IllegalStateException::new);
+        Preconditions.checkArgument(args.length > 0);
+        return DoubleStream.of(args).min().getAsDouble();
     }
 
 }

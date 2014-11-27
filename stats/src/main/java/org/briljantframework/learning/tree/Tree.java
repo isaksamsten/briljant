@@ -20,22 +20,18 @@
 package org.briljantframework.learning.tree;
 
 import com.google.common.base.Preconditions;
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 08/09/14.
  *
- * @param <D> the type parameter
  * @param <T> the type parameter
  */
-public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C extends Column, T>
-        implements Classifier<R, D, C> {
+public abstract class Tree<T> implements Classifier {
 
     /**
      * The Mininum weight.
@@ -44,7 +40,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
     /**
      * The Splitter.
      */
-    protected final Splitter<D, C, T> splitter;
+    protected final Splitter<T> splitter;
     /**
      * The Examples.
      */
@@ -55,7 +51,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
      *
      * @param splitter the splitter
      */
-    protected Tree(Splitter<D, C, T> splitter) {
+    protected Tree(Splitter<T> splitter) {
         this(splitter, null);
     }
 
@@ -65,7 +61,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
      * @param splitter the splitter
      * @param examples the examples
      */
-    protected Tree(Splitter<D, C, T> splitter, Examples examples) {
+    protected Tree(Splitter<T> splitter, Examples examples) {
         this.splitter = splitter;
         this.examples = examples;
     }
@@ -78,7 +74,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
      * @param examples the examples
      * @return the node
      */
-    protected Node<T> build(D frame, C target, Examples examples) {
+    protected Node<T> build(DataFrame frame, Vector target, Examples examples) {
         return build(frame, target, examples, 0);
     }
 
@@ -91,7 +87,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
      * @param depth    the depth
      * @return the node
      */
-    protected Node<T> build(D frame, C target, Examples examples, int depth) {
+    protected Node<T> build(DataFrame frame, Vector target, Examples examples, int depth) {
         /*
          * STEP 0: pre-prune some useless branches
          */
@@ -140,7 +136,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          * @param example the example
          * @return the prediction
          */
-        Prediction visit(Visitor<T> visitor, Row example);
+        Prediction visit(Visitor<T> visitor, Vector example);
     }
 
     /**
@@ -157,7 +153,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          * @param example the example
          * @return the prediction
          */
-        default Prediction visit(Node<T> node, Row example) {
+        default Prediction visit(Node<T> node, Vector example) {
             return node.visit(this, example);
         }
 
@@ -168,7 +164,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          * @param example the example
          * @return the prediction
          */
-        Prediction visitLeaf(Leaf<T> leaf, Row example);
+        Prediction visitLeaf(Leaf<T> leaf, Vector example);
 
         /**
          * Visit node.
@@ -177,7 +173,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          * @param example the example
          * @return the prediction
          */
-        Prediction visitBranch(Branch<T> node, Row example);
+        Prediction visitBranch(Branch<T> node, Vector example);
     }
 
 
@@ -192,7 +188,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
         /**
          * The Label.
          */
-        private Value label;
+        private String label;
         /**
          * The Total.
          */
@@ -204,7 +200,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          * @param label             the label
          * @param relativeFrequency the total
          */
-        public Leaf(Value label, double relativeFrequency) {
+        public Leaf(String label, double relativeFrequency) {
             this.label = label;
             this.relativeFrequency = relativeFrequency;
         }
@@ -217,7 +213,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          * @return the leaf
          */
         public static <T> Leaf<T> fromExamples(Examples examples) {
-            Value probable = examples.getMostProbable();
+            String probable = examples.getMostProbable();
             return new Leaf<>(probable, examples.get(probable).getWeight() / examples.getTotalWeight());
         }
 
@@ -235,12 +231,12 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
          *
          * @return the label
          */
-        public Value getLabel() {
+        public String getLabel() {
             return label;
         }
 
         @Override
-        public Prediction visit(Visitor<T> visitor, Row example) {
+        public Prediction visit(Visitor<T> visitor, Vector example) {
             return visitor.visitLeaf(this, example);
         }
     }
@@ -307,7 +303,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
         }
 
         @Override
-        public Prediction visit(Visitor<T> visitor, Row example) {
+        public Prediction visit(Visitor<T> visitor, Vector example) {
             return visitor.visitBranch(this, example);
         }
     }
@@ -317,7 +313,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
      *
      * @param <T> the type parameter
      */
-    public abstract static class Model<R extends Row, D extends DataFrame<? extends R>, T> implements org.briljantframework.learning.Model<R, D> {
+    public abstract static class Model<T> implements org.briljantframework.learning.Model {
 
         private final Visitor<T> predictionVisitor;
 
@@ -344,7 +340,7 @@ public abstract class Tree<R extends Row, D extends DataFrame<? extends R>, C ex
         }
 
         @Override
-        public Prediction predict(R row) {
+        public Prediction predict(Vector row) {
             return predictionVisitor.visit(node, row);
         }
 

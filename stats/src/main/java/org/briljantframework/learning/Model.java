@@ -19,9 +19,9 @@
 
 package org.briljantframework.learning;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.learning.evaluation.result.Metric;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.CompoundVector;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
  * implementation. However, it might be useful to have for example a summary() function or similar. Perhaps even a
  * plot(onto) function.
  */
-public interface Model<R extends Row, D extends DataFrame<? extends R>> {
+public interface Model {
 
     /**
      * Predict the class label every example in dataset
@@ -45,23 +45,19 @@ public interface Model<R extends Row, D extends DataFrame<? extends R>> {
      * @param dataset to determine class labels for
      * @return the predictions
      */
-    default Predictions predict(D dataset) {
+    default Predictions predict(DataFrame dataset) {
         List<Prediction> predictions = new ArrayList<>();
-        for (R e : dataset) {
+        for (CompoundVector e : dataset) {
             predictions.add(predict(e));
         }
         return Predictions.create(predictions);
     }
 
     /**
-     * Predict the class label of a specific {@link org.briljantframework.data.Row}
+     * Predict the class label of a specific {@link org.briljantframework.vector.Vector}
      *
      * @param row to which the class label shall be assigned
      * @return the prediction
      */
-    Prediction predict(R row);
-
-    default <T extends Metric> T getMetric(Class<T> metric) {
-        throw new UnsupportedOperationException("This model have not metrics");
-    }
+    Prediction predict(Vector row);
 }

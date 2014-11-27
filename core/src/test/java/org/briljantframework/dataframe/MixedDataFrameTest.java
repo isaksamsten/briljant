@@ -1,7 +1,7 @@
 package org.briljantframework.dataframe;
 
-import org.briljantframework.data.transform.RemoveIncompleteCases;
-import org.briljantframework.data.transform.RemoveIncompleteColumns;
+import org.briljantframework.transform.RemoveIncompleteCases;
+import org.briljantframework.transform.RemoveIncompleteColumns;
 import org.briljantframework.vector.*;
 import org.junit.Test;
 

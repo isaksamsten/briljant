@@ -19,7 +19,6 @@
 
 package org.briljantframework.matrix.math;
 
-import org.briljantframework.exceptions.ArgumentException;
 import org.briljantframework.matrix.*;
 import org.briljantframework.matrix.analysis.PrincipalComponentAnalysis;
 import org.briljantframework.matrix.analysis.PrincipalComponentAnalyzer;
@@ -28,7 +27,7 @@ import org.briljantframework.matrix.decomposition.LuDecomposition;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposer;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.solve.LeastLinearSquaresSolver;
-import org.briljantframework.matrix.transformation.InverseTransformation;
+import org.briljantframework.transform.InverseTransformation;
 
 /**
  * Created by isak on 23/06/14.
@@ -197,7 +196,7 @@ public class LinearAlgebra {
         if (x.isSquare()) {
             return new LuDecomposer().decompose(x).getDeterminant();
         } else {
-            throw new ArgumentException("det", "argument must be a square array");
+            throw new IllegalArgumentException("argument must be a square array");
         }
     }
 

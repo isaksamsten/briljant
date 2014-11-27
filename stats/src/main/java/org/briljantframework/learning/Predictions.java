@@ -1,7 +1,6 @@
 package org.briljantframework.learning;
 
 import com.google.common.base.Preconditions;
-import org.briljantframework.data.values.Value;
 
 import java.util.*;
 
@@ -11,7 +10,7 @@ import java.util.*;
 public class Predictions implements Iterable<Prediction> {
 
     private final List<Prediction> predictions;
-    private final Set<Value> labels;
+    private final Set<String> labels;
 
     /**
      * Instantiates a new Predictions.
@@ -19,7 +18,7 @@ public class Predictions implements Iterable<Prediction> {
      * @param predictions the predictions
      * @param labels
      */
-    private Predictions(List<Prediction> predictions, Set<Value> labels) {
+    private Predictions(List<Prediction> predictions, Set<String> labels) {
         this.predictions = Collections.unmodifiableList(predictions);
         this.labels = Collections.unmodifiableSet(labels);
     }
@@ -35,7 +34,7 @@ public class Predictions implements Iterable<Prediction> {
         Preconditions.checkArgument(predictions.size() > 0);
 
         ArrayList<Prediction> copy = new ArrayList<>(predictions.size());
-        Set<Value> labels = new HashSet<>();
+        Set<String> labels = new HashSet<>();
         for (Prediction p : predictions) {
             copy.add(p);
             labels.addAll(p.getTargets());
@@ -86,7 +85,7 @@ public class Predictions implements Iterable<Prediction> {
      *
      * @return the labels
      */
-    public Set<Value> getLabels() {
+    public Set<String> getLabels() {
         return labels;
     }
 

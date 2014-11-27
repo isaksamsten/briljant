@@ -12,41 +12,7 @@ import java.util.stream.IntStream;
 /**
  * Created by Isak Karlsson on 21/11/14.
  */
-public class ComplexVector implements Vector, Iterable<Complex> {
-
-    public static final Type TYPE = new Type() {
-        @Override
-        public Builder newBuilder() {
-            return new Builder();
-        }
-
-        @Override
-        public Builder newBuilder(int size) {
-            return new Builder(size);
-        }
-
-        @Override
-        public Class<?> getDataClass() {
-            return Complex.class;
-        }
-
-        @Override
-        public boolean isNA(Object value) {
-            return value == null || (value instanceof Complex && ((Complex) value).isNaN());
-        }
-
-        @Override
-        public int compare(int a, Vector va, int b, Vector ba) {
-            throw new UnsupportedOperationException("Can't compare complex numbers");
-        }
-
-        @Override
-        public String toString() {
-            return "complex";
-        }
-    };
-
-    public static final Complex NA = Complex.NaN;
+public class ComplexVector extends AbstractComplexVector {
 
     private final double[] values;
     private final int size;
@@ -106,46 +72,6 @@ public class ComplexVector implements Vector, Iterable<Complex> {
      * {@inheritDoc}
      */
     @Override
-    public int getAsInt(int index) {
-        double value = getAsDouble(index);
-        if (Double.isNaN(value)) {
-            return IntVector.NA;
-        } else {
-            return (int) value;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Binary getAsBinary(int index) {
-        return Binary.valueOf(getAsInt(index));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getAsString(int index) {
-        Complex complex = getAsComplex(index);
-        if (complex.isNaN()) {
-            return StringVector.NA;
-        } else {
-            return complex.toString();
-        }
-    }
-
-    @Override
-    public Vector getAsVector(int index) {
-        Complex complex = getAsComplex(index);
-        return complex.isNaN() ? Undefined.INSTANCE : new ComplexVector(complex);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Complex getAsComplex(int index) {
         int pos = index * 2;
         double real = values[pos], imag = values[pos + 1];
@@ -160,33 +86,8 @@ public class ComplexVector implements Vector, Iterable<Complex> {
      * {@inheritDoc}
      */
     @Override
-    public String toString(int index) {
-        Complex complex = getAsComplex(index);
-        return complex.isNaN() ? "NA" : complex.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNA(int index) {
-        return Double.isNaN(getAsDouble(index));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int size() {
         return size;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Type getType() {
-        return TYPE;
     }
 
     /**
@@ -222,15 +123,6 @@ public class ComplexVector implements Vector, Iterable<Complex> {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        System.out.println(size);
-        return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
-    }
-
-    /**
      * Returns the underlying array which represents complex numbers as
      * two consecutive positions in the array.
      * <p>
@@ -248,8 +140,9 @@ public class ComplexVector implements Vector, Iterable<Complex> {
      * {@inheritDoc}
      */
     @Override
-    public int compare(int a, int b) {
-        throw new UnsupportedOperationException("Can't compare complex numbers");
+    public String toString() {
+        System.out.println(size);
+        return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
     }
 
     /**
@@ -356,6 +249,11 @@ public class ComplexVector implements Vector, Iterable<Complex> {
                 add(from.getAsComplex(i));
             }
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(String value) {
+            addNA(); // TODO(isak): how do I parse Complexes
         }
 
         @Override

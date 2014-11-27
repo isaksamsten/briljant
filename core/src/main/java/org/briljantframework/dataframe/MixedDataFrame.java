@@ -1,5 +1,6 @@
 package org.briljantframework.dataframe;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
 import org.briljantframework.matrix.DenseMatrix;
@@ -81,23 +82,23 @@ public class MixedDataFrame implements DataFrame {
         this.rows = rows;
     }
 
-    public MixedDataFrame(Iterable<? extends Sequence> sequences) {
+    public MixedDataFrame(Iterable<? extends CompoundVector> sequences) {
         this.names = new ArrayList<>();
         this.columns = new ArrayList<>();
 
         List<Vector.Builder> builders = new ArrayList<>();
         int columns = 0, rows = 0;
-        for (Sequence row : sequences) {
+        for (CompoundVector row : sequences) {
             if (columns == 0) {
                 columns = row.size();
             }
             checkArgument(row.size() == columns, "Arguments imply different numbers of rows: %s, %s.", columns, row.size());
             for (int i = 0; i < row.size(); i++) {
                 if (builders.size() <= i) {
-                    checkArgument(row.getType(i) != Sequence.TYPE, "Can't create untyped vector as column.");
+                    checkArgument(row.getType(i) != CompoundVector.TYPE, "Can't create untyped vector as column.");
                     builders.add(row.getType(i).newBuilder());
                 }
-                builders.get(i).add(row.getAsVector(i), 0);
+                builders.get(i).add(row.getAsValue(i), 0);
             }
             rows++;
         }
@@ -198,7 +199,7 @@ public class MixedDataFrame implements DataFrame {
      * {@inheritDoc}
      */
     @Override
-    public Sequence getRow(int index) {
+    public CompoundVector getRow(int index) {
         return new MixedDataFrameRow(this, index);
     }
 
@@ -260,8 +261,8 @@ public class MixedDataFrame implements DataFrame {
     }
 
     @Override
-    public Iterator<Sequence> iterator() {
-        return new UnmodifiableIterator<Sequence>() {
+    public Iterator<CompoundVector> iterator() {
+        return new UnmodifiableIterator<CompoundVector>() {
             private int index = 0;
 
             @Override
@@ -270,7 +271,7 @@ public class MixedDataFrame implements DataFrame {
             }
 
             @Override
-            public Sequence next() {
+            public CompoundVector next() {
                 return getRow(index++);
             }
         };
@@ -285,11 +286,26 @@ public class MixedDataFrame implements DataFrame {
         private List<String> colNames = null;
 
         public Builder(Type... types) {
-            buffers = new ArrayList<>(types.length);
-            colNames = new ArrayList<>(types.length);
-            for (int i = 0; i < types.length; i++) {
-                buffers.add(types[i].newBuilder());
-                colNames.add(String.valueOf(i));
+            this(Arrays.asList(types));
+        }
+
+        public Builder(Collection<? extends Type> types) {
+            buffers = new ArrayList<>(types.size());
+            colNames = new ArrayList<>(types.size());
+            int index = 0;
+            for (Type type : types) {
+                colNames.add(String.valueOf(index++));
+                buffers.add(type.newBuilder());
+            }
+        }
+
+        public Builder(Collection<String> colNames, Collection<? extends Type> types) {
+            Preconditions.checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
+                    "Column names and types does not match.");
+            this.buffers = new ArrayList<>(types.size());
+            this.colNames = new ArrayList<>(colNames);
+            for (Type type : types) {
+                buffers.add(type.newBuilder());
             }
         }
 
@@ -394,6 +410,11 @@ public class MixedDataFrame implements DataFrame {
             }
             Collections.swap(buffers, a, b);
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(int index, String value) {
+            buffers.get(index).parseAndAdd(value);
         }
 
         @Override

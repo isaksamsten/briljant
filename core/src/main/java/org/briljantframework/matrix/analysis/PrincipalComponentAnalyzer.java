@@ -19,8 +19,6 @@
 
 package org.briljantframework.matrix.analysis;
 
-import org.briljantframework.data.transform.InvertibleTransformation;
-import org.briljantframework.data.transform.InvertibleTransformer;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrices;
@@ -28,6 +26,8 @@ import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposer;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
+import org.briljantframework.transform.InvertibleTransformation;
+import org.briljantframework.transform.InvertibleTransformer;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal transformation to convert a set

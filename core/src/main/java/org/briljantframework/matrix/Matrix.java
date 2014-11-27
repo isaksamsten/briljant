@@ -345,7 +345,12 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
         return DenseMatrix.of(list.size(), 1, list.toArray());
     }
 
-    @Override
+    /**
+     * Create a copy of this matrix. This contract stipulates that modifications
+     * of the copy does not affect the original.
+     *
+     * @return the copy
+     */
     Matrix copy();
 
     /**
@@ -363,13 +368,13 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix mmul(MatrixLike other);
+    Matrix mmul(Matrix other);
 
     /**
      * @param other
      * @return
      */
-    Matrix mul(MatrixLike other);
+    Matrix mul(Matrix other);
 
     /**
      * Multiply inplace.
@@ -385,7 +390,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix muli(MatrixLike other);
+    Matrix muli(Matrix other);
 
     /**
      * Add r.
@@ -393,7 +398,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix add(MatrixLike other);
+    Matrix add(Matrix other);
 
     /**
      * Add r.
@@ -409,7 +414,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix addi(MatrixLike other);
+    Matrix addi(Matrix other);
 
     /**
      * Add inplace.
@@ -425,7 +430,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix sub(MatrixLike other);
+    Matrix sub(Matrix other);
 
     /**
      * this - other
@@ -441,7 +446,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix subi(MatrixLike other);
+    Matrix subi(Matrix other);
 
     /**
      * this <- this - other
@@ -457,7 +462,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix rsub(MatrixLike other);
+    Matrix rsub(Matrix other);
 
     /**
      * other - this
@@ -473,7 +478,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix rsubi(MatrixLike other);
+    Matrix rsubi(Matrix other);
 
     /**
      * this <- other - this
@@ -489,7 +494,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix div(MatrixLike other);
+    Matrix div(Matrix other);
 
     /**
      * this / other
@@ -515,7 +520,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param other the other
      * @return r r
      */
-    Matrix divi(MatrixLike other);
+    Matrix divi(Matrix other);
 
     /**
      * this <- this / other
@@ -525,9 +530,9 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      */
     Matrix divi(double other);
 
-    Matrix rdiv(MatrixLike other);
+    Matrix rdiv(Matrix other);
 
-    Matrix rdivi(MatrixLike other);
+    Matrix rdivi(Matrix other);
 
     /**
      * other / this
@@ -553,31 +558,57 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
     Matrix negate();
 
     /**
+     * Set value at row i and column j to value
+     *
+     * @param i     row
+     * @param j     column
+     * @param value value
+     */
+    void put(int i, int j, double value);
+
+    /**
+     * Puts <code>value</code> at the linearized position <code>index</code>.
+     *
+     * @param index the index
+     * @param value the value
+     * @see #get(int)
+     */
+    void put(int index, double value);
+
+    /**
+     * Raw view of the column-major underlying array. In some instances it might be possible to mutate this (e.g., if
+     * the implementation provides a direct reference. However, there are nos such guarantees).
+     *
+     * @return the underlying array. Touch with caution.
+     */
+    double[] asDoubleArray();
+
+    /**
      * Created by Isak Karlsson on 04/09/14.
      *
      * @param <T> the type parameter
      */
     @FunctionalInterface
-    interface Copy<T extends MatrixLike> {
+    interface Copy<T extends Matrix> {
 
         /**
          * Copy the tensor while retaining the shape
          *
-         * @param tensorLike a tensorLike
+         * @param matrix a tensorLike
          * @return a copy of tensorLike
          */
-        default T copyMatrix(MatrixLike tensorLike) {
-            return copyMatrix(tensorLike.getShape(), tensorLike);
+        default T copyMatrix(MatrixLike matrix) {
+            return copyMatrix(matrix.getShape(), matrix);
         }
 
         /**
          * Copy the tensor and perhaps change the shape
          *
-         * @param shape      the new shape
-         * @param tensorLike the tensorLike
-         * @return a copy of tensorLike
+         * @param shape  the new shape
+         * @param matrix the matrix
+         * @return a copy of matrix
          */
-        T copyMatrix(Shape shape, MatrixLike tensorLike);
+        T copyMatrix(Shape shape, MatrixLike matrix);
     }
 
     /**
@@ -586,7 +617,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
      * @param <T> the type parameter
      */
     @FunctionalInterface
-    interface New<T extends MatrixLike> {
+    interface New<T extends Matrix> {
 
         /**
          * New tensor.

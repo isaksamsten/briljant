@@ -19,19 +19,18 @@
 
 package org.briljantframework.learning.tree;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.CategoricColumn;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 17/09/14.
  */
-public class ClassificationTree extends Tree<Row, DataFrame<?>, CategoricColumn, ValueThreshold> {
+public class ClassificationTree extends Tree<ValueThreshold> {
 
     /**
      * The Prediction visitor.
@@ -63,17 +62,17 @@ public class ClassificationTree extends Tree<Row, DataFrame<?>, CategoricColumn,
      * @param splitter the splitter
      * @return the builder
      */
-    public static Builder withSplitter(Splitter.Builder<? extends Splitter<DataFrame<?>, CategoricColumn, ValueThreshold>> splitter) {
+    public static Builder withSplitter(Splitter.Builder<? extends Splitter<ValueThreshold>> splitter) {
         return new Builder(splitter);
     }
 
     @Override
-    public Model fit(DataFrame<?> dataFrame, CategoricColumn column) {
+    public Model fit(DataFrame dataFrame, Vector column) {
         Examples examples = this.examples;
 
         // Initialize the examples, if not already initialized
         if (examples == null)
-            examples = Examples.fromTarget(column);
+            examples = Examples.fromVector(column);
 
         Node<ValueThreshold> node = build(dataFrame, column, examples);
         return new Model(node, predictionVisitor);
@@ -82,14 +81,15 @@ public class ClassificationTree extends Tree<Row, DataFrame<?>, CategoricColumn,
 
     private static final class SimplePredictionVisitor implements Visitor<ValueThreshold> {
         @Override
-        public Prediction visitLeaf(Leaf<ValueThreshold> leaf, Row example) {
+        public Prediction visitLeaf(Leaf<ValueThreshold> leaf, Vector example) {
             return Prediction.unary(leaf.getLabel());//, leaf.getRelativeFrequency());
         }
 
         @Override
-        public Prediction visitBranch(Branch<ValueThreshold> node, Row example) {
-            Value value = example.getValue(node.getThreshold().getAxis());
-            if (node.getThreshold().getValue().compareTo(value) <= 0) {
+        public Prediction visitBranch(Branch<ValueThreshold> node, Vector example) {
+            Value value = node.getThreshold().getValue();
+            int axis = node.getThreshold().getAxis();
+            if (value.getType().compare(value, axis, example) <= 0) { // TODO(isak): Check
                 return visit(node.getLeft(), example);
             } else {
                 return visit(node.getRight(), example);
@@ -100,7 +100,7 @@ public class ClassificationTree extends Tree<Row, DataFrame<?>, CategoricColumn,
     /**
      * The type Model.
      */
-    public static class Model extends Tree.Model<Row, DataFrame<?>, ValueThreshold> {
+    public static class Model extends Tree.Model<ValueThreshold> {
 
         private Model(Node<ValueThreshold> node, Visitor<ValueThreshold> predictionVisitor) {
             super(node, predictionVisitor);
@@ -110,17 +110,17 @@ public class ClassificationTree extends Tree<Row, DataFrame<?>, CategoricColumn,
     /**
      * The type Builder.
      */
-    public static class Builder implements Ensemble.Member<Row, DataFrame<? extends Row>, CategoricColumn>,
+    public static class Builder implements Ensemble.Member,
             Classifier.Builder<ClassificationTree> {
 
-        private final Splitter.Builder<? extends Splitter<DataFrame<?>, CategoricColumn, ValueThreshold>> splitter;
+        private final Splitter.Builder<? extends Splitter<ValueThreshold>> splitter;
 
         /**
          * Instantiates a new Builder.
          *
          * @param splitter the splitter
          */
-        public Builder(Splitter.Builder<? extends Splitter<DataFrame<?>, CategoricColumn, ValueThreshold>> splitter) {
+        public Builder(Splitter.Builder<? extends Splitter<ValueThreshold>> splitter) {
             this.splitter = splitter;
         }
 

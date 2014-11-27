@@ -1,17 +1,16 @@
 package org.briljantframework.learning.tree;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.CategoricColumn;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Model;
 import org.briljantframework.learning.ensemble.Ensemble;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 19/11/14.
  */
-public class ClassificationForest implements Classifier<Row, DataFrame<? extends Row>, CategoricColumn> {
-    private Ensemble<Row, DataFrame<? extends Row>, CategoricColumn> ensemble;
+public class ClassificationForest implements Classifier {
+    private Ensemble ensemble;
 
     protected ClassificationForest(Builder builder) {
         ensemble = builder.ensemble.create();
@@ -22,7 +21,7 @@ public class ClassificationForest implements Classifier<Row, DataFrame<? extends
     }
 
     @Override
-    public Model<Row, DataFrame<? extends Row>> fit(DataFrame<? extends Row> dataset, CategoricColumn target) {
+    public Model fit(DataFrame dataset, Vector target) {
         return ensemble.fit(dataset, target);
     }
 
@@ -35,7 +34,7 @@ public class ClassificationForest implements Classifier<Row, DataFrame<? extends
 
         private RandomSplitter.Builder splitter = RandomSplitter.withMaximumFeatures(-1);
         private ClassificationTree.Builder tree = ClassificationTree.withSplitter(splitter);
-        private Ensemble.Builder<Row, DataFrame<? extends Row>, CategoricColumn> ensemble = Ensemble.withMember(tree);
+        private Ensemble.Builder ensemble = Ensemble.withMember(tree);
 
         public Builder withSize(int size) {
             ensemble.withSize(size);

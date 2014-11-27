@@ -9,43 +9,7 @@ import java.util.Iterator;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class BinaryVector implements Vector, Iterable<Binary> {
-
-    public static final Binary NA = Binary.NA;
-
-    public static Type TYPE = new Type() {
-        @Override
-        public Builder newBuilder() {
-            return null;
-        }
-
-        @Override
-        public Builder newBuilder(int size) {
-            return null;
-        }
-
-        @Override
-        public Class<?> getDataClass() {
-            return Binary.class;
-        }
-
-        @Override
-        public boolean isNA(Object value) {
-            return value == null ||
-                    (value instanceof Binary && value == NA) ||
-                    (value instanceof Integer && (int) value == IntVector.NA);
-        }
-
-        @Override
-        public int compare(int a, Vector va, int b, Vector ba) {
-            return va.getAsInt(a) - ba.getAsInt(b);
-        }
-
-        @Override
-        public String toString() {
-            return "binary";
-        }
-    };
+public class BinaryVector extends AbstractBinaryVector {
 
     private int[] values;
 
@@ -88,59 +52,13 @@ public class BinaryVector implements Vector, Iterable<Binary> {
     }
 
     @Override
-    public double getAsDouble(int index) {
-        int i = getAsInt(index);
-        if (i == IntVector.NA) {
-            return DoubleVector.NA;
-        } else {
-            return i;
-        }
-    }
-
-    @Override
     public int getAsInt(int index) {
         return values[index];
     }
 
     @Override
-    public Binary getAsBinary(int index) {
-        return Binary.valueOf(getAsInt(index));
-    }
-
-    @Override
-    public String getAsString(int index) {
-        Binary bin = Binary.valueOf(index);
-        if (bin == Binary.NA) {
-            return StringVector.NA;
-        } else {
-            return bin.name();
-        }
-    }
-
-    @Override
-    public Vector getAsVector(int index) {
-        Binary binary = getAsBinary(index);
-        return binary == NA ? Undefined.INSTANCE : new BinaryVector(binary.asInt());
-    }
-
-    @Override
-    public String toString(int index) {
-        return getAsBinary(index).name();
-    }
-
-    @Override
-    public boolean isNA(int index) {
-        return getAsInt(index) == IntVector.NA;
-    }
-
-    @Override
     public int size() {
         return values.length;
-    }
-
-    @Override
-    public Type getType() {
-        return TYPE;
     }
 
     @Override
@@ -164,11 +82,6 @@ public class BinaryVector implements Vector, Iterable<Binary> {
 
     public int[] asIntArray() {
         return values;
-    }
-
-    @Override
-    public int compare(int a, int b) {
-        return getAsInt(a) - getAsInt(b);
     }
 
     public static class Builder implements Vector.Builder {
@@ -242,6 +155,19 @@ public class BinaryVector implements Vector, Iterable<Binary> {
                 add(from.getAsBinary(i));
             }
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(String value) {
+            if (value == null) {
+                addNA();
+            } else {
+                if (value.equalsIgnoreCase("true")) {
+                    add(Binary.TRUE);
+                } else {
+                    add(Binary.FALSE);
+                }
+            }
         }
 
         @Override

@@ -21,13 +21,11 @@ package org.briljantframework.learning.ensemble;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +51,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <p>
  * Created by Isak Karlsson on 10/09/14.
  */
-public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends Column> implements Classifier<R, D, T> {
+public class Ensemble implements Classifier {
 
     private static final Logger logger = Logger.getLogger(Ensemble.class.getSimpleName());
 
@@ -65,14 +63,14 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
     });
     private final int size;
 
-    private final Member<R, D, T> member;
+    private final Member member;
 
     /**
      * Instantiates a new Ensemble.
      *
      * @param builder the builder
      */
-    protected Ensemble(Builder<R, D, T> builder) {
+    protected Ensemble(Builder builder) {
         this.member = checkNotNull(builder.member, "Require a member");
         this.sampler = checkNotNull(builder.sampler, "Requires a sampler");
         this.size = builder.size;
@@ -84,8 +82,8 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
      * @param member the builder
      * @return the bootstrap
      */
-    public static <R extends Row, D extends DataFrame<? extends R>, T extends Column> Builder<R, D, T> withMember(Member<R, D, T> member) {
-        return new Builder<>(member);
+    public static Builder withMember(Member member) {
+        return new Builder(member);
     }
 
     public int size() {
@@ -93,18 +91,18 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
     }
 
     @Override
-    public Model<R, D> fit(D dataset, T target) {
+    public Model fit(DataFrame dataset, Vector target) {
         checkArgument(dataset.rows() > 0 && dataset.columns() > 0);
         checkArgument(target.size() > 0 && target.size() == dataset.rows());
 
-        Examples examples = Examples.fromTarget(target);
+        Examples examples = Examples.fromVector(target);
 
-        List<org.briljantframework.learning.Model<R, D>> models = new ArrayList<>();
-        List<Future<org.briljantframework.learning.Model<R, D>>> futures = new ArrayList<>();
+        List<org.briljantframework.learning.Model> models = new ArrayList<>();
+        List<Future<org.briljantframework.learning.Model>> futures = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             futures.add(service.submit(() -> {
                 Examples bootstrapped = sampler.sample(examples);
-                Classifier<R, D, T> classifier = member.create(bootstrapped);
+                Classifier classifier = member.create(bootstrapped);
                 return classifier.fit(dataset, target);
             }));
         }
@@ -117,7 +115,7 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
             }
         }
 
-        return new Model<>(models, size);
+        return new Model(models, size);
     }
 
     /**
@@ -128,7 +126,7 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
      * <p>
      * Created by Isak Karlsson on 15/09/14.
      */
-    public static interface Member<R extends Row, D extends DataFrame<? extends R>, T extends Column> {
+    public static interface Member {
 
         /**
          * Create classifier.
@@ -136,20 +134,20 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
          * @param sample the sample
          * @return the classifier
          */
-        Classifier<R, D, T> create(Examples sample);
+        Classifier create(Examples sample);
 
     }
 
     /**
      * The type Builder.
      */
-    public static class Builder<R extends Row, D extends DataFrame<? extends R>, T extends Column> implements Classifier.Builder<Ensemble<R, D, T>> {
+    public static class Builder implements Classifier.Builder<Ensemble> {
 
         private int size = 100;
-        private Member<R, D, T> member;
+        private Member member;
         private Sampler sampler = Sampler.IDENTITY;
 
-        private Builder(Member<R, D, T> member) {
+        private Builder(Member member) {
             this.member = member;
         }
 
@@ -159,7 +157,7 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
          * @param member the member
          * @return the builder
          */
-        public Builder<R, D, T> withMember(Member<R, D, T> member) {
+        public Builder withMember(Member member) {
             this.member = member;
             return this;
         }
@@ -170,7 +168,7 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
          * @param size the size
          * @return the builder
          */
-        public Builder<R, D, T> withSize(int size) {
+        public Builder withSize(int size) {
             this.size = size;
             return this;
         }
@@ -181,14 +179,14 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
          * @param randomizer the sampler
          * @return the builder
          */
-        public Builder<R, D, T> withSampler(Sampler randomizer) {
+        public Builder withSampler(Sampler randomizer) {
             this.sampler = randomizer;
             return this;
         }
 
         @Override
-        public Ensemble<R, D, T> create() {
-            return new Ensemble<>(this);
+        public Ensemble create() {
+            return new Ensemble(this);
         }
     }
 
@@ -197,9 +195,9 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
      * <p>
      * TODO(isak): predictions from members can be combined in different ways.
      */
-    public static class Model<R extends Row, D extends DataFrame<? extends R>> implements org.briljantframework.learning.Model<R, D> {
+    public static class Model implements org.briljantframework.learning.Model {
 
-        private final List<? extends org.briljantframework.learning.Model<R, D>> models;
+        private final List<? extends org.briljantframework.learning.Model> models;
         private final int size;
 
 
@@ -209,20 +207,20 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
          * @param models the models
          * @param size   the i
          */
-        private Model(List<? extends org.briljantframework.learning.Model<R, D>> models, int size) {
+        private Model(List<? extends org.briljantframework.learning.Model> models, int size) {
             this.models = models;
             this.size = size;
         }
 
         @Override
-        public Prediction predict(R row) {
+        public Prediction predict(Vector row) {
             List<Prediction> predictions = models.parallelStream().map(model -> model.predict(row)).collect(Collectors.toList());
             return majority(predictions, size);
         }
 
         private Prediction majority(List<Prediction> predictions, int size) {
             Multiset<Prediction> targets = HashMultiset.create(predictions);
-            List<Value> values = new ArrayList<>();
+            List<String> values = new ArrayList<>();
             List<Double> probabilities = new ArrayList<>();
             for (Multiset.Entry<Prediction> kv : targets.entrySet()) {
                 Prediction prediction = kv.getElement();
@@ -237,7 +235,7 @@ public class Ensemble<R extends Row, D extends DataFrame<? extends R>, T extends
          *
          * @return the models
          */
-        public List<? extends org.briljantframework.learning.Model<R, D>> getModels() {
+        public List<? extends org.briljantframework.learning.Model> getModels() {
             return Collections.unmodifiableList(models);
         }
     }

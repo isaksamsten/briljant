@@ -45,7 +45,13 @@ public class BooleanMatrix implements MatrixLike {
         values[index(i, j)] = value;
     }
 
-    @Override
+    /**
+     * Set value at row i and column j to value
+     *
+     * @param i     row
+     * @param j     column
+     * @param value value
+     */
     public void put(int i, int j, double value) {
         values[index(i, j)] = value != 0;
     }
@@ -57,16 +63,59 @@ public class BooleanMatrix implements MatrixLike {
     }
 
     @Override
-    public void put(int index, double value) {
+    public double get(int index) {
         checkArgument(index > 0 && index < values.length);
-        values[index] = value != 0;
+        return values[index] ? 1 : 0;
     }
 
-    @Override
-    public BooleanMatrix copy() {
-        BooleanMatrix bm = new BooleanMatrix(getShape());
-        System.arraycopy(values, 0, bm.values, 0, values.length);
-        return bm;
+    /**
+     * Is square.
+     *
+     * @return true if rows() == columns()
+     */
+    public boolean isSquare() {
+        return rows() == columns();
+    }
+
+    /**
+     * The shape of the current matrix.
+     *
+     * @return the shape
+     */
+    public Shape getShape() {
+        return Shape.of(rows(), columns());
+    }
+
+    /**
+     * Returns true if {@link org.briljantframework.matrix.Shape#size()}  == {@link #size()}
+     *
+     * @param shape the shape
+     * @return the boolean
+     */
+    public boolean hasCompatibleShape(Shape shape) {
+        return hasCompatibleShape(shape.rows, shape.columns);
+    }
+
+    /**
+     * Has compatible shape.
+     *
+     * @param rows the rows
+     * @param cols the cols
+     * @return the boolean
+     * @throws ArithmeticException
+     */
+    public boolean hasCompatibleShape(int rows, int cols) {
+        return Math.multiplyExact(rows, cols) == rows() * columns();
+    }
+
+    /**
+     * Equal shape (i.e.
+     *
+     * @param other the other
+     * @return the boolean
+     */
+    public boolean hasEqualShape(MatrixLike other) {
+        return rows() == other.rows() && columns() == other.columns();
     }
 
     @Override
@@ -84,13 +133,36 @@ public class BooleanMatrix implements MatrixLike {
         return rows() * columns();
     }
 
-    @Override
-    public double get(int index) {
+    /**
+         * Puts <code>value</code> at the linearized position <code>index</code>.
+     *
+     * @param index the index
+     * @param value the value
+     * @see #get(int)
+     */
+    public void put(int index, double value) {
         checkArgument(index > 0 && index < values.length);
-        return values[index] ? 1 : 0;
+        values[index] = value != 0;
     }
 
-    @Override
+    /**
+     * Create a copy of this matrix. This contract stipulates that modifications
+     * of the copy does not affect the original.
+     *
+     * @return the copy
+     */
+    public BooleanMatrix copy() {
+        BooleanMatrix bm = new BooleanMatrix(getShape());
+        System.arraycopy(values, 0, bm.values, 0, values.length);
+        return bm;
+    }
+
+    /**
+     * Raw view of the column-major underlying array. In some instances it might be possible to mutate this (e.g., if
+     * the implementation provides a direct reference. However, there are nos such guarantees).
+     *
+     * @return the underlying array. Touch with caution.
+     */
     public double[] asDoubleArray() {
         double[] array = new double[values.length];
         for (int i = 0; i < values.length; i++) {

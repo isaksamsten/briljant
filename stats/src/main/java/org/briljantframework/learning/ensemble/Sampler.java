@@ -27,16 +27,15 @@ import org.briljantframework.learning.example.Examples;
 public interface Sampler {
 
     /**
-     * Identity sampler
+     * Identity sampler. This sampler just returns the input sample.
      */
     public static Sampler IDENTITY = e -> e;
 
     /**
-     * Sample examples.
+     * Draw a random (or not) (sub or super) sample of {@code Examples}.
      *
      * @param examples the examples
      * @return the examples
      */
-    // TODO - return an in-sample and out-sample like pair object
     Examples sample(Examples examples);
 }

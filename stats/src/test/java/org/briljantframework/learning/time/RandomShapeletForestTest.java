@@ -1,26 +1,14 @@
 package org.briljantframework.learning.time;
 
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.DenseDataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.CategoricColumn;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.column.DefaultCategoricColumn;
-import org.briljantframework.data.types.CategoricType;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.io.CSVInputStream;
-import org.briljantframework.learning.SupervisedDataset;
-import org.briljantframework.learning.ensemble.Bootstrap;
-import org.briljantframework.learning.ensemble.Ensemble;
-import org.briljantframework.learning.evaluation.Evaluators;
-import org.briljantframework.learning.evaluation.result.Result;
-import org.briljantframework.learning.tree.ClassificationTree;
-import org.briljantframework.learning.tree.RandomSplitter;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.MatrixLike;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
+import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -42,26 +30,25 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class RandomShapeletForestTest {
     @Test
     public void testName() throws Exception {
-        try (CSVInputStream in = new CSVInputStream(new FileInputStream("/Users/isak/Projects/adeb/erlang/adeb-rr/deps/rr/data/iris.txt"))) {
-            DenseDataFrame dataset = in.read(DenseDataFrame.copyTo());
-            SupervisedDataset<DenseDataFrame, CategoricColumn> supervisedDataset = SupervisedDataset.createClassificationInput(dataset,
-                    DenseDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
-
-            ClassificationTree.Builder tree = ClassificationTree.withSplitter(RandomSplitter.withMaximumFeatures(2));
-            Ensemble<Row, DataFrame<? extends Row>, CategoricColumn> ensemble = Ensemble.withMember(tree).withSize(100).withSampler(Bootstrap.create()).create();
-
-
-            Result result = Evaluators.crossValidation(ensemble, supervisedDataset, 10);
-            System.out.println(result);
-
-
-        }
-
+        //        try (CSVInputStream in = new CSVInputStream(new FileInputStream("/Users/isak/Projects/adeb/erlang/adeb-rr/deps/rr/data/iris.txt"))) {
+        //            DenseDataFrame dataset = in.read(DenseDataFrame.copyTo());
+        //            SupervisedDataset<DenseDataFrame, CategoricColumn> supervisedDataset = SupervisedDataset.createClassificationInput(dataset,
+        //                    DenseDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
+        //
+        //            ClassificationTree.Builder tree = ClassificationTree.withSplitter(RandomSplitter.withMaximumFeatures(2));
+        //            Ensemble<Row, DataFrame<? extends Row>, CategoricColumn> ensemble = Ensemble.withMember(tree).withSize(100).withSampler(Bootstrap.create()).create();
+        //
+        //
+        //            Result result = Evaluators.crossValidation(ensemble, supervisedDataset, 10);
+        //            System.out.println(result);
+        //
+        //
+        //        }
+        //
     }
 
     //    @Test
@@ -371,7 +358,7 @@ public class RandomShapeletForestTest {
         map.put("RSF-1NNDTW-no", "1-NN DTW-no)");
         for (String file : files) {
             try (CSVInputStream in = new CSVInputStream(new FileInputStream("/Users/isak/Desktop/" + file + ".csv"))) {
-                MatrixDataFrame frame = in.read(MatrixDataFrame.copyTo());
+                DataFrame frame = new MixedDataFrame();//in.read(MatrixDataFrame.copyTo());
 
                 XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer(false, true);
                 XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, false);
@@ -388,7 +375,7 @@ public class RandomShapeletForestTest {
                 XYSeriesCollection rndknn = new XYSeriesCollection();
                 for (int i = 0; i < frame.rows(); i++) {
                     XYSeries series = new XYSeries("" + i);
-                    series.add(frame.get(i, 0), frame.get(i, 1));
+                    series.add(frame.getAsDouble(i, 0), frame.getAsDouble(i, 1));
                     rndknn.addSeries(series);
                 }
 
@@ -437,47 +424,47 @@ public class RandomShapeletForestTest {
 
     @Test
     public void testRandomData() throws Exception {
-        MatrixDataFrame dataset = new MatrixDataFrame(Matrices.randn(DenseMatrix::new, 200, 100));
-        Column.Builder<CategoricColumn> targetBuilder = DefaultCategoricColumn.newBuilder(new CategoricType("class"));
-        for (int i = 0; i < dataset.rows(); i++) {
-            if (new Random().nextDouble() > 0.5) {
-                for (int j = 40; j < 55; j++) {
-                    dataset.put(i, j, dataset.get(i, j) + j / 15);
-                }
-                targetBuilder.add(1);
-            } else {
-                for (int j = 10; j < 20; j++) {
-                    dataset.put(i, j, dataset.get(i, j) - j / 10);
-                }
-                targetBuilder.add(0);
-            }
-        }
-        CategoricColumn categoricColumn = targetBuilder.create();
-
-        Matrix x = Matrices.linspace(dataset.columns() - 1, dataset.columns(), 0);
-        Chartable.saveSVG("/Users/isak/Desktop/timeSeries.svg", plotRows(x, dataset.asMatrix(), categoricColumn));
-
-        RandomShapeletForest.Builder forestBuilder = RandomShapeletForest.withSize(100).withLowerLength(2).withUpperLength(-1).withInspectedShapelets(3).withSampler(Bootstrap.create());
-        RandomShapeletForest forest = forestBuilder.create();
-
-
-        SupervisedDataset<MatrixDataFrame, CategoricColumn> supervisedDataset = new SupervisedDataset<>(dataset, categoricColumn,
-                MatrixDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
-        Result result = Evaluators.splitValidation(forest, supervisedDataset, 0.33);
-        System.out.println(result);
-
-        RandomShapeletForest.Model model = forest.fit(dataset, categoricColumn);
-        System.out.println(model.getLengthImportance());
-        System.out.println(model.getPositionImportance());
-
-        JFreeChart lengthImportance = plot(x, "Length", model.getLengthImportance(), "Importance");
-        JFreeChart positionImportce = plot(x, "Position", model.getPositionImportance(), "Importance");
-        Chartable.saveSVG("/Users/isak/Desktop/lengthImportance.svg", lengthImportance);
-        Chartable.saveSVG("/Users/isak/Desktop/positionImportance.svg", positionImportce);
-
+        //        DataFrame.Builder dataset = new MixedDataFrame.Builder(DoubleValue.TYPE);
+        //        StringVector.Builder targetBuilder = new StringVector.Builder(dataset.rows());
+        //        for (int i = 0; i < dataset.rows(); i++) {
+        //            if (new Random().nextDouble() > 0.5) {
+        //                for (int j = 40; j < 55; j++) {
+        //                    dataset.set(i, j, dataset.get(i, j) + j / 15);
+        //                }
+        //                targetBuilder.add(1);
+        //            } else {
+        //                for (int j = 10; j < 20; j++) {
+        //                    dataset.put(i, j, dataset.get(i, j) - j / 10);
+        //                }
+        //                targetBuilder.add(0);
+        //            }
+        //        }
+        //        CategoricColumn categoricColumn = targetBuilder.create();
+        //
+        //        Matrix x = Matrices.linspace(dataset.columns() - 1, dataset.columns(), 0);
+        //        Chartable.saveSVG("/Users/isak/Desktop/timeSeries.svg", plotRows(x, dataset.asMatrix(), categoricColumn));
+        //
+        //        RandomShapeletForest.Builder forestBuilder = RandomShapeletForest.withSize(100).withLowerLength(2).withUpperLength(-1).withInspectedShapelets(3).withSampler(Bootstrap.create());
+        //        RandomShapeletForest forest = forestBuilder.create();
+        //
+        //
+        //        SupervisedDataset<MatrixDataFrame, CategoricColumn> supervisedDataset = new SupervisedDataset<>(dataset, categoricColumn,
+        //                MatrixDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
+        //        Result result = Evaluators.splitValidation(forest, supervisedDataset, 0.33);
+        //        System.out.println(result);
+        //
+        //        RandomShapeletForest.Model model = forest.fit(dataset, categoricColumn);
+        //        System.out.println(model.getLengthImportance());
+        //        System.out.println(model.getPositionImportance());
+        //
+        //        JFreeChart lengthImportance = plot(x, "Length", model.getLengthImportance(), "Importance");
+        //        JFreeChart positionImportce = plot(x, "Position", model.getPositionImportance(), "Importance");
+        //        Chartable.saveSVG("/Users/isak/Desktop/lengthImportance.svg", lengthImportance);
+        //        Chartable.saveSVG("/Users/isak/Desktop/positionImportance.svg", positionImportce);
+        //
     }
 
-    public JFreeChart plotRows(Matrix x, Matrix ys, CategoricColumn targets) {
+    public JFreeChart plotRows(Matrix x, Matrix ys, Vector targets) {
         XYSeriesCollection collection = new XYSeriesCollection();
 
         for (int i = 0; i < ys.rows(); i++) {
@@ -492,7 +479,7 @@ public class RandomShapeletForestTest {
         XYPlot plot = (XYPlot) chart.getPlot();
         XYItemRenderer renderer = plot.getRenderer();
         for (int i = 0; i < targets.size(); i++) {
-            renderer.setSeriesPaint(i, targets.get(i).equals(1) ? Color.BLUE : Color.RED);
+            renderer.setSeriesPaint(i, targets.get(i) == 1 ? Color.BLUE : Color.RED);
         }
 
         chart.removeLegend();

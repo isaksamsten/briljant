@@ -19,9 +19,9 @@
 
 package org.briljantframework.matrix.analysis;
 
-import org.briljantframework.data.transform.InvertibleTransformation;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.transform.InvertibleTransformation;
 
 /**
  * Created by Isak Karlsson on 24/06/14.

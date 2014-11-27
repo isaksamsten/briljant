@@ -1,8 +1,8 @@
 package org.briljantframework.learning.evaluation.result;
 
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.data.column.Column;
 import org.briljantframework.learning.Predictions;
+import org.briljantframework.vector.Vector;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -119,21 +119,6 @@ public interface Metric extends Comparable<Metric>, Chartable {
         return Chartable.create(getName(), getPlot());
     }
 
-    /**
-     * Gets name.
-     *
-     * @return the name
-     */
-    String getName();
-
-    /**
-     * Gets mean.
-     *
-     * @param sample the sample
-     * @return the mean
-     */
-    double getAverage(Sample sample);
-
     @Override
     default Plot getPlot() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -153,6 +138,21 @@ public interface Metric extends Comparable<Metric>, Chartable {
         BarRenderer barRenderer = new BarRenderer();
         return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
     }
+
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
+    String getName();
+
+    /**
+     * Gets mean.
+     *
+     * @param sample the sample
+     * @return the mean
+     */
+    double getAverage(Sample sample);
 
     /**
      * Default order is descending order
@@ -208,9 +208,6 @@ public interface Metric extends Comparable<Metric>, Chartable {
     }
 
     /**
-     * Produces a Metric. A producer appends metrics accumulated by calculating using {@link
-     * org.briljantframework.learning.Predictions}****** and {@link org.briljantframework.data.column.Column}.
-     * <p>
      * Metrics can be produced either in sample (denoted by {@link org.briljantframework.learning.evaluation.result.Metric
      * .Sample#IN}) or out of sample (denoted by {@link org.briljantframework.learning.evaluation.result.Metric.Sample#OUT})
      * <p>
@@ -226,7 +223,7 @@ public interface Metric extends Comparable<Metric>, Chartable {
          * @param column      the target
          * @return the producer
          */
-        public Producer add(Sample sample, Predictions predictions, Column column);
+        public Producer add(Sample sample, Predictions predictions, Vector column);
 
         /**
          * Add producer.

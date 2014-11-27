@@ -25,15 +25,6 @@ package org.briljantframework.matrix;
 public interface MatrixLike {
 
     /**
-     * Set value at row i and column j to value
-     *
-     * @param i     row
-     * @param j     column
-     * @param value value
-     */
-    void put(int i, int j, double value);
-
-    /**
      * Get value at row i and column j
      *
      * @param i row
@@ -41,55 +32,6 @@ public interface MatrixLike {
      * @return value double
      */
     double get(int i, int j);
-
-    /**
-     * Puts <code>value</code> at the linearized position <code>index</code>.
-     *
-     * @param index the index
-     * @param value the value
-     * @see #get(int)
-     */
-    void put(int index, double value);
-
-    /**
-     * Create a copy of this matrix. This contract stipulates that modifications
-     * of the copy does not affect the original.
-     *
-     * @return the copy
-     */
-    public MatrixLike copy();
-
-    /**
-     * Is square.
-     *
-     * @return true if rows() == columns()
-     */
-    default boolean isSquare() {
-        return rows() == columns();
-    }
-
-    /**
-     * The number of rows.
-     *
-     * @return number or rows
-     */
-    int rows();
-
-    /**
-     * The number of columns.
-     *
-     * @return number of columns
-     */
-    int columns();
-
-    /**
-     * Returns the linearized size of this matrix.
-     * <p>
-     * <pre>{@link #rows()}*{@link #columns()} == {@code #size()}</pre>
-     *
-     * @return the int
-     */
-    int size();
 
     /**
      * Flattens the traversal of the matrix in column-major order.
@@ -121,6 +63,15 @@ public interface MatrixLike {
     double get(int index);
 
     /**
+     * Is square.
+     *
+     * @return true if rows() == columns()
+     */
+    default boolean isSquare() {
+        return rows() == columns();
+    }
+
+    /**
      * The shape of the current matrix.
      *
      * @return the shape
@@ -130,7 +81,7 @@ public interface MatrixLike {
     }
 
     /**
-     * Returns true if {@link Shape#size()}  == {@link #size()}
+     * Returns true if {@link org.briljantframework.matrix.Shape#size()}  == {@link #size()}
      *
      * @param shape the shape
      * @return the boolean
@@ -162,10 +113,26 @@ public interface MatrixLike {
     }
 
     /**
-     * Raw view of the column-major underlying array. In some instances it might be possible to mutate this (e.g., if
-     * the implementation provides a direct reference. However, there are nos such guarantees).
+     * The number of rows.
      *
-     * @return the underlying array. Touch with caution.
+     * @return number or rows
      */
-    double[] asDoubleArray();
+    int rows();
+
+    /**
+     * The number of columns.
+     *
+     * @return number of columns
+     */
+    int columns();
+
+    /**
+     * Returns the linearized size of this matrix.
+     * <p>
+     * <pre>{@link #rows()}*{@link #columns()} == {@code #size()}</pre>
+     *
+     * @return the int
+     */
+    int size();
+
 }

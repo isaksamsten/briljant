@@ -20,19 +20,20 @@
 package org.briljantframework.learning.tree;
 
 import org.briljantframework.Utils;
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.CategoricColumn;
-import org.briljantframework.data.values.Numeric;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.example.Example;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.DoubleValue;
+import org.briljantframework.vector.Is;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
 
 /**
  * NOTE: This cannot be reused among trees (it is stateful for performance reasons)
  * <p>
  * Created by Isak Karlsson on 09/09/14.
  */
-public class RandomSplitter extends AbstractSplitter<DataFrame<?>, CategoricColumn> {
+public class RandomSplitter extends AbstractSplitter {
 
     private final int maxFeatures;
 
@@ -61,7 +62,7 @@ public class RandomSplitter extends AbstractSplitter<DataFrame<?>, CategoricColu
     }
 
     @Override
-    public Tree.Split<ValueThreshold> find(Examples examples, DataFrame<?> dataFrame, CategoricColumn column) {
+    public Tree.Split<ValueThreshold> find(Examples examples, DataFrame dataFrame, Vector column) {
         if (features == null) {
             initialize(dataFrame);
         }
@@ -75,8 +76,8 @@ public class RandomSplitter extends AbstractSplitter<DataFrame<?>, CategoricColu
         for (int i = 0; i < features.length && i < maxFeatures; i++) {
             int axis = features[i];
 
-            Value threshold = search(dataFrame, examples, axis);
-            if (threshold.na()) {
+            Value threshold = search(dataFrame.getColumn(axis), examples);
+            if (threshold.isNA(0)) {
                 continue;
             }
 
@@ -104,61 +105,56 @@ public class RandomSplitter extends AbstractSplitter<DataFrame<?>, CategoricColu
     /**
      * Search value.
      *
-     * @param dataFrame the dataset
-     * @param examples  the examples
-     * @param axis      the axis
+     * @param axis     the dataset
+     * @param examples the examples
      * @return the value
      */
-    protected Value search(DataFrame dataFrame, Examples examples, int axis) {
-        switch (dataFrame.getType(axis).getDataType()) {
-            case NUMERIC:
-                return sampleNumericValue(dataFrame, examples, axis);
-            case CATEGORIC:
-            case FACTOR:
-                return sampleCategoricValue(dataFrame, examples, axis);
+    protected Value search(Vector axis, Examples examples) {
+        switch (axis.getType().getScale()) {
+            case CATEGORICAL:
+                return sampleCategoricValue(axis, examples);
+            case NUMERICAL:
+                return sampleNumericValue(axis, examples);
             default:
-                throw new IllegalStateException(String.format("Header: %s, not supported", dataFrame.getType(axis)));
+                throw new IllegalStateException(String.format("Header: %s, not supported", axis.getType()));
         }
     }
 
     /**
      * Sample numeric value.
      *
-     * @param dataFrame the dataset
-     * @param examples  the examples
-     * @param axis      the axis
+     * @param vector   the dataset
+     * @param examples the examples
      * @return the value
      */
-    protected Value sampleNumericValue(DataFrame dataFrame, Examples examples, int axis) {
+    protected Value sampleNumericValue(Vector vector, Examples examples) {
         Example a = examples.getRandomSample().getRandomExample();
         Example b = examples.getRandomSample().getRandomExample();
 
-        Value valueA = dataFrame.getValue(a.getIndex(), axis);
-        Value valueB = dataFrame.getValue(b.getIndex(), axis);
+        double valueA = vector.getAsDouble(a.getIndex());
+        double valueB = vector.getAsDouble(b.getIndex());
 
         // TODO - what if both A and B are missing?
-        if (valueA.na()) {
-            return valueB;
-        } else if (valueB.na()) {
-            return valueA;
+        if (Is.NA(valueA)) {
+            return new DoubleValue(valueB);
+        } else if (Is.NA(valueB)) {
+            return new DoubleValue(valueB);
         } else {
-            Numeric numa = (Numeric) valueA;
-            Numeric numb = (Numeric) valueB;
-            return Numeric.valueOf((numa.asDouble() + numb.asDouble()) / 2);
+            return new DoubleValue((valueA + valueB) / 2);
         }
+
     }
 
     /**
      * Sample categoric value.
      *
-     * @param dataFrame the dataset
-     * @param examples  the examples
-     * @param axis      the axis
+     * @param axisVector the dataset
+     * @param examples   the examples
      * @return the value
      */
-    protected Value sampleCategoricValue(DataFrame dataFrame, Examples examples, int axis) {
+    protected Value sampleCategoricValue(Vector axisVector, Examples examples) {
         Example example = examples.getRandomSample().getRandomExample();
-        return dataFrame.getValue(example.getIndex(), axis);
+        return axisVector.getAsValue(example.getIndex());
     }
 
     /**

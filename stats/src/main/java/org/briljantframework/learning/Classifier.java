@@ -19,22 +19,21 @@
 
 package org.briljantframework.learning;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.Vector;
 
 /**
  * The interface Classifier.
  * <p>
  */
-public interface Classifier<R extends Row, D extends DataFrame<? extends R>, T extends Column> {
+public interface Classifier {
 
-    Model<R, D> fit(D dataset, T target);
+    Model fit(DataFrame dataset, Vector target);
 
     /**
      * The interface Builder.
      */
-    public static interface Builder<C extends Classifier<? extends Row, ? extends DataFrame, ? extends Column>> {
+    public static interface Builder<C extends Classifier> {
 
         /**
          * Create classifier.

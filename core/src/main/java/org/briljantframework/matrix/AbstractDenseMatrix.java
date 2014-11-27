@@ -55,9 +55,10 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Copy tensor like.
+     * Create a copy of this matrix. This contract stipulates that modifications
+     * of the copy does not affect the original.
      *
-     * @return the tensor like
+     * @return the copy
      */
     public abstract MatrixLike copy();
 
@@ -71,25 +72,7 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Rows int.
-     *
-     * @return number or rows
-     */
-    public int rows() {
-        return rows;
-    }
-
-    /**
-     * Columns int.
-     *
-     * @return number of columns
-     */
-    public int columns() {
-        return cols;
-    }
-
-    /**
-     * Shape shape.
+     * The shape of the current matrix.
      *
      * @return the shape
      */
@@ -98,7 +81,7 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Has compatible shape.
+     * Returns true if {@link org.briljantframework.matrix.Shape#size()}  == {@link #size()}
      *
      * @param shape the shape
      * @return the boolean
@@ -120,7 +103,7 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Has equal size.
+     * Equal shape (i.e.
      *
      * @param other the other
      * @return the boolean
@@ -130,11 +113,48 @@ public abstract class AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Array double [ ].
+     * Rows int.
+     *
+     * @return number or rows
+     */
+    public int rows() {
+        return rows;
+    }
+
+    /**
+     * Columns int.
+     *
+     * @return number of columns
+     */
+    public int columns() {
+        return cols;
+    }
+
+    /**
+         * Raw view of the column-major underlying array. In some instances it might be possible to mutate this (e.g., if
+     * the implementation provides a direct reference. However, there are nos such guarantees).
      *
      * @return the underlying array. Touch with caution.
      */
     public double[] asDoubleArray() {
         return values;
     }
+
+    /**
+     * Set value at row i and column j to value
+     *
+     * @param i     row
+     * @param j     column
+     * @param value value
+     */
+    public abstract void put(int i, int j, double value);
+
+    /**
+     * Puts <code>value</code> at the linearized position <code>index</code>.
+     *
+     * @param index the index
+     * @param value the value
+     * @see #get(int)
+     */
+    public abstract void put(int index, double value);
 }

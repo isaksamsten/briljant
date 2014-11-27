@@ -20,8 +20,8 @@
 package org.briljantframework.learning.evaluation.result;
 
 import com.google.common.base.Preconditions;
-import org.briljantframework.data.column.Column;
 import org.briljantframework.learning.Predictions;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 06/10/14.
@@ -53,12 +53,12 @@ public class Accuracy extends AbstractMetric {
     private static final class Producer extends AbstractMetric.Producer {
 
         @Override
-        public Metric.Producer add(Sample sample, Predictions predictions, Column column) {
+        public Metric.Producer add(Sample sample, Predictions predictions, Vector column) {
             Preconditions.checkArgument(predictions.size() == column.size());
 
             double accuracy = 0.0;
             for (int i = 0; i < predictions.size(); i++) {
-                if (predictions.get(i).getValue().equals(column.getValue(i))) {
+                if (predictions.get(i).getValue().equals(column.getAsString(i))) {
                     accuracy++;
                 }
             }

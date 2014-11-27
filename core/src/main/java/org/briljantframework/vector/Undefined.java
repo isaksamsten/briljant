@@ -5,7 +5,7 @@ package org.briljantframework.vector;
  * <p>
  * Created by Isak Karlsson on 26/11/14.
  */
-public class Undefined implements Vector {
+public class Undefined implements Value {
 
     public static final String ILLEGAL = "Can't index undefined.";
 
@@ -36,6 +36,11 @@ public class Undefined implements Vector {
         public int compare(int a, Vector va, int b, Vector ba) {
             return 0;
         }
+
+        @Override
+        public Scale getScale() {
+            throw new UnsupportedOperationException("Undefined does not have a scale.");
+        }
     };
 
     @Override
@@ -59,7 +64,7 @@ public class Undefined implements Vector {
     }
 
     @Override
-    public Vector getAsVector(int index) {
+    public Value getAsValue(int index) {
         return this;
     }
 
@@ -100,6 +105,16 @@ public class Undefined implements Vector {
 
     @Override
     public int compare(int a, int b) {
+        return 0;
+    }
+
+    @Override
+    public int compare(int a, int b, Vector other) {
+        return 0;
+    }
+
+    @Override
+    public int compareTo(Value o) {
         return 0;
     }
 
@@ -145,6 +160,11 @@ public class Undefined implements Vector {
         @Override
         public Vector.Builder addAll(Vector from) {
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(String value) {
+
         }
 
         @Override

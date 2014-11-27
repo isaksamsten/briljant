@@ -19,10 +19,9 @@
 
 package org.briljantframework.learning.evaluation.tune;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
-import org.briljantframework.learning.SupervisedDataset;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 24/09/14.
@@ -30,7 +29,7 @@ import org.briljantframework.learning.SupervisedDataset;
  * @param <C> the type parameter
  * @param <O> the type parameter
  */
-public interface Tuner<D extends DataFrame<?>, T extends Column, C extends Classifier<?, ? super D, ? super T>, O extends Classifier.Builder<? extends C>> {
+public interface Tuner<C extends Classifier, O extends Classifier.Builder<? extends C>> {
 
     /**
      * Optimize void.
@@ -38,6 +37,6 @@ public interface Tuner<D extends DataFrame<?>, T extends Column, C extends Class
      * @param toOptimize the to optimize
      * @return the classifier
      */
-    Configurations<C> tune(O toOptimize, SupervisedDataset<? extends D, ? extends T> supervisedDataset);
+    Configurations tune(O toOptimize, DataFrame x, Vector y);
 
 }

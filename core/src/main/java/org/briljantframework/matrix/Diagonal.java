@@ -21,7 +21,6 @@ package org.briljantframework.matrix;
 
 import com.google.common.collect.ImmutableTable;
 import org.briljantframework.Utils;
-import org.briljantframework.exceptions.ArgumentException;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -91,7 +90,12 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
         return ret;
     }
 
-    @Override
+    /**
+     * Create a copy of this matrix. This contract stipulates that modifications
+     * of the copy does not affect the original.
+     *
+     * @return the copy
+     */
     public Diagonal copy() {
         double[] values = new double[this.values.length];
         System.arraycopy(this.values, 0, values, 0, this.values.length);
@@ -99,9 +103,61 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * @return a dense representation of this diagonal
+     * Is square.
+     *
+     * @return true if rows() == columns()
      */
-    @Override
+    public boolean isSquare() {
+        return rows() == columns();
+    }
+
+    /**
+     * The shape of the current matrix.
+     *
+     * @return the shape
+     */
+    public Shape getShape() {
+        return Shape.of(rows(), columns());
+    }
+
+    /**
+     * Returns true if {@link org.briljantframework.matrix.Shape#size()}  == {@link #size()}
+     *
+     * @param shape the shape
+     * @return the boolean
+     */
+    public boolean hasCompatibleShape(Shape shape) {
+        return hasCompatibleShape(shape.rows, shape.columns);
+    }
+
+    /**
+     * Has compatible shape.
+     *
+     * @param rows the rows
+     * @param cols the cols
+     * @return the boolean
+     * @throws ArithmeticException
+     */
+    public boolean hasCompatibleShape(int rows, int cols) {
+        return Math.multiplyExact(rows, cols) == rows() * columns();
+    }
+
+    /**
+     * Equal shape (i.e.
+     *
+     * @param other the other
+     * @return the boolean
+     */
+    public boolean hasEqualShape(MatrixLike other) {
+        return rows() == other.rows() && columns() == other.columns();
+    }
+
+    /**
+     * Raw view of the column-major underlying array. In some instances it might be possible to mutate this (e.g., if
+     * the implementation provides a direct reference. However, there are nos such guarantees).
+     *
+     * @return the underlying array. Touch with caution.
+     */
     public double[] asDoubleArray() {
         int rows = rows(), cols = columns();
         double[] dense = new double[rows * cols];
@@ -113,17 +169,32 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Put void.
+         * Set value at row i and column j to value
      *
-     * @param i     the i
-     * @param j     the j
-     * @param value the value
+     * @param i     row
+     * @param j     column
+     * @param value value
      */
     public void put(int i, int j, double value) {
         if (i == j) {
             put(i, value);
         } else {
             throw new IllegalStateException("Illegal to touch non-diagonal entries");
+        }
+    }
+
+    /**
+         * Puts <code>value</code> at the linearized position <code>index</code>.
+     *
+     * @param index the index
+     * @param value the value
+     * @see #get(int)
+     */
+    public void put(int index, double value) {
+        if (index > size && index < 0) {
+            throw new IllegalArgumentException("index out of bounds");
+        } else {
+            values[index] = value;
         }
     }
 
@@ -143,16 +214,16 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
     }
 
     /**
-     * Put void.
+     * Get double.
      *
      * @param index the index
-     * @param value the value
+     * @return the double
      */
-    public void put(int index, double value) {
+    public double get(int index) {
         if (index > size && index < 0) {
-            throw new ArgumentException("index", "out of bounds");
+            throw new IllegalArgumentException("index > size");
         } else {
-            values[index] = value;
+            return index < values.length ? values[index] : 0;
         }
     }
 
@@ -163,20 +234,6 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
      */
     public int size() {
         return size;
-    }
-
-    /**
-     * Get double.
-     *
-     * @param index the index
-     * @return the double
-     */
-    public double get(int index) {
-        if (index > size && index < 0) {
-            throw new ArgumentException("index", "index > size");
-        } else {
-            return index < values.length ? values[index] : 0;
-        }
     }
 
     /**

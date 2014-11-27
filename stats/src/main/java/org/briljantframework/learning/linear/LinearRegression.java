@@ -20,20 +20,18 @@
 package org.briljantframework.learning.linear;
 
 import com.google.common.base.Preconditions;
-import org.briljantframework.data.values.Numeric;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.RowVector;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
-import org.briljantframework.matrix.dataset.Series;
 import org.briljantframework.matrix.math.LinearAlgebra;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 29/09/14.
  */
-public class LinearRegression implements Classifier<RowVector, MatrixDataFrame, Series> {
+public class LinearRegression implements Classifier {
 
     private LinearRegression() {
     }
@@ -48,15 +46,17 @@ public class LinearRegression implements Classifier<RowVector, MatrixDataFrame, 
     }
 
     @Override
-    public Model fit(MatrixDataFrame frame, Series series) {
-        Preconditions.checkArgument(frame.rows() == series.size());
-        return new Model(LinearAlgebra.leastLinearSquares(frame.asMatrix(), series.asMatrix()));
+    public Model fit(DataFrame x, Vector y) {
+        Preconditions.checkArgument(x.rows() == y.size());
+
+        DenseMatrix yMatrix = new DenseMatrix(y);
+        return new Model(LinearAlgebra.leastLinearSquares(x.asMatrix(), yMatrix));
     }
 
     /**
      * The type Model.
      */
-    public static final class Model implements org.briljantframework.learning.Model<RowVector, MatrixDataFrame> {
+    public static final class Model implements org.briljantframework.learning.Model {
 
         private final Matrix theta;
 
@@ -79,8 +79,8 @@ public class LinearRegression implements Classifier<RowVector, MatrixDataFrame, 
         }
 
         @Override
-        public Prediction predict(RowVector row) {
-            return Prediction.numeric(Numeric.valueOf(Matrices.dot(theta, row)));
+        public Prediction predict(Vector row) {
+            return null; // TODO(isak): FIXME //Prediction.numeric(Matrices.dot(theta, row));
         }
     }
 }

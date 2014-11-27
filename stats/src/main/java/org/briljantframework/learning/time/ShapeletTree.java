@@ -19,8 +19,7 @@
 
 package org.briljantframework.learning.time;
 
-import org.briljantframework.data.Row;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
@@ -30,10 +29,8 @@ import org.briljantframework.learning.tree.Splitter;
 import org.briljantframework.learning.tree.Tree;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.MatrixLike;
-import org.briljantframework.matrix.RowVector;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.vector.Vector;
 
 import static org.briljantframework.learning.tree.Tree.Leaf;
 import static org.briljantframework.learning.tree.Tree.Node;
@@ -41,7 +38,7 @@ import static org.briljantframework.learning.tree.Tree.Node;
 /**
  * Created by Isak Karlsson on 16/09/14.
  */
-public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Column> {
+public class ShapeletTree implements Classifier {
 
     private final ShapeletSplitter splitter;
     private final Examples examples;
@@ -78,12 +75,12 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
     }
 
     @Override
-    public Model fit(MatrixDataFrame frame, Column column) {
+    public Model fit(DataFrame x, Vector y) {
         Examples examples = this.examples;
 
         // Initialize the examples, if not already initialized
         if (examples == null) {
-            examples = Examples.fromTarget(column);
+            examples = Examples.fromVector(y);
         }
 
         Impurity impurity = splitter.getGain().getImpurity();
@@ -91,23 +88,23 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
 
         Params params = new Params();
         params.noExamples = examples.getTotalWeight();
-        params.lengthImportance = new double[frame.columns()];
-        params.positionImportance = new double[frame.columns()];
+        params.lengthImportance = new double[x.columns()];
+        params.positionImportance = new double[x.columns()];
 
-        Node<ShapeletThreshold> node = build(frame, column, examples, params);
+        Node<ShapeletThreshold> node = build(x, y, examples, params);
         return new Model(node, new ShapletTreeVisitor(splitter.getDistanceMetric()), new DenseMatrix(1, params.lengthImportance.length, params.lengthImportance), new DenseMatrix(1, params.positionImportance.length, params.positionImportance), params.totalErrorReduction);
     }
 
     /**
      * Build node.
      *
-     * @param frame    the frame
-     * @param column   the target
+     * @param x        the frame
+     * @param y        the target
      * @param examples the examples
      * @param params   the depth
      * @return the node
      */
-    protected Node<ShapeletThreshold> build(MatrixDataFrame frame, Column column, Examples examples, Params params) {
+    protected Node<ShapeletThreshold> build(DataFrame x, Vector y, Examples examples, Params params) {
         /*
          * STEP 0: pre-prune some useless branches
          */
@@ -119,7 +116,7 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
         /*
          * STEP 1: Find a good separating feature
          */
-        Tree.Split<ShapeletThreshold> maxSplit = splitter.find(examples, frame, column);
+        Tree.Split<ShapeletThreshold> maxSplit = splitter.find(examples, x, y);
 
         /*
          * STEP 2a: if no split could be found create a leaf
@@ -149,8 +146,8 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
                 params.positionImportance[i] = params.positionImportance[i] + (weight / length);
             }
 
-            Node<ShapeletThreshold> leftNode = build(frame, column, maxSplit.getLeft(), params);
-            Node<ShapeletThreshold> rightNode = build(frame, column, maxSplit.getRight(), params);
+            Node<ShapeletThreshold> leftNode = build(x, y, maxSplit.getLeft(), params);
+            Node<ShapeletThreshold> rightNode = build(x, y, maxSplit.getRight(), params);
             return new Tree.Branch<>(leftNode, rightNode, maxSplit.getThreshold());
         }
     }
@@ -166,7 +163,7 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
     /**
      * The type Model.
      */
-    public static class Model extends Tree.Model<RowVector, MatrixDataFrame, ShapeletThreshold> {
+    public static class Model extends Tree.Model<ShapeletThreshold> {
 
         private final DenseMatrix lengthImportance;
         private final double totalErrorReduction;
@@ -225,21 +222,16 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
         }
 
         @Override
-        public Prediction visitLeaf(Leaf<ShapeletThreshold> leaf, Row example) {
+        public Prediction visitLeaf(Leaf<ShapeletThreshold> leaf, Vector example) {
             return Prediction.unary(leaf.getLabel());//, leaf.getRelativeFrequency());
         }
 
         @Override
-        public Prediction visitBranch(Tree.Branch<ShapeletThreshold> node, Row example) {
-            if (example instanceof MatrixLike) {
-                MatrixLike vector = (MatrixLike) example;
-                if (metric.distance(vector, node.getThreshold().getShapelet()) < node.getThreshold().getDistance()) {
-                    return visit(node.getLeft(), example);
-                } else {
-                    return visit(node.getRight(), example);
-                }
+        public Prediction visitBranch(Tree.Branch<ShapeletThreshold> node, Vector example) {
+            if (metric.distance(example, node.getThreshold().getShapelet()) < node.getThreshold().getDistance()) {
+                return visit(node.getLeft(), example);
             } else {
-                throw new IllegalArgumentException("");
+                return visit(node.getRight(), example);
             }
         }
     }
@@ -247,7 +239,7 @@ public class ShapeletTree implements Classifier<RowVector, MatrixDataFrame, Colu
     /**
      * The type Builder.
      */
-    public static class Builder implements Ensemble.Member<RowVector, MatrixDataFrame, Column>, Classifier.Builder<ShapeletTree> {
+    public static class Builder implements Ensemble.Member, Classifier.Builder<ShapeletTree> {
 
         private final Splitter.Builder<? extends ShapeletSplitter> splitter;
 

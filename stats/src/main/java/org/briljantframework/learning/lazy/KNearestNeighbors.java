@@ -20,18 +20,14 @@
 package org.briljantframework.learning.lazy;
 
 import com.google.common.collect.MinMaxPriorityQueue;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.types.DataType;
-import org.briljantframework.data.values.Numeric;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
 import org.briljantframework.learning.example.Example;
 import org.briljantframework.learning.example.Examples;
-import org.briljantframework.matrix.RowVector;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +49,7 @@ import java.util.Map;
  * <p>
  * Created by Isak Karlsson on 01/09/14.
  */
-public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame, Column> {
+public class KNearestNeighbors implements Classifier {
 
     private final int neighbors;
     private final Distance distance;
@@ -114,8 +110,8 @@ public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame,
     }
 
     @Override
-    public Model fit(MatrixDataFrame dataset, Column column) {
-        return new Model(dataset, column, distance, neighbors, examples);
+    public Model fit(DataFrame dataFrame, Vector vector) {
+        return new Model(dataFrame, vector, distance, neighbors, examples);
     }
 
     @Override
@@ -126,7 +122,7 @@ public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame,
     /**
      * The type Builder.
      */
-    public static class Builder implements Ensemble.Member<RowVector, MatrixDataFrame, Column>, Classifier.Builder<KNearestNeighbors> {
+    public static class Builder implements Ensemble.Member, Classifier.Builder<KNearestNeighbors> {
 
         /**
          * The Neighbours.
@@ -194,10 +190,10 @@ public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame,
     /**
      * Created by Isak Karlsson on 01/09/14.
      */
-    public static class Model implements org.briljantframework.learning.Model<RowVector, MatrixDataFrame> {
+    public static class Model implements org.briljantframework.learning.Model {
 
-        private final MatrixDataFrame frame;
-        private final Column targets;
+        private final DataFrame frame;
+        private final Vector targets;
         private final Distance distance;
         private final boolean isNumeric;
         private final int k;
@@ -211,28 +207,28 @@ public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame,
          * @param k        the k
          * @param exampels the examples
          */
-        Model(MatrixDataFrame dataset, Column targets, Distance distance, int k, Examples exampels) {
+        Model(DataFrame dataset, Vector targets, Distance distance, int k, Examples exampels) {
             this.frame = dataset;
             this.targets = targets;
 
-            this.isNumeric = this.targets.getType().hasType(DataType.NUMERIC);
+            this.isNumeric = false; // FIXME
             this.distance = distance;
             this.k = k;
             this.examples = exampels;
         }
 
         @Override
-        public Prediction predict(RowVector row) {
+        public Prediction predict(Vector row) {
             MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
             if (examples == null) {
                 for (int i = 0; i < frame.rows(); i++) {
                     double d = distance.distance(row, frame.getRow(i));
-                    queue.add(new DistanceIndex(d, i, targets.getValue(i)));
+                    queue.add(new DistanceIndex(d, i, targets.getAsString(i)));
                 }
             } else {
                 for (Example example : examples) {
                     double dist = distance.distance(row, frame.getRow(example.getIndex()));
-                    queue.add(new DistanceIndex(dist, example.getIndex(), targets.getValue(example.getIndex())));
+                    queue.add(new DistanceIndex(dist, example.getIndex(), targets.getAsString(example.getIndex())));
                 }
             }
 
@@ -240,24 +236,24 @@ public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame,
         }
 
         private Prediction mean(MinMaxPriorityQueue<DistanceIndex> queue) {
-            double mean = 0.0;
-            for (DistanceIndex di : queue) {
-                Numeric numeric = (Numeric) di.target;
-                mean += numeric.asDouble();
-            }
-            mean /= queue.size();
-            return Prediction.numeric(Numeric.valueOf(mean));
+            //            double mean = 0.0;
+            //            for (DistanceIndex di : queue) {
+            //                Numeric numeric = (Numeric) di.target;
+            //                mean += numeric.asDouble();
+            //            }
+            //            mean /= queue.size();
+            return null; //FIXME Prediction.numeric(Numeric.valueOf(mean));
         }
 
         private Prediction majority(MinMaxPriorityQueue<DistanceIndex> it) {
-            Map<Value, Integer> values = new HashMap<>();
+            Map<String, Integer> values = new HashMap<>();
             for (DistanceIndex di : it) {
                 values.compute(di.target, (i, v) -> v == null ? 1 : v + 1);
             }
 
-            List<Value> target = new ArrayList<>();
+            List<String> target = new ArrayList<>();
             List<Double> probabilities = new ArrayList<>();
-            for (Map.Entry<Value, Integer> kv : values.entrySet()) {
+            for (Map.Entry<String, Integer> kv : values.entrySet()) {
                 target.add(kv.getKey());
                 probabilities.add(kv.getValue() / (double) it.size());
             }
@@ -269,9 +265,9 @@ public class KNearestNeighbors implements Classifier<RowVector, MatrixDataFrame,
     private static class DistanceIndex implements Comparable<DistanceIndex> {
         private final double distance;
         private final int index;
-        private final Value target;
+        private final String target;
 
-        private DistanceIndex(double distance, int index, Value value) {
+        private DistanceIndex(double distance, int index, String value) {
             this.distance = distance;
             this.index = index;
             this.target = value;

@@ -20,28 +20,19 @@
 package org.briljantframework.learning.evaluation;
 
 import com.google.common.base.Preconditions;
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.learning.*;
-import org.briljantframework.learning.evaluation.result.ConfusionMatrix;
-import org.briljantframework.learning.evaluation.result.Metric;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.evaluation.result.Metrics;
 import org.briljantframework.learning.evaluation.result.Result;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.briljantframework.vector.Vector;
 
 /**
- * Mostly a mockup so far
+ * Perform a hold-out cross-validation using a percentage split. The default split is
+ * 33 percent for testing and 67% for training.
  * <p>
  * Created by Isak Karlsson on 20/08/14.
- *
- * @param <D> the type parameter
- * @param <T> the type parameter
  */
-public class SplitValidation<D extends DataFrame<?>, T extends Column> extends AbstractEvaluator<D, T> {
+public class SplitValidation extends AbstractEvaluator {
 
     private final double testRatio;
 
@@ -59,42 +50,42 @@ public class SplitValidation<D extends DataFrame<?>, T extends Column> extends A
     /**
      * Create split evaluator.
      *
-     * @param <T> the type parameter
      * @return the split evaluator
      */
-    public static <D extends DataFrame<?>, T extends Column> SplitValidation<D, T> create() {
-        return new SplitValidation<>(0.3);
+    public static SplitValidation create() {
+        return new SplitValidation(0.3);
     }
 
     /**
      * Create split evaluator.
      *
-     * @param <T>       the type parameter
      * @param testRatio the test ratio
      * @return the split evaluator
      */
-    public static <D extends DataFrame<?>, T extends Column> SplitValidation<D, T> withTestRatio(double testRatio) {
-        return new SplitValidation<>(testRatio);
+    public static SplitValidation withTestRatio(double testRatio) {
+        return new SplitValidation(testRatio);
     }
 
     @Override
-    public Result evaluate(Classifier<?, ? super D, ? super T> classifier, SupervisedDataset<? extends D, ? extends T> supervisedDataset) {
-        SupervisedDatasetSplit<D, T> partitions = SupervisedDatasetSplit.withFraction(supervisedDataset, testRatio);
-        SupervisedDataset<D, T> train = partitions.getTrainingSet();
-        SupervisedDataset<D, T> test = partitions.getValidationSet();
-
-        Model<?, ? super D> model = classifier.fit(train.getDataFrame(), train.getTarget());
-        Predictions outSamplePredictions = model.predict(test.getDataFrame());
-        Predictions inSamplePredictions = model.predict(train.getDataFrame());
-
-        ConfusionMatrix confusionMatrix = ConfusionMatrix.create(outSamplePredictions, test.getTarget());
-        List<Metric> metrics = getMetricFactories().stream().map(Metric.Factory::newProducer).map(producer -> {
-            producer.add(Metric.Sample.IN, inSamplePredictions, train.getTarget());
-            producer.add(Metric.Sample.OUT, outSamplePredictions, test.getTarget());
-            return producer.produce();
-        }).collect(Collectors.toCollection(ArrayList::new));
-
-        return Result.create(metrics, Arrays.asList(confusionMatrix));
+    public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
+        //FIXME(isak): re-implement
+        //        SupervisedDatasetSplit<D, T> partitions = SupervisedDatasetSplit.withFraction(supervisedDataset, testRatio);
+        //        SupervisedDataset<D, T> train = partitions.getTrainingSet();
+        //        SupervisedDataset<D, T> test = partitions.getValidationSet();
+        //
+        //        Model<?, ? super D> model = classifier.fit(train.getDataFrame(), train.getTarget());
+        //        Predictions outSamplePredictions = model.predict(test.getDataFrame());
+        //        Predictions inSamplePredictions = model.predict(train.getDataFrame());
+        //
+        //        ConfusionMatrix confusionMatrix = ConfusionMatrix.create(outSamplePredictions, test.getTarget());
+        //        List<Metric> metrics = getMetricFactories().stream().map(Metric.Factory::newProducer).map(producer -> {
+        //            producer.add(Metric.Sample.IN, inSamplePredictions, train.getTarget());
+        //            producer.add(Metric.Sample.OUT, outSamplePredictions, test.getTarget());
+        //            return producer.produce();
+        //        }).collect(Collectors.toCollection(ArrayList::new));
+        //
+        //        return Result.create(metrics, Arrays.asList(confusionMatrix));
+        return null;
     }
 
     @Override

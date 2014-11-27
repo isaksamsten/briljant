@@ -1,7 +1,6 @@
 package org.briljantframework.vector;
 
 import com.google.common.collect.UnmodifiableIterator;
-import com.google.common.primitives.Doubles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,41 +14,7 @@ import java.util.List;
  * TODO(isak): The CompressedStringVector requires StringVector to be abstract
  * Created by Isak Karlsson on 20/11/14.
  */
-public class StringVector implements Vector, Iterable<String> {
-
-    public static final String NA = null;
-    public static final Type TYPE = new Type() {
-        @Override
-        public Builder newBuilder() {
-            return new Builder();
-        }
-
-        @Override
-        public Builder newBuilder(int size) {
-            return new Builder(size);
-        }
-
-
-        @Override
-        public Class<?> getDataClass() {
-            return String.class;
-        }
-
-        @Override
-        public boolean isNA(Object value) {
-            return value == NA; // i.e. null checking
-        }
-
-        @Override
-        public int compare(int a, Vector va, int b, Vector ba) {
-            return !va.isNA(a) && !ba.isNA(b) ? va.getAsString(a).compareTo(ba.getAsString(b)) : 0;
-        }
-
-        @Override
-        public String toString() {
-            return "string";
-        }
-    };
+public class StringVector extends AbstractStringVector {
 
     private final List<String> values;
 
@@ -93,59 +58,13 @@ public class StringVector implements Vector, Iterable<String> {
     }
 
     @Override
-    public double getAsDouble(int index) {
-        return tryParseDouble(getAsString(index));
-    }
-
-    @Override
-    public int getAsInt(int index) {
-        return tryParseInteger(getAsString(index));
-    }
-
-    @Override
-    public Binary getAsBinary(int index) {
-        String str = getAsString(index);
-        if (str == null) {
-            return Binary.NA;
-        } else if (str.equalsIgnoreCase("true")) {
-            return Binary.TRUE;
-        } else if (str.equalsIgnoreCase("false")) {
-            return Binary.FALSE;
-        } else {
-            return Binary.NA;
-        }
-    }
-
-    @Override
     public String getAsString(int index) {
         return values.get(index);
     }
 
     @Override
-    public Vector getAsVector(int index) {
-        String value = getAsString(index);
-        return Is.NA(value) ? Undefined.INSTANCE : new StringVector(value);
-    }
-
-    @Override
-    public String toString(int index) {
-        String value = getAsString(index);
-        return value == StringVector.NA ? "NA" : value;
-    }
-
-    @Override
-    public boolean isNA(int index) {
-        return getAsString(index) == NA;
-    }
-
-    @Override
     public int size() {
         return values.size();
-    }
-
-    @Override
-    public Type getType() {
-        return TYPE;
     }
 
     @Override
@@ -161,35 +80,6 @@ public class StringVector implements Vector, Iterable<String> {
     @Override
     public Builder newBuilder(int size) {
         return new Builder(size);
-    }
-
-    @Override
-    public int compare(int a, int b) {
-        return !isNA(a) && !isNA(b) ? getAsString(a).compareTo(getAsString(b)) : 0;
-    }
-
-    protected double tryParseDouble(String str) {
-        if (str == StringVector.NA) {
-            return DoubleVector.NA;
-        }
-        Double d = Doubles.tryParse(str);
-        if (d != null) {
-            return d;
-        } else {
-            return DoubleVector.NA;
-        }
-    }
-
-    protected int tryParseInteger(String str) {
-        if (str == StringVector.NA) {
-            return IntVector.NA;
-        }
-        Double i = Doubles.tryParse(str);
-        if (i != null) {
-            return i.intValue();
-        } else {
-            return IntVector.NA;
-        }
     }
 
     public static class Builder implements Vector.Builder {
@@ -261,6 +151,15 @@ public class StringVector implements Vector, Iterable<String> {
                 add(from.getAsString(i));
             }
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(String value) {
+            if (value.equals("?") || value.equals("NA")) {
+                addNA();
+            } else {
+                add(value);
+            }
         }
 
         @Override

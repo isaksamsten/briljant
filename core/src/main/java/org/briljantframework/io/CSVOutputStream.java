@@ -19,61 +19,52 @@
 
 package org.briljantframework.io;
 
-import org.briljantframework.data.Row;
-import org.briljantframework.data.Traversable;
-import org.briljantframework.data.types.Type;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 
 /**
- * Created by Isak Karlsson on 14/08/14.
+ * Created by Isak Karlsson on 14/08/14.extends DatasetOutputStream
  */
-public class CSVOutputStream extends DatasetOutputStream {
+public class CSVOutputStream {
 
-    public CSVOutputStream(OutputStream outputStream) {
-        super(outputStream);
-    }
-
-    @Override
-    public void write(Traversable dataset) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-        boxHeader(dataset, writer);
-        boxValues(dataset, writer);
-        writer.flush();
-    }
-
-    private void boxHeader(Traversable<?> dataset, BufferedWriter writer)
-            throws IOException {
-        ArrayList<String> names = new ArrayList<>(dataset.columns());
-        ArrayList<String> types = new ArrayList<>(dataset.columns());
-        for (Type c : dataset.getTypes()) {
-            names.add(c.getName());
-            types.add(c.getDataType().toString());
-        }
-        writer.write(String.join(",", types));
-        writer.newLine();
-        writer.write(String.join(",", names));
-        writer.newLine();
-    }
-
-    private void boxValues(Traversable<?> dataset, BufferedWriter writer)
-            throws IOException {
-        int cols = dataset.columns();
-        for (Row row : dataset) {
-            ArrayList<String> values = new ArrayList<>(cols);
-            for (int j = 0; j < row.size(); j++) {
-                if (row.getValue(j).na()) {
-                    values.add("?");
-                } else {
-                    values.add(row.getValue(j).toString());
-                }
-            }
-            writer.write(String.join(",", values));
-            writer.newLine();
-        }
-    }
+    //    public CSVOutputStream(OutputStream outputStream) {
+    //        super(outputStream);
+    //    }
+    //
+    //    @Override
+    //    public void write(Traversable dataset) throws IOException {
+    //        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+    //        boxHeader(dataset, writer);
+    //        boxValues(dataset, writer);
+    //        writer.flush();
+    //    }
+    //
+    //    private void boxHeader(Traversable<?> dataset, BufferedWriter writer)
+    //            throws IOException {
+    //        ArrayList<String> names = new ArrayList<>(dataset.columns());
+    //        ArrayList<String> types = new ArrayList<>(dataset.columns());
+    //        for (Type c : dataset.getTypes()) {
+    //            names.add(c.getName());
+    //            types.add(c.getDataType().toString());
+    //        }
+    //        writer.write(String.join(",", types));
+    //        writer.newLine();
+    //        writer.write(String.join(",", names));
+    //        writer.newLine();
+    //    }
+    //
+    //    private void boxValues(Traversable<?> dataset, BufferedWriter writer)
+    //            throws IOException {
+    //        int cols = dataset.columns();
+    //        for (Row row : dataset) {
+    //            ArrayList<String> values = new ArrayList<>(cols);
+    //            for (int j = 0; j < row.size(); j++) {
+    //                if (row.getValue(j).na()) {
+    //                    values.add("?");
+    //                } else {
+    //                    values.add(row.getValue(j).toString());
+    //                }
+    //            }
+    //            writer.write(String.join(",", values));
+    //            writer.newLine();
+    //        }
+    //    }
 }

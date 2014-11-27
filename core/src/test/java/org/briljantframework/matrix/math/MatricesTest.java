@@ -65,7 +65,7 @@ public class MatricesTest {
                 5, 6
         );
 
-        DenseMatrix c = Matrices.n(2, 2, 10);
+        Matrix c = Matrices.n(2, 2, 10);
 
         // calculates c = a * b + 2c
         Matrices.mmuli(a, Transpose.NO, 1, b, Transpose.NO, 2, c.asDoubleArray());

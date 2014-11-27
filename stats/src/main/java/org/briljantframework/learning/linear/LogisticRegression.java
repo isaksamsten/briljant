@@ -20,9 +20,7 @@
 package org.briljantframework.learning.linear;
 
 import org.briljantframework.Utils;
-import org.briljantframework.data.column.FactorColumn;
-import org.briljantframework.data.values.Categoric;
-import org.briljantframework.exceptions.ArgumentException;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
@@ -31,17 +29,14 @@ import org.briljantframework.learning.example.Examples;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.RowVector;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
-
-import java.util.Arrays;
+import org.briljantframework.vector.Vector;
 
 /**
  * Logistic regression implemented using Stochastic Gradient Descent.
  * <p>
  * Created by isak on 01/07/14.
  */
-public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame, FactorColumn> {
+public class LogisticRegression implements Classifier {
 
     private final int iterations;
 
@@ -120,10 +115,10 @@ public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame
     }
 
     @Override
-    public Model fit(MatrixDataFrame x, FactorColumn y) {
-        if (!y.getType().contains(Arrays.asList(Categoric.valueOf(0), Categoric.valueOf(1)))) {
-            throw new ArgumentException("fit", "require target to be either 0 or 1");
-        }
+    public Model fit(DataFrame x, Vector y) {
+        //        if (!y.getType().contains(Arrays.asList(Categoric.valueOf(0), Categoric.valueOf(1)))) {
+        //            throw new IllegalArgumentException("require target to be either 0 or 1");
+        //        }
 
         if (x.rows() != y.size()) {
             throw new IllegalArgumentException("The number of training instances must equal the number ot target " + "values");
@@ -158,13 +153,13 @@ public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame
      * @param indicies the indicies
      * @return the logistic regression model
      */
-    protected Model fit(MatrixDataFrame x, FactorColumn y, int[] indicies) {
+    protected Model fit(DataFrame x, Vector y, int[] indicies) {
         DenseMatrix theta = new DenseMatrix(1, x.columns());
         for (int j = 0; j < this.iterations; j++) {
             Utils.permute(indicies);
 
             for (int i : indicies) {
-                RowVector row = x.getRow(i);
+                Vector row = x.getRow(i);
                 double update = learningRate * (y.get(i) - Matrices.sigmoid(row, theta));
                 Matrices.add(row, update, theta, 1, theta.asDoubleArray());
                 theta.muli(1.0 - (learningRate * regularization) / x.rows());
@@ -177,7 +172,7 @@ public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame
     /**
      * Builder for constructing a logistic regression classifier
      */
-    public static class Builder implements Ensemble.Member<RowVector, MatrixDataFrame, FactorColumn>, Classifier.Builder<LogisticRegression> {
+    public static class Builder implements Ensemble.Member, Classifier.Builder<LogisticRegression> {
 
         private int iterations = 100;
         private double learningRate = 0.0001;
@@ -239,9 +234,7 @@ public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame
     /**
      * Created by isak on 03/07/14.
      */
-    public static class Model implements org.briljantframework.learning.Model<RowVector, MatrixDataFrame> {
-        private final static Categoric one = Categoric.valueOf(1);
-        private final static Categoric zero = Categoric.valueOf(0);
+    public static class Model implements org.briljantframework.learning.Model {
         private final Matrix theta;
 
         /**
@@ -254,9 +247,9 @@ public class LogisticRegression implements Classifier<RowVector, MatrixDataFrame
         }
 
         @Override
-        public Prediction predict(RowVector row) {
+        public Prediction predict(Vector row) {
             double prob = Matrices.sigmoid(row, theta);
-            return Prediction.binary(one, prob, zero, 1 - prob);
+            return Prediction.binary("1", prob, "0", 1 - prob);
         }
 
         /**

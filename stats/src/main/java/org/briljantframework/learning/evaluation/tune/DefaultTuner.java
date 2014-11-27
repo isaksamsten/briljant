@@ -19,12 +19,11 @@
 
 package org.briljantframework.learning.evaluation.tune;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
-import org.briljantframework.learning.SupervisedDataset;
 import org.briljantframework.learning.evaluation.Evaluator;
 import org.briljantframework.learning.evaluation.result.Result;
+import org.briljantframework.vector.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,12 +31,10 @@ import java.util.stream.Collectors;
 /**
  * Created by Isak Karlsson on 25/09/14.
  *
- * @param <D> the type parameter
- * @param <T> the type parameter
  * @param <C> the type parameter
  * @param <O> the type parameter
  */
-public class DefaultTuner<D extends DataFrame<?>, T extends Column, C extends Classifier<?, ? super D, ? super T>, O extends Classifier.Builder<? extends C>> implements Tuner<D, T, C, O> {
+public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? extends C>> implements Tuner<C, O> {
 
     /**
      * The Updaters.
@@ -48,8 +45,8 @@ public class DefaultTuner<D extends DataFrame<?>, T extends Column, C extends Cl
      * The Parameter names.
      */
     protected final List<String> parameterNames;
-    private final Evaluator<D, T> evaluator;
-    private final Comparator<Configuration<C>> comparator;
+    private final Evaluator evaluator;
+    private final Comparator<Configuration> comparator;
 
     /**
      * Instantiates a new Abstract optimizer.
@@ -58,7 +55,7 @@ public class DefaultTuner<D extends DataFrame<?>, T extends Column, C extends Cl
      * @param evaluator  the evaluator
      * @param comparator the comparator
      */
-    protected DefaultTuner(ArrayList<Updater<O>> updaters, Evaluator<D, T> evaluator, Comparator<Configuration<C>> comparator) {
+    protected DefaultTuner(ArrayList<Updater<O>> updaters, Evaluator evaluator, Comparator<Configuration> comparator) {
         this.updaters = updaters;
         this.evaluator = evaluator;
         this.comparator = comparator;
@@ -71,32 +68,32 @@ public class DefaultTuner<D extends DataFrame<?>, T extends Column, C extends Cl
      * @param builder the builder
      * @return the list
      */
-    protected Configurations<C> optimizeParameters(O builder, SupervisedDataset<? extends D, ? extends T> supervisedDataset) {
-        List<Configuration<C>> configurations = new ArrayList<>();
-        optimizeParameters(builder, supervisedDataset, configurations, new Object[updaters.size()], 0);
+    protected Configurations optimizeParameters(O builder, DataFrame x, Vector y) {
+        List<Configuration> configurations = new ArrayList<>();
+        optimizeParameters(builder, x, y, configurations, new Object[updaters.size()], 0);
         return Configurations.create(configurations, evaluator);
     }
 
     /**
-     * Cartesian void.
+     * Performs an exhaustive search for the best parameter configuration
      *
      * @param classifierBuilder the to update
      * @param results           the results
      * @param parameters        the parameters
      * @param n                 the n
      */
-    private void optimizeParameters(O classifierBuilder, SupervisedDataset<? extends D, ? extends T> supervisedDataset, List<Configuration<C>> results, Object[] parameters, int n) {
+    private void optimizeParameters(O classifierBuilder, DataFrame x, Vector y, List<Configuration> results, Object[] parameters, int n) {
         if (n != updaters.size()) {
             Updater<O> updater = updaters.get(n);
             while (updater.hasUpdate()) {
                 Object value = updater.update(classifierBuilder);
                 parameters[n] = value;
-                optimizeParameters(classifierBuilder, supervisedDataset, results, parameters, n + 1);
+                optimizeParameters(classifierBuilder, x, y, results, parameters, n + 1);
             }
             updater.restore();
         } else {
             C classifier = classifierBuilder.create();
-            Result result = evaluator.evaluate(classifier, supervisedDataset);
+            Result result = evaluator.evaluate(classifier, x, y);
 
             Map<String, Object> map = new HashMap<>();
             for (int i = 0; i < parameterNames.size(); i++) {
@@ -107,8 +104,8 @@ public class DefaultTuner<D extends DataFrame<?>, T extends Column, C extends Cl
     }
 
     @Override
-    public Configurations<C> tune(O toOptimize, SupervisedDataset<? extends D, ? extends T> supervisedDataset) {
-        Configurations<C> results = optimizeParameters(toOptimize, supervisedDataset);
+    public Configurations tune(O toOptimize, DataFrame x, Vector y) {
+        Configurations results = optimizeParameters(toOptimize, x, y);
         results.sort(comparator);
         return results;
     }

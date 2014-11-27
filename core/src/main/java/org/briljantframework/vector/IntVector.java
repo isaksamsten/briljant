@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.UnmodifiableIterator;
+import com.google.common.primitives.Ints;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -11,43 +12,8 @@ import java.util.stream.IntStream;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class IntVector implements Vector, Iterable<Integer> {
+public class IntVector extends AbstractIntVector {
 
-    /**
-     * The constant NA.
-     */
-    public static final int NA = Integer.MIN_VALUE;
-    public static final Type TYPE = new Type() {
-        @Override
-        public IntVector.Builder newBuilder() {
-            return new IntVector.Builder();
-        }
-
-        @Override
-        public IntVector.Builder newBuilder(int size) {
-            return new IntVector.Builder(size);
-        }
-
-        @Override
-        public Class<?> getDataClass() {
-            return Integer.TYPE;
-        }
-
-        @Override
-        public boolean isNA(Object value) {
-            return value == null || (value instanceof Integer && (int) value == NA);
-        }
-
-        @Override
-        public int compare(int a, Vector va, int b, Vector ba) {
-            return !va.isNA(a) && !ba.isNA(b) ? va.getAsInt(a) - ba.getAsInt(b) : 0;
-        }
-
-        @Override
-        public String toString() {
-            return "int";
-        }
-    };
     private final int[] values;
 
     public IntVector(int... values) {
@@ -67,57 +33,13 @@ public class IntVector implements Vector, Iterable<Integer> {
     }
 
     @Override
-    public double getAsDouble(int index) {
-        int value = getAsInt(index);
-        return value == NA ? DoubleVector.NA : value;
-    }
-
-    @Override
     public int getAsInt(int index) {
         return values[index];
     }
 
     @Override
-    public Binary getAsBinary(int index) {
-        return Binary.valueOf(getAsInt(index));
-    }
-
-    @Override
-    public String getAsString(int index) {
-        int value = getAsInt(index);
-        return value == NA ? StringVector.NA : String.valueOf(value);
-    }
-
-    @Override
-    public Vector getAsVector(int index) {
-        int value = getAsInt(index);
-        return Is.NA(value) ? Undefined.INSTANCE : new IntVector(value);
-    }
-
-    @Override
-    public String toString(int index) {
-        int value = getAsInt(index);
-        return value == NA ? "NA" : String.valueOf(value);
-    }
-
-    @Override
-    public boolean isTrue(int index) {
-        return getAsInt(index) == 1;
-    }
-
-    @Override
-    public boolean isNA(int index) {
-        return getAsInt(index) == NA;
-    }
-
-    @Override
     public int size() {
         return values.length;
-    }
-
-    @Override
-    public Type getType() {
-        return TYPE;
     }
 
     @Override
@@ -141,11 +63,6 @@ public class IntVector implements Vector, Iterable<Integer> {
 
     public int[] asIntArray() {
         return values;
-    }
-
-    @Override
-    public int compare(int a, int b) {
-        return getAsInt(a) - getAsInt(b);
     }
 
     @Override
@@ -242,6 +159,16 @@ public class IntVector implements Vector, Iterable<Integer> {
             }
 
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(String value) {
+            Integer integer = Ints.tryParse(value);
+            if (integer == null) {
+                addNA();
+            } else {
+                add(integer);
+            }
         }
 
         @Override

@@ -1,6 +1,7 @@
 package org.briljantframework.matrix.transformation;
 
 import org.briljantframework.matrix.DenseMatrix;
+import org.briljantframework.transform.InverseTransformation;
 import org.junit.Before;
 import org.junit.Test;
 

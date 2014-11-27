@@ -17,25 +17,24 @@ package org.briljantframework.learning.evaluation;/*
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
-import org.briljantframework.learning.SupervisedDataset;
 import org.briljantframework.learning.evaluation.result.Result;
+import org.briljantframework.vector.Vector;
 
 /**
  * An Evaluator is used to evaluate an algorithm on a particular dataset
  * <p>
- * TODO - evaluator should most probably take type-parameters
- * <p>
  * Created by Isak Karlsson on 20/08/14.
  */
-public interface Evaluator<D extends DataFrame<?>, T extends Column> {
+public interface Evaluator {
 
     /**
+     * Perform an evaluation of classifier using the data in {@code dataFrame}.
+     *
      * @param classifier classifier to use for classification
-     * @param supervisedDataset
+     * @param x  the data frame to use during evaluation
      */
-    Result evaluate(Classifier<?, ? super D, ? super T> classifier, SupervisedDataset<? extends D, ? extends T> supervisedDataset);
+    Result evaluate(Classifier classifier, DataFrame x, Vector y);
 
 }

@@ -4,11 +4,12 @@ import com.google.common.collect.UnmodifiableIterator;
 import org.briljantframework.vector.*;
 
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 /**
  * Created by Isak Karlsson on 26/11/14.
  */
-class MixedDataFrameRow implements Sequence {
+class MixedDataFrameRow implements CompoundVector {
 
     private final DataFrame parent;
     private final int row;
@@ -19,18 +20,13 @@ class MixedDataFrameRow implements Sequence {
     }
 
     @Override
-    public Vector getAsVector(int index) {
-        return parent.getColumn(index).getAsVector(row);
+    public Type getType() {
+        return CompoundVector.TYPE;
     }
 
     @Override
     public Type getType(int index) {
         return parent.getColumnType(index);
-    }
-
-    @Override
-    public Type getType() {
-        return Sequence.TYPE;
     }
 
     @Override
@@ -51,6 +47,11 @@ class MixedDataFrameRow implements Sequence {
     @Override
     public String getAsString(int index) {
         return parent.getAsString(row, index);
+    }
+
+    @Override
+    public Value getAsValue(int index) {
+        return parent.getColumn(index).getAsValue(row);
     }
 
     @Override
@@ -90,12 +91,22 @@ class MixedDataFrameRow implements Sequence {
 
     @Override
     public int compare(int a, int b) {
-        throw new UnsupportedOperationException("Can't compare values in this vector");
+        return getAsValue(a).compareTo(getAsValue(b));
     }
 
     @Override
-    public Iterator<Vector> iterator() {
-        return new UnmodifiableIterator<Vector>() {
+    public int compare(int a, int b, Vector other) {
+        return getAsValue(a).compareTo(other.getAsValue(b));
+    }
+
+    @Override
+    public String toString() {
+        return stream().map(Value::getAsString).collect(Collectors.joining(","));
+    }
+
+    @Override
+    public Iterator<Value> iterator() {
+        return new UnmodifiableIterator<Value>() {
             public int current = 0;
 
             @Override
@@ -104,8 +115,8 @@ class MixedDataFrameRow implements Sequence {
             }
 
             @Override
-            public Vector next() {
-                return getAsVector(current++);
+            public Value next() {
+                return getAsValue(current++);
             }
         };
     }

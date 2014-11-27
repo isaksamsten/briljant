@@ -9,16 +9,16 @@ import java.util.List;
 /**
  * Created by Isak Karlsson on 26/11/14.
  */
-public class VariableVector implements Sequence {
+public class VariableVector implements CompoundVector {
 
-    private final List<? extends Vector> values;
+    private final List<? extends Value> values;
 
     /**
      * Constructs a {@code VariableVector}
      *
      * @param values the values
      */
-    public VariableVector(List<? extends Vector> values) {
+    public VariableVector(List<? extends Value> values) {
         this.values = values;
     }
 
@@ -40,6 +40,11 @@ public class VariableVector implements Sequence {
     @Override
     public String getAsString(int index) {
         return values.get(index).getAsString(0);
+    }
+
+    @Override
+    public Value getAsValue(int index) {
+        return values.get(index);
     }
 
     @Override
@@ -79,12 +84,12 @@ public class VariableVector implements Sequence {
 
     @Override
     public int compare(int a, int b) {
-        throw new UnsupportedOperationException();
+        return getAsValue(a).compareTo(getAsValue(b));
     }
 
     @Override
-    public Vector getAsVector(int index) {
-        return values.get(index);
+    public int compare(int a, int b, Vector other) {
+        return getAsValue(a).compareTo(other.getAsValue(b));
     }
 
     @Override
@@ -93,8 +98,8 @@ public class VariableVector implements Sequence {
     }
 
     @Override
-    public Iterator<Vector> iterator() {
-        return new UnmodifiableIterator<Vector>() {
+    public Iterator<Value> iterator() {
+        return new UnmodifiableIterator<Value>() {
             public int current = 0;
 
             @Override
@@ -103,17 +108,17 @@ public class VariableVector implements Sequence {
             }
 
             @Override
-            public Vector next() {
-                return getAsVector(current++);
+            public Value next() {
+                return getAsValue(current++);
             }
         };
     }
 
     public static class Builder implements Vector.Builder {
-        private List<Vector> buffer;
+        private List<Value> buffer;
 
 
-        private Builder(List<Vector> buffer) {
+        private Builder(List<Value> buffer) {
             this.buffer = buffer;
         }
 
@@ -153,21 +158,25 @@ public class VariableVector implements Sequence {
         @Override
         public Builder set(int atIndex, Vector from, int fromIndex) {
             ensureCapacity(atIndex);
-            buffer.set(atIndex, from.getAsVector(fromIndex));
+            buffer.set(atIndex, from.getAsValue(fromIndex));
             return this;
         }
 
         @Override
         public Builder set(int index, Object obj) {
-            Vector value;
-            if (obj instanceof Vector) {
-                value = (Vector) obj;
+            Value value;
+            if (obj instanceof Value) {
+                value = (Value) obj;
             } else if (obj instanceof Integer || obj instanceof Byte || obj instanceof Short) {
-                value = new IntVector(((Number) obj).intValue());
+                value = new IntValue(((Number) obj).intValue());
             } else if (obj instanceof Float || obj instanceof Double) {
-                value = new DoubleVector(((Number) obj).doubleValue());
+                value = new DoubleValue(((Number) obj).doubleValue());
+            } else if (obj instanceof Complex) {
+                value = new ComplexValue((Complex) obj);
+            } else if (obj instanceof Binary) {
+                value = new BinaryValue((Binary) obj);
             } else if (obj != null) {
-                value = new StringVector(obj.toString());
+                value = new StringValue(obj.toString());
             } else {
                 value = Undefined.INSTANCE;
             }
@@ -185,9 +194,14 @@ public class VariableVector implements Sequence {
         @Override
         public Builder addAll(Vector from) {
             for (int i = 0; i < from.size(); i++) {
-                buffer.add(from.getAsVector(i));
+                buffer.add(from.getAsValue(i));
             }
             return this;
+        }
+
+        @Override
+        public void parseAndAdd(String value) {
+            add(value);
         }
 
         @Override

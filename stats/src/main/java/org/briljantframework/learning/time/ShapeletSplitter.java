@@ -1,15 +1,13 @@
 package org.briljantframework.learning.time;
 
-import org.briljantframework.data.column.Column;
 import org.briljantframework.learning.tree.Gain;
 import org.briljantframework.learning.tree.Splitter;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.distance.Distance;
 
 /**
  * Created by isak on 02/10/14.
  */
-public abstract class ShapeletSplitter implements Splitter<MatrixDataFrame, Column, ShapeletThreshold> {
+public abstract class ShapeletSplitter implements Splitter<ShapeletThreshold> {
 
     protected final Gain gain;
     private final Distance metric;

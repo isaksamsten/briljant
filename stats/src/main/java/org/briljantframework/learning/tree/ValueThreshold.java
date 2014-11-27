@@ -19,7 +19,8 @@
 
 package org.briljantframework.learning.tree;
 
-import org.briljantframework.data.values.Value;
+
+import org.briljantframework.vector.Value;
 
 /**
  * Created by Isak Karlsson on 23/09/14.

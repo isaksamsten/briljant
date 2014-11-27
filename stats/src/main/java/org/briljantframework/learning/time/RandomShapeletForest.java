@@ -19,23 +19,22 @@
 
 package org.briljantframework.learning.time;
 
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
 import org.briljantframework.learning.ensemble.Sampler;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.RowVector;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 24/09/14.
  */
-public class RandomShapeletForest implements Classifier<RowVector, MatrixDataFrame, Column> {
+public class RandomShapeletForest implements Classifier {
 
-    private final Ensemble<RowVector, MatrixDataFrame, Column> ensemble;
+    private final Ensemble ensemble;
 
     private RandomShapeletForest(Builder builder) {
         this.ensemble = builder.ensemble.create();
@@ -52,13 +51,13 @@ public class RandomShapeletForest implements Classifier<RowVector, MatrixDataFra
     }
 
     @Override
-    public Model fit(MatrixDataFrame dataset, Column column) {
-        Ensemble.Model<RowVector, MatrixDataFrame> model = ensemble.fit(dataset, column);
+    public Model fit(DataFrame x, Vector y) {
+        Ensemble.Model model = ensemble.fit(x, y);
 
         //        double noModels = model.getModels().size();
         double[] averageLengthImportance = null;
         double[] averagePositionImportance = null;
-        for (org.briljantframework.learning.Model<RowVector, MatrixDataFrame> m : model.getModels()) {
+        for (org.briljantframework.learning.Model m : model.getModels()) {
             ShapeletTree.Model stModel = (ShapeletTree.Model) m;
 
             Matrix lengthImportance = stModel.getLengthImportance();
@@ -87,9 +86,9 @@ public class RandomShapeletForest implements Classifier<RowVector, MatrixDataFra
     /**
      * The type Model.
      */
-    public static class Model implements org.briljantframework.learning.Model<RowVector, MatrixDataFrame> {
+    public static class Model implements org.briljantframework.learning.Model {
 
-        private final Ensemble.Model<RowVector, MatrixDataFrame> model;
+        private final Ensemble.Model model;
         private final DenseMatrix lengthImportance;
         private final DenseMatrix positionImportance;
 
@@ -100,14 +99,14 @@ public class RandomShapeletForest implements Classifier<RowVector, MatrixDataFra
          * @param positionImportance the position importance
          * @param model              the model
          */
-        public Model(DenseMatrix lengthImportance, DenseMatrix positionImportance, Ensemble.Model<RowVector, MatrixDataFrame> model) {
+        public Model(DenseMatrix lengthImportance, DenseMatrix positionImportance, Ensemble.Model model) {
             this.lengthImportance = lengthImportance;
             this.model = model;
             this.positionImportance = positionImportance;
         }
 
         @Override
-        public Prediction predict(RowVector row) {
+        public Prediction predict(Vector row) {
             return model.predict(row);
         }
 
@@ -137,7 +136,7 @@ public class RandomShapeletForest implements Classifier<RowVector, MatrixDataFra
 
         private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter.withDistance(new EarlyAbandonSlidingDistance(Distance.EUCLIDEAN));
 
-        private final Ensemble.Builder<RowVector, MatrixDataFrame, Column> ensemble = Ensemble.withMember(ShapeletTree.withSplitter(randomShapeletSplitter));
+        private final Ensemble.Builder ensemble = Ensemble.withMember(ShapeletTree.withSplitter(randomShapeletSplitter));
 
         /**
          * Lower builder.

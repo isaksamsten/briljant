@@ -32,12 +32,9 @@ import java.util.Set;
 
 /**
  * The type Optimization result.
- *
- * @param <C> the type parameter
  */
-public class Configuration<C extends Classifier> implements
-        Comparable<Configuration<C>> {
-    private final C classifier;
+public class Configuration implements Comparable<Configuration> {
+    private final Classifier classifier;
     private final Result result;
 
     private final Map<String, Object> parameters;
@@ -49,7 +46,7 @@ public class Configuration<C extends Classifier> implements
      * @param result     the error
      * @param parameters the parameters
      */
-    public Configuration(C classifier, Result result, Map<String, Object> parameters) {
+    public Configuration(Classifier classifier, Result result, Map<String, Object> parameters) {
         this.classifier = classifier;
         this.result = result;
         this.parameters = parameters;
@@ -58,27 +55,24 @@ public class Configuration<C extends Classifier> implements
     /**
      * Metric comparator.
      *
-     * @param <C>    the type parameter
      * @param <T>    the type parameter
      * @param metric the metric
      * @return the comparator
      */
-    public static <C extends Classifier, T extends Metric> Comparator<Configuration<C>> metricComparator(
-            Class<T> metric) {
+    public static <T extends Metric> Comparator<Configuration> metricComparator(Class<T> metric) {
         return (o1, o2) -> o1.getMetric(metric).compareTo(o2.getMetric(metric));
     }
 
     /**
      * Create optimization result.
      *
-     * @param <C>        the type parameter
      * @param classifier the classifier
      * @param error      the error
      * @param map        the map
      * @return the optimization result
      */
-    public static <C extends Classifier> Configuration<C> create(C classifier, Result error, Map<String, Object> map) {
-        return new Configuration<>(classifier, error, map);
+    public static Configuration create(Classifier classifier, Result error, Map<String, Object> map) {
+        return new Configuration(classifier, error, map);
     }
 
     /**
@@ -86,7 +80,7 @@ public class Configuration<C extends Classifier> implements
      *
      * @return the classifier
      */
-    public C getClassifier() {
+    public Classifier getClassifier() {
         return classifier;
     }
 
@@ -185,7 +179,7 @@ public class Configuration<C extends Classifier> implements
     }
 
     @Override
-    public int compareTo(Configuration<C> o) {
+    public int compareTo(Configuration o) {
         return Double.compare(getError(), o.getError());
     }
 
@@ -212,6 +206,6 @@ public class Configuration<C extends Classifier> implements
         out.append("\n");
         out.append(getResult());
         return out.toString();
-//        return String.format("Configuration(%s, %.2f, %s)", classifier, result.getAverageError(), parameters);
+        //        return String.format("Configuration(%s, %.2f, %s)", classifier, result.getAverageError(), parameters);
     }
 }

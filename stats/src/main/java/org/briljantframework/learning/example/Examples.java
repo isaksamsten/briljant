@@ -19,8 +19,8 @@
 
 package org.briljantframework.learning.example;
 
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
+
+import org.briljantframework.vector.Vector;
 
 import java.util.*;
 
@@ -31,9 +31,9 @@ public final class Examples implements Iterable<Example> {
 
     private static final Random RANDOM = new Random();
 
-    private final Map<Value, Sample> samples;
+    private final Map<String, Sample> samples;
 
-    private final List<Value> targets;
+    private final List<String> targets;
 
     private Examples(Examples examples) {
         samples = new HashMap<>(examples.samples);
@@ -45,10 +45,10 @@ public final class Examples implements Iterable<Example> {
      *
      * @param column the target
      */
-    private Examples(Column column) {
+    private Examples(Vector column) {
         this();
         for (int i = 0; i < column.size(); i++) {
-            add(column.getValue(i), i, 1);
+            add(column.getAsString(i), i, 1);
         }
     }
 
@@ -58,31 +58,12 @@ public final class Examples implements Iterable<Example> {
     }
 
     /**
-     * Add void.
-     *
-     * @param target the target
-     * @param index  the index
-     * @param weight the weight
-     */
-    public void add(Value target, int index, double weight) {
-        Sample sample = samples.get(target);
-        if (sample == null) {
-            sample = new Sample(target);
-            sample.add(new Example(index, weight));
-            samples.put(target, sample);
-            targets.add(target);
-        } else {
-            sample.add(new Example(index, weight));
-        }
-    }
-
-    /**
      * From target.
      *
      * @param targets the targets
      * @return the examples
      */
-    public static Examples fromTarget(Column targets) {
+    public static Examples fromVector(Vector targets) {
         return new Examples(targets);
     }
 
@@ -96,12 +77,31 @@ public final class Examples implements Iterable<Example> {
     }
 
     /**
+     * Add void.
+     *
+     * @param target the target
+     * @param index  the index
+     * @param weight the weight
+     */
+    public void add(String target, int index, double weight) {
+        Sample sample = samples.get(target);
+        if (sample == null) {
+            sample = new Sample(target);
+            sample.add(new Example(index, weight));
+            samples.put(target, sample);
+            targets.add(target);
+        } else {
+            sample.add(new Example(index, weight));
+        }
+    }
+
+    /**
      * Add class set.
      *
      * @param sample the class set
      */
     public void add(Sample sample) {
-        Value target = sample.getTarget();
+        String target = sample.getTarget();
         targets.add(target);
         samples.put(target, sample);
     }
@@ -122,7 +122,7 @@ public final class Examples implements Iterable<Example> {
      */
     public int size() {
         int i = 0;
-        for (Map.Entry<Value, Sample> kv : samples.entrySet()) {
+        for (Map.Entry<String, Sample> kv : samples.entrySet()) {
             i += kv.getValue().size();
         }
         return i;
@@ -133,10 +133,10 @@ public final class Examples implements Iterable<Example> {
      *
      * @return the most probable
      */
-    public Value getMostProbable() {
+    public String getMostProbable() {
         double max = Double.NEGATIVE_INFINITY;
-        Value target = null;
-        for (Map.Entry<Value, Sample> kv : samples.entrySet()) {
+        String target = null;
+        for (Map.Entry<String, Sample> kv : samples.entrySet()) {
             double weight = kv.getValue().getWeight();
             if (weight > max) {
                 target = kv.getKey();
@@ -152,7 +152,7 @@ public final class Examples implements Iterable<Example> {
      * @param target the target
      * @return the class set
      */
-    public Sample get(Value target) {
+    public Sample get(String target) {
         return samples.get(target);
     }
 
@@ -179,7 +179,7 @@ public final class Examples implements Iterable<Example> {
      *
      * @return the targets
      */
-    public List<Value> getTargets() {
+    public List<String> getTargets() {
         return Collections.unmodifiableList(targets);
     }
 
@@ -205,7 +205,7 @@ public final class Examples implements Iterable<Example> {
      */
     public double getTotalWeight() {
         double size = 0;
-        for (Map.Entry<Value, Sample> kv : samples.entrySet()) {
+        for (Map.Entry<String, Sample> kv : samples.entrySet()) {
             size += kv.getValue().getWeight();
         }
 
@@ -261,21 +261,21 @@ public final class Examples implements Iterable<Example> {
      * @return the examples
      */
     public Examples sampleSubset(int sampleSize) {
-//        List<Iterator<Example>> exampleIterators = new ArrayList<>();
-//        List<Sample> newSamples = new ArrayList<>();
-//        for (Sample s : samples()) {
-//            exampleIterators.add(s.iterator());
-//            newSamples.add(Sample.create(s.getTarget()));
-//        }
-//
-//        Examples out = Examples.create();
-//        for (int i = 0; i < exampleIterators.size(); i++) {
-//            Iterator<Example> it = exampleIterators.get(i);
-//            Sample sample = newSamples.get(i);
-//            if (it.hasNext()) {
-//                sample.add(it.next());
-//            }
-//        }
+        //        List<Iterator<Example>> exampleIterators = new ArrayList<>();
+        //        List<Sample> newSamples = new ArrayList<>();
+        //        for (Sample s : samples()) {
+        //            exampleIterators.add(s.iterator());
+        //            newSamples.add(Sample.create(s.getTarget()));
+        //        }
+        //
+        //        Examples out = Examples.create();
+        //        for (int i = 0; i < exampleIterators.size(); i++) {
+        //            Iterator<Example> it = exampleIterators.get(i);
+        //            Sample sample = newSamples.get(i);
+        //            if (it.hasNext()) {
+        //                sample.add(it.next());
+        //            }
+        //        }
 
 
         return this;
@@ -295,7 +295,7 @@ public final class Examples implements Iterable<Example> {
      */
     public static final class Sample implements Iterable<Example> {
 
-        private final Value target;
+        private final String target;
         private final ArrayList<Example> examples;
         private double weight;
 
@@ -304,7 +304,7 @@ public final class Examples implements Iterable<Example> {
          *
          * @param target the target
          */
-        private Sample(Value target) {
+        private Sample(String target) {
             this.target = target;
             this.examples = new ArrayList<>();
             this.weight = 0;
@@ -316,7 +316,7 @@ public final class Examples implements Iterable<Example> {
          * @param target the target
          * @return the sample
          */
-        public static Sample create(Value target) {
+        public static Sample create(String target) {
             return new Sample(target);
         }
 
@@ -325,7 +325,7 @@ public final class Examples implements Iterable<Example> {
          *
          * @return the target
          */
-        public Value getTarget() {
+        public String getTarget() {
             return target;
         }
 

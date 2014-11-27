@@ -8,7 +8,7 @@ import org.briljantframework.vector.*;
 /**
  * Created by Isak Karlsson on 21/11/14.
  */
-public interface DataFrame extends Iterable<Sequence> {
+public interface DataFrame extends Iterable<CompoundVector> {
 
     /**
      * To string.
@@ -137,7 +137,7 @@ public interface DataFrame extends Iterable<Sequence> {
      * @param index the index
      * @return the row sequence
      */
-    Sequence getRow(int index);
+    CompoundVector getRow(int index);
 
     /**
      * Returns the number of rows in this data frame
@@ -314,6 +314,8 @@ public interface DataFrame extends Iterable<Sequence> {
             }
             return this;
         }
+
+        void parseAndAdd(int index, String value);
 
         /**
          * Returns the number of columns in the resulting data frame

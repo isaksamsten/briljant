@@ -19,10 +19,7 @@
 
 package org.briljantframework.io;
 
-import org.briljantframework.data.Traversable;
-
 import java.io.FilterOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -39,12 +36,12 @@ public abstract class DatasetOutputStream extends FilterOutputStream {
         super(out);
     }
 
-    /**
-     * Write void.
-     *
-     * @param instances the instances
-     * @throws IOException the iO exception
-     */
-    public abstract void write(Traversable<?> instances) throws IOException;
+    //    /**
+    //     * Write void.
+    //     *
+    //     * @param instances the instances
+    //     * @throws IOException the iO exception
+    //     */
+    //    public abstract void write(Traversable<?> instances) throws IOException;
 
 }

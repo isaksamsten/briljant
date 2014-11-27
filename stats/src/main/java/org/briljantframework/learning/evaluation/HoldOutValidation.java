@@ -1,15 +1,14 @@
 package org.briljantframework.learning.evaluation;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Model;
 import org.briljantframework.learning.Predictions;
-import org.briljantframework.learning.SupervisedDataset;
 import org.briljantframework.learning.evaluation.result.ConfusionMatrix;
 import org.briljantframework.learning.evaluation.result.Metric;
 import org.briljantframework.learning.evaluation.result.Metrics;
 import org.briljantframework.learning.evaluation.result.Result;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,41 +17,37 @@ import java.util.stream.Collectors;
 
 /**
  * Created by isak on 05/10/14.
- *
- * @param <D> the type parameter
- * @param <T> the type parameter
  */
-public class HoldOutValidation<D extends DataFrame<?>, T extends Column> extends AbstractEvaluator<D, T> {
+public class HoldOutValidation extends AbstractEvaluator {
 
 
-    private final SupervisedDataset<? extends D, ? extends T> holdoutSupervisedDataset;
+    private final DataFrame holdoutX;
+    private final Vector holdoutY;
 
     /**
      * Instantiates a new Abstract evaluator.
      *
-     * @param holdoutSupervisedDataset
+     * @param holdoutX
      */
-    public HoldOutValidation(SupervisedDataset<? extends D, ? extends T> holdoutSupervisedDataset) {
+    public HoldOutValidation(DataFrame holdoutX, Vector holdoutY) {
         super(Metrics.CLASSIFICATION);
-        this.holdoutSupervisedDataset = holdoutSupervisedDataset;
+        this.holdoutX = holdoutX;
+        this.holdoutY = holdoutY;
     }
 
     /**
      * Create hold out validation.
      *
-     * @param <D> the type parameter
-     * @param <T> the type parameter
      * @return the hold out validation
      */
-    public static <D extends DataFrame<?>, T extends Column> HoldOutValidation<D, T> withHoldout(
-            SupervisedDataset<? extends D, ? extends T> supervisedDataset) {
-        return new HoldOutValidation<>(supervisedDataset);
+    public static HoldOutValidation withHoldout(DataFrame x, Vector y) {
+        return new HoldOutValidation(x, y);
     }
 
     @Override
-    public Result evaluate(Classifier<?, ? super D, ? super T> classifier, SupervisedDataset<? extends D, ? extends T> supervisedDataset) {
-        Model<?, ? super D> model = classifier.fit(supervisedDataset.getDataFrame(), supervisedDataset.getTarget());
-        return evaluate(model, supervisedDataset);
+    public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
+        Model model = classifier.fit(x, y);
+        return evaluate(model, x, y);
     }
 
     /**
@@ -61,16 +56,16 @@ public class HoldOutValidation<D extends DataFrame<?>, T extends Column> extends
      * @param model the model
      * @return the result
      */
-    public Result evaluate(Model<?, ? super D> model, SupervisedDataset<? extends D, ? extends T> supervisedDataset) {
-        Predictions holdOutPredictions = model.predict(holdoutSupervisedDataset.getDataFrame());
-        Predictions inSamplePredictions = model.predict(supervisedDataset.getDataFrame());
+    public Result evaluate(Model model, DataFrame x, Vector y) {
+        Predictions holdOutPredictions = model.predict(holdoutX);
+        Predictions inSamplePredictions = model.predict(x);
 
-        ConfusionMatrix confusionMatrix = ConfusionMatrix.create(holdOutPredictions, holdoutSupervisedDataset.getTarget());
+        ConfusionMatrix confusionMatrix = ConfusionMatrix.create(holdOutPredictions, y);
         List<Metric> metrics = getMetricFactories().stream()
                 .map(Metric.Factory::newProducer)
                 .map(producer -> {
-                    producer.add(Metric.Sample.IN, inSamplePredictions, supervisedDataset.getTarget());
-                    producer.add(Metric.Sample.OUT, holdOutPredictions, holdoutSupervisedDataset.getTarget());
+                    producer.add(Metric.Sample.IN, inSamplePredictions, y);
+                    producer.add(Metric.Sample.OUT, holdOutPredictions, holdoutY);
                     return producer.produce();
                 })
                 .collect(Collectors.toCollection(ArrayList::new));

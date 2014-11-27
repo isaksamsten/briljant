@@ -19,16 +19,16 @@
 
 package org.briljantframework.learning.tree;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 09/09/14.
  *
- * @param <N> the type parameter
+ * @param <T> the type parameter
  */
-public interface Splitter<D extends DataFrame<?>, T extends Column, N> {
+public interface Splitter<T> {
 
     /**
      * Find find a "good" separating split in dataset using Examples
@@ -37,7 +37,7 @@ public interface Splitter<D extends DataFrame<?>, T extends Column, N> {
      * @param dataset  the container
      * @return the examples . split
      */
-    Tree.Split<N> find(Examples examples, D dataset, T target);
+    Tree.Split<T> find(Examples examples, DataFrame dataset, Vector target);
 
 
     /**
@@ -45,7 +45,7 @@ public interface Splitter<D extends DataFrame<?>, T extends Column, N> {
      *
      * @param <T> the type parameter
      */
-    public static interface Builder<T extends Splitter<?, ?, ?>> {
+    public static interface Builder<T extends Splitter<?>> {
         /**
          * Create splitter.
          *

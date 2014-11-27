@@ -101,14 +101,20 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * Copy the tensor (as a Matrix)
      *
      * @param shape  the shape
-     * @param tensor to copy
+     * @param matrix to copy
      */
-    public DenseMatrix(Shape shape, MatrixLike tensor) {
+    public DenseMatrix(Shape shape, MatrixLike matrix) {
         this(shape.rows, shape.columns);
-        if (!hasCompatibleShape(tensor.getShape())) {
+        if (!hasCompatibleShape(matrix.getShape())) {
             throw new MismatchException("DenseMatrix", "cant fit tensor");
         }
-        System.arraycopy(tensor.asDoubleArray(), 0, values, 0, this.cols * this.rows);
+        if (matrix instanceof Matrix) {
+            System.arraycopy(((Matrix) matrix).asDoubleArray(), 0, values, 0, this.cols * this.rows);
+        } else {
+            for (int i = 0; i < matrix.size(); i++) {
+                values[i] = matrix.get(i);
+            }
+        }
     }
 
     /**
@@ -256,30 +262,19 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public void put(int i, int j, double value) {
-        values[Matrix.columnMajorIndex(i, j, rows(), columns())] = value;
-    }
-
-    @Override
     public double get(int i, int j) {
         return values[Matrix.columnMajorIndex(i, j, rows(), columns())];
-    }
-
-    @Override
-    public void put(int index, double value) {
-        checkArgument(index >= 0 && index < values.length);
-        values[index] = value;
-    }
-
-    @Override
-    public int size() {
-        return rows() * columns();
     }
 
     @Override
     public double get(int index) {
         checkArgument(index >= 0 && index < values.length);
         return values[index];
+    }
+
+    @Override
+    public int size() {
+        return rows() * columns();
     }
 
     /**
@@ -289,6 +284,17 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
         DenseMatrix m = new DenseMatrix(this.rows(), this.columns());
         System.arraycopy(values, 0, m.values, 0, values.length);
         return m;
+    }
+
+    @Override
+    public void put(int i, int j, double value) {
+        values[Matrix.columnMajorIndex(i, j, rows(), columns())] = value;
+    }
+
+    @Override
+    public void put(int index, double value) {
+        checkArgument(index >= 0 && index < values.length);
+        values[index] = value;
     }
 
     /**
@@ -464,20 +470,6 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      */
     @Override
     public DenseMatrix mmuld(Diagonal diagonal) {
-        //        if (diagonal.rows() != this.columns()) {
-        //            throw new NonConformantException(this, diagonal);
-        //        }
-        //        DenseMatrix y = new DenseMatrix(this.rows(), diagonal.columns());
-        //
-        //        int rows = y.rows();
-        //        for (int column = 0; column < this.columns(); column++) {
-        //            for (int row = 0; row < rows; row++) {
-        //                double xv = this.get(row, column);
-        //                double dv = diagonal.get(column);
-        //                y.put(row, column, xv * dv);
-        //            }
-        //        }
-        //        return y;
         return Matrices.mdmul(DenseMatrix::new, this, diagonal);
     }
 
@@ -503,12 +495,12 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * @throws org.briljantframework.matrix.NonConformantException
      */
     @Override
-    public DenseMatrix mmul(MatrixLike other) throws NonConformantException {
+    public DenseMatrix mmul(Matrix other) throws NonConformantException {
         return Matrices.mmul(DenseMatrix::new, this, other);
     }
 
     @Override
-    public Matrix mul(MatrixLike other) {
+    public Matrix mul(Matrix other) {
         Preconditions.checkArgument(hasCompatibleShape(other.getShape()));
         return muli(1, other, 1);
     }
@@ -519,12 +511,12 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix muli(MatrixLike other) {
+    public DenseMatrix muli(Matrix other) {
         return muli(1.0, other, 1.0);
     }
 
     @Override
-    public DenseMatrix add(MatrixLike other) {
+    public DenseMatrix add(Matrix other) {
         return add(1, other, 1);
     }
 
@@ -536,7 +528,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix addi(MatrixLike other) {
+    public DenseMatrix addi(Matrix other) {
         addi(1, other, 1);
         return this;
     }
@@ -548,7 +540,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix sub(MatrixLike other) {
+    public DenseMatrix sub(Matrix other) {
         return sub(1, other, 1);
     }
 
@@ -560,7 +552,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix subi(MatrixLike other) {
+    public DenseMatrix subi(Matrix other) {
         addi(1, other, -1);
         return this;
     }
@@ -571,7 +563,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public Matrix rsub(MatrixLike other) {
+    public Matrix rsub(Matrix other) {
         DenseMatrix n = new DenseMatrix(getShape());
         Javablas.sub(other.asDoubleArray(), 1, asDoubleArray(), 1, n.asDoubleArray());
         return n;
@@ -585,7 +577,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public Matrix rsubi(MatrixLike other) {
+    public Matrix rsubi(Matrix other) {
         Javablas.sub(other.asDoubleArray(), 1, asDoubleArray(), 1, asDoubleArray());
         return this;
     }
@@ -597,7 +589,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix div(MatrixLike other) {
+    public DenseMatrix div(Matrix other) {
         double[] result = new double[rows * cols];
         Javablas.div(values, 1.0, other.asDoubleArray(), 1.0, result);
         return new DenseMatrix(this.rows(), this.columns(), result);
@@ -615,7 +607,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix divi(MatrixLike other) {
+    public DenseMatrix divi(Matrix other) {
         Javablas.div(values, 1, other.asDoubleArray(), 1, values);
         return this;
     }
@@ -627,14 +619,14 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
     }
 
     @Override
-    public DenseMatrix rdiv(MatrixLike other) {
+    public DenseMatrix rdiv(Matrix other) {
         double[] result = new double[rows * cols];
         Javablas.div(other.asDoubleArray(), 1.0, asDoubleArray(), 1.0, result);
         return new DenseMatrix(this.rows(), this.columns(), result);
     }
 
     @Override
-    public DenseMatrix rdivi(MatrixLike other) {
+    public DenseMatrix rdivi(Matrix other) {
         Javablas.div(other.asDoubleArray(), 1.0, asDoubleArray(), 1.0, asDoubleArray());
         return this;
     }
@@ -668,7 +660,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * @param beta  the beta
      * @return dense matrix
      */
-    public DenseMatrix sub(double alpha, MatrixLike other, double beta) {
+    public DenseMatrix sub(double alpha, Matrix other, double beta) {
         if (!hasEqualShape(other)) {
             throw new NonConformantException(this, other);
         }
@@ -685,7 +677,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * @param beta  the beta
      * @return the dense matrix
      */
-    public DenseMatrix addi(double alpha, MatrixLike other, double beta) {
+    public DenseMatrix addi(double alpha, Matrix other, double beta) {
         if (!hasEqualShape(other)) {
             throw new NonConformantException(this, other);
         }
@@ -701,7 +693,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * @param beta  the beta
      * @return the dense matrix
      */
-    public DenseMatrix add(double alpha, MatrixLike other, double beta) {
+    public DenseMatrix add(double alpha, Matrix other, double beta) {
         if (!hasEqualShape(other)) {
             throw new NonConformantException(this, other);
         }
@@ -718,7 +710,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * @param beta  the beta
      * @return dense matrix
      */
-    public DenseMatrix muli(double alpha, MatrixLike other, double beta) {
+    public DenseMatrix muli(double alpha, Matrix other, double beta) {
         double[] result = new double[rows * cols];
         Javablas.mul(values, alpha, other.asDoubleArray(), beta, result);
         return new DenseMatrix(this.rows(), this.columns(), result);
@@ -733,7 +725,7 @@ public class DenseMatrix extends AbstractDenseMatrix implements Matrix {
      * @param beta  scaling factor for other
      * @return a new Matrix
      */
-    public DenseMatrix mmul(double alpha, MatrixLike other, double beta) {
+    public DenseMatrix mmul(double alpha, Matrix other, double beta) {
         if (this.columns() != other.rows()) {
             throw new NonConformantException(this, other);
         }

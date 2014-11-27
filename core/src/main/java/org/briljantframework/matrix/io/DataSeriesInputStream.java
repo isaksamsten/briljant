@@ -19,16 +19,14 @@
 
 package org.briljantframework.matrix.io;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.types.Type;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.vector.Type;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Load a time series as formatted in the <a href="http://www.cs.ucr.edu/~eamonn/time_series_data/">UCR Time Series
@@ -58,41 +56,56 @@ public class DataSeriesInputStream extends DataFrameInputStream {
     }
 
     @Override
+    public Type readColumnType() throws IOException {
+        return null;
+    }
+
+    @Override
+    public String readColumnName() throws IOException {
+        return null;
+    }
+
+    @Override
+    public boolean readValue(DataFrame.Builder builder, int index) throws IOException {
+        return false;
+    }
+
+    @Override
     public void close() throws IOException {
         reader.close();
         super.close();
     }
-
-    /**
-     * Read container.
-     *
-     * @param <D>     the type parameter
-     * @param copyTo the factory
-     * @return the container
-     * @throws java.io.IOException             the iO exception
-     * @throws java.lang.NumberFormatException if a value is badly formatted
-     */
-    @Override
-    public <D extends DataFrame<?>> D read(DataFrame.CopyTo<D> copyTo) throws IOException {
-        String line = reader.readLine();
-        if (line == null) {
-            throw new IOException("Unexpected EOF");
-        }
-
-        String[] values = line.trim().split("\\s+");
-        List<Type> types = new ArrayList<>();
-        for (int i = 0; i < values.length; i++) {
-            types.add(typeFactory.newNumeric(String.valueOf(i)));
-        }
-
-        DataFrame.Builder<D> datasetBuilder = copyTo.newBuilder(types);
-        for (; line != null; line = reader.readLine()) {
-            values = line.trim().split("\\s+");
-            for (String value : values) {
-                datasetBuilder.add(Double.parseDouble(value.trim()));
-            }
-        }
-
-        return datasetBuilder.create();
-    }
+    //
+    //    /**
+    //     * Read container.
+    //     *
+    //     * @param <D>    the type parameter
+    //     * @param copyTo the factory
+    //     * @return the container
+    //     * @throws java.io.IOException             the iO exception
+    //     * @throws java.lang.NumberFormatException if a value is badly formatted
+    //     */
+    //    @Override
+    //    public <D extends DataFrame<?>> D read(DataFrame.CopyTo<D> copyTo) throws IOException {
+    //        String line = reader.readLine();
+    //        if (line == null) {
+    //            throw new IOException("Unexpected EOF");
+    //        }
+    //
+    //        String[] values = line.trim().split("\\s+");
+    //        List<Type> types = new ArrayList<>();
+    //        for (int i = 0; i < values.length; i++) {
+    //            types.add(typeFactory.newNumeric(String.valueOf(i)));
+    //        }
+    //
+    //        DataFrame.Builder<D> datasetBuilder = copyTo.newBuilder(types);
+    //        for (; line != null; line = reader.readLine()) {
+    //            values = line.trim().split("\\s+");
+    //            for (String value : values) {
+    //                datasetBuilder.add(Double.parseDouble(value.trim()));
+    //            }
+    //        }
+    //
+    //        return datasetBuilder.create();
+    //    }
 }

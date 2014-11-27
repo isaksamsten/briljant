@@ -3,9 +3,8 @@ package org.briljantframework.learning.evaluation.result;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
 import org.briljantframework.learning.Predictions;
+import org.briljantframework.vector.Vector;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
@@ -49,8 +48,8 @@ public class ConfusionMatrix implements Chartable {
 
     private static final InvertedGrayPaintScale GRAY_PAINT_SCALE = new InvertedGrayPaintScale(0, 1, 200);
 
-    private final Map<Value, Map<Value, Double>> matrix;
-    private final Set<Value> labels;
+    private final Map<String, Map<String, Double>> matrix;
+    private final Set<String> labels;
     private final double sum;
 
     /**
@@ -60,7 +59,7 @@ public class ConfusionMatrix implements Chartable {
      * @param labels the labels
      * @param sum    the sum
      */
-    public ConfusionMatrix(Map<Value, Map<Value, Double>> matrix, Set<Value> labels, double sum) {
+    public ConfusionMatrix(Map<String, Map<String, Double>> matrix, Set<String> labels, double sum) {
         this.matrix = Preconditions.checkNotNull(matrix, "Matrix cannot be null");
         this.labels = Collections.unmodifiableSet(Preconditions.checkNotNull(labels, "Labels cannot be null"));
 
@@ -74,17 +73,17 @@ public class ConfusionMatrix implements Chartable {
      * @param column      the target
      * @return the confusion matrix
      */
-    public static ConfusionMatrix create(Predictions predictions, Column column) {
+    public static ConfusionMatrix create(Predictions predictions, Vector column) {
         Preconditions.checkArgument(predictions.size() == column.size());
 
-        Map<Value, Map<Value, Double>> matrix = new HashMap<>();
-        Set<Value> labels = new HashSet<>();
+        Map<String, Map<String, Double>> matrix = new HashMap<>();
+        Set<String> labels = new HashSet<>();
         double sum = 0;
         for (int i = 0; i < predictions.size(); i++) {
-            Value predicted = predictions.get(i).getValue();
-            Value actual = column.getValue(i);
+            String predicted = predictions.get(i).getValue();
+            String actual = column.getAsString(i);
 
-            Map<Value, Double> actuals = matrix.get(predicted);
+            Map<String, Double> actuals = matrix.get(predicted);
             if (actuals == null) {
                 actuals = new HashMap<>();
                 matrix.put(predicted, actuals);
@@ -133,7 +132,7 @@ public class ConfusionMatrix implements Chartable {
      * @param beta   the beta
      * @return the f measure
      */
-    public double getFMeasure(Value target, double beta) {
+    public double getFMeasure(String target, double beta) {
         double precision = getPrecision(target);
         double recall = getRecall(target);
         double beta2 = beta * beta;
@@ -150,13 +149,13 @@ public class ConfusionMatrix implements Chartable {
      * @param target the target
      * @return the precision
      */
-    public double getPrecision(Value target) {
+    public double getPrecision(String target) {
         double tp = get(target, target);
         if (tp == 0) {
             return 0;
         } else {
             double conditional = 0.0;
-            for (Value actual : labels) {
+            for (String actual : labels) {
                 conditional += get(target, actual);
             }
             return conditional > 0 ? tp / conditional : 0;
@@ -169,14 +168,14 @@ public class ConfusionMatrix implements Chartable {
      * @param target the target
      * @return the recall
      */
-    public double getRecall(Value target) {
+    public double getRecall(String target) {
         double tp = get(target, target);
 
         if (tp == 0) {
             return 0;
         } else {
             double conditional = 0.0;
-            for (Value actual : getLabels()) {
+            for (String actual : getLabels()) {
                 conditional += get(actual, target);
             }
             return conditional > 0 ? tp / conditional : 0;
@@ -190,8 +189,8 @@ public class ConfusionMatrix implements Chartable {
      * @param actual    the actual
      * @return the double
      */
-    public double get(Value predicted, Value actual) {
-        Map<Value, Double> values = matrix.get(predicted);
+    public double get(String predicted, String actual) {
+        Map<String, Double> values = matrix.get(predicted);
         if (values == null) {
             return 0;
         } else {
@@ -204,7 +203,7 @@ public class ConfusionMatrix implements Chartable {
      *
      * @return the labels
      */
-    public Set<Value> getLabels() {
+    public Set<String> getLabels() {
         return labels;
     }
 
@@ -217,8 +216,8 @@ public class ConfusionMatrix implements Chartable {
         }
 
         int longestValue = 0;
-        for (Value p : labels) {
-            for (Value n : labels) {
+        for (String p : labels) {
+            for (String n : labels) {
                 int len = Double.toString(get(p, n)).length();
                 if (len > longestValue) {
                     longestValue = len;
@@ -227,19 +226,19 @@ public class ConfusionMatrix implements Chartable {
         }
 
         builder.append(Strings.repeat(" ", longest + 3));
-        for (Value value : labels) {
+        for (String value : labels) {
             builder.append(value);
             builder.append(Strings.repeat(" ", longestValue + 1));
         }
 
         builder.append("\n");
-        for (Value predicted : labels) {
-            builder.append(Strings.padEnd(predicted.toString(), longest + 3, ' '));
+        for (String predicted : labels) {
+            builder.append(Strings.padEnd(predicted, longest + 3, ' '));
 
-            for (Value actual : labels) {
+            for (String actual : labels) {
                 String valueStr = Double.toString(get(predicted, actual));
                 builder.append(valueStr);
-                builder.append(Strings.repeat(" ", actual.toString().length() + 1 + longestValue - valueStr.length()));
+                builder.append(Strings.repeat(" ", actual.length() + 1 + longestValue - valueStr.length()));
             }
             builder.append("\n");
         }
@@ -260,7 +259,7 @@ public class ConfusionMatrix implements Chartable {
      */
     public double getAccuracy() {
         double diagonal = 0.0;
-        for (Value value : labels) {
+        for (String value : labels) {
             diagonal += get(value, value);
         }
         return diagonal / sum;
@@ -287,7 +286,7 @@ public class ConfusionMatrix implements Chartable {
 
     @Override
     public JFreeChart getChart() {
-        List<Value> labels = new ArrayList<>(getLabels());
+        List<String> labels = new ArrayList<>(getLabels());
         DefaultXYZDataset dataset = new DefaultXYZDataset();
 
         double[] x = new double[labels.size() * labels.size()];
@@ -305,7 +304,7 @@ public class ConfusionMatrix implements Chartable {
         dataset.addSeries("Class Labels", new double[][]{x, y, z});
         XYBlockRenderer block = new XYBlockRenderer();
         block.setPaintScale(GRAY_PAINT_SCALE);
-        String[] labelArray = labels.stream().map(Value::toString).toArray(String[]::new);
+        String[] labelArray = labels.stream().toArray(String[]::new);
 
         SymbolAxis predicted = new SymbolAxis("Predicted class label", labelArray);
         predicted.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
@@ -348,44 +347,44 @@ public class ConfusionMatrix implements Chartable {
         return Chartable.applyTheme(chart);
     }
 
-    /**
-     * Gets actual.
-     *
-     * @param actual the actual
-     * @return the actual
-     */
-    public double getActual(Value actual) {
-        double sum = 0;
-        for (Value predicted : getLabels()) {
-            sum += get(predicted, actual);
-        }
-        return sum;
-    }
-
     @Override
     public Plot getPlot() {
         CombinedDomainCategoryPlot c = new CombinedDomainCategoryPlot();
 
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        for (Value label : getLabels()) {
+        for (String label : getLabels()) {
             dataset.addValue(getPrecision(label), "Precision", label);
         }
         c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Precision"), new BarRenderer()));
 
         dataset = new DefaultCategoryDataset();
-        for (Value label : getLabels()) {
+        for (String label : getLabels()) {
             dataset.addValue(getRecall(label), "Recall", label);
         }
         c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Recall"), new BarRenderer()));
 
         dataset = new DefaultCategoryDataset();
-        for (Value label : getLabels()) {
+        for (String label : getLabels()) {
             dataset.addValue(getFMeasure(label, 2), "F-measure", label);
         }
         c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("F-measure"), new BarRenderer()));
         c.setOrientation(PlotOrientation.HORIZONTAL);
 
         return c;
+    }
+
+    /**
+     * Gets actual.
+     *
+     * @param actual the actual
+     * @return the actual
+     */
+    public double getActual(String actual) {
+        double sum = 0;
+        for (String predicted : getLabels()) {
+            sum += get(predicted, actual);
+        }
+        return sum;
     }
 
     /**

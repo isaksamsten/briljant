@@ -21,11 +21,12 @@ package org.briljantframework.learning.evaluation.tune;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
-import org.briljantframework.chart.Chartable;
 import org.briljantframework.Utils;
-import org.briljantframework.learning.Classifier;
+import org.briljantframework.chart.Chartable;
 import org.briljantframework.learning.evaluation.Evaluator;
-import org.briljantframework.learning.evaluation.result.*;
+import org.briljantframework.learning.evaluation.result.ConfusionMatrix;
+import org.briljantframework.learning.evaluation.result.ErrorRate;
+import org.briljantframework.learning.evaluation.result.Metric;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -47,12 +48,10 @@ import static org.briljantframework.learning.evaluation.result.Metric.Sample;
 
 /**
  * The type Configurations.
- *
- * @param <C> the type parameter
  */
-public class Configurations<C extends Classifier> implements Iterable<Configuration<C>>, Chartable {
-    private final List<Configuration<C>> configurations;
-    private final Evaluator<?, ?> evaluator;
+public class Configurations implements Iterable<Configuration>, Chartable {
+    private final List<Configuration> configurations;
+    private final Evaluator evaluator;
 
     /**
      * Instantiates a new Configurations.
@@ -60,7 +59,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      * @param configurations the configurations
      * @param evaluator      the evaluator
      */
-    protected Configurations(List<Configuration<C>> configurations, Evaluator<?, ?> evaluator) {
+    protected Configurations(List<Configuration> configurations, Evaluator evaluator) {
         this.configurations = configurations;
         this.evaluator = evaluator;
     }
@@ -68,15 +67,13 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
     /**
      * Create configurations.
      *
-     * @param <C>            the type parameter
      * @param configurations the configurations
      * @param evaluator      the evaluator
      * @return the configurations
      */
-    public static <C extends Classifier> Configurations<C> create(List<Configuration<C>> configurations,
-                                                                  Evaluator<?, ?> evaluator) {
+    public static Configurations create(List<Configuration> configurations, Evaluator evaluator) {
         Preconditions.checkArgument(configurations.size() > 0);
-        return new Configurations<>(configurations, evaluator);
+        return new Configurations(configurations, evaluator);
     }
 
     /**
@@ -102,7 +99,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      *
      * @return the iterator
      */
-    public Iterator<Configuration<C>> iterator() {
+    public Iterator<Configuration> iterator() {
         return configurations.iterator();
     }
 
@@ -111,7 +108,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      *
      * @return the configuration
      */
-    public Configuration<C> best() {
+    public Configuration best() {
         return get(0);
     }
 
@@ -120,7 +117,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      *
      * @param cmp the cmp
      */
-    public void sort(Comparator<Configuration<C>> cmp) {
+    public void sort(Comparator<Configuration> cmp) {
         Collections.sort(configurations, cmp);
     }
 
@@ -137,7 +134,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      * @param index the index
      * @return the configuration
      */
-    public Configuration<C> get(int index) {
+    public Configuration get(int index) {
         return configurations.get(index);
     }
 
@@ -148,7 +145,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      */
     public Set<String> getParameters() {
         Set<String> set = new HashSet<>();
-        for (Configuration<?> c : configurations) {
+        for (Configuration c : configurations) {
             set.addAll(c.keys());
         }
         return set;
@@ -165,7 +162,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
 
         ImmutableTable.Builder<Integer, String, Object> table = ImmutableTable.builder();
         int index = 0;
-        for (Configuration<?> configuration : configurations) {
+        for (Configuration configuration : configurations) {
             for (Map.Entry<String, Object> params : configuration.entries()) {
                 if (params.getValue() instanceof Double) {
                     table.put(index, params.getKey(), String.format("%.4f", (double) params.getValue()));
@@ -194,7 +191,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
      */
     public Plot getPlotForParameter(String key, Class<? extends Metric> metricKey) {
         Map<Number, Double> map = new HashMap<>();
-        for (Configuration<?> configuration : configurations) {
+        for (Configuration configuration : configurations) {
             Metric metric = configuration.getMetric(metricKey);
             double average = metric.getAverage(Sample.OUT);
             Number param = (Number) configuration.get(key);
@@ -234,7 +231,7 @@ public class Configurations<C extends Classifier> implements Iterable<Configurat
     @Override
     public Plot getPlot() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        for (Configuration<?> configuration : configurations) {
+        for (Configuration configuration : configurations) {
             dataset.addValue(configuration.getAverage(ErrorRate.class),
                     "Error",
                     configuration.entries()

@@ -21,8 +21,6 @@ package org.briljantframework.learning;
 
 import com.google.common.base.Preconditions;
 import com.google.common.math.DoubleMath;
-import org.briljantframework.data.values.Numeric;
-import org.briljantframework.data.values.Value;
 
 import java.util.*;
 
@@ -31,10 +29,10 @@ import java.util.*;
  */
 public class Prediction {
 
-    private final Value target;
+    private final String target;
     private final double probability;
 
-    private final Map<Value, Double> values;
+    private final Map<String, Double> values;
 
     // TODO - probability of alternative targets
 
@@ -45,7 +43,7 @@ public class Prediction {
      * @param probability the probability
      * @param values      the alternatives
      */
-    private Prediction(Value target, double probability, Map<Value, Double> values) {
+    private Prediction(String target, double probability, Map<String, Double> values) {
         this.target = target;
         this.probability = probability;
         this.values = values;
@@ -57,8 +55,8 @@ public class Prediction {
      * @param a the a
      * @return the prediction
      */
-    public static Prediction unary(Value a) {
-        Map<Value, Double> values = new HashMap<>();
+    public static Prediction unary(String a) {
+        Map<String, Double> values = new HashMap<>();
         values.put(a, 1.0);
         return new Prediction(a, 1.0, values);
     }
@@ -72,14 +70,14 @@ public class Prediction {
      * @param pb other class probability
      * @return the prediction
      */
-    public static Prediction binary(Value a, double pa, Value b, double pb) {
+    public static Prediction binary(String a, double pa, String b, double pb) {
         Preconditions.checkArgument(DoubleMath.fuzzyEquals(pa + pb, 1.0, 0.00001),
                 "Probabilities have to sum to one (%s /= 1.0)", pa + pb);
-        Map<Value, Double> values = new HashMap<>();
+        Map<String, Double> values = new HashMap<>();
         values.put(a, pa);
         values.put(b, pb);
 
-        Value major = a;
+        String major = a;
         double majorProb = pa;
         if (pb > pa) {
             major = b;
@@ -89,17 +87,17 @@ public class Prediction {
         return new Prediction(major, majorProb, values);
     }
 
-    /**
-     * Numeric prediction.
-     *
-     * @param target the target
-     * @return the prediction
-     */
-    public static Prediction numeric(Numeric target) {
-        Map<Value, Double> values = new HashMap<>();
-        values.put(target, 1.0);
-        return new Prediction(target, 1.0, values);
-    }
+    //    /**
+    //     * Numeric prediction.
+    //     *
+    //     * @param target the target
+    //     * @return the prediction
+    //     */
+    //    public static Prediction numeric(Numeric target) {
+    //        Map<Value, Double> values = new HashMap<>();
+    //        values.put(target, 1.0);
+    //        return new Prediction(target, 1.0, values);
+    //    }
 
     /**
      * Create prediction.
@@ -108,17 +106,17 @@ public class Prediction {
      * @param probabilities the proablities
      * @return the prediction
      */
-    public static Prediction nominal(List<Value> targets, List<Double> probabilities) {
+    public static Prediction nominal(List<String> targets, List<Double> probabilities) {
         Preconditions.checkArgument(targets.size() == probabilities.size() && targets.size() > 0);
 
-        Map<Value, Double> values = new HashMap<>();
+        Map<String, Double> values = new HashMap<>();
         values.put(targets.get(0), probabilities.get(0));
 
         double maxProb = probabilities.get(0), sum = probabilities.get(0);
-        Value mostProbable = targets.get(0);
+        String mostProbable = targets.get(0);
         for (int i = 1; i < targets.size(); i++) {
             double prob = probabilities.get(i);
-            Value value = targets.get(i);
+            String value = targets.get(i);
             if (prob > maxProb) {
                 maxProb = prob;
                 mostProbable = value;
@@ -139,7 +137,7 @@ public class Prediction {
      *
      * @return the target
      */
-    public Value getValue() {
+    public String getValue() {
         return target;
     }
 
@@ -157,7 +155,7 @@ public class Prediction {
      *
      * @return the set
      */
-    public Set<Map.Entry<Value, Double>> values() {
+    public Set<Map.Entry<String, Double>> values() {
         return Collections.unmodifiableSet(values.entrySet());
     }
 
@@ -166,7 +164,7 @@ public class Prediction {
      *
      * @return the targets
      */
-    public Set<Value> getTargets() {
+    public Set<String> getTargets() {
         return Collections.unmodifiableSet(values.keySet());
     }
 
@@ -176,7 +174,7 @@ public class Prediction {
      * @param value the value
      * @return the probability
      */
-    public double getProbability(Value value) {
+    public double getProbability(String value) {
         return values.getOrDefault(value, 0d);
     }
 
@@ -186,19 +184,18 @@ public class Prediction {
      * @param value the value
      * @return the boolean
      */
-    public boolean predicts(Value value) {
+    public boolean predicts(String value) {
         return value.equals(target);
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Prediction && target.equals(((Prediction) obj).target);
     }
 
     @Override
     public int hashCode() {
         return target.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Prediction && target.equals(((Prediction) obj).target);
     }
 
     @Override

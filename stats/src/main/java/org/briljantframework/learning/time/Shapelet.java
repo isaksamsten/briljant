@@ -77,23 +77,20 @@ public class Shapelet implements MatrixLike {
     }
 
     @Override
-    public void put(int i, int j, double value) {
-
-    }
-
-    @Override
     public double get(int i, int j) {
-        return 0;
+        if (i == 1) {
+            return get(j);
+        } else if (j == 1) {
+            return get(i);
+        } else {
+            throw new IndexOutOfBoundsException();
+        }
     }
 
     @Override
-    public void put(int index, double value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public MatrixLike copy() {
-        return new Shapelet(start, length, vector.copy());
+    public double get(int index) {
+        Preconditions.checkElementIndex(index, size());
+        return vector.get(start + index);
     }
 
     @Override
@@ -112,17 +109,6 @@ public class Shapelet implements MatrixLike {
     }
 
     @Override
-    public double get(int index) {
-        Preconditions.checkElementIndex(index, size());
-        return vector.get(start + index);
-    }
-
-    @Override
-    public double[] asDoubleArray() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String toString() {
         List<Double> r = new ArrayList<>();
         for (int i = 0; i < size(); i++) {
@@ -130,5 +116,4 @@ public class Shapelet implements MatrixLike {
         }
         return String.format("Shapelet(%s, shape=(%d, 1))", r, size());
     }
-
 }

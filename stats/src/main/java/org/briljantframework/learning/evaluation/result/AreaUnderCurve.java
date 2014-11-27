@@ -19,10 +19,9 @@
 
 package org.briljantframework.learning.evaluation.result;
 
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.Predictions;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,17 +57,17 @@ public class AreaUnderCurve extends AbstracPerValueMetric {
     private static final class Producer extends AbstracPerValueMetric.Producer {
 
         @Override
-        protected double calculateMetricForValue(Value value, Predictions predictions, Column column) {
+        protected double calculateMetricForValue(String value, Predictions predictions, Vector column) {
             return calculateAreaUnderCurve(predictions, column, value);
         }
 
-        private double calculateAreaUnderCurve(Predictions predictions, Column targets, Value value) {
+        private double calculateAreaUnderCurve(Predictions predictions, Vector targets, String value) {
             List<PredictionProbability> pairs = new ArrayList<>(predictions.size());
             double truePositives = 0, falsePositives = 0, positives = 0;
             for (int i = 0; i < targets.size(); i++) {
                 Prediction p = predictions.get(i);
 
-                boolean positive = targets.getValue(i).equals(value);
+                boolean positive = targets.getAsString(i).equals(value);
                 if (positive) {
                     positives++;
                 }

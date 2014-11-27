@@ -1,10 +1,9 @@
 package org.briljantframework.learning.evaluation.tune;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
-import org.briljantframework.learning.SupervisedDataset;
 import org.briljantframework.learning.evaluation.CrossValidation;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,12 +17,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class Tuners {
 
     @SafeVarargs
-    public static <D extends DataFrame<?>, T extends Column, C extends Classifier<?, ? super D, ? super T>, O extends Classifier.Builder<? extends C>> Configurations<C> crossValidation(
-            O builder, SupervisedDataset<? extends D, ? extends T> supervisedDataset, Comparator<Configuration<C>> comparator, int folds, Updater<O>... updaters) {
+    public static <C extends Classifier, O extends Classifier.Builder<? extends C>> Configurations crossValidation(
+            O builder, DataFrame x, Vector y, Comparator<Configuration> comparator, int folds, Updater<O>... updaters) {
         checkArgument(updaters.length > 0, "Can't tune without updaters");
-        checkArgument(folds > 1 && folds < supervisedDataset.getDataFrame().rows(), "Invalid number of cross-validation folds");
+        checkArgument(folds > 1 && folds < x.rows(), "Invalid number of cross-validation folds");
         ArrayList<Updater<O>> updaterList = new ArrayList<>(updaters.length);
         Collections.addAll(updaterList, updaters);
-        return new DefaultTuner<>(updaterList, new CrossValidation<>(folds), comparator).tune(builder, supervisedDataset);
+        return new DefaultTuner<>(updaterList, new CrossValidation(folds), comparator).tune(builder, x, y);
     }
 }

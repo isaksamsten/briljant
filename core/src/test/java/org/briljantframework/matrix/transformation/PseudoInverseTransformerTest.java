@@ -60,13 +60,13 @@ public class PseudoInverseTransformerTest {
         //        System.out.println("PINV");
         //        System.out.println(svd.v.multiply(svd.s.transpose()).multiply(svd.u.transpose()));
 
-        System.out.println(svd.v.mmul(svd.s.transpose()));
+        System.out.println(svd.v.mmuld(svd.s.transpose()));
 
         System.out.println("Multiply by diagonal: ");
         System.out.println(svd.v.mmuld(svd.s.transpose()));
 
         System.out.println("Working by diagnoal");
-        System.out.println(svd.v.mmul(svd.s.transpose()));
+        System.out.println(svd.v.mmuld(svd.s.transpose()));
 
         DenseMatrix mmul = Matrices.mmul(DenseMatrix::new, svd.v.mmuld(svd.s.transpose()), Transpose.NO, svd.u, Transpose.YES);
         System.out.println(mmul);

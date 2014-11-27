@@ -1,19 +1,9 @@
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.data.transform.PipelineTransformer;
-import org.briljantframework.data.types.NumericType;
-import org.briljantframework.data.types.Type;
-import org.briljantframework.data.types.Types;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.dataset.MatrixDataFrame;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MeanImputerTest {
     Matrix matrix;
@@ -34,20 +24,20 @@ public class MeanImputerTest {
         //                .read(Frame.FACTORY);
         //        ClassificationFrame frame = ClassificationFrame.create(dataset, Frame.FACTORY, DefaultTarget.FACTORY);
 
-        List<Type> types = Stream
-                .generate(() -> new NumericType("temp"))
-                .limit(4)
-                .collect(Collectors.toCollection(ArrayList::new));
-
-
-        MatrixDataFrame frame = new MatrixDataFrame(new Types(types), matrix);
+        //        List<Type> types = Stream
+        //                .generate(() -> new NumericType("temp"))
+        //                .limit(4)
+        //                .collect(Collectors.toCollection(ArrayList::new));
         //
-//        PipelineTransformer<MatrixDataFrame> pipe = PipelineTransformer.of(MatrixDataFrame.copyTo(),
-//                new MeanImputer<>(), new ZNormalizer<>()
-//        );
+        //
+        //        MatrixDataFrame frame = new MatrixDataFrame(new Types(types), matrix);
 
-//        MatrixDataFrame transformation = pipe.fitTransform(frame, MatrixDataFrame.copyTo());
-//        System.out.println(transformation);
+        //        PipelineTransformer<MatrixDataFrame> pipe = PipelineTransformer.of(MatrixDataFrame.copyTo(),
+        //                new MeanImputer<>(), new ZNormalizer<>()
+        //        );
+
+        //        MatrixDataFrame transformation = pipe.fitTransform(frame, MatrixDataFrame.copyTo());
+        //        System.out.println(transformation);
 
 
         //        System.out.println();

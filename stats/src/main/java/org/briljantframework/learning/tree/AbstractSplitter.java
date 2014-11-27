@@ -19,20 +19,19 @@
 
 package org.briljantframework.learning.tree;
 
-import org.briljantframework.data.DataFrame;
-import org.briljantframework.data.column.Column;
-import org.briljantframework.data.values.Value;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.example.Example;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.Type;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
 
 import java.util.Random;
 
 /**
  * Created by Isak Karlsson on 10/09/14.
- *
- * @param <D> the type parameter
  */
-public abstract class AbstractSplitter<D extends DataFrame<?>, T extends Column> implements Splitter<D, T, ValueThreshold> {
+public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
 
     /**
      * The Random.
@@ -42,21 +41,22 @@ public abstract class AbstractSplitter<D extends DataFrame<?>, T extends Column>
     /**
      * Basic implementation of the splitting procedure
      *
-     * @param dataset   the dataset
      * @param examples  the examples
      * @param axis      the axis
      * @param threshold the threshold
      * @return the examples . split
      */
-    protected Tree.Split<ValueThreshold> split(D dataset, Examples examples, int axis, Value threshold) {
+    protected Tree.Split<ValueThreshold> split(DataFrame dataset, Examples examples, int axis, Value threshold) {
         Examples left = Examples.create();
         Examples right = Examples.create();
+        Vector axisVector = dataset.getColumn(axis);
+        Type axisType = axisVector.getType();
 
         /*
          * Partition every class separately
          */
         for (Examples.Sample sample : examples.samples()) {
-            Value target = sample.getTarget();
+            String target = sample.getTarget();
 
             Examples.Sample leftSample = Examples.Sample.create(target);
             Examples.Sample rightSample = Examples.Sample.create(target);
@@ -66,8 +66,8 @@ public abstract class AbstractSplitter<D extends DataFrame<?>, T extends Column>
              * STEP 1: Partition the examples according to threshold
              */
             for (Example example : sample) {
-                Value value = dataset.getValue(example.getIndex(), axis);
-                if (value.na()) {
+                Value value = axisVector.getAsValue(example.getIndex());
+                if (value.isNA()) {
                     missingSample.add(example);
                 } else if (threshold.compareTo(value) <= 0) {
                     leftSample.add(example);

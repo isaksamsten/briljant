@@ -19,8 +19,6 @@
 
 package org.briljantframework.learning.evaluation.result;
 
-import org.briljantframework.data.values.Value;
-
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +35,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the list
      */
-    default List<Double> get(Value value) {
+    default List<Double> get(String value) {
         return get(Sample.OUT, value);
     }
 
@@ -48,7 +46,7 @@ public interface PerValueMetric {
      * @param value  the value
      * @return the list
      */
-    List<Double> get(Sample sample, Value value);
+    List<Double> get(Sample sample, String value);
 
     /**
      * Gets for value.
@@ -56,7 +54,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the for value
      */
-    default double getAverage(Value value) {
+    default double getAverage(String value) {
         return getAverage(Sample.OUT, value);
     }
 
@@ -67,7 +65,7 @@ public interface PerValueMetric {
      * @param value  the value
      * @return the average
      */
-    double getAverage(Sample sample, Value value);
+    double getAverage(Sample sample, String value);
 
     /**
      * Gets standard deviation.
@@ -75,7 +73,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the standard deviation
      */
-    default double getStandardDeviation(Value value) {
+    default double getStandardDeviation(String value) {
         return getStandardDeviation(Sample.OUT, value);
     }
 
@@ -86,7 +84,7 @@ public interface PerValueMetric {
      * @param value  the value
      * @return the standard deviation
      */
-    double getStandardDeviation(Sample sample, Value value);
+    double getStandardDeviation(Sample sample, String value);
 
     /**
      * Gets min.
@@ -94,7 +92,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the min
      */
-    default double getMin(Value value) {
+    default double getMin(String value) {
         return getMin(Sample.OUT, value);
     }
 
@@ -105,7 +103,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the min
      */
-    double getMin(Sample out, Value value);
+    double getMin(Sample out, String value);
 
     /**
      * Gets max.
@@ -113,7 +111,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the max
      */
-    default double getMax(Value value) {
+    default double getMax(String value) {
         return getMax(Sample.OUT, value);
     }
 
@@ -124,7 +122,7 @@ public interface PerValueMetric {
      * @param value the value
      * @return the max
      */
-    double getMax(Sample out, Value value);
+    double getMax(Sample out, String value);
 
     /**
      * Gets labels.
@@ -132,14 +130,14 @@ public interface PerValueMetric {
      * @param sample the sample
      * @return the labels
      */
-    Set<Value> getLabels(Sample sample);
+    Set<String> getLabels(Sample sample);
 
     /**
      * Gets labels.
      *
      * @return the labels
      */
-    default Set<Value> getLabels() {
+    default Set<String> getLabels() {
         return getLabels(Sample.OUT);
     }
 }
