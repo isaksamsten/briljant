@@ -7,5 +7,5 @@ import org.briljantframework.vector.Type;
  */
 public interface TypeFactory {
 
-    Type getTypeForName(String name);
+  Type getTypeForName(String name);
 }

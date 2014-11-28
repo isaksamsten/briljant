@@ -10,17 +10,18 @@ import org.briljantframework.vector.Vector;
  */
 public class Evaluators {
 
-    /**
-     * Cross validation.
-     *
-     * @param classifier the classifier
-     * @param container  the storage
-     * @param target     the target
-     * @param folds      the folds
-     * @return the double
-     */
-    public static Result crossValidation(Classifier classifier, DataFrame container, Vector target, int folds) {
-        return CrossValidation.withFolds(folds).evaluate(classifier, container, target);
-    }
+  /**
+   * Cross validation.
+   *
+   * @param classifier the classifier
+   * @param container the storage
+   * @param target the target
+   * @param folds the folds
+   * @return the double
+   */
+  public static Result crossValidation(Classifier classifier, DataFrame container, Vector target,
+      int folds) {
+    return CrossValidation.withFolds(folds).evaluate(classifier, container, target);
+  }
 
 }

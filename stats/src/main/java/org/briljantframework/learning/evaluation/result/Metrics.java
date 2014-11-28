@@ -12,36 +12,35 @@ import java.util.stream.Collectors;
  */
 public class Metrics {
 
-    /**
-     * The constant ERROR.
-     */
-    public static final Class<ErrorRate> ERROR = ErrorRate.class;
+  /**
+   * The constant ERROR.
+   */
+  public static final Class<ErrorRate> ERROR = ErrorRate.class;
 
-    /**
-     * The constant CLASSIFICATION.
-     */
-    public static final List<Metric.Factory> CLASSIFICATION = Collections.unmodifiableList(Arrays.asList(
-            ErrorRate.getFactory(), Accuracy.getFactory(), AreaUnderCurve.getFactory()
-    ));
+  /**
+   * The constant CLASSIFICATION.
+   */
+  public static final List<Metric.Factory> CLASSIFICATION = Collections.unmodifiableList(Arrays
+      .asList(ErrorRate.getFactory(), Accuracy.getFactory(), AreaUnderCurve.getFactory()));
 
 
-    private Metrics() {
+  private Metrics() {
 
-    }
+  }
 
-    /**
-     * Collect metric producers.
-     *
-     * @param producers the producers
-     * @return the array list
-     */
-    public static ArrayList<Metric> collect(List<Metric.Producer> producers) {
-        return collect(producers, ArrayList::new);
-    }
+  /**
+   * Collect metric producers.
+   *
+   * @param producers the producers
+   * @return the array list
+   */
+  public static ArrayList<Metric> collect(List<Metric.Producer> producers) {
+    return collect(producers, ArrayList::new);
+  }
 
-    public static <T extends List<Metric>> T collect(List<Metric.Producer> producers, Supplier<T> supplier) {
-        return producers.stream()
-                .map(Metric.Producer::produce)
-                .collect(Collectors.toCollection(supplier));
-    }
+  public static <T extends List<Metric>> T collect(List<Metric.Producer> producers,
+      Supplier<T> supplier) {
+    return producers.stream().map(Metric.Producer::produce)
+        .collect(Collectors.toCollection(supplier));
+  }
 }

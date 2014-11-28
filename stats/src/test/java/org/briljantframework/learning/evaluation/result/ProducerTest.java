@@ -4,7 +4,6 @@ import org.junit.Test;
 
 public class ProducerTest {
 
-    @Test
-    public void testGetPerformanceMetric() throws Exception {
-    }
+  @Test
+  public void testGetPerformanceMetric() throws Exception {}
 }
