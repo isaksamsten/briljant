@@ -17,7 +17,10 @@
 package org.briljantframework.io;
 
 import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+
+import org.briljantframework.dataframe.DataFrame;
 
 /**
  * Created by Isak Karlsson on 14/08/14.
@@ -33,12 +36,11 @@ public abstract class DatasetOutputStream extends FilterOutputStream {
     super(out);
   }
 
-  // /**
-  // * Write void.
-  // *
-  // * @param instances the instances
-  // * @throws IOException the iO exception
-  // */
-  // public abstract void write(Traversable<?> instances) throws IOException;
-
+  /**
+   * Write void.
+   *
+   * @param dataFrame the instances
+   * @throws IOException the iO exception
+   */
+  public abstract void write(DataFrame dataFrame) throws IOException;
 }

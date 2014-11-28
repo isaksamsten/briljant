@@ -22,8 +22,19 @@ import java.util.NoSuchElementException;
 import org.briljantframework.vector.*;
 
 /**
- * Reads values from a typed CSV-file similar to those used in Rule Discovery System (
- *
+ * Reads values from a typed CSV-file similar to those used in Rule Discovery System (RDS).
+ * 
+ * The file-format is simple, a comma separated file with the first two rows being the column names
+ * and the types respectively.
+ * 
+ * The types are simple strings and are mapped to {@code briljant} data types as follows:
+ * <ul>
+ * <li>{@code numeric} and {@code regressor} {@link org.briljantframework.vector.DoubleVector}</li>
+ * <li>{@code categoric} and {@code class} {@link org.briljantframework.vector.StringVector}</li>
+ * </ul>
+ * 
+ * By convention, missing values are represented as {@code ?}. This particular implementation also
+ * supports {@code NA}.
  *
  * Created by Isak Karlsson on 14/08/14.
  */
@@ -37,7 +48,7 @@ public class CsvInputStream extends DataFrameInputStream {
   private String[] types = null, names = null, values = null;
 
   /**
-   * Instantiates a new CSV input stream.
+   * Instantiates a new CSV input stream using {@code inputStream}.
    *
    * @param inputStream the input stream
    */
@@ -46,10 +57,27 @@ public class CsvInputStream extends DataFrameInputStream {
     reader = new BufferedReader(new InputStreamReader(in));
   }
 
+  /**
+   * Constructs a new buffered csv input stream from {@code file}
+   * 
+   * @param file the file
+   * @throws FileNotFoundException
+   */
   public CsvInputStream(File file) throws FileNotFoundException {
-    this(new FileInputStream(file));
+    this(new BufferedInputStream(new FileInputStream(file)));
   }
 
+  /**
+   * @param fileName the file name
+   * @throws FileNotFoundException
+   */
+  public CsvInputStream(String fileName) throws FileNotFoundException {
+    this(new File(fileName));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Type readColumnType() throws IOException {
     initializeTypes();
@@ -61,6 +89,9 @@ public class CsvInputStream extends DataFrameInputStream {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String readColumnName() throws IOException {
     if (types == null) {
@@ -74,53 +105,77 @@ public class CsvInputStream extends DataFrameInputStream {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String nextString() throws IOException {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
     if (currentValue < values.length) {
-      String value = values[currentValue];
+      String value = values[currentValue].trim();
       currentValue += 1;
       if (currentValue == types.length) {
         values = null;
       }
-      return value.trim();
+      if (value.equals("?") || value.equals("NA")) {
+        return StringVector.NA;
+      }
+      return value;
     }
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int nextInt() throws IOException {
     String repr = nextString();
-    if (repr.equals("?") || repr.equals("NA")) {
-      return IntVector.NA;
-    }
-    return Integer.parseInt(repr);
+    return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double nextDouble() throws IOException {
     String repr = nextString();
-    if (repr.equals("?") || repr.equals("NA")) {
-      return DoubleVector.NA;
-    }
-    return Double.parseDouble(repr);
+    return repr == StringVector.NA ? DoubleVector.NA : Double.parseDouble(repr);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Binary nextBinary() throws IOException {
     return Binary.valueOf(nextInt());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Complex nextComplex() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean hasNext() throws IOException {
     return initializeValues();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() throws IOException {
+    super.close();
+    reader.close();
   }
 
   private void initializeTypes() throws IOException {
@@ -168,12 +223,6 @@ public class CsvInputStream extends DataFrameInputStream {
       currentValue = 0;
     }
     return true;
-  }
-
-  @Override
-  public void close() throws IOException {
-    super.close();
-    reader.close();
   }
 
 }

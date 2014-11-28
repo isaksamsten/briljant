@@ -7,7 +7,7 @@ import org.briljantframework.matrix.slice.Range;
 import org.briljantframework.matrix.slice.Slice;
 import org.junit.Test;
 
-public class RangeTest {
+public class IntRangeTest {
 
   @Test
   public void testToString() throws Exception {

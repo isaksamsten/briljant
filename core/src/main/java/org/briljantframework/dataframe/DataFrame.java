@@ -1,6 +1,7 @@
 package org.briljantframework.dataframe;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.briljantframework.io.DataFrameInputStream;
 import org.briljantframework.matrix.Matrix;
@@ -68,6 +69,15 @@ public interface DataFrame extends Iterable<CompoundVector> {
   Value getAsValue(int row, int column);
 
   /**
+   * Returns string representation of value at {@code row, column}
+   * 
+   * @param row the row
+   * @param column the column
+   * @return the representation
+   */
+  String toString(int row, int column);
+
+  /**
    * Returns true if value at {@code row, column} is NA.
    *
    * @param row the row
@@ -83,6 +93,30 @@ public interface DataFrame extends Iterable<CompoundVector> {
    * @return the vector
    */
   Vector getColumn(int index);
+
+  /**
+   * Drop column {@code index}
+   * 
+   * @param index the index
+   * @return a new dataframe
+   */
+  DataFrame dropColumn(int index);
+
+  /**
+   * Drop columns with {@code indexes}
+   *
+   * @param indexes collection of indexes
+   * @return a new dataframe
+   */
+  DataFrame dropColumns(Set<Integer> indexes);
+
+  /**
+   * Take columns with {@code indexes}
+   * 
+   * @param indexes collection of indexes
+   * @return a new dataframe
+   */
+  DataFrame takeColumns(Set<Integer> indexes);
 
   /**
    * Get the type of vector at {@code index}
@@ -287,6 +321,13 @@ public interface DataFrame extends Iterable<CompoundVector> {
       return this;
     }
 
+    /**
+     * Read values from the {@code inputStream} and add the values to the correct column.
+     * 
+     * @param inputStream the input stream
+     * @return a modified builder
+     * @throws IOException
+     */
     public Builder read(DataFrameInputStream inputStream) throws IOException;
 
     /**

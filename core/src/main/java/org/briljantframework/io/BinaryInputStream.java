@@ -16,10 +16,61 @@
 
 package org.briljantframework.io;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.briljantframework.vector.Binary;
+import org.briljantframework.vector.Complex;
+import org.briljantframework.vector.Type;
+
 /**
- * Created by Isak Karlsson on 14/08/14. extends DataFrameInputStream
+ * Created by Isak Karlsson on 14/08/14.
  */
-public class BinaryInputStream {
+public class BinaryInputStream extends DataFrameInputStream {
+
+  public BinaryInputStream(InputStream in) {
+    super(in);
+  }
+
+  @Override
+  public Type readColumnType() throws IOException {
+    return null;
+  }
+
+  @Override
+  public String readColumnName() throws IOException {
+    return null;
+  }
+
+  @Override
+  public String nextString() throws IOException {
+    return null;
+  }
+
+  @Override
+  public int nextInt() throws IOException {
+    return 0;
+  }
+
+  @Override
+  public double nextDouble() throws IOException {
+    return 0;
+  }
+
+  @Override
+  public Binary nextBinary() throws IOException {
+    return null;
+  }
+
+  @Override
+  public Complex nextComplex() throws IOException {
+    return null;
+  }
+
+  @Override
+  public boolean hasNext() throws IOException {
+    return false;
+  }
 
   // public BinaryInputStream(InputStream inputStream) {
   // super(inputStream);

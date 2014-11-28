@@ -2,7 +2,9 @@ package org.briljantframework.io;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
+import org.briljantframework.IntRange;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.MixedDataFrame;
@@ -14,9 +16,16 @@ public class DataFrameInputStreamTest {
   @Test
   public void testReadDataFrame() throws Exception {
     try (DataFrameInputStream dfis =
-        new CsvInputStream(new BufferedInputStream(new FileInputStream("connect-4.txt")))) {
+        new CsvInputStream(new BufferedInputStream(new FileInputStream("iris.txt")))) {
       long start = System.currentTimeMillis();
       DataFrame iris = DataFrames.load(MixedDataFrame.Builder::new, dfis);
+
+
+      new CsvOutputStream(new FileOutputStream("iris2.txt")).write(iris);
+      System.out.println(DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream(
+          "iris2.txt")));
+
+
       System.out.println(System.currentTimeMillis() - start);
       System.out.println(iris);
       start = System.currentTimeMillis();
@@ -32,6 +41,8 @@ public class DataFrameInputStreamTest {
         blackbox(iris.getAsString(i, 3));
       }
       System.out.println(System.currentTimeMillis() - start);
+
+      System.out.println(iris.dropColumns(IntRange.closed(0, 2)));
 
       // System.out.println();
     }

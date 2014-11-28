@@ -13,7 +13,6 @@ import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
 
@@ -179,6 +178,11 @@ public class MixedDataFrame implements DataFrame {
   }
 
   @Override
+  public String toString(int row, int column) {
+    return columns.get(column).toString(row);
+  }
+
+  @Override
   public boolean isNA(int row, int column) {
     return columns.get(column).isNA(row);
   }
@@ -189,6 +193,44 @@ public class MixedDataFrame implements DataFrame {
   @Override
   public Vector getColumn(int index) {
     return columns.get(index);
+  }
+
+  @Override
+  public DataFrame dropColumn(int index) {
+    checkArgument(index >= 0 && index < columns());
+    ArrayList<Vector> columns = new ArrayList<>(this.columns);
+    ArrayList<String> names = new ArrayList<>(this.names);
+
+    columns.remove(index);
+    names.remove(index);
+    return new MixedDataFrame(names, columns, rows());
+  }
+
+  @Override
+  public DataFrame dropColumns(Set<Integer> indexes) {
+    ArrayList<Vector> columns = new ArrayList<>();
+    ArrayList<String> names = new ArrayList<>();
+    for (int i = 0; i < columns(); i++) {
+      if (!indexes.contains(i)) {
+        columns.add(getColumn(i));
+        names.add(getColumnName(i));
+      }
+    }
+
+    return new MixedDataFrame(names, columns, rows());
+  }
+
+  @Override
+  public DataFrame takeColumns(Set<Integer> indexes) {
+    ArrayList<Vector> columns = new ArrayList<>();
+    ArrayList<String> names = new ArrayList<>();
+    for (int index : indexes) {
+      checkArgument(index >= 0 && index < columns());
+      columns.add(getColumn(index));
+      names.add(getColumnName(index));
+    }
+
+    return new MixedDataFrame(names, columns, rows());
   }
 
   /**
@@ -269,7 +311,7 @@ public class MixedDataFrame implements DataFrame {
 
   @Override
   public String toString() {
-    return DataFrames.toString(this, 100);
+    return DataFrames.toTabularString(this, 100);
   }
 
   @Override
@@ -312,7 +354,7 @@ public class MixedDataFrame implements DataFrame {
     }
 
     public Builder(Collection<String> colNames, Collection<? extends Type> types) {
-      Preconditions.checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
+      checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
           "Column names and types does not match.");
       this.buffers = new ArrayList<>(types.size());
       this.colNames = new ArrayList<>(colNames);

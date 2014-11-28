@@ -16,8 +16,10 @@
 
 package org.briljantframework.matrix.io;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.io.DatasetOutputStream;
 
 /**
@@ -31,6 +33,11 @@ public class MatrixOutputStream extends DatasetOutputStream {
    */
   public MatrixOutputStream(OutputStream out) {
     super(out);
+  }
+
+  @Override
+  public void write(DataFrame dataFrame) throws IOException {
+
   }
   //
   // private final boolean writeSize;

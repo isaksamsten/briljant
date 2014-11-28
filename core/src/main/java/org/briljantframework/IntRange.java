@@ -1,18 +1,20 @@
 package org.briljantframework;
 
-import java.util.AbstractCollection;
+import java.util.AbstractSet;
 import java.util.Iterator;
 
 import com.google.common.base.Preconditions;
 
 /**
+ * A range represents a closed interval (with fast implementation of {@link #contains(Object)}).
+ *
  * Created by Isak Karlsson on 09/11/14.
  */
-public class Range extends AbstractCollection<Integer> {
+public class IntRange extends AbstractSet<Integer> {
 
   private final int start, end, step;
 
-  private Range(int start, int end, int step) {
+  private IntRange(int start, int end, int step) {
     Preconditions.checkArgument(start < end);
     this.start = start;
     this.end = end;
@@ -20,15 +22,15 @@ public class Range extends AbstractCollection<Integer> {
   }
 
   /**
-   * Closed range.
+   *
    *
    * @param start the start
    * @param end the end
    * @param step the step
    * @return the range
    */
-  public static Range closed(int start, int end, int step) {
-    return new Range(start, end, step);
+  public static IntRange closed(int start, int end, int step) {
+    return new IntRange(start, end, step);
   }
 
   /**
@@ -38,8 +40,8 @@ public class Range extends AbstractCollection<Integer> {
    * @param end the end
    * @return the range
    */
-  public static Range closed(int start, int end) {
-    return new Range(start, end, 1);
+  public static IntRange closed(int start, int end) {
+    return new IntRange(start, end, 1);
   }
 
   @Override
@@ -64,5 +66,15 @@ public class Range extends AbstractCollection<Integer> {
   @Override
   public int size() {
     return (end - start) / step;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    if (o instanceof Integer) {
+      int value = (int) o;
+      return value < end && value < end;
+    } else {
+      return false;
+    }
   }
 }
