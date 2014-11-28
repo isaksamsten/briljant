@@ -17,51 +17,68 @@
 package org.briljantframework.io;
 
 
-/**
- * Created by Isak Karlsson on 14/08/14.extends DatasetOutputStream
- */
-public class CsvOutputStream {
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.IdentityHashMap;
 
-  // public CSVOutputStream(OutputStream outputStream) {
-  // super(outputStream);
-  // }
-  //
-  // @Override
-  // public void write(Traversable dataset) throws IOException {
-  // BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-  // boxHeader(dataset, writer);
-  // boxValues(dataset, writer);
-  // writer.flush();
-  // }
-  //
-  // private void boxHeader(Traversable<?> dataset, BufferedWriter writer)
-  // throws IOException {
-  // ArrayList<String> names = new ArrayList<>(dataset.columns());
-  // ArrayList<String> types = new ArrayList<>(dataset.columns());
-  // for (Type c : dataset.getTypes()) {
-  // names.add(c.getName());
-  // types.add(c.getDataType().toString());
-  // }
-  // writer.write(String.join(",", types));
-  // writer.newLine();
-  // writer.write(String.join(",", names));
-  // writer.newLine();
-  // }
-  //
-  // private void boxValues(Traversable<?> dataset, BufferedWriter writer)
-  // throws IOException {
-  // int cols = dataset.columns();
-  // for (Row row : dataset) {
-  // ArrayList<String> values = new ArrayList<>(cols);
-  // for (int j = 0; j < row.size(); j++) {
-  // if (row.getValue(j).na()) {
-  // values.add("?");
-  // } else {
-  // values.add(row.getValue(j).toString());
-  // }
-  // }
-  // writer.write(String.join(",", values));
-  // writer.newLine();
-  // }
-  // }
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.*;
+
+/**
+ * Created by Isak Karlsson on 14/08/14
+ */
+public class CsvOutputStream extends DatasetOutputStream {
+
+  private static IdentityHashMap<Type, String> TYPE_TO_NAME = new IdentityHashMap<>();
+  static {
+    TYPE_TO_NAME.put(DoubleVector.TYPE, "numeric");
+    TYPE_TO_NAME.put(IntVector.TYPE, "numeric");
+    TYPE_TO_NAME.put(ComplexVector.TYPE, "numeric");
+    TYPE_TO_NAME.put(BinaryVector.TYPE, "categoric");
+    TYPE_TO_NAME.put(StringVector.TYPE, "categoric");
+  }
+
+  /**
+   * @param out the out
+   */
+  public CsvOutputStream(OutputStream out) {
+    super(out);
+  }
+
+  @Override
+  public void write(DataFrame dataFrame) throws IOException {
+    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+    String[] colNames = new String[dataFrame.columns()];
+    String[] colTypes = new String[dataFrame.columns()];
+    for (int i = 0; i < dataFrame.columns(); i++) {
+      colNames[i] = dataFrame.getColumnName(i);
+      colTypes[i] = generateTypeRepresentation(dataFrame.getColumnType(i));
+    }
+
+    writer.write(String.join(",", colTypes));
+    writer.newLine();
+    writer.write(String.join(",", colNames));
+    writer.newLine();
+
+    String[] row = new String[dataFrame.columns()];
+    for (int i = 0; i < dataFrame.rows(); i++) {
+      for (int j = 0; j < dataFrame.columns(); j++) {
+        row[j] = dataFrame.toString(i, j);
+      }
+      writer.write(String.join(",", row));
+      writer.newLine();
+    }
+    writer.flush();
+  }
+
+  private String generateTypeRepresentation(Type columnType) {
+    String name = TYPE_TO_NAME.get(columnType);
+    if (name != null) {
+      return name;
+    } else {
+      throw new IllegalArgumentException(columnType.toString());
+    }
+  }
 }
