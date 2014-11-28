@@ -29,7 +29,7 @@ import org.briljantframework.vector.*;
  */
 public class CsvInputStream extends DataFrameInputStream {
 
-  protected static final String MISSMATCH = "Types and values does not match (%d, %d)";
+  protected static final String MISMATCH = "Types and values does not match (%d, %d)";
 
   private final BufferedReader reader;
 
@@ -142,7 +142,7 @@ public class CsvInputStream extends DataFrameInputStream {
       }
       names = namesLine.split(",");
       if (names.length != types.length) {
-        throw new IOException(String.format(MISSMATCH, types.length, names.length));
+        throw new IOException(String.format(MISMATCH, types.length, names.length));
       }
       currentName = 0;
     }
@@ -163,7 +163,7 @@ public class CsvInputStream extends DataFrameInputStream {
       }
       values = valueLine.split(",");
       if (values.length != types.length) {
-        throw new IOException(String.format(MISSMATCH, types.length, values.length));
+        throw new IOException(String.format(MISMATCH, types.length, values.length));
       }
       currentValue = 0;
     }
