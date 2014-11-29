@@ -20,12 +20,16 @@ package org.briljantframework.learning.tree;
 import org.briljantframework.vector.Value;
 
 /**
+ *
+ *
  * Created by Isak Karlsson on 23/09/14.
  */
 public class ValueThreshold {
 
   private final int axis;
   private final Value threshold;
+
+  // private final ClassDistribution
 
   private ValueThreshold(int axis, Value threshold) {
     this.axis = axis;

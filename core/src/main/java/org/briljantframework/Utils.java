@@ -52,7 +52,7 @@ public final class Utils {
   }
 
   /**
-   * Swap void.
+   * Swap values {@code i} and {@code j} in {@code array}
    *
    * @param array the array
    * @param i the i

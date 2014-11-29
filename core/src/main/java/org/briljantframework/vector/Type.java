@@ -128,6 +128,18 @@ public interface Type {
   }
 
   /**
+   * Check if value {@code va} is equal to {@code ba.getValue(b)}
+   * 
+   * @param va the value
+   * @param b the index in ba
+   * @param ba the vector
+   * @return true if equal false otherwise
+   */
+  default boolean equals(Value va, int b, Vector ba) {
+    return equals(0, va, b, ba);
+  }
+
+  /**
    * The expectations on the data stored within this type. If the data is
    */
   public enum Scale {

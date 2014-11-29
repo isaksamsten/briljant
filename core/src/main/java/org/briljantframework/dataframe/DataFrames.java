@@ -19,9 +19,12 @@ public final class DataFrames {
   private DataFrames() {}
 
   /**
-   * Load data frame using {@code in} and construct a new {@link DataFrame.Builder} using the
-   * function {@code f}. {@code f} expects two parameters the column names and the column types and
-   * returns a new {@code DataFrame.Builder}.
+   * Load data frame using {@code in} and construct a new
+   * {@link org.briljantframework.dataframe.DataFrame} using the function {@code f} which should
+   * return a {@link org.briljantframework.dataframe.DataFrame.Builder} using the column names and
+   * the column types. The values from {@code in} are read to the {@code DataFrame.Builder} and
+   * returned as the DataFrame created by
+   * {@link org.briljantframework.dataframe.DataFrame.Builder#create()}.
    * 
    * <code><pre>
    *    DataFrame dataframe =

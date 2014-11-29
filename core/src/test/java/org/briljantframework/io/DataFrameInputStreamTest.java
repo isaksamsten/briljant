@@ -1,7 +1,5 @@
 package org.briljantframework.io;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import org.briljantframework.IntRange;
@@ -15,15 +13,15 @@ public class DataFrameInputStreamTest {
 
   @Test
   public void testReadDataFrame() throws Exception {
-    try (DataFrameInputStream dfis =
-        new CsvInputStream(new BufferedInputStream(new FileInputStream("iris.txt")))) {
+    try (DataFrameInputStream dfis = new CsvInputStream("../iris.txt")) {
       long start = System.currentTimeMillis();
       DataFrame iris = DataFrames.load(MixedDataFrame.Builder::new, dfis);
 
 
-      new CsvOutputStream(new FileOutputStream("iris2.txt")).write(iris);
-      System.out.println(DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream(
-          "iris2.txt")));
+      new CsvOutputStream(new FileOutputStream("../iris2.txt")).write(iris);
+      DataFrame load =
+          DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("../iris2.txt"));
+      System.out.println(load);
 
 
       System.out.println(System.currentTimeMillis() - start);

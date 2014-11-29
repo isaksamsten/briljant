@@ -254,8 +254,8 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
-    public void read(DataFrameInputStream value) throws IOException {
-      Complex complex = value.nextComplex();
+    public void read(DataFrameInputStream inputStream) throws IOException {
+      Complex complex = inputStream.nextComplex();
       if (complex == null) {
         addNA();
       } else {

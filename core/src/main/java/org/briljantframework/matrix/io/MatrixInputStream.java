@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.io.TypeFactory;
 import org.briljantframework.vector.Binary;
 import org.briljantframework.vector.Complex;
 import org.briljantframework.vector.Type;
@@ -29,8 +28,8 @@ import org.briljantframework.vector.Type;
  * Created by Isak Karlsson on 14/08/14.
  */
 public class MatrixInputStream extends DataFrameInputStream {
-  protected MatrixInputStream(InputStream in, TypeFactory typeFactory) {
-    super(in, typeFactory);
+  protected MatrixInputStream(InputStream in) {
+    super(in);
   }
 
   @Override

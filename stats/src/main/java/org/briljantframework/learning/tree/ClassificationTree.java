@@ -21,6 +21,7 @@ import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
 import org.briljantframework.learning.example.Examples;
+import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
@@ -28,11 +29,6 @@ import org.briljantframework.vector.Vector;
  * Created by Isak Karlsson on 17/09/14.
  */
 public class ClassificationTree extends Tree<ValueThreshold> {
-
-  /**
-   * The Prediction visitor.
-   */
-  protected final SimplePredictionVisitor predictionVisitor = new SimplePredictionVisitor();
 
   /**
    * Instantiates a new Decision tree.
@@ -72,11 +68,14 @@ public class ClassificationTree extends Tree<ValueThreshold> {
       examples = Examples.fromVector(column);
 
     Node<ValueThreshold> node = build(dataFrame, column, examples);
-    return new Model(node, predictionVisitor);
+    return new Model(node, new SimplePredictionVisitor());
   }
 
 
   private static final class SimplePredictionVisitor implements Visitor<ValueThreshold> {
+
+    private static final int MISSING = 0, LEFT = -1, RIGHT = 1;
+
     @Override
     public Prediction visitLeaf(Leaf<ValueThreshold> leaf, Vector example) {
       return Prediction.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
@@ -86,10 +85,30 @@ public class ClassificationTree extends Tree<ValueThreshold> {
     public Prediction visitBranch(Branch<ValueThreshold> node, Vector example) {
       Value value = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
-      if (value.getType().compare(value, axis, example) <= 0) { // TODO(isak): Check
-        return visit(node.getLeft(), example);
-      } else {
-        return visit(node.getRight(), example);
+      Type type = value.getType();
+
+
+      int direction = MISSING;
+      if (!example.isNA(axis)) {
+        switch (value.getType().getScale()) {
+          case CATEGORICAL:
+            direction = type.equals(value, axis, example) ? LEFT : RIGHT;
+            break;
+          case NUMERICAL:
+            direction = type.compare(value, axis, example) <= 0 ? LEFT : RIGHT;
+            break;
+        }
+      }
+
+      switch (direction) {
+        case LEFT:
+          return visit(node.getLeft(), example);
+        case RIGHT:
+          return visit(node.getRight(), example);
+        case MISSING:
+        default:
+          return visit(node.getLeft(), example);
+          // throw new IllegalStateException("ClassificationTree cannot handle missing values");
       }
     }
   }

@@ -174,8 +174,8 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     @Override
-    public void read(DataFrameInputStream intputStream) throws IOException {
-      double value = intputStream.nextDouble();
+    public void read(DataFrameInputStream inputStream) throws IOException {
+      double value = inputStream.nextDouble();
       add(value);
     }
 

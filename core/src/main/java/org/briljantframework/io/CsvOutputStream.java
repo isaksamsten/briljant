@@ -27,10 +27,14 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.*;
 
 /**
+ * Produces, insanely naively CSV-produ
+ * 
  * Created by Isak Karlsson on 14/08/14
  */
 public class CsvOutputStream extends DatasetOutputStream {
 
+  private static final String NA_REPR = "?";
+  private static final String DEFAULT_SEPARATOR = ",";
   private static IdentityHashMap<Type, String> TYPE_TO_NAME = new IdentityHashMap<>();
   static {
     TYPE_TO_NAME.put(DoubleVector.TYPE, "numeric");
@@ -39,12 +43,18 @@ public class CsvOutputStream extends DatasetOutputStream {
     TYPE_TO_NAME.put(BinaryVector.TYPE, "categoric");
     TYPE_TO_NAME.put(StringVector.TYPE, "categoric");
   }
+  private final String separator;
 
   /**
    * @param out the out
    */
-  public CsvOutputStream(OutputStream out) {
+  public CsvOutputStream(OutputStream out, String separator) {
     super(out);
+    this.separator = separator;
+  }
+
+  public CsvOutputStream(OutputStream out) {
+    this(out, DEFAULT_SEPARATOR);
   }
 
   @Override
@@ -57,17 +67,17 @@ public class CsvOutputStream extends DatasetOutputStream {
       colTypes[i] = generateTypeRepresentation(dataFrame.getColumnType(i));
     }
 
-    writer.write(String.join(",", colTypes));
+    writer.write(String.join(separator, colTypes));
     writer.newLine();
-    writer.write(String.join(",", colNames));
+    writer.write(String.join(separator, colNames));
     writer.newLine();
 
     String[] row = new String[dataFrame.columns()];
     for (int i = 0; i < dataFrame.rows(); i++) {
       for (int j = 0; j < dataFrame.columns(); j++) {
-        row[j] = dataFrame.toString(i, j);
+        row[j] = dataFrame.isNA(i, j) ? NA_REPR : dataFrame.toString(i, j);
       }
-      writer.write(String.join(",", row));
+      writer.write(String.join(separator, row));
       writer.newLine();
     }
     writer.flush();

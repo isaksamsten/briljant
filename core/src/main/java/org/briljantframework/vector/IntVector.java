@@ -165,8 +165,8 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public void read(DataFrameInputStream value) throws IOException {
-      add(value.nextInt());
+    public void read(DataFrameInputStream inputStream) throws IOException {
+      add(inputStream.nextInt());
     }
 
     @Override

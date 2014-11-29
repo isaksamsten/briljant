@@ -165,7 +165,7 @@ public class Undefined implements Value {
     }
 
     @Override
-    public void read(DataFrameInputStream value) {
+    public void read(DataFrameInputStream inputStream) {
       throw new UnsupportedOperationException();
     }
 

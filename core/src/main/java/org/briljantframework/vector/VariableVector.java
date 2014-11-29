@@ -203,8 +203,8 @@ public class VariableVector implements CompoundVector {
     }
 
     @Override
-    public void read(DataFrameInputStream value) throws IOException {
-      add(value.nextString());
+    public void read(DataFrameInputStream inputStream) throws IOException {
+      add(inputStream.nextString());
     }
 
     @Override

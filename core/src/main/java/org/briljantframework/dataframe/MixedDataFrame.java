@@ -86,6 +86,12 @@ public class MixedDataFrame implements DataFrame {
     this.rows = rows;
   }
 
+  /**
+   * Constructs a new mixed data frame from an iterable sequence of of
+   * {@link org.briljantframework.vector.CompoundVector} treated as rows of equal length
+   * 
+   * @param sequences
+   */
   public MixedDataFrame(Iterable<? extends CompoundVector> sequences) {
     this.names = new ArrayList<>();
     this.columns = new ArrayList<>();
@@ -104,7 +110,7 @@ public class MixedDataFrame implements DataFrame {
               "Can't create untyped vector as column.");
           builders.add(row.getType(i).newBuilder());
         }
-        builders.get(i).add(row.getAsValue(i), 0);
+        builders.get(i).add(row.getAsValue(i));
       }
       rows++;
     }

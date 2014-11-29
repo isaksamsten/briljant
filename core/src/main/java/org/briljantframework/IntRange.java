@@ -34,7 +34,7 @@ public class IntRange extends AbstractSet<Integer> {
   }
 
   /**
-   * Closed range.
+   * Construct a closed interval
    *
    * @param start the start
    * @param end the end

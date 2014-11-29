@@ -17,6 +17,9 @@
 package org.briljantframework.io;
 
 import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.briljantframework.vector.*;
@@ -33,16 +36,29 @@ import org.briljantframework.vector.*;
  * <li>{@code categoric} and {@code class} {@link org.briljantframework.vector.StringVector}</li>
  * </ul>
  * 
- * By convention, missing values are represented as {@code ?}. This particular implementation also
- * supports {@code NA}.
- *
+ * By convention, missing values are represented as {@code ?}.
+ * 
  * Created by Isak Karlsson on 14/08/14.
  */
 public class CsvInputStream extends DataFrameInputStream {
 
+  public static final String INVALID_NAME = "Can't understand the type %s";
   protected static final String MISMATCH = "Types and values does not match (%d, %d)";
+  protected static final Map<String, Type> TYPE_MAP;
+  static {
+    Map<String, Type> map = new HashMap<>();
+    map.put("numeric", DoubleVector.TYPE);
+    map.put("regressor", DoubleVector.TYPE);
+    map.put("class", StringVector.TYPE);
+    map.put("categoric", StringVector.TYPE);
 
+    TYPE_MAP = Collections.unmodifiableMap(map);
+  }
+  private static final String DEFAULT_SEPARATOR = ",";
+  private static final String DEFAULT_MISSING_VALUE = "?";
   private final BufferedReader reader;
+  private final String missingValue;
+  private final String separator;
 
   private int currentType = -1, currentName = -1, currentValue = -1;
   private String[] types = null, names = null, values = null;
@@ -52,10 +68,17 @@ public class CsvInputStream extends DataFrameInputStream {
    *
    * @param inputStream the input stream
    */
-  public CsvInputStream(InputStream inputStream) {
+  public CsvInputStream(InputStream inputStream, String missingValue, String separator) {
     super(inputStream);
+    this.missingValue = missingValue;
+    this.separator = separator;
     reader = new BufferedReader(new InputStreamReader(in));
   }
+
+  public CsvInputStream(InputStream inputStream) {
+    this(inputStream, DEFAULT_MISSING_VALUE, DEFAULT_SEPARATOR);
+  }
+
 
   /**
    * Constructs a new buffered csv input stream from {@code file}
@@ -64,7 +87,8 @@ public class CsvInputStream extends DataFrameInputStream {
    * @throws FileNotFoundException
    */
   public CsvInputStream(File file) throws FileNotFoundException {
-    this(new BufferedInputStream(new FileInputStream(file)));
+    this(new BufferedInputStream(new FileInputStream(file)), DEFAULT_MISSING_VALUE,
+        DEFAULT_SEPARATOR);
   }
 
   /**
@@ -82,8 +106,13 @@ public class CsvInputStream extends DataFrameInputStream {
   public Type readColumnType() throws IOException {
     initializeTypes();
     if (currentType < types.length) {
-      String type = types[currentType++];
-      return typeFactory.getTypeForName(type);
+      String repr = types[currentType++].trim().toLowerCase();
+      Type type = TYPE_MAP.get(repr);
+      if (type == null) {
+        throw new IllegalArgumentException(String.format(INVALID_NAME, repr));
+      }
+
+      return type;
     } else {
       return null;
     }
@@ -119,7 +148,7 @@ public class CsvInputStream extends DataFrameInputStream {
       if (currentValue == types.length) {
         values = null;
       }
-      if (value.equals("?") || value.equals("NA")) {
+      if (value.equals(missingValue) /* || value.equals("NA") */) {
         return StringVector.NA;
       }
       return value;
@@ -184,7 +213,7 @@ public class CsvInputStream extends DataFrameInputStream {
       if (typeLine == null) {
         throw new IOException(UNEXPECTED_EOF);
       }
-      types = typeLine.split(",");
+      types = typeLine.split(separator);
       currentType = 0;
     }
   }
@@ -195,7 +224,7 @@ public class CsvInputStream extends DataFrameInputStream {
       if (namesLine == null) {
         throw new IOException(UNEXPECTED_EOF);
       }
-      names = namesLine.split(",");
+      names = namesLine.split(separator);
       if (names.length != types.length) {
         throw new IOException(String.format(MISMATCH, types.length, names.length));
       }
@@ -216,7 +245,7 @@ public class CsvInputStream extends DataFrameInputStream {
       if (valueLine == null) {
         return false;
       }
-      values = valueLine.split(",");
+      values = valueLine.split(separator);
       if (values.length != types.length) {
         throw new IOException(String.format(MISMATCH, types.length, values.length));
       }

@@ -30,6 +30,9 @@ import org.briljantframework.vector.Vector;
  */
 public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
 
+  public static final int MISSING = 0;
+  public static final int LEFT = -1;
+  public static final int RIGHT = 1;
   /**
    * The Random.
    */
@@ -65,13 +68,34 @@ public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
        */
       for (Example example : sample) {
         Value value = axisVector.getAsValue(example.getIndex());
-        if (value.isNA()) {
-          missingSample.add(example);
-        } else if (threshold.compareTo(value) <= 0) {
-          leftSample.add(example);
-        } else {
-          rightSample.add(example);
+        int direction = MISSING;
+        switch (axisType.getScale()) {
+          case CATEGORICAL:
+            direction = axisType.equals(threshold, value) ? LEFT : RIGHT;
+            break;
+          case NUMERICAL:
+            direction = axisType.compare(threshold, value) <= 0 ? LEFT : RIGHT;
+            break;
         }
+
+        switch (direction) {
+          case LEFT:
+            leftSample.add(example);
+            break;
+          case RIGHT:
+            rightSample.add(example);
+            break;
+          case MISSING:
+          default:
+            missingSample.add(example);
+        }
+        // if (value.isNA()) {
+        // missingSample.add(example);
+        // } else if (threshold.compareTo(value) <= 0) {
+        // leftSample.add(example);
+        // } else {
+        // rightSample.add(example);
+        // }
       }
 
       /*

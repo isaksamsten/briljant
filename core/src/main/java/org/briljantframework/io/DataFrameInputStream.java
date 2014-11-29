@@ -82,26 +82,15 @@ public abstract class DataFrameInputStream extends FilterInputStream {
       "Reading values before names and types";
 
 
-  protected final TypeFactory typeFactory;
 
   /**
    * Instantiates a new Storage input stream.
-   *
+   * 
    * @param in the in
-   * @param typeFactory the factory
-   */
-  protected DataFrameInputStream(InputStream in, TypeFactory typeFactory) {
-    super(in);
-    this.typeFactory = typeFactory;
-  }
-
-  /**
-   * Instantiates a new Storage input stream.
-   *
-   * @param in the in
+   * 
    */
   protected DataFrameInputStream(InputStream in) {
-    this(in, new DefaultTypeFactory());
+    super(in);
   }
 
   /**

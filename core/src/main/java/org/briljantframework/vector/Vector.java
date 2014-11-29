@@ -51,6 +51,10 @@ public interface Vector extends Serializable, MatrixLike {
   /**
    * Returns value as {@link org.briljantframework.vector.Value}.
    * {@link org.briljantframework.vector.Undefined} denotes missing values.
+   * 
+   * While wrapping the return type in a {@code Value} require additional space and impose some
+   * overhead it brings the benefit of knowing the type of a particular value, which in some cases
+   * might be useful.
    *
    * @param index the index
    * @return a {@code Vector}
@@ -356,6 +360,16 @@ public interface Vector extends Serializable, MatrixLike {
     Builder add(Vector from, int fromIndex);
 
     /**
+     * Same as {@code add(value, 0)} (i.e. a more convinient way of adding 1-length vectors)
+     * 
+     * @param value the value
+     * @return a modified builder
+     */
+    default Builder add(Value value) {
+      return add(value, 0);
+    }
+
+    /**
      * Add value at {@code fromIndex} in {@code from} to {@code atIndex}. Padding with NA:s between
      * {@code atIndex} and {@code size()} if {@code atIndex > size()}.
      *
@@ -403,7 +417,13 @@ public interface Vector extends Serializable, MatrixLike {
       iterable.forEach(this::add);
     }
 
-    void read(DataFrameInputStream value) throws IOException;
+    /**
+     * Reads a value from the input stream and appends it to the builder
+     * 
+     * @param inputStream the input stream
+     * @throws IOException
+     */
+    void read(DataFrameInputStream inputStream) throws IOException;
 
     /**
      * Returns the size of the resulting vector
