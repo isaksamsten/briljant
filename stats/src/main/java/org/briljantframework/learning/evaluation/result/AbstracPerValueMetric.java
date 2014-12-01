@@ -156,7 +156,12 @@ public abstract class AbstracPerValueMetric extends AbstractMetric implements Pe
       // }
 
       Map<String, Double> valueMetrics = new HashMap<>();
-      Set<String> labels = null; // FIXME! targets.getType().getDomain();
+      Set<String> labels = new HashSet<>();
+
+      // FIXME! targets.getType().getDomain();
+      for (int i = 0; i < targets.rows(); i++) {
+        labels.add(targets.getAsString(i));
+      }
 
       double average = 0.0;
       for (String value : labels) {

@@ -473,6 +473,12 @@ public class MixedDataFrame implements DataFrame {
     }
 
     @Override
+    public DataFrame.Builder swapInColumn(int column, int a, int b) {
+      buffers.get(column).swap(a, b);
+      return this;
+    }
+
+    @Override
     public DataFrame.Builder read(DataFrameInputStream inputStream) throws IOException {
       while (inputStream.hasNext()) {
         for (int i = 0; i < columns() && inputStream.hasNext(); i++) {

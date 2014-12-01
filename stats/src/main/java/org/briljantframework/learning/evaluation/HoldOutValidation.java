@@ -30,7 +30,7 @@ public class HoldOutValidation extends AbstractEvaluator {
    * @param holdoutX
    */
   public HoldOutValidation(DataFrame holdoutX, Vector holdoutY) {
-    super(Metrics.CLASSIFICATION);
+    super(Metrics.CLASSIFICATION, null);
     this.holdoutX = holdoutX;
     this.holdoutY = holdoutY;
   }

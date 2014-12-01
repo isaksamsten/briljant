@@ -413,9 +413,18 @@ public interface Vector extends Serializable, MatrixLike {
      *
      * @param iterable the collection of values
      */
-    default void addAll(Iterable<?> iterable) {
+    default Builder addAll(Iterable<?> iterable) {
       iterable.forEach(this::add);
+      return this;
     }
+
+    /**
+     * Swaps value at {@code a} with value at {@code b}
+     * 
+     * @param a the first index
+     * @param b the seconds index
+     */
+    Builder swap(int a, int b);
 
     /**
      * Reads a value from the input stream and appends it to the builder
@@ -423,7 +432,7 @@ public interface Vector extends Serializable, MatrixLike {
      * @param inputStream the input stream
      * @throws IOException
      */
-    void read(DataFrameInputStream inputStream) throws IOException;
+    Builder read(DataFrameInputStream inputStream) throws IOException;
 
     /**
      * Returns the size of the resulting vector

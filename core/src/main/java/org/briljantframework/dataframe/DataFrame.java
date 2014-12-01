@@ -295,6 +295,39 @@ public interface DataFrame extends Iterable<CompoundVector> {
     Builder swapColumns(int a, int b);
 
     /**
+     * Swap value at index {@code a} with value at index {@code b} in column with index
+     * {@code column}
+     * 
+     * @param column the column
+     * @param a the first index
+     * @param b the second index
+     * @return a modified builder
+     */
+    Builder swapInColumn(int column, int a, int b);
+
+    /**
+     * Swap row at index {@code a} with {@code b}.
+     * <p>
+     * Generally, this is the same as
+     * <p>
+     * 
+     * <pre>
+     * for (int i = 0; i &lt; builder.columns(); i++)
+     *   builder.swapInColumn(i, a, b);
+     * </pre>
+     *
+     * @param a the first row
+     * @param b the second row
+     * @return a modified builder
+     */
+    default Builder swapRows(int a, int b) {
+      for (int i = 0; i < columns(); i++) {
+        swapInColumn(i, a, b);
+      }
+      return this;
+    }
+
+    /**
      * Add all values in {@code vector} to column {@code toCol}.
      *
      * @param toCol the index

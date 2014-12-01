@@ -2,11 +2,13 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.briljantframework.io.DataFrameInputStream;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
@@ -203,8 +205,16 @@ public class VariableVector implements CompoundVector {
     }
 
     @Override
-    public void read(DataFrameInputStream inputStream) throws IOException {
+    public Builder swap(int a, int b) {
+      Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
+      Collections.swap(buffer, a, b);
+      return this;
+    }
+
+    @Override
+    public Builder read(DataFrameInputStream inputStream) throws IOException {
       add(inputStream.nextString());
+      return this;
     }
 
     @Override

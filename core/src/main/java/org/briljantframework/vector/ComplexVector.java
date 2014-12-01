@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.briljantframework.Utils;
 import org.briljantframework.io.DataFrameInputStream;
 
 import com.carrotsearch.hppc.DoubleArrayList;
@@ -254,13 +255,22 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
-    public void read(DataFrameInputStream inputStream) throws IOException {
+    public Vector.Builder swap(int a, int b) {
+      Preconditions.checkArgument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
+      Utils.swap(buffer.buffer, a * 2, b * 2);
+      Utils.swap(buffer.buffer, a * 2 + 1, b * 2 + 1);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
       Complex complex = inputStream.nextComplex();
       if (complex == null) {
         addNA();
       } else {
         add(complex);
       }
+      return this;
     }
 
     @Override

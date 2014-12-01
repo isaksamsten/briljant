@@ -10,10 +10,12 @@ import org.briljantframework.learning.evaluation.result.Metric;
  * <p>
  */
 public abstract class AbstractEvaluator implements Evaluator {
-  private final List<Metric.Factory> producers;
+  private final List<? extends Metric.Factory> producers;
+  private final Partitioner partitioner;
 
-  protected AbstractEvaluator(List<Metric.Factory> producers) {
+  protected AbstractEvaluator(List<? extends Metric.Factory> producers, Partitioner partitioner) {
     this.producers = producers;
+    this.partitioner = partitioner;
   }
 
   /**
@@ -31,7 +33,16 @@ public abstract class AbstractEvaluator implements Evaluator {
    *
    * @return the metric factories
    */
-  protected List<Metric.Factory> getMetricFactories() {
+  protected List<? extends Metric.Factory> getMetricFactories() {
     return producers;
+  }
+
+  /**
+   * Gets the partition strategy
+   * 
+   * @return the partition strategy
+   */
+  protected Partitioner getPartitioner() {
+    return partitioner;
   }
 }

@@ -8,7 +8,7 @@ import java.util.Comparator;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.learning.Classifier;
-import org.briljantframework.learning.evaluation.CrossValidation;
+import org.briljantframework.learning.evaluation.Evaluators;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -24,7 +24,7 @@ public class Tuners {
     checkArgument(folds > 1 && folds < x.rows(), "Invalid number of cross-validation folds");
     ArrayList<Updater<O>> updaterList = new ArrayList<>(updaters.length);
     Collections.addAll(updaterList, updaters);
-    return new DefaultTuner<>(updaterList, new CrossValidation(folds), comparator).tune(builder, x,
-        y);
+    return new DefaultTuner<>(updaterList, Evaluators.crossValidation(folds), comparator).tune(
+        builder, x, y);
   }
 }

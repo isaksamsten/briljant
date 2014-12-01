@@ -25,9 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Complex;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.*;
 
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
@@ -80,7 +78,7 @@ public abstract class DataFrameInputStream extends FilterInputStream {
   protected static final String UNEXPECTED_EOF = "Unexpected EOF.";
   protected static final String VALUES_BEFORE_NAMES_AND_TYPES =
       "Reading values before names and types";
-
+  protected static final String MISMATCH = "Types and values does not match (%d, %d)";
 
 
   /**
@@ -167,39 +165,50 @@ public abstract class DataFrameInputStream extends FilterInputStream {
 
   /**
    * Reads the next int in this stream
-   * 
+   *
    * @return the next int
    * @throws IOException
    * @throws java.lang.NumberFormatException
    */
-  public abstract int nextInt() throws IOException;
+  public int nextInt() throws IOException {
+    String repr = nextString();
+    return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
+  }
 
   /**
    * Reads the next {@code double} in this stream
-   * 
+   *
    * @return the next {@code double}
    * @throws IOException
    * @throws java.lang.NumberFormatException
    */
-  public abstract double nextDouble() throws IOException;
+  public double nextDouble() throws IOException {
+    String repr = nextString();
+    return repr == StringVector.NA ? DoubleVector.NA : Double.parseDouble(repr);
+  }
 
   /**
    * Reads the next {@code Binary} in this stream.
-   * 
+   *
    * @return the next binary
    * @throws IOException
    * @throws java.lang.NumberFormatException
    */
-  public abstract Binary nextBinary() throws IOException;
+  public Binary nextBinary() throws IOException {
+    return Binary.valueOf(nextInt());
+  }
 
   /**
    * Reads the next {@code Complex} in this stream.
-   * 
+   *
    * @return the next complex
    * @throws IOException
    * @throws NumberFormatException
    */
-  public abstract Complex nextComplex() throws IOException;
+  public Complex nextComplex() throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
 
   /**
    * Returns {@code true} if there are more values in the stream

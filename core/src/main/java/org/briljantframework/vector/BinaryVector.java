@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.briljantframework.Utils;
 import org.briljantframework.io.DataFrameInputStream;
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
@@ -161,13 +163,21 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
-    public void read(DataFrameInputStream inputStream) throws IOException {
+    public Vector.Builder swap(int a, int b) {
+      Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
+      Utils.swap(buffer.buffer, a, b);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
       Binary binary = inputStream.nextBinary();
       if (binary == null) {
         addNA();
       } else {
         add(binary);
       }
+      return this;
     }
 
     @Override

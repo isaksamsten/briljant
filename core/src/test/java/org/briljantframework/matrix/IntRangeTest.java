@@ -3,6 +3,7 @@ package org.briljantframework.matrix;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import org.briljantframework.IntRange;
 import org.briljantframework.matrix.slice.Range;
 import org.briljantframework.matrix.slice.Slice;
 import org.junit.Test;
@@ -49,6 +50,10 @@ public class IntRangeTest {
 
   @Test
   public void testSlice() throws Exception {
+    IntRange range = IntRange.closed(0, 10, 1);
 
+    for (int i = 0; i < 10; i++) {
+      System.out.println(i + " in " + range + " " + range.contains(i));
+    }
   }
 }

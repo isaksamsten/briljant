@@ -6,9 +6,11 @@ import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.briljantframework.Utils;
 import org.briljantframework.io.DataFrameInputStream;
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
@@ -165,8 +167,16 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public void read(DataFrameInputStream inputStream) throws IOException {
+    public Vector.Builder swap(int a, int b) {
+      Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
+      Utils.swap(buffer.buffer, a, b);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
       add(inputStream.nextInt());
+      return this;
     }
 
     @Override

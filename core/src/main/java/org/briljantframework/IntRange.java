@@ -72,9 +72,14 @@ public class IntRange extends AbstractSet<Integer> {
   public boolean contains(Object o) {
     if (o instanceof Integer) {
       int value = (int) o;
-      return value < end && value < end;
+      return value % step == 0 && value < end && value >= start;
     } else {
       return false;
     }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%d %d %d", start, end, step);
   }
 }

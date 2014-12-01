@@ -2,6 +2,7 @@ package org.briljantframework.dataframe;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Random;
 import java.util.function.BiFunction;
 
 import org.briljantframework.Utils;
@@ -48,6 +49,27 @@ public final class DataFrames {
         in.close();
       }
     }
+  }
+
+  /**
+   * Returns a permuted copy of {@code in}. This implementations uses the Fisher–Yates shuffle
+   * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
+   * Knuth), which is an algorithm for generating a random permutation of a finite set — in plain
+   * terms, for randomly shuffling the finite set.
+   * 
+   * The code requires that {@link DataFrame#newCopyBuilder()} returns a copy and that
+   * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indices.
+   * 
+   * @param in the input {@code DataFrame}
+   * @return a permuted copy of {@code in}
+   */
+  public static DataFrame shuffle(DataFrame in) {
+    DataFrame.Builder builder = in.newCopyBuilder();
+    Random random = Utils.getRandom();
+    for (int i = builder.rows(); i > 1; i--) {
+      builder.swapRows(i - 1, random.nextInt(i));
+    }
+    return builder.create();
   }
 
   /**

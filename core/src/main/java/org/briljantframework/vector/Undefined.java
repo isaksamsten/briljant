@@ -165,7 +165,12 @@ public class Undefined implements Value {
     }
 
     @Override
-    public void read(DataFrameInputStream inputStream) {
+    public Vector.Builder swap(int a, int b) {
+      return this;
+    }
+
+    @Override
+    public Vector.Builder read(DataFrameInputStream inputStream) {
       throw new UnsupportedOperationException();
     }
 

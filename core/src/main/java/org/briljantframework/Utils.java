@@ -29,9 +29,17 @@ import com.google.common.collect.Table;
  */
 public final class Utils {
 
-  private static Random random;
+  public static Random random = new Random();
 
   private Utils() {}
+
+  public static Random getRandom() {
+    return random;
+  }
+
+  public static void setRandomSeed(int seed) {
+    random.setSeed(seed);
+  }
 
   /**
    * The Fisher–Yates shuffle (named after Ronald Fisher and Frank Yates), also known as the Knuth
@@ -60,6 +68,19 @@ public final class Utils {
    */
   public static void swap(int[] array, int i, int j) {
     int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  /**
+   * Swap values {@code i} and {@code j} in {@code array}
+   *
+   * @param array the array
+   * @param i the i
+   * @param j the j
+   */
+  public static void swap(double[] array, int i, int j) {
+    double temp = array[i];
     array[i] = array[j];
     array[j] = temp;
   }

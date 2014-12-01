@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Type;
 
 /**
  * Reads values from a typed CSV-file similar to those used in Rule Discovery System (RDS).
@@ -43,7 +45,6 @@ import org.briljantframework.vector.*;
 public class CsvInputStream extends DataFrameInputStream {
 
   public static final String INVALID_NAME = "Can't understand the type %s";
-  protected static final String MISMATCH = "Types and values does not match (%d, %d)";
   protected static final Map<String, Type> TYPE_MAP;
   static {
     Map<String, Type> map = new HashMap<>();
@@ -153,41 +154,7 @@ public class CsvInputStream extends DataFrameInputStream {
       }
       return value;
     }
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int nextInt() throws IOException {
-    String repr = nextString();
-    return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public double nextDouble() throws IOException {
-    String repr = nextString();
-    return repr == StringVector.NA ? DoubleVector.NA : Double.parseDouble(repr);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Binary nextBinary() throws IOException {
-    return Binary.valueOf(nextInt());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Complex nextComplex() {
-    throw new UnsupportedOperationException();
+    throw new NoSuchElementException();
   }
 
   /**
