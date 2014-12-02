@@ -16,14 +16,14 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import static org.briljantframework.matrix.natives.Lapack.LAPACKE_dgesvd;
-import static org.briljantframework.matrix.natives.Lapack.LAPACK_COL_MAJOR;
-
+import org.briljantframework.BlasException;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.MatrixLike;
-import org.briljantframework.matrix.natives.BlasException;
+import org.netlib.util.intW;
+
+import com.github.fommil.netlib.LAPACK;
 
 /**
  * Formally, the singular value decomposition of an m×n real or complex matrix M is a factorization
@@ -41,17 +41,27 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
   @Override
   public SingularValueDecomposition decompose(MatrixLike matrix) {
     int m = matrix.rows(), n = matrix.columns();
-    double[] work = new double[Math.min(m, n)];
     double[] sigma = new double[n];
     double[] u = new double[m * m];
     double[] vt = new double[n * n];
     Matrix copy = new DenseMatrix(matrix);
 
-    int err =
-        LAPACKE_dgesvd(LAPACK_COL_MAJOR, 'a', 'a', m, n, copy.asDoubleArray(), m, sigma, u, m, vt,
-            n, work);
-    if (err != 0) {
-      throw new BlasException("LAPACKE_dgesvd", err, "SVD failed to converge.");
+    int lwork = -1;
+    double[] work = new double[1];
+
+    intW info = new intW(0);
+    LAPACK.getInstance().dgesvd("a", "a", m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work,
+        lwork, info);
+    if (info.val != 0) {
+      throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
+    }
+
+    lwork = (int) work[0];
+    work = new double[lwork];
+    LAPACK.getInstance().dgesvd("a", "a", m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work,
+        lwork, info);
+    if (info.val != 0) {
+      throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
     }
 
     Diagonal sv = Diagonal.of(m, n, sigma);

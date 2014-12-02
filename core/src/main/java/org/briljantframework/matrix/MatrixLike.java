@@ -33,15 +33,13 @@ public interface MatrixLike {
   /**
    * Flattens the traversal of the matrix in column-major order. If {@link #rows()} == 1 or
    * {@link #columns()} == 1, <code>get(index)</code> behaves as expected. If not, the matrix is
-   * traversed in column-major order, i.e.
-   * <p>
-   * For example, given the following matrix
-   * 
+   * traversed in column-major order. For example, given the following matrix
+   *
    * <pre>
    *     1 2 3
    *     4 5 6
    * </pre>
-   * <p>
+   *
    * this code
    * 
    * <pre>
@@ -49,9 +47,8 @@ public interface MatrixLike {
    *   System.out.print(x.get(i));
    * }
    * </pre>
-   * <p>
+   * 
    * prints
-   * <p>
    * 
    * <pre>
    * 142536
@@ -61,6 +58,31 @@ public interface MatrixLike {
    * @return the double
    */
   double get(int index);
+
+  /**
+   * The number of rows.
+   *
+   * @return number or rows
+   */
+  int rows();
+
+  /**
+   * The number of columns.
+   *
+   * @return number of columns
+   */
+  int columns();
+
+  /**
+   * Returns the linearized size of this matrix.
+   *
+   * <pre>
+   * {@code rows() * columns() == @code size()}
+   * </pre>
+   *
+   * @return the int
+   */
+  int size();
 
   /**
    * Is square.
@@ -111,31 +133,5 @@ public interface MatrixLike {
   default boolean hasEqualShape(MatrixLike other) {
     return rows() == other.rows() && columns() == other.columns();
   }
-
-  /**
-   * The number of rows.
-   *
-   * @return number or rows
-   */
-  int rows();
-
-  /**
-   * The number of columns.
-   *
-   * @return number of columns
-   */
-  int columns();
-
-  /**
-   * Returns the linearized size of this matrix.
-   * <p>
-   * 
-   * <pre>
-   * {@link #rows()}*{@link #columns()} == {@code #size()}
-   * </pre>
-   *
-   * @return the int
-   */
-  int size();
 
 }

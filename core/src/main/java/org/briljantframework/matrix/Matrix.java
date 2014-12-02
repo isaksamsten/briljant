@@ -25,6 +25,7 @@ import org.briljantframework.matrix.slice.Slicer;
 import com.carrotsearch.hppc.DoubleArrayList;
 
 /**
+ * 
  * Created by Isak Karlsson on 28/08/14.
  */
 public interface Matrix extends MatrixLike, Iterable<Double> {
@@ -56,6 +57,8 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    */
   Matrix getRow(int i);
 
+  Matrix dropRow(int i);
+
   /**
    * Get rows from <code>start</code> to <code>end</code>
    *
@@ -72,8 +75,6 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return rows rows
    */
   Matrix getRows(Slicer slicer);
-
-  Matrix dropRow(int i);
 
   // Matrix dropRows(int start, int end);
   //
@@ -120,14 +121,6 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix slice(Slicer rows, Slicer cols);
 
   // Matrix drop(Slicer rows, Slicer cols);
-
-  /**
-   * Multiply by diagonal.
-   *
-   * @param diagonal the diagonal
-   * @return matrix matrix
-   */
-  Matrix mmuld(Diagonal diagonal);
 
   @Override
   default Iterator<Double> iterator() {
@@ -360,7 +353,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    */
   Matrix transpose();
 
-  // Arithmetic
+  // Arithmetical operations ///////////
 
   /**
    * Multiply r.
@@ -369,6 +362,14 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return r r
    */
   Matrix mmul(Matrix other);
+
+  /**
+   * Multiply by diagonal.
+   *
+   * @param diagonal the diagonal
+   * @return matrix matrix
+   */
+  Matrix mmuld(Diagonal diagonal);
 
   /**
    * @param other

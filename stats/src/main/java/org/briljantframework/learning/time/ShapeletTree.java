@@ -80,9 +80,6 @@ public class ShapeletTree implements Classifier {
       examples = Examples.fromVector(y);
     }
 
-    Impurity impurity = splitter.getGain().getImpurity();
-    double error = impurity.impurity(examples) * examples.getTotalWeight();
-
     Params params = new Params();
     params.noExamples = examples.getTotalWeight();
     params.lengthImportance = new double[x.columns()];
@@ -165,7 +162,6 @@ public class ShapeletTree implements Classifier {
   public static class Model extends Tree.Model<ShapeletThreshold> {
 
     private final DenseMatrix lengthImportance;
-    private final double totalErrorReduction;
     private final DenseMatrix positionImportance;
 
     /**
@@ -182,16 +178,6 @@ public class ShapeletTree implements Classifier {
       super(node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
-      this.totalErrorReduction = totalErrorReduction;
-    }
-
-    /**
-     * Gets total length importance.
-     *
-     * @return the total length importance
-     */
-    public double getTotalErrorReduction() {
-      return totalErrorReduction;
     }
 
     /**

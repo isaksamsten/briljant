@@ -144,6 +144,22 @@ public interface DataFrame extends Iterable<CompoundVector> {
   CompoundVector getRow(int index);
 
   /**
+   * Take the rows in {@code indexes}
+   * 
+   * @param indexes the indexes to take
+   * @return a new data frame
+   */
+  DataFrame takeRows(Set<Integer> indexes);
+
+  /**
+   * Drop rows in {@code indexes} and return a new DataFrame
+   * 
+   * @param indexes the indexes to drop
+   * @return a new data frame
+   */
+  DataFrame dropRows(Set<Integer> indexes);
+
+  /**
    * Returns the number of rows in this data frame
    *
    * @return the number of rows
@@ -227,10 +243,11 @@ public interface DataFrame extends Iterable<CompoundVector> {
     Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol);
 
     /**
-     * Add value to {@code toCol} using value {@code fromRow, fromCol} in {@code vector}.
+     * Add value to {@code toCol} using value at row {@code fromRow} and column {@code fromCol} in
+     * data frame {@code from}.
      *
      * @param toCol the column
-     * @param from the vector
+     * @param from the dataframe
      * @param fromRow the row
      * @param fromCol the column
      * @return a modified builder

@@ -178,16 +178,25 @@ public class MixedDataFrame implements DataFrame {
     return columns.get(column).getAsComplex(row);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Value getAsValue(int row, int column) {
     return columns.get(column).getAsValue(row);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString(int row, int column) {
     return columns.get(column).toString(row);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isNA(int row, int column) {
     return columns.get(column).isNA(row);
@@ -201,6 +210,9 @@ public class MixedDataFrame implements DataFrame {
     return columns.get(index);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DataFrame dropColumn(int index) {
     checkArgument(index >= 0 && index < columns());
@@ -212,6 +224,9 @@ public class MixedDataFrame implements DataFrame {
     return new MixedDataFrame(names, columns, rows());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DataFrame dropColumns(Set<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
@@ -226,6 +241,9 @@ public class MixedDataFrame implements DataFrame {
     return new MixedDataFrame(names, columns, rows());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DataFrame takeColumns(Set<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
@@ -261,6 +279,38 @@ public class MixedDataFrame implements DataFrame {
   @Override
   public CompoundVector getRow(int index) {
     return new MixedDataFrameRow(this, index);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DataFrame takeRows(Set<Integer> indexes) {
+    DataFrame.Builder builder = newBuilder();
+    for (int i : indexes) {
+      for (int j = 0; j < columns(); j++) {
+        builder.add(j, this, i, j);
+      }
+    }
+
+    return builder.create();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DataFrame dropRows(Set<Integer> indexes) {
+    DataFrame.Builder builder = newBuilder();
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        if (!indexes.contains(i)) {
+          builder.add(j, this, i, j);
+        }
+      }
+    }
+
+    return builder.create();
   }
 
   /**

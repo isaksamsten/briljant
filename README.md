@@ -16,20 +16,18 @@ Most of the development is performed in [IntellijIDEA](http://www.jetbrains.com/
     
 ## Sub-projects
 
-* _adeb-core_: contains core components related to communication, boxing etc
-* _adeb-learning_: implements of some machine learning techniques
-* _adeb-matrix_: contains a matrix datatype with support for some common blas and linear algebra operations
-* _adeb-process_: defines data-mining pipelines in a DSL (deprecated, and will be rewritten in the future) 
+* _core_: contains core components such as data and instance handling and matrix and BLAS operations
+* _stat_: implements of some machine learning techniques
 
-### adeb-core
+### core
 
-So far, this module provides a basic dense dataset, file input and output, storage and transformations.
+So far, this module provides a `DataFrame`s, file input and output, `Matrix` and BLAS operations and `Transformations`.
 
-Here is an example using the `CSVInputStream` and `DenseDataset` to remove cases with missing values using the `RemoveIncompleteCases` transformation:
+Here is an example using the `CsvInputStream` and `DataFrame` to remove cases with missing values using the `RemoveIncompleteCases` transformation:
 
-    StorageInputStream sis = new CSVInputStream(new FileInputStream("erlang/test.txt"));
-    Storage<DenseDataset, Target> storage = sis.read(DenseDataset.FACTORY, BasicTarget.FACTORY);
-    storage = new RemoveIncompleCases().fitTransform(storage);
+    DataFrame iris = Datasets.loadIris();
+    Transformation rm = new RemoveIncompleteCases().fit(iris);
+    iris = rm.transform(iris);
 
 ### adeb-learning
 

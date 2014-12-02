@@ -16,14 +16,14 @@
 
 package org.briljantframework.matrix.solve;
 
-import static org.briljantframework.matrix.natives.Lapack.LAPACKE_dgelsy;
-import static org.briljantframework.matrix.natives.Lapack.LAPACK_COL_MAJOR;
+import java.util.Arrays;
 
+import org.briljantframework.BlasException;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.natives.BlasException;
+import org.netlib.util.intW;
 
-import com.sun.jna.ptr.IntByReference;
+import com.github.fommil.netlib.LAPACK;
 
 /**
  * Solve LLS using complete orthogonal factorization
@@ -43,24 +43,29 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
 
   @Override
   public Matrix solve(Matrix b) {
-    // TODO(isak): check correct columns
-
     int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
     int[] jpvt = new int[n];
 
-    double[] result = new double[m];
-    System.arraycopy(b.asDoubleArray(), 0, result, 0, result.length);
+    double[] result = b.asDoubleArray().clone();
 
-    IntByReference out = new IntByReference();
-    int error;
-    if ((error =
-        LAPACKE_dgelsy(LAPACK_COL_MAJOR, m, n, nrhs, matrix.copy().asDoubleArray(), m, result, m,
-            jpvt, 0.01, out)) != 0) {
-      throw new BlasException("LAPAKE_dgelsy", error, "failed to solve equation");
+    int lwork = -1;
+    double[] work = new double[1];
+    double[] a = matrix.copy().asDoubleArray();
+
+    intW rank = new intW(0), info = new intW(0);
+    LAPACK.getInstance().dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
+    if (info.val != 0) {
+      throw new BlasException("dgelsy", info.val, "failed to query work");
     }
-    double[] array = new double[n];
-    System.arraycopy(result, 0, array, 0, n);
+
+    lwork = (int) work[0];
+    work = new double[lwork];
+    LAPACK.getInstance().dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
+    if (info.val != 0) {
+      throw new BlasException("dgelsy", info.val, "fail");
+    }
+
+    double[] array = Arrays.copyOf(result, n);
     return DenseMatrix.rowVector(array);
   }
-
 }

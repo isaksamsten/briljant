@@ -18,8 +18,9 @@ package org.briljantframework.matrix.time;
 
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.MatrixLike;
-import org.briljantframework.matrix.Scalars;
 import org.briljantframework.matrix.distance.Distance;
+
+import com.google.common.primitives.Doubles;
 
 /**
  * In time series analysis, dynamic time warping (DTW) is an algorithm for measuring similarity
@@ -141,7 +142,7 @@ public class DynamicTimeWarping implements Distance {
       for (int j = start; j < end; j++) {
         double cost = distance.distance(a.get(i), b.get(j));
         dwt.put(i, j,
-            cost + Scalars.min(dwt.get(i - 1, j), dwt.get(i, j - 1), dwt.get(i - 1, j - 1)));
+            cost + Doubles.min(dwt.get(i - 1, j), dwt.get(i, j - 1), dwt.get(i - 1, j - 1)));
       }
     }
 

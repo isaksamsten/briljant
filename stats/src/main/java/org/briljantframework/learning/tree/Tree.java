@@ -402,6 +402,7 @@ public abstract class Tree<T> implements Classifier {
       return left;
     }
 
+    // TODO(isak): remove
     public double getLeftImpurity() {
       return impurity != null ? impurity[1] : 0;
     }
@@ -415,6 +416,7 @@ public abstract class Tree<T> implements Classifier {
       this.impurity = impurity;
     }
 
+    // TODO(isak): remove (cascading)
     public double getRightImpurity() {
       return impurity != null ? impurity[2] : 0;
     }

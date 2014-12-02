@@ -16,8 +16,6 @@
 
 package org.briljantframework.matrix;
 
-import org.briljantframework.matrix.natives.Blas;
-
 /**
  * Created by Isak Karlsson on 25/06/14.
  */
@@ -25,16 +23,16 @@ public enum Transpose {
   /**
    * The YES.
    */
-  YES(Blas.CblasTrans),
+  YES("t"),
 
   /**
    * The NO.
    */
-  NO(Blas.CblasNoTrans);
+  NO("n");
 
-  private final int trans;
+  private final String trans;
 
-  private Transpose(int trans) {
+  private Transpose(String trans) {
     this.trans = trans;
   }
 
@@ -43,7 +41,7 @@ public enum Transpose {
    *
    * @return the int
    */
-  public int getCblasTranspose() {
+  public String getCblasTranspose() {
     return trans;
   }
 }

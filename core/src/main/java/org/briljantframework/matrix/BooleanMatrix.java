@@ -69,56 +69,6 @@ public class BooleanMatrix implements MatrixLike {
     return values[index] ? 1 : 0;
   }
 
-  /**
-   * Is square.
-   *
-   * @return true if rows() == columns()
-   */
-  public boolean isSquare() {
-    return rows() == columns();
-  }
-
-  /**
-   * The shape of the current matrix.
-   *
-   * @return the shape
-   */
-  public Shape getShape() {
-    return Shape.of(rows(), columns());
-  }
-
-  /**
-   * Returns true if {@link org.briljantframework.matrix.Shape#size()} == {@link #size()}
-   *
-   * @param shape the shape
-   * @return the boolean
-   */
-  public boolean hasCompatibleShape(Shape shape) {
-    return hasCompatibleShape(shape.rows, shape.columns);
-  }
-
-  /**
-   * Has compatible shape.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the boolean
-   * @throws ArithmeticException
-   */
-  public boolean hasCompatibleShape(int rows, int cols) {
-    return Math.multiplyExact(rows, cols) == rows() * columns();
-  }
-
-  /**
-   * Equal shape (i.e.
-   *
-   * @param other the other
-   * @return the boolean
-   */
-  public boolean hasEqualShape(MatrixLike other) {
-    return rows() == other.rows() && columns() == other.columns();
-  }
-
   @Override
   public int rows() {
     return rows;

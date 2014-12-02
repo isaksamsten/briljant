@@ -102,56 +102,6 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
   }
 
   /**
-   * Is square.
-   *
-   * @return true if rows() == columns()
-   */
-  public boolean isSquare() {
-    return rows() == columns();
-  }
-
-  /**
-   * The shape of the current matrix.
-   *
-   * @return the shape
-   */
-  public Shape getShape() {
-    return Shape.of(rows(), columns());
-  }
-
-  /**
-   * Returns true if {@link org.briljantframework.matrix.Shape#size()} == {@link #size()}
-   *
-   * @param shape the shape
-   * @return the boolean
-   */
-  public boolean hasCompatibleShape(Shape shape) {
-    return hasCompatibleShape(shape.rows, shape.columns);
-  }
-
-  /**
-   * Has compatible shape.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the boolean
-   * @throws ArithmeticException
-   */
-  public boolean hasCompatibleShape(int rows, int cols) {
-    return Math.multiplyExact(rows, cols) == rows() * columns();
-  }
-
-  /**
-   * Equal shape (i.e.
-   *
-   * @param other the other
-   * @return the boolean
-   */
-  public boolean hasEqualShape(MatrixLike other) {
-    return rows() == other.rows() && columns() == other.columns();
-  }
-
-  /**
    * Raw view of the column-major underlying array. In some instances it might be possible to mutate
    * this (e.g., if the implementation provides a direct reference. However, there are nos such
    * guarantees).

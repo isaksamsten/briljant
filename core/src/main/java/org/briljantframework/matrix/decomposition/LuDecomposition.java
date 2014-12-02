@@ -16,15 +16,15 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import static org.briljantframework.matrix.natives.Lapack.LAPACKE_dgetri;
-import static org.briljantframework.matrix.natives.Lapack.LAPACK_COL_MAJOR;
-
 import java.util.Optional;
 
+import org.briljantframework.BlasException;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.natives.BlasException;
+import org.netlib.util.intW;
+
+import com.github.fommil.netlib.LAPACK;
 
 /**
  * Created by isak on 02/07/14.
@@ -70,9 +70,21 @@ public class LuDecomposition implements Decomposition {
     }
     Matrix inv = lu.copy();
     int n = inv.rows(), error;
-    if ((error = LAPACKE_dgetri(LAPACK_COL_MAJOR, n, inv.asDoubleArray(), n, pivots)) != 0) {
-      throw new BlasException("LAPACKE_dgetri", error, "Inverse failed.");
+    int lwork = -1;
+    double[] work = new double[1];
+    intW err = new intW(0);
+    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
+    if (err.val != 0) {
+      throw new BlasException("LAPACKE_dgetri", err.val, "Querying failed");
     }
+
+    lwork = (int) work[0];
+    work = new double[lwork];
+    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
+    if (err.val != 0) {
+      throw new BlasException("LAPACKE_dgetri", err.val, "Inverse failed.");
+    }
+
     return inv;
   }
 

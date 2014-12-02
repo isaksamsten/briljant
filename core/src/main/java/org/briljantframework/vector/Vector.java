@@ -228,8 +228,11 @@ public interface Vector extends Serializable, MatrixLike {
   Builder newBuilder();
 
   /**
-   * Creates a new builder able to build vectors of this type
-   *
+   * Creates a new builder able to build vectors of this type. The constructed builder produces a
+   * vector of length {@code size}, filled with NA.
+   * 
+   * TODO(isak): add {@code newBuilderWithInitialCapacity(int capacity)}
+   * 
    * @param size the initial size
    * @return a new builder
    */

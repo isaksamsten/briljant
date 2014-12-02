@@ -40,6 +40,14 @@ public class RandomFoldPartitionerTest {
     System.out.println(Evaluators.crossValidation(10).evaluate(tree, irisX, irisY));
     System.out.println(System.currentTimeMillis() - start);
 
+    // DataFrame synthetic = Datasets.loadSyntheticControl();
+    // DataFrame x = synthetic.takeColumns(IntRange.closed(1, synthetic.columns()));
+    // Vector y = synthetic.getColumn(0);
+    //
+    // RandomShapeletForest forest =
+    // RandomShapeletForest.withSize(10).withInspectedShapelets(100).create();
+    // System.out.println(Evaluators.crossValidation(10).evaluate(forest, x, y));
+    //
     assertTrue(true);
   }
 }

@@ -17,7 +17,6 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.briljantframework.matrix.natives.Blas.*;
 
 import java.util.*;
 import java.util.function.DoubleUnaryOperator;
@@ -26,6 +25,7 @@ import java.util.regex.Pattern;
 import org.briljantframework.matrix.math.Javablas;
 
 import com.carrotsearch.hppc.DoubleArrayList;
+import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
@@ -821,12 +821,15 @@ public class Matrices {
     if (an != bm) {
       throw new NonConformantException("a", am, an, "b", bm, bn);
     }
+    BLAS.getInstance().dgemm(transA.getCblasTranspose(), transB.getCblasTranspose(), a.rows(),
+        b.columns(), b.rows(), alpha, a.asDoubleArray(), a.rows(), b.asDoubleArray(), b.rows(),
+        beta, out, a.rows());
 
-    cblas_dgemm(CblasColMajor, transA.getCblasTranspose(), transB.getCblasTranspose(),
-    // M N K
-        am, bn, bm, alpha, a.asDoubleArray(),
-        // LDA LDB LDC
-        a.rows(), b.asDoubleArray(), b.rows(), beta, out, am);
+    // cblas_dgemm(CblasColMajor, transA.getCblasTranspose(), transB.getCblasTranspose(),
+    // // M N K
+    // am, bn, bm, alpha, a.asDoubleArray(),
+    // // LDA LDB LDC
+    // a.rows(), b.asDoubleArray(), b.rows(), beta, out, am);
   }
 
   /**
@@ -957,11 +960,14 @@ public class Matrices {
       throw new MismatchException("multiply", "output array size does not match");
     }
 
-    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-    // M N K
-        a.rows(), b.columns(), b.rows(), alpha, a.asDoubleArray(),
-        // LDA LDB LDC
+    BLAS.getInstance().dgemm("n", "n", a.rows(), b.columns(), b.rows(), alpha, a.asDoubleArray(),
         a.rows(), b.asDoubleArray(), b.rows(), beta, out, a.rows());
+
+    // cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+    // M N K
+    // a.rows(), b.columns(), b.rows(), alpha, a.asDoubleArray(),
+    // a.rows(), b.asDoubleArray(), b.rows(), beta, out, a.rows());
+    // LDA LDB LDC
   }
 
   /**
@@ -1588,27 +1594,27 @@ public class Matrices {
 
     return f.newMatrix(1, m.columns(), values);
   }
-
-  /**
-   * Return the euclidean norm of x
-   *
-   * @param x a vector
-   * @return the squared norm || x ||_2
-   */
-  public static double norm2(Matrix x) {
-    double[] array = x.asDoubleArray();
-    return cblas_dnrm2(array.length, array, 1);
-  }
-
-  /**
-   * Computes the sum of the absolute values of elements
-   *
-   * @param a with values
-   * @return the absolute sum
-   */
-  public static double dasum(Matrix a) {
-    double[] values = a.asDoubleArray();
-    return cblas_dasum(values.length, values, 1);
-  }
+  //
+  // /**
+  // * Return the euclidean norm of x
+  // *
+  // * @param x a vector
+  // * @return the squared norm || x ||_2
+  // */
+  // public static double norm2(Matrix x) {
+  // double[] array = x.asDoubleArray();
+  // return cblas_dnrm2(array.length, array, 1);
+  // }
+  //
+  // /**
+  // * Computes the sum of the absolute values of elements
+  // *
+  // * @param a with values
+  // * @return the absolute sum
+  // */
+  // public static double dasum(Matrix a) {
+  // double[] values = a.asDoubleArray();
+  // return cblas_dasum(values.length, values, 1);
+  // }
 
 }

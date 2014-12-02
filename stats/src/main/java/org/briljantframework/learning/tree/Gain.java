@@ -88,6 +88,17 @@ public class Gain {
     return calculate(leftWeight, left, rightWeight, right, null);
   }
 
+  /**
+   * Calculate the gain from the vectors left and right, wighted by their respective weight.
+   * {@code leftRight} is used to pass out-parameters (this is a hack :)) consisting of the error
+   * 
+   * @param leftWeight
+   * @param left
+   * @param rightWeight
+   * @param right
+   * @param leftRight
+   * @return
+   */
   public double calculate(double leftWeight, double[] left, double rightWeight, double[] right,
       double[] leftRight) {
     double totalWeight = leftWeight + rightWeight;

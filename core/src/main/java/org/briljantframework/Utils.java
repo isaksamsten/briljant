@@ -167,4 +167,38 @@ public final class Utils {
     prettyPrintTable(builder, table, padding, space, printRow, printColumn);
     return builder.toString();
   }
+
+  // /**
+  // * Min double.
+  // *
+  // * @param a the a
+  // * @param b the b
+  // * @return the double
+  // */
+  // public static double min(double a, double b) {
+  // return Math.min(a, b);
+  // }
+  //
+  // /**
+  // * Min double.
+  // *
+  // * @param a the a
+  // * @param b the b
+  // * @param c the c
+  // * @return the double
+  // */
+  // public static double min(double a, double b, double c) {
+  // return Math.min(a, Math.min(b, c));
+  // }
+  //
+  // /**
+  // * Min double.
+  // *
+  // * @param args the args
+  // * @return the double
+  // */
+  // public static double min(double... args) {
+  // Preconditions.checkArgument(args.length > 0);
+  // return DoubleStream.of(args).min().getAsDouble();
+  // }
 }

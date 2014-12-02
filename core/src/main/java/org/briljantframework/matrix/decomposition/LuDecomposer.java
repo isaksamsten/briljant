@@ -16,13 +16,13 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import static org.briljantframework.matrix.natives.Lapack.LAPACKE_dgetrf;
-import static org.briljantframework.matrix.natives.Lapack.LAPACK_COL_MAJOR;
-
+import org.briljantframework.BlasException;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.MatrixLike;
-import org.briljantframework.matrix.natives.BlasException;
+import org.netlib.util.intW;
+
+import com.github.fommil.netlib.LAPACK;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -34,9 +34,11 @@ public class LuDecomposer implements Decomposer<LuDecomposition> {
     int[] pivots = new int[Math.min(m, n)];
 
     Matrix lu = new DenseMatrix(matrix);
-    int error;
-    if ((error = LAPACKE_dgetrf(LAPACK_COL_MAJOR, m, n, lu.asDoubleArray(), m, pivots)) != 0) {
-      throw new BlasException("LAPACKE_dgetrf", error, "LU decomposition failed.");
+
+    intW error = new intW(0);
+    LAPACK.getInstance().dgetrf(n, n, lu.asDoubleArray(), n, pivots, error);
+    if (error.val != 0) {
+      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
     }
 
     return new LuDecomposition(lu, pivots);

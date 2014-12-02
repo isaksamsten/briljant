@@ -16,11 +16,13 @@
 
 package org.briljantframework.transform;
 
+import org.briljantframework.BlasException;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DenseMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.natives.BlasException;
-import org.briljantframework.matrix.natives.Lapack;
+import org.netlib.util.intW;
+
+import com.github.fommil.netlib.LAPACK;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -42,14 +44,26 @@ public class InverseTransformation implements Transformation {
 
   private void invert(Matrix out) {
     int n = out.rows();
+
     int[] ipiv = new int[n];
-    int error;
-    if ((error = Lapack.LAPACKE_dgetrf(Lapack.LAPACK_COL_MAJOR, n, n, out.asDoubleArray(), n, ipiv)) != 0) {
-      throw new BlasException("LAPACKE_dgtref", error, "LU decomposition failed.");
+    intW error = new intW(0);
+    LAPACK.getInstance().dgetrf(n, n, out.asDoubleArray(), n, ipiv, error);
+    if (error.val != 0) {
+      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
     }
 
-    if ((error = Lapack.LAPACKE_dgetri(Lapack.LAPACK_COL_MAJOR, n, out.asDoubleArray(), n, ipiv)) != 0) {
-      throw new BlasException("LAPACKE_dgetri", error, "Inverse failed, the matrix is singular.");
+    double[] work = new double[1];
+    int lwork = -1;
+    LAPACK.getInstance().dgetri(n, out.asDoubleArray(), n, ipiv, work, lwork, error);
+    if (error.val != 0) {
+      throw new BlasException("dgetri", error.val, "Query failed");
+    }
+
+    lwork = (int) work[0];
+    work = new double[lwork];
+    LAPACK.getInstance().dgetri(n, out.asDoubleArray(), n, ipiv, work, lwork, error);
+    if (error.val != 0) {
+      throw new BlasException("dgetri", error.val, "Inverse failed. The matrix is singular.");
     }
   }
 
