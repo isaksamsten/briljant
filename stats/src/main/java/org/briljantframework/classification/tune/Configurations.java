@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.Utils;
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.evaluation.Evaluator;
+import org.briljantframework.evaluation.ClassificationEvaluator;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
 import org.briljantframework.evaluation.result.ErrorRate;
-import org.briljantframework.evaluation.result.Metric;
+import org.briljantframework.evaluation.result.Measure;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -47,7 +47,7 @@ import com.google.common.collect.ImmutableTable;
  */
 public class Configurations implements Iterable<Configuration>, Chartable {
   private final List<Configuration> configurations;
-  private final Evaluator evaluator;
+  private final ClassificationEvaluator evaluator;
 
   /**
    * Instantiates a new Configurations.
@@ -55,7 +55,7 @@ public class Configurations implements Iterable<Configuration>, Chartable {
    * @param configurations the configurations
    * @param evaluator the evaluator
    */
-  protected Configurations(List<Configuration> configurations, Evaluator evaluator) {
+  protected Configurations(List<Configuration> configurations, ClassificationEvaluator evaluator) {
     this.configurations = configurations;
     this.evaluator = evaluator;
   }
@@ -67,7 +67,8 @@ public class Configurations implements Iterable<Configuration>, Chartable {
    * @param evaluator the evaluator
    * @return the configurations
    */
-  public static Configurations create(List<Configuration> configurations, Evaluator evaluator) {
+  public static Configurations create(List<Configuration> configurations,
+      ClassificationEvaluator evaluator) {
     Preconditions.checkArgument(configurations.size() > 0);
     return new Configurations(configurations, evaluator);
   }
@@ -163,8 +164,8 @@ public class Configurations implements Iterable<Configuration>, Chartable {
           table.put(index, params.getKey(), params.getValue());
         }
       }
-      for (Metric metric : configuration.getResult().getMetrics()) {
-        table.put(index, metric.getName(), String.format("%.4f", metric.getAverage()));
+      for (Measure measure : configuration.getResult().getMetrics()) {
+        table.put(index, measure.getName(), String.format("%.4f", measure.getAverage()));
       }
       ConfusionMatrix m = configuration.getAverageConfusionMatrix();
       table.put(index, "Precision", String.format("%.4f", m.getAveragePrecision()));
@@ -182,11 +183,11 @@ public class Configurations implements Iterable<Configuration>, Chartable {
    * @param key the key
    * @return the plot for parameter
    */
-  public Plot getPlotForParameter(String key, Class<? extends Metric> metricKey) {
+  public Plot getPlotForParameter(String key, Class<? extends Measure> metricKey) {
     Map<Number, Double> map = new HashMap<>();
     for (Configuration configuration : configurations) {
-      Metric metric = configuration.getMetric(metricKey);
-      double average = metric.getAverage(Metric.Sample.OUT);
+      Measure measure = configuration.getMetric(metricKey);
+      double average = measure.getAverage(Measure.Sample.OUT);
       Number param = (Number) configuration.get(key);
       map.compute(param, (k, v) -> v == null ? average : v + average);
     }
@@ -208,7 +209,7 @@ public class Configurations implements Iterable<Configuration>, Chartable {
         .getName()), new XYLineAndShapeRenderer());
   }
 
-  public JFreeChart getChartForParameter(String key, Class<? extends Metric> metric) {
+  public JFreeChart getChartForParameter(String key, Class<? extends Measure> metric) {
     JFreeChart chart = new JFreeChart("Configurations", getPlotForParameter(key, metric));
     ChartFactory.getChartTheme().apply(chart);
     return chart;

@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Created by Isak Karlsson on 06/10/14.
  */
-public abstract class AbstractMetric implements Metric {
+public abstract class AbstractMeasure implements Measure {
 
   private final EnumMap<Sample, List<Double>> values;
   private final EnumMap<Sample, Double> min, max, mean, std;
@@ -31,14 +31,14 @@ public abstract class AbstractMetric implements Metric {
   /**
    * Instantiates a new Abstract metric.
    *
-   * @param producer the producer
+   * @param builder the producer
    */
-  protected AbstractMetric(Producer producer) {
-    this.values = producer.values;
-    this.max = producer.max;
-    this.min = producer.min;
-    this.mean = producer.computeMean();
-    this.std = producer.computeStandardDeviation(mean);
+  protected AbstractMeasure(Builder builder) {
+    this.values = builder.values;
+    this.max = builder.max;
+    this.min = builder.min;
+    this.mean = builder.computeMean();
+    this.std = builder.computeStandardDeviation(mean);
   }
 
   @Override
@@ -89,7 +89,7 @@ public abstract class AbstractMetric implements Metric {
   /**
    * The type Producer.
    */
-  protected abstract static class Producer implements Metric.Producer {
+  protected abstract static class Builder implements Measure.Builder {
 
     /**
      * The Values.
@@ -116,7 +116,7 @@ public abstract class AbstractMetric implements Metric {
      *
      * @param value the value
      */
-    public Producer add(Sample sample, double value) {
+    protected void addComputedValue(Sample sample, double value) {
       sum.compute(sample, (k, v) -> v == null ? value : value + v);
       List<Double> values = this.values.get(sample);
       if (values == null) {
@@ -124,8 +124,6 @@ public abstract class AbstractMetric implements Metric {
         this.values.put(sample, values);
       }
       values.add(value);
-
-      return this;
     }
 
     /**
@@ -133,7 +131,7 @@ public abstract class AbstractMetric implements Metric {
      *
      * @return the enum map
      */
-    public EnumMap<Sample, Double> computeMean() {
+    protected EnumMap<Sample, Double> computeMean() {
       double inSum = sum.getOrDefault(Sample.IN, 0d);
       double outSum = sum.getOrDefault(Sample.OUT, 0d);
       List<Double> inValues = values.get(Sample.IN);
@@ -157,7 +155,7 @@ public abstract class AbstractMetric implements Metric {
      * @param means the means
      * @return the enum map
      */
-    public EnumMap<Sample, Double> computeStandardDeviation(EnumMap<Sample, Double> means) {
+    protected EnumMap<Sample, Double> computeStandardDeviation(EnumMap<Sample, Double> means) {
       EnumMap<Sample, Double> std = new EnumMap<>(Sample.class);
 
       for (Sample sample : Sample.values()) {

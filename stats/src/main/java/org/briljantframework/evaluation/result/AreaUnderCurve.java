@@ -27,14 +27,14 @@ import org.briljantframework.vector.Vector;
 /**
  * Created by Isak Karlsson on 06/10/14.
  */
-public class AreaUnderCurve extends AbstracPerValueMetric {
+public class AreaUnderCurve extends AbstractClassMeasure {
 
   /**
    * Instantiates a new Area under curve.
    *
    * @param producer the producer
    */
-  public AreaUnderCurve(AbstracPerValueMetric.Producer producer) {
+  protected AreaUnderCurve(AbstractClassMeasure.Builder producer) {
     super(producer);
   }
 
@@ -42,7 +42,7 @@ public class AreaUnderCurve extends AbstracPerValueMetric {
    * The constant FACTORY.
    */
   public static Factory getFactory() {
-    return Producer::new;
+    return Builder::new;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class AreaUnderCurve extends AbstracPerValueMetric {
   }
 
   // TODO(isak): warn user if a numeric target is used
-  private static final class Producer extends AbstracPerValueMetric.Producer {
+  public static final class Builder extends AbstractClassMeasure.Builder {
 
     @Override
     protected double calculateMetricForValue(String value, Predictions predictions, Vector column) {
@@ -102,7 +102,7 @@ public class AreaUnderCurve extends AbstracPerValueMetric {
     }
 
     @Override
-    public Metric produce() {
+    public Measure build() {
       return new AreaUnderCurve(this);
     }
 

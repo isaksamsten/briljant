@@ -8,16 +8,13 @@ import java.util.stream.Collectors;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictions;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.evaluation.result.ConfusionMatrix;
-import org.briljantframework.evaluation.result.Metric;
-import org.briljantframework.evaluation.result.Metrics;
-import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.evaluation.result.*;
 import org.briljantframework.vector.Vector;
 
 /**
  * Created by isak on 05/10/14.
  */
-public class HoldOutValidation extends AbstractEvaluator {
+public class HoldOutValidation extends AbstractClassificationEvaluator {
 
 
   private final DataFrame holdoutX;
@@ -28,8 +25,8 @@ public class HoldOutValidation extends AbstractEvaluator {
    *
    * @param holdoutX
    */
-  public HoldOutValidation(DataFrame holdoutX, Vector holdoutY) {
-    super(Metrics.CLASSIFICATION, null);
+  public HoldOutValidation(MeasureProvider measureProvider, DataFrame holdoutX, Vector holdoutY) {
+    super(measureProvider, null);
     this.holdoutX = holdoutX;
     this.holdoutY = holdoutY;
   }
@@ -40,7 +37,7 @@ public class HoldOutValidation extends AbstractEvaluator {
    * @return the hold out validation
    */
   public static HoldOutValidation withHoldout(DataFrame x, Vector y) {
-    return new HoldOutValidation(x, y);
+    return new HoldOutValidation(Measures.getDefaultClassificationMeasures(), x, y);
   }
 
   @Override
@@ -59,13 +56,12 @@ public class HoldOutValidation extends AbstractEvaluator {
     Predictions holdOutPredictions = model.predict(holdoutX);
     Predictions inSamplePredictions = model.predict(x);
 
-    ConfusionMatrix confusionMatrix = ConfusionMatrix.create(holdOutPredictions, y);
-    List<Metric> metrics =
-        getMetricFactories().stream().map(Metric.Factory::newProducer).map(producer -> {
-          producer.add(Metric.Sample.IN, inSamplePredictions, y);
-          producer.add(Metric.Sample.OUT, holdOutPredictions, holdoutY);
-          return producer.produce();
-        }).collect(Collectors.toCollection(ArrayList::new));
-    return Result.create(metrics, Arrays.asList(confusionMatrix));
+    ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, y);
+    List<Measure> measures = getMeasureProvider().getMeasures().stream().map(producer -> {
+      producer.compute(Measure.Sample.IN, inSamplePredictions, y);
+      producer.compute(Measure.Sample.OUT, holdOutPredictions, holdoutY);
+      return producer.build();
+    }).collect(Collectors.toCollection(ArrayList::new));
+    return Result.create(measures, Arrays.asList(confusionMatrix));
   }
 }

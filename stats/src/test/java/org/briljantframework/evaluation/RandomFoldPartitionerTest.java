@@ -37,7 +37,7 @@ public class RandomFoldPartitionerTest {
     RandomForest tree = RandomForest.withSize(100).build();
 
     long start = System.currentTimeMillis();
-    System.out.println(Evaluators.crossValidation(10).evaluate(tree, irisX, irisY));
+    System.out.println(ClassificationEvaluators.crossValidation(10).evaluate(tree, irisX, irisY));
     System.out.println(System.currentTimeMillis() - start);
 
     // DataFrame synthetic = Datasets.loadSyntheticControl();

@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
-import org.briljantframework.evaluation.result.Metric;
+import org.briljantframework.evaluation.result.Measure;
 import org.briljantframework.evaluation.result.Result;
 
 import com.google.common.base.Strings;
@@ -57,7 +57,7 @@ public class Configuration implements Comparable<Configuration> {
    * @param metric the metric
    * @return the comparator
    */
-  public static <T extends Metric> Comparator<Configuration> metricComparator(Class<T> metric) {
+  public static <T extends Measure> Comparator<Configuration> metricComparator(Class<T> metric) {
     return (o1, o2) -> o1.getMetric(metric).compareTo(o2.getMetric(metric));
   }
 
@@ -115,7 +115,7 @@ public class Configuration implements Comparable<Configuration> {
    * @param key the key
    * @return the average
    */
-  public double getAverage(Class<? extends Metric> key) {
+  public double getAverage(Class<? extends Measure> key) {
     return result.getAverage(key);
   }
 
@@ -125,7 +125,7 @@ public class Configuration implements Comparable<Configuration> {
    * @param key the key
    * @return the standard deviation
    */
-  public double getStandardDeviation(Class<? extends Metric> key) {
+  public double getStandardDeviation(Class<? extends Measure> key) {
     return result.getStandardDeviation(key);
   }
 
@@ -135,7 +135,7 @@ public class Configuration implements Comparable<Configuration> {
    * @param key the key
    * @return the t
    */
-  public <T extends Metric> T getMetric(Class<T> key) {
+  public <T extends Measure> T getMetric(Class<T> key) {
     return result.get(key);
   }
 

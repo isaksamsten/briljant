@@ -33,7 +33,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 /**
  * Created by Isak Karlsson on 08/10/14.
  */
-public abstract class AbstracPerValueMetric extends AbstractMetric implements PerValueMetric {
+public abstract class AbstractClassMeasure extends AbstractMeasure implements ClassMeasure {
 
   /**
    * The Labels.
@@ -52,7 +52,7 @@ public abstract class AbstracPerValueMetric extends AbstractMetric implements Pe
    * @param producer the producer
    */
 
-  protected AbstracPerValueMetric(AbstracPerValueMetric.Producer producer) {
+  protected AbstractClassMeasure(Builder producer) {
     super(producer);
     this.labels = producer.sampleLabels;
     this.valueForValue = producer.sampleMetricValues;
@@ -136,7 +136,7 @@ public abstract class AbstracPerValueMetric extends AbstractMetric implements Pe
   /**
    * The type Producer.
    */
-  protected static abstract class Producer extends AbstractMetric.Producer {
+  protected static abstract class Builder extends AbstractMeasure.Builder {
 
     /**
      * The
@@ -151,7 +151,7 @@ public abstract class AbstracPerValueMetric extends AbstractMetric implements Pe
     protected final EnumMap<Sample, Set<String>> sampleLabels = new EnumMap<>(Sample.class);
 
     @Override
-    public Metric.Producer add(Sample sample, Predictions predictions, Vector targets) {
+    public void compute(Sample sample, Predictions predictions, Vector truth) {
       // checkArgument(targets.getType().getScale() != Type.Scale.NUMERICAL,
       // "Can't calculate per-value metrics for numerical targets");
 
@@ -159,13 +159,13 @@ public abstract class AbstracPerValueMetric extends AbstractMetric implements Pe
       Set<String> labels = new HashSet<>();
 
       // FIXME! targets.getType().getDomain();
-      for (int i = 0; i < targets.rows(); i++) {
-        labels.add(targets.getAsString(i));
+      for (int i = 0; i < truth.rows(); i++) {
+        labels.add(truth.getAsString(i));
       }
 
       double average = 0.0;
       for (String value : labels) {
-        double metricForValue = calculateMetricForValue(value, predictions, targets);
+        double metricForValue = calculateMetricForValue(value, predictions, truth);
         valueMetrics.put(value, metricForValue);
         average += metricForValue;
       }
@@ -184,8 +184,7 @@ public abstract class AbstracPerValueMetric extends AbstractMetric implements Pe
       }
       sampleLabels.addAll(labels);
 
-      add(sample, average / labels.size());
-      return this;
+      addComputedValue(sample, average / labels.size());
     }
 
     /**

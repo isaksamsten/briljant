@@ -26,10 +26,10 @@ import org.briljantframework.vector.Vector;
  * <p>
  * Created by Isak Karlsson on 20/08/14.
  */
-public interface Evaluator {
+public interface ClassificationEvaluator {
 
   /**
-   * Perform an evaluation of classifier using the data in {@code dataFrame}.
+   * Evaluate {@code classifier} using the data {@code x} and {@code y}
    *
    * @param classifier classifier to use for classification
    * @param x the data frame to use during evaluation

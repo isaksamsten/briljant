@@ -6,25 +6,26 @@ import org.briljantframework.vector.Vector;
 import com.google.common.base.Preconditions;
 
 /**
- * Created by isak on 02/10/14.
+ * Error rate, i.e. miss-classification rate, i.e. fraction of errors.
+ *
+ * @author Isak Karlsson
  */
-public class ErrorRate extends AbstractMetric {
-
+public class ErrorRate extends AbstractMeasure {
 
   /**
    * Instantiates a new Error.
    *
-   * @param producer the producer
+   * @param builder the producer
    */
-  public ErrorRate(AbstractMetric.Producer producer) {
-    super(producer);
+  protected ErrorRate(AbstractMeasure.Builder builder) {
+    super(builder);
   }
 
   /**
    * The constant FACTORY.
    */
   public static Factory getFactory() {
-    return Producer::new;
+    return Builder::new;
   }
 
   @Override
@@ -33,29 +34,28 @@ public class ErrorRate extends AbstractMetric {
   }
 
   @Override
-  public int compareTo(Metric other) {
+  public int compareTo(Measure other) {
     return Double.compare(getAverage(), other.getAverage());
   }
 
-  private static class Producer extends AbstractMetric.Producer {
+  public static class Builder extends AbstractMeasure.Builder {
 
     @Override
-    public Producer add(Sample sample, Predictions predictions, Vector column) {
-      Preconditions.checkArgument(predictions.size() == column.size());
+    public void compute(Sample sample, Predictions predictions, Vector truth) {
+      Preconditions.checkArgument(predictions.size() == truth.size());
 
       double accuracy = 0.0;
       for (int i = 0; i < predictions.size(); i++) {
-        if (predictions.get(i).getPredictedValue().equals(column.getAsString(i))) {
+        if (predictions.get(i).getPredictedValue().equals(truth.getAsString(i))) {
           accuracy++;
         }
       }
 
-      add(sample, 1 - accuracy / predictions.size());
-      return this;
+      addComputedValue(sample, 1 - (accuracy / predictions.size()));
     }
 
     @Override
-    public Metric produce() {
+    public Measure build() {
       return new ErrorRate(this);
     }
   }

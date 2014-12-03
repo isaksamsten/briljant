@@ -1,5 +1,8 @@
 package org.briljantframework.evaluation.result;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -22,16 +25,15 @@ import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 /**
  * In the field of machine learning, a confusion matrix, also known as a contingency table or an
- * error matrix [1] , is a specific table layout that allows visualization of the performance of an
- * algorithm, typically a supervised learning one (in unsupervised learning it is usually called a
- * matching matrix). Each column of the matrix represents the instances in a predicted class, while
- * each row represents the instances in an actual class. The name stems from the fact that it makes
- * it easy to see if the system is confusing two classes (i.e. commonly mislabeling one as another).
+ * error matrix, is a specific table layout that allows visualization of the performance of an
+ * algorithm, typically a supervised learning one. Each column of the matrix represents the
+ * instances in a predicted class, while each row represents the instances in an actual class. The
+ * name stems from the fact that it makes it easy to see if the system is confusing two classes
+ * (i.e. commonly mislabeling one as another).
  * <p>
  * Example:
  * 
@@ -42,10 +44,7 @@ import com.google.common.base.Strings;
  *   vgood   5.0       0.0         61.0        9.0
  *   good    6.0       3.0         1.0         45.0
  * </pre>
- * <p>
- * The sum of diagonal entries divided by the sum of all entries are called the accuracy. The error
- * is 1 - accuracy.
- * <p>
+ * 
  * Created by isak on 02/10/14.
  */
 public class ConfusionMatrix implements Chartable {
@@ -65,9 +64,8 @@ public class ConfusionMatrix implements Chartable {
    * @param sum the sum
    */
   public ConfusionMatrix(Map<String, Map<String, Double>> matrix, Set<String> labels, double sum) {
-    this.matrix = Preconditions.checkNotNull(matrix, "Matrix cannot be null");
-    this.labels =
-        Collections.unmodifiableSet(Preconditions.checkNotNull(labels, "Labels cannot be null"));
+    this.matrix = checkNotNull(matrix, "Matrix cannot be null");
+    this.labels = Collections.unmodifiableSet(checkNotNull(labels, "Labels cannot be null"));
 
     this.sum = sum;
   }
@@ -76,18 +74,19 @@ public class ConfusionMatrix implements Chartable {
    * Create confusion matrix.
    *
    * @param predictions the predictions
-   * @param column the target
+   * @param truth the target
    * @return the confusion matrix
    */
-  public static ConfusionMatrix create(Predictions predictions, Vector column) {
-    Preconditions.checkArgument(predictions.size() == column.size());
+  public static ConfusionMatrix compute(Predictions predictions, Vector truth) {
+    checkArgument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
+        predictions.size(), truth.size());
 
     Map<String, Map<String, Double>> matrix = new HashMap<>();
     Set<String> labels = new HashSet<>();
     double sum = 0;
     for (int i = 0; i < predictions.size(); i++) {
       String predicted = predictions.get(i).getPredictedValue();
-      String actual = column.getAsString(i);
+      String actual = truth.getAsString(i);
 
       Map<String, Double> actuals = matrix.get(predicted);
       if (actuals == null) {
@@ -214,10 +213,32 @@ public class ConfusionMatrix implements Chartable {
     return labels;
   }
 
+  /**
+   * Gets accuracy.
+   *
+   * @return the accuracy
+   */
+  public double getAccuracy() {
+    double diagonal = 0.0;
+    for (String value : labels) {
+      diagonal += get(value, value);
+    }
+    return diagonal / sum;
+  }
+
+  /**
+   * Gets error.
+   *
+   * @return the error
+   */
+  public double getError() {
+    return 1 - getAccuracy();
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    int longest = labels.stream().mapToInt(x -> x.toString().length()).summaryStatistics().getMax();
+    int longest = labels.stream().mapToInt(String::length).summaryStatistics().getMax();
     if (longest < 3) {
       longest = 3;
     }
@@ -257,28 +278,6 @@ public class ConfusionMatrix implements Chartable {
     builder.append(")");
 
     return builder.toString();
-  }
-
-  /**
-   * Gets accuracy.
-   *
-   * @return the accuracy
-   */
-  public double getAccuracy() {
-    double diagonal = 0.0;
-    for (String value : labels) {
-      diagonal += get(value, value);
-    }
-    return diagonal / sum;
-  }
-
-  /**
-   * Gets error.
-   *
-   * @return the error
-   */
-  public double getError() {
-    return 1 - getAccuracy();
   }
 
   /**

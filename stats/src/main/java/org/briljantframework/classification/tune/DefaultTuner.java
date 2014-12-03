@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.evaluation.Evaluator;
+import org.briljantframework.evaluation.ClassificationEvaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.vector.Vector;
 
@@ -43,7 +43,7 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
    * The Parameter names.
    */
   protected final List<String> parameterNames;
-  private final Evaluator evaluator;
+  private final ClassificationEvaluator evaluator;
   private final Comparator<Configuration> comparator;
 
   /**
@@ -53,7 +53,7 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
    * @param evaluator the evaluator
    * @param comparator the comparator
    */
-  protected DefaultTuner(ArrayList<Updater<O>> updaters, Evaluator evaluator,
+  protected DefaultTuner(ArrayList<Updater<O>> updaters, ClassificationEvaluator evaluator,
       Comparator<Configuration> comparator) {
     this.updaters = updaters;
     this.evaluator = evaluator;

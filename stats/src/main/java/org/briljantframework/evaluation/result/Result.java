@@ -37,11 +37,11 @@ import com.google.common.collect.ImmutableTable;
 public class Result implements Chartable {
 
   private static final DecimalFormat FORMATTER = new DecimalFormat("##0.00");
-  private final Map<Class<?>, Metric> metrics;
+  private final Map<Class<?>, Measure> metrics;
 
   private final List<ConfusionMatrix> confusionMatrices;
 
-  private Result(Map<Class<?>, Metric> metrics, List<ConfusionMatrix> confusionMatrices) {
+  private Result(Map<Class<?>, Measure> metrics, List<ConfusionMatrix> confusionMatrices) {
     this.confusionMatrices = confusionMatrices;
     this.metrics = metrics;
   }
@@ -49,30 +49,29 @@ public class Result implements Chartable {
   /**
    * Create result.
    *
-   * @param metrics the metrics
+   * @param measures the metrics
    * @param confusionMatrices the confusion matrices
    * @return the result
    */
-  public static Result create(List<Metric> metrics, List<ConfusionMatrix> confusionMatrices) {
-    Preconditions.checkArgument(metrics.size() > 0 && confusionMatrices.size() > 0);
-    Map<Class<?>, Metric> metricMap = new HashMap<>();
+  public static Result create(List<Measure> measures, List<ConfusionMatrix> confusionMatrices) {
+    Preconditions.checkArgument(measures.size() > 0 && confusionMatrices.size() > 0);
+    Map<Class<?>, Measure> metricMap = new HashMap<>();
 
     int length = 0;
-    if (metrics.size() > 0) {
-      length = metrics.get(0).size();
+    if (measures.size() > 0) {
+      length = measures.get(0).size();
       if (confusionMatrices.size() != length) {
         throw new IllegalArgumentException(
-            "ConfusionMatrix don't have the same number of getPosteriorProbabilities as the "
-                + "metrics");
+            "ConfusionMatrix don't have the same number of values as the metrics");
       }
     }
 
-    for (Metric metric : metrics) {
-      if (metric.size() != length) {
+    for (Measure measure : measures) {
+      if (measure.size() != length) {
         throw new IllegalArgumentException(String.format("Invalid number of metrics for %s",
-            metric.getName()));
+            measure.getName()));
       }
-      metricMap.put(metric.getClass(), metric);
+      metricMap.put(measure.getClass(), measure);
     }
     return new Result(metricMap, confusionMatrices);
   }
@@ -147,10 +146,10 @@ public class Result implements Chartable {
    * @param key the key
    * @return the metric
    */
-  public <T extends Metric> T get(Class<T> key) {
-    Metric metric = metrics.get(key);
-    if (metric != null) {
-      return key.cast(metric);
+  public <T extends Measure> T get(Class<T> key) {
+    Measure measure = metrics.get(key);
+    if (measure != null) {
+      return key.cast(measure);
     } else {
       // TODO(isak) - is it reasonable to throw an ex
       throw new NoSuchElementException(String.format("%s can't be found", key.getSimpleName()));
@@ -164,8 +163,8 @@ public class Result implements Chartable {
    * @param key the key
    * @return the average
    */
-  public double getAverage(Class<? extends Metric> key) {
-    return getAverage(key, Metric.Sample.OUT);
+  public double getAverage(Class<? extends Measure> key) {
+    return getAverage(key, Measure.Sample.OUT);
   }
 
   /**
@@ -175,7 +174,7 @@ public class Result implements Chartable {
    * @param sample the sample
    * @return the average
    */
-  public double getAverage(Class<? extends Metric> key, Metric.Sample sample) {
+  public double getAverage(Class<? extends Measure> key, Measure.Sample sample) {
     return get(key).getAverage(sample);
   }
 
@@ -185,8 +184,8 @@ public class Result implements Chartable {
    * @param key the key
    * @return the standard deviation
    */
-  public double getStandardDeviation(Class<? extends Metric> key) {
-    return getStandardDeviation(key, Metric.Sample.OUT);
+  public double getStandardDeviation(Class<? extends Measure> key) {
+    return getStandardDeviation(key, Measure.Sample.OUT);
   }
 
   /**
@@ -196,7 +195,7 @@ public class Result implements Chartable {
    * @param sample the sample
    * @return the standard deviation
    */
-  public double getStandardDeviation(Class<? extends Metric> key, Metric.Sample sample) {
+  public double getStandardDeviation(Class<? extends Measure> key, Measure.Sample sample) {
     return get(key).getStandardDeviation(sample);
   }
 
@@ -206,8 +205,8 @@ public class Result implements Chartable {
    * @param key the key
    * @return the min
    */
-  public double getMin(Class<? extends Metric> key) {
-    return getMin(key, Metric.Sample.OUT);
+  public double getMin(Class<? extends Measure> key) {
+    return getMin(key, Measure.Sample.OUT);
   }
 
   /**
@@ -217,7 +216,7 @@ public class Result implements Chartable {
    * @param sample the sample
    * @return the min
    */
-  public double getMin(Class<? extends Metric> key, Metric.Sample sample) {
+  public double getMin(Class<? extends Measure> key, Measure.Sample sample) {
     return get(key).getMin(sample);
   }
 
@@ -227,8 +226,8 @@ public class Result implements Chartable {
    * @param key the key
    * @return the max
    */
-  public double getMax(Class<? extends Metric> key) {
-    return getMax(key, Metric.Sample.OUT);
+  public double getMax(Class<? extends Measure> key) {
+    return getMax(key, Measure.Sample.OUT);
   }
 
   /**
@@ -238,7 +237,7 @@ public class Result implements Chartable {
    * @param sample the sample
    * @return the max
    */
-  public double getMax(Class<? extends Metric> key, Metric.Sample sample) {
+  public double getMax(Class<? extends Measure> key, Measure.Sample sample) {
     return get(key).getMax(sample);
   }
 
@@ -249,7 +248,7 @@ public class Result implements Chartable {
    * @param index the index
    * @return the double
    */
-  public double get(Class<? extends Metric> key, int index) {
+  public double get(Class<? extends Measure> key, int index) {
     return get(key).get(index);
   }
 
@@ -261,7 +260,7 @@ public class Result implements Chartable {
    * @param index the index
    * @return the double
    */
-  public double get(Class<? extends Metric> key, Metric.Sample sample, int index) {
+  public double get(Class<? extends Measure> key, Measure.Sample sample, int index) {
     return get(key).get(sample, index);
   }
 
@@ -270,7 +269,7 @@ public class Result implements Chartable {
    *
    * @return the performance metrics
    */
-  public Collection<Metric> getMetrics() {
+  public Collection<Measure> getMetrics() {
     return Collections.unmodifiableCollection(metrics.values());
   }
 
@@ -281,13 +280,13 @@ public class Result implements Chartable {
         .append("Metrics\n");
 
     ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
-    for (Metric metric : getMetrics()) {
-      for (int i = 0; i < metric.size(); i++) {
-        table.put(i + "", metric.getName(), String.format("%.4f", metric.get(i)));
+    for (Measure measure : getMetrics()) {
+      for (int i = 0; i < measure.size(); i++) {
+        table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
       }
-      table.put("Average", metric.getName(), String.format("%.4f", metric.getAverage()));
-      table.put("Standard Deviation", metric.getName(),
-          String.format("%.4f", metric.getStandardDeviation()));
+      table.put("Average", measure.getName(), String.format("%.4f", measure.getAverage()));
+      table.put("Standard Deviation", measure.getName(),
+          String.format("%.4f", measure.getStandardDeviation()));
     }
     Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
     return builder.toString();
@@ -301,8 +300,8 @@ public class Result implements Chartable {
   @Override
   public Plot getPlot() {
     CombinedDomainCategoryPlot cdcp = new CombinedDomainCategoryPlot();
-    for (Metric metric : metrics.values()) {
-      Plot plot = metric.getPlot();
+    for (Measure measure : metrics.values()) {
+      Plot plot = measure.getPlot();
       if (plot != null && plot instanceof CategoryPlot) {
         NumberAxis axis = (NumberAxis) ((CategoryPlot) plot).getRangeAxis();
         axis.setNumberFormatOverride(FORMATTER);

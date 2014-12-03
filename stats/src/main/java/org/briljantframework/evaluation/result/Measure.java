@@ -18,7 +18,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
  * <p>
  * Created by isak on 02/10/14.
  */
-public interface Metric extends Comparable<Metric>, Chartable {
+public interface Measure extends Comparable<Measure>, Chartable {
 
   /**
    * Gets standard deviation.
@@ -161,7 +161,7 @@ public interface Metric extends Comparable<Metric>, Chartable {
    * @return comparison
    */
   @Override
-  default int compareTo(Metric other) {
+  default int compareTo(Measure other) {
     return Double.compare(other.getAverage(), getAverage());
   }
 
@@ -204,41 +204,31 @@ public interface Metric extends Comparable<Metric>, Chartable {
      *
      * @return the producer
      */
-    Producer newProducer();
+    Builder newProducer();
   }
 
   /**
-   * Metrics can be produced either in sample (denoted by {@link Metric .Sample#IN}) or out of
-   * sample (denoted by {@link Metric.Sample#OUT})
+   * Metrics can be produced either in sample (denoted by {@link Measure.Sample#IN}) or out of
+   * sample (denoted by {@link Measure.Sample#OUT})
    * <p>
    * Created by isak on 02/10/14.
    */
-  interface Producer {
+  interface Builder {
 
     /**
      * Add producer.
      *
      * @param sample the sample
      * @param predictions the predictions
-     * @param column the target
-     * @return the producer
+     * @param truth the target
      */
-    public Producer add(Sample sample, Predictions predictions, Vector column);
-
-    /**
-     * Add producer.
-     *
-     * @param sample the sample
-     * @param value the value
-     * @return the producer
-     */
-    public Producer add(Sample sample, double value);
+    public void compute(Sample sample, Predictions predictions, Vector truth);
 
     /**
      * Gets performance metric.
      *
      * @return the performance metric
      */
-    Metric produce();
+    Measure build();
   }
 }

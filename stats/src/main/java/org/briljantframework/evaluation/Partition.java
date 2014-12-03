@@ -20,18 +20,38 @@ public class Partition {
     this.validationY = validationY;
   }
 
+  /**
+   * Get the data intended for training
+   * 
+   * @return the training data
+   */
   public DataFrame getTrainingData() {
     return trainingX;
   }
 
+  /**
+   * Get the target intended for training
+   * 
+   * @return the training target
+   */
   public Vector getTrainingTarget() {
     return trainingY;
   }
 
+  /**
+   * Get the data intended for validation
+   * 
+   * @return the validation data
+   */
   public DataFrame getValidationData() {
     return validationX;
   }
 
+  /**
+   * Get the target intended for validation
+   * 
+   * @return the validation target
+   */
   public Vector getValidationTarget() {
     return validationY;
   }

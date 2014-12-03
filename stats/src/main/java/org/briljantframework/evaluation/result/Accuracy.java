@@ -24,23 +24,23 @@ import com.google.common.base.Preconditions;
 /**
  * Created by Isak Karlsson on 06/10/14.
  */
-public class Accuracy extends AbstractMetric {
+public class Accuracy extends AbstractMeasure {
 
 
   /**
    * Instantiates a new Accuracy.
    *
-   * @param producer the producer
+   * @param builder the producer
    */
-  private Accuracy(AbstractMetric.Producer producer) {
-    super(producer);
+  private Accuracy(AbstractMeasure.Builder builder) {
+    super(builder);
   }
 
   /**
    * @return the factory
    */
   public static Factory getFactory() {
-    return Producer::new;
+    return Builder::new;
   }
 
   @Override
@@ -48,25 +48,24 @@ public class Accuracy extends AbstractMetric {
     return "Accuracy";
   }
 
-  private static final class Producer extends AbstractMetric.Producer {
+  public static final class Builder extends AbstractMeasure.Builder {
 
     @Override
-    public Metric.Producer add(Sample sample, Predictions predictions, Vector column) {
-      Preconditions.checkArgument(predictions.size() == column.size());
+    public void compute(Sample sample, Predictions predictions, Vector truth) {
+      Preconditions.checkArgument(predictions.size() == truth.size());
 
       double accuracy = 0.0;
       for (int i = 0; i < predictions.size(); i++) {
-        if (predictions.get(i).getPredictedValue().equals(column.getAsString(i))) {
+        if (predictions.get(i).getPredictedValue().equals(truth.getAsString(i))) {
           accuracy++;
         }
       }
 
-      add(sample, accuracy / predictions.size());
-      return this;
+      addComputedValue(sample, accuracy / predictions.size());
     }
 
     @Override
-    public Metric produce() {
+    public Measure build() {
       return new Accuracy(this);
     }
   }

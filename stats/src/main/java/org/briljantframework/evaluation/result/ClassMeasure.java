@@ -16,7 +16,7 @@
 
 package org.briljantframework.evaluation.result;
 
-import static org.briljantframework.evaluation.result.Metric.Sample;
+import static org.briljantframework.evaluation.result.Measure.Sample;
 
 import java.util.List;
 import java.util.Set;
@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Created by Isak Karlsson on 08/10/14.
  */
-public interface PerValueMetric {
+public interface ClassMeasure {
 
   /**
    * Get list.
