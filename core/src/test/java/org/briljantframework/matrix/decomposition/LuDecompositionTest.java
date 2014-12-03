@@ -4,26 +4,26 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrix;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LuDecompositionTest {
 
-  DenseMatrix matrix;
+  RealArrayMatrix matrix;
   LuDecomposition decomposition;
 
   @Before
   public void setUp() throws Exception {
-    matrix = DenseMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    matrix = RealArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
 
     decomposition = new LuDecomposer().decompose(matrix);
   }
 
   @Test
   public void testInverse() throws Exception {
-    Matrix inverse = decomposition.inverse();
+    RealMatrix inverse = decomposition.inverse();
 
     assertEquals(inverse.get(0, 0), -0.026, 0.01);
   }

@@ -17,7 +17,7 @@
 package org.briljantframework.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealMatrix;
 import org.briljantframework.matrix.math.LinearAlgebra;
 
 /**
@@ -35,7 +35,7 @@ public class PseudoInverseTransformer implements Transformer {
   private static class PinvTransformation implements Transformation {
     @Override
     public DataFrame transform(DataFrame frame) {
-      Matrix matrix = LinearAlgebra.pinv(frame.asMatrix());
+      RealMatrix matrix = LinearAlgebra.pinv(frame.asMatrix());
       // E copy = factory.newBuilder(frame.getTypes()).create();
       // copy.setMatrix(new Types(frame.getTypes()), matrix);
       return null;

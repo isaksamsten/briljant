@@ -95,7 +95,7 @@ public interface Type {
   /**
    * Returns the scale of this type. If the scale is {@link Scale#CATEGORICAL}, the
    * {@link Vector#getAsString(int)} is expected to return a meaningful value. On the other hand, if
-   * the value is {@link Scale#NUMERICAL} {@link Vector#getAsDouble(int)} is expected to return a
+   * the value is {@link Scale#NUMERICAL} {@link Vector#getAsReal(int)} is expected to return a
    * meaning ful value (or NA).
    *
    * @return the scale

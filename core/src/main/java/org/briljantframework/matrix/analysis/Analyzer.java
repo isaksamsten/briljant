@@ -16,7 +16,7 @@
 
 package org.briljantframework.matrix.analysis;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealMatrix;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -31,5 +31,5 @@ public interface Analyzer<T extends Analysis> {
    * @param matrix the matrix
    * @return the t
    */
-  T analyze(Matrix matrix);
+  T analyze(RealMatrix matrix);
 }

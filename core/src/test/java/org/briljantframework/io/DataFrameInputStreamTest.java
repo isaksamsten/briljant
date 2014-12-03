@@ -61,8 +61,8 @@ public class DataFrameInputStreamTest {
   }
 
   private void print(Vector vector) {
-    System.out.println(vector.getAsDouble(0));
-    System.out.println(vector.getAsDouble(2));
+    System.out.println(vector.getAsReal(0));
+    System.out.println(vector.getAsReal(2));
   }
 
   private void blackbox(Object asString) {

@@ -19,7 +19,7 @@ package org.briljantframework.matrix;
 /**
  * Created by Isak Karlsson on 28/08/14.
  */
-public interface MatrixLike {
+public interface RealMatrixLike {
 
   /**
    * Get value at row i and column j
@@ -130,7 +130,7 @@ public interface MatrixLike {
    * @param other the other
    * @return the boolean
    */
-  default boolean hasEqualShape(MatrixLike other) {
+  default boolean hasEqualShape(RealMatrixLike other) {
     return rows() == other.rows() && columns() == other.columns();
   }
 

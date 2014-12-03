@@ -71,12 +71,10 @@ public class Bootstrap implements Sampler {
   private int[] bootstrap(Examples.Sample sample) {
     int[] bootstrap = new int[sample.size()];
     for (int i = 0; i < bootstrap.length; i++) {
-      int index = random.nextInt(bootstrap.length);
-      bootstrap[index] += 1;
+      bootstrap[random.nextInt(bootstrap.length)]++;
     }
 
     return bootstrap;
   }
-
 
 }

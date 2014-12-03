@@ -2,21 +2,21 @@ package org.briljantframework.matrix.math;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrices;
+import org.briljantframework.matrix.RealMatrix;
 import org.junit.Test;
 
 public class TensorsTest {
 
   @Test
   public void testIndexSort() throws Exception {
-    Matrix test = Matrices.randn(DenseMatrix::new, 1, 10);
+    RealMatrix test = RealMatrices.randn(RealArrayMatrix::new, 1, 10);
 
 
     System.out.println(test);
     int[] order =
-        Matrices.sortIndex(test,
+        RealMatrices.sortIndex(test,
             (a, b) -> Double.compare(Math.abs(test.get(b)), Math.abs(test.get(a))));
     for (int i : order) {
       System.out.println(test.get(i));
@@ -39,25 +39,26 @@ public class TensorsTest {
 
   @Test
   public void testReshape() throws Exception {
-    assertArrayEquals(DenseMatrix.of(2, 2, 1, 3, 2, 4).asDoubleArray(),
-        Matrices.reshape(DenseMatrix::new, DenseMatrix.of(1, 4, 1, 2, 3, 4), 2, 2).asDoubleArray(),
-        0.00001);
+    assertArrayEquals(RealArrayMatrix.of(2, 2, 1, 3, 2, 4).asDoubleArray(),
+        RealMatrices.reshape(RealArrayMatrix::new, RealArrayMatrix.of(1, 4, 1, 2, 3, 4), 2, 2)
+            .asDoubleArray(), 0.00001);
     // assertEquals(Shape.of(1, 4), reshape(DenseVector::new, DenseVector.of(1, 2, 3, 4), 1,
     // 4).getShape());
   }
 
   @Test
   public void testAxB() throws Exception {
-    Matrix a = DenseMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
-    Matrix b = DenseMatrix.of(3, 2, 2, 2, 1, 1, 3, 3);
-    Matrix result = DenseMatrix.of(2, 2, 13, 13, 13, 13);
-    assertArrayEquals(result.asDoubleArray(),
-        Matrices.mmul(DenseMatrix::new, a, b).asDoubleArray(), 0.0001);
+    RealMatrix a = RealArrayMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
+    RealMatrix b = RealArrayMatrix.of(3, 2, 2, 2, 1, 1, 3, 3);
+    RealMatrix result = RealArrayMatrix.of(2, 2, 13, 13, 13, 13);
+    assertArrayEquals(result.asDoubleArray(), RealMatrices.mmul(RealArrayMatrix::new, a, b)
+        .asDoubleArray(), 0.0001);
   }
 
   @Test
   public void testAxb() throws Exception {
-    Matrix a = Matrices.parseMatrix(DenseMatrix::new, "1,2,3,4;1,2,3,4;1,2,3,4;1,2,3,4;1,2,3,4");
+    RealMatrix a =
+        RealMatrices.parseMatrix(RealArrayMatrix::new, "1,2,3,4;1,2,3,4;1,2,3,4;1,2,3,4;1,2,3,4");
     System.out.println(a);
 
   }

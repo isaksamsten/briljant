@@ -65,7 +65,7 @@ public class LinearAlgebra {
    * @param b the matrix b
    * @return the solution vector <code>x</code>
    */
-  public static Matrix leastLinearSquares(Matrix a, Matrix b) {
+  public static RealMatrix leastLinearSquares(RealMatrix a, RealMatrix b) {
     return new LeastLinearSquaresSolver(a).solve(b);
   }
 
@@ -75,7 +75,7 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return lu decomposition
    */
-  public static LuDecomposition lu(Matrix matrix) {
+  public static LuDecomposition lu(RealMatrix matrix) {
     return new LuDecomposer().decompose(matrix);
   }
 
@@ -96,7 +96,7 @@ public class LinearAlgebra {
    * @throws IllegalArgumentException if matrix is not square
    * @throws RuntimeException if the decomposition fail (i.e. the matrix is singular)
    */
-  public static Matrix inv(Matrix a) {
+  public static RealMatrix inv(RealMatrix a) {
     return new InverseTransformation().transform(a);
   }
 
@@ -112,8 +112,8 @@ public class LinearAlgebra {
    * @return Moore –Penrose pseudoinverse of matrix
    * @throws RuntimeException if the singular value decomposition fails
    */
-  public static Matrix pinv(Matrix matrix) {
-    return pinv(DenseMatrix::new, matrix);
+  public static RealMatrix pinv(RealMatrix matrix) {
+    return pinv(RealArrayMatrix::new, matrix);
   }
 
   /**
@@ -124,7 +124,7 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return the out
    */
-  public static <Out extends Matrix> Out pinv(Matrix.New<Out> n, Matrix matrix) {
+  public static <Out extends RealMatrix> Out pinv(RealMatrix.New<Out> n, RealMatrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getArrayOfShape();
     pinvi(matrix, array);
@@ -133,20 +133,20 @@ public class LinearAlgebra {
 
   /**
    * Pinvi void.
-   *
-   * @param tensor the tensor
+   * 
+   * @param matrix the tensor
    * @param copy the copy
    */
-  public static void pinvi(MatrixLike tensor, double[] copy) {
-    SingularValueDecomposition svd = svd(tensor);
-    Diagonal diagonal = svd.getDiagonal();
-    DenseMatrix rightSingularValues = svd.getRightSingularValues();
-    DenseMatrix leftSingularValues = svd.getLeftSingularValues();
+  public static void pinvi(RealMatrix matrix, double[] copy) {
+    SingularValueDecomposition svd = svd(matrix);
+    RealDiagonal diagonal = svd.getDiagonal();
+    RealArrayMatrix rightSingularValues = svd.getRightSingularValues();
+    RealArrayMatrix leftSingularValues = svd.getLeftSingularValues();
 
     diagonal.apply(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transposei();
-    Matrix s = rightSingularValues.mmuld(diagonal);
-    Matrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
+    RealMatrix s = rightSingularValues.mmuld(diagonal);
+    RealMatrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
   }
 
   /**
@@ -163,7 +163,7 @@ public class LinearAlgebra {
    * @return the singular value decomposition
    * @throws IllegalArgumentException if SVD fail to converge
    */
-  public static SingularValueDecomposition svd(MatrixLike matrix) {
+  public static SingularValueDecomposition svd(RealMatrix matrix) {
     return new SingularValueDecomposer().decompose(matrix);
   }
 
@@ -182,7 +182,7 @@ public class LinearAlgebra {
    * @param x the array
    * @return the principal components of x
    */
-  public static PrincipalComponentAnalysis pca(Matrix x) {
+  public static PrincipalComponentAnalysis pca(RealMatrix x) {
     return new PrincipalComponentAnalyzer().analyze(x);
   }
 
@@ -196,7 +196,7 @@ public class LinearAlgebra {
    * @param x a square mutable array
    * @return the determinant
    */
-  public static double det(Matrix x) {
+  public static double det(RealMatrix x) {
     if (x.isSquare()) {
       return new LuDecomposer().decompose(x).getDeterminant();
     } else {
@@ -215,9 +215,9 @@ public class LinearAlgebra {
    * @param x a matrix
    * @return the rank
    */
-  public static double rank(Matrix x) {
+  public static double rank(RealMatrix x) {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
-    Diagonal singular = svd.getDiagonal();
+    RealDiagonal singular = svd.getDiagonal();
     int rank = 0;
     for (int i = 0; i < singular.size(); i++) {
       if (singular.get(i) > 0) {

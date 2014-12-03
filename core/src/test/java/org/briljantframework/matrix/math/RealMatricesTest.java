@@ -1,7 +1,7 @@
 package org.briljantframework.matrix.math;
 
-import static org.briljantframework.matrix.Matrices.parseMatrix;
-import static org.briljantframework.matrix.Matrices.sum;
+import static org.briljantframework.matrix.RealMatrices.parseMatrix;
+import static org.briljantframework.matrix.RealMatrices.sum;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-public class MatricesTest {
+public class RealMatricesTest {
 
   @Before
   public void setUp() throws Exception {
@@ -27,9 +27,9 @@ public class MatricesTest {
 
   @Test
   public void testSumRows() throws Exception {
-    Matrix m = parseMatrix("1,1,1,1;" + "1,1,1,1;" + "1,1,1,1");
-    Matrix rowSum = sum(m, Axis.ROW);
-    Matrix columnSum = sum(m, Axis.COLUMN);
+    RealMatrix m = parseMatrix("1,1,1,1;" + "1,1,1,1;" + "1,1,1,1");
+    RealMatrix rowSum = sum(m, Axis.ROW);
+    RealMatrix columnSum = sum(m, Axis.COLUMN);
     System.out.println(rowSum);
     System.out.println(columnSum);
 
@@ -37,30 +37,30 @@ public class MatricesTest {
 
   @Test
   public void testAxB() throws Exception {
-    Matrix a = DenseMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
-    Matrix b = DenseMatrix.of(3, 2, 2, 2, 1, 1, 3, 3);
-    Matrix result = DenseMatrix.of(2, 2, 13, 13, 13, 13);
-    assertArrayEquals(result.asDoubleArray(),
-        Matrices.mmul(DenseMatrix::new, a, b).asDoubleArray(), 0.0001);
+    RealMatrix a = RealArrayMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
+    RealMatrix b = RealArrayMatrix.of(3, 2, 2, 2, 1, 1, 3, 3);
+    RealMatrix result = RealArrayMatrix.of(2, 2, 13, 13, 13, 13);
+    assertArrayEquals(result.asDoubleArray(), RealMatrices.mmul(RealArrayMatrix::new, a, b)
+        .asDoubleArray(), 0.0001);
   }
 
   @Test
   public void testMatrixMultiplicationInplace() throws Exception {
-    DenseMatrix a = DenseMatrix.of(2, 3, 1, 2, 3, 3, 2, 1);
+    RealArrayMatrix a = RealArrayMatrix.of(2, 3, 1, 2, 3, 3, 2, 1);
 
-    DenseMatrix b = DenseMatrix.of(3, 2, 1, 2, 3, 4, 5, 6);
+    RealArrayMatrix b = RealArrayMatrix.of(3, 2, 1, 2, 3, 4, 5, 6);
 
-    Matrix c = Matrices.n(2, 2, 10);
+    RealMatrix c = RealMatrices.n(2, 2, 10);
 
     // calculates c = a * b + 2c
-    Matrices.mmuli(a, Transpose.NO, 1, b, Transpose.NO, 2, c.asDoubleArray());
+    RealMatrices.mmuli(a, Transpose.NO, 1, b, Transpose.NO, 2, c.asDoubleArray());
     assertArrayEquals(new double[] {42.0, 34.0, 48.0, 40.0}, c.asDoubleArray(), 0.01);
   }
 
   @Test
   public void testMatrixMultiplyTranspose() throws Exception {
-    Matrix x = DenseMatrix.of(3, 2, 1, 2, 3, 4, 5, 6);
-    Matrix y = DenseMatrix.of(3, 2, 1, 2, 1, 2, 1, 2);
+    RealMatrix x = RealArrayMatrix.of(3, 2, 1, 2, 3, 4, 5, 6);
+    RealMatrix y = RealArrayMatrix.of(3, 2, 1, 2, 1, 2, 1, 2);
 
 
     // System.out.println(Matrices.multiply(x, y.transpose()));
@@ -80,23 +80,23 @@ public class MatricesTest {
 
   @Test
   public void testMultiplyDiagonal() throws Exception {
-    Diagonal eye = Diagonal.of(4, 4, 2, 2, 2, 2);
+    RealDiagonal eye = RealDiagonal.of(4, 4, 2, 2, 2, 2);
 
-    DenseMatrix x = DenseMatrix.of(4, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3);
+    RealArrayMatrix x = RealArrayMatrix.of(4, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3);
 
-    DenseMatrix y = Matrices.mdmul(DenseMatrix::new, x, eye);
+    RealArrayMatrix y = RealMatrices.mdmul(RealArrayMatrix::new, x, eye);
     assertArrayEquals(new double[] {2.0, 2.0, 2.0, 2.0, 4.0, 4.0, 4.0, 4.0, 6.0, 6.0, 6.0, 6.0},
         y.asDoubleArray(), 0.001);
 
 
-    y = Matrices.dmmul(DenseMatrix::new, eye, x.transpose());
+    y = RealMatrices.dmmul(RealArrayMatrix::new, eye, x.transpose());
     assertArrayEquals(new double[] {2.0, 4.0, 6.0, 2.0, 4.0, 6.0, 2.0, 4.0, 6.0, 2.0, 4.0, 6.0},
         y.asDoubleArray(), 0.001);
   }
 
   @Test
   public void testMatrixVectorMultiply() throws Exception {
-    Matrix A = DenseMatrix.of(3, 4, 1, 2, 3, 1, 1, 2, 3, 1, 1, 2, 3, 1);
+    RealMatrix A = RealArrayMatrix.of(3, 4, 1, 2, 3, 1, 1, 2, 3, 1, 1, 2, 3, 1);
     // Vector x = Vector.rows(1, 2, 3, 3);
     // Array result = A.multiply(x);
     // assertEquals(17.0, result.asDoubleStream().average().getAsDouble(), 0.001);
@@ -137,19 +137,19 @@ public class MatricesTest {
 
   @Test
   public void testMatrixMatrixMultiplication() throws Exception {
-    DenseMatrix a = DenseMatrix.of(3, 2, 1, 1, 2, 2, 3, 3);
+    RealArrayMatrix a = RealArrayMatrix.of(3, 2, 1, 1, 2, 2, 3, 3);
 
-    DenseMatrix b = DenseMatrix.of(2, 2, 1, 2, 1, 2);
+    RealArrayMatrix b = RealArrayMatrix.of(2, 2, 1, 2, 1, 2);
 
-    assertEquals(DenseMatrix.of(3, 2, 3, 3, 6, 6, 9, 9),
-        Matrices.mmul(DenseMatrix::new, a, b.transpose()));
+    assertEquals(RealArrayMatrix.of(3, 2, 3, 3, 6, 6, 9, 9),
+        RealMatrices.mmul(RealArrayMatrix::new, a, b.transpose()));
 
-    assertEquals(DenseMatrix.of(3, 2, 2, 4, 4, 8, 6, 12), a.mmul(b));
+    assertEquals(RealArrayMatrix.of(3, 2, 2, 4, 4, 8, 6, 12), a.mmul(b));
   }
 
   @Test
   public void testMatrixScalarMultiplication() throws Exception {
-    Matrix a = DenseMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
+    RealMatrix a = RealArrayMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
     // Matrix ad = Matrices.multiply(a, 2.0);
     // assertEquals(Matrix.of(2, 3,
     // 2, 4, 6,

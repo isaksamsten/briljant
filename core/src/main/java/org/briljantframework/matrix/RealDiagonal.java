@@ -27,12 +27,14 @@ import com.google.common.collect.ImmutableTable;
  * <p>
  * Created by isak on 27/06/14.
  */
-public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
+public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
 
   private final int size;
+  private final double[] values;
 
-  private Diagonal(int rows, int cols, double[] values) {
-    super(rows, cols, values);
+  private RealDiagonal(int rows, int cols, double[] values) {
+    super(rows, cols);
+    this.values = values;
     this.size = values.length;
     this.rows = rows;
   }
@@ -44,8 +46,8 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
    * @param cols the cols
    * @return the diagonal
    */
-  public static Diagonal empty(int rows, int cols) {
-    return new Diagonal(rows, cols, new double[Math.max(rows, cols)]);
+  public static RealDiagonal empty(int rows, int cols) {
+    return new RealDiagonal(rows, cols, new double[Math.max(rows, cols)]);
   }
 
   /**
@@ -56,24 +58,14 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
    * @param values the values
    * @return the diagonal
    */
-  public static Diagonal of(int rows, int cols, double... values) {
-    return new Diagonal(rows, cols, values);
+  public static RealDiagonal of(int rows, int cols, double... values) {
+    return new RealDiagonal(rows, cols, values);
   }
 
-  /**
-   * Multiplying a square symmetric diagonal matrix (i.e. a vector of diagonal entries) d and X,
-   * storing the result in Y
-   * <p>
-   * 
-   * <pre>
-   * Y &lt; -dX
-   * </pre>
-   *
-   * @param x a square matrix with x.rows = d.size
-   * @return a matrix
-   */
-  public Matrix mmul(Matrix x) {
-    return Matrices.mdmul(DenseMatrix::new, x, this);
+  public void apply(DoubleUnaryOperator operator) {
+    for (int i = 0; i < values.length; i++) {
+      values[i] = operator.applyAsDouble(values[i]);
+    }
   }
 
   /**
@@ -83,8 +75,9 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
    * @param cols the cols
    * @return the matrix
    */
-  public Matrix reshape(int rows, int cols) {
-    DenseMatrix ret = DenseMatrix.fromColumnOrder(this.rows(), this.columns(), asDoubleArray());
+  public RealMatrix reshape(int rows, int cols) {
+    RealArrayMatrix ret =
+        RealArrayMatrix.fromColumnOrder(this.rows(), this.columns(), asDoubleArray());
     ret.reshapei(rows, cols);
     return ret;
   }
@@ -95,27 +88,10 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
    *
    * @return the copy
    */
-  public Diagonal copy() {
+  public RealDiagonal copy() {
     double[] values = new double[this.values.length];
     System.arraycopy(this.values, 0, values, 0, this.values.length);
-    return new Diagonal(this.rows(), this.columns(), values);
-  }
-
-  /**
-   * Raw view of the column-major underlying array. In some instances it might be possible to mutate
-   * this (e.g., if the implementation provides a direct reference. However, there are nos such
-   * guarantees).
-   *
-   * @return the underlying array. Touch with caution.
-   */
-  public double[] asDoubleArray() {
-    int rows = rows(), cols = columns();
-    double[] dense = new double[rows * cols];
-    int n = Math.min(cols, rows);
-    for (int j = 0; j < n; j++) {
-      dense[j * rows + j] = values[j];
-    }
-    return dense;
+    return new RealDiagonal(this.rows(), this.columns(), values);
   }
 
   /**
@@ -146,6 +122,23 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
     } else {
       values[index] = value;
     }
+  }
+
+  /**
+   * Raw view of the column-major underlying array. In some instances it might be possible to mutate
+   * this (e.g., if the implementation provides a direct reference. However, there are nos such
+   * guarantees).
+   *
+   * @return the underlying array. Touch with caution.
+   */
+  public double[] asDoubleArray() {
+    int rows = rows(), cols = columns();
+    double[] dense = new double[rows * cols];
+    int n = Math.min(cols, rows);
+    for (int j = 0; j < n; j++) {
+      dense[j * rows + j] = values[j];
+    }
+    return dense;
   }
 
   /**
@@ -192,12 +185,39 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
    * @param operator the operator
    * @return the diagonal
    */
-  public Diagonal map(DoubleUnaryOperator operator) {
+  public RealDiagonal map(DoubleUnaryOperator operator) {
     double[] diagonal = new double[this.size];
     for (int i = 0; i < diagonal.length; i++) {
       diagonal[i] = operator.applyAsDouble(get(i));
     }
-    return new Diagonal(this.rows(), this.columns(), diagonal);
+    return new RealDiagonal(this.rows(), this.columns(), diagonal);
+  }
+
+  /**
+   * Transpose matrix like.
+   *
+   * @return the matrix like
+   */
+  public RealDiagonal transpose() {
+    double[] values = new double[this.values.length];
+    System.arraycopy(this.values, 0, values, 0, values.length);
+    return new RealDiagonal(this.columns(), this.rows(), values);
+  }
+
+  /**
+   * Multiplying a square symmetric diagonal matrix (i.e. a vector of diagonal entries) d and X,
+   * storing the result in Y
+   * <p>
+   * 
+   * <pre>
+   * Y &lt; -dX
+   * </pre>
+   *
+   * @param x a square matrix with x.rows = d.size
+   * @return a matrix
+   */
+  public RealMatrix mmul(RealMatrix x) {
+    return RealMatrices.mdmul(RealArrayMatrix::new, x, this);
   }
 
   /**
@@ -206,32 +226,13 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
    * @param scalar the scalar
    * @return the diagonal
    */
-  public Diagonal mul(double scalar) {
+  public RealDiagonal mul(double scalar) {
     double[] out = new double[size];
     for (int i = 0; i < size; i++) {
       out[i] = values[i] * scalar;
     }
 
-    return new Diagonal(this.rows(), this.columns(), out);
-  }
-
-  /**
-   * Transpose matrix like.
-   *
-   * @return the matrix like
-   */
-  public Diagonal transpose() {
-    double[] values = new double[this.values.length];
-    System.arraycopy(this.values, 0, values, 0, values.length);
-    return new Diagonal(this.columns(), this.rows(), values);
-  }
-
-  public Diagonal transposei() {
-    int tmp = rows;
-    rows = cols;
-    cols = tmp;
-
-    return this;
+    return new RealDiagonal(this.rows(), this.columns(), out);
   }
 
   @Override
@@ -250,5 +251,23 @@ public class Diagonal extends AbstractDenseMatrix implements MatrixLike {
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
     out.append("Shape: ").append(getShape());
     return out.toString();
+  }
+
+  @Override
+  protected RealMatrix newMatrix(Shape shape, double[] array) {
+    return new RealArrayMatrix(shape, array);
+  }
+
+  @Override
+  protected RealMatrix newEmptyMatrix(int rows, int columns) {
+    return new RealArrayMatrix(rows, columns);
+  }
+
+  public RealDiagonal transposei() {
+    int tmp = rows;
+    rows = cols;
+    cols = tmp;
+
+    return this;
   }
 }

@@ -18,10 +18,10 @@ package org.briljantframework.matrix.decomposition;
 
 import java.util.Optional;
 
-import org.briljantframework.BlasException;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.exception.BlasException;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrices;
+import org.briljantframework.matrix.RealMatrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -31,11 +31,11 @@ import com.github.fommil.netlib.LAPACK;
  */
 public class LuDecomposition implements Decomposition {
 
-  private final Matrix lu;
+  private final RealMatrix lu;
   private final int[] pivots;
   private Optional<Boolean> nonSingular = Optional.empty();
-  private Optional<Matrix> lower = Optional.empty();
-  private Optional<Matrix> upper = Optional.empty();
+  private Optional<RealMatrix> lower = Optional.empty();
+  private Optional<RealMatrix> upper = Optional.empty();
 
   private double det = Double.NaN;
 
@@ -45,7 +45,7 @@ public class LuDecomposition implements Decomposition {
    * @param lu the lu
    * @param pivots the pivots
    */
-  public LuDecomposition(Matrix lu, int[] pivots) {
+  public LuDecomposition(RealMatrix lu, int[] pivots) {
     this.lu = lu;
     this.pivots = pivots;
   }
@@ -55,7 +55,7 @@ public class LuDecomposition implements Decomposition {
    *
    * @return the matrix
    */
-  public Matrix decomposition() {
+  public RealMatrix decomposition() {
     return lu;
   }
 
@@ -64,11 +64,11 @@ public class LuDecomposition implements Decomposition {
    *
    * @return the inverse of the matrix
    */
-  public Matrix inverse() {
+  public RealMatrix inverse() {
     if (!lu.isSquare()) {
       throw new IllegalStateException("Matrix must be square.");
     }
-    Matrix inv = lu.copy();
+    RealMatrix inv = lu.copy();
     int n = inv.rows(), error;
     int lwork = -1;
     double[] work = new double[1];
@@ -142,12 +142,12 @@ public class LuDecomposition implements Decomposition {
    *
    * @return the upper
    */
-  public Matrix getUpper() {
+  public RealMatrix getUpper() {
     return upper.orElseGet(this::computeUpper);
   }
 
-  private Matrix computeUpper() {
-    DenseMatrix upperMatrix = new DenseMatrix(lu.rows(), lu.columns());
+  private RealMatrix computeUpper() {
+    RealArrayMatrix upperMatrix = new RealArrayMatrix(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         upperMatrix.put(i, j, lu.get(i, j));
@@ -162,12 +162,12 @@ public class LuDecomposition implements Decomposition {
    *
    * @return the lower
    */
-  public Matrix getLower() {
+  public RealMatrix getLower() {
     return lower.orElseGet(this::computeLower);
   }
 
-  private Matrix computeLower() {
-    Matrix lowerMatrix = Matrices.zero(lu.rows(), lu.columns());
+  private RealMatrix computeLower() {
+    RealMatrix lowerMatrix = RealMatrices.zero(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         int ii = lu.rows() - 1 - i;

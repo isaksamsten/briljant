@@ -100,7 +100,6 @@ public class Ensemble implements Classifier {
 
     Examples examples = Examples.fromVector(target);
 
-    List<org.briljantframework.learning.Model> models = new ArrayList<>();
     List<Future<org.briljantframework.learning.Model>> futures = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       futures.add(service.submit(() -> {
@@ -110,14 +109,14 @@ public class Ensemble implements Classifier {
       }));
     }
 
-    for (int i = 0; i < size; i++) {
+    List<org.briljantframework.learning.Model> models = new ArrayList<>();
+    for (Future<org.briljantframework.learning.Model> future : futures) {
       try {
-        models.add(futures.get(i).get());
+        models.add(future.get());
       } catch (InterruptedException | ExecutionException e) {
         throw new RuntimeException(e);
       }
     }
-
     return new Model(models, size);
   }
 

@@ -18,9 +18,9 @@ package org.briljantframework.matrix.solve;
 
 import java.util.Arrays;
 
-import org.briljantframework.BlasException;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.exception.BlasException;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -37,12 +37,12 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
    *
    * @param matrix the matrix
    */
-  public LeastLinearSquaresSolver(Matrix matrix) {
+  public LeastLinearSquaresSolver(RealMatrix matrix) {
     super(matrix);
   }
 
   @Override
-  public Matrix solve(Matrix b) {
+  public RealMatrix solve(RealMatrix b) {
     int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
     int[] jpvt = new int[n];
 
@@ -66,6 +66,6 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
     }
 
     double[] array = Arrays.copyOf(result, n);
-    return DenseMatrix.rowVector(array);
+    return RealArrayMatrix.rowVector(array);
   }
 }

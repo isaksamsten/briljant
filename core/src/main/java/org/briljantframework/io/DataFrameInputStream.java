@@ -184,7 +184,7 @@ public abstract class DataFrameInputStream extends FilterInputStream {
    */
   public double nextDouble() throws IOException {
     String repr = nextString();
-    return repr == StringVector.NA ? DoubleVector.NA : Double.parseDouble(repr);
+    return repr == StringVector.NA ? RealVector.NA : Double.parseDouble(repr);
   }
 
   /**

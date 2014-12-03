@@ -1,7 +1,7 @@
 package org.briljantframework.learning.time;
 
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.RealMatrices;
+import org.briljantframework.matrix.RealMatrixLike;
 
 /**
  * Created by Isak Karlsson on 27/10/14.
@@ -20,10 +20,10 @@ public class IndexSortedNormalizedShapelet extends NormalizedShapelet {
    * @param length the length
    * @param vector the vector
    */
-  public IndexSortedNormalizedShapelet(int start, int length, MatrixLike vector) {
+  public IndexSortedNormalizedShapelet(int start, int length, RealMatrixLike vector) {
     super(start, length, vector);
     this.order =
-        Matrices.sortIndex(this,
+        RealMatrices.sortIndex(this,
             (i, j) -> Double.compare(Math.abs(this.get(j)), Math.abs(this.get(i))));
   }
 

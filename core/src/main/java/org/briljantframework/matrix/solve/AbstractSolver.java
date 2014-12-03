@@ -16,16 +16,16 @@
 
 package org.briljantframework.matrix.solve;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealMatrix;
 
 /**
  * Created by Isak Karlsson on 08/09/14.
  */
 public abstract class AbstractSolver implements Solver {
 
-  protected final Matrix matrix;
+  protected final RealMatrix matrix;
 
-  protected AbstractSolver(Matrix matrix) {
+  protected AbstractSolver(RealMatrix matrix) {
     this.matrix = matrix;
   }
 

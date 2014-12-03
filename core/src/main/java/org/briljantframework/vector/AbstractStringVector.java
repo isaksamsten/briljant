@@ -35,13 +35,13 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
     }
 
     @Override
-    public boolean equals(int a, Vector va, int b, Vector ba) {
-      return !(!va.isNA(a) && !ba.isNA(b)) || va.getAsString(a).equals(ba.getAsString(b));
+    public Scale getScale() {
+      return Scale.CATEGORICAL;
     }
 
     @Override
-    public Scale getScale() {
-      return Scale.CATEGORICAL;
+    public boolean equals(int a, Vector va, int b, Vector ba) {
+      return !(!va.isNA(a) && !ba.isNA(b)) || va.getAsString(a).equals(ba.getAsString(b));
     }
 
     @Override
@@ -51,7 +51,7 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
   };
 
   @Override
-  public double getAsDouble(int index) {
+  public double getAsReal(int index) {
     return tryParseDouble(getAsString(index));
   }
 
@@ -111,13 +111,13 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
 
   protected double tryParseDouble(String str) {
     if (str == AbstractStringVector.NA) {
-      return DoubleVector.NA;
+      return RealVector.NA;
     }
     Double d = Doubles.tryParse(str);
     if (d != null) {
       return d;
     } else {
-      return DoubleVector.NA;
+      return RealVector.NA;
     }
   }
 

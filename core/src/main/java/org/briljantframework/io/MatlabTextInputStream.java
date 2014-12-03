@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 
-import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.RealVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Type;
 
@@ -65,7 +65,7 @@ public class MatlabTextInputStream extends DataFrameInputStream {
     initializeValues();
     if (currentType < columns) {
       currentType++;
-      return DoubleVector.TYPE;
+      return RealVector.TYPE;
     } else {
       return null;
     }

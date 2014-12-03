@@ -16,7 +16,7 @@
 
 package org.briljantframework.matrix.math;
 
-import org.briljantframework.matrix.MismatchException;
+import org.briljantframework.exception.MismatchException;
 
 /**
  * Created by Isak on 7/4/2014.

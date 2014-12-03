@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 11/10/14.
  */
-public class BooleanMatrix implements MatrixLike {
+public class BooleanMatrix implements RealMatrixLike {
 
   private final boolean[] values;
   private final int rows, cols;
@@ -128,7 +128,7 @@ public class BooleanMatrix implements MatrixLike {
    *
    * @return the matrix like
    */
-  public MatrixLike transpose() {
+  public RealMatrixLike transpose() {
     throw new UnsupportedOperationException();
   }
 
@@ -202,6 +202,17 @@ public class BooleanMatrix implements MatrixLike {
     return bm;
   }
 
+  /**
+   * Has boolean.
+   *
+   * @param i the i
+   * @param j the j
+   * @return the boolean
+   */
+  public boolean has(int i, int j) {
+    return values[index(i, j)];
+  }
+
   @Override
   public String toString() {
     StringBuilder out = new StringBuilder("BooleanMatrix\n");
@@ -214,16 +225,5 @@ public class BooleanMatrix implements MatrixLike {
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
     out.append("Shape: ").append(getShape());
     return out.toString();
-  }
-
-  /**
-   * Has boolean.
-   *
-   * @param i the i
-   * @param j the j
-   * @return the boolean
-   */
-  public boolean has(int i, int j) {
-    return values[index(i, j)];
   }
 }

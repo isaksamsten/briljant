@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.RealMatrixLike;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -14,15 +14,15 @@ import org.briljantframework.matrix.MatrixLike;
  * <p>
  * Created by Isak Karlsson on 20/11/14.
  */
-public interface Vector extends Serializable, MatrixLike {
+public interface Vector extends RealMatrixLike, Serializable {
 
   /**
-   * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
+   * Returns value as {@code double} if applicable. Otherwise returns {@link RealVector#NA}.
    *
    * @param index the index
    * @return a double
    */
-  double getAsDouble(int index);
+  double getAsReal(int index);
 
   /**
    * Returns value as {@code int} if applicable. Otherwise returns {@link IntVector#NA}
@@ -68,7 +68,7 @@ public interface Vector extends Serializable, MatrixLike {
    * @return a {@link Complex}
    */
   default Complex getAsComplex(int index) {
-    double value = getAsDouble(index);
+    double value = getAsReal(index);
     if (Double.isNaN(value)) {
       return ComplexVector.NA;
     }
@@ -88,34 +88,10 @@ public interface Vector extends Serializable, MatrixLike {
    * <p>
    * The following conventions apply:
    * <ul>
-   * <li>
-   * 
-   * <pre>
-   * 1.0 == TRUE
-   * </pre>
-   * 
-   * </li>
-   * <li>
-   * 
-   * <pre>
-   * 1 == TRUE
-   * </pre>
-   * 
-   * </li>
-   * <li>
-   * 
-   * <pre>
-   * &quot;true&quot; == TRUE
-   * </pre>
-   * 
-   * </li>
-   * <li>
-   * 
-   * <pre>
-   * Binary.TRUE == TRUE
-   * </pre>
-   * 
-   * </li>
+   * <li>{@code 1.0 == TRUE}</li>
+   * <li>{@code 1 == TRUE}</li>
+   * <li>{@code &quot;true&quot; == TRUE}</li>
+   * <li>{@code Binary.TRUE == TRUE}</li>
    * </ul>
    * <p>
    * All other values are considered to be FALSE
@@ -168,7 +144,7 @@ public interface Vector extends Serializable, MatrixLike {
    */
   @Override
   default double get(int index) {
-    return getAsDouble(index);
+    return getAsReal(index);
   }
 
   /**
@@ -271,7 +247,7 @@ public interface Vector extends Serializable, MatrixLike {
   default double[] toDoubleArray() {
     double[] values = new double[size()];
     for (int i = 0; i < size(); i++) {
-      values[i] = getAsDouble(i);
+      values[i] = getAsReal(i);
     }
     return values;
   }

@@ -17,9 +17,9 @@
 package org.briljantframework.matrix.analysis;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrices;
+import org.briljantframework.matrix.RealMatrix;
 import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposer;
 import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
@@ -74,14 +74,14 @@ public class PrincipalComponentAnalyzer implements Analyzer<PrincipalComponentAn
   }
 
   @Override
-  public PrincipalComponentAnalysis analyze(Matrix array) {
+  public PrincipalComponentAnalysis analyze(RealMatrix array) {
     SingularValueDecomposition svd = getSingularValueDecomposition(array);
     return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
   }
 
-  private SingularValueDecomposition getSingularValueDecomposition(Matrix array) {
-    Matrix sigma =
-        Matrices.mmul(DenseMatrix::new, array, Transpose.YES, 1.0, array, Transpose.NO,
+  private SingularValueDecomposition getSingularValueDecomposition(RealMatrix array) {
+    RealMatrix sigma =
+        RealMatrices.mmul(RealArrayMatrix::new, array, Transpose.YES, 1.0, array, Transpose.NO,
             1.0 / array.rows());
     return decomposer.decompose(sigma);
   }

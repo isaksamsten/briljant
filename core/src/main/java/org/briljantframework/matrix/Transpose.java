@@ -41,7 +41,7 @@ public enum Transpose {
    *
    * @return the int
    */
-  public String getCblasTranspose() {
+  public String getTransString() {
     return trans;
   }
 }

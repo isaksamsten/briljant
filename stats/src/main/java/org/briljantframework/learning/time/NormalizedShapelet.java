@@ -16,8 +16,8 @@
 
 package org.briljantframework.learning.time;
 
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.RealMatrices;
+import org.briljantframework.matrix.RealMatrixLike;
 
 /**
  * A z-normalized sub sequence view of another MatrixLike
@@ -29,14 +29,14 @@ public class NormalizedShapelet extends Shapelet {
   private final double sigma;
   private final double mean;
 
-  public NormalizedShapelet(int start, int length, MatrixLike vector) {
+  public NormalizedShapelet(int start, int length, RealMatrixLike vector) {
     super(start, length, vector);
     Shapelet shapelet = Shapelet.create(start, length, vector);
-    this.mean = Matrices.mean(shapelet);
+    this.mean = RealMatrices.mean(shapelet);
     if (length == 1) {
       this.sigma = 0.0;
     } else {
-      this.sigma = Matrices.std(shapelet, mean);
+      this.sigma = RealMatrices.std(shapelet, mean);
     }
   }
 
@@ -48,7 +48,7 @@ public class NormalizedShapelet extends Shapelet {
    * @param vectorLike the vector like
    * @return the normalized shapelet
    */
-  public static NormalizedShapelet create(int start, int length, MatrixLike vectorLike) {
+  public static NormalizedShapelet create(int start, int length, RealMatrixLike vectorLike) {
     return new NormalizedShapelet(start, length, vectorLike);
   }
 

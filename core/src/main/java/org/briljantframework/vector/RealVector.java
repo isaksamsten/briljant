@@ -16,19 +16,37 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class DoubleVector extends AbstractDoubleVector {
+public class RealVector extends AbstractRealVector {
 
   public static final double NA = Double.NaN;
 
   private final double[] values;
 
-  public DoubleVector(double... values) {
-    this.values = Arrays.copyOf(values, values.length);
-  }
-
-  public DoubleVector(double[] values, int size) {
+  public RealVector(double[] values, int size) {
     Preconditions.checkArgument(values.length > 0);
     this.values = Arrays.copyOf(values, size);
+  }
+
+  public RealVector(double... values) {
+    this(true, values);
+  }
+
+  protected RealVector(boolean copy, double... values) {
+    if (copy) {
+      this.values = Arrays.copyOf(values, values.length);
+    } else {
+      this.values = values;
+    }
+  }
+
+  /**
+   * Construct a new {@code Vector} using the supplied values. Performs no copying.
+   * 
+   * @param values the values
+   * @return the double vector
+   */
+  public static RealVector wrap(double... values) {
+    return new RealVector(false, values);
   }
 
   public static Vector.Builder newBuilderWithInitialValues(double... values) {
@@ -40,7 +58,7 @@ public class DoubleVector extends AbstractDoubleVector {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double getAsReal(int index) {
     return values[index];
   }
 
@@ -50,18 +68,18 @@ public class DoubleVector extends AbstractDoubleVector {
   }
 
   @Override
-  public DoubleVector.Builder newCopyBuilder() {
-    return new DoubleVector.Builder(this);
+  public RealVector.Builder newCopyBuilder() {
+    return new RealVector.Builder(this);
   }
 
   @Override
-  public DoubleVector.Builder newBuilder() {
-    return new DoubleVector.Builder();
+  public RealVector.Builder newBuilder() {
+    return new RealVector.Builder();
   }
 
   @Override
-  public DoubleVector.Builder newBuilder(int size) {
-    return new DoubleVector.Builder(size);
+  public RealVector.Builder newBuilder(int size) {
+    return new RealVector.Builder(size);
   }
 
   @Override
@@ -85,7 +103,7 @@ public class DoubleVector extends AbstractDoubleVector {
 
       @Override
       public Double next() {
-        return getAsDouble(current++);
+        return getAsReal(current++);
       }
     };
   }
@@ -114,14 +132,14 @@ public class DoubleVector extends AbstractDoubleVector {
       }
     }
 
-    public Builder(DoubleVector vector) {
+    public Builder(RealVector vector) {
       this.buffer = DoubleArrayList.from(vector.asDoubleArray());
     }
 
     @Override
     public Builder setNA(int index) {
       ensureCapacity(index);
-      buffer.buffer[index] = DoubleVector.NA;
+      buffer.buffer[index] = RealVector.NA;
       return this;
     }
 
@@ -143,14 +161,14 @@ public class DoubleVector extends AbstractDoubleVector {
     @Override
     public Builder set(int atIndex, Vector from, int fromIndex) {
       ensureCapacity(atIndex);
-      buffer.buffer[atIndex] = from.getAsDouble(fromIndex);
+      buffer.buffer[atIndex] = from.getAsReal(fromIndex);
       return this;
     }
 
     @Override
     public Builder set(int index, Object value) {
       ensureCapacity(index);
-      double dval = DoubleVector.NA;
+      double dval = RealVector.NA;
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else if (value instanceof Complex) {
@@ -169,7 +187,7 @@ public class DoubleVector extends AbstractDoubleVector {
     @Override
     public Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        add(from.getAsDouble(i));
+        add(from.getAsReal(i));
       }
       return this;
     }
@@ -194,8 +212,8 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     @Override
-    public DoubleVector create() {
-      DoubleVector vec = new DoubleVector(buffer.buffer, size());
+    public RealVector create() {
+      RealVector vec = new RealVector(buffer.buffer, size());
       buffer = null;
       return vec;
     }

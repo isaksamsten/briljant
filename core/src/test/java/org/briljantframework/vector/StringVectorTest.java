@@ -30,10 +30,10 @@ public class StringVectorTest {
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(2.3, strings.getAsDouble(5), 0);
-    assertEquals(1, strings.getAsDouble(4), 0);
-    assertEquals(DoubleVector.NA, strings.getAsDouble(0), 0);
-    assertEquals(DoubleVector.NA, strings.getAsDouble(strings.size() - 1), 0);
+    assertEquals(2.3, strings.getAsReal(5), 0);
+    assertEquals(1, strings.getAsReal(4), 0);
+    assertEquals(RealVector.NA, strings.getAsReal(0), 0);
+    assertEquals(RealVector.NA, strings.getAsReal(strings.size() - 1), 0);
 
   }
 

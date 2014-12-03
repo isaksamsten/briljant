@@ -10,10 +10,10 @@ import org.briljantframework.chart.Chartable;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.io.CsvInputStream;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrices;
+import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.RealMatrixLike;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -270,7 +270,7 @@ public class RandomShapeletForestTest {
 
   }
 
-  private JFreeChart bar(Matrix x, String xlabel, Matrix y, String ylabel) {
+  private JFreeChart bar(RealMatrix x, String xlabel, RealMatrix y, String ylabel) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
 
@@ -287,7 +287,7 @@ public class RandomShapeletForestTest {
     return Chartable.applyTheme(chart);
   }
 
-  public JFreeChart area(Matrix x, String xlabel, Matrix y, String ylabel) {
+  public JFreeChart area(RealMatrix x, String xlabel, RealMatrix y, String ylabel) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     XYSeries series = new XYSeries("Series");
@@ -310,11 +310,11 @@ public class RandomShapeletForestTest {
 
   @Test
   public void testCreateSizePlot() throws Exception {
-    Matrix error =
-        DenseMatrix.columnVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
+    RealMatrix error =
+        RealArrayMatrix.columnVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
             0.1738586474, 0.1724606892);
-    Matrix errors =
-        Matrices
+    RealMatrix errors =
+        RealMatrices
             .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
                 + "0.249,0.249,0.249,0.249,0.249,0.249;"
                 + "0.190,0.190,0.190,0.190,0.190,0.190;"
@@ -322,7 +322,7 @@ public class RandomShapeletForestTest {
     System.out.println(errors);
 
 
-    Matrix size = DenseMatrix.columnVector(10, 25, 50, 100, 250, 500);
+    RealMatrix size = RealArrayMatrix.columnVector(10, 25, 50, 100, 250, 500);
     JFreeChart errorChart =
         plot(size, "No. trees", errors, "Average error", new String[] {"RSF", "1-NN",
             "1-NN DTW-best", "1-NN DTW-no"});
@@ -330,8 +330,8 @@ public class RandomShapeletForestTest {
     errorChart.getLegend().setMargin(0, 45, -7, 0);
     Chartable.saveSVG("/Users/isak/Desktop/no_trees_error.svg", errorChart, 300, 140);
 
-    Matrix auc =
-        DenseMatrix.columnVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
+    RealMatrix auc =
+        RealArrayMatrix.columnVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
             0.9582902467, 0.959242855);
     JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
     ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);
@@ -339,7 +339,8 @@ public class RandomShapeletForestTest {
 
   }
 
-  public JFreeChart plot(MatrixLike x, String xlabel, MatrixLike y, String ylabel, String[] labels) {
+  public JFreeChart plot(RealMatrixLike x, String xlabel, RealMatrixLike y, String ylabel,
+      String[] labels) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     for (int i = 0; i < y.rows(); i++) {
@@ -381,7 +382,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(MatrixLike x, String xlabel, MatrixLike y, String ylabel) {
+  public JFreeChart plot(RealMatrixLike x, String xlabel, RealMatrixLike y, String ylabel) {
     return plot(x, xlabel, y, ylabel, (String[]) null);
   }
 
@@ -511,12 +512,12 @@ public class RandomShapeletForestTest {
     //
   }
 
-  public JFreeChart plotRows(Matrix x, Matrix ys, Vector targets) {
+  public JFreeChart plotRows(RealMatrix x, RealMatrix ys, Vector targets) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     for (int i = 0; i < ys.rows(); i++) {
       XYSeries series = new XYSeries("" + i);
-      Matrix y = ys.getRow(i);
+      RealMatrix y = ys.getRow(i);
       for (int j = 0; j < x.size(); j++) {
         series.add(x.get(j), y.get(j));
       }
@@ -534,7 +535,8 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(MatrixLike x, String xlabel, MatrixLike y, String ylabel, MatrixLike e) {
+  public JFreeChart plot(RealMatrixLike x, String xlabel, RealMatrixLike y, String ylabel,
+      RealMatrixLike e) {
     XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
     XYIntervalSeries series = new XYIntervalSeries("Series");
     for (int i = 0; i < x.size(); i++) {

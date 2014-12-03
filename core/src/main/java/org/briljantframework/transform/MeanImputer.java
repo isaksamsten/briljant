@@ -17,8 +17,8 @@
 package org.briljantframework.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.MismatchException;
+import org.briljantframework.exception.MismatchException;
+import org.briljantframework.matrix.RealMatrix;
 
 /**
  * Created by Isak Karlsson on 12/08/14.
@@ -27,7 +27,7 @@ public class MeanImputer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    Matrix matrix = frame.asMatrix();
+    RealMatrix matrix = frame.asMatrix();
     double[] means = new double[matrix.columns()];
 
     for (int j = 0; j < matrix.columns(); j++) {

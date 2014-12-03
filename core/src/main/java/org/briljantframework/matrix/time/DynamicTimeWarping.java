@@ -16,8 +16,8 @@
 
 package org.briljantframework.matrix.time;
 
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrixLike;
 import org.briljantframework.matrix.distance.Distance;
 
 import com.google.common.primitives.Doubles;
@@ -46,7 +46,7 @@ public class DynamicTimeWarping implements Distance {
    */
   protected final Distance distance;
   private final int constraint;
-  private DenseMatrix dwt;
+  private RealArrayMatrix dwt;
 
   /**
    * Instantiates a new Dynamic time warping.
@@ -123,13 +123,13 @@ public class DynamicTimeWarping implements Distance {
   }
 
   @Override
-  public double distance(MatrixLike a, MatrixLike b) {
+  public double distance(RealMatrixLike a, RealMatrixLike b) {
     int n = a.size(), m = b.size();
 
     // NOTE: This makes DWT non-suitable for sharing it between threads.
     // it is also rather annoying.
     if (dwt == null || (dwt.rows() != a.size() && dwt.columns() != b.size())) {
-      dwt = DenseMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
+      dwt = RealArrayMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
     } else {
       dwt.fill(Double.POSITIVE_INFINITY);
     }

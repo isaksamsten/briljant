@@ -1,10 +1,10 @@
 package org.briljantframework.learning;
 
 
-import static org.briljantframework.matrix.Matrices.mmul;
-import static org.briljantframework.matrix.Matrices.randn;
+import static org.briljantframework.matrix.RealMatrices.mmul;
+import static org.briljantframework.matrix.RealMatrices.randn;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealMatrix;
 
 /**
  * Created by Isak Karlsson on 13/10/14.
@@ -21,8 +21,8 @@ public class TestMain {
     // Dataset dataset = in.read(DenseDataset.getFactory());
 
 
-    Matrix a = randn(1000, 10);
-    Matrix b = randn(10, 1000);
+    RealMatrix a = randn(1000, 10);
+    RealMatrix b = randn(10, 1000);
     long s = System.currentTimeMillis();
     for (int i = 0; i < 100; i++) {
       mmul(a, b);

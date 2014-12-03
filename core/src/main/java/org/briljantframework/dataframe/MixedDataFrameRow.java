@@ -31,7 +31,7 @@ class MixedDataFrameRow implements CompoundVector {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double getAsReal(int index) {
     return parent.getAsDouble(row, index);
   }
 

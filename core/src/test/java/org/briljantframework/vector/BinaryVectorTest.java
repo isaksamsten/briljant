@@ -26,9 +26,9 @@ public class BinaryVectorTest {
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(0, vector.getAsDouble(0), 0);
-    assertEquals(1, vector.getAsDouble(1), 0);
-    assertEquals(DoubleVector.NA, vector.getAsDouble(2), 0);
+    assertEquals(0, vector.getAsReal(0), 0);
+    assertEquals(1, vector.getAsReal(1), 0);
+    assertEquals(RealVector.NA, vector.getAsReal(2), 0);
   }
 
   @Test

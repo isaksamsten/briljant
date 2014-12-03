@@ -16,12 +16,12 @@ public class MixedDataFrameTest {
   @Test
   public void testName() throws Exception {
     StringVector a = new StringVector.Builder().add("a").add("b").add("c").create();
-    DoubleVector b = new DoubleVector.Builder().add(1).addNA().add(100.23).create();
+    RealVector b = new RealVector.Builder().add(1).addNA().add(100.23).create();
 
     DataFrame frame = new MixedDataFrame(a, b);
 
     DataFrame.Builder copy = frame.newCopyBuilder();
-    copy.addColumn(new DoubleVector.Builder().add(1).addNA().add(2));
+    copy.addColumn(new RealVector.Builder().add(1).addNA().add(2));
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < copy.columns(); j++) {
         copy.add(j, 1);
@@ -32,7 +32,7 @@ public class MixedDataFrameTest {
     System.out.println(frame);
     System.out.println(copy.create());
 
-    DataFrame.Builder builder = new MixedDataFrame.Builder(StringVector.TYPE, DoubleVector.TYPE);
+    DataFrame.Builder builder = new MixedDataFrame.Builder(StringVector.TYPE, RealVector.TYPE);
     for (int i = 0; i < 10; i++) {
       builder.set(i + 10, 1, 32.2);
       builder.set(i + 10, 0, "hello");
@@ -49,8 +49,8 @@ public class MixedDataFrameTest {
             "four", "four"), BinaryVector.newBuilderWithInitialValues(Binary.TRUE, Binary.FALSE,
             Binary.TRUE, 1), IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
             ComplexVector.newBuilderWithInitialValues(Complex.I, new Complex(2, 3), new Complex(2,
-                2), null, Complex.ZERO, 0.0), DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3,
-                4, 4, 5, 6));
+                2), null, Complex.ZERO, 0.0), RealVector.newBuilderWithInitialValues(0, 1, 2, 3, 4,
+                4, 5, 6));
 
     for (int i = 10; i < 20; i++) {
       for (int j = 0; j < bu.columns(); j++) {
@@ -106,7 +106,7 @@ public class MixedDataFrameTest {
   @Test
   public void testRemoveColumnUsingBuilder() throws Exception {
     StringVector a = new StringVector.Builder().add("a").add("b").add("c").addNA().create();
-    DoubleVector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).create();
+    RealVector b = new RealVector.Builder().add(1).add(1).add(2).add(100.23).create();
 
     DataFrame frame = new MixedDataFrame(a, b);
     frame = new RemoveIncompleteColumns().fitTransform(frame);

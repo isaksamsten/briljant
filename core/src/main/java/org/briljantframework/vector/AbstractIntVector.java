@@ -46,9 +46,9 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
   };
 
   @Override
-  public double getAsDouble(int index) {
+  public double getAsReal(int index) {
     int value = getAsInt(index);
-    return value == NA ? DoubleVector.NA : value;
+    return value == NA ? RealVector.NA : value;
   }
 
   @Override

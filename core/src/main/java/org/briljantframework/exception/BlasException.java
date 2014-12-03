@@ -1,4 +1,4 @@
-package org.briljantframework;
+package org.briljantframework.exception;
 
 /**
  * Created by Isak Karlsson on 02/12/14.

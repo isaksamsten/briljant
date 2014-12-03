@@ -10,11 +10,11 @@ import org.junit.Test;
 
 public class PseudoInverseTransformerTest {
 
-  private DenseMatrix matrix;
+  private RealArrayMatrix matrix;
 
   @Before
   public void setUp() throws Exception {
-    matrix = DenseMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
+    matrix = RealArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
     // 0, 1, 1, 1
         );
 
@@ -22,7 +22,7 @@ public class PseudoInverseTransformerTest {
 
   @Test
   public void testTransform() throws Exception {
-    Matrix inverse = LinearAlgebra.pinv(matrix);
+    RealMatrix inverse = LinearAlgebra.pinv(matrix);
 
     double[] expected =
         {-0.0256410256410256, 0.1794871794871795, -0.5299145299145301, 0.6410256410256413,
@@ -32,14 +32,14 @@ public class PseudoInverseTransformerTest {
 
     assertArrayEquals(expected, inverse.asDoubleArray(), 0.001);
 
-    Matrix a = Matrices.parseMatrix(DenseMatrix::new, "1,2,3; 1,2,3; 1,2,3; 1,2,3");
-    Diagonal x = Diagonal.of(3, 3, 1, 1, 1);
+    RealMatrix a = RealMatrices.parseMatrix(RealArrayMatrix::new, "1,2,3; 1,2,3; 1,2,3; 1,2,3");
+    RealDiagonal x = RealDiagonal.of(3, 3, 1, 1, 1);
 
     // System.out.println(matrix);
     //
     // System.out.println(Matrices.multiplyByDiagonal(a, x, DenseMatrix::new));
 
-    Matrix A = DenseMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
+    RealMatrix A = RealArrayMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
     System.out.println(A);
 
     SingularValueDecomposition svd = LinearAlgebra.svd(A);
@@ -63,13 +63,13 @@ public class PseudoInverseTransformerTest {
     System.out.println("Working by diagnoal");
     System.out.println(svd.v.mmuld(svd.s.transpose()));
 
-    DenseMatrix mmul =
-        Matrices.mmul(DenseMatrix::new, svd.v.mmuld(svd.s.transpose()), Transpose.NO, svd.u,
-            Transpose.YES);
+    RealArrayMatrix mmul =
+        RealMatrices.mmul(RealArrayMatrix::new, svd.v.mmuld(svd.s.transpose()), Transpose.NO,
+            svd.u, Transpose.YES);
     System.out.println(mmul);
 
 
-    DenseMatrix large = Matrices.randn(DenseMatrix::new, 1000, 100);
+    RealArrayMatrix large = RealMatrices.randn(RealArrayMatrix::new, 1000, 100);
 
     System.out.println(LinearAlgebra.pinv(A));
   }

@@ -90,7 +90,7 @@ public class IntVectorTest {
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(2.0, vector.getAsDouble(2), 0);
+    assertEquals(2.0, vector.getAsReal(2), 0);
   }
 
   @Test

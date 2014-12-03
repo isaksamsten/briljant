@@ -37,7 +37,7 @@ public class CsvOutputStream extends DataFrameOutputStream {
   private static final String DEFAULT_SEPARATOR = ",";
   private static IdentityHashMap<Type, String> TYPE_TO_NAME = new IdentityHashMap<>();
   static {
-    TYPE_TO_NAME.put(DoubleVector.TYPE, "numeric");
+    TYPE_TO_NAME.put(RealVector.TYPE, "numeric");
     TYPE_TO_NAME.put(IntVector.TYPE, "numeric");
     TYPE_TO_NAME.put(ComplexVector.TYPE, "numeric");
     TYPE_TO_NAME.put(BinaryVector.TYPE, "categoric");

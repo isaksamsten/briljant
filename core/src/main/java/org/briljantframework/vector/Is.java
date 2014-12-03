@@ -47,7 +47,7 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(double value) {
-    return DoubleVector.TYPE.isNA(value);
+    return RealVector.TYPE.isNA(value);
   }
 
   /**

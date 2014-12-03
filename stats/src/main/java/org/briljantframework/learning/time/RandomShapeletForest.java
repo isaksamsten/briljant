@@ -21,8 +21,8 @@ import org.briljantframework.learning.Classifier;
 import org.briljantframework.learning.Prediction;
 import org.briljantframework.learning.ensemble.Ensemble;
 import org.briljantframework.learning.ensemble.Sampler;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealMatrix;
 import org.briljantframework.matrix.distance.Distance;
 import org.briljantframework.vector.Vector;
 
@@ -57,8 +57,8 @@ public class RandomShapeletForest implements Classifier {
     for (org.briljantframework.learning.Model m : model.getModels()) {
       ShapeletTree.Model stModel = (ShapeletTree.Model) m;
 
-      Matrix lengthImportance = stModel.getLengthImportance();
-      Matrix positionImportance = stModel.getPositionImportance();
+      RealMatrix lengthImportance = stModel.getLengthImportance();
+      RealMatrix positionImportance = stModel.getPositionImportance();
       // double totalErrorReduction = stModel.getTotalErrorReduction();
       if (averageLengthImportance == null) {
         averageLengthImportance = new double[lengthImportance.columns()];
@@ -74,8 +74,8 @@ public class RandomShapeletForest implements Classifier {
     }
 
 
-    return new Model(DenseMatrix.columnVector(averageLengthImportance),
-        DenseMatrix.columnVector(averagePositionImportance), model);
+    return new Model(RealArrayMatrix.columnVector(averageLengthImportance),
+        RealArrayMatrix.columnVector(averagePositionImportance), model);
   }
 
   @Override
@@ -89,8 +89,8 @@ public class RandomShapeletForest implements Classifier {
   public static class Model implements org.briljantframework.learning.Model {
 
     private final Ensemble.Model model;
-    private final DenseMatrix lengthImportance;
-    private final DenseMatrix positionImportance;
+    private final RealArrayMatrix lengthImportance;
+    private final RealArrayMatrix positionImportance;
 
     /**
      * Instantiates a new Model.
@@ -99,7 +99,8 @@ public class RandomShapeletForest implements Classifier {
      * @param positionImportance the position importance
      * @param model the model
      */
-    public Model(DenseMatrix lengthImportance, DenseMatrix positionImportance, Ensemble.Model model) {
+    public Model(RealArrayMatrix lengthImportance, RealArrayMatrix positionImportance,
+        Ensemble.Model model) {
       this.lengthImportance = lengthImportance;
       this.model = model;
       this.positionImportance = positionImportance;
@@ -115,7 +116,7 @@ public class RandomShapeletForest implements Classifier {
      *
      * @return the length importance
      */
-    public Matrix getLengthImportance() {
+    public RealMatrix getLengthImportance() {
       return lengthImportance;
     }
 
@@ -124,7 +125,7 @@ public class RandomShapeletForest implements Classifier {
      *
      * @return the position importance
      */
-    public Matrix getPositionImportance() {
+    public RealMatrix getPositionImportance() {
       return positionImportance;
     }
   }

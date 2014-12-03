@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
+import org.briljantframework.exception.MismatchException;
+import org.briljantframework.exception.NonConformantException;
 import org.briljantframework.matrix.math.Javablas;
 
 import com.carrotsearch.hppc.DoubleArrayList;
@@ -36,7 +38,7 @@ import com.google.common.primitives.Ints;
  * <p>
  * Created by Isak Karlsson on 21/06/14.
  */
-public class Matrices {
+public class RealMatrices {
 
   /**
    * The constant RANDOM.
@@ -55,8 +57,8 @@ public class Matrices {
    * @param str the str
    * @return the matrix
    */
-  public static Matrix parseMatrix(String str) {
-    return parseMatrix(DenseMatrix::new, str);
+  public static RealMatrix parseMatrix(String str) {
+    return parseMatrix(RealArrayMatrix::new, str);
   }
 
   /**
@@ -67,7 +69,7 @@ public class Matrices {
    * @param str the str
    * @return the out
    */
-  public static <Out extends Matrix> Out parseMatrix(Matrix.New<Out> f, String str) {
+  public static <Out extends RealMatrix> Out parseMatrix(RealMatrix.New<Out> f, String str) {
     Preconditions.checkArgument(str != null && str.length() > 0);
 
     String[] rows = ROW_SEPARATOR.split(str);
@@ -97,8 +99,8 @@ public class Matrices {
    * @param cols the cols
    * @return the dense matrix
    */
-  public static Matrix zero(int rows, int cols) {
-    return zeros(DenseMatrix::new, rows, cols);
+  public static RealMatrix zero(int rows, int cols) {
+    return zeros(RealArrayMatrix::new, rows, cols);
   }
 
   /**
@@ -110,7 +112,7 @@ public class Matrices {
    * @param cols the cols
    * @return the out
    */
-  public static <Out extends Matrix> Out zeros(Matrix.New<Out> f, int rows, int cols) {
+  public static <Out extends RealMatrix> Out zeros(RealMatrix.New<Out> f, int rows, int cols) {
     return f.newMatrix(rows, cols);
   }
 
@@ -120,7 +122,7 @@ public class Matrices {
    * @param size the size
    * @return the dense matrix
    */
-  public static Matrix ones(int size) {
+  public static RealMatrix ones(int size) {
     return ones(size, size);
   }
 
@@ -131,8 +133,8 @@ public class Matrices {
    * @param cols the cols
    * @return the matrix
    */
-  public static Matrix ones(int rows, int cols) {
-    return ones(DenseMatrix::new, rows, cols);
+  public static RealMatrix ones(int rows, int cols) {
+    return ones(RealArrayMatrix::new, rows, cols);
   }
 
   /**
@@ -144,7 +146,7 @@ public class Matrices {
    * @param cols the cols
    * @return the out
    */
-  public static <Out extends Matrix> Out ones(Matrix.New<Out> f, int rows, int cols) {
+  public static <Out extends RealMatrix> Out ones(RealMatrix.New<Out> f, int rows, int cols) {
     Out out = f.newMatrix(rows, cols);
     map(out, ignore -> 1, out);
     return out;
@@ -162,7 +164,7 @@ public class Matrices {
    * @param operator operator to apply
    * @param out the out
    */
-  public static void map(Matrix in, DoubleUnaryOperator operator, Matrix out) {
+  public static void map(RealMatrix in, DoubleUnaryOperator operator, RealMatrix out) {
     for (int i = 0; i < in.size(); i++) {
       out.put(i, operator.applyAsDouble(in.get(i)));
     }
@@ -176,10 +178,10 @@ public class Matrices {
    * @param n the n
    * @return the dense matrix
    */
-  public static Matrix n(int rows, int cols, double n) {
+  public static RealMatrix n(int rows, int cols, double n) {
     double[] values = new double[rows * cols];
     Arrays.fill(values, n);
-    return DenseMatrix.fromColumnOrder(rows, cols, values);
+    return RealArrayMatrix.fromColumnOrder(rows, cols, values);
   }
 
   /**
@@ -188,12 +190,12 @@ public class Matrices {
    * @param size the size
    * @return the diagonal
    */
-  public static Diagonal eye(int size) {
+  public static RealDiagonal eye(int size) {
     double[] diagonal = new double[size];
     for (int i = 0; i < size; i++) {
       diagonal[i] = 1;
     }
-    return Diagonal.of(size, size, diagonal);
+    return RealDiagonal.of(size, size, diagonal);
   }
 
 
@@ -204,12 +206,12 @@ public class Matrices {
    * @param cols the cols
    * @return the diagonal
    */
-  public static Diagonal eye(int rows, int cols) {
+  public static RealDiagonal eye(int rows, int cols) {
     double[] diagonal = new double[rows * cols];
     for (int i = 0; i < diagonal.length; i++) {
       diagonal[i] = 1;
     }
-    return Diagonal.of(rows, cols, diagonal);
+    return RealDiagonal.of(rows, cols, diagonal);
   }
 
   /**
@@ -218,8 +220,8 @@ public class Matrices {
    * @param matrix the matrix
    * @return the matrix
    */
-  public static Matrix sqrt(Matrix matrix) {
-    return sqrt(DenseMatrix::new, matrix);
+  public static RealMatrix sqrt(RealMatrix matrix) {
+    return sqrt(RealArrayMatrix::new, matrix);
   }
 
   /**
@@ -230,7 +232,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static <Out extends Matrix> Out sqrt(Matrix.New<Out> out, Matrix in) {
+  public static <Out extends RealMatrix> Out sqrt(RealMatrix.New<Out> out, RealMatrix in) {
     return map(out, in, Math::sqrt);
   }
 
@@ -245,7 +247,7 @@ public class Matrices {
    * @param operator the operator
    * @return out out
    */
-  public static <Out extends Matrix> Out map(Matrix.New<Out> f, Matrix in,
+  public static <Out extends RealMatrix> Out map(RealMatrix.New<Out> f, RealMatrix in,
       DoubleUnaryOperator operator) {
     Out out = f.newMatrix(in.getShape());
     map(in, operator, out);
@@ -259,8 +261,8 @@ public class Matrices {
    * @param operator the operator
    * @return the matrix
    */
-  public static Matrix map(Matrix in, DoubleUnaryOperator operator) {
-    return map(DenseMatrix::new, in, operator);
+  public static RealMatrix map(RealMatrix in, DoubleUnaryOperator operator) {
+    return map(RealArrayMatrix::new, in, operator);
   }
 
   /**
@@ -269,8 +271,8 @@ public class Matrices {
    * @param matrix the matrix
    * @return the matrix
    */
-  public static Matrix log(Matrix matrix) {
-    return log(DenseMatrix::new, matrix);
+  public static RealMatrix log(RealMatrix matrix) {
+    return log(RealArrayMatrix::new, matrix);
   }
 
   /**
@@ -281,7 +283,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static <Out extends Matrix> Out log(Matrix.New<Out> out, Matrix in) {
+  public static <Out extends RealMatrix> Out log(RealMatrix.New<Out> out, RealMatrix in) {
     return map(out, in, Math::log);
   }
 
@@ -291,8 +293,8 @@ public class Matrices {
    * @param matrix the matrix
    * @return the matrix
    */
-  public static Matrix log2(Matrix matrix) {
-    return log2(DenseMatrix::new, matrix);
+  public static RealMatrix log2(RealMatrix matrix) {
+    return log2(RealArrayMatrix::new, matrix);
   }
 
   /**
@@ -303,7 +305,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static <Out extends Matrix> Out log2(Matrix.New<Out> out, Matrix in) {
+  public static <Out extends RealMatrix> Out log2(RealMatrix.New<Out> out, RealMatrix in) {
     return map(out, in, x -> Math.log(x) / LOG_2);
   }
 
@@ -314,8 +316,8 @@ public class Matrices {
    * @param diagonal the diagonal
    * @return the matrix
    */
-  public static Matrix mdmul(Matrix m, Diagonal diagonal) {
-    return mdmul(DenseMatrix::new, m, diagonal);
+  public static RealMatrix mdmul(RealMatrix m, RealDiagonal diagonal) {
+    return mdmul(RealArrayMatrix::new, m, diagonal);
   }
 
   /**
@@ -327,7 +329,7 @@ public class Matrices {
    * @param d a diagonal matrix
    * @return a new array with the same dimensions as x
    */
-  public static <T extends Matrix> T mdmul(Matrix.New<T> f, Matrix m, Diagonal d) {
+  public static <T extends RealMatrix> T mdmul(RealMatrix.New<T> f, RealMatrix m, RealDiagonal d) {
     Shape shape = Shape.of(m.rows(), d.columns());
     double[] empty = shape.getArrayOfShape();
     mdmuli(m, d, empty);
@@ -356,7 +358,7 @@ public class Matrices {
    * @param d a diagonal matrix
    * @param y a square matrix with x.shape = out.shape
    */
-  public static void mdmuli(Matrix x, Diagonal d, double[] y) {
+  public static void mdmuli(RealMatrix x, RealDiagonal d, double[] y) {
     if (x.columns() != d.rows()) {
       throw new NonConformantException(x, d);
     }
@@ -381,8 +383,8 @@ public class Matrices {
    * @param m the m
    * @return the matrix
    */
-  public static Matrix dmmul(Diagonal d, Matrix m) {
-    return dmmul(DenseMatrix::new, d, m);
+  public static RealMatrix dmmul(RealDiagonal d, RealMatrix m) {
+    return dmmul(RealArrayMatrix::new, d, m);
   }
 
   /**
@@ -394,7 +396,7 @@ public class Matrices {
    * @param m a square matrix with x.headers = d.size
    * @return the result
    */
-  public static <T extends Matrix> T dmmul(Matrix.New<T> f, Diagonal d, Matrix m) {
+  public static <T extends RealMatrix> T dmmul(RealMatrix.New<T> f, RealDiagonal d, RealMatrix m) {
     Shape shape = Shape.of(d.rows(), m.columns());
     double[] array = shape.getArrayOfShape();
     dmmuli(d, m, array);
@@ -414,7 +416,7 @@ public class Matrices {
    * @param x a square matrix with x.rows = d.size
    * @param y a square matrix with x.shape = y.shape
    */
-  public static void dmmuli(Diagonal d, Matrix x, double[] y) {
+  public static void dmmuli(RealDiagonal d, RealMatrix x, double[] y) {
     if (d.columns() != x.rows()) {
       throw new NonConformantException(d, x);
     }
@@ -436,7 +438,7 @@ public class Matrices {
    * @param matrix the matrix
    * @param value the value
    */
-  public static void fill(Matrix matrix, double value) {
+  public static void fill(RealMatrix matrix, double value) {
     for (int i = 0; i < matrix.columns(); i++) {
       for (int j = 0; j < matrix.rows(); j++) {
         matrix.put(j, i, value);
@@ -454,7 +456,7 @@ public class Matrices {
    * @param booleanMatrix the boolean matrix
    * @return out out
    */
-  public static <Out extends Matrix> Out find(Matrix.New<Out> factory, Matrix matrix,
+  public static <Out extends RealMatrix> Out find(RealMatrix.New<Out> factory, RealMatrix matrix,
       BooleanMatrix booleanMatrix) {
     checkArgument(matrix.hasCompatibleShape(booleanMatrix.getShape()));
     DoubleArrayList list = new DoubleArrayList();
@@ -476,8 +478,8 @@ public class Matrices {
    * @param base the base
    * @return the matrix
    */
-  public static Matrix linspace(int limit, int n, int base) {
-    return linspace(DenseMatrix::new, limit, n, base);
+  public static RealMatrix linspace(int limit, int n, int base) {
+    return linspace(RealArrayMatrix::new, limit, n, base);
   }
 
   /**
@@ -490,7 +492,8 @@ public class Matrices {
    * @param base the base
    * @return the out
    */
-  public static <Out extends Matrix> Out linspace(Matrix.New<Out> f, int limit, int n, int base) {
+  public static <Out extends RealMatrix> Out linspace(RealMatrix.New<Out> f, int limit, int n,
+      int base) {
     double[] tensor = new double[n];
     double step = ((double) limit - base) / (n - 1);
 
@@ -510,8 +513,8 @@ public class Matrices {
    * @param cols the cols
    * @return the matrix
    */
-  public static Matrix zeros(int rows, int cols) {
-    return zeros(DenseMatrix::new, rows, cols);
+  public static RealMatrix zeros(int rows, int cols) {
+    return zeros(RealArrayMatrix::new, rows, cols);
   }
 
   /**
@@ -522,8 +525,8 @@ public class Matrices {
    * @param cols the cols
    * @return the out
    */
-  public static Matrix reshape(Matrix in, int rows, int cols) {
-    return reshape(DenseMatrix::new, in, rows, cols);
+  public static RealMatrix reshape(RealMatrix in, int rows, int cols) {
+    return reshape(RealArrayMatrix::new, in, rows, cols);
   }
 
   /**
@@ -536,7 +539,8 @@ public class Matrices {
    * @param cols the cols
    * @return the out
    */
-  public static <Out extends Matrix> Out reshape(Matrix.Copy<Out> f, Matrix in, int rows, int cols) {
+  public static <Out extends RealMatrix> Out reshape(RealMatrix.Copy<Out> f, RealMatrix in,
+      int rows, int cols) {
     if (!in.hasCompatibleShape(rows, cols)) {
       throw new MismatchException("reshape", String.format(
           "can't reshape %s tensor into %s tensor", in.getShape(), Shape.of(rows, cols)));
@@ -551,8 +555,8 @@ public class Matrices {
    * @param axis the axis
    * @return the matrix
    */
-  public static Matrix std(Matrix matrix, Axis axis) {
-    return std(DenseMatrix::new, matrix, axis);
+  public static RealMatrix std(RealMatrix matrix, Axis axis) {
+    return std(RealArrayMatrix::new, matrix, axis);
   }
 
   /**
@@ -564,8 +568,8 @@ public class Matrices {
    * @param axis the axis
    * @return the out
    */
-  public static <Out extends Matrix> Out std(Matrix.New<Out> f, Matrix matrix, Axis axis) {
-    Matrix mean = mean(matrix, axis);
+  public static <Out extends RealMatrix> Out std(RealMatrix.New<Out> f, RealMatrix matrix, Axis axis) {
+    RealMatrix mean = mean(matrix, axis);
     int columns = matrix.columns();
     double[] sigmas = new double[columns];
 
@@ -587,8 +591,8 @@ public class Matrices {
    * @param axis the axis
    * @return the matrix
    */
-  public static Matrix mean(Matrix matrixLike, Axis axis) {
-    return mean(DenseMatrix::new, matrixLike, axis);
+  public static RealMatrix mean(RealMatrix matrixLike, Axis axis) {
+    return mean(RealArrayMatrix::new, matrixLike, axis);
   }
 
   /**
@@ -600,7 +604,8 @@ public class Matrices {
    * @param axis the axis
    * @return the out
    */
-  public static <Out extends Matrix> Out mean(Matrix.New<Out> f, Matrix matrix, Axis axis) {
+  public static <Out extends RealMatrix> Out mean(RealMatrix.New<Out> f, RealMatrix matrix,
+      Axis axis) {
     int columns = matrix.columns();
     double[] means = new double[matrix.columns()];
     for (int j = 0; j < matrix.columns(); j++) {
@@ -621,8 +626,8 @@ public class Matrices {
    * @param cols the cols
    * @return the matrix
    */
-  public static Matrix randn(int rows, int cols) {
-    return randn(DenseMatrix::new, rows, cols);
+  public static RealMatrix randn(int rows, int cols) {
+    return randn(RealArrayMatrix::new, rows, cols);
   }
 
   /**
@@ -634,7 +639,7 @@ public class Matrices {
    * @param cols the cols
    * @return out out
    */
-  public static <Out extends Matrix> Out randn(Matrix.New<Out> factory, int rows, int cols) {
+  public static <Out extends RealMatrix> Out randn(RealMatrix.New<Out> factory, int rows, int cols) {
     Shape shape = Shape.of(rows, cols);
     double[] array = shape.getArrayOfShape();
     randn(array);
@@ -659,8 +664,8 @@ public class Matrices {
    * @param cols the cols
    * @return the matrix
    */
-  public static Matrix rand(int rows, int cols) {
-    return rand(DenseMatrix::new, rows, cols);
+  public static RealMatrix rand(int rows, int cols) {
+    return rand(RealArrayMatrix::new, rows, cols);
   }
 
   /**
@@ -672,7 +677,7 @@ public class Matrices {
    * @param cols the cols
    * @return out out
    */
-  public static <Out extends Matrix> Out rand(Matrix.New<Out> f, int rows, int cols) {
+  public static <Out extends RealMatrix> Out rand(RealMatrix.New<Out> f, int rows, int cols) {
     Shape shape = Shape.of(rows, cols);
     double[] array = shape.getArrayOfShape();
     rand(array);
@@ -697,8 +702,8 @@ public class Matrices {
    * @param power the power
    * @return the out
    */
-  public static Matrix pow(Matrix in, double power) {
-    return pow(DenseMatrix::new, in, power);
+  public static RealMatrix pow(RealMatrix in, double power) {
+    return pow(RealArrayMatrix::new, in, power);
   }
 
   /**
@@ -710,7 +715,8 @@ public class Matrices {
    * @param power the power
    * @return out out
    */
-  public static <Out extends Matrix> Out pow(Matrix.New<Out> factory, Matrix in, double power) {
+  public static <Out extends RealMatrix> Out pow(RealMatrix.New<Out> factory, RealMatrix in,
+      double power) {
     switch ((int) power) {
       case 2:
         return map(factory, in, x -> x * x);
@@ -731,7 +737,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static <Out extends Matrix> Out log10(Matrix.New<Out> out, Matrix in) {
+  public static <Out extends RealMatrix> Out log10(RealMatrix.New<Out> out, RealMatrix in) {
     return map(out, in, Math::log10);
   }
 
@@ -743,7 +749,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static <Out extends Matrix> Out sign(Matrix.New<Out> out, Matrix in) {
+  public static <Out extends RealMatrix> Out sign(RealMatrix.New<Out> out, RealMatrix in) {
     return map(out, in, Math::signum);
   }
 
@@ -756,7 +762,8 @@ public class Matrices {
    * @param transB transpose b
    * @param out output array
    */
-  public static void mmuli(Matrix a, Transpose transA, Matrix b, Transpose transB, double[] out) {
+  public static void mmuli(RealMatrix a, Transpose transA, RealMatrix b, Transpose transB,
+      double[] out) {
     mmuli(a, transA, 1, b, transB, 1, out);
   }
 
@@ -803,8 +810,8 @@ public class Matrices {
    * @param beta a scaling factor for out
    * @param out a rectangular array
    */
-  public static void mmuli(Matrix a, Transpose transA, double alpha, Matrix b, Transpose transB,
-      double beta, double[] out) {
+  public static void mmuli(RealMatrix a, Transpose transA, double alpha, RealMatrix b,
+      Transpose transB, double beta, double[] out) {
     int am = a.rows(), an = a.columns(), bm = b.rows(), bn = b.columns();
     if (transA == Transpose.YES) {
       int tmp = am;
@@ -821,15 +828,9 @@ public class Matrices {
     if (an != bm) {
       throw new NonConformantException("a", am, an, "b", bm, bn);
     }
-    BLAS.getInstance().dgemm(transA.getCblasTranspose(), transB.getCblasTranspose(), a.rows(),
+    BLAS.getInstance().dgemm(transA.getTransString(), transB.getTransString(), a.rows(),
         b.columns(), b.rows(), alpha, a.asDoubleArray(), a.rows(), b.asDoubleArray(), b.rows(),
         beta, out, a.rows());
-
-    // cblas_dgemm(CblasColMajor, transA.getCblasTranspose(), transB.getCblasTranspose(),
-    // // M N K
-    // am, bn, bm, alpha, a.asDoubleArray(),
-    // // LDA LDB LDC
-    // a.rows(), b.asDoubleArray(), b.rows(), beta, out, am);
   }
 
   /**
@@ -841,8 +842,8 @@ public class Matrices {
    * @param transB the trans b
    * @return the matrix
    */
-  public static Matrix mmul(Matrix a, Transpose transA, Matrix b, Transpose transB) {
-    return mmul(DenseMatrix::new, a, transA, b, transB);
+  public static RealMatrix mmul(RealMatrix a, Transpose transA, RealMatrix b, Transpose transB) {
+    return mmul(RealArrayMatrix::new, a, transA, b, transB);
   }
 
   /**
@@ -856,8 +857,8 @@ public class Matrices {
    * @param transB the trans b
    * @return the out
    */
-  public static <Out extends Matrix> Out mmul(Matrix.New<Out> f, Matrix a, Transpose transA,
-      Matrix b, Transpose transB) {
+  public static <Out extends RealMatrix> Out mmul(RealMatrix.New<Out> f, RealMatrix a,
+      Transpose transA, RealMatrix b, Transpose transB) {
     return mmul(f, a, transA, 1.0, b, transB, 1.0);
   }
 
@@ -874,8 +875,8 @@ public class Matrices {
    * @param beta the beta
    * @return the out
    */
-  public static <Out extends Matrix> Out mmul(Matrix.New<Out> f, Matrix a, Transpose transA,
-      double alpha, Matrix b, Transpose transB, double beta) {
+  public static <Out extends RealMatrix> Out mmul(RealMatrix.New<Out> f, RealMatrix a,
+      Transpose transA, double alpha, RealMatrix b, Transpose transB, double beta) {
     int am = a.rows(), an = a.columns(), bm = b.rows(), bn = b.columns();
     if (transA == Transpose.YES) {
       int tmp = am;
@@ -909,9 +910,9 @@ public class Matrices {
    * @param beta the beta
    * @return the matrix
    */
-  public static Matrix mmul(Matrix a, Transpose transA, double alpha, Matrix b, Transpose transB,
-      double beta) {
-    return mmul(DenseMatrix::new, a, transA, alpha, b, transB, beta);
+  public static RealMatrix mmul(RealMatrix a, Transpose transA, double alpha, RealMatrix b,
+      Transpose transB, double beta) {
+    return mmul(RealArrayMatrix::new, a, transA, alpha, b, transB, beta);
   }
 
   /**
@@ -923,8 +924,8 @@ public class Matrices {
    * @param beta the beta
    * @return the matrix
    */
-  public static Matrix mmul(Matrix a, double alpha, Matrix b, double beta) {
-    return mmul(DenseMatrix::new, a, alpha, b, beta);
+  public static RealMatrix mmul(RealMatrix a, double alpha, RealMatrix b, double beta) {
+    return mmul(RealArrayMatrix::new, a, alpha, b, beta);
   }
 
   /**
@@ -938,8 +939,8 @@ public class Matrices {
    * @param beta the beta
    * @return the out
    */
-  public static <Out extends Matrix> Out mmul(Matrix.New<Out> f, Matrix a, double alpha, Matrix b,
-      double beta) {
+  public static <Out extends RealMatrix> Out mmul(RealMatrix.New<Out> f, RealMatrix a,
+      double alpha, RealMatrix b, double beta) {
     Shape shape = Shape.of(a.rows(), b.columns());
     double[] out = shape.getArrayOfShape();
     mmuli(a, alpha, b, beta, out);
@@ -955,7 +956,7 @@ public class Matrices {
    * @param beta the beta
    * @param out store the result in out
    */
-  public static void mmuli(Matrix a, double alpha, Matrix b, double beta, double[] out) {
+  public static void mmuli(RealMatrix a, double alpha, RealMatrix b, double beta, double[] out) {
     if (Shape.of(a.rows(), b.columns()).size() != out.length) {
       throw new MismatchException("multiply", "output array size does not match");
     }
@@ -976,7 +977,7 @@ public class Matrices {
    * @param in in
    * @param out out
    */
-  public static void abs(Matrix in, Matrix out) {
+  public static void abs(RealMatrix in, RealMatrix out) {
     Javablas.abs(in.asDoubleArray(), out.asDoubleArray());
   }
 
@@ -987,8 +988,8 @@ public class Matrices {
    * @param b the b
    * @return the matrix
    */
-  public static Matrix mmul(Matrix a, Matrix b) {
-    return mmul(DenseMatrix::new, a, b);
+  public static RealMatrix mmul(RealMatrix a, RealMatrix b) {
+    return mmul(RealArrayMatrix::new, a, b);
   }
 
   /**
@@ -1001,7 +1002,7 @@ public class Matrices {
    * @return a new matrix (a*b)
    * @throws NonConformantException if a.columns() != b.rows()
    */
-  public static <T extends Matrix> T mmul(Matrix.New<T> f, Matrix a, Matrix b) {
+  public static <T extends RealMatrix> T mmul(RealMatrix.New<T> f, RealMatrix a, RealMatrix b) {
     if (a.columns() != b.rows()) {
       throw new NonConformantException(a, b);
     }
@@ -1018,7 +1019,7 @@ public class Matrices {
    * @param b a rectangular array
    * @param out the out
    */
-  public static void mmuli(Matrix a, Matrix b, double[] out) {
+  public static void mmuli(RealMatrix a, RealMatrix b, double[] out) {
     mmuli(a, 1, b, 1, out);
   }
 
@@ -1029,8 +1030,8 @@ public class Matrices {
    * @param scalar the scalar
    * @return matrix matrix
    */
-  public static Matrix mul(Matrix in, double scalar) {
-    return mul(DenseMatrix::new, in, scalar);
+  public static RealMatrix mul(RealMatrix in, double scalar) {
+    return mul(RealArrayMatrix::new, in, scalar);
   }
 
   /**
@@ -1042,7 +1043,7 @@ public class Matrices {
    * @param scalar the scalar
    * @return the t
    */
-  public static <T extends Matrix> T mul(Matrix.New<T> f, Matrix in, double scalar) {
+  public static <T extends RealMatrix> T mul(RealMatrix.New<T> f, RealMatrix in, double scalar) {
     double[] outArray = in.getShape().getArrayOfShape();
     Javablas.mul(in.asDoubleArray(), scalar, outArray);
     return f.newMatrix(in.getShape(), outArray);
@@ -1055,8 +1056,8 @@ public class Matrices {
    * @param b the b
    * @return the matrix
    */
-  public static Matrix mul(Matrix a, Matrix b) {
-    return mul(DenseMatrix::new, a, b);
+  public static RealMatrix mul(RealMatrix a, RealMatrix b) {
+    return mul(RealArrayMatrix::new, a, b);
   }
 
   /**
@@ -1068,7 +1069,7 @@ public class Matrices {
    * @param b the b
    * @return t t
    */
-  public static <T extends Matrix> T mul(Matrix.New<T> factory, Matrix a, Matrix b) {
+  public static <T extends RealMatrix> T mul(RealMatrix.New<T> factory, RealMatrix a, RealMatrix b) {
     if (!a.hasEqualShape(b)) {
       throw new NonConformantException(a, b);
     }
@@ -1085,8 +1086,8 @@ public class Matrices {
    * @param b the b
    * @return the matrix
    */
-  public static Matrix add(Matrix a, Matrix b) {
-    return add(DenseMatrix::new, a, b);
+  public static RealMatrix add(RealMatrix a, RealMatrix b) {
+    return add(RealArrayMatrix::new, a, b);
   }
 
   /**
@@ -1098,7 +1099,7 @@ public class Matrices {
    * @param b the b
    * @return t t
    */
-  public static <T extends Matrix> T add(Matrix.New<T> factory, Matrix a, Matrix b) {
+  public static <T extends RealMatrix> T add(RealMatrix.New<T> factory, RealMatrix a, RealMatrix b) {
     if (!a.hasEqualShape(b)) {
       throw new NonConformantException(a, b);
     }
@@ -1115,8 +1116,8 @@ public class Matrices {
    * @param b the b
    * @return the matrix
    */
-  public static Matrix add(Matrix a, double b) {
-    return add(DenseMatrix::new, a, b);
+  public static RealMatrix add(RealMatrix a, double b) {
+    return add(RealArrayMatrix::new, a, b);
   }
 
   /**
@@ -1128,7 +1129,7 @@ public class Matrices {
    * @param b the b
    * @return t t
    */
-  public static <T extends Matrix> T add(Matrix.New<T> factory, Matrix a, double b) {
+  public static <T extends RealMatrix> T add(RealMatrix.New<T> factory, RealMatrix a, double b) {
     double[] out = a.getShape().getArrayOfShape();
     Javablas.add(a.asDoubleArray(), b, out);
     return factory.newMatrix(a.getShape(), out);
@@ -1141,8 +1142,8 @@ public class Matrices {
    * @param b the b
    * @return the matrix
    */
-  public static Matrix sub(Matrix a, double b) {
-    return sub(DenseMatrix::new, a, b);
+  public static RealMatrix sub(RealMatrix a, double b) {
+    return sub(RealArrayMatrix::new, a, b);
   }
 
   /**
@@ -1154,7 +1155,7 @@ public class Matrices {
    * @param b the b
    * @return t t
    */
-  public static <T extends Matrix> T sub(Matrix.New<T> factory, Matrix a, double b) {
+  public static <T extends RealMatrix> T sub(RealMatrix.New<T> factory, RealMatrix a, double b) {
     double[] out = a.getShape().getArrayOfShape();
     Javablas.sub(a.asDoubleArray(), b, out);
     return factory.newMatrix(a.getShape(), out);
@@ -1167,8 +1168,8 @@ public class Matrices {
    * @param a the a
    * @return the matrix
    */
-  public static Matrix sub(double b, Matrix a) {
-    return sub(DenseMatrix::new, b, a);
+  public static RealMatrix sub(double b, RealMatrix a) {
+    return sub(RealArrayMatrix::new, b, a);
   }
 
   /**
@@ -1180,7 +1181,7 @@ public class Matrices {
    * @param a the a
    * @return t t
    */
-  public static <T extends Matrix> T sub(Matrix.New<T> factory, double b, Matrix a) {
+  public static <T extends RealMatrix> T sub(RealMatrix.New<T> factory, double b, RealMatrix a) {
     double[] out = a.getShape().getArrayOfShape();
     Javablas.sub(b, a.asDoubleArray(), out);
     return factory.newMatrix(a.getShape(), out);
@@ -1193,8 +1194,8 @@ public class Matrices {
    * @param denom the denom
    * @return the matrix
    */
-  public static Matrix div(Matrix num, Matrix denom) {
-    return div(DenseMatrix::new, num, denom);
+  public static RealMatrix div(RealMatrix num, RealMatrix denom) {
+    return div(RealArrayMatrix::new, num, denom);
   }
 
   /**
@@ -1206,7 +1207,8 @@ public class Matrices {
    * @param denominator the denominator
    * @return t t
    */
-  public static <T extends Matrix> T div(Matrix.New<T> factory, Matrix numerator, Matrix denominator) {
+  public static <T extends RealMatrix> T div(RealMatrix.New<T> factory, RealMatrix numerator,
+      RealMatrix denominator) {
     if (!denominator.hasEqualShape(numerator)) {
       throw new NonConformantException(denominator, numerator);
     }
@@ -1223,8 +1225,8 @@ public class Matrices {
    * @param denom the denom
    * @return the matrix
    */
-  public static Matrix div(double num, Matrix denom) {
-    return div(DenseMatrix::new, num, denom);
+  public static RealMatrix div(double num, RealMatrix denom) {
+    return div(RealArrayMatrix::new, num, denom);
   }
 
   /**
@@ -1236,7 +1238,8 @@ public class Matrices {
    * @param denominator the denominator
    * @return t t
    */
-  public static <T extends Matrix> T div(Matrix.New<T> factory, double numerator, Matrix denominator) {
+  public static <T extends RealMatrix> T div(RealMatrix.New<T> factory, double numerator,
+      RealMatrix denominator) {
     double[] out = denominator.getShape().getArrayOfShape(); // denominator.rows(),
                                                              // numerator.columns());
     Javablas.div(numerator, denominator.asDoubleArray(), out);
@@ -1250,8 +1253,8 @@ public class Matrices {
    * @param denom the denom
    * @return the matrix
    */
-  public static Matrix div(Matrix num, double denom) {
-    return div(DenseMatrix::new, num, denom);
+  public static RealMatrix div(RealMatrix num, double denom) {
+    return div(RealArrayMatrix::new, num, denom);
   }
 
   /**
@@ -1263,7 +1266,8 @@ public class Matrices {
    * @param denominator the denominator
    * @return t t
    */
-  public static <T extends Matrix> T div(Matrix.New<T> factory, Matrix numerator, double denominator) {
+  public static <T extends RealMatrix> T div(RealMatrix.New<T> factory, RealMatrix numerator,
+      double denominator) {
     if (denominator == 0.0) {
       throw new ArithmeticException("division by zero");
     }
@@ -1278,7 +1282,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double std(MatrixLike vector) {
+  public static double std(RealMatrixLike vector) {
     return std(vector, mean(vector));
   }
 
@@ -1289,7 +1293,7 @@ public class Matrices {
    * @param mean the mean
    * @return the double
    */
-  public static double std(MatrixLike vector, double mean) {
+  public static double std(RealMatrixLike vector, double mean) {
     double var = var(vector, mean);
     return Math.sqrt(var / (vector.size() - 1));
   }
@@ -1300,7 +1304,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double mean(MatrixLike vector) {
+  public static double mean(RealMatrixLike vector) {
     double mean = 0;
     for (int i = 0; i < vector.size(); i++) {
       mean += vector.get(i);
@@ -1316,7 +1320,7 @@ public class Matrices {
    * @param mean the mean
    * @return the double
    */
-  public static double var(MatrixLike vector, double mean) {
+  public static double var(RealMatrixLike vector, double mean) {
     double var = 0;
     for (int i = 0; i < vector.size(); i++) {
       double residual = vector.get(i) - mean;
@@ -1331,7 +1335,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double var(MatrixLike vector) {
+  public static double var(RealMatrixLike vector) {
     return var(vector, mean(vector));
   }
 
@@ -1344,7 +1348,7 @@ public class Matrices {
    * @param comparator the comparator
    * @return the out
    */
-  public static <Out extends Matrix> Out sort(Matrix.Copy<Out> f, MatrixLike in,
+  public static <Out extends RealMatrix> Out sort(RealMatrix.Copy<Out> f, RealMatrixLike in,
       Comparator<Double> comparator) {
     Out newTensor = f.copyMatrix(in);
     List<Double> doubles = Doubles.asList(newTensor.asDoubleArray());
@@ -1360,7 +1364,7 @@ public class Matrices {
    * @param in the in
    * @return the out
    */
-  public static <Out extends Matrix> Out sort(Matrix.Copy<Out> f, MatrixLike in) {
+  public static <Out extends RealMatrix> Out sort(RealMatrix.Copy<Out> f, RealMatrixLike in) {
     Out newTensor = f.copyMatrix(in);
     Arrays.sort(newTensor.asDoubleArray());
     return newTensor;
@@ -1373,7 +1377,7 @@ public class Matrices {
    * @param in the in
    * @return the in
    */
-  public static <In extends Matrix> In sort(In in) {
+  public static <In extends RealMatrix> In sort(In in) {
     Arrays.sort(in.asDoubleArray());
     return in;
   }
@@ -1384,7 +1388,7 @@ public class Matrices {
    * @param vector the vector
    * @return the int [ ]
    */
-  public static int[] sortIndex(MatrixLike vector) {
+  public static int[] sortIndex(RealMatrixLike vector) {
     return sortIndex(vector, (o1, o2) -> Double.compare(vector.get(o1), vector.get(o2)));
   }
 
@@ -1395,7 +1399,7 @@ public class Matrices {
    * @param comparator the comparator
    * @return the int [ ]
    */
-  public static int[] sortIndex(MatrixLike vector, Comparator<Integer> comparator) {
+  public static int[] sortIndex(RealMatrixLike vector, Comparator<Integer> comparator) {
     int[] indicies = new int[vector.size()];
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
@@ -1411,7 +1415,7 @@ public class Matrices {
    * @param in the in
    * @param comparator the comparator
    */
-  public static void sort(Matrix in, Comparator<Double> comparator) {
+  public static void sort(RealMatrix in, Comparator<Double> comparator) {
     List<Double> doubles = Doubles.asList(in.asDoubleArray());
     Collections.sort(doubles, comparator);
   }
@@ -1423,7 +1427,7 @@ public class Matrices {
    * @param y a vector
    * @return the dot product
    */
-  public static double dot(MatrixLike x, MatrixLike y) {
+  public static double dot(RealMatrixLike x, RealMatrixLike y) {
     return dot(x, 1, y, 1);
   }
 
@@ -1437,7 +1441,7 @@ public class Matrices {
    * @param beta scaling factor for y
    * @return the inner product
    */
-  public static double dot(MatrixLike x, double alpha, MatrixLike y, double beta) {
+  public static double dot(RealMatrixLike x, double alpha, RealMatrixLike y, double beta) {
     if (x.size() != y.size()) {
       throw new NonConformantException(x, y);
     }
@@ -1456,7 +1460,7 @@ public class Matrices {
    * @param b a vector
    * @return the sigmoid
    */
-  public static double sigmoid(MatrixLike a, MatrixLike b) {
+  public static double sigmoid(RealMatrixLike a, RealMatrixLike b) {
     return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
   }
 
@@ -1467,8 +1471,8 @@ public class Matrices {
    * @param b the b
    * @return the matrix
    */
-  public static Matrix sub(Matrix a, Matrix b) {
-    return sub(DenseMatrix::new, a, b);
+  public static RealMatrix sub(RealMatrix a, RealMatrix b) {
+    return sub(RealArrayMatrix::new, a, b);
   }
 
   /**
@@ -1480,7 +1484,7 @@ public class Matrices {
    * @param b the b
    * @return t t
    */
-  public static <T extends Matrix> T sub(Matrix.New<T> f, Matrix a, Matrix b) {
+  public static <T extends RealMatrix> T sub(RealMatrix.New<T> f, RealMatrix a, RealMatrix b) {
     if (a.size() != b.size()) {
       throw new NonConformantException(a, b);
     }
@@ -1497,7 +1501,7 @@ public class Matrices {
    * @param b a vector
    * @param c a mutable vector
    */
-  public static void sub(Matrix a, Matrix b, double[] c) {
+  public static void sub(RealMatrix a, RealMatrix b, double[] c) {
     add(a, 1, b, -1, c);
   }
 
@@ -1530,7 +1534,7 @@ public class Matrices {
    * @param beta scaling factor for y
    * @param c store the result
    */
-  public static void add(MatrixLike a, double alpha, MatrixLike b, double beta, double[] c) {
+  public static void add(RealMatrixLike a, double alpha, RealMatrixLike b, double beta, double[] c) {
     for (int j = 0; j < c.length; j++) {
       c[j] = (alpha * a.get(j)) + (beta * b.get(j));
     }
@@ -1542,7 +1546,7 @@ public class Matrices {
    * @param matrix the matrix
    * @return the double
    */
-  public static double sum(MatrixLike matrix) {
+  public static double sum(RealMatrixLike matrix) {
     double sum = 0;
     for (int i = 0; i < matrix.size(); i++) {
       sum += matrix.get(i);
@@ -1559,7 +1563,7 @@ public class Matrices {
    * @param axis the axis
    * @return the t
    */
-  public static <T extends Matrix> T sum(Matrix.New<T> f, MatrixLike m, Axis axis) {
+  public static <T extends RealMatrix> T sum(RealMatrix.New<T> f, RealMatrixLike m, Axis axis) {
     switch (axis) {
       case ROW:
         return rowSum(f, m);
@@ -1570,11 +1574,11 @@ public class Matrices {
     }
   }
 
-  public static Matrix sum(MatrixLike in, Axis axis) {
-    return sum(DenseMatrix::new, in, axis);
+  public static RealMatrix sum(RealMatrixLike in, Axis axis) {
+    return sum(RealArrayMatrix::new, in, axis);
   }
 
-  private static <T extends Matrix> T columnSum(Matrix.New<T> f, MatrixLike m) {
+  private static <T extends RealMatrix> T columnSum(RealMatrix.New<T> f, RealMatrixLike m) {
     double[] values = new double[m.rows()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
@@ -1584,7 +1588,7 @@ public class Matrices {
     return f.newMatrix(m.rows(), 1, values);
   }
 
-  private static <T extends Matrix> T rowSum(Matrix.New<T> f, MatrixLike m) {
+  private static <T extends RealMatrix> T rowSum(RealMatrix.New<T> f, RealMatrixLike m) {
     double[] values = new double[m.columns()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {

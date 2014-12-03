@@ -28,8 +28,8 @@ public class VariableVector implements CompoundVector {
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return values.get(index).getAsDouble(0);
+  public double getAsReal(int index) {
+    return values.get(index).getAsReal(0);
   }
 
   @Override
@@ -175,7 +175,7 @@ public class VariableVector implements CompoundVector {
       } else if (obj instanceof Integer || obj instanceof Byte || obj instanceof Short) {
         value = new IntValue(((Number) obj).intValue());
       } else if (obj instanceof Float || obj instanceof Double) {
-        value = new DoubleValue(((Number) obj).doubleValue());
+        value = new RealValue(((Number) obj).doubleValue());
       } else if (obj instanceof Complex) {
         value = new ComplexValue((Complex) obj);
       } else if (obj instanceof Binary) {

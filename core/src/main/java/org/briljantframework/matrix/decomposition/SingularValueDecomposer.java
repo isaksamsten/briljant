@@ -16,11 +16,10 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import org.briljantframework.BlasException;
-import org.briljantframework.matrix.DenseMatrix;
-import org.briljantframework.matrix.Diagonal;
-import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.exception.BlasException;
+import org.briljantframework.matrix.RealArrayMatrix;
+import org.briljantframework.matrix.RealDiagonal;
+import org.briljantframework.matrix.RealMatrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -39,12 +38,12 @@ import com.github.fommil.netlib.LAPACK;
 public class SingularValueDecomposer implements Decomposer<SingularValueDecomposition> {
 
   @Override
-  public SingularValueDecomposition decompose(MatrixLike matrix) {
+  public SingularValueDecomposition decompose(RealMatrix matrix) {
     int m = matrix.rows(), n = matrix.columns();
     double[] sigma = new double[n];
     double[] u = new double[m * m];
     double[] vt = new double[n * n];
-    Matrix copy = new DenseMatrix(matrix);
+    RealMatrix copy = new RealArrayMatrix(matrix);
 
     int lwork = -1;
     double[] work = new double[1];
@@ -64,9 +63,9 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
       throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
     }
 
-    Diagonal sv = Diagonal.of(m, n, sigma);
-    DenseMatrix um = DenseMatrix.fromColumnOrder(m, m, u);
-    DenseMatrix vtm = DenseMatrix.fromRowOrder(n, n, vt);
+    RealDiagonal sv = RealDiagonal.of(m, n, sigma);
+    RealArrayMatrix um = RealArrayMatrix.fromColumnOrder(m, m, u);
+    RealArrayMatrix vtm = RealArrayMatrix.fromRowOrder(n, n, vt);
 
     return new SingularValueDecomposition(sv, um, vtm);
   }

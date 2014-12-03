@@ -14,12 +14,13 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix;
+package org.briljantframework.exception;
 
 /**
  * Created by Isak Karlsson on 26/06/14.
  */
 public class MismatchException extends IllegalArgumentException {
+
   /**
    * Instantiates a new Mismatch exception.
    *

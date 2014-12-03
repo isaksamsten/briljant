@@ -16,9 +16,9 @@ public class VariableVectorTest {
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(1, sequence.getAsDouble(0), 0);
-    assertEquals(2, sequence.getAsDouble(1), 0);
-    assertEquals(DoubleVector.NA, sequence.getAsDouble(3), 0);
+    assertEquals(1, sequence.getAsReal(0), 0);
+    assertEquals(2, sequence.getAsReal(1), 0);
+    assertEquals(RealVector.NA, sequence.getAsReal(3), 0);
   }
 
   @Test
