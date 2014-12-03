@@ -31,6 +31,11 @@ public class RealValue extends AbstractRealVector implements Value {
   }
 
   @Override
+  public String toString() {
+    return toString(0);
+  }
+
+  @Override
   public Builder newCopyBuilder() {
     return null;
   }

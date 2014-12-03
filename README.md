@@ -23,7 +23,7 @@ Most of the development is performed in [IntellijIDEA](http://www.jetbrains.com/
 
 So far, this module provides a `DataFrame`s, file input and output, `Matrix` and BLAS operations and `Transformations`.
 
-Here is an example using the `CsvInputStream` and `DataFrame` to remove cases with missing values using the `RemoveIncompleteCases` transformation:
+Here is an example using the `CsvInputStream` and `DataFrame` to remove cases with missing posterior using the `RemoveIncompleteCases` transformation:
 
     DataFrame iris = Datasets.loadIris();
     Transformation rm = new RemoveIncompleteCases().fit(iris);
@@ -43,7 +43,7 @@ data source.
     // Logistic regression requires a Frame 
     Storage<Frame, Target> storage = sis.read(Frame.FACTORY, BasicTarget.FACTORY);
     
-    // Logistic regression does not support missing values, and data should be normalized
+    // Logistic regression does not support missing posterior, and data should be normalized
     Transformer<Matrix, Target> normalize = PipelineTransformer.of(
         new RemoveIncompleteCases(), new MinMaxNormalizer());
         

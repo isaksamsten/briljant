@@ -162,9 +162,7 @@ public class Datasets {
     return load(f, CsvInputStream::new, DUMMY);
   }
 
-
-
-  private static DataFrame load(
+  public static DataFrame load(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f,
       Function<InputStream, DataFrameInputStream> fin, String name) {
     try (DataFrameInputStream dfis = fin.apply(getResourceAsStream(name))) {
