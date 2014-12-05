@@ -1,34 +1,33 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.RealMatrices.parseMatrix;
+import static org.briljantframework.matrix.Matrices.parseMatrix;
 import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 
-public class RealMatrixTest {
+public class MatrixTest {
 
   @Test
   public void testDropRow() throws Exception {
-    RealMatrix a = parseMatrix(RealArrayMatrix::new, "1,1,1;2,2,2");
-    System.out.println(a.dropRow(0));
+    Matrix a = parseMatrix("1,1,1;2,2,2");
 
   }
 
   @Test
   public void testMmul() throws Exception {
-    RealMatrix a = parseMatrix("1,2,3;1,2,3");
-    RealMatrix b = parseMatrix("1,2;1,2;1,2");
+    Matrix a = parseMatrix("1,2,3;1,2,3");
+    Matrix b = parseMatrix("1,2;1,2;1,2");
 
-    RealMatrix AxB = parseMatrix("6,12;6,12");
-    RealMatrix BxA = parseMatrix("3,6,9;3,6,9;3,6,9");
+    Matrix AxB = parseMatrix("6,12;6,12");
+    Matrix BxA = parseMatrix("3,6,9;3,6,9;3,6,9");
     assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
     assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
   }
 
   @Test
   public void testMul() throws Exception {
-    RealMatrix a = parseMatrix("1,2,3;1,2,3");
-    RealMatrix b = parseMatrix("1,2,3;1,2,3");
+    Matrix a = parseMatrix("1,2,3;1,2,3");
+    Matrix b = parseMatrix("1,2,3;1,2,3");
     assertArrayEquals(parseMatrix("1,4,9;1,4,9").asDoubleArray(), a.mul(b).asDoubleArray(), 0.0001);
     assertArrayEquals(parseMatrix("1,4,9;1,4,9").asDoubleArray(), a.muli(b).asDoubleArray(), 0.0001);
 
@@ -38,8 +37,8 @@ public class RealMatrixTest {
 
   @Test
   public void testSub() throws Exception {
-    RealMatrix a = parseMatrix("1,2,3;1,2,3");
-    RealMatrix b = parseMatrix("10,10,10;2,2,2");
+    Matrix a = parseMatrix("1,2,3;1,2,3");
+    Matrix b = parseMatrix("10,10,10;2,2,2");
 
     assertArrayEquals(parseMatrix("-9,-8,-7;-1,0,1").asDoubleArray(), a.sub(b).asDoubleArray(),
         0.0001);
@@ -58,8 +57,8 @@ public class RealMatrixTest {
 
   @Test
   public void testAdd() throws Exception {
-    RealMatrix a = parseMatrix("1,2,3;1,2,3");
-    RealMatrix b = parseMatrix("10,10,10;2,2,2");
+    Matrix a = parseMatrix("1,2,3;1,2,3");
+    Matrix b = parseMatrix("10,10,10;2,2,2");
 
     assertArrayEquals(parseMatrix("11,12,13;3,4,5").asDoubleArray(), a.add(b).asDoubleArray(),
         0.0001);
@@ -74,8 +73,8 @@ public class RealMatrixTest {
 
   @Test
   public void testDiv() throws Exception {
-    RealMatrix a = parseMatrix("1,2,3;2,3,4");
-    RealMatrix b = parseMatrix("10,2,3;43,2,1");
+    Matrix a = parseMatrix("1,2,3;2,3,4");
+    Matrix b = parseMatrix("10,2,3;43,2,1");
 
     assertArrayEquals(parseMatrix("0.1,1,1;0.0465,1.5,4").asDoubleArray(),
         a.div(b).asDoubleArray(), 0.0001);
@@ -88,8 +87,8 @@ public class RealMatrixTest {
 
   @Test
   public void testTranspose() throws Exception {
-    RealMatrix a = parseMatrix("1,2,3;1,2,3");
-    RealMatrix result = parseMatrix("1,1;2,2;3,3");
+    Matrix a = parseMatrix("1,2,3;1,2,3");
+    Matrix result = parseMatrix("1,1;2,2;3,3");
     assertArrayEquals(result.asDoubleArray(), a.transpose().asDoubleArray(), 0.0000001);
   }
 }

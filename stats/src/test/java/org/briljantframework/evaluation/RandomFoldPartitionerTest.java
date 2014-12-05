@@ -16,7 +16,7 @@ public class RandomFoldPartitionerTest {
   public void testPartition() throws Exception {
     // DataFrame dummy = Datasets.loadDummy();
     // DataFrame x = dummy.takeColumns(IntRange.closed(0, 2));
-    // Vector y = dummy.getColumn(2);
+    // Vector y = dummy.getColumnView(2);
     //
     // System.out.println(x);
     //
@@ -42,7 +42,7 @@ public class RandomFoldPartitionerTest {
 
     // DataFrame synthetic = Datasets.loadSyntheticControl();
     // DataFrame x = synthetic.takeColumns(IntRange.closed(1, synthetic.columns()));
-    // Vector y = synthetic.getColumn(0);
+    // Vector y = synthetic.getColumnView(0);
     //
     // RandomShapeletForest forest =
     // RandomShapeletForest.withSize(10).withInspectedShapelets(100).create();

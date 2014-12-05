@@ -19,8 +19,8 @@ package org.briljantframework.matrix.solve;
 import java.util.Arrays;
 
 import org.briljantframework.exception.BlasException;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -32,17 +32,19 @@ import com.github.fommil.netlib.LAPACK;
  */
 public class LeastLinearSquaresSolver extends AbstractSolver {
 
+  public static final LAPACK lapack = LAPACK.getInstance();
+
   /**
    * Instantiates a new Least linear squares solver.
    *
    * @param matrix the matrix
    */
-  public LeastLinearSquaresSolver(RealMatrix matrix) {
+  public LeastLinearSquaresSolver(Matrix matrix) {
     super(matrix);
   }
 
   @Override
-  public RealMatrix solve(RealMatrix b) {
+  public Matrix solve(Matrix b) {
     int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
     int[] jpvt = new int[n];
 
@@ -53,19 +55,19 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
     double[] a = matrix.copy().asDoubleArray();
 
     intW rank = new intW(0), info = new intW(0);
-    LAPACK.getInstance().dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
+    lapack.dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
     if (info.val != 0) {
       throw new BlasException("dgelsy", info.val, "failed to query work");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    LAPACK.getInstance().dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
+    lapack.dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
     if (info.val != 0) {
       throw new BlasException("dgelsy", info.val, "fail");
     }
 
     double[] array = Arrays.copyOf(result, n);
-    return RealArrayMatrix.rowVector(array);
+    return ArrayMatrix.rowVector(array);
   }
 }

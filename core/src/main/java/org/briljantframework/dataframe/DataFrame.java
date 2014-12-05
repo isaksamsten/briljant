@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
 /**
@@ -198,11 +198,11 @@ public interface DataFrame extends Iterable<CompoundVector> {
   Builder newCopyBuilder();
 
   /**
-   * Returns this as a matrix of double values.
+   * Returns this as a real valued matrix.
    *
    * @return this data frame as a matrix
    */
-  RealMatrix asMatrix();
+  Matrix asMatrix();
 
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames

@@ -17,10 +17,10 @@
 package org.briljantframework.transform;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Axis;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrices;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
@@ -36,10 +36,10 @@ public class ZNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    RealMatrix mean = RealMatrices.mean(RealArrayMatrix::new, frame.asMatrix(), Axis.COLUMN);
+    Matrix mean = Matrices.mean(frame.asMatrix(), Axis.COLUMN);
 
-    RealMatrix x = frame.asMatrix();
-    RealMatrix xNorm = new RealArrayMatrix(x.getShape());
+    Matrix x = frame.asMatrix();
+    Matrix xNorm = new ArrayMatrix(x.getShape());
 
     for (int i = 0; i < xNorm.rows(); i++) {
       for (int j = 0; j < xNorm.columns(); j++) {
@@ -47,16 +47,16 @@ public class ZNormalizer implements Transformer {
       }
     }
 
-    RealMatrix sigma = RealMatrices.std(RealArrayMatrix::new, xNorm, Axis.COLUMN);
+    Matrix sigma = Matrices.std(xNorm, Axis.COLUMN);
     return new ZNormalization(mean, sigma);
   }
 
   private static class ZNormalization implements Transformation {
 
-    private final RealMatrix sigma;
-    private final RealMatrix mean;
+    private final Matrix sigma;
+    private final Matrix mean;
 
-    public ZNormalization(RealMatrix mean, RealMatrix sigma) {
+    public ZNormalization(Matrix mean, Matrix sigma) {
       this.mean = mean;
       this.sigma = sigma;
     }

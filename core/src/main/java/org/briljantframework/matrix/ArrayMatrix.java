@@ -23,14 +23,13 @@ import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 import org.briljantframework.exception.MismatchException;
-import org.briljantframework.matrix.slice.Index;
 
 import com.google.common.base.Preconditions;
 
 /**
  * Created by Isak Karlsson on 13/06/14.
  */
-public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
+public class ArrayMatrix extends AbstractMatrix {
 
   private final double[] values;
 
@@ -40,7 +39,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param columns the columns
    * @param values the values
    */
-  public RealArrayMatrix(int columns, double[] values) {
+  public ArrayMatrix(int columns, double[] values) {
     this(values.length / columns, columns, values);
   }
 
@@ -51,7 +50,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param columns the columns
    * @param values the values
    */
-  public RealArrayMatrix(int rows, int columns, double[] values) {
+  public ArrayMatrix(int rows, int columns, double[] values) {
     super(rows, columns);
     this.values = values;
   }
@@ -61,7 +60,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    *
    * @param shape the shape
    */
-  public RealArrayMatrix(Shape shape) {
+  public ArrayMatrix(Shape shape) {
     this(shape.rows, shape.columns);
   }
 
@@ -71,7 +70,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param rows in matrix
    * @param cols columns in matrix
    */
-  public RealArrayMatrix(int rows, int cols) {
+  public ArrayMatrix(int rows, int cols) {
     this(rows, cols, new double[Math.multiplyExact(rows, cols)]);
   }
 
@@ -81,7 +80,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param shape the shape
    * @param values the values
    */
-  public RealArrayMatrix(Shape shape, double[] values) {
+  public ArrayMatrix(Shape shape, double[] values) {
     this(shape.rows, shape.columns, values);
   }
 
@@ -90,7 +89,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    *
    * @param matrix the tensor like
    */
-  public RealArrayMatrix(RealMatrixLike matrix) {
+  public ArrayMatrix(MatrixLike matrix) {
     this(matrix.getShape(), matrix);
   }
 
@@ -100,13 +99,13 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param shape the shape
    * @param matrix to copy
    */
-  public RealArrayMatrix(Shape shape, RealMatrixLike matrix) {
+  public ArrayMatrix(Shape shape, MatrixLike matrix) {
     this(shape.rows, shape.columns);
     if (!hasCompatibleShape(matrix.getShape())) {
       throw new MismatchException("DenseMatrix", "cant fit tensor");
     }
-    if (matrix instanceof RealArrayMatrix) {
-      System.arraycopy(((RealMatrix) matrix).asDoubleArray(), 0, values, 0, this.cols * this.rows);
+    if (matrix instanceof ArrayMatrix) {
+      System.arraycopy(((Matrix) matrix).asDoubleArray(), 0, values, 0, this.cols * this.rows);
     } else {
       for (int i = 0; i < matrix.size(); i++) {
         values[i] = matrix.get(i);
@@ -119,7 +118,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    *
    * @param values the values
    */
-  public RealArrayMatrix(double[][] values) {
+  public ArrayMatrix(double[][] values) {
     this(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[i].length; j++) {
@@ -136,8 +135,8 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param value fill matrix with
    * @return a new matrix filled with <code>value</code>
    */
-  public static RealArrayMatrix filledWith(int rows, int cols, double value) {
-    RealArrayMatrix m = new RealArrayMatrix(rows, cols);
+  public static ArrayMatrix filledWith(int rows, int cols, double value) {
+    ArrayMatrix m = new ArrayMatrix(rows, cols);
     Arrays.fill(m.values, value);
     return m;
   }
@@ -181,7 +180,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param args the args
    * @return dense matrix
    */
-  public static RealArrayMatrix fromRowOrder(int rows, int cols, double... args) {
+  public static ArrayMatrix fromRowOrder(int rows, int cols, double... args) {
     return of(rows, cols, args);
   }
 
@@ -209,7 +208,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param data in row-major format
    * @return a matrix
    */
-  public static RealArrayMatrix of(int rows, int cols, double... data) {
+  public static ArrayMatrix of(int rows, int cols, double... data) {
     Preconditions.checkNotNull(data, "data");
     if (rows * cols != data.length) {
       throw new IllegalArgumentException("rows * headers != data.length");
@@ -222,7 +221,7 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
         colOrder[j * rows + i] = data[i * cols + j];
       }
     }
-    return new RealArrayMatrix(rows, cols, colOrder);
+    return new ArrayMatrix(rows, cols, colOrder);
   }
 
   /**
@@ -233,8 +232,8 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param args with values
    * @return the new DenseMatrix
    */
-  public static RealArrayMatrix fromColumnOrder(int rows, int cols, double... args) {
-    return new RealArrayMatrix(rows, cols, args);
+  public static ArrayMatrix fromColumnOrder(int rows, int cols, double... args) {
+    return new ArrayMatrix(rows, cols, args);
   }
 
   /**
@@ -243,8 +242,8 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param args the args
    * @return the dense matrix
    */
-  public static RealArrayMatrix rowVector(double... args) {
-    return new RealArrayMatrix(args.length, 1, args);
+  public static ArrayMatrix rowVector(double... args) {
+    return new ArrayMatrix(args.length, 1, args);
   }
 
   /**
@@ -253,18 +252,13 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param args the args
    * @return the dense matrix
    */
-  public static RealArrayMatrix columnVector(double... args) {
-    return new RealArrayMatrix(1, args.length, args);
+  public static ArrayMatrix columnVector(double... args) {
+    return new ArrayMatrix(1, args.length, args);
   }
 
   @Override
-  protected RealMatrix newMatrix(Shape shape, double[] array) {
-    return new RealArrayMatrix(shape, array);
-  }
-
-  @Override
-  protected RealMatrix newEmptyMatrix(int rows, int columns) {
-    return new RealArrayMatrix(rows, columns);
+  protected Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
   }
 
   @Override
@@ -286,8 +280,8 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
   /**
    * @return a copy of this matrix
    */
-  public RealArrayMatrix copy() {
-    RealArrayMatrix m = new RealArrayMatrix(this.rows(), this.columns());
+  public ArrayMatrix copy() {
+    ArrayMatrix m = new ArrayMatrix(this.rows(), this.columns());
     System.arraycopy(values, 0, m.values, 0, values.length);
     return m;
   }
@@ -323,24 +317,14 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
    * @param operator the operator
    * @return the matrix
    */
-  public RealMatrix map(DoubleUnaryOperator operator) {
-    RealArrayMatrix n = new RealArrayMatrix(this.rows(), this.columns());
+  public Matrix map(DoubleUnaryOperator operator) {
+    ArrayMatrix n = new ArrayMatrix(this.rows(), this.columns());
     double[] values = n.asDoubleArray(), array = asDoubleArray();
     for (int i = 0; i < array.length; i++) {
       values[i] = operator.applyAsDouble(array[i]);
     }
 
     return n;
-  }
-
-  /**
-   * Rows matrix.
-   *
-   * @param indices the indices
-   * @return the matrix
-   */
-  public RealMatrix rows(int[] indices) {
-    return getRows(Index.of(indices));
   }
 
   /**
@@ -414,8 +398,8 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
      *
      * @return the dense matrix
      */
-    public RealArrayMatrix create() {
-      return new RealArrayMatrix(values);
+    public ArrayMatrix create() {
+      return new ArrayMatrix(values);
     }
 
     /**
@@ -424,8 +408,8 @@ public class RealArrayMatrix extends AbstractRealMatrix implements RealMatrix {
      * @param args the args
      * @return the dense matrix
      */
-    public RealArrayMatrix withValues(double... args) {
-      return RealArrayMatrix.of(rows, cols, args);
+    public ArrayMatrix withValues(double... args) {
+      return ArrayMatrix.of(rows, cols, args);
     }
   }
 }

@@ -27,12 +27,12 @@ import com.google.common.collect.ImmutableTable;
  * <p>
  * Created by isak on 27/06/14.
  */
-public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
+public class Diagonal extends AbstractMatrix implements MatrixLike {
 
   private final int size;
   private final double[] values;
 
-  private RealDiagonal(int rows, int cols, double[] values) {
+  private Diagonal(int rows, int cols, double[] values) {
     super(rows, cols);
     this.values = values;
     this.size = values.length;
@@ -46,8 +46,8 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    * @param cols the cols
    * @return the diagonal
    */
-  public static RealDiagonal empty(int rows, int cols) {
-    return new RealDiagonal(rows, cols, new double[Math.max(rows, cols)]);
+  public static Diagonal empty(int rows, int cols) {
+    return new Diagonal(rows, cols, new double[Math.max(rows, cols)]);
   }
 
   /**
@@ -58,8 +58,8 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    * @param values the values
    * @return the diagonal
    */
-  public static RealDiagonal of(int rows, int cols, double... values) {
-    return new RealDiagonal(rows, cols, values);
+  public static Diagonal of(int rows, int cols, double... values) {
+    return new Diagonal(rows, cols, values);
   }
 
   public void apply(DoubleUnaryOperator operator) {
@@ -75,9 +75,8 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    * @param cols the cols
    * @return the matrix
    */
-  public RealMatrix reshape(int rows, int cols) {
-    RealArrayMatrix ret =
-        RealArrayMatrix.fromColumnOrder(this.rows(), this.columns(), asDoubleArray());
+  public Matrix reshape(int rows, int cols) {
+    ArrayMatrix ret = ArrayMatrix.fromColumnOrder(this.rows(), this.columns(), asDoubleArray());
     ret.reshapei(rows, cols);
     return ret;
   }
@@ -88,10 +87,10 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    *
    * @return the copy
    */
-  public RealDiagonal copy() {
+  public Diagonal copy() {
     double[] values = new double[this.values.length];
     System.arraycopy(this.values, 0, values, 0, this.values.length);
-    return new RealDiagonal(this.rows(), this.columns(), values);
+    return new Diagonal(this.rows(), this.columns(), values);
   }
 
   /**
@@ -185,12 +184,12 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    * @param operator the operator
    * @return the diagonal
    */
-  public RealDiagonal map(DoubleUnaryOperator operator) {
+  public Diagonal map(DoubleUnaryOperator operator) {
     double[] diagonal = new double[this.size];
     for (int i = 0; i < diagonal.length; i++) {
       diagonal[i] = operator.applyAsDouble(get(i));
     }
-    return new RealDiagonal(this.rows(), this.columns(), diagonal);
+    return new Diagonal(this.rows(), this.columns(), diagonal);
   }
 
   /**
@@ -198,10 +197,10 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    *
    * @return the matrix like
    */
-  public RealDiagonal transpose() {
+  public Diagonal transpose() {
     double[] values = new double[this.values.length];
     System.arraycopy(this.values, 0, values, 0, values.length);
-    return new RealDiagonal(this.columns(), this.rows(), values);
+    return new Diagonal(this.columns(), this.rows(), values);
   }
 
   /**
@@ -216,8 +215,8 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    * @param x a square matrix with x.rows = d.size
    * @return a matrix
    */
-  public RealMatrix mmul(RealMatrix x) {
-    return RealMatrices.mdmul(RealArrayMatrix::new, x, this);
+  public Matrix mmul(Matrix x) {
+    return Matrices.mdmul(x, this);
   }
 
   /**
@@ -226,13 +225,13 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
    * @param scalar the scalar
    * @return the diagonal
    */
-  public RealDiagonal mul(double scalar) {
+  public Diagonal mul(double scalar) {
     double[] out = new double[size];
     for (int i = 0; i < size; i++) {
       out[i] = values[i] * scalar;
     }
 
-    return new RealDiagonal(this.rows(), this.columns(), out);
+    return new Diagonal(this.rows(), this.columns(), out);
   }
 
   @Override
@@ -254,16 +253,11 @@ public class RealDiagonal extends AbstractRealMatrix implements RealMatrixLike {
   }
 
   @Override
-  protected RealMatrix newMatrix(Shape shape, double[] array) {
-    return new RealArrayMatrix(shape, array);
+  protected Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
   }
 
-  @Override
-  protected RealMatrix newEmptyMatrix(int rows, int columns) {
-    return new RealArrayMatrix(rows, columns);
-  }
-
-  public RealDiagonal transposei() {
+  public Diagonal transposei() {
     int tmp = rows;
     rows = cols;
     cols = tmp;

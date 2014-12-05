@@ -17,7 +17,7 @@
 package org.briljantframework.matrix.analysis;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.transform.InvertibleTransformation;
 
 /**
@@ -25,15 +25,15 @@ import org.briljantframework.transform.InvertibleTransformation;
  */
 public class PrincipalComponentAnalysis implements Analysis, InvertibleTransformation {
 
-  private final RealMatrix u;
+  private final Matrix u;
   private int components;
 
-  public PrincipalComponentAnalysis(RealMatrix principalComponents, int components) {
+  public PrincipalComponentAnalysis(Matrix principalComponents, int components) {
     this.u = principalComponents;
     this.components = components;
   }
 
-  private int components(RealMatrix matrix) {
+  private int components(Matrix matrix) {
     return this.components > 0 ? this.components : Math.min(matrix.rows(), matrix.columns());
   }
 
@@ -41,7 +41,7 @@ public class PrincipalComponentAnalysis implements Analysis, InvertibleTransform
     return components;
   }
 
-  public RealMatrix getU() {
+  public Matrix getU() {
     return u;
   }
 

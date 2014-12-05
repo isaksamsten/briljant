@@ -16,8 +16,8 @@
 
 package org.briljantframework.matrix.time;
 
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrixLike;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.MatrixLike;
 import org.briljantframework.matrix.distance.Distance;
 
 import com.google.common.primitives.Doubles;
@@ -72,7 +72,7 @@ public class DynamicTimeWarping implements Distance {
   }
 
   @Override
-  public double distance(RealMatrixLike a, RealMatrixLike b) {
+  public double distance(MatrixLike a, MatrixLike b) {
     int n = a.size(), m = b.size();
 
     // NOTE: This makes DWT non-suitable for sharing it between threads.
@@ -82,7 +82,7 @@ public class DynamicTimeWarping implements Distance {
     // } else {
     // dwt.fill(Double.POSITIVE_INFINITY);
     // }
-    RealArrayMatrix dwt = RealArrayMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
+    ArrayMatrix dwt = ArrayMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
     dwt.put(0, 0, 0);
 
     int width = Math.max(constraint, Math.abs(n - m));

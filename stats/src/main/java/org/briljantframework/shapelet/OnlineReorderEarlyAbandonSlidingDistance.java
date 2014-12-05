@@ -1,7 +1,7 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.matrix.RealMatrices;
-import org.briljantframework.matrix.RealMatrixLike;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.MatrixLike;
 import org.briljantframework.matrix.distance.Distance;
 
 /**
@@ -28,21 +28,21 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
 
 
   @Override
-  public double distance(RealMatrixLike a, RealMatrixLike b) {
+  public double distance(MatrixLike a, MatrixLike b) {
     // Candidate is normalized
-    RealMatrixLike candidate = a.size() < b.size() ? a : b;
+    MatrixLike candidate = a.size() < b.size() ? a : b;
     int l = candidate.size();
 
     int[] order = null;
     if (candidate instanceof IndexSortedNormalizedShapelet) {
       order = ((IndexSortedNormalizedShapelet) candidate).getOrder();
     } else {
-      order = RealMatrices.sortIndex(candidate, (i, j) -> {
+      order = Matrices.sortIndex(candidate, (i, j) -> {
         return Double.compare(Math.abs(candidate.get(j)), Math.abs(candidate.get(i)));
       });
     }
 
-    RealMatrixLike vector = a.size() >= b.size() ? a : b;
+    MatrixLike vector = a.size() >= b.size() ? a : b;
     int m = vector.size();
 
     double ex = 0, ex2 = 0; // running sum and square sum

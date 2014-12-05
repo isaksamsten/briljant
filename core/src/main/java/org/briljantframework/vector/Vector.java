@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.matrix.RealMatrixLike;
+import org.briljantframework.matrix.MatrixLike;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -14,7 +14,7 @@ import org.briljantframework.matrix.RealMatrixLike;
  * <p>
  * Created by Isak Karlsson on 20/11/14.
  */
-public interface Vector extends RealMatrixLike, Serializable {
+public interface Vector extends MatrixLike, Serializable {
 
   /**
    * Returns value as {@code double} if applicable. Otherwise returns {@link RealVector#NA}.

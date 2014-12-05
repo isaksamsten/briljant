@@ -1,8 +1,8 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrices;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.distance.Distance;
 import org.junit.Test;
 
@@ -11,10 +11,10 @@ public class EarlyAbandonSlidingDistanceTest {
   @Test
   // TODO - bug!
   public void testDistance() throws Exception {
-    RealMatrix a = RealArrayMatrix.of(1, 6, 1, 2, 3, 4, 5, 6);
-    RealMatrix a1 = RealArrayMatrix.of(1, 4, 2, 3, 4, 6);
-    RealMatrix a2 = RealArrayMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
-    RealMatrix b = RealArrayMatrix.of(1, 2, 2, 3);
+    Matrix a = ArrayMatrix.of(1, 6, 1, 2, 3, 4, 5, 6);
+    Matrix a1 = ArrayMatrix.of(1, 4, 2, 3, 4, 6);
+    Matrix a2 = ArrayMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
+    Matrix b = ArrayMatrix.of(1, 2, 2, 3);
 
     Shapelet shapelet = NormalizedShapelet.create(1, 2, a);
     // System.out.println(shapelet);
@@ -45,7 +45,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // Shapelet candidate = NormalizedShapelet.create(5, 10, l);
     //
     //
-    RealMatrix l = RealMatrices.randn(RealArrayMatrix::new, 1, 3213);
+    Matrix l = Matrices.randn(ArrayMatrix::new, 1, 3213);
     Shapelet candidate = new Shapelet(2314, 500, l);
     //
 
@@ -87,7 +87,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // Shapelet shapelet = Shapelet.create(3, 50, container.getDataset().getEntry(70));
     //
     // System.out.println(a.copy());
-    // System.out.println(container.getDataset().getRow(70));
+    // System.out.println(container.getDataset().getRowView(70));
     // System.out.println(shapelet);
     //
     // Distance distance = EarlyAbandonSlidingDistance.create(Distance.EUCLIDEAN);

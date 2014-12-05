@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
@@ -354,8 +354,8 @@ public class MixedDataFrame implements DataFrame {
   }
 
   @Override
-  public RealMatrix asMatrix() {
-    RealMatrix matrix = new RealArrayMatrix(rows(), columns());
+  public Matrix asMatrix() {
+    Matrix matrix = new ArrayMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, getAsDouble(i, j));

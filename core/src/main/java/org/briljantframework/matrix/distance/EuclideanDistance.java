@@ -17,7 +17,7 @@
 package org.briljantframework.matrix.distance;
 
 
-import org.briljantframework.matrix.RealMatrixLike;
+import org.briljantframework.matrix.MatrixLike;
 
 /**
  * EuclideanDistance between two Points (either Vectors or scalars)
@@ -42,7 +42,7 @@ public class EuclideanDistance implements Distance {
   }
 
   @Override
-  public double distance(RealMatrixLike a, RealMatrixLike b) {
+  public double distance(MatrixLike a, MatrixLike b) {
     int size = Math.min(a.size(), b.size());
 
     double residual = 0.0;

@@ -1,7 +1,7 @@
 package org.briljantframework.matrix.distance;
 
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.junit.Test;
 
 public class EuclideanDistanceTest {
@@ -9,8 +9,8 @@ public class EuclideanDistanceTest {
   @Test
   public void testBasicDistance() throws Exception {
     Distance e = Distance.EUCLIDEAN;
-    RealMatrix a = RealArrayMatrix.of(1, 4, 1, 2, 3, 4);
-    RealMatrix b = RealArrayMatrix.of(1, 4, 2, 3, 3, 4);
+    Matrix a = ArrayMatrix.of(1, 4, 1, 2, 3, 4);
+    Matrix b = ArrayMatrix.of(1, 4, 2, 3, 3, 4);
     System.out.println(a);
     System.out.println(b);
 

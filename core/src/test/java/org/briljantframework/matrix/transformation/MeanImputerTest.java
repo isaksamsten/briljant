@@ -1,16 +1,16 @@
 package org.briljantframework.matrix.transformation;
 
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MeanImputerTest {
-  RealMatrix matrix;
+  Matrix matrix;
 
   @Before
   public void setUp() throws Exception {
-    matrix = RealArrayMatrix.of(4, 4, 0, 2, Double.NaN, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    matrix = ArrayMatrix.of(4, 4, 0, 2, Double.NaN, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
   }
 
   @Test

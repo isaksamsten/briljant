@@ -17,7 +17,7 @@
 package org.briljantframework.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Created by Isak Karlsson on 12/08/14.
@@ -26,7 +26,7 @@ public class MinMaxNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    RealMatrix matrix = frame.asMatrix();
+    Matrix matrix = frame.asMatrix();
     double[] min = new double[matrix.columns()];
     double[] max = new double[matrix.columns()];
 

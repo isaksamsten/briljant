@@ -10,16 +10,16 @@ public class DiagonalTest {
 
   @Test
   public void testDiagonalMultiply() throws Exception {
-    RealDiagonal d = RealDiagonal.of(2, 3, 2, 2);
-    RealMatrix x = RealArrayMatrix.of(2, 2, 1, 2, 1, 2);
-    assertArrayEquals(new double[] {2.0, 2.0, 4.0, 4.0, 0.0, 0.0}, x.mmuld(d).asDoubleArray(),
+    Diagonal d = Diagonal.of(2, 3, 2, 2);
+    Matrix x = ArrayMatrix.of(2, 2, 1, 2, 1, 2);
+    assertArrayEquals(new double[] {2.0, 2.0, 4.0, 4.0, 0.0, 0.0}, x.mmul(d).asDoubleArray(),
         0.0001);
     // assertEquals()
   }
 
   @Test
   public void testApply() throws Exception {
-    RealDiagonal a = RealDiagonal.of(3, 3, 1, 1, 1);
+    Diagonal a = Diagonal.of(3, 3, 1, 1, 1);
     System.out.println(a.map(d -> d * 2));
 
     // a.apply(x -> x * 2);
@@ -36,7 +36,7 @@ public class DiagonalTest {
 
   @Test
   public void testReshape() throws Exception {
-    RealDiagonal x = RealDiagonal.of(2, 3, 1, 2);
+    Diagonal x = Diagonal.of(2, 3, 1, 2);
 
     System.out.println(x.transpose());
     System.out.println(x.reshape(3, 2));
@@ -69,11 +69,10 @@ public class DiagonalTest {
 
   @Test
   public void testMultiplication() throws Exception {
-    RealArrayMatrix u = RealArrayMatrix.of(2, 2, -0.25803, -0.96614, -0.96614, 0.25803);
-    RealDiagonal diagonal = RealDiagonal.of(2, 3, 13.6291, 3.0412);
+    ArrayMatrix u = ArrayMatrix.of(2, 2, -0.25803, -0.96614, -0.96614, 0.25803);
+    Diagonal diagonal = Diagonal.of(2, 3, 13.6291, 3.0412);
     // System.out.println(Matrices.multiply(diagonal, Transpose.YES, u, Transpose.NO));
-    System.out
-        .println(RealMatrices.<RealMatrix>mdmul(RealArrayMatrix::new, u, diagonal.transpose()));
+    System.out.println(Matrices.mdmul(u, diagonal.transpose()));
 
   }
 }

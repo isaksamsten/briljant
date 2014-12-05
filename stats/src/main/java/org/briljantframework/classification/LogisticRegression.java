@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrices;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -117,14 +117,16 @@ public class LogisticRegression implements Classifier {
    * @return the logistic regression model
    */
   protected Model fit(DataFrame x, Vector y, int[] indexes) {
-    RealArrayMatrix theta = new RealArrayMatrix(1, x.columns());
+    ArrayMatrix theta = new ArrayMatrix(1, x.columns());
     for (int j = 0; j < this.iterations; j++) {
       Utils.permute(indexes);
 
       for (int i : indexes) {
         Vector row = x.getRow(i);
-        double update = learningRate * (y.get(i) - RealMatrices.sigmoid(row, theta));
-        RealMatrices.add(row, update, theta, 1, theta.asDoubleArray());
+        double update = learningRate * (y.get(i) - Matrices.sigmoid(row, theta));
+        // TODO(isak): fix!
+        // theta.add(1, row, update);
+        // Matrices.add(row, update, theta, 1, theta.asDoubleArray());
         theta.muli(1.0 - (learningRate * regularization) / x.rows());
       }
     }
@@ -193,20 +195,20 @@ public class LogisticRegression implements Classifier {
    * Created by isak on 03/07/14.
    */
   public static class Model implements ClassifierModel {
-    private final RealMatrix theta;
+    private final Matrix theta;
 
     /**
      * Instantiates a new Logistic regression classification.
      *
      * @param theta the theta
      */
-    public Model(RealArrayMatrix theta) {
+    public Model(ArrayMatrix theta) {
       this.theta = theta;
     }
 
     @Override
     public Label predict(Vector row) {
-      double prob = RealMatrices.sigmoid(row, theta);
+      double prob = Matrices.sigmoid(row, theta);
       return Label.binary("1", prob, "0", 1 - prob);
     }
 
@@ -215,7 +217,7 @@ public class LogisticRegression implements Classifier {
      *
      * @return the vector
      */
-    public RealMatrix theta() {
+    public Matrix theta() {
       return theta;
     }
 

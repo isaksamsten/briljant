@@ -16,8 +16,8 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealDiagonal;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Diagonal;
 
 /**
  * Created by isak on 23/06/14.
@@ -28,17 +28,17 @@ public class SingularValueDecomposition implements Decomposition {
    * \Sigma is an m×n rectangular diagonal matrix with nonnegative real numbers on the diagonal. The
    * diagonal entries \Sigma_{i,i} of \Sigma are known as the singular values of M
    */
-  public final RealDiagonal s;
+  public final Diagonal s;
 
   /**
    * U is a m×m real or complex unitary matrix
    */
-  public final RealArrayMatrix u;
+  public final ArrayMatrix u;
 
   /**
    * V* (or simply the transpose of V if V is real) is an n×n real unitary matrix
    */
-  public final RealArrayMatrix v;
+  public final ArrayMatrix v;
 
   /**
    * Instantiates a new Singular value decomposition.
@@ -47,7 +47,7 @@ public class SingularValueDecomposition implements Decomposition {
    * @param u the u
    * @param v the v
    */
-  public SingularValueDecomposition(RealDiagonal s, RealArrayMatrix u, RealArrayMatrix v) {
+  public SingularValueDecomposition(Diagonal s, ArrayMatrix u, ArrayMatrix v) {
     this.s = s;
     this.u = u;
     this.v = v;
@@ -58,7 +58,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the diagonal
    */
-  public RealDiagonal getDiagonal() {
+  public Diagonal getDiagonal() {
     return s;
   }
 
@@ -67,7 +67,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the left singular values
    */
-  public RealArrayMatrix getLeftSingularValues() {
+  public ArrayMatrix getLeftSingularValues() {
     return u;
   }
 
@@ -76,7 +76,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the right singular values
    */
-  public RealArrayMatrix getRightSingularValues() {
+  public ArrayMatrix getRightSingularValues() {
     return v;
   }
 

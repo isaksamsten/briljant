@@ -27,12 +27,12 @@ public class AbstractEnsembleTest {
     System.out.println(System.currentTimeMillis() - start);
 
     // DataFrame synt = Datasets.loadSyntheticControl();
-    // Vector ytrain = synt.getColumn(0);
+    // Vector ytrain = synt.getColumnView(0);
     // DataFrame xtrain = synt.dropColumn(0);
     //
     // synt = Datasets.load(MixedDataFrame.Builder::new, MatlabTextInputStream::new,
     // "synthetic_control_TEST");
-    // Vector ytest = synt.getColumn(0);
+    // Vector ytest = synt.getColumnView(0);
     // DataFrame xtest = synt.dropColumn(0);
     //
     // RandomShapeletForest f = RandomShapeletForest

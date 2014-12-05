@@ -19,7 +19,7 @@ package org.briljantframework.shapelet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.briljantframework.matrix.RealMatrixLike;
+import org.briljantframework.matrix.MatrixLike;
 
 import com.google.common.base.Preconditions;
 
@@ -37,9 +37,9 @@ import com.google.common.base.Preconditions;
  * <p>
  * Created by Isak Karlsson on 17/09/14.
  */
-public class Shapelet implements RealMatrixLike {
+public class Shapelet implements MatrixLike {
   private final int start, length;
-  private final RealMatrixLike vector;
+  private final MatrixLike vector;
 
   /**
    * Instantiates a new Shapelet.
@@ -48,7 +48,7 @@ public class Shapelet implements RealMatrixLike {
    * @param length the length
    * @param vector the vector
    */
-  public Shapelet(int start, int length, RealMatrixLike vector) {
+  public Shapelet(int start, int length, MatrixLike vector) {
     this.start = start;
     this.length = length; // inclusive
     this.vector = vector;
@@ -62,7 +62,7 @@ public class Shapelet implements RealMatrixLike {
    * @param vector the vector
    * @return the shapelet
    */
-  public static Shapelet create(int start, int length, RealMatrixLike vector) {
+  public static Shapelet create(int start, int length, MatrixLike vector) {
     return new Shapelet(start, length, vector);
   }
 

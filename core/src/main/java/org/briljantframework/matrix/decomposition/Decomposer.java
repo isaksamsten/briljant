@@ -16,7 +16,7 @@
 
 package org.briljantframework.matrix.decomposition;
 
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -31,6 +31,6 @@ public interface Decomposer<T extends Decomposition> {
    * @param matrix the matrix
    * @return the t
    */
-  T decompose(RealMatrix matrix);
+  T decompose(Matrix matrix);
 
 }

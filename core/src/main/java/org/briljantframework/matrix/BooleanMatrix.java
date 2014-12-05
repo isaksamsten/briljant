@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
 
 import org.briljantframework.Utils;
 
@@ -9,7 +10,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 11/10/14.
  */
-public class BooleanMatrix implements RealMatrixLike {
+public class BooleanMatrix implements MatrixLike {
 
   private final boolean[] values;
   private final int rows, cols;
@@ -128,7 +129,7 @@ public class BooleanMatrix implements RealMatrixLike {
    *
    * @return the matrix like
    */
-  public RealMatrixLike transpose() {
+  public MatrixLike transpose() {
     throw new UnsupportedOperationException();
   }
 
@@ -211,6 +212,10 @@ public class BooleanMatrix implements RealMatrixLike {
    */
   public boolean has(int i, int j) {
     return values[index(i, j)];
+  }
+
+  public boolean has(int index) {
+    return values[checkElementIndex(index, size())];
   }
 
   @Override

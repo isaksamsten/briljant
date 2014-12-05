@@ -19,182 +19,127 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Iterator;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.ToDoubleFunction;
 
 import org.briljantframework.Utils;
-import org.briljantframework.exception.MismatchException;
 import org.briljantframework.exception.NonConformantException;
-import org.briljantframework.matrix.slice.Range;
-import org.briljantframework.matrix.slice.Slice;
-import org.briljantframework.matrix.slice.Slicer;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
 
 /**
  * Created by Isak Karlsson on 20/08/14.
  */
-public abstract class AbstractRealMatrix implements RealMatrix {
+public abstract class AbstractMatrix implements Matrix {
 
   protected int rows;
   protected int cols;
 
-  /**
-   * Instantiates a new Abstract tensor.
-   *
-   * @param rows the rows
-   * @param columns the columns
-   */
-  public AbstractRealMatrix(int rows, int columns) {
+  public AbstractMatrix(int rows, int columns) {
     this.cols = columns;
     this.rows = rows;
   }
 
-  /**
-   * Rows int.
-   *
-   * @return number or rows
-   */
+  @Override
   public int rows() {
     return rows;
   }
 
-  /**
-   * Columns int.
-   *
-   * @return number of columns
-   */
+  @Override
   public int columns() {
     return cols;
   }
 
   @Override
-  public RealMatrix getRow(int i) {
-    RealMatrix row = newEmptyMatrix(1, columns());
+  public Matrix assign(double value) {
+    for (int i = 0; i < size(); i++) {
+      put(i, value);
+    }
+    return this;
+  }
+
+  @Override
+  public Matrix assign(MatrixLike matrix) {
+    return assign(matrix, DoubleUnaryOperator.identity());
+  }
+
+  @Override
+  public Matrix assign(MatrixLike matrix, DoubleUnaryOperator operator) {
+    checkArgument(hasEqualShape(matrix), "");
+    for (int i = 0; i < size(); i++) {
+      put(i, operator.applyAsDouble(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public Matrix assign(double[] values) {
+    checkArgument(size() == values.length);
+    for (int i = 0; i < size(); i++) {
+      put(i, values[i]);
+    }
+    return this;
+  }
+
+  @Override
+  public double mapReduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
+    for (int i = 0; i < size(); i++) {
+      identity = reduce.applyAsDouble(identity, map.applyAsDouble(get(i)));
+    }
+    return identity;
+  }
+
+  @Override
+  public Matrix reduceColumns(ToDoubleFunction<? super Matrix> reduce) {
+    Matrix mat = newEmptyMatrix(1, columns());
+    for (int i = 0; i < columns(); i++) {
+      mat.put(i, reduce.applyAsDouble(getColumnView(i)));
+    }
+    return mat;
+  }
+
+  @Override
+  public Matrix reduceRows(ToDoubleFunction<? super Matrix> reduce) {
+    Matrix mat = newEmptyMatrix(rows(), 1);
+    for (int i = 0; i < rows(); i++) {
+      mat.put(i, reduce.applyAsDouble(getRowView(i)));
+    }
+    return mat;
+  }
+
+  // TODO: do actually return a view...
+  @Override
+  public Matrix getRowView(int i) {
+    Matrix row = newEmptyMatrix(1, columns());
     for (int j = 0; j < columns(); j++) {
       row.put(0, j, get(i, j));
     }
     return row;
   }
 
-  @Override
-  public RealMatrix dropRow(int index) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public RealMatrix getRows(int start, int end) {
-    return getRows(Range.exclusive(start, end));
-  }
-
-  @Override
-  public RealMatrix getRows(Slicer slicer) {
-    if (slicer.length() > this.rows()) {
-      throw new MismatchException("slicer", "longer than number of rows");
-    }
-    Slice slice = slicer.getSlice();
-    RealArrayMatrix m = new RealArrayMatrix(slicer.length(), this.columns());
-    int newI = 0, rows = this.rows;
-    while (slice.hasNext(rows)) {
-      int i = slice.next();
-      for (int j = 0; j < this.columns(); j++) {
-        m.put(newI, j, get(i, j));
-      }
-      newI += 1;
-    }
-    return m;
-  }
-
-  public RealArrayMatrix getColumn(int index) {
-    if (index > columns()) {
-      throw new IllegalArgumentException("index > headers()");
-    }
+  // TODO: do actually return a view...
+  public Matrix getColumnView(int index) {
     double[] col = new double[this.rows()];
     for (int i = 0; i < this.rows(); i++) {
       col[i] = get(i, index);
     }
 
-    return new RealArrayMatrix(rows(), 1, col);
+    return new ArrayMatrix(rows(), 1, col);
   }
 
   @Override
-  public RealMatrix getColumns(int start, int end) {
+  public Diagonal getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix getColumns(int start, int end) {
     throw new UnsupportedOperationException("not implemented");
   }
 
-  @Override
-  public RealArrayMatrix getColumns(Slicer slicer) {
-    if (slicer.length() > this.columns()) {
-      throw new MismatchException("column", "slice longer than number of columns");
-    }
-    RealArrayMatrix m = new RealArrayMatrix(this.rows(), slicer.length());
-    Slice slice = slicer.getSlice();
-
-    slice.rewind();
-    for (int i = 0; i < this.rows(); i++) {
-      int newJ = 0;
-      while (slice.hasNext(this.columns())) {
-        int j = slice.next();
-        m.put(i, newJ++, get(i, j));
-      }
-      slice.rewind();
-    }
-    return m;
-  }
-
-  /**
-   * Drop column.
-   *
-   * @param col the col
-   * @return matrix matrix
-   */
-  public RealMatrix dropColumn(int col) {
-    checkArgument(col > 0 && col < columns());
-
-    RealArrayMatrix m = new RealArrayMatrix(rows(), columns() - 1);
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < m.columns(); j++) {
-        if (j != col) {
-          m.put(i, j - 1, this.get(i, j));
-        }
-      }
-    }
-    return m;
-  }
-
-  @Override
-  public RealArrayMatrix slice(Slicer rows, Slicer cols) {
-    if (rows.length() <= 0 || rows.length() > this.rows()) {
-      throw new IllegalArgumentException("cannot slice more rows than there are rows");
-    }
-
-    if (cols.length() <= 0 || cols.length() > this.columns()) {
-      throw new IllegalArgumentException("cannot slice more columns than there are colums");
-    }
-
-    RealArrayMatrix result = new RealArrayMatrix(rows.length(), cols.length());
-    Slice colSlice = cols.getSlice();
-    Slice rowSlice = rows.getSlice();
-
-    int newI = 0;
-    while (rowSlice.hasNext(this.rows())) {
-      int i = rowSlice.next();
-      int newJ = 0;
-      while (colSlice.hasNext(this.columns())) {
-        int j = colSlice.next();
-        result.put(newI, newJ++, get(i, j));
-      }
-      newI++;
-      colSlice.rewind();
-    }
-    return result;
-  }
-
-  /**
-   * @return the transpose of this matrix
-   */
-  public RealMatrix transpose() {
-    RealMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+  public Matrix transpose() {
+    Matrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int i = 0; i < this.rows(); i++) {
       for (int j = 0; j < this.columns(); j++) {
         matrix.put(j, i, get(i, j));
@@ -203,35 +148,29 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     return matrix;
   }
 
-  /**
-   * Multiply this matrix with other
-   *
-   * @param other matrix
-   * @return a new matrix
-   * @throws org.briljantframework.exception.NonConformantException
-   */
   @Override
-  public RealMatrix mmul(RealMatrix other) throws NonConformantException {
-    return RealMatrices.mmul(this::newMatrix, this, other);
-  }
-
-  /**
-   * @param diagonal the diagonal
-   * @return the result
-   */
-  @Override
-  public RealMatrix mmuld(RealDiagonal diagonal) {
-    return RealMatrices.mdmul(this::newMatrix, this, diagonal);
+  public Matrix mmul(Matrix other) throws NonConformantException {
+    return Matrices.mmul(this, other);
   }
 
   @Override
-  public RealMatrix mul(RealMatrix other) {
-    Preconditions.checkArgument(hasCompatibleShape(other.getShape()));
+  public Matrix mmul(Diagonal diagonal) {
+    return Matrices.mdmul(this, diagonal);
+  }
+
+  @Override
+  public Matrix mul(Matrix other) {
+    checkArgument(hasCompatibleShape(other.getShape()));
     return muli(1, other, 1);
   }
 
   @Override
-  public RealMatrix muli(double scalar) {
+  public Matrix mul(double scalar) {
+    return Matrices.mul(this, scalar);
+  }
+
+  @Override
+  public Matrix muli(double scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         put(i, j, get(i, j) * scalar);
@@ -241,18 +180,18 @@ public abstract class AbstractRealMatrix implements RealMatrix {
   }
 
   @Override
-  public RealMatrix muli(RealMatrix other) {
+  public Matrix muli(Matrix other) {
     return muli(1.0, other, 1.0);
   }
 
   @Override
-  public RealMatrix add(RealMatrix other) {
+  public Matrix add(Matrix other) {
     return add(1, other, 1);
   }
 
   @Override
-  public RealMatrix add(double scalar) {
-    RealMatrix matrix = newEmptyMatrix(rows(), columns());
+  public Matrix add(double scalar) {
+    Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, get(i, j) + scalar);
@@ -262,13 +201,13 @@ public abstract class AbstractRealMatrix implements RealMatrix {
   }
 
   @Override
-  public RealMatrix addi(RealMatrix other) {
+  public Matrix addi(Matrix other) {
     addi(1, other, 1);
     return this;
   }
 
   @Override
-  public RealMatrix addi(double scalar) {
+  public Matrix addi(double scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         this.put(i, j, get(i, j) + scalar);
@@ -278,30 +217,30 @@ public abstract class AbstractRealMatrix implements RealMatrix {
   }
 
   @Override
-  public RealMatrix sub(RealMatrix other) {
+  public Matrix sub(Matrix other) {
     return sub(1, other, 1);
   }
 
   @Override
-  public RealMatrix sub(double scalar) {
+  public Matrix sub(double scalar) {
     return add(-scalar);
   }
 
   @Override
-  public RealMatrix subi(RealMatrix other) {
+  public Matrix subi(Matrix other) {
     addi(1, other, -1);
     return this;
   }
 
   @Override
-  public RealMatrix subi(double scalar) {
+  public Matrix subi(double scalar) {
     addi(-scalar);
     return this;
   }
 
   @Override
-  public RealMatrix rsub(double scalar) {
-    RealMatrix matrix = newEmptyMatrix(rows(), columns());
+  public Matrix rsub(double scalar) {
+    Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, scalar - get(i, j));
@@ -311,7 +250,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
   }
 
   @Override
-  public RealMatrix rsubi(double scalar) {
+  public Matrix rsubi(double scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         put(i, j, scalar - get(i, j));
@@ -321,9 +260,9 @@ public abstract class AbstractRealMatrix implements RealMatrix {
   }
 
   @Override
-  public RealMatrix div(RealMatrix other) {
+  public Matrix div(Matrix other) {
     checkArgument(this.hasEqualShape(other));
-    RealMatrix matrix = newEmptyMatrix(rows(), columns());
+    Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, get(i, j) / other.get(i, j));
@@ -332,19 +271,8 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     return matrix;
   }
 
-  /**
-   * Multiply this matrix with a scalar
-   *
-   * @param scalar to multiply
-   * @return a new matrix with the values multiplied
-   */
   @Override
-  public RealMatrix mul(double scalar) {
-    return RealMatrices.mul(this::newMatrix, this, scalar);
-  }
-
-  @Override
-  public RealMatrix divi(RealMatrix other) {
+  public Matrix divi(Matrix other) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         this.put(i, j, get(i, j) / other.get(i, j));
@@ -354,18 +282,24 @@ public abstract class AbstractRealMatrix implements RealMatrix {
   }
 
   @Override
-  public RealMatrix divi(double other) {
+  public Matrix divi(double other) {
     muli(1 / other);
     return this;
   }
 
   @Override
-  public RealMatrix rdiv(double other) {
-    return RealMatrices.div(this::newMatrix, other, this);
+  public Matrix rdiv(double other) {
+    Matrix matrix = newEmptyMatrix(rows(), columns());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.put(i, j, other / get(i, j));
+      }
+    }
+    return matrix;
   }
 
   @Override
-  public RealMatrix rdivi(double other) {
+  public Matrix rdivi(double other) {
     throw new UnsupportedOperationException();
   }
 
@@ -378,11 +312,11 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return dense matrix
    */
   @Override
-  public RealMatrix sub(double alpha, RealMatrix other, double beta) {
+  public Matrix sub(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
       throw new NonConformantException(this, other);
     }
-    RealMatrix matrix = newEmptyMatrix(rows(), columns());
+    Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, alpha * get(i, j) - other.get(i, j) * beta);
@@ -400,7 +334,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return the matrix
    */
   @Override
-  public RealMatrix subi(double alpha, RealMatrix other, double beta) {
+  public Matrix subi(double alpha, Matrix other, double beta) {
     addi(alpha, other, -1 * beta);
     return this;
   }
@@ -414,11 +348,11 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return the dense matrix
    */
   @Override
-  public RealMatrix add(double alpha, RealMatrix other, double beta) {
+  public Matrix add(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
       throw new NonConformantException(this, other);
     }
-    RealMatrix matrix = newEmptyMatrix(rows(), columns());
+    Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, alpha * get(i, j) + other.get(i, j) * beta);
@@ -436,7 +370,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return the dense matrix
    */
   @Override
-  public RealMatrix addi(double alpha, RealMatrix other, double beta) {
+  public Matrix addi(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
       throw new NonConformantException(this, other);
     }
@@ -457,11 +391,11 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return dense matrix
    */
   @Override
-  public RealMatrix mul(double alpha, RealMatrix other, double beta) {
+  public Matrix mul(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
       throw new NonConformantException(this, other);
     }
-    RealMatrix matrix = newEmptyMatrix(rows(), columns());
+    Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, alpha * get(i, j) * other.get(i, j) * beta);
@@ -479,7 +413,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return dense matrix
    */
   @Override
-  public RealMatrix muli(double alpha, RealMatrix other, double beta) {
+  public Matrix muli(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
       throw new NonConformantException(this, other);
     }
@@ -491,26 +425,17 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     return this;
   }
 
-  /**
-   * Multiply this matrix with <code>other</code> scaling <code>this</code> with <code>alpha</code>
-   * and other with <code>beta</code>
-   *
-   * @param alpha scaling factor for this
-   * @param other matrix
-   * @param beta scaling factor for other
-   * @return a new Matrix
-   */
   @Override
-  public RealMatrix mmul(double alpha, RealMatrix other, double beta) {
+  public Matrix mmul(double alpha, Matrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
     }
-    return RealMatrices.mmul(this::newMatrix, this, alpha, other, beta);
+    return Matrices.mmul(this, alpha, other, beta);
   }
 
   @Override
-  public RealMatrix negate() {
-    RealMatrix n = newEmptyMatrix(rows(), columns());
+  public Matrix negate() {
+    Matrix n = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         n.put(i, j, -get(i, j));
@@ -519,14 +444,8 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     return n;
   }
 
-  /**
-   * Less than.
-   *
-   * @param other the other
-   * @return the boolean matrix
-   */
   @Override
-  public BooleanMatrix lessThan(RealMatrix other) {
+  public BooleanMatrix lessThan(Matrix other) {
     checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
         getShape(), other.getShape());
 
@@ -540,12 +459,6 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     return bm;
   }
 
-  /**
-   * Less than.
-   *
-   * @param value the value
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix lessThan(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
@@ -557,14 +470,8 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     return bm;
   }
 
-  /**
-   * Less than equal.
-   *
-   * @param other the other
-   * @return the boolean matrix
-   */
   @Override
-  public BooleanMatrix lessThanEqual(RealMatrix other) {
+  public BooleanMatrix lessThanEqual(Matrix other) {
     checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
         getShape(), other.getShape());
 
@@ -602,7 +509,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return the boolean matrix
    */
   @Override
-  public BooleanMatrix greaterThan(RealMatrix other) {
+  public BooleanMatrix greaterThan(Matrix other) {
     checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
         getShape(), other.getShape());
 
@@ -640,7 +547,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return the boolean matrix
    */
   @Override
-  public BooleanMatrix greaterThanEquals(RealMatrix other) {
+  public BooleanMatrix greaterThanEquals(Matrix other) {
     checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
         getShape(), other.getShape());
 
@@ -678,7 +585,7 @@ public abstract class AbstractRealMatrix implements RealMatrix {
    * @return the boolean matrix
    */
   @Override
-  public BooleanMatrix equalsTo(RealMatrix other) {
+  public BooleanMatrix equalsTo(Matrix other) {
     checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
         getShape(), other.getShape());
 
@@ -707,26 +614,6 @@ public abstract class AbstractRealMatrix implements RealMatrix {
       }
     }
     return bm;
-  }
-
-  /**
-   * Find vector.
-   *
-   * @param matrix the matrix
-   * @return the vector
-   */
-  @Override
-  public RealMatrix find(BooleanMatrix matrix) {
-    checkArgument(hasCompatibleShape(matrix.getShape()));
-    DoubleArrayList list = new DoubleArrayList();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        if (matrix.has(i, j)) {
-          list.add(get(i, j));
-        }
-      }
-    }
-    return newMatrix(getShape(), list.toArray());
   }
 
   @Override
@@ -769,7 +656,5 @@ public abstract class AbstractRealMatrix implements RealMatrix {
     };
   }
 
-  protected abstract RealMatrix newMatrix(Shape shape, double[] array);
-
-  protected abstract RealMatrix newEmptyMatrix(int rows, int columns);
+  protected abstract Matrix newEmptyMatrix(int rows, int columns);
 }

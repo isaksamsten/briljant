@@ -1,18 +1,17 @@
 package org.briljantframework.matrix.analysis;
 
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PrincipalComponentAnalyzerTest {
 
-  RealMatrix matrix;
+  Matrix matrix;
 
   @Before
   public void setUp() throws Exception {
-    matrix =
-        RealArrayMatrix.of(5, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5, 1, 2, 3, 4);
+    matrix = ArrayMatrix.of(5, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5, 1, 2, 3, 4);
   }
 
   @Test

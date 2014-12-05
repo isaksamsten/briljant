@@ -6,47 +6,42 @@ import org.briljantframework.vector.Vector;
 /**
  * Created by Isak Karlsson on 02/12/14.
  */
-public class RealVectorMatrix extends AbstractRealMatrix {
+public class VectorMatrix extends AbstractMatrix {
 
   private final Vector vector;
 
-  public RealVectorMatrix(int rows, int columns, Vector vector) {
+  public VectorMatrix(int rows, int columns, Vector vector) {
     super(rows, columns);
     this.vector = vector;
   }
 
-  public static RealMatrix wrap(RealVector vector) {
-    return new RealVectorMatrix(1, vector.size(), vector);
+  public static Matrix wrap(RealVector vector) {
+    return new VectorMatrix(1, vector.size(), vector);
   }
 
   @Override
-  protected RealMatrix newMatrix(Shape shape, double[] array) {
-    return new RealArrayMatrix(shape, array);
+  protected Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
   }
 
   @Override
-  protected RealMatrix newEmptyMatrix(int rows, int columns) {
-    return new RealArrayMatrix(rows, columns);
-  }
-
-  @Override
-  public RealMatrix copy() {
-    return new RealArrayMatrix(getShape(), vector.toDoubleArray());
+  public Matrix copy() {
+    return new ArrayMatrix(getShape(), vector.toDoubleArray());
   }
 
   @Override
   public void put(int i, int j, double value) {
-    throw new UnsupportedOperationException("Can't mutate RealVectorMatrices.");
+    throw new UnsupportedOperationException("Can't mutate VectorMatrices.");
   }
 
   @Override
   public void put(int index, double value) {
-    throw new UnsupportedOperationException("Can't mutate RealVectorMatrices.");
+    throw new UnsupportedOperationException("Can't mutate VectorMatrices.");
   }
 
   @Override
   public double[] asDoubleArray() {
-    return vector.toDoubleArray();
+    return vector.asDoubleArray();
   }
 
   @Override

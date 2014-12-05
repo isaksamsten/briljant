@@ -65,7 +65,7 @@ public class LinearAlgebra {
    * @param b the matrix b
    * @return the solution vector <code>x</code>
    */
-  public static RealMatrix leastLinearSquares(RealMatrix a, RealMatrix b) {
+  public static Matrix leastLinearSquares(Matrix a, Matrix b) {
     return new LeastLinearSquaresSolver(a).solve(b);
   }
 
@@ -75,7 +75,7 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return lu decomposition
    */
-  public static LuDecomposition lu(RealMatrix matrix) {
+  public static LuDecomposition lu(Matrix matrix) {
     return new LuDecomposer().decompose(matrix);
   }
 
@@ -84,7 +84,7 @@ public class LinearAlgebra {
    * <p>
    * 
    * <pre>
-   * Matrix a = Matrix.of(2, 2, 1, 1, 1, 2);
+   * Matrix a = ArrayMatrix.of(2, 2, 1, 1, 1, 2);
    * Matrix inverse = Linalg.inverse(a);
    * // Result:
    * // 2 -1
@@ -96,39 +96,22 @@ public class LinearAlgebra {
    * @throws IllegalArgumentException if matrix is not square
    * @throws RuntimeException if the decomposition fail (i.e. the matrix is singular)
    */
-  public static RealMatrix inv(RealMatrix a) {
+  public static Matrix inv(Matrix a) {
     return new InverseTransformation().transform(a);
   }
 
-  /**
-   * A computationally simple and accurate way to compute the pseudo inverse is by using the
-   * singular value decomposition. If A = U\Sigma V^* is the singular value decomposition of A, then
-   * A^+ = V\Sigma^+ U^*. For a diagonal matrix such as \Sigma, we get the pseudo inverse by taking
-   * the reciprocal of each non-zero element on the diagonal, leaving the zeros in place. In
-   * numerical computation, only elements larger than some small tolerance are taken to be nonzero,
-   * and the others are replaced by zeros.
-   *
-   * @param matrix matrix to invert
-   * @return Moore –Penrose pseudoinverse of matrix
-   * @throws RuntimeException if the singular value decomposition fails
-   */
-  public static RealMatrix pinv(RealMatrix matrix) {
-    return pinv(RealArrayMatrix::new, matrix);
-  }
 
   /**
    * Pinv out.
    *
-   * @param <Out> the type parameter
-   * @param n the n
    * @param matrix the matrix
    * @return the out
    */
-  public static <Out extends RealMatrix> Out pinv(RealMatrix.New<Out> n, RealMatrix matrix) {
+  public static ArrayMatrix pinv(Matrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getArrayOfShape();
     pinvi(matrix, array);
-    return n.newMatrix(shape, array);
+    return new ArrayMatrix(shape, array);
   }
 
   /**
@@ -137,16 +120,16 @@ public class LinearAlgebra {
    * @param matrix the tensor
    * @param copy the copy
    */
-  public static void pinvi(RealMatrix matrix, double[] copy) {
+  public static void pinvi(Matrix matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
-    RealDiagonal diagonal = svd.getDiagonal();
-    RealArrayMatrix rightSingularValues = svd.getRightSingularValues();
-    RealArrayMatrix leftSingularValues = svd.getLeftSingularValues();
+    Diagonal diagonal = svd.getDiagonal();
+    ArrayMatrix rightSingularValues = svd.getRightSingularValues();
+    ArrayMatrix leftSingularValues = svd.getLeftSingularValues();
 
     diagonal.apply(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transposei();
-    RealMatrix s = rightSingularValues.mmuld(diagonal);
-    RealMatrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
+    Matrix s = rightSingularValues.mmul(diagonal);
+    Matrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
   }
 
   /**
@@ -163,7 +146,7 @@ public class LinearAlgebra {
    * @return the singular value decomposition
    * @throws IllegalArgumentException if SVD fail to converge
    */
-  public static SingularValueDecomposition svd(RealMatrix matrix) {
+  public static SingularValueDecomposition svd(Matrix matrix) {
     return new SingularValueDecomposer().decompose(matrix);
   }
 
@@ -182,7 +165,7 @@ public class LinearAlgebra {
    * @param x the array
    * @return the principal components of x
    */
-  public static PrincipalComponentAnalysis pca(RealMatrix x) {
+  public static PrincipalComponentAnalysis pca(Matrix x) {
     return new PrincipalComponentAnalyzer().analyze(x);
   }
 
@@ -196,7 +179,7 @@ public class LinearAlgebra {
    * @param x a square mutable array
    * @return the determinant
    */
-  public static double det(RealMatrix x) {
+  public static double det(Matrix x) {
     if (x.isSquare()) {
       return new LuDecomposer().decompose(x).getDeterminant();
     } else {
@@ -215,9 +198,9 @@ public class LinearAlgebra {
    * @param x a matrix
    * @return the rank
    */
-  public static double rank(RealMatrix x) {
+  public static double rank(Matrix x) {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
-    RealDiagonal singular = svd.getDiagonal();
+    Diagonal singular = svd.getDiagonal();
     int rank = 0;
     for (int i = 0; i < singular.size(); i++) {
       if (singular.get(i) > 0) {

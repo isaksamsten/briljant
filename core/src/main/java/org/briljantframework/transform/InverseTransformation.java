@@ -18,8 +18,8 @@ package org.briljantframework.transform;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exception.BlasException;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -36,13 +36,13 @@ public class InverseTransformation implements Transformation {
    * @param matrix the matrix
    * @return the dense matrix
    */
-  public RealArrayMatrix transform(RealMatrix matrix) {
-    RealArrayMatrix out = new RealArrayMatrix(matrix);
+  public ArrayMatrix transform(Matrix matrix) {
+    ArrayMatrix out = new ArrayMatrix(matrix);
     invert(out);
     return out;
   }
 
-  private void invert(RealMatrix out) {
+  private void invert(Matrix out) {
     int n = out.rows();
 
     int[] ipiv = new int[n];

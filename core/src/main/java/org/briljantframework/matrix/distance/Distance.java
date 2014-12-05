@@ -16,7 +16,7 @@
 
 package org.briljantframework.matrix.distance;
 
-import org.briljantframework.matrix.RealMatrixLike;
+import org.briljantframework.matrix.MatrixLike;
 
 /**
  * In mathematics, a metric or distance function is a function that defines a distance between
@@ -71,7 +71,7 @@ public interface Distance {
    * @param b a vector
    * @return the distance
    */
-  double distance(RealMatrixLike a, RealMatrixLike b);
+  double distance(MatrixLike a, MatrixLike b);
 
   /**
    * Max double.

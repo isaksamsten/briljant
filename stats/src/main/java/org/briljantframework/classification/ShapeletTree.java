@@ -21,8 +21,8 @@ import static org.briljantframework.classification.tree.Tree.Node;
 
 import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.distance.Distance;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
@@ -81,10 +81,9 @@ public class ShapeletTree implements Classifier {
     params.positionImportance = new double[x.columns()];
 
     Node<ShapeletThreshold> node = build(x, y, examples, params);
-    return new Model(node, new ShapletTreeVisitor(splitter.getDistanceMetric()),
-        new RealArrayMatrix(1, params.lengthImportance.length, params.lengthImportance),
-        new RealArrayMatrix(1, params.positionImportance.length, params.positionImportance),
-        params.totalErrorReduction);
+    return new Model(node, new ShapletTreeVisitor(splitter.getDistanceMetric()), new ArrayMatrix(1,
+        params.lengthImportance.length, params.lengthImportance), new ArrayMatrix(1,
+        params.positionImportance.length, params.positionImportance), params.totalErrorReduction);
   }
 
   /**
@@ -157,8 +156,8 @@ public class ShapeletTree implements Classifier {
    */
   public static class Model extends Tree.Model<ShapeletThreshold> {
 
-    private final RealArrayMatrix lengthImportance;
-    private final RealArrayMatrix positionImportance;
+    private final ArrayMatrix lengthImportance;
+    private final ArrayMatrix positionImportance;
 
     /**
      * Instantiates a new Model.
@@ -170,8 +169,7 @@ public class ShapeletTree implements Classifier {
      * @param totalErrorReduction the importance sum
      */
     protected Model(Node<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
-        RealArrayMatrix lengthImportance, RealArrayMatrix positionImportance,
-        double totalErrorReduction) {
+        ArrayMatrix lengthImportance, ArrayMatrix positionImportance, double totalErrorReduction) {
       super(node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -182,7 +180,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the position importance
      */
-    public RealArrayMatrix getPositionImportance() {
+    public ArrayMatrix getPositionImportance() {
       return positionImportance;
     }
 
@@ -191,7 +189,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the length importance
      */
-    public RealMatrix getLengthImportance() {
+    public Matrix getLengthImportance() {
       return lengthImportance;
     }
   }

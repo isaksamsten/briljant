@@ -24,8 +24,8 @@ import java.util.concurrent.Callable;
 import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.RealArrayMatrix;
-import org.briljantframework.matrix.RealMatrix;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.distance.Distance;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
@@ -71,8 +71,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
 
     for (ShapeletTree.Model m : models) {
-      RealMatrix lengthImportance = m.getLengthImportance();
-      RealMatrix positionImportance = m.getPositionImportance();
+      Matrix lengthImportance = m.getLengthImportance();
+      Matrix positionImportance = m.getPositionImportance();
 
       if (averageLengthImportance == null) {
         averageLengthImportance = new double[lengthImportance.columns()];
@@ -87,8 +87,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
 
 
-    return new Model(models, RealArrayMatrix.columnVector(averageLengthImportance),
-        RealArrayMatrix.columnVector(averagePositionImportance));
+    return new Model(models, ArrayMatrix.columnVector(averageLengthImportance),
+        ArrayMatrix.columnVector(averagePositionImportance));
   }
 
   @Override
@@ -147,8 +147,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
    */
   public static class Model extends AbstractEnsemble.Model {
 
-    private final RealArrayMatrix lengthImportance;
-    private final RealArrayMatrix positionImportance;
+    private final ArrayMatrix lengthImportance;
+    private final ArrayMatrix positionImportance;
 
     /**
      * Instantiates a new Model.
@@ -156,8 +156,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
      * @param lengthImportance the length importance
      * @param positionImportance the position importance
      */
-    public Model(List<? extends ClassifierModel> models, RealArrayMatrix lengthImportance,
-        RealArrayMatrix positionImportance) {
+    public Model(List<? extends ClassifierModel> models, ArrayMatrix lengthImportance,
+        ArrayMatrix positionImportance) {
       super(models);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -168,7 +168,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
      *
      * @return the length importance
      */
-    public RealMatrix getLengthImportance() {
+    public Matrix getLengthImportance() {
       return lengthImportance;
     }
 
@@ -177,7 +177,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
      *
      * @return the position importance
      */
-    public RealMatrix getPositionImportance() {
+    public Matrix getPositionImportance() {
       return positionImportance;
     }
   }
