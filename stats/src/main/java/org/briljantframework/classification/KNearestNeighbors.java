@@ -16,15 +16,17 @@
 
 package org.briljantframework.classification;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.briljantframework.classification.tree.Example;
 import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.collect.MinMaxPriorityQueue;
@@ -50,23 +52,10 @@ public class KNearestNeighbors implements Classifier {
 
   private final int neighbors;
   private final Distance distance;
-  private Examples examples;
-
-  /**
-   * Instantiates a new K nearest classifier.
-   *
-   * @param builder the builder
-   * @param sample the sample
-   */
-  public KNearestNeighbors(Builder builder, Examples sample) {
-    this(builder);
-    this.examples = sample;
-
-  }
 
   private KNearestNeighbors(Builder builder) {
     this.neighbors = builder.neighbors;
-    this.distance = builder.distance.create();
+    this.distance = builder.distance;
   }
 
   /**
@@ -107,8 +96,16 @@ public class KNearestNeighbors implements Classifier {
   }
 
   @Override
-  public Model fit(DataFrame dataFrame, Vector vector) {
-    return new Model(dataFrame, vector, distance, neighbors, examples);
+  public Model fit(DataFrame x, Vector y) {
+    checkArgument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
+        y.size());
+    checkArgument(y.getType().getScale() == Type.Scale.CATEGORICAL,
+        "Can't handle continuous targets. ");
+    for (int i = 0; i < x.columns(); i++) {
+      checkArgument(x.getColumnType(i).getScale() == Type.Scale.NUMERICAL,
+          "Can't handle non-numerical values");
+    }
+    return new Model(x, y, distance, neighbors);
   }
 
   @Override
@@ -125,7 +122,7 @@ public class KNearestNeighbors implements Classifier {
      * The Neighbours.
      */
     public int neighbors;
-    private Distance.Builder distance = () -> Distance.EUCLIDEAN;
+    private Distance distance = Distance.EUCLIDEAN;
 
     /**
      * Instantiates a new Builder.
@@ -153,19 +150,8 @@ public class KNearestNeighbors implements Classifier {
      * @param distance the distance
      * @return the builder
      */
-    public Builder withDistance(Distance.Builder distance) {
-      this.distance = distance;
-      return this;
-    }
-
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
     public Builder withDistance(Distance distance) {
-      this.distance = () -> distance;
+      this.distance = distance;
       return this;
     }
 
@@ -179,70 +165,47 @@ public class KNearestNeighbors implements Classifier {
     }
 
     public KNearestNeighbors create(Examples sample) {
-      return new KNearestNeighbors(this, sample);
+      return new KNearestNeighbors(this);
     }
   }
 
   /**
    * Created by Isak Karlsson on 01/09/14.
    */
-  public static class Model implements Classifier.Model {
+  public static class Model implements ClassifierModel {
 
     private final DataFrame frame;
     private final Vector targets;
     private final Distance distance;
-    private final boolean isNumeric;
     private final int k;
-    private final Examples examples;
 
     /**
      * Instantiates a new K nearest classification.
      *
-     * @param dataset the storage
+     * @param x the storage
      * @param distance the distance
      * @param k the k
-     * @param exampels the examples
      */
-    Model(DataFrame dataset, Vector targets, Distance distance, int k, Examples exampels) {
-      this.frame = dataset;
-      this.targets = targets;
+    Model(DataFrame x, Vector y, Distance distance, int k) {
+      this.frame = x;
+      this.targets = y;
 
-      this.isNumeric = false; // FIXME
       this.distance = distance;
       this.k = k;
-      this.examples = exampels;
     }
 
     @Override
-    public Prediction predict(Vector row) {
+    public Label predict(Vector row) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
-      if (examples == null) {
-        for (int i = 0; i < frame.rows(); i++) {
-          double d = distance.distance(row, frame.getRow(i));
-          queue.add(new DistanceIndex(d, i, targets.getAsString(i)));
-        }
-      } else {
-        for (Example example : examples) {
-          double dist = distance.distance(row, frame.getRow(example.getIndex()));
-          queue.add(new DistanceIndex(dist, example.getIndex(), targets.getAsString(example
-              .getIndex())));
-        }
+      for (int i = 0; i < frame.rows(); i++) {
+        double d = distance.distance(row, frame.getRow(i));
+        queue.add(new DistanceIndex(d, i, targets.getAsString(i)));
       }
 
-      return isNumeric ? mean(queue) : majority(queue);
+      return majority(queue);
     }
 
-    private Prediction mean(MinMaxPriorityQueue<DistanceIndex> queue) {
-      // double mean = 0.0;
-      // for (DistanceIndex di : queue) {
-      // Numeric numeric = (Numeric) di.target;
-      // mean += numeric.asDouble();
-      // }
-      // mean /= queue.size();
-      return null; // FIXME Prediction.numeric(Numeric.valueOf(mean));
-    }
-
-    private Prediction majority(MinMaxPriorityQueue<DistanceIndex> it) {
+    private Label majority(MinMaxPriorityQueue<DistanceIndex> it) {
       Map<String, Integer> values = new HashMap<>();
       for (DistanceIndex di : it) {
         values.compute(di.target, (i, v) -> v == null ? 1 : v + 1);
@@ -255,7 +218,7 @@ public class KNearestNeighbors implements Classifier {
         probabilities.add(kv.getValue() / (double) it.size());
       }
 
-      return Prediction.nominal(target, probabilities);
+      return Label.nominal(target, probabilities);
     }
   }
 

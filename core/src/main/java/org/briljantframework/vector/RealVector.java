@@ -212,7 +212,7 @@ public class RealVector extends AbstractRealVector {
     }
 
     @Override
-    public RealVector create() {
+    public RealVector build() {
       RealVector vec = new RealVector(buffer.buffer, size());
       buffer = null;
       return vec;

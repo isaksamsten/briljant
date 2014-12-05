@@ -14,16 +14,17 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.classification.tree;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
+import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.CompoundVector;
 import org.briljantframework.vector.Vector;
 
@@ -51,7 +52,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
    * @param builder the builder
    */
   public RandomShapeletSplitter(Builder builder) {
-    super(builder.distance.create(), builder.gain);
+    super(builder.distance, builder.gain);
     this.inspectedShapelets = builder.shapelets;
     this.upperLength = builder.upper;
     this.lowerLength = builder.lower;
@@ -65,7 +66,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
    * @return the builder
    */
   public static Builder withDistance(Distance distance) {
-    return new Builder(() -> distance);
+    return new Builder(distance);
   }
 
   /**
@@ -410,10 +411,10 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     private Gain gain = Gain.INFO;
     private int upper = -1;
     private int lower = 2;
-    private Distance.Builder distance;
+    private Distance distance;
     private double alpha;
 
-    private Builder(Distance.Builder distance) {
+    private Builder(Distance distance) {
       this.distance = distance;
     }
 
@@ -424,17 +425,6 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
      * @return the builder
      */
     public Builder withDistance(Distance distance) {
-      this.distance = () -> distance;
-      return this;
-    }
-
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
-    public Builder withDistance(Distance.Builder distance) {
       this.distance = distance;
       return this;
     }

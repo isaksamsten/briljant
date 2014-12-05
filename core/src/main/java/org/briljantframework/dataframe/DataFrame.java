@@ -399,7 +399,7 @@ public interface DataFrame extends Iterable<CompoundVector> {
      *
      * @return a new data frame
      */
-    DataFrame create();
+    DataFrame build();
   }
 
 }

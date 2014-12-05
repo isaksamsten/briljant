@@ -46,7 +46,6 @@ public class DynamicTimeWarping implements Distance {
    */
   protected final Distance distance;
   private final int constraint;
-  private RealArrayMatrix dwt;
 
   /**
    * Instantiates a new Dynamic time warping.
@@ -54,61 +53,11 @@ public class DynamicTimeWarping implements Distance {
    * @param distance the local distance function
    * @param constraint the local constraint (i.e. width of the band)
    */
-  protected DynamicTimeWarping(Distance.Builder distance, int constraint) {
-    this.distance = distance.create();
+  protected DynamicTimeWarping(Distance distance, int constraint) {
+    this.distance = distance;
     this.constraint = constraint;
   }
 
-  /**
-   * Create an unconstrained dynamic time warp distance
-   *
-   * @param distance the underlying distance function
-   * @return an unconstrained dynamic time warp
-   */
-  public static DynamicTimeWarping unconstraint(Distance distance) {
-    return withDistance(distance).create();
-  }
-
-  /**
-   * Distance builder.
-   *
-   * @param distance the distance
-   * @return the builder
-   */
-  public static Builder withDistance(Distance distance) {
-    return new Builder().distance(distance);
-  }
-
-  /**
-   * Constraint dynamic time warping.
-   *
-   * @param constraint the constraint
-   * @return the dynamic time warping
-   */
-  public static DynamicTimeWarping withConstraint(int constraint) {
-    return withDistance(Distance.EUCLIDEAN).withConstraint(constraint).create();
-  }
-
-  /**
-   * Create dynamic time warping.
-   *
-   * @param distance the distance
-   * @param constraint the constraint
-   * @return the dynamic time warping
-   */
-  public static DynamicTimeWarping create(Distance distance, int constraint) {
-    return withDistance(distance).withConstraint(constraint).create();
-  }
-
-  /**
-   * With distance.
-   *
-   * @param distance the distance
-   * @return the builder
-   */
-  public static Builder withDistance(Distance.Builder distance) {
-    return new Builder().distance(distance);
-  }
 
   /**
    * Delegated to the injected distance function
@@ -128,11 +77,12 @@ public class DynamicTimeWarping implements Distance {
 
     // NOTE: This makes DWT non-suitable for sharing it between threads.
     // it is also rather annoying.
-    if (dwt == null || (dwt.rows() != a.size() && dwt.columns() != b.size())) {
-      dwt = RealArrayMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
-    } else {
-      dwt.fill(Double.POSITIVE_INFINITY);
-    }
+    // if (dwt == null || (dwt.rows() != a.size() && dwt.columns() != b.size())) {
+    // dwt =
+    // } else {
+    // dwt.fill(Double.POSITIVE_INFINITY);
+    // }
+    RealArrayMatrix dwt = RealArrayMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
     dwt.put(0, 0, 0);
 
     int width = Math.max(constraint, Math.abs(n - m));
@@ -162,52 +112,5 @@ public class DynamicTimeWarping implements Distance {
   @Override
   public String toString() {
     return String.format("Dynamic time warping (w=%s)", constraint);
-  }
-
-  /**
-   * The type Builder.
-   */
-  public static final class Builder implements Distance.Builder {
-    private Distance.Builder distance = () -> EUCLIDEAN;
-    private int constraint = -1;
-
-    /**
-     * Constraint builder.
-     *
-     * @param constraint the constraint
-     * @return the builder
-     */
-    public Builder withConstraint(int constraint) {
-      this.constraint = constraint;
-      return this;
-    }
-
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
-    public Builder distance(Distance distance) {
-      this.distance = () -> distance;
-      return this;
-    }
-
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
-    public Builder distance(Distance.Builder distance) {
-      this.distance = distance;
-      return this;
-    }
-
-    @Override
-    public DynamicTimeWarping create() {
-      return new DynamicTimeWarping(distance, constraint);
-
-    }
   }
 }

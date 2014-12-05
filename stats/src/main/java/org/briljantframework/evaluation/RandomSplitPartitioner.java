@@ -39,8 +39,8 @@ public class RandomSplitPartitioner implements Partitioner {
         yValidationBuilder.add(y, i);
       }
 
-      return Iterators.singletonIterator(new Partition(xTrainingBuilder.create(),
-          xValidationBuilder.create(), yTrainingBuilder.create(), yValidationBuilder.create()));
+      return Iterators.singletonIterator(new Partition(xTrainingBuilder.build(), xValidationBuilder
+          .build(), yTrainingBuilder.build(), yValidationBuilder.build()));
     };
   }
 }

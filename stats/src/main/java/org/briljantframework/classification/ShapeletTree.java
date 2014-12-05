@@ -19,17 +19,12 @@ package org.briljantframework.classification;
 import static org.briljantframework.classification.tree.Tree.Leaf;
 import static org.briljantframework.classification.tree.Tree.Node;
 
-import org.briljantframework.classification.shapelet.Shapelet;
-import org.briljantframework.classification.shapelet.ShapeletSplitter;
-import org.briljantframework.classification.shapelet.ShapeletThreshold;
-import org.briljantframework.classification.tree.Examples;
-import org.briljantframework.classification.tree.Impurity;
-import org.briljantframework.classification.tree.Splitter;
-import org.briljantframework.classification.tree.Tree;
+import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.RealArrayMatrix;
 import org.briljantframework.matrix.RealMatrix;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -210,12 +205,12 @@ public class ShapeletTree implements Classifier {
     }
 
     @Override
-    public Prediction visitLeaf(Leaf<ShapeletThreshold> leaf, Vector example) {
-      return Prediction.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
+    public Label visitLeaf(Leaf<ShapeletThreshold> leaf, Vector example) {
+      return Label.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
     }
 
     @Override
-    public Prediction visitBranch(Tree.Branch<ShapeletThreshold> node, Vector example) {
+    public Label visitBranch(Tree.Branch<ShapeletThreshold> node, Vector example) {
       if (metric.distance(example, node.getThreshold().getShapelet()) < node.getThreshold()
           .getDistance()) {
         return visit(node.getLeft(), example);

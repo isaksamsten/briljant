@@ -16,7 +16,9 @@
 
 package org.briljantframework.evaluation.result;
 
-import org.briljantframework.classification.Predictions;
+import java.util.List;
+
+import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -51,17 +53,17 @@ public class Accuracy extends AbstractMeasure {
   public static final class Builder extends AbstractMeasure.Builder {
 
     @Override
-    public void compute(Sample sample, Predictions predictions, Vector truth) {
-      Preconditions.checkArgument(predictions.size() == truth.size());
+    public void compute(Sample sample, List<Label> predicted, Vector truth) {
+      Preconditions.checkArgument(predicted.size() == truth.size());
 
       double accuracy = 0.0;
-      for (int i = 0; i < predictions.size(); i++) {
-        if (predictions.get(i).getPredictedValue().equals(truth.getAsString(i))) {
+      for (int i = 0; i < predicted.size(); i++) {
+        if (predicted.get(i).getPredictedValue().equals(truth.getAsString(i))) {
           accuracy++;
         }
       }
 
-      addComputedValue(sample, accuracy / predictions.size());
+      addComputedValue(sample, accuracy / predicted.size());
     }
 
     @Override

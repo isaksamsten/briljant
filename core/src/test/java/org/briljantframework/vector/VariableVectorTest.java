@@ -11,7 +11,7 @@ public class VariableVectorTest {
 
   @Before
   public void setUp() throws Exception {
-    sequence = new VariableVector.Builder().add(1).add(2).add("hello").add("next").addNA().create();
+    sequence = new VariableVector.Builder().add(1).add(2).add("hello").add("next").addNA().build();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class VariableVectorTest {
     builder.add("hello");
     builder.add(null);
 
-    VariableVector copy = builder.create();
+    VariableVector copy = builder.build();
     assertEquals(7, copy.size());
     assertEquals("hello", copy.getAsString(5));
     assertEquals(CompoundVector.NA, copy.getAsValue(6));

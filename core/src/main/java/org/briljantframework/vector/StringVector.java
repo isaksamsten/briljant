@@ -83,6 +83,22 @@ public class StringVector extends AbstractStringVector {
     return new Builder(size);
   }
 
+  @Override
+  public int hashCode() {
+    return values.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof StringVector) {
+      return values.equals(((StringVector) obj).values);
+    } else {
+      return false;
+    }
+  }
+
   public static class Builder implements Vector.Builder {
 
     private ArrayList<String> buffer;
@@ -175,7 +191,7 @@ public class StringVector extends AbstractStringVector {
     }
 
     @Override
-    public StringVector create() {
+    public StringVector build() {
       return new StringVector(buffer, false);
     }
 

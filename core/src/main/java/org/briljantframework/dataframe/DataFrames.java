@@ -25,7 +25,7 @@ public final class DataFrames {
    * return a {@link org.briljantframework.dataframe.DataFrame.Builder} using the column names and
    * the column types. The values from {@code in} are read to the {@code DataFrame.Builder} and
    * returned as the DataFrame created by
-   * {@link org.briljantframework.dataframe.DataFrame.Builder#create()}.
+   * {@link org.briljantframework.dataframe.DataFrame.Builder#build()}.
    * 
    * <code><pre>
    *    DataFrame dataframe =
@@ -43,7 +43,7 @@ public final class DataFrames {
     try {
       Collection<Type> types = in.readColumnTypes();
       Collection<String> names = in.readColumnNames();
-      return f.apply(names, types).read(in).create();
+      return f.apply(names, types).read(in).build();
     } finally {
       if (in != null) {
         in.close();
@@ -69,7 +69,7 @@ public final class DataFrames {
     for (int i = builder.rows(); i > 1; i--) {
       builder.swapRows(i - 1, random.nextInt(i));
     }
-    return builder.create();
+    return builder.build();
   }
 
   /**

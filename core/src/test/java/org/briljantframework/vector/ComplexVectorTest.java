@@ -22,7 +22,7 @@ public class ComplexVectorTest {
     builder.set(10, new Complex(10, 2));
     System.out.println(builder.size());
 
-    System.out.println(builder.create());
+    System.out.println(builder.build());
   }
 
   @Test

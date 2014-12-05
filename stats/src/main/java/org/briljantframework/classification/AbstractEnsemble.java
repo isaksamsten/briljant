@@ -67,7 +67,7 @@ public abstract class AbstractEnsemble implements Classifier {
    * @return a list of produced models
    * @throws Exception
    */
-  protected static <T extends Classifier.Model> List<T> execute(
+  protected static <T extends ClassifierModel> List<T> execute(
       Collection<? extends Callable<T>> callables) throws Exception {
     List<T> models = new ArrayList<>();
     if (THREAD_POOL != null && THREAD_POOL.getActiveCount() < CORES) {
@@ -96,9 +96,9 @@ public abstract class AbstractEnsemble implements Classifier {
    * The type Model.
    * <p>
    */
-  protected static class Model implements Classifier.Model {
+  protected static class Model implements ClassifierModel {
 
-    private final List<? extends Classifier.Model> models;
+    private final List<? extends ClassifierModel> models;
 
 
     /**
@@ -107,19 +107,19 @@ public abstract class AbstractEnsemble implements Classifier {
      * @param models the models
      * 
      */
-    public Model(List<? extends Classifier.Model> models) {
+    public Model(List<? extends ClassifierModel> models) {
       this.models = models;
     }
 
     @Override
-    public Prediction predict(Vector row) {
+    public Label predict(Vector row) {
       List<String> predictions =
           models.parallelStream().map(model -> model.predict(row).getPredictedValue())
               .collect(Collectors.toList());
       return majority(predictions);
     }
 
-    protected Prediction majority(Collection<String> predictions) {
+    protected Label majority(Collection<String> predictions) {
       Multiset<String> targets = HashMultiset.create(predictions);
       List<String> values = new ArrayList<>();
       List<Double> probabilities = new ArrayList<>();
@@ -128,7 +128,7 @@ public abstract class AbstractEnsemble implements Classifier {
         values.add(prediction);
         probabilities.add(kv.getCount() / (double) predictions.size());
       }
-      return Prediction.nominal(values, probabilities);
+      return Label.nominal(values, probabilities);
     }
 
     /**
@@ -136,7 +136,7 @@ public abstract class AbstractEnsemble implements Classifier {
      *
      * @return the models
      */
-    public List<? extends Classifier.Model> getModels() {
+    public List<? extends ClassifierModel> getModels() {
       return Collections.unmodifiableList(models);
     }
   }

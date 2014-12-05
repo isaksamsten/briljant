@@ -1,4 +1,4 @@
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.shapelet;
 
 import org.briljantframework.matrix.RealMatrices;
 import org.briljantframework.matrix.RealMatrixLike;

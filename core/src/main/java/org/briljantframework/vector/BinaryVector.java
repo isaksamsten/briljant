@@ -186,7 +186,7 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
-    public BinaryVector create() {
+    public BinaryVector build() {
       BinaryVector vector = new BinaryVector(buffer);
       buffer = null;
       return vector;

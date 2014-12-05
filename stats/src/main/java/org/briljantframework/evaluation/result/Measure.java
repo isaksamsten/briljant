@@ -3,7 +3,7 @@ package org.briljantframework.evaluation.result;
 import java.util.List;
 
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.classification.Predictions;
+import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -217,12 +217,12 @@ public interface Measure extends Comparable<Measure>, Chartable {
 
     /**
      * Add producer.
-     *
+     * 
      * @param sample the sample
-     * @param predictions the predictions
+     * @param predicted the predictions
      * @param truth the target
      */
-    public void compute(Sample sample, Predictions predictions, Vector truth);
+    public void compute(Sample sample, List<Label> predicted, Vector truth);
 
     /**
      * Gets performance metric.

@@ -185,7 +185,7 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public IntVector create() {
+    public IntVector build() {
       IntVector vector = new IntVector(buffer.buffer, buffer.size());
       buffer = null;
       return vector;

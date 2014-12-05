@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Predictions;
+import org.briljantframework.classification.ClassifierModel;
+import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
 import org.briljantframework.vector.Vector;
@@ -37,13 +38,13 @@ public class DefaultClassificationEvaluator extends AbstractClassificationEvalua
     for (Partition partition : partitions) {
       DataFrame trainingData = partition.getTrainingData();
       Vector trainingTarget = partition.getTrainingTarget();
-      Classifier.Model model = classifier.fit(trainingData, trainingTarget);
+      ClassifierModel model = classifier.fit(trainingData, trainingTarget);
 
       DataFrame validationData = partition.getValidationData();
       Vector validationTarget = partition.getValidationTarget();
 
-      Predictions outSamplePredictions = model.predict(validationData);
-      Predictions inSamplePredictions = model.predict(trainingData);
+      List<Label> outSamplePredictions = model.predict(validationData);
+      List<Label> inSamplePredictions = model.predict(trainingData);
 
       confusionMatrices.add(ConfusionMatrix.compute(outSamplePredictions, validationTarget));
       for (Measure.Builder builder : builders) {

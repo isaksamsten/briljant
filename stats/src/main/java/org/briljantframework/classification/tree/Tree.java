@@ -17,7 +17,8 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Prediction;
+import org.briljantframework.classification.ClassifierModel;
+import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
@@ -133,7 +134,7 @@ public abstract class Tree<T> implements Classifier {
      * @param example the example
      * @return the prediction
      */
-    Prediction visit(Visitor<T> visitor, Vector example);
+    Label visit(Visitor<T> visitor, Vector example);
   }
 
   /**
@@ -150,7 +151,7 @@ public abstract class Tree<T> implements Classifier {
      * @param example the example
      * @return the prediction
      */
-    default Prediction visit(Node<T> node, Vector example) {
+    default Label visit(Node<T> node, Vector example) {
       return node.visit(this, example);
     }
 
@@ -161,7 +162,7 @@ public abstract class Tree<T> implements Classifier {
      * @param example the example
      * @return the prediction
      */
-    Prediction visitLeaf(Leaf<T> leaf, Vector example);
+    Label visitLeaf(Leaf<T> leaf, Vector example);
 
     /**
      * Visit node.
@@ -170,7 +171,7 @@ public abstract class Tree<T> implements Classifier {
      * @param example the example
      * @return the prediction
      */
-    Prediction visitBranch(Branch<T> node, Vector example);
+    Label visitBranch(Branch<T> node, Vector example);
   }
 
 
@@ -233,7 +234,7 @@ public abstract class Tree<T> implements Classifier {
     }
 
     @Override
-    public Prediction visit(Visitor<T> visitor, Vector example) {
+    public Label visit(Visitor<T> visitor, Vector example) {
       return visitor.visitLeaf(this, example);
     }
   }
@@ -300,7 +301,7 @@ public abstract class Tree<T> implements Classifier {
     }
 
     @Override
-    public Prediction visit(Visitor<T> visitor, Vector example) {
+    public Label visit(Visitor<T> visitor, Vector example) {
       return visitor.visitBranch(this, example);
     }
   }
@@ -310,7 +311,7 @@ public abstract class Tree<T> implements Classifier {
    *
    * @param <T> the type parameter
    */
-  public abstract static class Model<T> implements Classifier.Model {
+  public abstract static class Model<T> implements ClassifierModel {
 
     private final Visitor<T> predictionVisitor;
 
@@ -337,7 +338,7 @@ public abstract class Tree<T> implements Classifier {
     }
 
     @Override
-    public Prediction predict(Vector row) {
+    public Label predict(Vector row) {
       return predictionVisitor.visit(node, row);
     }
 

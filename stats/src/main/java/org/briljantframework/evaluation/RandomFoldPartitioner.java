@@ -96,8 +96,8 @@ public class RandomFoldPartitioner implements Partitioner {
       assert index == rows;
 
 
-      return new Partition(xTrainingBuilder.create(), xValidationBuilder.create(),
-          yTrainingBuilder.create(), yValidationBuilder.create());
+      return new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
+          yTrainingBuilder.build(), yValidationBuilder.build());
     }
   }
 

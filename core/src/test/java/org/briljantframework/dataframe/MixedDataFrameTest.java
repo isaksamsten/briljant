@@ -15,8 +15,8 @@ public class MixedDataFrameTest {
 
   @Test
   public void testName() throws Exception {
-    StringVector a = new StringVector.Builder().add("a").add("b").add("c").create();
-    RealVector b = new RealVector.Builder().add(1).addNA().add(100.23).create();
+    StringVector a = new StringVector.Builder().add("a").add("b").add("c").build();
+    RealVector b = new RealVector.Builder().add(1).addNA().add(100.23).build();
 
     DataFrame frame = new MixedDataFrame(a, b);
 
@@ -30,7 +30,7 @@ public class MixedDataFrameTest {
 
 
     System.out.println(frame);
-    System.out.println(copy.create());
+    System.out.println(copy.build());
 
     DataFrame.Builder builder = new MixedDataFrame.Builder(StringVector.TYPE, RealVector.TYPE);
     for (int i = 0; i < 10; i++) {
@@ -38,7 +38,7 @@ public class MixedDataFrameTest {
       builder.set(i + 10, 0, "hello");
     }
 
-    System.out.println(builder.create());
+    System.out.println(builder.build());
 
     System.out.println(new MixedDataFrame(new IntVector(1, 2, 3, 4), new StringVector("a", "b",
         "c", "d")));
@@ -63,13 +63,13 @@ public class MixedDataFrameTest {
     System.out.println(bu.rows());
     System.out.println(bu.columns());
 
-    DataFrame ff = bu.create();
+    DataFrame ff = bu.build();
     System.out.println(ff);
 
     DataFrame.Builder simple =
         new MixedDataFrame.Builder(StringVector.newBuilderWithInitialValues("a", "b", "c"),
             IntVector.newBuilderWithInitialValues(IntStream.range(0, 1000).toArray()));
-    DataFrame s = simple.create();
+    DataFrame s = simple.build();
     System.out.println(s);
 
     System.out.println(new RemoveIncompleteCases().fitTransform(ff));
@@ -81,12 +81,13 @@ public class MixedDataFrameTest {
   @Test
   public void testMapConstructor() throws Exception {
     Map<String, Vector> vectors = new HashMap<>();
-    vectors.put("engines",
-        StringVector.newBuilderWithInitialValues("hybrid", "electric", "electric", "steam")
-            .create());
-    vectors.put("bhp", IntVector.newBuilderWithInitialValues(150, 130, 75).addNA().create());
+    vectors
+        .put("engines",
+            StringVector.newBuilderWithInitialValues("hybrid", "electric", "electric", "steam")
+                .build());
+    vectors.put("bhp", IntVector.newBuilderWithInitialValues(150, 130, 75).addNA().build());
     vectors.put("brand",
-        StringVector.newBuilderWithInitialValues("toyota", "tesla", "tesla", "volvo").create());
+        StringVector.newBuilderWithInitialValues("toyota", "tesla", "tesla", "volvo").build());
 
     DataFrame frame = new MixedDataFrame(vectors);
     System.out.println(new RemoveIncompleteColumns().fitTransform(frame));
@@ -105,8 +106,8 @@ public class MixedDataFrameTest {
 
   @Test
   public void testRemoveColumnUsingBuilder() throws Exception {
-    StringVector a = new StringVector.Builder().add("a").add("b").add("c").addNA().create();
-    RealVector b = new RealVector.Builder().add(1).add(1).add(2).add(100.23).create();
+    StringVector a = new StringVector.Builder().add("a").add("b").add("c").addNA().build();
+    RealVector b = new RealVector.Builder().add(1).add(1).add(2).add(100.23).build();
 
     DataFrame frame = new MixedDataFrame(a, b);
     frame = new RemoveIncompleteColumns().fitTransform(frame);

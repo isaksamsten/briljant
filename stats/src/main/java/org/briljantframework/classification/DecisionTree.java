@@ -80,12 +80,12 @@ public class DecisionTree extends Tree<ValueThreshold> {
     private static final int MISSING = 0, LEFT = -1, RIGHT = 1;
 
     @Override
-    public Prediction visitLeaf(Leaf<ValueThreshold> leaf, Vector example) {
-      return Prediction.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
+    public Label visitLeaf(Leaf<ValueThreshold> leaf, Vector example) {
+      return Label.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
     }
 
     @Override
-    public Prediction visitBranch(Branch<ValueThreshold> node, Vector example) {
+    public Label visitBranch(Branch<ValueThreshold> node, Vector example) {
       Value threshold = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
       Type type = threshold.getType();

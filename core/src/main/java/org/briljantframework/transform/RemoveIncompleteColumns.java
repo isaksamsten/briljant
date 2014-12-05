@@ -54,7 +54,7 @@ public class RemoveIncompleteColumns implements Transformer {
         }
       }
 
-      return builder.create();
+      return builder.build();
     }
   }
 }

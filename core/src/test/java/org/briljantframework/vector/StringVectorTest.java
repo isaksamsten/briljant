@@ -17,7 +17,7 @@ public class StringVectorTest {
   public void setUp() throws Exception {
     StringVector.Builder builder = new StringVector.Builder();
     Stream.of(STRING_ARRAY).forEach(builder::add);
-    strings = builder.create();
+    strings = builder.build();
   }
 
   @Test
@@ -86,7 +86,7 @@ public class StringVectorTest {
 
   @Test
   public void testNewCopyBuilder() throws Exception {
-    StringVector copy = strings.newCopyBuilder().add("hello").create();
+    StringVector copy = strings.newCopyBuilder().add("hello").build();
     assertEquals("hello", copy.getAsString(copy.size() - 1));
     assertEquals(8, copy.size());
   }
@@ -94,7 +94,7 @@ public class StringVectorTest {
   @Test
   public void testSwap() throws Exception {
     StringVector.Builder builder = StringVector.newBuilderWithInitialValues("a", "b", "c");
-    assertEquals("a", builder.create().getAsString(0));
+    assertEquals("a", builder.build().getAsString(0));
     assertEquals("b", builder.swap(0, 1));
 
   }

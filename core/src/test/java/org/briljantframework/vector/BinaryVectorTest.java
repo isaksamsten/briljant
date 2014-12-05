@@ -13,7 +13,7 @@ public class BinaryVectorTest {
 
   @Before
   public void setUp() throws Exception {
-    vector = new BinaryVector.Builder().add(0).add(1).add(Binary.NA).add(Binary.FALSE).create();
+    vector = new BinaryVector.Builder().add(0).add(1).add(Binary.NA).add(Binary.FALSE).build();
   }
 
   @Test
@@ -68,7 +68,7 @@ public class BinaryVectorTest {
   @Test
   public void testSize() throws Exception {
     assertEquals(4, vector.size());
-    assertEquals(5, vector.newCopyBuilder().add(1).create().size());
+    assertEquals(5, vector.newCopyBuilder().add(1).build().size());
   }
 
   @Test

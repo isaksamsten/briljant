@@ -1,4 +1,4 @@
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.shapelet;
 
 import java.awt.*;
 import java.io.FileInputStream;

@@ -1,7 +1,5 @@
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.classification.tree;
 
-import org.briljantframework.classification.tree.Gain;
-import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.matrix.distance.Distance;
 
 /**

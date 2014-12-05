@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-import org.briljantframework.classification.shapelet.EarlyAbandonSlidingDistance;
-import org.briljantframework.classification.shapelet.RandomShapeletSplitter;
 import org.briljantframework.classification.tree.Examples;
+import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.RealArrayMatrix;
 import org.briljantframework.matrix.RealMatrix;
 import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -156,17 +156,12 @@ public class RandomShapeletForest extends AbstractEnsemble {
      * @param lengthImportance the length importance
      * @param positionImportance the position importance
      */
-    public Model(List<? extends Classifier.Model> models, RealArrayMatrix lengthImportance,
+    public Model(List<? extends ClassifierModel> models, RealArrayMatrix lengthImportance,
         RealArrayMatrix positionImportance) {
       super(models);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
     }
-
-    // @Override
-    // public Prediction predict(Vector row) {
-    // return model.predict(row);
-    // }
 
     /**
      * Gets length importance.
@@ -241,17 +236,6 @@ public class RandomShapeletForest extends AbstractEnsemble {
      * @return the builder
      */
     public Builder withDistance(Distance distance) {
-      randomShapeletSplitter.withDistance(distance);
-      return this;
-    }
-
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
-    public Builder withDistance(Distance.Builder distance) {
       randomShapeletSplitter.withDistance(distance);
       return this;
     }

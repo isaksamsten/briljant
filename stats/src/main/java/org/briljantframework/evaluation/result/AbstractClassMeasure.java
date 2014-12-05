@@ -19,7 +19,7 @@ package org.briljantframework.evaluation.result;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.briljantframework.classification.Predictions;
+import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -151,7 +151,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
     protected final EnumMap<Sample, Set<String>> sampleLabels = new EnumMap<>(Sample.class);
 
     @Override
-    public void compute(Sample sample, Predictions predictions, Vector truth) {
+    public void compute(Sample sample, List<Label> predicted, Vector truth) {
       // checkArgument(targets.getType().getScale() != Type.Scale.NUMERICAL,
       // "Can't calculate per-value metrics for numerical targets");
 
@@ -165,7 +165,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
       double average = 0.0;
       for (String value : labels) {
-        double metricForValue = calculateMetricForValue(value, predictions, truth);
+        double metricForValue = calculateMetricForLabel(value, predicted, truth);
         valueMetrics.put(value, metricForValue);
         average += metricForValue;
       }
@@ -195,7 +195,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
      * @param column the target
      * @return the double
      */
-    protected abstract double calculateMetricForValue(String value, Predictions predictions,
+    protected abstract double calculateMetricForLabel(String value, List<Label> predictions,
         Vector column);
   }
 

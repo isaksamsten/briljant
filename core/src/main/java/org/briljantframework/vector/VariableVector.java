@@ -223,7 +223,7 @@ public class VariableVector implements CompoundVector {
     }
 
     @Override
-    public VariableVector create() {
+    public VariableVector build() {
       return new VariableVector(buffer);
     }
 

@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.briljantframework.classification.Prediction;
-import org.briljantframework.classification.Predictions;
+import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -54,32 +53,40 @@ public class AreaUnderCurve extends AbstractClassMeasure {
   public static final class Builder extends AbstractClassMeasure.Builder {
 
     @Override
-    protected double calculateMetricForValue(String value, Predictions predictions, Vector column) {
-      return calculateAreaUnderCurve(predictions, column, value);
+    protected double calculateMetricForLabel(String value, List<Label> predictions, Vector truth) {
+      return calculateAreaUnderCurve(predictions, truth, value);
     }
 
-    private double calculateAreaUnderCurve(Predictions predictions, Vector targets, String value) {
-      List<PredictionProbability> pairs = new ArrayList<>(predictions.size());
+    private double calculateAreaUnderCurve(List<Label> predicted, Vector truth, String value) {
       double truePositives = 0, falsePositives = 0, positives = 0;
-      for (int i = 0; i < targets.size(); i++) {
-        Prediction p = predictions.get(i);
 
-        boolean positive = targets.getAsString(i).equals(value);
-        if (positive) {
+      List<PredictionProbability> pairs = new ArrayList<>(predicted.size());
+      for (int i = 0; i < truth.size(); i++) {
+        Label p = predicted.get(i);
+
+        boolean positiveness = truth.getAsString(i).equals(value);
+        if (positiveness) {
           positives++;
         }
-        pairs.add(new PredictionProbability(positive, p.getPosteriorProbability(value)));
+        pairs.add(new PredictionProbability(positiveness, p.getPosteriorProbability(value)));
       }
-      Collections.sort(pairs, (a, b) -> Double.compare(b.probability, a.probability));
 
-      double negatives = predictions.size() - positives, previousProbability = -1, auc = 0.0, previousTruePositive =
-          0.0, previousFalsePositive = 0.0;
+      // Sort in decreasing order of posterior probability
+      Collections.sort(pairs);
+
+      double negatives = predicted.size() - positives;
+      double previousProbability = -1;
+      double auc = 0.0;
+      double previousTruePositive = 0.0;
+      double previousFalsePositive = 0.0;
+
+      // Calculates the auc using trapezoidal rule
       for (PredictionProbability pair : pairs) {
         double probability = pair.probability;
         if (probability != previousProbability) {
-          auc +=
-              Math.abs(falsePositives - previousFalsePositive)
-                  * (truePositives + previousTruePositive) / 2;
+          double falseChange = Math.abs(falsePositives - previousFalsePositive);
+          double trueChange = truePositives + previousTruePositive;
+          auc += falseChange * trueChange / 2;
 
           previousFalsePositive = falsePositives;
           previousTruePositive = truePositives;
@@ -95,9 +102,9 @@ public class AreaUnderCurve extends AbstractClassMeasure {
       if (positives * negatives == 0) {
         return 0;
       } else {
-        return (auc + Math.abs(negatives - previousFalsePositive)
-            * (positives + previousTruePositive) / 2)
-            / (positives * negatives);
+        double negChange = Math.abs(negatives - previousFalsePositive);
+        double posChange = positives + previousTruePositive;
+        return (auc + negChange * posChange / 2) / (positives * negatives);
       }
     }
 
@@ -106,7 +113,7 @@ public class AreaUnderCurve extends AbstractClassMeasure {
       return new AreaUnderCurve(this);
     }
 
-    private static final class PredictionProbability {
+    private static final class PredictionProbability implements Comparable<PredictionProbability> {
       /**
        * True if the AucPair is positive
        */
@@ -125,6 +132,11 @@ public class AreaUnderCurve extends AbstractClassMeasure {
       @Override
       public String toString() {
         return positive + " " + probability;
+      }
+
+      @Override
+      public int compareTo(PredictionProbability o) {
+        return Double.compare(o.probability, this.probability);
       }
     }
   }

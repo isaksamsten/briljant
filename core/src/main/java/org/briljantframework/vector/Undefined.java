@@ -180,7 +180,7 @@ public class Undefined implements Value {
     }
 
     @Override
-    public Vector create() {
+    public Vector build() {
       return Undefined.INSTANCE;
     }
   }

@@ -117,7 +117,7 @@ public class MixedDataFrame implements DataFrame {
     int index = 0;
     for (Vector.Builder builder : builders) {
       this.names.add(String.valueOf(index++));
-      this.columns.add(builder.create());
+      this.columns.add(builder.build());
     }
 
     this.rows = rows;
@@ -293,7 +293,7 @@ public class MixedDataFrame implements DataFrame {
       }
     }
 
-    return builder.create();
+    return builder.build();
   }
 
   /**
@@ -310,7 +310,7 @@ public class MixedDataFrame implements DataFrame {
       }
     }
 
-    return builder.create();
+    return builder.build();
   }
 
   /**
@@ -550,7 +550,7 @@ public class MixedDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame create() {
+    public DataFrame build() {
       int rows = rows();
       List<Vector> vectors =
           buffers.stream().map(x -> padVectorWithNA(x, rows))
@@ -563,7 +563,7 @@ public class MixedDataFrame implements DataFrame {
       if (builder.size() < maximumRows) {
         builder.setNA(maximumRows - 1);
       }
-      return builder.create();
+      return builder.build();
     }
   }
 }

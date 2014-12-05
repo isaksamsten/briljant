@@ -24,7 +24,7 @@ import com.google.common.math.DoubleMath;
 /**
  * The type Prediction.
  */
-public class Prediction {
+public class Label {
 
   private final String target;
   private final double probability;
@@ -36,7 +36,7 @@ public class Prediction {
    * @param probability the probability of the most probable target
    * @param posterior the the posterior probabilities for the possible targets
    */
-  private Prediction(String target, double probability, Map<String, Double> posterior) {
+  private Label(String target, double probability, Map<String, Double> posterior) {
     this.target = target;
     this.probability = probability;
     this.posterior = posterior;
@@ -48,10 +48,10 @@ public class Prediction {
    * @param a the a
    * @return the prediction
    */
-  public static Prediction unary(String a) {
+  public static Label unary(String a) {
     Map<String, Double> values = new HashMap<>();
     values.put(a, 1.0);
-    return new Prediction(a, 1.0, values);
+    return new Label(a, 1.0, values);
   }
 
   /**
@@ -63,7 +63,7 @@ public class Prediction {
    * @param pb other class posterior probability
    * @return the prediction
    */
-  public static Prediction binary(String a, double pa, String b, double pb) {
+  public static Label binary(String a, double pa, String b, double pb) {
     Preconditions.checkArgument(DoubleMath.fuzzyEquals(pa + pb, 1.0, 0.00001),
         "Probabilities have to sum to one (%s /= 1.0)", pa + pb);
     Map<String, Double> values = new HashMap<>();
@@ -77,7 +77,7 @@ public class Prediction {
       majorProb = pb;
     }
 
-    return new Prediction(major, majorProb, values);
+    return new Label(major, majorProb, values);
   }
 
   /**
@@ -88,7 +88,7 @@ public class Prediction {
    * @param probabilities the posterior probabilities
    * @return the prediction
    */
-  public static Prediction nominal(List<String> targets, List<Double> probabilities) {
+  public static Label nominal(List<String> targets, List<Double> probabilities) {
     Preconditions.checkArgument(targets.size() == probabilities.size() && targets.size() > 0);
 
     Map<String, Double> values = new HashMap<>();
@@ -112,7 +112,7 @@ public class Prediction {
           "Probabilities have to sum to one (%f /= 1.0)", sum));
     }
 
-    return new Prediction(mostProbable, maxProb, values);
+    return new Label(mostProbable, maxProb, values);
   }
 
   /**

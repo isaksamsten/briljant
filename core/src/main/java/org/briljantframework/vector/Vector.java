@@ -183,11 +183,10 @@ public interface Vector extends RealMatrixLike, Serializable {
    * <p>
    * <code>
    * <pre>
-   *         Vector.Builder builder = vector.newCopyBuilder()
-   *         builder.add("Hello world")
+   *         Vector vec = vector.newCopyBuilder().add("Hello world")
    * 
-   *         assert builder.create().size() == vector.size() + 1
-   *         assert builder.create().getAsString(0) == vector.getAsString(0)
+   *         assert vec.size() == vector.size() + 1
+   *         assert vec.getAsString(0) == vector.getAsString(0)
    *     </pre>
    * </code>
    *
@@ -427,7 +426,7 @@ public interface Vector extends RealMatrixLike, Serializable {
      *
      * @return a new vector
      */
-    Vector create();
+    Vector build();
   }
 
 

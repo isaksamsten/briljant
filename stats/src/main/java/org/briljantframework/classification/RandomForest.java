@@ -55,7 +55,7 @@ public class RandomForest extends AbstractEnsemble {
     return String.format("Random Classification Forest");
   }
 
-  private static final class FitTask implements Callable<Classifier.Model> {
+  private static final class FitTask implements Callable<ClassifierModel> {
 
     private final Examples examples;
     private final DataFrame x;
@@ -71,7 +71,7 @@ public class RandomForest extends AbstractEnsemble {
     }
 
     @Override
-    public Classifier.Model call() throws Exception {
+    public ClassifierModel call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
       return builder.create(sample(examples, random)).fit(x, y);
     }

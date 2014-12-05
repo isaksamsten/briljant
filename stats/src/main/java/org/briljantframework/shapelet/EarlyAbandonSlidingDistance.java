@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.shapelet;
 
 import org.briljantframework.matrix.RealMatrixLike;
 import org.briljantframework.matrix.distance.Distance;

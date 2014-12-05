@@ -14,7 +14,9 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.classification.tree;
+
+import org.briljantframework.shapelet.Shapelet;
 
 /**
  * Created by Isak Karlsson on 17/09/14.

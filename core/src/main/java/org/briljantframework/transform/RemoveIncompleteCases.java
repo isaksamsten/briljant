@@ -48,7 +48,7 @@ public class RemoveIncompleteCases implements Transformer {
           }
         }
       }
-      return builder.create();
+      return builder.build();
     }
   }
 }

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Predictions;
+import org.briljantframework.classification.ClassifierModel;
+import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
 import org.briljantframework.vector.Vector;
@@ -42,7 +43,7 @@ public class HoldOutValidation extends AbstractClassificationEvaluator {
 
   @Override
   public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
-    Classifier.Model model = classifier.fit(x, y);
+    ClassifierModel model = classifier.fit(x, y);
     return evaluate(model, x, y);
   }
 
@@ -52,9 +53,9 @@ public class HoldOutValidation extends AbstractClassificationEvaluator {
    * @param model the model
    * @return the result
    */
-  public Result evaluate(Classifier.Model model, DataFrame x, Vector y) {
-    Predictions holdOutPredictions = model.predict(holdoutX);
-    Predictions inSamplePredictions = model.predict(x);
+  public Result evaluate(ClassifierModel model, DataFrame x, Vector y) {
+    List<Label> holdOutPredictions = model.predict(holdoutX);
+    List<Label> inSamplePredictions = model.predict(x);
 
     ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, y);
     List<Measure> measures = getMeasureProvider().getMeasures().stream().map(producer -> {

@@ -10,7 +10,7 @@ public class IntVectorTest {
 
   public static final int[] INT_ARRAY = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private IntVector vector;
-  private IntVector hasNA = new IntVector.Builder().addNA().addNA().add(1).add(2).create();
+  private IntVector hasNA = new IntVector.Builder().addNA().addNA().add(1).add(2).build();
 
 
   @Before
@@ -19,7 +19,7 @@ public class IntVectorTest {
     for (int i = 0; i < 10; i++) {
       builder.add(i);
     }
-    vector = builder.create();
+    vector = builder.build();
   }
 
   @Test
@@ -29,7 +29,7 @@ public class IntVectorTest {
     builder.set(10, 10);
     System.out.println(builder.size());
 
-    System.out.println(builder.create());
+    System.out.println(builder.build());
 
 
   }
@@ -83,7 +83,7 @@ public class IntVectorTest {
 
   @Test
   public void testNewCopyBuilder() throws Exception {
-    IntVector copy = vector.newCopyBuilder().add(10).create();
+    IntVector copy = vector.newCopyBuilder().add(10).build();
     assertEquals(11, copy.size());
     assertEquals(copy.getAsInt(2), vector.getAsInt(2));
   }
@@ -125,7 +125,7 @@ public class IntVectorTest {
     builder.add(vector, 0);
     builder.add(vector, 9);
 
-    assertArrayEquals(new int[] {IntVector.NA, 0, 9}, builder.create().asIntArray());
+    assertArrayEquals(new int[] {IntVector.NA, 0, 9}, builder.build().asIntArray());
 
   }
 

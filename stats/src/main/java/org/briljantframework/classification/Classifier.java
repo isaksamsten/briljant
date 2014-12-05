@@ -16,9 +16,6 @@
 
 package org.briljantframework.classification;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
@@ -35,9 +32,8 @@ import org.briljantframework.vector.Vector;
  * </p>
  * 
  * <p>
- * The output of the classifier is a {@link org.briljantframework.classification.Classifier.Model}
- * (i.e., the {@code g}) which (hopefully) approximates {@code h}. To estimate how well {@code g}
- * approximates {@code h}, cross-validation
+ * The output of the classifier is a {@link ClassifierModel} (i.e., the {@code g}) which (hopefully)
+ * approximates {@code h}. To estimate how well {@code g} approximates {@code h}, cross-validation
  * {@link org.briljantframework.evaluation.ClassificationEvaluators#crossValidation(int)} can be
  * employed.
  * </p>
@@ -73,7 +69,7 @@ public interface Classifier {
    * @param y the classes
    * @return a classification model
    */
-  public abstract Model fit(DataFrame x, Vector y);
+  public abstract ClassifierModel fit(DataFrame x, Vector y);
 
   /**
    * The interface Builder.
@@ -88,40 +84,4 @@ public interface Classifier {
     C build();
   }
 
-  /**
-   * The interface Model.
-   * <p>
-   * TODO(isak) - below:
-   * <p>
-   * In some cases models produce additional measurements. For example, a random forest produces
-   * variable importance and a linear models produce standard error, t-statistics R^2 etc. One
-   * question is how to incorporate these measurements into the different models. Perhaps they may
-   * feeling is that they don't belong here, but rather to the particular implementation. However,
-   * it might be useful to have for example a summary() function or similar. Perhaps even a
-   * plot(onto) function.
-   */
-  public static interface Model {
-
-    /**
-     * Determine the class label of every instance in {@code x}
-     *
-     * @param x to determine class labels for
-     * @return the predictions
-     */
-    default Predictions predict(DataFrame x) {
-      List<Prediction> predictions = new ArrayList<>();
-      for (Vector e : x) {
-        predictions.add(predict(e));
-      }
-      return Predictions.create(predictions);
-    }
-
-    /**
-     * Predict the class label of a specific {@link org.briljantframework.vector.Vector}
-     *
-     * @param row to which the class label shall be assigned
-     * @return the prediction
-     */
-    Prediction predict(Vector row);
-  }
 }

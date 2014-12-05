@@ -28,7 +28,7 @@ public interface Type {
    * @return a new vector
    */
   default Vector copy(Vector vector) {
-    return newBuilder(vector.size()).addAll(vector).create();
+    return newBuilder(vector.size()).addAll(vector).build();
   }
 
   /**

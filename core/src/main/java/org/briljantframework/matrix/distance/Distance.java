@@ -86,16 +86,4 @@ public interface Distance {
    * @return the minimum possible distance
    */
   double min();
-
-  /**
-   * The interface Builder.
-   */
-  public static interface Builder {
-    /**
-     * Create distance.
-     *
-     * @return the distance
-     */
-    Distance create();
-  }
 }

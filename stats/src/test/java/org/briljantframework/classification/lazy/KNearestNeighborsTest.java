@@ -1,8 +1,12 @@
 package org.briljantframework.classification.lazy;
 
 import org.briljantframework.classification.KNearestNeighbors;
-import org.briljantframework.matrix.distance.Distance;
-import org.briljantframework.matrix.time.DynamicTimeWarping;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.evaluation.ClassificationEvaluators;
+import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.matrix.distance.EuclideanDistance;
+import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 public class KNearestNeighborsTest {
@@ -10,13 +14,14 @@ public class KNearestNeighborsTest {
   @Test
   public void testClassifier() throws Exception {
     KNearestNeighbors oneNearestNeighbours =
-        KNearestNeighbors.withNeighbors(1)
-            .withDistance(DynamicTimeWarping.withDistance(Distance.EUCLIDEAN).withConstraint(1))
-            .build();
+        KNearestNeighbors.withNeighbors(4).withDistance(EuclideanDistance.INSTANCE).build();
 
-    String name = "Coffee";
-    String datasetPath = String.format("/Users/isak/Downloads/dataset/%s/%s_", name, name);
+    DataFrame iris = Datasets.loadIris();
+    Vector y = iris.getColumn(4);
+    DataFrame x = iris.dropColumn(4);
 
+    Result res = ClassificationEvaluators.crossValidation(10).evaluate(oneNearestNeighbours, x, y);
+    System.out.println(res);
     // ClassificationFrame train = DataSeriesInputStream.load(datasetPath + "TRAIN", 0,
     // Frame.FACTORY, DefaultTarget.FACTORY);
     // ClassificationFrame test = DataSeriesInputStream.load(datasetPath + "TEST", 0,

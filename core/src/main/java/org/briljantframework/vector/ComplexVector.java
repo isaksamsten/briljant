@@ -279,7 +279,7 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
-    public ComplexVector create() {
+    public ComplexVector build() {
       return new ComplexVector(buffer.buffer, size());
     }
 

@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.List;
 
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.classification.Predictions;
+import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
@@ -77,7 +77,7 @@ public class ConfusionMatrix implements Chartable {
    * @param truth the target
    * @return the confusion matrix
    */
-  public static ConfusionMatrix compute(Predictions predictions, Vector truth) {
+  public static ConfusionMatrix compute(List<Label> predictions, Vector truth) {
     checkArgument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
         predictions.size(), truth.size());
 

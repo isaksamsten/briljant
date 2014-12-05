@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.classification.shapelet;
+package org.briljantframework.shapelet;
 
 import java.util.ArrayList;
 import java.util.List;
