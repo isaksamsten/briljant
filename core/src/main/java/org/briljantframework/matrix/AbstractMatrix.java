@@ -26,6 +26,7 @@ import java.util.function.ToDoubleFunction;
 import org.briljantframework.Utils;
 import org.briljantframework.exception.NonConformantException;
 
+import com.github.fommil.netlib.BLAS;
 import com.google.common.collect.ImmutableTable;
 
 /**
@@ -33,6 +34,7 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractMatrix implements Matrix {
 
+  protected static final BLAS blas = BLAS.getInstance();
   protected int rows;
   protected int cols;
 
@@ -108,29 +110,23 @@ public abstract class AbstractMatrix implements Matrix {
     return mat;
   }
 
-  // TODO: do actually return a view...
   @Override
   public Matrix getRowView(int i) {
-    Matrix row = newEmptyMatrix(1, columns());
-    for (int j = 0; j < columns(); j++) {
-      row.put(0, j, get(i, j));
-    }
-    return row;
+    return new MatrixView(this, i, 0, 1, columns());
   }
 
-  // TODO: do actually return a view...
   public Matrix getColumnView(int index) {
-    double[] col = new double[this.rows()];
-    for (int i = 0; i < this.rows(); i++) {
-      col[i] = get(i, index);
-    }
-
-    return new ArrayMatrix(rows(), 1, col);
+    return new MatrixView(this, 0, index, rows(), 1);
   }
 
   @Override
   public Diagonal getDiagonalView() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new MatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -150,12 +146,28 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix mmul(Matrix other) throws NonConformantException {
-    return Matrices.mmul(this, other);
+    return mmul(1, other, 1);
   }
 
   @Override
   public Matrix mmul(Diagonal diagonal) {
-    return Matrices.mdmul(this, diagonal);
+    if (columns() != diagonal.rows()) {
+      throw new NonConformantException(this, diagonal);
+    }
+    Matrix matrix = newEmptyMatrix(this.rows(), diagonal.columns());
+    int rows = this.rows(), columns = diagonal.columns();
+    for (int column = 0; column < columns; column++) {
+      if (column < this.columns()) {
+        for (int row = 0; row < rows; row++) {
+          double xv = this.get(row, column);
+          double dv = diagonal.get(column);
+          matrix.put(row, column, xv * dv);
+        }
+      } else {
+        break;
+      }
+    }
+    return matrix;
   }
 
   @Override
@@ -166,7 +178,12 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix mul(double scalar) {
-    return Matrices.mul(this, scalar);
+    Matrix mat = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      mat.put(i, get(i) * scalar);
+    }
+
+    return mat;
   }
 
   @Override
@@ -426,14 +443,6 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    if (this.columns() != other.rows()) {
-      throw new NonConformantException(this, other);
-    }
-    return Matrices.mmul(this, alpha, other, beta);
-  }
-
-  @Override
   public Matrix negate() {
     Matrix n = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
@@ -633,7 +642,7 @@ public abstract class AbstractMatrix implements Matrix {
         }
       }
     }
-    StringBuilder out = new StringBuilder("DenseMatrix\n");
+    StringBuilder out = new StringBuilder();
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
     out.append("Shape: ").append(getShape());
     return out.toString();

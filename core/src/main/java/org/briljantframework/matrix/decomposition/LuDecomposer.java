@@ -35,7 +35,7 @@ public class LuDecomposer implements Decomposer<LuDecomposition> {
     Matrix lu = new ArrayMatrix(matrix);
 
     intW error = new intW(0);
-    LAPACK.getInstance().dgetrf(n, n, lu.asDoubleArray(), n, pivots, error);
+    lu.unsafe(x -> LAPACK.getInstance().dgetrf(n, n, x, n, pivots, error));
     if (error.val != 0) {
       throw new BlasException("dgtref", error.val, "LU decomposition failed.");
     }

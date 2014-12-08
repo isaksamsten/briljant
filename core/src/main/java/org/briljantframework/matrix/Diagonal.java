@@ -16,11 +16,11 @@
 
 package org.briljantframework.matrix;
 
+import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
-import org.briljantframework.Utils;
-
-import com.google.common.collect.ImmutableTable;
+import org.briljantframework.exception.NonConformantException;
 
 /**
  * Implementation of a sparse diagonal matrix
@@ -69,19 +69,6 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
   }
 
   /**
-   * Reshape matrix.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the matrix
-   */
-  public Matrix reshape(int rows, int cols) {
-    ArrayMatrix ret = ArrayMatrix.fromColumnOrder(this.rows(), this.columns(), asDoubleArray());
-    ret.reshapei(rows, cols);
-    return ret;
-  }
-
-  /**
    * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
    * affect the original.
    *
@@ -91,6 +78,34 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
     double[] values = new double[this.values.length];
     System.arraycopy(this.values, 0, values, 0, this.values.length);
     return new Diagonal(this.rows(), this.columns(), values);
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
+    throw new UnsupportedOperationException("Not implemented yet.");
+  }
+
+  /**
+   * Avoid.
+   * 
+   * @param op unsafe operation
+   * @return the result of {@code op.apply(...)}
+   */
+  @Override
+  public Matrix unsafeTransform(Function<double[], Matrix> op) {
+    double[] arr = new double[rows() * columns()];
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        arr[Indexer.columnMajor(i, j, rows(), columns())] = get(i, j);
+      }
+    }
+
+    return op.apply(arr);
+  }
+
+  @Override
+  public void unsafe(Consumer<double[]> consumer) {
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -123,22 +138,23 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
     }
   }
 
-  /**
-   * Raw view of the column-major underlying array. In some instances it might be possible to mutate
-   * this (e.g., if the implementation provides a direct reference. However, there are nos such
-   * guarantees).
-   *
-   * @return the underlying array. Touch with caution.
-   */
-  public double[] asDoubleArray() {
-    int rows = rows(), cols = columns();
-    double[] dense = new double[rows * cols];
-    int n = Math.min(cols, rows);
-    for (int j = 0; j < n; j++) {
-      dense[j * rows + j] = values[j];
-    }
-    return dense;
-  }
+  // /**C
+  // * Raw view of the column-major underlying array. In some instances it might be possible to
+  // mutate
+  // * this (e.g., if the implementation provides a direct reference. However, there are nos such
+  // * guarantees).
+  // *
+  // * @return the underlying array. Touch with caution.
+  // */
+  // public double[] asDoubleArray() {
+  // int rows = rows(), cols = columns();
+  // double[] dense = new double[rows * cols];
+  // int n = Math.min(cols, rows);
+  // for (int j = 0; j < n; j++) {
+  // dense[j * rows + j] = values[j];
+  // }
+  // return dense;
+  // }
 
   /**
    * Get double.
@@ -207,16 +223,45 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
    * Multiplying a square symmetric diagonal matrix (i.e. a vector of diagonal entries) d and X,
    * storing the result in Y
    * <p>
-   * 
+   *
    * <pre>
    * Y &lt; -dX
    * </pre>
    *
-   * @param x a square matrix with x.rows = d.size
+   * @param other a square matrix with x.rows = d.size
    * @return a matrix
    */
-  public Matrix mmul(Matrix x) {
-    return Matrices.mdmul(x, this);
+  @Override
+  public Matrix mmul(Matrix other) {
+    if (this.columns() != other.rows()) {
+      throw new NonConformantException(this, other);
+    }
+
+    Matrix mat = new ArrayMatrix(this.rows(), other.columns());
+    int rows = this.rows(), columns = other.columns();
+    for (int row = 0; row < rows; row++) {
+      if (row < other.rows()) {
+        for (int column = 0; column < columns; column++) {
+          mat.put(row, column, other.get(row, column) * this.get(row));
+        }
+      } else {
+        break;
+      }
+    }
+
+    return mat;
+  }
+
+  /**
+   * 
+   * @param d
+   * @return
+   */
+  @Override
+  public Matrix mmul(Diagonal d) {
+
+
+    return null;
   }
 
   /**
@@ -232,24 +277,6 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
     }
 
     return new Diagonal(this.rows(), this.columns(), out);
-  }
-
-  @Override
-  public String toString() {
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        if (get(i, j) < 0) {
-          builder.put(i, j, String.format("%1.4f", get(i, j)));
-        } else {
-          builder.put(i, j, String.format(" %1.4f", get(i, j)));
-        }
-      }
-    }
-    StringBuilder out = new StringBuilder("Diagonal\n");
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("Shape: ").append(getShape());
-    return out.toString();
   }
 
   @Override

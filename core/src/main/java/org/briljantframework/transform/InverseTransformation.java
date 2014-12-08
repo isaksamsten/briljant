@@ -30,6 +30,8 @@ import com.github.fommil.netlib.LAPACK;
 public class InverseTransformation implements Transformation {
 
 
+  protected static final LAPACK lapack = LAPACK.getInstance();
+
   /**
    * Transform dense matrix.
    *
@@ -47,21 +49,26 @@ public class InverseTransformation implements Transformation {
 
     int[] ipiv = new int[n];
     intW error = new intW(0);
-    LAPACK.getInstance().dgetrf(n, n, out.asDoubleArray(), n, ipiv, error);
+    out.unsafe(x -> lapack.dgetrf(n, n, x, n, ipiv, error));
     if (error.val != 0) {
       throw new BlasException("dgtref", error.val, "LU decomposition failed.");
     }
 
     double[] work = new double[1];
     int lwork = -1;
-    LAPACK.getInstance().dgetri(n, out.asDoubleArray(), n, ipiv, work, lwork, error);
+    final double[] finalWork = work;
+    final int finalLwork = lwork;
+    out.unsafe(x -> lapack.dgetri(n, x, n, ipiv, finalWork, finalLwork, error));
+
     if (error.val != 0) {
       throw new BlasException("dgetri", error.val, "Query failed");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    LAPACK.getInstance().dgetri(n, out.asDoubleArray(), n, ipiv, work, lwork, error);
+    final double[] finalWork1 = work;
+    final int finalLwork1 = lwork;
+    out.unsafe(x -> lapack.dgetri(n, x, n, ipiv, finalWork1, finalLwork1, error));
     if (error.val != 0) {
       throw new BlasException("dgetri", error.val, "Inverse failed. The matrix is singular.");
     }

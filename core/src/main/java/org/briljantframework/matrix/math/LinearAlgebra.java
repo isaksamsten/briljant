@@ -16,7 +16,10 @@
 
 package org.briljantframework.matrix.math;
 
-import org.briljantframework.matrix.*;
+import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.Diagonal;
+import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Shape;
 import org.briljantframework.matrix.analysis.PrincipalComponentAnalysis;
 import org.briljantframework.matrix.analysis.PrincipalComponentAnalyzer;
 import org.briljantframework.matrix.decomposition.LuDecomposer;
@@ -129,7 +132,8 @@ public class LinearAlgebra {
     diagonal.apply(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transposei();
     Matrix s = rightSingularValues.mmul(diagonal);
-    Matrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
+    throw new UnsupportedOperationException("must be implemented");
+    // Matrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
   }
 
   /**

@@ -1,9 +1,9 @@
 package org.briljantframework.classification;
 
 
-import static org.briljantframework.matrix.Matrices.mmul;
 import static org.briljantframework.matrix.Matrices.randn;
 
+import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
 
 /**
@@ -21,13 +21,82 @@ public class TestMain {
     // Dataset dataset = in.read(DenseDataset.getFactory());
 
 
-    Matrix a = randn(1000, 10);
-    Matrix b = randn(10, 1000);
+    Matrix a = randn(10000, 10000);
+    // Matrix b = randn(10, 10000);
+    // RealVector.Builder builder = new RealVector.Builder();
+    // for (int i = 0; i < b.size(); i++) {
+    // builder.add(b.get(i));
+    // }
+    //
+    // VectorMatrix matrix = new VectorMatrix(builder.build(), 10, 10000);
+    // long s = System.currentTimeMillis();
+    // for (int i = 0; i < 10; i++) {
+    // a.mmul(b);
+    // }
+    // System.out.println((System.currentTimeMillis() - s) / (double) 1);
+
+
+    // double v = matrix.mapReduce(0, (d, f) -> d + f, x -> x);
+
+
+    // Matrix m = Matrices.parseMatrix("1,2,3;4,5,6;7,8,9");
+    // for (int i = 0; i < m.size(); i++) {
+    // System.out.println(m.get(i));
+    // }
+    //
+    // // for (int i = 0; i < x.size(); i++) {
+    // // System.out.println(x.get(i));
+    // // }
+    //
+    //
+    // Matrix y = m.getView(1, 1, 2, 2);
+    // System.out.println(y);
+    // for (int i = 0; i < y.size(); i++) {
+    // System.out.println(y.get(i));
+    // }
+    //
+    //
+    // Matrix mat = Matrices.parseMatrix("1,2,3,4;5,6,7,8;9,10,11,12;13,14,15,16");
+    //
+    // Matrix d = mat.getView(1, 1, 3, 3);
+    // System.out.println(d);
+    // for (int i = 0; i < d.size(); i++) {
+    // System.out.println(d.get(i));
+    // }
+    // System.out.println(m);
+    // for (int i = 0; i < m.columns(); i++) {
+    // System.out.println(m.getColumnView(i));
+    // }
+
+
+    // System.out.println(m.getView(1, 1, 2, 2));
+
+
+
     long s = System.currentTimeMillis();
-    for (int i = 0; i < 100; i++) {
-      mmul(a, b);
+    // Matrix rowMean = a.reduceRows(x -> x.mapReduce(0, Double::sum, xy -> xy) / x.size());
+
+    Matrix rowMeans = new ArrayMatrix(1, a.rows());
+    double div = a.columns();
+    for (int j = 0; j < a.columns(); j++) {
+      double mean = 0;
+      for (int i = 0; i < a.rows(); i++) {
+        mean += a.get(i, j);
+      }
+      rowMeans.put(j, mean / div);
     }
-    System.out.println((System.currentTimeMillis() - s) / (double) 100);
+    // for (int i = 0; i < a.rows(); i++) {
+    // double mean = 0;
+    // for (int j = 0; j < a.columns(); j++) {
+    // mean += a.get(i, j);
+    // }
+    // rowMeans.put(i, mean / a.columns());
+    // }
+
+    System.out.println(System.currentTimeMillis() - s);
+    System.out.println(rowMeans);
+    //
+    // System.out.println(v);
 
 
     // TargetContainer container = TargetContainer.create(dataset, "Class",

@@ -37,6 +37,8 @@ import com.github.fommil.netlib.LAPACK;
  */
 public class SingularValueDecomposer implements Decomposer<SingularValueDecomposition> {
 
+  protected static final LAPACK lapack = LAPACK.getInstance();
+
   @Override
   public SingularValueDecomposition decompose(Matrix matrix) {
     int m = matrix.rows(), n = matrix.columns();
@@ -49,16 +51,22 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
     double[] work = new double[1];
 
     intW info = new intW(0);
-    LAPACK.getInstance().dgesvd("a", "a", m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work,
-        lwork, info);
+    final int finalLwork = lwork;
+    final double[] finalWork = work;
+    copy.unsafe(x -> lapack.dgesvd("a", "a", m, n, x, m, sigma, u, m, vt, n, finalWork, finalLwork,
+        info));
+
     if (info.val != 0) {
       throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    LAPACK.getInstance().dgesvd("a", "a", m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work,
-        lwork, info);
+    final int finalLwork1 = lwork;
+    final double[] finalWork1 = work;
+    copy.unsafe(x -> lapack.dgesvd("a", "a", m, n, x, m, sigma, u, m, vt, n, finalWork1,
+        finalLwork1, info));
+
     if (info.val != 0) {
       throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
     }

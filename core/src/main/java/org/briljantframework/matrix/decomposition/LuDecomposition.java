@@ -73,14 +73,18 @@ public class LuDecomposition implements Decomposition {
     int lwork = -1;
     double[] work = new double[1];
     intW err = new intW(0);
-    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
+    final int finalLwork = lwork;
+    final double[] finalWork = work;
+    inv.unsafe(x -> LAPACK.getInstance().dgetri(n, x, n, pivots, finalWork, finalLwork, err));
     if (err.val != 0) {
       throw new BlasException("LAPACKE_dgetri", err.val, "Querying failed");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
+    final double[] finalWork1 = work;
+    final int finalLwork1 = lwork;
+    inv.unsafe(x -> LAPACK.getInstance().dgetri(n, x, n, pivots, finalWork1, finalLwork1, err));
     if (err.val != 0) {
       throw new BlasException("LAPACKE_dgetri", err.val, "Inverse failed.");
     }

@@ -16,9 +16,7 @@
 
 package org.briljantframework.matrix;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 
 /**
  * 
@@ -133,6 +131,33 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return a diagonal view
    */
   Diagonal getDiagonalView();
+
+  /**
+   * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
+   * starting at {@code colOffset} until {@code colOffset + columns}.
+   * 
+   * For example,
+   * 
+   * <pre>
+   *   1 2 3
+   *   4 5 6
+   *   7 8 9
+   * </pre>
+   * 
+   * and {@code matrix.getView(1, 1, 2, 2)} produces
+   * 
+   * <pre>
+   *   5 6
+   *   8 9
+   * </pre>
+   * 
+   * @param rowOffset
+   * @param colOffset
+   * @param rows
+   * @param columns
+   * @return
+   */
+  Matrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
    * Gets columns.
@@ -423,6 +448,32 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix mmul(double alpha, Matrix other, double beta);
 
   /**
+   * Perform possibly <i>unsafe</i> operation on the, in some cases, underlying representation.
+   * Expected to return a new matrix.
+   * <p>
+   * 
+   * <pre>
+   *  Matrix a = ...;
+   *  Matrix b = ...;
+   *  multiplied = a.unsafe( x -> {
+   *    b.unsafe( y -> {
+   *      double[] tmp = new double[a.rows() * b.columns()];
+   *      BLAS.getInstance().dgemm("n", "n", a.rows(), b.columns(),
+   *          b.rows(), alpha, a.values, a.rows(),
+   *          b.values, b.rows(), beta, tmp, a.rows());
+   *      return new ArrayMatrix(b.columns(), tmp);
+   *    })
+   *  });
+   * </pre>
+   *
+   * @param op unsafe operation
+   * @return a new matrix
+   */
+  Matrix unsafeTransform(Function<double[], Matrix> op);
+
+  void unsafe(Consumer<double[]> consumer);
+
+  /**
    * Returns a new matrix with elements negated.
    *
    * @return a new matrix
@@ -532,14 +583,16 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    */
   BooleanMatrix equalsTo(double value);
 
-  /**
-   * Raw view of the column-major underlying array. In some instances it might be possible to mutate
-   * this (e.g., if the implementation provides a direct reference. However, there are no such
-   * guarantees).
-   *
-   * @return the underlying array. Touch with caution.
-   */
-  double[] asDoubleArray();
+  // /**
+  // * Raw view of the column-major underlying array. In some instances it might be possible to
+  // mutate
+  // * this (e.g., if the implementation provides a direct reference. However, there are no such
+  // * guarantees).
+  // *
+  // * @return the underlying array. Touch with caution.
+  // */
+  // @Deprecated
+  // double[] asDoubleArray();
 
   // /**
   // * Created by Isak Karlsson on 04/09/14.

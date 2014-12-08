@@ -20,9 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
 import org.briljantframework.exception.MismatchException;
+import org.briljantframework.exception.NonConformantException;
 
 import com.google.common.base.Preconditions;
 
@@ -31,7 +34,7 @@ import com.google.common.base.Preconditions;
  */
 public class ArrayMatrix extends AbstractMatrix {
 
-  private final double[] values;
+  final double[] values;
 
   /**
    * Instantiates a new Dense matrix.
@@ -105,7 +108,7 @@ public class ArrayMatrix extends AbstractMatrix {
       throw new MismatchException("DenseMatrix", "cant fit tensor");
     }
     if (matrix instanceof ArrayMatrix) {
-      System.arraycopy(((Matrix) matrix).asDoubleArray(), 0, values, 0, this.cols * this.rows);
+      System.arraycopy(((ArrayMatrix) matrix).values, 0, values, 0, this.cols * this.rows);
     } else {
       for (int i = 0; i < matrix.size(); i++) {
         values[i] = matrix.get(i);
@@ -287,6 +290,37 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
+    if (this.columns() != other.rows()) {
+      throw new NonConformantException(this, other);
+    }
+
+    double[] tmp = new double[this.rows() * other.columns()];
+    if (other instanceof ArrayMatrix) {
+      ArrayMatrix b = (ArrayMatrix) other;
+      blas.dgemm("n", "n", this.rows(), b.columns(), b.rows(), alpha, this.values, this.rows(),
+          b.values, b.rows(), beta, tmp, this.rows());
+      return new ArrayMatrix(other.columns(), tmp);
+    } else {
+      return other.unsafeTransform(b -> {
+        blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha, this.values,
+            this.rows(), b, other.rows(), beta, tmp, this.rows());
+        return new ArrayMatrix(other.columns(), tmp);
+      });
+    }
+  }
+
+  @Override
+  public Matrix unsafeTransform(Function<double[], Matrix> op) {
+    return op.apply(values);
+  }
+
+  @Override
+  public void unsafe(Consumer<double[]> consumer) {
+    consumer.accept(values);
+  }
+
+  @Override
   public void put(int i, int j, double value) {
     values[columnMajor(i, j, rows(), columns())] = value;
   }
@@ -297,10 +331,10 @@ public class ArrayMatrix extends AbstractMatrix {
     values[index] = value;
   }
 
-  @Override
-  public double[] asDoubleArray() {
-    return new double[0];
-  }
+  // @Override
+  // public double[] asDoubleArray() {
+  // return values;
+  // }
 
   /**
    * Fill void.
@@ -318,13 +352,12 @@ public class ArrayMatrix extends AbstractMatrix {
    * @return the matrix
    */
   public Matrix map(DoubleUnaryOperator operator) {
-    ArrayMatrix n = new ArrayMatrix(this.rows(), this.columns());
-    double[] values = n.asDoubleArray(), array = asDoubleArray();
-    for (int i = 0; i < array.length; i++) {
-      values[i] = operator.applyAsDouble(array[i]);
+    double[] values = new double[this.size()];
+    for (int i = 0; i < values.length; i++) {
+      values[i] = operator.applyAsDouble(get(i));
     }
 
-    return n;
+    return new ArrayMatrix(columns(), values);
   }
 
   /**

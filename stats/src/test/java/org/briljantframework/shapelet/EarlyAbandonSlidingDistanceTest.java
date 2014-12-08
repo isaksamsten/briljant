@@ -45,7 +45,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // Shapelet candidate = NormalizedShapelet.create(5, 10, l);
     //
     //
-    Matrix l = Matrices.randn(ArrayMatrix::new, 1, 3213);
+    Matrix l = Matrices.randn(1, 3213);
     Shapelet candidate = new Shapelet(2314, 500, l);
     //
 

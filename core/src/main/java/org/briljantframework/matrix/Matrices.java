@@ -16,17 +16,18 @@
 
 package org.briljantframework.matrix;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
 import org.briljantframework.exception.MismatchException;
 import org.briljantframework.exception.NonConformantException;
-import org.briljantframework.matrix.math.Javablas;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 
@@ -216,102 +217,103 @@ public class Matrices {
     return map(in, x -> Math.log(x) / LOG_2);
   }
 
-  /**
-   * Return a new array with the result
-   * 
-   * @param m a square matrix with x.rows = d.size
-   * @param d a diagonal matrix
-   * @return a new array with the same dimensions as x
-   */
-  public static Matrix mdmul(Matrix m, Diagonal d) {
-    Shape shape = Shape.of(m.rows(), d.columns());
-    double[] empty = shape.getArrayOfShape();
-    mdmuli(m, d, empty);
-    return new ArrayMatrix(shape, empty);
-  }
+  //
+  // /**
+  // * Return a new array with the result
+  // *
+  // * @param m a square matrix with x.rows = d.size
+  // * @param d a diagonal matrix
+  // * @return a new array with the same dimensions as x
+  // */
+  // public static Matrix mdmul(Matrix m, Diagonal d) {
+  // Shape shape = Shape.of(m.rows(), d.columns());
+  // double[] empty = shape.getArrayOfShape();
+  // mdmuli(m, d, empty);
+  // return new ArrayMatrix(shape, empty);
+  // }
 
-  /**
-   * Multiplying a square matrix X with a symmetric diagonal matrix (i.e. a vector of diagonal
-   * entries) d storing the result in Y.
-   * <p>
-   * Since the result is a new square matrix, inplace multiplication can be performed
-   * <p>
-   * 
-   * <pre>
-   * Matrix x = Matrix.of(2, 2, 1, 1, 1, 1);
-   * Vector d = Vector.row(2, 2);
-   * Blas.multiplyByDiagonal(x, d, x);
-   * </pre>
-   * <p>
-   * 
-   * <pre>
-   * Y &lt; -Xd
-   * </pre>
-   *
-   * @param x a square matrix with x.headers = d.size
-   * @param d a diagonal matrix
-   * @param y a square matrix with x.shape = out.shape
-   */
-  public static void mdmuli(Matrix x, Diagonal d, double[] y) {
-    if (x.columns() != d.rows()) {
-      throw new NonConformantException(x, d);
-    }
-    int rows = x.rows(), columns = d.columns();
-    for (int column = 0; column < columns; column++) {
-      if (column < x.columns()) {
-        for (int row = 0; row < rows; row++) {
-          double xv = x.get(row, column);
-          double dv = d.get(column);
-          y[column * rows + row] = xv * dv;
-        }
-      } else {
-        break;
-      }
-    }
-  }
+  // /**
+  // * Multiplying a square matrix X with a symmetric diagonal matrix (i.e. a vector of diagonal
+  // * entries) d storing the result in Y.
+  // * <p>
+  // * Since the result is a new square matrix, inplace multiplication can be performed
+  // * <p>
+  // *
+  // * <pre>
+  // * Matrix x = Matrix.of(2, 2, 1, 1, 1, 1);
+  // * Vector d = Vector.row(2, 2);
+  // * Blas.multiplyByDiagonal(x, d, x);
+  // * </pre>
+  // * <p>
+  // *
+  // * <pre>
+  // * Y &lt; -Xd
+  // * </pre>
+  // *
+  // * @param x a square matrix with x.headers = d.size
+  // * @param d a diagonal matrix
+  // * @param y a square matrix with x.shape = out.shape
+  // */
+  // public static void mdmuli(Matrix x, Diagonal d, double[] y) {
+  // if (x.columns() != d.rows()) {
+  // throw new NonConformantException(x, d);
+  // }
+  // int rows = x.rows(), columns = d.columns();
+  // for (int column = 0; column < columns; column++) {
+  // if (column < x.columns()) {
+  // for (int row = 0; row < rows; row++) {
+  // double xv = x.get(row, column);
+  // double dv = d.get(column);
+  // y[column * rows + row] = xv * dv;
+  // }
+  // } else {
+  // break;
+  // }
+  // }
+  // }
 
-  /**
-   * Multiply by diagonal.
-   *
-   * @param d a diagonal matrix
-   * @param m a square matrix with x.headers = d.size
-   * @return the result
-   */
-  public static Matrix dmmul(Diagonal d, Matrix m) {
-    Shape shape = Shape.of(d.rows(), m.columns());
-    double[] array = shape.getArrayOfShape();
-    dmmuli(d, m, array);
-    return new ArrayMatrix(shape, array);
-  }
+  // /**
+  // * Multiply by diagonal.
+  // *
+  // * @param d a diagonal matrix
+  // * @param m a square matrix with x.headers = d.size
+  // * @return the result
+  // */
+  // public static Matrix dmmul(Diagonal d, Matrix m) {
+  // Shape shape = Shape.of(d.rows(), m.columns());
+  // double[] array = shape.getArrayOfShape();
+  // dmmuli(d, m, array);
+  // return new ArrayMatrix(shape, array);
+  // }
 
-  /**
-   * Multiplying a square symmetric diagonal matrix (i.e. a vector of diagonal entries) d and X,
-   * storing the result in Y
-   * <p>
-   * 
-   * <pre>
-   * Y &lt; -dX
-   * </pre>
-   *
-   * @param d a diagonal matrix
-   * @param x a square matrix with x.rows = d.size
-   * @param y a square matrix with x.shape = y.shape
-   */
-  public static void dmmuli(Diagonal d, Matrix x, double[] y) {
-    if (d.columns() != x.rows()) {
-      throw new NonConformantException(d, x);
-    }
-    int rows = d.rows(), columns = x.columns();
-    for (int row = 0; row < rows; row++) {
-      if (row < x.rows()) {
-        for (int column = 0; column < columns; column++) {
-          y[column * rows + row] = x.get(row, column) * d.get(row);
-        }
-      } else {
-        break;
-      }
-    }
-  }
+  // /**
+  // * Multiplying a square symmetric diagonal matrix (i.e. a vector of diagonal entries) d and X,
+  // * storing the result in Y
+  // * <p>
+  // *
+  // * <pre>
+  // * Y &lt; -dX
+  // * </pre>
+  // *
+  // * @param d a diagonal matrix
+  // * @param x a square matrix with x.rows = d.size
+  // * @param y a square matrix with x.shape = y.shape
+  // */
+  // public static void dmmuli(Diagonal d, Matrix x, double[] y) {
+  // if (d.columns() != x.rows()) {
+  // throw new NonConformantException(d, x);
+  // }
+  // int rows = d.rows(), columns = x.columns();
+  // for (int row = 0; row < rows; row++) {
+  // if (row < x.rows()) {
+  // for (int column = 0; column < columns; column++) {
+  // y[column * rows + row] = x.get(row, column) * d.get(row);
+  // }
+  // } else {
+  // break;
+  // }
+  // }
+  // }
 
   /**
    * Linspace out.
@@ -487,238 +489,240 @@ public class Matrices {
     return map(in, Math::signum);
   }
 
-  /**
-   * Matrix multiplication between matrix a and b scaling with alpha and beta, i.e. (aA)(bB)
-   *
-   * @param a a rectangular array
-   * @param transA transpose a
-   * @param b a rectangular array
-   * @param transB transpose b
-   * @param out output array
-   */
-  public static void mmuli(Matrix a, Transpose transA, Matrix b, Transpose transB, double[] out) {
-    mmuli(a, transA, 1, b, transB, 1, out);
-  }
+  // /**
+  // * Matrix multiplication between matrix a and b scaling with alpha and beta, i.e. (aA)(bB)
+  // *
+  // * @param a a rectangular array
+  // * @param transA transpose a
+  // * @param b a rectangular array
+  // * @param transB transpose b
+  // * @param out output array
+  // */
+  // public static void mmuli(Matrix a, Transpose transA, Matrix b, Transpose transB, double[] out)
+  // {
+  // mmuli(a, transA, 1, b, transB, 1, out);
+  // }
+  //
+  // /**
+  // * This function multiplies A * B and multiplies the resulting matrix by alpha. It then
+  // multiplies
+  // * matrix C by beta. It stores the sum of these two products in matrix C.
+  // * <p>
+  // * Thus, it calculates either
+  // * <p>
+  // * C <- alpha*A*B + beta*C
+  // * <p>
+  // * or
+  // * <p>
+  // * C <- alpha*B*A + beta*C
+  // * <p>
+  // * with optional use of transposed forms of A, B, or both.
+  // * <p>
+  // * For example, reusing an existing matrix for storing the intermediate value of a computation
+  // *
+  // * <pre>
+  // * Matrix a = Matrix.of(2, 3,
+  // * 1, 2, 3,
+  // * 3, 2, 1
+  // * );
+  // *
+  // * Matrix b = Matrix.of(3, 2,
+  // * 1, 2,
+  // * 3, 4,
+  // * 5, 6
+  // * );
+  // *
+  // * Matrix out = new Matrix(2, 2);
+  // *
+  // * for(...) {
+  // * Matrices.multiplyInplace(a, Transpose.No, 1, b, Transpose.No, 0, out);
+  // * }
+  // * </pre>
+  // *
+  // * @param a a rectangular array
+  // * @param transA transpose a
+  // * @param alpha a multiplication factor
+  // * @param b a rectangular array
+  // * @param transB transpose b
+  // * @param beta a scaling factor for out
+  // * @param out a rectangular array
+  // */
+  // public static void mmuli(Matrix a, Transpose transA, double alpha, Matrix b, Transpose transB,
+  // double beta, double[] out) {
+  // int am = a.rows(), an = a.columns(), bm = b.rows(), bn = b.columns();
+  // if (transA == Transpose.YES) {
+  // int tmp = am;
+  // am = an;
+  // an = tmp;
+  // }
+  //
+  // if (transB == Transpose.YES) {
+  // int tmp = bm;
+  // bm = bn;
+  // bn = tmp;
+  // }
+  //
+  // if (an != bm) {
+  // throw new NonConformantException("a", am, an, "b", bm, bn);
+  // }
+  // blas.dgemm(transA.getTransString(), transB.getTransString(), a.rows(), b.columns(), b.rows(),
+  // alpha, a.asDoubleArray(), a.rows(), b.asDoubleArray(), b.rows(), beta, out, a.rows());
+  // }
+  //
+  //
+  //
+  // /**
+  // * Multiply out.
+  // *
+  // * @param a the a
+  // * @param transA the trans a
+  // * @param b the b
+  // * @param transB the trans b
+  // * @return the out
+  // */
+  // public static Matrix mmul(Matrix a, Transpose transA, Matrix b, Transpose transB) {
+  // return mmul(a, transA, 1.0, b, transB, 1.0);
+  // }
+  //
+  // /**
+  // * Multiply out.
+  // *
+  // * @param a the a
+  // * @param transA the trans a
+  // * @param alpha the alpha
+  // * @param b the b
+  // * @param transB the trans b
+  // * @param beta the beta
+  // * @return the out
+  // */
+  // public static ArrayMatrix mmul(Matrix a, Transpose transA, double alpha, Matrix b,
+  // Transpose transB, double beta) {
+  // int am = a.rows(), an = a.columns(), bm = b.rows(), bn = b.columns();
+  // if (transA == Transpose.YES) {
+  // int tmp = am;
+  // am = an;
+  // an = tmp;
+  // }
+  //
+  // if (transB == Transpose.YES) {
+  // int tmp = bm;
+  // bm = bn;
+  // bn = tmp;
+  // }
+  //
+  // if (an != bm) {
+  // throw new NonConformantException("a", am, an, "b", bm, bn);
+  // }
+  // Shape shape = Shape.of(am, bn);
+  // double[] out = shape.getArrayOfShape();
+  // mmuli(a, transA, alpha, b, transB, beta, out);
+  // return new ArrayMatrix(shape, out);
+  // }
+  //
+  //
+  // /**
+  // * Multiply out.
+  // *
+  // * @param a the a
+  // * @param alpha the alpha
+  // * @param b the b
+  // * @param beta the beta
+  // * @return the out
+  // */
+  // public static ArrayMatrix mmul(Matrix a, double alpha, Matrix b, double beta) {
+  // Shape shape = Shape.of(a.rows(), b.columns());
+  // double[] out = shape.getArrayOfShape();
+  // mmuli(a, alpha, b, beta, out);
+  // return new ArrayMatrix(shape, out);
+  // }
+  //
+  // /**
+  // * Matrix multiplication between matrix a and b scaling with alpha and beta, i.e. (aA)(bB)
+  // *
+  // * @param a a rectangular array
+  // * @param alpha the alpha
+  // * @param b a rectangular array
+  // * @param beta the beta
+  // * @param out store the result in out
+  // */
+  // public static void mmuli(Matrix a, double alpha, Matrix b, double beta, double[] out) {
+  // if (Shape.of(a.rows(), b.columns()).size() != out.length) {
+  // throw new MismatchException("multiply", "output array size does not match");
+  // }
+  //
+  // blas.dgemm("n", "n", a.rows(), b.columns(), b.rows(), alpha, a.asDoubleArray(), a.rows(),
+  // b.asDoubleArray(), b.rows(), beta, out, a.rows());
+  // }
+  //
+  // /**
+  // * Abs void.
+  // *
+  // * @param in in
+  // * @param out out
+  // */
+  // public static void abs(Matrix in, Matrix out) {
+  // Javablas.abs(in.asDoubleArray(), out.asDoubleArray());
+  // }
+  //
+  // /**
+  // * This is equivalent to a*b
+  // *
+  // * @param a a matrix like
+  // * @param b a matrix like
+  // * @return a new matrix (a*b)
+  // * @throws NonConformantException if a.columns() != b.rows()
+  // */
+  // public static ArrayMatrix mmul(Matrix a, Matrix b) {
+  // if (a.columns() != b.rows()) {
+  // throw new NonConformantException(a, b);
+  // }
+  // Shape shape = Shape.of(a.rows(), b.columns());
+  // double[] outArray = shape.getArrayOfShape();
+  // mmuli(a, b, outArray);
+  // return new ArrayMatrix(shape, outArray);
+  // }
+  //
+  // /**
+  // * A*B, with alpha=1, and beta=1 (i.e. regular matrix multiplication)
+  // *
+  // * @param a a rectangular array
+  // * @param b a rectangular array
+  // * @param out the out
+  // */
+  // public static void mmuli(Matrix a, Matrix b, double[] out) {
+  // mmuli(a, 1, b, 1, out);
+  // }
 
-  /**
-   * This function multiplies A * B and multiplies the resulting matrix by alpha. It then multiplies
-   * matrix C by beta. It stores the sum of these two products in matrix C.
-   * <p>
-   * Thus, it calculates either
-   * <p>
-   * C <- alpha*A*B + beta*C
-   * <p>
-   * or
-   * <p>
-   * C <- alpha*B*A + beta*C
-   * <p>
-   * with optional use of transposed forms of A, B, or both.
-   * <p>
-   * For example, reusing an existing matrix for storing the intermediate value of a computation
-   * 
-   * <pre>
-   *      Matrix a = Matrix.of(2, 3,
-   *          1, 2, 3,
-   *          3, 2, 1
-   *      );
-   * 
-   *      Matrix b = Matrix.of(3, 2,
-   *          1, 2,
-   *          3, 4,
-   *          5, 6
-   *      );
-   * 
-   *      Matrix out = new Matrix(2, 2);
-   * 
-   *      for(...) {
-   *          Matrices.multiplyInplace(a, Transpose.No, 1, b, Transpose.No, 0, out);
-   *      }
-   * </pre>
-   *
-   * @param a a rectangular array
-   * @param transA transpose a
-   * @param alpha a multiplication factor
-   * @param b a rectangular array
-   * @param transB transpose b
-   * @param beta a scaling factor for out
-   * @param out a rectangular array
-   */
-  public static void mmuli(Matrix a, Transpose transA, double alpha, Matrix b, Transpose transB,
-      double beta, double[] out) {
-    int am = a.rows(), an = a.columns(), bm = b.rows(), bn = b.columns();
-    if (transA == Transpose.YES) {
-      int tmp = am;
-      am = an;
-      an = tmp;
-    }
 
-    if (transB == Transpose.YES) {
-      int tmp = bm;
-      bm = bn;
-      bn = tmp;
-    }
-
-    if (an != bm) {
-      throw new NonConformantException("a", am, an, "b", bm, bn);
-    }
-    blas.dgemm(transA.getTransString(), transB.getTransString(), a.rows(), b.columns(), b.rows(),
-        alpha, a.asDoubleArray(), a.rows(), b.asDoubleArray(), b.rows(), beta, out, a.rows());
-  }
-
-
-
-  /**
-   * Multiply out.
-   *
-   * @param a the a
-   * @param transA the trans a
-   * @param b the b
-   * @param transB the trans b
-   * @return the out
-   */
-  public static Matrix mmul(Matrix a, Transpose transA, Matrix b, Transpose transB) {
-    return mmul(a, transA, 1.0, b, transB, 1.0);
-  }
-
-  /**
-   * Multiply out.
-   *
-   * @param a the a
-   * @param transA the trans a
-   * @param alpha the alpha
-   * @param b the b
-   * @param transB the trans b
-   * @param beta the beta
-   * @return the out
-   */
-  public static ArrayMatrix mmul(Matrix a, Transpose transA, double alpha, Matrix b,
-      Transpose transB, double beta) {
-    int am = a.rows(), an = a.columns(), bm = b.rows(), bn = b.columns();
-    if (transA == Transpose.YES) {
-      int tmp = am;
-      am = an;
-      an = tmp;
-    }
-
-    if (transB == Transpose.YES) {
-      int tmp = bm;
-      bm = bn;
-      bn = tmp;
-    }
-
-    if (an != bm) {
-      throw new NonConformantException("a", am, an, "b", bm, bn);
-    }
-    Shape shape = Shape.of(am, bn);
-    double[] out = shape.getArrayOfShape();
-    mmuli(a, transA, alpha, b, transB, beta, out);
-    return new ArrayMatrix(shape, out);
-  }
-
-
-  /**
-   * Multiply out.
-   *
-   * @param a the a
-   * @param alpha the alpha
-   * @param b the b
-   * @param beta the beta
-   * @return the out
-   */
-  public static ArrayMatrix mmul(Matrix a, double alpha, Matrix b, double beta) {
-    Shape shape = Shape.of(a.rows(), b.columns());
-    double[] out = shape.getArrayOfShape();
-    mmuli(a, alpha, b, beta, out);
-    return new ArrayMatrix(shape, out);
-  }
-
-  /**
-   * Matrix multiplication between matrix a and b scaling with alpha and beta, i.e. (aA)(bB)
-   *
-   * @param a a rectangular array
-   * @param alpha the alpha
-   * @param b a rectangular array
-   * @param beta the beta
-   * @param out store the result in out
-   */
-  public static void mmuli(Matrix a, double alpha, Matrix b, double beta, double[] out) {
-    if (Shape.of(a.rows(), b.columns()).size() != out.length) {
-      throw new MismatchException("multiply", "output array size does not match");
-    }
-
-    blas.dgemm("n", "n", a.rows(), b.columns(), b.rows(), alpha, a.asDoubleArray(), a.rows(),
-        b.asDoubleArray(), b.rows(), beta, out, a.rows());
-  }
-
-  /**
-   * Abs void.
-   *
-   * @param in in
-   * @param out out
-   */
-  public static void abs(Matrix in, Matrix out) {
-    Javablas.abs(in.asDoubleArray(), out.asDoubleArray());
-  }
-
-  /**
-   * This is equivalent to a*b
-   *
-   * @param a a matrix like
-   * @param b a matrix like
-   * @return a new matrix (a*b)
-   * @throws NonConformantException if a.columns() != b.rows()
-   */
-  public static ArrayMatrix mmul(Matrix a, Matrix b) {
-    if (a.columns() != b.rows()) {
-      throw new NonConformantException(a, b);
-    }
-    Shape shape = Shape.of(a.rows(), b.columns());
-    double[] outArray = shape.getArrayOfShape();
-    mmuli(a, b, outArray);
-    return new ArrayMatrix(shape, outArray);
-  }
-
-  /**
-   * A*B, with alpha=1, and beta=1 (i.e. regular matrix multiplication)
-   *
-   * @param a a rectangular array
-   * @param b a rectangular array
-   * @param out the out
-   */
-  public static void mmuli(Matrix a, Matrix b, double[] out) {
-    mmuli(a, 1, b, 1, out);
-  }
-
-
-  /**
-   * Multiply t.
-   *
-   * @param in the in
-   * @param scalar the scalar
-   * @return the t
-   */
-  public static ArrayMatrix mul(Matrix in, double scalar) {
-    double[] outArray = in.getShape().getArrayOfShape();
-    Javablas.mul(in.asDoubleArray(), scalar, outArray);
-    return new ArrayMatrix(in.getShape(), outArray);
-  }
-
-  /**
-   * Element wise multiply.
-   *
-   * @param a the a
-   * @param b the b
-   * @return t t
-   */
-  public static ArrayMatrix mul(Matrix a, Matrix b) {
-    if (!a.hasEqualShape(b)) {
-      throw new NonConformantException(a, b);
-    }
-    Shape shape = Shape.of(a.rows(), b.columns());
-    double[] outArray = shape.getArrayOfShape();
-    Javablas.mul(a.asDoubleArray(), 1.0, b.asDoubleArray(), 1.0, outArray);
-    return new ArrayMatrix(shape, outArray);
-  }
+  // /**
+  // * Multiply t.
+  // *
+  // * @param in the in
+  // * @param scalar the scalar
+  // * @return the t
+  // */
+  // public static ArrayMatrix mul(Matrix in, double scalar) {
+  // double[] outArray = in.getShape().getArrayOfShape();
+  // Javablas.mul(in.asDoubleArray(), scalar, outArray);
+  // return new ArrayMatrix(in.getShape(), outArray);
+  // }
+  //
+  // /**
+  // * Element wise multiply.
+  // *
+  // * @param a the a
+  // * @param b the b
+  // * @return t t
+  // */
+  // public static ArrayMatrix mul(Matrix a, Matrix b) {
+  // if (!a.hasEqualShape(b)) {
+  // throw new NonConformantException(a, b);
+  // }
+  // Shape shape = Shape.of(a.rows(), b.columns());
+  // double[] outArray = shape.getArrayOfShape();
+  // Javablas.mul(a.asDoubleArray(), 1.0, b.asDoubleArray(), 1.0, outArray);
+  // return new ArrayMatrix(shape, outArray);
+  // }
 
   // /**
   // * Add matrix.
@@ -980,40 +984,40 @@ public class Matrices {
     return var(vector, mean(vector));
   }
 
-  /**
-   * Sort out.
-   *
-   * @param in the in
-   * @param comparator the comparator
-   * @return the out
-   */
-  public static ArrayMatrix sort(MatrixLike in, Comparator<Double> comparator) {
-    ArrayMatrix newTensor = new ArrayMatrix(in);
-    List<Double> doubles = Doubles.asList(newTensor.asDoubleArray());
-    Collections.sort(doubles, comparator);
-    return newTensor;
-  }
+  // /**
+  // * Sort out.
+  // *
+  // * @param in the in
+  // * @param comparator the comparator
+  // * @return the out
+  // */
+  // public static ArrayMatrix sort(MatrixLike in, Comparator<Double> comparator) {
+  // ArrayMatrix newTensor = new ArrayMatrix(in);
+  // List<Double> doubles = Doubles.asList(newTensor.asDoubleArray());
+  // Collections.sort(doubles, comparator);
+  // return newTensor;
+  // }
+  //
+  // /**
+  // * Sort out.
+  // *
+  // * @param in the in
+  // * @return the out
+  // */
+  // public static ArrayMatrix sort(MatrixLike in) {
+  // ArrayMatrix newTensor = new ArrayMatrix(in);
+  // Arrays.sort(newTensor.asDoubleArray());
+  // return newTensor;
+  // }
 
-  /**
-   * Sort out.
-   *
-   * @param in the in
-   * @return the out
-   */
-  public static ArrayMatrix sort(MatrixLike in) {
-    ArrayMatrix newTensor = new ArrayMatrix(in);
-    Arrays.sort(newTensor.asDoubleArray());
-    return newTensor;
-  }
-
-  /**
-   * Sort in.
-   * 
-   * @param in the matrix to be sorted
-   */
-  public static void sort(Matrix in) {
-    Arrays.sort(in.asDoubleArray());
-  }
+  // /**
+  // * Sort in.
+  // *
+  // * @param in the matrix to be sorted
+  // */
+  // public static void sort(Matrix in) {
+  // Arrays.sort(in.asDoubleArray());
+  // }
 
   /**
    * Sort index.
@@ -1042,16 +1046,16 @@ public class Matrices {
     return indicies;
   }
 
-  /**
-   * Sort in.
-   *
-   * @param in the in
-   * @param comparator the comparator
-   */
-  public static void sort(Matrix in, Comparator<Double> comparator) {
-    List<Double> doubles = Doubles.asList(in.asDoubleArray());
-    Collections.sort(doubles, comparator);
-  }
+  // /**
+  // * Sort in.
+  // *
+  // * @param in the in
+  // * @param comparator the comparator
+  // */
+  // public static void sort(Matrix in, Comparator<Double> comparator) {
+  // List<Double> doubles = Doubles.asList(in.asDoubleArray());
+  // Collections.sort(doubles, comparator);
+  // }
 
   /**
    * Inner product, i.e. the dot product x * y

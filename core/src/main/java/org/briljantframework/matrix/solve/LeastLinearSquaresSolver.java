@@ -16,8 +16,6 @@
 
 package org.briljantframework.matrix.solve;
 
-import java.util.Arrays;
-
 import org.briljantframework.exception.BlasException;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
@@ -48,26 +46,46 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
     int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
     int[] jpvt = new int[n];
 
-    double[] result = b.asDoubleArray().clone();
+    // double[] result = b.asDoubleArray().clone();
+
+    Matrix result = b.copy();
 
     int lwork = -1;
     double[] work = new double[1];
-    double[] a = matrix.copy().asDoubleArray();
+    // double[] a = matrix.copy().asDoubleArray();
+
+    Matrix aCopy = matrix.copy();
+
 
     intW rank = new intW(0), info = new intW(0);
-    lapack.dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
+    final double[] finalWork = work;
+    final int finalLwork = lwork;
+    aCopy.unsafe(a -> result.unsafe(x -> lapack.dgelsy(m, n, nrhs, a, m, x, m, jpvt, 0.01, rank,
+        finalWork, finalLwork, info)));
     if (info.val != 0) {
       throw new BlasException("dgelsy", info.val, "failed to query work");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    lapack.dgelsy(m, n, nrhs, a, m, result, m, jpvt, 0.01, rank, work, lwork, info);
+    final int finalLwork1 = lwork;
+    final double[] finalWork1 = work;
+    aCopy.unsafe(a -> {
+      result.unsafe(x -> {
+        lapack.dgelsy(m, n, nrhs, a, m, x, m, jpvt, 0.01, rank, finalWork1, finalLwork1, info);
+      });
+    });
+
     if (info.val != 0) {
       throw new BlasException("dgelsy", info.val, "fail");
     }
 
-    double[] array = Arrays.copyOf(result, n);
-    return ArrayMatrix.rowVector(array);
+    // double[] array = Arrays.copyOf(result, n);
+    ArrayMatrix r = new ArrayMatrix(1, n);
+    for (int i = 0; i < n; i++) {
+      r.put(i, result.get(i));
+    }
+
+    return r;// ArrayMatrix.rowVector(array) ;
   }
 }
