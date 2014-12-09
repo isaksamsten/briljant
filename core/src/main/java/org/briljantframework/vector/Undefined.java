@@ -46,8 +46,8 @@ public class Undefined implements Value {
   };
 
   @Override
-  public double getAsReal(int index) {
-    return RealVector.NA;
+  public double getAsDouble(int index) {
+    return DoubleVector.NA;
   }
 
   @Override

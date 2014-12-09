@@ -11,10 +11,10 @@ public interface Value extends Vector, Comparable<Value> {
    * Gets the value as double
    *
    * @return the value
-   * @see Vector#getAsReal(int)
+   * @see Vector#getAsDouble(int)
    */
   default double getAsDouble() {
-    return getAsReal(0);
+    return getAsDouble(0);
   }
 
   /**

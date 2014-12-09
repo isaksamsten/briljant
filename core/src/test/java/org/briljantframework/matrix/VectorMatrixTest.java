@@ -2,7 +2,7 @@ package org.briljantframework.matrix;
 
 import static org.junit.Assert.assertEquals;
 
-import org.briljantframework.vector.RealVector;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class VectorMatrixTest {
 
   @Before
   public void setUp() throws Exception {
-    Vector vec = RealVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6, 7, 8, 9).build();
+    Vector vec = DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6, 7, 8, 9).build();
     matrix = new VectorMatrix(vec, 3, 3);
   }
 

@@ -27,7 +27,7 @@ import org.briljantframework.exception.NonConformantException;
  * <p>
  * Created by isak on 27/06/14.
  */
-public class Diagonal extends AbstractMatrix implements MatrixLike {
+public class Diagonal extends AbstractMatrix implements VectorLike {
 
   private final int size;
   private final double[] values;
@@ -156,6 +156,11 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
   // return dense;
   // }
 
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
+  }
+
   /**
    * Get double.
    *
@@ -253,7 +258,7 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
   }
 
   /**
-   * 
+   *
    * @param d
    * @return
    */
@@ -277,11 +282,6 @@ public class Diagonal extends AbstractMatrix implements MatrixLike {
     }
 
     return new Diagonal(this.rows(), this.columns(), out);
-  }
-
-  @Override
-  protected Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
   }
 
   public Diagonal transposei() {

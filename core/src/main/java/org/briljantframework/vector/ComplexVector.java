@@ -67,7 +67,7 @@ public class ComplexVector extends AbstractComplexVector {
    * {@inheritDoc}
    */
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     return values[index * 2];
   }
 
@@ -184,8 +184,8 @@ public class ComplexVector extends AbstractComplexVector {
       buffer = new DoubleArrayList(capacity * 2);
       for (int i = 0; i < size * 2; i++) {
         int pos = i * 2;
-        buffer.buffer[pos] = RealVector.NA;
-        buffer.buffer[pos + 1] = RealVector.NA;
+        buffer.buffer[pos] = DoubleVector.NA;
+        buffer.buffer[pos + 1] = DoubleVector.NA;
       }
     }
 
@@ -198,8 +198,8 @@ public class ComplexVector extends AbstractComplexVector {
     public Builder setNA(int index) {
       int pos = index * 2;
       ensureCapacity(pos);
-      buffer.buffer[pos] = RealVector.NA;
-      buffer.buffer[pos + 1] = RealVector.NA;
+      buffer.buffer[pos] = DoubleVector.NA;
+      buffer.buffer[pos + 1] = DoubleVector.NA;
       return this;
     }
 
@@ -287,7 +287,7 @@ public class ComplexVector extends AbstractComplexVector {
       buffer.ensureCapacity(index + 2);
       int i = buffer.size();
       while (i <= index + 1) {
-        buffer.buffer[i++] = RealVector.NA;
+        buffer.buffer[i++] = DoubleVector.NA;
         buffer.elementsCount++;
       }
     }

@@ -44,10 +44,10 @@ public abstract class AbstractBinaryVector implements Vector, Iterable<Binary> {
   };
 
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     int i = getAsInt(index);
     if (i == IntVector.NA) {
-      return RealVector.NA;
+      return DoubleVector.NA;
     } else {
       return i;
     }

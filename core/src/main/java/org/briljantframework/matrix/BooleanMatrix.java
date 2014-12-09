@@ -3,6 +3,9 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.briljantframework.Utils;
 
 import com.google.common.collect.ImmutableTable;
@@ -10,10 +13,9 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 11/10/14.
  */
-public class BooleanMatrix implements MatrixLike {
+public class BooleanMatrix extends AbstractMatrix {
 
   private final boolean[] values;
-  private final int rows, cols;
 
   /**
    * Instantiates a new Boolean matrix.
@@ -31,9 +33,8 @@ public class BooleanMatrix implements MatrixLike {
    * @param cols the cols
    */
   public BooleanMatrix(int rows, int cols) {
+    super(rows, cols);
     this.values = new boolean[rows * cols];
-    this.rows = rows;
-    this.cols = cols;
   }
 
   /**
@@ -45,17 +46,6 @@ public class BooleanMatrix implements MatrixLike {
    */
   public void put(int i, int j, boolean value) {
     values[index(i, j)] = value;
-  }
-
-  /**
-   * Set value at row i and column j to value
-   *
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  public void put(int i, int j, double value) {
-    values[index(i, j)] = value != 0;
   }
 
   @Override
@@ -71,18 +61,46 @@ public class BooleanMatrix implements MatrixLike {
   }
 
   @Override
-  public int rows() {
-    return rows;
-  }
-
-  @Override
-  public int columns() {
-    return cols;
-  }
-
-  @Override
   public int size() {
     return rows() * columns();
+  }
+
+  /**
+   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
+   * affect the original.
+   *
+   * @return the copy
+   */
+  public BooleanMatrix copy() {
+    BooleanMatrix bm = new BooleanMatrix(getShape());
+    System.arraycopy(values, 0, bm.values, 0, values.length);
+    return bm;
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
+    return null;
+  }
+
+  @Override
+  public Matrix unsafeTransform(Function<double[], Matrix> op) {
+    return null;
+  }
+
+  @Override
+  public void unsafe(Consumer<double[]> consumer) {
+
+  }
+
+  /**
+   * Set value at row i and column j to value
+   *
+   * @param i row
+   * @param j column
+   * @param value value
+   */
+  public void put(int i, int j, double value) {
+    values[index(i, j)] = value != 0;
   }
 
   /**
@@ -97,16 +115,9 @@ public class BooleanMatrix implements MatrixLike {
     values[index] = value != 0;
   }
 
-  /**
-   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
-   * affect the original.
-   *
-   * @return the copy
-   */
-  public BooleanMatrix copy() {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    System.arraycopy(values, 0, bm.values, 0, values.length);
-    return bm;
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return null;
   }
 
   /**
@@ -129,8 +140,22 @@ public class BooleanMatrix implements MatrixLike {
    *
    * @return the matrix like
    */
-  public MatrixLike transpose() {
+  public Matrix transpose() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder out = new StringBuilder("BooleanMatrix\n");
+    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        builder.put(i, j, String.format("%s", has(i, j)));
+      }
+    }
+    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
+    out.append("Shape: ").append(getShape());
+    return out.toString();
   }
 
   /**
@@ -216,19 +241,5 @@ public class BooleanMatrix implements MatrixLike {
 
   public boolean has(int index) {
     return values[checkElementIndex(index, size())];
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder out = new StringBuilder("BooleanMatrix\n");
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        builder.put(i, j, String.format("%s", has(i, j)));
-      }
-    }
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("Shape: ").append(getShape());
-    return out.toString();
   }
 }

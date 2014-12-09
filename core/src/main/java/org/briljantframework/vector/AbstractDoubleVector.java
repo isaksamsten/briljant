@@ -3,16 +3,16 @@ package org.briljantframework.vector;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractRealVector implements Vector, Iterable<Double> {
+public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   public static final Type TYPE = new Type() {
     @Override
-    public RealVector.Builder newBuilder() {
-      return new RealVector.Builder();
+    public DoubleVector.Builder newBuilder() {
+      return new DoubleVector.Builder();
     }
 
     @Override
-    public RealVector.Builder newBuilder(int size) {
-      return new RealVector.Builder(size);
+    public DoubleVector.Builder newBuilder(int size) {
+      return new DoubleVector.Builder(size);
     }
 
     @Override
@@ -27,8 +27,8 @@ public abstract class AbstractRealVector implements Vector, Iterable<Double> {
 
     @Override
     public int compare(int a, Vector va, int b, Vector ba) {
-      double dva = va.getAsReal(a);
-      double dba = ba.getAsReal(b);
+      double dva = va.getAsDouble(a);
+      double dba = ba.getAsDouble(b);
 
 
       return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
@@ -47,7 +47,7 @@ public abstract class AbstractRealVector implements Vector, Iterable<Double> {
 
   @Override
   public int getAsInt(int index) {
-    double value = getAsReal(index);
+    double value = getAsDouble(index);
     return Double.isNaN(value) ? IntVector.NA : (int) value;
   }
 
@@ -58,14 +58,14 @@ public abstract class AbstractRealVector implements Vector, Iterable<Double> {
 
   @Override
   public String getAsString(int index) {
-    double value = getAsReal(index);
+    double value = getAsDouble(index);
     return Double.isNaN(value) ? StringVector.NA : String.valueOf(value);
   }
 
   @Override
   public Value getAsValue(int index) {
-    double value = getAsReal(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new RealValue(value);
+    double value = getAsDouble(index);
+    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }
 
   @Override
@@ -76,7 +76,7 @@ public abstract class AbstractRealVector implements Vector, Iterable<Double> {
 
   @Override
   public boolean isNA(int index) {
-    return Double.isNaN(getAsReal(index));
+    return Double.isNaN(getAsDouble(index));
   }
 
   @Override
@@ -86,15 +86,15 @@ public abstract class AbstractRealVector implements Vector, Iterable<Double> {
 
   @Override
   public int compare(int a, int b) {
-    double va = getAsReal(a);
-    double vb = getAsReal(b);
+    double va = getAsDouble(a);
+    double vb = getAsDouble(b);
     return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
   }
 
   @Override
   public int compare(int a, int b, Vector other) {
-    double va = getAsReal(a);
-    double vb = other.getAsReal(b);
+    double va = getAsDouble(a);
+    double vb = other.getAsDouble(b);
     return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
   }
 }

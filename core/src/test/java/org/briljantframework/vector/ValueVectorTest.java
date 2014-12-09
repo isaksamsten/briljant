@@ -5,20 +5,20 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-public class VariableVectorTest {
+public class ValueVectorTest {
 
-  VariableVector sequence;
+  ValueVector sequence;
 
   @Before
   public void setUp() throws Exception {
-    sequence = new VariableVector.Builder().add(1).add(2).add("hello").add("next").addNA().build();
+    sequence = new ValueVector.Builder().add(1).add(2).add("hello").add("next").addNA().build();
   }
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(1, sequence.getAsReal(0), 0);
-    assertEquals(2, sequence.getAsReal(1), 0);
-    assertEquals(RealVector.NA, sequence.getAsReal(3), 0);
+    assertEquals(1, sequence.getAsDouble(0), 0);
+    assertEquals(2, sequence.getAsDouble(1), 0);
+    assertEquals(DoubleVector.NA, sequence.getAsDouble(3), 0);
   }
 
   @Test
@@ -72,14 +72,14 @@ public class VariableVectorTest {
 
   @Test
   public void testNewCopyBuilder() throws Exception {
-    VariableVector.Builder builder = sequence.newCopyBuilder();
+    ValueVector.Builder builder = sequence.newCopyBuilder();
     builder.add("hello");
     builder.add(null);
 
-    VariableVector copy = builder.build();
+    ValueVector copy = builder.build();
     assertEquals(7, copy.size());
     assertEquals("hello", copy.getAsString(5));
-    assertEquals(CompoundVector.NA, copy.getAsValue(6));
+    assertEquals(VariableVector.NA, copy.getAsValue(6));
 
   }
 
@@ -103,11 +103,11 @@ public class VariableVectorTest {
     assertEquals("1", sequence.getAsValue(0));
     assertEquals("2", sequence.getAsValue(1));
     assertEquals("hello", sequence.getAsValue(2));
-    assertEquals(CompoundVector.NA, sequence.getAsValue(4));
+    assertEquals(VariableVector.NA, sequence.getAsValue(4));
   }
 
   @Test
   public void testGetType() throws Exception {
-    assertEquals(CompoundVector.TYPE, sequence.getType());
+    assertEquals(VariableVector.TYPE, sequence.getType());
   }
 }

@@ -88,17 +88,17 @@ public class MixedDataFrame implements DataFrame {
 
   /**
    * Constructs a new mixed data frame from an iterable sequence of of
-   * {@link org.briljantframework.vector.CompoundVector} treated as rows of equal length
+   * {@link org.briljantframework.vector.VariableVector} treated as rows of equal length
    * 
    * @param sequences
    */
-  public MixedDataFrame(Iterable<? extends CompoundVector> sequences) {
+  public MixedDataFrame(Iterable<? extends VariableVector> sequences) {
     this.names = new ArrayList<>();
     this.columns = new ArrayList<>();
 
     List<Vector.Builder> builders = new ArrayList<>();
     int columns = 0, rows = 0;
-    for (CompoundVector row : sequences) {
+    for (VariableVector row : sequences) {
       if (columns == 0) {
         columns = row.size();
       }
@@ -106,7 +106,7 @@ public class MixedDataFrame implements DataFrame {
           columns, row.size());
       for (int i = 0; i < row.size(); i++) {
         if (builders.size() <= i) {
-          checkArgument(row.getType(i) != CompoundVector.TYPE,
+          checkArgument(row.getType(i) != VariableVector.TYPE,
               "Can't create untyped vector as column.");
           builders.add(row.getType(i).newBuilder());
         }
@@ -151,7 +151,7 @@ public class MixedDataFrame implements DataFrame {
    */
   @Override
   public double getAsDouble(int row, int column) {
-    return columns.get(column).getAsReal(row);
+    return columns.get(column).getAsDouble(row);
   }
 
   /**
@@ -277,8 +277,8 @@ public class MixedDataFrame implements DataFrame {
    * {@inheritDoc}
    */
   @Override
-  public CompoundVector getRow(int index) {
-    return new MixedDataFrameRow(this, index);
+  public VariableVector getRow(int index) {
+    return new DataFrameRow(this, index);
   }
 
   /**
@@ -367,12 +367,12 @@ public class MixedDataFrame implements DataFrame {
 
   @Override
   public String toString() {
-    return DataFrames.toTabularString(this, 100);
+    return DataFrames.toTabularString(this);
   }
 
   @Override
-  public Iterator<CompoundVector> iterator() {
-    return new UnmodifiableIterator<CompoundVector>() {
+  public Iterator<VariableVector> iterator() {
+    return new UnmodifiableIterator<VariableVector>() {
       private int index = 0;
 
       @Override
@@ -381,7 +381,7 @@ public class MixedDataFrame implements DataFrame {
       }
 
       @Override
-      public CompoundVector next() {
+      public VariableVector next() {
         return getRow(index++);
       }
     };

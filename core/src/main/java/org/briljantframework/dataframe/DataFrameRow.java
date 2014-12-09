@@ -10,19 +10,19 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 26/11/14.
  */
-class MixedDataFrameRow implements CompoundVector {
+class DataFrameRow implements VariableVector {
 
   private final DataFrame parent;
   private final int row;
 
-  MixedDataFrameRow(DataFrame parent, int row) {
+  DataFrameRow(DataFrame parent, int row) {
     this.parent = parent;
     this.row = row;
   }
 
   @Override
   public Type getType() {
-    return CompoundVector.TYPE;
+    return VariableVector.TYPE;
   }
 
   @Override
@@ -31,7 +31,7 @@ class MixedDataFrameRow implements CompoundVector {
   }
 
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     return parent.getAsDouble(row, index);
   }
 
@@ -77,17 +77,17 @@ class MixedDataFrameRow implements CompoundVector {
 
   @Override
   public Builder newCopyBuilder() {
-    return new VariableVector.Builder(size()).addAll((Vector) this);
+    return new ValueVector.Builder(size()).addAll((Vector) this);
   }
 
   @Override
   public Builder newBuilder() {
-    return new VariableVector.Builder();
+    return new ValueVector.Builder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    return new VariableVector.Builder(size);
+    return new ValueVector.Builder(size);
   }
 
   @Override

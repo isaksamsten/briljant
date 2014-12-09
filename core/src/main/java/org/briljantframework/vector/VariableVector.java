@@ -1,236 +1,84 @@
 package org.briljantframework.vector;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
-import org.briljantframework.io.DataFrameInputStream;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
+ * A sequence is a vector which contains elements of different type.
+ * <p>
  * Created by Isak Karlsson on 26/11/14.
  */
-public class VariableVector implements CompoundVector {
+public interface VariableVector extends Vector, Iterable<Value> {
 
-  private final List<? extends Value> values;
+  public static final Binary NA = Binary.NA;
+
+  public static final Type TYPE = new Type() {
+    @Override
+    public Builder newBuilder() {
+      return new ValueVector.Builder();
+    }
+
+    @Override
+    public Builder newBuilder(int size) {
+      return new ValueVector.Builder(size);
+    }
+
+
+    @Override
+    public Class<?> getDataClass() {
+      return Object.class;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return value == null || value == Binary.NA;
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      throw new UnsupportedOperationException("Can't compare values for sequence types");
+    }
+
+    @Override
+    public Scale getScale() {
+      throw new UnsupportedOperationException("CompoundVector does not have a scale.");
+    }
+
+    @Override
+    public String toString() {
+      return "compound";
+    }
+  };
 
   /**
-   * Constructs a {@code VariableVector}
-   *
-   * @param values the values
+   * {@inheritDoc}
    */
-  public VariableVector(List<? extends Value> values) {
-    this.values = values;
-  }
-
   @Override
-  public double getAsReal(int index) {
-    return values.get(index).getAsReal(0);
+  default Type getType() {
+    return TYPE;
   }
 
-  @Override
-  public int getAsInt(int index) {
-    return values.get(index).getAsInt(0);
-  }
+  /**
+   * Get type of value at {@code index}
+   *
+   * @param index the index
+   * @return the type of value
+   */
+  Type getType(int index);
 
-  @Override
-  public Binary getAsBinary(int index) {
-    return values.get(index).getAsBinary(0);
-  }
-
-  @Override
-  public String getAsString(int index) {
-    return values.get(index).getAsString(0);
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return values.get(index);
-  }
-
-  @Override
-  public Complex getAsComplex(int index) {
-    return values.get(index).getAsComplex(0);
-  }
-
-  @Override
-  public String toString(int index) {
-    return values.get(index).toString(0);
-  }
-
-  @Override
-  public boolean isNA(int index) {
-    return values.get(index).isNA(0);
-  }
-
-  @Override
-  public int size() {
-    return values.size();
-  }
-
-  @Override
-  public Builder newCopyBuilder() {
-    return new Builder(new ArrayList<>(values));
-  }
-
-  @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return new Builder(size);
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return getAsValue(a).compareTo(getAsValue(b));
-  }
-
-  @Override
-  public int compare(int a, int b, Vector other) {
-    return getAsValue(a).compareTo(other.getAsValue(b));
-  }
-
-  @Override
-  public Type getType(int index) {
-    return values.get(index).getType();
-  }
-
-  @Override
-  public Iterator<Value> iterator() {
-    return new UnmodifiableIterator<Value>() {
-      public int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Value next() {
-        return getAsValue(current++);
-      }
-    };
-  }
-
-  public static class Builder implements Vector.Builder {
-    private List<Value> buffer;
-
-
-    private Builder(List<Value> buffer) {
-      this.buffer = buffer;
-    }
-
-    public Builder() {
-      this(0, INITIAL_CAPACITY);
-    }
-
-    public Builder(int size) {
-      this(size, size);
-    }
-
-    public Builder(int size, int capacity) {
-      buffer = new ArrayList<>(Math.max(size, capacity));
-      for (int i = 0; i < size; i++) {
-        buffer.add(Undefined.INSTANCE);
-      }
-    }
-
-    @Override
-    public Builder setNA(int index) {
-      ensureCapacity(index);
-      buffer.set(index, Undefined.INSTANCE);
-      return this;
-    }
-
-    @Override
-    public Builder addNA() {
-      return setNA(size());
-    }
-
-    @Override
-    public Builder add(Vector from, int fromIndex) {
-      set(size(), from, fromIndex);
-      return this;
-    }
-
-    @Override
-    public Builder set(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.set(atIndex, from.getAsValue(fromIndex));
-      return this;
-    }
-
-    @Override
-    public Builder set(int index, Object obj) {
-      Value value;
-      if (obj instanceof Value) {
-        value = (Value) obj;
-      } else if (obj instanceof Integer || obj instanceof Byte || obj instanceof Short) {
-        value = new IntValue(((Number) obj).intValue());
-      } else if (obj instanceof Float || obj instanceof Double) {
-        value = new RealValue(((Number) obj).doubleValue());
-      } else if (obj instanceof Complex) {
-        value = new ComplexValue((Complex) obj);
-      } else if (obj instanceof Binary) {
-        value = new BinaryValue((Binary) obj);
-      } else if (obj != null) {
-        value = new StringValue(obj.toString());
-      } else {
-        value = Undefined.INSTANCE;
-      }
-      ensureCapacity(index);
-      buffer.set(index, value);
-      return this;
-    }
-
-    @Override
-    public Builder add(Object value) {
-      set(size(), value);
-      return this;
-    }
-
-    @Override
-    public Builder addAll(Vector from) {
-      for (int i = 0; i < from.size(); i++) {
-        buffer.add(from.getAsValue(i));
-      }
-      return this;
-    }
-
-    @Override
-    public Builder swap(int a, int b) {
-      Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
-      Collections.swap(buffer, a, b);
-      return this;
-    }
-
-    @Override
-    public Builder read(DataFrameInputStream inputStream) throws IOException {
-      add(inputStream.nextString());
-      return this;
-    }
-
-    @Override
-    public int size() {
-      return buffer.size();
-    }
-
-    @Override
-    public VariableVector build() {
-      return new VariableVector(buffer);
-    }
-
-    private void ensureCapacity(int index) {
-      while (buffer.size() <= index) {
-        buffer.add(Undefined.INSTANCE);
-      }
-    }
+  /**
+   * Returns a sequential {@code Stream} with this collection as its source.
+   * <p>
+   * <p>
+   * This method should be overridden when the {@link #spliterator()} method cannot return a
+   * spliterator that is {@code IMMUTABLE}, {@code CONCURRENT}, or <em>late-binding</em>. (See
+   * {@link #spliterator()} for details.)
+   * <p>
+   * (comment from {@link java.util.Collection#stream()})
+   *
+   * @return a stream
+   */
+  default Stream<Value> stream() {
+    return StreamSupport.stream(spliterator(), false);
   }
 }

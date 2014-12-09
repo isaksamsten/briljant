@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.VectorLike;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -14,15 +14,15 @@ import org.briljantframework.matrix.MatrixLike;
  * <p>
  * Created by Isak Karlsson on 20/11/14.
  */
-public interface Vector extends MatrixLike, Serializable {
+public interface Vector extends VectorLike, Serializable {
 
   /**
-   * Returns value as {@code double} if applicable. Otherwise returns {@link RealVector#NA}.
+   * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
    *
    * @param index the index
    * @return a double
    */
-  double getAsReal(int index);
+  double getAsDouble(int index);
 
   /**
    * Returns value as {@code int} if applicable. Otherwise returns {@link IntVector#NA}
@@ -68,7 +68,7 @@ public interface Vector extends MatrixLike, Serializable {
    * @return a {@link Complex}
    */
   default Complex getAsComplex(int index) {
-    double value = getAsReal(index);
+    double value = getAsDouble(index);
     if (Double.isNaN(value)) {
       return ComplexVector.NA;
     }
@@ -144,23 +144,7 @@ public interface Vector extends MatrixLike, Serializable {
    */
   @Override
   default double get(int index) {
-    return getAsReal(index);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  default int rows() {
-    return size();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  default int columns() {
-    return 1;
+    return getAsDouble(index);
   }
 
   /**
@@ -246,7 +230,7 @@ public interface Vector extends MatrixLike, Serializable {
   default double[] toDoubleArray() {
     double[] values = new double[size()];
     for (int i = 0; i < size(); i++) {
-      values[i] = getAsReal(i);
+      values[i] = getAsDouble(i);
     }
     return values;
   }

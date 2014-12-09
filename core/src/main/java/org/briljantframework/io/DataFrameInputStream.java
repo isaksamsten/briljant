@@ -27,6 +27,8 @@ import java.util.List;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.*;
 
+import com.google.common.primitives.Doubles;
+
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
  * <p>
@@ -184,7 +186,12 @@ public abstract class DataFrameInputStream extends FilterInputStream {
    */
   public double nextDouble() throws IOException {
     String repr = nextString();
-    return repr == StringVector.NA ? RealVector.NA : Double.parseDouble(repr);
+    if (repr == StringVector.NA) {
+      return DoubleVector.NA;
+    } else {
+      Double d = Doubles.tryParse(repr);
+      return d == null ? DoubleVector.NA : d;
+    }
   }
 
   /**

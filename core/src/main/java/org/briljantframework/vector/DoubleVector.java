@@ -16,22 +16,22 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class RealVector extends AbstractRealVector {
+public class DoubleVector extends AbstractDoubleVector {
 
   public static final double NA = Double.NaN;
 
   private final double[] values;
 
-  public RealVector(double[] values, int size) {
+  public DoubleVector(double[] values, int size) {
     Preconditions.checkArgument(values.length > 0);
     this.values = Arrays.copyOf(values, size);
   }
 
-  public RealVector(double... values) {
+  public DoubleVector(double... values) {
     this(true, values);
   }
 
-  protected RealVector(boolean copy, double... values) {
+  protected DoubleVector(boolean copy, double... values) {
     if (copy) {
       this.values = Arrays.copyOf(values, values.length);
     } else {
@@ -45,8 +45,8 @@ public class RealVector extends AbstractRealVector {
    * @param values the values
    * @return the double vector
    */
-  public static RealVector wrap(double... values) {
-    return new RealVector(false, values);
+  public static DoubleVector wrap(double... values) {
+    return new DoubleVector(false, values);
   }
 
   public static Vector.Builder newBuilderWithInitialValues(double... values) {
@@ -58,7 +58,7 @@ public class RealVector extends AbstractRealVector {
   }
 
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     return values[index];
   }
 
@@ -68,18 +68,18 @@ public class RealVector extends AbstractRealVector {
   }
 
   @Override
-  public RealVector.Builder newCopyBuilder() {
-    return new RealVector.Builder(this);
+  public DoubleVector.Builder newCopyBuilder() {
+    return new DoubleVector.Builder(this);
   }
 
   @Override
-  public RealVector.Builder newBuilder() {
-    return new RealVector.Builder();
+  public DoubleVector.Builder newBuilder() {
+    return new DoubleVector.Builder();
   }
 
   @Override
-  public RealVector.Builder newBuilder(int size) {
-    return new RealVector.Builder(size);
+  public DoubleVector.Builder newBuilder(int size) {
+    return new DoubleVector.Builder(size);
   }
 
   @Override
@@ -103,7 +103,7 @@ public class RealVector extends AbstractRealVector {
 
       @Override
       public Double next() {
-        return getAsReal(current++);
+        return getAsDouble(current++);
       }
     };
   }
@@ -132,14 +132,14 @@ public class RealVector extends AbstractRealVector {
       }
     }
 
-    public Builder(RealVector vector) {
+    public Builder(DoubleVector vector) {
       this.buffer = DoubleArrayList.from(vector.asDoubleArray());
     }
 
     @Override
     public Builder setNA(int index) {
       ensureCapacity(index);
-      buffer.buffer[index] = RealVector.NA;
+      buffer.buffer[index] = DoubleVector.NA;
       return this;
     }
 
@@ -161,18 +161,20 @@ public class RealVector extends AbstractRealVector {
     @Override
     public Builder set(int atIndex, Vector from, int fromIndex) {
       ensureCapacity(atIndex);
-      buffer.buffer[atIndex] = from.getAsReal(fromIndex);
+      buffer.buffer[atIndex] = from.getAsDouble(fromIndex);
       return this;
     }
 
     @Override
     public Builder set(int index, Object value) {
       ensureCapacity(index);
-      double dval = RealVector.NA;
+      double dval = DoubleVector.NA;
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else if (value instanceof Complex) {
         dval = ((Complex) value).getReal();
+      } else if (value instanceof Value) {
+        dval = ((Value) value).getAsDouble();
       }
       buffer.buffer[index] = dval;
       return this;
@@ -187,7 +189,7 @@ public class RealVector extends AbstractRealVector {
     @Override
     public Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        add(from.getAsReal(i));
+        add(from.getAsDouble(i));
       }
       return this;
     }
@@ -212,8 +214,8 @@ public class RealVector extends AbstractRealVector {
     }
 
     @Override
-    public RealVector build() {
-      RealVector vec = new RealVector(buffer.buffer, size());
+    public DoubleVector build() {
+      DoubleVector vec = new DoubleVector(buffer.buffer, size());
       buffer = null;
       return vec;
     }

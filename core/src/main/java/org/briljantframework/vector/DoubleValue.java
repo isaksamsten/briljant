@@ -7,11 +7,11 @@ import com.google.common.collect.Iterators;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public class RealValue extends AbstractRealVector implements Value {
+public class DoubleValue extends AbstractDoubleVector implements Value {
 
   private final double value;
 
-  public RealValue(double value) {
+  public DoubleValue(double value) {
     this.value = value;
   }
 
@@ -21,18 +21,13 @@ public class RealValue extends AbstractRealVector implements Value {
   }
 
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     return value;
   }
 
   @Override
   public int size() {
     return 1;
-  }
-
-  @Override
-  public String toString() {
-    return toString(0);
   }
 
   @Override
@@ -48,6 +43,11 @@ public class RealValue extends AbstractRealVector implements Value {
   @Override
   public Builder newBuilder(int size) {
     return null;
+  }
+
+  @Override
+  public String toString() {
+    return toString(0);
   }
 
   @Override

@@ -34,7 +34,7 @@ public class RandomFoldPartitioner implements Partitioner {
     private int current = 0;
 
     public KFoldCrossValidationIterator(DataFrame x, Vector y, int folds) {
-      checkArgument(x.rows() == y.rows(), "Data and target must be of equal size");
+      checkArgument(x.rows() == y.size(), "Data and target must be of equal size");
       checkArgument(folds > 1 && folds < x.rows());
 
       this.x = checkNotNull(x);

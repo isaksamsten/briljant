@@ -6,16 +6,16 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RealVectorTest {
+public class DoubleVectorTest {
 
   public static final double[] DOUBLE_ARRAY = new double[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  private RealVector vector;
-  private RealVector hasNA = new RealVector.Builder().addNA().addNA().add(1).add(2).build();
+  private DoubleVector vector;
+  private DoubleVector hasNA = new DoubleVector.Builder().addNA().addNA().add(1).add(2).build();
 
 
   @Before
   public void setUp() throws Exception {
-    RealVector.Builder builder = new RealVector.Builder();
+    DoubleVector.Builder builder = new DoubleVector.Builder();
     for (int i = 0; i < 10; i++) {
       builder.add(i);
     }
@@ -24,7 +24,7 @@ public class RealVectorTest {
 
   @Test
   public void testAddAtIndex() throws Exception {
-    RealVector.Builder builder = new RealVector.Builder();
+    DoubleVector.Builder builder = new DoubleVector.Builder();
     builder.set(3, 10);
     builder.set(10, 10);
     System.out.println(builder.size());
@@ -76,19 +76,19 @@ public class RealVectorTest {
 
   @Test
   public void testGetType() throws Exception {
-    assertEquals(RealVector.TYPE, vector.getType());
+    assertEquals(DoubleVector.TYPE, vector.getType());
   }
 
   @Test
   public void testNewCopyBuilder() throws Exception {
-    RealVector copy = vector.newCopyBuilder().add(10).build();
+    DoubleVector copy = vector.newCopyBuilder().add(10).build();
     assertEquals(11, copy.size());
     assertEquals(copy.getAsInt(2), vector.getAsInt(2));
   }
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(2.0, vector.getAsReal(2), 0);
+    assertEquals(2.0, vector.getAsDouble(2), 0);
   }
 
   @Test
@@ -117,13 +117,13 @@ public class RealVectorTest {
 
   @Test
   public void testNewBuilder() throws Exception {
-    RealVector.Builder builder = vector.newBuilder();
+    DoubleVector.Builder builder = vector.newBuilder();
 
     builder.add(hasNA, 0);
     builder.add(vector, 0);
     builder.add(vector, 9);
 
-    assertArrayEquals(new double[] {RealVector.NA, 0, 9}, builder.build().asDoubleArray(), 0);
+    assertArrayEquals(new double[] {DoubleVector.NA, 0, 9}, builder.build().asDoubleArray(), 0);
 
   }
 

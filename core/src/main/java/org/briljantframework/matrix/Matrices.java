@@ -24,7 +24,6 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
 import org.briljantframework.exception.MismatchException;
-import org.briljantframework.exception.NonConformantException;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
@@ -927,7 +926,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double std(MatrixLike vector) {
+  public static double std(VectorLike vector) {
     return std(vector, mean(vector));
   }
 
@@ -938,7 +937,7 @@ public class Matrices {
    * @param mean the mean
    * @return the double
    */
-  public static double std(MatrixLike vector, double mean) {
+  public static double std(VectorLike vector, double mean) {
     double var = var(vector, mean);
     return Math.sqrt(var / (vector.size() - 1));
   }
@@ -949,7 +948,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double mean(MatrixLike vector) {
+  public static double mean(VectorLike vector) {
     double mean = 0;
     for (int i = 0; i < vector.size(); i++) {
       mean += vector.get(i);
@@ -965,7 +964,7 @@ public class Matrices {
    * @param mean the mean
    * @return the double
    */
-  public static double var(MatrixLike vector, double mean) {
+  public static double var(VectorLike vector, double mean) {
     double var = 0;
     for (int i = 0; i < vector.size(); i++) {
       double residual = vector.get(i) - mean;
@@ -980,7 +979,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double var(MatrixLike vector) {
+  public static double var(VectorLike vector) {
     return var(vector, mean(vector));
   }
 
@@ -1025,7 +1024,7 @@ public class Matrices {
    * @param vector the vector
    * @return the int [ ]
    */
-  public static int[] sortIndex(MatrixLike vector) {
+  public static int[] sortIndex(VectorLike vector) {
     return sortIndex(vector, (o1, o2) -> Double.compare(vector.get(o1), vector.get(o2)));
   }
 
@@ -1036,7 +1035,7 @@ public class Matrices {
    * @param comparator the comparator
    * @return the int [ ]
    */
-  public static int[] sortIndex(MatrixLike vector, Comparator<Integer> comparator) {
+  public static int[] sortIndex(VectorLike vector, Comparator<Integer> comparator) {
     int[] indicies = new int[vector.size()];
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
@@ -1064,7 +1063,7 @@ public class Matrices {
    * @param y a vector
    * @return the dot product
    */
-  public static double dot(MatrixLike x, MatrixLike y) {
+  public static double dot(VectorLike x, VectorLike y) {
     return dot(x, 1, y, 1);
   }
 
@@ -1078,9 +1077,9 @@ public class Matrices {
    * @param beta scaling factor for y
    * @return the inner product
    */
-  public static double dot(MatrixLike x, double alpha, MatrixLike y, double beta) {
+  public static double dot(VectorLike x, double alpha, VectorLike y, double beta) {
     if (x.size() != y.size()) {
-      throw new NonConformantException(x, y);
+      throw new IllegalArgumentException();
     }
     int size = y.size();
     double dot = 0;
@@ -1097,7 +1096,7 @@ public class Matrices {
    * @param b a vector
    * @return the sigmoid
    */
-  public static double sigmoid(MatrixLike a, MatrixLike b) {
+  public static double sigmoid(VectorLike a, VectorLike b) {
     return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
   }
 
@@ -1107,7 +1106,7 @@ public class Matrices {
    * @param matrix the matrix
    * @return the double
    */
-  public static double sum(MatrixLike matrix) {
+  public static double sum(VectorLike matrix) {
     double sum = 0;
     for (int i = 0; i < matrix.size(); i++) {
       sum += matrix.get(i);
@@ -1122,7 +1121,7 @@ public class Matrices {
    * @param axis the axis
    * @return the t
    */
-  public static Matrix sum(MatrixLike m, Axis axis) {
+  public static Matrix sum(Matrix m, Axis axis) {
     switch (axis) {
       case ROW:
         return rowSum(m);
@@ -1134,7 +1133,7 @@ public class Matrices {
   }
 
 
-  private static ArrayMatrix columnSum(MatrixLike m) {
+  private static ArrayMatrix columnSum(Matrix m) {
     double[] values = new double[m.rows()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
@@ -1144,7 +1143,7 @@ public class Matrices {
     return new ArrayMatrix(m.rows(), 1, values);
   }
 
-  private static ArrayMatrix rowSum(MatrixLike m) {
+  private static ArrayMatrix rowSum(Matrix m) {
     double[] values = new double[m.columns()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {

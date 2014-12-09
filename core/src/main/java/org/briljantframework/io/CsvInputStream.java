@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.briljantframework.vector.RealVector;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Type;
 
@@ -34,7 +34,7 @@ import org.briljantframework.vector.Type;
  * 
  * The types are simple strings and are mapped to {@code briljant} data types as follows:
  * <ul>
- * <li>{@code numeric} and {@code regressor} {@link org.briljantframework.vector.RealVector}</li>
+ * <li>{@code numeric} and {@code regressor} {@link org.briljantframework.vector.DoubleVector}</li>
  * <li>{@code categoric} and {@code class} {@link org.briljantframework.vector.StringVector}</li>
  * </ul>
  * 
@@ -48,8 +48,8 @@ public class CsvInputStream extends DataFrameInputStream {
   protected static final Map<String, Type> TYPE_MAP;
   static {
     Map<String, Type> map = new HashMap<>();
-    map.put("numeric", RealVector.TYPE);
-    map.put("regressor", RealVector.TYPE);
+    map.put("numeric", DoubleVector.TYPE);
+    map.put("regressor", DoubleVector.TYPE);
     map.put("class", StringVector.TYPE);
     map.put("categoric", StringVector.TYPE);
 

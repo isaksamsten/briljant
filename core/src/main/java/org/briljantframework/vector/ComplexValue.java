@@ -20,7 +20,7 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   }
 
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     return complex.getReal();
   }
 

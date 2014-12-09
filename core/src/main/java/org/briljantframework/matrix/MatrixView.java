@@ -32,11 +32,6 @@ public class MatrixView extends AbstractMatrix {
   }
 
   @Override
-  protected Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  @Override
   public Matrix copy() {
     throw new UnsupportedOperationException();
   }
@@ -69,6 +64,11 @@ public class MatrixView extends AbstractMatrix {
   @Override
   public void put(int index, double value) {
     parent.put(computeLinearIndex(index), value);
+  }
+
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
   }
 
   @Override

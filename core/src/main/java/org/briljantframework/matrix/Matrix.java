@@ -22,7 +22,7 @@ import java.util.function.*;
  * 
  * Created by Isak Karlsson on 28/08/14.
  */
-public interface Matrix extends MatrixLike, Iterable<Double> {
+public interface Matrix extends VectorLike, Iterable<Double> {
 
   /**
    * Assign {@code value} to {@code this}
@@ -39,7 +39,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @param matrix the matrix
    * @return a modified matrix
    */
-  Matrix assign(MatrixLike matrix);
+  Matrix assign(Matrix matrix);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value. Compare:
@@ -60,7 +60,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @param operator the operator
    * @return receiver modified
    */
-  Matrix assign(MatrixLike matrix, DoubleUnaryOperator operator);
+  Matrix assign(Matrix matrix, DoubleUnaryOperator operator);
 
   /**
    * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must
@@ -181,6 +181,21 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return the matrix like
    */
   Matrix transpose();
+
+  /**
+   * The number of rows.
+   *
+   * @return number or rows
+   */
+  int rows();
+
+  /**
+   * The number of columns.
+   *
+   * @return number of columns
+   */
+  int columns();
+
 
   // Arithmetical operations ///////////
 
@@ -583,108 +598,55 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    */
   BooleanMatrix equalsTo(double value);
 
-  // /**
-  // * Raw view of the column-major underlying array. In some instances it might be possible to
-  // mutate
-  // * this (e.g., if the implementation provides a direct reference. However, there are no such
-  // * guarantees).
-  // *
-  // * @return the underlying array. Touch with caution.
-  // */
-  // @Deprecated
-  // double[] asDoubleArray();
+  /**
+   * Is square.
+   *
+   * @return true if rows() == columns()
+   */
+  default boolean isSquare() {
+    return rows() == columns();
+  }
 
-  // /**
-  // * Created by Isak Karlsson on 04/09/14.
-  // *
-  // * @param <T> the type parameter
-  // */
-  // @FunctionalInterface
-  // interface Copy<T extends Matrix> {
-  //
-  // /**
-  // * Copy the tensor while retaining the shape
-  // *
-  // * @param matrix a tensorLike
-  // * @return a copy of tensorLike
-  // */
-  // default T copyMatrix(MatrixLike matrix) {
-  // return copyMatrix(matrix.getShape(), matrix);
-  // }
-  //
-  // /**
-  // * Copy the tensor and perhaps change the shape
-  // *
-  // * @param shape the new shape
-  // * @param matrix the matrix
-  // * @return a copy of matrix
-  // */
-  // T copyMatrix(Shape shape, MatrixLike matrix);
-  // }
-  //
-  // /**
-  // * Created by Isak Karlsson on 03/09/14.
-  // *
-  // * @param <T> the type parameter
-  // */
-  // @FunctionalInterface
-  // interface New<T extends Matrix> {
-  //
-  // /**
-  // * New tensor.
-  // *
-  // * @param rows the rows
-  // * @param cols the cols
-  // * @return the t
-  // */
-  // default T newMatrix(int rows, int cols) {
-  // return newMatrix(Shape.of(rows, cols));
-  // }
-  //
-  // /**
-  // * New tensor.
-  // *
-  // * @param shape the shape
-  // * @return the t
-  // */
-  // default T newMatrix(Shape shape) {
-  // return newMatrix(shape, shape.getArrayOfShape());
-  // }
-  //
-  // /**
-  // * Construct a new tensor with the same shape
-  // *
-  // * @param tensor the tensor
-  // * @param values the values
-  // * @return t t
-  // */
-  // T newMatrix(Shape tensor, double[] values);
-  //
-  // /**
-  // * New matrix.
-  // *
-  // * @param rows the rows
-  // * @param cols the cols
-  // * @param array the array
-  // * @return the t
-  // */
-  // default T newMatrix(int rows, int cols, double[] array) {
-  // Shape shape = Shape.of(rows, cols);
-  // checkArgument(shape.size() == array.length, "shape and value array does not match");
-  // return newMatrix(shape, array);
-  // }
-  //
-  // /**
-  // * New vector.
-  // *
-  // * @param size the size
-  // * @param array the array
-  // * @return the t
-  // */
-  // default T newVector(int size, double[] array) {
-  // Shape shape = Shape.of(size, 1);
-  // checkArgument(shape.size() == array.length, "shape and value array does not match");
-  // return newMatrix(shape, array);
-  // }
-  // }
+  /**
+   * The shape of the current matrix.
+   *
+   * @return the shape
+   */
+  default Shape getShape() {
+    return Shape.of(rows(), columns());
+  }
+
+  /**
+   * Returns true if {@link org.briljantframework.matrix.Shape#size()} == {@link #size()}
+   *
+   * @param shape the shape
+   * @return the boolean
+   */
+  default boolean hasCompatibleShape(Shape shape) {
+    return hasCompatibleShape(shape.rows, shape.columns);
+  }
+
+  /**
+   * Has compatible shape.
+   *
+   * @param rows the rows
+   * @param cols the cols
+   * @return the boolean
+   * @throws ArithmeticException
+   */
+  default boolean hasCompatibleShape(int rows, int cols) {
+    return Math.multiplyExact(rows, cols) == rows() * columns();
+  }
+
+  /**
+   * Equal shape (i.e.
+   *
+   * @param other the other
+   * @return the boolean
+   */
+  default boolean hasEqualShape(Matrix other) {
+    return rows() == other.rows() && columns() == other.columns();
+  }
+
+  Matrix newEmptyMatrix(int rows, int columns);
 }

@@ -19,6 +19,7 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
@@ -44,16 +45,6 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public int rows() {
-    return rows;
-  }
-
-  @Override
-  public int columns() {
-    return cols;
-  }
-
-  @Override
   public Matrix assign(double value) {
     for (int i = 0; i < size(); i++) {
       put(i, value);
@@ -62,12 +53,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(MatrixLike matrix) {
+  public Matrix assign(Matrix matrix) {
     return assign(matrix, DoubleUnaryOperator.identity());
   }
 
   @Override
-  public Matrix assign(MatrixLike matrix, DoubleUnaryOperator operator) {
+  public Matrix assign(Matrix matrix, DoubleUnaryOperator operator) {
     checkArgument(hasEqualShape(matrix), "");
     for (int i = 0; i < size(); i++) {
       put(i, operator.applyAsDouble(matrix.get(i)));
@@ -142,6 +133,16 @@ public abstract class AbstractMatrix implements Matrix {
       }
     }
     return matrix;
+  }
+
+  @Override
+  public int rows() {
+    return rows;
+  }
+
+  @Override
+  public int columns() {
+    return cols;
   }
 
   @Override
@@ -626,8 +627,35 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
+  public int hashCode() {
+    int result = 1;
+    for (int i = 0; i < size(); i++) {
+      long bits = Double.doubleToLongBits(get(i));
+      result = 31 * result + (int) (bits ^ (bits >>> 32));
+    }
+
+    return Objects.hash(rows, cols, result);
+  }
+
+  @Override
   public boolean equals(Object obj) {
-    return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof Matrix) {
+      Matrix mat = (Matrix) obj;
+      if (!mat.hasEqualShape(this)) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (get(i) != mat.get(i)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override
@@ -664,6 +692,4 @@ public abstract class AbstractMatrix implements Matrix {
       }
     };
   }
-
-  protected abstract Matrix newEmptyMatrix(int rows, int columns);
 }

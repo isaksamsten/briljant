@@ -19,7 +19,7 @@ package org.briljantframework.matrix;
 /**
  * Created by Isak Karlsson on 28/08/14.
  */
-public interface MatrixLike {
+public interface VectorLike {
 
   /**
    * Get value at row i and column j
@@ -60,20 +60,6 @@ public interface MatrixLike {
   double get(int index);
 
   /**
-   * The number of rows.
-   *
-   * @return number or rows
-   */
-  int rows();
-
-  /**
-   * The number of columns.
-   *
-   * @return number of columns
-   */
-  int columns();
-
-  /**
    * Returns the linearized size of this matrix.
    *
    * <pre>
@@ -83,55 +69,4 @@ public interface MatrixLike {
    * @return the int
    */
   int size();
-
-  /**
-   * Is square.
-   *
-   * @return true if rows() == columns()
-   */
-  default boolean isSquare() {
-    return rows() == columns();
-  }
-
-  /**
-   * The shape of the current matrix.
-   *
-   * @return the shape
-   */
-  default Shape getShape() {
-    return Shape.of(rows(), columns());
-  }
-
-  /**
-   * Returns true if {@link org.briljantframework.matrix.Shape#size()} == {@link #size()}
-   *
-   * @param shape the shape
-   * @return the boolean
-   */
-  default boolean hasCompatibleShape(Shape shape) {
-    return hasCompatibleShape(shape.rows, shape.columns);
-  }
-
-  /**
-   * Has compatible shape.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the boolean
-   * @throws ArithmeticException
-   */
-  default boolean hasCompatibleShape(int rows, int cols) {
-    return Math.multiplyExact(rows, cols) == rows() * columns();
-  }
-
-  /**
-   * Equal shape (i.e.
-   *
-   * @param other the other
-   * @return the boolean
-   */
-  default boolean hasEqualShape(MatrixLike other) {
-    return rows() == other.rows() && columns() == other.columns();
-  }
-
 }

@@ -159,7 +159,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
       Set<String> labels = new HashSet<>();
 
       // FIXME! targets.getType().getDomain();
-      for (int i = 0; i < truth.rows(); i++) {
+      for (int i = 0; i < truth.size(); i++) {
         labels.add(truth.getAsString(i));
       }
 

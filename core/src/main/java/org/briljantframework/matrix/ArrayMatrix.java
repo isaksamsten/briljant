@@ -92,7 +92,7 @@ public class ArrayMatrix extends AbstractMatrix {
    *
    * @param matrix the tensor like
    */
-  public ArrayMatrix(MatrixLike matrix) {
+  public ArrayMatrix(Matrix matrix) {
     this(matrix.getShape(), matrix);
   }
 
@@ -102,10 +102,10 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param shape the shape
    * @param matrix to copy
    */
-  public ArrayMatrix(Shape shape, MatrixLike matrix) {
+  public ArrayMatrix(Shape shape, Matrix matrix) {
     this(shape.rows, shape.columns);
     if (!hasCompatibleShape(matrix.getShape())) {
-      throw new MismatchException("DenseMatrix", "cant fit tensor");
+      throw new MismatchException("ArrayMatrix", "matrix can't fit");
     }
     if (matrix instanceof ArrayMatrix) {
       System.arraycopy(((ArrayMatrix) matrix).values, 0, values, 0, this.cols * this.rows);
@@ -113,6 +113,13 @@ public class ArrayMatrix extends AbstractMatrix {
       for (int i = 0; i < matrix.size(); i++) {
         values[i] = matrix.get(i);
       }
+    }
+  }
+
+  public ArrayMatrix(VectorLike vec) {
+    this(vec.size(), 1);
+    for (int i = 0; i < vec.size(); i++) {
+      put(i, vec.get(i));
     }
   }
 
@@ -260,11 +267,6 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
-  protected Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  @Override
   public double get(int i, int j) {
     return values[columnMajor(i, j, rows(), columns())];
   }
@@ -331,6 +333,11 @@ public class ArrayMatrix extends AbstractMatrix {
     values[index] = value;
   }
 
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
+  }
+
   // @Override
   // public double[] asDoubleArray() {
   // return values;
@@ -379,7 +386,6 @@ public class ArrayMatrix extends AbstractMatrix {
   public int hashCode() {
     return Arrays.hashCode(values);
   }
-
 
   /**
    * The type Builder.

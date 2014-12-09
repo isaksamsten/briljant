@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.briljantframework.exception.NonConformantException;
-import org.briljantframework.vector.RealVector;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -26,13 +26,8 @@ public class VectorMatrix extends AbstractMatrix {
     this(vector, vector.size() / columns, columns);
   }
 
-  public static Matrix wrap(RealVector vector) {
+  public static Matrix wrap(DoubleVector vector) {
     return new VectorMatrix(vector, 1, vector.size());
-  }
-
-  @Override
-  protected Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
   }
 
   @Override
@@ -83,13 +78,18 @@ public class VectorMatrix extends AbstractMatrix {
   }
 
   @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
+  }
+
+  @Override
   public double get(int i, int j) {
-    return vector.getAsReal(Indexer.columnMajor(i, j, rows(), columns()));
+    return vector.getAsDouble(Indexer.columnMajor(i, j, rows(), columns()));
   }
 
   @Override
   public double get(int index) {
-    return vector.getAsReal(index);
+    return vector.getAsDouble(index);
   }
 
   @Override

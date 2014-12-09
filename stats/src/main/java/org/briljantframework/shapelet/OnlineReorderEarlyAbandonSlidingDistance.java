@@ -1,7 +1,7 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.VectorLike;
 import org.briljantframework.matrix.distance.Distance;
 
 /**
@@ -28,9 +28,9 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
 
 
   @Override
-  public double distance(MatrixLike a, MatrixLike b) {
+  public double distance(VectorLike a, VectorLike b) {
     // Candidate is normalized
-    MatrixLike candidate = a.size() < b.size() ? a : b;
+    VectorLike candidate = a.size() < b.size() ? a : b;
     int l = candidate.size();
 
     int[] order = null;
@@ -42,7 +42,7 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
       });
     }
 
-    MatrixLike vector = a.size() >= b.size() ? a : b;
+    VectorLike vector = a.size() >= b.size() ? a : b;
     int m = vector.size();
 
     double ex = 0, ex2 = 0; // running sum and square sum

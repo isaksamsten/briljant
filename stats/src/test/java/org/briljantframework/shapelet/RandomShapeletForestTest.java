@@ -13,7 +13,7 @@ import org.briljantframework.io.CsvInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.MatrixLike;
+import org.briljantframework.matrix.VectorLike;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -339,7 +339,7 @@ public class RandomShapeletForestTest {
 
   }
 
-  public JFreeChart plot(MatrixLike x, String xlabel, MatrixLike y, String ylabel, String[] labels) {
+  public JFreeChart plot(Matrix x, String xlabel, Matrix y, String ylabel, String[] labels) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     for (int i = 0; i < y.rows(); i++) {
@@ -381,7 +381,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(MatrixLike x, String xlabel, MatrixLike y, String ylabel) {
+  public JFreeChart plot(Matrix x, String xlabel, Matrix y, String ylabel) {
     return plot(x, xlabel, y, ylabel, (String[]) null);
   }
 
@@ -534,7 +534,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(MatrixLike x, String xlabel, MatrixLike y, String ylabel, MatrixLike e) {
+  public JFreeChart plot(VectorLike x, String xlabel, VectorLike y, String ylabel, VectorLike e) {
     XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
     XYIntervalSeries series = new XYIntervalSeries("Series");
     for (int i = 0; i < x.size(); i++) {

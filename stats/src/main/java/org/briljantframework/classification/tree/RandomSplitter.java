@@ -18,8 +18,8 @@ package org.briljantframework.classification.tree;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.DoubleValue;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.RealValue;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
@@ -132,16 +132,16 @@ public class RandomSplitter extends AbstractSplitter {
     Example a = examples.getRandomSample().getRandomExample();
     Example b = examples.getRandomSample().getRandomExample();
 
-    double valueA = vector.getAsReal(a.getIndex());
-    double valueB = vector.getAsReal(b.getIndex());
+    double valueA = vector.getAsDouble(a.getIndex());
+    double valueB = vector.getAsDouble(b.getIndex());
 
     // TODO - what if both A and B are missing?
     if (Is.NA(valueA)) {
-      return new RealValue(valueB);
+      return new DoubleValue(valueB);
     } else if (Is.NA(valueB)) {
-      return new RealValue(valueB);
+      return new DoubleValue(valueB);
     } else {
-      return new RealValue((valueA + valueB) / 2);
+      return new DoubleValue((valueA + valueB) / 2);
     }
 
   }

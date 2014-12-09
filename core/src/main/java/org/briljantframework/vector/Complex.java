@@ -25,6 +25,10 @@ public class Complex {
     this.isInfinite = !isNaN && (Double.isInfinite(real) || Double.isInfinite(imag));
   }
 
+  public Complex(double real) {
+    this(real, 0);
+  }
+
   public Complex plus(Complex other) {
     if (isNaN() || other.isNaN()) {
       return NaN;

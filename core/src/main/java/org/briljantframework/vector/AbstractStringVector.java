@@ -51,7 +51,7 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
   };
 
   @Override
-  public double getAsReal(int index) {
+  public double getAsDouble(int index) {
     return tryParseDouble(getAsString(index));
   }
 
@@ -111,13 +111,13 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
 
   protected double tryParseDouble(String str) {
     if (str == AbstractStringVector.NA) {
-      return RealVector.NA;
+      return DoubleVector.NA;
     }
     Double d = Doubles.tryParse(str);
     if (d != null) {
       return d;
     } else {
-      return RealVector.NA;
+      return DoubleVector.NA;
     }
   }
 

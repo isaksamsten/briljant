@@ -47,7 +47,7 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
    */
   @Override
   public int getAsInt(int index) {
-    double value = getAsReal(index);
+    double value = getAsDouble(index);
     if (Double.isNaN(value)) {
       return IntVector.NA;
     } else {
@@ -96,7 +96,7 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
    */
   @Override
   public boolean isNA(int index) {
-    return Double.isNaN(getAsReal(index));
+    return Double.isNaN(getAsDouble(index));
   }
 
   /**

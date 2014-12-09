@@ -12,7 +12,7 @@ import org.briljantframework.vector.*;
  * <p>
  * Created by Isak Karlsson on 21/11/14.
  */
-public interface DataFrame extends Iterable<CompoundVector> {
+public interface DataFrame extends Iterable<VariableVector> {
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -141,7 +141,7 @@ public interface DataFrame extends Iterable<CompoundVector> {
    * @param index the index
    * @return the row sequence
    */
-  CompoundVector getRow(int index);
+  VariableVector getRow(int index);
 
   /**
    * Take the rows in {@code indexes}
