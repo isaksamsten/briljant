@@ -3,6 +3,8 @@ package org.briljantframework.vector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.briljantframework.matrix.Axis;
+
 /**
  * A sequence is a vector which contains elements of different type.
  * <p>
@@ -36,19 +38,23 @@ public interface VariableVector extends Vector, Iterable<Value> {
 
     @Override
     public int compare(int a, Vector va, int b, Vector ba) {
-      throw new UnsupportedOperationException("Can't compare values for sequence types");
+      throw new UnsupportedOperationException("Can't compare values for variable vectors");
     }
 
     @Override
     public Scale getScale() {
-      throw new UnsupportedOperationException("CompoundVector does not have a scale.");
+      throw new UnsupportedOperationException("VariableVector does not have a scale.");
     }
 
     @Override
     public String toString() {
-      return "compound";
+      return "variable";
     }
   };
+
+  default Axis getAxis() {
+    return Axis.ROW;
+  }
 
   /**
    * {@inheritDoc}

@@ -1,5 +1,9 @@
 package org.briljantframework.vector;
 
+import java.util.Iterator;
+
+import com.google.common.collect.UnmodifiableIterator;
+
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
@@ -96,5 +100,22 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
     double va = getAsDouble(a);
     double vb = other.getAsDouble(b);
     return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  public Iterator<Double> iterator() {
+    return new UnmodifiableIterator<Double>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Double next() {
+        return getAsDouble(current++);
+      }
+    };
   }
 }

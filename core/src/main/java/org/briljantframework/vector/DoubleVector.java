@@ -2,7 +2,6 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -11,7 +10,6 @@ import org.briljantframework.io.DataFrameInputStream;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -89,23 +87,6 @@ public class DoubleVector extends AbstractDoubleVector {
 
   public double[] asDoubleArray() {
     return values;
-  }
-
-  @Override
-  public Iterator<Double> iterator() {
-    return new UnmodifiableIterator<Double>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Double next() {
-        return getAsDouble(current++);
-      }
-    };
   }
 
   @Override

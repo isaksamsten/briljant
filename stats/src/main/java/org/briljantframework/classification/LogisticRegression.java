@@ -124,6 +124,7 @@ public class LogisticRegression implements Classifier {
       for (int i : indexes) {
         Vector row = x.getRow(i);
         double update = learningRate * (y.get(i) - Matrices.sigmoid(row, theta));
+        // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
         // Matrices.add(row, update, theta, 1, theta.asDoubleArray());

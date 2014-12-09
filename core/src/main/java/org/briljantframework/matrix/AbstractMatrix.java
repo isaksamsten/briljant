@@ -17,6 +17,7 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -50,6 +51,22 @@ public abstract class AbstractMatrix implements Matrix {
       put(i, value);
     }
     return this;
+  }
+
+  @Override
+  public Matrix assign(VectorLike vector) {
+    return assign(vector, DoubleUnaryOperator.identity());
+  }
+
+  @Override
+  public Matrix assign(VectorLike vector, DoubleUnaryOperator operator) {
+    checkArgument(vector.size() == columns());
+    checkNotNull(operator);
+    Matrix mat = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      mat.put(i, operator.applyAsDouble(vector.get(i % vector.size())));
+    }
+    return mat;
   }
 
   @Override
@@ -120,11 +137,6 @@ public abstract class AbstractMatrix implements Matrix {
     return new MatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
-  @Override
-  public Matrix getColumns(int start, int end) {
-    throw new UnsupportedOperationException("not implemented");
-  }
-
   public Matrix transpose() {
     Matrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int i = 0; i < this.rows(); i++) {
@@ -133,16 +145,6 @@ public abstract class AbstractMatrix implements Matrix {
       }
     }
     return matrix;
-  }
-
-  @Override
-  public int rows() {
-    return rows;
-  }
-
-  @Override
-  public int columns() {
-    return cols;
   }
 
   @Override
@@ -174,7 +176,22 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public Matrix mul(Matrix other) {
     checkArgument(hasCompatibleShape(other.getShape()));
-    return muli(1, other, 1);
+    return mul(1, other, 1);
+  }
+
+  @Override
+  public Matrix mul(VectorLike other) {
+    return mul(1, other, 1);
+  }
+
+  @Override
+  public Matrix mul(double alpha, VectorLike other, double beta) {
+    checkArgument(other.size() == columns());
+    Matrix mat = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      mat.put(i, (alpha * get(i)) * (other.get(i % other.size()) * beta));
+    }
+    return mat;
   }
 
   @Override
@@ -400,14 +417,6 @@ public abstract class AbstractMatrix implements Matrix {
     return this;
   }
 
-  /**
-   * Elementwise multiply.
-   *
-   * @param alpha the alpha
-   * @param other the other
-   * @param beta the beta
-   * @return dense matrix
-   */
   @Override
   public Matrix mul(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
@@ -422,14 +431,6 @@ public abstract class AbstractMatrix implements Matrix {
     return matrix;
   }
 
-  /**
-   * Elementwise multiply.
-   *
-   * @param alpha the alpha
-   * @param other the other
-   * @param beta the beta
-   * @return dense matrix
-   */
   @Override
   public Matrix muli(double alpha, Matrix other, double beta) {
     if (!hasEqualShape(other)) {
@@ -624,6 +625,16 @@ public abstract class AbstractMatrix implements Matrix {
       }
     }
     return bm;
+  }
+
+  @Override
+  public int rows() {
+    return rows;
+  }
+
+  @Override
+  public int columns() {
+    return cols;
   }
 
   @Override

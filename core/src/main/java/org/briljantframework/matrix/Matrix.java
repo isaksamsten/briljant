@@ -22,7 +22,7 @@ import java.util.function.*;
  * 
  * Created by Isak Karlsson on 28/08/14.
  */
-public interface Matrix extends VectorLike, Iterable<Double> {
+public interface Matrix extends MatrixLike, Iterable<Double> {
 
   /**
    * Assign {@code value} to {@code this}
@@ -31,6 +31,26 @@ public interface Matrix extends VectorLike, Iterable<Double> {
    * @return a modified matrix
    */
   Matrix assign(double value);
+
+  /**
+   * Assign {@code vector} to every row or to every column depending on
+   * {@link org.briljantframework.matrix.VectorLike#getAxis()}
+   * 
+   * Note: {@code vector.size()} must equal {@code matrix.rows()} or {@code matrix.columns()}
+   * 
+   * @param vector the vector
+   * @return a new matrix
+   */
+  Matrix assign(VectorLike vector);
+
+  /**
+   * Assign {@code vector} and apply operator to every element
+   * 
+   * @param vector the vector
+   * @param operator the operator
+   * @return a new matrix
+   */
+  Matrix assign(VectorLike vector, DoubleUnaryOperator operator);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -151,22 +171,13 @@ public interface Matrix extends VectorLike, Iterable<Double> {
    *   8 9
    * </pre>
    * 
-   * @param rowOffset
-   * @param colOffset
-   * @param rows
-   * @param columns
-   * @return
+   * @param rowOffset the row offset
+   * @param colOffset the column offset
+   * @param rows number of rows after row offset
+   * @param columns number of columns after column offset
+   * @return the matrix view
    */
   Matrix getView(int rowOffset, int colOffset, int rows, int columns);
-
-  /**
-   * Gets columns.
-   *
-   * @param start the start
-   * @param end the end
-   * @return columns columns
-   */
-  Matrix getColumns(int start, int end);
 
   /**
    * Create a copy of this matrix.
@@ -181,20 +192,6 @@ public interface Matrix extends VectorLike, Iterable<Double> {
    * @return the matrix like
    */
   Matrix transpose();
-
-  /**
-   * The number of rows.
-   *
-   * @return number or rows
-   */
-  int rows();
-
-  /**
-   * The number of columns.
-   *
-   * @return number of columns
-   */
-  int columns();
 
 
   // Arithmetical operations ///////////
@@ -222,6 +219,24 @@ public interface Matrix extends VectorLike, Iterable<Double> {
    * @return a new matrix
    */
   Matrix mul(Matrix other);
+
+  /**
+   * Element wise multiplication, extending {@code other} row or column wise
+   * 
+   * @param other the vector
+   * @return a new matrix
+   */
+  Matrix mul(VectorLike other);
+
+  /**
+   * Element wise multiplication, extending {@code other} row or column wise
+   * 
+   * @param alpha scaling factor for {@code this}
+   * @param other the vector
+   * @param beta scaling factor for {@code other}
+   * @return a new matrix
+   */
+  Matrix mul(double alpha, VectorLike other, double beta);
 
   /**
    * Element wise <u>m</u>ultiplication

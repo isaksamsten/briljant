@@ -27,7 +27,7 @@ import org.briljantframework.exception.NonConformantException;
  * <p>
  * Created by isak on 27/06/14.
  */
-public class Diagonal extends AbstractMatrix implements VectorLike {
+public class Diagonal extends AbstractMatrix {
 
   private final int size;
   private final double[] values;
@@ -164,21 +164,6 @@ public class Diagonal extends AbstractMatrix implements VectorLike {
   /**
    * Get double.
    *
-   * @param i the i
-   * @param j the j
-   * @return double
-   */
-  public double get(int i, int j) {
-    if (i == j) {
-      return get(i);
-    } else {
-      return 0;
-    }
-  }
-
-  /**
-   * Get double.
-   *
    * @param index the index
    * @return the double
    */
@@ -197,6 +182,21 @@ public class Diagonal extends AbstractMatrix implements VectorLike {
    */
   public int size() {
     return size;
+  }
+
+  /**
+   * Get double.
+   *
+   * @param i the i
+   * @param j the j
+   * @return double
+   */
+  public double get(int i, int j) {
+    if (i == j) {
+      return get(i);
+    } else {
+      return 0;
+    }
   }
 
   /**

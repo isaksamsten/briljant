@@ -22,33 +22,31 @@ package org.briljantframework.matrix;
 public interface VectorLike {
 
   /**
-   * Get value at row i and column j
-   *
-   * @param i row
-   * @param j column
-   * @return value double
+   * @return returns whether {@code this} is a {@link Axis#COLUMN} or {@link Axis#ROW} vector
    */
-  double get(int i, int j);
+  Axis getAxis();
 
   /**
-   * Flattens the traversal of the matrix in column-major order. If {@link #rows()} == 1 or
-   * {@link #columns()} == 1, <code>get(index)</code> behaves as expected. If not, the matrix is
-   * traversed in column-major order. For example, given the following matrix
-   *
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
+   * column-major order. For example, given the following matrix
+   * <p>
+   * 
    * <pre>
    *     1 2 3
    *     4 5 6
    * </pre>
-   *
+   * <p>
    * this code
+   * <p>
    * 
    * <pre>
    * for (int i = 0; i &lt; x.size(); i++) {
    *   System.out.print(x.get(i));
    * }
    * </pre>
-   * 
+   * <p>
    * prints
+   * <p>
    * 
    * <pre>
    * 142536
@@ -61,7 +59,8 @@ public interface VectorLike {
 
   /**
    * Returns the linearized size of this matrix.
-   *
+   * <p>
+   * 
    * <pre>
    * {@code rows() * columns() == @code size()}
    * </pre>

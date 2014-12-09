@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.VectorLike;
 
 /**
@@ -125,18 +126,22 @@ public interface Vector extends VectorLike, Serializable {
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  default double get(int i, int j) {
-    if (i == 1) {
-      return get(j);
-    } else if (j == 1) {
-      return get(i);
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
+  // /**
+  // * {@inheritDoc}
+  // */
+  // @Override
+  // default double get(int i, int j) {
+  // if (i == 1) {
+  // return get(j);
+  // } else if (j == 1) {
+  // return get(i);
+  // } else {
+  // throw new IndexOutOfBoundsException();
+  // }
+  // }
+
+  default Axis getAxis() {
+    return Axis.COLUMN;
   }
 
   /**

@@ -19,6 +19,7 @@ package org.briljantframework.shapelet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.VectorLike;
 
 import com.google.common.base.Preconditions;
@@ -75,15 +76,20 @@ public class Shapelet implements VectorLike {
     return start;
   }
 
+  // @Override
+  // public double get(int i, int j) {
+  // if (i == 1) {
+  // return get(j);
+  // } else if (j == 1) {
+  // return get(i);
+  // } else {
+  // throw new IndexOutOfBoundsException();
+  // }
+  // }
+
   @Override
-  public double get(int i, int j) {
-    if (i == 1) {
-      return get(j);
-    } else if (j == 1) {
-      return get(i);
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
+  public Axis getAxis() {
+    return Axis.ROW;
   }
 
   @Override
