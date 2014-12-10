@@ -46,8 +46,7 @@ public class MatrixVector extends AbstractDoubleVector {
   @Override
   public Builder newCopyBuilder() {
     double[] copy = new double[matrix.size()];
-    matrix.unsafe(x -> System.arraycopy(x, 0, copy, 0, x.length));
-    // TODO(isak): optimze
+    System.arraycopy(matrix.asDoubleArray(), 0, copy, 0, copy.length);
     return DoubleVector.newBuilderWithInitialValues(copy);
   }
 

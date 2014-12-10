@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import static org.briljantframework.matrix.Matrices.parseMatrix;
 
+import org.briljantframework.DoubleArray;
 import org.junit.Test;
 
 public class MatrixTest {
@@ -56,6 +57,10 @@ public class MatrixTest {
     // 0.001);
 
     a = parseMatrix("1,2,3;1,2,3");
+    DoubleArray c = DoubleArray.wrap(2, 4, 3);
+
+    System.out.println(a.div(c, Axis.ROW).mul(2).sub(c, Axis.ROW));
+
     // assertArrayEquals(parseMatrix("9,8,7;9,8,7").asDoubleArray(), a.rsubi(10).asDoubleArray(),
     // 0.00001);
   }

@@ -69,22 +69,18 @@ public class LuDecomposition implements Decomposition {
       throw new IllegalStateException("Matrix must be square.");
     }
     Matrix inv = lu.copy();
-    int n = inv.rows(), error;
+    int n = inv.rows();
     int lwork = -1;
     double[] work = new double[1];
     intW err = new intW(0);
-    final int finalLwork = lwork;
-    final double[] finalWork = work;
-    inv.unsafe(x -> LAPACK.getInstance().dgetri(n, x, n, pivots, finalWork, finalLwork, err));
+    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new BlasException("LAPACKE_dgetri", err.val, "Querying failed");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    final double[] finalWork1 = work;
-    final int finalLwork1 = lwork;
-    inv.unsafe(x -> LAPACK.getInstance().dgetri(n, x, n, pivots, finalWork1, finalLwork1, err));
+    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new BlasException("LAPACKE_dgetri", err.val, "Inverse failed.");
     }

@@ -16,8 +16,8 @@
 
 package org.briljantframework.matrix.time;
 
+import org.briljantframework.DoubleArray;
 import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.VectorLike;
 import org.briljantframework.matrix.distance.Distance;
 
 import com.google.common.primitives.Doubles;
@@ -72,7 +72,7 @@ public class DynamicTimeWarping implements Distance {
   }
 
   @Override
-  public double distance(VectorLike a, VectorLike b) {
+  public double distance(DoubleArray a, DoubleArray b) {
     int n = a.size(), m = b.size();
 
     // NOTE: This makes DWT non-suitable for sharing it between threads.

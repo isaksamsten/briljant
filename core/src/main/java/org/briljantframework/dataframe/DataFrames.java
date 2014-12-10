@@ -58,7 +58,7 @@ public final class DataFrames {
    * terms, for randomly shuffling the finite set.
    * 
    * The code requires that {@link DataFrame#newCopyBuilder()} returns a copy and that
-   * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indices.
+   * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indexex.
    * 
    * @param in the input {@code DataFrame}
    * @return a permuted copy of {@code in}

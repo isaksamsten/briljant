@@ -14,7 +14,7 @@ public final class Indexer {
    * @param col the col
    * @param nrows the number or rows
    * @param ncols the number of columns
-   * @return the linearlized index
+   * @return the linearized index
    */
   public static int columnMajor(int row, int col, int nrows, int ncols) {
     if (col >= ncols || col < 0) {

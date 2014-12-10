@@ -3,8 +3,6 @@ package org.briljantframework.vector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.briljantframework.matrix.Axis;
-
 /**
  * A sequence is a vector which contains elements of different type.
  * <p>
@@ -51,10 +49,6 @@ public interface VariableVector extends Vector, Iterable<Value> {
       return "variable";
     }
   };
-
-  default Axis getAxis() {
-    return Axis.ROW;
-  }
 
   /**
    * {@inheritDoc}

@@ -20,19 +20,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 
+import org.briljantframework.DoubleArray;
 import org.briljantframework.exception.MismatchException;
 import org.briljantframework.exception.NonConformantException;
 
+import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
 
 /**
  * Created by Isak Karlsson on 13/06/14.
  */
 public class ArrayMatrix extends AbstractMatrix {
+
+  private static final BLAS blas = BLAS.getInstance();
 
   final double[] values;
 
@@ -116,7 +117,7 @@ public class ArrayMatrix extends AbstractMatrix {
     }
   }
 
-  public ArrayMatrix(VectorLike vec) {
+  public ArrayMatrix(DoubleArray vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
       put(i, vec.get(i));
@@ -267,8 +268,19 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
+  public void put(int i, int j, double value) {
+    values[columnMajor(i, j, rows(), columns())] = value;
+  }
+
+  @Override
   public double get(int i, int j) {
     return values[columnMajor(i, j, rows(), columns())];
+  }
+
+  @Override
+  public void put(int index, double value) {
+    checkArgument(index >= 0 && index < values.length);
+    values[index] = value;
   }
 
   @Override
@@ -280,6 +292,16 @@ public class ArrayMatrix extends AbstractMatrix {
   @Override
   public int size() {
     return rows() * columns();
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return true;
+  }
+
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
   }
 
   /**
@@ -298,88 +320,18 @@ public class ArrayMatrix extends AbstractMatrix {
     }
 
     double[] tmp = new double[this.rows() * other.columns()];
-    if (other instanceof ArrayMatrix) {
-      ArrayMatrix b = (ArrayMatrix) other;
-      blas.dgemm("n", "n", this.rows(), b.columns(), b.rows(), alpha, this.values, this.rows(),
-          b.values, b.rows(), beta, tmp, this.rows());
+    if (other.isArrayBased()) {
+      blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha, this.values,
+          this.rows(), other.asDoubleArray(), other.rows(), beta, tmp, this.rows());
       return new ArrayMatrix(other.columns(), tmp);
     } else {
-      return other.unsafeTransform(b -> {
-        blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha, this.values,
-            this.rows(), b, other.rows(), beta, tmp, this.rows());
-        return new ArrayMatrix(other.columns(), tmp);
-      });
+      return super.mmul(alpha, other, beta);
     }
   }
 
   @Override
-  public Matrix unsafeTransform(Function<double[], Matrix> op) {
-    return op.apply(values);
-  }
-
-  @Override
-  public void unsafe(Consumer<double[]> consumer) {
-    consumer.accept(values);
-  }
-
-  @Override
-  public void put(int i, int j, double value) {
-    values[columnMajor(i, j, rows(), columns())] = value;
-  }
-
-  @Override
-  public void put(int index, double value) {
-    checkArgument(index >= 0 && index < values.length);
-    values[index] = value;
-  }
-
-  @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  // @Override
-  // public double[] asDoubleArray() {
-  // return values;
-  // }
-
-  /**
-   * Fill void.
-   *
-   * @param value the value
-   */
-  public void fill(double value) {
-    Arrays.fill(values, value);
-  }
-
-  /**
-   * Map matrix.
-   *
-   * @param operator the operator
-   * @return the matrix
-   */
-  public Matrix map(DoubleUnaryOperator operator) {
-    double[] values = new double[this.size()];
-    for (int i = 0; i < values.length; i++) {
-      values[i] = operator.applyAsDouble(get(i));
-    }
-
-    return new ArrayMatrix(columns(), values);
-  }
-
-  /**
-   * Reshape inplace.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   */
-  public void reshapei(int rows, int cols) {
-    if (rows * cols != rows() * columns()) {
-      throw new MismatchException("reshapeInplace", String.format(
-          "can't reshape %s tensor into %s tensor", getShape(), Shape.of(rows, cols)));
-    }
-    this.rows = rows;
-    this.cols = cols;
+  public double[] asDoubleArray() {
+    return values;
   }
 
   @Override

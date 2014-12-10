@@ -51,10 +51,7 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
     double[] work = new double[1];
 
     intW info = new intW(0);
-    final int finalLwork = lwork;
-    final double[] finalWork = work;
-    copy.unsafe(x -> lapack.dgesvd("a", "a", m, n, x, m, sigma, u, m, vt, n, finalWork, finalLwork,
-        info));
+    lapack.dgesvd("a", "a", m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work, lwork, info);
 
     if (info.val != 0) {
       throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
@@ -62,10 +59,7 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
 
     lwork = (int) work[0];
     work = new double[lwork];
-    final int finalLwork1 = lwork;
-    final double[] finalWork1 = work;
-    copy.unsafe(x -> lapack.dgesvd("a", "a", m, n, x, m, sigma, u, m, vt, n, finalWork1,
-        finalLwork1, info));
+    lapack.dgesvd("a", "a", m, n, copy.asDoubleArray(), m, sigma, u, m, vt, n, work, lwork, info);
 
     if (info.val != 0) {
       throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");

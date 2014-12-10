@@ -3,9 +3,6 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import org.briljantframework.Utils;
 
 import com.google.common.collect.ImmutableTable;
@@ -48,50 +45,6 @@ public class BooleanMatrix extends AbstractMatrix {
     values[index(i, j)] = value;
   }
 
-  @Override
-  public double get(int i, int j) {
-    boolean value = values[index(i, j)];
-    return value ? 1 : 0;
-  }
-
-  @Override
-  public double get(int index) {
-    checkArgument(index > 0 && index < values.length);
-    return values[index] ? 1 : 0;
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
-  }
-
-  /**
-   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
-   * affect the original.
-   *
-   * @return the copy
-   */
-  public BooleanMatrix copy() {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    System.arraycopy(values, 0, bm.values, 0, values.length);
-    return bm;
-  }
-
-  @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    return null;
-  }
-
-  @Override
-  public Matrix unsafeTransform(Function<double[], Matrix> op) {
-    return null;
-  }
-
-  @Override
-  public void unsafe(Consumer<double[]> consumer) {
-
-  }
-
   /**
    * Set value at row i and column j to value
    *
@@ -101,6 +54,12 @@ public class BooleanMatrix extends AbstractMatrix {
    */
   public void put(int i, int j, double value) {
     values[index(i, j)] = value != 0;
+  }
+
+  @Override
+  public double get(int i, int j) {
+    boolean value = values[index(i, j)];
+    return value ? 1 : 0;
   }
 
   /**
@@ -116,7 +75,61 @@ public class BooleanMatrix extends AbstractMatrix {
   }
 
   @Override
+  public double get(int index) {
+    checkArgument(index > 0 && index < values.length);
+    return values[index] ? 1 : 0;
+  }
+
+  @Override
+  public int size() {
+    return rows() * columns();
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return false;
+  }
+
+  @Override
   public Matrix newEmptyMatrix(int rows, int columns) {
+    return null;
+  }
+
+  /**
+   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
+   * affect the original.
+   *
+   * @return the copy
+   */
+  public BooleanMatrix copy() {
+    BooleanMatrix bm = new BooleanMatrix(getShape());
+    System.arraycopy(values, 0, bm.values, 0, values.length);
+    return bm;
+  }
+
+  /**
+   * Puts <code>value</code> at the linearized position <code>index</code>.
+   *
+   * @param index the index
+   * @param value the value
+   * @see #get(int)
+   */
+  public void put(int index, boolean value) {
+    checkArgument(index > 0 && index < values.length);
+    values[index] = value;
+  }
+
+  /**
+   * Transpose matrix like.
+   *
+   * @return the matrix like
+   */
+  public Matrix transpose() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
     return null;
   }
 
@@ -133,15 +146,6 @@ public class BooleanMatrix extends AbstractMatrix {
       array[i] = values[i] ? 1 : 0;
     }
     return array;
-  }
-
-  /**
-   * Transpose matrix like.
-   *
-   * @return the matrix like
-   */
-  public Matrix transpose() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

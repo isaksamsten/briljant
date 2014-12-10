@@ -23,6 +23,7 @@ import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
+import org.briljantframework.DoubleArray;
 import org.briljantframework.exception.MismatchException;
 
 import com.github.fommil.netlib.BLAS;
@@ -926,7 +927,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double std(VectorLike vector) {
+  public static double std(DoubleArray vector) {
     return std(vector, mean(vector));
   }
 
@@ -937,7 +938,7 @@ public class Matrices {
    * @param mean the mean
    * @return the double
    */
-  public static double std(VectorLike vector, double mean) {
+  public static double std(DoubleArray vector, double mean) {
     double var = var(vector, mean);
     return Math.sqrt(var / (vector.size() - 1));
   }
@@ -948,7 +949,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double mean(VectorLike vector) {
+  public static double mean(DoubleArray vector) {
     double mean = 0;
     for (int i = 0; i < vector.size(); i++) {
       mean += vector.get(i);
@@ -964,7 +965,7 @@ public class Matrices {
    * @param mean the mean
    * @return the double
    */
-  public static double var(VectorLike vector, double mean) {
+  public static double var(DoubleArray vector, double mean) {
     double var = 0;
     for (int i = 0; i < vector.size(); i++) {
       double residual = vector.get(i) - mean;
@@ -979,7 +980,7 @@ public class Matrices {
    * @param vector the vector
    * @return the double
    */
-  public static double var(VectorLike vector) {
+  public static double var(DoubleArray vector) {
     return var(vector, mean(vector));
   }
 
@@ -1024,7 +1025,7 @@ public class Matrices {
    * @param vector the vector
    * @return the int [ ]
    */
-  public static int[] sortIndex(VectorLike vector) {
+  public static int[] sortIndex(DoubleArray vector) {
     return sortIndex(vector, (o1, o2) -> Double.compare(vector.get(o1), vector.get(o2)));
   }
 
@@ -1035,7 +1036,7 @@ public class Matrices {
    * @param comparator the comparator
    * @return the int [ ]
    */
-  public static int[] sortIndex(VectorLike vector, Comparator<Integer> comparator) {
+  public static int[] sortIndex(DoubleArray vector, Comparator<Integer> comparator) {
     int[] indicies = new int[vector.size()];
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
@@ -1063,7 +1064,7 @@ public class Matrices {
    * @param y a vector
    * @return the dot product
    */
-  public static double dot(VectorLike x, VectorLike y) {
+  public static double dot(DoubleArray x, DoubleArray y) {
     return dot(x, 1, y, 1);
   }
 
@@ -1077,7 +1078,7 @@ public class Matrices {
    * @param beta scaling factor for y
    * @return the inner product
    */
-  public static double dot(VectorLike x, double alpha, VectorLike y, double beta) {
+  public static double dot(DoubleArray x, double alpha, DoubleArray y, double beta) {
     if (x.size() != y.size()) {
       throw new IllegalArgumentException();
     }
@@ -1096,7 +1097,7 @@ public class Matrices {
    * @param b a vector
    * @return the sigmoid
    */
-  public static double sigmoid(VectorLike a, VectorLike b) {
+  public static double sigmoid(DoubleArray a, DoubleArray b) {
     return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
   }
 
@@ -1106,7 +1107,7 @@ public class Matrices {
    * @param matrix the matrix
    * @return the double
    */
-  public static double sum(VectorLike matrix) {
+  public static double sum(DoubleArray matrix) {
     double sum = 0;
     for (int i = 0; i < matrix.size(); i++) {
       sum += matrix.get(i);

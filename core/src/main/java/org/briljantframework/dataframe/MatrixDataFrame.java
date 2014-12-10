@@ -189,7 +189,7 @@ public class MatrixDataFrame implements DataFrame {
   @Override
   public DataFrame.Builder newCopyBuilder() {
     double[] array = new double[rows() * columns()];
-    matrix.unsafe(x -> System.arraycopy(x, 0, array, 0, x.length));
+    System.arraycopy(matrix.asDoubleArray(), 0, array, 0, array.length);
     return new ArrayBuilder(rows(), colNames, array);
 
   }
@@ -224,8 +224,8 @@ public class MatrixDataFrame implements DataFrame {
   /**
    * Dynamically allocates a new {@code MatrixDataFrame}.
    * <p>
-   * Reallocation and hence appending and increasing the size is rather costly using this builder.
-   * It is therefore recommended to initialize with a size. If linearly adding elements, it's way
+   * Appending and increasing the size is rather costly (due to reallocation) using this builder. It
+   * is therefore recommended to initialize with a size. If linearly adding elements, it's way
    * faster to append backwards, i.e., starting with the bottom right and proceed to the top left
    * corner of the matrix
    * <p>
@@ -239,7 +239,8 @@ public class MatrixDataFrame implements DataFrame {
    * is faster than starting at {@code i = 0} and {@code j = 0}.
    * <p>
    * Alternatively, if the size is unknown prefer
-   * {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}.
+   * {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}, which is both sparse and
+   * fast to incrementally build.
    */
   public static class ArrayBuilder implements DataFrame.Builder {
 
@@ -257,8 +258,8 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     public ArrayBuilder(int initialCapacity) {
-      this.rows = 1;
-      this.columns = 1;
+      this.rows = 0;
+      this.columns = 0;
       this.colNames = null;
       buffer = new double[] {DoubleVector.NA};
     }
@@ -365,7 +366,7 @@ public class MatrixDataFrame implements DataFrame {
 
     @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
-      return null;
+      throw new UnsupportedOperationException("Can't add builder");
     }
 
     @Override
@@ -387,7 +388,14 @@ public class MatrixDataFrame implements DataFrame {
 
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
-      throw new UnsupportedOperationException("Not implemented yet.");
+      for (int i = 0; i < rows(); i++) {
+        int oldIndex = Indexer.columnMajor(i, a, rows(), columns());
+        int newIndex = Indexer.columnMajor(i, b, rows(), columns());
+        double tmp = buffer[oldIndex];
+        buffer[oldIndex] = buffer[newIndex];
+        buffer[newIndex] = tmp;
+      }
+      return this;
     }
 
     @Override
@@ -467,12 +475,12 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     private void ensureCapacity(int rows, int columns) {
-      if (rows > this.rows && columns > this.columns) {
+      if (rows >= this.rows && columns >= this.columns) {
         this.columns = columns + 1;
         this.rows = rows + 1;
-      } else if (rows > this.rows) {
+      } else if (rows >= this.rows) {
         this.rows = rows + 1;
-      } else if (columns > this.columns) {
+      } else if (columns >= this.columns) {
         this.columns = columns + 1;
       }
     }
@@ -505,12 +513,12 @@ public class MatrixDataFrame implements DataFrame {
 
     @Override
     public DataFrame.Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
-      return null;
+      return set(rows(), toCol, from, fromRow, fromCol);
     }
 
     @Override
     public DataFrame.Builder add(int toCol, Vector from, int fromRow) {
-      return null;
+      return set(rows(), toCol, from.getAsDouble(fromRow));
     }
 
     @Override
@@ -533,22 +541,41 @@ public class MatrixDataFrame implements DataFrame {
 
     @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
-      return null;
+      throw new UnsupportedOperationException("Can't add vector builder");
     }
 
     @Override
     public DataFrame.Builder removeColumn(int column) {
-      return null;
+      throw new UnsupportedOperationException("Can't remove column");
     }
 
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
-      return null;
+      IntDoubleMap aMap = buffer.get(a);
+      IntDoubleMap bMap = buffer.get(b);
+      buffer.put(a, bMap);
+      buffer.put(b, aMap);
+      return this;
     }
 
     @Override
     public DataFrame.Builder swapInColumn(int column, int a, int b) {
-      return null;
+      IntDoubleMap col = buffer.get(column);
+      if (col != null) {
+        if (col.containsKey(a) && col.containsKey(b)) {
+          double tmp = col.get(a);
+          col.put(a, col.get(b));
+          col.put(b, tmp);
+        } else if (col.containsKey(a)) {
+          col.put(b, col.get(a));
+          col.remove(a);
+        } else if (col.containsKey(b)) {
+          col.put(a, col.get(b));
+          col.remove(b);
+        }
+      }
+      // col only has NA values and no swapping is needed
+      return this;
     }
 
     @Override

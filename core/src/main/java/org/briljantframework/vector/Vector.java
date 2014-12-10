@@ -3,9 +3,8 @@ package org.briljantframework.vector;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.briljantframework.DoubleArray;
 import org.briljantframework.io.DataFrameInputStream;
-import org.briljantframework.matrix.Axis;
-import org.briljantframework.matrix.VectorLike;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -13,9 +12,11 @@ import org.briljantframework.matrix.VectorLike;
  * implemented differently depending value type, checking for NA-values are done via the
  * {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
  * <p>
- * Created by Isak Karlsson on 20/11/14.
+ * The vector interface extends the {@link org.briljantframework.DoubleArray} interface
+ *
+ * @author Isak Karlsson
  */
-public interface Vector extends VectorLike, Serializable {
+public interface Vector extends DoubleArray, Serializable {
 
   /**
    * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
@@ -140,9 +141,6 @@ public interface Vector extends VectorLike, Serializable {
   // }
   // }
 
-  default Axis getAxis() {
-    return Axis.COLUMN;
-  }
 
   /**
    * {@inheritDoc}

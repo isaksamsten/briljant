@@ -14,44 +14,30 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix;
+package org.briljantframework;
 
 /**
  * Created by Isak Karlsson on 28/08/14.
  */
-public interface VectorLike {
+public interface DoubleArray {
+
+  public static DoubleArray wrap(double... values) {
+    return new DoubleArray() {
+      @Override
+      public double get(int index) {
+        return values[index];
+      }
+
+      @Override
+      public int size() {
+        return values.length;
+      }
+    };
+  }
 
   /**
-   * @return returns whether {@code this} is a {@link Axis#COLUMN} or {@link Axis#ROW} vector
-   */
-  Axis getAxis();
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
+   * Get value at {@code index}
    * 
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   * 
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   * 
-   * <pre>
-   * 142536
-   * </pre>
-   *
    * @param index the index
    * @return the double
    */

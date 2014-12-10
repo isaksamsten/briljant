@@ -3,9 +3,6 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import org.briljantframework.exception.NonConformantException;
 
 /**
@@ -32,11 +29,6 @@ public class MatrixView extends AbstractMatrix {
   }
 
   @Override
-  public Matrix copy() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Matrix mmul(double alpha, Matrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
@@ -47,33 +39,18 @@ public class MatrixView extends AbstractMatrix {
   }
 
   @Override
-  public Matrix unsafeTransform(Function<double[], Matrix> op) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void unsafe(Consumer<double[]> consumer) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void put(int i, int j, double value) {
     parent.put(rowOffset + i, colOffset + j, value);
   }
 
   @Override
-  public void put(int index, double value) {
-    parent.put(computeLinearIndex(index), value);
-  }
-
-  @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  @Override
   public double get(int i, int j) {
     return parent.get(rowOffset + i, colOffset + j);
+  }
+
+  @Override
+  public void put(int index, double value) {
+    parent.put(computeLinearIndex(index), value);
   }
 
   @Override
@@ -84,6 +61,30 @@ public class MatrixView extends AbstractMatrix {
   @Override
   public int size() {
     return rows() * columns();
+  }
+
+  /**
+   * {@inheritDoc}
+   * 
+   * Note, not entirely true
+   */
+  @Override
+  public boolean isArrayBased() {
+    return parent.isArrayBased();
+  }
+
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
+  }
+
+  @Override
+  public Matrix copy() {
+    Matrix mat = parent.newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      mat.put(i, get(i));
+    }
+    return mat;
   }
 
   private int computeLinearIndex(int index) {

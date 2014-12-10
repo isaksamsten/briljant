@@ -16,13 +16,17 @@
 
 package org.briljantframework.matrix;
 
-import java.util.function.*;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.ToDoubleFunction;
+
+import org.briljantframework.DoubleArray;
 
 /**
  * 
  * Created by Isak Karlsson on 28/08/14.
  */
-public interface Matrix extends MatrixLike, Iterable<Double> {
+public interface Matrix extends DoubleArray, Iterable<Double> {
 
   /**
    * Assign {@code value} to {@code this}
@@ -33,15 +37,14 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix assign(double value);
 
   /**
-   * Assign {@code vector} to every row or to every column depending on
-   * {@link org.briljantframework.matrix.VectorLike#getAxis()}
+   * Assign {@code vector} to every row
    * 
    * Note: {@code vector.size()} must equal {@code matrix.rows()} or {@code matrix.columns()}
    * 
    * @param vector the vector
    * @return a new matrix
    */
-  Matrix assign(VectorLike vector);
+  Matrix assign(DoubleArray vector);
 
   /**
    * Assign {@code vector} and apply operator to every element
@@ -50,7 +53,7 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @param operator the operator
    * @return a new matrix
    */
-  Matrix assign(VectorLike vector, DoubleUnaryOperator operator);
+  Matrix assign(DoubleArray vector, DoubleUnaryOperator operator);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -180,21 +183,14 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
-   * Create a copy of this matrix.
-   *
-   * @return the copy
-   */
-  Matrix copy();
-
-  /**
    * Transpose matrix like.
    *
    * @return the matrix like
    */
   Matrix transpose();
 
-
   // Arithmetical operations ///////////
+
 
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
@@ -213,30 +209,62 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix mmul(Diagonal diagonal);
 
   /**
+   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
+   * {@code other} with {@code beta}. Hence, it computes
+   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   *
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
+   * @return a new matrix
+   */
+  Matrix mmul(double alpha, Matrix other, double beta);
+
+  /**
    * Element wise <u>m</u>ultiplication
-   * 
+   *
    * @param other the matrix
    * @return a new matrix
    */
   Matrix mul(Matrix other);
 
   /**
-   * Element wise multiplication, extending {@code other} row or column wise
-   * 
-   * @param other the vector
+   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   *
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  Matrix mul(VectorLike other);
+  Matrix mul(double alpha, Matrix other, double beta);
+
+  /**
+   * Element wise multiplication, extending {@code other} row or column wise (determined by
+   * {@code axis})
+   *
+   * @param other the vector
+   * @param axis the extending direction
+   * @return a new matrix
+   * @see #mul(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix mul(DoubleArray other, Axis axis);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
-   * 
+   *
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
+   * {@code x.mul(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [1,2,3;2,4,6]}.
+   * Instead, using {@code y=[0, 2, 2]} and {@code x.mul(1, y, Axis.ROW)} result in
+   * {@code [0,4,6;0,4,6]}.
+   *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix mul(double alpha, VectorLike other, double beta);
+  Matrix mul(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -249,18 +277,47 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   /**
    * In place element wise <u>m</u>ultiplication.
    *
+   * @param other the other
+   * @return receiver modified
+   */
+  Matrix muli(Matrix other);
+
+  /**
+   * In place element wise <u>m</u>ultiplication.
+   *
    * @param scalar the scalar
    * @return receiver multiplied
    */
   Matrix muli(double scalar);
 
   /**
-   * In place element wise <u>m</u>ultiplication.
+   * In place Element wise subtraction.
    *
-   * @param other the other
-   * @return receiver modified
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
+   * @see #mul(double, Matrix, double)
+   * @return a new matrix
    */
-  Matrix muli(Matrix other);
+  Matrix muli(double alpha, Matrix other, double beta);
+
+  /**
+   * @param other the array
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #mul(org.briljantframework.DoubleArray, Axis)
+   */
+  Matrix muli(DoubleArray other, Axis axis);
+
+  /**
+   * @param alpha scaling factor for {@code this}
+   * @param other the array
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #mul(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix muli(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * Element wise addition.
@@ -279,6 +336,43 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix add(double scalar);
 
   /**
+   * Element wise addition. Same as {@code add(1, other, 1, axis)}.
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return a new matrix
+   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix add(DoubleArray other, Axis axis);
+
+  /**
+   * Element wise add, extending {@code other} row or column wise
+   *
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
+   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [2,3,4;3,4,5]}.
+   * Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
+   * {@code [1,4,5;1,4,5]}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the vector
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return a new matrix
+   */
+  Matrix add(double alpha, DoubleArray other, double beta, Axis axis);
+
+  /**
+   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   *
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
+   * @return a new matrix
+   */
+  Matrix add(double alpha, Matrix other, double beta);
+
+  /**
    * In place element wise addition.
    *
    * @param other the other matrix
@@ -293,6 +387,38 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return receiver modified
    */
   Matrix addi(double scalar);
+
+  /**
+   * In place version of {@code add}
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return reciver modified
+   */
+  Matrix addi(DoubleArray other, Axis axis);
+
+  /**
+   * In place version of {@code add}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the array
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix addi(double alpha, DoubleArray other, double beta, Axis axis);
+
+  /**
+   * In place element wise subtraction.
+   *
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
+   * @see #add(double, Matrix, double)
+   * @return a new matrix
+   */
+  Matrix addi(double alpha, Matrix other, double beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -311,6 +437,43 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix sub(double scalar);
 
   /**
+   * Element wise subtraction. Same as {@code sub(1, other, 1, axis)}.
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return a new matrix
+   * @see #sub(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix sub(DoubleArray other, Axis axis);
+
+  /**
+   * Element wise subtraction, extending {@code other} row or column wise
+   *
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
+   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [0,1,2;-1,0,1]}.
+   * Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
+   * {@code [1,0,1;1,0,1]}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the vector
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return a new matrix
+   */
+  Matrix sub(double alpha, DoubleArray other, double beta, Axis axis);
+
+  /**
+   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   *
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
+   * @return a new matrix
+   */
+  Matrix sub(double alpha, Matrix other, double beta);
+
+  /**
    * In place element wise subtraction.
    *
    * @param other the other matrix
@@ -327,6 +490,39 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix subi(double scalar);
 
   /**
+   * In place version of {@code sub}
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return reciver modified
+   */
+  Matrix subi(DoubleArray other, Axis axis);
+
+  /**
+   * In place version of {@code sub}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the array
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #sub(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix subi(double alpha, DoubleArray other, double beta, Axis axis);
+
+  /**
+   * In place Element wise subtraction.
+   *
+   * @param alpha scaling for {@code this}
+   * @param other the other matrix
+   * @param beta scaling for {@code other}
+   * @see #sub(double, Matrix, double)
+   * @return a new matrix
+   */
+  Matrix subi(double alpha, Matrix other, double beta);
+
+
+  /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
    * @param scalar the scalar
@@ -334,6 +530,32 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    */
   Matrix rsub(double scalar);
 
+  /**
+   * Element wise subtraction. Same as {@code rsub(1, other, 1, axis)}.
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return a new matrix
+   * @see #sub(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix rsub(DoubleArray other, Axis axis);
+
+  /**
+   * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
+   * {@code other - this}.
+   *
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
+   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [0,-1,-2;1,0,-1]}.
+   * Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
+   * {@code [-1,0,-1;-1,0,-1]}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the vector
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return a new matrix
+   */
+  Matrix rsub(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
@@ -342,6 +564,27 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return r r
    */
   Matrix rsubi(double scalar);
+
+  /**
+   * In place version of {@code rsub}
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return reciver modified
+   */
+  Matrix rsubi(DoubleArray other, Axis axis);
+
+  /**
+   * In place version of {@code rsub}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the array
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #rsub(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix rsubi(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -359,9 +602,33 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
-  default Matrix div(double other) {
-    return mul(1.0 / other);
-  }
+  Matrix div(double other);
+
+  /**
+   * Element wise division. Same as {@code add(1, other, 1, axis)}.
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return a new matrix
+   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix div(DoubleArray other, Axis axis);
+
+  /**
+   * Element wise division, extending {@code other} row or column wise
+   *
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
+   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [1,2,3;0.5,1,1.5]}
+   * . Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
+   * {@link java.lang.ArithmeticException}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the vector
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return a new matrix
+   */
+  Matrix div(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * In place element wise division.
@@ -374,12 +641,30 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
 
   /**
    * In place element wise division.
-   * 
+   *
    * @param other the other
    * @return receiver modified
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
   Matrix divi(double other);
+
+  /**
+   * @param other the array
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #div(org.briljantframework.DoubleArray, Axis)
+   */
+  Matrix divi(DoubleArray other, Axis axis);
+
+  /**
+   * @param alpha scaling factor for {@code this}
+   * @param other the array
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #div(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix divi(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code other / this}.
@@ -391,6 +676,33 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix rdiv(double other);
 
   /**
+   * Element wise division. Same as {@code add(1, other, 1, axis)}.
+   *
+   * @param other the array
+   * @param axis the extending direction
+   * @return a new matrix
+   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   */
+  Matrix rdiv(DoubleArray other, Axis axis);
+
+  /**
+   * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
+   * i.e., {@code other / this}
+   *
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
+   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [1,2,3;0.5,1,1.5]}
+   * . Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
+   * {@link java.lang.ArithmeticException}.
+   *
+   * @param alpha scaling factor for {@code this}
+   * @param other the vector
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return a new matrix
+   */
+  Matrix rdiv(double alpha, DoubleArray other, double beta, Axis axis);
+
+  /**
    * In place element wise division. {@code other / this}.
    *
    * @param other the scalar
@@ -400,108 +712,22 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   Matrix rdivi(double other);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
-   * 
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @return a new matrix
+   * @param other the array
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #divi(org.briljantframework.DoubleArray, Axis)
    */
-  Matrix sub(double alpha, Matrix other, double beta);
+  Matrix rdivi(DoubleArray other, Axis axis);
 
   /**
-   * In place Element wise subtraction.
-   * 
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #sub(double, Matrix, double)
-   * @return a new matrix
+   * @param alpha scaling factor for {@code this}
+   * @param other the array
+   * @param beta scaling factor for {@code other}
+   * @param axis the extending direction
+   * @return receiver modified
+   * @see #divi(double, org.briljantframework.DoubleArray, double, Axis)
    */
-  Matrix subi(double alpha, Matrix other, double beta);
-
-  /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @return a new matrix
-   */
-  Matrix add(double alpha, Matrix other, double beta);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #add(double, Matrix, double)
-   * @return a new matrix
-   */
-  Matrix addi(double alpha, Matrix other, double beta);
-
-  /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @return a new matrix
-   */
-  Matrix mul(double alpha, Matrix other, double beta);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #mul(double, Matrix, double)
-   * @return a new matrix
-   */
-  Matrix muli(double alpha, Matrix other, double beta);
-
-  /**
-   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @return a new matrix
-   */
-  Matrix mmul(double alpha, Matrix other, double beta);
-
-  /**
-   * Perform possibly <i>unsafe</i> operation on the, in some cases, underlying representation.
-   * Expected to return a new matrix.
-   * <p>
-   * 
-   * <pre>
-   *  Matrix a = ...;
-   *  Matrix b = ...;
-   *  multiplied = a.unsafe( x -> {
-   *    b.unsafe( y -> {
-   *      double[] tmp = new double[a.rows() * b.columns()];
-   *      BLAS.getInstance().dgemm("n", "n", a.rows(), b.columns(),
-   *          b.rows(), alpha, a.values, a.rows(),
-   *          b.values, b.rows(), beta, tmp, a.rows());
-   *      return new ArrayMatrix(b.columns(), tmp);
-   *    })
-   *  });
-   * </pre>
-   *
-   * @param op unsafe operation
-   * @return a new matrix
-   */
-  Matrix unsafeTransform(Function<double[], Matrix> op);
-
-  void unsafe(Consumer<double[]> consumer);
+  Matrix rdivi(double alpha, DoubleArray other, double beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.
@@ -520,6 +746,15 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   void put(int i, int j, double value);
 
   /**
+   * Get value at row i and column j
+   *
+   * @param i row
+   * @param j column
+   * @return value double
+   */
+  double get(int i, int j);
+
+  /**
    * Puts <code>value</code> at the linearized position <code>index</code>.
    *
    * @param index the index
@@ -529,9 +764,58 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   void put(int index, double value);
 
   /**
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
+   * column-major order. For example, given the following matrix
+   * <p>
+   *
+   * <pre>
+   *     1 2 3
+   *     4 5 6
+   * </pre>
+   * <p>
+   * this code
+   * <p>
+   *
+   * <pre>
+   * for (int i = 0; i &lt; x.size(); i++) {
+   *   System.out.print(x.get(i));
+   * }
+   * </pre>
+   * <p>
+   * prints
+   * <p>
+   *
+   * <pre>
+   * 142536
+   * </pre>
+   *
+   * @param index the index
+   * @return the value index
+   */
+  @Override
+  double get(int index);
+
+  /**
+   * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
+   * then {@code size()} is intuitive. However, if not size is {@code rows() * columns()} and the
+   * end when iterating using {@link #get(int)}. To avoid cache misses,
+   * {@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} should be prefered to
+   *
+   * <pre>
+   *     for(int i = 0; i < m.rows(); i++)
+   *       for(int j = 0; j < m.columns(); j++)
+   *          m.put(i, j, m.get(i, j) * 2
+   * </pre>
+   *
+   * @return the size
+   */
+  @Override
+  int size();
+
+  /**
    * Return a boolean matrix with element {@code i, j} set to true if
    * {@code get(i, j) < other.get(i, j)}.
-   * 
+   *
    * @param other the matrix
    * @return a boolean matrix
    */
@@ -614,6 +898,20 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
   BooleanMatrix equalsTo(double value);
 
   /**
+   * The number of rows.
+   *
+   * @return number or rows
+   */
+  int rows();
+
+  /**
+   * The number of columns.
+   *
+   * @return number of columns
+   */
+  int columns();
+
+  /**
    * Is square.
    *
    * @return true if rows() == columns()
@@ -663,5 +961,30 @@ public interface Matrix extends MatrixLike, Iterable<Double> {
     return rows() == other.rows() && columns() == other.columns();
   }
 
+  /**
+   * @return the matrix as a column-major double array
+   * @see #isArrayBased()
+   */
+  double[] asDoubleArray();
+
+  /**
+   * @return true is {@link #asDoubleArray()} is {@code O(1)}
+   */
+  boolean isArrayBased();
+
+  /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows the number of rows
+   * @param columns the number of colums
+   * @return a new empty matrix (
+   */
   Matrix newEmptyMatrix(int rows, int columns);
+
+  /**
+   * Create a copy of this matrix.
+   *
+   * @return the copy
+   */
+  Matrix copy();
 }

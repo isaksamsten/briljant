@@ -40,25 +40,23 @@ public class InverseTransformation implements Transformation {
    */
   public ArrayMatrix transform(Matrix matrix) {
     ArrayMatrix out = new ArrayMatrix(matrix);
-    invert(out);
-    return out;
+    return invert(out); // TODO(isak) refactor
   }
 
-  private void invert(Matrix out) {
-    int n = out.rows();
+  private ArrayMatrix invert(Matrix in) {
+    int n = in.rows();
 
     int[] ipiv = new int[n];
     intW error = new intW(0);
-    out.unsafe(x -> lapack.dgetrf(n, n, x, n, ipiv, error));
+    double[] outArray = in.asDoubleArray();
+    lapack.dgetrf(n, n, outArray, n, ipiv, error);
     if (error.val != 0) {
       throw new BlasException("dgtref", error.val, "LU decomposition failed.");
     }
 
     double[] work = new double[1];
     int lwork = -1;
-    final double[] finalWork = work;
-    final int finalLwork = lwork;
-    out.unsafe(x -> lapack.dgetri(n, x, n, ipiv, finalWork, finalLwork, error));
+    lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
 
     if (error.val != 0) {
       throw new BlasException("dgetri", error.val, "Query failed");
@@ -66,12 +64,12 @@ public class InverseTransformation implements Transformation {
 
     lwork = (int) work[0];
     work = new double[lwork];
-    final double[] finalWork1 = work;
-    final int finalLwork1 = lwork;
-    out.unsafe(x -> lapack.dgetri(n, x, n, ipiv, finalWork1, finalLwork1, error));
+    lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
     if (error.val != 0) {
       throw new BlasException("dgetri", error.val, "Inverse failed. The matrix is singular.");
     }
+
+    return new ArrayMatrix(in.rows(), in.columns(), outArray);
   }
 
   @Override

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.briljantframework.DoubleArray;
 import org.briljantframework.chart.Chartable;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.MixedDataFrame;
@@ -13,7 +14,6 @@ import org.briljantframework.io.CsvInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.VectorLike;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -534,7 +534,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(VectorLike x, String xlabel, VectorLike y, String ylabel, VectorLike e) {
+  public JFreeChart plot(DoubleArray x, String xlabel, DoubleArray y, String ylabel, DoubleArray e) {
     XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
     XYIntervalSeries series = new XYIntervalSeries("Series");
     for (int i = 0; i < x.size(); i++) {

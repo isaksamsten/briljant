@@ -16,9 +16,7 @@
 
 package org.briljantframework.matrix;
 
-import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 
 import org.briljantframework.exception.NonConformantException;
 
@@ -69,46 +67,6 @@ public class Diagonal extends AbstractMatrix {
   }
 
   /**
-   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
-   * affect the original.
-   *
-   * @return the copy
-   */
-  public Diagonal copy() {
-    double[] values = new double[this.values.length];
-    System.arraycopy(this.values, 0, values, 0, this.values.length);
-    return new Diagonal(this.rows(), this.columns(), values);
-  }
-
-  @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  /**
-   * Avoid.
-   * 
-   * @param op unsafe operation
-   * @return the result of {@code op.apply(...)}
-   */
-  @Override
-  public Matrix unsafeTransform(Function<double[], Matrix> op) {
-    double[] arr = new double[rows() * columns()];
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        arr[Indexer.columnMajor(i, j, rows(), columns())] = get(i, j);
-      }
-    }
-
-    return op.apply(arr);
-  }
-
-  @Override
-  public void unsafe(Consumer<double[]> consumer) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Set value at row i and column j to value
    *
    * @param i row
@@ -124,6 +82,21 @@ public class Diagonal extends AbstractMatrix {
   }
 
   /**
+   * Get double.
+   *
+   * @param i the i
+   * @param j the j
+   * @return double
+   */
+  public double get(int i, int j) {
+    if (i == j) {
+      return get(i);
+    } else {
+      return 0;
+    }
+  }
+
+  /**
    * Puts <code>value</code> at the linearized position <code>index</code>.
    *
    * @param index the index
@@ -135,6 +108,20 @@ public class Diagonal extends AbstractMatrix {
       throw new IllegalArgumentException("index out of bounds");
     } else {
       values[index] = value;
+    }
+  }
+
+  /**
+   * Get double.
+   *
+   * @param index the index
+   * @return the double
+   */
+  public double get(int index) {
+    if (index > size && index < 0) {
+      throw new IllegalArgumentException("index > size");
+    } else {
+      return index < values.length ? values[index] : 0;
     }
   }
 
@@ -156,25 +143,6 @@ public class Diagonal extends AbstractMatrix {
   // return dense;
   // }
 
-  @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  /**
-   * Get double.
-   *
-   * @param index the index
-   * @return the double
-   */
-  public double get(int index) {
-    if (index > size && index < 0) {
-      throw new IllegalArgumentException("index > size");
-    } else {
-      return index < values.length ? values[index] : 0;
-    }
-  }
-
   /**
    * Size int.
    *
@@ -184,19 +152,26 @@ public class Diagonal extends AbstractMatrix {
     return size;
   }
 
+  @Override
+  public boolean isArrayBased() {
+    return false;
+  }
+
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
+  }
+
   /**
-   * Get double.
+   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
+   * affect the original.
    *
-   * @param i the i
-   * @param j the j
-   * @return double
+   * @return the copy
    */
-  public double get(int i, int j) {
-    if (i == j) {
-      return get(i);
-    } else {
-      return 0;
-    }
+  public Diagonal copy() {
+    double[] values = new double[this.values.length];
+    System.arraycopy(this.values, 0, values, 0, this.values.length);
+    return new Diagonal(this.rows(), this.columns(), values);
   }
 
   /**
@@ -267,6 +242,11 @@ public class Diagonal extends AbstractMatrix {
 
 
     return null;
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
+    throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   /**

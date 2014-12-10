@@ -19,10 +19,7 @@ package org.briljantframework.shapelet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.briljantframework.matrix.Axis;
-import org.briljantframework.matrix.VectorLike;
-
-import com.google.common.base.Preconditions;
+import org.briljantframework.DoubleArray;
 
 /**
  * A Shapelet is a (short) view of a larger data series (i.e. a vector). The underlying vector
@@ -38,9 +35,9 @@ import com.google.common.base.Preconditions;
  * <p>
  * Created by Isak Karlsson on 17/09/14.
  */
-public class Shapelet implements VectorLike {
+public class Shapelet implements DoubleArray {
   private final int start, length;
-  private final VectorLike vector;
+  private final DoubleArray vector;
 
   /**
    * Instantiates a new Shapelet.
@@ -49,7 +46,7 @@ public class Shapelet implements VectorLike {
    * @param length the length
    * @param vector the vector
    */
-  public Shapelet(int start, int length, VectorLike vector) {
+  public Shapelet(int start, int length, DoubleArray vector) {
     this.start = start;
     this.length = length; // inclusive
     this.vector = vector;
@@ -63,7 +60,7 @@ public class Shapelet implements VectorLike {
    * @param vector the vector
    * @return the shapelet
    */
-  public static Shapelet create(int start, int length, VectorLike vector) {
+  public static Shapelet create(int start, int length, DoubleArray vector) {
     return new Shapelet(start, length, vector);
   }
 
@@ -76,25 +73,8 @@ public class Shapelet implements VectorLike {
     return start;
   }
 
-  // @Override
-  // public double get(int i, int j) {
-  // if (i == 1) {
-  // return get(j);
-  // } else if (j == 1) {
-  // return get(i);
-  // } else {
-  // throw new IndexOutOfBoundsException();
-  // }
-  // }
-
-  @Override
-  public Axis getAxis() {
-    return Axis.ROW;
-  }
-
   @Override
   public double get(int index) {
-    Preconditions.checkElementIndex(index, size());
     return vector.get(start + index);
   }
 

@@ -1,18 +1,18 @@
 package org.briljantframework.matrix;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import org.briljantframework.exception.NonConformantException;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
+import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
 
 /**
  * Created by Isak Karlsson on 02/12/14.
  */
 public class VectorMatrix extends AbstractMatrix {
+
+  private static final BLAS blas = BLAS.getInstance();
 
   private final Vector vector;
 
@@ -30,11 +30,12 @@ public class VectorMatrix extends AbstractMatrix {
     return new VectorMatrix(vector, 1, vector.size());
   }
 
-  @Override
-  public Matrix copy() {
-    return new ArrayMatrix(getShape(), vector.toDoubleArray());
-  }
-
+  /**
+   * {@inheritDoc}
+   * 
+   * Please note that this won't return a {@code VectorMatrix} but an other matrix with
+   * {@code isArrayBased() == true}
+   */
   @Override
   public Matrix mmul(double alpha, Matrix other, double beta) {
     if (this.columns() != other.rows()) {
@@ -42,29 +43,20 @@ public class VectorMatrix extends AbstractMatrix {
     }
 
     double[] tmp = new double[this.rows() * other.columns()];
-    if (other instanceof ArrayMatrix) {
-      ArrayMatrix b = (ArrayMatrix) other;
-      blas.dgemm("n", "n", this.rows(), b.columns(), b.rows(), alpha, this.vector.asDoubleArray(),
-          this.rows(), b.values, b.rows(), beta, tmp, this.rows());
-    } else if (other instanceof VectorMatrix) {
-      VectorMatrix b = (VectorMatrix) other;
-      blas.dgemm("n", "n", this.rows(), b.columns(), b.rows(), alpha, this.vector.asDoubleArray(),
-          this.rows(), b.vector.asDoubleArray(), b.rows(), beta, tmp, this.rows());
+    if (other.isArrayBased()) {
+      blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha,
+          vector.asDoubleArray(), this.rows(), other.asDoubleArray(), other.rows(), beta, tmp,
+          this.rows());
     } else {
-      other.unsafe(b -> blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha,
-          this.vector.asDoubleArray(), this.rows(), b, other.rows(), beta, tmp, this.rows()));
+      return super.mmul(alpha, other, beta);
     }
+
     return new ArrayMatrix(other.columns(), tmp);
   }
 
   @Override
-  public Matrix unsafeTransform(Function<double[], Matrix> op) {
-    return op.apply(vector.asDoubleArray());
-  }
-
-  @Override
-  public void unsafe(Consumer<double[]> consumer) {
-    consumer.accept(vector.asDoubleArray());
+  public double[] asDoubleArray() {
+    return vector.asDoubleArray();
   }
 
   @Override
@@ -73,18 +65,13 @@ public class VectorMatrix extends AbstractMatrix {
   }
 
   @Override
-  public void put(int index, double value) {
-    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
-  }
-
-  @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  @Override
   public double get(int i, int j) {
     return vector.getAsDouble(Indexer.columnMajor(i, j, rows(), columns()));
+  }
+
+  @Override
+  public void put(int index, double value) {
+    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
   }
 
   @Override
@@ -95,5 +82,20 @@ public class VectorMatrix extends AbstractMatrix {
   @Override
   public int size() {
     return vector.size();
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return true;
+  }
+
+  @Override
+  public Matrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayMatrix(rows, columns);
+  }
+
+  @Override
+  public Matrix copy() {
+    return new ArrayMatrix(getShape(), vector.toDoubleArray());
   }
 }
