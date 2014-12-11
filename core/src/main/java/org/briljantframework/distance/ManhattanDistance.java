@@ -14,43 +14,36 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.distance;
-
+package org.briljantframework.distance;
 
 import org.briljantframework.DoubleArray;
 
 /**
- * EuclideanDistance between two Points (either Vectors or scalars)
+ * Manhattan distance, i.e sum of absolute difference
  * <p>
  * Created by Isak Karlsson on 01/09/14.
  */
-public class EuclideanDistance implements Distance {
+public class ManhattanDistance implements Distance {
 
-  /**
-   * The constant INSTANCE.
-   */
-  public static final EuclideanDistance INSTANCE = new EuclideanDistance();
+  public static Distance INSTANCE = new ManhattanDistance();
 
-  private EuclideanDistance() {
+  private ManhattanDistance() {
 
   }
 
   @Override
   public double distance(double a, double b) {
-    double r = a - b;
-    return r * r;
+    return Math.abs(a - b);
   }
 
   @Override
   public double distance(DoubleArray a, DoubleArray b) {
     int size = Math.min(a.size(), b.size());
-
-    double residual = 0.0;
+    double distance = 0.0;
     for (int i = 0; i < size; i++) {
-      residual += distance(a.get(i), b.get(i));
+      distance += Math.abs(a.get(i) - b.get(i));
     }
-
-    return Math.sqrt(residual);
+    return distance;
   }
 
   @Override
@@ -65,6 +58,6 @@ public class EuclideanDistance implements Distance {
 
   @Override
   public String toString() {
-    return "EuclideanDistance";
+    return "ManhattanDistance";
   }
 }

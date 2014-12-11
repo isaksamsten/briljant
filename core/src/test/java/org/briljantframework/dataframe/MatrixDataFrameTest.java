@@ -25,7 +25,7 @@ public class MatrixDataFrameTest {
     System.out.println(frame);
 
 
-    System.out.println(DataFrames.shuffle(frame));
+    System.out.println(DataFrames.permuteRows(frame));
     // long s = System.currentTimeMillis();
     // for (int i = 0; i < 10; i++) {
     // for (int j = 0; j < 10; j++) {

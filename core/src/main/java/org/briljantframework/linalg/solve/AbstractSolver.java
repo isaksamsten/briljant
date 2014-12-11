@@ -14,32 +14,20 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.decomposition;
+package org.briljantframework.linalg.solve;
 
-import org.briljantframework.exception.BlasException;
-import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.netlib.util.intW;
-
-import com.github.fommil.netlib.LAPACK;
 
 /**
- * Created by Isak Karlsson on 11/08/14.
+ * Created by Isak Karlsson on 08/09/14.
  */
-public class LuDecomposer implements Decomposer<LuDecomposition> {
-  @Override
-  public LuDecomposition decompose(Matrix matrix) {
-    int m = matrix.rows(), n = matrix.columns();
-    int[] pivots = new int[Math.min(m, n)];
+public abstract class AbstractSolver implements Solver {
 
-    Matrix lu = new ArrayMatrix(matrix);
+  protected final Matrix matrix;
 
-    intW error = new intW(0);
-    LAPACK.getInstance().dgetrf(n, n, lu.asDoubleArray(), n, pivots, error);
-    if (error.val != 0) {
-      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
-    }
-
-    return new LuDecomposition(lu, pivots);
+  protected AbstractSolver(Matrix matrix) {
+    this.matrix = matrix;
   }
+
+
 }

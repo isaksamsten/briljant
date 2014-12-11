@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.distance;
+package org.briljantframework.distance;
 
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;

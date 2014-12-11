@@ -14,23 +14,20 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.decomposition;
+package org.briljantframework.linalg.solve;
 
 import org.briljantframework.matrix.Matrix;
 
 /**
- * Created by Isak Karlsson on 11/08/14.
- *
- * @param <T> the type parameter
+ * Created by Isak Karlsson on 07/09/14.
  */
-public interface Decomposer<T extends Decomposition> {
+public interface Solver {
 
   /**
-   * Decompose t.
+   * Solve for vector.
    *
-   * @param matrix the matrix
-   * @return the t
+   * @param b the b
+   * @return the vector
    */
-  T decompose(Matrix matrix);
-
+  Matrix solve(Matrix b);
 }

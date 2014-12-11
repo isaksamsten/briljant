@@ -1,33 +1,57 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.exception.NonConformantException;
-import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
-import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
 
 /**
- * Created by Isak Karlsson on 02/12/14.
+ * Creates a matrix using an {@link org.briljantframework.vector.Vector}. While any vector is
+ * allowed, generally {@link org.briljantframework.vector.DoubleVector} is the only suitable option.
+ * 
+ * For simplicity, new matrices created using {@link #newEmptyMatrix(int, int)} is not vector
+ * matrices. Hence, most operations (e.g., {@link #mmul(Matrix)}) does not return matrices with
+ * {@code this.getClass()}.
+ * 
+ * @author Isak Karlsson
  */
 public class VectorMatrix extends AbstractMatrix {
 
-  private static final BLAS blas = BLAS.getInstance();
-
   private final Vector vector;
 
-  public VectorMatrix(Vector vector, int rows, int columns) {
+  /**
+   * Construct a new matrix, backed by {@code vector}. Asserts that
+   * {@code rows * columns == vector.size()}.
+   * 
+   * @param rows the rows
+   * @param columns the columns
+   * @param vector the vector
+   */
+  public VectorMatrix(int rows, int columns, Vector vector) {
     super(rows, columns);
     Preconditions.checkArgument(rows * columns == vector.size(), "Invalid size.");
     this.vector = vector;
   }
 
-  public VectorMatrix(Vector vector, int columns) {
-    this(vector, vector.size() / columns, columns);
+  /**
+   * Constructs a new matrix, backed by {@code vector}. Asserts that {@code columns} is evenly
+   * dividable by {@code vector.size()}.
+   * 
+   * @param columns the columns
+   * @param vector the vector
+   */
+  public VectorMatrix(int columns, Vector vector) {
+    this(vector.size() / columns, columns, vector);
   }
 
-  public static Matrix wrap(DoubleVector vector) {
-    return new VectorMatrix(vector, 1, vector.size());
+  /**
+   * Wrap vector as a matrix based column vector
+   * 
+   * @param vector the vector to wrap
+   * @return a 1 x vector.size() column matrix
+   */
+  public static Matrix wrap(Vector vector) {
+    return new VectorMatrix(1, vector.size(), vector);
   }
 
   /**
@@ -42,16 +66,13 @@ public class VectorMatrix extends AbstractMatrix {
       throw new NonConformantException(this, other);
     }
 
-    double[] tmp = new double[this.rows() * other.columns()];
     if (other.isArrayBased()) {
-      blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha,
-          vector.asDoubleArray(), this.rows(), other.asDoubleArray(), other.rows(), beta, tmp,
-          this.rows());
+      double[] tmp = new double[this.rows() * other.columns()];
+      Matrices.mmul(this, alpha, other, beta, tmp);
+      return new ArrayMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);
     }
-
-    return new ArrayMatrix(other.columns(), tmp);
   }
 
   @Override

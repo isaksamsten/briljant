@@ -1,6 +1,6 @@
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.distance.Distance;
 
 /**
  * Created by isak on 02/10/14.

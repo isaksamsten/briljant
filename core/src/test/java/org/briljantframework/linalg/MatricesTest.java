@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.math;
+package org.briljantframework.linalg;
 
 import static org.briljantframework.matrix.Matrices.parseMatrix;
 import static org.briljantframework.matrix.Matrices.sum;

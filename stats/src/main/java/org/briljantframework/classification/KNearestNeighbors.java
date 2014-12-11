@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.distance.Distance;
 import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
 

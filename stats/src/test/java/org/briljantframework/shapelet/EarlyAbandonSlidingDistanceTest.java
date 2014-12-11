@@ -1,9 +1,9 @@
 package org.briljantframework.shapelet;
 
+import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.distance.Distance;
 import org.junit.Test;
 
 public class EarlyAbandonSlidingDistanceTest {

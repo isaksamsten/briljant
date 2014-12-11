@@ -80,7 +80,7 @@ public abstract class DataFrameInputStream extends FilterInputStream {
   protected static final String UNEXPECTED_EOF = "Unexpected EOF.";
   protected static final String VALUES_BEFORE_NAMES_AND_TYPES =
       "Reading values before names and types";
-  protected static final String MISMATCH = "Types and values does not match (%d, %d)";
+  protected static final String MISMATCH = "Types and values does not match (%d, %d) at line %d";
 
 
   /**

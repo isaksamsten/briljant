@@ -17,7 +17,6 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -36,6 +35,7 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractMatrix implements Matrix {
 
+  protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
   protected int rows;
   protected int cols;
 
@@ -53,17 +53,28 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(DoubleArray vector) {
-    return assign(vector, DoubleUnaryOperator.identity());
+  public Matrix assign(DoubleArray vector, Axis axis) {
+    return assign(vector, (a, b) -> b, axis);
   }
 
   @Override
-  public Matrix assign(DoubleArray vector, DoubleUnaryOperator operator) {
-    checkArgument(vector.size() == columns());
-    checkNotNull(operator);
+  public Matrix assign(DoubleArray other, DoubleBinaryOperator operator, Axis axis) {
+    /*
+     * Due to cache-locality, put(i, ) is for most (at least array based) matrices a _big_ win.
+     * Therefore, the straightforward implementation using two for-loops is not used below.
+     * This is a big win since this.size() >= other.size().
+     */
     Matrix mat = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      mat.put(i, operator.applyAsDouble(vector.get(i % vector.size())));
+    if (axis == Axis.COLUMN) {
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        mat.put(i, operator.applyAsDouble(get(i), other.get(i % rows())));
+      }
+    } else {
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        mat.put(i, operator.applyAsDouble(get(i), other.get(i / rows())));
+      }
     }
     return mat;
   }
@@ -92,7 +103,16 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public double mapReduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
+  public Matrix map(DoubleUnaryOperator operator) {
+    Matrix mat = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      mat.put(i, operator.applyAsDouble(get(i)));
+    }
+    return mat;
+  }
+
+  @Override
+  public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.applyAsDouble(identity, map.applyAsDouble(get(i)));
     }
@@ -231,9 +251,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix muli(double alpha, Matrix other, double beta) {
-    if (!hasEqualShape(other)) {
-      throw new NonConformantException(this, other);
-    }
+    assertEqualSize(other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         put(i, j, alpha * get(i, j) * other.get(i, j) * beta);
@@ -250,12 +268,12 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public Matrix muli(double alpha, DoubleArray other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows());
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) * (other.get(i % rows()) * beta));
       }
     } else {
-      checkArgument(other.size() == columns());
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) * (other.get(i / rows()) * beta));
       }
@@ -291,9 +309,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix add(double alpha, Matrix other, double beta) {
-    if (!hasEqualShape(other)) {
-      throw new NonConformantException(this, other);
-    }
+    assertEqualSize(other);
     Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -327,12 +343,12 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public Matrix addi(double alpha, DoubleArray other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows());
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) + (other.get(i % rows()) * beta));
       }
     } else {
-      checkArgument(other.size() == columns());
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) + (other.get(i / rows()) * beta));
       }
@@ -342,9 +358,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix addi(double alpha, Matrix other, double beta) {
-    if (!hasEqualShape(other)) {
-      throw new NonConformantException(this, other);
-    }
+    assertEqualSize(other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         put(i, j, alpha * get(i, j) + other.get(i, j) * beta);
@@ -375,9 +389,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix sub(double alpha, Matrix other, double beta) {
-    if (!hasEqualShape(other)) {
-      throw new NonConformantException(this, other);
-    }
+    assertEqualSize(other);
     Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -407,12 +419,12 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public Matrix subi(double alpha, DoubleArray other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows());
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) - (other.get(i % rows()) * beta));
       }
     } else {
-      checkArgument(other.size() == columns());
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) - (other.get(i / rows()) * beta));
       }
@@ -465,12 +477,12 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public Matrix rsubi(double alpha, DoubleArray other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows());
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (other.get(i % rows()) * beta) - (alpha * get(i)));
       }
     } else {
-      checkArgument(other.size() == columns());
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (other.get(i / rows()) * beta) - (alpha * get(i)));
       }
@@ -480,7 +492,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix div(Matrix other) {
-    checkArgument(this.hasEqualShape(other));
+    assertEqualSize(other);
     Matrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -507,6 +519,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix divi(Matrix other) {
+    assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
       put(i, get(i) / other.get(i));
     }
@@ -526,12 +539,12 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public Matrix divi(double alpha, DoubleArray other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows());
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) / (other.get(i % rows()) * beta));
       }
     } else {
-      checkArgument(other.size() == columns());
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
         this.put(i, (alpha * get(i)) / (other.get(i / rows()) * beta));
       }
@@ -598,9 +611,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public BooleanMatrix lessThan(Matrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
-        getShape(), other.getShape());
-
+    assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < other.size(); i++) {
       bm.put(i, get(i) < other.get(i));
@@ -620,8 +631,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public BooleanMatrix lessThanEqual(Matrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
-        getShape(), other.getShape());
+    assertEqualSize(other);
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < other.rows(); i++) {
@@ -630,12 +640,6 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Less than equal.
-   *
-   * @param value the value
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix lessThanEqual(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
@@ -645,17 +649,9 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Greater than.
-   *
-   * @param other the other
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix greaterThan(Matrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
-        getShape(), other.getShape());
-
+    assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < other.rows(); i++) {
       bm.put(i, get(i) > other.get(i));
@@ -663,12 +659,6 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Greater than.
-   *
-   * @param value the value
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix greaterThan(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
@@ -678,17 +668,9 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Greater than equal.
-   *
-   * @param other the other
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix greaterThanEquals(Matrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
-        getShape(), other.getShape());
-
+    assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < other.rows(); i++) {
       bm.put(i, get(i) >= other.get(i));
@@ -697,12 +679,6 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Greater than equals.
-   *
-   * @param value the value
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix greaterThanEquals(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
@@ -712,16 +688,9 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Equal to.
-   *
-   * @param other the other
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix equalsTo(Matrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()), "can't compare a %s matrix to a %s matrix",
-        getShape(), other.getShape());
+    assertEqualSize(other);
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < other.rows(); i++) {
@@ -731,12 +700,6 @@ public abstract class AbstractMatrix implements Matrix {
     return bm;
   }
 
-  /**
-   * Equals to.
-   *
-   * @param value the value
-   * @return the boolean matrix
-   */
   @Override
   public BooleanMatrix equalsTo(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());

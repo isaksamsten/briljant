@@ -152,8 +152,14 @@ public class MatrixDataFrame implements DataFrame {
   }
 
   @Override
-  public VariableVector getRow(int index) {
-    return new DataFrameRow(this, index);
+  public DataFrame setColumnName(int index, String columnName) {
+    colNames.set(index, columnName);
+    return this;
+  }
+
+  @Override
+  public DataFrameRow getRow(int index) {
+    return new DataFrameRowView(this, index);
   }
 
   @Override
@@ -178,12 +184,12 @@ public class MatrixDataFrame implements DataFrame {
 
   @Override
   public DataFrame.Builder newBuilder() {
-    return new HashBuilder();
+    return new HashBuilder(colNames, null);
   }
 
   @Override
   public DataFrame.Builder newBuilder(int rows) {
-    return new ArrayBuilder(rows, columns());
+    return new ArrayBuilder(rows, colNames);
   }
 
   @Override
@@ -200,8 +206,8 @@ public class MatrixDataFrame implements DataFrame {
   }
 
   @Override
-  public Iterator<VariableVector> iterator() {
-    return new UnmodifiableIterator<VariableVector>() {
+  public Iterator<DataFrameRow> iterator() {
+    return new UnmodifiableIterator<DataFrameRow>() {
       private int current = 0;
 
       @Override
@@ -210,7 +216,7 @@ public class MatrixDataFrame implements DataFrame {
       }
 
       @Override
-      public VariableVector next() {
+      public DataFrameRow next() {
         return getRow(current++);
       }
     };
@@ -281,6 +287,13 @@ public class MatrixDataFrame implements DataFrame {
       this.columns = colNames.size();
       this.colNames = colNames;
       this.buffer = buffer;
+    }
+
+    public ArrayBuilder(int rows, List<String> colNames) {
+      this.rows = rows;
+      this.colNames = colNames;
+      this.columns = colNames.size();
+      buffer = new double[rows * columns];
     }
 
     @Override
@@ -464,8 +477,8 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     public HashBuilder(Collection<String> colNames, Collection<? extends Type> types) {
-      checkArgument(colNames.size() == types.size(), "Arguments imply different sizes %s != %s.",
-          colNames.size(), types.size());
+      checkArgument(types == null || colNames.size() == types.size(),
+          "Arguments imply different sizes %s != %s.", colNames.size(), types.size());
       this.colNames = new ArrayList<>(colNames);
       this.columns = colNames.size();
     }

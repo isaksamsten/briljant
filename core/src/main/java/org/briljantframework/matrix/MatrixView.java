@@ -33,9 +33,13 @@ public class MatrixView extends AbstractMatrix {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
     }
-
-
-    throw new UnsupportedOperationException();
+    if (isArrayBased() && other.isArrayBased()) {
+      double[] tmp = new double[this.rows() * other.columns()];
+      Matrices.mmul(this, alpha, other, beta, tmp);
+      return new ArrayMatrix(other.columns(), tmp);
+    } else {
+      return super.mmul(alpha, other, beta);
+    }
   }
 
   @Override
@@ -66,7 +70,8 @@ public class MatrixView extends AbstractMatrix {
   /**
    * {@inheritDoc}
    * 
-   * Note, not entirely true
+   * Note, not entirely true, but it appears that copying the array is faster than brute-force
+   * implementing mmul if the underlying matrix {@code isArrayBased()}
    */
   @Override
   public boolean isArrayBased() {

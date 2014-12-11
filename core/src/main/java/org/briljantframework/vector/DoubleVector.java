@@ -16,7 +16,19 @@ import com.google.common.base.Preconditions;
  */
 public class DoubleVector extends AbstractDoubleVector {
 
-  public static final double NA = Double.NaN;
+  /*
+       * TODO: Change to another NaN value
+       *
+       * See Double#doubleToLongBits for the ranges which defines NaN values and how. This way, we can
+       * represent both NaN and NA values.
+       *
+       * One option could be to use 0x7ff0000000000009L
+       */
+  public static final long NA_BITS = 0x7ff0000000000009L;
+  public static final double NA = Double.longBitsToDouble(NA_BITS); //Double.NaN;
+
+  public static final long NA_MASK = 0x000000000000000FL;
+  public static final int NA_RES = 9;
 
   private final double[] values;
 
@@ -39,7 +51,7 @@ public class DoubleVector extends AbstractDoubleVector {
 
   /**
    * Construct a new {@code Vector} using the supplied values. Performs no copying.
-   * 
+   *
    * @param values the values
    * @return the double vector
    */

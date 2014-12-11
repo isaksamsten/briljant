@@ -1,8 +1,8 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.DoubleArray;
+import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.distance.Distance;
 
 /**
  * TODO(isak): make this work! Created by Isak Karlsson on 27/10/14.

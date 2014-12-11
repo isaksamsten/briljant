@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.decomposition;
+package org.briljantframework.linalg.decomposition;
 
 import static org.junit.Assert.assertEquals;
 

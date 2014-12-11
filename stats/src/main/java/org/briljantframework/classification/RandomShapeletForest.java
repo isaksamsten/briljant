@@ -24,9 +24,9 @@ import java.util.concurrent.Callable;
 import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.distance.Distance;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
 

@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.decomposition;
+package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.exception.BlasException;
 import org.briljantframework.matrix.ArrayMatrix;

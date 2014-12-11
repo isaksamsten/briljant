@@ -29,26 +29,36 @@ import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
 
 /**
- * Created by Isak Karlsson on 13/06/14.
+ * Implementation of {@link org.briljantframework.matrix.Matrix} using a single {@code double}
+ * array. Indexing is calculated in column-major order, hence varying column faster than row is
+ * preferred when iterating.
+ * 
+ * Assuming that {@link com.github.fommil.netlib.BLAS} initializes correctly and that the second
+ * operand is {@link #isArrayBased()}, matrix-matrix multiplication is fast.
+ * 
+ * @author Isak Karlsson
  */
 public class ArrayMatrix extends AbstractMatrix {
 
+  protected static final String INVALID_SIZE = "Sizes does not match.";
   private static final BLAS blas = BLAS.getInstance();
-
   final double[] values;
 
   /**
-   * Instantiates a new Dense matrix.
-   *
+   * Create a new matrix from {@code values} with {@code column} columns. {@code values.length} must
+   * be evenly dividable by {@code columns}.
+   * 
    * @param columns the columns
    * @param values the values
    */
   public ArrayMatrix(int columns, double[] values) {
-    this(values.length / columns, columns, values);
+    super(values.length / columns, columns);
+    this.values = new double[Math.multiplyExact(rows, columns)];
+    checkArgument(values.length % columns == 0, INVALID_SIZE);
   }
 
   /**
-   * Instantiates a new Dense matrix.
+   * Create a new matrix from {@code values}. Asserts that {@code rows * columns == values.length}
    *
    * @param rows the rows
    * @param columns the columns
@@ -56,11 +66,12 @@ public class ArrayMatrix extends AbstractMatrix {
    */
   public ArrayMatrix(int rows, int columns, double[] values) {
     super(rows, columns);
+    checkArgument(rows * columns == values.length, "Sizes does not match.");
     this.values = values;
   }
 
   /**
-   * Instantiates a new Dense matrix.
+   * Creates a new empty matrix with a shape defined by {@code shape}
    *
    * @param shape the shape
    */
@@ -69,28 +80,28 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   /**
-   * Instantiates a new Dense matrix.
-   *
+   * Creates a new empty matrix with {@code rows} and {@code columns}. Asserts that
+   * {@code rows * columns < Integer.MAX_VALUE}.
+   * 
    * @param rows in matrix
-   * @param cols columns in matrix
+   * @param columns columns in matrix
    */
-  public ArrayMatrix(int rows, int cols) {
-    this(rows, cols, new double[Math.multiplyExact(rows, cols)]);
+  public ArrayMatrix(int rows, int columns) {
+    this(rows, columns, new double[Math.multiplyExact(rows, columns)]);
   }
 
   /**
-   * Instantiates a new Dense matrix.
-   *
    * @param shape the shape
    * @param values the values
+   * @see #ArrayMatrix(int, int, double[])
    */
   public ArrayMatrix(Shape shape, double[] values) {
     this(shape.rows, shape.columns, values);
   }
 
   /**
-   * Instantiates a new Dense matrix.
-   *
+   * Copy {@code matrix}, retaining the dimensions.
+   * 
    * @param matrix the tensor like
    */
   public ArrayMatrix(Matrix matrix) {
@@ -98,16 +109,19 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   /**
-   * Copy the tensor (as a Matrix)
+   * Copy {@code matrix}, changing the dimensions to {@code shape}. Asserts that
+   * {@code shape.size() == matrix.size()}
    *
    * @param shape the shape
    * @param matrix to copy
    */
   public ArrayMatrix(Shape shape, Matrix matrix) {
-    this(shape.rows, shape.columns);
+    super(shape.rows, shape.columns);
     if (!hasCompatibleShape(matrix.getShape())) {
       throw new MismatchException("ArrayMatrix", "matrix can't fit");
     }
+
+    values = new double[Math.multiplyExact(rows, cols)];
     if (matrix instanceof ArrayMatrix) {
       System.arraycopy(((ArrayMatrix) matrix).values, 0, values, 0, this.cols * this.rows);
     } else {
@@ -125,7 +139,7 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   /**
-   * Instantiates a new Dense matrix.
+   * Create a new matrix from a multi-dimensional array. Assumes row-major order in {@code values}.
    *
    * @param values the values
    */
@@ -139,7 +153,7 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   /**
-   * Filled with.
+   * Construct a new matrix filled with {@code value}.
    *
    * @param rows number of rows
    * @param cols number of columns
@@ -152,39 +166,20 @@ public class ArrayMatrix extends AbstractMatrix {
     return m;
   }
 
-  /**
-   * With size.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the builder
-   */
   public static Builder withSize(int rows, int cols) {
     return new Builder(rows, cols);
   }
 
-  /**
-   * With rows.
-   *
-   * @param rows the rows
-   * @return the builder
-   */
   public static Builder withRows(int rows) {
     return new Builder(rows, 1);
   }
 
-  /**
-   * With columns.
-   *
-   * @param columns the columns
-   * @return the builder
-   */
   public static Builder withColumns(int columns) {
     return new Builder(1, columns);
   }
 
   /**
-   * From row order.
+   * Constructs a new {@code ArrayMatrix} from a row-major order double array
    *
    * @param rows the rows
    * @param cols the cols
@@ -200,14 +195,14 @@ public class ArrayMatrix extends AbstractMatrix {
    * <p>
    *
    * <pre>
-   * DenseMatrix.of(2, 3, 1, 2, 3, 4, 5, 6);
+   * ArrayMatrix.of(2, 3, 1, 2, 3, 4, 5, 6);
    * </pre>
    * <p>
    * Compared to:
    * <p>
    *
    * <pre>
-   *     DenseMatrix.fromColumnOrder(2, 3,
+   *     ArrayMatrix.fromColumnOrder(2, 3,
    *          1, 4
    *          2, 5
    *          3, 6
@@ -235,33 +230,25 @@ public class ArrayMatrix extends AbstractMatrix {
     return new ArrayMatrix(rows, cols, colOrder);
   }
 
-  /**
-   * Return a new DenseMatrix
-   *
-   * @param rows with rows
-   * @param cols with columns
-   * @param args with values
-   * @return the new DenseMatrix
-   */
   public static ArrayMatrix fromColumnOrder(int rows, int cols, double... args) {
     return new ArrayMatrix(rows, cols, args);
   }
 
   /**
-   * Row vector.
-   *
-   * @param args the args
-   * @return the dense matrix
+   * Construct a row vector (i.e. a {@code 1 x args.length} matrix)
+   * 
+   * @param args the double values
+   * @return a new matrix
    */
   public static ArrayMatrix rowVector(double... args) {
     return new ArrayMatrix(args.length, 1, args);
   }
 
   /**
-   * Column vector.
+   * Construct a column vector (i.e. a {@code args.length x 1} matrix)
    *
-   * @param args the args
-   * @return the dense matrix
+   * @param args the double values
+   * @return a new matrix
    */
   public static ArrayMatrix columnVector(double... args) {
     return new ArrayMatrix(1, args.length, args);
@@ -319,10 +306,9 @@ public class ArrayMatrix extends AbstractMatrix {
       throw new NonConformantException(this, other);
     }
 
-    double[] tmp = new double[this.rows() * other.columns()];
     if (other.isArrayBased()) {
-      blas.dgemm("n", "n", this.rows(), other.columns(), other.rows(), alpha, this.values,
-          this.rows(), other.asDoubleArray(), other.rows(), beta, tmp, this.rows());
+      double[] tmp = new double[this.rows() * other.columns()];
+      Matrices.mmul(this, alpha, other, beta, tmp);
       return new ArrayMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);

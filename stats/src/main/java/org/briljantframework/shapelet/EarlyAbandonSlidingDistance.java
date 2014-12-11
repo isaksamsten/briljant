@@ -17,7 +17,7 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.DoubleArray;
-import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.distance.Distance;
 
 import com.google.common.base.Preconditions;
 

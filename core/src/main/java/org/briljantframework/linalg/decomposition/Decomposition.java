@@ -14,20 +14,10 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.solve;
-
-import org.briljantframework.matrix.Matrix;
+package org.briljantframework.linalg.decomposition;
 
 /**
- * Created by Isak Karlsson on 08/09/14.
+ * Created by Isak Karlsson on 11/08/14.
  */
-public abstract class AbstractSolver implements Solver {
-
-  protected final Matrix matrix;
-
-  protected AbstractSolver(Matrix matrix) {
-    this.matrix = matrix;
-  }
-
-
+public interface Decomposition {
 }

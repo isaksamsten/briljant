@@ -21,9 +21,9 @@ import static org.briljantframework.classification.tree.Tree.Node;
 
 import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.distance.Distance;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
 

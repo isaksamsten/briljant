@@ -16,7 +16,7 @@ public class VectorMatrixTest {
   @Before
   public void setUp() throws Exception {
     Vector vec = DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6, 7, 8, 9).build();
-    matrix = new VectorMatrix(vec, 3, 3);
+    matrix = new VectorMatrix(3, 3, vec);
   }
 
   @Test

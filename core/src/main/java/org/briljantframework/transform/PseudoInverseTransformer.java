@@ -17,8 +17,8 @@
 package org.briljantframework.transform;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.math.LinearAlgebra;
 
 /**
  * Transforms a frame to it's inverse

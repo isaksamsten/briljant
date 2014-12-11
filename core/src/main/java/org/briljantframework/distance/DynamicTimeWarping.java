@@ -14,11 +14,10 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.time;
+package org.briljantframework.distance;
 
 import org.briljantframework.DoubleArray;
 import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.distance.Distance;
 
 import com.google.common.primitives.Doubles;
 

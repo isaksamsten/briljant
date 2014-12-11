@@ -20,9 +20,9 @@ import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.ClassifierModel;
 import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.math.LinearAlgebra;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;

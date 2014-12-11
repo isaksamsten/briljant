@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.solve;
+package org.briljantframework.linalg.solve;
 
 import java.util.Arrays;
 
@@ -48,14 +48,13 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
     int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
     int[] jpvt = new int[n];
 
-    // double[] result = b.asDoubleArray().clone();
 
     Matrix result = b.copy();
 
     int lwork = -1;
     double[] work = new double[1];
-    // double[] a = matrix.copy().asDoubleArray();
 
+    // TODO(isak): make decision based on isArrayBased()
     Matrix aCopy = matrix.copy();
 
 

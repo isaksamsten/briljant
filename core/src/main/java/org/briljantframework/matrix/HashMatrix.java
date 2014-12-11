@@ -8,23 +8,26 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.base.Preconditions;
 
 /**
+ * <p>
  * A sparse matrix implemented using rather efficient hash maps. Although the performance is rather
  * fine in many cases, the {@link org.briljantframework.matrix.ArrayMatrix} is several order of
  * magnitudes faster, especially for complex operations such as matrix-matrix multiplication (
  * {@link #mmul(Matrix)}) and should hence be preferred for all cases except when the number of
  * non-zero elements is <b>very</b> small and the size of the matrix is <b>very</b> large.
+ * </p>
  * 
+ * <p>
  * For this reason, most (all) operations defined in {@link org.briljantframework.matrix.Matrices}
  * return an {@link org.briljantframework.matrix.ArrayMatrix} if not the type of the receiver.
+ * </p>
  *
+ * <p>
  * To put the performance differences into perspective, multiplying a {@code 100 x 5000} matrix with
  * a {@code 5000 x 100} matrix takes {@code 5} ms using {@code ArrayMatrix} and {@code 10202} ms,
  * i.e. the {@code HashMatrix} is almost 2000 times slower.
- *
- *
- *
- * <p>
- * Created by Isak Karlsson on 10/12/14.
+ * </p>
+ * 
+ * @author Isak Karlsson
  */
 public class HashMatrix extends AbstractMatrix {
   private final IntObjectMap<IntDoubleMap> values;
@@ -34,7 +37,7 @@ public class HashMatrix extends AbstractMatrix {
     this(rows, columns, new IntObjectOpenHashMap<>());
   }
 
-  public HashMatrix(int rows, int columns, IntObjectMap<IntDoubleMap> values) {
+  protected HashMatrix(int rows, int columns, IntObjectMap<IntDoubleMap> values) {
     super(rows, columns);
     this.values = values;
     this.defaultValue = 0;

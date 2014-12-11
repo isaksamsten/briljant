@@ -289,7 +289,8 @@ public interface Vector extends DoubleArray, Serializable {
   }
 
   /**
-   * Builds new vectors
+   * Builds new vectors TODO(isak): maybe builder.getAs... and set(int at, Vector.Builder b, int
+   * from)?
    */
   public static interface Builder {
 

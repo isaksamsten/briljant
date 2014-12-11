@@ -65,7 +65,7 @@ public abstract class AbstractEnsemble implements Classifier {
    * @param callables the callables
    * @param <T> the models produced
    * @return a list of produced models
-   * @throws Exception
+   * @throws Exception if something goes wrong
    */
   protected static <T extends ClassifierModel> List<T> execute(
       Collection<? extends Callable<T>> callables) throws Exception {

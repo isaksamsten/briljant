@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.math;
+package org.briljantframework.linalg;
 
 import org.junit.Test;
 

@@ -23,8 +23,68 @@ import java.util.function.ToDoubleFunction;
 import org.briljantframework.DoubleArray;
 
 /**
+ * A matrix is a 2-dimensional array.
  * 
- * Created by Isak Karlsson on 28/08/14.
+ * <p>
+ * Every implementation have to ensure that {@link #put(int, double)}, {@link #get(int)} and
+ * {@link #asDoubleArray()} work in <b>column-major</b> order as fortran and not in <b>row-major</b>
+ * order as in e.g., c.
+ * 
+ * More specifically this means that given the matrix {@code m}
+ * 
+ * <pre>
+ *     1  2  3
+ *     4  5  6
+ *     7  8  9
+ * </pre>
+ * 
+ * The following must hold:
+ * <ul>
+ * <li>{@code m.asDoubleArray()} returns {@code [1,4,7,2,5,8,3,6,9]}</li>
+ * <li>{@code for(int i = 0; i < m.size(); i++) System.out.print(m.get(i))} produces
+ * {@code 147258369}</li>
+ * <li>{@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} changes {@code m} to
+ * 
+ * <pre>
+ *     1   4   6
+ *     8   10  12
+ *     14  16  18
+ * </pre>
+ * 
+ * </li>
+ * </ul>
+ * <p>
+ * Due to the order in which values are stored and implications such as cache-locality, different
+ * implementations might have varying performance characteristics. For example, for element wise
+ * operations one should prefer {@link #get(int)} and {@link #put(int, double)} to
+ * {@link #get(int, int)} and {@link #put(int, int, double)}.
+ *
+ * <pre>
+ * // Option 1:
+ * for (int i = 0; i < m.rows(); i++) {
+ *   for (int j = 0; j < m.columns() ; j++) {
+ *     m.put(i, j, m.get(i, j) * 2);
+ *   }
+ * }
+ * 
+ * // Option 2
+ * for (int i = 0; i < m.size(); i++) {
+ *   m.put(i, m.get(i) * 2)
+ * }
+ * 
+ * // Option 3
+ * for (int j = 0; j < m.columns(); j++) {
+ *   for (int i = 0; i < m.rows() ; i++) {
+ *     m.put(i, j, m.get(i, j) * 2);
+ *   }
+ * }
+ * </pre>
+ * 
+ * In the example above, prefer <b>Option 2</b> (or simply {@code m.addi(2)}). <b>Option 3</b> can
+ * also be an alternative option, that for many implementations preserve cache locality and might be
+ * more readable in some cases.
+ * 
+ * @author Isak Karlsson
  */
 public interface Matrix extends DoubleArray, Iterable<Double> {
 
@@ -37,23 +97,25 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
   Matrix assign(double value);
 
   /**
-   * Assign {@code vector} to every row
+   * Assign {@code vector} extending row or column wise
    * 
    * Note: {@code vector.size()} must equal {@code matrix.rows()} or {@code matrix.columns()}
    * 
    * @param vector the vector
+   * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix assign(DoubleArray vector);
+  Matrix assign(DoubleArray vector, Axis axis);
 
   /**
-   * Assign {@code vector} and apply operator to every element
+   * Assign {@code vector} and apply operator to every element extending row or column wise
    * 
    * @param vector the vector
    * @param operator the operator
+   * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix assign(DoubleArray vector, DoubleUnaryOperator operator);
+  Matrix assign(DoubleArray vector, DoubleBinaryOperator operator, Axis axis);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -97,8 +159,32 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
   Matrix assign(double[] values);
 
   /**
-   * Reduces {@code this} into a real value. For example summing can be implemented as
-   * {@code matrix.mapReduce((a,b) -> a + b, x -> x)}
+   * Perform {@code operator} element wise to receiver.
+   *
+   * For example, {@code m.map(Math::sqrt)} is equal to
+   *
+   * <pre>
+   *     Matrix n = m.copy();
+   *     for(int i = 0; i < n.size(); i++)
+   *        n.put(i, Math.sqrt(n.get(i));
+   * </pre>
+   *
+   * To perform the operation in place, modifying {@code m}, use {@code m.assign(m, Math::sqrt)} or
+   * more verbosely
+   *
+   * <pre>
+   *     for(int i = 0; i < m.size(); i++)
+   *       m.put(i, Math.sqrt(m.get(i));
+   * </pre>
+   *
+   * @param operator the operator to apply to each element
+   * @return a new matrix
+   */
+  Matrix map(DoubleUnaryOperator operator);
+
+  /**
+   * Reduces {@code this} into a real value. For example, summing can be implemented as
+   * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
    * 
    * 
    * @param identity the initial value
@@ -106,7 +192,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param map takes a value and possibly transforms it
    * @return the result
    */
-  double mapReduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map);
+  double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map);
 
   /**
    * Reduces each column. Column wise summing can be implemented as
@@ -173,6 +259,8 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    *   5 6
    *   8 9
    * </pre>
+   * 
+   * Please note that modifications of the view, mutates the original.
    * 
    * @param rowOffset the row offset
    * @param colOffset the column offset
@@ -746,7 +834,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
   void put(int i, int j, double value);
 
   /**
-   * Get value at row i and column j
+   * Get value at row {@code i} and column {@code j}
    *
    * @param i row
    * @param j column
@@ -755,8 +843,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
   double get(int i, int j);
 
   /**
-   * Puts <code>value</code> at the linearized position <code>index</code>.
-   *
+   * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
+   * enforced.
+   * 
    * @param index the index
    * @param value the value
    * @see #get(int)
@@ -968,7 +1057,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
   double[] asDoubleArray();
 
   /**
-   * @return true is {@link #asDoubleArray()} is {@code O(1)}
+   * @return true if {@link #asDoubleArray()} is {@code O(1)}
    */
   boolean isArrayBased();
 

@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.distance;
+package org.briljantframework.distance;
 
 import org.briljantframework.DoubleArray;
 

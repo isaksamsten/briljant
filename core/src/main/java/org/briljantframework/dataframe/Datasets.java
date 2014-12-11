@@ -1,5 +1,6 @@
 package org.briljantframework.dataframe;
 
+import java.io.BufferedInputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,7 +166,7 @@ public class Datasets {
   public static DataFrame load(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f,
       Function<InputStream, DataFrameInputStream> fin, String name) {
-    try (DataFrameInputStream dfis = fin.apply(getResourceAsStream(name))) {
+    try (DataFrameInputStream dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return DataFrames.load(f, dfis);
     } catch (IOException e) {
       throw new IOError(e);

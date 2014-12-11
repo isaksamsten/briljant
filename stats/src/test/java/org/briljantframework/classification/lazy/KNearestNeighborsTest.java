@@ -3,9 +3,9 @@ package org.briljantframework.classification.lazy;
 import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.distance.EuclideanDistance;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.matrix.distance.EuclideanDistance;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 

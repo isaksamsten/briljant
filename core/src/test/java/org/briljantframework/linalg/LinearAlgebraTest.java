@@ -1,14 +1,13 @@
-package org.briljantframework.matrix.math;
+package org.briljantframework.linalg;
 
-import static org.briljantframework.matrix.math.LinearAlgebra.pinv;
 import static org.junit.Assert.assertEquals;
 
+import org.briljantframework.linalg.decomposition.LuDecomposition;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.decomposition.LuDecomposition;
-import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
 import org.junit.Test;
 
 public class LinearAlgebraTest {
@@ -44,10 +43,10 @@ public class LinearAlgebraTest {
     // System.out.println(dmmul);
 
     Matrix a = Matrices.randn(10, 20);
-    System.out.println(pinv(a));
+    System.out.println(LinearAlgebra.pinv(a));
 
     Matrix m = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
-    System.out.println(pinv(m));
+    System.out.println(LinearAlgebra.pinv(m));
     // Matrix x = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
     // Diagonal y = Diagonal.of(4, 2, 1, 1);
     //
@@ -110,7 +109,7 @@ public class LinearAlgebraTest {
   @Test
   public void testPInv() throws Exception {
     ArrayMatrix matrix = ArrayMatrix.of(2, 2, 1, 2, 1, 2);
-    Matrix inverse = pinv(matrix);
+    Matrix inverse = LinearAlgebra.pinv(matrix);
     assertEquals(0.1, inverse.get(0, 0), 0.001);
     assertEquals(0.1, inverse.get(0, 1), 0.001);
     assertEquals(0.2, inverse.get(1, 0), 0.001);
@@ -118,7 +117,7 @@ public class LinearAlgebraTest {
 
     double[] A = {0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5};
     ArrayMatrix am = ArrayMatrix.of(4, 4, A);
-    inverse = pinv(am);
+    inverse = LinearAlgebra.pinv(am);
 
     double[] expected =
         {-0.0256410256410256, 0.1794871794871795, -0.5299145299145301, 0.6410256410256413,

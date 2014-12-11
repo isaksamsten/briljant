@@ -1,11 +1,11 @@
 package org.briljantframework.matrix.transformation;
 
+import org.briljantframework.linalg.LinearAlgebra;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.math.LinearAlgebra;
 import org.junit.Before;
 import org.junit.Test;
 

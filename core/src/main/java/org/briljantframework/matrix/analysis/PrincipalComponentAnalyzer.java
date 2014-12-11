@@ -17,9 +17,9 @@
 package org.briljantframework.matrix.analysis;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.decomposition.SingularValueDecomposer;
-import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
 import org.briljantframework.transform.InvertibleTransformation;
 import org.briljantframework.transform.InvertibleTransformer;
 

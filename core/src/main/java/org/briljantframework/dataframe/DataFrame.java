@@ -12,7 +12,7 @@ import org.briljantframework.vector.*;
  * <p>
  * Created by Isak Karlsson on 21/11/14.
  */
-public interface DataFrame extends Iterable<VariableVector> {
+public interface DataFrame extends Iterable<DataFrameRow> {
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -135,13 +135,22 @@ public interface DataFrame extends Iterable<VariableVector> {
   String getColumnName(int index);
 
   /**
+   * Set the name for the column at {@code index}
+   * 
+   * @param index the index
+   * @param columnName the name
+   * @return modified receiver to allow for chaining
+   */
+  DataFrame setColumnName(int index, String columnName);
+
+  /**
    * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types, the
    * returned type is a Sequence i.e. a heterogeneous vector of values.
    *
    * @param index the index
    * @return the row sequence
    */
-  VariableVector getRow(int index);
+  DataFrameRow getRow(int index);
 
   /**
    * Take the rows in {@code indexes}

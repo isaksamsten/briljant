@@ -48,6 +48,7 @@ public class MatlabTextInputStream extends DataFrameInputStream {
 
   private final BufferedReader reader;
   private int columns = -1, currentValue = -1, currentType = 0, currentName = 0;
+  private int currentLine = 0;
   private String[] values = null;
 
   /**
@@ -120,14 +121,18 @@ public class MatlabTextInputStream extends DataFrameInputStream {
       if (valueLine == null) {
         return false;
       }
+      currentLine++;
       values = valueLine.trim().split(separator);
       if (columns == -1) {
         columns = values.length;
       }
       if (values.length != columns) {
-        throw new IOException(String.format(MISMATCH, columns, values.length));
+        values = null;
+        // throw new IOException(String.format(MISMATCH, columns, values.length, currentLine));
+        return initializeValues();
       }
       currentValue = 0;
+
     }
     return true;
   }

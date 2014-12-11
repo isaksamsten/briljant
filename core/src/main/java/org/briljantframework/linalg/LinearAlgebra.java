@@ -14,19 +14,19 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.math;
+package org.briljantframework.linalg;
 
+import org.briljantframework.linalg.decomposition.LuDecomposer;
+import org.briljantframework.linalg.decomposition.LuDecomposition;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
+import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Shape;
 import org.briljantframework.matrix.analysis.PrincipalComponentAnalysis;
 import org.briljantframework.matrix.analysis.PrincipalComponentAnalyzer;
-import org.briljantframework.matrix.decomposition.LuDecomposer;
-import org.briljantframework.matrix.decomposition.LuDecomposition;
-import org.briljantframework.matrix.decomposition.SingularValueDecomposer;
-import org.briljantframework.matrix.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.solve.LeastLinearSquaresSolver;
 import org.briljantframework.transform.InverseTransformation;
 
 /**

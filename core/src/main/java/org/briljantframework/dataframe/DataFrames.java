@@ -26,12 +26,12 @@ public final class DataFrames {
    * the column types. The values from {@code in} are read to the {@code DataFrame.Builder} and
    * returned as the DataFrame created by
    * {@link org.briljantframework.dataframe.DataFrame.Builder#build()}.
-   * 
+   * <p>
    * <code><pre>
    *    DataFrame dataframe =
    *        DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris.txt"));
    * </pre></code>
-   * 
+   *
    * @param f the producing {@code BiFunction}
    * @param in the input stream
    * @return a new dataframe
@@ -52,18 +52,18 @@ public final class DataFrames {
   }
 
   /**
-   * Returns a permuted copy of {@code in}. This implementations uses the Fisher–Yates shuffle
+   * Returns a row-permuted copy of {@code in}. This implementations uses the Fisher–Yates shuffle
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
    * Knuth), which is an algorithm for generating a random permutation of a finite set — in plain
    * terms, for randomly shuffling the finite set.
-   * 
-   * The code requires that {@link DataFrame#newCopyBuilder()} returns a copy and that
-   * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indexex.
-   * 
+   * <p>
+   * Requires that {@link DataFrame#newCopyBuilder()} returns a copy and that
+   * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indexes.
+   *
    * @param in the input {@code DataFrame}
    * @return a permuted copy of {@code in}
    */
-  public static DataFrame shuffle(DataFrame in) {
+  public static DataFrame permuteRows(DataFrame in) {
     DataFrame.Builder builder = in.newCopyBuilder();
     Random random = Utils.getRandom();
     for (int i = builder.rows(); i > 1; i--) {
@@ -73,8 +73,25 @@ public final class DataFrames {
   }
 
   /**
-   * Generates a string representation of a maximum of {@code 10} rows.
+   * Returns a column-permuted copy of {@code in}. See {@link #permuteRows(DataFrame)} for details.
    * 
+   * @param in input data frame
+   * @return a column permuted copy
+   * @see #permuteRows(DataFrame)
+   */
+  public static DataFrame permuteColumns(DataFrame in) {
+    DataFrame.Builder builder = in.newCopyBuilder();
+    Random random = Utils.getRandom();
+    for (int i = builder.columns(); i > 1; i--) {
+      builder.swapColumns(i - 1, random.nextInt(i));
+    }
+
+    return builder.build();
+  }
+
+  /**
+   * Generates a string representation of a maximum of {@code 10} rows.
+   *
    * @param dataFrame the data frame
    * @return a tabular string representation
    */
@@ -84,9 +101,10 @@ public final class DataFrames {
 
   /**
    * Generates a string representation from {@code dataFrame}.
-   *
+   * <p>
    * For example:
-   *
+   * <p>
+   * 
    * <pre>
    *        a    b    c
    *  [0,]  2    3    3

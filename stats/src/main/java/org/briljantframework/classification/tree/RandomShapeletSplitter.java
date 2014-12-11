@@ -22,10 +22,9 @@ import java.util.List;
 import java.util.Random;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.distance.Distance;
+import org.briljantframework.distance.Distance;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
-import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.IntDoubleMap;
@@ -127,8 +126,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
     for (int i = 0; i < maxShapelets; i++) {
-      VariableVector timeSeries =
-          x.getRow(examples.getRandomSample().getRandomExample().getIndex());
+      Vector timeSeries = x.getRow(examples.getRandomSample().getRandomExample().getIndex());
       int length = random.nextInt(upper) + lower;
       int start = random.nextInt(timeSeriesLength - length);
       shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));

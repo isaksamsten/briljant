@@ -89,7 +89,7 @@ public class MixedDataFrame implements DataFrame {
   /**
    * Constructs a new mixed data frame from an iterable sequence of of
    * {@link org.briljantframework.vector.VariableVector} treated as rows of equal length
-   * 
+   *
    * @param sequences
    */
   public MixedDataFrame(Iterable<? extends VariableVector> sequences) {
@@ -277,8 +277,17 @@ public class MixedDataFrame implements DataFrame {
    * {@inheritDoc}
    */
   @Override
-  public VariableVector getRow(int index) {
-    return new DataFrameRow(this, index);
+  public DataFrame setColumnName(int index, String columnName) {
+    names.set(index, columnName);
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DataFrameRow getRow(int index) {
+    return new DataFrameRowView(this, index);
   }
 
   /**
@@ -371,8 +380,8 @@ public class MixedDataFrame implements DataFrame {
   }
 
   @Override
-  public Iterator<VariableVector> iterator() {
-    return new UnmodifiableIterator<VariableVector>() {
+  public Iterator<DataFrameRow> iterator() {
+    return new UnmodifiableIterator<DataFrameRow>() {
       private int index = 0;
 
       @Override
@@ -381,7 +390,7 @@ public class MixedDataFrame implements DataFrame {
       }
 
       @Override
-      public VariableVector next() {
+      public DataFrameRow next() {
         return getRow(index++);
       }
     };

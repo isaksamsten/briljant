@@ -30,7 +30,7 @@ public class RandomFoldPartitionerTest {
     // }
 
 
-    DataFrame iris = DataFrames.shuffle(Datasets.loadIris());
+    DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
     DataFrame irisX = iris.takeColumns(IntRange.closed(0, 4));
     Vector irisY = iris.getColumn(4);
 
