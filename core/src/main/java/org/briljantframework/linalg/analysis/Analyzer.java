@@ -14,10 +14,22 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.analysis;
+package org.briljantframework.linalg.analysis;
+
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
+ *
+ * @param <T> the type parameter
  */
-public interface Analysis {
+public interface Analyzer<T extends Analysis> {
+
+  /**
+   * Analyze t.
+   *
+   * @param matrix the matrix
+   * @return the t
+   */
+  T analyze(Matrix matrix);
 }

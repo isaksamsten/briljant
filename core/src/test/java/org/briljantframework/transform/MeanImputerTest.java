@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.transformation;
+package org.briljantframework.transform;
 
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;

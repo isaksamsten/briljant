@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.analysis;
+package org.briljantframework.linalg.analysis;
 
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;

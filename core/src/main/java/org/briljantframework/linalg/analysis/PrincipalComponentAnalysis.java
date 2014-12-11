@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.matrix.analysis;
+package org.briljantframework.linalg.analysis;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Matrix;

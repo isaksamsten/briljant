@@ -16,6 +16,8 @@
 
 package org.briljantframework.linalg;
 
+import org.briljantframework.linalg.analysis.PrincipalComponentAnalysis;
+import org.briljantframework.linalg.analysis.PrincipalComponentAnalyzer;
 import org.briljantframework.linalg.decomposition.LuDecomposer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
@@ -25,8 +27,6 @@ import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Shape;
-import org.briljantframework.matrix.analysis.PrincipalComponentAnalysis;
-import org.briljantframework.matrix.analysis.PrincipalComponentAnalyzer;
 import org.briljantframework.transform.InverseTransformation;
 
 /**

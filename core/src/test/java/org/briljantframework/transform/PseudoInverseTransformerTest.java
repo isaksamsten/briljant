@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.transformation;
+package org.briljantframework.transform;
 
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;

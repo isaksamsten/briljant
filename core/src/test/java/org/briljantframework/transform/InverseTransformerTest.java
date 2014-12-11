@@ -1,9 +1,8 @@
-package org.briljantframework.matrix.transformation;
+package org.briljantframework.transform;
 
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.transform.InverseTransformation;
 import org.junit.Before;
 import org.junit.Test;
 
