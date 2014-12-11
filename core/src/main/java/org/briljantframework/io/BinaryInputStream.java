@@ -19,8 +19,6 @@ package org.briljantframework.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Complex;
 import org.briljantframework.vector.Type;
 
 /**
@@ -43,27 +41,7 @@ public class BinaryInputStream extends DataFrameInputStream {
   }
 
   @Override
-  public String nextString() throws IOException {
-    return null;
-  }
-
-  @Override
-  public int nextInt() throws IOException {
-    return 0;
-  }
-
-  @Override
-  public double nextDouble() throws IOException {
-    return 0;
-  }
-
-  @Override
-  public Binary nextBinary() throws IOException {
-    return null;
-  }
-
-  @Override
-  public Complex nextComplex() throws IOException {
+  public DataEntry next() throws IOException {
     return null;
   }
 

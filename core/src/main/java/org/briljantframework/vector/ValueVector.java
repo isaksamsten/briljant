@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataEntry;
 
 import com.google.common.base.Preconditions;
 
@@ -210,13 +210,13 @@ public class ValueVector implements VariableVector {
     }
 
     @Override
-    public Builder read(DataFrameInputStream inputStream) throws IOException {
-      return read(size(), inputStream);
+    public Builder read(DataEntry entry) throws IOException {
+      return read(size(), entry);
     }
 
     @Override
-    public Builder read(int index, DataFrameInputStream inputStream) throws IOException {
-      set(index, inputStream.nextString());
+    public Builder read(int index, DataEntry entry) throws IOException {
+      set(index, entry.nextString());
       return this;
     }
 

@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Type;
 
 /**
@@ -47,8 +46,9 @@ public class MatlabTextInputStream extends DataFrameInputStream {
   private static String missingValue = "?";
 
   private final BufferedReader reader;
-  private int columns = -1, currentValue = -1, currentType = 0, currentName = 0;
-  private int currentLine = 0;
+  private int columns = -1;
+  private int currentType = 0;
+  private int currentName = 0;
   private String[] values = null;
 
   /**
@@ -82,33 +82,18 @@ public class MatlabTextInputStream extends DataFrameInputStream {
    * {@inheritDoc}
    */
   @Override
-  public String nextString() throws IOException {
+  public DataEntry next() throws IOException {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    if (currentValue < values.length) {
-      String value = values[currentValue].trim();
-      currentValue += 1;
-      if (currentValue == columns) {
-        values = null;
-      }
-      if (value.equals(missingValue)) {
-        return StringVector.NA;
-      }
-      return value;
-    }
-    throw new NoSuchElementException();
+    DataEntry entry = new StringDataEntry(values);
+    values = null;
+    return entry;
   }
 
   @Override
   public boolean hasNext() throws IOException {
     return initializeValues();
-  }
-
-  @Override
-  public int currentRowSize() throws IOException {
-    initializeValues();
-    return columns;
   }
 
   @Override
@@ -127,18 +112,10 @@ public class MatlabTextInputStream extends DataFrameInputStream {
       if (valueLine == null) {
         return false;
       }
-      currentLine++;
       values = valueLine.trim().split(separator);
-      // if (columns == -1) {
-      columns = values.length;
-      // }
-      // if (values.length != columns) {
-      // values = null;
-      // throw new IOException(String.format(MISMATCH, columns, values.length, currentLine));
-      // return initializeValues();
-      // }
-      currentValue = 0;
-
+      if (columns == -1) {
+        columns = values.length;
+      }
     }
     return true;
   }

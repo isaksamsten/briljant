@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.briljantframework.DoubleArray;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataEntry;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -395,21 +395,21 @@ public interface Vector extends DoubleArray, Serializable {
     /**
      * Reads a value from the input stream and appends it to the builder
      * 
-     * @param inputStream the input stream
+     * @param entry the input stream
      * @return receiver modified
      * @throws IOException if {@code inputStream} fail
      */
-    Builder read(DataFrameInputStream inputStream) throws IOException;
+    Builder read(DataEntry entry) throws IOException;
 
     /**
      * Reads a value from the input stream and set {@code index} to the next value in the stream.
      * 
      * @param index the index
-     * @param inputStream the input stream
+     * @param entry the input stream
      * @return receiver modified
      * @throws IOException if {@code inputStream} fail
      */
-    Builder read(int index, DataFrameInputStream inputStream) throws IOException;
+    Builder read(int index, DataEntry entry) throws IOException;
 
     /**
      * Returns the size of the resulting vector

@@ -13,6 +13,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrameColumnView;
 import org.briljantframework.dataframe.DataFrameRow;
 import org.briljantframework.dataframe.DataFrames;
+import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataFrameInputStream;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
@@ -323,9 +324,9 @@ public class DataSeriesCollection implements DataFrame {
       int row = 0;
       while (inputStream.hasNext()) {
         ensureCapacity(row);
-        int columns = inputStream.currentRowSize();
-        for (int i = 0; i < columns && inputStream.hasNext(); i++) {
-          builders.get(row).read(i, inputStream);
+        DataEntry entry = inputStream.next();
+        for (int i = 0; i < entry.size() && entry.hasNext(); i++) {
+          builders.get(row).read(i, entry);
         }
         row++;
       }

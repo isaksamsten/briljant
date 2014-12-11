@@ -112,7 +112,6 @@ public class CsvInputStream extends DataFrameInputStream {
       if (type == null) {
         throw new IllegalArgumentException(String.format(INVALID_NAME, repr));
       }
-
       return type;
     } else {
       return null;
@@ -139,22 +138,13 @@ public class CsvInputStream extends DataFrameInputStream {
    * {@inheritDoc}
    */
   @Override
-  public String nextString() throws IOException {
+  public DataEntry next() throws IOException {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    if (currentValue < values.length) {
-      String value = values[currentValue].trim();
-      currentValue += 1;
-      if (currentValue == types.length) {
-        values = null;
-      }
-      if (value.equals(missingValue) /* || value.equals("NA") */) {
-        return StringVector.NA;
-      }
-      return value;
-    }
-    throw new NoSuchElementException();
+    DataEntry entry = new StringDataEntry(values);
+    values = null;
+    return entry;
   }
 
   /**
@@ -214,9 +204,9 @@ public class CsvInputStream extends DataFrameInputStream {
       }
       values = valueLine.split(separator);
       if (values.length != types.length) {
-        throw new IOException(String.format(MISMATCH, types.length, values.length));
+        throw new IOException(String.format(MISMATCH, types.length, values.length, 0));
       }
-      currentValue = 0;
+      // currentValue = 0;
     }
     return true;
   }

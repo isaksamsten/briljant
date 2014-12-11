@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.briljantframework.Utils;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataEntry;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.base.Preconditions;
@@ -174,13 +174,13 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
-      return read(size(), inputStream);
+    public Vector.Builder read(DataEntry entry) throws IOException {
+      return read(size(), entry);
     }
 
     @Override
-    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
-      set(index, inputStream.nextInt());
+    public Vector.Builder read(int index, DataEntry entry) throws IOException {
+      set(index, entry.nextInt());
       return this;
     }
 

@@ -2,7 +2,7 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataEntry;
 
 /**
  * Undefined is an immutable 0 size vector returning NA
@@ -172,12 +172,12 @@ public class Undefined implements Value {
     }
 
     @Override
-    public Vector.Builder read(DataFrameInputStream inputStream) {
+    public Vector.Builder read(DataEntry entry) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
+    public Vector.Builder read(int index, DataEntry entry) throws IOException {
       throw new UnsupportedOperationException();
     }
 

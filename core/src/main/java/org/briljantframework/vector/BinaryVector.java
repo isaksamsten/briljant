@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.briljantframework.Utils;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataEntry;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.base.Preconditions;
@@ -170,13 +170,13 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
-    public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
-      return read(size(), inputStream);
+    public Vector.Builder read(DataEntry entry) throws IOException {
+      return read(size(), entry);
     }
 
     @Override
-    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
-      Binary binary = inputStream.nextBinary();
+    public Vector.Builder read(int index, DataEntry entry) throws IOException {
+      Binary binary = entry.nextBinary();
       if (binary == null) {
         setNA(index);
       } else {

@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataFrameInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
@@ -540,8 +541,9 @@ public class MixedDataFrame implements DataFrame {
     @Override
     public DataFrame.Builder read(DataFrameInputStream inputStream) throws IOException {
       while (inputStream.hasNext()) {
-        for (int i = 0; i < columns() && inputStream.hasNext(); i++) {
-          buffers.get(i).read(inputStream);
+        DataEntry entry = inputStream.next();
+        for (int i = 0; i < entry.size(); i++) {
+          buffers.get(i).read(entry);
         }
       }
 

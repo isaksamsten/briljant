@@ -25,9 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.*;
-
-import com.google.common.primitives.Doubles;
+import org.briljantframework.vector.Type;
 
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
@@ -158,73 +156,83 @@ public abstract class DataFrameInputStream extends FilterInputStream {
   }
 
   /**
-   * Reads the next string in this stream
+   * Reads the next entry from this stream
    * 
-   * @return the next string
+   * @return the next entry
    * @throws IOException
    */
-  public abstract String nextString() throws IOException;
-
-  /**
-   * Reads the next int in this stream
-   *
-   * @return the next int
-   * @throws IOException
-   * @throws java.lang.NumberFormatException
-   */
-  public int nextInt() throws IOException {
-    String repr = nextString();
-    return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
-  }
-
-  /**
-   * Reads the next {@code double} in this stream
-   *
-   * @return the next {@code double}
-   * @throws IOException
-   * @throws java.lang.NumberFormatException
-   */
-  public double nextDouble() throws IOException {
-    String repr = nextString();
-    if (repr == StringVector.NA) {
-      return DoubleVector.NA;
-    } else {
-      Double d = Doubles.tryParse(repr);
-      return d == null ? DoubleVector.NA : d;
-    }
-  }
-
-  /**
-   * Reads the next {@code Binary} in this stream.
-   *
-   * @return the next binary
-   * @throws IOException
-   * @throws java.lang.NumberFormatException
-   */
-  public Binary nextBinary() throws IOException {
-    return Binary.valueOf(nextInt());
-  }
-
-  /**
-   * Reads the next {@code Complex} in this stream.
-   *
-   * @return the next complex
-   * @throws IOException
-   * @throws NumberFormatException
-   */
-  public Complex nextComplex() throws IOException {
-    throw new UnsupportedOperationException();
-  }
+  public abstract DataEntry next() throws IOException;
 
   /**
    * Returns {@code true} if there are more values in the stream
-   * 
+   *
    * @return if has next
    * @throws IOException
    */
   public abstract boolean hasNext() throws IOException;
 
-  public int currentRowSize() throws IOException {
-    throw new UnsupportedOperationException();
-  }
+  // /**
+  // * Reads the next string in this stream
+  // *
+  // * @return the next string
+  // * @throws IOException
+  // */
+  // public abstract String nextString() throws IOException;
+  //
+  // /**
+  // * Reads the next int in this stream
+  // *
+  // * @return the next int
+  // * @throws IOException
+  // * @throws java.lang.NumberFormatException
+  // */
+  // public int nextInt() throws IOException {
+  // String repr = nextString();
+  // return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
+  // }
+  //
+  // /**
+  // * Reads the next {@code double} in this stream
+  // *
+  // * @return the next {@code double}
+  // * @throws IOException
+  // * @throws java.lang.NumberFormatException
+  // */
+  // public double nextDouble() throws IOException {
+  // String repr = nextString();
+  // if (repr == StringVector.NA) {
+  // return DoubleVector.NA;
+  // } else {
+  // Double d = Doubles.tryParse(repr);
+  // return d == null ? DoubleVector.NA : d;
+  // }
+  // }
+  //
+  // /**
+  // * Reads the next {@code Binary} in this stream.
+  // *
+  // * @return the next binary
+  // * @throws IOException
+  // * @throws java.lang.NumberFormatException
+  // */
+  // public Binary nextBinary() throws IOException {
+  // return Binary.valueOf(nextInt());
+  // }
+  //
+  // /**
+  // * Reads the next {@code Complex} in this stream.
+  // *
+  // * @return the next complex
+  // * @throws IOException
+  // * @throws NumberFormatException
+  // */
+  // public Complex nextComplex() throws IOException {
+  // throw new UnsupportedOperationException();
+  // }
+  //
+  // public abstract boolean hasNext() throws IOException;
+  //
+  // public int currentRowSize() throws IOException {
+  // throw new UnsupportedOperationException();
+  // }
 }
