@@ -17,15 +17,15 @@ import com.google.common.base.Preconditions;
 public class DoubleVector extends AbstractDoubleVector {
 
   /*
-       * TODO: Change to another NaN value
-       *
-       * See Double#doubleToLongBits for the ranges which defines NaN values and how. This way, we can
-       * represent both NaN and NA values.
-       *
-       * One option could be to use 0x7ff0000000000009L
-       */
+   * TODO: Change to another NaN value
+   * 
+   * See Double#doubleToLongBits for the ranges which defines NaN values and how. This way, we can
+   * represent both NaN and NA values.
+   * 
+   * One option could be to use 0x7ff0000000000009L
+   */
   public static final long NA_BITS = 0x7ff0000000000009L;
-  public static final double NA = Double.longBitsToDouble(NA_BITS); //Double.NaN;
+  public static final double NA = Double.longBitsToDouble(NA_BITS); // Double.NaN;
 
   public static final long NA_MASK = 0x000000000000000FL;
   public static final int NA_RES = 9;
@@ -196,8 +196,13 @@ public class DoubleVector extends AbstractDoubleVector {
 
     @Override
     public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
+      return read(size(), inputStream);
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
       double value = inputStream.nextDouble();
-      add(value);
+      set(index, value);
       return this;
     }
 

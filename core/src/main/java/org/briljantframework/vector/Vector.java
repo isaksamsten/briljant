@@ -396,9 +396,20 @@ public interface Vector extends DoubleArray, Serializable {
      * Reads a value from the input stream and appends it to the builder
      * 
      * @param inputStream the input stream
-     * @throws IOException
+     * @return receiver modified
+     * @throws IOException if {@code inputStream} fail
      */
     Builder read(DataFrameInputStream inputStream) throws IOException;
+
+    /**
+     * Reads a value from the input stream and set {@code index} to the next value in the stream.
+     * 
+     * @param index the index
+     * @param inputStream the input stream
+     * @return receiver modified
+     * @throws IOException if {@code inputStream} fail
+     */
+    Builder read(int index, DataFrameInputStream inputStream) throws IOException;
 
     /**
      * Returns the size of the resulting vector

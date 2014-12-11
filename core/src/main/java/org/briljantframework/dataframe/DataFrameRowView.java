@@ -1,22 +1,19 @@
 package org.briljantframework.dataframe;
 
-import java.util.Iterator;
-
 import org.briljantframework.Utils;
 import org.briljantframework.vector.*;
 
 import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 26/11/14.
  */
-class DataFrameRowView implements DataFrameRow {
+public class DataFrameRowView implements DataFrameRow {
 
   private final DataFrame parent;
   private final int row;
 
-  DataFrameRowView(DataFrame parent, int row) {
+  public DataFrameRowView(DataFrame parent, int row) {
     this.parent = parent;
     this.row = row;
   }
@@ -120,20 +117,20 @@ class DataFrameRowView implements DataFrameRow {
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
   }
 
-  @Override
-  public Iterator<Value> iterator() {
-    return new UnmodifiableIterator<Value>() {
-      public int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Value next() {
-        return getAsValue(current++);
-      }
-    };
-  }
+  // @Override
+  // public Iterator<Value> iterator() {
+  // return new UnmodifiableIterator<Value>() {
+  // public int current = 0;
+  //
+  // @Override
+  // public boolean hasNext() {
+  // return current < size();
+  // }
+  //
+  // @Override
+  // public Value next() {
+  // return getAsValue(current++);
+  // }
+  // };
+  // }
 }

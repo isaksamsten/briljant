@@ -171,11 +171,16 @@ public class BinaryVector extends AbstractBinaryVector {
 
     @Override
     public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
+      return read(size(), inputStream);
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
       Binary binary = inputStream.nextBinary();
       if (binary == null) {
-        addNA();
+        setNA(index);
       } else {
-        add(binary);
+        set(index, binary);
       }
       return this;
     }

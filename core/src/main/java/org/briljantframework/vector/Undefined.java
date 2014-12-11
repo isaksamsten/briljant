@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import java.io.IOException;
+
 import org.briljantframework.io.DataFrameInputStream;
 
 /**
@@ -171,6 +173,11 @@ public class Undefined implements Value {
 
     @Override
     public Vector.Builder read(DataFrameInputStream inputStream) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
       throw new UnsupportedOperationException();
     }
 

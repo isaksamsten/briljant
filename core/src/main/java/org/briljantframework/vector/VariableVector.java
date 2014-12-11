@@ -1,16 +1,13 @@
 package org.briljantframework.vector;
 
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 /**
  * A sequence is a vector which contains elements of different type.
  * <p>
  * Created by Isak Karlsson on 26/11/14.
  */
-public interface VariableVector extends Vector, Iterable<Value> {
+public interface VariableVector extends Vector {
 
-  public static final Binary NA = Binary.NA;
+  public static final Value NA = Undefined.INSTANCE;
 
   public static final Type TYPE = new Type() {
     @Override
@@ -65,20 +62,4 @@ public interface VariableVector extends Vector, Iterable<Value> {
    * @return the type of value
    */
   Type getType(int index);
-
-  /**
-   * Returns a sequential {@code Stream} with this collection as its source.
-   * <p>
-   * <p>
-   * This method should be overridden when the {@link #spliterator()} method cannot return a
-   * spliterator that is {@code IMMUTABLE}, {@code CONCURRENT}, or <em>late-binding</em>. (See
-   * {@link #spliterator()} for details.)
-   * <p>
-   * (comment from {@link java.util.Collection#stream()})
-   *
-   * @return a stream
-   */
-  default Stream<Value> stream() {
-    return StreamSupport.stream(spliterator(), false);
-  }
 }

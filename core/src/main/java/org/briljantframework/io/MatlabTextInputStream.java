@@ -106,6 +106,12 @@ public class MatlabTextInputStream extends DataFrameInputStream {
   }
 
   @Override
+  public int currentRowSize() throws IOException {
+    initializeValues();
+    return columns;
+  }
+
+  @Override
   public void close() throws IOException {
     reader.close();
     super.close();
@@ -113,7 +119,7 @@ public class MatlabTextInputStream extends DataFrameInputStream {
 
   /**
    * @return true if successfully initialized and there are more values to consume
-   * @throws IOException
+   * @throws IOException on failure
    */
   private boolean initializeValues() throws IOException {
     if (values == null) {
@@ -123,14 +129,14 @@ public class MatlabTextInputStream extends DataFrameInputStream {
       }
       currentLine++;
       values = valueLine.trim().split(separator);
-      if (columns == -1) {
-        columns = values.length;
-      }
-      if (values.length != columns) {
-        values = null;
-        // throw new IOException(String.format(MISMATCH, columns, values.length, currentLine));
-        return initializeValues();
-      }
+      // if (columns == -1) {
+      columns = values.length;
+      // }
+      // if (values.length != columns) {
+      // values = null;
+      // throw new IOException(String.format(MISMATCH, columns, values.length, currentLine));
+      // return initializeValues();
+      // }
       currentValue = 0;
 
     }

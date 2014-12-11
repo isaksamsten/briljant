@@ -216,7 +216,6 @@ public abstract class DataFrameInputStream extends FilterInputStream {
     throw new UnsupportedOperationException();
   }
 
-
   /**
    * Returns {@code true} if there are more values in the stream
    * 
@@ -224,4 +223,8 @@ public abstract class DataFrameInputStream extends FilterInputStream {
    * @throws IOException
    */
   public abstract boolean hasNext() throws IOException;
+
+  public int currentRowSize() throws IOException {
+    throw new UnsupportedOperationException();
+  }
 }

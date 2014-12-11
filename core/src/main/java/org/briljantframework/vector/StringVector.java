@@ -181,7 +181,12 @@ public class StringVector extends AbstractStringVector {
 
     @Override
     public Builder read(DataFrameInputStream inputStream) throws IOException {
-      add(inputStream.nextString());
+      return read(size(), inputStream);
+    }
+
+    @Override
+    public Builder read(int index, DataFrameInputStream inputStream) throws IOException {
+      set(index, inputStream.nextString());
       return this;
     }
 

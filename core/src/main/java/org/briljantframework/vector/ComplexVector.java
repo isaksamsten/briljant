@@ -264,11 +264,16 @@ public class ComplexVector extends AbstractComplexVector {
 
     @Override
     public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
+      return read(size(), inputStream);
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
       Complex complex = inputStream.nextComplex();
       if (complex == null) {
-        addNA();
+        setNA(index);
       } else {
-        add(complex);
+        set(index, complex);
       }
       return this;
     }

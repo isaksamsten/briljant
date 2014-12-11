@@ -3,13 +3,11 @@ package org.briljantframework.vector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.briljantframework.io.DataFrameInputStream;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 26/11/14.
@@ -102,22 +100,22 @@ public class ValueVector implements VariableVector {
     return values.get(index).getType();
   }
 
-  @Override
-  public Iterator<Value> iterator() {
-    return new UnmodifiableIterator<Value>() {
-      public int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Value next() {
-        return getAsValue(current++);
-      }
-    };
-  }
+  // @Override
+  // public Iterator<Value> iterator() {
+  // return new UnmodifiableIterator<Value>() {
+  // public int current = 0;
+  //
+  // @Override
+  // public boolean hasNext() {
+  // return current < size();
+  // }
+  //
+  // @Override
+  // public Value next() {
+  // return getAsValue(current++);
+  // }
+  // };
+  // }
 
   public static class Builder implements Vector.Builder {
     private List<Value> buffer;
@@ -213,7 +211,12 @@ public class ValueVector implements VariableVector {
 
     @Override
     public Builder read(DataFrameInputStream inputStream) throws IOException {
-      add(inputStream.nextString());
+      return read(size(), inputStream);
+    }
+
+    @Override
+    public Builder read(int index, DataFrameInputStream inputStream) throws IOException {
+      set(index, inputStream.nextString());
       return this;
     }
 

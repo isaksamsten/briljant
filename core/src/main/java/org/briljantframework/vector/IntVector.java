@@ -175,7 +175,12 @@ public class IntVector extends AbstractIntVector {
 
     @Override
     public Vector.Builder read(DataFrameInputStream inputStream) throws IOException {
-      add(inputStream.nextInt());
+      return read(size(), inputStream);
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataFrameInputStream inputStream) throws IOException {
+      set(index, inputStream.nextInt());
       return this;
     }
 

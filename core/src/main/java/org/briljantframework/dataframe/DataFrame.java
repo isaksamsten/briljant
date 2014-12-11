@@ -8,9 +8,11 @@ import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
 /**
- * A DataFrame is a heterogeneous or homogeneous storage of data.
  * <p>
- * Created by Isak Karlsson on 21/11/14.
+ * A DataFrame is a heterogeneous or homogeneous storage of data.
+ * </p>
+ * 
+ * @author Isak Karlsson
  */
 public interface DataFrame extends Iterable<DataFrameRow> {
 

@@ -125,7 +125,7 @@ public final class DataFrames {
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {
       b.put(i + 1, 0, String.format("[%d,]   ", i));
       for (int j = 0; j < dataFrame.columns(); j++) {
-        b.put(i + 1, j + 1, dataFrame.getColumn(j).toString(i));
+        b.put(i + 1, j + 1, dataFrame.toString(i, j));
       }
     }
 
