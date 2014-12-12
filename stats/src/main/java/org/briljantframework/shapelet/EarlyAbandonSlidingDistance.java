@@ -70,6 +70,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
     // Assumed to be normalized!
     DoubleArray candidate = a.size() < b.size() ? a : b;
     if (!(candidate instanceof NormalizedShapelet)) {
+      System.out.println(candidate);
       throw new IllegalArgumentException("candidate shapelet must be z-normalized");
     }
 

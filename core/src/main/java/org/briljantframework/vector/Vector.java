@@ -127,21 +127,6 @@ public interface Vector extends DoubleArray, Serializable {
     return false;
   }
 
-  // /**
-  // * {@inheritDoc}
-  // */
-  // @Override
-  // default double get(int i, int j) {
-  // if (i == 1) {
-  // return get(j);
-  // } else if (j == 1) {
-  // return get(i);
-  // } else {
-  // throw new IndexOutOfBoundsException();
-  // }
-  // }
-
-
   /**
    * {@inheritDoc}
    */

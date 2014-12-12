@@ -26,14 +26,13 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Double && Double.isNaN((Double) value));
+      return value == null || (value instanceof Double && Is.NA((Double) value));
     }
 
     @Override
     public int compare(int a, Vector va, int b, Vector ba) {
       double dva = va.getAsDouble(a);
       double dba = ba.getAsDouble(b);
-
 
       return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
     }
@@ -52,7 +51,7 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   @Override
   public int getAsInt(int index) {
     double value = getAsDouble(index);
-    return Double.isNaN(value) ? IntVector.NA : (int) value;
+    return Is.NA(value) ? IntVector.NA : (int) value;
   }
 
   @Override
@@ -63,7 +62,7 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   @Override
   public String getAsString(int index) {
     double value = getAsDouble(index);
-    return Double.isNaN(value) ? StringVector.NA : String.valueOf(value);
+    return Is.NA(value) ? StringVector.NA : String.valueOf(value);
   }
 
   @Override
@@ -80,7 +79,7 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
 
   @Override
   public boolean isNA(int index) {
-    return Double.isNaN(getAsDouble(index));
+    return Is.NA(getAsDouble(index));
   }
 
   @Override
@@ -92,14 +91,14 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   public int compare(int a, int b) {
     double va = getAsDouble(a);
     double vb = getAsDouble(b);
-    return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
   }
 
   @Override
   public int compare(int a, int b, Vector other) {
     double va = getAsDouble(a);
     double vb = other.getAsDouble(b);
-    return !Double.isNaN(va) && !Double.isNaN(vb) ? Double.compare(va, vb) : 0;
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
   }
 
   @Override

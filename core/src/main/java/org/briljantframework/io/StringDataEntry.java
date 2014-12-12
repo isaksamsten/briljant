@@ -7,7 +7,8 @@ import org.briljantframework.vector.*;
 import com.google.common.primitives.Doubles;
 
 /**
- * Created by Isak Karlsson on 11/12/14.
+ * A string data entry holds string values and tries to convert them to appropriate types. Such
+ * failures won't propagate, instead the respective NA value will be returned.
  */
 public class StringDataEntry implements DataEntry {
 

@@ -25,18 +25,20 @@ public class RandomSplitPartitioner implements Partitioner {
       Vector.Builder yTrainingBuilder = y.newBuilder();
       for (int i = 0; i < trainingSize; i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xTrainingBuilder.add(j, x, i, j);
+          xTrainingBuilder.set(i, j, x, i, j);
         }
         yTrainingBuilder.add(y, i);
       }
 
       DataFrame.Builder xValidationBuilder = x.newBuilder();
       Vector.Builder yValidationBuilder = y.newBuilder();
+      int index = 0;
       for (int i = trainingSize; i < x.rows(); i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xValidationBuilder.add(j, x, i, j);
+          xValidationBuilder.set(index, j, x, i, j);
         }
         yValidationBuilder.add(y, i);
+        index += 1;
       }
 
       return Iterators.singletonIterator(new Partition(xTrainingBuilder.build(), xValidationBuilder

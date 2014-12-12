@@ -311,7 +311,7 @@ public class MatrixDataFrame implements DataFrame {
       } else if (column >= columns) {
         reInitializeBuffer(rows, column + 1);
       } else {
-        buffer = ArrayBuffers.ensureCapacity(buffer, rows * columns);
+        // buffer = ArrayBuffers.ensureCapacity(buffer, rows * columns);
       }
 
       return Indexer.columnMajor(row, column, rows, columns);
@@ -479,8 +479,8 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     public HashBuilder(Collection<String> colNames, Collection<? extends Type> types) {
-      checkArgument(types == null || colNames.size() == types.size(),
-          "Arguments imply different sizes %s != %s.", colNames.size(), types.size());
+      // checkArgument(types == null || colNames.size() == types.size(),
+      // "Arguments imply different sizes %s != %s.", colNames.size(), types.size());
       this.colNames = new ArrayList<>(colNames);
       this.columns = colNames.size();
     }

@@ -38,11 +38,11 @@ public final class ArrayBuffers {
     int oldCapacity = array.length;
     double[] newArray;
     if (oldCapacity < minCapacity) {
-      int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
-        newCapacity = minCapacity;
-      }
-      newArray = new double[newCapacity];
+      // int newCapacity = (oldCapacity * 3) / 2 + 1;
+      // if (newCapacity < minCapacity) {
+      // newCapacity = minCapacity;
+      // }
+      newArray = new double[minCapacity];
     } else {
       newArray = new double[array.length];
     }

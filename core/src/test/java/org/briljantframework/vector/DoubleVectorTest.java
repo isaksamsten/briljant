@@ -26,6 +26,7 @@ public class DoubleVectorTest {
   public void testAddAtIndex() throws Exception {
     DoubleVector.Builder builder = new DoubleVector.Builder();
     builder.set(3, 10);
+    builder.set(4, Double.NaN);
     builder.set(10, 10);
     System.out.println(builder.size());
 

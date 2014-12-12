@@ -47,7 +47,11 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(double value) {
-    return DoubleVector.TYPE.isNA(value);
+    if (Double.isNaN(value)) {
+      return (Double.doubleToRawLongBits(value) & DoubleVector.NA_MASK) == 9;
+    } else {
+      return false;
+    }
   }
 
   /**

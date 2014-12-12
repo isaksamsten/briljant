@@ -39,17 +39,17 @@ public class DataSeries extends AbstractDoubleVector implements DataFrameRow {
 
   @Override
   public Builder newCopyBuilder() {
-    throw new UnsupportedOperationException();
+    return vector.newCopyBuilder();
   }
 
   @Override
   public Builder newBuilder() {
-    throw new UnsupportedOperationException();
+    return vector.newBuilder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    throw new UnsupportedOperationException();
+    return vector.newBuilder(size);
   }
 
   @Override

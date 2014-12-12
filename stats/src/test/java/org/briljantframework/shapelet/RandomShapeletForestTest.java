@@ -1,6 +1,9 @@
 package org.briljantframework.shapelet;
 
+import static org.briljantframework.matrix.Matrices.linspace;
+
 import java.awt.*;
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +11,18 @@ import java.util.Map;
 
 import org.briljantframework.DoubleArray;
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.classification.RandomShapeletForest;
+import org.briljantframework.dataframe.*;
+import org.briljantframework.dataseries.*;
+import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.io.CsvInputStream;
+import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.As;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -32,8 +41,42 @@ import org.jfree.util.ShapeUtilities;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
+
+  @Test
+  public void testClassify() throws Exception {
+    // try (DataFrameInputStream dfis =
+    // new MatlabTextInputStream(new BufferedInputStream(new FileInputStream(
+    // "/Users/isak/Desktop/synthetic_control_TRAIN")))) {
+    // DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
+    // builder.read(dfis);
+    //
+    // DataSeriesCollection collection = builder.build();
+    DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
+    DataFrame x = synthetic.dropColumn(0);
+    Vector y = As.stringVector(synthetic.getColumn(0));
+
+    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
+    DataSeriesResampler resampler = new LinearResampler(30);
+
+    for (DataFrameRow row : x) {
+      builder.addRow(resampler.resample(row));
+    }
+
+    x = builder.build();
+
+    RandomShapeletForest forest =
+        RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
+            .withUpperLength(-1).build();
+    System.out.println(ClassificationEvaluators.splitValidation(0.33).evaluate(forest, x, y));
+
+    // }
+
+  }
+
   @Test
   public void testName() throws Exception {
+
+
     // try (CSVInputStream in = new CSVInputStream(new
     // FileInputStream("/Users/isak/Projects/adeb/erlang/adeb-rr/deps/rr/data/iris.txt"))) {
     // DenseDataFrame dataset = in.read(DenseDataFrame.copyTo());
@@ -463,6 +506,70 @@ public class RandomShapeletForestTest {
         Chartable.saveSVG("/Users/isak/Desktop/" + file + ".svg", chart, 250, 200);
       }
     }
+  }
+
+  @Test
+  public void testBuilder() throws Exception {
+
+
+    Map<String, DataSeriesResampler> resamplers = new HashMap<>();
+    int threshold = 387;
+    resamplers.put("linear", new LinearResampler(threshold));
+    resamplers.put("mean", new MeanResampler(threshold));
+    resamplers.put("lttb", new LttbResampler(threshold));
+
+    try (DataFrameInputStream dfis =
+        new MatlabTextInputStream(new BufferedInputStream(new FileInputStream(
+            "/Users/isak/Desktop/ecgonly.txt")))) {
+      DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
+      builder.read(dfis);
+      DataSeriesCollection coll = builder.build();
+      System.out.println(coll);
+
+      Vector vec = coll.getRow(0);
+
+      for (Map.Entry<String, DataSeriesResampler> entry : resamplers.entrySet()) {
+        Vector resampled = entry.getValue().resample(vec);
+        System.out.println(resampled.size());
+        JFreeChart s = plot(linspace(resampled.size() - 1, resampled.size(), 0), resampled);
+        Chartable.saveSVG("/Users/isak/Desktop/" + entry.getKey() + ".svg", s);
+      }
+
+      // Shapelet rS = NormalizedShapelet.create(0, resampled.size(), resampled);
+
+      // System.out.println(Matrices.mean(rS));
+      // System.out.println(Matrices.mean(NormalizedShapelet.create(0, vec.size(), vec)));
+
+      JFreeChart chart = plot(linspace(vec.size() - 1, vec.size(), 0), vec);
+      Chartable.saveSVG("/Users/isak/Desktop/full.svg", chart);
+
+
+
+    } catch (Exception e) {
+
+    }
+
+    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
+    builder.set(0, 0, 10);
+    builder.set(9, 9, 30);
+    DataSeriesCollection frame = builder.build();
+    System.out.println(frame);
+
+    System.out.println(frame.getRow(4));
+  }
+
+  public JFreeChart plot(DoubleArray x, DoubleArray y) {
+    XYSeriesCollection collection = new XYSeriesCollection();
+    XYSeries series = new XYSeries("Line");
+    for (int i = 0; i < x.size(); i++) {
+      series.add(x.get(i), y.get(i));
+    }
+    collection.addSeries(series);
+
+    JFreeChart chart =
+        Chartable.applyTheme(ChartFactory.createXYLineChart(null, "Position", null, collection));
+    chart.removeLegend();
+    return chart;
   }
 
   @Test

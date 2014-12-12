@@ -24,7 +24,8 @@ import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * <p>
- * A DataSeries collection is collection of data series. There are some interesting differences
+ * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
+ * {@link org.briljantframework.vector.DoubleVector#TYPE}. There are some interesting differences
  * between this implementation and the traditional {@code DataFrame}. It is possible for the data
  * series in the collection to be of different length. Therefore, {@link #columns()} return the
  * maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
@@ -205,17 +206,17 @@ public class DataSeriesCollection implements DataFrame {
 
   @Override
   public Builder newBuilder() {
-    return null;
+    return new Builder(type);
   }
 
   @Override
   public Builder newBuilder(int rows) {
-    return null;
+    return new Builder(type);
   }
 
   @Override
   public Builder newCopyBuilder() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -257,70 +258,70 @@ public class DataSeriesCollection implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder setNA(int row, int column) {
+    public Builder setNA(int row, int column) {
       ensureCapacity(row);
       builders.get(row).setNA(column);
       return this;
     }
 
     @Override
-    public DataFrame.Builder addNA(int column) {
+    public Builder addNA(int column) {
       return setNA(rows(), column);
     }
 
     @Override
-    public DataFrame.Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
+    public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       ensureCapacity(toRow);
       builders.get(toRow).set(toCol, from.getRow(fromRow), fromCol);
       return this;
     }
 
     @Override
-    public DataFrame.Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
+    public Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
       return set(rows(), toCol, from, fromRow, fromCol);
     }
 
     @Override
-    public DataFrame.Builder add(int toCol, Vector from, int fromRow) {
+    public Builder add(int toCol, Vector from, int fromRow) {
       ensureCapacity(rows());
       builders.get(rows()).set(toCol, from, fromRow);
       return this;
     }
 
     @Override
-    public DataFrame.Builder set(int row, int column, Object value) {
+    public Builder set(int row, int column, Object value) {
       ensureCapacity(row);
       builders.get(row).set(column, value);
       return this;
     }
 
     @Override
-    public DataFrame.Builder add(int col, Object value) {
+    public Builder add(int col, Object value) {
       return set(rows(), col, value);
     }
 
     @Override
-    public DataFrame.Builder addColumn(Vector.Builder builder) {
+    public Builder addColumn(Vector.Builder builder) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public DataFrame.Builder removeColumn(int column) {
+    public Builder removeColumn(int column) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public DataFrame.Builder swapColumns(int a, int b) {
+    public Builder swapColumns(int a, int b) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public DataFrame.Builder swapInColumn(int column, int a, int b) {
+    public Builder swapInColumn(int column, int a, int b) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public DataFrame.Builder read(DataFrameInputStream inputStream) throws IOException {
+    public Builder read(DataFrameInputStream inputStream) throws IOException {
       int row = 0;
       while (inputStream.hasNext()) {
         ensureCapacity(row);
@@ -335,7 +336,8 @@ public class DataSeriesCollection implements DataFrame {
 
     @Override
     public int columns() {
-      throw new UnsupportedOperationException();
+      return builders.stream().mapToInt(Vector.Builder::size).max()
+          .orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -347,6 +349,15 @@ public class DataSeriesCollection implements DataFrame {
     public DataSeriesCollection build() {
       return new DataSeriesCollection(builders.stream().map(Vector.Builder::build)
           .collect(Collectors.toCollection(ArrayList::new)), type);
+    }
+
+    public Builder addRow(Vector.Builder row) {
+      builders.add(row);
+      return this;
+    }
+
+    public Builder addRow(Vector vector) {
+      return addRow(vector.newCopyBuilder());
     }
 
     private void ensureCapacity(int row) {
