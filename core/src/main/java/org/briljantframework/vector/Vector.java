@@ -378,7 +378,7 @@ public interface Vector extends DoubleArray, Serializable {
     Builder swap(int a, int b);
 
     /**
-     * Reads a value from the input stream and appends it to the builder
+     * Reads a value from the input stream and appends it to the builder (after the last value).
      * 
      * @param entry the input stream
      * @return receiver modified

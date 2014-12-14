@@ -231,15 +231,6 @@ public interface DataFrame extends Iterable<DataFrameRow> {
     Builder setNA(int row, int column);
 
     /**
-     * Add a new NA value to {@code column}.
-     *
-     * @param column the column
-     * @return a modified builder
-     * @see org.briljantframework.vector.Vector.Builder#addNA()
-     */
-    Builder addNA(int column);
-
-    /**
      * Set value at {@code row, toCol} using the value at {@code fromRow, fromCol} in {@code from}.
      *
      * @param toRow the row
@@ -254,28 +245,16 @@ public interface DataFrame extends Iterable<DataFrameRow> {
     Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol);
 
     /**
-     * Add value to {@code toCol} using value at row {@code fromRow} and column {@code fromCol} in
-     * data frame {@code from}.
-     *
-     * @param toCol the column
-     * @param from the dataframe
-     * @param fromRow the row
-     * @param fromCol the column
-     * @return a modified builder
-     * @see org.briljantframework.vector.Vector.Builder#add(org.briljantframework.vector.Vector,
-     *      int)
-     */
-    Builder add(int toCol, DataFrame from, int fromRow, int fromCol);
-
-    /**
      * Add the value {@code fromRow} from {@code from} to {@code toCol}.
      *
+     *
+     * @param toRow
      * @param toCol the column
      * @param from the vector
      * @param fromRow the column
      * @return a modified builder
      */
-    Builder add(int toCol, Vector from, int fromRow);
+    Builder set(int toRow, int toCol, Vector from, int fromRow);
 
     /**
      * Set value at {@code row, column} to {@code value}.
@@ -287,15 +266,6 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @see org.briljantframework.vector.Vector.Builder#set(int, Object)
      */
     Builder set(int row, int column, Object value);
-
-    /**
-     * Add value to {@code column}
-     *
-     * @param col the column
-     * @param value the value
-     * @return a modified builder
-     */
-    Builder add(int col, Object value);
 
     /**
      * Add a new vector builder. If {@code builder.size() < rows()} the builder is padded with NA.
@@ -356,28 +326,32 @@ public interface DataFrame extends Iterable<DataFrameRow> {
     }
 
     /**
-     * Add all values in {@code vector} to column {@code toCol}.
+     * Add all values in {@code vector} to column {@code toCol}, starting at {@code startRow}. If
+     * {@code startRow < rows()}, values are overwritten.
      *
+     * @param startRow the start row
      * @param toCol the index
      * @param vector the vector
      * @return a modified builder
      */
-    default Builder addAll(int toCol, Vector vector) {
+    default Builder addAll(int startRow, int toCol, Vector vector) {
       for (int i = 0; i < vector.size(); i++) {
-        add(toCol, vector, i);
+        set(startRow++, toCol, vector, i);
       }
       return this;
     }
 
     /**
-     * Add all values from frame (from column 0 until column())
+     * Add all values from frame (from column 0 until column()) starting at {@code startRow}. If
+     * {@code startRow < rows()}, values are overwritten.
      *
+     * @param startRow
      * @param frame the frame
      * @return a modified builder
      */
-    default Builder addAll(DataFrame frame) {
+    default Builder addAll(int startRow, DataFrame frame) {
       for (int i = 0; i < columns(); i++) {
-        addAll(i, frame.getColumn(i));
+        addAll(startRow, i, frame.getColumn(i));
       }
       return this;
     }

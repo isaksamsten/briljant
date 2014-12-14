@@ -24,7 +24,7 @@ public class MixedDataFrameTest {
     copy.addColumn(new DoubleVector.Builder().add(1).addNA().add(2));
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < copy.columns(); j++) {
-        copy.add(j, 1);
+        copy.set(i, j, 1);
       }
     }
 
@@ -49,8 +49,8 @@ public class MixedDataFrameTest {
             "four", "four"), BinaryVector.newBuilderWithInitialValues(Binary.TRUE, Binary.FALSE,
             Binary.TRUE, 1), IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
             ComplexVector.newBuilderWithInitialValues(Complex.I, new Complex(2, 3), new Complex(2,
-                2), null, Complex.ZERO, 0.0), DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3, 4,
-                4, 5, 6));
+                2), null, Complex.ZERO, 0.0), DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3,
+                4, 4, 5, 6));
 
     for (int i = 10; i < 20; i++) {
       for (int j = 0; j < bu.columns(); j++) {

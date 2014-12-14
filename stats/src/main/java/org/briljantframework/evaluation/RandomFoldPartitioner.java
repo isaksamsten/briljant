@@ -69,25 +69,28 @@ public class RandomFoldPartitioner implements Partitioner {
       // Part 1: this is a training part
       for (int i = 0; i < foldEnd - pad; i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xTrainingBuilder.add(j, x, index, j);
+          xTrainingBuilder.set(i, j, x, index, j);
         }
         yTrainingBuilder.add(y, index);
         index += 1;
       }
 
+      int newIndex = 0;
       // Part 2: this is a validation part
       for (int i = foldEnd - pad; i < foldSize + foldEnd; i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xValidationBuilder.set(i, j, x, index, j);
+          xValidationBuilder.set(newIndex, j, x, index, j);
         }
         yValidationBuilder.add(y, index);
         index += 1;
+        newIndex += 1;
       }
 
+      newIndex = foldEnd - pad;
       // Part 3: this is a training part
       for (int i = foldEnd + foldSize; i < rows; i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xTrainingBuilder.set(i, j, x, index, j);
+          xTrainingBuilder.set(newIndex, j, x, index, j);
         }
         yTrainingBuilder.add(y, index);
         index += 1;

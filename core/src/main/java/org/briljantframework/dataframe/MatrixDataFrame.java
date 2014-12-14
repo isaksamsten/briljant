@@ -341,22 +341,12 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder addNA(int column) {
-      return setNA(rows(), column);
-    }
-
-    @Override
     public DataFrame.Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       return set(toRow, toCol, from.getAsDouble(fromRow, fromCol));
     }
 
     @Override
-    public DataFrame.Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
-      return set(rows(), toCol, from, fromRow, fromCol);
-    }
-
-    @Override
-    public DataFrame.Builder add(int toCol, Vector from, int fromRow) {
+    public DataFrame.Builder set(int toRow, int toCol, Vector from, int fromRow) {
       throw new UnsupportedOperationException();
     }
 
@@ -371,11 +361,6 @@ public class MatrixDataFrame implements DataFrame {
         dval = DoubleVector.NA;
       }
       return set(row, column, dval);
-    }
-
-    @Override
-    public DataFrame.Builder add(int col, Object value) {
-      return set(rows(), col, value);
     }
 
     @Override
@@ -517,23 +502,13 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder addNA(int column) {
-      return setNA(rows(), column);
-    }
-
-    @Override
     public DataFrame.Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       return set(toRow, toCol, from.getAsDouble(fromRow, fromCol));
     }
 
     @Override
-    public DataFrame.Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
-      return set(rows(), toCol, from, fromRow, fromCol);
-    }
-
-    @Override
-    public DataFrame.Builder add(int toCol, Vector from, int fromRow) {
-      return set(rows(), toCol, from.getAsDouble(fromRow));
+    public DataFrame.Builder set(int toRow, int toCol, Vector from, int fromRow) {
+      return set(toRow, toCol, from.getAsDouble(fromRow));
     }
 
     @Override
@@ -547,11 +522,6 @@ public class MatrixDataFrame implements DataFrame {
         dval = DoubleVector.NA;
       }
       return set(row, column, dval);
-    }
-
-    @Override
-    public DataFrame.Builder add(int col, Object value) {
-      return set(rows(), col, value);
     }
 
     @Override

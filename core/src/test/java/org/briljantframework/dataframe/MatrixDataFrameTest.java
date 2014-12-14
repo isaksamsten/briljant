@@ -7,18 +7,18 @@ public class MatrixDataFrameTest {
   @Test
   public void testBuilder() throws Exception {
     DataFrame.Builder builder = new MatrixDataFrame.ArrayBuilder();
-    builder.add(3, 30);
-    builder.add(0, 50);
+    builder.set(0, 3, 30);
+    builder.set(1, 0, 50);
     builder.swapColumns(0, 3);
     builder.swapRows(0, 1);
     System.out.println(builder.build());
 
 
     builder = new MatrixDataFrame.HashBuilder();
-    builder.add(3, 30);
-    builder.add(0, 50);
-    builder.add(2, 20);
-    builder.add(1, 22);
+    builder.set(0, 3, 30);
+    builder.set(1, 0, 50);
+    builder.set(2, 2, 20);
+    builder.set(3, 1, 22);
     builder.swapColumns(0, 3);
     builder.swapRows(0, 1);
     DataFrame frame = builder.build();

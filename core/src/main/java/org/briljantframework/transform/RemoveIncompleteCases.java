@@ -44,7 +44,7 @@ public class RemoveIncompleteCases implements Transformer {
         }
         if (!hasNA) {
           for (int j = 0; j < dataFrame.columns(); j++) {
-            builder.add(j, dataFrame, i, j);
+            builder.set(i, j, dataFrame, i, j);
           }
         }
       }

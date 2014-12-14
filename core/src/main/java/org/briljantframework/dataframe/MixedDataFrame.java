@@ -299,7 +299,7 @@ public class MixedDataFrame implements DataFrame {
     DataFrame.Builder builder = newBuilder();
     for (int i : indexes) {
       for (int j = 0; j < columns(); j++) {
-        builder.add(j, this, i, j);
+        builder.set(i, j, this, i, j);
       }
     }
 
@@ -315,7 +315,7 @@ public class MixedDataFrame implements DataFrame {
     for (int i = 0; i < rows(); i++) {
       for (int j = 0; j < columns(); j++) {
         if (!indexes.contains(i)) {
-          builder.add(j, this, i, j);
+          builder.set(i, j, this, i, j);
         }
       }
     }
@@ -471,37 +471,19 @@ public class MixedDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder addNA(int column) {
-      buffers.get(column).addNA();
-      return this;
-    }
-
-    @Override
     public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       buffers.get(toCol).set(toRow, from.getColumn(fromCol), fromRow);
       return this;
     }
 
     @Override
-    public Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
-      buffers.get(toCol).add(from.getColumn(fromCol), fromRow);
-      return this;
-    }
-
-    @Override
-    public Builder add(int toCol, Vector from, int fromRow) {
+    public Builder set(int toRow, int toCol, Vector from, int fromRow) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public Builder set(int row, int column, Object value) {
       buffers.get(column).set(row, value);
-      return this;
-    }
-
-    @Override
-    public DataFrame.Builder add(int col, Object value) {
-      buffers.get(col).add(value);
       return this;
     }
 

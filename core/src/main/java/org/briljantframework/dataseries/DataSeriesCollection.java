@@ -265,11 +265,6 @@ public class DataSeriesCollection implements DataFrame {
     }
 
     @Override
-    public Builder addNA(int column) {
-      return setNA(rows(), column);
-    }
-
-    @Override
     public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       ensureCapacity(toRow);
       builders.get(toRow).set(toCol, from.getRow(fromRow), fromCol);
@@ -277,14 +272,9 @@ public class DataSeriesCollection implements DataFrame {
     }
 
     @Override
-    public Builder add(int toCol, DataFrame from, int fromRow, int fromCol) {
-      return set(rows(), toCol, from, fromRow, fromCol);
-    }
-
-    @Override
-    public Builder add(int toCol, Vector from, int fromRow) {
-      ensureCapacity(rows());
-      builders.get(rows()).set(toCol, from, fromRow);
+    public Builder set(int toRow, int toCol, Vector from, int fromRow) {
+      ensureCapacity(toRow);
+      builders.get(toRow).set(toCol, from, fromRow);
       return this;
     }
 
@@ -293,11 +283,6 @@ public class DataSeriesCollection implements DataFrame {
       ensureCapacity(row);
       builders.get(row).set(column, value);
       return this;
-    }
-
-    @Override
-    public Builder add(int col, Object value) {
-      return set(rows(), col, value);
     }
 
     @Override
