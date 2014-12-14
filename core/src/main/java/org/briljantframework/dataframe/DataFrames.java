@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.function.BiFunction;
 
 import org.briljantframework.Utils;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.Type;
 
 import com.google.common.collect.ImmutableTable;
@@ -39,7 +39,7 @@ public final class DataFrames {
    */
   public static DataFrame load(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f,
-      DataFrameInputStream in) throws IOException {
+      DataInputStream in) throws IOException {
     try {
       Collection<Type> types = in.readColumnTypes();
       Collection<String> names = in.readColumnNames();

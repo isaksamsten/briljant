@@ -24,7 +24,7 @@ import org.briljantframework.vector.Type;
 /**
  * Created by Isak Karlsson on 14/08/14.
  */
-public class BinaryInputStream extends DataFrameInputStream {
+public class BinaryInputStream extends DataInputStream {
 
   public BinaryInputStream(InputStream in) {
     super(in);

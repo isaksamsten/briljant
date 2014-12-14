@@ -31,7 +31,7 @@ import org.briljantframework.vector.*;
  * 
  * Created by Isak Karlsson on 14/08/14
  */
-public class CsvOutputStream extends DataFrameOutputStream {
+public class CsvOutputStream extends DataOutputStream {
 
   private static final String NA_REPR = "?";
   private static final String DEFAULT_SEPARATOR = ",";

@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.briljantframework.io.CsvInputStream;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.Type;
 
@@ -51,7 +51,7 @@ public class Datasets {
    */
   public static DataFrame loadIris(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
-    return load(f, CsvInputStream::new, IRIS);
+    return load(f, DelimitedInputStream::new, IRIS);
   }
 
   /**
@@ -114,7 +114,7 @@ public class Datasets {
    */
   public static DataFrame loadConnect4(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
-    return load(f, CsvInputStream::new, CONNECT_4);
+    return load(f, DelimitedInputStream::new, CONNECT_4);
   }
 
   /**
@@ -160,13 +160,13 @@ public class Datasets {
    */
   public static DataFrame loadDummy(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
-    return load(f, CsvInputStream::new, DUMMY);
+    return load(f, DelimitedInputStream::new, DUMMY);
   }
 
   public static DataFrame load(
       BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f,
-      Function<InputStream, DataFrameInputStream> fin, String name) {
-    try (DataFrameInputStream dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
+      Function<InputStream, DataInputStream> fin, String name) {
+    try (DataInputStream dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return DataFrames.load(f, dfis);
     } catch (IOException e) {
       throw new IOError(e);

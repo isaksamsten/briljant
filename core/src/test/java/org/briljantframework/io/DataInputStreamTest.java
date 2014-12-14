@@ -9,19 +9,19 @@ import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
-public class DataFrameInputStreamTest {
+public class DataInputStreamTest {
 
 
   @Test
   public void testReadDataFrame() throws Exception {
-    try (DataFrameInputStream dfis = new CsvInputStream("iris.txt")) {
+    try (DataInputStream dfis = new DelimitedInputStream("iris.txt")) {
       long start = System.currentTimeMillis();
       DataFrame iris = DataFrames.load(MixedDataFrame.Builder::new, dfis);
 
 
       new CsvOutputStream(new FileOutputStream("iris2.txt")).write(iris);
       DataFrame load =
-          DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris2.txt"));
+          DataFrames.load(MixedDataFrame.Builder::new, new DelimitedInputStream("iris2.txt"));
       System.out.println(load);
 
 

@@ -25,14 +25,14 @@ import org.briljantframework.dataframe.DataFrame;
 /**
  * Created by Isak Karlsson on 14/08/14.
  */
-public abstract class DataFrameOutputStream extends FilterOutputStream {
+public abstract class DataOutputStream extends FilterOutputStream {
 
   /**
    * Instantiates a new Storage output stream.
    *
    * @param out the out
    */
-  public DataFrameOutputStream(OutputStream out) {
+  public DataOutputStream(OutputStream out) {
     super(out);
   }
 

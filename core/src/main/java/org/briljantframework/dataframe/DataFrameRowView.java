@@ -112,25 +112,6 @@ public class DataFrameRowView implements DataFrameRow {
       b.put(0, i + 1, getColumnName(i));
       b.put(1, i + 1, getAsString(i));
     }
-
-
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
   }
-
-  // @Override
-  // public Iterator<Value> iterator() {
-  // return new UnmodifiableIterator<Value>() {
-  // public int current = 0;
-  //
-  // @Override
-  // public boolean hasNext() {
-  // return current < size();
-  // }
-  //
-  // @Override
-  // public Value next() {
-  // return getAsValue(current++);
-  // }
-  // };
-  // }
 }

@@ -14,7 +14,7 @@ import org.briljantframework.dataframe.DataFrameColumnView;
 import org.briljantframework.dataframe.DataFrameRow;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
@@ -306,7 +306,7 @@ public class DataSeriesCollection implements DataFrame {
     }
 
     @Override
-    public Builder read(DataFrameInputStream inputStream) throws IOException {
+    public Builder read(DataInputStream inputStream) throws IOException {
       int row = 0;
       while (inputStream.hasNext()) {
         ensureCapacity(row);

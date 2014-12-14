@@ -8,7 +8,7 @@ import java.util.*;
 
 import org.briljantframework.ArrayBuffers;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.Matrix;
@@ -412,7 +412,7 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder read(DataFrameInputStream inputStream) throws IOException {
+    public DataFrame.Builder read(DataInputStream inputStream) throws IOException {
       int row = 0;
       while (inputStream.hasNext()) {
         DataEntry entry = inputStream.next();
@@ -564,7 +564,7 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder read(DataFrameInputStream inputStream) throws IOException {
+    public DataFrame.Builder read(DataInputStream inputStream) throws IOException {
       int row = 0;
       while (inputStream.hasNext()) {
         DataEntry entry = inputStream.next();

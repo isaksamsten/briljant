@@ -99,6 +99,11 @@ public class StringVector extends AbstractStringVector {
     }
   }
 
+  @Override
+  public String toString() {
+    return values.toString();
+  }
+
   public static class Builder implements Vector.Builder {
 
     private ArrayList<String> buffer;

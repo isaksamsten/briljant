@@ -42,7 +42,7 @@ import org.briljantframework.vector.Type;
  * 
  * Created by Isak Karlsson on 14/08/14.
  */
-public class CsvInputStream extends DataFrameInputStream {
+public class DelimitedInputStream extends DataInputStream {
 
   public static final String INVALID_NAME = "Can't understand the type %s";
   protected static final Map<String, Type> TYPE_MAP;
@@ -61,7 +61,8 @@ public class CsvInputStream extends DataFrameInputStream {
   private final String missingValue;
   private final String separator;
 
-  private int currentType = -1, currentName = -1, currentValue = -1;
+  private int currentType = -1;
+  private int currentName = -1;
   private String[] types = null, names = null, values = null;
 
   /**
@@ -69,14 +70,14 @@ public class CsvInputStream extends DataFrameInputStream {
    *
    * @param inputStream the input stream
    */
-  public CsvInputStream(InputStream inputStream, String missingValue, String separator) {
+  public DelimitedInputStream(InputStream inputStream, String missingValue, String separator) {
     super(inputStream);
     this.missingValue = missingValue;
     this.separator = separator;
     reader = new BufferedReader(new InputStreamReader(in));
   }
 
-  public CsvInputStream(InputStream inputStream) {
+  public DelimitedInputStream(InputStream inputStream) {
     this(inputStream, DEFAULT_MISSING_VALUE, DEFAULT_SEPARATOR);
   }
 
@@ -87,7 +88,7 @@ public class CsvInputStream extends DataFrameInputStream {
    * @param file the file
    * @throws FileNotFoundException
    */
-  public CsvInputStream(File file) throws FileNotFoundException {
+  public DelimitedInputStream(File file) throws FileNotFoundException {
     this(new BufferedInputStream(new FileInputStream(file)), DEFAULT_MISSING_VALUE,
         DEFAULT_SEPARATOR);
   }
@@ -96,7 +97,7 @@ public class CsvInputStream extends DataFrameInputStream {
    * @param fileName the file name
    * @throws FileNotFoundException
    */
-  public CsvInputStream(String fileName) throws FileNotFoundException {
+  public DelimitedInputStream(String fileName) throws FileNotFoundException {
     this(new File(fileName));
   }
 
@@ -142,7 +143,7 @@ public class CsvInputStream extends DataFrameInputStream {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    DataEntry entry = new StringDataEntry(values);
+    DataEntry entry = new StringDataEntry(values, missingValue);
     values = null;
     return entry;
   }
@@ -183,7 +184,7 @@ public class CsvInputStream extends DataFrameInputStream {
       }
       names = namesLine.split(separator);
       if (names.length != types.length) {
-        throw new IOException(String.format(MISMATCH, types.length, names.length));
+        throw new IOException(String.format(MISMATCH, types.length, names.length, 0));
       }
       currentName = 0;
     }

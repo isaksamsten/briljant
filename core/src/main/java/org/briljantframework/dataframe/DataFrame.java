@@ -3,7 +3,7 @@ package org.briljantframework.dataframe;
 import java.io.IOException;
 import java.util.Set;
 
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
@@ -363,7 +363,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @return a modified builder
      * @throws IOException
      */
-    public Builder read(DataFrameInputStream inputStream) throws IOException;
+    public Builder read(DataInputStream inputStream) throws IOException;
 
     /**
      * Returns the number of columns in the resulting data frame

@@ -39,7 +39,7 @@ import org.briljantframework.vector.Type;
  * <p>
  * The simplest is to use the convince methods {@link #readColumnTypes()} and
  * {@link #readColumnNames()} constructing a {@link DataFrame.Builder} and use its
- * {@link org.briljantframework.dataframe.DataFrame.Builder#read(DataFrameInputStream)} method.
+ * {@link org.briljantframework.dataframe.DataFrame.Builder#read(DataInputStream)} method.
  * <p>
  * For example: <code>
  * <pre>
@@ -51,8 +51,8 @@ import org.briljantframework.vector.Type;
  * </pre>
  * </code>
  * 
- * Values returned by {@link #nextString()} etc. are returned in row-major order and typed according
- * to the {@link Type}s returned by {@link #readColumnTypes()}.
+ * Entries returned by {@link #next()} are returned in row-major order and typed according to the
+ * {@link Type}s returned by {@link #readColumnTypes()}.
  * 
  * For example, given the dataset, where the first and second row are names and types respectively:
  * 
@@ -67,12 +67,41 @@ import org.briljantframework.vector.Type;
  * {@link #readColumnNames()} should return {@code ["a", "b", "c"]} and {@link #readColumnTypes()}
  * should return {@code [DoubleVector.TYPE, StringVector.TYPE, IntVector.TYPE]}.
  * 
- * Then, subsequent calls to {@link #nextDouble()}, {@link #nextString()} and {@link #nextInt()}
- * should return {@code 3.2, "hello", 1, 2.0, "sx", 3, 2, "dds", 100} in sequence.
+ * Then, subsequent calls to {@link #next()} should return a
+ * {@link org.briljantframework.io.DataEntry} with {@code [3.2, "hello", 1]}, {@code [2.0 "sx", 3]}
+ * and {@code [2, "dds", 100]} in sequence.
+ * 
+ * Hence, summing the columns of
+ * 
+ * <pre>
+ *     a       b       c
+ *   double  double   int
+ *    3.2     3        1
+ *    2.0     4        3
+ *    2       7       100
+ * </pre>
+ * 
+ * Is as simple as
+ * 
+ * <pre>
+ * try (DataFrameInputStream dfis = new CsvInputStream(&quot;file.txt&quot;)) {
+ *   Map&lt;Integer, Double&gt; sum = new HashMap&lt;&gt;();
+ *   dfis.readColumnNames();
+ *   dfis.readColumnTypes();
+ *   while (dfis.hasNext()) {
+ *     DataEntry entry = dfis.next();
+ *     for (int i = 0; i &lt; entry.size() &amp;&amp; entry.hasNext(); i++) {
+ *       sum.put(i, entry.nextDouble());
+ *     }
+ *   }
+ * }
+ * </pre>
+ * 
  * <p>
- * Created by Isak Karlsson on 14/08/14.
+ * 
+ * @author Isak Karlsson
  */
-public abstract class DataFrameInputStream extends FilterInputStream {
+public abstract class DataInputStream extends FilterInputStream {
 
   protected static final String NAMES_BEFORE_TYPE = "Can't read name before types";
   protected static final String UNEXPECTED_EOF = "Unexpected EOF.";
@@ -82,12 +111,9 @@ public abstract class DataFrameInputStream extends FilterInputStream {
 
 
   /**
-   * Instantiates a new Storage input stream.
-   * 
-   * @param in the in
-   * 
+   * @param in the underlying input stream
    */
-  protected DataFrameInputStream(InputStream in) {
+  protected DataInputStream(InputStream in) {
     super(in);
   }
 

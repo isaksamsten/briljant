@@ -30,18 +30,21 @@ public class RandomFoldPartitioner implements Partitioner {
     private final int folds, foldSize, rows;
     private final DataFrame x;
     private final Vector y;
+    private final int pad;
 
     private int current = 0;
 
     public KFoldCrossValidationIterator(DataFrame x, Vector y, int folds) {
-      checkArgument(x.rows() == y.size(), "Data and target must be of equal size");
-      checkArgument(folds > 1 && folds < x.rows());
+      checkArgument(x.rows() == y.size(), "Data and target must be of equal size.");
+      checkArgument(folds > 1 && folds <= x.rows(), "Invalid fold count.");
 
       this.x = checkNotNull(x);
       this.y = checkNotNull(y);
       this.rows = this.x.rows();
       this.folds = folds;
       this.foldSize = this.rows / folds;
+      this.pad = this.rows % folds;
+      System.out.println(pad);
     }
 
     @Override
@@ -61,9 +64,10 @@ public class RandomFoldPartitioner implements Partitioner {
       int foldEnd = rows - foldSize * current;
 
       // Account for the case when rows % folds != 0
+      // by adding an extra
       int pad = 0;
-      if (current == 1) {
-        pad = rows - foldSize * folds;
+      if (current <= this.pad) {
+        pad = 1;
       }
 
       // Part 1: this is a training part
@@ -94,6 +98,7 @@ public class RandomFoldPartitioner implements Partitioner {
         }
         yTrainingBuilder.add(y, index);
         index += 1;
+        newIndex += 1;
       }
 
       assert index == rows;

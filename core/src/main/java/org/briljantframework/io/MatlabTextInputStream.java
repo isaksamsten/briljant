@@ -40,7 +40,7 @@ import org.briljantframework.vector.Type;
  * <p>
  * Created by Isak Karlsson on 01/09/14.
  */
-public class MatlabTextInputStream extends DataFrameInputStream {
+public class MatlabTextInputStream extends DataInputStream {
 
   private static String separator = "\\s+";
   private static String missingValue = "?";
@@ -86,7 +86,7 @@ public class MatlabTextInputStream extends DataFrameInputStream {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    DataEntry entry = new StringDataEntry(values);
+    DataEntry entry = new StringDataEntry(values, missingValue);
     values = null;
     return entry;
   }

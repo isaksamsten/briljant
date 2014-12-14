@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 
 import org.briljantframework.DoubleArray;
 import org.briljantframework.chart.Chartable;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
@@ -23,7 +23,7 @@ public class DataSeriesCollectionTest {
   @Test
   public void testBuilder() throws Exception {
 
-    try (DataFrameInputStream dfis =
+    try (DataInputStream dfis =
         new MatlabTextInputStream(new BufferedInputStream(new FileInputStream(
             "/Users/isak/Desktop/ecgdata.txt")))) {
       DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);

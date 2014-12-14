@@ -65,17 +65,17 @@ public class DataFrameColumnView implements Vector {
 
   @Override
   public Builder newCopyBuilder() {
-    throw new UnsupportedOperationException();
+    return newBuilder(size()).addAll(this);
   }
 
   @Override
   public Builder newBuilder() {
-    throw new UnsupportedOperationException();
+    return getType().newBuilder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    throw new UnsupportedOperationException();
+    return getType().newBuilder(size);
   }
 
   @Override

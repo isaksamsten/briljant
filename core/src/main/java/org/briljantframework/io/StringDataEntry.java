@@ -12,17 +12,24 @@ import com.google.common.primitives.Doubles;
  */
 public class StringDataEntry implements DataEntry {
 
+  public static final String MISSING_VALUE = "?";
   private final String[] values;
+  private final String missingValue;
   private int current = 0;
 
   public StringDataEntry(String... values) {
+    this(values, MISSING_VALUE);
+  }
+
+  public StringDataEntry(String[] values, String missingValue) {
     this.values = values;
+    this.missingValue = missingValue;
   }
 
   @Override
   public String nextString() throws IOException {
-    String value = values[current++];
-    return value.equals("?") ? StringVector.NA : value;
+    String value = values[current++].trim();
+    return value.equals(missingValue) ? StringVector.NA : value;
   }
 
   @Override

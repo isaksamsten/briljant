@@ -15,8 +15,8 @@ import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.dataframe.*;
 import org.briljantframework.dataseries.*;
 import org.briljantframework.evaluation.ClassificationEvaluators;
-import org.briljantframework.io.CsvInputStream;
-import org.briljantframework.io.DataFrameInputStream;
+import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
@@ -436,8 +436,8 @@ public class RandomShapeletForestTest {
     map.put("RSF-1NNDTW-best", "1-NN DTW-best)");
     map.put("RSF-1NNDTW-no", "1-NN DTW-no)");
     for (String file : files) {
-      try (CsvInputStream in =
-          new CsvInputStream(new FileInputStream("/Users/isak/Desktop/" + file + ".csv"))) {
+      try (DelimitedInputStream in =
+          new DelimitedInputStream(new FileInputStream("/Users/isak/Desktop/" + file + ".csv"))) {
         DataFrame frame = new MixedDataFrame();// in.read(MatrixDataFrame.copyTo());
 
         XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer(false, true);
@@ -518,7 +518,7 @@ public class RandomShapeletForestTest {
     resamplers.put("mean", new MeanResampler(threshold));
     resamplers.put("lttb", new LttbResampler(threshold));
 
-    try (DataFrameInputStream dfis =
+    try (DataInputStream dfis =
         new MatlabTextInputStream(new BufferedInputStream(new FileInputStream(
             "/Users/isak/Desktop/ecgonly.txt")))) {
       DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
