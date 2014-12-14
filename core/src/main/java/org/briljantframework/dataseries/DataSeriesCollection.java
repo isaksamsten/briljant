@@ -1,12 +1,10 @@
 package org.briljantframework.dataseries;
 
+import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.briljantframework.dataframe.DataFrame;
@@ -15,8 +13,10 @@ import org.briljantframework.dataframe.DataFrameRow;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
+import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
+import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
@@ -31,7 +31,7 @@ import com.google.common.collect.UnmodifiableIterator;
  * maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
  * {@code col < coll.getRow(n).size()}. If not, NA is returned.
  * </p>
- * 
+ *
  * @author Isak Karlsson
  */
 public class DataSeriesCollection implements DataFrame {
@@ -144,7 +144,7 @@ public class DataSeriesCollection implements DataFrame {
 
   @Override
   public Vector getColumn(int index) {
-    return new DataFrameColumnView(this, index);
+    return new DataFrameColumnView(this, checkElementIndex(index, series.size()));
   }
 
   @Override
@@ -216,12 +216,19 @@ public class DataSeriesCollection implements DataFrame {
 
   @Override
   public Builder newCopyBuilder() {
-    throw new UnsupportedOperationException();
+    return new Builder(series.stream().map(Vector::newCopyBuilder)
+        .collect(Collectors.toCollection(ArrayList::new)), type);
   }
 
   @Override
   public Matrix asMatrix() {
-    throw new UnsupportedOperationException();
+    Matrix matrix = new ArrayMatrix(rows(), columns());
+    for (int i = 0; i < matrix.rows(); i++) {
+      for (int j = 0; j < matrix.columns(); j++) {
+        matrix.put(i, j, getAsDouble(i, j));
+      }
+    }
+    return matrix;
   }
 
   @Override
@@ -251,10 +258,13 @@ public class DataSeriesCollection implements DataFrame {
     private final Type type;
     private final List<Vector.Builder> builders;
 
-
     public Builder(Type type) {
+      this(new ArrayList<>(), type);
+    }
+
+    protected Builder(List<Vector.Builder> builders, Type type) {
       this.type = type;
-      this.builders = new ArrayList<>();
+      this.builders = builders;
     }
 
     @Override
@@ -303,6 +313,12 @@ public class DataSeriesCollection implements DataFrame {
     @Override
     public Builder swapInColumn(int column, int a, int b) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DataFrame.Builder swapRows(int a, int b) {
+      Collections.swap(builders, a, b);
+      return this;
     }
 
     @Override

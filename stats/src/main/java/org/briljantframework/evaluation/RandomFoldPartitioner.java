@@ -79,8 +79,8 @@ public class RandomFoldPartitioner implements Partitioner {
         index += 1;
       }
 
-      int newIndex = 0;
       // Part 2: this is a validation part
+      int newIndex = 0;
       for (int i = foldEnd - pad; i < foldSize + foldEnd; i++) {
         for (int j = 0; j < x.columns(); j++) {
           xValidationBuilder.set(newIndex, j, x, index, j);
@@ -90,8 +90,8 @@ public class RandomFoldPartitioner implements Partitioner {
         newIndex += 1;
       }
 
-      newIndex = foldEnd - pad;
       // Part 3: this is a training part
+      newIndex = foldEnd - pad;
       for (int i = foldEnd + foldSize; i < rows; i++) {
         for (int j = 0; j < x.columns(); j++) {
           xTrainingBuilder.set(newIndex, j, x, index, j);
