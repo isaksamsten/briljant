@@ -160,7 +160,7 @@ public class MatrixDataFrame implements DataFrame {
 
   @Override
   public DataFrameRow getRow(int index) {
-    return new DataFrameRowView(this, index);
+    return new DataFrameRowView(this, index, DoubleVector.TYPE);
   }
 
   @Override

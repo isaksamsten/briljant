@@ -65,7 +65,7 @@ public class DataFrameColumnView implements Vector {
 
   @Override
   public Builder newCopyBuilder() {
-    return newBuilder(size()).addAll(this);
+    return newBuilder().addAll(this);
   }
 
   @Override

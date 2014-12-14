@@ -12,10 +12,16 @@ public class DataFrameRowView implements DataFrameRow {
 
   private final DataFrame parent;
   private final int row;
+  private final Type type;
+
+  public DataFrameRowView(DataFrame parent, int row, Type type) {
+    this.parent = parent;
+    this.type = type;
+    this.row = row;
+  }
 
   public DataFrameRowView(DataFrame parent, int row) {
-    this.parent = parent;
-    this.row = row;
+    this(parent, row, VariableVector.TYPE);
   }
 
   @Override
@@ -25,7 +31,7 @@ public class DataFrameRowView implements DataFrameRow {
 
   @Override
   public Type getType() {
-    return VariableVector.TYPE;
+    return type;
   }
 
   @Override
@@ -80,17 +86,17 @@ public class DataFrameRowView implements DataFrameRow {
 
   @Override
   public Builder newCopyBuilder() {
-    return new ValueVector.Builder(size()).addAll((Vector) this);
+    return newBuilder().addAll(this);
   }
 
   @Override
   public Builder newBuilder() {
-    return new ValueVector.Builder();
+    return getType().newBuilder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    return new ValueVector.Builder(size);
+    return getType().newBuilder(size);
   }
 
   @Override

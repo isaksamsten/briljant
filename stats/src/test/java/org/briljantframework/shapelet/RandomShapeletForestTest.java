@@ -23,6 +23,7 @@ import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.As;
 import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -53,21 +54,25 @@ public class RandomShapeletForestTest {
     // DataSeriesCollection collection = builder.build();
     DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
     DataFrame x = synthetic.dropColumn(0);
-    Vector y = As.stringVector(synthetic.getColumn(0));
+    StringVector y = As.stringVector(synthetic.getColumn(0));
 
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    DataSeriesResampler resampler = new LinearResampler(30);
+    DataSeriesResampler resampler = new MeanResampler(30);
 
     for (DataFrameRow row : x) {
       builder.addRow(resampler.resample(row));
     }
 
     x = builder.build();
+    System.out.println(x);
 
     RandomShapeletForest forest =
         RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
             .withUpperLength(-1).build();
+
+    long start = System.currentTimeMillis();
     System.out.println(ClassificationEvaluators.splitValidation(0.33).evaluate(forest, x, y));
+    System.out.println(System.currentTimeMillis() - start);
 
     // }
 
