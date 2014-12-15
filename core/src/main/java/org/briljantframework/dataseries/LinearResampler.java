@@ -3,11 +3,12 @@ package org.briljantframework.dataseries;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.transform.Transformation;
 
 /**
  * Created by Isak Karlsson on 12/12/14.
  */
-public class LinearResampler implements DataSeriesResampler {
+public class LinearResampler implements Transformation {
 
   private final int targetSize;
 
@@ -16,33 +17,31 @@ public class LinearResampler implements DataSeriesResampler {
   }
 
   @Override
-  public Vector resample(Vector in) {
-    checkArgument(in.size() > targetSize);
+  public Vector transform(Vector in) {
+    checkArgument(in.size() > targetSize, "Can't linearly oversample data series.");
 
     Vector.Builder out = in.newBuilder();
     int bin = in.size() / targetSize;
     int pad = in.size() % targetSize;
 
+    System.out.println(bin);
     int currentIndex = 0;
     int toPad = 0;
     while (currentIndex < in.size()) {
       int inc = 0;
+      // In some cases in.size() / targetSize result in a reminder,
+      // distribute this reminder equally over all bins
       if (toPad++ < pad) {
         inc = 1;
       }
       int binInc = bin + inc;
       int start = currentIndex;
       int end = currentIndex + binInc - 1;
-      double w = start / end;
+      double w = (double) 1 / 5;
       out.add(lerp(in.getAsDouble(start), in.getAsDouble(end), w));
 
 
       currentIndex += binInc;
-      // double sum = 0;
-      // for (int j = 0; j < binInc; j++) {
-      // sum += in.getAsDouble(currentIndex++);
-      // }
-      // out.add(sum / binInc);
     }
     return out.build();
   }

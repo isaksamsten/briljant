@@ -14,20 +14,31 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.linalg.LinearAlgebra;
+import org.briljantframework.matrix.Matrix;
 
 /**
+ * Transforms a frame to it's inverse
+ * <p>
  * Created by Isak Karlsson on 11/08/14.
  */
-public interface InvertibleTransformation extends Transformation {
+public class PseudoInverseTransformer implements Transformer {
 
-  /**
-   * Recover using dataset
-   *
-   * @param dataset a dataset to recover
-   * @return the recovered dataset
-   */
-  DataFrame inverseTransform(DataFrame dataset);
+  @Override
+  public Transformation fit(DataFrame container) {
+    return new PinvTransformation();
+  }
+
+  private static class PinvTransformation implements Transformation {
+    @Override
+    public DataFrame transform(DataFrame frame) {
+      Matrix matrix = LinearAlgebra.pinv(frame.asMatrix());
+      // E copy = factory.newBuilder(frame.getTypes()).create();
+      // copy.setMatrix(new Types(frame.getTypes()), matrix);
+      return null;
+    }
+  }
 }

@@ -4,23 +4,20 @@ import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrameColumnView;
-import org.briljantframework.dataframe.DataFrameRow;
-import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
-import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * <p>
@@ -34,23 +31,23 @@ import com.google.common.collect.UnmodifiableIterator;
  *
  * @author Isak Karlsson
  */
-public class DataSeriesCollection implements DataFrame {
+public class DataSeriesCollection extends AbstractDataFrame {
 
   private final IntObjectMap<String> colNames = new IntObjectOpenHashMap<>();
   private final List<Vector> series;
   private final Type type;
 
-  private final int maxColumns;
+  private final int columns;
 
   public DataSeriesCollection(List<Vector> series, Type type) {
     this(series, type, series.stream().mapToInt(Vector::size).max()
         .orElseThrow(IllegalArgumentException::new));
   }
 
-  protected DataSeriesCollection(List<Vector> series, Type type, int maxColumns) {
+  protected DataSeriesCollection(List<Vector> series, Type type, int columns) {
     this.type = checkNotNull(type);
     this.series = checkNotNull(series);
-    this.maxColumns = maxColumns;
+    this.columns = columns;
   }
 
   @Override
@@ -58,7 +55,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.getAsString(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return StringVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -70,7 +67,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.getAsDouble(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return DoubleVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -82,7 +79,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.getAsInt(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return IntVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -94,7 +91,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.getAsBinary(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return BinaryVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -106,7 +103,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.getAsComplex(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return ComplexVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -118,7 +115,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.getAsValue(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return VariableVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -130,7 +127,7 @@ public class DataSeriesCollection implements DataFrame {
     Vector rvec = series.get(row);
     if (column < rvec.size()) {
       return rvec.toString(column);
-    } else if (column < maxColumns) {
+    } else if (column < columns) {
       return "NA";
     } else {
       throw new IndexOutOfBoundsException();
@@ -145,21 +142,6 @@ public class DataSeriesCollection implements DataFrame {
   @Override
   public Vector getColumn(int index) {
     return new DataFrameColumnView(this, checkElementIndex(index, series.size()));
-  }
-
-  @Override
-  public DataFrame dropColumn(int index) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DataFrame dropColumns(Set<Integer> indexes) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DataFrame takeColumns(Set<Integer> indexes) {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -180,28 +162,13 @@ public class DataSeriesCollection implements DataFrame {
   }
 
   @Override
-  public DataFrameRow getRow(int index) {
-    return new DataSeries(series.get(index));
-  }
-
-  @Override
-  public DataFrame takeRows(Set<Integer> indexes) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DataFrame dropRows(Set<Integer> indexes) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public int rows() {
     return series.size();
   }
 
   @Override
   public int columns() {
-    return maxColumns;
+    return columns;
   }
 
   @Override
@@ -221,36 +188,13 @@ public class DataSeriesCollection implements DataFrame {
   }
 
   @Override
-  public Matrix asMatrix() {
-    Matrix matrix = new ArrayMatrix(rows(), columns());
-    for (int i = 0; i < matrix.rows(); i++) {
-      for (int j = 0; j < matrix.columns(); j++) {
-        matrix.put(i, j, getAsDouble(i, j));
-      }
-    }
-    return matrix;
+  public DataFrame dropColumn(int index) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public String toString() {
-    return DataFrames.toTabularString(this);
-  }
-
-  @Override
-  public Iterator<DataFrameRow> iterator() {
-    return new UnmodifiableIterator<DataFrameRow>() {
-      int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < rows();
-      }
-
-      @Override
-      public DataFrameRow next() {
-        return getRow(current++);
-      }
-    };
+  public DataSeries getRow(int index) {
+    return new DataSeries(series.get(index));
   }
 
   public static class Builder implements DataFrame.Builder {
@@ -282,9 +226,9 @@ public class DataSeriesCollection implements DataFrame {
     }
 
     @Override
-    public Builder set(int toRow, int toCol, Vector from, int fromRow) {
-      ensureCapacity(toRow);
-      builders.get(toRow).set(toCol, from, fromRow);
+    public Builder set(int row, int column, Vector from, int index) {
+      ensureCapacity(row);
+      builders.get(row).set(column, from, index);
       return this;
     }
 
@@ -312,6 +256,8 @@ public class DataSeriesCollection implements DataFrame {
 
     @Override
     public Builder swapInColumn(int column, int a, int b) {
+      Vector.Builder avec = builders.get(a);
+      Vector.Builder bvec = builders.get(b);
       throw new UnsupportedOperationException();
     }
 

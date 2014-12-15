@@ -34,20 +34,22 @@ public final class ArrayBuffers {
     return newArray;
   }
 
+  /**
+   * Reallocates {@code array} to a new array of length {@code minCapacity} if
+   * {@code array.length < minCapacity} otherwise return {@code array}.
+   * 
+   * @param array the array
+   * @param minCapacity the minimum capacity
+   * @return an array of {@code minCapacity} might return the input array
+   */
   public static double[] reallocate(double[] array, int minCapacity) {
     int oldCapacity = array.length;
     double[] newArray;
     if (oldCapacity < minCapacity) {
-      // int newCapacity = (oldCapacity * 3) / 2 + 1;
-      // if (newCapacity < minCapacity) {
-      // newCapacity = minCapacity;
-      // }
       newArray = new double[minCapacity];
     } else {
-      newArray = new double[array.length];
+      newArray = array;// new double[array.length];
     }
-    // System.out.printf("Allocate new array with %d elements%n", newArray.length);
-    // allocations++;
     return newArray;
   }
 

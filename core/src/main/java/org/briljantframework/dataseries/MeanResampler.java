@@ -3,11 +3,15 @@ package org.briljantframework.dataseries;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.transform.Transformation;
 
 /**
- * Created by Isak Karlsson on 12/12/14.
+ * The MeanResampler implements the perhaps simplest resampling (approximation) method for data
+ * series. Divide the data series into bins, and take the mean of each bin as the new data series.
+ * 
+ * @author Isak Karlsson
  */
-public class MeanResampler implements DataSeriesResampler {
+public class MeanResampler implements Transformation {
   private final int targetSize;
 
   public MeanResampler(int targetSize) {
@@ -15,7 +19,7 @@ public class MeanResampler implements DataSeriesResampler {
   }
 
   @Override
-  public Vector resample(Vector in) {
+  public Vector transform(Vector in) {
     checkArgument(in.size() > targetSize);
 
     Vector.Builder out = in.newBuilder();

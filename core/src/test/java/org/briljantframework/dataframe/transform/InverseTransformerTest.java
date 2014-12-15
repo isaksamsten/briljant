@@ -1,4 +1,4 @@
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,13 +1,18 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.transform.Transformation;
 
 import com.google.common.base.Preconditions;
 
 /**
- * Implements the Created by Isak Karlsson on 12/12/14.
+ * Implements the Least Triangle ... ... Data Series resampler found in [cite the thesis].
+ * 
+ * The implementation assumes that the values are ordered in increasing order.
+ * 
+ * @author Isak Karlsson
  */
-public class LttbResampler implements DataSeriesResampler {
+public class LttbResampler implements Transformation {
 
   private final int threshold;
 
@@ -16,7 +21,7 @@ public class LttbResampler implements DataSeriesResampler {
   }
 
   @Override
-  public Vector resample(Vector in) {
+  public Vector transform(Vector in) {
     Preconditions.checkNotNull(in);
     if (in.size() < threshold || threshold == 0) {
       return in;

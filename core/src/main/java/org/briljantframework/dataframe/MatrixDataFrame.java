@@ -4,7 +4,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.briljantframework.ArrayBuffers;
 import org.briljantframework.io.DataEntry;
@@ -13,21 +16,21 @@ import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
-import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.IntDoubleMap;
 import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
- * Initial implementation of the matrix data frame.
+ * Initial implementation of the matrix data frame. While the DataFrame interface allows for
+ * heterogeneous implementations, the {@code MatrixDataFrame} is homogeneous over
+ * {@link org.briljantframework.vector.DoubleVector#TYPE}, i.e. {@code double} values.
  * 
  * @author Isak Karlsson
  */
-public class MatrixDataFrame implements DataFrame {
+public class MatrixDataFrame extends AbstractDataFrame {
 
   private final List<String> colNames;
   private final Matrix matrix;
@@ -112,36 +115,6 @@ public class MatrixDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrame dropColumn(int index) {
-    checkElementIndex(index, columns(), "Column-index out of bounds.");
-    List<String> colNames = new ArrayList<>(this.colNames);
-    colNames.remove(index);
-
-    Matrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
-    int j = 0;
-    for (int k = 0; k < matrix.columns(); k++) {
-      if (k != index) {
-        for (int i = 0; i < matrix.rows(); i++) {
-          newMatrix.put(i, j, matrix.get(i, k));
-        }
-        j++;
-      }
-    }
-
-    return new MatrixDataFrame(newMatrix, colNames, false);
-  }
-
-  @Override
-  public DataFrame dropColumns(Set<Integer> indexes) {
-    throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  @Override
-  public DataFrame takeColumns(Set<Integer> indexes) {
-    throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  @Override
   public Type getColumnType(int index) {
     checkArgument(index >= 0 && index < columns());
     return DoubleVector.TYPE;
@@ -156,21 +129,6 @@ public class MatrixDataFrame implements DataFrame {
   public DataFrame setColumnName(int index, String columnName) {
     colNames.set(index, columnName);
     return this;
-  }
-
-  @Override
-  public DataFrameRow getRow(int index) {
-    return new DataFrameRowView(this, index, DoubleVector.TYPE);
-  }
-
-  @Override
-  public DataFrame takeRows(Set<Integer> indexes) {
-    throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  @Override
-  public DataFrame dropRows(Set<Integer> indexes) {
-    throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   @Override
@@ -202,30 +160,28 @@ public class MatrixDataFrame implements DataFrame {
   }
 
   @Override
-  public Matrix asMatrix() {
-    return matrix;
+  public DataFrame dropColumn(int index) {
+    checkElementIndex(index, columns(), "Column-index out of bounds.");
+    List<String> colNames = new ArrayList<>(this.colNames);
+    colNames.remove(index);
+
+    Matrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
+    int j = 0;
+    for (int k = 0; k < matrix.columns(); k++) {
+      if (k != index) {
+        for (int i = 0; i < matrix.rows(); i++) {
+          newMatrix.put(i, j, matrix.get(i, k));
+        }
+        j++;
+      }
+    }
+
+    return new MatrixDataFrame(newMatrix, colNames, false);
   }
 
   @Override
-  public Iterator<DataFrameRow> iterator() {
-    return new UnmodifiableIterator<DataFrameRow>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < rows();
-      }
-
-      @Override
-      public DataFrameRow next() {
-        return getRow(current++);
-      }
-    };
-  }
-
-  @Override
-  public String toString() {
-    return DataFrames.toTabularString(this);
+  public DataFrameRow getRow(int index) {
+    return new DataFrameRowView(this, index, DoubleVector.TYPE);
   }
 
   /**
@@ -310,17 +266,19 @@ public class MatrixDataFrame implements DataFrame {
         reInitializeBuffer(row + 1, columns);
       } else if (column >= columns) {
         reInitializeBuffer(rows, column + 1);
-      } else {
-        // buffer = ArrayBuffers.ensureCapacity(buffer, rows * columns);
       }
 
       return Indexer.columnMajor(row, column, rows, columns);
 
     }
 
+    /*
+     * Reinitialize buffer to hold a matrix with rows and columns. Since the indexes must be
+     * recalculated, this is rather costly.
+     */
     private void reInitializeBuffer(int rows, int columns) {
       double[] tmp = ArrayBuffers.reallocate(buffer, rows * columns);
-      Arrays.fill(tmp, DoubleVector.NA); // TODO: improve..
+      Arrays.fill(tmp, DoubleVector.NA);
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
           int newIndex = Indexer.columnMajor(i, j, rows, columns);
@@ -346,8 +304,8 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder set(int toRow, int toCol, Vector from, int fromRow) {
-      throw new UnsupportedOperationException();
+    public DataFrame.Builder set(int row, int column, Vector from, int index) {
+      return set(row, column, from.getAsDouble(index));
     }
 
     @Override
@@ -365,7 +323,12 @@ public class MatrixDataFrame implements DataFrame {
 
     @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
-      throw new UnsupportedOperationException("Can't add builder");
+      Vector vector = builder.build();
+      int j = columns();
+      for (int i = 0; i < vector.size(); i++) {
+        set(i, j, vector, i);
+      }
+      return this;
     }
 
     @Override
@@ -446,13 +409,14 @@ public class MatrixDataFrame implements DataFrame {
   }
 
   /**
-   * TODO(isak): Ensure that HashBuilder, ArrayBuilder and MixedDataFrame are consistent
-   * 
    * Incrementally build a {@code MatrixDataFrame}. If the initial size is known, prefer
    * {@link org.briljantframework.dataframe.MatrixDataFrame.ArrayBuilder}.
    */
   public static class HashBuilder implements DataFrame.Builder {
 
+    /*
+     * The buffer stores values in column based maps
+     */
     private final IntObjectMap<IntDoubleMap> buffer = new IntObjectOpenHashMap<>();
     private final List<String> colNames;
     private int rows = 0, columns = 0;
@@ -507,8 +471,8 @@ public class MatrixDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder set(int toRow, int toCol, Vector from, int fromRow) {
-      return set(toRow, toCol, from.getAsDouble(fromRow));
+    public DataFrame.Builder set(int row, int column, Vector from, int index) {
+      return set(row, column, from.getAsDouble(index));
     }
 
     @Override
@@ -526,12 +490,20 @@ public class MatrixDataFrame implements DataFrame {
 
     @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
-      throw new UnsupportedOperationException("Can't add vector builder");
+      Vector vector = builder.build();
+      int column = columns();
+      for (int i = 0; i < vector.size(); i++) {
+        set(i, column, vector, i);
+      }
+      return this;
     }
 
     @Override
     public DataFrame.Builder removeColumn(int column) {
-      throw new UnsupportedOperationException("Can't remove column");
+      checkArgument(column >= 0 && column < columns());
+      buffer.remove(column);
+      columns--;
+      return this;
     }
 
     @Override
@@ -559,7 +531,7 @@ public class MatrixDataFrame implements DataFrame {
           col.remove(b);
         }
       }
-      // col only has NA values and no swapping is needed
+      // column only has NA values and no swapping is needed
       return this;
     }
 
@@ -591,10 +563,10 @@ public class MatrixDataFrame implements DataFrame {
     public DataFrame build() {
       double[] values = new double[rows() * columns()];
       for (int j = 0; j < columns(); j++) {
+        IntDoubleMap col = buffer.get(j);
         for (int i = 0; i < rows(); i++) {
           int index = Indexer.columnMajor(i, j, rows(), columns());
           double dval = DoubleVector.NA;
-          IntDoubleMap col = buffer.get(j);
           if (col != null) {
             if (col.containsKey(i)) {
               dval = col.get(i);

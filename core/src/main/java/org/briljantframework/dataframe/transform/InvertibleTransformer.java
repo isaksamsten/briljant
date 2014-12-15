@@ -14,24 +14,21 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
-
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
 
 /**
- * A transformation takes a dataset D and applies a transformation, resulting in an new dataset D'
- * <p>
- * Created by Isak Karlsson on 11/08/14.
+ * Created by Isak Karlsson on 13/08/14.
  */
-@FunctionalInterface
-public interface Transformation {
+public interface InvertibleTransformer extends Transformer {
 
   /**
-   * Apply transformation to <code>t</code>, resulting in D'
+   * Perform an invertible tranformation
    *
-   * @param dataFrame T to transform
-   * @return transformation of d
+   * @param dataFrame dataset to transform
+   * @return the invertable transformation
    */
-  DataFrame transform(DataFrame dataFrame);
+  @Override
+  InvertibleTransformation fit(DataFrame dataFrame);
 }

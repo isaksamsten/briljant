@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exception.MismatchException;

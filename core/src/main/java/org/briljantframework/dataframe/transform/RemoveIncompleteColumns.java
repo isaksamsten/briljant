@@ -14,40 +14,46 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 
 import org.briljantframework.dataframe.DataFrame;
 
 /**
- * Created by Isak Karlsson on 15/08/14.
+ * Created by Isak Karlsson on 18/08/14.
  */
-public class RemoveIncompleteCases implements Transformer {
+public class RemoveIncompleteColumns implements Transformer {
 
   @Override
-  public Transformation fit(DataFrame dataFrame) {
-    return new DoRemoveIncompleteCases();
+  public Transformation fit(DataFrame dataset) {
+    boolean[] hasNA = new boolean[dataset.columns()];
+    for (int i = 0; i < dataset.columns(); i++) {
+      if (dataset.getColumn(i).hasNA()) {
+        hasNA[i] = true;
+      }
+    }
+
+
+    return new DoRemoveIncompleteColumns(hasNA);
   }
 
-  private static final class DoRemoveIncompleteCases implements Transformation {
+  private static class DoRemoveIncompleteColumns implements Transformation {
+
+    private final boolean[] hasNA;
+
+    private DoRemoveIncompleteColumns(boolean[] hasNA) {
+      this.hasNA = hasNA;
+    }
 
     @Override
-    public DataFrame transform(DataFrame dataFrame) {
-      DataFrame.Builder builder = dataFrame.newBuilder();
-      for (int i = 0; i < dataFrame.rows(); i++) {
-        boolean hasNA = false;
-        for (int j = 0; j < dataFrame.columns(); j++) {
-          if (dataFrame.isNA(i, j)) {
-            hasNA = true;
-            break;
-          }
-        }
-        if (!hasNA) {
-          for (int j = 0; j < dataFrame.columns(); j++) {
-            builder.set(i, j, dataFrame, i, j);
-          }
+    public DataFrame transform(DataFrame dataset) {
+      DataFrame.Builder builder = dataset.newCopyBuilder();
+      for (int i = 0; i < dataset.columns(); i++) {
+        if (hasNA[i]) {
+          builder.removeColumn(i);
         }
       }
+
       return builder.build();
     }
   }

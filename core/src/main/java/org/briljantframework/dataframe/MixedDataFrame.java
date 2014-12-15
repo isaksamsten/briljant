@@ -9,20 +9,17 @@ import java.util.stream.Stream;
 
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
  * <p>
  * Created by Isak Karlsson on 21/11/14.
  */
-public class MixedDataFrame implements DataFrame {
+public class MixedDataFrame extends AbstractDataFrame {
 
   private final List<String> names;
   private final List<Vector> columns;
@@ -139,81 +136,92 @@ public class MixedDataFrame implements DataFrame {
     this.rows = rows;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getAsString(int row, int column) {
     return columns.get(column).getAsString(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public double getAsDouble(int row, int column) {
     return columns.get(column).getAsDouble(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int getAsInt(int row, int column) {
     return columns.get(column).getAsInt(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Binary getAsBinary(int row, int column) {
     return columns.get(column).getAsBinary(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Complex getAsComplex(int row, int column) {
     return columns.get(column).getAsComplex(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Value getAsValue(int row, int column) {
     return columns.get(column).getAsValue(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString(int row, int column) {
     return columns.get(column).toString(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isNA(int row, int column) {
     return columns.get(column).isNA(row);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Vector getColumn(int index) {
     return columns.get(index);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
+  public Type getColumnType(int index) {
+    return columns.get(index).getType();
+  }
+
+  @Override
+  public String getColumnName(int index) {
+    return names.get(index);
+  }
+
+  @Override
+  public DataFrame setColumnName(int index, String columnName) {
+    names.set(index, columnName);
+    return this;
+  }
+
+  @Override
+  public int rows() {
+    return rows;
+  }
+
+  @Override
+  public int columns() {
+    return columns.size();
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder(this, false);
+  }
+
+  @Override
+  public Builder newBuilder(int rows) {
+    return new Builder(this, rows, columns());
+  }
+
+  @Override
+  public Builder newCopyBuilder() {
+    return new Builder(this, true);
+  }
+
   @Override
   public DataFrame dropColumn(int index) {
     checkArgument(index >= 0 && index < columns());
@@ -225,9 +233,6 @@ public class MixedDataFrame implements DataFrame {
     return new MixedDataFrame(names, columns, rows());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public DataFrame dropColumns(Set<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
@@ -242,9 +247,6 @@ public class MixedDataFrame implements DataFrame {
     return new MixedDataFrame(names, columns, rows());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public DataFrame takeColumns(Set<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
@@ -258,143 +260,9 @@ public class MixedDataFrame implements DataFrame {
     return new MixedDataFrame(names, columns, rows());
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Type getColumnType(int index) {
-    return columns.get(index).getType();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getColumnName(int index) {
-    return names.get(index);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DataFrame setColumnName(int index, String columnName) {
-    names.set(index, columnName);
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DataFrameRow getRow(int index) {
-    return new DataFrameRowView(this, index);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DataFrame takeRows(Set<Integer> indexes) {
-    DataFrame.Builder builder = newBuilder();
-    for (int i : indexes) {
-      for (int j = 0; j < columns(); j++) {
-        builder.set(i, j, this, i, j);
-      }
-    }
-
-    return builder.build();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DataFrame dropRows(Set<Integer> indexes) {
-    DataFrame.Builder builder = newBuilder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        if (!indexes.contains(i)) {
-          builder.set(i, j, this, i, j);
-        }
-      }
-    }
-
-    return builder.build();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int rows() {
-    return rows;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int columns() {
-    return columns.size();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Builder newBuilder() {
-    return new Builder(this, false);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Builder newBuilder(int rows) {
-    return new Builder(this, rows, columns());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Builder newCopyBuilder() {
-    return new Builder(this, true);
-  }
-
-  @Override
-  public Matrix asMatrix() {
-    Matrix matrix = new ArrayMatrix(rows(), columns());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, getAsDouble(i, j));
-      }
-    }
-
-    return matrix;
-  }
-
   @Override
   public String toString() {
     return DataFrames.toTabularString(this);
-  }
-
-  @Override
-  public Iterator<DataFrameRow> iterator() {
-    return new UnmodifiableIterator<DataFrameRow>() {
-      private int index = 0;
-
-      @Override
-      public boolean hasNext() {
-        return index < rows();
-      }
-
-      @Override
-      public DataFrameRow next() {
-        return getRow(index++);
-      }
-    };
   }
 
   /**
@@ -477,7 +345,7 @@ public class MixedDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder set(int toRow, int toCol, Vector from, int fromRow) {
+    public Builder set(int row, int column, Vector from, int index) {
       throw new UnsupportedOperationException();
     }
 

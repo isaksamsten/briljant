@@ -6,7 +6,9 @@ import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 11/12/14.
+ * View into a DataFrame.
+ * 
+ * @author Isak Karlsson
  */
 public class DataFrameColumnView implements Vector {
 

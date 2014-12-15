@@ -152,7 +152,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the row sequence
    */
-  DataFrameRow getRow(int index);
+  Vector getRow(int index);
 
   /**
    * Take the rows in {@code indexes}
@@ -245,16 +245,15 @@ public interface DataFrame extends Iterable<DataFrameRow> {
     Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol);
 
     /**
-     * Add the value {@code fromRow} from {@code from} to {@code toCol}.
+     * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}.
      *
-     *
-     * @param toRow
-     * @param toCol the column
+     * @param row the row in this
+     * @param column the column in this
      * @param from the vector
-     * @param fromRow the column
+     * @param index the row in {@code from}
      * @return a modified builder
      */
-    Builder set(int toRow, int toCol, Vector from, int fromRow);
+    Builder set(int row, int column, Vector from, int index);
 
     /**
      * Set value at {@code row, column} to {@code value}.
@@ -268,7 +267,8 @@ public interface DataFrame extends Iterable<DataFrameRow> {
     Builder set(int row, int column, Object value);
 
     /**
-     * Add a new vector builder. If {@code builder.size() < rows()} the builder is padded with NA.
+     * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the
+     * added builder is padded with NA.
      *
      * @param builder builder to add
      * @return a modified builder

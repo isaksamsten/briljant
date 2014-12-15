@@ -14,21 +14,20 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
 
 /**
- * Created by Isak Karlsson on 13/08/14.
+ * Created by Isak Karlsson on 11/08/14.
  */
-public interface InvertibleTransformer extends Transformer {
+public interface InvertibleTransformation extends Transformation {
 
   /**
-   * Perform an invertible tranformation
+   * Recover using dataset
    *
-   * @param dataFrame dataset to transform
-   * @return the invertable transformation
+   * @param dataset a dataset to recover
+   * @return the recovered dataset
    */
-  @Override
-  InvertibleTransformation fit(DataFrame dataFrame);
+  DataFrame inverseTransform(DataFrame dataset);
 }

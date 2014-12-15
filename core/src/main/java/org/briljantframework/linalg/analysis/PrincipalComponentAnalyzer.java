@@ -17,11 +17,11 @@
 package org.briljantframework.linalg.analysis;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.transform.InvertibleTransformation;
+import org.briljantframework.dataframe.transform.InvertibleTransformer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.transform.InvertibleTransformation;
-import org.briljantframework.transform.InvertibleTransformer;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal

@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import java.util.ArrayList;
 import java.util.Arrays;

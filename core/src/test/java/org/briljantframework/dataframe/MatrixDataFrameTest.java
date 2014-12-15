@@ -21,6 +21,7 @@ public class MatrixDataFrameTest {
     builder.set(3, 1, 22);
     builder.swapColumns(0, 3);
     builder.swapRows(0, 1);
+    builder.removeColumn(0);
     DataFrame frame = builder.build();
     System.out.println(frame);
 

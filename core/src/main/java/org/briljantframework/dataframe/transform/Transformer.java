@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
 
@@ -23,9 +23,8 @@ import org.briljantframework.dataframe.DataFrame;
  * datasets using the parameters of the fitted dataset. This can be particularly useful when a
  * transformation must be fitted on a dataset and applied on another. For example, in the case of
  * normalizing training and testing data.
- * <p>
- * <p>
- * Created by Isak Karlsson on 12/08/14.
+ * 
+ * @author Isak Karlsson
  */
 @FunctionalInterface
 public interface Transformer {

@@ -1,4 +1,4 @@
-package org.briljantframework.transform;
+package org.briljantframework.dataframe.transform;
 
 import org.junit.Test;
 
