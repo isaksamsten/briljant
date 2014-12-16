@@ -20,7 +20,9 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.dataframe.DataFrame;
 
 /**
- * Created by Isak Karlsson on 15/08/14.
+ * Removes incomplete cases, i.e. rows with missing values.
+ * 
+ * @author Isak Karlsson
  */
 public class RemoveIncompleteCases implements Transformer {
 

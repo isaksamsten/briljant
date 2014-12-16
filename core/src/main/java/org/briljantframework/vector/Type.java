@@ -48,7 +48,7 @@ public interface Type {
 
   /**
    * Compare value at position {@code a} from {@code va} to value at position {@code b} from
-   * {@code va}.
+   * {@code ba}.
    *
    * @param a the index in va
    * @param va the vector

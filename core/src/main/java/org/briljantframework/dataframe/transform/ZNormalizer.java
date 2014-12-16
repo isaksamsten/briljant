@@ -17,20 +17,22 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.exceptions.TypeMismatchException;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.DoubleVector;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
  * by found in Goldin & Kanellakis. It ensures that all elements of the input vector are transformed
  * into the output vector whose mean is approximately 0 while the standard deviation are in a range
  * close to 1.
- * <p>
- * This normalizer, normalizes the input frame "row-wise",
- * <p>
- * Created by Isak Karlsson on 26/09/14.
+ * 
+ * @author Isak Karlsson
  */
 public class ZNormalizer implements Transformer {
 
@@ -63,18 +65,22 @@ public class ZNormalizer implements Transformer {
 
     @Override
     public DataFrame transform(DataFrame frame) {
-      // E newFrame = copyTo.newEmptyDataset(frame);
-      //
-      // Matrix x = frame.asMatrix();
-      // Matrix xNorm = newFrame.asMatrix();
-      //
-      // for (int i = 0; i < xNorm.rows(); i++) {
-      // for (int j = 0; j < xNorm.columns(); j++) {
-      // xNorm.put(i, j, (x.get(i, j) - mean.get(j)) / sigma.get(j));
-      // }
-      // }
+      Preconditions.checkArgument(frame.columns() == mean.size());
 
-      return null;
+      DataFrame.Builder builder = frame.newCopyBuilder();
+      for (int j = 0; j < frame.columns(); j++) {
+        if (frame.getColumnType(j) != DoubleVector.TYPE) {
+          throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
+        }
+        double mean = this.mean.get(j);
+        double sigma = this.sigma.get(j);
+        for (int i = 0; i < frame.rows(); i++) {
+          builder.set(i, j, (frame.getAsDouble(i, j) - mean) / sigma);
+        }
+
+      }
+      return builder.build();
+
     }
   }
 }

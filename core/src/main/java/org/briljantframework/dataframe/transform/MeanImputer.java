@@ -17,25 +17,26 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.exceptions.TypeMismatchException;
 import org.briljantframework.exception.MismatchException;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Is;
 
 /**
- * Created by Isak Karlsson on 12/08/14.
+ * @author Isak Karlsson
  */
 public class MeanImputer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    Matrix matrix = frame.asMatrix();
-    double[] means = new double[matrix.columns()];
+    double[] means = new double[frame.columns()];
 
-    for (int j = 0; j < matrix.columns(); j++) {
+    for (int j = 0; j < frame.columns(); j++) {
       double mean = 0.0;
       int rows = 0;
-      for (int i = 0; i < matrix.rows(); i++) {
-        double value = matrix.get(i, j);
-        if (!Double.isNaN(value)) {
+      for (int i = 0; i < frame.rows(); i++) {
+        double value = frame.getAsDouble(i, j);
+        if (!Is.NA(value)) {
           mean += value;
           rows += 1;
         }
@@ -60,15 +61,20 @@ public class MeanImputer implements Transformer {
         throw new MismatchException("transform", "can't impute missing values for "
             + "matrix with shape %s using %d values", frame.asMatrix().getShape(), means.length);
       }
-      // for (int j = 0; j < matrix.columns(); j++) {
-      // for (int i = 0; i < matrix.rows(); i++) {
-      // if (Double.isNaN(frame.get(i, j))) {
-      // matrix.put(i, j, means[j]);
-      // }
-      // }
-      // }
-      // return copy;
-      return null;
+
+      DataFrame.Builder builder = frame.newCopyBuilder();
+      for (int j = 0; j < frame.columns(); j++) {
+        if (frame.getColumnType(j) != DoubleVector.TYPE) {
+          throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
+        }
+
+        for (int i = 0; i < frame.rows(); i++) {
+          if (frame.isNA(i, j)) {
+            builder.set(i, j, means[j]);
+          }
+        }
+      }
+      return builder.build();
     }
   }
 

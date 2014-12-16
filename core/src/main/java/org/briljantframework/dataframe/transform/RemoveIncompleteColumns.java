@@ -17,10 +17,51 @@
 package org.briljantframework.dataframe.transform;
 
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import org.briljantframework.dataframe.DataFrame;
 
 /**
- * Created by Isak Karlsson on 18/08/14.
+ * Transformation that removes columns with missing values.
+ * 
+ * <p>
+ * Given the DataFrame {@code x} equal to
+ * 
+ * <pre>
+ *    1  2 3
+ *    NA 1 3
+ *    1  2 3,
+ * </pre>
+ * 
+ * the DataFrame {@code m} equal to
+ * 
+ * <pre>
+ *     1  3 NA
+ *     1  1 3
+ *     2  2 2
+ * </pre>
+ * 
+ * and the {@code Transformation t = new RemoveIncompleteColumns().fit(x)}, {@code t.transform(m)}
+ * returns a new DataFrame
+ * 
+ * <pre>
+ *     1 3
+ *     1 1
+ *     2 2
+ * </pre>
+ * 
+ * and {@code t.transform(x)} a new data frame
+ * 
+ * <pre>
+ *     2 3
+ *     1 3
+ *     2 3
+ * </pre>
+ * 
+ * For convenience {@code new RemoveIncompleteColumns().fitTransform(x)} can be used.
+ * </p>
+ * 
+ * @author Isak Karlsson
  */
 public class RemoveIncompleteColumns implements Transformer {
 
@@ -32,7 +73,6 @@ public class RemoveIncompleteColumns implements Transformer {
         hasNA[i] = true;
       }
     }
-
 
     return new DoRemoveIncompleteColumns(hasNA);
   }
@@ -47,6 +87,9 @@ public class RemoveIncompleteColumns implements Transformer {
 
     @Override
     public DataFrame transform(DataFrame dataset) {
+      checkArgument(dataset.columns() == hasNA.length, "Argument imply different sizes %s != %s",
+          dataset.columns(), hasNA.length);
+
       DataFrame.Builder builder = dataset.newCopyBuilder();
       for (int i = 0; i < dataset.columns(); i++) {
         if (hasNA[i]) {

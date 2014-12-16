@@ -36,9 +36,13 @@ public class PseudoInverseTransformer implements Transformer {
     @Override
     public DataFrame transform(DataFrame frame) {
       Matrix matrix = LinearAlgebra.pinv(frame.asMatrix());
-      // E copy = factory.newBuilder(frame.getTypes()).create();
-      // copy.setMatrix(new Types(frame.getTypes()), matrix);
-      return null;
+      DataFrame.Builder builder = frame.newBuilder();
+      for (int j = 0; j < frame.columns(); j++) {
+        for (int i = 0; i < frame.rows(); i++) {
+          builder.set(i, j, matrix.get(i, j));
+        }
+      }
+      return builder.build();
     }
   }
 }

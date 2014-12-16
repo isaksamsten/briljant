@@ -5,15 +5,15 @@ import java.io.IOException;
 import org.briljantframework.io.DataEntry;
 
 /**
- * Undefined is an immutable 0 size vector returning NA
+ * Undefined is an immutable 1 size vector returning NA
  * <p>
  * Created by Isak Karlsson on 26/11/14.
  */
 public class Undefined implements Value {
 
-  public static final String ILLEGAL = "Can't index undefined.";
-
   public static final Undefined INSTANCE = new Undefined();
+  protected static final String UNDEFINED_DOES_NOT_HAVE_A_SCALE =
+      "Undefined does not have a scale.";
 
   public static final Type TYPE = new Type() {
     @Override
@@ -43,9 +43,10 @@ public class Undefined implements Value {
 
     @Override
     public Scale getScale() {
-      throw new UnsupportedOperationException("Undefined does not have a scale.");
+      throw new UnsupportedOperationException(UNDEFINED_DOES_NOT_HAVE_A_SCALE);
     }
   };
+  protected static final String ILLEGAL = "Can't index undefined.";
 
   @Override
   public double getAsDouble(int index) {
@@ -173,7 +174,7 @@ public class Undefined implements Value {
 
     @Override
     public Vector.Builder read(DataEntry entry) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException(ILLEGAL);
     }
 
     @Override

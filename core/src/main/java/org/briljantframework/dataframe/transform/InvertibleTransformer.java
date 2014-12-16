@@ -19,16 +19,18 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.dataframe.DataFrame;
 
 /**
- * Created by Isak Karlsson on 13/08/14.
+ * Fit an invertible transformation, e.g. PCA.
+ * 
+ * @author Isak Karlsson
  */
 public interface InvertibleTransformer extends Transformer {
 
   /**
-   * Perform an invertible tranformation
+   * Perform an invertible transformation on {@code x}
    *
-   * @param dataFrame dataset to transform
-   * @return the invertable transformation
+   * @param x dataset to transform
+   * @return the invertible transformation
    */
   @Override
-  InvertibleTransformation fit(DataFrame dataFrame);
+  InvertibleTransformation fit(DataFrame x);
 }

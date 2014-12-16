@@ -177,11 +177,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getColumn(int index) {
-    return columns.get(index);
-  }
-
-  @Override
   public Type getColumnType(int index) {
     return columns.get(index).getType();
   }
@@ -223,6 +218,11 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
+  public Vector getColumn(int index) {
+    return columns.get(index);
+  }
+
+  @Override
   public DataFrame dropColumn(int index) {
     checkArgument(index >= 0 && index < columns());
     ArrayList<Vector> columns = new ArrayList<>(this.columns);
@@ -234,7 +234,11 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame dropColumns(Set<Integer> indexes) {
+  public DataFrame dropColumns(Collection<Integer> indexes) {
+    if (!(indexes instanceof Set)) {
+      indexes = new HashSet<>(indexes);
+    }
+
     ArrayList<Vector> columns = new ArrayList<>();
     ArrayList<String> names = new ArrayList<>();
     for (int i = 0; i < columns(); i++) {
@@ -248,7 +252,7 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame takeColumns(Set<Integer> indexes) {
+  public DataFrame takeColumns(Collection<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
     ArrayList<String> names = new ArrayList<>();
     for (int index : indexes) {
@@ -266,17 +270,46 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Type for constructing a new MixedDataFrame by mutation.
+   * <p>
+   * Type for constructing a new MixedDataFrame. While for example,
+   * {@link org.briljantframework.dataframe.MatrixDataFrame} and
+   * {@link org.briljantframework.dataseries.DataSeriesCollection.Builder} can dynamically adapt the
+   * number of columns in the constructed DataFrame, this builder can only construct DataFrames with
+   * a fixed number of columns due to the fact that each column can be of different types.
+   * </p>
+   * 
+   * <p>
+   * To overcome this limitation, {@link #addColumn(org.briljantframework.vector.Vector.Builder)}
+   * and {@link #removeColumn(int)} can be used.
+   * </p>
+   *
+   *
+   * <p>
+   *
+   * </p>
+   * 
    */
   public static class Builder implements DataFrame.Builder {
 
     private List<Vector.Builder> buffers = null;
     private List<String> colNames = null;
 
+    /**
+     * Construct a builder with {@code types.length} columns. The column names will be
+     * {@code 1 ... types.length}
+     * 
+     * @param types the column types
+     */
     public Builder(Type... types) {
       this(Arrays.asList(types));
     }
 
+    /**
+     * Construct a builder with {@code types.size()} columns. The column names will be
+     * {@code 1 ... types.length}
+     * 
+     * @param types the column types
+     */
     public Builder(Collection<? extends Type> types) {
       buffers = new ArrayList<>(types.size());
       colNames = new ArrayList<>(types.size());
@@ -287,6 +320,13 @@ public class MixedDataFrame extends AbstractDataFrame {
       }
     }
 
+    /**
+     * Construct a builder with {@code types.size()} columns with names from {@code colNames}.
+     * Asserts that {@code colNames.size() == types.size()}
+     * 
+     * @param colNames the column names
+     * @param types the types
+     */
     public Builder(Collection<String> colNames, Collection<? extends Type> types) {
       checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
           "Column names and types does not match.");
@@ -297,6 +337,33 @@ public class MixedDataFrame extends AbstractDataFrame {
       }
     }
 
+    /**
+     * <p>
+     * Construct a builder using vector builders. Vector builders of different sizes are allowed,
+     * but padded with NA values until to match the longest.
+     * </p>
+     * 
+     * <p>
+     * Hence,
+     * 
+     * <pre>
+     *     [1 2 3]
+     *     [1]
+     *     [1,2,3,4]
+     * </pre>
+     * 
+     * Added would result in:
+     * 
+     * <pre>
+     *     [1,2,3, NA]
+     *     [1, NA, NA, NA]
+     *     [1,2,3,4]
+     * </pre>
+     * 
+     * </p>
+     * 
+     * @param builders the vector builders
+     */
     public Builder(Vector.Builder... builders) {
       int rows = Stream.of(builders).mapToInt(Vector.Builder::size).max().getAsInt();
       this.buffers = new ArrayList<>();
@@ -309,13 +376,19 @@ public class MixedDataFrame extends AbstractDataFrame {
       }
     }
 
-    protected Builder(MixedDataFrame frame, boolean copy) {
+    /**
+     * Clones {@code frame}. If {@code copy == true}, the values are copied. Otherwise, only the
+     * types and column names are copied.
+     * 
+     * @param frame the DataFrame to clone
+     * @param copy copy values or only types
+     */
+    public Builder(DataFrame frame, boolean copy) {
       buffers = new ArrayList<>(frame.columns());
       colNames = new ArrayList<>(frame.columns());
 
-      ArrayList<Vector> columns = new ArrayList<>(frame.columns);
-      for (int i = 0; i < columns.size(); i++) {
-        Vector vector = columns.get(i);
+      for (int i = 0; i < frame.columns(); i++) {
+        Vector vector = frame.getColumn(i);
         if (copy) {
           buffers.add(vector.newCopyBuilder());
         } else {
@@ -346,7 +419,8 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder set(int row, int column, Vector from, int index) {
-      throw new UnsupportedOperationException();
+      buffers.get(column).set(row, from, index);
+      return this;
     }
 
     @Override
@@ -405,13 +479,23 @@ public class MixedDataFrame extends AbstractDataFrame {
       return buffers.size();
     }
 
+    /**
+     * Returns the vector with most rows
+     * 
+     * @return the number of rows
+     */
     @Override
     public int rows() {
       return buffers.stream().mapToInt(Vector.Builder::size).reduce(0, Integer::max);
     }
 
+    /**
+     * Constructs a new MixedDataFrame
+     * 
+     * @return a new MixedDataFrame
+     */
     @Override
-    public DataFrame build() {
+    public MixedDataFrame build() {
       int rows = rows();
       List<Vector> vectors =
           buffers.stream().map(x -> padVectorWithNA(x, rows))

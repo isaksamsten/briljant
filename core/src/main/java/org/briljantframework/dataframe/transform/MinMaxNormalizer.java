@@ -17,23 +17,35 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.dataframe.exceptions.TypeMismatchException;
+import org.briljantframework.vector.DoubleVector;
+
+import com.google.common.base.Preconditions;
 
 /**
- * Created by Isak Karlsson on 12/08/14.
+ * Class to fit a min max normalizer to a data frame. Calculate, for each column {@code j}, the min
+ * <i>min</i><sub>j</sub> and max <i>max</i><sub>j</sub>. Then, for each value x<sub>i,j</sub> is
+ * given by (x<sub>i,j</sub>-min<sub>j</sub>)/(max<sub>j</sub> - min<sub>j</sub>). This normalizes
+ * the data frame in the range {@code [0, 1]} (under the assumption that min and max are
+ * representative for the transformed dataframe).
+ *
+ * @author Isak Karlsson
  */
 public class MinMaxNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    Matrix matrix = frame.asMatrix();
-    double[] min = new double[matrix.columns()];
-    double[] max = new double[matrix.columns()];
+    double[] min = new double[frame.columns()];
+    double[] max = new double[frame.columns()];
 
-    for (int j = 0; j < matrix.columns(); j++) {
+    for (int j = 0; j < frame.columns(); j++) {
+      if (frame.getColumnType(j) != DoubleVector.TYPE) {
+        throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
+      }
+
       double minTemp = Double.POSITIVE_INFINITY, maxTemp = Double.NEGATIVE_INFINITY;
-      for (int i = 0; i < matrix.rows(); i++) {
-        double value = matrix.get(i, j);
+      for (int i = 0; i < frame.rows(); i++) {
+        double value = frame.getAsDouble(i, j);
         if (value > maxTemp) {
           maxTemp = value;
         }
@@ -51,41 +63,35 @@ public class MinMaxNormalizer implements Transformer {
   }
 
   /**
-   * Created by Isak Karlsson on 12/08/14.
-   *
-   * @param <E> the type parameter
+   * @author Isak Karlsson
    */
   public static class MinMaxNormalization implements Transformation {
 
     private final double[] min, max;
 
-    /**
-     * Instantiates a new Min max normalization.
-     *
-     * @param min the min
-     * @param max the max
-     */
     public MinMaxNormalization(double[] min, double[] max) {
-      if (min.length != max.length) {
-        throw new IllegalArgumentException("min.length != max.length");
-      }
+      Preconditions.checkArgument(min.length == max.length);
       this.min = min;
       this.max = max;
     }
 
     @Override
     public DataFrame transform(DataFrame frame) {
-      // E newFrame = copyTo.newEmptyDataset(frame);
-      // Matrix matrix = newFrame.asMatrix();
-      // for (int j = 0; j < matrix.columns(); j++) {
-      // double min = this.min[j];
-      // double max = this.max[j];
-      // for (int i = 0; i < matrix.rows(); i++) {
-      // matrix.put(i, j, (frame.get(i, j) - min) / (max - min));
-      // }
-      // }
+      Preconditions.checkArgument(frame.columns() == min.length);
 
-      return null;
+      DataFrame.Builder builder = frame.newCopyBuilder();
+      for (int j = 0; j < frame.columns(); j++) {
+        if (frame.getColumnType(j) != DoubleVector.TYPE) {
+          throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
+        }
+        double min = this.min[j];
+        double max = this.max[j];
+        for (int i = 0; i < frame.rows(); i++) {
+          builder.set(i, j, (frame.getAsDouble(i, j) - min) / (max - min));
+        }
+
+      }
+      return builder.build();
     }
   }
 }

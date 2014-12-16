@@ -39,7 +39,7 @@ public class PipelineTransformer implements Transformer {
    * @param transformers the transformers
    * @return the pipeline transformer
    */
-  public static PipelineTransformer of(Transformer... transformers) {
+  public static Transformer of(Transformer... transformers) {
     if (transformers.length < 1) {
       throw new IllegalArgumentException(
           "Cannot construct a PipelineTransformer without transformers");

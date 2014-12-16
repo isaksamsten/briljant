@@ -3,12 +3,12 @@ package org.briljantframework;
 import java.util.Arrays;
 
 /**
- * Created by Isak Karlsson on 09/12/14.
+ * Utility class for handling array buffers
+ * 
+ * @author Isak Karlsson
  */
 public final class ArrayBuffers {
   private ArrayBuffers() {}
-
-  // public static long allocations = 0;
 
   /**
    * Ensures that {@code array.length} is at least {@code minCapacity}. If
@@ -48,7 +48,7 @@ public final class ArrayBuffers {
     if (oldCapacity < minCapacity) {
       newArray = new double[minCapacity];
     } else {
-      newArray = array;// new double[array.length];
+      newArray = array;
     }
     return newArray;
   }

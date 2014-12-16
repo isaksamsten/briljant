@@ -64,10 +64,18 @@ public class MatrixDataFrame extends AbstractDataFrame {
     }
   }
 
+  /**
+   * Returns the double value as a string. Returns {@code null}, if value is missing
+   * 
+   * @param row the row
+   * @param column the column
+   * @return the string representation (as returned by {@link String#valueOf(double)} or
+   *         {@code null}
+   */
   @Override
   public String getAsString(int row, int column) {
     double value = matrix.get(row, column);
-    return Double.isNaN(value) ? StringVector.NA : String.valueOf(value);
+    return Is.NA(value) ? StringVector.NA : String.valueOf(value);
   }
 
   @Override
@@ -86,12 +94,27 @@ public class MatrixDataFrame extends AbstractDataFrame {
     return Is.NA(value) ? Binary.NA : value == 1 ? Binary.TRUE : Binary.FALSE;
   }
 
+  /**
+   * Returns a {@link Complex} usign the double as the real part.
+   * 
+   * @param row the row
+   * @param column the column
+   * @return a complex
+   */
   @Override
   public Complex getAsComplex(int row, int column) {
     double value = matrix.get(row, column);
     return Is.NA(value) ? Complex.NaN : new Complex(value);
   }
 
+  /**
+   * Returns a {@link org.briljantframework.vector.DoubleValue} or
+   * {@link org.briljantframework.vector.Undefined#INSTANCE}
+   * 
+   * @param row the row
+   * @param column the column
+   * @return the value
+   */
   @Override
   public Value getAsValue(int row, int column) {
     double value = matrix.get(row, column);
@@ -107,11 +130,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public boolean isNA(int row, int column) {
     return Is.NA(matrix.get(row, column));
-  }
-
-  @Override
-  public Vector getColumn(int index) {
-    return new MatrixVector(matrix.getColumnView(index));
   }
 
   @Override
@@ -157,6 +175,16 @@ public class MatrixDataFrame extends AbstractDataFrame {
     System.arraycopy(matrix.asDoubleArray(), 0, array, 0, array.length);
     return new ArrayBuilder(rows(), colNames, array);
 
+  }
+
+  /**
+   * Returns a
+   * @param index the index
+   * @return
+   */
+  @Override
+  public Vector getColumn(int index) {
+    return new MatrixVector(matrix.getColumnView(index));
   }
 
   @Override

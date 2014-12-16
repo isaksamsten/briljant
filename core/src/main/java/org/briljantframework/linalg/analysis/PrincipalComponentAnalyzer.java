@@ -93,8 +93,8 @@ public class PrincipalComponentAnalyzer implements Analyzer<PrincipalComponentAn
   // }
 
   @Override
-  public InvertibleTransformation fit(DataFrame frame) {
-    SingularValueDecomposition svd = getSingularValueDecomposition(frame.asMatrix());
+  public InvertibleTransformation fit(DataFrame x) {
+    SingularValueDecomposition svd = getSingularValueDecomposition(x.asMatrix());
     return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
   }
 }

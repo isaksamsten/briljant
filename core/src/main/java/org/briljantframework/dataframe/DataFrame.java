@@ -1,7 +1,7 @@
 package org.briljantframework.dataframe;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Collection;
 
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.Matrix;
@@ -110,7 +110,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes collection of indexes
    * @return a new dataframe
    */
-  DataFrame dropColumns(Set<Integer> indexes);
+  DataFrame dropColumns(Collection<Integer> indexes);
 
   /**
    * Take columns with {@code indexes}
@@ -118,7 +118,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes collection of indexes
    * @return a new dataframe
    */
-  DataFrame takeColumns(Set<Integer> indexes);
+  DataFrame takeColumns(Collection<Integer> indexes);
 
   /**
    * Get the type of vector at {@code index}
@@ -160,7 +160,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes the indexes to take
    * @return a new data frame
    */
-  DataFrame takeRows(Set<Integer> indexes);
+  DataFrame takeRows(Collection<Integer> indexes);
 
   /**
    * Drop rows in {@code indexes} and return a new DataFrame
@@ -168,7 +168,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes the indexes to drop
    * @return a new data frame
    */
-  DataFrame dropRows(Set<Integer> indexes);
+  DataFrame dropRows(Collection<Integer> indexes);
 
   /**
    * Returns the number of rows in this data frame

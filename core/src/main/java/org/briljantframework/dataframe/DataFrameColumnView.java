@@ -82,11 +82,11 @@ public class DataFrameColumnView implements Vector {
 
   @Override
   public int compare(int a, int b) {
-    throw new UnsupportedOperationException();
+    return getType().compare(a, this, b, this);
   }
 
   @Override
   public int compare(int a, int b, Vector other) {
-    throw new UnsupportedOperationException();
+    return getType().compare(a, this, b, other);
   }
 }

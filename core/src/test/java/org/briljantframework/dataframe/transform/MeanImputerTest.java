@@ -1,20 +1,41 @@
 package org.briljantframework.dataframe.transform;
 
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.vector.DoubleVector;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MeanImputerTest {
-  Matrix matrix;
 
   @Before
-  public void setUp() throws Exception {
-    matrix = ArrayMatrix.of(4, 4, 0, 2, Double.NaN, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
-  }
+  public void setUp() throws Exception {}
 
   @Test
   public void testFit() throws Exception {
+    DataFrame frame =
+        new MixedDataFrame(DoubleVector.wrap(1, 2, 3, DoubleVector.NA), DoubleVector.wrap(3, 3, 3,
+            DoubleVector.NA), DoubleVector.wrap(DoubleVector.NA, 2, 2, DoubleVector.NA));
+
+    System.out.println(frame);
+
+    MeanImputer imputer = new MeanImputer();
+    Transformation t = imputer.fit(frame);
+
+    System.out.println(t.transform(frame));
+
+
+    DataFrame iris = Datasets.loadIris();
+    DataFrame x = iris.dropColumn(4);
+
+    t = imputer.fit(x);
+
+    Transformer pipe = PipelineTransformer.of(new MeanImputer(), new MinMaxNormalizer());
+    System.out.println(pipe.fitTransform(x));
+
+
+
     // Frame dataset = new CSVInputStream(new FileInputStream("erlang/test.txt"))
     // .read(Frame.FACTORY);
     // ClassificationFrame frame = ClassificationFrame.create(dataset, Frame.FACTORY,

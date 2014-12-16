@@ -73,8 +73,8 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
 
   @Override
   public String toString(int index) {
-    String value = getAsString(index);
-    return value == StringVector.NA ? "NA" : value;
+    double value = getAsDouble(index);
+    return Is.NA(value) ? "NA" : String.format("%.3f", value);
   }
 
   @Override
