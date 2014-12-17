@@ -122,7 +122,7 @@ public class Matrices {
    */
   public static void map(Matrix in, DoubleUnaryOperator operator, Matrix out) {
     for (int i = 0; i < in.size(); i++) {
-      out.put(i, operator.applyAsDouble(in.get(i)));
+      out.put(i, operator.applyAsDouble(in.getAsDouble(i)));
     }
   }
 
@@ -217,7 +217,7 @@ public class Matrices {
   public static Matrix reshape(VectorLike a, int m, int n) {
     Matrix matrix = new ArrayMatrix(m, n);
     for (int i = 0; i < a.size(); i++) {
-      matrix.put(i, a.get(i));
+      matrix.put(i, a.getAsDouble(i));
     }
     return matrix;
   }
@@ -373,7 +373,7 @@ public class Matrices {
     for (int j = 0; j < columns; j++) {
       double std = 0.0;
       for (int i = 0; i < matrix.rows(); i++) {
-        double residual = matrix.get(i, j) - mean.get(j);
+        double residual = matrix.get(i, j) - mean.getAsDouble(j);
         std += residual * residual;
       }
       sigmas[j] = Math.sqrt(std / (matrix.rows() - 1));

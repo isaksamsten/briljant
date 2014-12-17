@@ -26,7 +26,7 @@ import org.briljantframework.vector.VectorLike;
  * A matrix is a 2-dimensional array.
  * 
  * <p>
- * Every implementation have to ensure that {@link #put(int, double)}, {@link #get(int)} and
+ * Every implementation have to ensure that {@link #put(int, double)}, {@link #getAsDouble(int)} and
  * {@link #asDoubleArray()} work in <b>column-major</b> order as fortran and not in <b>row-major</b>
  * order as in e.g., c.
  * 
@@ -56,7 +56,7 @@ import org.briljantframework.vector.VectorLike;
  * <p>
  * Due to the order in which values are stored and implications such as cache-locality, different
  * implementations might have varying performance characteristics. For example, for element wise
- * operations one should prefer {@link #get(int)} and {@link #put(int, double)} to
+ * operations one should prefer {@link #getAsDouble(int)} and {@link #put(int, double)} to
  * {@link #get(int, int)} and {@link #put(int, int, double)}.
  *
  * <pre>
@@ -848,7 +848,7 @@ public interface Matrix extends VectorLike, Iterable<Double> {
    * 
    * @param index the index
    * @param value the value
-   * @see #get(int)
+   * @see #getAsDouble(int)
    */
   void put(int index, double value);
 
@@ -882,12 +882,12 @@ public interface Matrix extends VectorLike, Iterable<Double> {
    * @return the value index
    */
   @Override
-  double get(int index);
+  double getAsDouble(int index);
 
   /**
    * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
    * then {@code size()} is intuitive. However, if not size is {@code rows() * columns()} and the
-   * end when iterating using {@link #get(int)}. To avoid cache misses,
+   * end when iterating using {@link #getAsDouble(int)}. To avoid cache misses,
    * {@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} should be prefered to
    *
    * <pre>

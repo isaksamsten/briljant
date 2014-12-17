@@ -51,7 +51,7 @@ public class Euclidean implements Distance {
 
     double residual = 0.0;
     for (int i = 0; i < size; i++) {
-      residual += distance(a.get(i), b.get(i));
+      residual += distance(a.getAsDouble(i), b.getAsDouble(i));
     }
 
     return Math.sqrt(residual);

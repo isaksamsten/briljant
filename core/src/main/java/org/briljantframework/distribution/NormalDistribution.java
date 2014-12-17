@@ -88,7 +88,7 @@ public class NormalDistribution {
   public static Vector cdf(Vector in, double mean, double scale) {
     DoubleVector.Builder builder = new DoubleVector.Builder(0, in.size());
     for (int i = 0; i < in.size(); i++) {
-      builder.add(cdf(in.get(i), mean, scale));
+      builder.add(cdf(in.getAsDouble(i), mean, scale));
     }
     return builder.build();
   }
@@ -116,7 +116,7 @@ public class NormalDistribution {
   public static Vector ppf(Vector in, double mean, double scale) {
     DoubleVector.Builder builder = new DoubleVector.Builder(0, in.size());
     for (int i = 0; i < in.size(); i++) {
-      builder.add(ppf(in.get(i), mean, scale));
+      builder.add(ppf(in.getAsDouble(i), mean, scale));
     }
     return builder.build();
   }

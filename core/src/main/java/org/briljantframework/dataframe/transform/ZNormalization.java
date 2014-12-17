@@ -29,8 +29,8 @@ public class ZNormalization implements Transformation {
       if (x.getColumnType(j) != DoubleVector.TYPE) {
         throw new TypeMismatchException(DoubleVector.TYPE, x.getColumnType(j));
       }
-      double mean = this.mean.get(j);
-      double sigma = this.sigma.get(j);
+      double mean = this.mean.getAsDouble(j);
+      double sigma = this.sigma.getAsDouble(j);
       for (int i = 0; i < x.rows(); i++) {
         builder.set(i, j, (x.getAsDouble(i, j) - mean) / sigma);
       }

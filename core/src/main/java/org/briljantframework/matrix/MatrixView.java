@@ -58,8 +58,8 @@ public class MatrixView extends AbstractMatrix {
   }
 
   @Override
-  public double get(int index) {
-    return parent.get(computeLinearIndex(index));
+  public double getAsDouble(int index) {
+    return parent.getAsDouble(computeLinearIndex(index));
   }
 
   @Override
@@ -87,7 +87,7 @@ public class MatrixView extends AbstractMatrix {
   public Matrix copy() {
     Matrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      mat.put(i, get(i));
+      mat.put(i, getAsDouble(i));
     }
     return mat;
   }

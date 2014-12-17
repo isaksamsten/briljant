@@ -81,14 +81,6 @@ public interface Vector extends VectorLike, Serializable {
   }
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  default double get(int index) {
-    return getAsDouble(index);
-  }
-
-  /**
    * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
    *
    * @param index the index
@@ -120,7 +112,7 @@ public interface Vector extends VectorLike, Serializable {
    */
   default Complex getAsComplex(int index) {
     double value = getAsDouble(index);
-    if (Double.isNaN(value)) {
+    if (Is.NA(value)) {
       return ComplexVector.NA;
     }
     return new Complex(value, 0);

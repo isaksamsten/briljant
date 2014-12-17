@@ -6,7 +6,9 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
 /**
- * Created by Isak Karlsson on 16/12/14.
+ *
+ *
+ * @author Isak Karlsson
  */
 public class DataSeriesNormalization implements Transformation {
   @Override

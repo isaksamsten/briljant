@@ -10,7 +10,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.transform.PipelineTransformation;
 
 /**
- * Created by Isak Karlsson on 17/12/14.
+ * @author Isak Karlsson
  */
 public final class Approximations {
 
@@ -26,7 +26,15 @@ public final class Approximations {
   }
 
   public static DataFrame paa(DataFrame in, int size) {
-    return new PiecewiseApproximation(new MeanResampler(size)).transform(in);
+    return paa(size).transform(in);
+  }
+
+  public static AggregateApproximation paa(int size) {
+    return new AggregateApproximation(size);
+  }
+
+  public static AggregateApproximation sax(List<String> alphabet) {
+    return new AggregateApproximation(new SymbolicAggregator(alphabet));
   }
 
   public static DataFrame sax(DataFrame in, int size) {
@@ -39,8 +47,7 @@ public final class Approximations {
 
   public static DataFrame sax(DataFrame in, int size, List<String> alphabet) {
     checkArgument(alphabet.size() > 1, "Alphabet size must be larger than 1.");
-    return PipelineTransformation.of(new PiecewiseApproximation(new MeanResampler(size)),
-        new SymbolicApproximation(alphabet)).transform(in);
+    return PipelineTransformation.of(paa(size), sax(alphabet)).transform(in);
   }
 
 }

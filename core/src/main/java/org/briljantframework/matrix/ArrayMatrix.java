@@ -124,7 +124,7 @@ public class ArrayMatrix extends AbstractMatrix {
       System.arraycopy(((ArrayMatrix) matrix).values, 0, values, 0, this.cols * this.rows);
     } else {
       for (int i = 0; i < matrix.size(); i++) {
-        values[i] = matrix.get(i);
+        values[i] = matrix.getAsDouble(i);
       }
     }
   }
@@ -132,7 +132,7 @@ public class ArrayMatrix extends AbstractMatrix {
   public ArrayMatrix(VectorLike vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
-      put(i, vec.get(i));
+      put(i, vec.getAsDouble(i));
     }
   }
 
@@ -269,7 +269,7 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double get(int index) {
+  public double getAsDouble(int index) {
     checkArgument(index >= 0 && index < values.length);
     return values[index];
   }

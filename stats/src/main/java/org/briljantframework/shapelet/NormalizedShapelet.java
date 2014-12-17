@@ -53,11 +53,11 @@ public class NormalizedShapelet extends Shapelet {
   }
 
   @Override
-  public double get(int index) {
+  public double getAsDouble(int index) {
     if (sigma == 0) {
       return 0;
     } else {
-      return (super.get(index) - mean) / sigma;
+      return (super.getAsDouble(index) - mean) / sigma;
     }
   }
 }

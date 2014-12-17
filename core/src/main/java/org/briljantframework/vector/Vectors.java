@@ -98,7 +98,7 @@ public final class Vectors {
   public static double mean(VectorLike vector) {
     double mean = 0;
     for (int i = 0; i < vector.size(); i++) {
-      mean += vector.get(i);
+      mean += vector.getAsDouble(i);
     }
 
     return mean / vector.size();
@@ -112,7 +112,7 @@ public final class Vectors {
   public static double var(VectorLike vector, double mean) {
     double var = 0;
     for (int i = 0; i < vector.size(); i++) {
-      double residual = vector.get(i) - mean;
+      double residual = vector.getAsDouble(i) - mean;
       var += residual * residual;
     }
     return var;
@@ -131,7 +131,8 @@ public final class Vectors {
    * @return the indexes of {@code vector} sorted in increasing order by value
    */
   public static int[] sortIndex(VectorLike vector) {
-    return sortIndex(vector, (o1, o2) -> Double.compare(vector.get(o1), vector.get(o2)));
+    return sortIndex(vector,
+        (o1, o2) -> Double.compare(vector.getAsDouble(o1), vector.getAsDouble(o2)));
   }
 
   /**
@@ -177,7 +178,7 @@ public final class Vectors {
     int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {
-      dot += (alpha * x.get(i)) * (beta * y.get(i));
+      dot += (alpha * x.getAsDouble(i)) * (beta * y.getAsDouble(i));
     }
     return dot;
   }
@@ -200,7 +201,7 @@ public final class Vectors {
   public static double sum(VectorLike vector) {
     double sum = 0;
     for (int i = 0; i < vector.size(); i++) {
-      sum += vector.get(i);
+      sum += vector.getAsDouble(i);
     }
     return sum;
   }

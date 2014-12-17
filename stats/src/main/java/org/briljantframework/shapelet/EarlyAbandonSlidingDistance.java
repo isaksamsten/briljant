@@ -90,8 +90,8 @@ public class EarlyAbandonSlidingDistance implements Distance {
         if (order != null) {
           k = order[k];
         }
-        double kv = candidate.get(k);
-        double iv = subShapelet.get(k);
+        double kv = candidate.getAsDouble(k);
+        double iv = subShapelet.getAsDouble(k);
 
         sumDistance += distance(kv, iv);
         if (sumDistance > minDistance) {

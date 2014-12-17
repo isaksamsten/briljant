@@ -41,7 +41,7 @@ public class ZNormalizer implements Transformer {
 
     for (int i = 0; i < xNorm.rows(); i++) {
       for (int j = 0; j < xNorm.columns(); j++) {
-        xNorm.put(i, j, (x.get(i, j) - mean.get(j)));
+        xNorm.put(i, j, (x.get(i, j) - mean.getAsDouble(j)));
       }
     }
 

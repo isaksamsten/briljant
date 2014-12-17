@@ -9,7 +9,9 @@ import org.briljantframework.vector.Vector;
 import com.google.common.base.MoreObjects;
 
 /**
- * Created by Isak Karlsson on 11/12/14.
+ * A data series is a vector of ordered events.
+ * 
+ * @author Isak Karlsson
  */
 public class DataSeries implements DataFrameRow {
   private final Vector vector;

@@ -74,8 +74,8 @@ public class Shapelet implements VectorLike {
   }
 
   @Override
-  public double get(int index) {
-    return vector.get(start + index);
+  public double getAsDouble(int index) {
+    return vector.getAsDouble(start + index);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class Shapelet implements VectorLike {
   public String toString() {
     List<Double> r = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      r.add(get(i));
+      r.add(getAsDouble(i));
     }
     return String.format("Shapelet(%s, shape=(%d, 1))", r, size());
   }

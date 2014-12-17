@@ -4,13 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.briljantframework.dataseries.SymbolicApproximation;
+import org.briljantframework.dataseries.SymbolicAggregator;
 import org.briljantframework.vector.VectorLike;
 
 import com.google.common.base.Preconditions;
 
 /**
- * Created by Isak Karlsson on 17/12/14.
+ *
+ * @author Isak Karlsson
  */
 public class SaxDistance implements Distance {
 
@@ -27,7 +28,7 @@ public class SaxDistance implements Distance {
   }
 
   public SaxDistance(double n, List<String> alphabet) {
-    this(n, SymbolicApproximation.lookupTable(alphabet));
+    this(n, SymbolicAggregator.newLookupTable(alphabet));
   }
 
   @Override

@@ -96,7 +96,7 @@ public class VectorMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double get(int index) {
+  public double getAsDouble(int index) {
     return vector.getAsDouble(index);
   }
 

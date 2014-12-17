@@ -39,8 +39,10 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
       order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     } else {
       order =
-          Vectors.sortIndex(candidate,
-              (i, j) -> Double.compare(Math.abs(candidate.get(j)), Math.abs(candidate.get(i))));
+          Vectors.sortIndex(
+              candidate,
+              (i, j) -> Double.compare(Math.abs(candidate.getAsDouble(j)),
+                  Math.abs(candidate.getAsDouble(i))));
     }
 
     VectorLike vector = a.size() >= b.size() ? a : b;
@@ -54,7 +56,7 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
     int loc = 0;
 
     for (int i = 0; i < m; i++) {
-      double ti = vector.get(i);
+      double ti = vector.getAsDouble(i);
       T[i % l] = ti;
       T[(i % l) + l] = ti;
 
@@ -69,7 +71,7 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
         int j = 0;
         double d = 0;
         while (j < l && d < best) {
-          double sum = candidate.get(order[j]) - (T[order[j]] - mean) / std;
+          double sum = candidate.getAsDouble(order[j]) - (T[order[j]] - mean) / std;
           d += sum * sum;
           j++;
         }

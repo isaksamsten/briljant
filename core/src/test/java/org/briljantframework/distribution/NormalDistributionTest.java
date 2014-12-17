@@ -6,10 +6,10 @@ import static org.briljantframework.vector.Vectors.linspace;
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataseries.AggregateApproximation;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.DataSeriesNormalization;
-import org.briljantframework.dataseries.MeanResampler;
-import org.briljantframework.dataseries.PiecewiseApproximation;
+import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
@@ -55,7 +55,7 @@ public class NormalDistributionTest {
         ppf(linspace(1.0 / alphabet.size(), 1.0 - 1.0 / alphabet.size(), alphabet.size() - 1));
     System.out.println(alphabet);
     System.out.println(thresholds);
-    frame = new PiecewiseApproximation(new MeanResampler(9)).transform(frame);
+    frame = new AggregateApproximation(new MeanAggregator(9)).transform(frame);
 
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(StringVector.TYPE);
     for (int i = 0; i < frame.rows(); i++) {

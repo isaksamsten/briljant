@@ -1,5 +1,7 @@
 package org.briljantframework.dataseries;
 
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -11,16 +13,16 @@ import com.google.common.base.Preconditions;
  * 
  * @author Isak Karlsson
  */
-public class LttbResampler implements Resampler {
+public class LeastTriagleThreeBucketAggregator implements Aggregator {
 
   private final int threshold;
 
-  public LttbResampler(int threshold) {
+  public LeastTriagleThreeBucketAggregator(int threshold) {
     this.threshold = threshold;
   }
 
   @Override
-  public Vector.Builder mutableTransform(Vector in) {
+  public Vector.Builder partialAggregate(Vector in) {
     Preconditions.checkNotNull(in);
     if (in.size() < threshold || threshold == 0) {
       return in.newCopyBuilder();
@@ -72,5 +74,10 @@ public class LttbResampler implements Resampler {
     }
 
     return sampled.add(in, in.size() - 1);
+  }
+
+  @Override
+  public Type getAggregatedType() {
+    return DoubleVector.TYPE;
   }
 }

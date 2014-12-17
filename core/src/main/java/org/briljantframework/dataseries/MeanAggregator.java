@@ -2,6 +2,8 @@ package org.briljantframework.dataseries;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -12,25 +14,20 @@ import org.briljantframework.vector.Vector;
  * 
  * @author Isak Karlsson
  */
-public class MeanResampler implements Resampler {
+public class MeanAggregator implements Aggregator {
   private final int targetSize;
 
-  public MeanResampler(int targetSize) {
+  public MeanAggregator(int targetSize) {
     this.targetSize = targetSize;
   }
 
   @Override
-  public Vector.Builder mutableTransform(Vector in) {
+  public Vector.Builder partialAggregate(Vector in) {
     checkArgument(in.size() >= targetSize, "Input size must be smaller than target size.");
     if (in.size() == targetSize) {
       return in.newCopyBuilder();
     }
-    Vector.Builder out = in.newBuilder();
-
-    // Replaced below for performance.
-    // for (Vector part : split(in, targetSize)) {
-    // out.add(mean(part));
-    // }
+    DoubleVector.Builder out = new DoubleVector.Builder(0, targetSize);
     int bin = in.size() / targetSize;
     int pad = in.size() % targetSize;
 
@@ -49,5 +46,10 @@ public class MeanResampler implements Resampler {
       out.add(sum / binInc);
     }
     return out;
+  }
+
+  @Override
+  public Type getAggregatedType() {
+    return DoubleVector.TYPE;
   }
 }

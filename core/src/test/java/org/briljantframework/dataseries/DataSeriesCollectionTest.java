@@ -26,11 +26,11 @@ public class DataSeriesCollectionTest {
   public void testRenderLinearMeanLttbResamplers() throws Exception {
 
 
-    Map<String, Resampler> resamplers = new HashMap<>();
+    Map<String, Aggregator> resamplers = new HashMap<>();
     int threshold = 100;
-    resamplers.put("linear", new LinearResampler(threshold));
-    resamplers.put("mean", new MeanResampler(threshold));
-    resamplers.put("lttb", new LttbResampler(threshold));
+    resamplers.put("linear", new LinearAggregator(threshold));
+    resamplers.put("mean", new MeanAggregator(threshold));
+    resamplers.put("lttb", new LeastTriagleThreeBucketAggregator(threshold));
 
     try (DataInputStream dfis =
         new MatlabTextInputStream(new BufferedInputStream(new FileInputStream(
@@ -42,8 +42,8 @@ public class DataSeriesCollectionTest {
 
       Vector vec = coll.getRow(0);
 
-      for (Map.Entry<String, Resampler> entry : resamplers.entrySet()) {
-        Vector resampled = entry.getValue().transform(vec);
+      for (Map.Entry<String, Aggregator> entry : resamplers.entrySet()) {
+        Vector resampled = entry.getValue().aggregate(vec);
         System.out.println(resampled.size());
         JFreeChart s = plot(linspace(resampled.size() - 1, resampled.size(), 0), resampled);
         Chartable.saveSVG("/Users/isak/Desktop/" + entry.getKey() + ".svg", s);
@@ -85,8 +85,8 @@ public class DataSeriesCollectionTest {
 
       Vector vec = coll.getRow(77);
 
-      Resampler resampler = new MeanResampler(387);
-      Vector resampled = resampler.transform(vec);
+      Aggregator aggregator = new MeanAggregator(387);
+      Vector resampled = aggregator.aggregate(vec);
 
 
       JFreeChart chart = plot(linspace(vec.size() - 1, vec.size(), 0), vec);
@@ -116,7 +116,7 @@ public class DataSeriesCollectionTest {
     XYSeriesCollection collection = new XYSeriesCollection();
     XYSeries series = new XYSeries("Line");
     for (int i = 0; i < x.size(); i++) {
-      series.add(x.get(i), y.get(i));
+      series.add(x.getAsDouble(i), y.getAsDouble(i));
     }
     collection.addSeries(series);
 

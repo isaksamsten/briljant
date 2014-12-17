@@ -26,7 +26,7 @@ import com.carrotsearch.hppc.IntObjectOpenHashMap;
  * between this implementation and the traditional {@code DataFrame}. It is possible for the data
  * series in the collection to be of different length. Therefore, {@link #columns()} return the
  * maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
- * {@code col < coll.getRow(n).size()}. If not, NA is returned.
+ * {@code col < coll.getRow(n).size()}. If not (and {@code index < columns()}), NA is returned.
  * </p>
  *
  * @author Isak Karlsson
@@ -53,9 +53,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public String getAsString(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.getAsString(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return StringVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -65,9 +65,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public double getAsDouble(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.getAsDouble(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return DoubleVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -77,9 +77,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public int getAsInt(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.getAsInt(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return IntVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -89,9 +89,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public Binary getAsBinary(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.getAsBinary(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return BinaryVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -101,9 +101,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public Complex getAsComplex(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.getAsComplex(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return ComplexVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -113,9 +113,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public Value getAsValue(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.getAsValue(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return VariableVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
@@ -125,9 +125,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public String toString(int row, int column) {
     Vector rvec = series.get(row);
-    if (column < rvec.size()) {
+    if (column >= 0 && column < rvec.size()) {
       return rvec.toString(column);
-    } else if (column < columns) {
+    } else if (column >= 0 && column < columns) {
       return "NA";
     } else {
       throw new IndexOutOfBoundsException();

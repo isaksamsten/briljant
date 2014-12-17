@@ -28,14 +28,14 @@ public class MatrixVector extends AbstractDoubleVector {
 
       @Override
       public Double next() {
-        return matrix.get(current++);
+        return matrix.getAsDouble(current++);
       }
     };
   }
 
   @Override
   public double getAsDouble(int index) {
-    return matrix.get(index);
+    return matrix.getAsDouble(index);
   }
 
   @Override

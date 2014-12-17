@@ -16,9 +16,9 @@ public class TensorsTest {
     System.out.println(test);
     int[] order =
         Vectors.sortIndex(test,
-            (a, b) -> Double.compare(Math.abs(test.get(b)), Math.abs(test.get(a))));
+            (a, b) -> Double.compare(Math.abs(test.getAsDouble(b)), Math.abs(test.getAsDouble(a))));
     for (int i : order) {
-      System.out.println(test.get(i));
+      System.out.println(test.getAsDouble(i));
     }
 
   }

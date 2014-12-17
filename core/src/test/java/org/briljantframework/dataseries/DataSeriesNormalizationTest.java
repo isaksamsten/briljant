@@ -24,8 +24,6 @@ public class DataSeriesNormalizationTest {
             3.25, 0.75, 0.72);
     Distance euclidean = Euclidean.getInstance();
 
-
-
     DataFrame frame =
         new DataSeriesCollection.Builder(DoubleVector.TYPE).addRow(a).addRow(b).build();
 
@@ -39,9 +37,9 @@ public class DataSeriesNormalizationTest {
 
     assertEquals(4.170542, euclidean.distance(normalized.getRow(0), normalized.getRow(1)), 0.001);
 
-    System.out.println(SymbolicApproximation.lookupTable(Arrays.asList("a", "b", "c", "d")));
+    System.out.println(SymbolicAggregator.newLookupTable(Arrays.asList("a", "b", "c", "d")));
     System.out.println(Approximations.paa(normalized, 5));
-    DataFrame sax = Approximations.sax(normalized, 9, "a", "b", "c", "d");
+    DataFrame sax = Approximations.sax(normalized, 9, Approximations.getAlphabet(12));
     System.out.println(sax);
 
 

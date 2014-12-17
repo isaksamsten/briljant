@@ -12,9 +12,9 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.dataseries.Aggregator;
 import org.briljantframework.dataseries.DataSeriesCollection;
-import org.briljantframework.dataseries.MeanResampler;
-import org.briljantframework.dataseries.Resampler;
+import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
@@ -54,10 +54,10 @@ public class RandomShapeletForestTest {
     StringVector y = As.stringVector(synthetic.getColumn(0));
 
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    Resampler resampler = new MeanResampler(30);
+    Aggregator aggregator = new MeanAggregator(30);
 
     for (Vector row : x) {
-      builder.addRow(resampler.mutableTransform(row));
+      builder.addRow(aggregator.partialAggregate(row));
     }
 
     x = builder.build();
@@ -321,7 +321,7 @@ public class RandomShapeletForestTest {
 
     XYSeries series = new XYSeries("Series");
     for (int i = 0; i < x.size(); i++) {
-      series.add(x.get(i), y.get(i));
+      series.add(x.getAsDouble(i), y.getAsDouble(i));
     }
 
     collection.addSeries(series);
@@ -337,7 +337,7 @@ public class RandomShapeletForestTest {
 
     XYSeries series = new XYSeries("Series");
     for (int i = 0; i < x.size(); i++) {
-      series.add(x.get(i), y.get(i));
+      series.add(x.getAsDouble(i), y.getAsDouble(i));
     }
 
     collection.addSeries(series);
@@ -394,7 +394,7 @@ public class RandomShapeletForestTest {
       }
       XYSeries series = new XYSeries(label);
       for (int j = 0; j < y.columns(); j++) {
-        series.add(x.get(j), y.get(i, j));
+        series.add(x.getAsDouble(j), y.get(i, j));
       }
       collection.addSeries(series);
     }
@@ -514,7 +514,7 @@ public class RandomShapeletForestTest {
     XYSeriesCollection collection = new XYSeriesCollection();
     XYSeries series = new XYSeries("Line");
     for (int i = 0; i < x.size(); i++) {
-      series.add(x.get(i), y.get(i));
+      series.add(x.getAsDouble(i), y.getAsDouble(i));
     }
     collection.addSeries(series);
 
@@ -577,7 +577,7 @@ public class RandomShapeletForestTest {
       XYSeries series = new XYSeries("" + i);
       Matrix y = ys.getRowView(i);
       for (int j = 0; j < x.size(); j++) {
-        series.add(x.get(j), y.get(j));
+        series.add(x.getAsDouble(j), y.getAsDouble(j));
       }
       collection.addSeries(series);
     }
@@ -586,7 +586,7 @@ public class RandomShapeletForestTest {
     XYPlot plot = (XYPlot) chart.getPlot();
     XYItemRenderer renderer = plot.getRenderer();
     for (int i = 0; i < targets.size(); i++) {
-      renderer.setSeriesPaint(i, targets.get(i) == 1 ? Color.BLUE : Color.RED);
+      renderer.setSeriesPaint(i, targets.getAsDouble(i) == 1 ? Color.BLUE : Color.RED);
     }
 
     chart.removeLegend();
@@ -597,9 +597,9 @@ public class RandomShapeletForestTest {
     XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
     XYIntervalSeries series = new XYIntervalSeries("Series");
     for (int i = 0; i < x.size(); i++) {
-      double xv = x.get(i);
-      double yv = y.get(i);
-      double ev = e.get(i);
+      double xv = x.getAsDouble(i);
+      double yv = y.getAsDouble(i);
+      double ev = e.getAsDouble(i);
       series.add(xv, xv, xv, yv, yv - ev, yv + ev);
     }
     collection.addSeries(series);
