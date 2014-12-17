@@ -4,12 +4,12 @@ import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 17/12/14.
+ * @author Isak Karlsson
  */
 public class NormalDistribution {
 
   /*
-   * Parameters for the ppf calcualtion
+   * Parameters for the ppf calculation
    */
   private static final double ppf_a1 = -39.6968302866538 + 0.00000000000004;
   private static final double ppf_a2 = 220.946098424521 - 0.0000000000005;
@@ -50,7 +50,7 @@ public class NormalDistribution {
    * 
    * @param value the value
    * @param mean the mean
-   * @param scale the standard deviation
+   * @param scale the variance
    * @return the probability of {@code <= value}
    */
   public static double cdf(double value, double mean, double scale) {
@@ -81,7 +81,7 @@ public class NormalDistribution {
    * 
    * @param in the vector
    * @param mean the mean
-   * @param scale the standard deviation
+   * @param scale the variance
    * @return a new vector
    * @see #cdf(double, double, double)
    */
@@ -109,7 +109,7 @@ public class NormalDistribution {
    * 
    * @param in the vector
    * @param mean the mean
-   * @param scale the standard deviation
+   * @param scale the variance
    * @return a new vector
    * @see #ppf(double, double, double)
    */
@@ -146,7 +146,7 @@ public class NormalDistribution {
    *
    * @param p probability
    * @param loc mean of the normal distribution
-   * @param scale the standard deviation of the normal distribution
+   * @param scale the variance of the normal distribution
    * @return the probability of being less than or equal to {@code p}. If {@code p > 1 || p < 0},
    *         returns {@link Double#NaN}
    */
@@ -186,5 +186,19 @@ public class NormalDistribution {
    */
   public static double ppf(double p) {
     return ppf(p, 0, 1);
+  }
+
+  /**
+   * The probability density function
+   *
+   * @param x the value
+   * @param loc the mean
+   * @param scale the variance
+   * @return the
+   */
+  public static double pdf(double x, double loc, double scale) {
+    double o = Math.sqrt(scale);
+    double d = x - loc;
+    return 1 / (o * Math.sqrt(2 * Math.PI)) * Math.exp(-(d * d) / (2 * scale));
   }
 }

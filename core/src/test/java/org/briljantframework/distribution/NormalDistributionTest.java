@@ -18,6 +18,13 @@ import org.junit.Test;
 public class NormalDistributionTest {
 
   @Test
+  public void testOt() throws Exception {
+    double s = NormalDistribution.pdf(2, 0, 1);
+    double e = NormalDistribution.pdf(2, 0, 1);
+    System.out.println(s - e);
+  }
+
+  @Test
   public void testPpf() throws Exception {
     assertEquals(Double.POSITIVE_INFINITY, ppf(1), 0.0001);
     assertEquals(Double.NEGATIVE_INFINITY, ppf(0), 0.0001);
