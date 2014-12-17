@@ -2,6 +2,8 @@ package org.briljantframework.dataframe;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.Matrix;
@@ -214,6 +216,10 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @return this data frame as a matrix
    */
   Matrix asMatrix();
+
+  default Stream<DataFrameRow> stream() {
+    return StreamSupport.stream(spliterator(), false);
+  }
 
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames

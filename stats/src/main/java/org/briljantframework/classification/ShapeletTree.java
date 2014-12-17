@@ -19,8 +19,12 @@ package org.briljantframework.classification;
 import static org.briljantframework.classification.tree.Tree.Leaf;
 import static org.briljantframework.classification.tree.Tree.Node;
 
+import org.briljantframework.Utils;
 import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataseries.Aggregator;
+import org.briljantframework.dataseries.Approximations;
+import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
@@ -79,11 +83,13 @@ public class ShapeletTree implements Classifier {
     params.noExamples = examples.getTotalWeight();
     params.lengthImportance = new double[x.columns()];
     params.positionImportance = new double[x.columns()];
+    int size = Utils.getRandom().nextInt(x.rows() / 6) + 40;
+    x = Approximations.paa(x, size);
 
     Node<ShapeletThreshold> node = build(x, y, examples, params);
-    return new Model(node, new ShapletTreeVisitor(splitter.getDistanceMetric()), new ArrayMatrix(1,
-        params.lengthImportance.length, params.lengthImportance), new ArrayMatrix(1,
-        params.positionImportance.length, params.positionImportance), params.totalErrorReduction);
+    return new Model(node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
+        new ArrayMatrix(1, params.lengthImportance.length, params.lengthImportance),
+        new ArrayMatrix(1, params.positionImportance.length, params.positionImportance));
   }
 
   /**
@@ -145,7 +151,6 @@ public class ShapeletTree implements Classifier {
 
   private static class Params {
     public double noExamples;
-    private double totalErrorReduction = 0;
     private double[] lengthImportance;
     private double[] positionImportance;
     private int depth = 0;
@@ -159,17 +164,17 @@ public class ShapeletTree implements Classifier {
     private final ArrayMatrix lengthImportance;
     private final ArrayMatrix positionImportance;
 
+
     /**
      * Instantiates a new Model.
-     *
+     * 
      * @param node the node
      * @param predictionVisitor the prediction visitor
      * @param lengthImportance the dense matrix
      * @param positionImportance the position importance
-     * @param totalErrorReduction the importance sum
      */
     protected Model(Node<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
-        ArrayMatrix lengthImportance, ArrayMatrix positionImportance, double totalErrorReduction) {
+        ArrayMatrix lengthImportance, ArrayMatrix positionImportance) {
       super(node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -197,9 +202,11 @@ public class ShapeletTree implements Classifier {
   private static class ShapletTreeVisitor implements Tree.Visitor<ShapeletThreshold> {
 
     private final Distance metric;
+    private final Aggregator aggregator;
 
-    private ShapletTreeVisitor(Distance metric) {
+    private ShapletTreeVisitor(int size, Distance metric) {
       this.metric = metric;
+      this.aggregator = new MeanAggregator(size);
     }
 
     @Override
@@ -209,8 +216,8 @@ public class ShapeletTree implements Classifier {
 
     @Override
     public Label visitBranch(Tree.Branch<ShapeletThreshold> node, Vector example) {
-      if (metric.distance(example, node.getThreshold().getShapelet()) < node.getThreshold()
-          .getDistance()) {
+      if (metric.distance(aggregator.aggregate(example), node.getThreshold().getShapelet()) < node
+          .getThreshold().getDistance()) {
         return visit(node.getLeft(), example);
       } else {
         return visit(node.getRight(), example);

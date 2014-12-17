@@ -1,14 +1,13 @@
 package org.briljantframework.classification.ensemble;
 
+import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.dataframe.MatrixDataFrame;
-import org.briljantframework.dataframe.MixedDataFrame;
-import org.briljantframework.evaluation.HoldOutValidation;
-import org.briljantframework.evaluation.result.Measures;
+import org.briljantframework.distance.Euclidean;
+import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.As;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
@@ -40,19 +39,29 @@ public class AbstractEnsembleTest {
 
     // System.exit(0);
 
-    synt =
-        Datasets.load(MixedDataFrame.Builder::new, MatlabTextInputStream::new,
-            "synthetic_control_TEST");
-    Vector ytest = As.stringVector(synt.getColumn(0));
-    DataFrame xtest = synt.dropColumn(0);
-
+    // synt =
+    // Datasets.load(MixedDataFrame.Builder::new, MatlabTextInputStream::new,
+    // "synthetic_control_TEST");
+    // Vector ytest = As.stringVector(synt.getColumn(0));
+    // DataFrame xtest = synt.dropColumn(0);
+    //
     RandomShapeletForest f =
         RandomShapeletForest.withSize(100).withInspectedShapelets(100).withUpperLength(-1)
             .withLowerLength(2).build();
+    //
+    // Result result =
+    // new HoldOutValidation(Measures.getDefaultClassificationMeasures(), xtest, ytest).evaluate(
+    // f, xtrain, ytrain);
+    // System.out.println(result);
 
-    Result result =
-        new HoldOutValidation(Measures.getDefaultClassificationMeasures(), xtest, ytest).evaluate(
-            f, xtrain, ytrain);
+    KNearestNeighbors knn =
+        KNearestNeighbors.withNeighbors(1).withDistance(Euclidean.getInstance()).build();
+
+    DataFrame syntheticControl = Datasets.loadSyntheticControl();
+    Vector y = As.stringVector(syntheticControl.getColumn(0));
+    DataFrame x = syntheticControl.dropColumn(0);
+    Result result = ClassificationEvaluators.crossValidation(5).evaluate(f, x, y);
     System.out.println(result);
+
   }
 }

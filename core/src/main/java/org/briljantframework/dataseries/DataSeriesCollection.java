@@ -1,6 +1,7 @@
 package org.briljantframework.dataseries;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.DataFrameColumnView;
 import org.briljantframework.dataframe.exceptions.TypeMismatchException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
@@ -183,11 +183,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getColumn(int index) {
-    return new DataFrameColumnView(this, checkElementIndex(index, series.size()));
-  }
-
-  @Override
   public DataSeries getRow(int index) {
     return new DataSeries(series.get(index));
   }
@@ -240,7 +235,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
       for (int i = 0; i < rows(); i++) {
         Vector.Builder colb = builders.get(i);
-        if (colb.size() <= column) { // TODO: check?
+        if (column < colb.size()) { // TODO: check?
           colb.remove(column);
         }
       }
@@ -257,6 +252,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     public Builder swapInColumn(int column, int a, int b) {
       Vector.Builder avec = builders.get(a);
       Vector.Builder bvec = builders.get(b);
+      // TODO: How can this be supported?
       throw new UnsupportedOperationException();
     }
 

@@ -52,7 +52,7 @@ public class DynamicTimeWarping implements Distance {
    * @param distance the local distance function
    * @param constraint the local constraint (i.e. width of the band)
    */
-  protected DynamicTimeWarping(Distance distance, int constraint) {
+  public DynamicTimeWarping(Distance distance, int constraint) {
     this.distance = distance;
     this.constraint = constraint;
   }

@@ -10,6 +10,7 @@ import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.distance.SaxDistance;
 import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 public class DataSeriesNormalizationTest {
@@ -44,6 +45,13 @@ public class DataSeriesNormalizationTest {
 
 
     DataFrame syntheticControl = Datasets.loadSyntheticControl();
+
+
+    Vector y = syntheticControl.getColumn(0);
+    DataFrame x = Approximations.paa(syntheticControl.dropColumn(0), 40);
+    System.out.println(x);
+
+
 
     long start = System.currentTimeMillis();
     DataFrame saxs = Approximations.sax(syntheticControl, 20, "a", "b", "c", "d");
