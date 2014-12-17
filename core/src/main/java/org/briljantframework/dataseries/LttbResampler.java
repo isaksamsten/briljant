@@ -1,7 +1,6 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.transform.Transformation;
 
 import com.google.common.base.Preconditions;
 
@@ -12,7 +11,7 @@ import com.google.common.base.Preconditions;
  * 
  * @author Isak Karlsson
  */
-public class LttbResampler implements Transformation {
+public class LttbResampler implements Resampler {
 
   private final int threshold;
 
@@ -21,10 +20,10 @@ public class LttbResampler implements Transformation {
   }
 
   @Override
-  public Vector transform(Vector in) {
+  public Vector.Builder mutableTransform(Vector in) {
     Preconditions.checkNotNull(in);
     if (in.size() < threshold || threshold == 0) {
-      return in;
+      return in.newCopyBuilder();
     }
     Vector.Builder sampled = in.newBuilder();
 
@@ -72,6 +71,6 @@ public class LttbResampler implements Transformation {
       a = nextA;
     }
 
-    return sampled.add(in, in.size() - 1).build();
+    return sampled.add(in, in.size() - 1);
   }
 }

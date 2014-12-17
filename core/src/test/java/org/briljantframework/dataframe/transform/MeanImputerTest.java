@@ -25,14 +25,17 @@ public class MeanImputerTest {
 
     System.out.println(t.transform(frame));
 
-
-    DataFrame iris = Datasets.loadIris();
+    long ss = System.currentTimeMillis();
+    DataFrame iris = Datasets.loadSyntheticControl();
+    System.out.println(System.currentTimeMillis() - ss);
     DataFrame x = iris.dropColumn(4);
 
-    t = imputer.fit(x);
 
-    Transformer pipe = PipelineTransformer.of(new MeanImputer(), new MinMaxNormalizer());
-    System.out.println(pipe.fitTransform(x));
+    long l = System.currentTimeMillis();
+    Transformer pipe = PipelineTransformer.of(new MeanImputer(), new ZNormalizer());
+    DataFrame trans = pipe.fitTransform(iris);
+    System.out.println(trans.rows() + " " + trans.columns());
+    System.out.println(System.currentTimeMillis() - l);
 
 
 

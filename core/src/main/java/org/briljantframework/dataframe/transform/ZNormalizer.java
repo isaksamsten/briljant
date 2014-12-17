@@ -17,14 +17,10 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.exceptions.TypeMismatchException;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.vector.DoubleVector;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
@@ -53,34 +49,4 @@ public class ZNormalizer implements Transformer {
     return new ZNormalization(mean, sigma);
   }
 
-  private static class ZNormalization implements Transformation {
-
-    private final Matrix sigma;
-    private final Matrix mean;
-
-    public ZNormalization(Matrix mean, Matrix sigma) {
-      this.mean = mean;
-      this.sigma = sigma;
-    }
-
-    @Override
-    public DataFrame transform(DataFrame frame) {
-      Preconditions.checkArgument(frame.columns() == mean.size());
-
-      DataFrame.Builder builder = frame.newCopyBuilder();
-      for (int j = 0; j < frame.columns(); j++) {
-        if (frame.getColumnType(j) != DoubleVector.TYPE) {
-          throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
-        }
-        double mean = this.mean.get(j);
-        double sigma = this.sigma.get(j);
-        for (int i = 0; i < frame.rows(); i++) {
-          builder.set(i, j, (frame.getAsDouble(i, j) - mean) / sigma);
-        }
-
-      }
-      return builder.build();
-
-    }
-  }
 }

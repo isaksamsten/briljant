@@ -3,7 +3,7 @@ package org.briljantframework.classification.lazy;
 import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.distance.EuclideanDistance;
+import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.vector.Vector;
@@ -14,7 +14,7 @@ public class KNearestNeighborsTest {
   @Test
   public void testClassifier() throws Exception {
     KNearestNeighbors oneNearestNeighbours =
-        KNearestNeighbors.withNeighbors(4).withDistance(EuclideanDistance.INSTANCE).build();
+        KNearestNeighbors.withNeighbors(4).withDistance(Euclidean.getInstance()).build();
 
     DataFrame iris = Datasets.loadIris();
     Vector y = iris.getColumn(4);

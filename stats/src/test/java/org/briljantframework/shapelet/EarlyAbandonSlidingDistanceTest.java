@@ -1,6 +1,7 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.distance.Distance;
+import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
@@ -24,7 +25,7 @@ public class EarlyAbandonSlidingDistanceTest {
     System.out.println(NormalizedShapelet.create(0, a2.size(), a2));
 
 
-    Distance distance = EarlyAbandonSlidingDistance.create(Distance.EUCLIDEAN);
+    Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
     // System.out.println(distance.distance(a, shapelet));
     // System.out.println(distance.distance(a1, shapelet));
     System.out.println(distance.distance(a2, shapelet));
@@ -52,7 +53,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // Matrix l = DenseMatrix.of(1, 6, 1, 2, 3, 4, 5543, 6);
     // Shapelet candidate = NormalizedShapelet.create(2, 4, l);
 
-    Distance distance = EarlyAbandonSlidingDistance.create(Distance.EUCLIDEAN);
+    Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
 
     long s = System.currentTimeMillis();
     // for (int i = 0; i < 100; i++) {

@@ -1,7 +1,6 @@
 package org.briljantframework.dataseries;
 
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrameColumnView;
+import org.briljantframework.dataframe.exceptions.TypeMismatchException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
@@ -140,11 +140,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getColumn(int index) {
-    return new DataFrameColumnView(this, checkElementIndex(index, series.size()));
-  }
-
-  @Override
   public Type getColumnType(int index) {
     return type;
   }
@@ -188,8 +183,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame dropColumn(int index) {
-    throw new UnsupportedOperationException();
+  public Vector getColumn(int index) {
+    return new DataFrameColumnView(this, checkElementIndex(index, series.size()));
   }
 
   @Override
@@ -197,7 +192,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     return new DataSeries(series.get(index));
   }
 
-  public static class Builder implements DataFrame.Builder {
+  public static class Builder extends AbstractBuilder {
 
     private final Type type;
     private final List<Vector.Builder> builders;
@@ -240,13 +235,17 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public Builder addColumn(Vector.Builder builder) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Builder removeColumn(int column) {
-      throw new UnsupportedOperationException();
+      checkArgument(column >= 0 && column < columns());
+
+      for (int i = 0; i < rows(); i++) {
+        Vector.Builder colb = builders.get(i);
+        if (colb.size() <= column) { // TODO: check?
+          colb.remove(column);
+        }
+      }
+
+      return this;
     }
 
     @Override
@@ -298,12 +297,16 @@ public class DataSeriesCollection extends AbstractDataFrame {
           .collect(Collectors.toCollection(ArrayList::new)), type);
     }
 
+
     public Builder addRow(Vector.Builder row) {
       builders.add(row);
       return this;
     }
 
     public Builder addRow(Vector vector) {
+      if (vector.getType() != type) {
+        throw new TypeMismatchException(type, vector.getType());
+      }
       return addRow(vector.newCopyBuilder());
     }
 

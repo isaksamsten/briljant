@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Type;
 
 /**
@@ -125,7 +127,8 @@ public class Datasets {
     if (DATA_CACHE.containsKey(SYNTHETIC_CONTROL)) {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
-    DataFrame frame = loadSyntheticControl(MatrixDataFrame.ArrayBuilder::new);
+    DataFrame frame =
+        loadSyntheticControl((a, b) -> new DataSeriesCollection.Builder(DoubleVector.TYPE));
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;
   }

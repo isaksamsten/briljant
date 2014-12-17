@@ -28,10 +28,10 @@ import org.briljantframework.dataframe.DataFrame;
 public interface Transformation {
 
   /**
-   * Apply transformation to {@code dataFrame} resulting in a new data frame
+   * Apply transformation to {@code x} resulting in a new data frame
    *
-   * @param dataFrame data frame to transform
+   * @param x data frame to transform
    * @return transformation of {@code dataFrame}
    */
-  DataFrame transform(DataFrame dataFrame);
+  DataFrame transform(DataFrame x);
 }

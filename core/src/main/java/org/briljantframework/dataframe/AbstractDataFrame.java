@@ -198,4 +198,17 @@ public abstract class AbstractDataFrame implements DataFrame {
   public String toString() {
     return DataFrames.toTabularString(this);
   }
+
+  protected static abstract class AbstractBuilder implements Builder {
+    @Override
+    public DataFrame.Builder addColumn(Vector.Builder builder) {
+      Vector vector = builder.build();
+      int j = columns();
+      for (int i = 0; i < vector.size(); i++) {
+        set(i, j, vector, i);
+      }
+      return this;
+    }
+  }
+
 }

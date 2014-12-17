@@ -152,7 +152,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the row sequence
    */
-  Vector getRow(int index);
+  DataFrameRow getRow(int index);
 
   /**
    * Take the rows in {@code indexes}

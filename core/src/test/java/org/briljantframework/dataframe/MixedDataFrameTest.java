@@ -72,7 +72,7 @@ public class MixedDataFrameTest {
     DataFrame s = simple.build();
     System.out.println(s);
 
-    System.out.println(new RemoveIncompleteCases().fitTransform(ff));
+    System.out.println(new RemoveIncompleteCases().transform(ff));
 
 
     assertEquals(1, 1, 1);
@@ -90,8 +90,8 @@ public class MixedDataFrameTest {
         StringVector.newBuilderWithInitialValues("toyota", "tesla", "tesla", "volvo").build());
 
     DataFrame frame = new MixedDataFrame(vectors);
-    System.out.println(new RemoveIncompleteColumns().fitTransform(frame));
-    System.out.println(new RemoveIncompleteCases().fitTransform(frame));
+    System.out.println(new RemoveIncompleteColumns().transform(frame));
+    System.out.println(new RemoveIncompleteCases().transform(frame));
 
     // for (Sequence sequence : frame) {
     // System.out.println(StreamSupport.stream(sequence.spliterator(),
@@ -110,7 +110,7 @@ public class MixedDataFrameTest {
     DoubleVector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).build();
 
     DataFrame frame = new MixedDataFrame(a, b);
-    frame = new RemoveIncompleteColumns().fitTransform(frame);
+    frame = new RemoveIncompleteColumns().transform(frame);
     System.out.println(frame);
     assertEquals("The second column should be removed", 1, frame.columns());
     assertEquals("The column names should be retained", "1", frame.getColumnName(0));

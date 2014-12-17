@@ -17,8 +17,6 @@
 package org.briljantframework.dataframe.transform;
 
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import org.briljantframework.dataframe.DataFrame;
 
 /**
@@ -41,8 +39,7 @@ import org.briljantframework.dataframe.DataFrame;
  *     2  2 2
  * </pre>
  * 
- * and the {@code Transformation t = new RemoveIncompleteColumns().fit(x)}, {@code t.transform(m)}
- * returns a new DataFrame
+ * {@code new RemoveIncompleteColumns().transform(m)} returns a new DataFrame
  * 
  * <pre>
  *     1 3
@@ -58,46 +55,21 @@ import org.briljantframework.dataframe.DataFrame;
  *     2 3
  * </pre>
  * 
- * For convenience {@code new RemoveIncompleteColumns().fitTransform(x)} can be used.
  * </p>
  * 
  * @author Isak Karlsson
  */
-public class RemoveIncompleteColumns implements Transformer {
+public class RemoveIncompleteColumns implements Transformation {
 
   @Override
-  public Transformation fit(DataFrame dataset) {
-    boolean[] hasNA = new boolean[dataset.columns()];
-    for (int i = 0; i < dataset.columns(); i++) {
-      if (dataset.getColumn(i).hasNA()) {
-        hasNA[i] = true;
+  public DataFrame transform(DataFrame x) {
+    DataFrame.Builder builder = x.newCopyBuilder();
+    for (int i = 0; i < x.columns(); i++) {
+      if (x.getColumn(i).hasNA()) {
+        builder.removeColumn(i);
       }
     }
 
-    return new DoRemoveIncompleteColumns(hasNA);
-  }
-
-  private static class DoRemoveIncompleteColumns implements Transformation {
-
-    private final boolean[] hasNA;
-
-    private DoRemoveIncompleteColumns(boolean[] hasNA) {
-      this.hasNA = hasNA;
-    }
-
-    @Override
-    public DataFrame transform(DataFrame dataset) {
-      checkArgument(dataset.columns() == hasNA.length, "Argument imply different sizes %s != %s",
-          dataset.columns(), hasNA.length);
-
-      DataFrame.Builder builder = dataset.newCopyBuilder();
-      for (int i = 0; i < dataset.columns(); i++) {
-        if (hasNA[i]) {
-          builder.removeColumn(i);
-        }
-      }
-
-      return builder.build();
-    }
+    return builder.build();
   }
 }

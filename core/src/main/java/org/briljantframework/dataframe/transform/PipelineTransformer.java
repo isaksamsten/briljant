@@ -60,21 +60,4 @@ public class PipelineTransformer implements Transformer {
     return new PipelineTransformation(transformations);
   }
 
-  private static class PipelineTransformation implements Transformation {
-
-    private final List<Transformation> transformations;
-
-    public PipelineTransformation(List<Transformation> transformations) {
-      this.transformations = transformations;
-    }
-
-    @Override
-    public DataFrame transform(DataFrame dataset) {
-      for (Transformation transformation : transformations) {
-        dataset = transformation.transform(dataset);
-      }
-      return dataset;
-    }
-  }
-
 }

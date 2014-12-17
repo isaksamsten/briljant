@@ -3,12 +3,11 @@ package org.briljantframework.dataseries;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.transform.Transformation;
 
 /**
  * Created by Isak Karlsson on 12/12/14.
  */
-public class LinearResampler implements Transformation {
+public class LinearResampler implements Resampler {
 
   private final int targetSize;
 
@@ -17,7 +16,7 @@ public class LinearResampler implements Transformation {
   }
 
   @Override
-  public Vector transform(Vector in) {
+  public Vector.Builder mutableTransform(Vector in) {
     checkArgument(in.size() > targetSize, "Can't linearly oversample data series.");
 
     Vector.Builder out = in.newBuilder();
@@ -29,6 +28,7 @@ public class LinearResampler implements Transformation {
     int toPad = 0;
     while (currentIndex < in.size()) {
       int inc = 0;
+      
       // In some cases in.size() / targetSize result in a reminder,
       // distribute this reminder equally over all bins
       if (toPad++ < pad) {
@@ -43,7 +43,7 @@ public class LinearResampler implements Transformation {
 
       currentIndex += binInc;
     }
-    return out.build();
+    return out;
   }
 
   private double lerp(double a, double b, double w) {

@@ -1,5 +1,6 @@
 package org.briljantframework.vector;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import com.google.common.collect.UnmodifiableIterator;
@@ -49,23 +50,6 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   };
 
   @Override
-  public int getAsInt(int index) {
-    double value = getAsDouble(index);
-    return Is.NA(value) ? IntVector.NA : (int) value;
-  }
-
-  @Override
-  public Binary getAsBinary(int index) {
-    return Binary.valueOf(getAsInt(index));
-  }
-
-  @Override
-  public String getAsString(int index) {
-    double value = getAsDouble(index);
-    return Is.NA(value) ? StringVector.NA : String.valueOf(value);
-  }
-
-  @Override
   public Value getAsValue(int index) {
     double value = getAsDouble(index);
     return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
@@ -80,6 +64,23 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   @Override
   public boolean isNA(int index) {
     return Is.NA(getAsDouble(index));
+  }
+
+  @Override
+  public int getAsInt(int index) {
+    double value = getAsDouble(index);
+    return Is.NA(value) ? IntVector.NA : (int) value;
+  }
+
+  @Override
+  public Binary getAsBinary(int index) {
+    return Binary.valueOf(getAsInt(index));
+  }
+
+  @Override
+  public String getAsString(int index) {
+    double value = getAsDouble(index);
+    return Is.NA(value) ? StringVector.NA : String.valueOf(value);
   }
 
   @Override
@@ -99,6 +100,31 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
     double va = getAsDouble(a);
     double vb = other.getAsDouble(b);
     return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * size() + Arrays.hashCode(asDoubleArray());
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof Vector) {
+      Vector other = (Vector) obj;
+      if (other.size() != this.size()) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (getAsDouble(i) != other.getAsDouble(i)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
   @Override

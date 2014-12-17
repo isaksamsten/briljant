@@ -1,8 +1,9 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.distance.Euclidean;
+import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vectors;
 
 /**
  * TODO(isak): make this work! Created by Isak Karlsson on 27/10/14.
@@ -23,26 +24,26 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
    * @return the online reorder early abandon sliding distance
    */
   public static OnlineReorderEarlyAbandonSlidingDistance create() {
-    return new OnlineReorderEarlyAbandonSlidingDistance(EUCLIDEAN);
+    return new OnlineReorderEarlyAbandonSlidingDistance(Euclidean.getInstance());
   }
 
 
   @Override
-  public double distance(DoubleArray a, DoubleArray b) {
+  public double distance(VectorLike a, VectorLike b) {
     // Candidate is normalized
-    DoubleArray candidate = a.size() < b.size() ? a : b;
+    VectorLike candidate = a.size() < b.size() ? a : b;
     int l = candidate.size();
 
-    int[] order = null;
+    int[] order;
     if (candidate instanceof IndexSortedNormalizedShapelet) {
-      order = ((IndexSortedNormalizedShapelet) candidate).getOrder();
+      order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     } else {
-      order = Matrices.sortIndex(candidate, (i, j) -> {
-        return Double.compare(Math.abs(candidate.get(j)), Math.abs(candidate.get(i)));
-      });
+      order =
+          Vectors.sortIndex(candidate,
+              (i, j) -> Double.compare(Math.abs(candidate.get(j)), Math.abs(candidate.get(i))));
     }
 
-    DoubleArray vector = a.size() >= b.size() ? a : b;
+    VectorLike vector = a.size() >= b.size() ? a : b;
     int m = vector.size();
 
     double ex = 0, ex2 = 0; // running sum and square sum

@@ -16,7 +16,7 @@
 
 package org.briljantframework.distance;
 
-import org.briljantframework.DoubleArray;
+import org.briljantframework.vector.VectorLike;
 
 /**
  * In mathematics, a metric or distance function is a function that defines a distance between
@@ -46,16 +46,6 @@ import org.briljantframework.DoubleArray;
 public interface Distance {
 
   /**
-   * Euclidean norm (i.e. sqrt(||x - y||_2)). The Euclidean distance satisfies all conditions.
-   */
-  public static final Distance EUCLIDEAN = EuclideanDistance.INSTANCE;
-
-  /**
-   * The constant MANHATTAN.
-   */
-  public static final Distance MANHATTAN = ManhattanDistance.INSTANCE;
-
-  /**
    * Calculate the distance between two scalar
    *
    * @param a scalar
@@ -71,7 +61,7 @@ public interface Distance {
    * @param b a vector
    * @return the distance
    */
-  double distance(DoubleArray a, DoubleArray b);
+  double distance(VectorLike a, VectorLike b);
 
   /**
    * Max double.

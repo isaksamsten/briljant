@@ -3,7 +3,6 @@ package org.briljantframework.vector;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.io.DataEntry;
 
 /**
@@ -12,48 +11,16 @@ import org.briljantframework.io.DataEntry;
  * implemented differently depending value type, checking for NA-values are done via the
  * {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
  * <p>
- * The vector interface extends the {@link org.briljantframework.DoubleArray} interface
+ * The vector interface extends the {@link VectorLike} interface.
  *
  * @author Isak Karlsson
  */
-public interface Vector extends DoubleArray, Serializable {
-
-  /**
-   * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
-   *
-   * @param index the index
-   * @return a double
-   */
-  double getAsDouble(int index);
-
-  /**
-   * Returns value as {@code int} if applicable. Otherwise returns {@link IntVector#NA}
-   *
-   * @param index the index
-   * @return an int
-   */
-  int getAsInt(int index);
-
-  /**
-   * Returns value as {@link Binary}.
-   *
-   * @param index the index
-   * @return a {@link Binary}
-   */
-  Binary getAsBinary(int index);
-
-  /**
-   * Returns value as {@link String}, {@code null} is used to denote missing values.
-   *
-   * @param index the index
-   * @return a {@code String} or {@code null}
-   */
-  String getAsString(int index);
+public interface Vector extends VectorLike, Serializable {
 
   /**
    * Returns value as {@link org.briljantframework.vector.Value}.
    * {@link org.briljantframework.vector.Undefined} denotes missing values.
-   * 
+   *
    * While wrapping the return type in a {@code Value} require additional space and impose some
    * overhead it brings the benefit of knowing the type of a particular value, which in some cases
    * might be useful.
@@ -62,20 +29,6 @@ public interface Vector extends DoubleArray, Serializable {
    * @return a {@code Vector}
    */
   Value getAsValue(int index);
-
-  /**
-   * Returns value as {@link Complex} or {@link ComplexVector#NA} if missing.
-   *
-   * @param index the index
-   * @return a {@link Complex}
-   */
-  default Complex getAsComplex(int index) {
-    double value = getAsDouble(index);
-    if (Double.isNaN(value)) {
-      return ComplexVector.NA;
-    }
-    return new Complex(value, 0);
-  }
 
   /**
    * Return the string representation of the value at {@code index}
@@ -134,6 +87,52 @@ public interface Vector extends DoubleArray, Serializable {
   default double get(int index) {
     return getAsDouble(index);
   }
+
+  /**
+   * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
+   *
+   * @param index the index
+   * @return a double
+   */
+  double getAsDouble(int index);
+
+  /**
+   * Returns value as {@code int} if applicable. Otherwise returns {@link IntVector#NA}
+   *
+   * @param index the index
+   * @return an int
+   */
+  int getAsInt(int index);
+
+  /**
+   * Returns value as {@link Binary}.
+   *
+   * @param index the index
+   * @return a {@link Binary}
+   */
+  Binary getAsBinary(int index);
+
+  /**
+   * Returns value as {@link Complex} or {@link ComplexVector#NA} if missing.
+   *
+   * @param index the index
+   * @return a {@link Complex}
+   */
+  default Complex getAsComplex(int index) {
+    double value = getAsDouble(index);
+    if (Double.isNaN(value)) {
+      return ComplexVector.NA;
+    }
+    return new Complex(value, 0);
+  }
+
+  /**
+   * Returns value as {@link String}, {@code null} is used to denote missing values.
+   *
+   * @param index the index
+   * @return a {@code String} or {@code null}
+   */
+  String getAsString(int index);
 
   /**
    * Returns the size of the vector
@@ -368,6 +367,8 @@ public interface Vector extends DoubleArray, Serializable {
       iterable.forEach(this::add);
       return this;
     }
+
+    Builder remove(int index);
 
     /**
      * Swaps value at {@code a} with value at {@code b}

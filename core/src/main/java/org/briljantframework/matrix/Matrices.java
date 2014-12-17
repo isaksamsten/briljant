@@ -16,19 +16,15 @@
 
 package org.briljantframework.matrix;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.exception.MismatchException;
+import org.briljantframework.vector.VectorLike;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 
 
 /**
@@ -216,6 +212,14 @@ public class Matrices {
    */
   public static Matrix log2(Matrix in) {
     return map(in, x -> Math.log(x) / LOG_2);
+  }
+
+  public static Matrix reshape(VectorLike a, int m, int n) {
+    Matrix matrix = new ArrayMatrix(m, n);
+    for (int i = 0; i < a.size(); i++) {
+      matrix.put(i, a.get(i));
+    }
+    return matrix;
   }
 
   //
@@ -497,145 +501,11 @@ public class Matrices {
 
   // }
 
-  /**
-   * Std double.
-   *
-   * @param vector the vector
-   * @return the double
-   */
-  public static double std(DoubleArray vector) {
-    return std(vector, mean(vector));
-  }
-
-  /**
-   * Std double.
-   *
-   * @param vector the vector
-   * @param mean the mean
-   * @return the double
-   */
-  public static double std(DoubleArray vector, double mean) {
-    double var = var(vector, mean);
-    return Math.sqrt(var / (vector.size() - 1));
-  }
-
-  /**
-   * Mean double.
-   *
-   * @param vector the vector
-   * @return the double
-   */
-  public static double mean(DoubleArray vector) {
-    double mean = 0;
-    for (int i = 0; i < vector.size(); i++) {
-      mean += vector.get(i);
-    }
-
-    return mean / vector.size();
-  }
-
-  /**
-   * Var double.
-   *
-   * @param vector the vector
-   * @param mean the mean
-   * @return the double
-   */
-  public static double var(DoubleArray vector, double mean) {
-    double var = 0;
-    for (int i = 0; i < vector.size(); i++) {
-      double residual = vector.get(i) - mean;
-      var += residual * residual;
-    }
-    return var;
-  }
-
-  /**
-   * Var double.
-   *
-   * @param vector the vector
-   * @return the double
-   */
-  public static double var(DoubleArray vector) {
-    return var(vector, mean(vector));
-  }
-
   // }
 
   // }
 
-  /**
-   * Sort index.
-   *
-   * @param vector the vector
-   * @return the int [ ]
-   */
-  public static int[] sortIndex(DoubleArray vector) {
-    return sortIndex(vector, (o1, o2) -> Double.compare(vector.get(o1), vector.get(o2)));
-  }
-
-  /**
-   * Sort index.
-   *
-   * @param vector the vector
-   * @param comparator the comparator
-   * @return the int [ ]
-   */
-  public static int[] sortIndex(DoubleArray vector, Comparator<Integer> comparator) {
-    int[] indicies = new int[vector.size()];
-    for (int i = 0; i < indicies.length; i++) {
-      indicies[i] = i;
-    }
-    List<Integer> tempList = Ints.asList(indicies);
-    Collections.sort(tempList, comparator);
-    return indicies;
-  }
-
   // }
-
-  /**
-   * Inner product, i.e. the dot product x * y
-   *
-   * @param x a vector
-   * @param y a vector
-   * @return the dot product
-   */
-  public static double dot(DoubleArray x, DoubleArray y) {
-    return dot(x, 1, y, 1);
-  }
-
-  /**
-   * Take the inner product of two vectors (m x 1) and (1 x m) scaling them by alpha and beta
-   * respectively
-   *
-   * @param x a row vector
-   * @param alpha scaling factor for a
-   * @param y a column vector
-   * @param beta scaling factor for y
-   * @return the inner product
-   */
-  public static double dot(DoubleArray x, double alpha, DoubleArray y, double beta) {
-    if (x.size() != y.size()) {
-      throw new IllegalArgumentException();
-    }
-    int size = y.size();
-    double dot = 0;
-    for (int i = 0; i < size; i++) {
-      dot += (alpha * x.get(i)) * (beta * y.get(i));
-    }
-    return dot;
-  }
-
-  /**
-   * Compute the sigmoid between a and b, i.e. 1/(1+e^(a'-b))
-   *
-   * @param a a vector
-   * @param b a vector
-   * @return the sigmoid
-   */
-  public static double sigmoid(DoubleArray a, DoubleArray b) {
-    return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
-  }
 
   /**
    * Simple wrapper around
@@ -652,20 +522,6 @@ public class Matrices {
   public static void mmul(Matrix t, double alpha, Matrix other, double beta, double[] tmp) {
     BLAS.dgemm("n", "n", t.rows(), other.columns(), other.rows(), alpha, t.asDoubleArray(),
         t.rows(), other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
-  }
-
-  /**
-   * Sum double.
-   *
-   * @param matrix the matrix
-   * @return the double
-   */
-  public static double sum(DoubleArray matrix) {
-    double sum = 0;
-    for (int i = 0; i < matrix.size(); i++) {
-      sum += matrix.get(i);
-    }
-    return sum;
   }
 
 

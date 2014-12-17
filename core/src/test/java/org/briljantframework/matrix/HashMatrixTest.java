@@ -1,6 +1,6 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.DoubleArray;
+import org.briljantframework.vector.VectorLike;
 import org.junit.Test;
 
 public class HashMatrixTest {
@@ -16,7 +16,7 @@ public class HashMatrixTest {
       }
     }
 
-    DoubleArray a = DoubleArray.wrap(1, 2, 3, 4, 5);
+    VectorLike a = VectorLike.wrap(1, 2, 3, 4, 5);
     System.out.println(matrix.assign(a, (c, d) -> c + d, Axis.COLUMN));
 
     // Matrix view = matrix.getView(0, 0, 4, 4);

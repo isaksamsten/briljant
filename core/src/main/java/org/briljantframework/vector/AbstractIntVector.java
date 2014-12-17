@@ -46,6 +46,23 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
   };
 
   @Override
+  public Value getAsValue(int index) {
+    int value = getAsInt(index);
+    return Is.NA(value) ? Undefined.INSTANCE : new IntValue(value);
+  }
+
+  @Override
+  public String toString(int index) {
+    int value = getAsInt(index);
+    return value == NA ? "NA" : String.valueOf(value);
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return getAsInt(index) == NA;
+  }
+
+  @Override
   public double getAsDouble(int index) {
     int value = getAsInt(index);
     return value == NA ? DoubleVector.NA : value;
@@ -60,28 +77,6 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
   public String getAsString(int index) {
     int value = getAsInt(index);
     return value == NA ? StringVector.NA : String.valueOf(value);
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    int value = getAsInt(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new IntValue(value);
-  }
-
-  @Override
-  public String toString(int index) {
-    int value = getAsInt(index);
-    return value == NA ? "NA" : String.valueOf(value);
-  }
-
-  @Override
-  public boolean isTrue(int index) {
-    return getAsInt(index) == 1;
-  }
-
-  @Override
-  public boolean isNA(int index) {
-    return getAsInt(index) == NA;
   }
 
   @Override

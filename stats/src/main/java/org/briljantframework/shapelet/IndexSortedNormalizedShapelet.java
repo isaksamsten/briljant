@@ -1,7 +1,7 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.DoubleArray;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vectors;
 
 /**
  * Created by Isak Karlsson on 27/10/14.
@@ -20,10 +20,10 @@ public class IndexSortedNormalizedShapelet extends NormalizedShapelet {
    * @param length the length
    * @param vector the vector
    */
-  public IndexSortedNormalizedShapelet(int start, int length, DoubleArray vector) {
+  public IndexSortedNormalizedShapelet(int start, int length, VectorLike vector) {
     super(start, length, vector);
     this.order =
-        Matrices.sortIndex(this,
+        Vectors.sortIndex(this,
             (i, j) -> Double.compare(Math.abs(this.get(j)), Math.abs(this.get(i))));
   }
 
@@ -32,7 +32,7 @@ public class IndexSortedNormalizedShapelet extends NormalizedShapelet {
    *
    * @return the int [ ]
    */
-  public int[] getOrder() {
+  public int[] getSortOrder() {
     return order;
   }
 }

@@ -26,6 +26,21 @@ public class ValueVector implements VariableVector {
   }
 
   @Override
+  public Value getAsValue(int index) {
+    return values.get(index);
+  }
+
+  @Override
+  public String toString(int index) {
+    return values.get(index).toString(0);
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return values.get(index).isNA(0);
+  }
+
+  @Override
   public double getAsDouble(int index) {
     return values.get(index).getAsDouble(0);
   }
@@ -41,28 +56,13 @@ public class ValueVector implements VariableVector {
   }
 
   @Override
-  public String getAsString(int index) {
-    return values.get(index).getAsString(0);
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return values.get(index);
-  }
-
-  @Override
   public Complex getAsComplex(int index) {
     return values.get(index).getAsComplex(0);
   }
 
   @Override
-  public String toString(int index) {
-    return values.get(index).toString(0);
-  }
-
-  @Override
-  public boolean isNA(int index) {
-    return values.get(index).isNA(0);
+  public String getAsString(int index) {
+    return values.get(index).getAsString(0);
   }
 
   @Override
@@ -199,6 +199,12 @@ public class ValueVector implements VariableVector {
       for (int i = 0; i < from.size(); i++) {
         buffer.add(from.getAsValue(i));
       }
+      return this;
+    }
+
+    @Override
+    public Builder remove(int index) {
+      buffer.remove(index);
       return this;
     }
 

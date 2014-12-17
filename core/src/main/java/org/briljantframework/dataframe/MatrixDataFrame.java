@@ -179,6 +179,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   /**
    * Returns a
+   * 
    * @param index the index
    * @return
    */
@@ -233,7 +234,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
    * {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}, which is both sparse and
    * fast to incrementally build.
    */
-  public static class ArrayBuilder implements DataFrame.Builder {
+  public static class ArrayBuilder extends AbstractBuilder {
 
     private static final int MIN_CAPACITY = 50;
     private final List<String> colNames;
@@ -347,16 +348,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
         dval = DoubleVector.NA;
       }
       return set(row, column, dval);
-    }
-
-    @Override
-    public DataFrame.Builder addColumn(Vector.Builder builder) {
-      Vector vector = builder.build();
-      int j = columns();
-      for (int i = 0; i < vector.size(); i++) {
-        set(i, j, vector, i);
-      }
-      return this;
     }
 
     @Override

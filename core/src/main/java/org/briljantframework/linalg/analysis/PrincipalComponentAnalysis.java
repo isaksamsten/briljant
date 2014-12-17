@@ -58,7 +58,7 @@ public class PrincipalComponentAnalysis implements Analysis, InvertibleTransform
   }
 
   @Override
-  public DataFrame transform(DataFrame frame) {
+  public DataFrame transform(DataFrame x) {
     // Matrix m = frame.asMatrix();
     // E copy = factory.copyDataset(frame);
     // Types types = Types.range(NumericType::new, components(m));

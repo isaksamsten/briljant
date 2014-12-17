@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.chart.Chartable;
 import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.dataframe.DataFrame;
@@ -15,16 +14,14 @@ import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.MeanResampler;
+import org.briljantframework.dataseries.Resampler;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.vector.As;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.transform.Transformation;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -57,10 +54,10 @@ public class RandomShapeletForestTest {
     StringVector y = As.stringVector(synthetic.getColumn(0));
 
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    Transformation resampler = new MeanResampler(30);
+    Resampler resampler = new MeanResampler(30);
 
     for (Vector row : x) {
-      builder.addRow(resampler.transform(row));
+      builder.addRow(resampler.mutableTransform(row));
     }
 
     x = builder.build();
@@ -513,7 +510,7 @@ public class RandomShapeletForestTest {
     }
   }
 
-  public JFreeChart plot(DoubleArray x, DoubleArray y) {
+  public JFreeChart plot(VectorLike x, VectorLike y) {
     XYSeriesCollection collection = new XYSeriesCollection();
     XYSeries series = new XYSeries("Line");
     for (int i = 0; i < x.size(); i++) {
@@ -596,7 +593,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(DoubleArray x, String xlabel, DoubleArray y, String ylabel, DoubleArray e) {
+  public JFreeChart plot(VectorLike x, String xlabel, VectorLike y, String ylabel, VectorLike e) {
     XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
     XYIntervalSeries series = new XYIntervalSeries("Series");
     for (int i = 0; i < x.size(); i++) {

@@ -73,7 +73,7 @@ public class InverseTransformation implements Transformation {
   }
 
   @Override
-  public DataFrame transform(DataFrame dataFrame) {
+  public DataFrame transform(DataFrame x) {
     // if (!frame.isSquare()) {
     // throw new IllegalArgumentException("Square matrix is required.");
     // }

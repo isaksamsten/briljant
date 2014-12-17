@@ -1,7 +1,6 @@
 package org.briljantframework.linalg;
 
 import static org.briljantframework.matrix.Matrices.parseMatrix;
-import static org.briljantframework.matrix.Matrices.sum;
 import static org.junit.Assert.assertEquals;
 
 import java.util.stream.IntStream;
@@ -27,8 +26,8 @@ public class MatricesTest {
   @Test
   public void testSumRows() throws Exception {
     Matrix m = parseMatrix("1,1,1,1;" + "1,1,1,1;" + "1,1,1,1");
-    Matrix rowSum = sum(m, Axis.ROW);
-    Matrix columnSum = sum(m, Axis.COLUMN);
+    Matrix rowSum = Matrices.sum(m, Axis.ROW);
+    Matrix columnSum = Matrices.sum(m, Axis.COLUMN);
     System.out.println(rowSum);
     System.out.println(columnSum);
 

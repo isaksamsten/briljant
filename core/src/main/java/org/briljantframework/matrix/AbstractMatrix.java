@@ -24,9 +24,9 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.Utils;
 import org.briljantframework.exception.NonConformantException;
+import org.briljantframework.vector.VectorLike;
 
 import com.google.common.collect.ImmutableTable;
 
@@ -53,12 +53,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(DoubleArray vector, Axis axis) {
+  public Matrix assign(VectorLike vector, Axis axis) {
     return assign(vector, (a, b) -> b, axis);
   }
 
   @Override
-  public Matrix assign(DoubleArray other, DoubleBinaryOperator operator, Axis axis) {
+  public Matrix assign(VectorLike other, DoubleBinaryOperator operator, Axis axis) {
     /*
      * Due to cache-locality, put(i, ) is for most (at least array based) matrices a _big_ win.
      * Therefore, the straightforward implementation using two for-loops is not used below.
@@ -220,12 +220,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mul(DoubleArray other, Axis axis) {
+  public Matrix mul(VectorLike other, Axis axis) {
     return mul(1, other, 1, axis);
   }
 
   @Override
-  public Matrix mul(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix mul(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().muli(alpha, other, beta, axis);
   }
 
@@ -261,12 +261,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix muli(DoubleArray other, Axis axis) {
+  public Matrix muli(VectorLike other, Axis axis) {
     return muli(1, other, 1, axis);
   }
 
   @Override
-  public Matrix muli(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix muli(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -298,12 +298,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix add(DoubleArray other, Axis axis) {
+  public Matrix add(VectorLike other, Axis axis) {
     return add(1, other, 1, axis);
   }
 
   @Override
-  public Matrix add(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix add(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().addi(alpha, other, beta, axis);
   }
 
@@ -336,12 +336,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix addi(DoubleArray other, Axis axis) {
+  public Matrix addi(VectorLike other, Axis axis) {
     return addi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix addi(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix addi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -378,12 +378,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix sub(DoubleArray other, Axis axis) {
+  public Matrix sub(VectorLike other, Axis axis) {
     return sub(1, other, 1, axis);
   }
 
   @Override
-  public Matrix sub(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix sub(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().subi(alpha, other, beta, axis);
   }
 
@@ -412,12 +412,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix subi(DoubleArray other, Axis axis) {
+  public Matrix subi(VectorLike other, Axis axis) {
     return subi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix subi(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix subi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -450,12 +450,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rsub(DoubleArray other, Axis axis) {
+  public Matrix rsub(VectorLike other, Axis axis) {
     return rsub(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rsub(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix rsub(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().rsubi(alpha, other, beta, axis);
   }
 
@@ -470,12 +470,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rsubi(DoubleArray other, Axis axis) {
+  public Matrix rsubi(VectorLike other, Axis axis) {
     return rsubi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rsubi(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix rsubi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -508,12 +508,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix div(DoubleArray other, Axis axis) {
+  public Matrix div(VectorLike other, Axis axis) {
     return div(1, other, 1, axis);
   }
 
   @Override
-  public Matrix div(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix div(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().divi(alpha, other, beta, axis);
   }
 
@@ -532,12 +532,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix divi(DoubleArray other, Axis axis) {
+  public Matrix divi(VectorLike other, Axis axis) {
     return divi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix divi(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix divi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -562,12 +562,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rdiv(DoubleArray other, Axis axis) {
+  public Matrix rdiv(VectorLike other, Axis axis) {
     return rdiv(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rdiv(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix rdiv(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().rdivi(alpha, other, beta, axis);
   }
 
@@ -580,12 +580,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rdivi(DoubleArray other, Axis axis) {
+  public Matrix rdivi(VectorLike other, Axis axis) {
     return rdivi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rdivi(double alpha, DoubleArray other, double beta, Axis axis) {
+  public Matrix rdivi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {

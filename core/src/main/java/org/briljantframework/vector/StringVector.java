@@ -85,7 +85,7 @@ public class StringVector extends AbstractStringVector {
 
   @Override
   public int hashCode() {
-    return values.hashCode();
+    return 31 * size() + values.hashCode();
   }
 
   @Override
@@ -93,6 +93,9 @@ public class StringVector extends AbstractStringVector {
     if (obj == this) {
       return true;
     } else if (obj instanceof StringVector) {
+      if (size() != ((StringVector) obj).size()) {
+        return false;
+      }
       return values.equals(((StringVector) obj).values);
     } else {
       return false;
@@ -174,6 +177,12 @@ public class StringVector extends AbstractStringVector {
       for (int i = 0; i < from.size(); i++) {
         add(from.getAsString(i));
       }
+      return this;
+    }
+
+    @Override
+    public Vector.Builder remove(int index) {
+      buffer.remove(index);
       return this;
     }
 

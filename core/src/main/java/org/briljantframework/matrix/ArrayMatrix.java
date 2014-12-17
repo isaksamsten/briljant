@@ -21,11 +21,10 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.exception.MismatchException;
 import org.briljantframework.exception.NonConformantException;
+import org.briljantframework.vector.VectorLike;
 
-import com.github.fommil.netlib.BLAS;
 import com.google.common.base.Preconditions;
 
 /**
@@ -41,8 +40,7 @@ import com.google.common.base.Preconditions;
 public class ArrayMatrix extends AbstractMatrix {
 
   protected static final String INVALID_SIZE = "Sizes does not match.";
-  private static final BLAS blas = BLAS.getInstance();
-  final double[] values;
+  private final double[] values;
 
   /**
    * Create a new matrix from {@code values} with {@code column} columns. {@code values.length} must
@@ -131,7 +129,7 @@ public class ArrayMatrix extends AbstractMatrix {
     }
   }
 
-  public ArrayMatrix(DoubleArray vec) {
+  public ArrayMatrix(VectorLike vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
       put(i, vec.get(i));

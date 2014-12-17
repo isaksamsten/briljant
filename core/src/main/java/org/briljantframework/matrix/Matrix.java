@@ -20,7 +20,7 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
-import org.briljantframework.DoubleArray;
+import org.briljantframework.vector.VectorLike;
 
 /**
  * A matrix is a 2-dimensional array.
@@ -86,7 +86,7 @@ import org.briljantframework.DoubleArray;
  * 
  * @author Isak Karlsson
  */
-public interface Matrix extends DoubleArray, Iterable<Double> {
+public interface Matrix extends VectorLike, Iterable<Double> {
 
   /**
    * Assign {@code value} to {@code this}
@@ -105,7 +105,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix assign(DoubleArray vector, Axis axis);
+  Matrix assign(VectorLike vector, Axis axis);
 
   /**
    * Assign {@code vector} and apply operator to every element extending row or column wise
@@ -115,7 +115,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix assign(DoubleArray vector, DoubleBinaryOperator operator, Axis axis);
+  Matrix assign(VectorLike vector, DoubleBinaryOperator operator, Axis axis);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -334,9 +334,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the vector
    * @param axis the extending direction
    * @return a new matrix
-   * @see #mul(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #mul(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix mul(DoubleArray other, Axis axis);
+  Matrix mul(VectorLike other, Axis axis);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
@@ -352,7 +352,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix mul(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix mul(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -393,9 +393,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #mul(org.briljantframework.DoubleArray, Axis)
+   * @see #mul(org.briljantframework.vector.VectorLike, Axis)
    */
-  Matrix muli(DoubleArray other, Axis axis);
+  Matrix muli(VectorLike other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -403,9 +403,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #mul(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #mul(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix muli(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix muli(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise addition.
@@ -429,9 +429,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix add(DoubleArray other, Axis axis);
+  Matrix add(VectorLike other, Axis axis);
 
   /**
    * Element wise add, extending {@code other} row or column wise
@@ -447,7 +447,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix add(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix add(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -483,7 +483,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  Matrix addi(DoubleArray other, Axis axis);
+  Matrix addi(VectorLike other, Axis axis);
 
   /**
    * In place version of {@code add}.
@@ -493,9 +493,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix addi(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix addi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place element wise subtraction.
@@ -530,9 +530,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix sub(DoubleArray other, Axis axis);
+  Matrix sub(VectorLike other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise
@@ -548,7 +548,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix sub(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix sub(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -584,7 +584,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  Matrix subi(DoubleArray other, Axis axis);
+  Matrix subi(VectorLike other, Axis axis);
 
   /**
    * In place version of {@code sub}.
@@ -594,9 +594,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #sub(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix subi(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix subi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place Element wise subtraction.
@@ -624,9 +624,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rsub(DoubleArray other, Axis axis);
+  Matrix rsub(VectorLike other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
@@ -643,7 +643,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix rsub(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix rsub(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
@@ -660,7 +660,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  Matrix rsubi(DoubleArray other, Axis axis);
+  Matrix rsubi(VectorLike other, Axis axis);
 
   /**
    * In place version of {@code rsub}.
@@ -670,9 +670,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #rsub(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #rsub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rsubi(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix rsubi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -698,9 +698,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix div(DoubleArray other, Axis axis);
+  Matrix div(VectorLike other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise
@@ -716,7 +716,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix div(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix div(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place element wise division.
@@ -740,9 +740,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #div(org.briljantframework.DoubleArray, Axis)
+   * @see #div(org.briljantframework.vector.VectorLike, Axis)
    */
-  Matrix divi(DoubleArray other, Axis axis);
+  Matrix divi(VectorLike other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -750,9 +750,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #div(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #div(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix divi(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix divi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code other / this}.
@@ -769,9 +769,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rdiv(DoubleArray other, Axis axis);
+  Matrix rdiv(VectorLike other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
@@ -788,7 +788,7 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix rdiv(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix rdiv(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place element wise division. {@code other / this}.
@@ -803,9 +803,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #divi(org.briljantframework.DoubleArray, Axis)
+   * @see #divi(org.briljantframework.vector.VectorLike, Axis)
    */
-  Matrix rdivi(DoubleArray other, Axis axis);
+  Matrix rdivi(VectorLike other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -813,9 +813,9 @@ public interface Matrix extends DoubleArray, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #divi(double, org.briljantframework.DoubleArray, double, Axis)
+   * @see #divi(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rdivi(double alpha, DoubleArray other, double beta, Axis axis);
+  Matrix rdivi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.

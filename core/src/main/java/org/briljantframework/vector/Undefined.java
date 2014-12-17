@@ -49,6 +49,21 @@ public class Undefined implements Value {
   protected static final String ILLEGAL = "Can't index undefined.";
 
   @Override
+  public Value getAsValue(int index) {
+    return this;
+  }
+
+  @Override
+  public String toString(int index) {
+    return "NA";
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return true;
+  }
+
+  @Override
   public double getAsDouble(int index) {
     return DoubleVector.NA;
   }
@@ -66,21 +81,6 @@ public class Undefined implements Value {
   @Override
   public String getAsString(int index) {
     return StringVector.NA;
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return this;
-  }
-
-  @Override
-  public String toString(int index) {
-    return "NA";
-  }
-
-  @Override
-  public boolean isNA(int index) {
-    return true;
   }
 
   @Override
@@ -164,6 +164,11 @@ public class Undefined implements Value {
 
     @Override
     public Vector.Builder addAll(Vector from) {
+      return this;
+    }
+
+    @Override
+    public Vector.Builder remove(int index) {
       return this;
     }
 

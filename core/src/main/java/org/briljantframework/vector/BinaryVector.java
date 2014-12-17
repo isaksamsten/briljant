@@ -163,6 +163,13 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
+    public Builder remove(int index) {
+      // ArrayBuffers.remove(buffer.buffer, index);
+      buffer.remove(index);
+      return this;
+    }
+
+    @Override
     public Vector.Builder swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);

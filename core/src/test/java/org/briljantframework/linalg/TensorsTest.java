@@ -3,6 +3,7 @@ package org.briljantframework.linalg;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.Vectors;
 import org.junit.Test;
 
 public class TensorsTest {
@@ -14,7 +15,7 @@ public class TensorsTest {
 
     System.out.println(test);
     int[] order =
-        Matrices.sortIndex(test,
+        Vectors.sortIndex(test,
             (a, b) -> Double.compare(Math.abs(test.get(b)), Math.abs(test.get(a))));
     for (int i : order) {
       System.out.println(test.get(i));

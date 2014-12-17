@@ -26,6 +26,7 @@ import java.util.Map;
 import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
+import org.briljantframework.distance.Euclidean;
 import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
 
@@ -122,7 +123,7 @@ public class KNearestNeighbors implements Classifier {
      * The Neighbours.
      */
     public int neighbors;
-    private Distance distance = Distance.EUCLIDEAN;
+    private Distance distance = Euclidean.getInstance();
 
     /**
      * Instantiates a new Builder.

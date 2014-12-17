@@ -1,6 +1,11 @@
 package org.briljantframework;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.Arrays;
+
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.IntVector;
 
 /**
  * Utility class for handling array buffers
@@ -9,6 +14,41 @@ import java.util.Arrays;
  */
 public final class ArrayBuffers {
   private ArrayBuffers() {}
+
+
+  /**
+   * Removes element at {@code index} from {@code array}, shifting (similar to
+   * {@link java.util.List#remove(int)}
+   * 
+   * @param array double array
+   * @param index the index
+   * @return array modified
+   */
+  public static double[] remove(double[] array, int index) {
+    checkArgument(index >= 0 && index < array.length);
+    int numMoved = array.length - index - 1;
+    if (numMoved > 0)
+      System.arraycopy(array, index + 1, array, index, numMoved);
+    array[array.length - 1] = DoubleVector.NA;
+    return array;
+  }
+
+  /**
+   * Removes element at {@code index} from {@code array}, shifting (similar to
+   * {@link java.util.List#remove(int)}
+   *
+   * @param array double array
+   * @param index the index
+   * @return array modified
+   */
+  public static int[] remove(int[] array, int index) {
+    checkArgument(index >= 0 && index < array.length);
+    int numMoved = array.length - index - 1;
+    if (numMoved > 0)
+      System.arraycopy(array, index + 1, array, index, numMoved);
+    array[array.length - 1] = IntVector.NA;
+    return array;
+  }
 
   /**
    * Ensures that {@code array.length} is at least {@code minCapacity}. If

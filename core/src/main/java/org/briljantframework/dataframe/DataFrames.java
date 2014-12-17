@@ -6,6 +6,9 @@ import java.util.Random;
 import java.util.function.BiFunction;
 
 import org.briljantframework.Utils;
+import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
+import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
+import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.Type;
 
@@ -17,6 +20,10 @@ import com.google.common.collect.ImmutableTable;
  * Created by Isak Karlsson on 27/11/14.
  */
 public final class DataFrames {
+
+  private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
+  private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
+
   private DataFrames() {}
 
   /**
@@ -88,6 +95,28 @@ public final class DataFrames {
 
     return builder.build();
   }
+
+  /**
+   * Drop columns with NA
+   * 
+   * @param x the data frame
+   * @return a new data frame with no missing values
+   */
+  public static DataFrame dropMissingColumns(DataFrame x) {
+    return removeIncompleteColumns.transform(x);
+  }
+
+  /**
+   * Drop cases (rows) with NA
+   * 
+   * @param x the data frame
+   * @return a new data frame with no missing values
+   */
+  public static DataFrame dropIncompleteCases(DataFrame x) {
+    return removeIncompleteCases.transform(x);
+  }
+
+
 
   /**
    * Generates a string representation of a maximum of {@code 10} rows.

@@ -8,13 +8,12 @@ import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.briljantframework.DoubleArray;
 import org.briljantframework.chart.Chartable;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.transform.Transformation;
+import org.briljantframework.vector.VectorLike;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
@@ -27,7 +26,7 @@ public class DataSeriesCollectionTest {
   public void testRenderLinearMeanLttbResamplers() throws Exception {
 
 
-    Map<String, Transformation> resamplers = new HashMap<>();
+    Map<String, Resampler> resamplers = new HashMap<>();
     int threshold = 100;
     resamplers.put("linear", new LinearResampler(threshold));
     resamplers.put("mean", new MeanResampler(threshold));
@@ -43,7 +42,7 @@ public class DataSeriesCollectionTest {
 
       Vector vec = coll.getRow(0);
 
-      for (Map.Entry<String, Transformation> entry : resamplers.entrySet()) {
+      for (Map.Entry<String, Resampler> entry : resamplers.entrySet()) {
         Vector resampled = entry.getValue().transform(vec);
         System.out.println(resampled.size());
         JFreeChart s = plot(linspace(resampled.size() - 1, resampled.size(), 0), resampled);
@@ -86,7 +85,7 @@ public class DataSeriesCollectionTest {
 
       Vector vec = coll.getRow(77);
 
-      Transformation resampler = new MeanResampler(387);
+      Resampler resampler = new MeanResampler(387);
       Vector resampled = resampler.transform(vec);
 
 
@@ -113,7 +112,7 @@ public class DataSeriesCollectionTest {
     assertEquals(1, 1, 1);
   }
 
-  public JFreeChart plot(DoubleArray x, DoubleArray y) {
+  public JFreeChart plot(VectorLike x, VectorLike y) {
     XYSeriesCollection collection = new XYSeriesCollection();
     XYSeries series = new XYSeries("Line");
     for (int i = 0; i < x.size(); i++) {

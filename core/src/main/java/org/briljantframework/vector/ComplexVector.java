@@ -255,6 +255,13 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
+    public Vector.Builder remove(int index) {
+      buffer.remove(index); // First remove index and buffer is shifted once to the left
+      buffer.remove(index); // remove index + 1
+      return this;
+    }
+
+    @Override
     public Vector.Builder swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
       Utils.swap(buffer.buffer, a * 2, b * 2);

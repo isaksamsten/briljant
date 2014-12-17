@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -56,6 +57,13 @@ public class DoubleVector extends AbstractDoubleVector {
       builder.add(value);
     }
     return builder;
+  }
+
+  public static Collector<Double, ?, Builder> collector() {
+    return Collector.of(Builder::new, Builder::add, (builder, builder2) -> {
+      builder.addAll(builder2);
+      return builder;
+    });
   }
 
   @Override
@@ -179,6 +187,12 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     @Override
+    public Vector.Builder remove(int index) {
+      buffer.remove(index);
+      return this;
+    }
+
+    @Override
     public Vector.Builder swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
@@ -207,6 +221,12 @@ public class DoubleVector extends AbstractDoubleVector {
       DoubleVector vec = new DoubleVector(buffer.buffer, size());
       buffer = null;
       return vec;
+    }
+
+    public void addAll(Builder builder) {
+      for (int i = 0; i < builder.buffer.size(); i++) {
+        add(builder.buffer.get(i));
+      }
     }
 
     public Builder add(double value) {

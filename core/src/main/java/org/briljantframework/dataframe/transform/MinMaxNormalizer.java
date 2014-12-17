@@ -20,8 +20,6 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.exceptions.TypeMismatchException;
 import org.briljantframework.vector.DoubleVector;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Class to fit a min max normalizer to a data frame. Calculate, for each column {@code j}, the min
  * <i>min</i><sub>j</sub> and max <i>max</i><sub>j</sub>. Then, for each value x<sub>i,j</sub> is
@@ -62,36 +60,4 @@ public class MinMaxNormalizer implements Transformer {
     return new MinMaxNormalization(min, max);
   }
 
-  /**
-   * @author Isak Karlsson
-   */
-  public static class MinMaxNormalization implements Transformation {
-
-    private final double[] min, max;
-
-    public MinMaxNormalization(double[] min, double[] max) {
-      Preconditions.checkArgument(min.length == max.length);
-      this.min = min;
-      this.max = max;
-    }
-
-    @Override
-    public DataFrame transform(DataFrame frame) {
-      Preconditions.checkArgument(frame.columns() == min.length);
-
-      DataFrame.Builder builder = frame.newCopyBuilder();
-      for (int j = 0; j < frame.columns(); j++) {
-        if (frame.getColumnType(j) != DoubleVector.TYPE) {
-          throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
-        }
-        double min = this.min[j];
-        double max = this.max[j];
-        for (int i = 0; i < frame.rows(); i++) {
-          builder.set(i, j, (frame.getAsDouble(i, j) - min) / (max - min));
-        }
-
-      }
-      return builder.build();
-    }
-  }
 }

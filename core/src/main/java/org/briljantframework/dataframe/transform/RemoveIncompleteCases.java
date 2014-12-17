@@ -24,33 +24,25 @@ import org.briljantframework.dataframe.DataFrame;
  * 
  * @author Isak Karlsson
  */
-public class RemoveIncompleteCases implements Transformer {
+public class RemoveIncompleteCases implements Transformation {
 
   @Override
-  public Transformation fit(DataFrame dataFrame) {
-    return new DoRemoveIncompleteCases();
-  }
-
-  private static final class DoRemoveIncompleteCases implements Transformation {
-
-    @Override
-    public DataFrame transform(DataFrame dataFrame) {
-      DataFrame.Builder builder = dataFrame.newBuilder();
-      for (int i = 0; i < dataFrame.rows(); i++) {
-        boolean hasNA = false;
-        for (int j = 0; j < dataFrame.columns(); j++) {
-          if (dataFrame.isNA(i, j)) {
-            hasNA = true;
-            break;
-          }
-        }
-        if (!hasNA) {
-          for (int j = 0; j < dataFrame.columns(); j++) {
-            builder.set(i, j, dataFrame, i, j);
-          }
+  public DataFrame transform(DataFrame x) {
+    DataFrame.Builder builder = x.newBuilder();
+    for (int i = 0; i < x.rows(); i++) {
+      boolean hasNA = false;
+      for (int j = 0; j < x.columns(); j++) {
+        if (x.isNA(i, j)) {
+          hasNA = true;
+          break;
         }
       }
-      return builder.build();
+      if (!hasNA) {
+        for (int j = 0; j < x.columns(); j++) {
+          builder.set(i, j, x, i, j);
+        }
+      }
     }
+    return builder.build();
   }
 }

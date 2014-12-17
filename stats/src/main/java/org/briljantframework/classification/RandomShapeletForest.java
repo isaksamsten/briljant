@@ -25,6 +25,7 @@ import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
+import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
@@ -188,7 +189,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
   public static class Builder implements Classifier.Builder<RandomShapeletForest> {
 
     private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter
-        .withDistance(new EarlyAbandonSlidingDistance(Distance.EUCLIDEAN));
+        .withDistance(new EarlyAbandonSlidingDistance(Euclidean.getInstance()));
 
     private final ShapeletTree.Builder tree = ShapeletTree.withSplitter(randomShapeletSplitter);
     private int size = 100;

@@ -16,16 +16,28 @@
 
 package org.briljantframework.dataframe.transform;
 
+import java.util.Set;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.exceptions.TypeMismatchException;
-import org.briljantframework.exception.MismatchException;
 import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
+import org.briljantframework.vector.Type;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 /**
  * @author Isak Karlsson
  */
 public class MeanImputer implements Transformer {
+
+  private static final Set<Type> ALLOWED_TYPES = Sets.newIdentityHashSet();
+  static {
+    ALLOWED_TYPES.add(DoubleVector.TYPE);
+    ALLOWED_TYPES.add(IntVector.TYPE);
+  }
 
   @Override
   public Transformation fit(DataFrame frame) {
@@ -56,20 +68,17 @@ public class MeanImputer implements Transformer {
     }
 
     @Override
-    public DataFrame transform(DataFrame frame) {
-      if (frame.columns() != means.length) {
-        throw new MismatchException("transform", "can't impute missing values for "
-            + "matrix with shape %s using %d values", frame.asMatrix().getShape(), means.length);
-      }
+    public DataFrame transform(DataFrame x) {
+      Preconditions.checkArgument(x.columns() == means.length);
 
-      DataFrame.Builder builder = frame.newCopyBuilder();
-      for (int j = 0; j < frame.columns(); j++) {
-        if (frame.getColumnType(j) != DoubleVector.TYPE) {
-          throw new TypeMismatchException(DoubleVector.TYPE, frame.getColumnType(j));
+      DataFrame.Builder builder = x.newCopyBuilder();
+      for (int j = 0; j < x.columns(); j++) {
+        if (!ALLOWED_TYPES.contains(x.getColumnType(j))) {
+          throw new TypeMismatchException(DoubleVector.TYPE, x.getColumnType(j));
         }
 
-        for (int i = 0; i < frame.rows(); i++) {
-          if (frame.isNA(i, j)) {
+        for (int i = 0; i < x.rows(); i++) {
+          if (x.isNA(i, j)) {
             builder.set(i, j, means[j]);
           }
         }

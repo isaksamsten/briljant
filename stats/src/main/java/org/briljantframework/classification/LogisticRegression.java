@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
  * Logistic regression implemented using Stochastic Gradient Descent.
@@ -123,7 +123,7 @@ public class LogisticRegression implements Classifier {
 
       for (int i : indexes) {
         Vector row = x.getRow(i);
-        double update = learningRate * (y.get(i) - Matrices.sigmoid(row, theta));
+        double update = learningRate * (y.get(i) - Vectors.sigmoid(row, theta));
         // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
@@ -209,7 +209,7 @@ public class LogisticRegression implements Classifier {
 
     @Override
     public Label predict(Vector row) {
-      double prob = Matrices.sigmoid(row, theta);
+      double prob = Vectors.sigmoid(row, theta);
       return Label.binary("1", prob, "0", 1 - prob);
     }
 

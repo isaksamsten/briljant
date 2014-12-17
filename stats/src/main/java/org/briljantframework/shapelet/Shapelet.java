@@ -19,7 +19,7 @@ package org.briljantframework.shapelet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.briljantframework.DoubleArray;
+import org.briljantframework.vector.VectorLike;
 
 /**
  * A Shapelet is a (short) view of a larger data series (i.e. a vector). The underlying vector
@@ -35,9 +35,9 @@ import org.briljantframework.DoubleArray;
  * <p>
  * Created by Isak Karlsson on 17/09/14.
  */
-public class Shapelet implements DoubleArray {
+public class Shapelet implements VectorLike {
   private final int start, length;
-  private final DoubleArray vector;
+  private final VectorLike vector;
 
   /**
    * Instantiates a new Shapelet.
@@ -46,7 +46,7 @@ public class Shapelet implements DoubleArray {
    * @param length the length
    * @param vector the vector
    */
-  public Shapelet(int start, int length, DoubleArray vector) {
+  public Shapelet(int start, int length, VectorLike vector) {
     this.start = start;
     this.length = length; // inclusive
     this.vector = vector;
@@ -60,7 +60,7 @@ public class Shapelet implements DoubleArray {
    * @param vector the vector
    * @return the shapelet
    */
-  public static Shapelet create(int start, int length, DoubleArray vector) {
+  public static Shapelet create(int start, int length, VectorLike vector) {
     return new Shapelet(start, length, vector);
   }
 
