@@ -173,9 +173,7 @@ public class Undefined implements Value {
     }
 
     @Override
-    public Vector.Builder swap(int a, int b) {
-      return this;
-    }
+    public void swap(int a, int b) {}
 
     @Override
     public Vector.Builder read(DataEntry entry) {

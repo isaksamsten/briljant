@@ -3,6 +3,7 @@ package org.briljantframework.vector;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.briljantframework.Swappable;
 import org.briljantframework.io.DataEntry;
 
 /**
@@ -268,7 +269,7 @@ public interface Vector extends VectorLike, Serializable {
    * Builds new vectors TODO(isak): maybe builder.getAs... and set(int at, Vector.Builder b, int
    * from)?
    */
-  public static interface Builder {
+  public static interface Builder extends Swappable {
 
     /**
      * Recommended initial capacity
@@ -364,11 +365,10 @@ public interface Vector extends VectorLike, Serializable {
 
     /**
      * Swaps value at {@code a} with value at {@code b}
-     * 
-     * @param a the first index
+     *  @param a the first index
      * @param b the seconds index
      */
-    Builder swap(int a, int b);
+    void swap(int a, int b);
 
     /**
      * Reads a value from the input stream and appends it to the builder (after the last value).

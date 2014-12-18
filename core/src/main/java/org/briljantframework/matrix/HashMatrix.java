@@ -72,7 +72,7 @@ public class HashMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double get(int index) {
     int col = index / rows();
     int row = index % rows();
     return get(row, col);

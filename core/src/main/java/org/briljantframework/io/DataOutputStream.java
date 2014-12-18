@@ -28,8 +28,6 @@ import org.briljantframework.dataframe.DataFrame;
 public abstract class DataOutputStream extends FilterOutputStream {
 
   /**
-   * Instantiates a new Storage output stream.
-   *
    * @param out the out
    */
   public DataOutputStream(OutputStream out) {
@@ -37,8 +35,6 @@ public abstract class DataOutputStream extends FilterOutputStream {
   }
 
   /**
-   * Write void.
-   *
    * @param dataFrame the instances
    * @throws IOException the iO exception
    */

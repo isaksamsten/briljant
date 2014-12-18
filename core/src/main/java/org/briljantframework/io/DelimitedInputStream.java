@@ -46,6 +46,9 @@ public class DelimitedInputStream extends DataInputStream {
 
   public static final String INVALID_NAME = "Can't understand the type %s";
   protected static final Map<String, Type> TYPE_MAP;
+  private static final String DEFAULT_SEPARATOR = ",";
+  private static final String DEFAULT_MISSING_VALUE = "?";
+
   static {
     Map<String, Type> map = new HashMap<>();
     map.put("numeric", DoubleVector.TYPE);
@@ -55,8 +58,7 @@ public class DelimitedInputStream extends DataInputStream {
 
     TYPE_MAP = Collections.unmodifiableMap(map);
   }
-  private static final String DEFAULT_SEPARATOR = ",";
-  private static final String DEFAULT_MISSING_VALUE = "?";
+
   private final BufferedReader reader;
   private final String missingValue;
   private final String separator;

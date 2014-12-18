@@ -81,15 +81,15 @@ public class RandomShapeletForest extends AbstractEnsemble {
       }
       for (int i = 0; i < averageLengthImportance.length; i++) {
         averageLengthImportance[i] =
-            averageLengthImportance[i] + (lengthImportance.getAsDouble(i) / size());
+            averageLengthImportance[i] + (lengthImportance.get(i) / size());
         averagePositionImportance[i] =
-            averagePositionImportance[i] + (positionImportance.getAsDouble(i) / size());
+            averagePositionImportance[i] + (positionImportance.get(i) / size());
       }
     }
 
 
-    return new Model(models, ArrayMatrix.columnVector(averageLengthImportance),
-        ArrayMatrix.columnVector(averagePositionImportance));
+    return new Model(models, ArrayMatrix.rowVector(averageLengthImportance),
+        ArrayMatrix.rowVector(averagePositionImportance));
   }
 
   @Override

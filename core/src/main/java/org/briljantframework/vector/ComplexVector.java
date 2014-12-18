@@ -262,11 +262,10 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
-    public Vector.Builder swap(int a, int b) {
+    public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
       Utils.swap(buffer.buffer, a * 2, b * 2);
       Utils.swap(buffer.buffer, a * 2 + 1, b * 2 + 1);
-      return this;
     }
 
     @Override

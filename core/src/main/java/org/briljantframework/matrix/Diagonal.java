@@ -18,7 +18,7 @@ package org.briljantframework.matrix;
 
 import java.util.function.DoubleUnaryOperator;
 
-import org.briljantframework.exception.NonConformantException;
+import org.briljantframework.exceptions.NonConformantException;
 
 /**
  * Implementation of a sparse diagonal matrix
@@ -90,7 +90,7 @@ public class Diagonal extends AbstractMatrix {
    */
   public double get(int i, int j) {
     if (i == j) {
-      return getAsDouble(i);
+      return get(i);
     } else {
       return 0;
     }
@@ -101,7 +101,7 @@ public class Diagonal extends AbstractMatrix {
    *
    * @param index the index
    * @param value the value
-   * @see #getAsDouble(int)
+   * @see #get(int)
    */
   public void put(int index, double value) {
     if (index > size && index < 0) {
@@ -117,7 +117,7 @@ public class Diagonal extends AbstractMatrix {
    * @param index the index
    * @return the double
    */
-  public double getAsDouble(int index) {
+  public double get(int index) {
     if (index > size && index < 0) {
       throw new IllegalArgumentException("index > size");
     } else {
@@ -183,7 +183,7 @@ public class Diagonal extends AbstractMatrix {
   public Diagonal map(DoubleUnaryOperator operator) {
     double[] diagonal = new double[this.size];
     for (int i = 0; i < diagonal.length; i++) {
-      diagonal[i] = operator.applyAsDouble(getAsDouble(i));
+      diagonal[i] = operator.applyAsDouble(get(i));
     }
     return new Diagonal(this.rows(), this.columns(), diagonal);
   }
@@ -222,7 +222,7 @@ public class Diagonal extends AbstractMatrix {
     for (int row = 0; row < rows; row++) {
       if (row < other.rows()) {
         for (int column = 0; column < columns; column++) {
-          mat.put(row, column, other.get(row, column) * this.getAsDouble(row));
+          mat.put(row, column, other.get(row, column) * this.get(row));
         }
       } else {
         break;

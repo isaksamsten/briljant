@@ -16,15 +16,15 @@
 
 package org.briljantframework.matrix;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
-import org.briljantframework.exception.MismatchException;
 import org.briljantframework.vector.VectorLike;
 
 import com.github.fommil.netlib.BLAS;
-import com.google.common.base.Preconditions;
 
 
 /**
@@ -54,7 +54,7 @@ public class Matrices {
    * @return the out
    */
   public static Matrix parseMatrix(String str) {
-    Preconditions.checkArgument(str != null && str.length() > 0);
+    checkArgument(str != null && str.length() > 0);
 
     String[] rows = ROW_SEPARATOR.split(str);
     if (rows.length < 1) {
@@ -122,7 +122,7 @@ public class Matrices {
    */
   public static void map(Matrix in, DoubleUnaryOperator operator, Matrix out) {
     for (int i = 0; i < in.size(); i++) {
-      out.put(i, operator.applyAsDouble(in.getAsDouble(i)));
+      out.put(i, operator.applyAsDouble(in.get(i)));
     }
   }
 
@@ -338,7 +338,7 @@ public class Matrices {
       value += step;
     }
 
-    return ArrayMatrix.columnVector(valyes);
+    return ArrayMatrix.rowVector(valyes);
   }
 
   /**
@@ -350,10 +350,8 @@ public class Matrices {
    * @return the out
    */
   public static Matrix reshape(Matrix in, int rows, int cols) {
-    if (!in.hasCompatibleShape(rows, cols)) {
-      throw new MismatchException("reshape", String.format(
-          "can't reshape %s tensor into %s tensor", in.getShape(), Shape.of(rows, cols)));
-    }
+    checkArgument(in.hasCompatibleShape(rows, cols), "can't reshape %s tensor into %s tensor",
+        in.getShape(), Shape.of(rows, cols));
     return new ArrayMatrix(Shape.of(rows, cols), in);
   }
 
@@ -373,12 +371,12 @@ public class Matrices {
     for (int j = 0; j < columns; j++) {
       double std = 0.0;
       for (int i = 0; i < matrix.rows(); i++) {
-        double residual = matrix.get(i, j) - mean.getAsDouble(j);
+        double residual = matrix.get(i, j) - mean.get(j);
         std += residual * residual;
       }
       sigmas[j] = Math.sqrt(std / (matrix.rows() - 1));
     }
-    return ArrayMatrix.columnVector(sigmas);
+    return ArrayMatrix.rowVector(sigmas);
   }
 
   /**
@@ -399,7 +397,7 @@ public class Matrices {
       means[j] = mean / matrix.rows();
     }
 
-    return ArrayMatrix.columnVector(means);
+    return ArrayMatrix.rowVector(means);
   }
 
   /**

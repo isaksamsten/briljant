@@ -321,7 +321,7 @@ public class RandomShapeletForestTest {
 
     XYSeries series = new XYSeries("Series");
     for (int i = 0; i < x.size(); i++) {
-      series.add(x.getAsDouble(i), y.getAsDouble(i));
+      series.add(x.get(i), y.get(i));
     }
 
     collection.addSeries(series);
@@ -337,7 +337,7 @@ public class RandomShapeletForestTest {
 
     XYSeries series = new XYSeries("Series");
     for (int i = 0; i < x.size(); i++) {
-      series.add(x.getAsDouble(i), y.getAsDouble(i));
+      series.add(x.get(i), y.get(i));
     }
 
     collection.addSeries(series);
@@ -356,8 +356,8 @@ public class RandomShapeletForestTest {
   @Test
   public void testCreateSizePlot() throws Exception {
     Matrix error =
-        ArrayMatrix.columnVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
-            0.1738586474, 0.1724606892);
+        ArrayMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
+                0.1738586474, 0.1724606892);
     Matrix errors =
         Matrices
             .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
@@ -367,7 +367,7 @@ public class RandomShapeletForestTest {
     System.out.println(errors);
 
 
-    Matrix size = ArrayMatrix.columnVector(10, 25, 50, 100, 250, 500);
+    Matrix size = ArrayMatrix.rowVector(10, 25, 50, 100, 250, 500);
     JFreeChart errorChart =
         plot(size, "No. trees", errors, "Average error", new String[] {"RSF", "1-NN",
             "1-NN DTW-best", "1-NN DTW-no"});
@@ -376,8 +376,8 @@ public class RandomShapeletForestTest {
     Chartable.saveSVG("/Users/isak/Desktop/no_trees_error.svg", errorChart, 300, 140);
 
     Matrix auc =
-        ArrayMatrix.columnVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
-            0.9582902467, 0.959242855);
+        ArrayMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
+                0.9582902467, 0.959242855);
     JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
     ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);
     Chartable.saveSVG("/Users/isak/Desktop/no_trees_auc.svg", aucChart, 250, 200);
@@ -394,7 +394,7 @@ public class RandomShapeletForestTest {
       }
       XYSeries series = new XYSeries(label);
       for (int j = 0; j < y.columns(); j++) {
-        series.add(x.getAsDouble(j), y.get(i, j));
+        series.add(x.get(j), y.get(i, j));
       }
       collection.addSeries(series);
     }
@@ -577,7 +577,7 @@ public class RandomShapeletForestTest {
       XYSeries series = new XYSeries("" + i);
       Matrix y = ys.getRowView(i);
       for (int j = 0; j < x.size(); j++) {
-        series.add(x.getAsDouble(j), y.getAsDouble(j));
+        series.add(x.get(j), y.get(j));
       }
       collection.addSeries(series);
     }

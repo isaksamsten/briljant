@@ -4,10 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import org.briljantframework.Utils;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.primitives.Doubles;
 
 public class VectorsTest {
 
@@ -16,6 +20,33 @@ public class VectorsTest {
   @Before
   public void setUp() throws Exception {
     vec6 = DoubleVector.wrap(1, 2, 3, 4, 5, 6);
+  }
+
+  @Test
+  public void testSort() throws Exception {
+    DoubleVector.Builder b = new DoubleVector.Builder();
+    for (int i = 0; i < 100000; i++) {
+      b.add(Utils.getRandom().nextDouble());
+    }
+    DoubleVector v = b.build();
+
+    // long start = System.currentTimeMillis();
+
+    // Sort.quickSort(0, b.size(), (a, bi) -> Double.compare(v.getAsDouble(a), v.getAsDouble(bi)),
+    // b);
+    // Vectors.sort(v, Vector::compare);
+    // System.out.println(System.currentTimeMillis() - start);
+
+    double[] arr = new double[100000];
+    for (int i = 0; i < arr.length; i++) {
+      arr[i] = Utils.getRandom().nextDouble();
+    }
+
+    long start = System.currentTimeMillis();
+    // arr.clone();
+    Collections.sort(Doubles.asList(arr));
+    System.out.println(System.currentTimeMillis() - start);
+
   }
 
   @Test

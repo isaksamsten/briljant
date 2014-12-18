@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.exceptions.TypeMismatchException;
+import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;

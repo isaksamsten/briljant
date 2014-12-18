@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.exception;
+package org.briljantframework.exceptions;
 
 import org.briljantframework.matrix.Matrix;
 

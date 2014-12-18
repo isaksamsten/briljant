@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = "org.briljantframework.example.instance-serialization"
+version = '1.9'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile group: 'org.briljantframework', name: 'stats', version: '0.1-SNAPSHOT'
+}

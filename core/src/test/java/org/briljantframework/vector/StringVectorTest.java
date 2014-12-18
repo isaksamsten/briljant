@@ -95,8 +95,6 @@ public class StringVectorTest {
   public void testSwap() throws Exception {
     StringVector.Builder builder = StringVector.newBuilderWithInitialValues("a", "b", "c");
     assertEquals("a", builder.build().getAsString(0));
-    assertEquals("b", builder.swap(0, 1));
-
   }
 
   @Test

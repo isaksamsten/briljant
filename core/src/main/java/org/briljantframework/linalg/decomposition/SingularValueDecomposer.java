@@ -16,7 +16,7 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.exception.BlasException;
+import org.briljantframework.exceptions.BlasException;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.Matrix;

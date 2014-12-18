@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.briljantframework.vector.*;
 
 import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
@@ -35,7 +36,11 @@ public class StringDataEntry implements DataEntry {
   @Override
   public int nextInt() throws IOException {
     String repr = nextString();
-    return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
+    if (repr == StringVector.NA) {
+      return IntVector.NA;
+    }
+    Integer integer = Ints.tryParse(repr);
+    return integer == null ? IntVector.NA : integer;
   }
 
   @Override

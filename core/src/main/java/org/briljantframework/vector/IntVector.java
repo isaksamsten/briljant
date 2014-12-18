@@ -173,10 +173,9 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public Vector.Builder swap(int a, int b) {
+    public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
-      return this;
     }
 
     @Override

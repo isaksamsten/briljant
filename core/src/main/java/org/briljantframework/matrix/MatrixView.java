@@ -3,7 +3,7 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
-import org.briljantframework.exception.NonConformantException;
+import org.briljantframework.exceptions.NonConformantException;
 
 /**
  * Created by Isak Karlsson on 08/12/14.
@@ -58,8 +58,8 @@ public class MatrixView extends AbstractMatrix {
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return parent.getAsDouble(computeLinearIndex(index));
+  public double get(int index) {
+    return parent.get(computeLinearIndex(index));
   }
 
   @Override
@@ -87,7 +87,7 @@ public class MatrixView extends AbstractMatrix {
   public Matrix copy() {
     Matrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      mat.put(i, getAsDouble(i));
+      mat.put(i, get(i));
     }
     return mat;
   }

@@ -42,10 +42,9 @@ import org.briljantframework.vector.Type;
  */
 public class MatlabTextInputStream extends DataInputStream {
 
-  private static String separator = "\\s+";
-  private static String missingValue = "?";
-
   private final BufferedReader reader;
+  private String separator = "\\s+";
+  private String missingValue = "?";
   private int columns = -1;
   private int currentType = 0;
   private int currentName = 0;

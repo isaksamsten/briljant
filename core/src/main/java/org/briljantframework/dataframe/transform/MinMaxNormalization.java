@@ -1,7 +1,7 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.exceptions.TypeMismatchException;
+import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.vector.DoubleVector;
 
 import com.google.common.base.Preconditions;

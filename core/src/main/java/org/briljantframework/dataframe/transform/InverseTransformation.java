@@ -17,7 +17,7 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.exception.BlasException;
+import org.briljantframework.exceptions.BlasException;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.netlib.util.intW;

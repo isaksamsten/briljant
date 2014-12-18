@@ -1,6 +1,6 @@
 package org.briljantframework.dataseries;
 
-import static org.briljantframework.matrix.Matrices.linspace;
+import static org.briljantframework.vector.Vectors.linspace;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedInputStream;
@@ -45,7 +45,7 @@ public class DataSeriesCollectionTest {
       for (Map.Entry<String, Aggregator> entry : resamplers.entrySet()) {
         Vector resampled = entry.getValue().aggregate(vec);
         System.out.println(resampled.size());
-        JFreeChart s = plot(linspace(resampled.size() - 1, resampled.size(), 0), resampled);
+        JFreeChart s = plot(linspace(0, resampled.size() - 1, resampled.size()), resampled);
         Chartable.saveSVG("/Users/isak/Desktop/" + entry.getKey() + ".svg", s);
       }
 
@@ -54,7 +54,7 @@ public class DataSeriesCollectionTest {
       // System.out.println(Matrices.mean(rS));
       // System.out.println(Matrices.mean(NormalizedShapelet.create(0, vec.size(), vec)));
 
-      JFreeChart chart = plot(linspace(vec.size() - 1, vec.size(), 0), vec);
+      JFreeChart chart = plot(linspace(0, vec.size() - 1, vec.size()), vec);
       Chartable.saveSVG("/Users/isak/Desktop/full.svg", chart);
 
 
@@ -89,11 +89,11 @@ public class DataSeriesCollectionTest {
       Vector resampled = aggregator.aggregate(vec);
 
 
-      JFreeChart chart = plot(linspace(vec.size() - 1, vec.size(), 0), vec);
+      JFreeChart chart = plot(linspace(0, vec.size() - 1, vec.size()), vec);
       Chartable.saveSVG("/Users/isak/Desktop/full.svg", chart);
 
       System.out.println(resampled.size());
-      chart = plot(linspace(resampled.size() - 1, resampled.size(), 0), resampled);
+      chart = plot(linspace(0, resampled.size() - 1, resampled.size()), resampled);
       Chartable.saveSVG("/Users/isak/Desktop/meanImputed.svg", chart);
 
     } catch (Exception e) {

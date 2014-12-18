@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.*;
 
+import org.briljantframework.Sort;
+
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
 
@@ -14,6 +16,28 @@ public final class Vectors {
 
   private Vectors() {}
 
+  public static Vector sort(Vector in, VectorComparator cmp) {
+    Vector.Builder builder = in.newCopyBuilder();
+    Sort.quickSort(0, in.size(), (a, b) -> cmp.compare(in, a, b), builder);
+    return builder.build();
+  }
+
+  /**
+   * <p>
+   * Create a vector of length {@code num} with evenly spaced values between {@code start} and
+   * {@code end}.
+   * </p>
+   * 
+   * <p>
+   * Returns a vector of {@link org.briljantframework.vector.DoubleVector#TYPE}
+   * </p>
+   * 
+   * 
+   * @param start the start value
+   * @param stop the end value
+   * @param num the number of steps (i.e. intermediate values)
+   * @return a vector
+   */
   public static Vector linspace(double start, double stop, int num) {
     DoubleVector.Builder builder = new DoubleVector.Builder(0, num);
     double step = (stop - start) / (num - 1);
@@ -26,10 +50,37 @@ public final class Vectors {
     return builder.build();
   }
 
+  /**
+   * Returns a vector of length {@code 50}. With evenly spaced values in the range {@code start} to
+   * {@code end}.
+   * 
+   * @param start the start value
+   * @param stop the end value
+   * @return a vector
+   */
   public static Vector linspace(double start, double stop) {
     return linspace(start, stop, 50);
   }
 
+  /**
+   * <p>
+   * Split {@code vector} into {@code chunks}. Handles the case when {@code vector.size()} is not
+   * evenly dividable by chunks by making some chunks larger.
+   * </p>
+   *
+   * <p>
+   * This implementation is lazy, i.e. chunking is done 'on-the-fly'. To get a list,
+   * {@code new ArrayList<>(Vectors.split(vec, 10))}
+   * </p>
+   * 
+   * <p>
+   * Ensures that {@code vector.getType()} is preserved.
+   * </p>
+   * 
+   * @param vector the vector
+   * @param chunks the number of chunks
+   * @return a collection of {@code chunk} chunks
+   */
   public static Collection<Vector> split(Vector vector, int chunks) {
     checkArgument(vector.size() >= chunks, "size must be shorter than chunks");
     if (vector.size() == chunks) {

@@ -1,6 +1,6 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.exception.NonConformantException;
+import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -96,7 +96,7 @@ public class VectorMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double get(int index) {
     return vector.getAsDouble(index);
   }
 

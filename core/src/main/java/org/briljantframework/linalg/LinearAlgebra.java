@@ -207,7 +207,7 @@ public class LinearAlgebra {
     Diagonal singular = svd.getDiagonal();
     int rank = 0;
     for (int i = 0; i < singular.size(); i++) {
-      if (singular.getAsDouble(i) > 0) {
+      if (singular.get(i) > 0) {
         rank += 1;
       }
     }

@@ -21,8 +21,7 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
 
-import org.briljantframework.exception.MismatchException;
-import org.briljantframework.exception.NonConformantException;
+import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.vector.VectorLike;
 
 import com.google.common.base.Preconditions;
@@ -51,7 +50,7 @@ public class ArrayMatrix extends AbstractMatrix {
    */
   public ArrayMatrix(int columns, double[] values) {
     super(values.length / columns, columns);
-    this.values = new double[Math.multiplyExact(rows, columns)];
+    this.values = values; // new double[Math.multiplyExact(rows, columns)];
     checkArgument(values.length % columns == 0, INVALID_SIZE);
   }
 
@@ -116,7 +115,7 @@ public class ArrayMatrix extends AbstractMatrix {
   public ArrayMatrix(Shape shape, Matrix matrix) {
     super(shape.rows, shape.columns);
     if (!hasCompatibleShape(matrix.getShape())) {
-      throw new MismatchException("ArrayMatrix", "matrix can't fit");
+      throw new IllegalArgumentException("matrix can't fit");
     }
 
     values = new double[Math.multiplyExact(rows, cols)];
@@ -124,7 +123,7 @@ public class ArrayMatrix extends AbstractMatrix {
       System.arraycopy(((ArrayMatrix) matrix).values, 0, values, 0, this.cols * this.rows);
     } else {
       for (int i = 0; i < matrix.size(); i++) {
-        values[i] = matrix.getAsDouble(i);
+        values[i] = matrix.get(i);
       }
     }
   }
@@ -238,7 +237,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param args the double values
    * @return a new matrix
    */
-  public static ArrayMatrix rowVector(double... args) {
+  public static ArrayMatrix columnVector(double... args) {
     return new ArrayMatrix(args.length, 1, args);
   }
 
@@ -248,7 +247,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param args the double values
    * @return a new matrix
    */
-  public static ArrayMatrix columnVector(double... args) {
+  public static ArrayMatrix rowVector(double... args) {
     return new ArrayMatrix(1, args.length, args);
   }
 
@@ -264,13 +263,11 @@ public class ArrayMatrix extends AbstractMatrix {
 
   @Override
   public void put(int index, double value) {
-    checkArgument(index >= 0 && index < values.length);
     values[index] = value;
   }
 
   @Override
-  public double getAsDouble(int index) {
-    checkArgument(index >= 0 && index < values.length);
+  public double get(int index) {
     return values[index];
   }
 

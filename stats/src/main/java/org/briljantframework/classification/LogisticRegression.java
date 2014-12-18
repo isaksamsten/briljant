@@ -23,6 +23,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorLike;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -118,12 +119,23 @@ public class LogisticRegression implements Classifier {
    */
   protected Model fit(DataFrame x, Vector y, int[] indexes) {
     ArrayMatrix theta = new ArrayMatrix(1, x.columns());
+    VectorLike adaptedTheta = new VectorLike() {
+      @Override
+      public double getAsDouble(int index) {
+        return theta.get(index);
+      }
+
+      @Override
+      public int size() {
+        return theta.size();
+      }
+    };
     for (int j = 0; j < this.iterations; j++) {
       Utils.permute(indexes);
 
       for (int i : indexes) {
         Vector row = x.getRow(i);
-        double update = learningRate * (y.getAsDouble(i) - Vectors.sigmoid(row, theta));
+        double update = learningRate * (y.getAsDouble(i) - Vectors.sigmoid(row, adaptedTheta));
         // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
@@ -197,6 +209,17 @@ public class LogisticRegression implements Classifier {
    */
   public static class Model implements ClassifierModel {
     private final Matrix theta;
+    private final VectorLike adaptedTheta = new VectorLike() {
+      @Override
+      public double getAsDouble(int index) {
+        return theta.get(index);
+      }
+
+      @Override
+      public int size() {
+        return theta.size();
+      }
+    };
 
     /**
      * Instantiates a new Logistic regression classification.
@@ -209,7 +232,7 @@ public class LogisticRegression implements Classifier {
 
     @Override
     public Label predict(Vector row) {
-      double prob = Vectors.sigmoid(row, theta);
+      double prob = Vectors.sigmoid(row, adaptedTheta);
       return Label.binary("1", prob, "0", 1 - prob);
     }
 

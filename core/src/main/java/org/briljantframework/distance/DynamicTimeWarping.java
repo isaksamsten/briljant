@@ -73,14 +73,6 @@ public class DynamicTimeWarping implements Distance {
   @Override
   public double distance(VectorLike a, VectorLike b) {
     int n = a.size(), m = b.size();
-
-    // NOTE: This makes DWT non-suitable for sharing it between threads.
-    // it is also rather annoying.
-    // if (dwt == null || (dwt.rows() != a.size() && dwt.columns() != b.size())) {
-    // dwt =
-    // } else {
-    // dwt.fill(Double.POSITIVE_INFINITY);
-    // }
     ArrayMatrix dwt = ArrayMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
     dwt.put(0, 0, 0);
 

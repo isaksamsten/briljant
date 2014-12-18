@@ -19,7 +19,7 @@ package org.briljantframework.dataframe.transform;
 import java.util.Set;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.exceptions.TypeMismatchException;
+import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;

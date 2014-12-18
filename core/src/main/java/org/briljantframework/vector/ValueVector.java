@@ -209,10 +209,9 @@ public class ValueVector implements VariableVector {
     }
 
     @Override
-    public Builder swap(int a, int b) {
+    public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Collections.swap(buffer, a, b);
-      return this;
     }
 
     @Override

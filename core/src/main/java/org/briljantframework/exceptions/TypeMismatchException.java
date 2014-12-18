@@ -1,4 +1,4 @@
-package org.briljantframework.dataframe.exceptions;
+package org.briljantframework.exceptions;
 
 import org.briljantframework.vector.Type;
 

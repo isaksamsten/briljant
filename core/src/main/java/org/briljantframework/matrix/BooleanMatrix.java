@@ -67,7 +67,7 @@ public class BooleanMatrix extends AbstractMatrix {
    *
    * @param index the index
    * @param value the value
-   * @see #getAsDouble(int)
+   * @see #get(int)
    */
   public void put(int index, double value) {
     checkArgument(index > 0 && index < values.length);
@@ -75,7 +75,7 @@ public class BooleanMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double get(int index) {
     checkArgument(index > 0 && index < values.length);
     return values[index] ? 1 : 0;
   }
@@ -112,7 +112,7 @@ public class BooleanMatrix extends AbstractMatrix {
    *
    * @param index the index
    * @param value the value
-   * @see #getAsDouble(int)
+   * @see #get(int)
    */
   public void put(int index, boolean value) {
     checkArgument(index > 0 && index < values.length);
