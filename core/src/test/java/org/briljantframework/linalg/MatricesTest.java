@@ -1,6 +1,7 @@
 package org.briljantframework.linalg;
 
 import static org.briljantframework.matrix.Matrices.parseMatrix;
+import static org.briljantframework.matrix.Matrices.sort;
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.matrix.ArrayMatrix;
@@ -37,5 +38,9 @@ public class MatricesTest {
     Matrix b = ArrayMatrix.of(3, 2, 2, 2, 1, 1, 3, 3);
     Matrix result = ArrayMatrix.of(2, 2, 13, 13, 13, 13);
     assertEquals(result, a.mmul(b));
+
+    Matrix x = parseMatrix("32,12,3,4;" + "12,3,41,122");
+
+    System.out.println(sort(x, Axis.ROW));
   }
 }

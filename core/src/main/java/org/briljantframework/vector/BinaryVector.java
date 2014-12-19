@@ -170,6 +170,11 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
+    public int compare(int a, int b) {
+      return Integer.compare(buffer.get(a), buffer.get(b));
+    }
+
+    @Override
     public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
@@ -194,6 +199,27 @@ public class BinaryVector extends AbstractBinaryVector {
     @Override
     public int size() {
       return buffer.size();
+    }
+
+    @Override
+    public VectorLike temporaryVector() {
+      return new VectorLike() {
+
+        @Override
+        public double getAsDouble(int index) {
+          return getAsInt(index);
+        }
+
+        @Override
+        public int getAsInt(int index) {
+          return buffer.get(index);
+        }
+
+        @Override
+        public int size() {
+          return buffer.size();
+        }
+      };
     }
 
     @Override

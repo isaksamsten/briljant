@@ -37,11 +37,13 @@ public interface VectorLike {
 
   /**
    * Get value at {@code index} as double
-   * 
+   *
    * @param index the index
    * @return the double
    */
-  double getAsDouble(int index);
+  default double getAsDouble(int index) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Get value at {@code index} as int

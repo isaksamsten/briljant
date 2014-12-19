@@ -361,11 +361,28 @@ public interface Vector extends VectorLike, Serializable {
       return this;
     }
 
+    /**
+     * Removes value at {@code index} and shifts element to the left.
+     * 
+     * @param index the index
+     * @return a modified builder with element at {@code index} removed
+     */
     Builder remove(int index);
 
     /**
+     * Compares value at {@code a} and {@code b}.
+     * 
+     * @param a first index
+     * @param b second index
+     * @return cmp < 0 if value at {@code a} is less than {@code b}, cmp > 0 if value at a is
+     *         greater than b and 0 otherwise
+     */
+    int compare(int a, int b);
+
+    /**
      * Swaps value at {@code a} with value at {@code b}
-     *  @param a the first index
+     * 
+     * @param a the first index
      * @param b the seconds index
      */
     void swap(int a, int b);
@@ -395,6 +412,17 @@ public interface Vector extends VectorLike, Serializable {
      * @return the size
      */
     int size();
+
+    /**
+     * <p>
+     * Returns a temporary vector. Modifications to the builder (such as, e.g.,
+     * {@link #swap(int, int)}) is propagated to the temporary vector, allowing changes to be
+     * tracked withing the builder.
+     * </p>
+     * 
+     * @return the temporary vector.
+     */
+    VectorLike temporaryVector();
 
     /**
      * Create a new vector of suitable type. This interface does not provide any guarantees to

@@ -262,6 +262,11 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
+    public int compare(int a, int b) {
+      throw new UnsupportedOperationException("Can't compare complex numbers");
+    }
+
+    @Override
     public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
       Utils.swap(buffer.buffer, a * 2, b * 2);
@@ -287,6 +292,33 @@ public class ComplexVector extends AbstractComplexVector {
     @Override
     public int size() {
       return buffer.size() / 2;
+    }
+
+    @Override
+    public VectorLike temporaryVector() {
+      return new VectorLike() {
+
+        @Override
+        public double getAsDouble(int index) {
+          return buffer.get(index);
+        }
+
+        @Override
+        public Complex getAsComplex(int index) {
+          int pos = index * 2;
+          double real = buffer.get(pos), imag = buffer.get(pos + 1);
+          if (Double.isNaN(real) || Double.isNaN(imag)) {
+            return Complex.NaN;
+          } else {
+            return new Complex(real, imag);
+          }
+        }
+
+        @Override
+        public int size() {
+          return size();
+        }
+      };
     }
 
     @Override

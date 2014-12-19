@@ -173,6 +173,11 @@ public class Undefined implements Value {
     }
 
     @Override
+    public int compare(int a, int b) {
+      return 0;
+    }
+
+    @Override
     public void swap(int a, int b) {}
 
     @Override
@@ -188,6 +193,11 @@ public class Undefined implements Value {
     @Override
     public int size() {
       return 0;
+    }
+
+    @Override
+    public VectorLike temporaryVector() {
+      return Undefined.INSTANCE;
     }
 
     @Override

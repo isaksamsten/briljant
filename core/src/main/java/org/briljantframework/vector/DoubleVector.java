@@ -193,6 +193,11 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     @Override
+    public int compare(int a, int b) {
+      return Double.compare(buffer.get(a), buffer.get(b));
+    }
+
+    @Override
     public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
@@ -213,6 +218,11 @@ public class DoubleVector extends AbstractDoubleVector {
     @Override
     public int size() {
       return buffer.size();
+    }
+
+    @Override
+    public VectorLike temporaryVector() {
+      return null;
     }
 
     @Override

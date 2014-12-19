@@ -209,6 +209,11 @@ public class ValueVector implements VariableVector {
     }
 
     @Override
+    public int compare(int a, int b) {
+      return TYPE.compare(buffer.get(a), buffer.get(b));
+    }
+
+    @Override
     public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
       Collections.swap(buffer, a, b);
@@ -231,6 +236,11 @@ public class ValueVector implements VariableVector {
     }
 
     @Override
+    public VectorLike temporaryVector() {
+      return new TemporaryVector(this.buffer);
+    }
+
+    @Override
     public ValueVector build() {
       return new ValueVector(buffer);
     }
@@ -238,6 +248,45 @@ public class ValueVector implements VariableVector {
     private void ensureCapacity(int index) {
       while (buffer.size() <= index) {
         buffer.add(Undefined.INSTANCE);
+      }
+    }
+
+    private static class TemporaryVector implements VectorLike {
+
+      private final List<Value> buffer;
+
+      private TemporaryVector(List<Value> buffer) {
+        this.buffer = buffer;
+      }
+
+      @Override
+      public double getAsDouble(int index) {
+        return buffer.get(index).getAsDouble();
+      }
+
+      @Override
+      public int getAsInt(int index) {
+        return buffer.get(index).getAsInt();
+      }
+
+      @Override
+      public Binary getAsBinary(int index) {
+        return buffer.get(index).getAsBinary();
+      }
+
+      @Override
+      public Complex getAsComplex(int index) {
+        return buffer.get(index).getAsComplex();
+      }
+
+      @Override
+      public String getAsString(int index) {
+        return buffer.get(index).getAsString();
+      }
+
+      @Override
+      public int size() {
+        return buffer.size();
       }
     }
   }

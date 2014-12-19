@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.*;
 
-import org.briljantframework.Sort;
+import org.briljantframework.QuickSort;
 
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
@@ -16,9 +16,30 @@ public final class Vectors {
 
   private Vectors() {}
 
+  /**
+   * @param in the vector
+   * @return a new vector sorted in ascending order
+   */
+  public static Vector sortAsc(Vector in) {
+    Vector.Builder builder = in.newCopyBuilder();
+    QuickSort.quickSort(0, in.size(), builder::compare, builder);
+    return builder.build();
+  }
+
+  /**
+   * @param in the vector
+   * @return a new vector sorted in ascending order
+   */
+  public static Vector sortDesc(Vector in) {
+    Vector.Builder builder = in.newCopyBuilder();
+    QuickSort.quickSort(0, in.size(), (a, b) -> builder.compare(b, a), builder);
+    return builder.build();
+  }
+
   public static Vector sort(Vector in, VectorComparator cmp) {
     Vector.Builder builder = in.newCopyBuilder();
-    Sort.quickSort(0, in.size(), (a, b) -> cmp.compare(in, a, b), builder);
+    VectorLike tmp = builder.temporaryVector();
+    QuickSort.quickSort(0, in.size(), (a, b) -> cmp.compare(tmp, a, b), builder);
     return builder.build();
   }
 

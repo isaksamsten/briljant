@@ -22,6 +22,7 @@ import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
+import org.briljantframework.QuickSort;
 import org.briljantframework.vector.VectorLike;
 
 import com.github.fommil.netlib.BLAS;
@@ -38,11 +39,11 @@ public class Matrices {
    * The constant RANDOM.
    */
   public static final Random RANDOM = new Random();
+
   /**
    * The constant LOG_2.
    */
   public static final double LOG_2 = Math.log(2);
-  public static final BLAS blas = com.github.fommil.netlib.BLAS.getInstance().getInstance();
   protected static final BLAS BLAS = com.github.fommil.netlib.BLAS.getInstance();
   private static final Pattern ROW_SEPARATOR = Pattern.compile(";");
   private static final Pattern VALUE_SEPARATOR = Pattern.compile(",");
@@ -166,6 +167,45 @@ public class Matrices {
       diagonal[i] = 1;
     }
     return Diagonal.of(rows, cols, diagonal);
+  }
+
+  public static Matrix sort(Matrix matrix) {
+    Matrix out = matrix.copy();
+    QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)),
+        (a, b) -> {
+          double tmp = out.get(a);
+          out.put(a, out.get(b));
+          out.put(b, tmp);
+        });
+    return out;
+  }
+
+  public static Matrix sort(Matrix matrix, Axis axis) {
+    Matrix out = matrix.copy();
+    if (axis == Axis.ROW) {
+      for (int i = 0; i < matrix.rows(); i++) {
+        Matrix row = out.getRowView(i);
+        QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
+            (a, b) -> {
+              double tmp = row.get(a);
+              row.put(a, out.get(b));
+              row.put(b, tmp);
+            });
+
+        System.out.println(row);
+      }
+    } else {
+      for (int i = 0; i < matrix.columns(); i++) {
+        Matrix col = out.getColumnView(i);
+        QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
+            (a, b) -> {
+              double tmp = col.get(a);
+              col.put(a, out.get(b));
+              col.put(b, tmp);
+            });
+      }
+    }
+    return out;
   }
 
   /**

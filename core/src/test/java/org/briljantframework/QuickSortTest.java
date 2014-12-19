@@ -10,15 +10,16 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class SortTest {
+public class QuickSortTest {
 
 
   @Test
   public void testTest() throws Exception {
-    ArrayList<Integer> list =
-        Lists.newArrayList(9, 2, 3, 5, 1, 53, 5, 64, 65, 23, 2, 321, 13, 2, 321);
+    ArrayList<String> list =
+        Lists.newArrayList("a", "b", "c", "q", "f", "d", "r", "a");
     Swappable s = new ListSwappable(list);
-    Sort.quickSort(0, 15, (a, b) -> list.get(a) - list.get(b), s);
+    System.out.println();
+    QuickSort.quickSort(0, list.size(), (a, b) -> list.get(a).compareTo(list.get(b)), s);
     System.out.println(list);
 
     assertEquals(1, 1, 1);

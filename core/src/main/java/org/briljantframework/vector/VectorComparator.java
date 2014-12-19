@@ -7,13 +7,20 @@ package org.briljantframework.vector;
 public interface VectorComparator {
 
   /**
-   * Compare value at index {@code a} to value at index {@code b}.
+   * <p>
+   * Returns the comparison of value at index {@code a} and value at {@code b} in {@code v}.
+   * </p>
    * 
-   * @param vec the vector
-   * @param a the first index
-   * @param b the second index
-   * @return -1 if value at {@code a} is greater than value at {@code b}, 0 if equal and 1 if
-   *         reversed.
+   * <p>
+   * Not {@link org.briljantframework.vector.VectorLike} might throw
+   * {@link java.lang.UnsupportedOperationException} or return strange values if a particular method
+   * is not implemented.
+   * </p>
+   * 
+   * @param v the vector
+   * @param a the index
+   * @param b the index
+   * @return the comparison
    */
-  int compare(Vector vec, int a, int b);
+  int compare(VectorLike v, int a, int b);
 }

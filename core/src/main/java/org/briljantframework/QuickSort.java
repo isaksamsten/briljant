@@ -9,17 +9,20 @@ import java.util.function.IntBinaryOperator;
  *
  * @author Isak Karlsson
  */
-public class Sort {
+public class QuickSort {
 
   /**
    * This is used for 'external' sorting. The comparator takes <em>indices</em>, not values, and
    * compares the external values found at those indices.
    * 
-   * @param a
-   * @param b
-   * @param c
-   * @param comp
-   * @return
+   * From <a href="https://github.com/apache/mahout/blob/master/math/src/main/java/org
+   * /apache/mahout/math/Sorting.java">Apache Mahout</a>
+   * 
+   * @param a first
+   * @param b second
+   * @param c third
+   * @param comp comparator
+   * @return the largest value with index
    */
   private static int med3(int a, int b, int c, IntBinaryOperator comp) {
     int comparisonab = comp.applyAsInt(a, b);
@@ -46,6 +49,9 @@ public class Sort {
   /**
    * Sorts some external data with QuickSort.
    *
+   * From <a href="https://github.com/apache/mahout/blob/master/math/src/main/java/org
+   * /apache/mahout/math/Sorting.java">Apache Mahout</a>
+   * 
    * @param start the start index to sort.
    * @param end the last + 1 index to sort.
    * @param comp the comparator.
