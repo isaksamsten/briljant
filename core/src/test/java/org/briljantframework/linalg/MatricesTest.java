@@ -41,6 +41,6 @@ public class MatricesTest {
 
     Matrix x = parseMatrix("32,12,3,4;" + "12,3,41,122");
 
-    System.out.println(sort(x, Axis.ROW));
+    System.out.println(sort(x, Axis.COLUMN));
   }
 }

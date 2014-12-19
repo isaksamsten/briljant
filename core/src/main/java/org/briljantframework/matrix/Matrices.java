@@ -188,11 +188,9 @@ public class Matrices {
         QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
             (a, b) -> {
               double tmp = row.get(a);
-              row.put(a, out.get(b));
+              row.put(a, row.get(b));
               row.put(b, tmp);
             });
-
-        System.out.println(row);
       }
     } else {
       for (int i = 0; i < matrix.columns(); i++) {
@@ -200,7 +198,7 @@ public class Matrices {
         QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
             (a, b) -> {
               double tmp = col.get(a);
-              col.put(a, out.get(b));
+              col.put(a, col.get(b));
               col.put(b, tmp);
             });
       }
