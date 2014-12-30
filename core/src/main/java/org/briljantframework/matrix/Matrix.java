@@ -25,33 +25,33 @@ import org.briljantframework.vector.VectorLike;
 
 /**
  * A matrix is a 2-dimensional array.
- * 
+ *
  * <p>
  * Every implementation have to ensure that {@link #put(int, double)}, {@link #get(int)} and
  * {@link #asDoubleArray()} work in <b>column-major</b> order as fortran and not in <b>row-major</b>
  * order as in e.g., c.
- * 
+ *
  * More specifically this means that given the matrix {@code m}
- * 
+ *
  * <pre>
  *     1  2  3
  *     4  5  6
  *     7  8  9
  * </pre>
- * 
+ *
  * The following must hold:
  * <ul>
  * <li>{@code m.asDoubleArray()} returns {@code [1,4,7,2,5,8,3,6,9]}</li>
  * <li>{@code for(int i = 0; i < m.size(); i++) System.out.print(m.get(i))} produces
  * {@code 147258369}</li>
  * <li>{@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} changes {@code m} to
- * 
+ *
  * <pre>
  *     1   4   6
  *     8   10  12
  *     14  16  18
  * </pre>
- * 
+ *
  * </li>
  * </ul>
  * <p>
@@ -80,11 +80,11 @@ import org.briljantframework.vector.VectorLike;
  *   }
  * }
  * </pre>
- * 
+ *
  * In the example above, prefer <b>Option 2</b> (or simply {@code m.addi(2)}). <b>Option 3</b> can
  * also be an alternative option, that for many implementations preserve cache locality and might be
  * more readable in some cases.
- * 
+ *
  * @author Isak Karlsson
  */
 public interface Matrix extends Iterable<Double> {
@@ -92,7 +92,7 @@ public interface Matrix extends Iterable<Double> {
   /**
    * Assign value returned by {@link #size()} successive calls to
    * {@link java.util.function.DoubleSupplier#getAsDouble()}
-   * 
+   *
    * @param supplier the supplier
    * @return receiver modified
    */
@@ -100,7 +100,7 @@ public interface Matrix extends Iterable<Double> {
 
   /**
    * Assign {@code value} to {@code this}
-   * 
+   *
    * @param value the value to assign
    * @return receiver modified
    */
@@ -108,9 +108,9 @@ public interface Matrix extends Iterable<Double> {
 
   /**
    * Assign {@code vector} extending row or column wise
-   * 
+   *
    * Note: {@code vector.size()} must equal {@code matrix.rows()} or {@code matrix.columns()}
-   * 
+   *
    * @param vector the vector
    * @param axis the extending direction
    * @return receiver modified
@@ -119,7 +119,7 @@ public interface Matrix extends Iterable<Double> {
 
   /**
    * Assign {@code vector} and apply operator to every element extending row or column wise
-   * 
+   *
    * @param vector the vector
    * @param operator the operator
    * @param axis the extending direction
@@ -130,7 +130,7 @@ public interface Matrix extends Iterable<Double> {
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
    * {@code this.getShape()}.
-   * 
+   *
    * @param matrix the matrix
    * @return receiver modified
    */
@@ -138,7 +138,7 @@ public interface Matrix extends Iterable<Double> {
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value. Compare:
-   * 
+   *
    * <pre>
    * Matrix original = ArrayMatrix.filledWith(10, 10, 2);
    * Matrix other = ArrayMatrix.filledWith(10, 10, 3);
@@ -146,11 +146,11 @@ public interface Matrix extends Iterable<Double> {
    *   original.put(i, other.get(i) * 3);
    * }
    * </pre>
-   * 
+   *
    * and {@code original.assign(other, x -> * 3)} or {@code original.add(1, other, 3)}
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
@@ -162,7 +162,7 @@ public interface Matrix extends Iterable<Double> {
    * equal {@code this.size()}. The array is assumed to be in column major order, hence
    * {@code [1,2,3,4]} assigned to a matrix will result in {@code [1 3; 2 4]} and not
    * {@code [1,2; 3,4]}, similar to R.
-   * 
+   *
    * @param values the column major array
    * @return receiver modified
    */
@@ -195,8 +195,8 @@ public interface Matrix extends Iterable<Double> {
   /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
    * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
-   * 
-   * 
+   *
+   *
    * @param identity the initial value
    * @param reduce takes two values and reduces them to one
    * @param map takes a value and possibly transforms it
@@ -206,11 +206,11 @@ public interface Matrix extends Iterable<Double> {
 
   /**
    * Reduces each column. Column wise summing can be implemented as
-   * 
+   *
    * <pre>
    * matrix.reduceColumns(col -&gt; col.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
    * </pre>
-   * 
+   *
    * @param reduce takes a {@code Matrix} and returns {@code double}
    * @return a new column vector with the reduced value
    */
@@ -246,7 +246,7 @@ public interface Matrix extends Iterable<Double> {
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
-   * 
+   *
    * @return a diagonal view
    */
   Diagonal getDiagonalView();
@@ -254,24 +254,24 @@ public interface Matrix extends Iterable<Double> {
   /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
    * starting at {@code colOffset} until {@code colOffset + columns}.
-   * 
+   *
    * For example,
-   * 
+   *
    * <pre>
    *   1 2 3
    *   4 5 6
    *   7 8 9
    * </pre>
-   * 
+   *
    * and {@code matrix.getView(1, 1, 2, 2)} produces
-   * 
+   *
    * <pre>
    *   5 6
    *   8 9
    * </pre>
-   * 
+   *
    * Please note that modifications of the view, mutates the original.
-   * 
+   *
    * @param rowOffset the row offset
    * @param colOffset the column offset
    * @param rows number of rows after row offset
@@ -286,6 +286,17 @@ public interface Matrix extends Iterable<Double> {
    * @return the matrix like
    */
   Matrix transpose();
+
+  /**
+   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
+   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
+   * matrix.
+   *
+   * @param rows
+   * @param columns
+   * @return
+   */
+  Matrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////
 
@@ -855,7 +866,7 @@ public interface Matrix extends Iterable<Double> {
   /**
    * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
    * enforced.
-   * 
+   *
    * @param index the index
    * @param value the value
    * @see #get(int)

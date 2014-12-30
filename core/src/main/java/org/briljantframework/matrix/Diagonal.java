@@ -20,6 +20,8 @@ import java.util.function.DoubleUnaryOperator;
 
 import org.briljantframework.exceptions.NonConformantException;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Implementation of a sparse diagonal matrix
  * <p>
@@ -197,6 +199,13 @@ public class Diagonal extends AbstractMatrix {
     double[] values = new double[this.values.length];
     System.arraycopy(this.values, 0, values, 0, values.length);
     return new Diagonal(this.columns(), this.rows(), values);
+  }
+
+  @Override
+  public Matrix reshape(int rows, int columns) {
+    Preconditions.checkArgument(rows * columns == size(),
+        "Total size of new matrix must be unchanged.");
+    return new Diagonal(rows, columns, values);
   }
 
   /**

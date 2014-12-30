@@ -54,6 +54,13 @@ public class VectorMatrix extends AbstractMatrix {
     return new VectorMatrix(1, vector.size(), vector);
   }
 
+  @Override
+  public Matrix reshape(int rows, int columns) {
+    Preconditions.checkArgument(rows * columns == size(),
+        "Total size of new matrix must be unchanged.");
+    return new VectorMatrix(rows, columns, vector);
+  }
+
   /**
    * {@inheritDoc}
    * 

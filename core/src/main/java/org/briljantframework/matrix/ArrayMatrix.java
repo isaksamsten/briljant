@@ -296,6 +296,13 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
+  public Matrix reshape(int rows, int columns) {
+    Preconditions.checkArgument(rows * columns == size(),
+        "Total size of new matrix must be unchanged.");
+    return new ArrayMatrix(rows, columns, values);
+  }
+
+  @Override
   public Matrix mmul(double alpha, Matrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);

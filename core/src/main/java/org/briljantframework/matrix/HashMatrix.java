@@ -44,6 +44,13 @@ public class HashMatrix extends AbstractMatrix {
   }
 
   @Override
+  public Matrix reshape(int rows, int columns) {
+    Preconditions.checkArgument(rows * columns == size(),
+        "Total size of new matrix must be unchanged.");
+    return new HashMatrix(rows, columns, values);
+  }
+
+  @Override
   public void put(int i, int j, double value) {
     Preconditions.checkArgument(i < rows() && i >= 0 && j < columns() && j >= 0);
     IntDoubleMap col = values.get(j);

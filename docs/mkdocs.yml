@@ -1,8 +1,11 @@
 site_name: Briljant
 pages:
-- [index.md, Home]
+- [index.md, Introduction]
 - [about.md, About]
 - [tutorial.md, Tutorial]
+- [reference/index.md, 'Reference', 'Briljant Reference']
+- [reference/matrix.md, 'Reference', 'Matrix']
+- [reference/dataframe.md, 'Reference', 'Data Frames']
 #theme: readthedocs
 
 markdown_extensions: [fenced_code]

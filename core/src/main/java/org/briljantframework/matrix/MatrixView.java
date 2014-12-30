@@ -29,6 +29,12 @@ public class MatrixView extends AbstractMatrix {
   }
 
   @Override
+  public Matrix reshape(int rows, int columns) {
+    // TODO(isak): this might be strange..
+    return new MatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
   public Matrix mmul(double alpha, Matrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);

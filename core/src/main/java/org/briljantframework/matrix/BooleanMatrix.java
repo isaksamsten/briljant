@@ -30,8 +30,12 @@ public class BooleanMatrix extends AbstractMatrix {
    * @param cols the cols
    */
   public BooleanMatrix(int rows, int cols) {
-    super(rows, cols);
-    this.values = new boolean[rows * cols];
+    this(rows, cols, new boolean[rows * cols]);
+  }
+
+  public BooleanMatrix(int rows, int columns, boolean[] values) {
+    super(rows, columns);
+    this.values = values;
   }
 
   /**
@@ -126,6 +130,11 @@ public class BooleanMatrix extends AbstractMatrix {
    */
   public Matrix transpose() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix reshape(int rows, int columns) {
+    return new BooleanMatrix(rows, columns, values);
   }
 
   @Override
