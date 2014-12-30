@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
@@ -45,6 +46,14 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
+  public Matrix assign(DoubleSupplier supplier) {
+    for (int i = 0; i < size(); i++) {
+      put(i, supplier.getAsDouble());
+    }
+    return this;
+  }
+
+  @Override
   public Matrix assign(double value) {
     for (int i = 0; i < size(); i++) {
       put(i, value);
@@ -64,19 +73,18 @@ public abstract class AbstractMatrix implements Matrix {
      * Therefore, the straightforward implementation using two for-loops is not used below. This is
      * a big win since this.size() >= other.size().
      */
-    Matrix mat = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        mat.put(i, operator.applyAsDouble(get(i), other.getAsDouble(i % rows())));
+        put(i, operator.applyAsDouble(get(i), other.getAsDouble(i % rows())));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        mat.put(i, operator.applyAsDouble(get(i), other.getAsDouble(i / rows())));
+        put(i, operator.applyAsDouble(get(i), other.getAsDouble(i / rows())));
       }
     }
-    return mat;
+    return this;
   }
 
   @Override

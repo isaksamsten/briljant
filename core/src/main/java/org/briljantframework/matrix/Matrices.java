@@ -18,6 +18,7 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.util.List;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
@@ -26,6 +27,7 @@ import org.briljantframework.QuickSort;
 import org.briljantframework.vector.VectorLike;
 
 import com.github.fommil.netlib.BLAS;
+import com.google.common.collect.Lists;
 
 
 /**
@@ -49,10 +51,22 @@ public class Matrices {
   private static final Pattern VALUE_SEPARATOR = Pattern.compile(",");
 
   /**
-   * Parse matrix.
+   * Parse a matrix in the format
+   * <p>
+   * 
+   * <pre>
+   *     row :== double<sub>1</sub>, {double<sub>n</sub>}
+   *     matrix :== row<sub>1</sub>; {row<sub>m</sub>}
+   * </pre>
+   * <p>
+   * For example, {@code 1, 2, 3, 4;1,2,3,4;1,2,3,4} is a 3 by 4 matrix with ones in the first
+   * column, twos in the second column etc.
+   * <p>
+   * Returns an {@link org.briljantframework.matrix.ArrayMatrix}.
    *
-   * @param str the str
-   * @return the out
+   * @param str the input matrix as a string
+   * @return a matrix
+   * @throws java.lang.NumberFormatException
    */
   public static Matrix parseMatrix(String str) {
     checkArgument(str != null && str.length() > 0);
@@ -77,8 +91,37 @@ public class Matrices {
     return matrix;
   }
 
+  public static Matrix matrix(double[][] values) {
+    Matrix m = new ArrayMatrix(values.length, values[0].length);
+    for (int i = 0; i < values.length; i++) {
+      for (int j = 0; j < values[0].length; j++) {
+        m.put(i, j, values[i][j]);
+      }
+    }
+    return m;
+  }
+
+  public static Matrix matrix(double... values) {
+    return new ArrayMatrix(1, values);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Matrix matrix(Iterable<? extends Number> iter) {
+    List<? extends Number> numbers;
+    if (iter instanceof List) {
+      numbers = (List<? extends Number>) iter;
+    } else {
+      numbers = Lists.newArrayList(iter);
+    }
+    Matrix m = new ArrayMatrix(numbers.size(), 1);
+    for (int i = 0; i < numbers.size(); i++) {
+      m.put(i, numbers.get(i).doubleValue());
+    }
+    return m;
+  }
+
   /**
-   * Zero dense matrix.
+   * Matrix of zeroes.
    *
    * @param rows the rows
    * @param cols the cols
@@ -89,17 +132,27 @@ public class Matrices {
   }
 
   /**
-   * Ones dense matrix.
+   * Square matrix with {@code size x size} consisting of zeroes.
+   *
+   * @param size
+   * @return a new matrix
+   */
+  public static Matrix zeros(int size) {
+    return zeros(size, size);
+  }
+
+  /**
+   * Square matrix with {@code size x size} consisting of ones.
    *
    * @param size the size
-   * @return the dense matrix
+   * @return a new matrix
    */
   public static Matrix ones(int size) {
     return ones(size, size);
   }
 
   /**
-   * Ones matrix.
+   * Matrix with ones.
    *
    * @param rows the rows
    * @param cols the cols
@@ -110,24 +163,6 @@ public class Matrices {
   }
 
   /**
-   * Apply <code>operation</code> to every element in the {@code ArrayBackend} output in
-   * <p>
-   * 
-   * <pre>
-   * Tensors.apply(vector, Math::sqrt, output);
-   * </pre>
-   *
-   * @param in input tensorlike
-   * @param operator operator to apply
-   * @param out the out
-   */
-  public static void map(Matrix in, DoubleUnaryOperator operator, Matrix out) {
-    for (int i = 0; i < in.size(); i++) {
-      out.put(i, operator.applyAsDouble(in.get(i)));
-    }
-  }
-
-  /**
    * N dense matrix.
    *
    * @param rows the rows
@@ -135,22 +170,31 @@ public class Matrices {
    * @param n the n
    * @return the dense matrix
    */
-  public static Matrix n(int rows, int cols, double n) {
+  public static Matrix fill(int rows, int cols, double n) {
     return ArrayMatrix.filledWith(rows, cols, n);
   }
 
   /**
-   * Eye diagonal.
+   * Diagonal identity matrix of {@code size}
    *
    * @param size the size
-   * @return the diagonal
+   * @return the identity matrix
    */
-  public static Diagonal eye(int size) {
+  public static Matrix eye(int size) {
     double[] diagonal = new double[size];
     for (int i = 0; i < size; i++) {
       diagonal[i] = 1;
     }
     return Diagonal.of(size, size, diagonal);
+  }
+
+  /**
+   * @param in input tensorlike
+   * @param operator operator to apply
+   * @param out the out
+   */
+  public static void map(Matrix in, DoubleUnaryOperator operator, Matrix out) {
+    out.assign(in, operator);
   }
 
 
@@ -206,6 +250,31 @@ public class Matrices {
     return out;
   }
 
+  public static Matrix range(int start, int end, int step) {
+    int i = end - start;
+    double[] values = new double[i / step + (i % step != 0 ? 1 : 0)];
+    int index = 0;
+    while (index < values.length) {
+      values[index++] = start;
+      start += step;
+    }
+    return new ArrayMatrix(1, values);
+  }
+
+  /**
+   * <pre>
+   *
+   * </pre>
+   *
+   * @param in the in
+   * @param operator the operator
+   * @return out out
+   */
+  public static Matrix map(Matrix in, DoubleUnaryOperator operator) {
+    return in.newEmptyMatrix(in.rows(), in.columns()).assign(in, operator);
+  }
+
+
   /**
    * Sqrt matrix.
    *
@@ -214,22 +283,6 @@ public class Matrices {
    */
   public static Matrix sqrt(Matrix matrix) {
     return map(matrix, Math::sqrt);
-  }
-
-
-  /**
-   * <pre>
-   * Tensors.apply(vector, Math::sqrt, DenseVector::new)
-   * </pre>
-   * 
-   * @param in the in
-   * @param operator the operator
-   * @return out out
-   */
-  public static Matrix map(Matrix in, DoubleUnaryOperator operator) {
-    Matrix out = new ArrayMatrix(in.rows(), in.columns());
-    map(in, operator, out);
-    return out;
   }
 
   /**
@@ -259,104 +312,6 @@ public class Matrices {
     }
     return matrix;
   }
-
-  //
-  // /**
-  // * Return a new array with the result
-  // *
-  // * @param m a square matrix with x.rows = d.size
-  // * @param d a diagonal matrix
-  // * @return a new array with the same dimensions as x
-  // */
-  // public static Matrix mdmul(Matrix m, Diagonal d) {
-  // Shape shape = Shape.of(m.rows(), d.columns());
-  // double[] empty = shape.getArrayOfShape();
-  // mdmuli(m, d, empty);
-  // return new ArrayMatrix(shape, empty);
-  // }
-
-  // /**
-  // * Multiplying a square matrix X with a symmetric diagonal matrix (i.e. a vector of diagonal
-  // * entries) d storing the result in Y.
-  // * <p>
-  // * Since the result is a new square matrix, inplace multiplication can be performed
-  // * <p>
-  // *
-  // * <pre>
-  // * Matrix x = Matrix.of(2, 2, 1, 1, 1, 1);
-  // * Vector d = Vector.row(2, 2);
-  // * Blas.multiplyByDiagonal(x, d, x);
-  // * </pre>
-  // * <p>
-  // *
-  // * <pre>
-  // * Y &lt; -Xd
-  // * </pre>
-  // *
-  // * @param x a square matrix with x.headers = d.size
-  // * @param d a diagonal matrix
-  // * @param y a square matrix with x.shape = out.shape
-  // */
-  // public static void mdmuli(Matrix x, Diagonal d, double[] y) {
-  // if (x.columns() != d.rows()) {
-  // throw new NonConformantException(x, d);
-  // }
-  // int rows = x.rows(), columns = d.columns();
-  // for (int column = 0; column < columns; column++) {
-  // if (column < x.columns()) {
-  // for (int row = 0; row < rows; row++) {
-  // double xv = x.get(row, column);
-  // double dv = d.get(column);
-  // y[column * rows + row] = xv * dv;
-  // }
-  // } else {
-  // break;
-  // }
-  // }
-  // }
-
-  // /**
-  // * Multiply by diagonal.
-  // *
-  // * @param d a diagonal matrix
-  // * @param m a square matrix with x.headers = d.size
-  // * @return the result
-  // */
-  // public static Matrix dmmul(Diagonal d, Matrix m) {
-  // Shape shape = Shape.of(d.rows(), m.columns());
-  // double[] array = shape.getArrayOfShape();
-  // dmmuli(d, m, array);
-  // return new ArrayMatrix(shape, array);
-  // }
-
-  // /**
-  // * Multiplying a square symmetric diagonal matrix (i.e. a vector of diagonal entries) d and X,
-  // * storing the result in Y
-  // * <p>
-  // *
-  // * <pre>
-  // * Y &lt; -dX
-  // * </pre>
-  // *
-  // * @param d a diagonal matrix
-  // * @param x a square matrix with x.rows = d.size
-  // * @param y a square matrix with x.shape = y.shape
-  // */
-  // public static void dmmuli(Diagonal d, Matrix x, double[] y) {
-  // if (d.columns() != x.rows()) {
-  // throw new NonConformantException(d, x);
-  // }
-  // int rows = d.rows(), columns = x.columns();
-  // for (int row = 0; row < rows; row++) {
-  // if (row < x.rows()) {
-  // for (int column = 0; column < columns; column++) {
-  // y[column * rows + row] = x.get(row, column) * d.get(row);
-  // }
-  // } else {
-  // break;
-  // }
-  // }
-  // }
 
   /**
    * Linspace out.
@@ -446,21 +401,7 @@ public class Matrices {
    * @return out out
    */
   public static Matrix randn(int rows, int cols) {
-    Shape shape = Shape.of(rows, cols);
-    double[] array = shape.getArrayOfShape();
-    randn(array);
-    return new ArrayMatrix(shape, array);
-  }
-
-  /**
-   * Randn void.
-   *
-   * @param array a array to fill
-   */
-  public static void randn(double[] array) {
-    for (int i = 0; i < array.length; i++) {
-      array[i] = RANDOM.nextGaussian();
-    }
+    return new ArrayMatrix(rows, cols).assign(RANDOM::nextGaussian);
   }
 
   /**
@@ -471,24 +412,8 @@ public class Matrices {
    * @return out out
    */
   public static Matrix rand(int rows, int cols) {
-    Shape shape = Shape.of(rows, cols);
-    double[] array = shape.getArrayOfShape();
-    rand(array);
-    return new ArrayMatrix(shape, array);
+    return new ArrayMatrix(rows, cols).assign(RANDOM::nextDouble);
   }
-
-  /**
-   * Fill with uniformly random numbers
-   *
-   * @param array the array
-   */
-  public static void rand(double[] array) {
-    for (int i = 0; i < array.length; i++) {
-      array[i] = RANDOM.nextGaussian();
-    }
-  }
-
-
 
   /**
    * Pow out.
@@ -522,33 +447,20 @@ public class Matrices {
 
   /**
    * Sign out.
-   * 
+   *
    * @param in the in
    * @return out out
    */
-  public static Matrix sign(Matrix in) {
+  public static Matrix signum(Matrix in) {
     return map(in, Math::signum);
   }
-
-  // }
-
-
-  // }
-
-  // }
-
-  // }
-
-  // }
-
-  // }
 
   /**
    * Simple wrapper around
    * {@link com.github.fommil.netlib.BLAS#dgemm(String, String, int, int, int, double, double[], int, double[], int, double, double[], int)}
-   * 
+   * <p>
    * Performs no additional error checking.
-   * 
+   *
    * @param t left hand side
    * @param alpha scaling for lhs
    * @param other right hand side

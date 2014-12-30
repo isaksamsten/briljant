@@ -33,6 +33,14 @@ public class MatricesTest {
   }
 
   @Test
+  public void testRange() throws Exception {
+    System.out.println(Matrices.range(0, 10, 3));
+    System.out.println(Matrices.range(0, 10, 4));
+    System.out.println(Matrices.range(0, 10, 5));
+
+  }
+
+  @Test
   public void testAxB() throws Exception {
     Matrix a = ArrayMatrix.of(2, 3, 1, 2, 3, 1, 2, 3);
     Matrix b = ArrayMatrix.of(3, 2, 2, 2, 1, 1, 3, 3);

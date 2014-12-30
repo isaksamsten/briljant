@@ -17,6 +17,7 @@
 package org.briljantframework.matrix;
 
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
@@ -89,10 +90,19 @@ import org.briljantframework.vector.VectorLike;
 public interface Matrix extends Iterable<Double> {
 
   /**
+   * Assign value returned by {@link #size()} successive calls to
+   * {@link java.util.function.DoubleSupplier#getAsDouble()}
+   * 
+   * @param supplier the supplier
+   * @return receiver modified
+   */
+  Matrix assign(DoubleSupplier supplier);
+
+  /**
    * Assign {@code value} to {@code this}
    * 
    * @param value the value to assign
-   * @return a modified matrix
+   * @return receiver modified
    */
   Matrix assign(double value);
 
@@ -103,7 +113,7 @@ public interface Matrix extends Iterable<Double> {
    * 
    * @param vector the vector
    * @param axis the extending direction
-   * @return a new matrix
+   * @return receiver modified
    */
   Matrix assign(VectorLike vector, Axis axis);
 
@@ -113,7 +123,7 @@ public interface Matrix extends Iterable<Double> {
    * @param vector the vector
    * @param operator the operator
    * @param axis the extending direction
-   * @return a new matrix
+   * @return receiver modified
    */
   Matrix assign(VectorLike vector, DoubleBinaryOperator operator, Axis axis);
 
@@ -122,7 +132,7 @@ public interface Matrix extends Iterable<Double> {
    * {@code this.getShape()}.
    * 
    * @param matrix the matrix
-   * @return a modified matrix
+   * @return receiver modified
    */
   Matrix assign(Matrix matrix);
 
@@ -154,7 +164,7 @@ public interface Matrix extends Iterable<Double> {
    * {@code [1,2; 3,4]}, similar to R.
    * 
    * @param values the column major array
-   * @return a modified matrix
+   * @return receiver modified
    */
   Matrix assign(double[] values);
 

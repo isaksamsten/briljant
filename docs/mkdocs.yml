@@ -1,0 +1,8 @@
+site_name: Briljant
+pages:
+- [index.md, Home]
+- [about.md, About]
+- [tutorial.md, Tutorial]
+#theme: readthedocs
+
+markdown_extensions: [fenced_code]
