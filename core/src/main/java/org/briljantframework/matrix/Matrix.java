@@ -193,6 +193,14 @@ public interface Matrix extends Iterable<Double> {
   Matrix map(DoubleUnaryOperator operator);
 
   /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   * @return receiver modified
+   */
+  Matrix mapi(DoubleUnaryOperator operator);
+
+  /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
    * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
    *
@@ -310,7 +318,7 @@ public interface Matrix extends Iterable<Double> {
   Matrix mmul(Matrix other);
 
   /**
-   * <u>m</u>atrix<u>d</u>iagonal multiplication
+   * <u>m</u>atrix diagonal multiplication
    *
    * @param diagonal the diagonal
    * @return matrix matrix
@@ -328,6 +336,10 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    */
   Matrix mmul(double alpha, Matrix other, double beta);
+
+  Matrix mmul(Transpose a, Matrix other, Transpose b);
+
+  Matrix mmul(double alpha, Transpose a, Matrix other, double beta, Transpose b);
 
   /**
    * Element wise <u>m</u>ultiplication

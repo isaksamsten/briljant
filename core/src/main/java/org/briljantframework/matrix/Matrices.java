@@ -20,10 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
 import org.briljantframework.QuickSort;
+import org.briljantframework.Utils;
 import org.briljantframework.vector.VectorLike;
 
 import com.github.fommil.netlib.BLAS;
@@ -40,7 +42,7 @@ public class Matrices {
   /**
    * The constant RANDOM.
    */
-  public static final Random RANDOM = new Random();
+  public static final Random RANDOM = Utils.getRandom();
 
   /**
    * The constant LOG_2.
@@ -52,6 +54,7 @@ public class Matrices {
 
   /**
    * Parse a matrix in the format
+   * <p>
    * <p>
    * 
    * <pre>
@@ -89,6 +92,10 @@ public class Matrices {
     }
 
     return matrix;
+  }
+
+  public static Matrix matrix(int size, DoubleSupplier supplier) {
+    return zeros(size, 1).assign(supplier);
   }
 
   public static Matrix matrix(double[][] values) {
@@ -174,6 +181,10 @@ public class Matrices {
     return ArrayMatrix.filledWith(rows, cols, n);
   }
 
+  public static Matrix fill(int size, double n) {
+    return ArrayMatrix.filledWith(size, 1, n);
+  }
+
   /**
    * Diagonal identity matrix of {@code size}
    *
@@ -250,6 +261,10 @@ public class Matrices {
     return out;
   }
 
+  public static Matrix range(int start, int end) {
+    return range(start, end, 1);
+  }
+
   public static Matrix range(int start, int end, int step) {
     int i = end - start;
     double[] values = new double[i / step + (i % step != 0 ? 1 : 0)];
@@ -314,24 +329,26 @@ public class Matrices {
   }
 
   /**
-   * Linspace out.
+   * <p>
+   * Create a vector of length {@code num} with evenly spaced values between {@code start} and
+   * {@code end}.
+   * </p>
    *
-   * @param limit the limit
-   * @param n the n
-   * @param base the base
-   * @return the out
+   * @param start the start value
+   * @param stop the end value
+   * @param num the number of steps (i.e. intermediate values)
+   * @return a vector
    */
-  public static Matrix linspace(int limit, int n, int base) {
-    double[] valyes = new double[n];
-    double step = ((double) limit - base) / (n - 1);
-
-    double value = base;
-    for (int index = 0; index < n; index++) {
-      valyes[index] = value;
+  public static Matrix linspace(double start, double stop, int num) {
+    double[] builder = new double[num];
+    double step = (stop - start) / (num - 1);
+    double value = start;
+    for (int index = 0; index < num; index++) {
+      builder[index] = value;
       value += step;
     }
 
-    return ArrayMatrix.rowVector(valyes);
+    return new ArrayMatrix(1, builder);
   }
 
   /**
@@ -472,6 +489,26 @@ public class Matrices {
         t.rows(), other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
   }
 
+  public static void mmul(Matrix t, double alpha, Transpose a, Matrix other, double beta,
+      Transpose b, double[] tmp) {
+    String transA = "n";
+    int thisRows = t.rows();
+    if (a == Transpose.YES) {
+      thisRows = t.columns();
+      transA = "t";
+    }
+
+    String transB = "n";
+    int otherRows = other.rows();
+    int otherColumns = other.columns();
+    if (b == Transpose.YES) {
+      otherRows = other.columns();
+      otherColumns = other.rows();
+      transB = "t";
+    }
+    BLAS.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, t.asDoubleArray(),
+        t.rows(), other.asDoubleArray(), other.rows(), beta, tmp, thisRows);
+  }
 
   /**
    * Sum t.
@@ -501,6 +538,7 @@ public class Matrices {
     return new ArrayMatrix(m.rows(), 1, values);
   }
 
+
   private static ArrayMatrix rowSum(Matrix m) {
     double[] values = new double[m.columns()];
     for (int j = 0; j < m.columns(); j++) {
@@ -511,6 +549,4 @@ public class Matrices {
 
     return new ArrayMatrix(1, m.columns(), values);
   }
-
-
 }

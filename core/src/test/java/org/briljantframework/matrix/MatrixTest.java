@@ -28,6 +28,28 @@ public class MatrixTest {
   public void testMul() throws Exception {
     Matrix a = parseMatrix("1,2,3;1,2,3");
     Matrix b = parseMatrix("1,2,3;1,2,3");
+
+    System.out.println(a.mmul(Transpose.YES, a, Transpose.NO));
+
+    System.out.println(a.transpose().mmul(a));
+    //
+    // System.out.println(a.add(b));
+    //
+    // Matrix a = fill(3, 3, 2);
+    // Matrix b = randn(3, 3);
+    //
+    // System.out.println(b.add(a));
+    // System.out.println(b.sub(a));
+    // System.out.println(b.mul(a));
+    // System.out.println(b.mmul(a));
+    // System.out.println(b.add(1, a, -1));
+    // System.out.println(b.add(a.mul(-1)));
+    //
+    // System.out.println(b.add(1, a, -1).equalsTo(b.add(a.mul(-1))));
+    //
+    // System.out.println(Arrays.toString(b.add(1, a, -1).asDoubleArray()));
+    //
+    // System.out.println(Arrays.toString(b.add(a.mul(-1)).asDoubleArray()));
     // assertArrayEquals(parseMatrix("1,4,9;1,4,9").asDoubleArray(), a.mul(b).asDoubleArray(),
     // 0.0001);
     // assertArrayEquals(parseMatrix("1,4,9;1,4,9").asDoubleArray(), a.muli(b).asDoubleArray(),

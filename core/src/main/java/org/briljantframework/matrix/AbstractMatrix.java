@@ -17,6 +17,8 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.briljantframework.matrix.Indexer.columnMajor;
+import static org.briljantframework.matrix.Indexer.rowMajor;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -120,6 +122,14 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
+  public Matrix mapi(DoubleUnaryOperator operator) {
+    for (int i = 0; i < size(); i++) {
+      put(i, operator.applyAsDouble(get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.applyAsDouble(identity, map.applyAsDouble(get(i)));
@@ -166,14 +176,22 @@ public abstract class AbstractMatrix implements Matrix {
 
   public Matrix transpose() {
     Matrix matrix = newEmptyMatrix(this.columns(), this.rows());
-    for (int i = 0; i < size(); i++) {
-      matrix.put(i, get(i));
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.put(j, i, get(i, j));
+      }
     }
     return matrix;
   }
 
   @Override
-  public Matrix mmul(Matrix other) throws NonConformantException {
+  public Matrix mmul(Matrix other) {
+    /*
+     * Sometimes this is a huge gain!
+     */
+    if (other instanceof Diagonal) {
+      return mmul((Diagonal) other);
+    }
     return mmul(1, other, 1);
   }
 
@@ -200,16 +218,60 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix mmul(double alpha, Matrix other, double beta) {
-    if (columns() != other.rows()) {
-      throw new NonConformantException(this, other);
+    // if (columns() != other.rows()) {
+    // throw new NonConformantException(this, other);
+    // }
+    //
+    // Matrix result = newEmptyMatrix(rows(), other.columns());
+    // for (int row = 0; row < rows(); row++) {
+    // for (int col = 0; col < other.columns(); col++) {
+    // double sum = 0.0;
+    // for (int k = 0; k < columns(); k++) {
+    // sum += alpha * get(row, k) * beta * other.get(k, col);
+    // }
+    // result.put(row, col, sum);
+    // }
+    // }
+    // return result;
+    return mmul(alpha, Transpose.NO, other, beta, Transpose.NO);
+  }
+
+  @Override
+  public Matrix mmul(Transpose a, Matrix other, Transpose b) {
+    return mmul(1, a, other, 1, b);
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Transpose a, Matrix other, double beta, Transpose b) {
+    int thisRows = rows();
+    int thisCols = columns();
+    if (a == Transpose.YES) {
+      thisRows = columns();
+      thisCols = rows();
+    }
+    int otherRows = other.rows();
+    int otherColumns = other.columns();
+    if (b == Transpose.YES) {
+      otherRows = other.columns();
+      otherColumns = other.rows();
     }
 
-    Matrix result = newEmptyMatrix(rows(), other.columns());
-    for (int row = 0; row < rows(); row++) {
-      for (int col = 0; col < other.columns(); col++) {
+    if (thisCols != otherRows) {
+      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
+    }
+
+    Matrix result = newEmptyMatrix(thisRows, otherColumns);
+    for (int row = 0; row < thisRows; row++) {
+      for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
-        for (int k = 0; k < columns(); k++) {
-          sum += get(row, k) * other.get(k, col);
+        for (int k = 0; k < thisCols; k++) {
+          int thisIndex =
+              a == Transpose.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
+                  thisRows, thisCols);
+          int otherIndex =
+              b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
+                  otherRows, otherColumns);
+          sum += get(thisIndex) * other.get(otherIndex);
         }
         result.put(row, col, sum);
       }
@@ -621,7 +683,7 @@ public abstract class AbstractMatrix implements Matrix {
   public BooleanMatrix lessThan(Matrix other) {
     assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < other.size(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) < other.get(i));
     }
 
@@ -642,7 +704,7 @@ public abstract class AbstractMatrix implements Matrix {
     assertEqualSize(other);
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < other.rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) <= other.get(i));
     }
     return bm;
@@ -661,7 +723,7 @@ public abstract class AbstractMatrix implements Matrix {
   public BooleanMatrix greaterThan(Matrix other) {
     assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < other.rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) > other.get(i));
     }
     return bm;
@@ -670,7 +732,7 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public BooleanMatrix greaterThan(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) > value);
     }
     return bm;
@@ -680,7 +742,7 @@ public abstract class AbstractMatrix implements Matrix {
   public BooleanMatrix greaterThanEquals(Matrix other) {
     assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < other.rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) >= other.get(i));
     }
 
@@ -690,7 +752,7 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public BooleanMatrix greaterThanEquals(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) >= value);
     }
     return bm;
@@ -701,7 +763,7 @@ public abstract class AbstractMatrix implements Matrix {
     assertEqualSize(other);
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < other.rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) == other.get(i));
     }
 
@@ -711,7 +773,7 @@ public abstract class AbstractMatrix implements Matrix {
   @Override
   public BooleanMatrix equalsTo(double value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < rows(); i++) {
+    for (int i = 0; i < size(); i++) {
       bm.put(i, get(i) == value);
     }
     return bm;

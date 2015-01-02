@@ -50,6 +50,65 @@ public class BooleanMatrix extends AbstractMatrix {
   }
 
   /**
+   * Puts <code>value</code> at the linearized position <code>index</code>.
+   *
+   * @param index the index
+   * @param value the value
+   * @see #get(int)
+   */
+  public void put(int index, boolean value) {
+    values[index] = value;
+  }
+
+  /**
+   * Transpose matrix like.
+   *
+   * @return the matrix like
+   */
+  public Matrix transpose() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
+    return null;
+  }
+
+  /**
+   * Raw view of the column-major underlying array. In some instances it might be possible to mutate
+   * this (e.g., if the implementation provides a direct reference. However, there are nos such
+   * guarantees).
+   *
+   * @return the underlying array. Touch with caution.
+   */
+  public double[] asDoubleArray() {
+    double[] array = new double[values.length];
+    for (int i = 0; i < values.length; i++) {
+      array[i] = values[i] ? 1 : 0;
+    }
+    return array;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder out = new StringBuilder("BooleanMatrix\n");
+    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        builder.put(i, j, String.format("%s", has(i, j)));
+      }
+    }
+    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
+    out.append("Shape: ").append(getShape());
+    return out.toString();
+  }
+
+  @Override
+  public Matrix reshape(int rows, int columns) {
+    return new BooleanMatrix(rows, columns, values);
+  }
+
+  /**
    * Set value at row i and column j to value
    *
    * @param i row
@@ -109,66 +168,6 @@ public class BooleanMatrix extends AbstractMatrix {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     System.arraycopy(values, 0, bm.values, 0, values.length);
     return bm;
-  }
-
-  /**
-   * Puts <code>value</code> at the linearized position <code>index</code>.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #get(int)
-   */
-  public void put(int index, boolean value) {
-    checkArgument(index > 0 && index < values.length);
-    values[index] = value;
-  }
-
-  /**
-   * Transpose matrix like.
-   *
-   * @return the matrix like
-   */
-  public Matrix transpose() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Matrix reshape(int rows, int columns) {
-    return new BooleanMatrix(rows, columns, values);
-  }
-
-  @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    return null;
-  }
-
-  /**
-   * Raw view of the column-major underlying array. In some instances it might be possible to mutate
-   * this (e.g., if the implementation provides a direct reference. However, there are nos such
-   * guarantees).
-   *
-   * @return the underlying array. Touch with caution.
-   */
-  public double[] asDoubleArray() {
-    double[] array = new double[values.length];
-    for (int i = 0; i < values.length; i++) {
-      array[i] = values[i] ? 1 : 0;
-    }
-    return array;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder out = new StringBuilder("BooleanMatrix\n");
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        builder.put(i, j, String.format("%s", has(i, j)));
-      }
-    }
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("Shape: ").append(getShape());
-    return out.toString();
   }
 
   /**

@@ -20,6 +20,7 @@ public class Ex1 {
      *  0.2261  -0.3652  -0.2053  -1.8902  -1.6794
      * Shape: 3x5
      */
+
     m.getShape(); // => 3x5
     assert m.rows() == 3;
     assert m.columns() == 5;

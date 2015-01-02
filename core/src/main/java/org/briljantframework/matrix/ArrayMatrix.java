@@ -252,6 +252,13 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
+  public Matrix reshape(int rows, int columns) {
+    Preconditions.checkArgument(rows * columns == size(),
+        "Total size of new matrix must be unchanged.");
+    return new ArrayMatrix(rows, columns, values);
+  }
+
+  @Override
   public void put(int i, int j, double value) {
     values[columnMajor(i, j, rows(), columns())] = value;
   }
@@ -296,13 +303,6 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
-  public Matrix reshape(int rows, int columns) {
-    Preconditions.checkArgument(rows * columns == size(),
-        "Total size of new matrix must be unchanged.");
-    return new ArrayMatrix(rows, columns, values);
-  }
-
-  @Override
   public Matrix mmul(double alpha, Matrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
@@ -314,6 +314,34 @@ public class ArrayMatrix extends AbstractMatrix {
       return new ArrayMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);
+    }
+  }
+
+  @Override
+  public Matrix mmul(double alpha, Transpose a, Matrix other, double beta, Transpose b) {
+    int thisRows = rows();
+    int thisCols = columns();
+    if (a == Transpose.YES) {
+      thisRows = columns();
+      thisCols = rows();
+    }
+    int otherRows = other.rows();
+    int otherColumns = other.columns();
+    if (b == Transpose.YES) {
+      otherRows = other.columns();
+      otherColumns = other.rows();
+    }
+
+    if (thisCols != otherRows) {
+      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
+    }
+
+    if (other.isArrayBased()) {
+      double[] tmp = new double[thisRows * otherColumns];
+      Matrices.mmul(this, alpha, a, other, beta, b, tmp);
+      return new ArrayMatrix(thisRows, otherColumns, tmp);
+    } else {
+      return super.mmul(alpha, a, other, beta, b);
     }
   }
 
