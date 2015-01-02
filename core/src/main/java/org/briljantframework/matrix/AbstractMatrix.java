@@ -271,7 +271,7 @@ public abstract class AbstractMatrix implements Matrix {
           int otherIndex =
               b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                   otherRows, otherColumns);
-          sum += get(thisIndex) * other.get(otherIndex);
+          sum += alpha * get(thisIndex) * beta * other.get(otherIndex);
         }
         result.put(row, col, sum);
       }
