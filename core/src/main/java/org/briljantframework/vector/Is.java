@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.complex.Complex;
+
 /**
  * Utility class for checking value types
  * <p>

@@ -16,6 +16,8 @@
 
 package org.briljantframework.vector;
 
+import org.briljantframework.complex.Complex;
+
 /**
  * Created by Isak Karlsson on 28/08/14.
  */

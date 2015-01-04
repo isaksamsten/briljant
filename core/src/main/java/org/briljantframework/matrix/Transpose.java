@@ -21,14 +21,19 @@ package org.briljantframework.matrix;
  */
 public enum Transpose {
   /**
-   * The YES.
+   * Simple transpose
    */
   YES("t"),
 
   /**
-   * The NO.
+   * Don't do anything
    */
-  NO("n");
+  NO("n"),
+
+  /**
+   * Conjugate transpose (only for complex matrices)
+   */
+  CONJ("c");
 
   private final String trans;
 

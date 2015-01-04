@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.complex.Complex;
+
 /**
  * A value is vector of size one.
  * <p>

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.briljantframework.ArrayBuffers;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.ArrayMatrix;
@@ -95,7 +96,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Returns a {@link Complex} usign the double as the real part.
+   * Returns a {@link org.briljantframework.complex.Complex} usign the double as the real part.
    * 
    * @param row the row
    * @param column the column

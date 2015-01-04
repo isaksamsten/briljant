@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import static org.junit.Assert.assertEquals;
 
+import org.briljantframework.complex.Complex;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -104,6 +104,15 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
+  public <T> Matrix assign(Iterable<T> iterable, ToDoubleFunction<? super T> function) {
+    int index = 0;
+    for (T t : iterable) {
+      put(index++, function.applyAsDouble(t));
+    }
+    return this;
+  }
+
+  @Override
   public Matrix assign(double[] values) {
     checkArgument(size() == values.length);
     for (int i = 0; i < size(); i++) {
@@ -311,6 +320,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix muli(double scalar) {
+    // TODO: fix loop
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         put(i, j, get(i, j) * scalar);

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 
 import com.carrotsearch.hppc.DoubleArrayList;
@@ -38,8 +39,8 @@ public class ComplexVector extends AbstractComplexVector {
     this.size = values.length;
     for (int i = 0; i < values.length; i++) {
       Complex c = values[i];
-      this.values[i] = c.getReal();
-      this.values[i + 1] = c.getImag();
+      this.values[i] = c.real();
+      this.values[i + 1] = c.imag();
     }
   }
 
@@ -219,8 +220,8 @@ public class ComplexVector extends AbstractComplexVector {
       ensureCapacity(pos);
       Complex complex = from.getAsComplex(fromIndex);
 
-      buffer.buffer[pos] = complex.getReal();
-      buffer.buffer[pos + 1] = complex.getImag();
+      buffer.buffer[pos] = complex.real();
+      buffer.buffer[pos + 1] = complex.imag();
       return this;
     }
 
@@ -230,8 +231,8 @@ public class ComplexVector extends AbstractComplexVector {
       ensureCapacity(pos);
       double real = Double.NaN, imag = Double.NaN;
       if (value instanceof Complex) {
-        real = ((Complex) value).getReal();
-        imag = ((Complex) value).getImag();
+        real = ((Complex) value).real();
+        imag = ((Complex) value).imag();
       } else if (value instanceof Number) {
         real = ((Number) value).doubleValue();
         imag = 0;

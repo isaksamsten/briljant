@@ -5,9 +5,13 @@ import java.util.Collection;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.Binary;
+import org.briljantframework.vector.Type;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
 
 /**
  * <p>

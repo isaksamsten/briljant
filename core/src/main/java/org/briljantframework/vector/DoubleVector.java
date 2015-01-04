@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 
 import com.carrotsearch.hppc.DoubleArrayList;
@@ -164,7 +165,7 @@ public class DoubleVector extends AbstractDoubleVector {
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else if (value instanceof Complex) {
-        dval = ((Complex) value).getReal();
+        dval = ((Complex) value).real();
       } else if (value instanceof Value) {
         dval = ((Value) value).getAsDouble();
       }

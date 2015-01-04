@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.complex.Complex;
+
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
@@ -42,6 +44,29 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
   };
   public static final Complex NA = Complex.NaN;
 
+  @Override
+  public Value getAsValue(int index) {
+    Complex complex = getAsComplex(index);
+    return complex.isNaN() ? Undefined.INSTANCE : new ComplexValue(complex);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString(int index) {
+    Complex complex = getAsComplex(index);
+    return complex.isNaN() ? "NA" : complex.toString();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isNA(int index) {
+    return Double.isNaN(getAsDouble(index));
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -74,29 +99,6 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
     } else {
       return complex.toString();
     }
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    Complex complex = getAsComplex(index);
-    return complex.isNaN() ? Undefined.INSTANCE : new ComplexValue(complex);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString(int index) {
-    Complex complex = getAsComplex(index);
-    return complex.isNaN() ? "NA" : complex.toString();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isNA(int index) {
-    return Double.isNaN(getAsDouble(index));
   }
 
   /**

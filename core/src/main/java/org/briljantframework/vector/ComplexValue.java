@@ -2,6 +2,8 @@ package org.briljantframework.vector;
 
 import java.util.Iterator;
 
+import org.briljantframework.complex.Complex;
+
 import com.google.common.collect.Iterators;
 
 /**
@@ -21,7 +23,7 @@ public class ComplexValue extends AbstractComplexVector implements Value {
 
   @Override
   public double getAsDouble(int index) {
-    return complex.getReal();
+    return complex.real();
   }
 
   @Override

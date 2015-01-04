@@ -82,8 +82,8 @@ import org.briljantframework.vector.VectorLike;
  * </pre>
  *
  * In the example above, prefer <b>Option 2</b> (or simply {@code m.addi(2)}). <b>Option 3</b> can
- * also be an alternative option, that for many implementations preserve cache locality and might be
- * more readable in some cases.
+ * also be an alternative option, that for many implementations preserves cache locality and might
+ * be more readable in some cases.
  *
  * @author Isak Karlsson
  */
@@ -156,6 +156,17 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    */
   Matrix assign(Matrix matrix, DoubleUnaryOperator operator);
+
+  /**
+   * Assigns elements from {@code iterable} to this matrix added in the order implemented by
+   * {@link #put(int, double)} and transformed to double precision using {@code function}.
+   * 
+   * @param iterable the iterable
+   * @param function the function, transforming {@code T} to double
+   * @param <T> the type
+   * @return receiver modified
+   */
+  <T> Matrix assign(Iterable<T> iterable, ToDoubleFunction<? super T> function);
 
   /**
    * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must

@@ -2,8 +2,8 @@ package org.briljantframework.io;
 
 import java.io.IOException;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Complex;
 
 /**
  * Created by Isak Karlsson on 11/12/14.

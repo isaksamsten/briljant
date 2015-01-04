@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 
 import com.google.common.base.Preconditions;

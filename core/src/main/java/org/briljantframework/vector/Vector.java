@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.briljantframework.Swappable;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 
 /**
@@ -106,10 +107,10 @@ public interface Vector extends VectorLike, Serializable {
   Binary getAsBinary(int index);
 
   /**
-   * Returns value as {@link Complex} or {@link ComplexVector#NA} if missing.
+   * Returns value as {@link org.briljantframework.complex.Complex} or {@link ComplexVector#NA} if missing.
    *
    * @param index the index
-   * @return a {@link Complex}
+   * @return a {@link org.briljantframework.complex.Complex}
    */
   default Complex getAsComplex(int index) {
     double value = getAsDouble(index);

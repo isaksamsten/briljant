@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import static org.junit.Assert.assertTrue;
 
+import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
 public class ComplexTest {

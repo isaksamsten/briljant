@@ -1,6 +1,7 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.*;
 
 import com.google.common.collect.ImmutableTable;
@@ -40,6 +41,21 @@ public class DataFrameRowView implements DataFrameRow {
   }
 
   @Override
+  public Value getAsValue(int index) {
+    return parent.getColumn(index).getAsValue(row);
+  }
+
+  @Override
+  public String toString(int index) {
+    return parent.getColumn(index).toString(row);
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return parent.isNA(row, index);
+  }
+
+  @Override
   public double getAsDouble(int index) {
     return parent.getAsDouble(row, index);
   }
@@ -55,28 +71,13 @@ public class DataFrameRowView implements DataFrameRow {
   }
 
   @Override
-  public String getAsString(int index) {
-    return parent.getAsString(row, index);
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return parent.getColumn(index).getAsValue(row);
-  }
-
-  @Override
   public Complex getAsComplex(int index) {
     return parent.getAsComplex(row, index);
   }
 
   @Override
-  public String toString(int index) {
-    return parent.getColumn(index).toString(row);
-  }
-
-  @Override
-  public boolean isNA(int index) {
-    return parent.isNA(row, index);
+  public String getAsString(int index) {
+    return parent.getAsString(row, index);
   }
 
   @Override
