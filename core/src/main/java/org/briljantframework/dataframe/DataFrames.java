@@ -148,7 +148,8 @@ public final class DataFrames {
     ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
     b.put(0, 0, " ");
     for (int i = 0; i < dataFrame.columns(); i++) {
-      b.put(0, i + 1, dataFrame.getColumnName(i));
+      String columnName = dataFrame.getColumnName(i);
+      b.put(0, i + 1, columnName == null ? "Undefined" : columnName);
     }
 
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {

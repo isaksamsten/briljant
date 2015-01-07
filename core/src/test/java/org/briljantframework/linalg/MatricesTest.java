@@ -1,7 +1,6 @@
 package org.briljantframework.linalg;
 
-import static org.briljantframework.matrix.Matrices.parseMatrix;
-import static org.briljantframework.matrix.Matrices.sort;
+import static org.briljantframework.matrix.Matrices.*;
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.matrix.ArrayMatrix;
@@ -37,6 +36,9 @@ public class MatricesTest {
     System.out.println(Matrices.range(0, 10, 3));
     System.out.println(Matrices.range(0, 10, 4));
     System.out.println(Matrices.range(0, 10, 5));
+
+    Matrix a = parseMatrix("1,2,3;1,2,3;1,2,3");
+    System.out.println(trace(a));
 
   }
 

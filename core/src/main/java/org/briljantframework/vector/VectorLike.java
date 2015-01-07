@@ -17,6 +17,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Created by Isak Karlsson on 28/08/14.
@@ -36,6 +37,20 @@ public interface VectorLike {
       }
     };
   }
+
+  public static VectorLike wrap(Matrix matrix) {
+    return new VectorLike() {
+      @Override
+      public int size() {
+        return matrix.size();
+      }
+
+      @Override
+      public double getAsDouble(int index) {
+        return matrix.get(index);
+      }
+    };
+  };
 
   /**
    * Get value at {@code index} as double

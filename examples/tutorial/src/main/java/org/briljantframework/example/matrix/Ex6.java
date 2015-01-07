@@ -2,6 +2,9 @@ package org.briljantframework.example.matrix;
 
 import static org.briljantframework.matrix.Matrices.*;
 
+import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.ArrayComplexMatrix;
+import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.Matrix;
 
 /**
@@ -24,6 +27,11 @@ public class Ex6 {
     signum(a);
     sqrt(a);
     pow(a, 10);
+
+
+    a = linspace(-2, 2, 100);
+    ComplexMatrix m = new ArrayComplexMatrix(100, 1).assign(a, Complex::log);
+    System.out.println(m);
     // ... etc
   }
 }

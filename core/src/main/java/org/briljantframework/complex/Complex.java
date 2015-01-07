@@ -5,6 +5,8 @@ import java.io.Serializable;
 import com.google.common.base.Preconditions;
 
 /**
+ * Implementing complex
+ *
  * @author Isak Karlsson
  */
 public class Complex implements Serializable {
@@ -24,6 +26,8 @@ public class Complex implements Serializable {
   public static final Complex NaN = new Complex(Double.NaN, Double.NaN);
 
   public static final Complex NEG_I = I.negate();
+  protected static final double LOG_10 = Math.log(10);
+  protected static final double LOG_2 = Math.log(2);
 
 
   private final double real, imag;
@@ -53,6 +57,22 @@ public class Complex implements Serializable {
       return NaN;
     }
     return new Complex(real, imag);
+  }
+
+  public static Complex sqrt(double real) {
+    return new Complex(real).sqrt();
+  }
+
+  public static Complex log(double real) {
+    return new Complex(real).log();
+  }
+
+  public static Complex log2(double real) {
+    return new Complex(real).log2();
+  }
+
+  public static Complex log10(double real) {
+    return new Complex(real).log10();
   }
 
   public Complex plus(Complex other) {
@@ -96,7 +116,7 @@ public class Complex implements Serializable {
     return new Complex(real * other, imag * other);
   }
 
-  public Complex divide(Complex other) {
+  public Complex div(Complex other) {
     if (isNaN() || other.isNaN()) {
       return NaN;
     }
@@ -116,7 +136,7 @@ public class Complex implements Serializable {
     }
   }
 
-  public Complex divide(double other) {
+  public Complex div(double other) {
     if (isNaN() || Double.isNaN(other)) {
       return NaN;
     }
@@ -235,7 +255,7 @@ public class Complex implements Serializable {
       return NaN;
     }
 
-    return plus(I).divide(I.minus(this)).log().multiply(I.divide(Complex.valueOf(2)));
+    return plus(I).div(I.minus(this)).log().multiply(I.div(Complex.valueOf(2)));
   }
 
   public Complex tanh() {
@@ -279,12 +299,26 @@ public class Complex implements Serializable {
     return sqrt1z().plus(multiply(I)).log().multiply(NEG_I);
   }
 
-  private Complex log() {
+  public Complex log() {
     if (isNaN()) {
       return NaN;
     }
 
-    return new Complex(Math.log(real), Math.atan2(real, imag));
+    return new Complex(Math.log(abs()), Math.atan2(imag, real));
+  }
+
+  public Complex log2() {
+    if (isNaN()) {
+      return NaN;
+    }
+    return log().div(LOG_2);
+  }
+
+  public Complex log10() {
+    if (isNaN()) {
+      return NaN;
+    }
+    return log().div(LOG_10);
   }
 
   public double abs() {

@@ -1,12 +1,12 @@
 package org.briljantframework.dataframe;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import java.util.*;
 
 import org.briljantframework.matrix.ArrayMatrix;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.collect.UnmodifiableIterator;
@@ -17,6 +17,28 @@ import com.google.common.collect.UnmodifiableIterator;
  * @author Isak Karlsson
  */
 public abstract class AbstractDataFrame implements DataFrame {
+
+  protected final NameAttribute columnNames;
+  protected final NameAttribute rowNames;
+
+  protected AbstractDataFrame(NameAttribute columnNames, NameAttribute rowNames) {
+    this.columnNames = columnNames;
+    this.rowNames = rowNames;
+  }
+
+  protected AbstractDataFrame(NameAttribute columnNames, NameAttribute rowNames, boolean copy) {
+    if (copy) {
+      this.columnNames = new NameAttribute(columnNames);
+      this.rowNames = new NameAttribute(rowNames);
+    } else {
+      this.columnNames = columnNames;
+      this.rowNames = rowNames;
+    }
+  }
+
+  protected AbstractDataFrame() {
+    this(new NameAttribute(), new NameAttribute());
+  }
 
   /**
    * Returns the column at {@code index}. This implementation supplies a view into the underlying
@@ -86,6 +108,45 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
     }
     return builder.build();
+  }
+
+  @Override
+  public String getColumnName(int index) {
+    checkArgument(index >= 0 && index < columns());
+    return columnNames.get(index);
+  }
+
+  @Override
+  public DataFrame setColumnName(int index, String columnName) {
+    checkArgument(index >= 0 && index < columns());
+    columnNames.put(index, columnName);
+    return this;
+  }
+
+  @Override
+  public DataFrame setColumnNames(List<String> names) {
+    for (int i = 0; i < names.size(); i++) {
+      setColumnName(i, names.get(i));
+    }
+    return this;
+  }
+
+  @Override
+  public String getRowName(int index) {
+    checkArgument(index >= 0 && index < rows());
+    return rowNames.get(index);
+  }
+
+  @Override
+  public DataFrame setRowName(int index, String rowName) {
+    checkArgument(index >= 0 && index < rows());
+    rowNames.put(index, rowName);
+    return this;
+  }
+
+  @Override
+  public Type getRowType(int index) {
+    return getRow(index).getType();
   }
 
   /**
@@ -190,7 +251,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Returns a tabluar string representation of this DataFrame.
+   * Returns a tabular string representation of this DataFrame.
    * 
    * @return the string representation
    */
@@ -200,6 +261,20 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   protected static abstract class AbstractBuilder implements Builder {
+
+    protected final NameAttribute columnNames;
+    protected final NameAttribute rowNames;
+
+    protected AbstractBuilder(NameAttribute columnNames, NameAttribute rowNames) {
+      this.columnNames = new NameAttribute(columnNames);
+      this.rowNames = new NameAttribute(rowNames);
+    }
+
+    public AbstractBuilder() {
+      this.columnNames = new NameAttribute();
+      this.rowNames = new NameAttribute();
+    }
+
     @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
       Vector vector = builder.build();
@@ -207,6 +282,15 @@ public abstract class AbstractDataFrame implements DataFrame {
       for (int i = 0; i < vector.size(); i++) {
         set(i, j, vector, i);
       }
+      return this;
+    }
+
+    @Override
+    public Builder swapRows(int a, int b) {
+      for (int i = 0; i < columns(); i++) {
+        swapInColumn(i, a, b);
+      }
+      rowNames.swap(a, b);
       return this;
     }
   }

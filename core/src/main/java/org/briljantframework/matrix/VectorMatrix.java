@@ -56,35 +56,8 @@ public class VectorMatrix extends AbstractMatrix {
 
   @Override
   public Matrix reshape(int rows, int columns) {
-    Preconditions.checkArgument(rows * columns == size(),
-        "Total size of new matrix must be unchanged.");
+    assertSameSize(rows * cols);
     return new VectorMatrix(rows, columns, vector);
-  }
-
-  /**
-   * {@inheritDoc}
-   * 
-   * Please note that this won't return a {@code VectorMatrix} but an other matrix with
-   * {@code isArrayBased() == true}
-   */
-  @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    if (this.columns() != other.rows()) {
-      throw new NonConformantException(this, other);
-    }
-
-    if (other.isArrayBased()) {
-      double[] tmp = new double[this.rows() * other.columns()];
-      Matrices.mmul(this, alpha, other, beta, tmp);
-      return new ArrayMatrix(other.columns(), tmp);
-    } else {
-      return super.mmul(alpha, other, beta);
-    }
-  }
-
-  @Override
-  public double[] asDoubleArray() {
-    return vector.asDoubleArray();
   }
 
   @Override
@@ -125,5 +98,31 @@ public class VectorMatrix extends AbstractMatrix {
   @Override
   public Matrix copy() {
     return new ArrayMatrix(getShape(), vector.toDoubleArray());
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * Please note that this won't return a {@code VectorMatrix} but an other matrix with
+   * {@code isArrayBased() == true}
+   */
+  @Override
+  public Matrix mmul(double alpha, Matrix other, double beta) {
+    if (this.columns() != other.rows()) {
+      throw new NonConformantException(this, other);
+    }
+
+    if (other.isArrayBased()) {
+      double[] tmp = new double[this.rows() * other.columns()];
+      Matrices.mmul(this, alpha, other, beta, tmp);
+      return new ArrayMatrix(other.columns(), tmp);
+    } else {
+      return super.mmul(alpha, other, beta);
+    }
+  }
+
+  @Override
+  public double[] asDoubleArray() {
+    return vector.asDoubleArray();
   }
 }

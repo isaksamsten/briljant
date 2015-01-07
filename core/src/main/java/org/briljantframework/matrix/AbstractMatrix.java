@@ -28,9 +28,12 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.vector.VectorLike;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
 
 /**
@@ -104,7 +107,25 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public <T> Matrix assign(Iterable<T> iterable, ToDoubleFunction<? super T> function) {
+  public Matrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function) {
+    Preconditions.checkArgument(matrix.size() == size());
+    for (int i = 0; i < size(); i++) {
+      put(i, function.applyAsDouble(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public Matrix assignStream(Iterable<? extends Number> numbers) {
+    int index = 0;
+    for (Number number : numbers) {
+      put(index++, number.doubleValue());
+    }
+    return this;
+  }
+
+  @Override
+  public <T> Matrix assignStream(Iterable<T> iterable, ToDoubleFunction<? super T> function) {
     int index = 0;
     for (T t : iterable) {
       put(index++, function.applyAsDouble(t));
@@ -860,9 +881,13 @@ public abstract class AbstractMatrix implements Matrix {
 
   protected void assertEqualSize(Matrix other) {
     if (this.rows() != other.rows() || this.columns() != other.columns()) {
-      throw new IllegalArgumentException(String.format(
-          "nonconformant arguments (op1 is %s, op2 is %s)", this.getShape(), other.getShape()));
+      throw new NonConformantException(this, other);
+    }
+  }
 
+  protected void assertSameSize(int size) {
+    if (size() != size) {
+      throw new SizeMismatchException("Total size of new matrix must be unchanged.", size(), size);
     }
   }
 

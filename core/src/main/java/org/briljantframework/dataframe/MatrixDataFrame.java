@@ -4,12 +4,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.briljantframework.ArrayBuffers;
+import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
@@ -22,7 +22,6 @@ import com.carrotsearch.hppc.IntDoubleMap;
 import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
-import com.google.common.base.Preconditions;
 
 /**
  * Initial implementation of the matrix data frame. While the DataFrame interface allows for
@@ -33,36 +32,16 @@ import com.google.common.base.Preconditions;
  */
 public class MatrixDataFrame extends AbstractDataFrame {
 
-  private final List<String> colNames;
   private final Matrix matrix;
 
   public MatrixDataFrame(Matrix matrix) {
     this.matrix = matrix;
-    this.colNames = new ArrayList<>(matrix.columns());
-    for (int i = 0; i < matrix.columns(); i++) {
-      colNames.add(String.valueOf(i));
-    }
   }
 
-  protected MatrixDataFrame(Matrix matrix, List<String> colNames) {
-    this(matrix, colNames, true);
-  }
-
-  protected MatrixDataFrame(Matrix matrix, List<String> colNames, boolean copy) {
-    Preconditions.checkArgument(matrix.columns() <= colNames.size());
+  protected MatrixDataFrame(Matrix matrix, NameAttribute columnNames, NameAttribute rowNames,
+      boolean copy) {
+    super(columnNames, rowNames, copy);
     this.matrix = matrix;
-    if (matrix.columns() == colNames.size()) {
-      if (copy) {
-        this.colNames = new ArrayList<>(colNames);
-      } else {
-        this.colNames = colNames;
-      }
-    } else {
-      this.colNames = new ArrayList<>(colNames.size());
-      for (int i = 0; i < columns(); i++) {
-        this.colNames.add(colNames.get(i));
-      }
-    }
   }
 
   /**
@@ -140,17 +119,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public String getColumnName(int index) {
-    return colNames.get(index);
-  }
-
-  @Override
-  public DataFrame setColumnName(int index, String columnName) {
-    colNames.set(index, columnName);
-    return this;
-  }
-
-  @Override
   public int rows() {
     return matrix.rows();
   }
@@ -162,19 +130,19 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   @Override
   public DataFrame.Builder newBuilder() {
-    return new HashBuilder(colNames, null);
+    return new HashBuilder(columnNames, rowNames);
   }
 
   @Override
   public DataFrame.Builder newBuilder(int rows) {
-    return new ArrayBuilder(rows, colNames);
+    return new ArrayBuilder(columnNames, rowNames, rows(), columns());
   }
 
   @Override
   public DataFrame.Builder newCopyBuilder() {
     double[] array = new double[rows() * columns()];
     System.arraycopy(matrix.asDoubleArray(), 0, array, 0, array.length);
-    return new ArrayBuilder(rows(), colNames, array);
+    return new ArrayBuilder(columnNames, rowNames, rows(), columns(), array);
 
   }
 
@@ -192,8 +160,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public DataFrame dropColumn(int index) {
     checkElementIndex(index, columns(), "Column-index out of bounds.");
-    List<String> colNames = new ArrayList<>(this.colNames);
-    colNames.remove(index);
+    NameAttribute columnNames = new NameAttribute(this.columnNames);
+    columnNames.remove(index);
 
     Matrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
     int j = 0;
@@ -206,7 +174,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       }
     }
 
-    return new MatrixDataFrame(newMatrix, colNames, false);
+    return new MatrixDataFrame(newMatrix, columnNames, rowNames, false);
   }
 
   @Override
@@ -238,49 +206,42 @@ public class MatrixDataFrame extends AbstractDataFrame {
   public static class ArrayBuilder extends AbstractBuilder {
 
     private static final int MIN_CAPACITY = 50;
-    private final List<String> colNames;
     private double[] buffer;
     private int rows, columns;
 
     public ArrayBuilder(int rows, int columns) {
       this.rows = rows;
       this.columns = columns;
-      this.colNames = null;
+
       buffer = new double[rows * columns];
       Arrays.fill(buffer, DoubleVector.NA);
     }
 
-    public ArrayBuilder(int initialCapacity) {
-      this.rows = 0;
-      this.columns = 0;
-      this.colNames = null;
-      buffer = new double[] {DoubleVector.NA};
-    }
-
     public ArrayBuilder() {
-      this(MIN_CAPACITY);
+      this(0, 0);
     }
 
     public ArrayBuilder(Collection<String> colNames, Collection<? extends Type> colTypes) {
       checkArgument(colTypes.size() == colNames.size());
-      this.colNames = new ArrayList<>(colNames);
       this.rows = 0;
       this.columns = colNames.size();
       buffer = new double[0];
+      int index = 0;
+      for (String colName : colNames) {
+        columnNames.put(index++, colName);
+      }
     }
 
-    protected ArrayBuilder(int rows, List<String> colNames, double[] buffer) {
+    protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows,
+        int columns, double[] buffer) {
+      super(columnNames, rowNames);
       this.rows = rows;
-      this.columns = colNames.size();
-      this.colNames = colNames;
+      this.columns = columns;
       this.buffer = buffer;
     }
 
-    public ArrayBuilder(int rows, List<String> colNames) {
-      this.rows = rows;
-      this.colNames = colNames;
-      this.columns = colNames.size();
-      buffer = new double[rows * columns];
+    protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows, int columns) {
+      this(columnNames, rowNames, rows, columns, new double[rows * columns]);
     }
 
     @Override
@@ -363,6 +324,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
           }
         }
       }
+      this.columnNames.remove(column);
       this.columns = newColumns;
       this.buffer = tmp;
       return this;
@@ -377,6 +339,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         buffer[oldIndex] = buffer[newIndex];
         buffer[newIndex] = tmp;
       }
+      columnNames.swap(a, b);
       return this;
     }
 
@@ -420,11 +383,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame build() {
       ArrayMatrix mat = new ArrayMatrix(rows, columns, buffer);
-      if (colNames != null) {
-        return new MatrixDataFrame(mat, colNames, false);
-      } else {
-        return new MatrixDataFrame(mat);
-      }
+      return new MatrixDataFrame(mat, columnNames, rowNames, false);
     }
   }
 
@@ -432,31 +391,43 @@ public class MatrixDataFrame extends AbstractDataFrame {
    * Incrementally build a {@code MatrixDataFrame}. If the initial size is known, prefer
    * {@link org.briljantframework.dataframe.MatrixDataFrame.ArrayBuilder}.
    */
-  public static class HashBuilder implements DataFrame.Builder {
+  public static class HashBuilder extends AbstractBuilder {
 
     /*
      * The buffer stores values in column based maps
      */
     private final IntObjectMap<IntDoubleMap> buffer = new IntObjectOpenHashMap<>();
-    private final List<String> colNames;
+
     private int rows = 0, columns = 0;
 
     public HashBuilder(int rows, int columns) {
       this.rows = rows;
       this.columns = columns;
-      this.colNames = null;
+    }
+
+    public HashBuilder(String... columnNames) {
+      this(Arrays.asList(columnNames));
+    }
+
+    public HashBuilder(List<String> columnNames) {
+      for (int i = 0; i < columnNames.size(); i++) {
+        this.columnNames.put(i, columnNames.get(i));
+      }
     }
 
     public HashBuilder(Collection<String> colNames, Collection<? extends Type> types) {
-      // checkArgument(types == null || colNames.size() == types.size(),
-      // "Arguments imply different sizes %s != %s.", colNames.size(), types.size());
-      this.colNames = new ArrayList<>(colNames);
       this.columns = colNames.size();
+      int index = 0;
+      for (String colName : colNames) {
+        this.columnNames.put(index++, colName);
+      }
     }
 
-    public HashBuilder() {
-      this.colNames = null;
+    protected HashBuilder(NameAttribute columnNames, NameAttribute rowNames) {
+      super(columnNames, rowNames);
     }
+
+    public HashBuilder() {}
 
     private void ensureCapacity(int rows, int columns) {
       if (rows >= this.rows && columns >= this.columns) {
@@ -477,6 +448,16 @@ public class MatrixDataFrame extends AbstractDataFrame {
         buffer.put(column, col);
       }
       col.put(row, dval);
+      return this;
+    }
+
+    @Override
+    public DataFrame.Builder addColumn(Vector.Builder builder) {
+      Vector vector = builder.build();
+      int column = columns();
+      for (int i = 0; i < vector.size(); i++) {
+        set(i, column, vector, i);
+      }
       return this;
     }
 
@@ -508,19 +489,12 @@ public class MatrixDataFrame extends AbstractDataFrame {
       return set(row, column, dval);
     }
 
-    @Override
-    public DataFrame.Builder addColumn(Vector.Builder builder) {
-      Vector vector = builder.build();
-      int column = columns();
-      for (int i = 0; i < vector.size(); i++) {
-        set(i, column, vector, i);
-      }
-      return this;
-    }
 
     @Override
     public DataFrame.Builder removeColumn(int column) {
       checkArgument(column >= 0 && column < columns());
+
+      columnNames.remove(column);
       buffer.remove(column);
       columns--;
       return this;
@@ -528,10 +502,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
-      IntDoubleMap aMap = buffer.get(a);
-      IntDoubleMap bMap = buffer.get(b);
-      buffer.put(a, bMap);
-      buffer.put(b, aMap);
+      Utils.swap(buffer, a, b);
+      columnNames.swap(a, b);
       return this;
     }
 
@@ -539,17 +511,22 @@ public class MatrixDataFrame extends AbstractDataFrame {
     public DataFrame.Builder swapInColumn(int column, int a, int b) {
       IntDoubleMap col = buffer.get(column);
       if (col != null) {
-        if (col.containsKey(a) && col.containsKey(b)) {
-          double tmp = col.get(a);
-          col.put(a, col.get(b));
-          col.put(b, tmp);
-        } else if (col.containsKey(a)) {
-          col.put(b, col.get(a));
-          col.remove(a);
-        } else if (col.containsKey(b)) {
-          col.put(a, col.get(b));
-          col.remove(b);
-        }
+        // boolean colContainsA = col.containsKey(a);
+        // boolean colContainsB = col.containsKey(b);
+        // if (colContainsA && colContainsB) {
+        // double tmp = col.get(a);
+        // col.put(a, col.get(b));
+        // col.put(b, tmp);
+        // } else if (colContainsA) {
+        // col.put(b, col.get(a));
+        // col.remove(a);
+        // } else if (colContainsB) {
+        // col.put(a, col.get(b));
+        // col.remove(b);
+        // }
+
+        Utils.swap(col, a, b);
+        rowNames.swap(a, b);
       }
       // column only has NA values and no swapping is needed
       return this;
@@ -596,12 +573,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
         }
       }
 
-      ArrayMatrix mat = new ArrayMatrix(rows(), columns(), values);
-      if (colNames != null) {
-        return new MatrixDataFrame(mat, colNames, false);
-      } else {
-        return new MatrixDataFrame(mat);
-      }
+      ArrayMatrix matrix = new ArrayMatrix(rows(), columns(), values);
+      return new MatrixDataFrame(matrix, columnNames, rowNames, false);
     }
   }
 

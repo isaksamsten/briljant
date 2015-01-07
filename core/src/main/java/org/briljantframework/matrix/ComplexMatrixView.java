@@ -34,20 +34,6 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
     return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
   }
 
-  // @Override
-  // public ComplexMatrixView mmul(double alpha, Matrix other, double beta) {
-  // if (this.columns() != other.rows()) {
-  // throw new NonConformantException(this, other);
-  // }
-  // if (isArrayBased() && other.isArrayBased()) {
-  // double[] tmp = new double[this.rows() * other.columns()];
-  // Matrices.mmul(this, alpha, other, beta, tmp);
-  // return new ArrayMatrix(other.columns(), tmp);
-  // } else {
-  // return super.mmul(alpha, other, beta);
-  // }
-  // }
-
   @Override
   public void put(int i, int j, Complex value) {
     parent.put(rowOffset + i, colOffset + j, value);
@@ -81,7 +67,7 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
 
   @Override
   public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    throw new UnsupportedOperationException();
+    return new ArrayComplexMatrix(rows, columns);
   }
 
   @Override
@@ -91,11 +77,6 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
       mat.put(i, get(i));
     }
     return mat;
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
   }
 
   private int computeLinearIndex(int index) {

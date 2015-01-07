@@ -23,22 +23,28 @@ public enum Transpose {
   /**
    * Simple transpose
    */
-  YES("t"),
+  YES("t", true),
 
   /**
    * Don't do anything
    */
-  NO("n"),
+  NO("n", false),
 
   /**
    * Conjugate transpose (only for complex matrices)
    */
-  CONJ("c");
+  CONJ("c", true);
 
-  private final String trans;
+  private final String string;
+  private final boolean transpose;
 
-  private Transpose(String trans) {
-    this.trans = trans;
+  private Transpose(String string, boolean transpose) {
+    this.string = string;
+    this.transpose = transpose;
+  }
+
+  public boolean transpose() {
+    return transpose;
   }
 
   /**
@@ -46,7 +52,7 @@ public enum Transpose {
    *
    * @return the int
    */
-  public String getTransString() {
-    return trans;
+  public String asString() {
+    return string;
   }
 }

@@ -1,7 +1,9 @@
 package org.briljantframework.dataframe;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -150,6 +152,37 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @return modified receiver to allow for chaining
    */
   DataFrame setColumnName(int index, String columnName);
+
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
+
+  DataFrame setColumnNames(List<String> names);
+
+  /**
+   * Get the name for the row at {@code index}
+   * 
+   * @param index the index
+   * @return the name
+   */
+  String getRowName(int index);
+
+  /**
+   * Set the name for the row at {@code index} to {@code rowName}
+   * 
+   * @param index the index
+   * @param rowName the row name
+   * @return receiver modified
+   */
+  DataFrame setRowName(int index, String rowName);
+
+  /**
+   * Get the type of the row at {@code index}
+   * 
+   * @param index the index
+   * @retur the type
+   */
+  Type getRowType(int index);
 
   /**
    * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types, the
@@ -318,6 +351,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * <p>
      * Generally, this is the same as
      * <p>
+     * <p>
      * 
      * <pre>
      * for (int i = 0; i &lt; builder.columns(); i++)
@@ -328,12 +362,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @param b the second row
      * @return a modified builder
      */
-    default Builder swapRows(int a, int b) {
-      for (int i = 0; i < columns(); i++) {
-        swapInColumn(i, a, b);
-      }
-      return this;
-    }
+    Builder swapRows(int a, int b);
 
     /**
      * Add all values in {@code vector} to column {@code toCol}, starting at {@code startRow}. If

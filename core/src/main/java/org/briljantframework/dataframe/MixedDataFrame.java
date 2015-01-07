@@ -13,8 +13,6 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.collect.Lists;
-
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
  * <p>
@@ -22,7 +20,6 @@ import com.google.common.collect.Lists;
  */
 public class MixedDataFrame extends AbstractDataFrame {
 
-  private final List<String> names;
   private final List<Vector> columns;
   private final int rows;
 
@@ -43,7 +40,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   public MixedDataFrame(Collection<? extends Vector> vectors) {
     checkArgument(vectors.size() > 0);
 
-    this.names = Lists.newArrayList("0");
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0, index = 0;
     for (Vector vector : vectors) {
@@ -53,7 +49,6 @@ public class MixedDataFrame extends AbstractDataFrame {
       checkArgument(vector.size() == rows, "Arguments imply different numbers of rows: %s, %s.",
           rows, vector.size());
       this.columns.add(vector);
-      this.names.add(String.valueOf(index++));
     }
     this.rows = rows;
   }
@@ -66,21 +61,20 @@ public class MixedDataFrame extends AbstractDataFrame {
    */
   public MixedDataFrame(Map<String, ? extends Vector> vectors) {
     checkArgument(vectors.size() > 0);
-    this.names = new ArrayList<>(vectors.size());
     this.columns = new ArrayList<>(vectors.size());
 
     int rows = 0;
+    int index = 0;
     for (Map.Entry<String, ? extends Vector> kv : vectors.entrySet()) {
       Vector vector = kv.getValue();
       String name = kv.getKey();
       if (rows == 0) {
         rows = vector.size();
       }
-
       checkArgument(vector.size() == rows, "Arguments imply different numbers of rows: %s, %s.",
           rows, vector.size());
-      this.names.add(name);
       this.columns.add(vector);
+      setColumnName(index++, name);
     }
     this.rows = rows;
   }
@@ -92,7 +86,6 @@ public class MixedDataFrame extends AbstractDataFrame {
    * @param sequences
    */
   public MixedDataFrame(Iterable<? extends VariableVector> sequences) {
-    this.names = new ArrayList<>();
     this.columns = new ArrayList<>();
 
     List<Vector.Builder> builders = new ArrayList<>();
@@ -115,7 +108,6 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
     int index = 0;
     for (Vector.Builder builder : builders) {
-      this.names.add(String.valueOf(index++));
       this.columns.add(builder.build());
     }
 
@@ -126,13 +118,12 @@ public class MixedDataFrame extends AbstractDataFrame {
    * Unsafe construction of a mixed data frame. Performs no sanity checking (should only be used for
    * performance by checked builder).
    *
-   * @param names the names
    * @param vectors the vectors
    * @param rows the expected size of the vectors (not checked but should be enforced)
    */
-  protected MixedDataFrame(List<String> names, List<Vector> vectors, int rows) {
-    checkArgument(names.size() == vectors.size());
-    this.names = names;
+  protected MixedDataFrame(NameAttribute columnNames, NameAttribute rowNames, List<Vector> vectors,
+      int rows) {
+    super(columnNames, rowNames);
     this.columns = vectors;
     this.rows = rows;
   }
@@ -183,17 +174,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public String getColumnName(int index) {
-    return names.get(index);
-  }
-
-  @Override
-  public DataFrame setColumnName(int index, String columnName) {
-    names.set(index, columnName);
-    return this;
-  }
-
-  @Override
   public int rows() {
     return rows;
   }
@@ -227,11 +207,11 @@ public class MixedDataFrame extends AbstractDataFrame {
   public DataFrame dropColumn(int index) {
     checkArgument(index >= 0 && index < columns());
     ArrayList<Vector> columns = new ArrayList<>(this.columns);
-    ArrayList<String> names = new ArrayList<>(this.names);
+    NameAttribute columnNames = new NameAttribute(this.columnNames);
 
+    columnNames.remove(index);
     columns.remove(index);
-    names.remove(index);
-    return new MixedDataFrame(names, columns, rows());
+    return new MixedDataFrame(columnNames, rowNames, columns, rows());
   }
 
   @Override
@@ -241,28 +221,37 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     ArrayList<Vector> columns = new ArrayList<>();
-    ArrayList<String> names = new ArrayList<>();
+    NameAttribute columnNames = new NameAttribute();
+
+    int index = 0;
     for (int i = 0; i < columns(); i++) {
       if (!indexes.contains(i)) {
         columns.add(getColumn(i));
-        names.add(getColumnName(i));
+        String name = getColumnName(i);
+        if (name != null) {
+          columnNames.put(index, name);
+        }
+        index += 1;
       }
     }
 
-    return new MixedDataFrame(names, columns, rows());
+    return new MixedDataFrame(columnNames, rowNames, columns, rows());
   }
 
   @Override
   public DataFrame takeColumns(Collection<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
-    ArrayList<String> names = new ArrayList<>();
+    NameAttribute columnNames = new NameAttribute();
     for (int index : indexes) {
       checkArgument(index >= 0 && index < columns());
       columns.add(getColumn(index));
-      names.add(getColumnName(index));
+      String name = getColumnName(index);
+      if (name != null) {
+        columnNames.put(index, name);
+      }
     }
 
-    return new MixedDataFrame(names, columns, rows());
+    return new MixedDataFrame(columnNames, rowNames, columns, rows());
   }
 
   @Override
@@ -290,10 +279,9 @@ public class MixedDataFrame extends AbstractDataFrame {
    * </p>
    * 
    */
-  public static class Builder implements DataFrame.Builder {
+  public static class Builder extends AbstractBuilder {
 
     private List<Vector.Builder> buffers = null;
-    private List<String> colNames = null;
 
     /**
      * Construct a builder with {@code types.length} columns. The column names will be
@@ -313,12 +301,7 @@ public class MixedDataFrame extends AbstractDataFrame {
      */
     public Builder(Collection<? extends Type> types) {
       buffers = new ArrayList<>(types.size());
-      colNames = new ArrayList<>(types.size());
-      int index = 0;
-      for (Type type : types) {
-        colNames.add(String.valueOf(index++));
-        buffers.add(type.newBuilder());
-      }
+      types.forEach(type -> buffers.add(type.newBuilder()));
     }
 
     /**
@@ -332,9 +315,12 @@ public class MixedDataFrame extends AbstractDataFrame {
       checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
           "Column names and types does not match.");
       this.buffers = new ArrayList<>(types.size());
-      this.colNames = new ArrayList<>(colNames);
+
+      Iterator<String> it = colNames.iterator();
+      int index = 0;
       for (Type type : types) {
-        buffers.add(type.newBuilder());
+        this.columnNames.put(index++, it.next());
+        this.buffers.add(type.newBuilder());
       }
     }
 
@@ -386,7 +372,6 @@ public class MixedDataFrame extends AbstractDataFrame {
      */
     public Builder(DataFrame frame, boolean copy) {
       buffers = new ArrayList<>(frame.columns());
-      colNames = new ArrayList<>(frame.columns());
 
       for (int i = 0; i < frame.columns(); i++) {
         Vector vector = frame.getColumn(i);
@@ -395,7 +380,10 @@ public class MixedDataFrame extends AbstractDataFrame {
         } else {
           buffers.add(vector.newBuilder());
         }
-        colNames.add(frame.getColumnName(i));
+        String name = frame.getColumnName(i);
+        if (name != null) {
+          columnNames.put(i, name);
+        }
       }
     }
 
@@ -431,28 +419,15 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public Builder addColumn(Vector.Builder builder) {
-      if (colNames != null) {
-        colNames.add(String.valueOf(colNames.size()));
-      }
-      buffers.add(builder);
-      return this;
-    }
-
-    @Override
     public Builder removeColumn(int column) {
-      if (colNames != null) {
-        colNames.remove(column);
-      }
+      columnNames.remove(column);
       buffers.remove(column);
       return this;
     }
 
     @Override
     public Builder swapColumns(int a, int b) {
-      if (colNames != null) {
-        Collections.swap(colNames, a, b);
-      }
+      columnNames.swap(a, b);
       Collections.swap(buffers, a, b);
       return this;
     }
@@ -502,7 +477,13 @@ public class MixedDataFrame extends AbstractDataFrame {
           buffers.stream().map(x -> padVectorWithNA(x, rows))
               .collect(Collectors.toCollection(ArrayList::new));
       buffers = null;
-      return new MixedDataFrame(colNames, vectors, rows);
+      return new MixedDataFrame(columnNames, rowNames, vectors, rows);
+    }
+
+    @Override
+    public Builder addColumn(Vector.Builder builder) {
+      buffers.add(builder);
+      return this;
     }
 
     private Vector padVectorWithNA(Vector.Builder builder, int maximumRows) {

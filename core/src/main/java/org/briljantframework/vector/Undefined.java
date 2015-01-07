@@ -123,6 +123,11 @@ public class Undefined implements Value {
     return 0;
   }
 
+  @Override
+  public String toString() {
+    return "Undefined";
+  }
+
   public static class Builder implements Vector.Builder {
 
     public static final Builder INSTANCE = new Builder();

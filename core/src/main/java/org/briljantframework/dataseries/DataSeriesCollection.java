@@ -17,9 +17,6 @@ import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.IntObjectOpenHashMap;
-
 /**
  * <p>
  * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
@@ -34,7 +31,6 @@ import com.carrotsearch.hppc.IntObjectOpenHashMap;
  */
 public class DataSeriesCollection extends AbstractDataFrame {
 
-  private final IntObjectMap<String> colNames = new IntObjectOpenHashMap<>();
   private final List<Vector> series;
   private final Type type;
 
@@ -146,18 +142,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public String getColumnName(int index) {
-    String name = colNames.get(index);
-    return name == null ? String.valueOf(index) : name;
-  }
-
-  @Override
-  public DataFrame setColumnName(int index, String columnName) {
-    colNames.put(index, columnName);
-    return this;
-  }
-
-  @Override
   public int rows() {
     return series.size();
   }
@@ -258,12 +242,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder swapRows(int a, int b) {
-      Collections.swap(builders, a, b);
-      return this;
-    }
-
-    @Override
     public Builder read(DataInputStream inputStream) throws IOException {
       int row = 0;
       while (inputStream.hasNext()) {
@@ -294,6 +272,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
           .collect(Collectors.toCollection(ArrayList::new)), type);
     }
 
+    @Override
+    public DataFrame.Builder swapRows(int a, int b) {
+      Collections.swap(builders, a, b);
+      rowNames.swap(a, b);
+      return this;
+    }
 
     public Builder addRow(Vector.Builder row) {
       builders.add(row);

@@ -511,6 +511,74 @@ public class Matrices {
   }
 
   /**
+   *
+   * @param matrix
+   * @return
+   */
+  public static double trace(Matrix matrix) {
+    int min = Math.min(matrix.rows(), matrix.columns());
+    double sum = 0;
+    for (int i = 0; i < min; i++) {
+      sum += matrix.get(i, i);
+    }
+    return sum;
+  }
+
+  /**
+   * @param vector the vector
+   * @return the standard deviation
+   */
+  public static double std(Matrix vector) {
+    return std(vector, mean(vector));
+  }
+
+  /**
+   * @param vector the vector
+   * @param mean the mean
+   * @return the standard deviation
+   */
+  public static double std(Matrix vector, double mean) {
+    double var = var(vector, mean);
+    return Math.sqrt(var / (vector.size() - 1));
+  }
+
+  /**
+   * @param vector the vector
+   * @return the mean
+   */
+  public static double mean(Matrix vector) {
+    double mean = 0;
+    for (int i = 0; i < vector.size(); i++) {
+      mean += vector.get(i);
+    }
+
+    return mean / vector.size();
+  }
+
+  /**
+   * @param vector the vector
+   * @param mean the mean
+   * @return the variance
+   */
+  public static double var(Matrix vector, double mean) {
+    double var = 0;
+    for (int i = 0; i < vector.size(); i++) {
+      double residual = vector.get(i) - mean;
+      var += residual * residual;
+    }
+    return var;
+  }
+
+  /**
+   * @param vector the vector
+   * @return the variance
+   */
+  public static double var(Matrix vector) {
+    return var(vector, mean(vector));
+  }
+
+
+  /**
    * Sum t.
    *
    * @param m the m

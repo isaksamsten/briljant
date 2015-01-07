@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.carrotsearch.hppc.IntDoubleMap;
+import com.carrotsearch.hppc.IntObjectMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.Table;
 
@@ -83,6 +85,38 @@ public final class Utils {
     double temp = array[i];
     array[i] = array[j];
     array[j] = temp;
+  }
+
+  public static <T> void swap(IntObjectMap<T> map, int i, int j) {
+    boolean containsI = map.containsKey(i);
+    boolean containsJ = map.containsKey(j);
+    if (containsI && containsJ) {
+      T v = map.get(i);
+      map.put(i, map.get(j));
+      map.put(j, v);
+    } else if (containsI) {
+      map.put(j, map.get(i));
+      map.remove(i);
+    } else if (containsJ) {
+      map.put(i, map.get(j));
+      map.remove(j);
+    }
+  }
+
+  public static void swap(IntDoubleMap map, int i, int j) {
+    boolean containsI = map.containsKey(i);
+    boolean containsJ = map.containsKey(j);
+    if (containsI && containsJ) {
+      double v = map.get(i);
+      map.put(i, map.get(j));
+      map.put(j, v);
+    } else if (containsI) {
+      map.put(j, map.get(i));
+      map.remove(i);
+    } else if (containsJ) {
+      map.put(i, map.get(j));
+      map.remove(j);
+    }
   }
 
   /**

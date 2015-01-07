@@ -21,6 +21,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.VectorLike;
 
 /**
@@ -157,6 +158,16 @@ public interface Matrix extends Iterable<Double> {
    */
   Matrix assign(Matrix matrix, DoubleUnaryOperator operator);
 
+  Matrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function);
+
+  /**
+   * Assigns values in {@code numbers}.
+   *
+   * @param numbers iterable of numbers
+   * @return receiver modified
+   */
+  Matrix assignStream(Iterable<? extends Number> numbers);
+
   /**
    * Assigns elements from {@code iterable} to this matrix added in the order implemented by
    * {@link #put(int, double)} and transformed to double precision using {@code function}.
@@ -166,7 +177,7 @@ public interface Matrix extends Iterable<Double> {
    * @param <T> the type
    * @return receiver modified
    */
-  <T> Matrix assign(Iterable<T> iterable, ToDoubleFunction<? super T> function);
+  <T> Matrix assignStream(Iterable<T> iterable, ToDoubleFunction<? super T> function);
 
   /**
    * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must

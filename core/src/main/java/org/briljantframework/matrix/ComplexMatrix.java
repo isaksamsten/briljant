@@ -1,9 +1,6 @@
 package org.briljantframework.matrix;
 
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
 
@@ -32,6 +29,17 @@ public interface ComplexMatrix extends Iterable<Complex> {
   ComplexMatrix assign(Complex value);
 
   /**
+   * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must
+   * equal {@code this.size()}. The array is assumed to be in column major order, hence
+   * {@code [1,2,3,4]} assigned to a matrix will result in {@code [1 3; 2 4]} and not
+   * {@code [1,2; 3,4]}, similar to R.
+   *
+   * @param values the column major array
+   * @return receiver modified
+   */
+  ComplexMatrix assign(Complex[] values);
+
+  /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
    * {@code this.getShape()}.
    *
@@ -44,16 +52,14 @@ public interface ComplexMatrix extends Iterable<Complex> {
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value. Compare:
    *
    * <pre>
-   * ComplexMatrix original = ArrayMatrix.filledWith(10, 10, 2);
-   * ComplexMatrix other = ArrayMatrix.filledWith(10, 10, 3);
-   * for (int i = 0; i &lt; matrix.size(); i++) {
-   *   original.put(i, other.get(i) * 3);
+   * ComplexMatrix original = ...;
+   * ComplexMatrix other = ...;
+   * for (int i = 0; i &lt; original.size(); i++) {
+   *   original.put(i, other.get(i).multiply(3));
    * }
    * </pre>
    *
-   * and {@code original.assign(other, x -> * 3)} or {@code original.add(1, other, 3)}
-   *
-   *
+   * and {@code original.assign(other, x-> x.multiply(3))}
    *
    * @param matrix the matrix
    * @param operator the operator
@@ -62,15 +68,28 @@ public interface ComplexMatrix extends Iterable<Complex> {
   ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator);
 
   /**
-   * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must
-   * equal {@code this.size()}. The array is assumed to be in column major order, hence
-   * {@code [1,2,3,4]} assigned to a matrix will result in {@code [1 3; 2 4]} and not
-   * {@code [1,2; 3,4]}, similar to R.
-   *
-   * @param values the column major array
+   * Assign {@code matrix} to this complex matrix.
+   * 
+   * @param matrix matrix of real values
    * @return receiver modified
    */
-  ComplexMatrix assign(Complex[] values);
+  ComplexMatrix assign(Matrix matrix);
+
+  /**
+   * Assign {@code matrix} to this complex matrix transforming each element.
+   * 
+   * @param matrix the matrix
+   * @param operator the operator
+   * @return receiver modified
+   */
+  ComplexMatrix assign(Matrix matrix, DoubleFunction<? extends Complex> operator);
+
+  /**
+   * 
+   * @param complexes
+   * @return
+   */
+  ComplexMatrix assignStream(Iterable<? extends Complex> complexes);
 
   /**
    * 
@@ -79,7 +98,8 @@ public interface ComplexMatrix extends Iterable<Complex> {
    * @param <T>
    * @return
    */
-  <T> ComplexMatrix assign(Iterable<T> iterable, Function<? super T, ? extends Complex> function);
+  <T> ComplexMatrix assignStream(Iterable<T> iterable,
+      Function<? super T, ? extends Complex> function);
 
   /**
    * Perform {@code operator} element wise to receiver.

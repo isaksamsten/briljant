@@ -4,14 +4,12 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.rowMajor;
 
 import java.util.Iterator;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.exceptions.SizeMismatchException;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
@@ -47,6 +45,15 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   }
 
   @Override
+  public ComplexMatrix assign(Complex[] values) {
+    Preconditions.checkArgument(size() == values.length);
+    for (int i = 0; i < size(); i++) {
+      put(i, values[i]);
+    }
+    return this;
+  }
+
+  @Override
   public ComplexMatrix assign(ComplexMatrix matrix) {
     return assign(matrix, UnaryOperator.identity());
   }
@@ -61,20 +68,40 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   }
 
   @Override
-  public ComplexMatrix assign(Complex[] values) {
-    Preconditions.checkArgument(size() == values.length);
+  public ComplexMatrix assign(Matrix matrix) {
+    Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
-      put(i, values[i]);
+      put(i, Complex.valueOf(matrix.get(i)));
     }
     return this;
   }
 
   @Override
-  public <T> ComplexMatrix assign(Iterable<T> iterable,
+  public ComplexMatrix assign(Matrix matrix, DoubleFunction<? extends Complex> operator) {
+    Preconditions.checkArgument(matrix.size() == size());
+    for (int i = 0; i < size(); i++) {
+      put(i, operator.apply(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public ComplexMatrix assignStream(Iterable<? extends Complex> complexes) {
+    int index = 0;
+    Iterator<? extends Complex> iter = complexes.iterator();
+    while (iter.hasNext() && index < size()) {
+      put(index++, iter.next());
+    }
+    return this;
+  }
+
+  @Override
+  public <T> ComplexMatrix assignStream(Iterable<T> iterable,
       Function<? super T, ? extends Complex> function) {
     int index = 0;
-    for (T t : iterable) {
-      put(index++, function.apply(t));
+    Iterator<T> iter = iterable.iterator();
+    while (iter.hasNext() && index < size()) {
+      put(index++, function.apply(iter.next()));
     }
     return this;
   }
@@ -184,13 +211,14 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
       Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a == Transpose.YES) {
+    if (a.transpose()) {
       thisRows = columns();
       thisCols = rows();
     }
+
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b == Transpose.YES) {
+    if (b.transpose()) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -205,17 +233,20 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
         Complex sum = Complex.ZERO;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              a == Transpose.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
-                  thisRows, thisCols);
+              a.transpose() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k, thisRows,
+                  thisCols);
           int otherIndex =
-              b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
+              b.transpose() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                   otherRows, otherColumns);
+          Complex thisValue = get(thisIndex);
+          Complex otherValue = other.get(otherIndex);
+          thisValue = a == Transpose.CONJ ? thisValue.conjugate() : thisValue;
+          otherValue = b == Transpose.CONJ ? otherValue.conjugate() : otherValue;
+
           if (alpha == Complex.ONE && beta == Complex.ONE) {
-            sum = sum.plus(get(thisIndex).multiply(other.get(otherIndex)));
+            sum = sum.plus(thisValue.multiply(otherValue));
           } else {
-            sum =
-                sum.plus(alpha.multiply(get(thisIndex)).multiply(beta)
-                    .multiply(other.get(otherIndex)));
+            sum = sum.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
           }
         }
         result.put(row, col, sum);
@@ -361,7 +392,7 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   @Override
   public ComplexMatrix divi(ComplexMatrix other) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).divide(other.get(i)));
+      put(i, get(i).div(other.get(i)));
     }
     return this;
   }
@@ -369,7 +400,7 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   @Override
   public ComplexMatrix divi(Complex other) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).divide(other));
+      put(i, get(i).div(other));
     }
     return this;
   }
@@ -382,7 +413,7 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   @Override
   public ComplexMatrix rdivi(Complex other) {
     for (int i = 0; i < size(); i++) {
-      put(i, other.divide(get(i)));
+      put(i, other.div(get(i)));
     }
     return this;
   }
@@ -472,7 +503,12 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
     if (this.rows() != other.rows() || this.columns() != other.columns()) {
       throw new IllegalArgumentException(String.format(
           "nonconformant arguments (op1 is %s, op2 is %s)", this.getShape(), other.getShape()));
+    }
+  }
 
+  protected void assertSameSize(int size) {
+    if (size != size()) {
+      throw new SizeMismatchException("Total size of new matrix must be unchanged.", size(), size);
     }
   }
 
@@ -486,6 +522,7 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
       }
     }
     Utils.prettyPrintTable(str, builder.build(), 0, 2, false, false);
+    str.append("Shape: ").append(getShape());
     return str.toString();
   }
 

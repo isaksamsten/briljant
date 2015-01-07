@@ -1,6 +1,4 @@
 # First taste of Briljant
-[TOC]
-
 ## Introduction
 
 Briljants main abstractions are the [Matrix](#matrix),
@@ -26,7 +24,7 @@ Briljants main abstractions are the [Matrix](#matrix),
   floating point numbers, supporting a multitude of linear algebra
   operations.
 
-### An example
+## An example ##
 
 ```
 import static org.briljantframework.matrix.Matrices.*;
@@ -120,8 +118,8 @@ not. Therefore, Briljant provides several ways of creating empty matrices with
 placeholder values.
 
 ```
-Matrix a = zeros(10, 10); // 10 by 10 matrix with elements set to 0
-Matrix b = ones(10, 10);  // 10 by 10 matrix with elements set to 1
+Matrix a = zeros(10, 10); // 10-by-10 matrix with elements set to 0
+Matrix b = ones(10, 10);  // 10-by-10 matrix with elements set to 1
 Matrix c = fill(10, 10, Double.NaN) // 10 by 10 matrix with elements set to NaN
 Matrix d = linspace(0, 2 * Math.PI, 100).mapi(Math::sin);
 ```
@@ -292,7 +290,7 @@ public class Ex4 {
 }
 ```
 
-#### See also ####
+##### See also #####
 
 [Matrix#mul](examples.md#mul), [Matrix#add](examples.md#add),
 [Matrix#sub](examples.md#sub), [Matrix#div](examples.md#div),
@@ -333,6 +331,71 @@ public class Ex6 {
 !!! success "In-place element wise operations"
 
     Remember that `Matrix#mapi` can be used to mutate the matrix.
+
+!!! warning "Complex matrices"
+
+    Remember that, for example, `Math.sqrt(-2)` return NaN. Complex
+    numbers allow one to solve equations without real solutions. In
+    Briljant, complex numbers are implemented in the
+    `org.briljantframework.complex.Complex` class and matrices of such
+    values are implemented in
+    `org.briljantframework.matrix.ComplexMatrix`. Given, `Matrix x =
+    rand(10, 10).muli(-10)` the element wise square root can be
+    calculated (it the complex plane) as `ComplexMatrix z = new
+    ArrayComplexMatrix(10, 10).assign(x, Complex::sqrt)`
+
+
+#### Example ####
+
+As an example of Briljants expressiveness, one of Julias performance
+tests is implemented below. Due to the performance overhead of copying
+an array from the JVM to Fortran, its performance is competitive, but
+not as fast as its Julia counterpart.
+
+
+```
+private static Random random = new Random();
+
+private static double[] randmatstat_Briljant(int t) {
+  int n = 5;
+  Matrix p = zeros(n, n * 4);
+  Matrix q = zeros(n * 2, n * 2);
+  Matrix v = zeros(t, 1);
+  Matrix w = zeros(t, 1);
+
+  for (int i = 0; i < t; i++) {
+    p.getView(0, 0, n, n).assign(random::nextGaussian);
+    p.getView(0, n, n, n).assign(random::nextGaussian);
+    p.getView(0, n * 2, n, n).assign(random::nextGaussian);
+    p.getView(0, n * 3, n, n).assign(random::nextGaussian);
+
+    q.getView(0, 0, n, n).assign(random::nextGaussian);
+    q.getView(0, n, n, n).assign(random::nextGaussian);
+    q.getView(n, 0, n, n).assign(random::nextGaussian);
+    q.getView(n, n, n, n).assign(random::nextGaussian);
+
+    Matrix x = p.mmul(Transpose.YES, p, Transpose.NO);
+    v.put(i, trace(x.mmul(x).mmul(x)));
+
+    x = q.mmul(Transpose.YES, q, Transpose.NO);
+    w.put(i, trace(x.mmul(x).mmul(x)));
+  }
+
+  double meanv = mean(v);
+  double stdv = std(v, meanv);
+  double meanw = mean(w);
+  double stdw = std(w, meanw);
+  return new double[] {meanv, stdv, meanw, stdw};
+}
+```
+
+The `assign`-method is called on several views each occupying a 5-by-5
+matrix in `p` and `q`.
+
+!!! info "Static imports"
+
+    Please note that `Matrices` are statically imported in the
+    example.
 
 ### Compound operations ###
 

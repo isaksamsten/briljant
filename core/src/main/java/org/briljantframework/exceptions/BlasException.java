@@ -5,6 +5,6 @@ package org.briljantframework.exceptions;
  */
 public class BlasException extends Error {
   public BlasException(String func, int val, String s) {
-    super(String.format("%s faild with %d and %s", func, val, s));
+    super(String.format("%s failed with %d and %s", func, val, s));
   }
 }
