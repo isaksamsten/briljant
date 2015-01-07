@@ -222,7 +222,7 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return null;
     }
 

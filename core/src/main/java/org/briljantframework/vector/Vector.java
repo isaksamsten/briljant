@@ -423,7 +423,7 @@ public interface Vector extends VectorLike, Serializable {
      * 
      * @return the temporary vector.
      */
-    VectorLike temporaryVector();
+    VectorLike getVectorView();
 
     /**
      * Create a new vector of suitable type. This interface does not provide any guarantees to

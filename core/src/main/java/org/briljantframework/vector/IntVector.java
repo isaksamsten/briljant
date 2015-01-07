@@ -200,7 +200,7 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return null;
     }
 

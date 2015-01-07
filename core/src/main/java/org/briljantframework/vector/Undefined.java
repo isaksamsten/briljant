@@ -12,6 +12,7 @@ import org.briljantframework.io.DataEntry;
 public class Undefined implements Value {
 
   public static final Undefined INSTANCE = new Undefined();
+
   protected static final String UNDEFINED_DOES_NOT_HAVE_A_SCALE =
       "Undefined does not have a scale.";
 
@@ -201,7 +202,7 @@ public class Undefined implements Value {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return Undefined.INSTANCE;
     }
 

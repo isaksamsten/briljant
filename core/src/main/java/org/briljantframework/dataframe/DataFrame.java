@@ -97,6 +97,13 @@ public interface DataFrame extends Iterable<DataFrameRow> {
   boolean isNA(int row, int column);
 
   /**
+   * Return a collection of columns
+   * 
+   * @return an (immutable) collection of columns
+   */
+  Collection<Vector> getColumns();
+
+  /**
    * Get vector at {@code index}
    *
    * @param index the index
@@ -153,10 +160,22 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    */
   DataFrame setColumnName(int index, String columnName);
 
+  /**
+   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   * 
+   * @param names the names
+   * @return receiver modified
+   */
   default DataFrame setColumnNames(String... names) {
     return setColumnNames(Arrays.asList(names));
   }
 
+  /**
+   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   * 
+   * @param names the names
+   * @return receiver modified
+   */
   DataFrame setColumnNames(List<String> names);
 
   /**
@@ -177,12 +196,37 @@ public interface DataFrame extends Iterable<DataFrameRow> {
   DataFrame setRowName(int index, String rowName);
 
   /**
+   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   *
+   * @param names the names
+   * @return receiver modified
+   */
+  default DataFrame setRowNames(String... names) {
+    return setRowNames(Arrays.asList(names));
+  }
+
+  /**
+   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   *
+   * @param names the names
+   * @return receiver modified
+   */
+  DataFrame setRowNames(List<String> names);
+
+  /**
    * Get the type of the row at {@code index}
    * 
    * @param index the index
-   * @retur the type
+   * @return the type
    */
   Type getRowType(int index);
+
+  /**
+   * Returns a collection of rows
+   * 
+   * @return an (immutable) collection of rows
+   */
+  Collection<Vector> getRows();
 
   /**
    * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types, the

@@ -38,7 +38,7 @@ public final class Vectors {
 
   public static Vector sort(Vector in, VectorComparator cmp) {
     Vector.Builder builder = in.newCopyBuilder();
-    VectorLike tmp = builder.temporaryVector();
+    VectorLike tmp = builder.getVectorView();
     QuickSort.quickSort(0, in.size(), (a, b) -> cmp.compare(tmp, a, b), builder);
     return builder.build();
   }

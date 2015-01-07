@@ -25,7 +25,6 @@ public class LinearAggregator implements Aggregator {
     int bin = in.size() / targetSize;
     int pad = in.size() % targetSize;
 
-    System.out.println(bin);
     int currentIndex = 0;
     int toPad = 0;
     while (currentIndex < in.size()) {

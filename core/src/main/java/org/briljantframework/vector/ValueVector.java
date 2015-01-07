@@ -237,7 +237,7 @@ public class ValueVector implements VariableVector {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return new TemporaryVector(this.buffer);
     }
 

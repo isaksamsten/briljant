@@ -212,7 +212,7 @@ public class StringVector extends AbstractStringVector {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return new TemporaryVector(buffer);
     }
 

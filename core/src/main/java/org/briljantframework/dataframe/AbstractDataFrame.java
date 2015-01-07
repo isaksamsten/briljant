@@ -18,8 +18,50 @@ import com.google.common.collect.UnmodifiableIterator;
  */
 public abstract class AbstractDataFrame implements DataFrame {
 
+  /**
+   * The column names. Subclasses should preserve the name, e.g., in {@link #newBuilder()}
+   */
   protected final NameAttribute columnNames;
+
+  /**
+   * The row names. Subclasses should preserve the name, e.g., in {@link #newBuilder()}
+   */
   protected final NameAttribute rowNames;
+
+  private final AbstractCollection<Vector> rowCollection = new AbstractCollection<Vector>() {
+    @Override
+    public Iterator<Vector> iterator() {
+      return iterator();
+    }
+
+    @Override
+    public int size() {
+      return rows();
+    }
+  };
+  private final AbstractCollection<Vector> columnCollection = new AbstractCollection<Vector>() {
+    @Override
+    public Iterator<Vector> iterator() {
+      return new UnmodifiableIterator<Vector>() {
+        private int current = 0;
+
+        @Override
+        public boolean hasNext() {
+          return current < columns();
+        }
+
+        @Override
+        public Vector next() {
+          return getColumn(current++);
+        }
+      };
+    }
+
+    @Override
+    public int size() {
+      return columns();
+    }
+  };
 
   protected AbstractDataFrame(NameAttribute columnNames, NameAttribute rowNames) {
     this.columnNames = columnNames;
@@ -38,6 +80,11 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   protected AbstractDataFrame() {
     this(new NameAttribute(), new NameAttribute());
+  }
+
+  @Override
+  public Collection<Vector> getColumns() {
+    return columnCollection;
   }
 
   /**
@@ -113,7 +160,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public String getColumnName(int index) {
     checkArgument(index >= 0 && index < columns());
-    return columnNames.get(index);
+    return columnNames.getOrDefault(index, () -> String.valueOf(index));
   }
 
   @Override
@@ -134,7 +181,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public String getRowName(int index) {
     checkArgument(index >= 0 && index < rows());
-    return rowNames.get(index);
+    return rowNames.getOrDefault(index, () -> String.valueOf(index));
   }
 
   @Override
@@ -145,8 +192,21 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
+  public DataFrame setRowNames(List<String> names) {
+    for (int i = 0; i < names.size(); i++) {
+      setRowName(i, names.get(i));
+    }
+    return this;
+  }
+
+  @Override
   public Type getRowType(int index) {
     return getRow(index).getType();
+  }
+
+  @Override
+  public Collection<Vector> getRows() {
+    return rowCollection;
   }
 
   /**

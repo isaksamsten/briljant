@@ -296,7 +296,7 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return new VectorLike() {
 
         @Override

@@ -8,6 +8,7 @@ import java.util.function.*;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.complex.ComplexBuilder;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 
@@ -230,26 +231,37 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
     ComplexMatrix result = newEmptyMatrix(thisRows, otherColumns);
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
-        Complex sum = Complex.ZERO;
+        // Complex sum = new Complex(0);
+        ComplexBuilder sumAcc = new ComplexBuilder(0);
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              a.transpose() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k, thisRows,
-                  thisCols);
-          int otherIndex =
-              b.transpose() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
-                  otherRows, otherColumns);
+          int thisIndex;
+          int otherIndex;
+          if (a.transpose()) {
+            thisIndex = rowMajor(row, k, thisRows, thisCols);
+          } else {
+            thisIndex = columnMajor(row, k, thisRows, thisCols);
+          }
+          if (b.transpose()) {
+            otherIndex = rowMajor(k, col, otherRows, otherColumns);
+          } else {
+            otherIndex = columnMajor(k, col, otherRows, otherColumns);
+          }
+
           Complex thisValue = get(thisIndex);
           Complex otherValue = other.get(otherIndex);
           thisValue = a == Transpose.CONJ ? thisValue.conjugate() : thisValue;
           otherValue = b == Transpose.CONJ ? otherValue.conjugate() : otherValue;
 
-          if (alpha == Complex.ONE && beta == Complex.ONE) {
-            sum = sum.plus(thisValue.multiply(otherValue));
+          if (alpha.equals(Complex.ONE) && beta.equals(Complex.ONE)) {
+            // sum = sum.plus(thisValue.multiply(otherValue));
+            sumAcc.plus(thisValue.multiply(otherValue));
           } else {
-            sum = sum.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
+            // sum = sum.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
+            sumAcc.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
           }
         }
-        result.put(row, col, sum);
+        // result.put(row, col, sum);
+        result.put(row, col, sumAcc.toComplex());
       }
     }
     return result;

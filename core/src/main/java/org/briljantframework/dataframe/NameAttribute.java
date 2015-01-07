@@ -2,6 +2,7 @@ package org.briljantframework.dataframe;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.briljantframework.Utils;
 
@@ -34,6 +35,12 @@ public class NameAttribute implements AttributeCollection<String> {
   @Override
   public String get(int index) {
     return names.get(index);
+  }
+
+  @Override
+  public String getOrDefault(int index, Supplier<String> defaultValue) {
+    String name = names.get(index);
+    return name != null ? name : defaultValue.get();
   }
 
   @Override

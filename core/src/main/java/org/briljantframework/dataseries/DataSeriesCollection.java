@@ -167,6 +167,15 @@ public class DataSeriesCollection extends AbstractDataFrame {
         .collect(Collectors.toCollection(ArrayList::new)), type);
   }
 
+  /**
+   * Returns the type of data series in this DataSeries collection
+   * 
+   * @return the type
+   */
+  public Type getType() {
+    return type;
+  }
+
   @Override
   public DataSeries getRow(int index) {
     return new DataSeries(series.get(index));

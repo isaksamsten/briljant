@@ -1,7 +1,5 @@
 package org.briljantframework.complex;
 
-import java.io.Serializable;
-
 import com.google.common.base.Preconditions;
 
 /**
@@ -9,7 +7,7 @@ import com.google.common.base.Preconditions;
  *
  * @author Isak Karlsson
  */
-public class Complex implements Serializable {
+public final class Complex extends Number {
 
   public static final Complex I = new Complex(0, 1);
 
@@ -181,8 +179,6 @@ public class Complex implements Serializable {
     }
     return new Complex(real, -imag);
   }
-
-
 
   // sqrt(1-this<sup>2</sup>)
   private Complex sqrt1z() {
@@ -429,5 +425,25 @@ public class Complex implements Serializable {
     } else {
       return real + " - " + (-imag) + "i";
     }
+  }
+
+  @Override
+  public int intValue() {
+    return (int) doubleValue();
+  }
+
+  @Override
+  public long longValue() {
+    return (long) doubleValue();
+  }
+
+  @Override
+  public float floatValue() {
+    return (float) doubleValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return real;
   }
 }

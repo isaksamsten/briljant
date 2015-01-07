@@ -92,7 +92,6 @@ public final class DataFrames {
     for (int i = builder.columns(); i > 1; i--) {
       builder.swapColumns(i - 1, random.nextInt(i));
     }
-
     return builder.build();
   }
 
@@ -115,8 +114,6 @@ public final class DataFrames {
   public static DataFrame dropIncompleteCases(DataFrame x) {
     return removeIncompleteCases.transform(x);
   }
-
-
 
   /**
    * Generates a string representation of a maximum of {@code 10} rows.
@@ -147,13 +144,16 @@ public final class DataFrames {
   public static String toTabularString(DataFrame dataFrame, int max) {
     ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
     b.put(0, 0, " ");
+    // b.put(0, 1, " ");
     for (int i = 0; i < dataFrame.columns(); i++) {
       String columnName = dataFrame.getColumnName(i);
       b.put(0, i + 1, columnName == null ? "Undefined" : columnName);
     }
 
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {
-      b.put(i + 1, 0, String.format("[%d,]   ", i));
+      // b.put(i + 1, 0, String.format("[%d,] ", i));
+      String rowName = dataFrame.getRowName(i);
+      b.put(i + 1, 0, rowName == null ? " " : rowName + " ");
       for (int j = 0; j < dataFrame.columns(); j++) {
         b.put(i + 1, j + 1, dataFrame.toString(i, j));
       }

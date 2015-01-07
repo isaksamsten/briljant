@@ -202,7 +202,7 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
-    public VectorLike temporaryVector() {
+    public VectorLike getVectorView() {
       return new VectorLike() {
 
         @Override

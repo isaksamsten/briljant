@@ -207,7 +207,8 @@ parallel). Mutations are done using operations prepended with **i**,
 
 ```
 Matrix a = zeros(3, 3);
-System.out.println(a);
+
+System.out.println(a);k-b
 
 a.put(0, 0, 10);
 a.put(0, 1, 9);
@@ -399,6 +400,23 @@ matrix in `p` and `q`.
 
 ### Compound operations ###
 
-## DataFrame
+## Vector ##
 
-## Vector
+Vectors are Briljants main abstraction and resembles immutable lists
+of homogenoues values. Vectors come in 5 homogeneous flavors, all of
+which resides in the namespace `org.briljantframework.vector`. The
+flavors are
+
+* `StringVector` for storing string values (`java.lang.String`)
+* `DoubleVector` for storing real number (`double`)
+* `ComplexVector` for storing complex numbers (`org.briljantframework.complex.Complex`)
+* `Intvector` for storing integers (`int`)
+* `BinaryVector` for storing binary values (`org.briljantframework.vector.Binary`)
+
+In addition to values, each vector can store a distinct value which
+represent the absence of a value called `NA`.
+
+## DataFrame ##
+
+Data frames are Briljants most 
+
