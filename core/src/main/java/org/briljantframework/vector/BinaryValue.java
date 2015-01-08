@@ -39,6 +39,26 @@ public class BinaryValue extends AbstractBinaryVector implements Value {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    BinaryValue binaries = (BinaryValue) o;
+
+    if (binary != binaries.binary)
+      return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return binary;
+  }
+
+  @Override
   public Builder newCopyBuilder() {
     return null;
   }

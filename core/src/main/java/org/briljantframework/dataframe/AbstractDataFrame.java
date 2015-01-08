@@ -336,6 +336,20 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
+    public Builder setColumnName(int index, String name) {
+      checkArgument(index >= 0 && index < columns());
+      columnNames.put(index, name);
+      return this;
+    }
+
+    @Override
+    public Builder setRowName(int index, String name) {
+      checkArgument(index >= 0 && index < columns());
+      rowNames.put(index, name);
+      return this;
+    }
+
+    @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
       Vector vector = builder.build();
       int j = columns();

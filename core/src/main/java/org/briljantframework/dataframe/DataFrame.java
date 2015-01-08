@@ -20,6 +20,12 @@ import org.briljantframework.vector.Vector;
  * A DataFrame is a heterogeneous or homogeneous storage of data.
  * </p>
  * 
+ * <p>
+ * While {@code DataFrame} is immutable, {@link #setColumnName(int, String)},
+ * {@link #setRowName(int, String)} are allowed to mutate the receiver. The rationale is simple,
+ * chang the names won't affect the validity of {@code DataFrame} usages.
+ * </p>
+ *
  * @author Isak Karlsson
  */
 public interface DataFrame extends Iterable<DataFrameRow> {
@@ -352,6 +358,10 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @see org.briljantframework.vector.Vector.Builder#set(int, Object)
      */
     Builder set(int row, int column, Object value);
+
+    Builder setColumnName(int index, String name);
+
+    Builder setRowName(int index, String name);
 
     /**
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the

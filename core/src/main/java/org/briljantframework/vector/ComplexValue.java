@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.briljantframework.complex.Complex;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 /**
@@ -13,7 +14,7 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   private final Complex complex;
 
   public ComplexValue(Complex complex) {
-    this.complex = complex;
+    this.complex = Preconditions.checkNotNull(complex);
   }
 
   @Override
@@ -29,6 +30,23 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   @Override
   public Complex getAsComplex(int index) {
     return complex;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    ComplexValue complexes = (ComplexValue) o;
+
+    return !(complex != null ? !complex.equals(complexes.complex) : complexes.complex != null);
+  }
+
+  @Override
+  public int hashCode() {
+    return complex != null ? complex.hashCode() : 0;
   }
 
   @Override

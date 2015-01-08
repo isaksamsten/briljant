@@ -1,5 +1,6 @@
 package org.briljantframework.example.dataframe;
 
+import com.google.common.collect.ImmutableMap;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.vector.IntVector;
@@ -16,9 +17,8 @@ public class Ex1 {
     Vector engine = new StringVector("large", "small", "tiny");
     Vector bhp = new IntVector(100, 22, 3);
 
-    DataFrame frame = new MixedDataFrame(car, engine, bhp);
-    frame.setColumnNames("Brand", "Engine Size", "Breaking Horse Powers");
-
+    DataFrame frame =
+        MixedDataFrame.of("Brand", car, "Engine Size", engine, "Breaking Horse Powers", bhp);
     System.out.println(frame);
   }
 }

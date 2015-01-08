@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import java.util.Iterator;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 /**
@@ -12,7 +13,7 @@ public class StringValue extends AbstractStringVector implements Value {
   private final String value;
 
   public StringValue(String value) {
-    this.value = value;
+    this.value = Preconditions.checkNotNull(value);
   }
 
   @Override
@@ -23,6 +24,31 @@ public class StringValue extends AbstractStringVector implements Value {
   @Override
   public int compareTo(Value o) {
     return isNA() || o.isNA() ? 0 : getAsString().compareTo(o.getAsString());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    StringValue strings = (StringValue) o;
+
+    if (!value.equals(strings.value))
+      return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return value.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return value;
   }
 
   @Override

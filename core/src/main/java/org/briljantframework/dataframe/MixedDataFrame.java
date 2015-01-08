@@ -13,6 +13,8 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
  * <p>
@@ -126,6 +128,28 @@ public class MixedDataFrame extends AbstractDataFrame {
     super(columnNames, rowNames);
     this.columns = vectors;
     this.rows = rows;
+  }
+
+  public static DataFrame of(String name, Vector c) {
+    return new MixedDataFrame(ImmutableMap.of(name, c));
+  }
+
+  public static DataFrame of(String n1, Vector v1, String n2, Vector v2) {
+    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2));
+  }
+
+  public static DataFrame of(String n1, Vector v1, String n2, Vector v2, String n3, Vector v3) {
+    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3));
+  }
+
+  public static DataFrame of(String n1, Vector v1, String n2, Vector v2, String n3, Vector v3,
+      String n4, Vector v4) {
+    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3, n4, v4));
+  }
+
+  public static DataFrame of(String n1, Vector v1, String n2, Vector v2, String n3, Vector v3,
+      String n4, Vector v4, String n5, Vector v5) {
+    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5));
   }
 
   @Override
@@ -272,11 +296,6 @@ public class MixedDataFrame extends AbstractDataFrame {
    * To overcome this limitation, {@link #addColumn(org.briljantframework.vector.Vector.Builder)}
    * and {@link #removeColumn(int)} can be used.
    * </p>
-   *
-   *
-   * <p>
-   *
-   * </p>
    * 
    */
   public static class Builder extends AbstractBuilder {
@@ -284,9 +303,8 @@ public class MixedDataFrame extends AbstractDataFrame {
     private List<Vector.Builder> buffers = null;
 
     /**
-     * Construct a builder with {@code types.length} columns. The column names will be
-     * {@code 1 ... types.length}
-     * 
+     * Construct a builder with {@code types.length} columns.
+     *
      * @param types the column types
      */
     public Builder(Type... types) {
