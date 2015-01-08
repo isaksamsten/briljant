@@ -122,7 +122,7 @@ public final class DataFrames {
    * @return a tabular string representation
    */
   public static String toTabularString(DataFrame dataFrame) {
-    return toTabularString(dataFrame, 10);
+    return toTabularString(dataFrame, 100);
   }
 
   /**

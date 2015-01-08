@@ -1,40 +1,35 @@
 package org.briljantframework.dataframe;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
+import com.google.common.primitives.Ints;
 
 /**
  * Created by Isak on 2015-01-08.
  */
 public class Join {
 
-  private final int on;
+  private final Collection<Integer> on;
 
-  public Join(int on) {
-    this.on = on;
+  public Join(int... on) {
+    this.on = new HashSet<>(Ints.asList(on));
   }
 
   public DataFrame join(DataFrame a, DataFrame b) {
-    Vector av = a.getColumn(on);
-    Vector bv = b.getColumn(on);
-
-    PoolRef[] refs = getPoolRef(av, bv);
-
-    System.out.println(Arrays.toString(refs[0].refs));
-    System.out.println(Arrays.toString(refs[1].refs));
+    PoolRef[] refs = getPoolRef(a, b);
 
     JoinIdx idx = innerJoin(refs[0].refs, refs[1].refs, refs[0].noGroups);
 
     int[] leftIndexer = idx.leftIndexer;
     int[] rightIndexer = idx.rightIndex;
-
-    System.out.println(Arrays.toString(leftIndexer));
-    System.out.println(Arrays.toString(rightIndexer));
 
     DataFrame.Builder builder = a.newBuilder();
     for (int i = 0; i < leftIndexer.length; i++) {
@@ -46,7 +41,7 @@ public class Join {
         column += 1;
       }
       for (int j = 0; j < b.columns(); j++) {
-        if (j != on) {
+        if (!on.contains(j)) {
           if (i == 0) {
             builder.addColumn(b.getColumnType(j).newBuilder());
             builder.setColumnName(column, b.getColumnName(j));
@@ -58,6 +53,33 @@ public class Join {
     }
 
     return builder.build();
+  }
+
+  public PoolRef[] getPoolRef(DataFrame a, DataFrame b) {
+    Iterator<Integer> it = on.iterator();
+    int index = it.next();
+
+    PoolRef[] refs = getPoolRef(a.getColumn(index), b.getColumn(index));
+    int[] arefs = refs[0].refs;
+    int[] brefs = refs[1].refs;
+    int noGroups = refs[0].noGroups + 1;
+    while (it.hasNext()) {
+      index = it.next();
+      PoolRef[] reref = getPoolRef(a.getColumn(index), b.getColumn(index));
+      int[] arerefs = reref[0].refs;
+      int[] brerefs = reref[1].refs;
+      for (int i = 0; i < arefs.length; i++) {
+        arefs[i] += arerefs[i] * noGroups;
+      }
+
+      for (int i = 0; i < brefs.length; i++) {
+        brefs[i] += brerefs[i] * noGroups;
+      }
+
+      noGroups = noGroups * (reref[0].noGroups + 1);
+    }
+    refs[0].noGroups = noGroups;
+    return refs;
   }
 
   public PoolRef[] getPoolRef(Vector a, Vector b) {
@@ -89,41 +111,6 @@ public class Join {
       }
     }
 
-    // int j = 0;
-    // for (int i = 0; i < a.size(); i++) {
-    // Value avalue = a.getAsValue(i);
-    // Value bvalue = b.getAsValue(i);
-    //
-    // int aref = poolrefs.getOrDefault(avalue, Integer.MIN_VALUE);
-    // int bref = poolrefs.getOrDefault(bvalue, Integer.MIN_VALUE);
-    //
-    // if (aref == Integer.MIN_VALUE) {
-    // arefs[i] = j;
-    // poolrefs.put(avalue, j);
-    // j += 1;
-    // }
-    //
-    // if (aref != Integer.MIN_VALUE) {
-    // arefs[i] = aref;
-    // }
-    //
-    // if (bref == Integer.MIN_VALUE) {
-    // brefs[i] = j;
-    // poolrefs.put(bvalue, j);
-    // j += 1;
-    // }
-    //
-    // if (bref != Integer.MIN_VALUE) {
-    // brefs[i] = bref;
-    // }
-    //
-    // // if (bref == Integer.MIN_VALUE && aref == Integer.MIN_VALUE) {
-    // // arefs[i] = j;
-    // // brefs[i] = j;
-    // // poolrefs.put(avalue, j);
-    // // j += 1;
-    // // } else
-    // }
     return new PoolRef[] {new PoolRef(arefs, poolrefs.size()), new PoolRef(brefs, poolrefs.size())};
   }
 
@@ -178,11 +165,6 @@ public class Join {
       rightSorted[i] = rightSorter[rightIndexer[i]];
     }
 
-
-    // System.out.println(Arrays.toString(leftSorter));
-    // System.out.println(Arrays.toString(leftSorted));
-    // System.out.println(Arrays.toString(rightSorted));
-    //
     return new JoinIdx(leftSorted, rightSorted, null, null);
   }
 
