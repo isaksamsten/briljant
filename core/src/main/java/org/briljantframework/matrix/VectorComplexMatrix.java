@@ -24,18 +24,8 @@ public class VectorComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
-  public void put(int i, int j, Complex value) {
-    throw new UnsupportedOperationException("Can't mutate VectorComplexMatrix.");
-  }
-
-  @Override
   public Complex get(int i, int j) {
     return vector.getAsComplex(Indexer.columnMajor(i, j, rows(), columns()));
-  }
-
-  @Override
-  public void put(int index, Complex value) {
-    throw new UnsupportedOperationException("Can't mutate VectorComplexMatrix.");
   }
 
   @Override
@@ -56,5 +46,15 @@ public class VectorComplexMatrix extends AbstractComplexMatrix {
   @Override
   public ComplexMatrix copy() {
     return new VectorComplexMatrix(rows(), columns(), vector.newCopyBuilder().build());
+  }
+
+  @Override
+  public void set(int i, int j, Complex value) {
+    throw new UnsupportedOperationException("Can't mutate VectorComplexMatrix.");
+  }
+
+  @Override
+  public void set(int index, Complex value) {
+    throw new UnsupportedOperationException("Can't mutate VectorComplexMatrix.");
   }
 }

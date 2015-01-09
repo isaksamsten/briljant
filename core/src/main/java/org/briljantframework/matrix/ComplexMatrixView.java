@@ -35,18 +35,8 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
   }
 
   @Override
-  public void put(int i, int j, Complex value) {
-    parent.put(rowOffset + i, colOffset + j, value);
-  }
-
-  @Override
   public Complex get(int i, int j) {
     return parent.get(rowOffset + i, colOffset + j);
-  }
-
-  @Override
-  public void put(int index, Complex value) {
-    parent.put(computeLinearIndex(index), value);
   }
 
   @Override
@@ -74,9 +64,19 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
   public ComplexMatrix copy() {
     ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      mat.put(i, get(i));
+      mat.set(i, get(i));
     }
     return mat;
+  }
+
+  @Override
+  public void set(int i, int j, Complex value) {
+    parent.set(rowOffset + i, colOffset + j, value);
+  }
+
+  @Override
+  public void set(int index, Complex value) {
+    parent.set(computeLinearIndex(index), value);
   }
 
   private int computeLinearIndex(int index) {

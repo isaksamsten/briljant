@@ -25,6 +25,11 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
+  public Type getType() {
+    return Type.COMPLEX;
+  }
+
+  @Override
   public Complex getAsComplex(int i, int j) {
     return get(i, j);
   }
@@ -45,13 +50,13 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
-  public void put(int i, int j, double value) {
-    put(i, j, Complex.valueOf(value));
+  public void set(int i, int j, double value) {
+    set(i, j, Complex.valueOf(value));
   }
 
   @Override
-  public void put(int index, double value) {
-    put(index, Complex.valueOf(value));
+  public void set(int index, double value) {
+    set(index, Complex.valueOf(value));
   }
 
   @Override
@@ -65,19 +70,29 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
-  public void put(int i, int j, int value) {
-    put(i, j, Complex.valueOf(value));
+  public void set(int i, int j, int value) {
+    set(i, j, Complex.valueOf(value));
   }
 
   @Override
-  public void put(int index, int value) {
-    put(index, Complex.valueOf(value));
+  public void set(int index, int value) {
+    set(index, Complex.valueOf(value));
+  }
+
+  @Override
+  public void set(int atIndex, AnyMatrix from, int fromIndex) {
+    set(atIndex, from.getAsComplex(fromIndex));
+  }
+
+  @Override
+  public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
+    set(atRow, atColumn, from.getAsComplex(fromRow, fromColumn));
   }
 
   @Override
   public ComplexMatrix assign(Supplier<Complex> supplier) {
     for (int i = 0; i < size(); i++) {
-      put(i, supplier.get());
+      set(i, supplier.get());
     }
     return this;
   }
@@ -85,7 +100,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix assign(Complex value) {
     for (int i = 0; i < size(); i++) {
-      put(i, value);
+      set(i, value);
     }
     return this;
   }
@@ -94,7 +109,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix assign(Complex[] values) {
     Preconditions.checkArgument(size() == values.length);
     for (int i = 0; i < size(); i++) {
-      put(i, values[i]);
+      set(i, values[i]);
     }
     return this;
   }
@@ -108,7 +123,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
     assertEqualSize(matrix);
     for (int i = 0; i < size(); i++) {
-      put(i, operator.apply(matrix.get(i)));
+      set(i, operator.apply(matrix.get(i)));
     }
     return this;
   }
@@ -117,7 +132,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix assign(DoubleMatrix matrix) {
     Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
-      put(i, Complex.valueOf(matrix.get(i)));
+      set(i, Complex.valueOf(matrix.get(i)));
     }
     return this;
   }
@@ -126,7 +141,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<? extends Complex> operator) {
     Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
-      put(i, operator.apply(matrix.get(i)));
+      set(i, operator.apply(matrix.get(i)));
     }
     return this;
   }
@@ -136,7 +151,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
     int index = 0;
     Iterator<? extends Complex> iter = complexes.iterator();
     while (iter.hasNext() && index < size()) {
-      put(index++, iter.next());
+      set(index++, iter.next());
     }
     return this;
   }
@@ -147,7 +162,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
     int index = 0;
     Iterator<T> iter = iterable.iterator();
     while (iter.hasNext() && index < size()) {
-      put(index++, function.apply(iter.next()));
+      set(index++, function.apply(iter.next()));
     }
     return this;
   }
@@ -156,7 +171,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix map(UnaryOperator<Complex> operator) {
     ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      m.put(i, operator.apply(get(i)));
+      m.set(i, operator.apply(get(i)));
     }
     return m;
   }
@@ -164,7 +179,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix mapi(UnaryOperator<Complex> operator) {
     for (int i = 0; i < size(); i++) {
-      put(i, operator.apply(get(i)));
+      set(i, operator.apply(get(i)));
     }
     return this;
   }
@@ -181,7 +196,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix reduceColumns(Function<? super ComplexMatrix, ? extends Complex> reduce) {
     ComplexMatrix mat = newEmptyMatrix(1, columns());
     for (int i = 0; i < columns(); i++) {
-      mat.put(i, reduce.apply(getColumnView(i)));
+      mat.set(i, reduce.apply(getColumnView(i)));
     }
     return mat;
   }
@@ -190,7 +205,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix reduceRows(Function<? super ComplexMatrix, ? extends Complex> reduce) {
     ComplexMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
-      mat.put(i, reduce.apply(getRowView(i)));
+      mat.set(i, reduce.apply(getRowView(i)));
     }
     return mat;
   }
@@ -220,7 +235,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
     ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(j, i, get(i, j));
+        matrix.set(j, i, get(i, j));
       }
     }
     return matrix;
@@ -231,7 +246,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
     ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(j, i, get(i, j).conjugate());
+        matrix.set(j, i, get(i, j).conjugate());
       }
     }
     return matrix;
@@ -302,7 +317,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
             sumAcc.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
           }
         }
-        result.put(row, col, sumAcc.toComplex());
+        result.set(row, col, sumAcc.toComplex());
       }
     }
     return result;
@@ -331,7 +346,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix muli(Complex scalar) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).multiply(scalar));
+      set(i, get(i).multiply(scalar));
     }
     return this;
   }
@@ -340,7 +355,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix muli(Complex alpha, ComplexMatrix other, Complex beta) {
     assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
-      put(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
+      set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
     }
     return this;
   }
@@ -368,7 +383,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix addi(Complex scalar) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).plus(scalar));
+      set(i, get(i).plus(scalar));
     }
     return this;
   }
@@ -377,7 +392,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix addi(Complex alpha, ComplexMatrix other, Complex beta) {
     assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
+      set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
     }
     return this;
   }
@@ -405,7 +420,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix subi(Complex scalar) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).minus(scalar));
+      set(i, get(i).minus(scalar));
     }
     return this;
   }
@@ -414,7 +429,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   public ComplexMatrix subi(Complex alpha, ComplexMatrix other, Complex beta) {
     assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
-      put(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
+      set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
     }
     return this;
   }
@@ -427,7 +442,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix rsubi(Complex scalar) {
     for (int i = 0; i < size(); i++) {
-      put(i, scalar.minus(get(i)));
+      set(i, scalar.minus(get(i)));
     }
     return this;
   }
@@ -445,7 +460,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix divi(ComplexMatrix other) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).div(other.get(i)));
+      set(i, get(i).div(other.get(i)));
     }
     return this;
   }
@@ -453,7 +468,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix divi(Complex other) {
     for (int i = 0; i < size(); i++) {
-      put(i, get(i).div(other));
+      set(i, get(i).div(other));
     }
     return this;
   }
@@ -466,7 +481,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public ComplexMatrix rdivi(Complex other) {
     for (int i = 0; i < size(); i++) {
-      put(i, other.div(get(i)));
+      set(i, other.div(get(i)));
     }
     return this;
   }
@@ -497,7 +512,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
       }
     }
     Utils.prettyPrintTable(str, builder.build(), 0, 2, false, false);
-    str.append("Shape: ").append(getShape());
+    str.append("shape: ").append(getShape()).append(" type: complex");
     return str.toString();
   }
 

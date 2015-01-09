@@ -1,6 +1,6 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.Doubles.*;
 
 import java.util.Random;
 
@@ -70,10 +70,10 @@ public class Perf {
       q.getView(n, n, n, n).assign(random::nextGaussian);
 
       DoubleMatrix x = p.mmul(Transpose.YES, p, Transpose.NO);
-      v.put(i, trace(x.mmul(x).mmul(x)));
+      v.set(i, trace(x.mmul(x).mmul(x)));
 
       x = q.mmul(Transpose.YES, q, Transpose.NO);
-      w.put(i, trace(x.mmul(x).mmul(x)));
+      w.set(i, trace(x.mmul(x).mmul(x)));
     }
     double meanv = mean(v);
     double stdv = std(v, meanv);

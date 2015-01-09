@@ -102,7 +102,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
 
   /**
    * Assigns elements from {@code iterable} to this matrix added in the order implemented by
-   * {@link #put(int, double)} and transformed to double precision using {@code function}.
+   * {@link #set(int, double)} and transformed to double precision using {@code function}.
    *
    * @param iterable the iterable
    * @param function the function, transforming {@code T} to double
@@ -250,18 +250,12 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
   IntMatrix transpose();
 
   /**
-   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
-   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
-   * matrix.
-   *
-   * @param rows
-   * @param columns
-   * @return
+   * {@inheritDoc}
    */
+  @Override
   IntMatrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////
-
 
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
@@ -283,8 +277,27 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    */
   IntMatrix mmul(int alpha, IntMatrix other, int beta);
 
+  /**
+   * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
+   * 
+   * @param a transpose for {@code this}
+   * @param other the matrix
+   * @param b transpose for {@code other}
+   * @return a new matrix
+   */
   IntMatrix mmul(Transpose a, IntMatrix other, Transpose b);
 
+  /**
+   * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
+   * scaling by {@code alpha} {@code beta}.
+   * 
+   * @param alpha scaling factor for {@code this}
+   * @param a transpose for {@code this}
+   * @param other the matrix
+   * @param beta scaling factor for {@code other}
+   * @param b transpose for {@code other}
+   * @return a new matrix
+   */
   IntMatrix mmul(int alpha, Transpose a, IntMatrix other, int beta, Transpose b);
 
   /**
@@ -855,5 +868,4 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @return the copy
    */
   IntMatrix copy();
-
 }

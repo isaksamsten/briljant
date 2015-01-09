@@ -19,7 +19,7 @@ import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Doubles;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
@@ -359,11 +359,11 @@ public class RandomShapeletForestTest {
         ArrayDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
                 0.1738586474, 0.1724606892);
     DoubleMatrix errors =
-        Matrices
+        Doubles
             .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
-                + "0.249,0.249,0.249,0.249,0.249,0.249;"
-                + "0.190,0.190,0.190,0.190,0.190,0.190;"
-                + "0.210,0.210,0.210,0.210,0.210,0.210");
+                    + "0.249,0.249,0.249,0.249,0.249,0.249;"
+                    + "0.190,0.190,0.190,0.190,0.190,0.190;"
+                    + "0.210,0.210,0.210,0.210,0.210,0.210");
     System.out.println(errors);
 
 

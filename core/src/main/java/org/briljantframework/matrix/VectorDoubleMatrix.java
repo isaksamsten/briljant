@@ -86,12 +86,12 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void put(int i, int j, double value) {
+  public void set(int i, int j, double value) {
     throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
   }
 
   @Override
-  public void put(int index, double value) {
+  public void set(int index, double value) {
     throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
   }
 
@@ -114,7 +114,7 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[this.rows() * other.columns()];
-      Matrices.mmul(this, alpha, other, beta, tmp);
+      Doubles.mmul(this, alpha, other, beta, tmp);
       return new ArrayDoubleMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);

@@ -64,7 +64,7 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
   public DoubleMatrix copy() {
     DoubleMatrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      mat.put(i, get(i));
+      mat.set(i, get(i));
     }
     return mat;
   }
@@ -76,7 +76,7 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
     }
     if (isArrayBased() && other.isArrayBased()) {
       double[] tmp = new double[this.rows() * other.columns()];
-      Matrices.mmul(this, alpha, other, beta, tmp);
+      Doubles.mmul(this, alpha, other, beta, tmp);
       return new ArrayDoubleMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);
@@ -84,13 +84,13 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void put(int i, int j, double value) {
-    parent.put(rowOffset + i, colOffset + j, value);
+  public void set(int i, int j, double value) {
+    parent.set(rowOffset + i, colOffset + j, value);
   }
 
   @Override
-  public void put(int index, double value) {
-    parent.put(computeLinearIndex(index), value);
+  public void set(int index, double value) {
+    parent.set(computeLinearIndex(index), value);
   }
 
   @Override

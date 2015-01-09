@@ -1,6 +1,6 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Matrices.parseMatrix;
+import static org.briljantframework.matrix.Doubles.parseMatrix;
 import static org.junit.Assert.assertArrayEquals;
 
 import org.briljantframework.vector.VectorLike;

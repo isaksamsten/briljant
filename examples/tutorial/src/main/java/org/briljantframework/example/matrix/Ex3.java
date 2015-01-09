@@ -1,7 +1,7 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Matrices.randn;
-import static org.briljantframework.matrix.Matrices.zeros;
+import static org.briljantframework.matrix.Doubles.randn;
+import static org.briljantframework.matrix.Doubles.zeros;
 
 import org.briljantframework.matrix.DoubleMatrix;
 
@@ -25,6 +25,7 @@ public class Ex3 {
 
     // Modifications views share data with the original
     firstRow.assign(zeros(10).getRowView(0));
+
     // Take the upper 4 elements of b
     DoubleMatrix up = b.getView(0, 0, 4, 4);
     System.out.println(up);

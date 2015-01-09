@@ -1,25 +1,26 @@
 package org.briljantframework.dataframe.join;
 
-import org.briljantframework.vector.IntVector;
+import org.briljantframework.matrix.IntMatrix;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
 public class JoinKeys {
-  private final IntVector left, right;
+  private final IntMatrix left;
+  private final IntMatrix right;
   private final int maxGroups;
 
-  JoinKeys(IntVector left, IntVector right, int maxGroups) {
+  JoinKeys(IntMatrix left, IntMatrix right, int maxGroups) {
     this.left = left;
     this.right = right;
     this.maxGroups = maxGroups;
   }
 
-  public IntVector getLeft() {
+  public IntMatrix getLeft() {
     return left;
   }
 
-  public IntVector getRight() {
+  public IntMatrix getRight() {
     return right;
   }
 

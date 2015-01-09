@@ -17,8 +17,8 @@ import com.google.common.base.Preconditions;
  * </p>
  * 
  * <p>
- * For this reason, most (all) operations defined in {@link org.briljantframework.matrix.Matrices}
- * return an {@link ArrayDoubleMatrix} if not the type of the receiver.
+ * For this reason, most (all) operations defined in {@link Doubles} return an
+ * {@link ArrayDoubleMatrix} if not the type of the receiver.
  * </p>
  *
  * <p>
@@ -87,7 +87,7 @@ public class HashDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void put(int i, int j, double value) {
+  public void set(int i, int j, double value) {
     Preconditions.checkArgument(i < rows() && i >= 0 && j < columns() && j >= 0);
     IntDoubleMap col = values.get(j);
     if (col == null) {
@@ -98,10 +98,10 @@ public class HashDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void put(int index, double value) {
+  public void set(int index, double value) {
     int col = index / rows();
     int row = index % rows();
-    put(row, col, value);
+    set(row, col, value);
   }
 
   @Override

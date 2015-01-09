@@ -56,19 +56,19 @@ public class IntMatrixView extends AbstractIntMatrix {
   public IntMatrix copy() {
     IntMatrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      mat.put(i, get(i));
+      mat.set(i, get(i));
     }
     return mat;
   }
 
   @Override
-  public void put(int i, int j, int value) {
-    parent.put(rowOffset + i, colOffset + j, value);
+  public void set(int i, int j, int value) {
+    parent.set(rowOffset + i, colOffset + j, value);
   }
 
   @Override
-  public void put(int index, int value) {
-    parent.put(computeLinearIndex(index), value);
+  public void set(int index, int value) {
+    parent.set(computeLinearIndex(index), value);
   }
 
   private int computeLinearIndex(int index) {

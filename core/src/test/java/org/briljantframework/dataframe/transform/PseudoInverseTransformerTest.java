@@ -5,7 +5,7 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Doubles;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,8 +16,8 @@ public class PseudoInverseTransformerTest {
   @Before
   public void setUp() throws Exception {
     matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
-            // 0, 1, 1, 1
-    );
+    // 0, 1, 1, 1
+        );
 
   }
 
@@ -33,7 +33,7 @@ public class PseudoInverseTransformerTest {
 
     // assertArrayEquals(expected, inverse.asDoubleArray(), 0.001);
 
-    DoubleMatrix a = Matrices.parseMatrix("1,2,3; 1,2,3; 1,2,3; 1,2,3");
+    DoubleMatrix a = Doubles.parseMatrix("1,2,3; 1,2,3; 1,2,3; 1,2,3");
     Diagonal x = Diagonal.of(3, 3, 1, 1, 1);
 
     // System.out.println(matrix);
@@ -69,7 +69,7 @@ public class PseudoInverseTransformerTest {
     // System.out.println(mmul);
 
 
-    DoubleMatrix large = Matrices.randn(1000, 100);
+    DoubleMatrix large = Doubles.randn(1000, 100);
 
     System.out.println(LinearAlgebra.pinv(A));
   }

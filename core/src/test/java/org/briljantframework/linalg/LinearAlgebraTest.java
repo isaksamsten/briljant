@@ -7,7 +7,7 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Doubles;
 import org.junit.Test;
 
 public class LinearAlgebraTest {
@@ -31,10 +31,10 @@ public class LinearAlgebraTest {
 
   @Test
   public void testPinvNonSymetric() throws Exception {
-    DoubleMatrix x = Matrices.randn(20, 20);
-    Diagonal d = Matrices.eye(20, 10);
+    DoubleMatrix x = Doubles.randn(20, 20);
+    Diagonal d = Doubles.eye(20, 10);
 
-    Diagonal d2 = Matrices.eye(10, 20);
+    Diagonal d2 = Doubles.eye(10, 20);
 
     // Matrix mdmul = Matrices.mdmul(x, d);
     // System.out.println(mdmul);
@@ -42,10 +42,10 @@ public class LinearAlgebraTest {
     // Matrix dmmul = Matrices.dmmul(d2, x);
     // System.out.println(dmmul);
 
-    DoubleMatrix a = Matrices.randn(10, 20);
+    DoubleMatrix a = Doubles.randn(10, 20);
     System.out.println(LinearAlgebra.pinv(a));
 
-    DoubleMatrix m = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
+    DoubleMatrix m = Doubles.parseMatrix("1,2,3,4;1,2,3,4");
     System.out.println(LinearAlgebra.pinv(m));
     // Matrix x = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
     // Diagonal y = Diagonal.of(4, 2, 1, 1);

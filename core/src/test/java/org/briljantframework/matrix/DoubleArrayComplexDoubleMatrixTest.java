@@ -1,7 +1,7 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Matrices.randn;
-import static org.briljantframework.matrix.Matrices.zeros;
+import static org.briljantframework.matrix.Doubles.randn;
+import static org.briljantframework.matrix.Doubles.zeros;
 
 import java.util.Arrays;
 
@@ -25,7 +25,7 @@ public class DoubleArrayComplexDoubleMatrixTest {
     // System.out.println(matrix.get(0, 2).abs());
     //
 
-    DoubleMatrix a = Matrices.fill(2, 3, -2);
+    DoubleMatrix a = Doubles.fill(2, 3, -2);
     DoubleMatrix randn = randn(10000, 100);
     DoubleMatrix zeros = zeros(100, 10000);
     Utils.setRandomSeed(123);

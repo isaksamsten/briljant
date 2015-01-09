@@ -1,7 +1,7 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Matrices.fill;
-import static org.briljantframework.matrix.Matrices.randn;
+import static org.briljantframework.matrix.Doubles.fill;
+import static org.briljantframework.matrix.Doubles.randn;
 
 import org.briljantframework.Utils;
 import org.briljantframework.matrix.DoubleMatrix;

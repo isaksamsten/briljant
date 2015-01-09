@@ -131,7 +131,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
   public ArrayDoubleMatrix(VectorLike vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
-      put(i, vec.getAsDouble(i));
+      set(i, vec.getAsDouble(i));
     }
   }
 
@@ -144,7 +144,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
     this(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[i].length; j++) {
-        put(i, j, values[i][j]);
+        set(i, j, values[i][j]);
       }
     }
   }
@@ -288,12 +288,12 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void put(int i, int j, double value) {
+  public void set(int i, int j, double value) {
     values[columnMajor(i, j, rows(), columns())] = value;
   }
 
   @Override
-  public void put(int index, double value) {
+  public void set(int index, double value) {
     values[index] = value;
   }
 
@@ -310,7 +310,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[this.rows() * other.columns()];
-      Matrices.mmul(this, alpha, other, beta, tmp);
+      Doubles.mmul(this, alpha, other, beta, tmp);
       return new ArrayDoubleMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);
@@ -338,7 +338,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[thisRows * otherColumns];
-      Matrices.mmul(this, alpha, a, other, beta, b, tmp);
+      Doubles.mmul(this, alpha, a, other, beta, b, tmp);
       return new ArrayDoubleMatrix(thisRows, otherColumns, tmp);
     } else {
       return super.mmul(alpha, a, other, beta, b);

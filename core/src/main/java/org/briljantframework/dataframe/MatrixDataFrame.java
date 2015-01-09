@@ -168,7 +168,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     for (int k = 0; k < matrix.columns(); k++) {
       if (k != index) {
         for (int i = 0; i < matrix.rows(); i++) {
-          newMatrix.put(i, j, matrix.get(i, k));
+          newMatrix.set(i, j, matrix.get(i, k));
         }
         j++;
       }

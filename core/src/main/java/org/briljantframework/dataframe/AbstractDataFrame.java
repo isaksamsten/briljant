@@ -281,7 +281,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     DoubleMatrix matrix = new ArrayDoubleMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, getAsDouble(i, j));
+        matrix.set(i, j, getAsDouble(i, j));
       }
     }
 

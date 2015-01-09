@@ -28,7 +28,7 @@ import org.briljantframework.vector.VectorLike;
  * A matrix is a 2-dimensional array.
  *
  * <p>
- * Every implementation have to ensure that {@link #put(int, double)}, {@link #get(int)} and
+ * Every implementation have to ensure that {@link #set(int, double)}, {@link #get(int)} and
  * {@link #asDoubleArray()} work in <b>column-major</b> order as fortran and not in <b>row-major</b>
  * order as in e.g., c.
  *
@@ -58,8 +58,8 @@ import org.briljantframework.vector.VectorLike;
  * <p>
  * Due to the order in which values are stored and implications such as cache-locality, different
  * implementations might have varying performance characteristics. For example, for element wise
- * operations one should prefer {@link #get(int)} and {@link #put(int, double)} to
- * {@link #get(int, int)} and {@link #put(int, int, double)}.
+ * operations one should prefer {@link #get(int)} and {@link #set(int, double)} to
+ * {@link #get(int, int)} and {@link #set(int, int, double)}.
  *
  * <pre>
  * // Option 1:
@@ -174,7 +174,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
 
   /**
    * Assigns elements from {@code iterable} to this matrix added in the order implemented by
-   * {@link #put(int, double)} and transformed to double precision using {@code function}.
+   * {@link #set(int, double)} and transformed to double precision using {@code function}.
    * 
    * @param iterable the iterable
    * @param function the function, transforming {@code T} to double
@@ -322,14 +322,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
   DoubleMatrix transpose();
 
   /**
-   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
-   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
-   * matrix.
-   *
-   * @param rows
-   * @param columns
-   * @return
+   * {@inheritDoc}
    */
+  @Override
   DoubleMatrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////

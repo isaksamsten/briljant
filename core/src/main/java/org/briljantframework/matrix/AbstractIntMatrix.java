@@ -26,6 +26,11 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
+  public Type getType() {
+    return Type.INT;
+  }
+
+  @Override
   public Complex getAsComplex(int i, int j) {
     return new Complex(getAsDouble(i, j));
   }
@@ -36,13 +41,13 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public void put(int i, int j, Complex value) {
-    put(i, j, value.doubleValue());
+  public void set(int i, int j, Complex value) {
+    set(i, j, value.doubleValue());
   }
 
   @Override
-  public void put(int index, Complex value) {
-    put(index, value.doubleValue());
+  public void set(int index, Complex value) {
+    set(index, value.doubleValue());
   }
 
   @Override
@@ -56,13 +61,13 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public void put(int i, int j, double value) {
-    put(i, j, (int) value);
+  public void set(int i, int j, double value) {
+    set(i, j, (int) value);
   }
 
   @Override
-  public void put(int index, double value) {
-    put(index, (int) value);
+  public void set(int index, double value) {
+    set(index, (int) value);
   }
 
   @Override
@@ -76,9 +81,19 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
+  public void set(int atIndex, AnyMatrix from, int fromIndex) {
+    set(atIndex, from.getAsInt(fromIndex));
+  }
+
+  @Override
+  public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
+    set(atRow, atColumn, from.getAsInt(fromRow, fromColumn));
+  }
+
+  @Override
   public IntMatrix assign(IntSupplier supplier) {
     for (int i = 0; i < size(); i++) {
-      put(i, supplier.getAsInt());
+      set(i, supplier.getAsInt());
     }
     return this;
   }
@@ -86,7 +101,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   @Override
   public IntMatrix assign(int value) {
     for (int i = 0; i < size(); i++) {
-      put(i, value);
+      set(i, value);
     }
     return this;
   }
@@ -106,12 +121,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        put(i, operator.applyAsInt(get(i), other.getAsInt(i % rows())));
+        set(i, operator.applyAsInt(get(i), other.getAsInt(i % rows())));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        put(i, operator.applyAsInt(get(i), other.getAsInt(i / rows())));
+        set(i, operator.applyAsInt(get(i), other.getAsInt(i / rows())));
       }
     }
     return this;
@@ -126,7 +141,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix assign(IntMatrix matrix, IntUnaryOperator operator) {
     assertEqualSize(matrix);
     for (int i = 0; i < size(); i++) {
-      put(i, operator.applyAsInt(matrix.get(i)));
+      set(i, operator.applyAsInt(matrix.get(i)));
     }
     return this;
   }
@@ -135,7 +150,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix assign(ComplexMatrix matrix, ToIntFunction<? super Complex> function) {
     Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
-      put(i, function.applyAsInt(matrix.get(i)));
+      set(i, function.applyAsInt(matrix.get(i)));
     }
     return this;
   }
@@ -143,7 +158,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   @Override
   public IntMatrix assign(DoubleMatrix matrix, DoubleToIntFunction function) {
     for (int i = 0; i < matrix.size(); i++) {
-      put(i, function.applyAsInt(matrix.get(i)));
+      set(i, function.applyAsInt(matrix.get(i)));
     }
     return this;
   }
@@ -152,7 +167,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix assignStream(Iterable<? extends Number> numbers) {
     int index = 0;
     for (Number number : numbers) {
-      put(index++, number.intValue());
+      set(index++, number.intValue());
     }
     return this;
   }
@@ -161,7 +176,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public <T> IntMatrix assignStream(Iterable<T> iterable, ToIntFunction<? super T> function) {
     int index = 0;
     for (T t : iterable) {
-      put(index++, function.applyAsInt(t));
+      set(index++, function.applyAsInt(t));
     }
     return this;
   }
@@ -170,7 +185,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix assign(int[] values) {
     checkArgument(size() == values.length);
     for (int i = 0; i < size(); i++) {
-      put(i, values[i]);
+      set(i, values[i]);
     }
     return this;
   }
@@ -179,7 +194,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix map(IntUnaryOperator operator) {
     IntMatrix mat = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      mat.put(i, operator.applyAsInt(get(i)));
+      mat.set(i, operator.applyAsInt(get(i)));
     }
     return mat;
   }
@@ -187,7 +202,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   @Override
   public IntMatrix mapi(IntUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
-      put(i, operator.applyAsInt(get(i)));
+      set(i, operator.applyAsInt(get(i)));
     }
     return this;
   }
@@ -206,7 +221,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix reduceColumns(ToIntFunction<? super IntMatrix> reduce) {
     IntMatrix mat = newEmptyMatrix(1, columns());
     for (int i = 0; i < columns(); i++) {
-      mat.put(i, reduce.applyAsInt(getColumnView(i)));
+      mat.set(i, reduce.applyAsInt(getColumnView(i)));
     }
     return mat;
   }
@@ -215,7 +230,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix reduceRows(ToIntFunction<? super IntMatrix> reduce) {
     IntMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
-      mat.put(i, reduce.applyAsInt(getRowView(i)));
+      mat.set(i, reduce.applyAsInt(getRowView(i)));
     }
     return mat;
   }
@@ -243,7 +258,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     IntMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(j, i, get(i, j));
+        matrix.set(j, i, get(i, j));
       }
     }
     return matrix;
@@ -296,7 +311,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
                   otherRows, otherColumns);
           sum += alpha * get(thisIndex) * beta * other.get(otherIndex);
         }
-        result.put(row, col, sum);
+        result.set(row, col, sum);
       }
     }
     return result;
@@ -336,7 +351,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix muli(int scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        put(i, j, get(i, j) * scalar);
+        set(i, j, get(i, j) * scalar);
       }
     }
     return this;
@@ -347,7 +362,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     assertEqualSize(other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        put(i, j, alpha * get(i, j) * other.get(i, j) * beta);
+        set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
       }
     }
     return this;
@@ -363,12 +378,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) * (other.getAsInt(i % rows()) * beta));
+        this.set(i, (alpha * get(i)) * (other.getAsInt(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) * (other.getAsInt(i / rows()) * beta));
+        this.set(i, (alpha * get(i)) * (other.getAsInt(i / rows()) * beta));
       }
     }
     return this;
@@ -384,7 +399,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, get(i, j) + scalar);
+        matrix.set(i, j, get(i, j) + scalar);
       }
     }
     return matrix;
@@ -406,7 +421,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, alpha * get(i, j) + other.get(i, j) * beta);
+        matrix.set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
       }
     }
     return matrix;
@@ -422,7 +437,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix addi(int scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        this.put(i, j, get(i, j) + scalar);
+        this.set(i, j, get(i, j) + scalar);
       }
     }
     return this;
@@ -438,12 +453,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) + (other.getAsInt(i % rows()) * beta));
+        this.set(i, (alpha * get(i)) + (other.getAsInt(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) + (other.getAsInt(i / rows()) * beta));
+        this.set(i, (alpha * get(i)) + (other.getAsInt(i / rows()) * beta));
       }
     }
     return this;
@@ -454,7 +469,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     assertEqualSize(other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        put(i, j, alpha * get(i, j) + other.get(i, j) * beta);
+        set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
       }
     }
     return this;
@@ -486,7 +501,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, alpha * get(i, j) - other.get(i, j) * beta);
+        matrix.set(i, j, alpha * get(i, j) - other.get(i, j) * beta);
       }
     }
     return matrix;
@@ -514,12 +529,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) - (other.getAsInt(i % rows()) * beta));
+        this.set(i, (alpha * get(i)) - (other.getAsInt(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) - (other.getAsInt(i / rows()) * beta));
+        this.set(i, (alpha * get(i)) - (other.getAsInt(i / rows()) * beta));
       }
     }
     return this;
@@ -536,7 +551,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, scalar - get(i, j));
+        matrix.set(i, j, scalar - get(i, j));
       }
     }
     return matrix;
@@ -556,7 +571,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix rsubi(int scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        put(i, j, scalar - get(i, j));
+        set(i, j, scalar - get(i, j));
       }
     }
     return this;
@@ -572,12 +587,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (other.getAsInt(i % rows()) * beta) - (alpha * get(i)));
+        this.set(i, (other.getAsInt(i % rows()) * beta) - (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (other.getAsInt(i / rows()) * beta) - (alpha * get(i)));
+        this.set(i, (other.getAsInt(i / rows()) * beta) - (alpha * get(i)));
       }
     }
     return this;
@@ -589,7 +604,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.put(i, j, get(i, j) / other.get(i, j));
+        matrix.set(i, j, get(i, j) / other.get(i, j));
       }
     }
     return matrix;
@@ -614,7 +629,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix divi(IntMatrix other) {
     assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
-      put(i, get(i) / other.get(i));
+      set(i, get(i) / other.get(i));
     }
     return this;
   }
@@ -634,12 +649,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) / (other.getAsInt(i % rows()) * beta));
+        this.set(i, (alpha * get(i)) / (other.getAsInt(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.put(i, (alpha * get(i)) / (other.getAsInt(i / rows()) * beta));
+        this.set(i, (alpha * get(i)) / (other.getAsInt(i / rows()) * beta));
       }
     }
     return this;
@@ -649,7 +664,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix rdiv(int other) {
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      matrix.put(i, other / get(i));
+      matrix.set(i, other / get(i));
     }
     return matrix;
   }
@@ -667,7 +682,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   @Override
   public IntMatrix rdivi(int other) {
     for (int i = 0; i < size(); i++) {
-      put(i, other / get(i));
+      set(i, other / get(i));
     }
     return this;
   }
@@ -682,12 +697,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
-        this.put(i, (other.getAsInt(i % rows()) * beta) / (alpha * get(i)));
+        this.set(i, (other.getAsInt(i % rows()) * beta) / (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns());
       for (int i = 0; i < size(); i++) {
-        this.put(i, (other.getAsInt(i / rows()) * beta) / (alpha * get(i)));
+        this.set(i, (other.getAsInt(i / rows()) * beta) / (alpha * get(i)));
       }
     }
     return this;
@@ -697,7 +712,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   public IntMatrix negate() {
     IntMatrix n = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      n.put(i, -get(i));
+      n.set(i, -get(i));
     }
     return n;
   }

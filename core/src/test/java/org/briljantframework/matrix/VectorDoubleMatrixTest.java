@@ -10,7 +10,7 @@ import org.junit.Test;
 public class VectorDoubleMatrixTest {
 
   VectorDoubleMatrix matrix = null;
-  DoubleMatrix mmul = Matrices.parseMatrix("1,2;1,2;1,2");
+  DoubleMatrix mmul = Doubles.parseMatrix("1,2;1,2;1,2");
 
 
   @Before
@@ -22,7 +22,7 @@ public class VectorDoubleMatrixTest {
   @Test
   public void testGet() throws Exception {
     assertEquals(2, matrix.get(1, 0), 0);
-    assertEquals(Matrices.parseMatrix("1,2;1,2;1,2"), mmul);
+    assertEquals(Doubles.parseMatrix("1,2;1,2;1,2"), mmul);
     System.out.println(matrix.mmul(mmul));
   }
 }

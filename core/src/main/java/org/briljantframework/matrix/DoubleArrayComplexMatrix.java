@@ -91,14 +91,14 @@ public class DoubleArrayComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
-  public void put(int i, int j, Complex value) {
+  public void set(int i, int j, Complex value) {
     int index = Indexer.columnMajor(i, j, rows(), columns()) * 2;
     values[index] = value.real();
     values[index + 1] = value.imag();
   }
 
   @Override
-  public void put(int index, Complex value) {
+  public void set(int index, Complex value) {
     index = index * 2;
     values[index] = value.real();
     values[index + 1] = value.imag();

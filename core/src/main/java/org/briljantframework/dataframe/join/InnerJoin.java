@@ -1,6 +1,6 @@
 package org.briljantframework.dataframe.join;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.matrix.IntMatrix;
 
 /**
  * Created by Isak on 2015-01-08.
@@ -12,20 +12,20 @@ public class InnerJoin implements JoinOperation {
     return innerJoin(keys.getLeft(), keys.getRight(), keys.getMaxGroups());
   }
 
-  private Joiner innerJoin(Vector left, Vector right, int noGroups) {
-    Vector[] l = JoinUtils.groupSortIndexer(left, noGroups);
-    Vector[] r = JoinUtils.groupSortIndexer(right, noGroups);
+  private Joiner innerJoin(IntMatrix left, IntMatrix right, int noGroups) {
+    IntMatrix[] l = JoinUtils.groupSortIndexer(left, noGroups);
+    IntMatrix[] r = JoinUtils.groupSortIndexer(right, noGroups);
 
-    Vector leftSorter = l[0];
-    Vector leftCount = l[1];
+    IntMatrix leftSorter = l[0];
+    IntMatrix leftCount = l[1];
 
-    Vector rightSorter = r[0];
-    Vector rightCount = r[1];
+    IntMatrix rightSorter = r[0];
+    IntMatrix rightCount = r[1];
 
     int count = 0;
     for (int i = 1; i < noGroups + 1; i++) {
-      int lc = leftCount.getAsInt(i);
-      int rc = rightCount.getAsInt(i);
+      int lc = leftCount.get(i);
+      int rc = rightCount.get(i);
 
       if (rc > 0 && lc > 0) {
         count += rc * lc;
@@ -33,15 +33,15 @@ public class InnerJoin implements JoinOperation {
     }
 
     int pos = 0;
-    int leftPos = leftCount.getAsInt(0);
-    int rightPos = rightCount.getAsInt(0);
+    int leftPos = leftCount.get(0);
+    int rightPos = rightCount.get(0);
 
     int[] leftIndexer = new int[count];
     int[] rightIndexer = new int[count];
 
     for (int i = 1; i < noGroups + 1; i++) {
-      int lc = leftCount.getAsInt(i);
-      int rc = rightCount.getAsInt(i);
+      int lc = leftCount.get(i);
+      int rc = rightCount.get(i);
 
       if (lc > 0 && rc > 0) {
         for (int j = 0; j < lc; j++) {
@@ -60,8 +60,8 @@ public class InnerJoin implements JoinOperation {
     int[] leftSorted = new int[leftIndexer.length];
     int[] rightSorted = new int[rightIndexer.length];
     for (int i = 0; i < leftSorted.length; i++) {
-      leftSorted[i] = leftSorter.getAsInt(leftIndexer[i]);
-      rightSorted[i] = rightSorter.getAsInt(rightIndexer[i]);
+      leftSorted[i] = leftSorter.get(leftIndexer[i]);
+      rightSorted[i] = rightSorter.get(rightIndexer[i]);
     }
 
     return new Joiner() {

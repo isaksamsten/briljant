@@ -231,14 +231,9 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
   ComplexMatrix conjugateTranspose();
 
   /**
-   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
-   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
-   * matrix.
-   *
-   * @param rows
-   * @param columns
-   * @return
+   * {@inheritDoc}
    */
+  @Override
   ComplexMatrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////

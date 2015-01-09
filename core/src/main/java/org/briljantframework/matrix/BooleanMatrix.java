@@ -148,7 +148,7 @@ public class BooleanMatrix extends AbstractDoubleMatrix {
    * @param j column
    * @param value value
    */
-  public void put(int i, int j, double value) {
+  public void set(int i, int j, double value) {
     values[index(i, j)] = value != 0;
   }
 
@@ -159,7 +159,7 @@ public class BooleanMatrix extends AbstractDoubleMatrix {
    * @param value the value
    * @see #get(int)
    */
-  public void put(int index, double value) {
+  public void set(int index, double value) {
     values[index] = value != 0;
   }
 

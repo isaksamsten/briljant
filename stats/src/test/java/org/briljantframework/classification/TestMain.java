@@ -1,7 +1,7 @@
 package org.briljantframework.classification;
 
 
-import static org.briljantframework.matrix.Matrices.randn;
+import static org.briljantframework.matrix.Doubles.randn;
 
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -83,7 +83,7 @@ public class TestMain {
       for (int i = 0; i < a.rows(); i++) {
         mean += a.get(i, j);
       }
-      rowMeans.put(j, mean / div);
+      rowMeans.set(j, mean / div);
     }
     // for (int i = 0; i < a.rows(); i++) {
     // double mean = 0;

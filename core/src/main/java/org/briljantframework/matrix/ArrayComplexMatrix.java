@@ -30,18 +30,8 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
-  public void put(int i, int j, Complex value) {
-    values[Indexer.columnMajor(i, j, rows(), columns())] = value;
-  }
-
-  @Override
   public Complex get(int i, int j) {
     return values[Indexer.columnMajor(i, j, rows(), columns())];
-  }
-
-  @Override
-  public void put(int index, Complex value) {
-    values[index] = value;
   }
 
   @Override
@@ -62,5 +52,15 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
   @Override
   public ComplexMatrix copy() {
     return new ArrayComplexMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
+  }
+
+  @Override
+  public void set(int i, int j, Complex value) {
+    values[Indexer.columnMajor(i, j, rows(), columns())] = value;
+  }
+
+  @Override
+  public void set(int index, Complex value) {
+    values[index] = value;
   }
 }

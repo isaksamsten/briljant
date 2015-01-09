@@ -1,6 +1,6 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.Doubles.*;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ArrayComplexMatrix;

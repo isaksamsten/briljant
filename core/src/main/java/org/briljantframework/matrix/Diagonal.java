@@ -73,9 +73,9 @@ public class Diagonal extends AbstractDoubleMatrix {
    * @param j column
    * @param value value
    */
-  public void put(int i, int j, double value) {
+  public void set(int i, int j, double value) {
     if (i == j) {
-      put(i, value);
+      set(i, value);
     } else {
       throw new IllegalStateException("Illegal to touch non-diagonal entries");
     }
@@ -88,7 +88,7 @@ public class Diagonal extends AbstractDoubleMatrix {
    * @param value the value
    * @see #get(int)
    */
-  public void put(int index, double value) {
+  public void set(int index, double value) {
     if (index > size && index < 0) {
       throw new IllegalArgumentException("index out of bounds");
     } else {
@@ -152,7 +152,7 @@ public class Diagonal extends AbstractDoubleMatrix {
     for (int row = 0; row < rows; row++) {
       if (row < other.rows()) {
         for (int column = 0; column < columns; column++) {
-          mat.put(row, column, other.get(row, column) * this.get(row));
+          mat.set(row, column, other.get(row, column) * this.get(row));
         }
       } else {
         break;

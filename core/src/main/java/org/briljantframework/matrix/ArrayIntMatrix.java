@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class ArrayIntMatrix extends AbstractIntMatrix {
   private final int[] values;
 
-  public ArrayIntMatrix(int rows, int cols, int[] values) {
+  protected ArrayIntMatrix(int rows, int cols, int[] values) {
     super(rows, cols);
     this.values = values;
   }
@@ -16,6 +16,10 @@ public class ArrayIntMatrix extends AbstractIntMatrix {
   public ArrayIntMatrix(int rows, int columns) {
     super(rows, columns);
     this.values = new int[size()];
+  }
+
+  public static IntMatrix wrap(int... array) {
+    return new ArrayIntMatrix(array.length, 1, array);
   }
 
   @Override
@@ -49,12 +53,12 @@ public class ArrayIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
-  public void put(int i, int j, int value) {
+  public void set(int i, int j, int value) {
     values[Indexer.columnMajor(i, j, rows(), columns())] = value;
   }
 
   @Override
-  public void put(int index, int value) {
+  public void set(int index, int value) {
     values[index] = value;
   }
 }

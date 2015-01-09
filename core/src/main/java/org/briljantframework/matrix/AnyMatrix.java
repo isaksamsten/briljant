@@ -3,11 +3,32 @@ package org.briljantframework.matrix;
 import org.briljantframework.complex.Complex;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public interface AnyMatrix {
 
-  AnyMatrix reshape(int rows, int cols);
+  /**
+   * If {@code getType()} equals
+   * <ul>
+   * <li>{@link Type#DOUBLE}</li> {@link #asDoubleMatrix()} return {@code this}
+   * <li>{@link Type#INT}</li> {@link #asIntMatrix()} return {@code this}
+   * <li>{@link Type#COMPLEX}</li> {@link #asComplexMatrix()} return {@code this}
+   * </ul>
+   * 
+   * @return the type of this matrix
+   */
+  Type getType();
+
+  /**
+   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
+   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
+   * matrix.
+   *
+   * @param rows the new rows
+   * @param columns the new columns
+   * @return a new matrix
+   */
+  AnyMatrix reshape(int rows, int columns);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -59,7 +80,7 @@ public interface AnyMatrix {
    * @param j column
    * @param value value
    */
-  void put(int i, int j, Complex value);
+  void set(int i, int j, Complex value);
 
   /**
    * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
@@ -69,7 +90,7 @@ public interface AnyMatrix {
    * @param value the value
    * @see #getAsComplex(int)
    */
-  void put(int index, Complex value);
+  void set(int index, Complex value);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -121,7 +142,7 @@ public interface AnyMatrix {
    * @param j column
    * @param value value
    */
-  void put(int i, int j, double value);
+  void set(int i, int j, double value);
 
   /**
    * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
@@ -131,7 +152,7 @@ public interface AnyMatrix {
    * @param value the value
    * @see #getAsInt(int)
    */
-  void put(int index, double value);
+  void set(int index, double value);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -178,12 +199,12 @@ public interface AnyMatrix {
 
   /**
    * Set value at row {@code i} and column {@code j} to value
-   *
+   * 
    * @param i row
    * @param j column
    * @param value value
    */
-  void put(int i, int j, int value);
+  void set(int i, int j, int value);
 
   /**
    * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
@@ -193,7 +214,11 @@ public interface AnyMatrix {
    * @param value the value
    * @see #getAsInt(int)
    */
-  void put(int index, int value);
+  void set(int index, int value);
+
+  void set(int atIndex, AnyMatrix from, int fromIndex);
+
+  void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn);
 
   /**
    * The number of rows.
@@ -251,10 +276,19 @@ public interface AnyMatrix {
     return rows() == other.rows() && columns() == other.columns();
   }
 
+  /**
+   * @return this matrix as a {@link DoubleMatrix}.
+   */
   DoubleMatrix asDoubleMatrix();
 
+  /**
+   * @return this matrix as an {@link IntMatrix}.
+   */
   IntMatrix asIntMatrix();
 
+  /**
+   * @return this matrix as a {@link ComplexMatrix}.
+   */
   ComplexMatrix asComplexMatrix();
 
   /**
@@ -341,5 +375,12 @@ public interface AnyMatrix {
    * @return a boolean matrix
    */
   BooleanMatrix equalsTo(Number value);
+
+  /**
+   *
+   */
+  enum Type {
+    DOUBLE, INT, COMPLEX
+  }
 
 }

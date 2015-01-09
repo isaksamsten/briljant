@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
  * <p>
  * Created by Isak Karlsson on 21/06/14.
  */
-public class Matrices {
+public class Doubles {
 
   /**
    * The constant RANDOM.
@@ -62,8 +62,8 @@ public class Matrices {
    *     matrix :== row<sub>1</sub>; {row<sub>m</sub>}
    * </pre>
    * <p>
-   * For example, {@code 1, 2, 3, 4;1,2,3,4;1,2,3,4} is a 3 by 4 matrix with ones in the first
-   * column, twos in the second column etc.
+   * For example, {@code 1, 2, 3, 4; 1, 2, 3, 4;1, 2, 3, 4} is a 3-by-4 matrix with ones in the
+   * first column, twos in the second column etc.
    * <p>
    * Returns an {@link ArrayDoubleMatrix}.
    *
@@ -87,33 +87,33 @@ public class Matrices {
       }
 
       for (int j = 0; j < values.length; j++) {
-        matrix.put(i, j, Double.parseDouble(values[j].trim()));
+        matrix.set(i, j, Double.parseDouble(values[j].trim()));
       }
     }
 
     return matrix;
   }
 
-  public static DoubleMatrix matrix(int size, DoubleSupplier supplier) {
+  public static DoubleMatrix newMatrix(int size, DoubleSupplier supplier) {
     return zeros(size, 1).assign(supplier);
   }
 
-  public static DoubleMatrix matrix(double[][] values) {
+  public static DoubleMatrix newMatrix(double[][] values) {
     DoubleMatrix m = new ArrayDoubleMatrix(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[0].length; j++) {
-        m.put(i, j, values[i][j]);
+        m.set(i, j, values[i][j]);
       }
     }
     return m;
   }
 
-  public static DoubleMatrix matrix(double... values) {
+  public static DoubleMatrix newMatrix(double... values) {
     return new ArrayDoubleMatrix(1, values);
   }
 
   @SuppressWarnings("unchecked")
-  public static DoubleMatrix matrix(Iterable<? extends Number> iter) {
+  public static DoubleMatrix newMatrix(Iterable<? extends Number> iter) {
     List<? extends Number> numbers;
     if (iter instanceof List) {
       numbers = (List<? extends Number>) iter;
@@ -122,7 +122,7 @@ public class Matrices {
     }
     DoubleMatrix m = new ArrayDoubleMatrix(numbers.size(), 1);
     for (int i = 0; i < numbers.size(); i++) {
-      m.put(i, numbers.get(i).doubleValue());
+      m.set(i, numbers.get(i).doubleValue());
     }
     return m;
   }
@@ -229,8 +229,8 @@ public class Matrices {
     QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)),
         (a, b) -> {
           double tmp = out.get(a);
-          out.put(a, out.get(b));
-          out.put(b, tmp);
+          out.set(a, out.get(b));
+          out.set(b, tmp);
         });
     return out;
   }
@@ -243,8 +243,8 @@ public class Matrices {
         QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
             (a, b) -> {
               double tmp = row.get(a);
-              row.put(a, row.get(b));
-              row.put(b, tmp);
+              row.set(a, row.get(b));
+              row.set(b, tmp);
             });
       }
     } else {
@@ -253,27 +253,12 @@ public class Matrices {
         QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
             (a, b) -> {
               double tmp = col.get(a);
-              col.put(a, col.get(b));
-              col.put(b, tmp);
+              col.set(a, col.get(b));
+              col.set(b, tmp);
             });
       }
     }
     return out;
-  }
-
-  public static DoubleMatrix range(int start, int end) {
-    return range(start, end, 1);
-  }
-
-  public static DoubleMatrix range(int start, int end, int step) {
-    int i = end - start;
-    double[] values = new double[i / step + (i % step != 0 ? 1 : 0)];
-    int index = 0;
-    while (index < values.length) {
-      values[index++] = start;
-      start += step;
-    }
-    return new ArrayDoubleMatrix(1, values);
   }
 
   /**
@@ -323,7 +308,7 @@ public class Matrices {
   public static DoubleMatrix reshape(VectorLike a, int m, int n) {
     DoubleMatrix matrix = new ArrayDoubleMatrix(m, n);
     for (int i = 0; i < a.size(); i++) {
-      matrix.put(i, a.getAsDouble(i));
+      matrix.set(i, a.getAsDouble(i));
     }
     return matrix;
   }
@@ -476,8 +461,7 @@ public class Matrices {
   }
 
   public static void mmul(DoubleMatrix t, double alpha, Transpose a, DoubleMatrix other,
-      double beta,
-      Transpose b, double[] tmp) {
+      double beta, Transpose b, double[] tmp) {
     String transA = "n";
     int thisRows = t.rows();
     if (a.transpose()) {

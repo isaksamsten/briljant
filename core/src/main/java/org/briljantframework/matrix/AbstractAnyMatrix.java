@@ -19,12 +19,24 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     this.size = Math.multiplyExact(rows, cols);
   }
 
+  /**
+   * Asserts that {@code rows() == other.rows() && columns() == other.columns()}. If not, throws
+   * {@link org.briljantframework.exceptions.NonConformantException}
+   * 
+   * @param other another matrix
+   */
   protected void assertEqualSize(AnyMatrix other) {
     if (this.rows() != other.rows() || this.columns() != other.columns()) {
       throw new NonConformantException(this, other);
     }
   }
 
+  /**
+   * Asserts that {@code size() == size}. If not, throws
+   * {@link org.briljantframework.exceptions.SizeMismatchException}.
+   * 
+   * @param size the size
+   */
   protected void assertSameSize(int size) {
     if (size() != size) {
       throw new SizeMismatchException("Total size of new matrix must be unchanged.", size(), size);
@@ -32,7 +44,18 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   /**
+   * Asserts that {@code size() == other.size()}.
    * 
+   * @param other other matrix
+   * @see #assertSameSize(int)
+   */
+  protected void assertSameSize(AnyMatrix other) {
+    assertSameSize(other.size());
+  }
+
+  /**
+   * Adapts {@link org.briljantframework.matrix.AnyMatrix} as a
+   * {@link org.briljantframework.matrix.DoubleMatrix}.
    */
   static class DoubleMatrixAdapter extends AbstractDoubleMatrix {
     private final AnyMatrix parent;
@@ -80,7 +103,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     public DoubleMatrix copy() {
       DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
       for (int i = 0; i < size(); i++) {
-        matrix.put(i, get(i));
+        matrix.set(i, get(i));
       }
       return matrix;
     }
@@ -100,18 +123,14 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     }
 
     @Override
-    public void put(int i, int j, double value) {
-      parent.put(i, j, value);
+    public void set(int i, int j, double value) {
+      parent.set(i, j, value);
     }
-
-
 
     @Override
-    public void put(int index, double value) {
-      parent.put(index, value);
+    public void set(int index, double value) {
+      parent.set(index, value);
     }
-
-
 
     @Override
     public IntMatrix asIntMatrix() {
@@ -127,7 +146,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   /**
-   * 
+   * Adapts an {@link org.briljantframework.matrix.AnyMatrix} as a
+   * {@link org.briljantframework.matrix.ComplexMatrix}
    */
   static class ComplexMatrixAdapter extends AbstractComplexMatrix {
 
@@ -176,19 +196,19 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     public ComplexMatrix copy() {
       ComplexMatrix matrix = newEmptyMatrix(rows(), columns());
       for (int i = 0; i < size(); i++) {
-        matrix.put(i, get(i));
+        matrix.set(i, get(i));
       }
       return matrix;
     }
 
     @Override
-    public void put(int i, int j, Complex value) {
-      parent.put(i, j, value);
+    public void set(int i, int j, Complex value) {
+      parent.set(i, j, value);
     }
 
     @Override
-    public void put(int index, Complex value) {
-      parent.put(index, value);
+    public void set(int index, Complex value) {
+      parent.set(index, value);
     }
 
     @Override
@@ -209,7 +229,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   /**
-   *
+   * Adapts an {@link org.briljantframework.matrix.AnyMatrix} as an
+   * {@link org.briljantframework.matrix.IntMatrix}.
    */
   static class IntMatrixAdapter extends AbstractIntMatrix {
     private final AnyMatrix parent;
@@ -237,7 +258,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
     @Override
     public boolean isArrayBased() {
-      return false;
+      return parent instanceof IntMatrix && ((IntMatrix) parent).isArrayBased();
     }
 
     @Override
@@ -249,26 +270,24 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     public IntMatrix copy() {
       IntMatrix matrix = newEmptyMatrix(rows(), columns());
       for (int i = 0; i < size(); i++) {
-        matrix.put(i, get(i));
+        matrix.set(i, get(i));
       }
       return matrix;
     }
 
     @Override
     public int[] asIntArray() {
-      return super.asIntArray();
+      return parent instanceof IntMatrix ? ((IntMatrix) parent).asIntArray() : super.asIntArray();
     }
 
     @Override
-    public void put(int i, int j, int value) {
-      parent.put(i, j, value);
+    public void set(int i, int j, int value) {
+      parent.set(i, j, value);
     }
 
-
-
     @Override
-    public void put(int index, int value) {
-      parent.put(index, value);
+    public void set(int index, int value) {
+      parent.set(index, value);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class HashDoubleMatrixTest {
     DoubleMatrix matrix = new HashDoubleMatrix(rows, columns);
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < columns; j++) {
-        matrix.put(i, j, i + j);
+        matrix.set(i, j, i + j);
       }
     }
 

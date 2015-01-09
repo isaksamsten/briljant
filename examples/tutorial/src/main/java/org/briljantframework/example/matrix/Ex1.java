@@ -1,7 +1,8 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Matrices.mean;
-import static org.briljantframework.matrix.Matrices.zeros;
+
+import static org.briljantframework.matrix.Doubles.mean;
+import static org.briljantframework.matrix.Doubles.zeros;
 
 import java.util.Random;
 
