@@ -1,17 +1,18 @@
 package org.briljantframework.dataframe;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Random;
+import java.util.*;
 import java.util.function.BiFunction;
 
 import org.briljantframework.Utils;
+import org.briljantframework.dataframe.join.*;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.Type;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 
 /**
@@ -23,6 +24,9 @@ public final class DataFrames {
 
   private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
+
+  private static final Map<String, JoinOperation> joinOperations = ImmutableMap.of("inner",
+      new InnerJoin());
 
   private DataFrames() {}
 
@@ -113,6 +117,37 @@ public final class DataFrames {
    */
   public static DataFrame dropIncompleteCases(DataFrame x) {
     return removeIncompleteCases.transform(x);
+  }
+
+  public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<Integer> on) {
+    if (!(on instanceof Set)) {
+      on = new HashSet<>(on);
+    }
+    JoinKeys joinKeys = JoinUtils.getJoinKeys(a, b, on);
+    Joiner joiner = joinOperations.get("inner").createJoiner(joinKeys);
+
+    DataFrame.Builder builder = a.newBuilder();
+    for (int i = 0; i < joiner.size(); i++) {
+      int aRow = joiner.getLeftIndex(i);
+      int bRow = joiner.getRightIndex(i);
+      int column = 0;
+      for (int j = 0; j < a.columns(); j++) {
+        builder.set(i, column, a, aRow, column);
+        column += 1;
+      }
+      for (int j = 0; j < b.columns(); j++) {
+        if (!on.contains(j)) {
+          if (i == 0) {
+            builder.addColumn(b.getColumnType(j).newBuilder());
+            builder.setColumnName(column, b.getColumnName(j));
+          }
+          builder.set(i, column, a, bRow, j);
+          column += 1;
+        }
+      }
+    }
+
+    return builder.build();
   }
 
   /**

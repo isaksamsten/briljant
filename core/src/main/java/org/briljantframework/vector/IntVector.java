@@ -21,11 +21,19 @@ public class IntVector extends AbstractIntVector {
   private final int[] values;
 
   public IntVector(int... values) {
-    this.values = Arrays.copyOf(values, values.length);
+    this(values, values.length);
   }
 
   public IntVector(int[] values, int size) {
-    this.values = Arrays.copyOf(values, size);
+    this(values, size, true);
+  }
+
+  IntVector(int[] values, int size, boolean unsafe) {
+    if (unsafe) {
+      this.values = Arrays.copyOf(values, size);
+    } else {
+      this.values = values;
+    }
   }
 
   public static Vector.Builder newBuilderWithInitialValues(int... values) {
@@ -34,6 +42,10 @@ public class IntVector extends AbstractIntVector {
       builder.add(value);
     }
     return builder;
+  }
+
+  public static IntVector unsafe(int[] newLeftPool) {
+    return new IntVector(newLeftPool, newLeftPool.length, false);
   }
 
   @Override
@@ -58,7 +70,7 @@ public class IntVector extends AbstractIntVector {
 
   @Override
   public Builder newBuilder(int size) {
-    return new Builder(size);
+    return new Builder(size, size);
   }
 
   public int[] toIntArray() {
@@ -101,7 +113,7 @@ public class IntVector extends AbstractIntVector {
     }
 
     public Builder(int size) {
-      this(size, size);
+      this(0, size);
     }
 
     public Builder(int size, int capacity) {

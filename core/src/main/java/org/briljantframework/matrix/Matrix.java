@@ -86,6 +86,8 @@ import org.briljantframework.vector.VectorLike;
  * also be an alternative option, that for many implementations preserves cache locality and might
  * be more readable in some cases.
  *
+ * DoubleMatrix x = new DoubleMatrix(); Double d = x.getBoxed(i, j) double d = x.get();
+ *
  * @author Isak Karlsson
  */
 public interface Matrix extends Iterable<Double> {
@@ -150,14 +152,18 @@ public interface Matrix extends Iterable<Double> {
    *
    * and {@code original.assign(other, x -> * 3)} or {@code original.add(1, other, 3)}
    *
-   *
-   *
    * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
   Matrix assign(Matrix matrix, DoubleUnaryOperator operator);
 
+  /**
+   *
+   * @param matrix
+   * @param function
+   * @return
+   */
   Matrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function);
 
   /**

@@ -1,4 +1,4 @@
-package org.briljantframework.dataframe;
+package org.briljantframework.dataframe.join;
 
 /**
  * Created by Isak on 2015-01-08.

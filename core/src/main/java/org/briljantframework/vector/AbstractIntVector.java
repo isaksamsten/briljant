@@ -16,7 +16,7 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
 
     @Override
     public IntVector.Builder newBuilder(int size) {
-      return new IntVector.Builder(size);
+      return new IntVector.Builder(size, size);
     }
 
     @Override
