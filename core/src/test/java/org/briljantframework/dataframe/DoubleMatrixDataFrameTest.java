@@ -2,7 +2,7 @@ package org.briljantframework.dataframe;
 
 import org.junit.Test;
 
-public class MatrixDataFrameTest {
+public class DoubleMatrixDataFrameTest {
 
   @Test
   public void testBuilder() throws Exception {

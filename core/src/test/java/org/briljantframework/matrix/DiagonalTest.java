@@ -7,7 +7,7 @@ public class DiagonalTest {
   @Test
   public void testDiagonalMultiply() throws Exception {
     Diagonal d = Diagonal.of(2, 3, 2, 2);
-    Matrix x = ArrayMatrix.of(2, 2, 1, 2, 1, 2);
+    DoubleMatrix x = ArrayDoubleMatrix.of(2, 2, 1, 2, 1, 2);
     // assertArrayEquals(new double[] {2.0, 2.0, 4.0, 4.0, 0.0, 0.0}, x.mmul(d).asDoubleArray(),
     // 0.0001);
     // assertEquals()
@@ -65,7 +65,7 @@ public class DiagonalTest {
 
   @Test
   public void testMultiplication() throws Exception {
-    ArrayMatrix u = ArrayMatrix.of(2, 2, -0.25803, -0.96614, -0.96614, 0.25803);
+    ArrayDoubleMatrix u = ArrayDoubleMatrix.of(2, 2, -0.25803, -0.96614, -0.96614, 0.25803);
     Diagonal diagonal = Diagonal.of(2, 3, 13.6291, 3.0412);
     // System.out.println(Matrices.multiply(diagonal, Transpose.YES, u, Transpose.NO));
 

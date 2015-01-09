@@ -2,7 +2,7 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.Utils;
 import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,11 +51,11 @@ public class DataFramesTest {
 
 
     // Drop the first 3 columns
-    Matrix matrix = channel.asMatrix().getView(0, 3, channel.rows(), channel.columns() - 3);
-    Matrix cls = channel.asMatrix().getColumnView(2);
+    DoubleMatrix matrix = channel.asMatrix().getView(0, 3, channel.rows(), channel.columns() - 3);
+    DoubleMatrix cls = channel.asMatrix().getColumnView(2);
     System.out.println(cls);
     long s = System.currentTimeMillis();
-    Matrix rowSum = matrix.reduceRows(x -> x.reduce(0, Double::sum, d -> d));
+    DoubleMatrix rowSum = matrix.reduceRows(x -> x.reduce(0, Double::sum, d -> d));
     System.out.println(System.currentTimeMillis() - s);
     System.out.println(rowSum);
 

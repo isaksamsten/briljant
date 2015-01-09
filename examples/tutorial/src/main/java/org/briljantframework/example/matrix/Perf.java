@@ -5,7 +5,7 @@ import static org.briljantframework.matrix.Matrices.*;
 import java.util.Random;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Transpose;
 
 /**
@@ -30,7 +30,7 @@ public class Perf {
     tmin = Long.MAX_VALUE;
     for (int i = 0; i < NITER; ++i) {
       t = System.nanoTime();
-      Matrix C = randmatmul_Briljant(1000);
+      DoubleMatrix C = randmatmul_Briljant(1000);
       assert (0 <= C.get(0));
       t = System.nanoTime() - t;
       if (t < tmin)
@@ -53,10 +53,10 @@ public class Perf {
   private static double[] randmatstat_Briljant(int t) {
     Random random = new Random();
     int n = 5;
-    Matrix p = zeros(n, n * 4);
-    Matrix q = zeros(n * 2, n * 2);
-    Matrix v = zeros(t, 1);
-    Matrix w = zeros(t, 1);
+    DoubleMatrix p = zeros(n, n * 4);
+    DoubleMatrix q = zeros(n * 2, n * 2);
+    DoubleMatrix v = zeros(t, 1);
+    DoubleMatrix w = zeros(t, 1);
 
     for (int i = 0; i < t; i++) {
       p.getView(0, 0, n, n).assign(random::nextGaussian);
@@ -69,7 +69,7 @@ public class Perf {
       q.getView(n, 0, n, n).assign(random::nextGaussian);
       q.getView(n, n, n, n).assign(random::nextGaussian);
 
-      Matrix x = p.mmul(Transpose.YES, p, Transpose.NO);
+      DoubleMatrix x = p.mmul(Transpose.YES, p, Transpose.NO);
       v.put(i, trace(x.mmul(x).mmul(x)));
 
       x = q.mmul(Transpose.YES, q, Transpose.NO);
@@ -82,9 +82,9 @@ public class Perf {
     return new double[] {meanv, stdv, meanw, stdw};
   }
 
-  private static Matrix randmatmul_Briljant(int i) {
-    Matrix a = randn(i, i);
-    Matrix b = randn(i, i);
+  private static DoubleMatrix randmatmul_Briljant(int i) {
+    DoubleMatrix a = randn(i, i);
+    DoubleMatrix b = randn(i, i);
     return a.mmul(b);
   }
 

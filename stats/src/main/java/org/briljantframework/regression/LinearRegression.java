@@ -21,8 +21,8 @@ import org.briljantframework.classification.ClassifierModel;
 import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -47,7 +47,7 @@ public class LinearRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     Preconditions.checkArgument(x.rows() == y.size());
 
-    ArrayMatrix yMatrix = new ArrayMatrix(y);
+    ArrayDoubleMatrix yMatrix = new ArrayDoubleMatrix(y);
     return new Model(LinearAlgebra.leastLinearSquares(x.asMatrix(), yMatrix));
   }
 
@@ -56,14 +56,14 @@ public class LinearRegression implements Classifier {
    */
   public static final class Model implements ClassifierModel {
 
-    private final Matrix theta;
+    private final DoubleMatrix theta;
 
     /**
      * Instantiates a new Model.
      *
      * @param theta the theta
      */
-    public Model(Matrix theta) {
+    public Model(DoubleMatrix theta) {
       this.theta = theta;
     }
 
@@ -72,7 +72,7 @@ public class LinearRegression implements Classifier {
      *
      * @return the theta
      */
-    public Matrix getTheta() {
+    public DoubleMatrix getTheta() {
       return theta;
     }
 

@@ -2,9 +2,9 @@ package org.briljantframework.shapelet;
 
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.VectorLike;
 import org.junit.Test;
 
@@ -13,10 +13,10 @@ public class EarlyAbandonSlidingDistanceTest {
   @Test
   // TODO - bug!
   public void testDistance() throws Exception {
-    Matrix a = ArrayMatrix.of(1, 6, 1, 2, 3, 4, 5, 6);
-    Matrix a1 = ArrayMatrix.of(1, 4, 2, 3, 4, 6);
-    Matrix a2 = ArrayMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
-    Matrix b = ArrayMatrix.of(1, 2, 2, 3);
+    DoubleMatrix a = ArrayDoubleMatrix.of(1, 6, 1, 2, 3, 4, 5, 6);
+    DoubleMatrix a1 = ArrayDoubleMatrix.of(1, 4, 2, 3, 4, 6);
+    DoubleMatrix a2 = ArrayDoubleMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
+    DoubleMatrix b = ArrayDoubleMatrix.of(1, 2, 2, 3);
 
     Shapelet shapelet = NormalizedShapelet.create(1, 2, VectorLike.wrap(a));
     // System.out.println(shapelet);

@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 11/10/14.
  */
-public class BooleanMatrix extends AbstractMatrix {
+public class BooleanMatrix extends AbstractDoubleMatrix {
 
   private final boolean[] values;
 
@@ -65,12 +65,12 @@ public class BooleanMatrix extends AbstractMatrix {
    *
    * @return the matrix like
    */
-  public Matrix transpose() {
+  public DoubleMatrix transpose() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
+  public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
     return null;
   }
 
@@ -104,19 +104,8 @@ public class BooleanMatrix extends AbstractMatrix {
   }
 
   @Override
-  public Matrix reshape(int rows, int columns) {
+  public DoubleMatrix reshape(int rows, int columns) {
     return new BooleanMatrix(rows, columns, values);
-  }
-
-  /**
-   * Set value at row i and column j to value
-   *
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  public void put(int i, int j, double value) {
-    values[index(i, j)] = value != 0;
   }
 
   @Override
@@ -125,27 +114,9 @@ public class BooleanMatrix extends AbstractMatrix {
     return value ? 1 : 0;
   }
 
-  /**
-   * Puts <code>value</code> at the linearized position <code>index</code>.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #get(int)
-   */
-  public void put(int index, double value) {
-    checkArgument(index > 0 && index < values.length);
-    values[index] = value != 0;
-  }
-
   @Override
   public double get(int index) {
-    checkArgument(index > 0 && index < values.length);
     return values[index] ? 1 : 0;
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
   }
 
   @Override
@@ -154,7 +125,7 @@ public class BooleanMatrix extends AbstractMatrix {
   }
 
   @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
     return null;
   }
 
@@ -168,6 +139,33 @@ public class BooleanMatrix extends AbstractMatrix {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     System.arraycopy(values, 0, bm.values, 0, values.length);
     return bm;
+  }
+
+  /**
+   * Set value at row i and column j to value
+   *
+   * @param i row
+   * @param j column
+   * @param value value
+   */
+  public void put(int i, int j, double value) {
+    values[index(i, j)] = value != 0;
+  }
+
+  /**
+   * Puts <code>value</code> at the linearized position <code>index</code>.
+   *
+   * @param index the index
+   * @param value the value
+   * @see #get(int)
+   */
+  public void put(int index, double value) {
+    values[index] = value != 0;
+  }
+
+  @Override
+  public int size() {
+    return rows() * columns();
   }
 
   /**
@@ -196,7 +194,7 @@ public class BooleanMatrix extends AbstractMatrix {
    * @return the boolean matrix
    */
   public BooleanMatrix and(BooleanMatrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()));
+    checkArgument(hasEqualShape(other));
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < rows(); i++) {
@@ -214,7 +212,7 @@ public class BooleanMatrix extends AbstractMatrix {
    * @return the boolean matrix
    */
   public BooleanMatrix or(BooleanMatrix other) {
-    checkArgument(hasCompatibleShape(other.getShape()));
+    checkArgument(hasEqualShape(other));
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < rows(); i++) {

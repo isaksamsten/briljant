@@ -9,7 +9,7 @@ import org.briljantframework.complex.Complex;
  *
  * @author Isak Karlsson
  */
-public interface ComplexMatrix extends Iterable<Complex> {
+public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
 
   /**
    * Assign value returned by {@link #size()} successive calls to
@@ -73,7 +73,7 @@ public interface ComplexMatrix extends Iterable<Complex> {
    * @param matrix matrix of real values
    * @return receiver modified
    */
-  ComplexMatrix assign(Matrix matrix);
+  ComplexMatrix assign(DoubleMatrix matrix);
 
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
@@ -82,7 +82,7 @@ public interface ComplexMatrix extends Iterable<Complex> {
    * @param operator the operator
    * @return receiver modified
    */
-  ComplexMatrix assign(Matrix matrix, DoubleFunction<? extends Complex> operator);
+  ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<? extends Complex> operator);
 
   /**
    * 
@@ -509,15 +509,6 @@ public interface ComplexMatrix extends Iterable<Complex> {
   ComplexMatrix negate();
 
   /**
-   * Set value at row {@code i} and column {@code j} to value
-   *
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  void put(int i, int j, Complex value);
-
-  /**
    * Get value at row {@code i} and column {@code j}
    *
    * @param i row
@@ -525,16 +516,6 @@ public interface ComplexMatrix extends Iterable<Complex> {
    * @return value Complex
    */
   Complex get(int i, int j);
-
-  /**
-   * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
-   * enforced.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #get(int)
-   */
-  void put(int index, Complex value);
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
@@ -566,171 +547,6 @@ public interface ComplexMatrix extends Iterable<Complex> {
    * @return the value index
    */
   Complex get(int index);
-
-  /**
-   * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
-   * then {@code size()} is intuitive. However, if not size is {@code rows() * columns()} and the
-   * end when iterating using {@link #get(int)}. To avoid cache misses,
-   * {@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} should be prefered to
-   *
-   * <pre>
-   *     for(int i = 0; i < m.rows(); i++)
-   *       for(int j = 0; j < m.columns(); j++)
-   *          m.put(i, j, m.get(i, j) * 2
-   * </pre>
-   *
-   * @return the size
-   */
-  int size();
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) < other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThan(ComplexMatrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) < value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThan(Complex value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) <= other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThanEqual(ComplexMatrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) <= value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThanEqual(Complex value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) > other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThan(ComplexMatrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) > value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThan(Complex value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) >= other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThanEquals(ComplexMatrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThanEquals(Complex value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) == other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix equalsTo(ComplexMatrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) == value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix equalsTo(Complex value);
-
-  /**
-   * The number of rows.
-   *
-   * @return number or rows
-   */
-  int rows();
-
-  /**
-   * The number of columns.
-   *
-   * @return number of columns
-   */
-  int columns();
-
-  /**
-   * Is square.
-   *
-   * @return true if rows() == columns()
-   */
-  default boolean isSquare() {
-    return rows() == columns();
-  }
-
-  /**
-   * The shape of the current matrix.
-   *
-   * @return the shape
-   */
-  default Shape getShape() {
-    return Shape.of(rows(), columns());
-  }
-
-  /**
-   * Returns true if {@link org.briljantframework.matrix.Shape#size()} == {@link #size()}
-   *
-   * @param shape the shape
-   * @return the boolean
-   */
-  default boolean hasCompatibleShape(Shape shape) {
-    return hasCompatibleShape(shape.rows, shape.columns);
-  }
-
-  /**
-   * Has compatible shape.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the boolean
-   * @throws ArithmeticException
-   */
-  default boolean hasCompatibleShape(int rows, int cols) {
-    return Math.multiplyExact(rows, cols) == rows() * columns();
-  }
-
-  /**
-   * Equal shape (i.e.
-   *
-   * @param other the other
-   * @return the boolean
-   */
-  default boolean hasEqualShape(ComplexMatrix other) {
-    return rows() == other.rows() && columns() == other.columns();
-  }
 
   /**
    * @return the matrix as a column-major Complex array

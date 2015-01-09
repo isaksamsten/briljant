@@ -2,7 +2,7 @@ package org.briljantframework.vector;
 
 import java.util.Iterator;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 import com.google.common.collect.UnmodifiableIterator;
 
@@ -15,12 +15,12 @@ public final class As {
 
   /**
    * Treat {@code matrix} as a vector. Since the returned vector is a view of the underlying
-   * {@code matrix} will mutations to {@code matrix} cause the returned vector to change.
+   * {@code matrix}, mutations to {@code matrix} will cause the returned vector to change.
    * 
    * @param matrix the matrix
    * @return a vector representation of {@code matrix}
    */
-  public static Vector vector(Matrix matrix) {
+  public static Vector vector(DoubleMatrix matrix) {
     return new MatrixVectorAdapter(matrix);
   }
 
@@ -69,9 +69,9 @@ public final class As {
    * adapts a matrix to the vector interface
    */
   private static class MatrixVectorAdapter extends AbstractDoubleVector {
-    private final Matrix matrix;
+    private final DoubleMatrix matrix;
 
-    public MatrixVectorAdapter(Matrix matrix) {
+    public MatrixVectorAdapter(DoubleMatrix matrix) {
       this.matrix = matrix;
     }
 

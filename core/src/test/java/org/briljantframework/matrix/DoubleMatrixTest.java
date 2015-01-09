@@ -1,35 +1,36 @@
 package org.briljantframework.matrix;
 
 import static org.briljantframework.matrix.Matrices.parseMatrix;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.briljantframework.vector.VectorLike;
 import org.junit.Test;
 
-public class MatrixTest {
+public class DoubleMatrixTest {
 
   @Test
   public void testDropRow() throws Exception {
-    Matrix a = parseMatrix("1,1,1;2,2,2");
+    DoubleMatrix a = parseMatrix("1,1,1;2,2,2");
 
   }
 
   @Test
   public void testMmul() throws Exception {
-    Matrix a = parseMatrix("1,2,3;1,2,3");
-    Matrix b = parseMatrix("1,2;1,2;1,2");
+    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
+    DoubleMatrix b = parseMatrix("1,2;1,2;1,2");
 
-    Matrix AxB = parseMatrix("6,12;6,12");
-    Matrix BxA = parseMatrix("3,6,9;3,6,9;3,6,9");
-    // assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
-    // assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
+    DoubleMatrix AxB = parseMatrix("6,12;6,12");
+    DoubleMatrix BxA = parseMatrix("3,6,9;3,6,9;3,6,9");
+    assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
+    assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
   }
 
   @Test
   public void testMul() throws Exception {
-    Matrix a = parseMatrix("1,2,3;1,2,3");
-    Matrix b = parseMatrix("1,2,3;1,2,3");
+    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
+    DoubleMatrix b = parseMatrix("1,2,3;1,2,3");
 
-    System.out.println(a.mmul(Transpose.YES, a, Transpose.NO));
+    System.out.println(a.mmul(Transpose.CONJ, a, Transpose.NO));
 
     System.out.println(a.transpose().mmul(a));
     //
@@ -63,8 +64,8 @@ public class MatrixTest {
 
   @Test
   public void testSub() throws Exception {
-    Matrix a = parseMatrix("1,2,3;1,2,3");
-    Matrix b = parseMatrix("10,10,10;2,2,2");
+    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
+    DoubleMatrix b = parseMatrix("10,10,10;2,2,2");
 
     // assertArrayEquals(parseMatrix("-9,-8,-7;-1,0,1").asDoubleArray(), a.sub(b).asDoubleArray(),
     // 0.0001);
@@ -89,8 +90,8 @@ public class MatrixTest {
 
   @Test
   public void testAdd() throws Exception {
-    Matrix a = parseMatrix("1,2,3;1,2,3");
-    Matrix b = parseMatrix("10,10,10;2,2,2");
+    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
+    DoubleMatrix b = parseMatrix("10,10,10;2,2,2");
 
     // assertArrayEquals(parseMatrix("11,12,13;3,4,5").asDoubleArray(), a.add(b).asDoubleArray(),
     // 0.0001);
@@ -107,8 +108,8 @@ public class MatrixTest {
 
   @Test
   public void testDiv() throws Exception {
-    Matrix a = parseMatrix("1,2,3;2,3,4");
-    Matrix b = parseMatrix("10,2,3;43,2,1");
+    DoubleMatrix a = parseMatrix("1,2,3;2,3,4");
+    DoubleMatrix b = parseMatrix("10,2,3;43,2,1");
 
     // assertArrayEquals(parseMatrix("0.1,1,1;0.0465,1.5,4").asDoubleArray(),
     // a.div(b).asDoubleArray(), 0.0001);
@@ -121,8 +122,8 @@ public class MatrixTest {
 
   @Test
   public void testTranspose() throws Exception {
-    Matrix a = parseMatrix("1,2,3;1,2,3");
-    Matrix result = parseMatrix("1,1;2,2;3,3");
+    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
+    DoubleMatrix result = parseMatrix("1,1;2,2;3,3");
     // assertArrayEquals(result.asDoubleArray(), a.transpose().asDoubleArray(), 0.0000001);
   }
 }

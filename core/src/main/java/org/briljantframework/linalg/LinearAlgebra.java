@@ -24,9 +24,9 @@ import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Shape;
 
 /**
@@ -68,7 +68,7 @@ public class LinearAlgebra {
    * @param b the matrix b
    * @return the solution vector <code>x</code>
    */
-  public static Matrix leastLinearSquares(Matrix a, Matrix b) {
+  public static DoubleMatrix leastLinearSquares(DoubleMatrix a, DoubleMatrix b) {
     return new LeastLinearSquaresSolver(a).solve(b);
   }
 
@@ -78,7 +78,7 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return lu decomposition
    */
-  public static LuDecomposition lu(Matrix matrix) {
+  public static LuDecomposition lu(DoubleMatrix matrix) {
     return new LuDecomposer().decompose(matrix);
   }
 
@@ -99,7 +99,7 @@ public class LinearAlgebra {
    * @throws IllegalArgumentException if matrix is not square
    * @throws RuntimeException if the decomposition fail (i.e. the matrix is singular)
    */
-  public static Matrix inv(Matrix a) {
+  public static DoubleMatrix inv(DoubleMatrix a) {
     return new InverseTransformation().transform(a);
   }
 
@@ -110,11 +110,11 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return the out
    */
-  public static ArrayMatrix pinv(Matrix matrix) {
+  public static ArrayDoubleMatrix pinv(DoubleMatrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getArrayOfShape();
     pinvi(matrix, array);
-    return new ArrayMatrix(shape, array);
+    return new ArrayDoubleMatrix(shape, array);
   }
 
   /**
@@ -123,15 +123,15 @@ public class LinearAlgebra {
    * @param matrix the tensor
    * @param copy the copy
    */
-  public static void pinvi(Matrix matrix, double[] copy) {
+  public static void pinvi(DoubleMatrix matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
     Diagonal diagonal = svd.getDiagonal();
-    ArrayMatrix rightSingularValues = svd.getRightSingularValues();
-    ArrayMatrix leftSingularValues = svd.getLeftSingularValues();
+    ArrayDoubleMatrix rightSingularValues = svd.getRightSingularValues();
+    ArrayDoubleMatrix leftSingularValues = svd.getLeftSingularValues();
 
-    diagonal.apply(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
-    diagonal.transposei();
-    Matrix s = rightSingularValues.mmul(diagonal);
+    diagonal.mapi(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
+    diagonal.transpose();
+    DoubleMatrix s = rightSingularValues.mmul(diagonal);
     throw new UnsupportedOperationException("must be implemented");
     // Matrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
   }
@@ -150,7 +150,7 @@ public class LinearAlgebra {
    * @return the singular value decomposition
    * @throws IllegalArgumentException if SVD fail to converge
    */
-  public static SingularValueDecomposition svd(Matrix matrix) {
+  public static SingularValueDecomposition svd(DoubleMatrix matrix) {
     return new SingularValueDecomposer().decompose(matrix);
   }
 
@@ -169,7 +169,7 @@ public class LinearAlgebra {
    * @param x the array
    * @return the principal components of x
    */
-  public static PrincipalComponentAnalysis pca(Matrix x) {
+  public static PrincipalComponentAnalysis pca(DoubleMatrix x) {
     return new PrincipalComponentAnalyzer().analyze(x);
   }
 
@@ -183,7 +183,7 @@ public class LinearAlgebra {
    * @param x a square mutable array
    * @return the determinant
    */
-  public static double det(Matrix x) {
+  public static double det(DoubleMatrix x) {
     if (x.isSquare()) {
       return new LuDecomposer().decompose(x).getDeterminant();
     } else {
@@ -202,7 +202,7 @@ public class LinearAlgebra {
    * @param x a matrix
    * @return the rank
    */
-  public static double rank(Matrix x) {
+  public static double rank(DoubleMatrix x) {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
     Diagonal singular = svd.getDiagonal();
     int rank = 0;

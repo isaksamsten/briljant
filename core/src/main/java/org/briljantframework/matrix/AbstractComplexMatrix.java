@@ -10,7 +10,6 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.exceptions.SizeMismatchException;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
@@ -19,14 +18,60 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 02/01/15.
  */
-public abstract class AbstractComplexMatrix implements ComplexMatrix {
-
-  private final int rows;
-  private final int cols;
+public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements ComplexMatrix {
 
   protected AbstractComplexMatrix(int rows, int cols) {
-    this.rows = rows;
-    this.cols = cols;
+    super(rows, cols);
+  }
+
+  @Override
+  public Complex getAsComplex(int i, int j) {
+    return get(i, j);
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    return get(index);
+  }
+
+  @Override
+  public double getAsDouble(int i, int j) {
+    return get(i, j).doubleValue();
+  }
+
+  @Override
+  public double getAsDouble(int index) {
+    return get(index).doubleValue();
+  }
+
+  @Override
+  public void put(int i, int j, double value) {
+    put(i, j, Complex.valueOf(value));
+  }
+
+  @Override
+  public void put(int index, double value) {
+    put(index, Complex.valueOf(value));
+  }
+
+  @Override
+  public int getAsInt(int i, int j) {
+    return get(i, j).intValue();
+  }
+
+  @Override
+  public int getAsInt(int index) {
+    return get(index).intValue();
+  }
+
+  @Override
+  public void put(int i, int j, int value) {
+    put(i, j, Complex.valueOf(value));
+  }
+
+  @Override
+  public void put(int index, int value) {
+    put(index, Complex.valueOf(value));
   }
 
   @Override
@@ -69,7 +114,7 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   }
 
   @Override
-  public ComplexMatrix assign(Matrix matrix) {
+  public ComplexMatrix assign(DoubleMatrix matrix) {
     Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
       put(i, Complex.valueOf(matrix.get(i)));
@@ -78,7 +123,7 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   }
 
   @Override
-  public ComplexMatrix assign(Matrix matrix, DoubleFunction<? extends Complex> operator) {
+  public ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<? extends Complex> operator) {
     Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
       put(i, operator.apply(matrix.get(i)));
@@ -231,7 +276,6 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
     ComplexMatrix result = newEmptyMatrix(thisRows, otherColumns);
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
-        // Complex sum = new Complex(0);
         ComplexBuilder sumAcc = new ComplexBuilder(0);
         for (int k = 0; k < thisCols; k++) {
           int thisIndex;
@@ -253,14 +297,11 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
           otherValue = b == Transpose.CONJ ? otherValue.conjugate() : otherValue;
 
           if (alpha.equals(Complex.ONE) && beta.equals(Complex.ONE)) {
-            // sum = sum.plus(thisValue.multiply(otherValue));
             sumAcc.plus(thisValue.multiply(otherValue));
           } else {
-            // sum = sum.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
             sumAcc.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
           }
         }
-        // result.put(row, col, sum);
         result.put(row, col, sumAcc.toComplex());
       }
     }
@@ -436,71 +477,6 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
   }
 
   @Override
-  public int size() {
-    return rows() * columns();
-  }
-
-  @Override
-  public BooleanMatrix lessThan(ComplexMatrix other) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix lessThan(Complex value) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix lessThanEqual(ComplexMatrix other) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix lessThanEqual(Complex value) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix greaterThan(ComplexMatrix other) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix greaterThan(Complex value) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix greaterThanEquals(ComplexMatrix other) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix greaterThanEquals(Complex value) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix equalsTo(ComplexMatrix other) {
-    return null;
-  }
-
-  @Override
-  public BooleanMatrix equalsTo(Complex value) {
-    return null;
-  }
-
-  @Override
-  public int rows() {
-    return rows;
-  }
-
-  @Override
-  public int columns() {
-    return cols;
-  }
-
-  @Override
   public double[] asDoubleArray() {
     double[] array = new double[size() * 2];
     for (int i = 0; i < size(); i++) {
@@ -509,19 +485,6 @@ public abstract class AbstractComplexMatrix implements ComplexMatrix {
       array[i + 1] = complex.imag();
     }
     return array;
-  }
-
-  protected void assertEqualSize(ComplexMatrix other) {
-    if (this.rows() != other.rows() || this.columns() != other.columns()) {
-      throw new IllegalArgumentException(String.format(
-          "nonconformant arguments (op1 is %s, op2 is %s)", this.getShape(), other.getShape()));
-    }
-  }
-
-  protected void assertSameSize(int size) {
-    if (size != size()) {
-      throw new SizeMismatchException("Total size of new matrix must be unchanged.", size(), size);
-    }
   }
 
   @Override

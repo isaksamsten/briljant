@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
  * <p>
  * Created by isak on 27/06/14.
  */
-public class Diagonal extends AbstractMatrix {
+public class Diagonal extends AbstractDoubleMatrix {
 
   private final int size;
   private final double[] values;
@@ -36,7 +36,6 @@ public class Diagonal extends AbstractMatrix {
     super(rows, cols);
     this.values = values;
     this.size = values.length;
-    this.rows = rows;
   }
 
   /**
@@ -62,10 +61,9 @@ public class Diagonal extends AbstractMatrix {
     return new Diagonal(rows, cols, values);
   }
 
+  @Deprecated
   public void apply(DoubleUnaryOperator operator) {
-    for (int i = 0; i < values.length; i++) {
-      values[i] = operator.applyAsDouble(values[i]);
-    }
+    mapi(operator);
   }
 
   /**
@@ -80,21 +78,6 @@ public class Diagonal extends AbstractMatrix {
       put(i, value);
     } else {
       throw new IllegalStateException("Illegal to touch non-diagonal entries");
-    }
-  }
-
-  /**
-   * Get double.
-   *
-   * @param i the i
-   * @param j the j
-   * @return double
-   */
-  public double get(int i, int j) {
-    if (i == j) {
-      return get(i);
-    } else {
-      return 0;
     }
   }
 
@@ -114,66 +97,12 @@ public class Diagonal extends AbstractMatrix {
   }
 
   /**
-   * Get double.
-   *
-   * @param index the index
-   * @return the double
-   */
-  public double get(int index) {
-    if (index > size && index < 0) {
-      throw new IllegalArgumentException("index > size");
-    } else {
-      return index < values.length ? values[index] : 0;
-    }
-  }
-
-  // /**C
-  // * Raw view of the column-major underlying array. In some instances it might be possible to
-  // mutate
-  // * this (e.g., if the implementation provides a direct reference. However, there are nos such
-  // * guarantees).
-  // *
-  // * @return the underlying array. Touch with caution.
-  // */
-  // public double[] asDoubleArray() {
-  // int rows = rows(), cols = columns();
-  // double[] dense = new double[rows * cols];
-  // int n = Math.min(cols, rows);
-  // for (int j = 0; j < n; j++) {
-  // dense[j * rows + j] = values[j];
-  // }
-  // return dense;
-  // }
-
-  /**
    * Size int.
    *
    * @return the int
    */
   public int size() {
     return size;
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
-  }
-
-  @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
-  }
-
-  /**
-   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
-   * affect the original.
-   *
-   * @return the copy
-   */
-  public Diagonal copy() {
-    double[] values = new double[this.values.length];
-    System.arraycopy(this.values, 0, values, 0, this.values.length);
-    return new Diagonal(this.rows(), this.columns(), values);
   }
 
   /**
@@ -197,15 +126,7 @@ public class Diagonal extends AbstractMatrix {
    */
   public Diagonal transpose() {
     double[] values = new double[this.values.length];
-    System.arraycopy(this.values, 0, values, 0, values.length);
     return new Diagonal(this.columns(), this.rows(), values);
-  }
-
-  @Override
-  public Matrix reshape(int rows, int columns) {
-    Preconditions.checkArgument(rows * columns == size(),
-        "Total size of new matrix must be unchanged.");
-    return new Diagonal(rows, columns, values);
   }
 
   /**
@@ -221,12 +142,12 @@ public class Diagonal extends AbstractMatrix {
    * @return a matrix
    */
   @Override
-  public Matrix mmul(Matrix other) {
+  public DoubleMatrix mmul(DoubleMatrix other) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
     }
 
-    Matrix mat = new ArrayMatrix(this.rows(), other.columns());
+    DoubleMatrix mat = new ArrayDoubleMatrix(this.rows(), other.columns());
     int rows = this.rows(), columns = other.columns();
     for (int row = 0; row < rows; row++) {
       if (row < other.rows()) {
@@ -239,23 +160,6 @@ public class Diagonal extends AbstractMatrix {
     }
 
     return mat;
-  }
-
-  /**
-   *
-   * @param d
-   * @return
-   */
-  @Override
-  public Matrix mmul(Diagonal d) {
-
-
-    return null;
-  }
-
-  @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   /**
@@ -273,11 +177,61 @@ public class Diagonal extends AbstractMatrix {
     return new Diagonal(this.rows(), this.columns(), out);
   }
 
-  public Diagonal transposei() {
-    int tmp = rows;
-    rows = cols;
-    cols = tmp;
+  @Override
+  public Diagonal reshape(int rows, int columns) {
+    Preconditions.checkArgument(rows * columns == size(),
+        "Total size of new matrix must be unchanged.");
+    return new Diagonal(rows, columns, values);
+  }
 
-    return this;
+  /**
+   * Get double.
+   *
+   * @param i the i
+   * @param j the j
+   * @return double
+   */
+  public double get(int i, int j) {
+    if (i == j) {
+      return get(i);
+    } else {
+      return 0;
+    }
+  }
+
+  /**
+   * Get double.
+   *
+   * @param index the index
+   * @return the double
+   */
+  public double get(int index) {
+    if (index > size && index < 0) {
+      throw new IllegalArgumentException("index > size");
+    } else {
+      return index < values.length ? values[index] : 0;
+    }
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return false;
+  }
+
+  @Override
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayDoubleMatrix(rows, columns);
+  }
+
+  /**
+   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
+   * affect the original.
+   *
+   * @return the copy
+   */
+  public Diagonal copy() {
+    double[] values = new double[this.values.length];
+    System.arraycopy(this.values, 0, values, 0, this.values.length);
+    return new Diagonal(this.rows(), this.columns(), values);
   }
 }

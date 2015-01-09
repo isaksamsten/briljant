@@ -2,7 +2,7 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.TypeMismatchException;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.DoubleVector;
 
 import com.google.common.base.Preconditions;
@@ -12,10 +12,10 @@ import com.google.common.base.Preconditions;
  */
 public class ZNormalization implements Transformation {
 
-  private final Matrix sigma;
-  private final Matrix mean;
+  private final DoubleMatrix sigma;
+  private final DoubleMatrix mean;
 
-  public ZNormalization(Matrix mean, Matrix sigma) {
+  public ZNormalization(DoubleMatrix mean, DoubleMatrix sigma) {
     this.mean = mean;
     this.sigma = sigma;
   }

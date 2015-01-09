@@ -9,7 +9,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
-public class DoubleArrayComplexMatrixTest {
+public class DoubleArrayComplexDoubleMatrixTest {
 
   @Test
   public void testConstructor() throws Exception {
@@ -25,9 +25,9 @@ public class DoubleArrayComplexMatrixTest {
     // System.out.println(matrix.get(0, 2).abs());
     //
 
-    Matrix a = Matrices.fill(2, 3, -2);
-    Matrix randn = randn(10000, 100);
-    Matrix zeros = zeros(100, 10000);
+    DoubleMatrix a = Matrices.fill(2, 3, -2);
+    DoubleMatrix randn = randn(10000, 100);
+    DoubleMatrix zeros = zeros(100, 10000);
     Utils.setRandomSeed(123);
     ComplexMatrix rndc =
         new ArrayComplexMatrix(10000, 100).assign(() -> new Complex(Utils.getRandom()

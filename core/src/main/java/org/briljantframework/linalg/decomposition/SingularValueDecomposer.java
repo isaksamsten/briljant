@@ -17,9 +17,9 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -40,12 +40,12 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
   protected static final LAPACK lapack = LAPACK.getInstance();
 
   @Override
-  public SingularValueDecomposition decompose(Matrix matrix) {
+  public SingularValueDecomposition decompose(DoubleMatrix matrix) {
     int m = matrix.rows(), n = matrix.columns();
     double[] sigma = new double[n];
     double[] u = new double[m * m];
     double[] vt = new double[n * n];
-    Matrix copy = new ArrayMatrix(matrix);
+    DoubleMatrix copy = new ArrayDoubleMatrix(matrix);
 
     int lwork = -1;
     double[] work = new double[1];
@@ -66,8 +66,8 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
     }
 
     Diagonal sv = Diagonal.of(m, n, sigma);
-    ArrayMatrix um = ArrayMatrix.fromColumnOrder(m, m, u);
-    ArrayMatrix vtm = ArrayMatrix.fromRowOrder(n, n, vt);
+    ArrayDoubleMatrix um = ArrayDoubleMatrix.fromColumnOrder(m, m, u);
+    ArrayDoubleMatrix vtm = ArrayDoubleMatrix.fromRowOrder(n, n, vt);
 
     return new SingularValueDecomposition(sv, um, vtm);
   }

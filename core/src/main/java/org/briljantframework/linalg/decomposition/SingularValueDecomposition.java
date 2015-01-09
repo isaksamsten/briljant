@@ -16,7 +16,7 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
 
 /**
@@ -33,12 +33,12 @@ public class SingularValueDecomposition implements Decomposition {
   /**
    * U is a m×m real or complex unitary matrix
    */
-  public final ArrayMatrix u;
+  public final ArrayDoubleMatrix u;
 
   /**
    * V* (or simply the transpose of V if V is real) is an n×n real unitary matrix
    */
-  public final ArrayMatrix v;
+  public final ArrayDoubleMatrix v;
 
   /**
    * Instantiates a new Singular value decomposition.
@@ -47,7 +47,7 @@ public class SingularValueDecomposition implements Decomposition {
    * @param u the u
    * @param v the v
    */
-  public SingularValueDecomposition(Diagonal s, ArrayMatrix u, ArrayMatrix v) {
+  public SingularValueDecomposition(Diagonal s, ArrayDoubleMatrix u, ArrayDoubleMatrix v) {
     this.s = s;
     this.u = u;
     this.v = v;
@@ -67,7 +67,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the left singular values
    */
-  public ArrayMatrix getLeftSingularValues() {
+  public ArrayDoubleMatrix getLeftSingularValues() {
     return u;
   }
 
@@ -76,7 +76,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the right singular values
    */
-  public ArrayMatrix getRightSingularValues() {
+  public ArrayDoubleMatrix getRightSingularValues() {
     return v;
   }
 

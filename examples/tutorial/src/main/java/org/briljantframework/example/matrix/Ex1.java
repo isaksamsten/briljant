@@ -6,13 +6,13 @@ import static org.briljantframework.matrix.Matrices.zeros;
 import java.util.Random;
 
 import org.briljantframework.matrix.Axis;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 public class Ex1 {
 
   public static void main(String[] args) {
     Random random = new Random(123);
-    Matrix m = zeros(100000, 5);
+    DoubleMatrix m = zeros(100000, 5);
     m.assign(random::nextGaussian);
     /*- =>
      * -1.4380   0.2775   1.3520   1.0175  -0.4671

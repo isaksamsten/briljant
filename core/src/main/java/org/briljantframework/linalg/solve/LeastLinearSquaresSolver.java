@@ -19,8 +19,8 @@ package org.briljantframework.linalg.solve;
 import java.util.Arrays;
 
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -39,23 +39,23 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
    *
    * @param matrix the matrix
    */
-  public LeastLinearSquaresSolver(Matrix matrix) {
+  public LeastLinearSquaresSolver(DoubleMatrix matrix) {
     super(matrix);
   }
 
   @Override
-  public Matrix solve(Matrix b) {
+  public DoubleMatrix solve(DoubleMatrix b) {
     int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
     int[] jpvt = new int[n];
 
 
-    Matrix result = b.copy();
+    DoubleMatrix result = b.copy();
 
     int lwork = -1;
     double[] work = new double[1];
 
     // TODO(isak): make decision based on isArrayBased()
-    Matrix aCopy = matrix.copy();
+    DoubleMatrix aCopy = matrix.copy();
 
 
     intW rank = new intW(0), info = new intW(0);
@@ -83,6 +83,6 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
     // r.put(i, result.get(i));
     // }
 
-    return ArrayMatrix.columnVector(array);
+    return ArrayDoubleMatrix.columnVector(array);
   }
 }

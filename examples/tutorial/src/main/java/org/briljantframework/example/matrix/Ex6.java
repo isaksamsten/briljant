@@ -5,7 +5,8 @@ import static org.briljantframework.matrix.Matrices.*;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ArrayComplexMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
+
 
 /**
  * Created by Isak Karlsson on 02/01/15.
@@ -13,7 +14,7 @@ import org.briljantframework.matrix.Matrix;
 public class Ex6 {
 
   public static void main(String[] args) {
-    Matrix a = linspace(0, 2 * Math.PI, 100);
+    DoubleMatrix a = linspace(0, 2 * Math.PI, 100);
 
     a.map(Math::sqrt);
     a.map(Math::abs);

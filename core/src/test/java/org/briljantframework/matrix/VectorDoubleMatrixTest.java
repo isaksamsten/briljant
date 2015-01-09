@@ -7,16 +7,16 @@ import org.briljantframework.vector.Vector;
 import org.junit.Before;
 import org.junit.Test;
 
-public class VectorMatrixTest {
+public class VectorDoubleMatrixTest {
 
-  VectorMatrix matrix = null;
-  Matrix mmul = Matrices.parseMatrix("1,2;1,2;1,2");
+  VectorDoubleMatrix matrix = null;
+  DoubleMatrix mmul = Matrices.parseMatrix("1,2;1,2;1,2");
 
 
   @Before
   public void setUp() throws Exception {
     Vector vec = DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6, 7, 8, 9).build();
-    matrix = new VectorMatrix(3, 3, vec);
+    matrix = new VectorDoubleMatrix(3, 3, vec);
   }
 
   @Test

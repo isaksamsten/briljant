@@ -10,15 +10,15 @@ import com.google.common.base.Preconditions;
 /**
  * <p>
  * A sparse matrix implemented using rather efficient hash maps. Although the performance is rather
- * fine in many cases, the {@link org.briljantframework.matrix.ArrayMatrix} is several order of
- * magnitudes faster, especially for complex operations such as matrix-matrix multiplication (
- * {@link #mmul(Matrix)}) and should hence be preferred for all cases except when the number of
- * non-zero elements is <b>very</b> small and the size of the matrix is <b>very</b> large.
+ * fine in many cases, the {@link ArrayDoubleMatrix} is several order of magnitudes faster,
+ * especially for complex operations such as matrix-matrix multiplication (
+ * {@link #mmul(DoubleMatrix)}) and should hence be preferred for all cases except when the number
+ * of non-zero elements is <b>very</b> small and the size of the matrix is <b>very</b> large.
  * </p>
  * 
  * <p>
  * For this reason, most (all) operations defined in {@link org.briljantframework.matrix.Matrices}
- * return an {@link org.briljantframework.matrix.ArrayMatrix} if not the type of the receiver.
+ * return an {@link ArrayDoubleMatrix} if not the type of the receiver.
  * </p>
  *
  * <p>
@@ -29,25 +29,61 @@ import com.google.common.base.Preconditions;
  * 
  * @author Isak Karlsson
  */
-public class HashMatrix extends AbstractMatrix {
+public class HashDoubleMatrix extends AbstractDoubleMatrix {
   private final IntObjectMap<IntDoubleMap> values;
   private final double defaultValue;
 
-  public HashMatrix(int rows, int columns) {
+  public HashDoubleMatrix(int rows, int columns) {
     this(rows, columns, new IntObjectOpenHashMap<>());
   }
 
-  protected HashMatrix(int rows, int columns, IntObjectMap<IntDoubleMap> values) {
+  protected HashDoubleMatrix(int rows, int columns, IntObjectMap<IntDoubleMap> values) {
     super(rows, columns);
     this.values = values;
     this.defaultValue = 0;
   }
 
   @Override
-  public Matrix reshape(int rows, int columns) {
+  public DoubleMatrix reshape(int rows, int columns) {
     Preconditions.checkArgument(rows * columns == size(),
         "Total size of new matrix must be unchanged.");
-    return new HashMatrix(rows, columns, values);
+    return new HashDoubleMatrix(rows, columns, values);
+  }
+
+  @Override
+  public double get(int i, int j) {
+    IntDoubleMap col = values.get(j);
+    if (col == null) {
+      return defaultValue;
+    }
+
+    return col.getOrDefault(i, defaultValue);
+  }
+
+  @Override
+  public double get(int index) {
+    int col = index / rows();
+    int row = index % rows();
+    return get(row, col);
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return false;
+  }
+
+  @Override
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new HashDoubleMatrix(rows, columns);
+  }
+
+  @Override
+  public DoubleMatrix copy() {
+    IntObjectMap<IntDoubleMap> copy = new IntObjectOpenHashMap<>();
+    for (IntObjectCursor<IntDoubleMap> value : values) {
+      copy.put(value.key, new IntDoubleOpenHashMap(value.value));
+    }
+    return new HashDoubleMatrix(rows(), columns(), copy);
   }
 
   @Override
@@ -62,16 +98,6 @@ public class HashMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double get(int i, int j) {
-    IntDoubleMap col = values.get(j);
-    if (col == null) {
-      return defaultValue;
-    }
-
-    return col.getOrDefault(i, defaultValue);
-  }
-
-  @Override
   public void put(int index, double value) {
     int col = index / rows();
     int row = index % rows();
@@ -79,33 +105,7 @@ public class HashMatrix extends AbstractMatrix {
   }
 
   @Override
-  public double get(int index) {
-    int col = index / rows();
-    int row = index % rows();
-    return get(row, col);
-  }
-
-  @Override
   public int size() {
     return rows() * columns();
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
-  }
-
-  @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new HashMatrix(rows, columns);
-  }
-
-  @Override
-  public Matrix copy() {
-    IntObjectMap<IntDoubleMap> copy = new IntObjectOpenHashMap<>();
-    for (IntObjectCursor<IntDoubleMap> value : values) {
-      copy.put(value.key, new IntDoubleOpenHashMap(value.value));
-    }
-    return new HashMatrix(rows(), columns(), copy);
   }
 }

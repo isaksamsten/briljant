@@ -3,13 +3,13 @@ package org.briljantframework.matrix;
 import org.briljantframework.vector.VectorLike;
 import org.junit.Test;
 
-public class HashMatrixTest {
+public class HashDoubleMatrixTest {
 
   @Test
   public void testAdd() throws Exception {
     int rows = 5;
     int columns = 5;
-    Matrix matrix = new HashMatrix(rows, columns);
+    DoubleMatrix matrix = new HashDoubleMatrix(rows, columns);
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < columns; j++) {
         matrix.put(i, j, i + j);

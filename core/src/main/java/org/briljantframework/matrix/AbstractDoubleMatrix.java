@@ -30,7 +30,6 @@ import java.util.function.ToDoubleFunction;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.vector.VectorLike;
 
 import com.google.common.base.Preconditions;
@@ -39,19 +38,64 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 20/08/14.
  */
-public abstract class AbstractMatrix implements Matrix {
+public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements DoubleMatrix {
 
-  protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
-  protected int rows;
-  protected int cols;
-
-  public AbstractMatrix(int rows, int columns) {
-    this.cols = columns;
-    this.rows = rows;
+  public AbstractDoubleMatrix(int rows, int columns) {
+    super(rows, columns);
   }
 
   @Override
-  public Matrix assign(DoubleSupplier supplier) {
+  public Complex getAsComplex(int i, int j) {
+    return new Complex(get(i, j));
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    return new Complex(get(index));
+  }
+
+  @Override
+  public void put(int i, int j, Complex value) {
+    put(i, j, value.doubleValue());
+  }
+
+  @Override
+  public void put(int index, Complex value) {
+    put(index, value.doubleValue());
+  }
+
+  @Override
+  public double getAsDouble(int i, int j) {
+    return get(i, j);
+  }
+
+  @Override
+  public double getAsDouble(int index) {
+    return get(index);
+  }
+
+  @Override
+  public int getAsInt(int i, int j) {
+    return (int) get(i, j);
+  }
+
+  @Override
+  public int getAsInt(int index) {
+    return (int) get(index);
+  }
+
+  @Override
+  public void put(int i, int j, int value) {
+    put(i, j, (double) value);
+  }
+
+  @Override
+  public void put(int index, int value) {
+    put(index, (double) value);
+  }
+
+  @Override
+  public DoubleMatrix assign(DoubleSupplier supplier) {
     for (int i = 0; i < size(); i++) {
       put(i, supplier.getAsDouble());
     }
@@ -59,7 +103,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(double value) {
+  public DoubleMatrix assign(double value) {
     for (int i = 0; i < size(); i++) {
       put(i, value);
     }
@@ -67,12 +111,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(VectorLike vector, Axis axis) {
+  public DoubleMatrix assign(VectorLike vector, Axis axis) {
     return assign(vector, (a, b) -> b, axis);
   }
 
   @Override
-  public Matrix assign(VectorLike other, DoubleBinaryOperator operator, Axis axis) {
+  public DoubleMatrix assign(VectorLike other, DoubleBinaryOperator operator, Axis axis) {
     /*
      * Due to cache-locality, put(i, ) is for most (at least array based) matrices a _big_ win.
      * Therefore, the straightforward implementation using two for-loops is not used below. This is
@@ -93,12 +137,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(Matrix matrix) {
+  public DoubleMatrix assign(DoubleMatrix matrix) {
     return assign(matrix, DoubleUnaryOperator.identity());
   }
 
   @Override
-  public Matrix assign(Matrix matrix, DoubleUnaryOperator operator) {
+  public DoubleMatrix assign(DoubleMatrix matrix, DoubleUnaryOperator operator) {
     assertEqualSize(matrix);
     for (int i = 0; i < size(); i++) {
       put(i, operator.applyAsDouble(matrix.get(i)));
@@ -107,7 +151,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function) {
+  public DoubleMatrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function) {
     Preconditions.checkArgument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
       put(i, function.applyAsDouble(matrix.get(i)));
@@ -116,7 +160,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assignStream(Iterable<? extends Number> numbers) {
+  public DoubleMatrix assignStream(Iterable<? extends Number> numbers) {
     int index = 0;
     for (Number number : numbers) {
       put(index++, number.doubleValue());
@@ -125,7 +169,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public <T> Matrix assignStream(Iterable<T> iterable, ToDoubleFunction<? super T> function) {
+  public <T> DoubleMatrix assignStream(Iterable<T> iterable, ToDoubleFunction<? super T> function) {
     int index = 0;
     for (T t : iterable) {
       put(index++, function.applyAsDouble(t));
@@ -134,7 +178,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix assign(double[] values) {
+  public DoubleMatrix assign(double[] values) {
     checkArgument(size() == values.length);
     for (int i = 0; i < size(); i++) {
       put(i, values[i]);
@@ -143,8 +187,8 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix map(DoubleUnaryOperator operator) {
-    Matrix mat = newEmptyMatrix(rows(), columns());
+  public DoubleMatrix map(DoubleUnaryOperator operator) {
+    DoubleMatrix mat = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       mat.put(i, operator.applyAsDouble(get(i)));
     }
@@ -152,7 +196,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mapi(DoubleUnaryOperator operator) {
+  public DoubleMatrix mapi(DoubleUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       put(i, operator.applyAsDouble(get(i)));
     }
@@ -168,8 +212,8 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix reduceColumns(ToDoubleFunction<? super Matrix> reduce) {
-    Matrix mat = newEmptyMatrix(1, columns());
+  public DoubleMatrix reduceColumns(ToDoubleFunction<? super DoubleMatrix> reduce) {
+    DoubleMatrix mat = newEmptyMatrix(1, columns());
     for (int i = 0; i < columns(); i++) {
       mat.put(i, reduce.applyAsDouble(getColumnView(i)));
     }
@@ -177,8 +221,8 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix reduceRows(ToDoubleFunction<? super Matrix> reduce) {
-    Matrix mat = newEmptyMatrix(rows(), 1);
+  public DoubleMatrix reduceRows(ToDoubleFunction<? super DoubleMatrix> reduce) {
+    DoubleMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
       mat.put(i, reduce.applyAsDouble(getRowView(i)));
     }
@@ -186,12 +230,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix getRowView(int i) {
-    return new MatrixView(this, i, 0, 1, columns());
+  public DoubleMatrix getRowView(int i) {
+    return new DoubleMatrixView(this, i, 0, 1, columns());
   }
 
-  public Matrix getColumnView(int index) {
-    return new MatrixView(this, 0, index, rows(), 1);
+  public DoubleMatrix getColumnView(int index) {
+    return new DoubleMatrixView(this, 0, index, rows(), 1);
   }
 
   @Override
@@ -200,12 +244,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new MatrixView(this, rowOffset, colOffset, rows, columns);
+  public DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new DoubleMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
-  public Matrix transpose() {
-    Matrix matrix = newEmptyMatrix(this.columns(), this.rows());
+  public DoubleMatrix transpose() {
+    DoubleMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(j, i, get(i, j));
@@ -215,7 +259,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mmul(Matrix other) {
+  public DoubleMatrix mmul(DoubleMatrix other) {
     /*
      * Sometimes this is a huge gain!
      */
@@ -226,11 +270,11 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mmul(Diagonal diagonal) {
+  public DoubleMatrix mmul(Diagonal diagonal) {
     if (columns() != diagonal.rows()) {
       throw new NonConformantException(this, diagonal);
     }
-    Matrix matrix = newEmptyMatrix(this.rows(), diagonal.columns());
+    DoubleMatrix matrix = newEmptyMatrix(this.rows(), diagonal.columns());
     int rows = this.rows(), columns = diagonal.columns();
     for (int column = 0; column < columns; column++) {
       if (column < this.columns()) {
@@ -247,41 +291,26 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
-    // if (columns() != other.rows()) {
-    // throw new NonConformantException(this, other);
-    // }
-    //
-    // Matrix result = newEmptyMatrix(rows(), other.columns());
-    // for (int row = 0; row < rows(); row++) {
-    // for (int col = 0; col < other.columns(); col++) {
-    // double sum = 0.0;
-    // for (int k = 0; k < columns(); k++) {
-    // sum += alpha * get(row, k) * beta * other.get(k, col);
-    // }
-    // result.put(row, col, sum);
-    // }
-    // }
-    // return result;
+  public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
     return mmul(alpha, Transpose.NO, other, beta, Transpose.NO);
   }
 
   @Override
-  public Matrix mmul(Transpose a, Matrix other, Transpose b) {
+  public DoubleMatrix mmul(Transpose a, DoubleMatrix other, Transpose b) {
     return mmul(1, a, other, 1, b);
   }
 
   @Override
-  public Matrix mmul(double alpha, Transpose a, Matrix other, double beta, Transpose b) {
+  public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, double beta, Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a == Transpose.YES) {
+    if (a.transpose()) {
       thisRows = columns();
       thisCols = rows();
     }
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b == Transpose.YES) {
+    if (b.transpose()) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -290,16 +319,16 @@ public abstract class AbstractMatrix implements Matrix {
       throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
 
-    Matrix result = newEmptyMatrix(thisRows, otherColumns);
+    DoubleMatrix result = newEmptyMatrix(thisRows, otherColumns);
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              a == Transpose.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
-                  thisRows, thisCols);
+              a.transpose() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k, thisRows,
+                  thisCols);
           int otherIndex =
-              b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
+              b.transpose() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                   otherRows, otherColumns);
           sum += alpha * get(thisIndex) * beta * other.get(otherIndex);
         }
@@ -310,37 +339,37 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix mul(Matrix other) {
+  public DoubleMatrix mul(DoubleMatrix other) {
     return mul(1, other, 1);
   }
 
   @Override
-  public Matrix mul(double alpha, Matrix other, double beta) {
+  public DoubleMatrix mul(double alpha, DoubleMatrix other, double beta) {
     return copy().muli(alpha, other, beta);
   }
 
   @Override
-  public Matrix mul(VectorLike other, Axis axis) {
+  public DoubleMatrix mul(VectorLike other, Axis axis) {
     return mul(1, other, 1, axis);
   }
 
   @Override
-  public Matrix mul(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix mul(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().muli(alpha, other, beta, axis);
   }
 
   @Override
-  public Matrix mul(double scalar) {
+  public DoubleMatrix mul(double scalar) {
     return copy().muli(scalar);
   }
 
   @Override
-  public Matrix muli(Matrix other) {
+  public DoubleMatrix muli(DoubleMatrix other) {
     return muli(1.0, other, 1.0);
   }
 
   @Override
-  public Matrix muli(double scalar) {
+  public DoubleMatrix muli(double scalar) {
     // TODO: fix loop
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -351,7 +380,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix muli(double alpha, Matrix other, double beta) {
+  public DoubleMatrix muli(double alpha, DoubleMatrix other, double beta) {
     assertEqualSize(other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -362,12 +391,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix muli(VectorLike other, Axis axis) {
+  public DoubleMatrix muli(VectorLike other, Axis axis) {
     return muli(1, other, 1, axis);
   }
 
   @Override
-  public Matrix muli(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix muli(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -383,13 +412,13 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix add(Matrix other) {
+  public DoubleMatrix add(DoubleMatrix other) {
     return add(1, other, 1);
   }
 
   @Override
-  public Matrix add(double scalar) {
-    Matrix matrix = newEmptyMatrix(rows(), columns());
+  public DoubleMatrix add(double scalar) {
+    DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, get(i, j) + scalar);
@@ -399,19 +428,19 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix add(VectorLike other, Axis axis) {
+  public DoubleMatrix add(VectorLike other, Axis axis) {
     return add(1, other, 1, axis);
   }
 
   @Override
-  public Matrix add(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix add(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().addi(alpha, other, beta, axis);
   }
 
   @Override
-  public Matrix add(double alpha, Matrix other, double beta) {
+  public DoubleMatrix add(double alpha, DoubleMatrix other, double beta) {
     assertEqualSize(other);
-    Matrix matrix = newEmptyMatrix(rows(), columns());
+    DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, alpha * get(i, j) + other.get(i, j) * beta);
@@ -421,13 +450,13 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix addi(Matrix other) {
+  public DoubleMatrix addi(DoubleMatrix other) {
     addi(1, other, 1);
     return this;
   }
 
   @Override
-  public Matrix addi(double scalar) {
+  public DoubleMatrix addi(double scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         this.put(i, j, get(i, j) + scalar);
@@ -437,12 +466,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix addi(VectorLike other, Axis axis) {
+  public DoubleMatrix addi(VectorLike other, Axis axis) {
     return addi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix addi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix addi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -458,7 +487,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix addi(double alpha, Matrix other, double beta) {
+  public DoubleMatrix addi(double alpha, DoubleMatrix other, double beta) {
     assertEqualSize(other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -469,29 +498,29 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix sub(Matrix other) {
+  public DoubleMatrix sub(DoubleMatrix other) {
     return sub(1, other, 1);
   }
 
   @Override
-  public Matrix sub(double scalar) {
+  public DoubleMatrix sub(double scalar) {
     return add(-scalar);
   }
 
   @Override
-  public Matrix sub(VectorLike other, Axis axis) {
+  public DoubleMatrix sub(VectorLike other, Axis axis) {
     return sub(1, other, 1, axis);
   }
 
   @Override
-  public Matrix sub(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix sub(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().subi(alpha, other, beta, axis);
   }
 
   @Override
-  public Matrix sub(double alpha, Matrix other, double beta) {
+  public DoubleMatrix sub(double alpha, DoubleMatrix other, double beta) {
     assertEqualSize(other);
-    Matrix matrix = newEmptyMatrix(rows(), columns());
+    DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, alpha * get(i, j) - other.get(i, j) * beta);
@@ -501,24 +530,24 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix subi(Matrix other) {
+  public DoubleMatrix subi(DoubleMatrix other) {
     addi(1, other, -1);
     return this;
   }
 
   @Override
-  public Matrix subi(double scalar) {
+  public DoubleMatrix subi(double scalar) {
     addi(-scalar);
     return this;
   }
 
   @Override
-  public Matrix subi(VectorLike other, Axis axis) {
+  public DoubleMatrix subi(VectorLike other, Axis axis) {
     return subi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix subi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix subi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -534,14 +563,14 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix subi(double alpha, Matrix other, double beta) {
+  public DoubleMatrix subi(double alpha, DoubleMatrix other, double beta) {
     addi(alpha, other, -1 * beta);
     return this;
   }
 
   @Override
-  public Matrix rsub(double scalar) {
-    Matrix matrix = newEmptyMatrix(rows(), columns());
+  public DoubleMatrix rsub(double scalar) {
+    DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, scalar - get(i, j));
@@ -551,17 +580,17 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rsub(VectorLike other, Axis axis) {
+  public DoubleMatrix rsub(VectorLike other, Axis axis) {
     return rsub(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rsub(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rsub(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().rsubi(alpha, other, beta, axis);
   }
 
   @Override
-  public Matrix rsubi(double scalar) {
+  public DoubleMatrix rsubi(double scalar) {
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         put(i, j, scalar - get(i, j));
@@ -571,12 +600,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rsubi(VectorLike other, Axis axis) {
+  public DoubleMatrix rsubi(VectorLike other, Axis axis) {
     return rsubi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rsubi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rsubi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -592,9 +621,9 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix div(Matrix other) {
+  public DoubleMatrix div(DoubleMatrix other) {
     assertEqualSize(other);
-    Matrix matrix = newEmptyMatrix(rows(), columns());
+    DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.put(i, j, get(i, j) / other.get(i, j));
@@ -604,22 +633,22 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix div(double other) {
+  public DoubleMatrix div(double other) {
     return mul(1.0 / other);
   }
 
   @Override
-  public Matrix div(VectorLike other, Axis axis) {
+  public DoubleMatrix div(VectorLike other, Axis axis) {
     return div(1, other, 1, axis);
   }
 
   @Override
-  public Matrix div(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix div(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().divi(alpha, other, beta, axis);
   }
 
   @Override
-  public Matrix divi(Matrix other) {
+  public DoubleMatrix divi(DoubleMatrix other) {
     assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
       put(i, get(i) / other.get(i));
@@ -628,17 +657,17 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix divi(double other) {
+  public DoubleMatrix divi(double other) {
     return muli(1 / other);
   }
 
   @Override
-  public Matrix divi(VectorLike other, Axis axis) {
+  public DoubleMatrix divi(VectorLike other, Axis axis) {
     return divi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix divi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix divi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -654,8 +683,8 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rdiv(double other) {
-    Matrix matrix = newEmptyMatrix(rows(), columns());
+  public DoubleMatrix rdiv(double other) {
+    DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.put(i, other / get(i));
     }
@@ -663,17 +692,17 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rdiv(VectorLike other, Axis axis) {
+  public DoubleMatrix rdiv(VectorLike other, Axis axis) {
     return rdiv(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rdiv(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rdiv(double alpha, VectorLike other, double beta, Axis axis) {
     return copy().rdivi(alpha, other, beta, axis);
   }
 
   @Override
-  public Matrix rdivi(double other) {
+  public DoubleMatrix rdivi(double other) {
     for (int i = 0; i < size(); i++) {
       put(i, other / get(i));
     }
@@ -681,12 +710,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix rdivi(VectorLike other, Axis axis) {
+  public DoubleMatrix rdivi(VectorLike other, Axis axis) {
     return rdivi(1, other, 1, axis);
   }
 
   @Override
-  public Matrix rdivi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rdivi(double alpha, VectorLike other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
@@ -702,122 +731,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix negate() {
-    Matrix n = newEmptyMatrix(rows(), columns());
+  public DoubleMatrix negate() {
+    DoubleMatrix n = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       n.put(i, -get(i));
     }
     return n;
-  }
-
-  @Override
-  public BooleanMatrix lessThan(Matrix other) {
-    assertEqualSize(other);
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) < other.get(i));
-    }
-
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix lessThan(double value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) < value);
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix lessThanEqual(Matrix other) {
-    assertEqualSize(other);
-
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) <= other.get(i));
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix lessThanEqual(double value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) <= value);
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix greaterThan(Matrix other) {
-    assertEqualSize(other);
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) > other.get(i));
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix greaterThan(double value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) > value);
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix greaterThanEquals(Matrix other) {
-    assertEqualSize(other);
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) >= other.get(i));
-    }
-
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix greaterThanEquals(double value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) >= value);
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix equalsTo(Matrix other) {
-    assertEqualSize(other);
-
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) == other.get(i));
-    }
-
-    return bm;
-  }
-
-  @Override
-  public BooleanMatrix equalsTo(double value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.put(i, get(i) == value);
-    }
-    return bm;
-  }
-
-  @Override
-  public int rows() {
-    return rows;
-  }
-
-  @Override
-  public int columns() {
-    return cols;
   }
 
   @Override
@@ -837,7 +756,7 @@ public abstract class AbstractMatrix implements Matrix {
       result = 31 * result + (int) (bits ^ (bits >>> 32));
     }
 
-    return Objects.hash(rows, cols, result);
+    return Objects.hash(rows(), columns(), result);
   }
 
   @Override
@@ -845,8 +764,8 @@ public abstract class AbstractMatrix implements Matrix {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof Matrix) {
-      Matrix mat = (Matrix) obj;
+    if (obj instanceof DoubleMatrix) {
+      DoubleMatrix mat = (DoubleMatrix) obj;
       if (!mat.hasEqualShape(this)) {
         return false;
       }
@@ -879,16 +798,9 @@ public abstract class AbstractMatrix implements Matrix {
     return out.toString();
   }
 
-  protected void assertEqualSize(Matrix other) {
-    if (this.rows() != other.rows() || this.columns() != other.columns()) {
-      throw new NonConformantException(this, other);
-    }
-  }
-
-  protected void assertSameSize(int size) {
-    if (size() != size) {
-      throw new SizeMismatchException("Total size of new matrix must be unchanged.", size(), size);
-    }
+  @Override
+  public DoubleMatrix asDoubleMatrix() {
+    return this;
   }
 
   @Override

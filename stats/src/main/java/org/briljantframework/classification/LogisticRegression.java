@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorLike;
 import org.briljantframework.vector.Vectors;
@@ -118,7 +118,7 @@ public class LogisticRegression implements Classifier {
    * @return the logistic regression model
    */
   protected Model fit(DataFrame x, Vector y, int[] indexes) {
-    ArrayMatrix theta = new ArrayMatrix(1, x.columns());
+    ArrayDoubleMatrix theta = new ArrayDoubleMatrix(1, x.columns());
     VectorLike adaptedTheta = new VectorLike() {
       @Override
       public double getAsDouble(int index) {
@@ -208,7 +208,7 @@ public class LogisticRegression implements Classifier {
    * Created by isak on 03/07/14.
    */
   public static class Model implements ClassifierModel {
-    private final Matrix theta;
+    private final DoubleMatrix theta;
     private final VectorLike adaptedTheta = new VectorLike() {
       @Override
       public double getAsDouble(int index) {
@@ -226,7 +226,7 @@ public class LogisticRegression implements Classifier {
      *
      * @param theta the theta
      */
-    public Model(ArrayMatrix theta) {
+    public Model(ArrayDoubleMatrix theta) {
       this.theta = theta;
     }
 
@@ -241,7 +241,7 @@ public class LogisticRegression implements Classifier {
      *
      * @return the vector
      */
-    public Matrix theta() {
+    public DoubleMatrix theta() {
       return theta;
     }
 

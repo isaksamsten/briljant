@@ -16,7 +16,7 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -31,6 +31,6 @@ public interface Decomposer<T extends Decomposition> {
    * @param matrix the matrix
    * @return the t
    */
-  T decompose(Matrix matrix);
+  T decompose(DoubleMatrix matrix);
 
 }

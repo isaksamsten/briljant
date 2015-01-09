@@ -16,7 +16,7 @@
 
 package org.briljantframework.linalg.solve;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 07/09/14.
@@ -29,5 +29,5 @@ public interface Solver {
    * @param b the b
    * @return the vector
    */
-  Matrix solve(Matrix b);
+  DoubleMatrix solve(DoubleMatrix b);
 }

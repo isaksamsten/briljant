@@ -1,8 +1,8 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Matrices.zeros;
+import org.briljantframework.matrix.DoubleMatrix;
 
-import org.briljantframework.matrix.Matrix;
+import static org.briljantframework.matrix.Matrices.zeros;
 
 /**
  * Created by Isak Karlsson on 02/01/15.
@@ -10,7 +10,7 @@ import org.briljantframework.matrix.Matrix;
 public class Ex5 {
 
   public static void main(String[] args) {
-    Matrix a = zeros(3, 3);
+    DoubleMatrix a = zeros(3, 3);
     System.out.println(a);
 
     a.put(0, 0, 10);

@@ -17,7 +17,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 28/08/14.
@@ -38,7 +38,7 @@ public interface VectorLike {
     };
   }
 
-  public static VectorLike wrap(Matrix matrix) {
+  public static VectorLike wrap(DoubleMatrix matrix) {
     return new VectorLike() {
       @Override
       public int size() {

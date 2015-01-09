@@ -4,22 +4,22 @@ import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
 import org.junit.Test;
 
 public class LinearAlgebraTest {
 
   @Test
   public void testLLS() throws Exception {
-    ArrayMatrix A =
-        ArrayMatrix.of(6, 5, -0.09, 0.14, -0.46, 0.68, 1.29, -1.56, 0.20, 0.29, 1.09, 0.51, -1.48,
-            -0.43, 0.89, -0.71, -0.96, -1.09, 0.84, 0.77, 2.11, -1.27, 0.08, 0.55, -1.13, 0.14,
-            1.74, -1.59, -0.72, 1.06, 1.24, 0.34);
-    Matrix b = ArrayMatrix.withRows(6).withValues(7.4, 4.2, -8.3, 1.8, 8.6, 2.1);
-    Matrix res = LinearAlgebra.leastLinearSquares(A, b);
+    ArrayDoubleMatrix A =
+        ArrayDoubleMatrix.of(6, 5, -0.09, 0.14, -0.46, 0.68, 1.29, -1.56, 0.20, 0.29, 1.09, 0.51, -1.48,
+                -0.43, 0.89, -0.71, -0.96, -1.09, 0.84, 0.77, 2.11, -1.27, 0.08, 0.55, -1.13, 0.14,
+                1.74, -1.59, -0.72, 1.06, 1.24, 0.34);
+    DoubleMatrix b = ArrayDoubleMatrix.withRows(6).withValues(7.4, 4.2, -8.3, 1.8, 8.6, 2.1);
+    DoubleMatrix res = LinearAlgebra.leastLinearSquares(A, b);
 
     assertEquals(0.6344, res.get(0, 0), 0.01);
 
@@ -31,7 +31,7 @@ public class LinearAlgebraTest {
 
   @Test
   public void testPinvNonSymetric() throws Exception {
-    Matrix x = Matrices.randn(20, 20);
+    DoubleMatrix x = Matrices.randn(20, 20);
     Diagonal d = Matrices.eye(20, 10);
 
     Diagonal d2 = Matrices.eye(10, 20);
@@ -42,10 +42,10 @@ public class LinearAlgebraTest {
     // Matrix dmmul = Matrices.dmmul(d2, x);
     // System.out.println(dmmul);
 
-    Matrix a = Matrices.randn(10, 20);
+    DoubleMatrix a = Matrices.randn(10, 20);
     System.out.println(LinearAlgebra.pinv(a));
 
-    Matrix m = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
+    DoubleMatrix m = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
     System.out.println(LinearAlgebra.pinv(m));
     // Matrix x = Matrices.parseMatrix("1,2,3,4;1,2,3,4");
     // Diagonal y = Diagonal.of(4, 2, 1, 1);
@@ -58,14 +58,14 @@ public class LinearAlgebraTest {
 
   @Test
   public void testRank() throws Exception {
-    ArrayMatrix matrix = ArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    ArrayDoubleMatrix matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
     double rank = LinearAlgebra.rank(matrix);
     assertEquals(4.0, rank, 0.0001);
   }
 
   @Test
   public void testLu() throws Exception {
-    ArrayMatrix matrix = ArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    ArrayDoubleMatrix matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
     LuDecomposition lu = LinearAlgebra.lu(matrix);
 
     // assertArrayEquals(new double[] {-0.02564102564102574, 0.1794871794871794,
@@ -80,21 +80,21 @@ public class LinearAlgebraTest {
 
   @Test
   public void testPCA() throws Exception {
-    ArrayMatrix matrix = ArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
-    Matrix u = LinearAlgebra.pca(matrix).getU();
+    ArrayDoubleMatrix matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    DoubleMatrix u = LinearAlgebra.pca(matrix).getU();
     System.out.println(u);
   }
 
   @Test
   public void testInverse() throws Exception {
-    ArrayMatrix matrix = ArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
-    Matrix inverse = LinearAlgebra.inv(matrix);
+    ArrayDoubleMatrix matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    DoubleMatrix inverse = LinearAlgebra.inv(matrix);
     assertEquals(-0.02564102564102574, inverse.get(0, 0), 0.01);
 
     System.out.println(matrix);
     System.out.println(inverse);
 
-    ArrayMatrix a = ArrayMatrix.of(2, 2, 1, 1, 1, 2);
+    ArrayDoubleMatrix a = ArrayDoubleMatrix.of(2, 2, 1, 1, 1, 2);
     inverse = LinearAlgebra.inv(a);
 
     // assertArrayEquals(new double[] {2, -1, -1, 1}, inverse.asDoubleArray(), 0.001);
@@ -108,15 +108,15 @@ public class LinearAlgebraTest {
 
   @Test
   public void testPInv() throws Exception {
-    ArrayMatrix matrix = ArrayMatrix.of(2, 2, 1, 2, 1, 2);
-    Matrix inverse = LinearAlgebra.pinv(matrix);
+    ArrayDoubleMatrix matrix = ArrayDoubleMatrix.of(2, 2, 1, 2, 1, 2);
+    DoubleMatrix inverse = LinearAlgebra.pinv(matrix);
     assertEquals(0.1, inverse.get(0, 0), 0.001);
     assertEquals(0.1, inverse.get(0, 1), 0.001);
     assertEquals(0.2, inverse.get(1, 0), 0.001);
     assertEquals(0.2, inverse.get(1, 1), 0.001);
 
     double[] A = {0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5};
-    ArrayMatrix am = ArrayMatrix.of(4, 4, A);
+    ArrayDoubleMatrix am = ArrayDoubleMatrix.of(4, 4, A);
     inverse = LinearAlgebra.pinv(am);
 
     double[] expected =
@@ -132,11 +132,11 @@ public class LinearAlgebraTest {
 
   @Test
   public void testSingularValueDecomposition() throws Exception {
-    ArrayMatrix a = ArrayMatrix.of(2, 3, 4, 2, 1, 5, 7, 10);
+    ArrayDoubleMatrix a = ArrayDoubleMatrix.of(2, 3, 4, 2, 1, 5, 7, 10);
     SingularValueDecomposition svd = LinearAlgebra.svd(a);
 
 
-    ArrayMatrix original = new ArrayMatrix(2, 3);
+    ArrayDoubleMatrix original = new ArrayDoubleMatrix(2, 3);
     // Matrices.mmuli(svd.u.mmul(svd.s), Transpose.NO, svd.v, Transpose.YES,
     // original.asDoubleArray());
     //
@@ -156,11 +156,11 @@ public class LinearAlgebraTest {
     // 0.001);
 
 
-    a = ArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    a = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
     svd = LinearAlgebra.svd(a);
 
     // Restore the original matrix by the equation A = U*S*V'
-    original = new ArrayMatrix(4, 4);
+    original = new ArrayDoubleMatrix(4, 4);
     // Matrices.mmuli(svd.u.mmul(svd.s), Transpose.NO, svd.v, Transpose.YES,
     // original.asDoubleArray());
     // assertArrayEquals(a.asDoubleArray(), original.asDoubleArray(), 0.000001);

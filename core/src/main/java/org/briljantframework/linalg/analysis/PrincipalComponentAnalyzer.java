@@ -21,7 +21,7 @@ import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.dataframe.transform.InvertibleTransformer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal
@@ -71,12 +71,12 @@ public class PrincipalComponentAnalyzer implements Analyzer<PrincipalComponentAn
   }
 
   @Override
-  public PrincipalComponentAnalysis analyze(Matrix array) {
+  public PrincipalComponentAnalysis analyze(DoubleMatrix array) {
     SingularValueDecomposition svd = getSingularValueDecomposition(array);
     return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
   }
 
-  private SingularValueDecomposition getSingularValueDecomposition(Matrix array) {
+  private SingularValueDecomposition getSingularValueDecomposition(DoubleMatrix array) {
 
     // Matrix sigma =
     // Matrices.mmul(array, Transpose.YES, 1.0, array, Transpose.NO, 1.0 / array.rows());

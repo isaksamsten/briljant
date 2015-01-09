@@ -2,28 +2,28 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PseudoInverseTransformerTest {
 
-  private ArrayMatrix matrix;
+  private ArrayDoubleMatrix matrix;
 
   @Before
   public void setUp() throws Exception {
-    matrix = ArrayMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
-    // 0, 1, 1, 1
-        );
+    matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
+            // 0, 1, 1, 1
+    );
 
   }
 
   @Test
   public void testTransform() throws Exception {
-    Matrix inverse = LinearAlgebra.pinv(matrix);
+    DoubleMatrix inverse = LinearAlgebra.pinv(matrix);
 
     double[] expected =
         {-0.0256410256410256, 0.1794871794871795, -0.5299145299145301, 0.6410256410256413,
@@ -33,14 +33,14 @@ public class PseudoInverseTransformerTest {
 
     // assertArrayEquals(expected, inverse.asDoubleArray(), 0.001);
 
-    Matrix a = Matrices.parseMatrix("1,2,3; 1,2,3; 1,2,3; 1,2,3");
+    DoubleMatrix a = Matrices.parseMatrix("1,2,3; 1,2,3; 1,2,3; 1,2,3");
     Diagonal x = Diagonal.of(3, 3, 1, 1, 1);
 
     // System.out.println(matrix);
     //
     // System.out.println(Matrices.multiplyByDiagonal(a, x, DenseMatrix::new));
 
-    Matrix A = ArrayMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
+    DoubleMatrix A = ArrayDoubleMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
     System.out.println(A);
 
     SingularValueDecomposition svd = LinearAlgebra.svd(A);
@@ -49,7 +49,7 @@ public class PseudoInverseTransformerTest {
     System.out.println(svd.v);
 
 
-    svd.s.apply(y -> 1.0 / y);
+    svd.s.mapi(y -> 1.0 / y);
     // System.out.println(svd.s.transpose());
 
 
@@ -69,7 +69,7 @@ public class PseudoInverseTransformerTest {
     // System.out.println(mmul);
 
 
-    Matrix large = Matrices.randn(1000, 100);
+    DoubleMatrix large = Matrices.randn(1000, 100);
 
     System.out.println(LinearAlgebra.pinv(A));
   }

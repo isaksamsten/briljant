@@ -3,8 +3,8 @@ package org.briljantframework.classification;
 
 import static org.briljantframework.matrix.Matrices.randn;
 
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 13/10/14.
@@ -21,7 +21,7 @@ public class TestMain {
     // Dataset dataset = in.read(DenseDataset.getFactory());
 
 
-    Matrix a = randn(10000, 10000);
+    DoubleMatrix a = randn(10000, 10000);
     // Matrix b = randn(10, 10000);
     // RealVector.Builder builder = new RealVector.Builder();
     // for (int i = 0; i < b.size(); i++) {
@@ -76,7 +76,7 @@ public class TestMain {
     long s = System.currentTimeMillis();
     // Matrix rowMean = a.reduceRows(x -> x.mapReduce(0, Double::sum, xy -> xy) / x.size());
 
-    Matrix rowMeans = new ArrayMatrix(1, a.rows());
+    DoubleMatrix rowMeans = new ArrayDoubleMatrix(1, a.rows());
     double div = a.columns();
     for (int j = 0; j < a.columns(); j++) {
       double mean = 0;

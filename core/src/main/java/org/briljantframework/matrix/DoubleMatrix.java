@@ -86,11 +86,9 @@ import org.briljantframework.vector.VectorLike;
  * also be an alternative option, that for many implementations preserves cache locality and might
  * be more readable in some cases.
  *
- * DoubleMatrix x = new DoubleMatrix(); Double d = x.getBoxed(i, j) double d = x.get();
- *
  * @author Isak Karlsson
  */
-public interface Matrix extends Iterable<Double> {
+public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
 
   /**
    * Assign value returned by {@link #size()} successive calls to
@@ -99,7 +97,7 @@ public interface Matrix extends Iterable<Double> {
    * @param supplier the supplier
    * @return receiver modified
    */
-  Matrix assign(DoubleSupplier supplier);
+  DoubleMatrix assign(DoubleSupplier supplier);
 
   /**
    * Assign {@code value} to {@code this}
@@ -107,7 +105,7 @@ public interface Matrix extends Iterable<Double> {
    * @param value the value to assign
    * @return receiver modified
    */
-  Matrix assign(double value);
+  DoubleMatrix assign(double value);
 
   /**
    * Assign {@code vector} extending row or column wise
@@ -118,7 +116,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return receiver modified
    */
-  Matrix assign(VectorLike vector, Axis axis);
+  DoubleMatrix assign(VectorLike vector, Axis axis);
 
   /**
    * Assign {@code vector} and apply operator to every element extending row or column wise
@@ -128,7 +126,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return receiver modified
    */
-  Matrix assign(VectorLike vector, DoubleBinaryOperator operator, Axis axis);
+  DoubleMatrix assign(VectorLike vector, DoubleBinaryOperator operator, Axis axis);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -137,7 +135,7 @@ public interface Matrix extends Iterable<Double> {
    * @param matrix the matrix
    * @return receiver modified
    */
-  Matrix assign(Matrix matrix);
+  DoubleMatrix assign(DoubleMatrix matrix);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value. Compare:
@@ -156,7 +154,7 @@ public interface Matrix extends Iterable<Double> {
    * @param operator the operator
    * @return receiver modified
    */
-  Matrix assign(Matrix matrix, DoubleUnaryOperator operator);
+  DoubleMatrix assign(DoubleMatrix matrix, DoubleUnaryOperator operator);
 
   /**
    *
@@ -164,7 +162,7 @@ public interface Matrix extends Iterable<Double> {
    * @param function
    * @return
    */
-  Matrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function);
+  DoubleMatrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function);
 
   /**
    * Assigns values in {@code numbers}.
@@ -172,7 +170,7 @@ public interface Matrix extends Iterable<Double> {
    * @param numbers iterable of numbers
    * @return receiver modified
    */
-  Matrix assignStream(Iterable<? extends Number> numbers);
+  DoubleMatrix assignStream(Iterable<? extends Number> numbers);
 
   /**
    * Assigns elements from {@code iterable} to this matrix added in the order implemented by
@@ -183,7 +181,7 @@ public interface Matrix extends Iterable<Double> {
    * @param <T> the type
    * @return receiver modified
    */
-  <T> Matrix assignStream(Iterable<T> iterable, ToDoubleFunction<? super T> function);
+  <T> DoubleMatrix assignStream(Iterable<T> iterable, ToDoubleFunction<? super T> function);
 
   /**
    * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must
@@ -194,7 +192,7 @@ public interface Matrix extends Iterable<Double> {
    * @param values the column major array
    * @return receiver modified
    */
-  Matrix assign(double[] values);
+  DoubleMatrix assign(double[] values);
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -218,7 +216,7 @@ public interface Matrix extends Iterable<Double> {
    * @param operator the operator to apply to each element
    * @return a new matrix
    */
-  Matrix map(DoubleUnaryOperator operator);
+  DoubleMatrix map(DoubleUnaryOperator operator);
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -226,7 +224,7 @@ public interface Matrix extends Iterable<Double> {
    * @param operator the operator to apply to each element
    * @return receiver modified
    */
-  Matrix mapi(DoubleUnaryOperator operator);
+  DoubleMatrix mapi(DoubleUnaryOperator operator);
 
   /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
@@ -250,7 +248,7 @@ public interface Matrix extends Iterable<Double> {
    * @param reduce takes a {@code Matrix} and returns {@code double}
    * @return a new column vector with the reduced value
    */
-  Matrix reduceColumns(ToDoubleFunction<? super Matrix> reduce);
+  DoubleMatrix reduceColumns(ToDoubleFunction<? super DoubleMatrix> reduce);
 
   /**
    * Reduces each rows. Row wise summing can be implemented as
@@ -262,7 +260,7 @@ public interface Matrix extends Iterable<Double> {
    * @param reduce takes a {@code Matrix} and returns {@code double}
    * @return a new column vector with the reduced value
    */
-  Matrix reduceRows(ToDoubleFunction<? super Matrix> reduce);
+  DoubleMatrix reduceRows(ToDoubleFunction<? super DoubleMatrix> reduce);
 
   /**
    * Get row vector at {@code i}. Modifications will change to original matrix.
@@ -270,7 +268,7 @@ public interface Matrix extends Iterable<Double> {
    * @param i row
    * @return a vector
    */
-  Matrix getRowView(int i);
+  DoubleMatrix getRowView(int i);
 
   /**
    * Gets vector at {@code index}. Modifications will change the original matrix.
@@ -278,7 +276,7 @@ public interface Matrix extends Iterable<Double> {
    * @param index the index
    * @return the column
    */
-  Matrix getColumnView(int index);
+  DoubleMatrix getColumnView(int index);
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
@@ -314,14 +312,14 @@ public interface Matrix extends Iterable<Double> {
    * @param columns number of columns after column offset
    * @return the matrix view
    */
-  Matrix getView(int rowOffset, int colOffset, int rows, int columns);
+  DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
    * Transpose matrix like.
    *
    * @return the matrix like
    */
-  Matrix transpose();
+  DoubleMatrix transpose();
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -332,7 +330,7 @@ public interface Matrix extends Iterable<Double> {
    * @param columns
    * @return
    */
-  Matrix reshape(int rows, int columns);
+  DoubleMatrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////
 
@@ -343,7 +341,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the other
    * @return r r
    */
-  Matrix mmul(Matrix other);
+  DoubleMatrix mmul(DoubleMatrix other);
 
   /**
    * <u>m</u>atrix diagonal multiplication
@@ -351,7 +349,7 @@ public interface Matrix extends Iterable<Double> {
    * @param diagonal the diagonal
    * @return matrix matrix
    */
-  Matrix mmul(Diagonal diagonal);
+  DoubleMatrix mmul(Diagonal diagonal);
 
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
@@ -363,11 +361,11 @@ public interface Matrix extends Iterable<Double> {
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  Matrix mmul(double alpha, Matrix other, double beta);
+  DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta);
 
-  Matrix mmul(Transpose a, Matrix other, Transpose b);
+  DoubleMatrix mmul(Transpose a, DoubleMatrix other, Transpose b);
 
-  Matrix mmul(double alpha, Transpose a, Matrix other, double beta, Transpose b);
+  DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, double beta, Transpose b);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -375,7 +373,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the matrix
    * @return a new matrix
    */
-  Matrix mul(Matrix other);
+  DoubleMatrix mul(DoubleMatrix other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -386,7 +384,7 @@ public interface Matrix extends Iterable<Double> {
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  Matrix mul(double alpha, Matrix other, double beta);
+  DoubleMatrix mul(double alpha, DoubleMatrix other, double beta);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise (determined by
@@ -397,7 +395,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @see #mul(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix mul(VectorLike other, Axis axis);
+  DoubleMatrix mul(VectorLike other, Axis axis);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
@@ -413,7 +411,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix mul(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix mul(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -421,7 +419,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return a new matrix
    */
-  Matrix mul(double scalar);
+  DoubleMatrix mul(double scalar);
 
   /**
    * In place element wise <u>m</u>ultiplication.
@@ -429,7 +427,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the other
    * @return receiver modified
    */
-  Matrix muli(Matrix other);
+  DoubleMatrix muli(DoubleMatrix other);
 
   /**
    * In place element wise <u>m</u>ultiplication.
@@ -437,7 +435,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return receiver multiplied
    */
-  Matrix muli(double scalar);
+  DoubleMatrix muli(double scalar);
 
   /**
    * In place Element wise subtraction.
@@ -445,10 +443,10 @@ public interface Matrix extends Iterable<Double> {
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @param beta scaling for {@code other}
-   * @see #mul(double, Matrix, double)
+   * @see #mul(double, DoubleMatrix, double)
    * @return a new matrix
    */
-  Matrix muli(double alpha, Matrix other, double beta);
+  DoubleMatrix muli(double alpha, DoubleMatrix other, double beta);
 
   /**
    * @param other the array
@@ -456,7 +454,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #mul(org.briljantframework.vector.VectorLike, Axis)
    */
-  Matrix muli(VectorLike other, Axis axis);
+  DoubleMatrix muli(VectorLike other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -466,7 +464,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #mul(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix muli(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix muli(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise addition.
@@ -474,7 +472,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the other matrix
    * @return a new matrix
    */
-  Matrix add(Matrix other);
+  DoubleMatrix add(DoubleMatrix other);
 
   /**
    * Element wise addition.
@@ -482,7 +480,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return a new matrix
    */
-  Matrix add(double scalar);
+  DoubleMatrix add(double scalar);
 
   /**
    * Element wise addition. Same as {@code add(1, other, 1, axis)}.
@@ -492,7 +490,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix add(VectorLike other, Axis axis);
+  DoubleMatrix add(VectorLike other, Axis axis);
 
   /**
    * Element wise add, extending {@code other} row or column wise
@@ -508,7 +506,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix add(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix add(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -519,7 +517,7 @@ public interface Matrix extends Iterable<Double> {
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  Matrix add(double alpha, Matrix other, double beta);
+  DoubleMatrix add(double alpha, DoubleMatrix other, double beta);
 
   /**
    * In place element wise addition.
@@ -527,7 +525,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the other matrix
    * @return a new matrix
    */
-  Matrix addi(Matrix other);
+  DoubleMatrix addi(DoubleMatrix other);
 
   /**
    * In place element wise addition.
@@ -535,7 +533,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return receiver modified
    */
-  Matrix addi(double scalar);
+  DoubleMatrix addi(double scalar);
 
   /**
    * In place version of {@code add}
@@ -544,7 +542,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  Matrix addi(VectorLike other, Axis axis);
+  DoubleMatrix addi(VectorLike other, Axis axis);
 
   /**
    * In place version of {@code add}.
@@ -556,7 +554,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix addi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix addi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place element wise subtraction.
@@ -564,10 +562,10 @@ public interface Matrix extends Iterable<Double> {
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @param beta scaling for {@code other}
-   * @see #add(double, Matrix, double)
+   * @see #add(double, DoubleMatrix, double)
    * @return a new matrix
    */
-  Matrix addi(double alpha, Matrix other, double beta);
+  DoubleMatrix addi(double alpha, DoubleMatrix other, double beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -575,7 +573,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the other matrix
    * @return a new matrix
    */
-  Matrix sub(Matrix other);
+  DoubleMatrix sub(DoubleMatrix other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -583,7 +581,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return r r
    */
-  Matrix sub(double scalar);
+  DoubleMatrix sub(double scalar);
 
   /**
    * Element wise subtraction. Same as {@code sub(1, other, 1, axis)}.
@@ -593,7 +591,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix sub(VectorLike other, Axis axis);
+  DoubleMatrix sub(VectorLike other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise
@@ -609,7 +607,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix sub(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix sub(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -620,7 +618,7 @@ public interface Matrix extends Iterable<Double> {
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  Matrix sub(double alpha, Matrix other, double beta);
+  DoubleMatrix sub(double alpha, DoubleMatrix other, double beta);
 
   /**
    * In place element wise subtraction.
@@ -628,7 +626,7 @@ public interface Matrix extends Iterable<Double> {
    * @param other the other matrix
    * @return receiver modified
    */
-  Matrix subi(Matrix other);
+  DoubleMatrix subi(DoubleMatrix other);
 
   /**
    * In place element wise subtraction.
@@ -636,7 +634,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return receiver modified
    */
-  Matrix subi(double scalar);
+  DoubleMatrix subi(double scalar);
 
   /**
    * In place version of {@code sub}
@@ -645,7 +643,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  Matrix subi(VectorLike other, Axis axis);
+  DoubleMatrix subi(VectorLike other, Axis axis);
 
   /**
    * In place version of {@code sub}.
@@ -657,7 +655,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix subi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix subi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place Element wise subtraction.
@@ -665,10 +663,10 @@ public interface Matrix extends Iterable<Double> {
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @param beta scaling for {@code other}
-   * @see #sub(double, Matrix, double)
+   * @see #sub(double, DoubleMatrix, double)
    * @return a new matrix
    */
-  Matrix subi(double alpha, Matrix other, double beta);
+  DoubleMatrix subi(double alpha, DoubleMatrix other, double beta);
 
 
   /**
@@ -677,7 +675,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return a new matrix
    */
-  Matrix rsub(double scalar);
+  DoubleMatrix rsub(double scalar);
 
   /**
    * Element wise subtraction. Same as {@code rsub(1, other, 1, axis)}.
@@ -687,7 +685,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rsub(VectorLike other, Axis axis);
+  DoubleMatrix rsub(VectorLike other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
@@ -704,7 +702,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix rsub(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rsub(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
@@ -712,7 +710,7 @@ public interface Matrix extends Iterable<Double> {
    * @param scalar the scalar
    * @return r r
    */
-  Matrix rsubi(double scalar);
+  DoubleMatrix rsubi(double scalar);
 
   /**
    * In place version of {@code rsub}
@@ -721,7 +719,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  Matrix rsubi(VectorLike other, Axis axis);
+  DoubleMatrix rsubi(VectorLike other, Axis axis);
 
   /**
    * In place version of {@code rsub}.
@@ -733,7 +731,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #rsub(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rsubi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rsubi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -742,7 +740,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
-  Matrix div(Matrix other);
+  DoubleMatrix div(DoubleMatrix other);
 
   /**
    * Element wise division. {@code this / other}.
@@ -751,7 +749,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
-  Matrix div(double other);
+  DoubleMatrix div(double other);
 
   /**
    * Element wise division. Same as {@code add(1, other, 1, axis)}.
@@ -761,7 +759,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix div(VectorLike other, Axis axis);
+  DoubleMatrix div(VectorLike other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise
@@ -777,7 +775,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix div(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix div(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place element wise division.
@@ -786,7 +784,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
-  Matrix divi(Matrix other);
+  DoubleMatrix divi(DoubleMatrix other);
 
   /**
    * In place element wise division.
@@ -795,7 +793,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
-  Matrix divi(double other);
+  DoubleMatrix divi(double other);
 
   /**
    * @param other the array
@@ -803,7 +801,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #div(org.briljantframework.vector.VectorLike, Axis)
    */
-  Matrix divi(VectorLike other, Axis axis);
+  DoubleMatrix divi(VectorLike other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -813,7 +811,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #div(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix divi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix divi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code other / this}.
@@ -822,7 +820,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  Matrix rdiv(double other);
+  DoubleMatrix rdiv(double other);
 
   /**
    * Element wise division. Same as {@code add(1, other, 1, axis)}.
@@ -832,7 +830,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rdiv(VectorLike other, Axis axis);
+  DoubleMatrix rdiv(VectorLike other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
@@ -849,7 +847,7 @@ public interface Matrix extends Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  Matrix rdiv(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rdiv(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * In place element wise division. {@code other / this}.
@@ -858,7 +856,7 @@ public interface Matrix extends Iterable<Double> {
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  Matrix rdivi(double other);
+  DoubleMatrix rdivi(double other);
 
   /**
    * @param other the array
@@ -866,7 +864,7 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #divi(org.briljantframework.vector.VectorLike, Axis)
    */
-  Matrix rdivi(VectorLike other, Axis axis);
+  DoubleMatrix rdivi(VectorLike other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -876,23 +874,14 @@ public interface Matrix extends Iterable<Double> {
    * @return receiver modified
    * @see #divi(double, org.briljantframework.vector.VectorLike, double, Axis)
    */
-  Matrix rdivi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rdivi(double alpha, VectorLike other, double beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.
    *
    * @return a new matrix
    */
-  Matrix negate();
-
-  /**
-   * Set value at row {@code i} and column {@code j} to value
-   *
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  void put(int i, int j, double value);
+  DoubleMatrix negate();
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -904,20 +893,10 @@ public interface Matrix extends Iterable<Double> {
   double get(int i, int j);
 
   /**
-   * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
-   * enforced.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #get(int)
-   */
-  void put(int index, double value);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in column-major order. For
+   * example, given the following matrix
    * <p>
-   *
+   * <p>
    * <pre>
    *     1 2 3
    *     4 5 6
@@ -925,7 +904,7 @@ public interface Matrix extends Iterable<Double> {
    * <p>
    * this code
    * <p>
-   *
+   * <p>
    * <pre>
    * for (int i = 0; i &lt; x.size(); i++) {
    *   System.out.print(x.get(i));
@@ -934,7 +913,7 @@ public interface Matrix extends Iterable<Double> {
    * <p>
    * prints
    * <p>
-   *
+   * <p>
    * <pre>
    * 142536
    * </pre>
@@ -943,171 +922,6 @@ public interface Matrix extends Iterable<Double> {
    * @return the value index
    */
   double get(int index);
-
-  /**
-   * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
-   * then {@code size()} is intuitive. However, if not size is {@code rows() * columns()} and the
-   * end when iterating using {@link #get(int)}. To avoid cache misses,
-   * {@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} should be prefered to
-   *
-   * <pre>
-   *     for(int i = 0; i < m.rows(); i++)
-   *       for(int j = 0; j < m.columns(); j++)
-   *          m.put(i, j, m.get(i, j) * 2
-   * </pre>
-   *
-   * @return the size
-   */
-  int size();
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) < other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThan(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) < value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThan(double value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) <= other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThanEqual(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) <= value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix lessThanEqual(double value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) > other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThan(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) > value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThan(double value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) >= other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThanEquals(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix greaterThanEquals(double value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) == other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix equalsTo(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) == value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BooleanMatrix equalsTo(double value);
-
-  /**
-   * The number of rows.
-   *
-   * @return number or rows
-   */
-  int rows();
-
-  /**
-   * The number of columns.
-   *
-   * @return number of columns
-   */
-  int columns();
-
-  /**
-   * Is square.
-   *
-   * @return true if rows() == columns()
-   */
-  default boolean isSquare() {
-    return rows() == columns();
-  }
-
-  /**
-   * The shape of the current matrix.
-   *
-   * @return the shape
-   */
-  default Shape getShape() {
-    return Shape.of(rows(), columns());
-  }
-
-  /**
-   * Returns true if {@link org.briljantframework.matrix.Shape#size()} == {@link #size()}
-   *
-   * @param shape the shape
-   * @return the boolean
-   */
-  default boolean hasCompatibleShape(Shape shape) {
-    return hasCompatibleShape(shape.rows, shape.columns);
-  }
-
-  /**
-   * Has compatible shape.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return the boolean
-   * @throws ArithmeticException
-   */
-  default boolean hasCompatibleShape(int rows, int cols) {
-    return Math.multiplyExact(rows, cols) == rows() * columns();
-  }
-
-  /**
-   * Equal shape (i.e.
-   *
-   * @param other the other
-   * @return the boolean
-   */
-  default boolean hasEqualShape(Matrix other) {
-    return rows() == other.rows() && columns() == other.columns();
-  }
 
   /**
    * @return the matrix as a column-major double array
@@ -1127,12 +941,12 @@ public interface Matrix extends Iterable<Double> {
    * @param columns the number of colums
    * @return a new empty matrix (
    */
-  Matrix newEmptyMatrix(int rows, int columns);
+  DoubleMatrix newEmptyMatrix(int rows, int columns);
 
   /**
    * Create a copy of this matrix.
    *
    * @return the copy
    */
-  Matrix copy();
+  DoubleMatrix copy();
 }

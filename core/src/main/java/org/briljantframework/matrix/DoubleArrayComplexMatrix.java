@@ -32,7 +32,7 @@ public class DoubleArrayComplexMatrix extends AbstractComplexMatrix {
     }
   }
 
-  public DoubleArrayComplexMatrix(Matrix matrix) {
+  public DoubleArrayComplexMatrix(DoubleMatrix matrix) {
     this(matrix.rows(), matrix.columns());
     int index = 0;
     for (int i = 0; i < matrix.size(); i++) {
@@ -64,23 +64,9 @@ public class DoubleArrayComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
-  public void put(int i, int j, Complex value) {
-    int index = Indexer.columnMajor(i, j, rows(), columns()) * 2;
-    values[index] = value.real();
-    values[index + 1] = value.imag();
-  }
-
-  @Override
   public Complex get(int i, int j) {
     int index = Indexer.columnMajor(i, j, rows(), columns()) * 2;
     return new Complex(values[index], values[index + 1]);
-  }
-
-  @Override
-  public void put(int index, Complex value) {
-    index = index * 2;
-    values[index] = value.real();
-    values[index + 1] = value.imag();
   }
 
   @Override
@@ -102,6 +88,20 @@ public class DoubleArrayComplexMatrix extends AbstractComplexMatrix {
   @Override
   public ComplexMatrix copy() {
     return new DoubleArrayComplexMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
+  }
+
+  @Override
+  public void put(int i, int j, Complex value) {
+    int index = Indexer.columnMajor(i, j, rows(), columns()) * 2;
+    values[index] = value.real();
+    values[index + 1] = value.imag();
+  }
+
+  @Override
+  public void put(int index, Complex value) {
+    index = index * 2;
+    values[index] = value.real();
+    values[index + 1] = value.imag();
   }
 
 }

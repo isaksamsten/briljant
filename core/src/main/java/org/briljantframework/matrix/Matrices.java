@@ -65,13 +65,13 @@ public class Matrices {
    * For example, {@code 1, 2, 3, 4;1,2,3,4;1,2,3,4} is a 3 by 4 matrix with ones in the first
    * column, twos in the second column etc.
    * <p>
-   * Returns an {@link org.briljantframework.matrix.ArrayMatrix}.
+   * Returns an {@link ArrayDoubleMatrix}.
    *
    * @param str the input matrix as a string
    * @return a matrix
    * @throws java.lang.NumberFormatException
    */
-  public static Matrix parseMatrix(String str) {
+  public static DoubleMatrix parseMatrix(String str) {
     checkArgument(str != null && str.length() > 0);
 
     String[] rows = ROW_SEPARATOR.split(str);
@@ -79,11 +79,11 @@ public class Matrices {
       throw new NumberFormatException("Illegally formatted Matrix");
     }
 
-    Matrix matrix = null;
+    DoubleMatrix matrix = null;
     for (int i = 0; i < rows.length; i++) {
       String[] values = VALUE_SEPARATOR.split(rows[i]);
       if (i == 0) {
-        matrix = new ArrayMatrix(rows.length, values.length);
+        matrix = new ArrayDoubleMatrix(rows.length, values.length);
       }
 
       for (int j = 0; j < values.length; j++) {
@@ -94,12 +94,12 @@ public class Matrices {
     return matrix;
   }
 
-  public static Matrix matrix(int size, DoubleSupplier supplier) {
+  public static DoubleMatrix matrix(int size, DoubleSupplier supplier) {
     return zeros(size, 1).assign(supplier);
   }
 
-  public static Matrix matrix(double[][] values) {
-    Matrix m = new ArrayMatrix(values.length, values[0].length);
+  public static DoubleMatrix matrix(double[][] values) {
+    DoubleMatrix m = new ArrayDoubleMatrix(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[0].length; j++) {
         m.put(i, j, values[i][j]);
@@ -108,19 +108,19 @@ public class Matrices {
     return m;
   }
 
-  public static Matrix matrix(double... values) {
-    return new ArrayMatrix(1, values);
+  public static DoubleMatrix matrix(double... values) {
+    return new ArrayDoubleMatrix(1, values);
   }
 
   @SuppressWarnings("unchecked")
-  public static Matrix matrix(Iterable<? extends Number> iter) {
+  public static DoubleMatrix matrix(Iterable<? extends Number> iter) {
     List<? extends Number> numbers;
     if (iter instanceof List) {
       numbers = (List<? extends Number>) iter;
     } else {
       numbers = Lists.newArrayList(iter);
     }
-    Matrix m = new ArrayMatrix(numbers.size(), 1);
+    DoubleMatrix m = new ArrayDoubleMatrix(numbers.size(), 1);
     for (int i = 0; i < numbers.size(); i++) {
       m.put(i, numbers.get(i).doubleValue());
     }
@@ -134,8 +134,8 @@ public class Matrices {
    * @param cols the cols
    * @return the dense matrix
    */
-  public static Matrix zeros(int rows, int cols) {
-    return new ArrayMatrix(rows, cols);
+  public static DoubleMatrix zeros(int rows, int cols) {
+    return new ArrayDoubleMatrix(rows, cols);
   }
 
   /**
@@ -144,7 +144,7 @@ public class Matrices {
    * @param size
    * @return a new matrix
    */
-  public static Matrix zeros(int size) {
+  public static DoubleMatrix zeros(int size) {
     return zeros(size, size);
   }
 
@@ -154,7 +154,7 @@ public class Matrices {
    * @param size the size
    * @return a new matrix
    */
-  public static Matrix ones(int size) {
+  public static DoubleMatrix ones(int size) {
     return ones(size, size);
   }
 
@@ -165,8 +165,8 @@ public class Matrices {
    * @param cols the cols
    * @return the matrix
    */
-  public static Matrix ones(int rows, int cols) {
-    return ArrayMatrix.filledWith(rows, cols, 1);
+  public static DoubleMatrix ones(int rows, int cols) {
+    return ArrayDoubleMatrix.filledWith(rows, cols, 1);
   }
 
   /**
@@ -177,12 +177,12 @@ public class Matrices {
    * @param n the n
    * @return the dense matrix
    */
-  public static Matrix fill(int rows, int cols, double n) {
-    return ArrayMatrix.filledWith(rows, cols, n);
+  public static DoubleMatrix fill(int rows, int cols, double n) {
+    return ArrayDoubleMatrix.filledWith(rows, cols, n);
   }
 
-  public static Matrix fill(int size, double n) {
-    return ArrayMatrix.filledWith(size, 1, n);
+  public static DoubleMatrix fill(int size, double n) {
+    return ArrayDoubleMatrix.filledWith(size, 1, n);
   }
 
   /**
@@ -191,7 +191,7 @@ public class Matrices {
    * @param size the size
    * @return the identity matrix
    */
-  public static Matrix eye(int size) {
+  public static DoubleMatrix eye(int size) {
     double[] diagonal = new double[size];
     for (int i = 0; i < size; i++) {
       diagonal[i] = 1;
@@ -204,7 +204,7 @@ public class Matrices {
    * @param operator operator to apply
    * @param out the out
    */
-  public static void map(Matrix in, DoubleUnaryOperator operator, Matrix out) {
+  public static void map(DoubleMatrix in, DoubleUnaryOperator operator, DoubleMatrix out) {
     out.assign(in, operator);
   }
 
@@ -224,8 +224,8 @@ public class Matrices {
     return Diagonal.of(rows, cols, diagonal);
   }
 
-  public static Matrix sort(Matrix matrix) {
-    Matrix out = matrix.copy();
+  public static DoubleMatrix sort(DoubleMatrix matrix) {
+    DoubleMatrix out = matrix.copy();
     QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)),
         (a, b) -> {
           double tmp = out.get(a);
@@ -235,11 +235,11 @@ public class Matrices {
     return out;
   }
 
-  public static Matrix sort(Matrix matrix, Axis axis) {
-    Matrix out = matrix.copy();
+  public static DoubleMatrix sort(DoubleMatrix matrix, Axis axis) {
+    DoubleMatrix out = matrix.copy();
     if (axis == Axis.ROW) {
       for (int i = 0; i < matrix.rows(); i++) {
-        Matrix row = out.getRowView(i);
+        DoubleMatrix row = out.getRowView(i);
         QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
             (a, b) -> {
               double tmp = row.get(a);
@@ -249,7 +249,7 @@ public class Matrices {
       }
     } else {
       for (int i = 0; i < matrix.columns(); i++) {
-        Matrix col = out.getColumnView(i);
+        DoubleMatrix col = out.getColumnView(i);
         QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
             (a, b) -> {
               double tmp = col.get(a);
@@ -261,11 +261,11 @@ public class Matrices {
     return out;
   }
 
-  public static Matrix range(int start, int end) {
+  public static DoubleMatrix range(int start, int end) {
     return range(start, end, 1);
   }
 
-  public static Matrix range(int start, int end, int step) {
+  public static DoubleMatrix range(int start, int end, int step) {
     int i = end - start;
     double[] values = new double[i / step + (i % step != 0 ? 1 : 0)];
     int index = 0;
@@ -273,7 +273,7 @@ public class Matrices {
       values[index++] = start;
       start += step;
     }
-    return new ArrayMatrix(1, values);
+    return new ArrayDoubleMatrix(1, values);
   }
 
   /**
@@ -285,7 +285,7 @@ public class Matrices {
    * @param operator the operator
    * @return out out
    */
-  public static Matrix map(Matrix in, DoubleUnaryOperator operator) {
+  public static DoubleMatrix map(DoubleMatrix in, DoubleUnaryOperator operator) {
     return in.newEmptyMatrix(in.rows(), in.columns()).assign(in, operator);
   }
 
@@ -296,7 +296,7 @@ public class Matrices {
    * @param matrix the matrix
    * @return the matrix
    */
-  public static Matrix sqrt(Matrix matrix) {
+  public static DoubleMatrix sqrt(DoubleMatrix matrix) {
     return map(matrix, Math::sqrt);
   }
 
@@ -306,7 +306,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static Matrix log(Matrix in) {
+  public static DoubleMatrix log(DoubleMatrix in) {
     return map(in, Math::log);
   }
 
@@ -316,12 +316,12 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static Matrix log2(Matrix in) {
+  public static DoubleMatrix log2(DoubleMatrix in) {
     return map(in, x -> Math.log(x) / LOG_2);
   }
 
-  public static Matrix reshape(VectorLike a, int m, int n) {
-    Matrix matrix = new ArrayMatrix(m, n);
+  public static DoubleMatrix reshape(VectorLike a, int m, int n) {
+    DoubleMatrix matrix = new ArrayDoubleMatrix(m, n);
     for (int i = 0; i < a.size(); i++) {
       matrix.put(i, a.getAsDouble(i));
     }
@@ -339,7 +339,7 @@ public class Matrices {
    * @param num the number of steps (i.e. intermediate values)
    * @return a vector
    */
-  public static Matrix linspace(double start, double stop, int num) {
+  public static DoubleMatrix linspace(double start, double stop, int num) {
     double[] builder = new double[num];
     double step = (stop - start) / (num - 1);
     double value = start;
@@ -348,23 +348,8 @@ public class Matrices {
       value += step;
     }
 
-    return new ArrayMatrix(1, builder);
+    return new ArrayDoubleMatrix(1, builder);
   }
-
-  /**
-   * Reshape out.
-   *
-   * @param in the in
-   * @param rows the rows
-   * @param cols the cols
-   * @return the out
-   */
-  public static Matrix reshape(Matrix in, int rows, int cols) {
-    checkArgument(in.hasCompatibleShape(rows, cols), "can't reshape %s tensor into %s tensor",
-        in.getShape(), Shape.of(rows, cols));
-    return new ArrayMatrix(Shape.of(rows, cols), in);
-  }
-
 
   /**
    * Std out.
@@ -373,8 +358,8 @@ public class Matrices {
    * @param axis the axis
    * @return the out
    */
-  public static Matrix std(Matrix matrix, Axis axis) {
-    Matrix mean = mean(matrix, axis);
+  public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
+    DoubleMatrix mean = mean(matrix, axis);
     int columns = matrix.columns();
     double[] sigmas = new double[columns];
 
@@ -386,7 +371,7 @@ public class Matrices {
       }
       sigmas[j] = Math.sqrt(std / (matrix.rows() - 1));
     }
-    return ArrayMatrix.rowVector(sigmas);
+    return ArrayDoubleMatrix.rowVector(sigmas);
   }
 
   /**
@@ -396,7 +381,7 @@ public class Matrices {
    * @param axis the axis
    * @return the out
    */
-  public static Matrix mean(Matrix matrix, Axis axis) {
+  public static DoubleMatrix mean(DoubleMatrix matrix, Axis axis) {
     int columns = matrix.columns();
     double[] means = new double[matrix.columns()];
     for (int j = 0; j < matrix.columns(); j++) {
@@ -407,7 +392,7 @@ public class Matrices {
       means[j] = mean / matrix.rows();
     }
 
-    return ArrayMatrix.rowVector(means);
+    return ArrayDoubleMatrix.rowVector(means);
   }
 
   /**
@@ -417,8 +402,8 @@ public class Matrices {
    * @param cols the cols
    * @return out out
    */
-  public static Matrix randn(int rows, int cols) {
-    return new ArrayMatrix(rows, cols).assign(RANDOM::nextGaussian);
+  public static DoubleMatrix randn(int rows, int cols) {
+    return new ArrayDoubleMatrix(rows, cols).assign(RANDOM::nextGaussian);
   }
 
   /**
@@ -428,8 +413,8 @@ public class Matrices {
    * @param cols the cols
    * @return out out
    */
-  public static Matrix rand(int rows, int cols) {
-    return new ArrayMatrix(rows, cols).assign(RANDOM::nextDouble);
+  public static DoubleMatrix rand(int rows, int cols) {
+    return new ArrayDoubleMatrix(rows, cols).assign(RANDOM::nextDouble);
   }
 
   /**
@@ -439,7 +424,7 @@ public class Matrices {
    * @param power the power
    * @return out out
    */
-  public static Matrix pow(Matrix in, double power) {
+  public static DoubleMatrix pow(DoubleMatrix in, double power) {
     switch ((int) power) {
       case 2:
         return map(in, x -> x * x);
@@ -458,7 +443,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static Matrix log10(Matrix in) {
+  public static DoubleMatrix log10(DoubleMatrix in) {
     return map(in, Math::log10);
   }
 
@@ -468,7 +453,7 @@ public class Matrices {
    * @param in the in
    * @return out out
    */
-  public static Matrix signum(Matrix in) {
+  public static DoubleMatrix signum(DoubleMatrix in) {
     return map(in, Math::signum);
   }
 
@@ -484,16 +469,18 @@ public class Matrices {
    * @param beta scaling for rhs
    * @param tmp result is written to {@code tmp}
    */
-  public static void mmul(Matrix t, double alpha, Matrix other, double beta, double[] tmp) {
+  public static void mmul(DoubleMatrix t, double alpha, DoubleMatrix other, double beta,
+      double[] tmp) {
     BLAS.dgemm("n", "n", t.rows(), other.columns(), other.rows(), alpha, t.asDoubleArray(),
         t.rows(), other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
   }
 
-  public static void mmul(Matrix t, double alpha, Transpose a, Matrix other, double beta,
+  public static void mmul(DoubleMatrix t, double alpha, Transpose a, DoubleMatrix other,
+      double beta,
       Transpose b, double[] tmp) {
     String transA = "n";
     int thisRows = t.rows();
-    if (a == Transpose.YES) {
+    if (a.transpose()) {
       thisRows = t.columns();
       transA = "t";
     }
@@ -501,7 +488,7 @@ public class Matrices {
     String transB = "n";
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b == Transpose.YES) {
+    if (b.transpose()) {
       otherRows = other.columns();
       otherColumns = other.rows();
       transB = "t";
@@ -515,7 +502,7 @@ public class Matrices {
    * @param matrix
    * @return
    */
-  public static double trace(Matrix matrix) {
+  public static double trace(DoubleMatrix matrix) {
     int min = Math.min(matrix.rows(), matrix.columns());
     double sum = 0;
     for (int i = 0; i < min; i++) {
@@ -528,7 +515,7 @@ public class Matrices {
    * @param vector the vector
    * @return the standard deviation
    */
-  public static double std(Matrix vector) {
+  public static double std(DoubleMatrix vector) {
     return std(vector, mean(vector));
   }
 
@@ -537,7 +524,7 @@ public class Matrices {
    * @param mean the mean
    * @return the standard deviation
    */
-  public static double std(Matrix vector, double mean) {
+  public static double std(DoubleMatrix vector, double mean) {
     double var = var(vector, mean);
     return Math.sqrt(var / (vector.size() - 1));
   }
@@ -546,7 +533,7 @@ public class Matrices {
    * @param vector the vector
    * @return the mean
    */
-  public static double mean(Matrix vector) {
+  public static double mean(DoubleMatrix vector) {
     double mean = 0;
     for (int i = 0; i < vector.size(); i++) {
       mean += vector.get(i);
@@ -560,7 +547,7 @@ public class Matrices {
    * @param mean the mean
    * @return the variance
    */
-  public static double var(Matrix vector, double mean) {
+  public static double var(DoubleMatrix vector, double mean) {
     double var = 0;
     for (int i = 0; i < vector.size(); i++) {
       double residual = vector.get(i) - mean;
@@ -573,7 +560,7 @@ public class Matrices {
    * @param vector the vector
    * @return the variance
    */
-  public static double var(Matrix vector) {
+  public static double var(DoubleMatrix vector) {
     return var(vector, mean(vector));
   }
 
@@ -585,7 +572,7 @@ public class Matrices {
    * @param axis the axis
    * @return the t
    */
-  public static Matrix sum(Matrix m, Axis axis) {
+  public static DoubleMatrix sum(DoubleMatrix m, Axis axis) {
     switch (axis) {
       case ROW:
         return rowSum(m);
@@ -596,18 +583,18 @@ public class Matrices {
     }
   }
 
-  private static ArrayMatrix columnSum(Matrix m) {
+  private static ArrayDoubleMatrix columnSum(DoubleMatrix m) {
     double[] values = new double[m.rows()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
         values[i] += m.get(i, j);
       }
     }
-    return new ArrayMatrix(m.rows(), 1, values);
+    return new ArrayDoubleMatrix(m.rows(), 1, values);
   }
 
 
-  private static ArrayMatrix rowSum(Matrix m) {
+  private static ArrayDoubleMatrix rowSum(DoubleMatrix m) {
     double[] values = new double[m.columns()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
@@ -615,6 +602,6 @@ public class Matrices {
       }
     }
 
-    return new ArrayMatrix(1, m.columns(), values);
+    return new ArrayDoubleMatrix(1, m.columns(), values);
   }
 }

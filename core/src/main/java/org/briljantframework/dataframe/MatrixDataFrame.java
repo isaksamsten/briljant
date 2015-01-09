@@ -13,9 +13,9 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
 import com.carrotsearch.hppc.IntDoubleMap;
@@ -32,13 +32,13 @@ import com.carrotsearch.hppc.IntObjectOpenHashMap;
  */
 public class MatrixDataFrame extends AbstractDataFrame {
 
-  private final Matrix matrix;
+  private final DoubleMatrix matrix;
 
-  public MatrixDataFrame(Matrix matrix) {
+  public MatrixDataFrame(DoubleMatrix matrix) {
     this.matrix = matrix;
   }
 
-  protected MatrixDataFrame(Matrix matrix, NameAttribute columnNames, NameAttribute rowNames,
+  protected MatrixDataFrame(DoubleMatrix matrix, NameAttribute columnNames, NameAttribute rowNames,
       boolean copy) {
     super(columnNames, rowNames, copy);
     this.matrix = matrix;
@@ -163,7 +163,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     NameAttribute columnNames = new NameAttribute(this.columnNames);
     columnNames.remove(index);
 
-    Matrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
+    DoubleMatrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
     int j = 0;
     for (int k = 0; k < matrix.columns(); k++) {
       if (k != index) {
@@ -382,7 +382,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame build() {
-      ArrayMatrix mat = new ArrayMatrix(rows, columns, buffer);
+      ArrayDoubleMatrix mat = new ArrayDoubleMatrix(rows, columns, buffer);
       return new MatrixDataFrame(mat, columnNames, rowNames, false);
     }
   }
@@ -573,7 +573,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         }
       }
 
-      ArrayMatrix matrix = new ArrayMatrix(rows(), columns(), values);
+      ArrayDoubleMatrix matrix = new ArrayDoubleMatrix(rows(), columns(), values);
       return new MatrixDataFrame(matrix, columnNames, rowNames, false);
     }
   }

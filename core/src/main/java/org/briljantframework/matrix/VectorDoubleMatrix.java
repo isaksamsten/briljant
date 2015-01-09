@@ -10,12 +10,12 @@ import com.google.common.base.Preconditions;
  * allowed, generally {@link org.briljantframework.vector.DoubleVector} is the only suitable option.
  * 
  * For simplicity, new matrices created using {@link #newEmptyMatrix(int, int)} is not vector
- * matrices. Hence, most operations (e.g., {@link #mmul(Matrix)}) does not return matrices with
+ * matrices. Hence, most operations (e.g., {@link #mmul(DoubleMatrix)}) does not return matrices with
  * {@code this.getClass()}.
  * 
  * @author Isak Karlsson
  */
-public class VectorMatrix extends AbstractMatrix {
+public class VectorDoubleMatrix extends AbstractDoubleMatrix {
 
   private final Vector vector;
 
@@ -27,7 +27,7 @@ public class VectorMatrix extends AbstractMatrix {
    * @param columns the columns
    * @param vector the vector
    */
-  public VectorMatrix(int rows, int columns, Vector vector) {
+  public VectorDoubleMatrix(int rows, int columns, Vector vector) {
     super(rows, columns);
     Preconditions.checkArgument(rows * columns == vector.size(), "Invalid size.");
     this.vector = vector;
@@ -40,7 +40,7 @@ public class VectorMatrix extends AbstractMatrix {
    * @param columns the columns
    * @param vector the vector
    */
-  public VectorMatrix(int columns, Vector vector) {
+  public VectorDoubleMatrix(int columns, Vector vector) {
     this(vector.size() / columns, columns, vector);
   }
 
@@ -50,19 +50,14 @@ public class VectorMatrix extends AbstractMatrix {
    * @param vector the vector to wrap
    * @return a 1 x vector.size() column matrix
    */
-  public static Matrix wrap(Vector vector) {
-    return new VectorMatrix(1, vector.size(), vector);
+  public static DoubleMatrix wrap(Vector vector) {
+    return new VectorDoubleMatrix(1, vector.size(), vector);
   }
 
   @Override
-  public Matrix reshape(int rows, int columns) {
-    assertSameSize(rows * cols);
-    return new VectorMatrix(rows, columns, vector);
-  }
-
-  @Override
-  public void put(int i, int j, double value) {
-    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
+  public DoubleMatrix reshape(int rows, int columns) {
+    assertSameSize(rows * columns);
+    return new VectorDoubleMatrix(rows, columns, vector);
   }
 
   @Override
@@ -71,18 +66,8 @@ public class VectorMatrix extends AbstractMatrix {
   }
 
   @Override
-  public void put(int index, double value) {
-    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
-  }
-
-  @Override
   public double get(int index) {
     return vector.getAsDouble(index);
-  }
-
-  @Override
-  public int size() {
-    return vector.size();
   }
 
   @Override
@@ -91,13 +76,28 @@ public class VectorMatrix extends AbstractMatrix {
   }
 
   @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayDoubleMatrix(rows, columns);
   }
 
   @Override
-  public Matrix copy() {
-    return new ArrayMatrix(getShape(), vector.toDoubleArray());
+  public DoubleMatrix copy() {
+    return new ArrayDoubleMatrix(getShape(), vector.toDoubleArray());
+  }
+
+  @Override
+  public void put(int i, int j, double value) {
+    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
+  }
+
+  @Override
+  public void put(int index, double value) {
+    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
+  }
+
+  @Override
+  public int size() {
+    return vector.size();
   }
 
   /**
@@ -107,7 +107,7 @@ public class VectorMatrix extends AbstractMatrix {
    * {@code isArrayBased() == true}
    */
   @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
+  public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
     }
@@ -115,7 +115,7 @@ public class VectorMatrix extends AbstractMatrix {
     if (other.isArrayBased()) {
       double[] tmp = new double[this.rows() * other.columns()];
       Matrices.mmul(this, alpha, other, beta, tmp);
-      return new ArrayMatrix(other.columns(), tmp);
+      return new ArrayDoubleMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);
     }

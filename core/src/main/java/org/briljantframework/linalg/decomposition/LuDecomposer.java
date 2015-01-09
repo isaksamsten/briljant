@@ -17,8 +17,8 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -28,11 +28,11 @@ import com.github.fommil.netlib.LAPACK;
  */
 public class LuDecomposer implements Decomposer<LuDecomposition> {
   @Override
-  public LuDecomposition decompose(Matrix matrix) {
+  public LuDecomposition decompose(DoubleMatrix matrix) {
     int m = matrix.rows(), n = matrix.columns();
     int[] pivots = new int[Math.min(m, n)];
 
-    Matrix lu = new ArrayMatrix(matrix);
+    DoubleMatrix lu = new ArrayDoubleMatrix(matrix);
 
     intW error = new intW(0);
     LAPACK.getInstance().dgetrf(n, n, lu.asDoubleArray(), n, pivots, error);

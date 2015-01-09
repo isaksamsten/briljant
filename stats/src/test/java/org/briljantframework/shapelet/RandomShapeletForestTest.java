@@ -17,9 +17,9 @@ import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.io.DelimitedInputStream;
-import org.briljantframework.matrix.ArrayMatrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
@@ -315,7 +315,7 @@ public class RandomShapeletForestTest {
 
   }
 
-  private JFreeChart bar(Matrix x, String xlabel, Matrix y, String ylabel) {
+  private JFreeChart bar(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
 
@@ -332,7 +332,7 @@ public class RandomShapeletForestTest {
     return Chartable.applyTheme(chart);
   }
 
-  public JFreeChart area(Matrix x, String xlabel, Matrix y, String ylabel) {
+  public JFreeChart area(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     XYSeries series = new XYSeries("Series");
@@ -355,10 +355,10 @@ public class RandomShapeletForestTest {
 
   @Test
   public void testCreateSizePlot() throws Exception {
-    Matrix error =
-        ArrayMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
+    DoubleMatrix error =
+        ArrayDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
                 0.1738586474, 0.1724606892);
-    Matrix errors =
+    DoubleMatrix errors =
         Matrices
             .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
                 + "0.249,0.249,0.249,0.249,0.249,0.249;"
@@ -367,7 +367,7 @@ public class RandomShapeletForestTest {
     System.out.println(errors);
 
 
-    Matrix size = ArrayMatrix.rowVector(10, 25, 50, 100, 250, 500);
+    DoubleMatrix size = ArrayDoubleMatrix.rowVector(10, 25, 50, 100, 250, 500);
     JFreeChart errorChart =
         plot(size, "No. trees", errors, "Average error", new String[] {"RSF", "1-NN",
             "1-NN DTW-best", "1-NN DTW-no"});
@@ -375,8 +375,8 @@ public class RandomShapeletForestTest {
     errorChart.getLegend().setMargin(0, 45, -7, 0);
     Chartable.saveSVG("/Users/isak/Desktop/no_trees_error.svg", errorChart, 300, 140);
 
-    Matrix auc =
-        ArrayMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
+    DoubleMatrix auc =
+        ArrayDoubleMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
                 0.9582902467, 0.959242855);
     JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
     ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);
@@ -384,7 +384,7 @@ public class RandomShapeletForestTest {
 
   }
 
-  public JFreeChart plot(Matrix x, String xlabel, Matrix y, String ylabel, String[] labels) {
+  public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel, String[] labels) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     for (int i = 0; i < y.rows(); i++) {
@@ -426,7 +426,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(Matrix x, String xlabel, Matrix y, String ylabel) {
+  public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
     return plot(x, xlabel, y, ylabel, (String[]) null);
   }
 
@@ -570,12 +570,12 @@ public class RandomShapeletForestTest {
     //
   }
 
-  public JFreeChart plotRows(Matrix x, Matrix ys, Vector targets) {
+  public JFreeChart plotRows(DoubleMatrix x, DoubleMatrix ys, Vector targets) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     for (int i = 0; i < ys.rows(); i++) {
       XYSeries series = new XYSeries("" + i);
-      Matrix y = ys.getRowView(i);
+      DoubleMatrix y = ys.getRowView(i);
       for (int j = 0; j < x.size(); j++) {
         series.add(x.get(j), y.get(j));
       }

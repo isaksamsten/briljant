@@ -18,22 +18,22 @@ package org.briljantframework.linalg.analysis;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.transform.InvertibleTransformation;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 24/06/14.
  */
 public class PrincipalComponentAnalysis implements Analysis, InvertibleTransformation {
 
-  private final Matrix u;
+  private final DoubleMatrix u;
   private int components;
 
-  public PrincipalComponentAnalysis(Matrix principalComponents, int components) {
+  public PrincipalComponentAnalysis(DoubleMatrix principalComponents, int components) {
     this.u = principalComponents;
     this.components = components;
   }
 
-  private int components(Matrix matrix) {
+  private int components(DoubleMatrix matrix) {
     return this.components > 0 ? this.components : Math.min(matrix.rows(), matrix.columns());
   }
 
@@ -41,7 +41,7 @@ public class PrincipalComponentAnalysis implements Analysis, InvertibleTransform
     return components;
   }
 
-  public Matrix getU() {
+  public DoubleMatrix getU() {
     return u;
   }
 

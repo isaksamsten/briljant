@@ -27,7 +27,7 @@ import org.briljantframework.vector.VectorLike;
 import com.google.common.base.Preconditions;
 
 /**
- * Implementation of {@link org.briljantframework.matrix.Matrix} using a single {@code double}
+ * Implementation of {@link DoubleMatrix} using a single {@code double}
  * array. Indexing is calculated in column-major order, hence varying column faster than row is
  * preferred when iterating.
  * 
@@ -36,7 +36,7 @@ import com.google.common.base.Preconditions;
  * 
  * @author Isak Karlsson
  */
-public class ArrayMatrix extends AbstractMatrix {
+public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
 
   protected static final String INVALID_SIZE = "Sizes does not match.";
   private final double[] values;
@@ -48,7 +48,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param columns the columns
    * @param values the values
    */
-  public ArrayMatrix(int columns, double[] values) {
+  public ArrayDoubleMatrix(int columns, double[] values) {
     super(values.length / columns, columns);
     this.values = values; // new double[Math.multiplyExact(rows, columns)];
     checkArgument(values.length % columns == 0, INVALID_SIZE);
@@ -61,7 +61,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param columns the columns
    * @param values the values
    */
-  public ArrayMatrix(int rows, int columns, double[] values) {
+  public ArrayDoubleMatrix(int rows, int columns, double[] values) {
     super(rows, columns);
     checkArgument(rows * columns == values.length, "Sizes does not match.");
     this.values = values;
@@ -72,7 +72,7 @@ public class ArrayMatrix extends AbstractMatrix {
    *
    * @param shape the shape
    */
-  public ArrayMatrix(Shape shape) {
+  public ArrayDoubleMatrix(Shape shape) {
     this(shape.rows, shape.columns);
   }
 
@@ -83,16 +83,16 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param rows in matrix
    * @param columns columns in matrix
    */
-  public ArrayMatrix(int rows, int columns) {
+  public ArrayDoubleMatrix(int rows, int columns) {
     this(rows, columns, new double[Math.multiplyExact(rows, columns)]);
   }
 
   /**
    * @param shape the shape
    * @param values the values
-   * @see #ArrayMatrix(int, int, double[])
+   * @see #ArrayDoubleMatrix(int, int, double[])
    */
-  public ArrayMatrix(Shape shape, double[] values) {
+  public ArrayDoubleMatrix(Shape shape, double[] values) {
     this(shape.rows, shape.columns, values);
   }
 
@@ -101,7 +101,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * 
    * @param matrix the tensor like
    */
-  public ArrayMatrix(Matrix matrix) {
+  public ArrayDoubleMatrix(DoubleMatrix matrix) {
     this(matrix.getShape(), matrix);
   }
 
@@ -112,15 +112,15 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param shape the shape
    * @param matrix to copy
    */
-  public ArrayMatrix(Shape shape, Matrix matrix) {
+  public ArrayDoubleMatrix(Shape shape, DoubleMatrix matrix) {
     super(shape.rows, shape.columns);
-    if (!hasCompatibleShape(matrix.getShape())) {
+    if (!hasEqualShape(matrix)) {
       throw new IllegalArgumentException("matrix can't fit");
     }
 
-    values = new double[Math.multiplyExact(rows, cols)];
-    if (matrix instanceof ArrayMatrix) {
-      System.arraycopy(((ArrayMatrix) matrix).values, 0, values, 0, this.cols * this.rows);
+    values = new double[size()];
+    if (matrix instanceof ArrayDoubleMatrix) {
+      System.arraycopy(((ArrayDoubleMatrix) matrix).values, 0, values, 0, size());
     } else {
       for (int i = 0; i < matrix.size(); i++) {
         values[i] = matrix.get(i);
@@ -128,7 +128,7 @@ public class ArrayMatrix extends AbstractMatrix {
     }
   }
 
-  public ArrayMatrix(VectorLike vec) {
+  public ArrayDoubleMatrix(VectorLike vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
       put(i, vec.getAsDouble(i));
@@ -140,7 +140,7 @@ public class ArrayMatrix extends AbstractMatrix {
    *
    * @param values the values
    */
-  public ArrayMatrix(double[][] values) {
+  public ArrayDoubleMatrix(double[][] values) {
     this(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[i].length; j++) {
@@ -157,8 +157,8 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param value fill matrix with
    * @return a new matrix filled with <code>value</code>
    */
-  public static ArrayMatrix filledWith(int rows, int cols, double value) {
-    ArrayMatrix m = new ArrayMatrix(rows, cols);
+  public static ArrayDoubleMatrix filledWith(int rows, int cols, double value) {
+    ArrayDoubleMatrix m = new ArrayDoubleMatrix(rows, cols);
     Arrays.fill(m.values, value);
     return m;
   }
@@ -183,7 +183,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param args the args
    * @return dense matrix
    */
-  public static ArrayMatrix fromRowOrder(int rows, int cols, double... args) {
+  public static ArrayDoubleMatrix fromRowOrder(int rows, int cols, double... args) {
     return of(rows, cols, args);
   }
 
@@ -211,7 +211,7 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param data in row-major format
    * @return a matrix
    */
-  public static ArrayMatrix of(int rows, int cols, double... data) {
+  public static ArrayDoubleMatrix of(int rows, int cols, double... data) {
     Preconditions.checkNotNull(data, "data");
     if (rows * cols != data.length) {
       throw new IllegalArgumentException("rows * headers != data.length");
@@ -224,11 +224,11 @@ public class ArrayMatrix extends AbstractMatrix {
         colOrder[j * rows + i] = data[i * cols + j];
       }
     }
-    return new ArrayMatrix(rows, cols, colOrder);
+    return new ArrayDoubleMatrix(rows, cols, colOrder);
   }
 
-  public static ArrayMatrix fromColumnOrder(int rows, int cols, double... args) {
-    return new ArrayMatrix(rows, cols, args);
+  public static ArrayDoubleMatrix fromColumnOrder(int rows, int cols, double... args) {
+    return new ArrayDoubleMatrix(rows, cols, args);
   }
 
   /**
@@ -237,8 +237,8 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param args the double values
    * @return a new matrix
    */
-  public static ArrayMatrix columnVector(double... args) {
-    return new ArrayMatrix(args.length, 1, args);
+  public static ArrayDoubleMatrix columnVector(double... args) {
+    return new ArrayDoubleMatrix(args.length, 1, args);
   }
 
   /**
@@ -247,20 +247,15 @@ public class ArrayMatrix extends AbstractMatrix {
    * @param args the double values
    * @return a new matrix
    */
-  public static ArrayMatrix rowVector(double... args) {
-    return new ArrayMatrix(1, args.length, args);
+  public static ArrayDoubleMatrix rowVector(double... args) {
+    return new ArrayDoubleMatrix(1, args.length, args);
   }
 
   @Override
-  public Matrix reshape(int rows, int columns) {
+  public DoubleMatrix reshape(int rows, int columns) {
     Preconditions.checkArgument(rows * columns == size(),
         "Total size of new matrix must be unchanged.");
-    return new ArrayMatrix(rows, columns, values);
-  }
-
-  @Override
-  public void put(int i, int j, double value) {
-    values[columnMajor(i, j, rows(), columns())] = value;
+    return new ArrayDoubleMatrix(rows, columns, values);
   }
 
   @Override
@@ -269,18 +264,8 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
-  public void put(int index, double value) {
-    values[index] = value;
-  }
-
-  @Override
   public double get(int index) {
     return values[index];
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
   }
 
   @Override
@@ -289,21 +274,36 @@ public class ArrayMatrix extends AbstractMatrix {
   }
 
   @Override
-  public Matrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayMatrix(rows, columns);
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayDoubleMatrix(rows, columns);
   }
 
   /**
    * @return a copy of this matrix
    */
-  public ArrayMatrix copy() {
-    ArrayMatrix m = new ArrayMatrix(this.rows(), this.columns());
+  public ArrayDoubleMatrix copy() {
+    ArrayDoubleMatrix m = new ArrayDoubleMatrix(this.rows(), this.columns());
     System.arraycopy(values, 0, m.values, 0, values.length);
     return m;
   }
 
   @Override
-  public Matrix mmul(double alpha, Matrix other, double beta) {
+  public void put(int i, int j, double value) {
+    values[columnMajor(i, j, rows(), columns())] = value;
+  }
+
+  @Override
+  public void put(int index, double value) {
+    values[index] = value;
+  }
+
+  @Override
+  public int size() {
+    return rows() * columns();
+  }
+
+  @Override
+  public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
     }
@@ -311,23 +311,23 @@ public class ArrayMatrix extends AbstractMatrix {
     if (other.isArrayBased()) {
       double[] tmp = new double[this.rows() * other.columns()];
       Matrices.mmul(this, alpha, other, beta, tmp);
-      return new ArrayMatrix(other.columns(), tmp);
+      return new ArrayDoubleMatrix(other.columns(), tmp);
     } else {
       return super.mmul(alpha, other, beta);
     }
   }
 
   @Override
-  public Matrix mmul(double alpha, Transpose a, Matrix other, double beta, Transpose b) {
+  public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, double beta, Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a == Transpose.YES) {
+    if (a.transpose()) {
       thisRows = columns();
       thisCols = rows();
     }
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b == Transpose.YES) {
+    if (b.transpose()) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -339,7 +339,7 @@ public class ArrayMatrix extends AbstractMatrix {
     if (other.isArrayBased()) {
       double[] tmp = new double[thisRows * otherColumns];
       Matrices.mmul(this, alpha, a, other, beta, b, tmp);
-      return new ArrayMatrix(thisRows, otherColumns, tmp);
+      return new ArrayDoubleMatrix(thisRows, otherColumns, tmp);
     } else {
       return super.mmul(alpha, a, other, beta, b);
     }
@@ -405,8 +405,8 @@ public class ArrayMatrix extends AbstractMatrix {
      *
      * @return the dense matrix
      */
-    public ArrayMatrix create() {
-      return new ArrayMatrix(values);
+    public ArrayDoubleMatrix create() {
+      return new ArrayDoubleMatrix(values);
     }
 
     /**
@@ -415,8 +415,8 @@ public class ArrayMatrix extends AbstractMatrix {
      * @param args the args
      * @return the dense matrix
      */
-    public ArrayMatrix withValues(double... args) {
-      return ArrayMatrix.of(rows, cols, args);
+    public ArrayDoubleMatrix withValues(double... args) {
+      return ArrayDoubleMatrix.of(rows, cols, args);
     }
   }
 }

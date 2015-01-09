@@ -26,8 +26,8 @@ import org.briljantframework.dataseries.Aggregator;
 import org.briljantframework.dataseries.Approximations;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.matrix.ArrayMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
 
@@ -88,8 +88,8 @@ public class ShapeletTree implements Classifier {
 
     Node<ShapeletThreshold> node = build(x, y, examples, params);
     return new Model(node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
-        new ArrayMatrix(1, params.lengthImportance.length, params.lengthImportance),
-        new ArrayMatrix(1, params.positionImportance.length, params.positionImportance));
+        new ArrayDoubleMatrix(1, params.lengthImportance.length, params.lengthImportance),
+        new ArrayDoubleMatrix(1, params.positionImportance.length, params.positionImportance));
   }
 
   /**
@@ -161,8 +161,8 @@ public class ShapeletTree implements Classifier {
    */
   public static class Model extends Tree.Model<ShapeletThreshold> {
 
-    private final ArrayMatrix lengthImportance;
-    private final ArrayMatrix positionImportance;
+    private final ArrayDoubleMatrix lengthImportance;
+    private final ArrayDoubleMatrix positionImportance;
 
 
     /**
@@ -174,7 +174,7 @@ public class ShapeletTree implements Classifier {
      * @param positionImportance the position importance
      */
     protected Model(Node<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
-        ArrayMatrix lengthImportance, ArrayMatrix positionImportance) {
+        ArrayDoubleMatrix lengthImportance, ArrayDoubleMatrix positionImportance) {
       super(node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -185,7 +185,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the position importance
      */
-    public ArrayMatrix getPositionImportance() {
+    public ArrayDoubleMatrix getPositionImportance() {
       return positionImportance;
     }
 
@@ -194,7 +194,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the length importance
      */
-    public Matrix getLengthImportance() {
+    public DoubleMatrix getLengthImportance() {
       return lengthImportance;
     }
   }
