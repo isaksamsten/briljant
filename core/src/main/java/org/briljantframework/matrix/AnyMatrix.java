@@ -216,8 +216,25 @@ public interface AnyMatrix {
    */
   void set(int index, int value);
 
+  /**
+   * Set value at {@code atIndex} to the value in {@code from} at {@code fromIndex}
+   * 
+   * @param atIndex the index
+   * @param from the other matrix
+   * @param fromIndex the index
+   */
   void set(int atIndex, AnyMatrix from, int fromIndex);
 
+  /**
+   * Set value at {@code atRow, atColumn} to the value in {@code from} at
+   * {@code fromRow, fromColumn}
+   * 
+   * @param atRow the row index
+   * @param atColumn the column index
+   * @param from the other matrix
+   * @param fromRow the row index
+   * @param fromColumn the column index
+   */
   void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn);
 
   /**
@@ -375,6 +392,22 @@ public interface AnyMatrix {
    * @return a boolean matrix
    */
   BooleanMatrix equalsTo(Number value);
+
+  /**
+   * Create a copy of this matrix.
+   *
+   * @return the copy
+   */
+  AnyMatrix copy();
+
+  /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows the number of rows
+   * @param columns the number of columns
+   * @return a new empty matrix
+   */
+  AnyMatrix newEmptyMatrix(int rows, int columns);
 
   /**
    *

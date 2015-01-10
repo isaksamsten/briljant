@@ -20,21 +20,22 @@ Briljants main abstractions are the [Matrix](#matrix),
   floating point numbers), `Binary` (i.e. true/false), `Integer` and
   `Complex` numbers. All providing a unique `NA` representation.
 
-* The `Matrix` is a 2-dimensional data container of double precision
-  floating point numbers, supporting a multitude of linear algebra
-  operations.
+* The `AnyMatrix`, `DoubleMatrix`, `IntMatrix` and `ComplexMatrix` are
+  2-dimensional data containers of double precision floating point
+  numbers, integers or complex numbers, supporting a multitude of
+  linear algebra operations.
 
 ## An example ##
 
 ```
-import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.Doubles.*;
 import java.util.Random;
 import org.briljantframework.matrix.Matrix;
 
 public class Ex1 {
   public static void main(String[] args) {
     Random random = new Random(123);
-    Matrix m = zeros(3, 5);
+    DoubleMatrix m = zeros(3, 5);
     m.assign(random::nextGaussian);
     /*- =>
      * -1.4380   0.2775   1.3520   1.0175  -0.4671
@@ -59,7 +60,7 @@ public class Ex1 {
 ## Matrix
 
 There are several ways to create matrices, of which most are
-implemented in the `org.briljantframework.matrix.Matrices` class.
+implemented in the `org.briljantframework.matrix.Doubles` class.
 
 For example, matrices can be created from one dimensional arrays,
 2-dimensional arrays, `Iterable<? extends Number>`, `String`
@@ -68,31 +69,35 @@ representations and function applications.
 !!! warning "Imports"
 
     In the examples below, `import org.briljantframework.matrix.*` and
-    `import static org.briljantframework.matrix.Matrices.*` are
+    `import static org.briljantframework.matrix.Doubles.*` are
     implicit
 
 !!! info "Matrix implementations"
 
     Matrix is a general interface of which several implementations
-    exist. Most operations in `Matrices` either return a matrix of the
+    exist. Most operations in `Doubles` either return a matrix of the
     same type as its input or
-    `org.briljantframework.matrix.ArrayMatrix`.
+    `org.briljantframework.matrix.ArrayDoubleMatrix`.
+
+!!! info "Matrix Types"
+
+    A few notes on types
 
 ### Creation ###
 
 ```
 public class Ex2 {
   public static void main(String[] args) {
-    Matrix a = range(0, 10).reshape(5, 2);
-    Matrix b = matrix(new double[][] {
+    DoubleMatrix a = Ints.range(0, 10).reshape(5, 2).asDoubleMatrix();
+    DoubleMatrix b = matrix(new double[][] {
       new double[] {0, 5},
       new double[] {1, 6},
       new double[] {2, 7},
       new double[] {3, 8},
       new double[] {4, 9}
     });
-    Matrix c = matrix(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).reshape(5, 2);
-    Matrix d = parseMatrix("0,5;1,6;2,7;3,8;4,9");
+    DoubleMatrix c = newMatrix(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).reshape(5, 2);
+    DoubleMatrix d = parseMatrix("0,5;1,6;2,7;3,8;4,9");
   }
 }
 ```
@@ -104,36 +109,37 @@ using a flat array and reshaping it to a 5 by 2 matrix. Finally, `d`
 is created by parsing a string representation (similar to the Octave
 equivalent).
 
-`range(int, int)` creates a column-vector (i.e. a m-by-1 matrix) with
-values between `start` and `end` with `1` increments. The 3-arity
-version, `range(int, int, int)` can be used if another `step`-size is
-needed. Since it's not possible to predict the number of values in
-floating point ranges, `linspace(double, double, double)` should be
-use instead. `linspace` receives an additional argument which denotes
-the number elements returned. For example, `linspace(0, 10,
-50).reshape(10, 5)` creates a 10-by-5 matrix.
+`Ints#range(int, int)` creates a column-vector (i.e. a m-by-1 matrix)
+with values between `start` and `end` with `1` increments. The 3-arity
+version, `Ints#range(int, int, int)` can be used if another
+`step`-size is needed. Since it's not possible to predict the number
+of values in floating point ranges, `Doubles#linspace(double, double,
+double)` should be use instead. `Doubles#linspace` receives an
+additional argument which denotes the number elements returned. For
+example, `Doubles#linspace(0, 10, 50).reshape(10, 5)` creates a
+10-by-5 matrix.
 
 In many cases, the size of a matrix is known but its contents is
 not. Therefore, Briljant provides several ways of creating empty matrices with
 placeholder values.
 
 ```
-Matrix a = zeros(10, 10); // 10-by-10 matrix with elements set to 0
-Matrix b = ones(10, 10);  // 10-by-10 matrix with elements set to 1
-Matrix c = fill(10, 10, Double.NaN) // 10 by 10 matrix with elements set to NaN
-Matrix d = linspace(0, 2 * Math.PI, 100).mapi(Math::sin);
+DoubleMatrix a = zeros(10, 10); // 10-by-10 matrix with elements set to 0
+DoubleMatrix b = ones(10, 10);  // 10-by-10 matrix with elements set to 1
+DoubleMatrix c = fill(10, 10, Double.NaN) // 10 by 10 matrix with elements set to NaN
+DoubleMatrix d = linspace(0, 2 * Math.PI, 100).mapi(Math::sin);
 ```
 
 #### See also ####
 
-[Matrices#matrix](examples.md#matrix),
-[Matrices#linspace](examples.md#linspace),
-[Matrices#parseMatrix](examples.md#parseMatrix),
-[Matrices#zeros](examples.md#zeros),
-[Matrices#ones](examples.md#ones),
-[Matrices#fill](examples.md#fill),
-[Matrices#rand](examples.md#rand),
-[Matrices#randn](examples.md#randn)
+[Doubles#matrix](examples.md#matrix),
+[Doubles#linspace](examples.md#linspace),
+[Doubles#parseMatrix](examples.md#parseMatrix),
+[Doubles#zeros](examples.md#zeros),
+[Doubles#ones](examples.md#ones),
+[Doubles#fill](examples.md#fill),
+[Doubles#rand](examples.md#rand),
+[Doubles#randn](examples.md#randn)
 
 ### Manipulation ###
 
@@ -146,23 +152,23 @@ allocations).
 ```
 public class Ex3 {
   public static void main(String[] args) {
-    Matrix a = zeros(10, 10);
-    Matrix b = randn(10, 10);
+    DoubleMatrix a = zeros(10, 10);
+    DoubleMatrix b = randn(10, 10);
 
     a.assign(b); // a contains b
     a.assign(b, Math::sqrt); // assign b and square the elements
     a.assign(b.mapi(Math::sqrt));
 
-    Matrix x = a.assign(b, e -> e * e).reshape(5, 20);
+    DoubleMatrix x = a.assign(b, e -> e * e).reshape(5, 20);
 
     // Take the first row
-    Matrix firstRow = b.getRowView(0);
+    DoubleMatrix firstRow = b.getRowView(0);
 
     // Assign zeroes to the first row
     firstRow.assign(zeros(1, 10));
 
     // Take the upper 4 elements of b
-    Matrix up = b.getView(0, 0, 4, 4);
+    DoubleMatrix up = b.getView(0, 0, 4, 4);
 
     // Square the upper left 4-by-4 corner
     b.getView(0, 0, 4, 4).mapi(x -> x * x);
@@ -172,11 +178,12 @@ public class Ex3 {
 ```
 
 Note that modification of views propagates to the original data. To
-break a copy free from its original use `Matrix#copy()`.
+break a copy free from its original use `AnyMatrix#copy()`.
 
 Matrices are mutable (and hence unsafe to mutate in
 parallel). Mutations are done using operations prepended with **i**,
-`put(int, int, double)` and `put(int, double)`.
+`set(int, int, double/int/Complex)` and `set(int,
+double/int/Complex)`.
 
 
 !!! info "Column-major or row-major"

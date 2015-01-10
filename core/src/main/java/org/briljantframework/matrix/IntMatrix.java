@@ -258,6 +258,23 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
   // Arithmetical operations ///////////
 
   /**
+   * Create a copy of this matrix.
+   *
+   * @return the copy
+   */
+  @Override
+  IntMatrix copy();
+
+  /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows the number of rows
+   * @param columns the number of colums
+   * @return a new empty matrix (
+   */
+  IntMatrix newEmptyMatrix(int rows, int columns);
+
+  /**
    * <u>m</u>atrix<u>m</u>ultiplication
    *
    * @param other the other
@@ -279,7 +296,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
 
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
-   * 
+   *
    * @param a transpose for {@code this}
    * @param other the matrix
    * @param b transpose for {@code other}
@@ -290,7 +307,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
    * scaling by {@code alpha} {@code beta}.
-   * 
+   *
    * @param alpha scaling factor for {@code this}
    * @param a transpose for {@code this}
    * @param other the matrix
@@ -601,7 +618,6 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    */
   IntMatrix subi(int alpha, IntMatrix other, int beta);
 
-
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
@@ -852,20 +868,4 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @return true if {@link #asIntArray()} is {@code O(1)}
    */
   boolean isArrayBased();
-
-  /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows the number of rows
-   * @param columns the number of colums
-   * @return a new empty matrix (
-   */
-  IntMatrix newEmptyMatrix(int rows, int columns);
-
-  /**
-   * Create a copy of this matrix.
-   *
-   * @return the copy
-   */
-  IntMatrix copy();
 }

@@ -329,6 +329,20 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
 
   // Arithmetical operations ///////////
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  DoubleMatrix copy();
+
+  /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows the number of rows
+   * @param columns the number of colums
+   * @return a new empty matrix (
+   */
+  DoubleMatrix newEmptyMatrix(int rows, int columns);
 
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
@@ -663,7 +677,6 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    */
   DoubleMatrix subi(double alpha, DoubleMatrix other, double beta);
 
-
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
@@ -888,10 +901,11 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
   double get(int i, int j);
 
   /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in column-major order. For
-   * example, given the following matrix
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
+   * column-major order. For example, given the following matrix
    * <p>
    * <p>
+   *
    * <pre>
    *     1 2 3
    *     4 5 6
@@ -900,6 +914,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * this code
    * <p>
    * <p>
+   *
    * <pre>
    * for (int i = 0; i &lt; x.size(); i++) {
    *   System.out.print(x.get(i));
@@ -909,6 +924,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * prints
    * <p>
    * <p>
+   *
    * <pre>
    * 142536
    * </pre>
@@ -928,20 +944,4 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @return true if {@link #asDoubleArray()} is {@code O(1)}
    */
   boolean isArrayBased();
-
-  /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows the number of rows
-   * @param columns the number of colums
-   * @return a new empty matrix (
-   */
-  DoubleMatrix newEmptyMatrix(int rows, int columns);
-
-  /**
-   * Create a copy of this matrix.
-   *
-   * @return the copy
-   */
-  DoubleMatrix copy();
 }

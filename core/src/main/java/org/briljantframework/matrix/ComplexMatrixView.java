@@ -30,8 +30,21 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
 
   @Override
   public ComplexMatrixView reshape(int rows, int columns) {
-    // TODO(isak): this might be strange..
     return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
+  public ComplexMatrix copy() {
+    ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      mat.set(i, get(i));
+    }
+    return mat;
+  }
+
+  @Override
+  public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayComplexMatrix(rows, columns);
   }
 
   @Override
@@ -44,29 +57,9 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
     return parent.get(computeLinearIndex(index));
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * Note, not entirely true, but it appears that copying the array is faster than brute-force
-   * implementing mmul if the underlying matrix {@code isArrayBased()}
-   */
   @Override
   public boolean isArrayBased() {
     return parent.isArrayBased();
-  }
-
-  @Override
-  public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayComplexMatrix(rows, columns);
-  }
-
-  @Override
-  public ComplexMatrix copy() {
-    ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      mat.set(i, get(i));
-    }
-    return mat;
   }
 
   @Override

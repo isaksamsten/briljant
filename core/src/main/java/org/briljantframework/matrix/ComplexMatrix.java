@@ -228,6 +228,11 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
    */
   ComplexMatrix transpose();
 
+  /**
+   * Returns the conjugate transpose of this vector.
+   * 
+   * @return the conjugate transpose
+   */
   ComplexMatrix conjugateTranspose();
 
   /**
@@ -236,8 +241,82 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
   @Override
   ComplexMatrix reshape(int rows, int columns);
 
-  // Arithmetical operations ///////////
+  /**
+   * Create a copy of this matrix.
+   *
+   * @return the copy
+   */
+  @Override
+  ComplexMatrix copy();
 
+  /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows the number of rows
+   * @param columns the number of colums
+   * @return a new empty matrix (
+   */
+  ComplexMatrix newEmptyMatrix(int rows, int columns);
+
+  /**
+   * Returns a new matrix with elements negated.
+   *
+   * @return a new matrix
+   */
+  ComplexMatrix negate();
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value Complex
+   */
+  Complex get(int i, int j);
+
+  /**
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
+   * column-major order. For example, given the following matrix
+   * <p>
+   *
+   * <pre>
+   *     1 2 3
+   *     4 5 6
+   * </pre>
+   * <p>
+   * this code
+   * <p>
+   *
+   * <pre>
+   * for (int i = 0; i &lt; x.size(); i++) {
+   *   System.out.print(x.get(i));
+   * }
+   * </pre>
+   * <p>
+   * prints
+   * <p>
+   *
+   * <pre>
+   * 142536
+   * </pre>
+   *
+   * @param index the index
+   * @return the value index
+   */
+  Complex get(int index);
+
+  /**
+   * @return the matrix as a column-major Complex array
+   * @see #isArrayBased()
+   */
+  double[] asDoubleArray();
+
+  /**
+   * @return true if {@link #asDoubleArray()} is {@code O(1)}
+   */
+  boolean isArrayBased();
+
+  // Arithmetical operations ///////////
 
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
@@ -425,7 +504,6 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
    */
   ComplexMatrix subi(Complex alpha, ComplexMatrix other, Complex beta);
 
-
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
@@ -462,7 +540,7 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
 
   /**
    * In place element wise division.
-   * 
+   *
    * @param other the other matrix
    * @return receiver modified
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
@@ -495,78 +573,4 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
   ComplexMatrix rdivi(Complex other);
-
-  /**
-   * Returns a new matrix with elements negated.
-   *
-   * @return a new matrix
-   */
-  ComplexMatrix negate();
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value Complex
-   */
-  Complex get(int i, int j);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
-   *
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   *
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   *
-   * <pre>
-   * 142536
-   * </pre>
-   *
-   * @param index the index
-   * @return the value index
-   */
-  Complex get(int index);
-
-  /**
-   * @return the matrix as a column-major Complex array
-   * @see #isArrayBased()
-   */
-  double[] asDoubleArray();
-
-  /**
-   * @return true if {@link #asDoubleArray()} is {@code O(1)}
-   */
-  boolean isArrayBased();
-
-  /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows the number of rows
-   * @param columns the number of colums
-   * @return a new empty matrix (
-   */
-  ComplexMatrix newEmptyMatrix(int rows, int columns);
-
-  /**
-   * Create a copy of this matrix.
-   *
-   * @return the copy
-   */
-  ComplexMatrix copy();
 }

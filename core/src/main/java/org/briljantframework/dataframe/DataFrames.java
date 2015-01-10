@@ -141,7 +141,7 @@ public final class DataFrames {
             builder.addColumn(b.getColumnType(j).newBuilder());
             builder.setColumnName(column, b.getColumnName(j));
           }
-          builder.set(i, column, a, bRow, j);
+          builder.set(i, column, b, bRow, j);
           column += 1;
         }
       }

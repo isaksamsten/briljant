@@ -72,6 +72,20 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     }
 
     @Override
+    public DoubleMatrix copy() {
+      DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        matrix.set(i, get(i));
+      }
+      return matrix;
+    }
+
+    @Override
+    public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+      return new ArrayDoubleMatrix(rows, columns);
+    }
+
+    @Override
     public double get(int i, int j) {
       return parent.getAsDouble(i, j);
     }
@@ -92,20 +106,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
       } else {
         return false;
       }
-    }
-
-    @Override
-    public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-      return new ArrayDoubleMatrix(rows, columns);
-    }
-
-    @Override
-    public DoubleMatrix copy() {
-      DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -165,6 +165,20 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     }
 
     @Override
+    public ComplexMatrix copy() {
+      ComplexMatrix matrix = newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        matrix.set(i, get(i));
+      }
+      return matrix;
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return new ArrayComplexMatrix(rows, columns);
+    }
+
+    @Override
     public Complex get(int i, int j) {
       return parent.getAsComplex(i, j);
     }
@@ -185,20 +199,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
       } else {
         return false;
       }
-    }
-
-    @Override
-    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-      return new ArrayComplexMatrix(rows, columns);
-    }
-
-    @Override
-    public ComplexMatrix copy() {
-      ComplexMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -247,6 +247,20 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     }
 
     @Override
+    public IntMatrix copy() {
+      IntMatrix matrix = newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        matrix.set(i, get(i));
+      }
+      return matrix;
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return new ArrayIntMatrix(rows, columns);
+    }
+
+    @Override
     public int get(int i, int j) {
       return parent.getAsInt(i, j);
     }
@@ -259,20 +273,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     @Override
     public boolean isArrayBased() {
       return parent instanceof IntMatrix && ((IntMatrix) parent).isArrayBased();
-    }
-
-    @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return new ArrayIntMatrix(rows, columns);
-    }
-
-    @Override
-    public IntMatrix copy() {
-      IntMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -343,7 +343,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) < other.getAsDouble(i));
+      bm.set(i, getAsDouble(i) < other.getAsDouble(i));
     }
 
     return bm;
@@ -353,7 +353,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   public BooleanMatrix lessThan(Number value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) < value.doubleValue());
+      bm.set(i, getAsDouble(i) < value.doubleValue());
     }
     return bm;
   }
@@ -364,7 +364,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) <= other.getAsDouble(i));
+      bm.set(i, getAsDouble(i) <= other.getAsDouble(i));
     }
     return bm;
   }
@@ -373,7 +373,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   public BooleanMatrix lessThanEqual(Number value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) <= value.doubleValue());
+      bm.set(i, getAsDouble(i) <= value.doubleValue());
     }
     return bm;
   }
@@ -383,7 +383,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) > other.getAsDouble(i));
+      bm.set(i, getAsDouble(i) > other.getAsDouble(i));
     }
     return bm;
   }
@@ -392,7 +392,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   public BooleanMatrix greaterThan(Number value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) > value.doubleValue());
+      bm.set(i, getAsDouble(i) > value.doubleValue());
     }
     return bm;
   }
@@ -402,7 +402,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     assertEqualSize(other);
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) >= other.getAsDouble(i));
+      bm.set(i, getAsDouble(i) >= other.getAsDouble(i));
     }
 
     return bm;
@@ -412,7 +412,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   public BooleanMatrix greaterThanEquals(Number value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) >= value.doubleValue());
+      bm.set(i, getAsDouble(i) >= value.doubleValue());
     }
     return bm;
   }
@@ -423,7 +423,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) == other.getAsDouble(i));
+      bm.set(i, getAsDouble(i) == other.getAsDouble(i));
     }
 
     return bm;
@@ -433,7 +433,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   public BooleanMatrix equalsTo(Number value) {
     BooleanMatrix bm = new BooleanMatrix(getShape());
     for (int i = 0; i < size(); i++) {
-      bm.put(i, getAsDouble(i) == value.doubleValue());
+      bm.set(i, getAsDouble(i) == value.doubleValue());
     }
     return bm;
   }
