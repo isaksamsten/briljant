@@ -11,17 +11,17 @@ public class InnerJoinTest extends TestCase {
 
   public void testJoin() throws Exception {
     DataFrame cats =
-        MixedDataFrame.of("User", new StringVector("a", "b", "c", "d"), "Number of Cats",
+        MixedDataFrame.of("User", new StringVector("a", "a", "c", "d"), "Number of Cats",
             new IntVector(1, 2, 3, 4));
 
     DataFrame dogs =
-        MixedDataFrame
-            .of("User", new StringVector("b", "a"), "Number of dogs", new IntVector(1, 2));
+        MixedDataFrame.of("User", new StringVector("b", "a", "a", "a"), "Number of dogs",
+            new IntVector(1, 2, 2, 3), "Poop", new IntVector(1, 2, 3, 4));
 
 
     System.out.println(cats);
     System.out.println(dogs);
-    System.out.println(DataFrames.innerJoin(cats, dogs, Arrays.asList(0)));
+    System.out.println(DataFrames.innerJoin(cats, dogs, Arrays.asList(0, 1)));
 
 
     long s = System.nanoTime();

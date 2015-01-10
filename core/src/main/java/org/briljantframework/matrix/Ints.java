@@ -7,8 +7,16 @@ public final class Ints {
 
   private Ints() {}
 
-  public static IntMatrix asMatrix(int... values) {
+  public static IntMatrix newMatrix(int... values) {
     return new ArrayIntMatrix(values.length, 1).assign(values);
+  }
+
+  public static IntMatrix zeros(int size) {
+    return new ArrayIntMatrix(size, 1);
+  }
+
+  public static IntMatrix zeros(int rows, int columns) {
+    return new ArrayIntMatrix(rows, columns);
   }
 
   public static IntMatrix range(int start, int end) {

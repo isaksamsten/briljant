@@ -8,6 +8,8 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
+import com.carrotsearch.hppc.IntIntMap;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
@@ -62,8 +64,41 @@ public class JoinUtils {
       }
       noGroups = noGroups * (pool.getMaxGroups() + 1);
     }
-    return new JoinKeys(ArrayIntMatrix.wrap(newLeftPool), ArrayIntMatrix.wrap(newRightPool),
-        noGroups);
+
+    IntMatrix left = ArrayIntMatrix.wrap(newLeftPool);
+    IntMatrix right = ArrayIntMatrix.wrap(newRightPool);
+    noGroups = downMap(left, right);
+    return new JoinKeys(left, right, noGroups);
+  }
+
+  private static int downMap(IntMatrix left, IntMatrix right) {
+    IntIntMap pool = new IntIntOpenHashMap();
+    int j = 0;
+    for (int i = 0; i < left.size(); i++) {
+      int value = left.get(i);
+      int ref = pool.getOrDefault(value, -1);
+      if (ref != -1) {
+        left.set(i, ref);
+      } else {
+        left.set(i, j);
+        pool.put(value, j);
+        j += 1;
+      }
+    }
+
+    for (int i = 0; i < right.size(); i++) {
+      int value = right.get(i);
+      int ref = pool.getOrDefault(value, -1);
+      if (ref != -1) {
+        right.set(i, ref);
+      } else {
+        right.set(i, j);
+        pool.put(value, j);
+        j += 1;
+      }
+    }
+
+    return pool.size();
   }
 
   public static JoinKeys getJoinKeys(Vector a, Vector b) {
