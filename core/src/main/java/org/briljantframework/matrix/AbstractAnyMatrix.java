@@ -5,10 +5,12 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public abstract class AbstractAnyMatrix implements AnyMatrix {
 
+  protected static final String UNCHANGED_TOTAL_SIZE =
+      "Total size of new matrix must be unchanged.";
   protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
 
   private final int rows, cols, size;
@@ -39,7 +41,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
    */
   protected void assertSameSize(int size) {
     if (size() != size) {
-      throw new SizeMismatchException("Total size of new matrix must be unchanged.", size(), size);
+      throw new SizeMismatchException(UNCHANGED_TOTAL_SIZE, size(), size);
     }
   }
 
@@ -133,14 +135,20 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     }
 
     @Override
+    public BitMatrix asBitMatrix() {
+      return parent.asBitMatrix();
+    }
+
+
+
+    @Override
     public IntMatrix asIntMatrix() {
-      return parent instanceof IntMatrix ? (IntMatrix) parent : new IntMatrixAdapter(parent);
+      return parent.asIntMatrix();
     }
 
     @Override
     public ComplexMatrix asComplexMatrix() {
-      return parent instanceof ComplexMatrix ? (ComplexMatrix) parent : new ComplexMatrixAdapter(
-          parent);
+      return parent.asComplexMatrix();
     }
 
   }
@@ -213,13 +221,19 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
     @Override
     public DoubleMatrix asDoubleMatrix() {
-      return parent instanceof DoubleMatrix ? (DoubleMatrix) parent : new DoubleMatrixAdapter(
-          parent);
+      return parent.asDoubleMatrix();
     }
 
     @Override
+    public BitMatrix asBitMatrix() {
+      return parent.asBitMatrix();
+    }
+
+
+
+    @Override
     public IntMatrix asIntMatrix() {
-      return parent instanceof IntMatrix ? (IntMatrix) parent : new IntMatrixAdapter(parent);
+      return parent.asIntMatrix();
     }
 
     @Override
@@ -291,9 +305,13 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     }
 
     @Override
+    public BitMatrix asBitMatrix() {
+      return parent.asBitMatrix();
+    }
+
+    @Override
     public DoubleMatrix asDoubleMatrix() {
-      return parent instanceof DoubleMatrix ? (DoubleMatrix) parent : new DoubleMatrixAdapter(
-          parent);
+      return parent.asDoubleMatrix();
     }
 
     @Override
@@ -303,8 +321,78 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
     @Override
     public ComplexMatrix asComplexMatrix() {
-      return parent instanceof ComplexMatrix ? (ComplexMatrix) parent : new ComplexMatrixAdapter(
-          parent);
+      return parent.asComplexMatrix();
+    }
+  }
+
+  static class BitMatrixAdapter extends AbstractBitMatrix {
+
+    private final AnyMatrix parent;
+
+    BitMatrixAdapter(AnyMatrix parent) {
+      super(parent.rows(), parent.columns());
+      this.parent = parent;
+    }
+
+
+    @Override
+    public void set(int i, int j, boolean value) {
+      parent.set(i, j, value ? 1 : 0);
+    }
+
+    @Override
+    public void set(int index, boolean value) {
+      parent.set(index, value ? 1 : 0);
+    }
+
+    @Override
+    public boolean get(int i, int j) {
+      return getAsInt(i, j) == 1;
+    }
+
+    @Override
+    public boolean get(int index) {
+      return getAsInt(index) == 1;
+    }
+
+    @Override
+    public BitMatrix reshape(int rows, int columns) {
+      return parent instanceof BitMatrix ? (BitMatrix) parent.reshape(rows, columns)
+          : new BitMatrixAdapter(parent.reshape(rows, columns));
+    }
+
+    @Override
+    public BitMatrix copy() {
+      BitMatrix matrix = newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        matrix.set(i, get(i));
+      }
+      return matrix;
+    }
+
+    @Override
+    public BitMatrix newEmptyMatrix(int rows, int columns) {
+      return new ArrayBitMatrix(rows, columns);
+    }
+
+    @Override
+    public BitMatrix asBitMatrix() {
+      return parent instanceof BitMatrix ? (BitMatrix) parent : this;
+    }
+
+    @Override
+    public DoubleMatrix asDoubleMatrix() {
+      return parent.asDoubleMatrix();
+    }
+
+    @Override
+    public IntMatrix asIntMatrix() {
+      return parent.asIntMatrix();
+    }
+
+    @Override
+    public ComplexMatrix asComplexMatrix() {
+      return parent.asComplexMatrix();
     }
   }
 
@@ -316,6 +404,11 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   @Override
   public IntMatrix asIntMatrix() {
     return this instanceof IntMatrix ? (IntMatrix) this : new IntMatrixAdapter(this);
+  }
+
+  @Override
+  public BitMatrix asBitMatrix() {
+    return this instanceof BitMatrix ? (BitMatrix) this : new BitMatrixAdapter(this);
   }
 
   @Override
@@ -339,9 +432,9 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix lessThan(AnyMatrix other) {
+  public BitMatrix lessThan(AnyMatrix other) {
     assertEqualSize(other);
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) < other.getAsDouble(i));
     }
@@ -350,8 +443,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix lessThan(Number value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+  public BitMatrix lessThan(Number value) {
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) < value.doubleValue());
     }
@@ -359,10 +452,10 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix lessThanEqual(AnyMatrix other) {
+  public BitMatrix lessThanEqual(AnyMatrix other) {
     assertEqualSize(other);
 
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) <= other.getAsDouble(i));
     }
@@ -370,8 +463,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix lessThanEqual(Number value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+  public BitMatrix lessThanEqual(Number value) {
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) <= value.doubleValue());
     }
@@ -379,9 +472,9 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix greaterThan(AnyMatrix other) {
+  public BitMatrix greaterThan(AnyMatrix other) {
     assertEqualSize(other);
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) > other.getAsDouble(i));
     }
@@ -389,8 +482,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix greaterThan(Number value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+  public BitMatrix greaterThan(Number value) {
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) > value.doubleValue());
     }
@@ -398,9 +491,9 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix greaterThanEquals(AnyMatrix other) {
+  public BitMatrix greaterThanEquals(AnyMatrix other) {
     assertEqualSize(other);
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) >= other.getAsDouble(i));
     }
@@ -409,8 +502,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix greaterThanEquals(Number value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+  public BitMatrix greaterThanEquals(Number value) {
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) >= value.doubleValue());
     }
@@ -418,10 +511,10 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix equalsTo(AnyMatrix other) {
+  public BitMatrix equalsTo(AnyMatrix other) {
     assertEqualSize(other);
 
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) == other.getAsDouble(i));
     }
@@ -430,8 +523,8 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public BooleanMatrix equalsTo(Number value) {
-    BooleanMatrix bm = new BooleanMatrix(getShape());
+  public BitMatrix equalsTo(Number value) {
+    BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) == value.doubleValue());
     }

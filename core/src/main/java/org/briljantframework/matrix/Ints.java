@@ -33,4 +33,8 @@ public final class Ints {
     }
     return ArrayIntMatrix.wrap(values);
   }
+
+  public static IntMatrix take(IntMatrix a, IntMatrix b) {
+    return Anys.take(a, b).asIntMatrix();
+  }
 }

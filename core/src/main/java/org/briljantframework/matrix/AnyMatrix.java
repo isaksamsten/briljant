@@ -10,9 +10,10 @@ public interface AnyMatrix {
   /**
    * If {@code getType()} equals
    * <ul>
-   * <li>{@link Type#DOUBLE}</li> {@link #asDoubleMatrix()} return {@code this}
-   * <li>{@link Type#INT}</li> {@link #asIntMatrix()} return {@code this}
-   * <li>{@link Type#COMPLEX}</li> {@link #asComplexMatrix()} return {@code this}
+   * <li>{@link Type#DOUBLE} {@link #asDoubleMatrix()} returns {@code this}.</li>
+   * <li>{@link Type#INT} {@link #asIntMatrix()} returns {@code this}.</li>
+   * <li>{@link Type#BOOLEAN} {@link #asBitMatrix()} returns {@code this}.</li>
+   * <li>{@link Type#COMPLEX} {@link #asComplexMatrix()} returns {@code this}.</li>
    * </ul>
    * 
    * @return the type of this matrix
@@ -304,6 +305,11 @@ public interface AnyMatrix {
   IntMatrix asIntMatrix();
 
   /**
+   * @return this matrix as an {@link BitMatrix}.
+   */
+  BitMatrix asBitMatrix();
+
+  /**
    * @return this matrix as a {@link ComplexMatrix}.
    */
   ComplexMatrix asComplexMatrix();
@@ -315,7 +321,7 @@ public interface AnyMatrix {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix lessThan(AnyMatrix other);
+  BitMatrix lessThan(AnyMatrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) < value}.
@@ -323,7 +329,7 @@ public interface AnyMatrix {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix lessThan(Number value);
+  BitMatrix lessThan(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -332,7 +338,7 @@ public interface AnyMatrix {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix lessThanEqual(AnyMatrix other);
+  BitMatrix lessThanEqual(AnyMatrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) <= value}.
@@ -340,7 +346,7 @@ public interface AnyMatrix {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix lessThanEqual(Number value);
+  BitMatrix lessThanEqual(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -349,7 +355,7 @@ public interface AnyMatrix {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix greaterThan(AnyMatrix other);
+  BitMatrix greaterThan(AnyMatrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) > value}.
@@ -357,7 +363,7 @@ public interface AnyMatrix {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix greaterThan(Number value);
+  BitMatrix greaterThan(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -366,7 +372,7 @@ public interface AnyMatrix {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix greaterThanEquals(AnyMatrix other);
+  BitMatrix greaterThanEquals(AnyMatrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
@@ -374,7 +380,7 @@ public interface AnyMatrix {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix greaterThanEquals(Number value);
+  BitMatrix greaterThanEquals(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -383,7 +389,7 @@ public interface AnyMatrix {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix equalsTo(AnyMatrix other);
+  BitMatrix equalsTo(AnyMatrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) == value}.
@@ -391,7 +397,12 @@ public interface AnyMatrix {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BooleanMatrix equalsTo(Number value);
+  BitMatrix equalsTo(Number value);
+
+  /**
+   * @return the transpose of {@code this}.
+   */
+  AnyMatrix transpose();
 
   /**
    * Create a copy of this matrix.
@@ -413,7 +424,7 @@ public interface AnyMatrix {
    *
    */
   enum Type {
-    DOUBLE, INT, COMPLEX
+    DOUBLE, INT, BOOLEAN, COMPLEX
   }
 
 }

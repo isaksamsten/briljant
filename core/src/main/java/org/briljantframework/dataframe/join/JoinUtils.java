@@ -45,13 +45,13 @@ public class JoinUtils {
     return new IntMatrix[] {ArrayIntMatrix.wrap(result), ArrayIntMatrix.wrap(counts)};
   }
 
-  public static JoinKeys getJoinKeys(DataFrame a, DataFrame b, Collection<Integer> keys) {
+  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> keys) {
     int[] newLeftPool = new int[a.rows()];
     int[] newRightPool = new int[b.rows()];
 
     int noGroups = 1;
     for (int index : keys) {
-      JoinKeys pool = getJoinKeys(a.getColumn(index), b.getColumn(index));
+      JoinKeys pool = createJoinKeys(a.getColumn(index), b.getColumn(index));
 
       IntMatrix left = pool.getLeft();
       IntMatrix right = pool.getRight();
@@ -67,7 +67,9 @@ public class JoinUtils {
 
     IntMatrix left = ArrayIntMatrix.wrap(newLeftPool);
     IntMatrix right = ArrayIntMatrix.wrap(newRightPool);
-    noGroups = downMap(left, right);
+    if(left.size() + right.size() > noGroups) {
+      noGroups = downMap(left, right);
+    }
     return new JoinKeys(left, right, noGroups);
   }
 
@@ -101,7 +103,7 @@ public class JoinUtils {
     return pool.size();
   }
 
-  public static JoinKeys getJoinKeys(Vector a, Vector b) {
+  public static JoinKeys createJoinKeys(Vector a, Vector b) {
     int[] left = new int[a.size()];
     int[] right = new int[b.size()];
     ObjectIntMap<Value> pool = new ObjectIntOpenHashMap<>();

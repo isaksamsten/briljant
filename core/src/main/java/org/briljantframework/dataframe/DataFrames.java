@@ -123,7 +123,7 @@ public final class DataFrames {
     if (!(on instanceof Set)) {
       on = new HashSet<>(on);
     }
-    JoinKeys joinKeys = JoinUtils.getJoinKeys(a, b, on);
+    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
     Joiner joiner = joinOperations.get("inner").createJoiner(joinKeys);
 
     DataFrame.Builder builder = a.newBuilder();

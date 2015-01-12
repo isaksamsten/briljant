@@ -3,7 +3,7 @@ package org.briljantframework.matrix;
 import java.util.Arrays;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public class ArrayIntMatrix extends AbstractIntMatrix {
   private final int[] values;
@@ -18,6 +18,13 @@ public class ArrayIntMatrix extends AbstractIntMatrix {
     this.values = new int[size()];
   }
 
+  /**
+   * Creates an unsafe {@link IntMatrix}. Modifications of {@code array}, propagates to the return
+   * matrix.
+   * 
+   * @param array an int array
+   * @return a new matrix
+   */
   public static IntMatrix wrap(int... array) {
     return new ArrayIntMatrix(array.length, 1, array);
   }
@@ -25,6 +32,16 @@ public class ArrayIntMatrix extends AbstractIntMatrix {
   @Override
   public IntMatrix reshape(int rows, int columns) {
     return new ArrayIntMatrix(rows, columns, values);
+  }
+
+  @Override
+  public IntMatrix copy() {
+    return new ArrayIntMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
+  }
+
+  @Override
+  public IntMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayIntMatrix(rows, columns);
   }
 
   @Override
@@ -43,13 +60,8 @@ public class ArrayIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
-  public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayIntMatrix(rows, columns);
-  }
-
-  @Override
-  public IntMatrix copy() {
-    return new ArrayIntMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
+  public int[] asIntArray() {
+    return values;
   }
 
   @Override

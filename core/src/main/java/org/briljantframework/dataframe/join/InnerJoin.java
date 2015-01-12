@@ -7,12 +7,7 @@ import org.briljantframework.matrix.IntMatrix;
  */
 public class InnerJoin implements JoinOperation {
 
-  @Override
-  public Joiner createJoiner(JoinKeys keys) {
-    return innerJoin(keys.getLeft(), keys.getRight(), keys.getMaxGroups());
-  }
-
-  private Joiner innerJoin(IntMatrix left, IntMatrix right, int noGroups) {
+  private static Joiner innerJoin(IntMatrix left, IntMatrix right, int noGroups) {
     IntMatrix[] l = JoinUtils.groupSortIndexer(left, noGroups);
     IntMatrix[] r = JoinUtils.groupSortIndexer(right, noGroups);
 
@@ -80,6 +75,11 @@ public class InnerJoin implements JoinOperation {
         return rightSorted[i];
       }
     };
+  }
+
+  @Override
+  public Joiner createJoiner(JoinKeys keys) {
+    return innerJoin(keys.getLeft(), keys.getRight(), keys.getMaxGroups());
   }
 
 }

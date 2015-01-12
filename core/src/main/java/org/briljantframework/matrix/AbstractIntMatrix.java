@@ -90,6 +90,16 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     set(atRow, atColumn, from.getAsInt(fromRow, fromColumn));
   }
 
+  public IntMatrix transpose() {
+    IntMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(j, i, get(i, j));
+      }
+    }
+    return matrix;
+  }
+
   @Override
   public IntMatrix assign(IntSupplier supplier) {
     for (int i = 0; i < size(); i++) {
@@ -215,8 +225,6 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     return identity;
   }
 
-
-
   @Override
   public IntMatrix reduceColumns(ToIntFunction<? super IntMatrix> reduce) {
     IntMatrix mat = newEmptyMatrix(1, columns());
@@ -252,16 +260,6 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   @Override
   public IntMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
     return new IntMatrixView(this, rowOffset, colOffset, rows, columns);
-  }
-
-  public IntMatrix transpose() {
-    IntMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(j, i, get(i, j));
-      }
-    }
-    return matrix;
   }
 
   @Override
@@ -772,8 +770,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     }
     StringBuilder out = new StringBuilder();
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("shape: ").append(getShape());
-    out.append(" type: int");
+    out.append("shape: ").append(getShape()).append(" type: int");
     return out.toString();
   }
 
