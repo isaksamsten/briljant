@@ -3,9 +3,12 @@ package org.briljantframework.matrix;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.rowMajor;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.*;
 
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
@@ -80,6 +83,24 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
+  public void set(int i, int j, Number number) {
+    if (number instanceof Complex) {
+      set(i, j, (Complex) number);
+    } else {
+      set(i, j, number.doubleValue());
+    }
+  }
+
+  @Override
+  public void set(int index, Number number) {
+    if (number instanceof Complex) {
+      set(index, (Complex) number);
+    } else {
+      set(index, number.doubleValue());
+    }
+  }
+
+  @Override
   public void set(int atIndex, AnyMatrix from, int fromIndex) {
     set(atIndex, from.getAsComplex(fromIndex));
   }
@@ -87,6 +108,22 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   @Override
   public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
     set(atRow, atColumn, from.getAsComplex(fromRow, fromColumn));
+  }
+
+  @Override
+  public ComplexMatrix transpose() {
+    ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(j, i, get(i, j));
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
   }
 
   @Override
@@ -121,7 +158,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
 
   @Override
   public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
-    assertEqualSize(matrix);
+    Check.equalSize(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
     }
@@ -185,6 +222,18 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
+  public ComplexMatrix filter(Predicate<? super Complex> predicate) {
+    Builder builder = newBuilder();
+    for (int i = 0; i < size(); i++) {
+      Complex value = get(i);
+      if (predicate.test(value)) {
+        builder.add(value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
   public Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.apply(identity, map.apply(get(i)));
@@ -231,17 +280,6 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
-  public ComplexMatrix transpose() {
-    ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(j, i, get(i, j));
-      }
-    }
-    return matrix;
-  }
-
-  @Override
   public ComplexMatrix conjugateTranspose() {
     ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
@@ -250,6 +288,22 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
       }
     }
     return matrix;
+  }
+
+  @Override
+  public ComplexMatrix negate() {
+    return map(Complex::negate);
+  }
+
+  @Override
+  public double[] asDoubleArray() {
+    double[] array = new double[size() * 2];
+    for (int i = 0; i < size(); i++) {
+      Complex complex = get(i);
+      array[i] = complex.real();
+      array[i + 1] = complex.imag();
+    }
+    return array;
   }
 
   @Override
@@ -353,7 +407,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
 
   @Override
   public ComplexMatrix muli(Complex alpha, ComplexMatrix other, Complex beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     for (int i = 0; i < size(); i++) {
       set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
     }
@@ -390,7 +444,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
 
   @Override
   public ComplexMatrix addi(Complex alpha, ComplexMatrix other, Complex beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     for (int i = 0; i < size(); i++) {
       set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
     }
@@ -427,7 +481,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
 
   @Override
   public ComplexMatrix subi(Complex alpha, ComplexMatrix other, Complex beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     for (int i = 0; i < size(); i++) {
       set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
     }
@@ -487,22 +541,6 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
-  public ComplexMatrix negate() {
-    return map(Complex::negate);
-  }
-
-  @Override
-  public double[] asDoubleArray() {
-    double[] array = new double[size() * 2];
-    for (int i = 0; i < size(); i++) {
-      Complex complex = get(i);
-      array[i] = complex.real();
-      array[i + 1] = complex.imag();
-    }
-    return array;
-  }
-
-  @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
     ImmutableTable.Builder<Object, Object, Object> builder = new ImmutableTable.Builder<>();
@@ -531,5 +569,29 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
         return get(current++);
       }
     };
+  }
+
+  public static class Builder implements AnyMatrix.Builder {
+
+    private List<Complex> buffer = new ArrayList<>();
+
+    @Override
+    public void add(AnyMatrix from, int i, int j) {
+      buffer.add(from.getAsComplex(i, j));
+    }
+
+    @Override
+    public void add(AnyMatrix from, int index) {
+      buffer.add(from.getAsComplex(index));
+    }
+
+    @Override
+    public ComplexMatrix build() {
+      return new ArrayComplexMatrix(buffer.size(), 1, buffer.toArray(new Complex[buffer.size()]));
+    }
+
+    public void add(Complex value) {
+      buffer.add(value);
+    }
   }
 }

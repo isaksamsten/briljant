@@ -2,9 +2,11 @@ package org.briljantframework.matrix;
 
 import java.util.Objects;
 
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 
+import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.ImmutableTable;
 
 /**
@@ -82,6 +84,16 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
   }
 
   @Override
+  public void set(int i, int j, Number number) {
+    set(i, j, number.intValue());
+  }
+
+  @Override
+  public void set(int index, Number number) {
+    set(index, number.intValue());
+  }
+
+  @Override
   public void set(int atIndex, AnyMatrix from, int fromIndex) {
     set(atIndex, from.getAsInt(fromIndex));
   }
@@ -100,6 +112,11 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
       }
     }
     return matrix;
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
   }
 
   @Override
@@ -151,7 +168,7 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
 
   @Override
   public BitMatrix xor(BitMatrix other) {
-    assertEqualSize(other);
+    Check.equalShape(this, other);
     BitMatrix bm = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       boolean otherHas = other.get(i);
@@ -163,7 +180,7 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
 
   @Override
   public BitMatrix or(BitMatrix other) {
-    assertEqualSize(other);
+    Check.equalShape(this, other);
     BitMatrix bm = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || other.get(i));
@@ -173,7 +190,7 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
 
   @Override
   public BitMatrix orNot(BitMatrix other) {
-    assertEqualSize(other);
+    Check.equalShape(this, other);
     BitMatrix bm = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || !other.get(i));
@@ -183,7 +200,7 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
 
   @Override
   public BitMatrix and(BitMatrix other) {
-    assertEqualSize(other);
+    Check.equalShape(this, other);
     BitMatrix bm = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && other.get(i));
@@ -193,7 +210,7 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
 
   @Override
   public BitMatrix andNot(BitMatrix other) {
-    assertEqualSize(other);
+    Check.equalShape(this, other);
     BitMatrix bm = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && !other.get(i));
@@ -208,5 +225,29 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
       bm.set(i, !get(i));
     }
     return bm;
+  }
+
+  public static class Builder implements AnyMatrix.Builder {
+
+    private IntArrayList buffer = new IntArrayList();
+
+    @Override
+    public void add(AnyMatrix from, int i, int j) {
+      buffer.add(from.getAsInt(i, j));
+    }
+
+    @Override
+    public void add(AnyMatrix from, int index) {
+      buffer.add(from.getAsInt(index));
+    }
+
+    @Override
+    public AnyMatrix build() {
+      BitMatrix n = new ArrayBitMatrix(buffer.size(), 1);
+      for (int i = 0; i < buffer.size(); i++) {
+        n.set(i, n.get(i));
+      }
+      return n;
+    }
   }
 }

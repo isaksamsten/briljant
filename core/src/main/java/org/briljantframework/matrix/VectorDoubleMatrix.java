@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Check;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.vector.Vector;
 
@@ -10,8 +11,8 @@ import com.google.common.base.Preconditions;
  * allowed, generally {@link org.briljantframework.vector.DoubleVector} is the only suitable option.
  * 
  * For simplicity, new matrices created using {@link #newEmptyMatrix(int, int)} is not vector
- * matrices. Hence, most operations (e.g., {@link #mmul(DoubleMatrix)}) does not return matrices with
- * {@code this.getClass()}.
+ * matrices. Hence, most operations (e.g., {@link #mmul(DoubleMatrix)}) does not return matrices
+ * with {@code this.getClass()}.
  * 
  * @author Isak Karlsson
  */
@@ -56,8 +57,18 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
-    assertSameSize(rows * columns);
+    Check.size(UNCHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new VectorDoubleMatrix(rows, columns, vector);
+  }
+
+  @Override
+  public DoubleMatrix copy() {
+    return new ArrayDoubleMatrix(getShape(), vector.toDoubleArray());
+  }
+
+  @Override
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayDoubleMatrix(rows, columns);
   }
 
   @Override
@@ -73,16 +84,6 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
   @Override
   public boolean isArrayBased() {
     return true;
-  }
-
-  @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayDoubleMatrix(rows, columns);
-  }
-
-  @Override
-  public DoubleMatrix copy() {
-    return new ArrayDoubleMatrix(getShape(), vector.toDoubleArray());
   }
 
   @Override

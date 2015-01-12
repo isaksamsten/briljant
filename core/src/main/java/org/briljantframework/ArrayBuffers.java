@@ -15,7 +15,6 @@ import org.briljantframework.vector.IntVector;
 public final class ArrayBuffers {
   private ArrayBuffers() {}
 
-
   /**
    * Removes element at {@code index} from {@code array}, shifting (similar to
    * {@link java.util.List#remove(int)}

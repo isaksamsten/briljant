@@ -1,8 +1,7 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.exceptions.SizeMismatchException;
 
 /**
  * @author Isak Karlsson
@@ -10,7 +9,7 @@ import org.briljantframework.exceptions.SizeMismatchException;
 public abstract class AbstractAnyMatrix implements AnyMatrix {
 
   protected static final String UNCHANGED_TOTAL_SIZE =
-      "Total size of new matrix must be unchanged.";
+      "Total size of new matrix must be unchanged. (%d, %d)";
   protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
 
   private final int rows, cols, size;
@@ -19,40 +18,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     this.rows = rows;
     this.cols = cols;
     this.size = Math.multiplyExact(rows, cols);
-  }
-
-  /**
-   * Asserts that {@code rows() == other.rows() && columns() == other.columns()}. If not, throws
-   * {@link org.briljantframework.exceptions.NonConformantException}
-   * 
-   * @param other another matrix
-   */
-  protected void assertEqualSize(AnyMatrix other) {
-    if (this.rows() != other.rows() || this.columns() != other.columns()) {
-      throw new NonConformantException(this, other);
-    }
-  }
-
-  /**
-   * Asserts that {@code size() == size}. If not, throws
-   * {@link org.briljantframework.exceptions.SizeMismatchException}.
-   * 
-   * @param size the size
-   */
-  protected void assertSameSize(int size) {
-    if (size() != size) {
-      throw new SizeMismatchException(UNCHANGED_TOTAL_SIZE, size(), size);
-    }
-  }
-
-  /**
-   * Asserts that {@code size() == other.size()}.
-   * 
-   * @param other other matrix
-   * @see #assertSameSize(int)
-   */
-  protected void assertSameSize(AnyMatrix other) {
-    assertSameSize(other.size());
   }
 
   /**
@@ -433,7 +398,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
   @Override
   public BitMatrix lessThan(AnyMatrix other) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) < other.getAsDouble(i));
@@ -453,7 +418,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
   @Override
   public BitMatrix lessThanEqual(AnyMatrix other) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
 
     BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -473,7 +438,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
   @Override
   public BitMatrix greaterThan(AnyMatrix other) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) > other.getAsDouble(i));
@@ -492,7 +457,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
   @Override
   public BitMatrix greaterThanEquals(AnyMatrix other) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) >= other.getAsDouble(i));
@@ -512,8 +477,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
 
   @Override
   public BitMatrix equalsTo(AnyMatrix other) {
-    assertEqualSize(other);
-
+    Check.equalSize(this, other);
     BitMatrix bm = Bits.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) == other.getAsDouble(i));

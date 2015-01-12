@@ -2,6 +2,8 @@ package org.briljantframework.matrix;
 
 import java.util.Arrays;
 
+import org.briljantframework.Check;
+
 /**
  * @author Isak Karlsson
  */
@@ -46,6 +48,7 @@ public class ArrayBitMatrix extends AbstractBitMatrix {
 
   @Override
   public BitMatrix reshape(int rows, int columns) {
+    Check.size(UNCHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new ArrayBitMatrix(rows, columns, values, false);
   }
 

@@ -133,6 +133,8 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
    */
   ComplexMatrix mapi(UnaryOperator<Complex> operator);
 
+  ComplexMatrix filter(Predicate<? super Complex> predicate);
+
   /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
    * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
@@ -222,15 +224,8 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
   ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
-   * Transpose matrix like.
-   *
-   * @return the matrix like
-   */
-  ComplexMatrix transpose();
-
-  /**
    * Returns the conjugate transpose of this vector.
-   * 
+   *
    * @return the conjugate transpose
    */
   ComplexMatrix conjugateTranspose();
@@ -240,6 +235,13 @@ public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
    */
   @Override
   ComplexMatrix reshape(int rows, int columns);
+
+  /**
+   * Transpose matrix like.
+   *
+   * @return the matrix like
+   */
+  ComplexMatrix transpose();
 
   /**
    * Create a copy of this matrix.

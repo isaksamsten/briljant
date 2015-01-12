@@ -22,16 +22,15 @@ import static org.briljantframework.matrix.Indexer.rowMajor;
 
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.vector.VectorLike;
 
+import com.carrotsearch.hppc.DoubleArrayList;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
 
@@ -100,6 +99,16 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
+  public void set(int i, int j, Number number) {
+    set(i, j, number.doubleValue());
+  }
+
+  @Override
+  public void set(int index, Number number) {
+    set(index, number.doubleValue());
+  }
+
+  @Override
   public void set(int atIndex, AnyMatrix from, int fromIndex) {
     set(atIndex, from.getAsDouble(fromIndex));
   }
@@ -107,6 +116,21 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   @Override
   public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
     set(atRow, atColumn, from.getAsDouble(fromRow, fromColumn));
+  }
+
+  public DoubleMatrix transpose() {
+    DoubleMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(j, i, get(i, j));
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
   }
 
   @Override
@@ -158,7 +182,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix assign(DoubleMatrix matrix, DoubleUnaryOperator operator) {
-    assertEqualSize(matrix);
+    Check.equalSize(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsDouble(matrix.get(i)));
     }
@@ -219,6 +243,18 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
+  public DoubleMatrix filter(DoublePredicate operator) {
+    Builder builder = newBuilder();
+    for (int i = 0; i < size(); i++) {
+      double value = get(i);
+      if (operator.test(value)) {
+        builder.add(value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
   public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.applyAsDouble(identity, map.applyAsDouble(get(i)));
@@ -261,16 +297,6 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   @Override
   public DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
     return new DoubleMatrixView(this, rowOffset, colOffset, rows, columns);
-  }
-
-  public DoubleMatrix transpose() {
-    DoubleMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(j, i, get(i, j));
-      }
-    }
-    return matrix;
   }
 
   @Override
@@ -396,7 +422,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix muli(double alpha, DoubleMatrix other, double beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
@@ -454,7 +480,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix add(double alpha, DoubleMatrix other, double beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -503,7 +529,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix addi(double alpha, DoubleMatrix other, double beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
@@ -534,7 +560,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix sub(double alpha, DoubleMatrix other, double beta) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -637,7 +663,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix div(DoubleMatrix other) {
-    assertEqualSize(other);
+    Check.equalSize(this, other);
     DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -664,7 +690,6 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix divi(DoubleMatrix other) {
-    assertEqualSize(other);
     for (int i = 0; i < size(); i++) {
       set(i, get(i) / other.get(i));
     }
@@ -814,11 +839,6 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix asDoubleMatrix() {
-    return this;
-  }
-
-  @Override
   public Iterator<Double> iterator() {
     return new Iterator<Double>() {
       private int index = 0;
@@ -833,5 +853,29 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
         return get(index++);
       }
     };
+  }
+
+  public static class Builder implements AnyMatrix.Builder {
+
+    private DoubleArrayList buffer = new DoubleArrayList();
+
+    @Override
+    public void add(AnyMatrix from, int i, int j) {
+      buffer.add(from.getAsDouble(i, j));
+    }
+
+    @Override
+    public void add(AnyMatrix from, int index) {
+      buffer.add(from.getAsDouble(index));
+    }
+
+    @Override
+    public DoubleMatrix build() {
+      return new ArrayDoubleMatrix(buffer.size(), 1, buffer.toArray());
+    }
+
+    public void add(double value) {
+      buffer.add(value);
+    }
   }
 }

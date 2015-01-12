@@ -155,6 +155,14 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
   IntMatrix mapi(IntUnaryOperator operator);
 
   /**
+   * Filters
+   * 
+   * @param operator
+   * @return
+   */
+  IntMatrix filter(IntPredicate operator);
+
+  /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
    * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
    *
@@ -243,17 +251,17 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
   IntMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  IntMatrix reshape(int rows, int columns);
+
+  /**
    * Transpose matrix like.
    *
    * @return the matrix like
    */
   IntMatrix transpose();
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  IntMatrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////
 

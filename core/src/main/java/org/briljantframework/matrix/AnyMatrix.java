@@ -218,6 +218,23 @@ public interface AnyMatrix {
   void set(int index, int value);
 
   /**
+   * Set {@code number} at the row {@code i} and column {@code j}.
+   * 
+   * @param i the row
+   * @param j the column
+   * @param number the number
+   */
+  void set(int i, int j, Number number);
+
+  /**
+   * Set {@code number} at the linearized position {@code index}.
+   * 
+   * @param index the index
+   * @param number the number
+   */
+  void set(int index, Number number);
+
+  /**
    * Set value at {@code atIndex} to the value in {@code from} at {@code fromIndex}
    * 
    * @param atIndex the index
@@ -412,6 +429,13 @@ public interface AnyMatrix {
   AnyMatrix copy();
 
   /**
+   * Incrementally construct a new matrix by adding values.
+   * 
+   * @return a new builder
+   */
+  Builder newBuilder();
+
+  /**
    * Construct a new empty matrix with {@code this.getClass()}
    *
    * @param rows the number of rows
@@ -425,6 +449,15 @@ public interface AnyMatrix {
    */
   enum Type {
     DOUBLE, INT, BOOLEAN, COMPLEX
+  }
+
+  interface Builder {
+
+    void add(AnyMatrix from, int i, int j);
+
+    void add(AnyMatrix from, int index);
+
+    AnyMatrix build();
   }
 
 }

@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import java.util.Arrays;
 
+import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 
 /**
@@ -25,8 +26,18 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
 
   @Override
   public ComplexMatrix reshape(int rows, int columns) {
-    assertSameSize(rows * columns);
+    Check.size(UNCHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new ArrayComplexMatrix(rows, columns, values);
+  }
+
+  @Override
+  public ComplexMatrix copy() {
+    return new ArrayComplexMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
+  }
+
+  @Override
+  public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayComplexMatrix(rows, columns);
   }
 
   @Override
@@ -42,16 +53,6 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
   @Override
   public boolean isArrayBased() {
     return false;
-  }
-
-  @Override
-  public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayComplexMatrix(rows, columns);
-  }
-
-  @Override
-  public ComplexMatrix copy() {
-    return new ArrayComplexMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
   }
 
   @Override

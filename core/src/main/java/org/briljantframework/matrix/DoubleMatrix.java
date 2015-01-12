@@ -16,10 +16,7 @@
 
 package org.briljantframework.matrix;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.VectorLike;
@@ -227,6 +224,13 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
   DoubleMatrix mapi(DoubleUnaryOperator operator);
 
   /**
+   *
+   * @param operator
+   * @return
+   */
+  DoubleMatrix filter(DoublePredicate operator);
+
+  /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
    * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
    *
@@ -315,17 +319,17 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
   DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  DoubleMatrix reshape(int rows, int columns);
+
+  /**
    * Transpose matrix like.
    *
    * @return the matrix like
    */
   DoubleMatrix transpose();
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  DoubleMatrix reshape(int rows, int columns);
 
   // Arithmetical operations ///////////
 
