@@ -3,8 +3,8 @@ package org.briljantframework.dataseries;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Created by Isak Karlsson on 12/12/14.
@@ -46,7 +46,7 @@ public class LinearAggregator implements Aggregator {
   }
 
   @Override
-  public Type getAggregatedType() {
+  public VectorType getAggregatedType() {
     return DoubleVector.TYPE;
   }
 

@@ -1,24 +1,114 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 
 /**
+ * <p>
+ * The {@code AnyMatrix} interface is a base interface for several different matrix implementations.
+ * 
+ * There are four supported matrix types {@code double}, {@code int}, {@code boolean} and
+ * {@link org.briljantframework.complex.Complex}, specialized in
+ * {@link org.briljantframework.matrix.DoubleMatrix}, {@link org.briljantframework.matrix.IntMatrix}
+ * , {@link org.briljantframework.matrix.BitMatrix} and
+ * {@link org.briljantframework.matrix.ComplexMatrix} respectively.
+ * </p>
+ * 
+ * <p>
+ * The {@code AnyMatrix} interface provides ways to
+ *
+ * <ul>
+ * <li>adapt one implementation to another.</li>
+ * <li>get values of any type.</li>
+ * <li>set values of any type.</li>
+ * <li>set values of any type from another {@code AnyMatrix}, possibly without boxing.</li>
+ * <li>compare values of unknown types.</li>
+ * </ul>
+ * </p>
+ *
+ * <h1>Adapt {@code AnyMatrix} to another matrix type</h1>
+ * <p>
+ * {@code AnyMatrix} defines four methods for adapting the current implementation to any of the four
+ * specialized types. However, there are some caveats when adapting matrices and perform mutations.
+ * 
+ * For example, given a {@code DoubleMatrix d} which is adapted to a
+ * {@code ComplexMatrix c = d.asComplexMatrix()}, then setting a position to a new {@code Complex}
+ * with an imaginary part, e.g., {@code c.set(0, Complex.I)}, would just propagate the real part to
+ * the underlying {@code DoubleMatrix}. Likewise, given an {@code IntMatrix} adapted to a
+ * {@code DoubleMatrix}, setting a position to a double converts it to an {@code int} (using
+ * {@link Math#round(double)}).
+ * 
+ * Finally, if receiver is
+ * <ul>
+ * <li>{@link org.briljantframework.matrix.DoubleMatrix}, {@link #asDoubleMatrix()} must return
+ * {@code this}</li>
+ * <li>{@link org.briljantframework.matrix.IntMatrix}, {@link #asIntMatrix()} ()} must return
+ * {@code this}</li>
+ * <li>{@link org.briljantframework.matrix.BitMatrix}, {@link #asBitMatrix()} must return
+ * {@code this}</li>
+ * <li>{@link org.briljantframework.matrix.ComplexMatrix}, {@link #asComplexMatrix()} must return
+ * {@code this}</li>
+ * </ul>
+ * </p>
+ * <h1>Implicit conversions</h1>
+ * <ul>
+ * <li>{@code Complex => double}: {@code value.real()}</li>
+ * <li>{@code double => int}: {@code (int) Math.round(value)}</li>
+ * <li>{@code int => boolean}: {@code value == 1 ? true : false}</li>
+ * <li>{@code boolean => int}; {@code value ? 1 : 0}</li>
+ * <li>{@code int => double}: {@code value}</li>
+ * <li>{@code double => Complex}: {@code Complex.valueOf(value)}</li>
+ * </ul>
+ * 
+ * <p>
+ * Remember that most subclasses provide, {@code get(int, int)} and {@code get(int)}, returning the
+ * specialized type. For example, {@link org.briljantframework.matrix.DoubleMatrix#get(int, int)}.
+ * </p>
+ *
+ * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code AnyMatrix}es</h1>
+ * <p>
+ * Prefer:
+ * 
+ * <pre>
+ *   AnyMatrix a = Doubles.randn(10, 1)
+ *   AnyMatrix b = Doubles.zeros(10, 1)
+ *   a.set(3, b, 0)
+ * </pre>
+ * 
+ * to:
+ * 
+ * <pre>
+ *   swith(b.getDataType()) {
+ *       DataType.COMPLEX: a.set(3, b.getAsComplex(0); break;
+ *       ...
+ *       ...
+ *       ...
+ *       default: ...;
+ *   }
+ * </pre>
+ * 
+ * </p>
+ *
  * @author Isak Karlsson
  */
-public interface AnyMatrix {
+public interface AnyMatrix extends Swappable {
 
   /**
    * If {@code getType()} equals
    * <ul>
-   * <li>{@link Type#DOUBLE} {@link #asDoubleMatrix()} returns {@code this}.</li>
-   * <li>{@link Type#INT} {@link #asIntMatrix()} returns {@code this}.</li>
-   * <li>{@link Type#BOOLEAN} {@link #asBitMatrix()} returns {@code this}.</li>
-   * <li>{@link Type#COMPLEX} {@link #asComplexMatrix()} returns {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#DOUBLE} {@link #asDoubleMatrix()}
+   * returns {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#INT} {@link #asIntMatrix()} returns
+   * {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#BOOLEAN} {@link #asBitMatrix()}
+   * returns {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#COMPLEX} {@link #asComplexMatrix()}
+   * returns {@code this}.</li>
    * </ul>
    * 
    * @return the type of this matrix
    */
-  Type getType();
+  DataType getDataType();
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -36,41 +126,16 @@ public interface AnyMatrix {
    *
    * @param i row
    * @param j column
-   * @return value int
+   * @return complex value
    */
   Complex getAsComplex(int i, int j);
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
-   * <p>
-   *
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   * <p>
-   *
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   * <p>
-   *
-   * <pre>
-   * 142536
-   * </pre>
+   * column-major order.
    *
    * @param index the index
-   * @return the value index
+   * @return the complex value index
    */
   Complex getAsComplex(int index);
 
@@ -98,41 +163,16 @@ public interface AnyMatrix {
    *
    * @param i row
    * @param j column
-   * @return value int
+   * @return double value
    */
   double getAsDouble(int i, int j);
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
-   * <p>
-   *
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   * <p>
-   *
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   * <p>
-   *
-   * <pre>
-   * 142536
-   * </pre>
+   * column-major order.
    *
    * @param index the index
-   * @return the value index
+   * @return the double value index
    */
   double getAsDouble(int index);
 
@@ -160,41 +200,16 @@ public interface AnyMatrix {
    *
    * @param i row
    * @param j column
-   * @return value int
+   * @return int value
    */
   int getAsInt(int i, int j);
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
-   * <p>
+   * column-major order.
    * 
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   * <p>
-   * 
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   * <p>
-   * 
-   * <pre>
-   * 142536
-   * </pre>
-   *
    * @param index the index
-   * @return the value index
+   * @return the int value index
    */
   int getAsInt(int index);
 
@@ -254,6 +269,64 @@ public interface AnyMatrix {
    * @param fromColumn the column index
    */
   void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn);
+
+  int compare(int a, int b);
+
+  int compare(int toIndex, AnyMatrix from, int fromIndex);
+
+  int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn);
+
+  /**
+   * Get row vector at {@code i}. Modifications will change to original matrix.
+   *
+   * @param i row
+   * @return a vector
+   */
+  AnyMatrix getRowView(int i);
+
+  /**
+   * Gets vector at {@code index}. Modifications will change the original matrix.
+   *
+   * @param index the index
+   * @return the column
+   */
+  AnyMatrix getColumnView(int index);
+
+  /**
+   * Gets a view of the diagonal. Modifications will change the original matrix.
+   *
+   * @return a diagonal view
+   */
+  AnyMatrix getDiagonalView();
+
+  /**
+   * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
+   * starting at {@code colOffset} until {@code colOffset + columns}.
+   *
+   * For example,
+   *
+   * <pre>
+   *   1 2 3
+   *   4 5 6
+   *   7 8 9
+   * </pre>
+   *
+   * and {@code matrix.getView(1, 1, 2, 2)} produces
+   *
+   * <pre>
+   *   5 6
+   *   8 9
+   * </pre>
+   *
+   * Please note that modifications of the view, mutates the original.
+   *
+   * @param rowOffset the row offset
+   * @param colOffset the column offset
+   * @param rows number of rows after row offset
+   * @param columns number of columns after column offset
+   * @return the matrix view
+   */
+  AnyMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
    * The number of rows.
@@ -433,7 +506,7 @@ public interface AnyMatrix {
    * 
    * @return a new builder
    */
-  Builder newBuilder();
+  IncrementalBuilder newIncrementalBuilder();
 
   /**
    * Construct a new empty matrix with {@code this.getClass()}
@@ -447,11 +520,11 @@ public interface AnyMatrix {
   /**
    *
    */
-  enum Type {
+  enum DataType {
     DOUBLE, INT, BOOLEAN, COMPLEX
   }
 
-  interface Builder {
+  interface IncrementalBuilder {
 
     void add(AnyMatrix from, int i, int j);
 

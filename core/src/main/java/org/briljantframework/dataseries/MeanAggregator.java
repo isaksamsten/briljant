@@ -3,8 +3,8 @@ package org.briljantframework.dataseries;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * The MeanResampler implements the perhaps simplest resampling (approximation) method for data
@@ -49,7 +49,7 @@ public class MeanAggregator implements Aggregator {
   }
 
   @Override
-  public Type getAggregatedType() {
+  public VectorType getAggregatedType() {
     return DoubleVector.TYPE;
   }
 }

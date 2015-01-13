@@ -1,22 +1,22 @@
-package org.briljantframework.matrix;
+package org.briljantframework.vector;
 
 import static org.junit.Assert.assertEquals;
 
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Doubles;
 import org.junit.Before;
 import org.junit.Test;
 
-public class VectorDoubleMatrixTest {
+public class VectorDoubleMatrixAdapterTest {
 
-  VectorDoubleMatrix matrix = null;
+  VectorDoubleMatrixAdapter matrix = null;
   DoubleMatrix mmul = Doubles.parseMatrix("1,2;1,2;1,2");
 
 
   @Before
   public void setUp() throws Exception {
     Vector vec = DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6, 7, 8, 9).build();
-    matrix = new VectorDoubleMatrix(3, 3, vec);
+    matrix = new VectorDoubleMatrixAdapter(3, 3, vec);
   }
 
   @Test

@@ -1,12 +1,10 @@
 package org.briljantframework.matrix;
 
 /**
- * Created by Isak Karlsson on 02/12/14.
+ * @author Isak Karlsson
  */
 public final class Indexer {
   private Indexer() {}
-
-
 
   /**
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
@@ -52,4 +50,21 @@ public final class Indexer {
     }
   }
 
+  /**
+   * Given an {@code index}, compute the linearized column major index in a parent matrix.
+   * 
+   * @param index the current index
+   * @param rows the rows of the view
+   * @param colOffset the column offset
+   * @param rowOffset the row offset
+   * @param parentRows the number of rows in the parent
+   * @param parentColumns the number of columns in the parent
+   * @return the position {@code index} in a view, transformed to the position in the parent matrix.
+   */
+  public static int computeLinearIndex(int index, int rows, int colOffset, int rowOffset,
+      int parentRows, int parentColumns) {
+    int currentColumn = index / rows + colOffset;
+    int currentRow = index % rows + rowOffset;
+    return columnMajor(currentRow, currentColumn, parentRows, parentColumns);
+  }
 }

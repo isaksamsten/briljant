@@ -14,22 +14,22 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class BinaryVector extends AbstractBinaryVector {
+public class BitVector extends AbstractBinaryVector {
 
   private int[] values;
 
-  protected BinaryVector(IntArrayList values) {
+  protected BitVector(IntArrayList values) {
     this.values = values.toArray();
   }
 
-  public BinaryVector(boolean... values) {
+  public BitVector(boolean... values) {
     this.values = new int[values.length];
     for (int i = 0; i < values.length; i++) {
       this.values[i] = values[i] ? 1 : 0;
     }
   }
 
-  public BinaryVector(int... values) {
+  public BitVector(int... values) {
     this.values = Arrays.copyOf(values, values.length);
   }
 
@@ -40,8 +40,8 @@ public class BinaryVector extends AbstractBinaryVector {
   }
 
   @Override
-  public Iterator<Binary> iterator() {
-    return new UnmodifiableIterator<Binary>() {
+  public Iterator<Bit> iterator() {
+    return new UnmodifiableIterator<Bit>() {
       private int current = 0;
 
       @Override
@@ -50,8 +50,8 @@ public class BinaryVector extends AbstractBinaryVector {
       }
 
       @Override
-      public Binary next() {
-        return getAsBinary(current++);
+      public Bit next() {
+        return getAsBit(current++);
       }
     };
   }
@@ -142,8 +142,8 @@ public class BinaryVector extends AbstractBinaryVector {
       int intValue = IntVector.NA;
       if (value instanceof Number) {
         intValue = ((Number) value).intValue();
-      } else if (value instanceof Binary) {
-        intValue = ((Binary) value).asInt();
+      } else if (value instanceof Bit) {
+        intValue = ((Bit) value).asInt();
       }
       buffer.buffer[index] = intValue;
       return this;
@@ -157,7 +157,7 @@ public class BinaryVector extends AbstractBinaryVector {
     @Override
     public Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        add(from.getAsBinary(i));
+        add(from.getAsBit(i));
       }
       return this;
     }
@@ -187,11 +187,11 @@ public class BinaryVector extends AbstractBinaryVector {
 
     @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
-      Binary binary = entry.nextBinary();
-      if (binary == null) {
+      Bit bit = entry.nextBinary();
+      if (bit == null) {
         setNA(index);
       } else {
-        set(index, binary);
+        set(index, bit);
       }
       return this;
     }
@@ -223,14 +223,28 @@ public class BinaryVector extends AbstractBinaryVector {
     }
 
     @Override
-    public BinaryVector build() {
-      BinaryVector vector = new BinaryVector(buffer);
+    public BitVector build() {
+      BitVector vector = new BitVector(buffer);
       buffer = null;
       return vector;
     }
 
-    public Builder add(Binary binary) {
-      return add(binary.asInt());
+    public Builder set(int index, Bit value) {
+      return set(index, value.asInt());
+    }
+
+    public Builder set(int index, int value) {
+      ensureCapacity(index);
+      buffer.buffer[index] = value;
+      return this;
+    }
+
+    public Builder set(int index, boolean value) {
+      return set(index, value ? 1 : 0);
+    }
+
+    public Builder add(Bit bit) {
+      return add(bit.asInt());
     }
 
     public Builder add(int value) {

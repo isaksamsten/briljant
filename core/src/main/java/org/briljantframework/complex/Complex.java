@@ -421,9 +421,9 @@ public final class Complex extends Number {
   @Override
   public String toString() {
     if (imag >= 0) {
-      return real + " + " + imag + "i";
+      return String.format("%1.4f + %1.4fi", real, imag);
     } else {
-      return real + " - " + (-imag) + "i";
+      return String.format("%1.4f - %1.4fi", real, -imag);
     }
   }
 

@@ -6,20 +6,20 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BinaryVectorTest {
+public class BitVectorTest {
 
-  private BinaryVector vector;
+  private BitVector vector;
   private int[] trueArray = new int[] {0, 1, IntVector.NA, 0};
 
   @Before
   public void setUp() throws Exception {
-    vector = new BinaryVector.Builder().add(0).add(1).add(Binary.NA).add(Binary.FALSE).build();
+    vector = new BitVector.Builder().add(0).add(1).add(Bit.NA).add(Bit.FALSE).build();
   }
 
   @Test
   public void testIterator() throws Exception {
     int i = 0;
-    for (Binary bin : vector) {
+    for (Bit bin : vector) {
       assertEquals(trueArray[i++], bin.asInt());
     }
   }
@@ -40,9 +40,9 @@ public class BinaryVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Binary.FALSE, vector.getAsBinary(0));
-    assertEquals(Binary.TRUE, vector.getAsBinary(1));
-    assertEquals(BinaryVector.NA, vector.getAsBinary(2));
+    assertEquals(Bit.FALSE, vector.getAsBit(0));
+    assertEquals(Bit.TRUE, vector.getAsBit(1));
+    assertEquals(BitVector.NA, vector.getAsBit(2));
   }
 
   @Test
@@ -73,8 +73,8 @@ public class BinaryVectorTest {
 
   @Test
   public void testGetType() throws Exception {
-    assertEquals(BinaryVector.TYPE, vector.getType());
-    assertEquals(Binary.class, vector.getType().getDataClass());
+    assertEquals(BitVector.TYPE, vector.getType());
+    assertEquals(Bit.class, vector.getType().getDataClass());
   }
 
   @Test

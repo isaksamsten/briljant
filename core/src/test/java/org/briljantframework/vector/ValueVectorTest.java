@@ -31,9 +31,9 @@ public class ValueVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Binary.TRUE, sequence.getAsBinary(0));
-    assertEquals(Binary.NA, sequence.getAsBinary(1));
-    assertEquals(BinaryVector.NA, sequence.getAsBinary(3));
+    assertEquals(Bit.TRUE, sequence.getAsBit(0));
+    assertEquals(Bit.NA, sequence.getAsBit(1));
+    assertEquals(BitVector.NA, sequence.getAsBit(3));
   }
 
   @Test

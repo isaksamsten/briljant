@@ -8,8 +8,12 @@ import org.briljantframework.complex.Complex;
  */
 public abstract class AbstractAnyMatrix implements AnyMatrix {
 
-  protected static final String UNCHANGED_TOTAL_SIZE =
+  protected static final String UNSAFE_CONVERSION =
+      "Unsafe conversion from '%s' value to '%s' (possible loss of precision).";
+
+  protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new matrix must be unchanged. (%d, %d)";
+
   protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
 
   private final int rows, cols, size;
@@ -25,6 +29,7 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
    * {@link org.briljantframework.matrix.DoubleMatrix}.
    */
   static class DoubleMatrixAdapter extends AbstractDoubleMatrix {
+
     private final AnyMatrix parent;
 
     public DoubleMatrixAdapter(AnyMatrix parent) {
@@ -36,15 +41,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     public DoubleMatrix reshape(int rows, int columns) {
       return parent instanceof DoubleMatrix ? (DoubleMatrix) parent.reshape(rows, columns)
           : new DoubleMatrixAdapter(parent.reshape(rows, columns));
-    }
-
-    @Override
-    public DoubleMatrix copy() {
-      DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -104,8 +100,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
       return parent.asBitMatrix();
     }
 
-
-
     @Override
     public IntMatrix asIntMatrix() {
       return parent.asIntMatrix();
@@ -135,15 +129,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     public ComplexMatrix reshape(int rows, int columns) {
       return parent instanceof ComplexMatrix ? (ComplexMatrix) parent.reshape(rows, columns)
           : new ComplexMatrixAdapter(parent.reshape(rows, columns));
-    }
-
-    @Override
-    public ComplexMatrix copy() {
-      ComplexMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -217,21 +202,13 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     protected IntMatrixAdapter(AnyMatrix parent) {
       super(parent.rows(), parent.columns());
       this.parent = parent;
+
     }
 
     @Override
     public IntMatrix reshape(int rows, int columns) {
       return parent instanceof IntMatrix ? (IntMatrix) parent.reshape(rows, columns)
           : new IntMatrixAdapter(parent.reshape(rows, columns));
-    }
-
-    @Override
-    public IntMatrix copy() {
-      IntMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -299,7 +276,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
       this.parent = parent;
     }
 
-
     @Override
     public void set(int i, int j, boolean value) {
       parent.set(i, j, value ? 1 : 0);
@@ -324,15 +300,6 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
     public BitMatrix reshape(int rows, int columns) {
       return parent instanceof BitMatrix ? (BitMatrix) parent.reshape(rows, columns)
           : new BitMatrixAdapter(parent.reshape(rows, columns));
-    }
-
-    @Override
-    public BitMatrix copy() {
-      BitMatrix matrix = newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        matrix.set(i, get(i));
-      }
-      return matrix;
     }
 
     @Override
@@ -382,12 +349,17 @@ public abstract class AbstractAnyMatrix implements AnyMatrix {
   }
 
   @Override
-  public int rows() {
+  public int compare(int a, int b) {
+    return compare(a, this, b);
+  }
+
+  @Override
+  public final int rows() {
     return rows;
   }
 
   @Override
-  public int columns() {
+  public final int columns() {
     return cols;
   }
 

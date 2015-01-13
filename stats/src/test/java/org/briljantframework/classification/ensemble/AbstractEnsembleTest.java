@@ -8,7 +8,7 @@ import org.briljantframework.dataframe.MatrixDataFrame;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.As;
+import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class AbstractEnsembleTest {
     //
     DataFrame synt = Datasets.loadSyntheticControl(MatrixDataFrame.HashBuilder::new);
     System.out.println(synt.getClass().getName());
-    Vector ytrain = As.stringVector(synt.getColumn(0));
+    Vector ytrain = Convert.toStringVector(synt.getColumn(0));
 
     DataFrame xtrain = synt.dropColumn(0);
 
@@ -58,7 +58,7 @@ public class AbstractEnsembleTest {
         KNearestNeighbors.withNeighbors(1).withDistance(Euclidean.getInstance()).build();
 
     DataFrame syntheticControl = Datasets.loadSyntheticControl();
-    Vector y = As.stringVector(syntheticControl.getColumn(0));
+    Vector y = Convert.toStringVector(syntheticControl.getColumn(0));
     DataFrame x = syntheticControl.dropColumn(0);
     Result result = ClassificationEvaluators.crossValidation(5).evaluate(f, x, y);
     System.out.println(result);

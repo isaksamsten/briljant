@@ -1,12 +1,14 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.ComplexMatrix;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
 public abstract class AbstractComplexVector implements Vector, Iterable<Complex> {
-  public static final Type TYPE = new Type() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public ComplexVector.Builder newBuilder() {
       return new ComplexVector.Builder();
@@ -42,7 +44,9 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
       return "complex";
     }
   };
+
   public static final Complex NA = Complex.NaN;
+  private ComplexMatrix adapter;
 
   @Override
   public Value getAsValue(int index) {
@@ -84,8 +88,8 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
    * {@inheritDoc}
    */
   @Override
-  public Binary getAsBinary(int index) {
-    return Binary.valueOf(getAsInt(index));
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
   }
 
   /**
@@ -105,8 +109,16 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
    * {@inheritDoc}
    */
   @Override
-  public Type getType() {
+  public VectorType getType() {
     return TYPE;
+  }
+
+  @Override
+  public AnyMatrix asMatrix() {
+    if (adapter == null) {
+      adapter = new VectorComplexMatrixAdapter(this);
+    }
+    return adapter;
   }
 
   /**

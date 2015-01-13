@@ -1,22 +1,21 @@
-package org.briljantframework.matrix;
+package org.briljantframework.vector;
 
 import org.briljantframework.Check;
+import org.briljantframework.exceptions.ImmutableModificationException;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.vector.Vector;
-
-import com.google.common.base.Preconditions;
+import org.briljantframework.matrix.*;
 
 /**
  * Creates a matrix using an {@link org.briljantframework.vector.Vector}. While any vector is
  * allowed, generally {@link org.briljantframework.vector.DoubleVector} is the only suitable option.
  * 
  * For simplicity, new matrices created using {@link #newEmptyMatrix(int, int)} is not vector
- * matrices. Hence, most operations (e.g., {@link #mmul(DoubleMatrix)}) does not return matrices
- * with {@code this.getClass()}.
+ * matrices. Hence, most operations (e.g., {@link #mmul(org.briljantframework.matrix.DoubleMatrix)})
+ * does not return matrices with {@code this.getClass()}.
  * 
  * @author Isak Karlsson
  */
-public class VectorDoubleMatrix extends AbstractDoubleMatrix {
+class VectorDoubleMatrixAdapter extends AbstractDoubleMatrix {
 
   private final Vector vector;
 
@@ -28,9 +27,9 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
    * @param columns the columns
    * @param vector the vector
    */
-  public VectorDoubleMatrix(int rows, int columns, Vector vector) {
+  public VectorDoubleMatrixAdapter(int rows, int columns, Vector vector) {
     super(rows, columns);
-    Preconditions.checkArgument(rows * columns == vector.size(), "Invalid size.");
+    Check.size(vector.size(), this);
     this.vector = vector;
   }
 
@@ -41,8 +40,12 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
    * @param columns the columns
    * @param vector the vector
    */
-  public VectorDoubleMatrix(int columns, Vector vector) {
+  public VectorDoubleMatrixAdapter(int columns, Vector vector) {
     this(vector.size() / columns, columns, vector);
+  }
+
+  public VectorDoubleMatrixAdapter(Vector vector) {
+    this(vector.size(), 1, vector);
   }
 
   /**
@@ -52,18 +55,13 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
    * @return a 1 x vector.size() column matrix
    */
   public static DoubleMatrix wrap(Vector vector) {
-    return new VectorDoubleMatrix(1, vector.size(), vector);
+    return new VectorDoubleMatrixAdapter(1, vector.size(), vector);
   }
 
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
-    Check.size(UNCHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new VectorDoubleMatrix(rows, columns, vector);
-  }
-
-  @Override
-  public DoubleMatrix copy() {
-    return new ArrayDoubleMatrix(getShape(), vector.toDoubleArray());
+    Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+    return new VectorDoubleMatrixAdapter(rows, columns, vector);
   }
 
   @Override
@@ -87,26 +85,10 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void set(int i, int j, double value) {
-    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
+  public DoubleMatrix copy() {
+    return new ArrayDoubleMatrix(getShape(), vector.toDoubleArray());
   }
 
-  @Override
-  public void set(int index, double value) {
-    throw new UnsupportedOperationException("Can't mutate VectorMatrix.");
-  }
-
-  @Override
-  public int size() {
-    return vector.size();
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * Please note that this won't return a {@code VectorMatrix} but an other matrix with
-   * {@code isArrayBased() == true}
-   */
   @Override
   public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
     if (this.columns() != other.rows()) {
@@ -125,5 +107,15 @@ public class VectorDoubleMatrix extends AbstractDoubleMatrix {
   @Override
   public double[] asDoubleArray() {
     return vector.asDoubleArray();
+  }
+
+  @Override
+  public void set(int i, int j, double value) {
+    throw new ImmutableModificationException();
+  }
+
+  @Override
+  public void set(int index, double value) {
+    throw new ImmutableModificationException();
   }
 }

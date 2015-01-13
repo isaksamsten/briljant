@@ -267,67 +267,37 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
   DoubleMatrix reduceRows(ToDoubleFunction<? super DoubleMatrix> reduce);
 
   /**
-   * Get row vector at {@code i}. Modifications will change to original matrix.
-   *
-   * @param i row
-   * @return a vector
-   */
-  DoubleMatrix getRowView(int i);
-
-  /**
-   * Gets vector at {@code index}. Modifications will change the original matrix.
-   *
-   * @param index the index
-   * @return the column
-   */
-  DoubleMatrix getColumnView(int index);
-
-  /**
-   * Gets a view of the diagonal. Modifications will change the original matrix.
-   *
-   * @return a diagonal view
-   */
-  Diagonal getDiagonalView();
-
-  /**
-   * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
-   * starting at {@code colOffset} until {@code colOffset + columns}.
-   *
-   * For example,
-   *
-   * <pre>
-   *   1 2 3
-   *   4 5 6
-   *   7 8 9
-   * </pre>
-   *
-   * and {@code matrix.getView(1, 1, 2, 2)} produces
-   *
-   * <pre>
-   *   5 6
-   *   8 9
-   * </pre>
-   *
-   * Please note that modifications of the view, mutates the original.
-   *
-   * @param rowOffset the row offset
-   * @param colOffset the column offset
-   * @param rows number of rows after row offset
-   * @param columns number of columns after column offset
-   * @return the matrix view
-   */
-  DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
-
-  /**
    * {@inheritDoc}
    */
   @Override
   DoubleMatrix reshape(int rows, int columns);
 
   /**
-   * Transpose matrix like.
-   *
-   * @return the matrix like
+   * {@inheritDoc}
+   */
+  @Override
+  DoubleMatrix getRowView(int i);
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  DoubleMatrix getColumnView(int index);
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  Diagonal getDiagonalView();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+
+  /**
+   * {@inheritDoc}
    */
   DoubleMatrix transpose();
 

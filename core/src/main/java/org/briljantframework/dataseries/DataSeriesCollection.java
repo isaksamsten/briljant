@@ -32,16 +32,16 @@ import org.briljantframework.vector.*;
 public class DataSeriesCollection extends AbstractDataFrame {
 
   private final List<Vector> series;
-  private final Type type;
+  private final VectorType type;
 
   private final int columns;
 
-  public DataSeriesCollection(List<Vector> series, Type type) {
+  public DataSeriesCollection(List<Vector> series, VectorType type) {
     this(series, type, series.stream().mapToInt(Vector::size).max()
         .orElseThrow(IllegalArgumentException::new));
   }
 
-  protected DataSeriesCollection(List<Vector> series, Type type, int columns) {
+  protected DataSeriesCollection(List<Vector> series, VectorType type, int columns) {
     this.type = checkNotNull(type);
     this.series = checkNotNull(series);
     this.columns = columns;
@@ -84,12 +84,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Binary getAsBinary(int row, int column) {
+  public Bit getAsBinary(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsBinary(column);
+      return rvec.getAsBit(column);
     } else if (column >= 0 && column < columns) {
-      return BinaryVector.NA;
+      return BitVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
     }
@@ -137,7 +137,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Type getColumnType(int index) {
+  public VectorType getColumnType(int index) {
     return type;
   }
 
@@ -172,7 +172,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
    * 
    * @return the type
    */
-  public Type getType() {
+  public VectorType getType() {
     return type;
   }
 
@@ -183,14 +183,14 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   public static class Builder extends AbstractBuilder {
 
-    private final Type type;
+    private final VectorType type;
     private final List<Vector.Builder> builders;
 
-    public Builder(Type type) {
+    public Builder(VectorType type) {
       this(new ArrayList<>(), type);
     }
 
-    protected Builder(List<Vector.Builder> builders, Type type) {
+    protected Builder(List<Vector.Builder> builders, VectorType type) {
       this.type = type;
       this.builders = builders;
     }

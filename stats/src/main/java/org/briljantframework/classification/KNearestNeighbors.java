@@ -27,8 +27,8 @@ import org.briljantframework.classification.tree.Examples;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.collect.MinMaxPriorityQueue;
 
@@ -100,10 +100,10 @@ public class KNearestNeighbors implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
         y.size());
-    checkArgument(y.getType().getScale() == Type.Scale.CATEGORICAL,
+    checkArgument(y.getType().getScale() == VectorType.Scale.CATEGORICAL,
         "Can't handle continuous targets. ");
     for (int i = 0; i < x.columns(); i++) {
-      checkArgument(x.getColumnType(i).getScale() == Type.Scale.NUMERICAL,
+      checkArgument(x.getColumnType(i).getScale() == VectorType.Scale.NUMERICAL,
           "Can't handle non-numerical values");
     }
     return new Model(x, y, distance, neighbors);

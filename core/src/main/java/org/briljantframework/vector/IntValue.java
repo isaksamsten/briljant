@@ -15,17 +15,37 @@ public class IntValue extends AbstractIntVector implements Value {
   }
 
   @Override
-  public Iterator<Integer> iterator() {
-    return Iterators.singletonIterator(value);
-  }
-
-  @Override
   public int compareTo(Value o) {
     return getAsInt() - o.getAsInt();
   }
 
   @Override
   public int getAsInt(int index) {
+    return value;
+  }
+
+  @Override
+  public int size() {
+    return 1;
+  }
+
+  @Override
+  public Builder newCopyBuilder() {
+    return IntVector.TYPE.newBuilder().set(0, this, 0);
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return IntVector.TYPE.newBuilder();
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    return IntVector.TYPE.newBuilder(size);
+  }
+
+  @Override
+  public int hashCode() {
     return value;
   }
 
@@ -45,27 +65,7 @@ public class IntValue extends AbstractIntVector implements Value {
   }
 
   @Override
-  public int hashCode() {
-    return value;
-  }
-
-  @Override
-  public int size() {
-    return 1;
-  }
-
-  @Override
-  public Builder newCopyBuilder() {
-    return null;
-  }
-
-  @Override
-  public Builder newBuilder() {
-    return null;
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return null;
+  public Iterator<Integer> iterator() {
+    return Iterators.singletonIterator(value);
   }
 }

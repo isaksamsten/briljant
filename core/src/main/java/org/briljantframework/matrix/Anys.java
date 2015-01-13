@@ -1,6 +1,10 @@
 package org.briljantframework.matrix;
 
+import java.util.function.IntPredicate;
+
 import org.briljantframework.Check;
+import org.briljantframework.IndexComparator;
+import org.briljantframework.QuickSort;
 
 /**
  * Created by Isak Karlsson on 11/01/15.
@@ -177,7 +181,7 @@ public final class Anys {
    */
   public static AnyMatrix select(AnyMatrix a, BitMatrix where) {
     Check.equalShape(a, where);
-    AnyMatrix.Builder builder = a.newBuilder();
+    AnyMatrix.IncrementalBuilder builder = a.newIncrementalBuilder();
     for (int i = 0; i < a.size(); i++) {
       if (where.get(i)) {
         builder.add(a, i);
@@ -185,4 +189,133 @@ public final class Anys {
     }
     return builder.build();
   }
+
+  /**
+   * <pre>
+   *  > import org.briljantframework.matrix.*;
+   *    DoubleMatrix a = Doubles.randn(10, 1)
+   *    DoubleMatrix x = Anys.sort(a).asDoubleMatrix()
+   *    
+   *    -1.8718  
+   *    -0.8834  
+   *    -0.6161  
+   *    -0.0953  
+   *    0.0125  
+   *    0.3538  
+   *    0.4326  
+   *    0.4543  
+   *    1.0947  
+   *    1.1936  
+   *    shape: 10x1 type: double
+   * </pre>
+   * 
+   * @param matrix the source matrix
+   * @return a new matrix; the returned matrix has the same type as {@code a}
+   */
+  public static AnyMatrix sort(AnyMatrix matrix) {
+    return sort(matrix, AnyMatrix::compare);
+  }
+
+  /**
+   * <p>
+   * Sorts the source matrix {@code a} in the order specified by {@code comparator}
+   * </p>
+   * For example, reversed sorted
+   * 
+   * <pre>
+   *  > import org.briljantframework.matrix.*;
+   *    DoubleMatrix a = Doubles.randn(12, 1)
+   *    DoubleMatrix x = Anys.sort(a, (c, i, j) -> -c.compare(a, b)).asDoubleMatrix()
+   * </pre>
+   * 
+   * {@link org.briljantframework.complex.Complex} and
+   * {@link org.briljantframework.matrix.ComplexMatrix} do not have a natural sort order.
+   *
+   * <pre>
+   *  > import org.briljantframework.matrix.*;
+   *    ComplexMatrix a = Doubles.randn(12, 1).asComplexMatrix().map(Complex::sqrt)
+   *    ComplexMatrix x = Anys.sort(a, (c, i, j) -> Double.compare(c.getAsComplex(i).abs(),
+   *        c.getAsComplex(j).abs()).asComplexMatrix()
+   * 
+   *    0.1499 + 0.0000i  
+   *    0.5478 + 0.0000i  
+   *    0.5725 + 0.0000i  
+   *    0.0000 + 0.5916i  
+   *    0.0000 + 0.6856i  
+   *    0.0000 + 0.8922i  
+   *    0.0000 + 0.9139i  
+   *    0.0000 + 1.0130i  
+   *    0.0000 + 1.1572i  
+   *    1.1912 + 0.0000i  
+   *    1.2493 + 0.0000i  
+   *    1.2746 + 0.0000i
+   *    shape: 12x1 type: complex
+   * </pre>
+   * 
+   * @param a the source matrix
+   * @param comparator the comparator; first argument is the container, and the next are indexes
+   * @return a new sorted matrix; the returned matrix has the same type as {@code a}
+   */
+  public static AnyMatrix sort(AnyMatrix a, IndexComparator<? super AnyMatrix> comparator) {
+    AnyMatrix out = a.copy();
+    QuickSort.quickSort(0, out.size(), (x, y) -> comparator.compare(out, x, y), out);
+    return out;
+  }
+
+  /**
+   * Sort {@code a} each dimension, set by {@code axis}, in increasing order. For example, if
+   * {@code axis ==
+   * Axis.ROW}, each row is sorted in increasing order.
+   * <p>
+   * 
+   * <pre>
+   *  > import org.briljantframework.matrix.*;
+   *    DoubleMatrix a = Doubles.randn(12, 1).reshape(3,4)
+   *    AnyMatrix x = Anys.sort(a, Axis.COLUMN)
+   *    -0.2836   0.0603  -1.1870  -0.7840
+   *    0.1644   0.2489   0.2159   0.6990
+   *    0.4199   0.5131   0.9911   1.7952
+   *    shape: 3x4 type: double
+   * 
+   *    AnyMatrix y = Anys.sort(a, Axis.ROW)
+   *    -0.7840   0.0603   0.4199   0.9911
+   *    -0.2836   0.2159   0.5131   1.7952
+   *    -1.1870   0.1644   0.2489   0.6990
+   *    shape: 3x4 type: double
+   * </pre>
+   *
+   * @param a the source matrix
+   * @param axis the axis to sort
+   * @return a new matrix; the returned matrix has the same type as {@code a}
+   */
+  public static AnyMatrix sort(AnyMatrix a, Axis axis) {
+    return sort(a, axis, AnyMatrix::compare);
+  }
+
+  public static AnyMatrix sort(AnyMatrix a, Axis axis, IndexComparator<? super AnyMatrix> comparator) {
+    AnyMatrix out = a.copy();
+    if (axis == Axis.ROW) {
+      for (int i = 0; i < a.rows(); i++) {
+        AnyMatrix row = out.getRowView(i);
+        QuickSort.quickSort(0, row.size(), (x, y) -> comparator.compare(row, x, y), row);
+      }
+    } else {
+      for (int i = 0; i < a.columns(); i++) {
+        AnyMatrix col = out.getColumnView(i);
+        QuickSort.quickSort(0, col.size(), (x, y) -> comparator.compare(col, x, y), col);
+      }
+    }
+    return out;
+  }
+
+  public static AnyMatrix selectIndex(AnyMatrix matrix, IntPredicate predicate) {
+    AnyMatrix.IncrementalBuilder builder = matrix.newIncrementalBuilder();
+    for (int i = 0; i < matrix.size(); i++) {
+      if (predicate.test(i)) {
+        builder.add(matrix, i);
+      }
+    }
+    return builder.build();
+  }
+
 }

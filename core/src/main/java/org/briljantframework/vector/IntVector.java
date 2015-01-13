@@ -82,6 +82,12 @@ public class IntVector extends AbstractIntVector {
   }
 
   @Override
+  public String toString() {
+    return IntStream.of(values).mapToObj(x -> x == NA ? "NA" : String.valueOf(x))
+        .collect(Collectors.joining(","));
+  }
+
+  @Override
   public Iterator<Integer> iterator() {
     return new UnmodifiableIterator<Integer>() {
       private int current = 0;
@@ -96,12 +102,6 @@ public class IntVector extends AbstractIntVector {
         return getAsInt(current++);
       }
     };
-  }
-
-  @Override
-  public String toString() {
-    return IntStream.of(values).mapToObj(x -> x == NA ? "NA" : String.valueOf(x))
-        .collect(Collectors.joining(","));
   }
 
   public static final class Builder implements Vector.Builder {

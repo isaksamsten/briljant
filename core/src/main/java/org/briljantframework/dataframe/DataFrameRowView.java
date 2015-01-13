@@ -2,6 +2,7 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AnyMatrix;
 import org.briljantframework.vector.*;
 
 import com.google.common.collect.ImmutableTable;
@@ -13,9 +14,9 @@ public class DataFrameRowView implements DataFrameRow {
 
   private final DataFrame parent;
   private final int row;
-  private final Type type;
+  private final VectorType type;
 
-  public DataFrameRowView(DataFrame parent, int row, Type type) {
+  public DataFrameRowView(DataFrame parent, int row, VectorType type) {
     this.parent = parent;
     this.type = type;
     this.row = row;
@@ -31,12 +32,12 @@ public class DataFrameRowView implements DataFrameRow {
   }
 
   @Override
-  public Type getType() {
+  public VectorType getType() {
     return type;
   }
 
   @Override
-  public Type getType(int index) {
+  public VectorType getType(int index) {
     return parent.getColumnType(index);
   }
 
@@ -66,7 +67,7 @@ public class DataFrameRowView implements DataFrameRow {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
+  public Bit getAsBit(int index) {
     return parent.getAsBinary(row, index);
   }
 
@@ -98,6 +99,11 @@ public class DataFrameRowView implements DataFrameRow {
   @Override
   public Builder newBuilder(int size) {
     return getType().newBuilder(size);
+  }
+
+  @Override
+  public AnyMatrix asMatrix() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

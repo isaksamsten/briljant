@@ -11,6 +11,7 @@ import org.briljantframework.complex.Complex;
 public class ArrayComplexMatrix extends AbstractComplexMatrix {
 
   private final Complex[] values;
+  private Complex defaultValue = Complex.ZERO;
 
   public ArrayComplexMatrix(int rows, int cols) {
     super(rows, cols);
@@ -21,18 +22,22 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
   protected ArrayComplexMatrix(int rows, int cols, Complex[] values) {
     super(rows, cols);
     this.values = values;
+  }
 
+  protected ArrayComplexMatrix(int rows, int columns, Complex defaultValue) {
+    super(rows, columns);
+    this.values = new Complex[size()];
+    this.defaultValue = defaultValue;
+  }
+
+  public static ArrayComplexMatrix withDefaultValue(int rows, int columns, Complex zero) {
+    return new ArrayComplexMatrix(rows, columns, zero);
   }
 
   @Override
   public ComplexMatrix reshape(int rows, int columns) {
-    Check.size(UNCHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+    Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new ArrayComplexMatrix(rows, columns, values);
-  }
-
-  @Override
-  public ComplexMatrix copy() {
-    return new ArrayComplexMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
   }
 
   @Override
@@ -42,17 +47,30 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
 
   @Override
   public Complex get(int i, int j) {
-    return values[Indexer.columnMajor(i, j, rows(), columns())];
+    final Complex value = values[Indexer.columnMajor(i, j, rows(), columns())];
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
   }
 
   @Override
   public Complex get(int index) {
-    return values[index];
+    final Complex value = values[index];
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
   }
 
   @Override
   public boolean isArrayBased() {
     return false;
+  }
+
+  @Override
+  public ComplexMatrix copy() {
+    return new ArrayComplexMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
   }
 
   @Override

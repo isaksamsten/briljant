@@ -3,6 +3,7 @@ package org.briljantframework.vector;
 import java.io.IOException;
 
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.matrix.AnyMatrix;
 
 /**
  * Undefined is an immutable 1 size vector returning NA
@@ -16,7 +17,7 @@ public class Undefined implements Value {
   protected static final String UNDEFINED_DOES_NOT_HAVE_A_SCALE =
       "Undefined does not have a scale.";
 
-  public static final Type TYPE = new Type() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
       return Builder.INSTANCE;
@@ -75,8 +76,8 @@ public class Undefined implements Value {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
-    return BinaryVector.NA;
+  public Bit getAsBit(int index) {
+    return BitVector.NA;
   }
 
   @Override
@@ -90,7 +91,7 @@ public class Undefined implements Value {
   }
 
   @Override
-  public Type getType() {
+  public VectorType getType() {
     return TYPE;
   }
 
@@ -107,6 +108,11 @@ public class Undefined implements Value {
   @Override
   public Builder newBuilder(int size) {
     return Builder.INSTANCE;
+  }
+
+  @Override
+  public AnyMatrix asMatrix() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -44,8 +44,8 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public Type getType() {
-    return Type.DOUBLE;
+  public DataType getDataType() {
+    return DataType.DOUBLE;
   }
 
   @Override
@@ -118,6 +118,35 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
     set(atRow, atColumn, from.getAsDouble(fromRow, fromColumn));
   }
 
+  @Override
+  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+    return Double.compare(get(toIndex), from.getAsDouble(fromIndex));
+  }
+
+  @Override
+  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+    return Double.compare(get(toRow, toColumn), from.getAsDouble(fromRow, fromColumn));
+  }
+
+  @Override
+  public DoubleMatrix getRowView(int i) {
+    return new DoubleMatrixView(this, i, 0, 1, columns());
+  }
+
+  public DoubleMatrix getColumnView(int index) {
+    return new DoubleMatrixView(this, 0, index, rows(), 1);
+  }
+
+  @Override
+  public Diagonal getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new DoubleMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
   public DoubleMatrix transpose() {
     DoubleMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
@@ -129,8 +158,17 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
+  public DoubleMatrix copy() {
+    DoubleMatrix n = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      set(i, get(i));
+    }
+    return n;
+  }
+
+  @Override
+  public IncrementalBuilder newIncrementalBuilder() {
+    return new IncrementalBuilder();
   }
 
   @Override
@@ -244,7 +282,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
   @Override
   public DoubleMatrix filter(DoublePredicate operator) {
-    Builder builder = newBuilder();
+    IncrementalBuilder builder = newIncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       double value = get(i);
       if (operator.test(value)) {
@@ -278,25 +316,6 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
       mat.set(i, reduce.applyAsDouble(getRowView(i)));
     }
     return mat;
-  }
-
-  @Override
-  public DoubleMatrix getRowView(int i) {
-    return new DoubleMatrixView(this, i, 0, 1, columns());
-  }
-
-  public DoubleMatrix getColumnView(int index) {
-    return new DoubleMatrixView(this, 0, index, rows(), 1);
-  }
-
-  @Override
-  public Diagonal getDiagonalView() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new DoubleMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -839,6 +858,13 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
+  public void swap(int a, int b) {
+    double tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
+  }
+
+  @Override
   public Iterator<Double> iterator() {
     return new Iterator<Double>() {
       private int index = 0;
@@ -855,7 +881,7 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
     };
   }
 
-  public static class Builder implements AnyMatrix.Builder {
+  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
 
     private DoubleArrayList buffer = new DoubleArrayList();
 

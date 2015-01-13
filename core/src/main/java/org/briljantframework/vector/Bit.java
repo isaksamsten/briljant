@@ -3,7 +3,7 @@ package org.briljantframework.vector;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public enum Binary {
+public enum Bit {
   TRUE(1), FALSE(0), NA(IntVector.NA);
 
   private final int value;
@@ -13,15 +13,15 @@ public enum Binary {
    *
    * @param value the value
    */
-  Binary(int value) {
+  Bit(int value) {
     this.value = value;
   }
 
-  public static Binary valueOf(boolean value) {
+  public static Bit valueOf(boolean value) {
     return value ? TRUE : FALSE;
   }
 
-  public static Binary valueOf(int value) {
+  public static Bit valueOf(int value) {
     switch (value) {
       case 1:
         return TRUE;

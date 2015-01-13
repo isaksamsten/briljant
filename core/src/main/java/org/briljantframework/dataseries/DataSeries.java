@@ -1,10 +1,11 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.dataframe.DataFrameRow;
-import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Type;
+import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.base.MoreObjects;
 
@@ -26,7 +27,7 @@ public class DataSeries implements DataFrameRow {
   }
 
   @Override
-  public Type getType(int index) {
+  public VectorType getType(int index) {
     return vector.getType();
   }
 
@@ -56,8 +57,8 @@ public class DataSeries implements DataFrameRow {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
-    return vector.getAsBinary(index);
+  public Bit getAsBit(int index) {
+    return vector.getAsBit(index);
   }
 
   @Override
@@ -83,6 +84,11 @@ public class DataSeries implements DataFrameRow {
   @Override
   public Builder newBuilder(int size) {
     return vector.newBuilder(size);
+  }
+
+  @Override
+  public AnyMatrix asMatrix() {
+    return vector.asMatrix();
   }
 
   @Override

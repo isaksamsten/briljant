@@ -19,9 +19,9 @@ package org.briljantframework.classification.tree;
 import java.util.Random;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Created by Isak Karlsson on 10/09/14.
@@ -49,7 +49,7 @@ public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
     Examples left = Examples.create();
     Examples right = Examples.create();
     Vector axisVector = dataset.getColumn(axis);
-    Type axisType = axisVector.getType();
+    VectorType axisType = axisVector.getType();
 
     /*
      * Partition every class separately

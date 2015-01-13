@@ -3,13 +3,15 @@ package org.briljantframework.vector;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.briljantframework.matrix.DoubleMatrix;
+
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
 public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
-  public static final Type TYPE = new Type() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public DoubleVector.Builder newBuilder() {
       return new DoubleVector.Builder();
@@ -49,6 +51,8 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
     }
   };
 
+  private DoubleMatrix adapter;
+
   @Override
   public Value getAsValue(int index) {
     double value = getAsDouble(index);
@@ -73,8 +77,8 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
-    return Binary.valueOf(getAsInt(index));
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
   }
 
   @Override
@@ -84,8 +88,16 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   }
 
   @Override
-  public Type getType() {
+  public VectorType getType() {
     return TYPE;
+  }
+
+  @Override
+  public DoubleMatrix asMatrix() {
+    if (adapter == null) {
+      adapter = new VectorDoubleMatrixAdapter(this);
+    }
+    return adapter;
   }
 
   @Override

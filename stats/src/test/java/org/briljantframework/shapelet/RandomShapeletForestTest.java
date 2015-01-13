@@ -51,7 +51,7 @@ public class RandomShapeletForestTest {
     // DataSeriesCollection collection = builder.build();
     DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
     DataFrame x = synthetic.dropColumn(0);
-    StringVector y = As.stringVector(synthetic.getColumn(0));
+    StringVector y = Convert.toStringVector(synthetic.getColumn(0));
 
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
     Aggregator aggregator = new MeanAggregator(30);

@@ -145,7 +145,7 @@ public class Doubles {
    * @return a new matrix
    */
   public static DoubleMatrix zeros(int size) {
-    return zeros(size, size);
+    return zeros(size, 1);
   }
 
   /**

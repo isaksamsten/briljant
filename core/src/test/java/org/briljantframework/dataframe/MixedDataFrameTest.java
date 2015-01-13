@@ -48,8 +48,8 @@ public class MixedDataFrameTest {
 
     DataFrame.Builder bu =
         new MixedDataFrame.Builder(StringVector.newBuilderWithInitialValues("one", "two", "three",
-            "four", "four"), BinaryVector.newBuilderWithInitialValues(Binary.TRUE, Binary.FALSE,
-            Binary.TRUE, 1), IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
+            "four", "four"), BitVector.newBuilderWithInitialValues(Bit.TRUE, Bit.FALSE,
+                Bit.TRUE, 1), IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
             ComplexVector.newBuilderWithInitialValues(Complex.I, new Complex(2, 3), new Complex(2,
                 2), null, Complex.ZERO, 0.0), DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3,
                 4, 4, 5, 6));

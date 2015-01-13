@@ -1,7 +1,6 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,9 +27,8 @@ public class DoubleVectorTest {
     builder.set(3, 10);
     builder.set(4, Double.NaN);
     builder.set(10, 10);
-    System.out.println(builder.size());
-
-    System.out.println(builder.build());
+    Vector vec = builder.build();
+    assertFalse(vec.isNA(4));
   }
 
   @Test
@@ -94,9 +92,9 @@ public class DoubleVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Binary.TRUE, vector.getAsBinary(1));
-    assertEquals(Binary.FALSE, vector.getAsBinary(0));
-    assertEquals(Binary.NA, hasNA.getAsBinary(0));
+    assertEquals(Bit.TRUE, vector.getAsBit(1));
+    assertEquals(Bit.FALSE, vector.getAsBit(0));
+    assertEquals(Bit.NA, hasNA.getAsBit(0));
   }
 
   @Test

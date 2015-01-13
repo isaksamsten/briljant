@@ -1,8 +1,8 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.base.Preconditions;
 
@@ -77,7 +77,7 @@ public class LeastTriagleThreeBucketAggregator implements Aggregator {
   }
 
   @Override
-  public Type getAggregatedType() {
+  public VectorType getAggregatedType() {
     return DoubleVector.TYPE;
   }
 }

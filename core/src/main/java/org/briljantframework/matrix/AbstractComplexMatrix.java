@@ -23,13 +23,15 @@ import com.google.common.collect.UnmodifiableIterator;
  */
 public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements ComplexMatrix {
 
+  public static final String INVALID_SORT = "Unable to sort Complex values";
+
   protected AbstractComplexMatrix(int rows, int cols) {
     super(rows, cols);
   }
 
   @Override
-  public Type getType() {
-    return Type.COMPLEX;
+  public DataType getDataType() {
+    return DataType.COMPLEX;
   }
 
   @Override
@@ -111,6 +113,36 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
+  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+    throw new UnsupportedOperationException(INVALID_SORT);
+  }
+
+  @Override
+  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+    throw new UnsupportedOperationException(INVALID_SORT);
+  }
+
+  @Override
+  public ComplexMatrix getRowView(int i) {
+    return new ComplexMatrixView(this, i, 0, 1, columns());
+  }
+
+  @Override
+  public ComplexMatrix getColumnView(int index) {
+    return new ComplexMatrixView(this, 0, index, rows(), 1);
+  }
+
+  @Override
+  public ComplexMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new ComplexMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
   public ComplexMatrix transpose() {
     ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
@@ -122,8 +154,17 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
+  public ComplexMatrix copy() {
+    ComplexMatrix n = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, get(i));
+    }
+    return n;
+  }
+
+  @Override
+  public IncrementalBuilder newIncrementalBuilder() {
+    return new IncrementalBuilder();
   }
 
   @Override
@@ -223,7 +264,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
 
   @Override
   public ComplexMatrix filter(Predicate<? super Complex> predicate) {
-    Builder builder = newBuilder();
+    IncrementalBuilder builder = newIncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       Complex value = get(i);
       if (predicate.test(value)) {
@@ -257,26 +298,6 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
       mat.set(i, reduce.apply(getRowView(i)));
     }
     return mat;
-  }
-
-  @Override
-  public ComplexMatrix getRowView(int i) {
-    return new ComplexMatrixView(this, i, 0, 1, columns());
-  }
-
-  @Override
-  public ComplexMatrix getColumnView(int index) {
-    return new ComplexMatrixView(this, 0, index, rows(), 1);
-  }
-
-  @Override
-  public Diagonal getDiagonalView() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new ComplexMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -541,6 +562,13 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
+  public void swap(int a, int b) {
+    Complex tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
+  }
+
+  @Override
   public String toString() {
     StringBuilder str = new StringBuilder();
     ImmutableTable.Builder<Object, Object, Object> builder = new ImmutableTable.Builder<>();
@@ -571,7 +599,7 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
     };
   }
 
-  public static class Builder implements AnyMatrix.Builder {
+  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
 
     private List<Complex> buffer = new ArrayList<>();
 

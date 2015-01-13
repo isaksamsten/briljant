@@ -81,4 +81,5 @@ public final class Check {
       throw new SizeMismatchException(a.size(), size);
     }
   }
+
 }

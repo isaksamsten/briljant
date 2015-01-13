@@ -3,7 +3,7 @@ package org.briljantframework.io;
 import java.io.IOException;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.vector.Binary;
+import org.briljantframework.vector.Bit;
 
 /**
  * Created by Isak Karlsson on 11/12/14.
@@ -43,7 +43,7 @@ public interface DataEntry {
    * @throws IOException
    * @throws java.lang.NumberFormatException
    */
-  Binary nextBinary() throws IOException;
+  Bit nextBinary() throws IOException;
 
   /**
    * Reads the next {@code Complex} in this stream.

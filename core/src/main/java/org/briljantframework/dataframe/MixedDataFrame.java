@@ -168,8 +168,8 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Binary getAsBinary(int row, int column) {
-    return columns.get(column).getAsBinary(row);
+  public Bit getAsBinary(int row, int column) {
+    return columns.get(column).getAsBit(row);
   }
 
   @Override
@@ -193,7 +193,7 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Type getColumnType(int index) {
+  public VectorType getColumnType(int index) {
     return columns.get(index).getType();
   }
 
@@ -307,7 +307,7 @@ public class MixedDataFrame extends AbstractDataFrame {
      *
      * @param types the column types
      */
-    public Builder(Type... types) {
+    public Builder(VectorType... types) {
       this(Arrays.asList(types));
     }
 
@@ -317,7 +317,7 @@ public class MixedDataFrame extends AbstractDataFrame {
      * 
      * @param types the column types
      */
-    public Builder(Collection<? extends Type> types) {
+    public Builder(Collection<? extends VectorType> types) {
       buffers = new ArrayList<>(types.size());
       types.forEach(type -> buffers.add(type.newBuilder()));
     }
@@ -329,14 +329,14 @@ public class MixedDataFrame extends AbstractDataFrame {
      * @param colNames the column names
      * @param types the types
      */
-    public Builder(Collection<String> colNames, Collection<? extends Type> types) {
+    public Builder(Collection<String> colNames, Collection<? extends VectorType> types) {
       checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
           "Column names and types does not match.");
       this.buffers = new ArrayList<>(types.size());
 
       Iterator<String> it = colNames.iterator();
       int index = 0;
-      for (Type type : types) {
+      for (VectorType type : types) {
         this.columnNames.put(index++, it.next());
         this.buffers.add(type.newBuilder());
       }

@@ -62,8 +62,8 @@ public final class Is {
    * @param value the value
    * @return true if value is NA
    */
-  public static boolean NA(Binary value) {
-    return BinaryVector.TYPE.isNA(value);
+  public static boolean NA(Bit value) {
+    return BitVector.TYPE.isNA(value);
   }
 
   /**

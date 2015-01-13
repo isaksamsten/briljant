@@ -23,7 +23,7 @@ import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
  */
 public class MeanImputer implements Transformer {
 
-  private static final Set<Type> ALLOWED_TYPES = Sets.newIdentityHashSet();
+  private static final Set<VectorType> ALLOWED_TYPES = Sets.newIdentityHashSet();
   static {
     ALLOWED_TYPES.add(DoubleVector.TYPE);
     ALLOWED_TYPES.add(IntVector.TYPE);

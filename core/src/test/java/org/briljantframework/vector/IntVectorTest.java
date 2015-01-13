@@ -95,9 +95,9 @@ public class IntVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Binary.TRUE, vector.getAsBinary(1));
-    assertEquals(Binary.FALSE, vector.getAsBinary(0));
-    assertEquals(Binary.NA, hasNA.getAsBinary(0));
+    assertEquals(Bit.TRUE, vector.getAsBit(1));
+    assertEquals(Bit.FALSE, vector.getAsBit(0));
+    assertEquals(Bit.NA, hasNA.getAsBit(0));
   }
 
   @Test

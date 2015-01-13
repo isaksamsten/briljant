@@ -10,7 +10,7 @@ import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
@@ -49,10 +49,10 @@ public final class DataFrames {
    * @throws IOException
    */
   public static DataFrame load(
-      BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f,
+      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f,
       DataInputStream in) throws IOException {
     try {
-      Collection<Type> types = in.readColumnTypes();
+      Collection<VectorType> types = in.readColumnTypes();
       Collection<String> names = in.readColumnNames();
       return f.apply(names, types).read(in).build();
     } finally {

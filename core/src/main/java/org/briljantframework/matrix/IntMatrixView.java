@@ -7,8 +7,6 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
  * Created by Isak Karlsson on 09/01/15.
  */
 public class IntMatrixView extends AbstractIntMatrix {
-  private static final int ROW = 0;
-  private static final int COLUMN = 1;
 
   private final IntMatrix parent;
 
@@ -33,6 +31,11 @@ public class IntMatrixView extends AbstractIntMatrix {
   }
 
   @Override
+  public IntMatrix newEmptyMatrix(int rows, int columns) {
+    return null;
+  }
+
+  @Override
   public int get(int i, int j) {
     return parent.get(rowOffset + i, colOffset + j);
   }
@@ -45,11 +48,6 @@ public class IntMatrixView extends AbstractIntMatrix {
   @Override
   public boolean isArrayBased() {
     return parent.isArrayBased();
-  }
-
-  @Override
-  public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return null;
   }
 
   @Override

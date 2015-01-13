@@ -47,10 +47,10 @@ public class StringVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Binary.TRUE, strings.getAsBinary(3));
-    assertEquals(Binary.FALSE, strings.getAsBinary(2));
-    assertEquals(Binary.NA, strings.getAsBinary(0));
-    assertEquals(Binary.NA, strings.getAsBinary(strings.size() - 1));
+    assertEquals(Bit.TRUE, strings.getAsBit(3));
+    assertEquals(Bit.FALSE, strings.getAsBit(2));
+    assertEquals(Bit.NA, strings.getAsBit(0));
+    assertEquals(Bit.NA, strings.getAsBit(strings.size() - 1));
   }
 
   @Test

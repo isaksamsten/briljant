@@ -1,7 +1,6 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import org.briljantframework.exceptions.NonConformantException;
 
@@ -9,9 +8,6 @@ import org.briljantframework.exceptions.NonConformantException;
  * Created by Isak Karlsson on 08/12/14.
  */
 public class DoubleMatrixView extends AbstractDoubleMatrix {
-  private static final int ROW = 0;
-  private static final int COLUMN = 1;
-
   private final DoubleMatrix parent;
 
   private final int rowOffset, colOffset;
@@ -30,8 +26,16 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
 
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
-    // TODO(isak): this might be strange..
-    return new DoubleMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
+    throw new UnsupportedOperationException("Unable to reshape view.");
+    // return copy().reshape(rows, columns);
+    // // TODO(isak): this might be strange..
+    // return new DoubleMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows,
+    // columns);
+  }
+
+  @Override
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayDoubleMatrix(rows, columns);
   }
 
   @Override
@@ -41,23 +45,13 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
 
   @Override
   public double get(int index) {
-    return parent.get(computeLinearIndex(index));
+    return parent.get(Indexer.computeLinearIndex(index, rows(), colOffset, rowOffset,
+        parent.rows(), parent.columns()));
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * Note, not entirely true, but it appears that copying the array is faster than brute-force
-   * implementing mmul if the underlying matrix {@code isArrayBased()}
-   */
   @Override
   public boolean isArrayBased() {
     return parent.isArrayBased();
-  }
-
-  @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayDoubleMatrix(rows, columns);
   }
 
   @Override
@@ -90,17 +84,8 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
 
   @Override
   public void set(int index, double value) {
-    parent.set(computeLinearIndex(index), value);
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
-  }
-
-  private int computeLinearIndex(int index) {
-    int currentColumn = index / rows() + colOffset;
-    int currentRow = index % rows() + rowOffset;
-    return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+    parent.set(
+        Indexer.computeLinearIndex(index, rows(), colOffset, rowOffset, parent.rows(),
+            parent.columns()), value);
   }
 }

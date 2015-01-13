@@ -23,7 +23,7 @@ import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Load a time series as formatted in the <a
@@ -61,7 +61,7 @@ public class MatlabTextInputStream extends DataInputStream {
   }
 
   @Override
-  public Type readColumnType() throws IOException {
+  public VectorType readColumnType() throws IOException {
     initializeValues();
     if (currentType < columns) {
       currentType++;

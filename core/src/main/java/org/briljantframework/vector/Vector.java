@@ -5,7 +5,9 @@ import java.io.Serializable;
 
 import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.matrix.AnyMatrix;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -57,7 +59,7 @@ public interface Vector extends VectorLike, Serializable {
    * @return true or false
    */
   default boolean isTrue(int index) {
-    return getAsBinary(index) == Binary.TRUE;
+    return getAsBit(index) == Bit.TRUE;
   }
 
   /**
@@ -99,15 +101,16 @@ public interface Vector extends VectorLike, Serializable {
   int getAsInt(int index);
 
   /**
-   * Returns value as {@link Binary}.
+   * Returns value as {@link Bit}.
    *
    * @param index the index
-   * @return a {@link Binary}
+   * @return a {@link Bit}
    */
-  Binary getAsBinary(int index);
+  Bit getAsBit(int index);
 
   /**
-   * Returns value as {@link org.briljantframework.complex.Complex} or {@link ComplexVector#NA} if missing.
+   * Returns value as {@link org.briljantframework.complex.Complex} or {@link ComplexVector#NA} if
+   * missing.
    *
    * @param index the index
    * @return a {@link org.briljantframework.complex.Complex}
@@ -140,7 +143,7 @@ public interface Vector extends VectorLike, Serializable {
    *
    * @return the type
    */
-  Type getType();
+  VectorType getType();
 
   /**
    * Creates a new builder able to build new vectors of this type, initialized with the values in
@@ -227,6 +230,21 @@ public interface Vector extends VectorLike, Serializable {
   default double[] asDoubleArray() {
     return toDoubleArray();
   }
+
+  /**
+   * Returns this vector as an immutable matrix. Should return an appropriate specialization of the
+   * {@link org.briljantframework.matrix.AnyMatrix} interface. For example, a
+   * {@link org.briljantframework.vector.DoubleVector} should return a
+   * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
+   * 
+   * Since {@code Vector}s are immutable, mutations of the returned matrix throws
+   * {@link org.briljantframework.exceptions.ImmutableModificationException}.
+   * 
+   * @return this vector as a matrix
+   * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector to
+   *         matrix
+   */
+  AnyMatrix asMatrix() throws TypeConversionException;
 
   /**
    * Follows the conventions from {@link Comparable#compareTo(Object)}.

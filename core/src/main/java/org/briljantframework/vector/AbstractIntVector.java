@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.matrix.IntMatrix;
+
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
@@ -8,7 +10,7 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
    * The constant NA.
    */
   public static final int NA = Integer.MIN_VALUE;
-  public static final Type TYPE = new Type() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public IntVector.Builder newBuilder() {
       return new IntVector.Builder();
@@ -45,6 +47,8 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
     }
   };
 
+  private IntMatrix adapter;
+
   @Override
   public Value getAsValue(int index) {
     int value = getAsInt(index);
@@ -69,8 +73,8 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
-    return Binary.valueOf(getAsInt(index));
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
   }
 
   @Override
@@ -80,8 +84,16 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
   }
 
   @Override
-  public Type getType() {
+  public VectorType getType() {
     return TYPE;
+  }
+
+  @Override
+  public IntMatrix asMatrix() {
+    if (adapter == null) {
+      adapter = new VectorIntMatrixAdapter(this);
+    }
+    return adapter;
   }
 
   @Override

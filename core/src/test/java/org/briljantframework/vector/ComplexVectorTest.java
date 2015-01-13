@@ -42,9 +42,9 @@ public class ComplexVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Binary.TRUE, vector.getAsBinary(0));
-    assertEquals(Binary.FALSE, vector.getAsBinary(1));
-    assertEquals(BinaryVector.NA, vector.getAsBinary(2));
+    assertEquals(Bit.TRUE, vector.getAsBit(0));
+    assertEquals(Bit.FALSE, vector.getAsBit(1));
+    assertEquals(BitVector.NA, vector.getAsBit(2));
   }
 
   @Test

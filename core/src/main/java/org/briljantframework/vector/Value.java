@@ -53,10 +53,10 @@ public interface Value extends Vector, Comparable<Value> {
    * Gets the value as Binary
    *
    * @return the value
-   * @see Vector#getAsBinary(int)
+   * @see Vector#getAsBit(int)
    */
-  default Binary getAsBinary() {
-    return getAsBinary(0);
+  default Bit getAsBinary() {
+    return getAsBit(0);
   }
 
 

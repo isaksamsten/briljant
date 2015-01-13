@@ -28,6 +28,30 @@ public interface BitMatrix extends AnyMatrix {
   @Override
   BitMatrix reshape(int rows, int columns);
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  BitMatrix getRowView(int i);
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  BitMatrix getColumnView(int index);
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  BitMatrix getDiagonalView();
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  BitMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+
   @Override
   BitMatrix transpose();
 

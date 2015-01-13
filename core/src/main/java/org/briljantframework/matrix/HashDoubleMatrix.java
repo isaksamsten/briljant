@@ -51,6 +51,11 @@ public class HashDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new HashDoubleMatrix(rows, columns);
+  }
+
+  @Override
   public double get(int i, int j) {
     IntDoubleMap col = values.get(j);
     if (col == null) {
@@ -70,11 +75,6 @@ public class HashDoubleMatrix extends AbstractDoubleMatrix {
   @Override
   public boolean isArrayBased() {
     return false;
-  }
-
-  @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new HashDoubleMatrix(rows, columns);
   }
 
   @Override
@@ -102,10 +102,5 @@ public class HashDoubleMatrix extends AbstractDoubleMatrix {
     int col = index / rows();
     int row = index % rows();
     set(row, col, value);
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
   }
 }

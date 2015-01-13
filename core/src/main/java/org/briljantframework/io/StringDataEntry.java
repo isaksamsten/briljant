@@ -3,7 +3,7 @@ package org.briljantframework.io;
 import java.io.IOException;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.vector.Binary;
+import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.StringVector;
@@ -59,8 +59,8 @@ public class StringDataEntry implements DataEntry {
   }
 
   @Override
-  public Binary nextBinary() throws IOException {
-    return Binary.valueOf(nextInt());
+  public Bit nextBinary() throws IOException {
+    return Bit.valueOf(nextInt());
   }
 
   @Override

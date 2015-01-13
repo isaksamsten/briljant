@@ -10,10 +10,10 @@ import java.util.stream.StreamSupport;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Binary;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * <p>
@@ -64,7 +64,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param column the column
    * @return the value
    */
-  Binary getAsBinary(int row, int column);
+  Bit getAsBinary(int row, int column);
 
   /**
    * Get value at {@code row} and {@code column} as complex.
@@ -147,7 +147,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the type
    */
-  Type getColumnType(int index);
+  VectorType getColumnType(int index);
 
   /**
    * Get the name for the column vector at {@code index}.
@@ -225,7 +225,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the type
    */
-  Type getRowType(int index);
+  VectorType getRowType(int index);
 
   /**
    * Returns a collection of rows

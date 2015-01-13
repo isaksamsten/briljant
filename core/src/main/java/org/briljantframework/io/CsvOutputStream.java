@@ -35,12 +35,12 @@ public class CsvOutputStream extends DataOutputStream {
 
   private static final String NA_REPR = "?";
   private static final String DEFAULT_SEPARATOR = ",";
-  private static IdentityHashMap<Type, String> TYPE_TO_NAME = new IdentityHashMap<>();
+  private static IdentityHashMap<VectorType, String> TYPE_TO_NAME = new IdentityHashMap<>();
   static {
     TYPE_TO_NAME.put(DoubleVector.TYPE, "numeric");
     TYPE_TO_NAME.put(IntVector.TYPE, "numeric");
     TYPE_TO_NAME.put(ComplexVector.TYPE, "numeric");
-    TYPE_TO_NAME.put(BinaryVector.TYPE, "categoric");
+    TYPE_TO_NAME.put(BitVector.TYPE, "categoric");
     TYPE_TO_NAME.put(StringVector.TYPE, "categoric");
   }
   private final String separator;
@@ -83,7 +83,7 @@ public class CsvOutputStream extends DataOutputStream {
     writer.flush();
   }
 
-  private String generateTypeRepresentation(Type columnType) {
+  private String generateTypeRepresentation(VectorType columnType) {
     String name = TYPE_TO_NAME.get(columnType);
     if (name != null) {
       return name;

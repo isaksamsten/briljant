@@ -78,8 +78,8 @@ public interface VectorLike {
    * @param index the index
    * @return the Binary
    */
-  default Binary getAsBinary(int index) {
-    return Binary.valueOf(getAsInt(index));
+  default Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
   }
 
   /**

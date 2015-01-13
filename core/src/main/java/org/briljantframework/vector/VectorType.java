@@ -4,7 +4,7 @@ package org.briljantframework.vector;
  * Provides information of a particular vectors type. The common choice is that referential equality
  * is used when comparing types.
  */
-public interface Type {
+public interface VectorType {
 
   /**
    * Creates a new builder able to build vectors of this type

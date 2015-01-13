@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.*;
 
+import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 
 import com.google.common.collect.UnmodifiableIterator;
@@ -36,7 +37,7 @@ public final class Vectors {
     return builder.build();
   }
 
-  public static Vector sort(Vector in, VectorComparator cmp) {
+  public static Vector sort(Vector in, IndexComparator<? super VectorLike> cmp) {
     Vector.Builder builder = in.newCopyBuilder();
     VectorLike tmp = builder.getVectorView();
     QuickSort.quickSort(0, in.size(), (a, b) -> cmp.compare(tmp, a, b), builder);

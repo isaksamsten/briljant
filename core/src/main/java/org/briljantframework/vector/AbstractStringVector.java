@@ -1,13 +1,16 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.matrix.AnyMatrix;
+
 import com.google.common.primitives.Doubles;
 
 /**
- * Created by Isak Karlsson on 27/11/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractStringVector implements Vector, Iterable<String> {
   public static final String NA = null;
-  public static final Type TYPE = new Type() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public StringVector.Builder newBuilder() {
       return new StringVector.Builder();
@@ -51,30 +54,6 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
   };
 
   @Override
-  public double getAsDouble(int index) {
-    return tryParseDouble(getAsString(index));
-  }
-
-  @Override
-  public int getAsInt(int index) {
-    return tryParseInteger(getAsString(index));
-  }
-
-  @Override
-  public Binary getAsBinary(int index) {
-    String str = getAsString(index);
-    if (str == null) {
-      return Binary.NA;
-    } else if (str.equalsIgnoreCase("true")) {
-      return Binary.TRUE;
-    } else if (str.equalsIgnoreCase("false")) {
-      return Binary.FALSE;
-    } else {
-      return Binary.NA;
-    }
-  }
-
-  @Override
   public Value getAsValue(int index) {
     String value = getAsString(index);
     return Is.NA(value) ? Undefined.INSTANCE : new StringValue(value);
@@ -92,8 +71,37 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
   }
 
   @Override
-  public Type getType() {
+  public double getAsDouble(int index) {
+    return tryParseDouble(getAsString(index));
+  }
+
+  @Override
+  public int getAsInt(int index) {
+    return tryParseInteger(getAsString(index));
+  }
+
+  @Override
+  public Bit getAsBit(int index) {
+    String str = getAsString(index);
+    if (str == null) {
+      return Bit.NA;
+    } else if (str.equalsIgnoreCase("true")) {
+      return Bit.TRUE;
+    } else if (str.equalsIgnoreCase("false")) {
+      return Bit.FALSE;
+    } else {
+      return Bit.NA;
+    }
+  }
+
+  @Override
+  public VectorType getType() {
     return TYPE;
+  }
+
+  @Override
+  public AnyMatrix asMatrix() throws TypeConversionException {
+    throw new TypeConversionException("Unable to convert StringVector to AnyMatrix");
   }
 
   @Override
@@ -107,7 +115,6 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
     String vb = other.getAsString(b);
     return !Is.NA(va) && !Is.NA(vb) ? va.compareTo(vb) : 0;
   }
-
 
   protected double tryParseDouble(String str) {
     if (str == AbstractStringVector.NA) {

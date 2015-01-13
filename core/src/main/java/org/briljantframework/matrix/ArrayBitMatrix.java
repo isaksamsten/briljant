@@ -48,18 +48,18 @@ public class ArrayBitMatrix extends AbstractBitMatrix {
 
   @Override
   public BitMatrix reshape(int rows, int columns) {
-    Check.size(UNCHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+    Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new ArrayBitMatrix(rows, columns, values, false);
+  }
+
+  @Override
+  public BitMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayBitMatrix(rows, columns);
   }
 
   public BitMatrix copy() {
     ArrayBitMatrix bm = new ArrayBitMatrix(rows(), columns());
     System.arraycopy(values, 0, bm.values, 0, values.length);
     return bm;
-  }
-
-  @Override
-  public BitMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayBitMatrix(rows, columns);
   }
 }

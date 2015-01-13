@@ -21,9 +21,9 @@ import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.classification.tree.Tree;
 import org.briljantframework.classification.tree.ValueThreshold;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Created by Isak Karlsson on 17/09/14.
@@ -88,7 +88,7 @@ public class DecisionTree extends Tree<ValueThreshold> {
     public Label visitBranch(Branch<ValueThreshold> node, Vector example) {
       Value threshold = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
-      Type type = threshold.getType();
+      VectorType type = threshold.getType();
 
 
       int direction = MISSING;

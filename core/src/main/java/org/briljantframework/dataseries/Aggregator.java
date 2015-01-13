@@ -1,7 +1,7 @@
 package org.briljantframework.dataseries;
 
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * <p>
@@ -32,7 +32,7 @@ public interface Aggregator {
   /**
    * @return the vector type of the approximation
    */
-  Type getAggregatedType();
+  VectorType getAggregatedType();
 
   /**
    * Performs aggregation on {@code in}. Returns the resulting vector.

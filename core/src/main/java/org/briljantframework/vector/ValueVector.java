@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.matrix.AnyMatrix;
 
 import com.google.common.base.Preconditions;
 
@@ -52,8 +53,8 @@ public class ValueVector implements VariableVector {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
-    return values.get(index).getAsBinary(0);
+  public Bit getAsBit(int index) {
+    return values.get(index).getAsBit(0);
   }
 
   @Override
@@ -87,6 +88,11 @@ public class ValueVector implements VariableVector {
   }
 
   @Override
+  public AnyMatrix asMatrix() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int compare(int a, int b) {
     return getAsValue(a).compareTo(getAsValue(b));
   }
@@ -97,7 +103,7 @@ public class ValueVector implements VariableVector {
   }
 
   @Override
-  public Type getType(int index) {
+  public VectorType getType(int index) {
     return values.get(index).getType();
   }
 
@@ -177,8 +183,8 @@ public class ValueVector implements VariableVector {
         value = new DoubleValue(((Number) obj).doubleValue());
       } else if (obj instanceof Complex) {
         value = new ComplexValue((Complex) obj);
-      } else if (obj instanceof Binary) {
-        value = new BinaryValue((Binary) obj);
+      } else if (obj instanceof Bit) {
+        value = new BitValue((Bit) obj);
       } else if (obj != null) {
         value = new StringValue(obj.toString());
       } else {
@@ -271,7 +277,7 @@ public class ValueVector implements VariableVector {
       }
 
       @Override
-      public Binary getAsBinary(int index) {
+      public Bit getAsBit(int index) {
         return buffer.get(index).getAsBinary();
       }
 

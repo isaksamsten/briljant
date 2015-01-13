@@ -28,8 +28,8 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public Type getType() {
-    return Type.INT;
+  public DataType getDataType() {
+    return DataType.INT;
   }
 
   @Override
@@ -64,12 +64,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
 
   @Override
   public void set(int i, int j, double value) {
-    set(i, j, (int) value);
+    set(i, j, (int) Math.round(value));
   }
 
   @Override
   public void set(int index, double value) {
-    set(index, (int) value);
+    set(index, (int) Math.round(value));
   }
 
   @Override
@@ -84,12 +84,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
 
   @Override
   public void set(int i, int j, Number number) {
-    set(i, j, number.intValue());
+    set(i, j, number.doubleValue());
   }
 
   @Override
   public void set(int index, Number number) {
-    set(index, number.intValue());
+    set(index, number.doubleValue());
   }
 
   @Override
@@ -102,6 +102,36 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     set(atRow, atColumn, from.getAsInt(fromRow, fromColumn));
   }
 
+  @Override
+  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+    return Integer.compare(get(toIndex), from.getAsInt(fromIndex));
+  }
+
+  @Override
+  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+    return Integer.compare(get(toRow, toColumn), from.getAsInt(fromRow, fromColumn));
+  }
+
+  @Override
+  public IntMatrix getRowView(int i) {
+    return new IntMatrixView(this, i, 0, 1, columns());
+  }
+
+  public IntMatrix getColumnView(int index) {
+    return new IntMatrixView(this, 0, index, rows(), 1);
+  }
+
+  @Override
+  public IntMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public IntMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new IntMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
   public IntMatrix transpose() {
     IntMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
@@ -113,8 +143,24 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
+  public IntMatrix copy() {
+    IntMatrix n = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, get(i));
+    }
+    return n;
+  }
+
+  @Override
+  public IncrementalBuilder newIncrementalBuilder() {
+    return new IncrementalBuilder();
+  }
+
+  @Override
+  public void swap(int a, int b) {
+    int tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
   }
 
   @Override
@@ -236,7 +282,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
 
   @Override
   public IntMatrix filter(IntPredicate operator) {
-    Builder builder = newBuilder();
+    IncrementalBuilder builder = newIncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       int value = get(i);
       if (operator.test(value)) {
@@ -270,25 +316,6 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
       mat.set(i, reduce.applyAsInt(getRowView(i)));
     }
     return mat;
-  }
-
-  @Override
-  public IntMatrix getRowView(int i) {
-    return new IntMatrixView(this, i, 0, 1, columns());
-  }
-
-  public IntMatrix getColumnView(int index) {
-    return new IntMatrixView(this, 0, index, rows(), 1);
-  }
-
-  @Override
-  public Diagonal getDiagonalView() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public IntMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new IntMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -820,7 +847,7 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     };
   }
 
-  public static class Builder implements AnyMatrix.Builder {
+  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
 
     private IntArrayList buffer = new IntArrayList();
 

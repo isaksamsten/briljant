@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Reads values from a typed CSV-file similar to those used in Rule Discovery System (RDS).
@@ -45,12 +45,12 @@ import org.briljantframework.vector.Type;
 public class DelimitedInputStream extends DataInputStream {
 
   public static final String INVALID_NAME = "Can't understand the type %s";
-  protected static final Map<String, Type> TYPE_MAP;
+  protected static final Map<String, VectorType> TYPE_MAP;
   private static final String DEFAULT_SEPARATOR = ",";
   private static final String DEFAULT_MISSING_VALUE = "?";
 
   static {
-    Map<String, Type> map = new HashMap<>();
+    Map<String, VectorType> map = new HashMap<>();
     map.put("numeric", DoubleVector.TYPE);
     map.put("regressor", DoubleVector.TYPE);
     map.put("class", StringVector.TYPE);
@@ -107,11 +107,11 @@ public class DelimitedInputStream extends DataInputStream {
    * {@inheritDoc}
    */
   @Override
-  public Type readColumnType() throws IOException {
+  public VectorType readColumnType() throws IOException {
     initializeTypes();
     if (currentType < types.length) {
       String repr = types[currentType++].trim().toLowerCase();
-      Type type = TYPE_MAP.get(repr);
+      VectorType type = TYPE_MAP.get(repr);
       if (type == null) {
         throw new IllegalArgumentException(String.format(INVALID_NAME, repr));
       }

@@ -19,8 +19,8 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
   }
 
   @Override
-  public Type getType() {
-    return Type.BOOLEAN;
+  public DataType getDataType() {
+    return DataType.BOOLEAN;
   }
 
   @Override
@@ -104,6 +104,36 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
   }
 
   @Override
+  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+    return Boolean.compare(get(toIndex), from.getAsInt(fromIndex) == 1);
+  }
+
+  @Override
+  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+    return Boolean.compare(get(toRow, toColumn), from.getAsInt(fromRow, fromColumn) == 1);
+  }
+
+  @Override
+  public BitMatrix getRowView(int i) {
+    return new BitMatrixView(this, i, 0, 1, columns());
+  }
+
+  @Override
+  public BitMatrix getColumnView(int index) {
+    return new BitMatrixView(this, 0, index, rows(), 1);
+  }
+
+  @Override
+  public BitMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BitMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new BitMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
   public BitMatrix transpose() {
     BitMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
@@ -115,8 +145,17 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
+  public BitMatrix copy() {
+    BitMatrix n = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, get(i));
+    }
+    return n;
+  }
+
+  @Override
+  public IncrementalBuilder newIncrementalBuilder() {
+    return new IncrementalBuilder();
   }
 
   @Override
@@ -164,6 +203,13 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
     out.append("shape: ").append(getShape()).append(" type: boolean");
     return out.toString();
+  }
+
+  @Override
+  public void swap(int a, int b) {
+    boolean tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
   }
 
   @Override
@@ -227,7 +273,7 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
     return bm;
   }
 
-  public static class Builder implements AnyMatrix.Builder {
+  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
 
     private IntArrayList buffer = new IntArrayList();
 

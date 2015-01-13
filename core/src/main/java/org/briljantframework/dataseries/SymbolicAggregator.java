@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.briljantframework.distribution.NormalDistribution;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -154,7 +154,7 @@ public class SymbolicAggregator implements Aggregator {
   }
 
   @Override
-  public Type getAggregatedType() {
+  public VectorType getAggregatedType() {
     return StringVector.TYPE;
   }
 }

@@ -9,7 +9,7 @@ public interface VariableVector extends Vector {
 
   public static final Value NA = Undefined.INSTANCE;
 
-  public static final Type TYPE = new Type() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
       return new ValueVector.Builder();
@@ -28,7 +28,7 @@ public interface VariableVector extends Vector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || value == Binary.NA;
+      return value == null || value == Bit.NA;
     }
 
     @Override
@@ -51,7 +51,7 @@ public interface VariableVector extends Vector {
    * {@inheritDoc}
    */
   @Override
-  default Type getType() {
+  default VectorType getType() {
     return TYPE;
   }
 
@@ -61,5 +61,5 @@ public interface VariableVector extends Vector {
    * @param index the index
    * @return the type of value
    */
-  Type getType(int index);
+  VectorType getType(int index);
 }

@@ -15,7 +15,7 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Type;
+import org.briljantframework.vector.VectorType;
 
 /**
  * This class provides some classical benchmarking datasets
@@ -52,7 +52,7 @@ public class Datasets {
    * @see #loadIris()
    */
   public static DataFrame loadIris(
-      BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
+      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
     return load(f, DelimitedInputStream::new, IRIS);
   }
 
@@ -115,7 +115,7 @@ public class Datasets {
    * @see #loadConnect4()
    */
   public static DataFrame loadConnect4(
-      BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
+      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
     return load(f, DelimitedInputStream::new, CONNECT_4);
   }
 
@@ -139,7 +139,7 @@ public class Datasets {
    * @return
    */
   public static DataFrame loadSyntheticControl(
-      BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
+      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
     return load(f, MatlabTextInputStream::new, SYNTHETIC_CONTROL);
   }
 
@@ -162,12 +162,12 @@ public class Datasets {
    * @return
    */
   public static DataFrame loadDummy(
-      BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f) {
+      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
     return load(f, DelimitedInputStream::new, DUMMY);
   }
 
   public static DataFrame load(
-      BiFunction<Collection<String>, Collection<? extends Type>, DataFrame.Builder> f,
+      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f,
       Function<InputStream, DataInputStream> fin, String name) {
     try (DataInputStream dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return DataFrames.load(f, dfis);

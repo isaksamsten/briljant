@@ -6,8 +6,8 @@ import java.util.*;
 
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Type;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.collect.UnmodifiableIterator;
 
@@ -200,7 +200,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public Type getRowType(int index) {
+  public VectorType getRowType(int index) {
     return getRow(index).getType();
   }
 

@@ -1,29 +1,32 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.BitMatrix;
+
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractBinaryVector implements Vector, Iterable<Binary> {
-  public static final Binary NA = Binary.NA;
-  public static Type TYPE = new Type() {
+public abstract class AbstractBinaryVector implements Vector, Iterable<Bit> {
+  public static final Bit NA = Bit.NA;
+  public static VectorType TYPE = new VectorType() {
     @Override
-    public BinaryVector.Builder newBuilder() {
+    public BitVector.Builder newBuilder() {
       return null;
     }
 
     @Override
-    public BinaryVector.Builder newBuilder(int size) {
+    public BitVector.Builder newBuilder(int size) {
       return null;
     }
 
     @Override
     public Class<?> getDataClass() {
-      return Binary.class;
+      return Bit.class;
     }
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Binary && value == NA)
+      return value == null || (value instanceof Bit && value == NA)
           || (value instanceof Integer && (int) value == IntVector.NA);
     }
 
@@ -43,6 +46,24 @@ public abstract class AbstractBinaryVector implements Vector, Iterable<Binary> {
     }
   };
 
+  private BitMatrix adapter;
+
+  @Override
+  public Value getAsValue(int index) {
+    Bit bit = getAsBit(index);
+    return bit == NA ? Undefined.INSTANCE : new BitValue(bit);
+  }
+
+  @Override
+  public String toString(int index) {
+    return getAsBit(index).name();
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return getAsInt(index) == IntVector.NA;
+  }
+
   @Override
   public double getAsDouble(int index) {
     int i = getAsInt(index);
@@ -54,14 +75,14 @@ public abstract class AbstractBinaryVector implements Vector, Iterable<Binary> {
   }
 
   @Override
-  public Binary getAsBinary(int index) {
-    return Binary.valueOf(getAsInt(index));
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
   }
 
   @Override
   public String getAsString(int index) {
-    Binary bin = Binary.valueOf(index);
-    if (bin == Binary.NA) {
+    Bit bin = Bit.valueOf(index);
+    if (bin == Bit.NA) {
       return StringVector.NA;
     } else {
       return bin.name();
@@ -69,24 +90,16 @@ public abstract class AbstractBinaryVector implements Vector, Iterable<Binary> {
   }
 
   @Override
-  public Value getAsValue(int index) {
-    Binary binary = getAsBinary(index);
-    return binary == NA ? Undefined.INSTANCE : new BinaryValue(binary);
-  }
-
-  @Override
-  public String toString(int index) {
-    return getAsBinary(index).name();
-  }
-
-  @Override
-  public boolean isNA(int index) {
-    return getAsInt(index) == IntVector.NA;
-  }
-
-  @Override
-  public Type getType() {
+  public VectorType getType() {
     return TYPE;
+  }
+
+  @Override
+  public AnyMatrix asMatrix() {
+    if (adapter == null) {
+      adapter = new VectorBitMatrixAdapter(this);
+    }
+    return adapter;
   }
 
   @Override

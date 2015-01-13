@@ -69,9 +69,9 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Binary getAsBinary(int row, int column) {
+  public Bit getAsBinary(int row, int column) {
     double value = matrix.get(row, column);
-    return Is.NA(value) ? Binary.NA : value == 1 ? Binary.TRUE : Binary.FALSE;
+    return Is.NA(value) ? Bit.NA : value == 1 ? Bit.TRUE : Bit.FALSE;
   }
 
   /**
@@ -113,7 +113,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Type getColumnType(int index) {
+  public VectorType getColumnType(int index) {
     checkArgument(index >= 0 && index < columns());
     return DoubleVector.TYPE;
   }
@@ -154,7 +154,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
    */
   @Override
   public Vector getColumn(int index) {
-    return As.vector(matrix.getColumnView(index));
+    return Convert.toVector(matrix.getColumnView(index));
   }
 
   @Override
@@ -221,7 +221,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       this(0, 0);
     }
 
-    public ArrayBuilder(Collection<String> colNames, Collection<? extends Type> colTypes) {
+    public ArrayBuilder(Collection<String> colNames, Collection<? extends VectorType> colTypes) {
       checkArgument(colTypes.size() == colNames.size());
       this.rows = 0;
       this.columns = colNames.size();
@@ -415,7 +415,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       }
     }
 
-    public HashBuilder(Collection<String> colNames, Collection<? extends Type> types) {
+    public HashBuilder(Collection<String> colNames, Collection<? extends VectorType> types) {
       this.columns = colNames.size();
       int index = 0;
       for (String colName : colNames) {

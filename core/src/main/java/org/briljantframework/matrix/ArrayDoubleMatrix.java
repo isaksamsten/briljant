@@ -27,9 +27,9 @@ import org.briljantframework.vector.VectorLike;
 import com.google.common.base.Preconditions;
 
 /**
- * Implementation of {@link DoubleMatrix} using a single {@code double}
- * array. Indexing is calculated in column-major order, hence varying column faster than row is
- * preferred when iterating.
+ * Implementation of {@link DoubleMatrix} using a single {@code double} array. Indexing is
+ * calculated in column-major order, hence varying column faster than row is preferred when
+ * iterating.
  * 
  * Assuming that {@link com.github.fommil.netlib.BLAS} initializes correctly and that the second
  * operand is {@link #isArrayBased()}, matrix-matrix multiplication is fast.
@@ -259,6 +259,11 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
+  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+    return new ArrayDoubleMatrix(rows, columns);
+  }
+
+  @Override
   public double get(int i, int j) {
     return values[columnMajor(i, j, rows(), columns())];
   }
@@ -273,11 +278,6 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
     return true;
   }
 
-  @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayDoubleMatrix(rows, columns);
-  }
-
   /**
    * @return a copy of this matrix
    */
@@ -285,21 +285,6 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
     ArrayDoubleMatrix m = new ArrayDoubleMatrix(this.rows(), this.columns());
     System.arraycopy(values, 0, m.values, 0, values.length);
     return m;
-  }
-
-  @Override
-  public void set(int i, int j, double value) {
-    values[columnMajor(i, j, rows(), columns())] = value;
-  }
-
-  @Override
-  public void set(int index, double value) {
-    values[index] = value;
-  }
-
-  @Override
-  public int size() {
-    return rows() * columns();
   }
 
   @Override
@@ -353,6 +338,16 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
   @Override
   public int hashCode() {
     return Arrays.hashCode(values);
+  }
+
+  @Override
+  public void set(int i, int j, double value) {
+    values[columnMajor(i, j, rows(), columns())] = value;
+  }
+
+  @Override
+  public void set(int index, double value) {
+    values[index] = value;
   }
 
   /**
