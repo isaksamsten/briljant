@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.matrix.ComplexMatrix;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.google.common.base.Preconditions;
@@ -56,6 +57,16 @@ public class ComplexVector extends AbstractComplexVector {
     Preconditions.checkArgument(size * 2 <= buffer.length, "Un-even number of doubles.");
     this.values = Arrays.copyOf(buffer, size * 2);
     this.size = size;
+  }
+
+  public ComplexVector(ComplexMatrix freq) {
+    this.values = new double[freq.size() * 2];
+    this.size = freq.size();
+    for (int i = 0; i < freq.size(); i++) {
+      Complex c = freq.get(i);
+      this.values[i * 2] = c.real();
+      this.values[i * 2 + 1] = c.imag();
+    }
   }
 
   public static Vector.Builder newBuilderWithInitialValues(Object... values) {

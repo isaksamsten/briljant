@@ -3,6 +3,8 @@ package org.briljantframework.matrix;
 import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 
+// TODO: implement mapToComplex(...), mapToInt(...), mapToDouble(...)
+// TODO: implement assign(C, ...), assign(d, mapper), assign(i, mapper)
 /**
  * <p>
  * The {@code AnyMatrix} interface is a base interface for several different matrix implementations.
@@ -42,7 +44,7 @@ import org.briljantframework.complex.Complex;
  * <ul>
  * <li>{@link org.briljantframework.matrix.DoubleMatrix}, {@link #asDoubleMatrix()} must return
  * {@code this}</li>
- * <li>{@link org.briljantframework.matrix.IntMatrix}, {@link #asIntMatrix()} ()} must return
+ * <li>{@link org.briljantframework.matrix.IntMatrix}, {@link #asIntMatrix()} must return
  * {@code this}</li>
  * <li>{@link org.briljantframework.matrix.BitMatrix}, {@link #asBitMatrix()} must return
  * {@code this}</li>
@@ -92,34 +94,6 @@ import org.briljantframework.complex.Complex;
  * @author Isak Karlsson
  */
 public interface AnyMatrix extends Swappable {
-
-  /**
-   * If {@code getType()} equals
-   * <ul>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#DOUBLE} {@link #asDoubleMatrix()}
-   * returns {@code this}.</li>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#INT} {@link #asIntMatrix()} returns
-   * {@code this}.</li>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#BOOLEAN} {@link #asBitMatrix()}
-   * returns {@code this}.</li>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#COMPLEX} {@link #asComplexMatrix()}
-   * returns {@code this}.</li>
-   * </ul>
-   * 
-   * @return the type of this matrix
-   */
-  DataType getDataType();
-
-  /**
-   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
-   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
-   * matrix.
-   *
-   * @param rows the new rows
-   * @param columns the new columns
-   * @return a new matrix
-   */
-  AnyMatrix reshape(int rows, int columns);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -270,11 +244,56 @@ public interface AnyMatrix extends Swappable {
    */
   void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn);
 
+  /**
+   * Compare value at {@code a} to value at {@code b}.
+   * 
+   * @param a first index
+   * @param b second index
+   * @return the comparison
+   * @see java.lang.Double#compare(double, double)
+   * @see java.lang.Integer#compare(int, int)
+   * @see java.lang.Boolean#compare(boolean, boolean)
+   */
   int compare(int a, int b);
 
+  /**
+   * Compare value at {@code toIndex} in {@code this} to value at {@code fromIndex} in {@code from}.
+   * 
+   * @param toIndex index in {@code this}
+   * @param fromIndex index in {@code from}
+   * @return the comparison
+   * @see java.lang.Double#compare(double, double)
+   * @see java.lang.Integer#compare(int, int)
+   * @see java.lang.Boolean#compare(boolean, boolean)
+   */
   int compare(int toIndex, AnyMatrix from, int fromIndex);
 
+  /**
+   * Compare value at {@code toRow, toColumn} in {@code this} to value at
+   * {@code fromRow, fromColumn} in {@code from}.
+   * 
+   * @param toRow row in {@code this}
+   * @param toColumn column in {@code this}
+   * @param from other matrix
+   * @param fromRow row in {@code from}
+   * @param fromColumn column in {@code from}
+   * @return the comparison
+   * @see java.lang.Double#compare(double, double)
+   * @see java.lang.Integer#compare(int, int)
+   * @see java.lang.Boolean#compare(boolean, boolean)
+   */
   int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn);
+
+  /**
+   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
+   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
+   * matrix.
+   *
+   * @param rows the new rows
+   * @param columns the new columns
+   * @return a new matrix
+   */
+  AnyMatrix reshape(int rows, int columns);
 
   /**
    * Get row vector at {@code i}. Modifications will change to original matrix.
@@ -344,14 +363,26 @@ public interface AnyMatrix extends Swappable {
 
   /**
    * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
-   * then {@code size()} is intuitive. However, if not size is {@code rows() * columns()} and the
-   * end when iterating using {@code getAs...(int)}. To avoid cache misses,
-   * {@code for(int i = 0; i < m.size(); i++) m.put(i, m.getAsDouble(i) * 2)} should be preferred to
+   * then {@code size()} is intuitive. However, if not, size is {@code rows() * columns()} and used
+   * when iterating using {@code getAs...(int)}. To avoid cache misses,
+   * {@code for(int i = 0; i < m.size(); i++) m.set(i, o.getAsDouble(i))} should be preferred to
    *
    * <pre>
-   *     for(int i = 0; i < m.rows(); i++)
-   *       for(int j = 0; j < m.columns(); j++)
-   *          m.put(i, j, m.get(i, j) * 2
+   * for(int i = 0; i < m.rows(); i++)
+   *   for(int j = 0; j < m.columns(); j++)
+   *      m.set(i, j, o.getAsDouble(i, j))
+   * </pre>
+   * 
+   * Since, {@code set(int, int, ....)} shouldn't be used in conjunction with
+   * {@code getAs...(int, int)}, the example above should be written as
+   * 
+   * <pre>
+   * for (int i = 0; i &lt; m.rows(); i++)
+   *   for (int j = 0; j &lt; m.columns(); j++)
+   *     m.set(i, j, m, i, j);
+   * // or
+   * for (int i = 0; i &lt; m.size(); i++)
+   *   m.set(i, o, i);
    * </pre>
    *
    * @return the size
@@ -518,10 +549,27 @@ public interface AnyMatrix extends Swappable {
   AnyMatrix newEmptyMatrix(int rows, int columns);
 
   /**
+   * If {@code getType()} equals
+   * <ul>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#DOUBLE} {@link #asDoubleMatrix()}
+   * returns {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#INT} {@link #asIntMatrix()} returns
+   * {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#BOOLEAN} {@link #asBitMatrix()}
+   * returns {@code this}.</li>
+   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#COMPLEX} {@link #asComplexMatrix()}
+   * returns {@code this}.</li>
+   * </ul>
+   *
+   * @return the type of this matrix
+   */
+  DataType getDataType();
+
+  /**
    *
    */
   enum DataType {
-    DOUBLE, INT, BOOLEAN, COMPLEX
+    DOUBLE, INT, BOOLEAN, COMPLEX;
   }
 
   interface IncrementalBuilder {

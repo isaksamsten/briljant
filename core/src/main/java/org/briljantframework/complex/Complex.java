@@ -53,10 +53,17 @@ public final class Complex extends Number {
   public static Complex valueOf(double real, double imag) {
     if (Double.isNaN(real) || Double.isNaN(imag)) {
       return NaN;
+    } else {
+      return new Complex(real, imag);
     }
-    return new Complex(real, imag);
   }
 
+  /**
+   * Return the square root of {@code real}. Safely handles the {@code real < 0} case.
+   * 
+   * @param real the real value
+   * @return a complex; possible with an imaginary part
+   */
   public static Complex sqrt(double real) {
     return new Complex(real).sqrt();
   }

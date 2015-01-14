@@ -25,23 +25,47 @@ import org.briljantframework.matrix.DoubleMatrix;
  * otherwise, arising from, out of or in connection with the Software or the use or other dealings
  * in the Software.
  */
-
 /**
  * @author Isak Karlsson
  */
-public final class FastFourierTransform {
-  private FastFourierTransform() {}
+public final class DiscreteFourierTransform {
+  private DiscreteFourierTransform() {}
+
+  private static void fftInplace(ComplexMatrix a) {
+    int n = a.size();
+    if ((n & (n - 1)) == 0) { // n is a power of 2?
+      transformRadix2(a);
+    } else {
+      transformBluestein(a);
+    }
+  }
 
   public static ComplexMatrix fft(ComplexMatrix a) {
-    int n = a.size();
     ComplexMatrix copy = a.copy();
-    // n is a power of 2?
-    if ((n & (n - 1)) == 0) {
-      transformRadix2(copy);
-    } else {
-      transformBluestein(copy);
+    fftInplace(copy);
+    return copy;
+  }
+
+  public static ComplexMatrix ifft(ComplexMatrix a) {
+    ComplexMatrix copy = Complexes.zeros(a.size());
+    for (int i = 0; i < a.size(); i++) {
+      Complex c = a.get(i);
+      copy.set(i, new Complex(c.imag(), c.real()));
+    }
+    fftInplace(copy);
+
+    int n = copy.size();
+
+    // Reversing and scaling
+    for (int i = 0; i < n; i++) {
+      Complex c = copy.get(i);
+      copy.set(i, new Complex(c.imag() / n, c.real() / n));
     }
     return copy;
+  }
+
+  public static ComplexMatrix fft(DoubleMatrix a) {
+    return fft(a.asComplexMatrix());
   }
 
   private static void transformBluestein(ComplexMatrix a) {
@@ -68,9 +92,9 @@ public final class FastFourierTransform {
     for (int i = 0; i < n; i++) {
       double cos = cosTable.get(i);
       double sin = sinTable.get(i);
-      Complex av = a.get(i);
-      double real = av.real() * cos + av.imag() * sin;
-      double imag = -av.real() * sin + av.imag() * cos;
+      Complex complex = a.get(i);
+      double real = complex.real() * cos + complex.imag() * sin;
+      double imag = -complex.real() * sin + complex.imag() * cos;
       an.set(i, new Complex(real, imag));
 
       int j = i + 1;
@@ -107,14 +131,15 @@ public final class FastFourierTransform {
       xt.set(i, xt.get(i).multiply(yt.get(i)));
     }
 
+    // TODO: do not 'hand-reverse'
     for (int i = 0; i < n; i++) {
-      final Complex complex = xt.get(i);
+      Complex complex = xt.get(i);
       xt.set(i, new Complex(complex.imag(), complex.real()));
     }
 
-    xt = fft(xt); // inverse transform
+    fftInplace(xt); // inverse transform, since xt is reversed above
     // TODO: implement divi for complex matrices
-    // reverse back
+    // scaling and reversing back
     for (int i = 0; i < n; i++) {
       Complex c = xt.get(i);
       xt.set(i, Complex.valueOf(c.imag() / n, c.real() / n));

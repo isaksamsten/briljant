@@ -3,12 +3,20 @@ package org.briljantframework.matrix;
 import org.briljantframework.complex.Complex;
 
 /**
- * Created by Isak Karlsson on 13/01/15.
+ * @author Isak Karlsson
  */
 public final class Complexes {
   private Complexes() {}
 
   public static ComplexMatrix zeros(int size) {
-    return ArrayComplexMatrix.withDefaultValue(size, 1, Complex.ZERO);
+    return fill(size, Complex.ZERO);
+  }
+
+  public static ComplexMatrix ones(int size) {
+    return fill(size, Complex.ONE);
+  }
+
+  private static ComplexMatrix fill(int size, Complex fill) {
+    return ArrayComplexMatrix.withDefaultValue(size, 1, fill);
   }
 }
