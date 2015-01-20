@@ -1,15 +1,11 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractAnyMatrix implements AnyMatrix {
-
-  protected static final String UNSAFE_CONVERSION =
-      "Unsafe conversion from '%s' value to '%s' (possible loss of precision).";
 
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new matrix must be unchanged. (%d, %d)";

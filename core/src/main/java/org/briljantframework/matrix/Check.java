@@ -1,4 +1,4 @@
-package org.briljantframework;
+package org.briljantframework.matrix;
 
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;

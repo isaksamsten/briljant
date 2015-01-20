@@ -157,12 +157,11 @@ public class StringVector extends AbstractStringVector {
     public Builder set(int index, Object value) {
       ensureCapacity(index);
 
-      // NOTE: value == StringVector.NA is a null-check
-      if (value == StringVector.NA /* || value.equals("?") || value.equals("NA") */) {
-        buffer.set(index, StringVector.NA);
-      } else {
-        buffer.set(index, value.toString());
+      String str = StringVector.NA;
+      if (value != null && value instanceof String || value instanceof Number) {
+        str = value.toString();
       }
+      buffer.set(index, str);
       return this;
     }
 

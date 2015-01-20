@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.*;
 
-import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;

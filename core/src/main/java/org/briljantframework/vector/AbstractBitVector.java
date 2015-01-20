@@ -6,7 +6,7 @@ import org.briljantframework.matrix.BitMatrix;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractBinaryVector implements Vector, Iterable<Bit> {
+public abstract class AbstractBitVector implements Vector, Iterable<Bit> {
   public static final Bit NA = Bit.NA;
   public static VectorType TYPE = new VectorType() {
     @Override

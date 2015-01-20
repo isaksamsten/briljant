@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import java.util.function.IntPredicate;
 
-import org.briljantframework.Check;
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 

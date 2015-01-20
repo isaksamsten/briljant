@@ -1,6 +1,6 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.Check;
+import org.briljantframework.matrix.Check;
 import org.briljantframework.exceptions.ImmutableModificationException;
 import org.briljantframework.matrix.AbstractIntMatrix;
 import org.briljantframework.matrix.ArrayIntMatrix;

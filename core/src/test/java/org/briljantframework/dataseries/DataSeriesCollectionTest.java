@@ -60,7 +60,7 @@ public class DataSeriesCollectionTest {
 
 
     } catch (Exception e) {
-
+      e.printStackTrace();
     }
 
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);

@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import java.util.Arrays;
 
-import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 
 /**

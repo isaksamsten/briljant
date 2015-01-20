@@ -2,8 +2,6 @@ package org.briljantframework.matrix;
 
 import java.util.Arrays;
 
-import org.briljantframework.Check;
-
 /**
  * @author Isak Karlsson
  */

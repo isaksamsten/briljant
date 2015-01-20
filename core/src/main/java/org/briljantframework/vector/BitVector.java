@@ -14,7 +14,7 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class BitVector extends AbstractBinaryVector {
+public class BitVector extends AbstractBitVector {
 
   private int[] values;
 

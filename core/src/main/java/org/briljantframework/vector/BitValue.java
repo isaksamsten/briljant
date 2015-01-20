@@ -7,7 +7,7 @@ import com.google.common.collect.Iterators;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public class BitValue extends AbstractBinaryVector implements Value {
+public class BitValue extends AbstractBitVector implements Value {
   private final int binary;
 
   public BitValue(int binary) {

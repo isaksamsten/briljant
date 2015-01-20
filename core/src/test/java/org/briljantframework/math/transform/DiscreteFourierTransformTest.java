@@ -8,7 +8,7 @@ public class DiscreteFourierTransformTest {
 
   @Test
   public void testFft() throws Exception {
-    ComplexMatrix mat = Ints.range(1, 10000).asComplexMatrix();
+    ComplexMatrix mat = Ints.range(1, 9).asComplexMatrix();
     long n = System.nanoTime();
     ComplexMatrix fft = DiscreteFourierTransform.fft(mat);
     System.out.println((System.nanoTime() - n) / 1e6);

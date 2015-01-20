@@ -17,7 +17,7 @@ public class QuickSort {
    * 
    * From <a href="https://github.com/apache/mahout/blob/master/math/src/main/java/org
    * /apache/mahout/math/Sorting.java">Apache Mahout</a>
-   * 
+   *
    * @param a first
    * @param b second
    * @param c third
@@ -35,8 +35,7 @@ public class QuickSort {
   private static void checkBounds(int arrLength, int start, int end) {
     if (start > end) {
       // K0033=Start index ({0}) is greater than end index ({1})
-      throw new IllegalArgumentException("Start index " + start + " is greater than end index "
-          + end);
+      throw new IllegalArgumentException(String.format("Start index %d is greater than end index %d", start, end));
     }
     if (start < 0) {
       throw new ArrayIndexOutOfBoundsException("Array index out of range " + start);

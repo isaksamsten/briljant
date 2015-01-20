@@ -2,6 +2,7 @@ package org.briljantframework.math.transform;
 
 import static org.briljantframework.matrix.Doubles.zeros;
 
+import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.Complexes;

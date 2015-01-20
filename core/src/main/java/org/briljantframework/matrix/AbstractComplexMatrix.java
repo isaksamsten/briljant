@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
 
-import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
