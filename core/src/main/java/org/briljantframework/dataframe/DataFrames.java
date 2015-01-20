@@ -1,5 +1,7 @@
 package org.briljantframework.dataframe;
 
+import static org.briljantframework.dataframe.join.JoinUtils.createJoinKeys;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -22,11 +24,12 @@ import com.google.common.collect.ImmutableTable;
  */
 public final class DataFrames {
 
+  public static final String LEFT_OUTER = "left_outer";
+  public static final String INNER = "inner";
   private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
-
-  private static final Map<String, JoinOperation> joinOperations = ImmutableMap.of("inner",
-      new InnerJoin());
+  private static final Map<String, JoinOperation> joinOperations = ImmutableMap.of(INNER,
+      InnerJoin.getInstance(), LEFT_OUTER, LeftOuterJoin.getInstance());
 
   private DataFrames() {}
 
@@ -123,16 +126,33 @@ public final class DataFrames {
     if (!(on instanceof Set)) {
       on = new HashSet<>(on);
     }
-    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
-    Joiner joiner = joinOperations.get("inner").createJoiner(joinKeys);
+    JoinKeys joinKeys = createJoinKeys(a, b, on);
+    Joiner joiner = joinOperations.get(INNER).createJoiner(joinKeys);
+    return join(a, b, joiner, on).build();
+  }
 
+  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<Integer> on) {
+    if (!(on instanceof Set)) {
+      on = new HashSet<>(on);
+    }
+    JoinKeys joinKeys = createJoinKeys(a, b, on);
+    Joiner joiner = joinOperations.get(LEFT_OUTER).createJoiner(joinKeys);
+    return join(a, b, joiner, on).build();
+  }
+
+  private static DataFrame.Builder join(DataFrame a, DataFrame b, Joiner joiner,
+      Collection<Integer> on) {
     DataFrame.Builder builder = a.newBuilder();
     for (int i = 0; i < joiner.size(); i++) {
       int aRow = joiner.getLeftIndex(i);
       int bRow = joiner.getRightIndex(i);
       int column = 0;
       for (int j = 0; j < a.columns(); j++) {
-        builder.set(i, column, a, aRow, column);
+        if (aRow < 0) {
+          builder.setNA(i, column);
+        } else {
+          builder.set(i, column, a, aRow, column);
+        }
         column += 1;
       }
       for (int j = 0; j < b.columns(); j++) {
@@ -141,13 +161,16 @@ public final class DataFrames {
             builder.addColumn(b.getColumnType(j).newBuilder());
             builder.setColumnName(column, b.getColumnName(j));
           }
-          builder.set(i, column, b, bRow, j);
+          if (bRow < 0) {
+            builder.setNA(i, column);
+          } else {
+            builder.set(i, column, b, bRow, j);
+          }
           column += 1;
         }
       }
     }
-
-    return builder.build();
+    return builder;
   }
 
   /**

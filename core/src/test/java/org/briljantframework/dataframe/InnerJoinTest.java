@@ -21,13 +21,9 @@ public class InnerJoinTest extends TestCase {
 
         System.out.println(cats);
         System.out.println(dogs);
-        System.out.println(DataFrames.innerJoin(cats, dogs, Arrays.asList(0, 1)));
+    System.out.println(DataFrames.leftOuterJoin(cats, dogs, Arrays.asList(0)));
 
+    // System.out.println(DataFrames.leftOuterJoin(dogs, cats, Arrays.asList(0)));
 
-        long s = System.nanoTime();
-        for (int i = 0; i < 100; i++) {
-            DataFrames.innerJoin(cats, dogs, Arrays.asList(0));
-        }
-        System.out.println((System.nanoTime() - s) / 1e6);
     }
 }

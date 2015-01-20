@@ -3,20 +3,15 @@ package org.briljantframework.dataframe.join;
 import org.briljantframework.matrix.IntMatrix;
 
 /**
- * Creates a {@link org.briljantframework.dataframe.join.Joiner} where the
- * {@link org.briljantframework.dataframe.join.Joiner#getLeftIndex(int)} and
- * {@link org.briljantframework.dataframe.join.Joiner#getRightIndex(int)} returns indexes, in turn,
- * which produces the elements where {@code left} and {@code right} are the same.
- * 
- * An {@code Inner Join} require that the index exists in both the left and the right indexer.
+ * Created by Isak on 2015-01-20.
  */
-public class InnerJoin implements JoinOperation {
+public class LeftOuterJoin implements JoinOperation {
 
-  public static final InnerJoin INSTANCE = new InnerJoin();
+  public static final LeftOuterJoin INSTANCE = new LeftOuterJoin();
 
-  private InnerJoin() {}
+  private LeftOuterJoin() {}
 
-  public static InnerJoin getInstance() {
+  public static LeftOuterJoin getInstance() {
     return INSTANCE;
   }
 
@@ -31,34 +26,31 @@ public class InnerJoin implements JoinOperation {
 
     int count = 0;
     for (int i = 1; i < noGroups + 1; i++) {
-      int lc = leftCount.get(i);
-      int rc = rightCount.get(i);
-
-      if (rc > 0 && lc > 0) {
-        count += rc * lc;
+      if (rightCount.get(i) > 0) {
+        count += rightCount.get(i) * leftCount.get(i);
+      } else {
+        count += leftCount.get(i);
       }
     }
 
-    int pos = 0;
-    int leftPos = leftCount.get(0);
-    int rightPos = rightCount.get(0);
-
-    int[] leftIndexer = new int[count];
-    int[] rightIndexer = new int[count];
-
+    int pos = 0, leftPos = leftCount.get(0), rightPos = rightCount.get(0);
+    int[] leftIndexer = new int[count], rightIndexer = new int[count];
     for (int i = 1; i < noGroups + 1; i++) {
-      int lc = leftCount.get(i);
-      int rc = rightCount.get(i);
-
-      if (lc > 0 && rc > 0) {
+      int lc = leftCount.get(i), rc = rightCount.get(0);
+      if (rc == 0) {
+        for (int j = 0; j < lc; j++) {
+          leftIndexer[pos + j] = leftPos + j;
+          rightIndexer[pos + j] = -1;
+        }
+      } else {
         for (int j = 0; j < lc; j++) {
           int offset = pos + j * rc;
           for (int k = 0; k < rc; k++) {
-            leftIndexer[offset + k] = leftPos + j;
+            leftIndexer[offset + k] = leftPos + k;
             rightIndexer[offset + k] = rightPos + k;
           }
         }
-        pos += rc * lc;
+        pos += lc * rc;
       }
       leftPos += lc;
       rightPos += rc;
@@ -68,7 +60,12 @@ public class InnerJoin implements JoinOperation {
     int[] rightSorted = new int[rightIndexer.length];
     for (int i = 0; i < leftSorted.length; i++) {
       leftSorted[i] = leftSorter.get(leftIndexer[i]);
-      rightSorted[i] = rightSorter.get(rightIndexer[i]);
+      int ri = rightIndexer[i];
+      if (ri < 0) {
+        rightSorted[i] = -1;
+      } else {
+        rightSorted[i] = rightSorter.get(ri);
+      }
     }
 
     return new Joiner() {
@@ -88,5 +85,4 @@ public class InnerJoin implements JoinOperation {
       }
     };
   }
-
 }
