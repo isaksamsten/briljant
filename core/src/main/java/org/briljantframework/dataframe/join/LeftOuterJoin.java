@@ -36,12 +36,15 @@ public class LeftOuterJoin implements JoinOperation {
     int pos = 0, leftPos = leftCount.get(0), rightPos = rightCount.get(0);
     int[] leftIndexer = new int[count], rightIndexer = new int[count];
     for (int i = 1; i < noGroups + 1; i++) {
-      int lc = leftCount.get(i), rc = rightCount.get(0);
+      int lc = leftCount.get(i);
+      int rc = rightCount.get(i);
+
       if (rc == 0) {
         for (int j = 0; j < lc; j++) {
           leftIndexer[pos + j] = leftPos + j;
           rightIndexer[pos + j] = -1;
         }
+        pos += lc;
       } else {
         for (int j = 0; j < lc; j++) {
           int offset = pos + j * rc;
