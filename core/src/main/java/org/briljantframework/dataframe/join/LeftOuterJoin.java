@@ -49,7 +49,7 @@ public class LeftOuterJoin implements JoinOperation {
         for (int j = 0; j < lc; j++) {
           int offset = pos + j * rc;
           for (int k = 0; k < rc; k++) {
-            leftIndexer[offset + k] = leftPos + k;
+            leftIndexer[offset + k] = leftPos + j;
             rightIndexer[offset + k] = rightPos + k;
           }
         }
