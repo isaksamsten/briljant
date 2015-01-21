@@ -222,8 +222,33 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     @Override
-    public VectorLike getVectorView() {
-      return null;
+    public Vector getTemporaryVector() {
+      return new AbstractDoubleVector() {
+        @Override
+        public double getAsDouble(int index) {
+          return buffer.get(index);
+        }
+
+        @Override
+        public int size() {
+          return buffer.size();
+        }
+
+        @Override
+        public Builder newCopyBuilder() {
+          return DoubleVector.Builder.this;
+        }
+
+        @Override
+        public Builder newBuilder() {
+          return getType().newBuilder();
+        }
+
+        @Override
+        public Builder newBuilder(int size) {
+          return getType().newBuilder(size);
+        }
+      };
     }
 
     @Override

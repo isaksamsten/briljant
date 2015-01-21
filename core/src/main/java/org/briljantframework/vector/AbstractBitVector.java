@@ -1,7 +1,10 @@
 package org.briljantframework.vector;
 
+import com.google.common.collect.UnmodifiableIterator;
 import org.briljantframework.matrix.AnyMatrix;
 import org.briljantframework.matrix.BitMatrix;
+
+import java.util.Iterator;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -92,6 +95,23 @@ public abstract class AbstractBitVector implements Vector, Iterable<Bit> {
   @Override
   public VectorType getType() {
     return TYPE;
+  }
+
+  @Override
+  public Iterator<Bit> iterator() {
+    return new UnmodifiableIterator<Bit>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Bit next() {
+        return getAsBit(current++);
+      }
+    };
   }
 
   @Override

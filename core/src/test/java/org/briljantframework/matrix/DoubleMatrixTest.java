@@ -3,7 +3,6 @@ package org.briljantframework.matrix;
 import static org.briljantframework.matrix.Doubles.parseMatrix;
 import static org.junit.Assert.assertArrayEquals;
 
-import org.briljantframework.vector.VectorLike;
 import org.junit.Test;
 
 public class DoubleMatrixTest {
@@ -80,9 +79,6 @@ public class DoubleMatrixTest {
     // 0.001);
 
     a = parseMatrix("1,2,3;1,2,3");
-    VectorLike c = VectorLike.wrap(2, 4, 3);
-
-    System.out.println(a.div(c, Axis.ROW).mul(2).sub(c, Axis.ROW));
 
     // assertArrayEquals(parseMatrix("9,8,7;9,8,7").asDoubleArray(), a.rsubi(10).asDoubleArray(),
     // 0.00001);

@@ -37,9 +37,9 @@ public final class Vectors {
     return builder.build();
   }
 
-  public static Vector sort(Vector in, IndexComparator<? super VectorLike> cmp) {
+  public static Vector sort(Vector in, IndexComparator<? super Vector> cmp) {
     Vector.Builder builder = in.newCopyBuilder();
-    VectorLike tmp = builder.getVectorView();
+    Vector tmp = builder.getTemporaryVector();
     QuickSort.quickSort(0, in.size(), (a, b) -> cmp.compare(tmp, a, b), builder);
     return builder.build();
   }
@@ -150,7 +150,7 @@ public final class Vectors {
    * @param vector the vector
    * @return the standard deviation
    */
-  public static double std(VectorLike vector) {
+  public static double std(Vector vector) {
     return std(vector, mean(vector));
   }
 
@@ -159,7 +159,7 @@ public final class Vectors {
    * @param mean the mean
    * @return the standard deviation
    */
-  public static double std(VectorLike vector, double mean) {
+  public static double std(Vector vector, double mean) {
     double var = var(vector, mean);
     return Math.sqrt(var / (vector.size() - 1));
   }
@@ -168,7 +168,7 @@ public final class Vectors {
    * @param vector the vector
    * @return the mean
    */
-  public static double mean(VectorLike vector) {
+  public static double mean(Vector vector) {
     double mean = 0;
     for (int i = 0; i < vector.size(); i++) {
       mean += vector.getAsDouble(i);
@@ -182,7 +182,7 @@ public final class Vectors {
    * @param mean the mean
    * @return the variance
    */
-  public static double var(VectorLike vector, double mean) {
+  public static double var(Vector vector, double mean) {
     double var = 0;
     for (int i = 0; i < vector.size(); i++) {
       double residual = vector.getAsDouble(i) - mean;
@@ -195,7 +195,7 @@ public final class Vectors {
    * @param vector the vector
    * @return the variance
    */
-  public static double var(VectorLike vector) {
+  public static double var(Vector vector) {
     return var(vector, mean(vector));
   }
 
@@ -203,7 +203,7 @@ public final class Vectors {
    * @param vector the vector
    * @return the indexes of {@code vector} sorted in increasing order by value
    */
-  public static int[] sortIndex(VectorLike vector) {
+  public static int[] sortIndex(Vector vector) {
     return sortIndex(vector,
         (o1, o2) -> Double.compare(vector.getAsDouble(o1), vector.getAsDouble(o2)));
   }
@@ -213,7 +213,7 @@ public final class Vectors {
    * @param comparator the comparator
    * @return the indexes of {@code vector} sorted according to {@code comparator} by value
    */
-  public static int[] sortIndex(VectorLike vector, Comparator<Integer> comparator) {
+  public static int[] sortIndex(Vector vector, Comparator<Integer> comparator) {
     int[] indicies = new int[vector.size()];
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
@@ -230,7 +230,7 @@ public final class Vectors {
    * @param y a vector
    * @return the dot product
    */
-  public static double dot(VectorLike x, VectorLike y) {
+  public static double dot(Vector x, Vector y) {
     return dot(x, 1, y, 1);
   }
 
@@ -244,7 +244,7 @@ public final class Vectors {
    * @param beta scaling factor for y
    * @return the inner product
    */
-  public static double dot(VectorLike x, double alpha, VectorLike y, double beta) {
+  public static double dot(Vector x, double alpha, Vector y, double beta) {
     if (x.size() != y.size()) {
       throw new IllegalArgumentException();
     }
@@ -263,7 +263,7 @@ public final class Vectors {
    * @param b a vector
    * @return the sigmoid
    */
-  public static double sigmoid(VectorLike a, VectorLike b) {
+  public static double sigmoid(Vector a, Vector b) {
     return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
   }
 
@@ -271,7 +271,7 @@ public final class Vectors {
    * @param vector the vector
    * @return the sum
    */
-  public static double sum(VectorLike vector) {
+  public static double sum(Vector vector) {
     double sum = 0;
     for (int i = 0; i < vector.size(); i++) {
       sum += vector.getAsDouble(i);

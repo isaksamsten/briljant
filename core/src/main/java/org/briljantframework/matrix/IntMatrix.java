@@ -3,7 +3,7 @@ package org.briljantframework.matrix;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -36,7 +36,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return receiver modified
    */
-  IntMatrix assign(VectorLike vector, Axis axis);
+  IntMatrix assign(Vector vector, Axis axis);
 
   /**
    * Assign {@code vector} and apply operator to every element extending row or column wise
@@ -46,7 +46,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return receiver modified
    */
-  IntMatrix assign(VectorLike vector, IntBinaryOperator operator, Axis axis);
+  IntMatrix assign(Vector vector, IntBinaryOperator operator, Axis axis);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -319,9 +319,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the vector
    * @param axis the extending direction
    * @return a new matrix
-   * @see #mul(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #mul(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix mul(VectorLike other, Axis axis);
+  IntMatrix mul(Vector other, Axis axis);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
@@ -337,7 +337,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  IntMatrix mul(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix mul(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -378,9 +378,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #mul(org.briljantframework.vector.VectorLike, Axis)
+   * @see #mul(org.briljantframework.vector.Vector, Axis)
    */
-  IntMatrix muli(VectorLike other, Axis axis);
+  IntMatrix muli(Vector other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -388,9 +388,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #mul(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #mul(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix muli(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix muli(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Element wise addition.
@@ -414,9 +414,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #add(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix add(VectorLike other, Axis axis);
+  IntMatrix add(Vector other, Axis axis);
 
   /**
    * Element wise add, extending {@code other} row or column wise
@@ -432,7 +432,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  IntMatrix add(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix add(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -468,7 +468,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  IntMatrix addi(VectorLike other, Axis axis);
+  IntMatrix addi(Vector other, Axis axis);
 
   /**
    * In place version of {@code add}.
@@ -478,9 +478,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #add(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #add(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix addi(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix addi(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * In place element wise subtraction.
@@ -515,9 +515,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #sub(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix sub(VectorLike other, Axis axis);
+  IntMatrix sub(Vector other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise
@@ -533,7 +533,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  IntMatrix sub(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix sub(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -569,7 +569,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  IntMatrix subi(VectorLike other, Axis axis);
+  IntMatrix subi(Vector other, Axis axis);
 
   /**
    * In place version of {@code sub}.
@@ -579,9 +579,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #sub(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #sub(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix subi(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix subi(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * In place Element wise subtraction.
@@ -608,9 +608,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #sub(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix rsub(VectorLike other, Axis axis);
+  IntMatrix rsub(Vector other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
@@ -627,7 +627,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  IntMatrix rsub(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix rsub(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
@@ -644,7 +644,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  IntMatrix rsubi(VectorLike other, Axis axis);
+  IntMatrix rsubi(Vector other, Axis axis);
 
   /**
    * In place version of {@code rsub}.
@@ -654,9 +654,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #rsub(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #rsub(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix rsubi(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix rsubi(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -682,9 +682,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #add(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix div(VectorLike other, Axis axis);
+  IntMatrix div(Vector other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise
@@ -700,7 +700,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  IntMatrix div(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix div(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * In place element wise division.
@@ -724,9 +724,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #div(org.briljantframework.vector.VectorLike, Axis)
+   * @see #div(org.briljantframework.vector.Vector, Axis)
    */
-  IntMatrix divi(VectorLike other, Axis axis);
+  IntMatrix divi(Vector other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -734,9 +734,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #div(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #div(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix divi(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix divi(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Element wise division. {@code other / this}.
@@ -753,9 +753,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #add(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix rdiv(VectorLike other, Axis axis);
+  IntMatrix rdiv(Vector other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
@@ -772,7 +772,7 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  IntMatrix rdiv(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix rdiv(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * In place element wise division. {@code other / this}.
@@ -787,9 +787,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #divi(org.briljantframework.vector.VectorLike, Axis)
+   * @see #divi(org.briljantframework.vector.Vector, Axis)
    */
-  IntMatrix rdivi(VectorLike other, Axis axis);
+  IntMatrix rdivi(Vector other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -797,9 +797,9 @@ public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #divi(int, org.briljantframework.vector.VectorLike, int, Axis)
+   * @see #divi(int, org.briljantframework.vector.Vector, int, Axis)
    */
-  IntMatrix rdivi(int alpha, VectorLike other, int beta, Axis axis);
+  IntMatrix rdivi(int alpha, Vector other, int beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.

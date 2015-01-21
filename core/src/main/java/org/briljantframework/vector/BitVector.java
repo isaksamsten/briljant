@@ -40,23 +40,6 @@ public class BitVector extends AbstractBitVector {
   }
 
   @Override
-  public Iterator<Bit> iterator() {
-    return new UnmodifiableIterator<Bit>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Bit next() {
-        return getAsBit(current++);
-      }
-    };
-  }
-
-  @Override
   public int getAsInt(int index) {
     return values[index];
   }
@@ -202,14 +185,8 @@ public class BitVector extends AbstractBitVector {
     }
 
     @Override
-    public VectorLike getVectorView() {
-      return new VectorLike() {
-
-        @Override
-        public double getAsDouble(int index) {
-          return getAsInt(index);
-        }
-
+    public Vector getTemporaryVector() {
+      return new AbstractBitVector() {
         @Override
         public int getAsInt(int index) {
           return buffer.get(index);
@@ -218,6 +195,21 @@ public class BitVector extends AbstractBitVector {
         @Override
         public int size() {
           return buffer.size();
+        }
+
+        @Override
+        public Builder newCopyBuilder() {
+          return BitVector.Builder.this;
+        }
+
+        @Override
+        public Builder newBuilder() {
+          return getType().newBuilder();
+        }
+
+        @Override
+        public Builder newBuilder(int size) {
+          return getType().newBuilder(size);
         }
       };
     }

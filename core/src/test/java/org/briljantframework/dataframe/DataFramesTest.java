@@ -1,8 +1,10 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.Utils;
+import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.DoubleVector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,22 +44,23 @@ public class DataFramesTest {
   @Test
   public void testLoadMultiChannel() throws Exception {
     DataFrame channel =
-        Datasets.load(MatrixDataFrame.HashBuilder::new, MatlabTextInputStream::new, "multichannel");
+        Datasets.load((a, b) -> new DataSeriesCollection.Builder(DoubleVector.TYPE),
+            MatlabTextInputStream::new, "multichannel");
+    channel.setColumnNames("Seq ID", "channel", "Class");
 
-    channel.setColumnName(0, "Seq ID").setColumnName(1, "channel").setColumnName(2, "Class");
-    System.out.println(channel);
+    System.out.println(channel.dropColumn(0));
 
     System.out.println(channel.getRow(30));
 
 
     // Drop the first 3 columns
-    DoubleMatrix matrix = channel.asMatrix().getView(0, 3, channel.rows(), channel.columns() - 3);
-    DoubleMatrix cls = channel.asMatrix().getColumnView(2);
-    System.out.println(cls);
-    long s = System.currentTimeMillis();
-    DoubleMatrix rowSum = matrix.reduceRows(x -> x.reduce(0, Double::sum, d -> d));
-    System.out.println(System.currentTimeMillis() - s);
-    System.out.println(rowSum);
+//    DoubleMatrix matrix = channel.asMatrix().getView(0, 3, channel.rows(), channel.columns() - 3);
+//    DoubleMatrix cls = channel.asMatrix().getColumnView(2);
+//    System.out.println(cls);
+//    long s = System.currentTimeMillis();
+//    DoubleMatrix rowSum = matrix.reduceRows(x -> x.reduce(0, Double::sum, d -> d));
+//    System.out.println(System.currentTimeMillis() - s);
+//    System.out.println(rowSum);
 
 
 

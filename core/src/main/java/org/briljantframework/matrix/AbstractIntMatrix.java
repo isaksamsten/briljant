@@ -11,7 +11,7 @@ import java.util.function.*;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.base.Preconditions;
@@ -179,12 +179,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix assign(VectorLike vector, Axis axis) {
+  public IntMatrix assign(Vector vector, Axis axis) {
     return assign(vector, (a, b) -> b, axis);
   }
 
   @Override
-  public IntMatrix assign(VectorLike other, IntBinaryOperator operator, Axis axis) {
+  public IntMatrix assign(Vector other, IntBinaryOperator operator, Axis axis) {
     /*
      * Due to cache-locality, put(i, ) is for most (at least array based) matrices a _big_ win.
      * Therefore, the straightforward implementation using two for-loops is not used below. This is
@@ -381,12 +381,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix mul(VectorLike other, Axis axis) {
+  public IntMatrix mul(Vector other, Axis axis) {
     return mul(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix mul(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix mul(int alpha, Vector other, int beta, Axis axis) {
     return copy().muli(alpha, other, beta, axis);
   }
 
@@ -422,12 +422,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix muli(VectorLike other, Axis axis) {
+  public IntMatrix muli(Vector other, Axis axis) {
     return muli(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix muli(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix muli(int alpha, Vector other, int beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -459,12 +459,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix add(VectorLike other, Axis axis) {
+  public IntMatrix add(Vector other, Axis axis) {
     return add(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix add(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix add(int alpha, Vector other, int beta, Axis axis) {
     return copy().addi(alpha, other, beta, axis);
   }
 
@@ -497,12 +497,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix addi(VectorLike other, Axis axis) {
+  public IntMatrix addi(Vector other, Axis axis) {
     return addi(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix addi(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix addi(int alpha, Vector other, int beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -539,12 +539,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix sub(VectorLike other, Axis axis) {
+  public IntMatrix sub(Vector other, Axis axis) {
     return sub(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix sub(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix sub(int alpha, Vector other, int beta, Axis axis) {
     return copy().subi(alpha, other, beta, axis);
   }
 
@@ -573,12 +573,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix subi(VectorLike other, Axis axis) {
+  public IntMatrix subi(Vector other, Axis axis) {
     return subi(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix subi(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix subi(int alpha, Vector other, int beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -611,12 +611,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix rsub(VectorLike other, Axis axis) {
+  public IntMatrix rsub(Vector other, Axis axis) {
     return rsub(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix rsub(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix rsub(int alpha, Vector other, int beta, Axis axis) {
     return copy().rsubi(alpha, other, beta, axis);
   }
 
@@ -631,12 +631,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix rsubi(VectorLike other, Axis axis) {
+  public IntMatrix rsubi(Vector other, Axis axis) {
     return rsubi(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix rsubi(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix rsubi(int alpha, Vector other, int beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -669,12 +669,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix div(VectorLike other, Axis axis) {
+  public IntMatrix div(Vector other, Axis axis) {
     return div(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix div(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix div(int alpha, Vector other, int beta, Axis axis) {
     return copy().divi(alpha, other, beta, axis);
   }
 
@@ -693,12 +693,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix divi(VectorLike other, Axis axis) {
+  public IntMatrix divi(Vector other, Axis axis) {
     return divi(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix divi(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix divi(int alpha, Vector other, int beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -723,12 +723,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix rdiv(VectorLike other, Axis axis) {
+  public IntMatrix rdiv(Vector other, Axis axis) {
     return rdiv(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix rdiv(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix rdiv(int alpha, Vector other, int beta, Axis axis) {
     return copy().rdivi(alpha, other, beta, axis);
   }
 
@@ -741,12 +741,12 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public IntMatrix rdivi(VectorLike other, Axis axis) {
+  public IntMatrix rdivi(Vector other, Axis axis) {
     return rdivi(1, other, 1, axis);
   }
 
   @Override
-  public IntMatrix rdivi(int alpha, VectorLike other, int beta, Axis axis) {
+  public IntMatrix rdivi(int alpha, Vector other, int beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {

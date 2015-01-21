@@ -160,26 +160,6 @@ public class ComplexVector extends AbstractComplexVector {
     return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Iterator<Complex> iterator() {
-    return new UnmodifiableIterator<Complex>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Complex next() {
-        return getAsComplex(current++);
-      }
-    };
-  }
-
   public static final class Builder implements Vector.Builder {
 
     private DoubleArrayList buffer;
@@ -307,12 +287,11 @@ public class ComplexVector extends AbstractComplexVector {
     }
 
     @Override
-    public VectorLike getVectorView() {
-      return new VectorLike() {
-
+    public Vector getTemporaryVector() {
+      return new AbstractComplexVector() {
         @Override
         public double getAsDouble(int index) {
-          return buffer.get(index);
+          return buffer.get(index * 2);
         }
 
         @Override
@@ -328,7 +307,22 @@ public class ComplexVector extends AbstractComplexVector {
 
         @Override
         public int size() {
-          return size();
+          return ComplexVector.Builder.this.size();
+        }
+
+        @Override
+        public Builder newCopyBuilder() {
+          return ComplexVector.Builder.this;
+        }
+
+        @Override
+        public Builder newBuilder() {
+          return getType().newBuilder();
+        }
+
+        @Override
+        public Builder newBuilder(int size) {
+          return getType().newBuilder(size);
         }
       };
     }

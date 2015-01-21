@@ -208,7 +208,7 @@ public class Undefined implements Value {
     }
 
     @Override
-    public VectorLike getVectorView() {
+    public Vector getTemporaryVector() {
       return Undefined.INSTANCE;
     }
 

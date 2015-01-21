@@ -87,23 +87,6 @@ public class IntVector extends AbstractIntVector {
         .collect(Collectors.joining(","));
   }
 
-  @Override
-  public Iterator<Integer> iterator() {
-    return new UnmodifiableIterator<Integer>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Integer next() {
-        return getAsInt(current++);
-      }
-    };
-  }
-
   public static final class Builder implements Vector.Builder {
 
     private IntArrayList buffer;
@@ -212,8 +195,33 @@ public class IntVector extends AbstractIntVector {
     }
 
     @Override
-    public VectorLike getVectorView() {
-      return null;
+    public Vector getTemporaryVector() {
+      return new AbstractIntVector() {
+        @Override
+        public int getAsInt(int index) {
+          return buffer.get(index);
+        }
+
+        @Override
+        public int size() {
+          return buffer.size();
+        }
+
+        @Override
+        public Builder newCopyBuilder() {
+          return IntVector.Builder.this;
+        }
+
+        @Override
+        public Builder newBuilder() {
+          return getType().newBuilder();
+        }
+
+        @Override
+        public Builder newBuilder(int size) {
+          return getType().newBuilder(size);
+        }
+      };
     }
 
     @Override

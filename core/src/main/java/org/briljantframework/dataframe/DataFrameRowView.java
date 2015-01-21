@@ -123,7 +123,7 @@ public class DataFrameRowView implements DataFrameRow {
     b.put(1, 0, "[" + row + ",]");
     for (int i = 0; i < size(); i++) {
       b.put(0, i + 1, getColumnName(i));
-      b.put(1, i + 1, getAsString(i));
+      b.put(1, i + 1, toString(i));
     }
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
   }

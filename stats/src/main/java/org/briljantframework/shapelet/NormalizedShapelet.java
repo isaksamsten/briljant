@@ -16,7 +16,7 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -29,7 +29,7 @@ public class NormalizedShapelet extends Shapelet {
   private final double sigma;
   private final double mean;
 
-  public NormalizedShapelet(int start, int length, VectorLike vector) {
+  public NormalizedShapelet(int start, int length, Vector vector) {
     super(start, length, vector);
     Shapelet shapelet = Shapelet.create(start, length, vector);
     this.mean = Vectors.mean(shapelet);
@@ -48,7 +48,7 @@ public class NormalizedShapelet extends Shapelet {
    * @param vectorLike the vector like
    * @return the normalized shapelet
    */
-  public static NormalizedShapelet create(int start, int length, VectorLike vectorLike) {
+  public static NormalizedShapelet create(int start, int length, Vector vectorLike) {
     return new NormalizedShapelet(start, length, vectorLike);
   }
 

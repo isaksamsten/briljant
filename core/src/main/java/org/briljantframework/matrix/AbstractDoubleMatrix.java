@@ -27,7 +27,8 @@ import java.util.function.*;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.google.common.base.Preconditions;
@@ -187,12 +188,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix assign(VectorLike vector, Axis axis) {
+  public DoubleMatrix assign(Vector vector, Axis axis) {
     return assign(vector, (a, b) -> b, axis);
   }
 
   @Override
-  public DoubleMatrix assign(VectorLike other, DoubleBinaryOperator operator, Axis axis) {
+  public DoubleMatrix assign(Vector other, DoubleBinaryOperator operator, Axis axis) {
     /*
      * Due to cache-locality, put(i, ) is for most (at least array based) matrices a _big_ win.
      * Therefore, the straightforward implementation using two for-loops is not used below. This is
@@ -408,12 +409,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix mul(VectorLike other, Axis axis) {
+  public DoubleMatrix mul(Vector other, Axis axis) {
     return mul(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix mul(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix mul(double alpha, Vector other, double beta, Axis axis) {
     return copy().muli(alpha, other, beta, axis);
   }
 
@@ -450,12 +451,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix muli(VectorLike other, Axis axis) {
+  public DoubleMatrix muli(Vector other, Axis axis) {
     return muli(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix muli(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix muli(double alpha, Vector other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -487,12 +488,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix add(VectorLike other, Axis axis) {
+  public DoubleMatrix add(Vector other, Axis axis) {
     return add(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix add(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix add(double alpha, Vector other, double beta, Axis axis) {
     return copy().addi(alpha, other, beta, axis);
   }
 
@@ -525,12 +526,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix addi(VectorLike other, Axis axis) {
+  public DoubleMatrix addi(Vector other, Axis axis) {
     return addi(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix addi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix addi(double alpha, Vector other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -567,12 +568,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix sub(VectorLike other, Axis axis) {
+  public DoubleMatrix sub(Vector other, Axis axis) {
     return sub(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix sub(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix sub(double alpha, Vector other, double beta, Axis axis) {
     return copy().subi(alpha, other, beta, axis);
   }
 
@@ -601,12 +602,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix subi(VectorLike other, Axis axis) {
+  public DoubleMatrix subi(Vector other, Axis axis) {
     return subi(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix subi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix subi(double alpha, Vector other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -639,12 +640,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix rsub(VectorLike other, Axis axis) {
+  public DoubleMatrix rsub(Vector other, Axis axis) {
     return rsub(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix rsub(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rsub(double alpha, Vector other, double beta, Axis axis) {
     return copy().rsubi(alpha, other, beta, axis);
   }
 
@@ -659,12 +660,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix rsubi(VectorLike other, Axis axis) {
+  public DoubleMatrix rsubi(Vector other, Axis axis) {
     return rsubi(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix rsubi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rsubi(double alpha, Vector other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -697,12 +698,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix div(VectorLike other, Axis axis) {
+  public DoubleMatrix div(Vector other, Axis axis) {
     return div(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix div(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix div(double alpha, Vector other, double beta, Axis axis) {
     return copy().divi(alpha, other, beta, axis);
   }
 
@@ -720,12 +721,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix divi(VectorLike other, Axis axis) {
+  public DoubleMatrix divi(Vector other, Axis axis) {
     return divi(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix divi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix divi(double alpha, Vector other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -750,12 +751,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix rdiv(VectorLike other, Axis axis) {
+  public DoubleMatrix rdiv(Vector other, Axis axis) {
     return rdiv(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix rdiv(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rdiv(double alpha, Vector other, double beta, Axis axis) {
     return copy().rdivi(alpha, other, beta, axis);
   }
 
@@ -768,12 +769,12 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public DoubleMatrix rdivi(VectorLike other, Axis axis) {
+  public DoubleMatrix rdivi(Vector other, Axis axis) {
     return rdivi(1, other, 1, axis);
   }
 
   @Override
-  public DoubleMatrix rdivi(double alpha, VectorLike other, double beta, Axis axis) {
+  public DoubleMatrix rdivi(double alpha, Vector other, double beta, Axis axis) {
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {

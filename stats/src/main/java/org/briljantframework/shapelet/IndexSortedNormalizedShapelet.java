@@ -1,6 +1,6 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -20,7 +20,7 @@ public class IndexSortedNormalizedShapelet extends NormalizedShapelet {
    * @param length the length
    * @param vector the vector
    */
-  public IndexSortedNormalizedShapelet(int start, int length, VectorLike vector) {
+  public IndexSortedNormalizedShapelet(int start, int length, Vector vector) {
     super(start, length, vector);
     this.order =
         Vectors.sortIndex(this,

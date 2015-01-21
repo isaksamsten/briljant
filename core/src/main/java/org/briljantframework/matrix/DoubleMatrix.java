@@ -19,7 +19,8 @@ package org.briljantframework.matrix;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vector;
 
 /**
  * A matrix is a 2-dimensional array.
@@ -113,7 +114,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return receiver modified
    */
-  DoubleMatrix assign(VectorLike vector, Axis axis);
+  DoubleMatrix assign(Vector vector, Axis axis);
 
   /**
    * Assign {@code vector} and apply operator to every element extending row or column wise
@@ -123,7 +124,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return receiver modified
    */
-  DoubleMatrix assign(VectorLike vector, DoubleBinaryOperator operator, Axis axis);
+  DoubleMatrix assign(Vector vector, DoubleBinaryOperator operator, Axis axis);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -376,9 +377,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the vector
    * @param axis the extending direction
    * @return a new matrix
-   * @see #mul(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #mul(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix mul(VectorLike other, Axis axis);
+  DoubleMatrix mul(Vector other, Axis axis);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
@@ -394,7 +395,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  DoubleMatrix mul(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix mul(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -435,9 +436,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #mul(org.briljantframework.vector.VectorLike, Axis)
+   * @see #mul(org.briljantframework.vector.Vector, Axis)
    */
-  DoubleMatrix muli(VectorLike other, Axis axis);
+  DoubleMatrix muli(Vector other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -445,9 +446,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #mul(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #mul(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix muli(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix muli(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Element wise addition.
@@ -471,9 +472,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #add(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix add(VectorLike other, Axis axis);
+  DoubleMatrix add(Vector other, Axis axis);
 
   /**
    * Element wise add, extending {@code other} row or column wise
@@ -489,7 +490,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  DoubleMatrix add(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix add(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -525,7 +526,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  DoubleMatrix addi(VectorLike other, Axis axis);
+  DoubleMatrix addi(Vector other, Axis axis);
 
   /**
    * In place version of {@code add}.
@@ -535,9 +536,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #add(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix addi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix addi(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * In place element wise subtraction.
@@ -572,9 +573,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #sub(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix sub(VectorLike other, Axis axis);
+  DoubleMatrix sub(Vector other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise
@@ -590,7 +591,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  DoubleMatrix sub(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix sub(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -626,7 +627,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  DoubleMatrix subi(VectorLike other, Axis axis);
+  DoubleMatrix subi(Vector other, Axis axis);
 
   /**
    * In place version of {@code sub}.
@@ -636,9 +637,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #sub(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix subi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix subi(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * In place Element wise subtraction.
@@ -665,9 +666,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #sub(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix rsub(VectorLike other, Axis axis);
+  DoubleMatrix rsub(Vector other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
@@ -684,7 +685,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  DoubleMatrix rsub(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rsub(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
@@ -701,7 +702,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return reciver modified
    */
-  DoubleMatrix rsubi(VectorLike other, Axis axis);
+  DoubleMatrix rsubi(Vector other, Axis axis);
 
   /**
    * In place version of {@code rsub}.
@@ -711,9 +712,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #rsub(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #rsub(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix rsubi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rsubi(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -739,9 +740,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #add(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix div(VectorLike other, Axis axis);
+  DoubleMatrix div(Vector other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise
@@ -757,7 +758,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  DoubleMatrix div(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix div(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * In place element wise division.
@@ -781,9 +782,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #div(org.briljantframework.vector.VectorLike, Axis)
+   * @see #div(org.briljantframework.vector.Vector, Axis)
    */
-  DoubleMatrix divi(VectorLike other, Axis axis);
+  DoubleMatrix divi(Vector other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -791,9 +792,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #div(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #div(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix divi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix divi(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code other / this}.
@@ -810,9 +811,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #add(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix rdiv(VectorLike other, Axis axis);
+  DoubleMatrix rdiv(Vector other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
@@ -829,7 +830,7 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  DoubleMatrix rdiv(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rdiv(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * In place element wise division. {@code other / this}.
@@ -844,9 +845,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param other the array
    * @param axis the extending direction
    * @return receiver modified
-   * @see #divi(org.briljantframework.vector.VectorLike, Axis)
+   * @see #divi(org.briljantframework.vector.Vector, Axis)
    */
-  DoubleMatrix rdivi(VectorLike other, Axis axis);
+  DoubleMatrix rdivi(Vector other, Axis axis);
 
   /**
    * @param alpha scaling factor for {@code this}
@@ -854,9 +855,9 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    * @param beta scaling factor for {@code other}
    * @param axis the extending direction
    * @return receiver modified
-   * @see #divi(double, org.briljantframework.vector.VectorLike, double, Axis)
+   * @see #divi(double, org.briljantframework.vector.Vector, double, Axis)
    */
-  DoubleMatrix rdivi(double alpha, VectorLike other, double beta, Axis axis);
+  DoubleMatrix rdivi(double alpha, Vector other, double beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.

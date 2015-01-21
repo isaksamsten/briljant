@@ -13,7 +13,6 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorLike;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
@@ -112,7 +111,7 @@ public class DataSeriesCollectionTest {
     assertEquals(1, 1, 1);
   }
 
-  public JFreeChart plot(VectorLike x, VectorLike y) {
+  public JFreeChart plot(Vector x, Vector y) {
     XYSeriesCollection collection = new XYSeriesCollection();
     XYSeries series = new XYSeries("Line");
     for (int i = 0; i < x.size(); i++) {

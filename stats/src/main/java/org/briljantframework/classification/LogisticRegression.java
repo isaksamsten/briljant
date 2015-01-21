@@ -22,8 +22,8 @@ import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorLike;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -118,18 +118,8 @@ public class LogisticRegression implements Classifier {
    * @return the logistic regression model
    */
   protected Model fit(DataFrame x, Vector y, int[] indexes) {
-    ArrayDoubleMatrix theta = new ArrayDoubleMatrix(1, x.columns());
-    VectorLike adaptedTheta = new VectorLike() {
-      @Override
-      public double getAsDouble(int index) {
-        return theta.get(index);
-      }
-
-      @Override
-      public int size() {
-        return theta.size();
-      }
-    };
+    DoubleMatrix theta = new ArrayDoubleMatrix(1, x.columns());
+    Vector adaptedTheta = Convert.toVector(theta);
     for (int j = 0; j < this.iterations; j++) {
       Utils.permute(indexes);
 
@@ -144,7 +134,7 @@ public class LogisticRegression implements Classifier {
       }
     }
 
-    return new Model(theta);
+    return new Model(adaptedTheta);
   }
 
   /**
@@ -208,31 +198,20 @@ public class LogisticRegression implements Classifier {
    * Created by isak on 03/07/14.
    */
   public static class Model implements ClassifierModel {
-    private final DoubleMatrix theta;
-    private final VectorLike adaptedTheta = new VectorLike() {
-      @Override
-      public double getAsDouble(int index) {
-        return theta.get(index);
-      }
-
-      @Override
-      public int size() {
-        return theta.size();
-      }
-    };
+    private final Vector theta;
 
     /**
      * Instantiates a new Logistic regression classification.
      *
      * @param theta the theta
      */
-    public Model(ArrayDoubleMatrix theta) {
+    public Model(Vector theta) {
       this.theta = theta;
     }
 
     @Override
     public Label predict(Vector row) {
-      double prob = Vectors.sigmoid(row, adaptedTheta);
+      double prob = Vectors.sigmoid(row, theta);
       return Label.binary("1", prob, "0", 1 - prob);
     }
 
@@ -241,7 +220,7 @@ public class LogisticRegression implements Classifier {
      *
      * @return the vector
      */
-    public DoubleMatrix theta() {
+    public Vector theta() {
       return theta;
     }
 

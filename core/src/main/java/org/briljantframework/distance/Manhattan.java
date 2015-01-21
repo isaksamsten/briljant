@@ -16,7 +16,7 @@
 
 package org.briljantframework.distance;
 
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 /**
  * Manhattan distance, i.e sum of absolute difference
@@ -41,7 +41,7 @@ public class Manhattan implements Distance {
   }
 
   @Override
-  public double distance(VectorLike a, VectorLike b) {
+  public double distance(Vector a, Vector b) {
     int size = Math.min(a.size(), b.size());
     double distance = 0.0;
     for (int i = 0; i < size; i++) {

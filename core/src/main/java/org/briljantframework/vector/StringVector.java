@@ -211,36 +211,20 @@ public class StringVector extends AbstractStringVector {
     }
 
     @Override
-    public VectorLike getVectorView() {
-      return new TemporaryVector(buffer);
+    public Vector getTemporaryVector() {
+      return new StringVector(buffer, false);
     }
 
     @Override
     public StringVector build() {
-      return new StringVector(buffer, false);
+      StringVector vector = new StringVector(buffer, false);
+      buffer = null;
+      return vector;
     }
 
     private void ensureCapacity(int index) {
       while (buffer.size() <= index) {
         buffer.add(StringVector.NA);
-      }
-    }
-
-    private class TemporaryVector implements VectorLike {
-      private final ArrayList<String> buffer;
-
-      public TemporaryVector(ArrayList<String> buffer) {
-        this.buffer = buffer;
-      }
-
-      @Override
-      public String getAsString(int index) {
-        return buffer.get(index);
-      }
-
-      @Override
-      public int size() {
-        return buffer.size();
       }
     }
   }

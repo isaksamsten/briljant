@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.collect.Lists;
@@ -305,12 +305,8 @@ public class Doubles {
     return map(in, x -> Math.log(x) / LOG_2);
   }
 
-  public static DoubleMatrix reshape(VectorLike a, int m, int n) {
-    DoubleMatrix matrix = new ArrayDoubleMatrix(m, n);
-    for (int i = 0; i < a.size(); i++) {
-      matrix.set(i, a.getAsDouble(i));
-    }
-    return matrix;
+  public static DoubleMatrix reshape(Vector a, int m, int n) {
+    return a.asMatrix().asDoubleMatrix().reshape(m, n);
   }
 
   /**

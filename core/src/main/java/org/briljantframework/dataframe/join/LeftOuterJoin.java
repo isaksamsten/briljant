@@ -3,7 +3,7 @@ package org.briljantframework.dataframe.join;
 import org.briljantframework.matrix.IntMatrix;
 
 /**
- * Created by Isak on 2015-01-20.
+ * @author Isak Karlsson
  */
 public class LeftOuterJoin implements JoinOperation {
 

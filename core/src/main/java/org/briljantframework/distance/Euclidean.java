@@ -17,7 +17,7 @@
 package org.briljantframework.distance;
 
 
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 /**
  * EuclideanDistance between two Points (either Vectors or scalars)
@@ -46,7 +46,7 @@ public class Euclidean implements Distance {
   }
 
   @Override
-  public double distance(VectorLike a, VectorLike b) {
+  public double distance(Vector a, Vector b) {
     int size = Math.min(a.size(), b.size());
 
     double residual = 0.0;

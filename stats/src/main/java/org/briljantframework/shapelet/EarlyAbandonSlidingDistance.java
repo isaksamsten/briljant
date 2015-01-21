@@ -17,7 +17,7 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.distance.Distance;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
 
@@ -63,12 +63,12 @@ public class EarlyAbandonSlidingDistance implements Distance {
    * @return the shortest possible distance of a (or b) as it is slid agains b (or a)
    */
   @Override
-  public double distance(VectorLike a, VectorLike b) {
+  public double distance(Vector a, Vector b) {
     double minDistance = Double.POSITIVE_INFINITY;
     boolean earlyStop = false;
 
     // Assumed to be normalized!
-    VectorLike candidate = a.size() < b.size() ? a : b;
+    Vector candidate = a.size() < b.size() ? a : b;
     if (!(candidate instanceof NormalizedShapelet)) {
       System.out.println(candidate);
       throw new IllegalArgumentException("candidate shapelet must be z-normalized");
@@ -81,7 +81,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
       order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     }
 
-    VectorLike vector = a.size() >= b.size() ? a : b;
+    Vector vector = a.size() >= b.size() ? a : b;
     for (int i = 0; i <= vector.size() - candidate.size(); i++) {
       double sumDistance = 0.0;
       Shapelet subShapelet = NormalizedShapelet.create(i, candidate.size(), vector);

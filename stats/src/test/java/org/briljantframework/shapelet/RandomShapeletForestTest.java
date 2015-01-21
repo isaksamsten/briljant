@@ -50,6 +50,7 @@ public class RandomShapeletForestTest {
     //
     // DataSeriesCollection collection = builder.build();
     DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
+    System.out.println(synthetic);
     DataFrame x = synthetic.dropColumn(0);
     StringVector y = Convert.toStringVector(synthetic.getColumn(0));
 
@@ -60,7 +61,7 @@ public class RandomShapeletForestTest {
       builder.addRow(aggregator.partialAggregate(row));
     }
 
-    x = builder.build();
+//    x = builder.build();
     System.out.println(x);
 
     RandomShapeletForest forest =
@@ -510,7 +511,7 @@ public class RandomShapeletForestTest {
     }
   }
 
-  public JFreeChart plot(VectorLike x, VectorLike y) {
+  public JFreeChart plot(Vector x, Vector y) {
     XYSeriesCollection collection = new XYSeriesCollection();
     XYSeries series = new XYSeries("Line");
     for (int i = 0; i < x.size(); i++) {
@@ -593,7 +594,7 @@ public class RandomShapeletForestTest {
     return chart;
   }
 
-  public JFreeChart plot(VectorLike x, String xlabel, VectorLike y, String ylabel, VectorLike e) {
+  public JFreeChart plot(Vector x, String xlabel, Vector y, String ylabel, Vector e) {
     XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
     XYIntervalSeries series = new XYIntervalSeries("Series");
     for (int i = 0; i < x.size(); i++) {

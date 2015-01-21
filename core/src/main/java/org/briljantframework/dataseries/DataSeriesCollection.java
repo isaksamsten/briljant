@@ -1,6 +1,6 @@
 package org.briljantframework.dataseries;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.NameAttribute;
 import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
@@ -37,11 +38,15 @@ public class DataSeriesCollection extends AbstractDataFrame {
   private final int columns;
 
   public DataSeriesCollection(List<Vector> series, VectorType type) {
-    this(series, type, series.stream().mapToInt(Vector::size).max()
-        .orElseThrow(IllegalArgumentException::new));
+    this.series = new ArrayList<>(series);
+    this.type = type;
+    this.columns =
+        series.stream().mapToInt(Vector::size).max().orElseThrow(IllegalArgumentException::new);
   }
 
-  protected DataSeriesCollection(List<Vector> series, VectorType type, int columns) {
+  protected DataSeriesCollection(NameAttribute columnNames, NameAttribute rowNames,
+      List<Vector> series, VectorType type, int columns) {
+    super(columnNames, rowNames);
     this.type = checkNotNull(type);
     this.series = checkNotNull(series);
     this.columns = columns;
@@ -163,7 +168,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Builder newCopyBuilder() {
-    return new Builder(series.stream().map(Vector::newCopyBuilder)
+    return new Builder(columnNames, rowNames, series.stream().map(Vector::newCopyBuilder)
         .collect(Collectors.toCollection(ArrayList::new)), type);
   }
 
@@ -187,10 +192,14 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private final List<Vector.Builder> builders;
 
     public Builder(VectorType type) {
-      this(new ArrayList<>(), type);
+      this.type = type;
+      this.builders = new ArrayList<>();
     }
 
-    protected Builder(List<Vector.Builder> builders, VectorType type) {
+    protected Builder(NameAttribute columnNames, NameAttribute rowNames,
+        List<Vector.Builder> builders, VectorType type) {
+      super(columnNames, rowNames);
+      System.out.println("In builder " + columnNames);
       this.type = type;
       this.builders = builders;
     }
@@ -225,8 +234,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public Builder removeColumn(int column) {
-      checkArgument(column >= 0 && column < columns());
-
+      checkElementIndex(column, columns());
+      columnNames.remove(column);
       for (int i = 0; i < rows(); i++) {
         Vector.Builder colb = builders.get(i);
         if (column < colb.size()) { // TODO: check?
@@ -277,14 +286,22 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public DataSeriesCollection build() {
-      return new DataSeriesCollection(builders.stream().map(Vector.Builder::build)
-          .collect(Collectors.toCollection(ArrayList::new)), type);
+      return new DataSeriesCollection(columnNames, rowNames, builders.stream()
+          .map(Vector.Builder::build).collect(Collectors.toCollection(ArrayList::new)), type,
+          columns());
     }
 
     @Override
     public DataFrame.Builder swapRows(int a, int b) {
       Collections.swap(builders, a, b);
       rowNames.swap(a, b);
+      return this;
+    }
+
+    public Builder removeRow(int index) {
+      checkElementIndex(index, rows());
+      rowNames.remove(index);
+      builders.remove(index);
       return this;
     }
 

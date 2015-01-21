@@ -325,6 +325,14 @@ public abstract class AbstractDataFrame implements DataFrame {
     protected final NameAttribute columnNames;
     protected final NameAttribute rowNames;
 
+    /**
+     * Construct a new Abstract builder with {@link org.briljantframework.dataframe.NameAttribute}s.
+     *
+     * The attribute containers are copied on construction.
+     *
+     * @param columnNames the column names
+     * @param rowNames the row names
+     */
     protected AbstractBuilder(NameAttribute columnNames, NameAttribute rowNames) {
       this.columnNames = new NameAttribute(columnNames);
       this.rowNames = new NameAttribute(rowNames);

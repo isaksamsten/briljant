@@ -15,11 +15,10 @@ import org.briljantframework.matrix.AnyMatrix;
  * implemented differently depending value type, checking for NA-values are done via the
  * {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
  * <p>
- * The vector interface extends the {@link VectorLike} interface.
  *
  * @author Isak Karlsson
  */
-public interface Vector extends VectorLike, Serializable {
+public interface Vector extends Serializable {
 
   /**
    * Returns value as {@link org.briljantframework.vector.Value}.
@@ -441,7 +440,7 @@ public interface Vector extends VectorLike, Serializable {
      * 
      * @return the temporary vector.
      */
-    VectorLike getVectorView();
+    Vector getTemporaryVector();
 
     /**
      * Create a new vector of suitable type. This interface does not provide any guarantees to

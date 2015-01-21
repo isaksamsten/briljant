@@ -22,7 +22,7 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
 import java.util.Arrays;
 
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.vector.VectorLike;
+import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
 
@@ -128,7 +128,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
     }
   }
 
-  public ArrayDoubleMatrix(VectorLike vec) {
+  public ArrayDoubleMatrix(Vector vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
       set(i, vec.getAsDouble(i));
