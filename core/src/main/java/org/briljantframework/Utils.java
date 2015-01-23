@@ -31,7 +31,7 @@ import com.google.common.collect.Table;
  */
 public final class Utils {
 
-  public static Random random = new Random();
+  private volatile static Random random = new Random();
 
   private Utils() {}
 
@@ -39,7 +39,7 @@ public final class Utils {
     return random;
   }
 
-  public static void setRandomSeed(int seed) {
+  public static synchronized void setRandomSeed(int seed) {
     random.setSeed(seed);
   }
 

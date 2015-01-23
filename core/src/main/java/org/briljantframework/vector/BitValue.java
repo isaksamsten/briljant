@@ -54,6 +54,11 @@ public class BitValue extends AbstractBitVector implements Value {
   }
 
   @Override
+  public String toString() {
+    return toString(0);
+  }
+
+  @Override
   public int hashCode() {
     return binary;
   }
@@ -71,5 +76,9 @@ public class BitValue extends AbstractBitVector implements Value {
       return false;
 
     return true;
+  }
+
+  public static Value valueOf(Bit bit) {
+    return bit == Bit.NA ? Undefined.INSTANCE : new BitValue(bit);
   }
 }

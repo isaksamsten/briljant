@@ -8,7 +8,7 @@ import java.util.Iterator;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
+public abstract class AbstractIntVector extends AbstractVector implements Iterable<Integer> {
   /**
    * The constant NA.
    */
@@ -51,6 +51,10 @@ public abstract class AbstractIntVector implements Vector, Iterable<Integer> {
   };
 
   private IntMatrix adapter;
+
+  public int get(int index) {
+    return getAsInt(index);
+  }
 
   @Override
   public Value getAsValue(int index) {

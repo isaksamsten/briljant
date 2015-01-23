@@ -16,6 +16,13 @@ public class StringValue extends AbstractStringVector implements Value {
     this.value = Preconditions.checkNotNull(value);
   }
 
+  public static Value valueOf(String value1) {
+    if (value1 == null) {
+      return Undefined.INSTANCE;
+    }
+    return new StringValue(value1);
+  }
+
   @Override
   public Iterator<String> iterator() {
     return Iterators.singletonIterator(value);

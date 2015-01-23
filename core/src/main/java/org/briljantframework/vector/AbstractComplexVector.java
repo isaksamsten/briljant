@@ -10,7 +10,7 @@ import java.util.Iterator;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractComplexVector implements Vector, Iterable<Complex> {
+public abstract class AbstractComplexVector extends AbstractVector implements Iterable<Complex> {
   public static final VectorType TYPE = new VectorType() {
     @Override
     public ComplexVector.Builder newBuilder() {
@@ -50,6 +50,10 @@ public abstract class AbstractComplexVector implements Vector, Iterable<Complex>
 
   public static final Complex NA = Complex.NaN;
   private ComplexMatrix adapter;
+
+  public Complex get(int index) {
+    return getAsComplex(index);
+  }
 
   @Override
   public Value getAsValue(int index) {

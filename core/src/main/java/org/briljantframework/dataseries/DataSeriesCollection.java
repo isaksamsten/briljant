@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.DataFrameRow;
 import org.briljantframework.dataframe.NameAttribute;
 import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.io.DataEntry;
@@ -158,12 +159,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Builder newBuilder() {
-    return new Builder(type);
+    return new Builder(columnNames, rowNames, type);
   }
 
   @Override
   public Builder newBuilder(int rows) {
-    return new Builder(type);
+    return new Builder(columnNames, rowNames, type);
   }
 
   @Override
@@ -191,6 +192,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private final VectorType type;
     private final List<Vector.Builder> builders;
 
+    public Builder(NameAttribute columnNames, NameAttribute rowNames, VectorType type) {
+      super(columnNames, rowNames);
+      this.type = type;
+      this.builders = new ArrayList<>();
+    }
+
     public Builder(VectorType type) {
       this.type = type;
       this.builders = new ArrayList<>();
@@ -199,7 +206,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
     protected Builder(NameAttribute columnNames, NameAttribute rowNames,
         List<Vector.Builder> builders, VectorType type) {
       super(columnNames, rowNames);
-      System.out.println("In builder " + columnNames);
       this.type = type;
       this.builders = builders;
     }
@@ -214,7 +220,13 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       ensureCapacity(toRow);
-      builders.get(toRow).set(toCol, from.getRow(fromRow), fromCol);
+      // If the source row does not contain the source column requested
+      // silently ignore the value. This is the case since data series
+      // can be of unequal lengths.
+      DataFrameRow row = from.getRow(fromRow);
+      if (fromCol < row.size()) {
+        builders.get(toRow).set(toCol, row, fromCol);
+      }
       return this;
     }
 
@@ -305,15 +317,27 @@ public class DataSeriesCollection extends AbstractDataFrame {
       return this;
     }
 
+    @Override
+    public Builder setRow(int index, Vector.Builder builder) {
+      ensureCapacity(index);
+      builders.set(index, builder);
+      return this;
+    }
+
+    @Override
+    public DataFrame.Builder setRow(int index, Vector vector) {
+      return setRow(index, vector.newCopyBuilder());
+    }
+
+    @Override
     public Builder addRow(Vector.Builder row) {
       builders.add(row);
       return this;
     }
 
+    @Override
     public Builder addRow(Vector vector) {
-      if (vector.getType() != type) {
-        throw new TypeMismatchException(type, vector.getType());
-      }
+      Check.requireType(type, vector);
       return addRow(vector.newCopyBuilder());
     }
 

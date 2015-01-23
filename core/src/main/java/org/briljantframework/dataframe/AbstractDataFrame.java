@@ -83,6 +83,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
+  public NameAttribute getColumnNames() {
+    return columnNames;
+  }
+
+  @Override
   public Collection<Vector> getColumns() {
     return columnCollection;
   }
@@ -97,6 +102,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public Vector getColumn(int index) {
     return new DataFrameColumnView(this, index);
+  }
+
+  @Override
+  public Vector getColumn(String name) {
+    return getColumn(columnNames.getOrThrow(name, IllegalArgumentException::new));
   }
 
   /**
@@ -270,9 +280,10 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleMatrix}. This implementation rely on
-   * {@link #getAsDouble(int, int)} and returns an {@link org.briljantframework.matrix.ArrayDoubleMatrix}.
-   * Sub-classes are allowed to return any concrete implementation of {@link org.briljantframework.matrix.DoubleMatrix}.
+   * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleMatrix}. This
+   * implementation rely on {@link #getAsDouble(int, int)} and returns an
+   * {@link org.briljantframework.matrix.ArrayDoubleMatrix}. Sub-classes are allowed to return any
+   * concrete implementation of {@link org.briljantframework.matrix.DoubleMatrix}.
    * 
    * @return a new matrix
    */
@@ -360,9 +371,58 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public DataFrame.Builder addColumn(Vector.Builder builder) {
       Vector vector = builder.build();
-      int j = columns();
-      for (int i = 0; i < vector.size(); i++) {
-        set(i, j, vector, i);
+      return addColumn(vector);
+    }
+
+    @Override
+    public Builder addColumn(Vector vector) {
+      return setColumn(rows(), vector);
+    }
+
+    @Override
+    public Builder setColumn(int index, Vector.Builder builder) {
+      return setColumn(index, builder.build());
+    }
+
+    @Override
+    public Builder setColumn(int index, Vector vector) {
+      final int rows = rows();
+      final int size = vector.size();
+      for (int i = 0; i < rows; i++) {
+        if (i < size) {
+          set(i, index, vector, i);
+        } else {
+          setNA(i, index);
+        }
+      }
+      return this;
+    }
+
+    @Override
+    public Builder addRow(Vector.Builder builder) {
+      return addRow(builder.build());
+    }
+
+    @Override
+    public Builder addRow(Vector vector) {
+      return setRow(rows(), vector);
+    }
+
+    @Override
+    public Builder setRow(int index, Vector.Builder builder) {
+      return setRow(index, builder.build());
+    }
+
+    @Override
+    public Builder setRow(int index, Vector vector) {
+      final int columns = columns();
+      final int size = vector.size();
+      for (int j = 0; j < columns; j++) {
+        if (j < size) {
+          set(index, j, vector, j);
+        } else {
+          setNA(index, j);
+        }
       }
       return this;
     }

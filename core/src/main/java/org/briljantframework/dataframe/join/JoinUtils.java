@@ -45,13 +45,13 @@ public class JoinUtils {
     return new IntMatrix[] {ArrayIntMatrix.wrap(result), ArrayIntMatrix.wrap(counts)};
   }
 
-  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> keys) {
+  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<String> columns) {
     int[] newLeftPool = new int[a.rows()];
     int[] newRightPool = new int[b.rows()];
 
     int noGroups = 1;
-    for (int index : keys) {
-      JoinKeys pool = createJoinKeys(a.getColumn(index), b.getColumn(index));
+    for (String column : columns) {
+      JoinKeys pool = createJoinKeys(a.getColumn(column), b.getColumn(column));
 
       IntMatrix left = pool.getLeft();
       IntMatrix right = pool.getRight();

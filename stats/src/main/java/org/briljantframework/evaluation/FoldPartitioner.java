@@ -11,22 +11,22 @@ import org.briljantframework.vector.Vector;
 /**
  * Creates a k-fold partitioner
  * <p>
- * Created by Isak Karlsson on 01/12/14.
+ * @author Isak Karlsson
  */
-public class RandomFoldPartitioner implements Partitioner {
+public class FoldPartitioner implements Partitioner {
 
   private final int folds;
 
-  public RandomFoldPartitioner(int folds) {
+  public FoldPartitioner(int folds) {
     this.folds = folds;
   }
 
   @Override
   public Iterable<Partition> partition(DataFrame x, Vector y) {
-    return () -> new KFoldCrossValidationIterator(x, y, folds);
+    return () -> new FoldIterator(x, y, folds);
   }
 
-  private static class KFoldCrossValidationIterator implements Iterator<Partition> {
+  private static class FoldIterator implements Iterator<Partition> {
     private final int folds, foldSize, rows;
     private final DataFrame x;
     private final Vector y;
@@ -34,7 +34,7 @@ public class RandomFoldPartitioner implements Partitioner {
 
     private int current = 0;
 
-    public KFoldCrossValidationIterator(DataFrame x, Vector y, int folds) {
+    public FoldIterator(DataFrame x, Vector y, int folds) {
       checkArgument(x.rows() == y.size(), "Data and target must be of equal size.");
       checkArgument(folds > 1 && folds <= x.rows(), "Invalid fold count.");
 

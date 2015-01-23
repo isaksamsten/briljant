@@ -8,11 +8,11 @@ import com.google.common.collect.Iterators;
 /**
  * Created by Isak Karlsson on 01/12/14.
  */
-public class RandomSplitPartitioner implements Partitioner {
+public class SplitPartitioner implements Partitioner {
 
   private final double testFraction;
 
-  public RandomSplitPartitioner(double testFraction) {
+  public SplitPartitioner(double testFraction) {
     this.testFraction = testFraction;
   }
 

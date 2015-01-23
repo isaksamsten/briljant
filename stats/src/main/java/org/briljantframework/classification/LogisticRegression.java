@@ -23,6 +23,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Convert;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
@@ -119,7 +120,7 @@ public class LogisticRegression implements Classifier {
    */
   protected Model fit(DataFrame x, Vector y, int[] indexes) {
     DoubleMatrix theta = new ArrayDoubleMatrix(1, x.columns());
-    Vector adaptedTheta = Convert.toVector(theta);
+    Vector adaptedTheta = DoubleVector.zeros(x.columns());
     for (int j = 0; j < this.iterations; j++) {
       Utils.permute(indexes);
 

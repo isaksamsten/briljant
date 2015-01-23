@@ -2,6 +2,7 @@ package org.briljantframework.evaluation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,12 +58,12 @@ public class HoldOutValidation extends AbstractClassificationEvaluator {
     List<Label> holdOutPredictions = model.predict(holdoutX);
     List<Label> inSamplePredictions = model.predict(x);
 
-    ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, y);
+    ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, holdoutY);
     List<Measure> measures = getMeasureProvider().getMeasures().stream().map(producer -> {
       producer.compute(Measure.Sample.IN, inSamplePredictions, y);
       producer.compute(Measure.Sample.OUT, holdOutPredictions, holdoutY);
       return producer.build();
     }).collect(Collectors.toCollection(ArrayList::new));
-    return Result.create(measures, Arrays.asList(confusionMatrix));
+    return Result.create(measures, Collections.singletonList(confusionMatrix));
   }
 }

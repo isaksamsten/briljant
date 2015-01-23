@@ -8,7 +8,7 @@ import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
-public class RandomFoldPartitionerTest {
+public class FoldPartitionerTest {
 
   @Test
   public void testPartition() throws Exception {
@@ -18,7 +18,7 @@ public class RandomFoldPartitionerTest {
 
     System.out.println(x);
 
-    Partitioner strategy = new RandomFoldPartitioner(10);
+    Partitioner strategy = new FoldPartitioner(10);
     Iterable<Partition> partitionIterator = strategy.partition(x, y);
     int i = 0;
     for (Partition partition : partitionIterator) {

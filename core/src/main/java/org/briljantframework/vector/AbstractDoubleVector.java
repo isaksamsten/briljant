@@ -10,7 +10,7 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
+public abstract class AbstractDoubleVector extends AbstractVector implements Iterable<Double> {
   public static final VectorType TYPE = new VectorType() {
     @Override
     public DoubleVector.Builder newBuilder() {
@@ -52,6 +52,10 @@ public abstract class AbstractDoubleVector implements Vector, Iterable<Double> {
   };
 
   private DoubleMatrix adapter;
+
+  public double get(int index) {
+    return getAsDouble(index);
+  }
 
   @Override
   public Value getAsValue(int index) {

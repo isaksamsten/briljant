@@ -65,7 +65,16 @@ public class IntValue extends AbstractIntVector implements Value {
   }
 
   @Override
+  public String toString() {
+    return toString(0);
+  }
+
+  @Override
   public Iterator<Integer> iterator() {
     return Iterators.singletonIterator(value);
+  }
+
+  public static Value valueOf(int i) {
+    return i == NA ? Undefined.INSTANCE : new IntValue(i);
   }
 }

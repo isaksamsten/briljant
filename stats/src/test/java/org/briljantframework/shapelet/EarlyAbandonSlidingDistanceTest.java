@@ -20,23 +20,23 @@ public class EarlyAbandonSlidingDistanceTest {
     DoubleMatrix a2 = ArrayDoubleMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
     DoubleMatrix b = ArrayDoubleMatrix.of(1, 2, 2, 3);
 
-    Shapelet shapelet = NormalizedShapelet.create(1, 2, Convert.toVector(a));
+    Shapelet shapelet = NormalizedShapelet.create(1, 2, Convert.toAdapter(a));
     // System.out.println(shapelet);
     // System.out.println(b);
 
     System.out.println(shapelet);
-    System.out.println(NormalizedShapelet.create(0, a2.size(), Convert.toVector(a1)));
+    System.out.println(NormalizedShapelet.create(0, a2.size(), Convert.toAdapter(a1)));
 
 
     Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
     // System.out.println(distance.distance(a, shapelet));
     // System.out.println(distance.distance(a1, shapelet));
-    System.out.println(distance.distance(Convert.toVector(a2), shapelet));
+    System.out.println(distance.distance(Convert.toAdapter(a2), shapelet));
 
 
     distance = OnlineReorderEarlyAbandonSlidingDistance.create();
 
-    System.out.println(distance.distance(Convert.toVector(a2), shapelet));
+    System.out.println(distance.distance(Convert.toAdapter(a2), shapelet));
 
 
     // System.out.println(Distance.EUCLIDEAN.distance(b, b));
@@ -49,7 +49,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // Shapelet candidate = NormalizedShapelet.create(5, 10, l);
     //
     //
-    Vector l = Convert.toVector(Doubles.randn(1, 3213));
+    Vector l = Convert.toAdapter(Doubles.randn(1, 3213));
     Shapelet candidate = new Shapelet(2314, 500, l);
     //
 

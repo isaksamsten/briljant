@@ -95,4 +95,14 @@ public class DataFrameColumnView implements Vector {
   public int compare(int a, int b, Vector other) {
     return getType().compare(a, this, b, other);
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder("[");
+    builder.append(toString(0));
+    for (int i = 1; i < size() ; i++) {
+      builder.append(",").append(toString(i));
+    }
+    return builder.append("]").toString();
+  }
 }

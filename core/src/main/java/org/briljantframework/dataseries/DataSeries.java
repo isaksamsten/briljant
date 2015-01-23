@@ -27,6 +27,11 @@ public class DataSeries implements DataFrameRow {
   }
 
   @Override
+  public VectorType getType() {
+    return vector.getType();
+  }
+
+  @Override
   public VectorType getType(int index) {
     return vector.getType();
   }
@@ -103,6 +108,6 @@ public class DataSeries implements DataFrameRow {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this).add("size", size()).toString();
+    return vector.toString();
   }
 }

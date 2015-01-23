@@ -132,7 +132,7 @@ public class Undefined implements Value {
 
   @Override
   public String toString() {
-    return "Undefined";
+    return "NA";
   }
 
   public static class Builder implements Vector.Builder {

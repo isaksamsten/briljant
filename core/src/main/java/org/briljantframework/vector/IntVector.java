@@ -81,12 +81,6 @@ public class IntVector extends AbstractIntVector {
     return values;
   }
 
-  @Override
-  public String toString() {
-    return IntStream.of(values).mapToObj(x -> x == NA ? "NA" : String.valueOf(x))
-        .collect(Collectors.joining(","));
-  }
-
   public static final class Builder implements Vector.Builder {
 
     private IntArrayList buffer;

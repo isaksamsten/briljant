@@ -12,7 +12,7 @@ public class ClassificationEvaluators {
    * @return the evaluator
    */
   public static ClassificationEvaluator crossValidation(int folds) {
-    return new DefaultClassificationEvaluator(new RandomFoldPartitioner(folds));
+    return new DefaultClassificationEvaluator(new FoldPartitioner(folds));
   }
 
   /**
@@ -22,7 +22,7 @@ public class ClassificationEvaluators {
    * @return an evaluator
    */
   public static ClassificationEvaluator splitValidation(double testFraction) {
-    return new DefaultClassificationEvaluator(new RandomSplitPartitioner(testFraction));
+    return new DefaultClassificationEvaluator(new SplitPartitioner(testFraction));
   }
 
 }

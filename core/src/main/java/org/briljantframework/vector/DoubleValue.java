@@ -57,21 +57,6 @@ public class DoubleValue extends AbstractDoubleVector implements Value {
   }
 
   @Override
-  public Builder newCopyBuilder() {
-    return null;
-  }
-
-  @Override
-  public Builder newBuilder() {
-    return null;
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return null;
-  }
-
-  @Override
   public String toString() {
     return toString(0);
   }
@@ -81,4 +66,7 @@ public class DoubleValue extends AbstractDoubleVector implements Value {
     return Iterators.singletonIterator(getAsDouble());
   }
 
+  public static Value valueOf(double d) {
+    return Is.NA(d) ? Undefined.INSTANCE : new DoubleValue(d);
+  }
 }

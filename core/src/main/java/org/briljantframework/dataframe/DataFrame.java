@@ -30,6 +30,16 @@ import org.briljantframework.vector.VectorType;
  */
 public interface DataFrame extends Iterable<DataFrameRow> {
 
+  NameAttribute getColumnNames();
+
+  /**
+   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   *
+   * @param names the names
+   * @return receiver modified
+   */
+  DataFrame setColumnNames(List<String> names);
+
   /**
    * Get value at {@code row} and {@code column} as string.
    *
@@ -86,7 +96,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
 
   /**
    * Returns string representation of value at {@code row, column}
-   * 
+   *
    * @param row the row
    * @param column the column
    * @return the representation
@@ -104,7 +114,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
 
   /**
    * Return a collection of columns
-   * 
+   *
    * @return an (immutable) collection of columns
    */
   Collection<Vector> getColumns();
@@ -118,8 +128,16 @@ public interface DataFrame extends Iterable<DataFrameRow> {
   Vector getColumn(int index);
 
   /**
+   * Uses the column name to lookup a specified column.
+   *
+   * @param name the column name
+   * @return the column
+   */
+  Vector getColumn(String name);
+
+  /**
    * Drop column {@code index}
-   * 
+   *
    * @param index the index
    * @return a new dataframe
    */
@@ -135,7 +153,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
 
   /**
    * Take columns with {@code indexes}
-   * 
+   *
    * @param indexes collection of indexes
    * @return a new dataframe
    */
@@ -159,7 +177,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
 
   /**
    * Set the name for the column at {@code index}
-   * 
+   *
    * @param index the index
    * @param columnName the name
    * @return modified receiver to allow for chaining
@@ -168,21 +186,13 @@ public interface DataFrame extends Iterable<DataFrameRow> {
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
-   * 
+   *
    * @param names the names
    * @return receiver modified
    */
   default DataFrame setColumnNames(String... names) {
     return setColumnNames(Arrays.asList(names));
   }
-
-  /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
-   * 
-   * @param names the names
-   * @return receiver modified
-   */
-  DataFrame setColumnNames(List<String> names);
 
   /**
    * Get the name for the row at {@code index}
@@ -371,6 +381,27 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @return a modified builder
      */
     Builder addColumn(Vector.Builder builder);
+
+    /**
+     * Add a new vector. If the {@code vector.size() < rows()}, the resulting vector is padded with
+     * NA.
+     * 
+     * @param vector the vector
+     * @return a modified builder
+     */
+    Builder addColumn(Vector vector);
+
+    Builder setColumn(int index, Vector.Builder builder);
+
+    Builder setColumn(int index, Vector vector);
+
+    Builder addRow(Vector.Builder builder);
+
+    Builder addRow(Vector vector);
+
+    Builder setRow(int index, Vector.Builder builder);
+
+    Builder setRow(int index, Vector vector);
 
     /**
      * Removes vector builder at {@code column}.

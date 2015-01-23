@@ -154,7 +154,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
    */
   @Override
   public Vector getColumn(int index) {
-    return Convert.toVector(matrix.getColumnView(index));
+    return Convert.toAdapter(matrix.getColumnView(index));
   }
 
   @Override

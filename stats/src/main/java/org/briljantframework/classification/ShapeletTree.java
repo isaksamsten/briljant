@@ -85,8 +85,8 @@ public class ShapeletTree implements Classifier {
     params.lengthImportance = new double[x.columns()];
     params.positionImportance = new double[x.columns()];
     int size = Ints.randInt(10, x.columns() - 1);
-    x = Approximations.paa(x, size);
-    System.out.println(size);
+//    x = Approximations.paa(x, size);
+//    System.out.println(size);
     Node<ShapeletThreshold> node = build(x, y, examples, params);
     return new Model(node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
         new ArrayDoubleMatrix(1, params.lengthImportance.length, params.lengthImportance),
@@ -217,7 +217,8 @@ public class ShapeletTree implements Classifier {
 
     @Override
     public Label visitBranch(Tree.Branch<ShapeletThreshold> node, Vector example) {
-      if (metric.distance(aggregator.aggregate(example), node.getThreshold().getShapelet()) < node
+      //aggregator.aggregate(example)
+      if (metric.distance(example, node.getThreshold().getShapelet()) < node
           .getThreshold().getDistance()) {
         return visit(node.getLeft(), example);
       } else {

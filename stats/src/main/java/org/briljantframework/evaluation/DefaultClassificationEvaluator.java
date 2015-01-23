@@ -26,7 +26,7 @@ public class DefaultClassificationEvaluator extends AbstractClassificationEvalua
   }
 
   public DefaultClassificationEvaluator() {
-    this(new RandomSplitPartitioner(0.33));
+    this(new SplitPartitioner(0.33));
   }
 
   @Override

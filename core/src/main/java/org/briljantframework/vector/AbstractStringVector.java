@@ -8,7 +8,7 @@ import com.google.common.primitives.Doubles;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractStringVector implements Vector, Iterable<String> {
+public abstract class AbstractStringVector extends AbstractVector implements Iterable<String> {
   public static final String NA = null;
   public static final VectorType TYPE = new VectorType() {
     @Override
@@ -52,6 +52,10 @@ public abstract class AbstractStringVector implements Vector, Iterable<String> {
       return "string";
     }
   };
+
+  public String get(int index) {
+    return getAsString(index);
+  }
 
   @Override
   public Value getAsValue(int index) {

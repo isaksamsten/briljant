@@ -167,7 +167,7 @@ public class Label {
    * @param value the value
    * @return the boolean
    */
-  public boolean containsPrediction(String value) {
+  public boolean predicts(String value) {
     return value != null && value.equals(target);
   }
 

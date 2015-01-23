@@ -12,6 +12,8 @@ import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.io.DataInputStream;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import com.google.common.collect.ImmutableMap;
@@ -75,15 +77,25 @@ public final class DataFrames {
    * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indexes.
    *
    * @param in the input {@code DataFrame}
+   * @param random the random number generator used
    * @return a permuted copy of {@code in}
    */
-  public static DataFrame permuteRows(DataFrame in) {
+  public static DataFrame permuteRows(DataFrame in, Random random) {
     DataFrame.Builder builder = in.newCopyBuilder();
-    Random random = Utils.getRandom();
     for (int i = builder.rows(); i > 1; i--) {
       builder.swapRows(i - 1, random.nextInt(i));
     }
     return builder.build();
+  }
+
+  /**
+   * Same as {@link #permuteRows(DataFrame, java.util.Random)} with a static random number generator.
+   * 
+   * @param in the input data frame
+   * @return a permuted copy of {@code in}
+   */
+  public static DataFrame permuteRows(DataFrame in) {
+    return permuteRows(in, Utils.getRandom());
   }
 
   /**
@@ -122,7 +134,28 @@ public final class DataFrames {
     return removeIncompleteCases.transform(x);
   }
 
-  public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<Integer> on) {
+  public static Map<Value, DataFrame> groupBy(DataFrame dataframe, String column) {
+    Map<Value, DataFrame.Builder> builders = new HashMap<>();
+    Vector keyColumn = dataframe.getColumn(column);
+
+    for (int i = 0; i < dataframe.rows(); i++) {
+      Value key = keyColumn.getAsValue(i);
+      DataFrame.Builder builder = builders.get(key);
+      if (builder == null) {
+        builder = dataframe.newBuilder();
+        builders.put(key, builder);
+      }
+      builder.addRow(dataframe.getRow(i));
+    }
+
+    Map<Value, DataFrame> frame = new HashMap<>();
+    for (Map.Entry<Value, DataFrame.Builder> entry : builders.entrySet()) {
+      frame.put(entry.getKey(), entry.getValue().build());
+    }
+    return frame;
+  }
+
+  public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<String> on) {
     if (!(on instanceof Set)) {
       on = new HashSet<>(on);
     }
@@ -131,7 +164,7 @@ public final class DataFrames {
     return join(a, b, joiner, on).build();
   }
 
-  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<Integer> on) {
+  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<String> on) {
     if (!(on instanceof Set)) {
       on = new HashSet<>(on);
     }
@@ -141,7 +174,7 @@ public final class DataFrames {
   }
 
   private static DataFrame.Builder join(DataFrame a, DataFrame b, Joiner joiner,
-      Collection<Integer> on) {
+      Collection<String> on) {
     DataFrame.Builder builder = a.newBuilder();
     for (int i = 0; i < joiner.size(); i++) {
       int aRow = joiner.getLeftIndex(i);
@@ -156,10 +189,11 @@ public final class DataFrames {
         column += 1;
       }
       for (int j = 0; j < b.columns(); j++) {
-        if (!on.contains(j)) {
+        String columnName = b.getColumnName(j);
+        if (!on.contains(columnName)) {
           if (i == 0) {
             builder.addColumn(b.getColumnType(j).newBuilder());
-            builder.setColumnName(column, b.getColumnName(j));
+            builder.setColumnName(column, columnName);
           }
           if (bRow < 0) {
             builder.setNA(i, column);

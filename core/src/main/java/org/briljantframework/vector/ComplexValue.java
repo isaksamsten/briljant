@@ -45,6 +45,11 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   }
 
   @Override
+  public String toString() {
+    return toString(0);
+  }
+
+  @Override
   public int hashCode() {
     return complex != null ? complex.hashCode() : 0;
   }
@@ -72,5 +77,9 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   @Override
   public Iterator<Complex> iterator() {
     return Iterators.singletonIterator(complex);
+  }
+
+  public static Value valueOf(Complex complex) {
+    return complex == NA ? Undefined.INSTANCE : new ComplexValue(complex);
   }
 }

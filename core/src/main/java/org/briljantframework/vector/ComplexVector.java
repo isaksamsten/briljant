@@ -151,15 +151,6 @@ public class ComplexVector extends AbstractComplexVector {
     return values;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String toString() {
-    System.out.println(size);
-    return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
-  }
-
   public static final class Builder implements Vector.Builder {
 
     private DoubleArrayList buffer;

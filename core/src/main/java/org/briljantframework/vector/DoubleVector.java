@@ -31,10 +31,10 @@ public class DoubleVector extends AbstractDoubleVector {
   }
 
   public DoubleVector(double... values) {
-    this(true, values);
+    this(values, true);
   }
 
-  protected DoubleVector(boolean copy, double... values) {
+  protected DoubleVector(double[] values, boolean copy) {
     if (copy) {
       this.values = Arrays.copyOf(values, values.length);
     } else {
@@ -49,7 +49,7 @@ public class DoubleVector extends AbstractDoubleVector {
    * @return the double vector
    */
   public static DoubleVector wrap(double... values) {
-    return new DoubleVector(false, values);
+    return new DoubleVector(values, false);
   }
 
   public static Vector.Builder newBuilderWithInitialValues(double... values) {
@@ -65,6 +65,10 @@ public class DoubleVector extends AbstractDoubleVector {
       builder.addAll(builder2);
       return builder;
     });
+  }
+
+  public static Vector zeros(int columns) {
+    return new DoubleVector(new double[columns], false);
   }
 
   @Override
@@ -99,11 +103,6 @@ public class DoubleVector extends AbstractDoubleVector {
 
   public double[] asDoubleArray() {
     return values;
-  }
-
-  @Override
-  public String toString() {
-    return IntStream.range(0, size()).mapToObj(this::toString).collect(Collectors.joining(","));
   }
 
   public static class Builder implements Vector.Builder {

@@ -28,8 +28,7 @@ public class IntVectorTest {
     builder.set(3, 10);
     builder.set(10, 10);
     System.out.println(builder.size());
-
-    System.out.println(builder.build());
+    System.out.println(builder.build().get(0));
 
 
   }
