@@ -187,7 +187,7 @@ public final class Convert {
     return new IntVector.Builder().addAll(vector).build();
   }
 
-  public static BitVector toBinaryVector(Vector vector) {
+  public static BitVector toBitVector(Vector vector) {
     if (vector instanceof BitVector) {
       return (BitVector) vector;
     }

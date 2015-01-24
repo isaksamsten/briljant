@@ -284,8 +284,7 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * Builds new vectors TODO(isak): maybe builder.getAs... and set(int at, Vector.Builder b, int
-   * from)?
+   * Builds a new vector
    */
   public static interface Builder extends Swappable {
 
