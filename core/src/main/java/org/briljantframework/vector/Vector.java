@@ -7,7 +7,7 @@ import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
@@ -232,7 +232,7 @@ public interface Vector extends Serializable {
 
   /**
    * Returns this vector as an immutable matrix. Should return an appropriate specialization of the
-   * {@link org.briljantframework.matrix.AnyMatrix} interface. For example, a
+   * {@link org.briljantframework.matrix.Matrix} interface. For example, a
    * {@link org.briljantframework.vector.DoubleVector} should return a
    * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
    * 
@@ -243,7 +243,7 @@ public interface Vector extends Serializable {
    * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector to
    *         matrix
    */
-  AnyMatrix asMatrix() throws TypeConversionException;
+  Matrix asMatrix() throws TypeConversionException;
 
   /**
    * Follows the conventions from {@link Comparable#compareTo(Object)}.

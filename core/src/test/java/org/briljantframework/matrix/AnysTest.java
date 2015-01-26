@@ -11,7 +11,7 @@ public class AnysTest {
   public void testTake() throws Exception {
     DoubleMatrix a = Doubles.newMatrix(1, 2, 3, 4, 5, 6);
 
-    AnyMatrix taken = Anys.take(a, Ints.newMatrix(0, 1, 2, 2));
+    Matrix taken = Anys.take(a, Ints.newMatrix(0, 1, 2, 2));
     assertTrue(taken instanceof DoubleMatrix);
     assertEquals(Doubles.newMatrix(1, 2, 3, 3), taken);
 

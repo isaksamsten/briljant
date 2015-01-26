@@ -20,7 +20,7 @@ import com.google.common.collect.UnmodifiableIterator;
 /**
  * Created by Isak Karlsson on 02/01/15.
  */
-public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements ComplexMatrix {
+public abstract class AbstractComplexMatrix extends AbstractMatrix implements ComplexMatrix {
 
   public static final String INVALID_SORT = "Unable to sort Complex values";
 
@@ -102,22 +102,22 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
   }
 
   @Override
-  public void set(int atIndex, AnyMatrix from, int fromIndex) {
+  public void set(int atIndex, Matrix from, int fromIndex) {
     set(atIndex, from.getAsComplex(fromIndex));
   }
 
   @Override
-  public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
     set(atRow, atColumn, from.getAsComplex(fromRow, fromColumn));
   }
 
   @Override
-  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+  public int compare(int toIndex, Matrix from, int fromIndex) {
     throw new UnsupportedOperationException(INVALID_SORT);
   }
 
   @Override
-  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
     throw new UnsupportedOperationException(INVALID_SORT);
   }
 
@@ -598,17 +598,17 @@ public abstract class AbstractComplexMatrix extends AbstractAnyMatrix implements
     };
   }
 
-  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
+  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
 
     private List<Complex> buffer = new ArrayList<>();
 
     @Override
-    public void add(AnyMatrix from, int i, int j) {
+    public void add(Matrix from, int i, int j) {
       buffer.add(from.getAsComplex(i, j));
     }
 
     @Override
-    public void add(AnyMatrix from, int index) {
+    public void add(Matrix from, int index) {
       buffer.add(from.getAsComplex(index));
     }
 

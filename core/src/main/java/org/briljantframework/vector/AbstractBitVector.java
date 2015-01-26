@@ -1,7 +1,7 @@
 package org.briljantframework.vector;
 
 import com.google.common.collect.UnmodifiableIterator;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.BitMatrix;
 
 import java.util.Iterator;
@@ -119,7 +119,7 @@ public abstract class AbstractBitVector extends AbstractVector implements Iterab
   }
 
   @Override
-  public AnyMatrix asMatrix() {
+  public Matrix asMatrix() {
     if (adapter == null) {
       adapter = new VectorBitMatrixAdapter(this);
     }

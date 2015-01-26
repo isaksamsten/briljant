@@ -64,6 +64,11 @@ public class DoubleArrayComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public Complex get(int i, int j) {
     int index = Indexer.columnMajor(i, j, rows(), columns()) * 2;
     return new Complex(values[index], values[index + 1]);

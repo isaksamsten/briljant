@@ -34,6 +34,11 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return true;
+  }
+
+  @Override
   public ComplexMatrix copy() {
     ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {

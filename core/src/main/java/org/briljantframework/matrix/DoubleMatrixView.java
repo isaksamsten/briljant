@@ -34,6 +34,11 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public DoubleMatrix newEmptyMatrix(int rows, int columns) {
     return new ArrayDoubleMatrix(rows, columns);
   }

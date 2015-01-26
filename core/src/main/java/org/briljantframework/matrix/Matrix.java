@@ -1,5 +1,8 @@
 package org.briljantframework.matrix;
 
+import java.util.Collection;
+
+import org.briljantframework.Range;
 import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 
@@ -7,7 +10,7 @@ import org.briljantframework.complex.Complex;
 // TODO: implement assign(C, ...), assign(d, mapper), assign(i, mapper)
 /**
  * <p>
- * The {@code AnyMatrix} interface is a base interface for several different matrix implementations.
+ * The {@code Matrix} interface is a base interface for several different matrix implementations.
  * 
  * There are four supported matrix types {@code double}, {@code int}, {@code boolean} and
  * {@link org.briljantframework.complex.Complex}, specialized in
@@ -17,20 +20,20 @@ import org.briljantframework.complex.Complex;
  * </p>
  * 
  * <p>
- * The {@code AnyMatrix} interface provides ways to
+ * The {@code Matrix} interface provides ways to
  *
  * <ul>
  * <li>adapt one implementation to another.</li>
  * <li>get values of any type.</li>
  * <li>set values of any type.</li>
- * <li>set values of any type from another {@code AnyMatrix}, possibly without boxing.</li>
+ * <li>set values of any type from another {@code Matrix}, possibly without boxing.</li>
  * <li>compare values of unknown types.</li>
  * </ul>
  * </p>
  *
- * <h1>Adapt {@code AnyMatrix} to another matrix type</h1>
+ * <h1>Adapt {@code Matrix} to another matrix type</h1>
  * <p>
- * {@code AnyMatrix} defines four methods for adapting the current implementation to any of the four
+ * {@code Matrix} defines four methods for adapting the current implementation to any of the four
  * specialized types. However, there are some caveats when adapting matrices and perform mutations.
  * 
  * For example, given a {@code DoubleMatrix d} which is adapted to a
@@ -67,13 +70,13 @@ import org.briljantframework.complex.Complex;
  * specialized type. For example, {@link org.briljantframework.matrix.DoubleMatrix#get(int, int)}.
  * </p>
  *
- * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code AnyMatrix}es</h1>
+ * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code Matrix}es</h1>
  * <p>
  * Prefer:
  * 
  * <pre>
- *   AnyMatrix a = Doubles.randn(10, 1)
- *   AnyMatrix b = Doubles.zeros(10, 1)
+ *   Matrix a = Doubles.randn(10, 1)
+ *   Matrix b = Doubles.zeros(10, 1)
  *   a.set(3, b, 0)
  * </pre>
  * 
@@ -93,7 +96,7 @@ import org.briljantframework.complex.Complex;
  *
  * @author Isak Karlsson
  */
-public interface AnyMatrix extends Swappable {
+public interface Matrix extends Swappable {
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -230,7 +233,7 @@ public interface AnyMatrix extends Swappable {
    * @param from the other matrix
    * @param fromIndex the index
    */
-  void set(int atIndex, AnyMatrix from, int fromIndex);
+  void set(int atIndex, Matrix from, int fromIndex);
 
   /**
    * Set value at {@code atRow, atColumn} to the value in {@code from} at
@@ -242,7 +245,7 @@ public interface AnyMatrix extends Swappable {
    * @param fromRow the row index
    * @param fromColumn the column index
    */
-  void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn);
+  void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn);
 
   /**
    * Compare value at {@code a} to value at {@code b}.
@@ -266,7 +269,7 @@ public interface AnyMatrix extends Swappable {
    * @see java.lang.Integer#compare(int, int)
    * @see java.lang.Boolean#compare(boolean, boolean)
    */
-  int compare(int toIndex, AnyMatrix from, int fromIndex);
+  int compare(int toIndex, Matrix from, int fromIndex);
 
   /**
    * Compare value at {@code toRow, toColumn} in {@code this} to value at
@@ -282,7 +285,7 @@ public interface AnyMatrix extends Swappable {
    * @see java.lang.Integer#compare(int, int)
    * @see java.lang.Boolean#compare(boolean, boolean)
    */
-  int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn);
+  int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn);
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -293,7 +296,7 @@ public interface AnyMatrix extends Swappable {
    * @param columns the new columns
    * @return a new matrix
    */
-  AnyMatrix reshape(int rows, int columns);
+  Matrix reshape(int rows, int columns);
 
   /**
    * Get row vector at {@code i}. Modifications will change to original matrix.
@@ -301,7 +304,7 @@ public interface AnyMatrix extends Swappable {
    * @param i row
    * @return a vector
    */
-  AnyMatrix getRowView(int i);
+  Matrix getRowView(int i);
 
   /**
    * Gets vector at {@code index}. Modifications will change the original matrix.
@@ -309,14 +312,14 @@ public interface AnyMatrix extends Swappable {
    * @param index the index
    * @return the column
    */
-  AnyMatrix getColumnView(int index);
+  Matrix getColumnView(int index);
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
    *
    * @return a diagonal view
    */
-  AnyMatrix getDiagonalView();
+  Matrix getDiagonalView();
 
   /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
@@ -345,7 +348,34 @@ public interface AnyMatrix extends Swappable {
    * @param columns number of columns after column offset
    * @return the matrix view
    */
-  AnyMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+  Matrix getView(int rowOffset, int colOffset, int rows, int columns);
+
+  /**
+   * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
+   * 
+   * @param rows the rows to include
+   * @param columns the columns to include
+   * @return a new matrix with the same size as {@code this}
+   */
+  Matrix slice(Collection<Integer> rows, Collection<Integer> columns);
+
+  /**
+   * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the return
+   * type.
+   * 
+   * @param rows the rows to include
+   * @param columns the columns to include
+   * @return a view
+   */
+  Matrix slice(Range rows, Range columns);
+
+  Matrix slice(Range range);
+
+  Matrix slice(Range range, Axis axis);
+
+  Matrix slice(Collection<Integer> indexes);
+
+  Matrix slice(Collection<Integer> indexes, Axis axis);
 
   /**
    * The number of rows.
@@ -389,6 +419,8 @@ public interface AnyMatrix extends Swappable {
    */
   int size();
 
+  boolean isView();
+
   /**
    * Is square.
    *
@@ -411,7 +443,7 @@ public interface AnyMatrix extends Swappable {
    * @param other the other
    * @return the boolean
    */
-  default boolean hasEqualShape(AnyMatrix other) {
+  default boolean hasEqualShape(Matrix other) {
     return rows() == other.rows() && columns() == other.columns();
   }
 
@@ -442,7 +474,7 @@ public interface AnyMatrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix lessThan(AnyMatrix other);
+  BitMatrix lessThan(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) < value}.
@@ -459,7 +491,7 @@ public interface AnyMatrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix lessThanEqual(AnyMatrix other);
+  BitMatrix lessThanEqual(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) <= value}.
@@ -476,7 +508,7 @@ public interface AnyMatrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThan(AnyMatrix other);
+  BitMatrix greaterThan(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) > value}.
@@ -493,7 +525,7 @@ public interface AnyMatrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThanEquals(AnyMatrix other);
+  BitMatrix greaterThanEquals(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
@@ -510,7 +542,7 @@ public interface AnyMatrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix equalsTo(AnyMatrix other);
+  BitMatrix equalsTo(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) == value}.
@@ -523,14 +555,14 @@ public interface AnyMatrix extends Swappable {
   /**
    * @return the transpose of {@code this}.
    */
-  AnyMatrix transpose();
+  Matrix transpose();
 
   /**
    * Create a copy of this matrix.
    *
    * @return the copy
    */
-  AnyMatrix copy();
+  Matrix copy();
 
   /**
    * Incrementally construct a new matrix by adding values.
@@ -546,19 +578,15 @@ public interface AnyMatrix extends Swappable {
    * @param columns the number of columns
    * @return a new empty matrix
    */
-  AnyMatrix newEmptyMatrix(int rows, int columns);
+  Matrix newEmptyMatrix(int rows, int columns);
 
   /**
    * If {@code getType()} equals
    * <ul>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#DOUBLE} {@link #asDoubleMatrix()}
-   * returns {@code this}.</li>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#INT} {@link #asIntMatrix()} returns
-   * {@code this}.</li>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#BOOLEAN} {@link #asBitMatrix()}
-   * returns {@code this}.</li>
-   * <li>{@link org.briljantframework.matrix.AnyMatrix.DataType#COMPLEX} {@link #asComplexMatrix()}
-   * returns {@code this}.</li>
+   * <li>{@link Matrix.DataType#DOUBLE} {@link #asDoubleMatrix()} returns {@code this}.</li>
+   * <li>{@link Matrix.DataType#INT} {@link #asIntMatrix()} returns {@code this}.</li>
+   * <li>{@link Matrix.DataType#BOOLEAN} {@link #asBitMatrix()} returns {@code this}.</li>
+   * <li>{@link Matrix.DataType#COMPLEX} {@link #asComplexMatrix()} returns {@code this}.</li>
    * </ul>
    *
    * @return the type of this matrix
@@ -574,11 +602,11 @@ public interface AnyMatrix extends Swappable {
 
   interface IncrementalBuilder {
 
-    void add(AnyMatrix from, int i, int j);
+    void add(Matrix from, int i, int j);
 
-    void add(AnyMatrix from, int index);
+    void add(Matrix from, int index);
 
-    AnyMatrix build();
+    Matrix build();
   }
 
 }

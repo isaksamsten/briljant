@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 
 import com.google.common.base.Preconditions;
 
@@ -88,7 +88,7 @@ public class ValueVector implements VariableVector {
   }
 
   @Override
-  public AnyMatrix asMatrix() {
+  public Matrix asMatrix() {
     throw new UnsupportedOperationException();
   }
 

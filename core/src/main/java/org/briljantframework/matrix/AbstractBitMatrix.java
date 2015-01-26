@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 12/01/15.
  */
-public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements BitMatrix {
+public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMatrix {
 
   protected AbstractBitMatrix(int rows, int cols) {
     super(rows, cols);
@@ -93,22 +93,22 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
   }
 
   @Override
-  public void set(int atIndex, AnyMatrix from, int fromIndex) {
+  public void set(int atIndex, Matrix from, int fromIndex) {
     set(atIndex, from.getAsInt(fromIndex));
   }
 
   @Override
-  public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
     set(atRow, atColumn, from.getAsInt(fromRow, fromColumn));
   }
 
   @Override
-  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+  public int compare(int toIndex, Matrix from, int fromIndex) {
     return Boolean.compare(get(toIndex), from.getAsInt(fromIndex) == 1);
   }
 
   @Override
-  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
     return Boolean.compare(get(toRow, toColumn), from.getAsInt(fromRow, fromColumn) == 1);
   }
 
@@ -272,22 +272,22 @@ public abstract class AbstractBitMatrix extends AbstractAnyMatrix implements Bit
     return bm;
   }
 
-  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
+  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
 
     private IntArrayList buffer = new IntArrayList();
 
     @Override
-    public void add(AnyMatrix from, int i, int j) {
+    public void add(Matrix from, int i, int j) {
       buffer.add(from.getAsInt(i, j));
     }
 
     @Override
-    public void add(AnyMatrix from, int index) {
+    public void add(Matrix from, int index) {
       buffer.add(from.getAsInt(index));
     }
 
     @Override
-    public AnyMatrix build() {
+    public Matrix build() {
       BitMatrix n = new ArrayBitMatrix(buffer.size(), 1);
       for (int i = 0; i < buffer.size(); i++) {
         n.set(i, n.get(i));

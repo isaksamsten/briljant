@@ -2,7 +2,7 @@ package org.briljantframework.vector;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Created by isak on 1/21/15.
@@ -112,7 +112,7 @@ public abstract class VectorView implements Vector {
     }
 
     @Override
-    public AnyMatrix asMatrix() throws TypeConversionException {
+    public Matrix asMatrix() throws TypeConversionException {
         return parent.asMatrix();
     }
 

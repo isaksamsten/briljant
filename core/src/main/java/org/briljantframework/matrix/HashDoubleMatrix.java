@@ -51,6 +51,11 @@ public class HashDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public DoubleMatrix newEmptyMatrix(int rows, int columns) {
     return new HashDoubleMatrix(rows, columns);
   }

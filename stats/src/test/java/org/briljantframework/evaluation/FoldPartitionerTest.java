@@ -2,7 +2,7 @@ package org.briljantframework.evaluation;
 
 import static org.junit.Assert.assertTrue;
 
-import org.briljantframework.IntRange;
+import org.briljantframework.Range;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.vector.Vector;
@@ -13,7 +13,7 @@ public class FoldPartitionerTest {
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadConnect4();
-    DataFrame x = dummy.takeColumns(IntRange.closed(0, 2));
+    DataFrame x = dummy.takeColumns(Range.range(0, 2));
     Vector y = dummy.getColumn(2);
 
     System.out.println(x);
@@ -29,7 +29,7 @@ public class FoldPartitionerTest {
 
 
     // DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
-    // DataFrame irisX = iris.takeColumns(IntRange.closed(0, 4));
+    // DataFrame irisX = iris.takeColumns(IntRange.range(0, 4));
     // Vector irisY = iris.getColumn(4);
     //
     // RandomForest tree = RandomForest.withSize(100).build();
@@ -40,7 +40,7 @@ public class FoldPartitionerTest {
     // System.out.println(System.currentTimeMillis() - start);
 
     // DataFrame synthetic = Datasets.loadSyntheticControl();
-    // DataFrame x = synthetic.takeColumns(IntRange.closed(1, synthetic.columns()));
+    // DataFrame x = synthetic.takeColumns(IntRange.range(1, synthetic.columns()));
     // Vector y = synthetic.getColumnView(0);
     //
     // RandomShapeletForest forest =

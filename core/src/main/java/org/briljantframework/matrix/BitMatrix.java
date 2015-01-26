@@ -3,7 +3,7 @@ package org.briljantframework.matrix;
 /**
  * Created by Isak Karlsson on 12/01/15.
  */
-public interface BitMatrix extends AnyMatrix {
+public interface BitMatrix extends Matrix {
 
   void set(int i, int j, boolean value);
 

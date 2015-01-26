@@ -2,7 +2,7 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
 import com.google.common.collect.ImmutableTable;
@@ -102,7 +102,7 @@ public class DataFrameRowView implements DataFrameRow {
   }
 
   @Override
-  public AnyMatrix asMatrix() {
+  public Matrix asMatrix() {
     throw new UnsupportedOperationException();
   }
 

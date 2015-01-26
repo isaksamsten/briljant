@@ -45,10 +45,10 @@ public final class Anys {
    * @param a the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
-   *         {@link org.briljantframework.matrix.AnyMatrix#newEmptyMatrix(int, int)}).
+   *         {@link Matrix#newEmptyMatrix(int, int)}).
    */
-  public static AnyMatrix take(AnyMatrix a, IntMatrix indexes) {
-    AnyMatrix taken = a.newEmptyMatrix(indexes.size(), 1);
+  public static Matrix take(Matrix a, IntMatrix indexes) {
+    Matrix taken = a.newEmptyMatrix(indexes.size(), 1);
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a, indexes.get(i));
     }
@@ -80,11 +80,11 @@ public final class Anys {
    * @param values the values; same shape as {@code a}
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static AnyMatrix mask(AnyMatrix a, BitMatrix mask, AnyMatrix values) {
+  public static Matrix mask(Matrix a, BitMatrix mask, Matrix values) {
     Check.equalShape(a, mask);
     Check.equalShape(a, values);
 
-    AnyMatrix masked = a.copy();
+    Matrix masked = a.copy();
     putMask(masked, mask, values);
     return masked;
   }
@@ -112,9 +112,9 @@ public final class Anys {
    * @param a the target matrix
    * @param mask the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
-   * @see #mask(AnyMatrix, BitMatrix, AnyMatrix)
+   * @see #mask(Matrix, BitMatrix, Matrix)
    */
-  public static void putMask(AnyMatrix a, BitMatrix mask, AnyMatrix values) {
+  public static void putMask(Matrix a, BitMatrix mask, Matrix values) {
     Check.equalShape(a, mask);
     Check.equalShape(a, values);
     for (int i = 0; i < a.size(); i++) {
@@ -147,9 +147,9 @@ public final class Anys {
    * @param replace the replacement value
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static AnyMatrix select(AnyMatrix a, BitMatrix where, Number replace) {
+  public static Matrix select(Matrix a, BitMatrix where, Number replace) {
     Check.equalShape(a, where);
-    AnyMatrix copy = a.copy();
+    Matrix copy = a.copy();
     for (int i = 0; i < a.size(); i++) {
       if (!where.get(i)) {
         copy.set(i, replace);
@@ -178,9 +178,9 @@ public final class Anys {
    * @param where the selection matrix; same shape as {@code a}
    * @return a new matrix; the returned matrix has the same type as {@code a}
    */
-  public static AnyMatrix select(AnyMatrix a, BitMatrix where) {
+  public static Matrix select(Matrix a, BitMatrix where) {
     Check.equalShape(a, where);
-    AnyMatrix.IncrementalBuilder builder = a.newIncrementalBuilder();
+    Matrix.IncrementalBuilder builder = a.newIncrementalBuilder();
     for (int i = 0; i < a.size(); i++) {
       if (where.get(i)) {
         builder.add(a, i);
@@ -211,8 +211,8 @@ public final class Anys {
    * @param matrix the source matrix
    * @return a new matrix; the returned matrix has the same type as {@code a}
    */
-  public static AnyMatrix sort(AnyMatrix matrix) {
-    return sort(matrix, AnyMatrix::compare);
+  public static Matrix sort(Matrix matrix) {
+    return sort(matrix, Matrix::compare);
   }
 
   /**
@@ -255,8 +255,8 @@ public final class Anys {
    * @param comparator the comparator; first argument is the container, and the next are indexes
    * @return a new sorted matrix; the returned matrix has the same type as {@code a}
    */
-  public static AnyMatrix sort(AnyMatrix a, IndexComparator<? super AnyMatrix> comparator) {
-    AnyMatrix out = a.copy();
+  public static Matrix sort(Matrix a, IndexComparator<? super Matrix> comparator) {
+    Matrix out = a.copy();
     QuickSort.quickSort(0, out.size(), (x, y) -> comparator.compare(out, x, y), out);
     return out;
   }
@@ -287,28 +287,28 @@ public final class Anys {
    * @param axis the axis to sort
    * @return a new matrix; the returned matrix has the same type as {@code a}
    */
-  public static AnyMatrix sort(AnyMatrix a, Axis axis) {
-    return sort(a, axis, AnyMatrix::compare);
+  public static Matrix sort(Matrix a, Axis axis) {
+    return sort(a, axis, Matrix::compare);
   }
 
-  public static AnyMatrix sort(AnyMatrix a, Axis axis, IndexComparator<? super AnyMatrix> comparator) {
-    AnyMatrix out = a.copy();
+  public static Matrix sort(Matrix a, Axis axis, IndexComparator<? super Matrix> comparator) {
+    Matrix out = a.copy();
     if (axis == Axis.ROW) {
       for (int i = 0; i < a.rows(); i++) {
-        AnyMatrix row = out.getRowView(i);
+        Matrix row = out.getRowView(i);
         QuickSort.quickSort(0, row.size(), (x, y) -> comparator.compare(row, x, y), row);
       }
     } else {
       for (int i = 0; i < a.columns(); i++) {
-        AnyMatrix col = out.getColumnView(i);
+        Matrix col = out.getColumnView(i);
         QuickSort.quickSort(0, col.size(), (x, y) -> comparator.compare(col, x, y), col);
       }
     }
     return out;
   }
 
-  public static AnyMatrix selectIndex(AnyMatrix matrix, IntPredicate predicate) {
-    AnyMatrix.IncrementalBuilder builder = matrix.newIncrementalBuilder();
+  public static Matrix selectIndex(Matrix matrix, IntPredicate predicate) {
+    Matrix.IncrementalBuilder builder = matrix.newIncrementalBuilder();
     for (int i = 0; i < matrix.size(); i++) {
       if (predicate.test(i)) {
         builder.add(matrix, i);

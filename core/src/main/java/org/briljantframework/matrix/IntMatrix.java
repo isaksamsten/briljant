@@ -8,7 +8,7 @@ import org.briljantframework.vector.Vector;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public interface IntMatrix extends AnyMatrix, Iterable<Integer> {
+public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   /**
    * Assign value returned by {@link #size()} successive calls to

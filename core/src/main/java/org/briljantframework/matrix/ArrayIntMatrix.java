@@ -35,6 +35,11 @@ public class ArrayIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public IntMatrix copy() {
     return new ArrayIntMatrix(rows(), columns(), Arrays.copyOf(values, values.length));
   }

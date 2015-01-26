@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements IntMatrix {
+public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMatrix {
 
   protected AbstractIntMatrix(int rows, int cols) {
     super(rows, cols);
@@ -92,22 +92,22 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
   }
 
   @Override
-  public void set(int atIndex, AnyMatrix from, int fromIndex) {
+  public void set(int atIndex, Matrix from, int fromIndex) {
     set(atIndex, from.getAsInt(fromIndex));
   }
 
   @Override
-  public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
     set(atRow, atColumn, from.getAsInt(fromRow, fromColumn));
   }
 
   @Override
-  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+  public int compare(int toIndex, Matrix from, int fromIndex) {
     return Integer.compare(get(toIndex), from.getAsInt(fromIndex));
   }
 
   @Override
-  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
     return Integer.compare(get(toRow, toColumn), from.getAsInt(fromRow, fromColumn));
   }
 
@@ -846,17 +846,17 @@ public abstract class AbstractIntMatrix extends AbstractAnyMatrix implements Int
     };
   }
 
-  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
+  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
 
     private IntArrayList buffer = new IntArrayList();
 
     @Override
-    public void add(AnyMatrix from, int i, int j) {
+    public void add(Matrix from, int i, int j) {
       buffer.add(from.getAsInt(i, j));
     }
 
     @Override
-    public void add(AnyMatrix from, int index) {
+    public void add(Matrix from, int index) {
       buffer.add(from.getAsInt(index));
     }
 

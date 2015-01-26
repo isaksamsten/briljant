@@ -9,7 +9,7 @@ import org.briljantframework.complex.Complex;
  *
  * @author Isak Karlsson
  */
-public interface ComplexMatrix extends AnyMatrix, Iterable<Complex> {
+public interface ComplexMatrix extends Matrix, Iterable<Complex> {
 
   /**
    * Assign value returned by {@link #size()} successive calls to

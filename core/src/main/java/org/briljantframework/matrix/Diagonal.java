@@ -105,6 +105,11 @@ public class Diagonal extends AbstractDoubleMatrix {
     return size;
   }
 
+  @Override
+  public boolean isView() {
+    return false;
+  }
+
   /**
    * Map diagonal.
    *

@@ -51,6 +51,11 @@ public class ArrayBitMatrix extends AbstractBitMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public BitMatrix newEmptyMatrix(int rows, int columns) {
     return new ArrayBitMatrix(rows, columns);
   }

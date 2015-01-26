@@ -1,6 +1,6 @@
 package org.briljantframework.dataframe;
 
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
@@ -82,7 +82,7 @@ public class DataFrameColumnView implements Vector {
   }
 
   @Override
-  public AnyMatrix asMatrix() {
+  public Matrix asMatrix() {
     throw new UnsupportedOperationException();
   }
 

@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
-import org.briljantframework.matrix.AnyMatrix;
 
 /**
  * Created by Isak Karlsson on 12/01/15.
@@ -19,7 +18,7 @@ public final class Check {
    * @throws org.briljantframework.exceptions.NonConformantException if
    *         {@code a.rows() != b.rows() && a.columns() != b.columns()}
    */
-  public static void equalShape(AnyMatrix a, AnyMatrix b) throws NonConformantException {
+  public static void equalShape(Matrix a, Matrix b) throws NonConformantException {
     if (a.rows() != b.rows() && a.columns() != b.columns()) {
       throw new NonConformantException(a, b);
     }
@@ -32,7 +31,7 @@ public final class Check {
    * @param b a matrix
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
    */
-  public static void equalSize(AnyMatrix a, AnyMatrix b) throws SizeMismatchException {
+  public static void equalSize(Matrix a, Matrix b) throws SizeMismatchException {
     if (a.size() != b.size()) {
       throw new SizeMismatchException(a.size(), b.size());
     }
@@ -47,7 +46,7 @@ public final class Check {
    * @param b a matrix
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
    */
-  public static void equalSize(String message, AnyMatrix a, AnyMatrix b)
+  public static void equalSize(String message, Matrix a, Matrix b)
       throws SizeMismatchException {
     if (a.size() != b.size()) {
       throw new SizeMismatchException(message, a.size(), b.size());
@@ -63,7 +62,7 @@ public final class Check {
    * @param size a size
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
    */
-  public static void size(String message, int size, AnyMatrix a) throws SizeMismatchException {
+  public static void size(String message, int size, Matrix a) throws SizeMismatchException {
     if (a.size() != size) {
       throw new SizeMismatchException(message, a.size(), size);
     }
@@ -76,7 +75,7 @@ public final class Check {
    * @param size a size
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
    */
-  public static void size(int size, AnyMatrix a) throws SizeMismatchException {
+  public static void size(int size, Matrix a) throws SizeMismatchException {
     if (a.size() != size) {
       throw new SizeMismatchException(a.size(), size);
     }

@@ -1,7 +1,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.exceptions.TypeConversionException;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 
 import com.google.common.primitives.Doubles;
 
@@ -104,7 +104,7 @@ public abstract class AbstractStringVector extends AbstractVector implements Ite
   }
 
   @Override
-  public AnyMatrix asMatrix() throws TypeConversionException {
+  public Matrix asMatrix() throws TypeConversionException {
     throw new TypeConversionException("Unable to convert StringVector to AnyMatrix");
   }
 

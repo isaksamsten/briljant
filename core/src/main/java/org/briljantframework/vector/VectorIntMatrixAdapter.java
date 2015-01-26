@@ -30,6 +30,11 @@ class VectorIntMatrixAdapter extends AbstractIntMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public IntMatrix newEmptyMatrix(int rows, int columns) {
     return new ArrayIntMatrix(rows, columns);
   }

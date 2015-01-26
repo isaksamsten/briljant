@@ -23,7 +23,7 @@ public class MeanAggregator implements Aggregator {
 
   @Override
   public Vector.Builder partialAggregate(Vector in) {
-    checkArgument(in.size() >= targetSize, "Input size must be smaller than target size.");
+    checkArgument(in.size() >= targetSize, "Input size must be larger than target size.");
     if (in.size() == targetSize) {
       return in.newCopyBuilder();
     }

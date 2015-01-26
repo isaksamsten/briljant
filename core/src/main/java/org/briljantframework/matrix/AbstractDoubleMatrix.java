@@ -17,17 +17,17 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.briljantframework.matrix.Indexer.columnMajor;
-import static org.briljantframework.matrix.Indexer.rowMajor;
+import static org.briljantframework.matrix.Indexer.*;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.*;
 
+import org.briljantframework.Range;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.DoubleArrayList;
@@ -37,8 +37,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 20/08/14.
  */
-public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements DoubleMatrix {
-
+public abstract class AbstractDoubleMatrix extends AbstractMatrix implements DoubleMatrix {
   public AbstractDoubleMatrix(int rows, int columns) {
     super(rows, columns);
   }
@@ -109,22 +108,22 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
-  public void set(int atIndex, AnyMatrix from, int fromIndex) {
+  public void set(int atIndex, Matrix from, int fromIndex) {
     set(atIndex, from.getAsDouble(fromIndex));
   }
 
   @Override
-  public void set(int atRow, int atColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
     set(atRow, atColumn, from.getAsDouble(fromRow, fromColumn));
   }
 
   @Override
-  public int compare(int toIndex, AnyMatrix from, int fromIndex) {
+  public int compare(int toIndex, Matrix from, int fromIndex) {
     return Double.compare(get(toIndex), from.getAsDouble(fromIndex));
   }
 
   @Override
-  public int compare(int toRow, int toColumn, AnyMatrix from, int fromRow, int fromColumn) {
+  public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
     return Double.compare(get(toRow, toColumn), from.getAsDouble(fromRow, fromColumn));
   }
 
@@ -590,6 +589,40 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
   }
 
   @Override
+  public DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    return super.slice(rows, columns).asDoubleMatrix();
+  }
+
+  @Override
+  public DoubleMatrix slice(Collection<Integer> indexes) {
+    return super.slice(indexes).asDoubleMatrix();
+  }
+
+  @Override
+  public DoubleMatrix slice(Range range) {
+    return new FlatSliceDoubleMatrix(this, range);
+  }
+
+  @Override
+  public DoubleMatrix slice(Range rows, Range columns) {
+    return new SliceDoubleMatrix(this, rows, columns);
+  }
+
+  @Override
+  public DoubleMatrix slice(Range range, Axis axis) {
+    if (axis == Axis.ROW) {
+      return new SliceDoubleMatrix(this, range, Range.range(columns()));
+    } else {
+      return new SliceDoubleMatrix(this, Range.range(rows()), range);
+    }
+  }
+
+  @Override
+  public DoubleMatrix slice(Collection<Integer> indexes, Axis axis) {
+    return super.slice(indexes, axis).asDoubleMatrix();
+  }
+
+  @Override
   public DoubleMatrix subi(DoubleMatrix other) {
     addi(1, other, -1);
     return this;
@@ -881,17 +914,76 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
     };
   }
 
-  public static class IncrementalBuilder implements AnyMatrix.IncrementalBuilder {
+  private static class SliceDoubleMatrix extends AbstractDoubleMatrix {
+
+    private final Range row, column;
+    private final DoubleMatrix parent;
+
+    public SliceDoubleMatrix(DoubleMatrix parent, Range row, Range column) {
+      super(row.size(), column.size());
+      this.row = row;
+      this.column = column;
+      this.parent = parent;
+    }
+
+    @Override
+    public void set(int i, int j, double value) {
+      parent.set(sliceIndex(row.step(), i, parent.rows()),
+          sliceIndex(column.step(), j, parent.columns()), value);
+    }
+
+    @Override
+    public void set(int index, double value) {
+      int row = index % rows();
+      int col = index / rows();
+      set(row, col, value);
+    }
+
+    @Override
+    public DoubleMatrix reshape(int rows, int columns) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public double get(int i, int j) {
+      return parent.get(sliceIndex(row.step(), i, parent.rows()),
+          sliceIndex(column.step(), j, parent.columns()));
+    }
+
+    @Override
+    public double get(int index) {
+      int row = index % rows();
+      int col = index / rows();
+      return get(row, col);
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+  }
+
+  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
 
     private DoubleArrayList buffer = new DoubleArrayList();
 
     @Override
-    public void add(AnyMatrix from, int i, int j) {
+    public void add(Matrix from, int i, int j) {
       buffer.add(from.getAsDouble(i, j));
     }
 
     @Override
-    public void add(AnyMatrix from, int index) {
+    public void add(Matrix from, int index) {
       buffer.add(from.getAsDouble(index));
     }
 
@@ -902,6 +994,57 @@ public abstract class AbstractDoubleMatrix extends AbstractAnyMatrix implements 
 
     public void add(double value) {
       buffer.add(value);
+    }
+  }
+
+  private class FlatSliceDoubleMatrix extends AbstractDoubleMatrix {
+    private final DoubleMatrix parent;
+    private final Range range;
+
+    public FlatSliceDoubleMatrix(DoubleMatrix parent, Range range) {
+      super(1, range.size());
+      this.parent = parent;
+      this.range = range;
+    }
+
+    @Override
+    public void set(int i, int j, double value) {
+      set(columnMajor(i, j, rows(), columns()), value);
+    }
+
+    @Override
+    public void set(int index, double value) {
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+    }
+
+    @Override
+    public DoubleMatrix reshape(int rows, int columns) {
+      return copy().reshape(rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public double get(int i, int j) {
+      return get(columnMajor(i, j, rows(), columns()));
+    }
+
+    @Override
+    public double get(int index) {
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
     }
   }
 }

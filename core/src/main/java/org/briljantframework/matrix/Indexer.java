@@ -28,6 +28,15 @@ public final class Indexer {
     }
   }
 
+  public static int sliceIndex(int step, int index, int n) {
+    int i = Math.multiplyExact(step, index);
+    if (i >= n || i < 0) {
+      throw new IllegalArgumentException(String.format(
+              "index out of bounds; value %d out of bound %d", i, n));
+    }
+    return i;
+  }
+
   /**
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}

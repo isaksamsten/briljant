@@ -3,7 +3,7 @@ package org.briljantframework.vector;
 import java.io.IOException;
 
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 
 /**
  * Undefined is an immutable 1 size vector returning NA
@@ -111,7 +111,7 @@ public class Undefined implements Value {
   }
 
   @Override
-  public AnyMatrix asMatrix() {
+  public Matrix asMatrix() {
     throw new UnsupportedOperationException();
   }
 

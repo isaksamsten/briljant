@@ -16,10 +16,11 @@
 
 package org.briljantframework.matrix;
 
+import java.util.Collection;
 import java.util.function.*;
 
+import org.briljantframework.Range;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -86,7 +87,7 @@ import org.briljantframework.vector.Vector;
  *
  * @author Isak Karlsson
  */
-public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
+public interface DoubleMatrix extends Matrix, Iterable<Double> {
 
   /**
    * Assign value returned by {@link #size()} successive calls to
@@ -296,6 +297,24 @@ public interface DoubleMatrix extends AnyMatrix, Iterable<Double> {
    */
   @Override
   DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+
+  @Override
+  DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
+
+  @Override
+  DoubleMatrix slice(Collection<Integer> indexes);
+
+  @Override
+  DoubleMatrix slice(Range range);
+
+  @Override
+  DoubleMatrix slice(Range rows, Range columns);
+
+  @Override
+  DoubleMatrix slice(Range range, Axis axis);
+
+  @Override
+  DoubleMatrix slice(Collection<Integer> indexes, Axis axis);
 
   /**
    * {@inheritDoc}

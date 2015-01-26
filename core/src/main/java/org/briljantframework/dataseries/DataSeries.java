@@ -1,13 +1,11 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.dataframe.DataFrameRow;
-import org.briljantframework.matrix.AnyMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * A data series is a vector of ordered events.
@@ -92,7 +90,7 @@ public class DataSeries implements DataFrameRow {
   }
 
   @Override
-  public AnyMatrix asMatrix() {
+  public Matrix asMatrix() {
     return vector.asMatrix();
   }
 

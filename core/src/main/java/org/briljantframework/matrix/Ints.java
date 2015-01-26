@@ -1,9 +1,10 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Range;
 import org.briljantframework.Utils;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public final class Ints {
 
@@ -39,14 +40,7 @@ public final class Ints {
   }
 
   public static IntMatrix range(int start, int end, int step) {
-    int i = end - start;
-    int[] values = new int[i / step + (i % step != 0 ? 1 : 0)];
-    int index = 0;
-    while (index < values.length) {
-      values[index++] = start;
-      start += step;
-    }
-    return ArrayIntMatrix.wrap(values);
+    return Range.range(start, end, step).copy();
   }
 
   public static IntMatrix take(IntMatrix a, IntMatrix b) {

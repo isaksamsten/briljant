@@ -245,9 +245,7 @@ public final class Vectors {
    * @return the inner product
    */
   public static double dot(Vector x, double alpha, Vector y, double beta) {
-    if (x.size() != y.size()) {
-      throw new IllegalArgumentException();
-    }
+    Check.size(x, y);
     int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {

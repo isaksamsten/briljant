@@ -40,6 +40,11 @@ public class ArrayComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return false;
+  }
+
+  @Override
   public ComplexMatrix newEmptyMatrix(int rows, int columns) {
     return new ArrayComplexMatrix(rows, columns);
   }

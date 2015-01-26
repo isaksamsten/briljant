@@ -31,7 +31,19 @@ public abstract class AbstractDataFrame implements DataFrame {
   private final AbstractCollection<Vector> rowCollection = new AbstractCollection<Vector>() {
     @Override
     public Iterator<Vector> iterator() {
-      return iterator();
+      return new UnmodifiableIterator<Vector>() {
+        public int current;
+
+        @Override
+        public boolean hasNext() {
+          return current < size();
+        }
+
+        @Override
+        public Vector next() {
+          return getRow(current++);
+        }
+      };
     }
 
     @Override

@@ -268,7 +268,7 @@ public class RandomShapeletForestTest {
     // System.out.println(System.currentTimeMillis() - start);
     //
     // start = System.currentTimeMillis();
-    // Frame xTrain = trainFrame.dropColumns(Range.closed(1, trainFrame.columns()));
+    // Frame xTrain = trainFrame.dropColumns(Range.range(1, trainFrame.columns()));
     // System.out.println(System.currentTimeMillis() - start);
     //
     // start = System.currentTimeMillis();

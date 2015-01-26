@@ -50,6 +50,11 @@ class VectorBitMatrixAdapter extends AbstractBitMatrix {
   }
 
   @Override
+  public boolean isView() {
+    return true;
+  }
+
+  @Override
   public BitMatrix newEmptyMatrix(int rows, int columns) {
     return new ArrayBitMatrix(rows, columns);
   }
