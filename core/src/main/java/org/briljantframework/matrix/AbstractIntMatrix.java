@@ -1,13 +1,16 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.rowMajor;
+import static org.briljantframework.matrix.Indexer.sliceIndex;
 
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.*;
 
+import org.briljantframework.Range;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
@@ -132,6 +135,25 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   @Override
   public IntMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
     return new IntMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
+  public Matrix slice(Range rows, Range columns) {
+    return new SliceIntMatrix(this, rows, columns);
+  }
+
+  @Override
+  public Matrix slice(Range range, Axis axis) {
+    if (axis == Axis.ROW) {
+      return new SliceIntMatrix(this, range, Range.range(columns()));
+    } else {
+      return new SliceIntMatrix(this, Range.range(rows()), range);
+    }
+  }
+
+  @Override
+  public Matrix slice(Range range) {
+    return new FlatSliceIntMatrix(this, range);
   }
 
   @Override
@@ -876,6 +898,125 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
     public void add(int value) {
       buffer.add(value);
+    }
+  }
+
+  protected static class SliceIntMatrix extends AbstractIntMatrix {
+
+    private final Range row, column;
+    private final IntMatrix parent;
+
+    public SliceIntMatrix(IntMatrix parent, Range row, Range column) {
+      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    }
+
+    public SliceIntMatrix(IntMatrix parent, int rows, Range row, int columns, Range column) {
+      super(rows, columns);
+      this.row = checkNotNull(row);
+      this.column = checkNotNull(column);
+      this.parent = checkNotNull(parent);
+    }
+
+    @Override
+    public void set(int i, int j, int value) {
+      parent.set(sliceIndex(row.step(), i, parent.rows()),
+              sliceIndex(column.step(), j, parent.columns()), value);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      int row = index % rows();
+      int col = index / rows();
+      set(row, col, value);
+    }
+
+    @Override
+    public IntMatrix reshape(int rows, int columns) {
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return new SliceIntMatrix(parent, rows, row, columns, column);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return parent.get(sliceIndex(row.step(), i, parent.rows()),
+              sliceIndex(column.step(), j, parent.columns()));
+    }
+
+    @Override
+    public int get(int index) {
+      int row = index % rows();
+      int col = index / rows();
+      return get(row, col);
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+  }
+
+  protected class FlatSliceIntMatrix extends AbstractIntMatrix {
+    private final IntMatrix parent;
+    private final Range range;
+
+    public FlatSliceIntMatrix(IntMatrix parent, int size, Range range) {
+      super(size);
+      this.parent = checkNotNull(parent);
+      this.range = checkNotNull(range);
+    }
+
+    public FlatSliceIntMatrix(IntMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
+    }
+
+    @Override
+    public void set(int i, int j, int value) {
+      set(columnMajor(i, j, rows(), columns()), value);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+    }
+
+    @Override
+    public IntMatrix reshape(int rows, int columns) {
+      return copy().reshape(rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return get(columnMajor(i, j, rows(), columns()));
+    }
+
+    @Override
+    public int get(int index) {
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
     }
   }
 
