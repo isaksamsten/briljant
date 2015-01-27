@@ -544,6 +544,13 @@ public class Doubles {
     return var(vector, mean(vector));
   }
 
+  public static double sum(Matrix matrix) {
+    double sum = 0;
+    for (int i = 0; i < matrix.size(); i++) {
+      sum += matrix.getAsDouble(i);
+    }
+    return sum;
+  }
 
   /**
    * Sum t.
@@ -552,7 +559,7 @@ public class Doubles {
    * @param axis the axis
    * @return the t
    */
-  public static DoubleMatrix sum(DoubleMatrix m, Axis axis) {
+  public static Matrix sum(Matrix m, Axis axis) {
     switch (axis) {
       case ROW:
         return rowSum(m);
@@ -563,22 +570,22 @@ public class Doubles {
     }
   }
 
-  private static ArrayDoubleMatrix columnSum(DoubleMatrix m) {
+  private static Matrix columnSum(Matrix m) {
     double[] values = new double[m.rows()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
-        values[i] += m.get(i, j);
+        values[i] += m.getAsDouble(i, j);
       }
     }
     return new ArrayDoubleMatrix(m.rows(), 1, values);
   }
 
 
-  private static ArrayDoubleMatrix rowSum(DoubleMatrix m) {
+  private static Matrix rowSum(Matrix m) {
     double[] values = new double[m.columns()];
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
-        values[j] += m.get(i, j);
+        values[j] += m.getAsDouble(i, j);
       }
     }
 

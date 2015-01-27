@@ -160,7 +160,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
     return new FlatSliceBitMatrix(this, range);
   }
 
-
   @Override
   public BitMatrix transpose() {
     BitMatrix matrix = newEmptyMatrix(columns(), rows());
