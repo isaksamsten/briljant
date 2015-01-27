@@ -1,13 +1,14 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Indexer.columnMajor;
-import static org.briljantframework.matrix.Indexer.rowMajor;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.briljantframework.matrix.Indexer.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
 
+import org.briljantframework.Range;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
@@ -143,6 +144,25 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   @Override
   public ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
     return new ComplexMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
+  public Matrix slice(Range rows, Range columns) {
+    return new SliceComplexMatrix(this, rows, columns);
+  }
+
+  @Override
+  public Matrix slice(Range range, Axis axis) {
+    if (axis == Axis.ROW) {
+      return new SliceComplexMatrix(this, range, Range.range(columns()));
+    } else {
+      return new SliceComplexMatrix(this, Range.range(rows()), range);
+    }
+  }
+
+  @Override
+  public Matrix slice(Range range) {
+    return new FlatSliceComplexMatrix(this, range);
   }
 
   @Override
@@ -628,6 +648,125 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
     public void add(Complex value) {
       buffer.add(value);
+    }
+  }
+
+  protected static class SliceComplexMatrix extends AbstractComplexMatrix {
+
+    private final Range row, column;
+    private final ComplexMatrix parent;
+
+    public SliceComplexMatrix(ComplexMatrix parent, Range row, Range column) {
+      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    }
+
+    public SliceComplexMatrix(ComplexMatrix parent, int rows, Range row, int columns, Range column) {
+      super(rows, columns);
+      this.row = checkNotNull(row);
+      this.column = checkNotNull(column);
+      this.parent = checkNotNull(parent);
+    }
+
+    @Override
+    public void set(int i, int j, Complex value) {
+      parent.set(sliceIndex(row.step(), i, parent.rows()),
+          sliceIndex(column.step(), j, parent.columns()), value);
+    }
+
+    @Override
+    public void set(int index, Complex value) {
+      int row = index % rows();
+      int col = index / rows();
+      set(row, col, value);
+    }
+
+    @Override
+    public ComplexMatrix reshape(int rows, int columns) {
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return new SliceComplexMatrix(parent, rows, row, columns, column);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return parent.get(sliceIndex(row.step(), i, parent.rows()),
+          sliceIndex(column.step(), j, parent.columns()));
+    }
+
+    @Override
+    public Complex get(int index) {
+      int row = index % rows();
+      int col = index / rows();
+      return get(row, col);
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+  }
+
+  protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
+    private final ComplexMatrix parent;
+    private final Range range;
+
+    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Range range) {
+      super(size);
+      this.parent = checkNotNull(parent);
+      this.range = checkNotNull(range);
+    }
+
+    public FlatSliceComplexMatrix(ComplexMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
+    }
+
+    @Override
+    public void set(int i, int j, Complex value) {
+      set(columnMajor(i, j, rows(), columns()), value);
+    }
+
+    @Override
+    public void set(int index, Complex value) {
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+    }
+
+    @Override
+    public ComplexMatrix reshape(int rows, int columns) {
+      return copy().reshape(rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return get(columnMajor(i, j, rows(), columns()));
+    }
+
+    @Override
+    public Complex get(int index) {
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
     }
   }
 }
