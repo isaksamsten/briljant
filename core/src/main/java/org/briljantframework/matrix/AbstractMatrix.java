@@ -17,6 +17,10 @@ public abstract class AbstractMatrix implements Matrix {
 
   private final int rows, cols, size;
 
+  protected AbstractMatrix(int size) {
+    this(size, 1);
+  }
+
   protected AbstractMatrix(int rows, int cols) {
     this.rows = rows;
     this.cols = cols;
@@ -39,7 +43,7 @@ public abstract class AbstractMatrix implements Matrix {
 
   @Override
   public Matrix slice(Collection<Integer> indexes) {
-    Matrix matrix = newEmptyMatrix(indexes.size(), 1);
+    Matrix matrix = newEmptyVector(indexes.size());
     int i = 0;
     for (Number index : indexes) {
       matrix.set(i++, this, index.intValue());

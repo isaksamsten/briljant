@@ -338,6 +338,8 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    */
   DoubleMatrix newEmptyMatrix(int rows, int columns);
 
+  DoubleMatrix newEmptyVector(int size);
+
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
    *

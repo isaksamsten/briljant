@@ -250,6 +250,8 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    */
   IntMatrix newEmptyMatrix(int rows, int columns);
 
+  IntMatrix newEmptyVector(int size);
+
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
    *

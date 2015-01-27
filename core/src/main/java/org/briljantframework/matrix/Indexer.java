@@ -28,6 +28,14 @@ public final class Indexer {
     }
   }
 
+  /**
+   * Returns the index of {@code indexe}, if the stride were {@code step}.
+   *
+   * @param step the step size
+   * @param index the index
+   * @param n the end
+   * @return a new index; {@code step * index}, guaranteed to be {@code < n}
+   */
   public static int sliceIndex(int step, int index, int n) {
     int i = Math.multiplyExact(step, index);
     if (i >= n || i < 0) {

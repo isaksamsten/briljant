@@ -60,4 +60,6 @@ public interface BitMatrix extends Matrix {
 
   @Override
   BitMatrix newEmptyMatrix(int rows, int columns);
+
+  BitMatrix newEmptyVector(int size);
 }

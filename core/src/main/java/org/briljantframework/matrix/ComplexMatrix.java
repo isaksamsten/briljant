@@ -233,6 +233,8 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    */
   ComplexMatrix newEmptyMatrix(int rows, int columns);
 
+  ComplexMatrix newEmptyVector(int size);
+
   /**
    * Returns a new matrix with elements negated.
    *

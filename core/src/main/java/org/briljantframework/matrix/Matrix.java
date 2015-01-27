@@ -581,6 +581,14 @@ public interface Matrix extends Swappable {
   Matrix newEmptyMatrix(int rows, int columns);
 
   /**
+   * Returns a new column-vector of {@code size}
+   *
+   * @param size the size
+   * @return a new empty vector
+   */
+  Matrix newEmptyVector(int size);
+
+  /**
    * If {@code getType()} equals
    * <ul>
    * <li>{@link Matrix.DataType#DOUBLE} {@link #asDoubleMatrix()} returns {@code this}.</li>
@@ -597,7 +605,7 @@ public interface Matrix extends Swappable {
    *
    */
   enum DataType {
-    DOUBLE, INT, BOOLEAN, COMPLEX;
+    DOUBLE, INT, BOOLEAN, COMPLEX
   }
 
   interface IncrementalBuilder {

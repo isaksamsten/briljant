@@ -30,25 +30,14 @@ public final class Anys {
    *    4  
    *    shape: 5x1 type: int
    * </pre>
-   * 
-   * Produces:
-   * 
-   * <pre>
-   *  1  
-   *  1  
-   *  2  
-   *  3  
-   *  4  
-   *  shape: 5x1 type: int
-   * </pre>
-   * 
+   *
    * @param a the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
    *         {@link Matrix#newEmptyMatrix(int, int)}).
    */
   public static Matrix take(Matrix a, IntMatrix indexes) {
-    Matrix taken = a.newEmptyMatrix(indexes.size(), 1);
+    Matrix taken = a.newEmptyVector(indexes.size());
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a, indexes.get(i));
     }
@@ -263,8 +252,7 @@ public final class Anys {
 
   /**
    * Sort {@code a} each dimension, set by {@code axis}, in increasing order. For example, if
-   * {@code axis ==
-   * Axis.ROW}, each row is sorted in increasing order.
+   * {@code axis == Axis.ROW}, each row is sorted in increasing order.
    * <p>
    * 
    * <pre>

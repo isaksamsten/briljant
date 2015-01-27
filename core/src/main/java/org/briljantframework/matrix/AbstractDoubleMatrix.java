@@ -17,6 +17,7 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
 
 import java.util.Collection;
@@ -38,6 +39,10 @@ import com.google.common.collect.ImmutableTable;
  * Created by Isak Karlsson on 20/08/14.
  */
 public abstract class AbstractDoubleMatrix extends AbstractMatrix implements DoubleMatrix {
+  protected AbstractDoubleMatrix(int size) {
+    super(size);
+  }
+
   public AbstractDoubleMatrix(int rows, int columns) {
     super(rows, columns);
   }
@@ -873,6 +878,11 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
+  public DoubleMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
+  }
+
+  @Override
   public String toString() {
     ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
     for (int i = 0; i < rows(); i++) {
@@ -914,16 +924,44 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     };
   }
 
-  private static class SliceDoubleMatrix extends AbstractDoubleMatrix {
+  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
+
+    private DoubleArrayList buffer = new DoubleArrayList();
+
+    @Override
+    public void add(Matrix from, int i, int j) {
+      buffer.add(from.getAsDouble(i, j));
+    }
+
+    @Override
+    public void add(Matrix from, int index) {
+      buffer.add(from.getAsDouble(index));
+    }
+
+    @Override
+    public DoubleMatrix build() {
+      return new ArrayDoubleMatrix(buffer.size(), 1, buffer.toArray());
+    }
+
+    public void add(double value) {
+      buffer.add(value);
+    }
+  }
+
+  protected static class SliceDoubleMatrix extends AbstractDoubleMatrix {
 
     private final Range row, column;
     private final DoubleMatrix parent;
 
     public SliceDoubleMatrix(DoubleMatrix parent, Range row, Range column) {
-      super(row.size(), column.size());
-      this.row = row;
-      this.column = column;
-      this.parent = parent;
+      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    }
+
+    public SliceDoubleMatrix(DoubleMatrix parent, int rows, Range row, int columns, Range column) {
+      super(rows, columns);
+      this.row = checkNotNull(row);
+      this.column = checkNotNull(column);
+      this.parent = checkNotNull(parent);
     }
 
     @Override
@@ -941,7 +979,8 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public DoubleMatrix reshape(int rows, int columns) {
-      throw new UnsupportedOperationException();
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return new SliceDoubleMatrix(parent, rows, row, columns, column);
     }
 
     @Override
@@ -973,38 +1012,18 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     }
   }
 
-  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
-
-    private DoubleArrayList buffer = new DoubleArrayList();
-
-    @Override
-    public void add(Matrix from, int i, int j) {
-      buffer.add(from.getAsDouble(i, j));
-    }
-
-    @Override
-    public void add(Matrix from, int index) {
-      buffer.add(from.getAsDouble(index));
-    }
-
-    @Override
-    public DoubleMatrix build() {
-      return new ArrayDoubleMatrix(buffer.size(), 1, buffer.toArray());
-    }
-
-    public void add(double value) {
-      buffer.add(value);
-    }
-  }
-
-  private class FlatSliceDoubleMatrix extends AbstractDoubleMatrix {
+  protected class FlatSliceDoubleMatrix extends AbstractDoubleMatrix {
     private final DoubleMatrix parent;
     private final Range range;
 
+    public FlatSliceDoubleMatrix(DoubleMatrix parent, int size, Range range) {
+      super(size);
+      this.parent = checkNotNull(parent);
+      this.range = checkNotNull(range);
+    }
+
     public FlatSliceDoubleMatrix(DoubleMatrix parent, Range range) {
-      super(1, range.size());
-      this.parent = parent;
-      this.range = range;
+      this(parent, checkNotNull(range).size(), range);
     }
 
     @Override

@@ -22,6 +22,10 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMatrix {
 
+  protected AbstractIntMatrix(int size) {
+    super(size);
+  }
+
   protected AbstractIntMatrix(int rows, int cols) {
     super(rows, cols);
   }
@@ -768,6 +772,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
       n.set(i, -get(i));
     }
     return n;
+  }
+
+  @Override
+  public IntMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
   }
 
   @Override

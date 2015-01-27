@@ -24,6 +24,10 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   public static final String INVALID_SORT = "Unable to sort Complex values";
 
+  protected AbstractComplexMatrix(int size) {
+    super(size);
+  }
+
   protected AbstractComplexMatrix(int rows, int cols) {
     super(rows, cols);
   }
@@ -558,6 +562,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
       set(i, other.div(get(i)));
     }
     return this;
+  }
+
+  @Override
+  public ComplexMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
   }
 
   @Override

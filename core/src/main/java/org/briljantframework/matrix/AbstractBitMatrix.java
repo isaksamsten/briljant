@@ -13,6 +13,10 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMatrix {
 
+  protected AbstractBitMatrix(int size) {
+    super(size);
+  }
+
   protected AbstractBitMatrix(int rows, int cols) {
     super(rows, cols);
   }
@@ -270,6 +274,11 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
       bm.set(i, !get(i));
     }
     return bm;
+  }
+
+  @Override
+  public BitMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
   }
 
   public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
