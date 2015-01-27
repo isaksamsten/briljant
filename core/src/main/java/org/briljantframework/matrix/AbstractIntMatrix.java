@@ -2,9 +2,7 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.briljantframework.matrix.Indexer.columnMajor;
-import static org.briljantframework.matrix.Indexer.rowMajor;
-import static org.briljantframework.matrix.Indexer.sliceIndex;
+import static org.briljantframework.matrix.Indexer.*;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -1019,6 +1017,4 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
       return parent.isArrayBased();
     }
   }
-
-
 }
