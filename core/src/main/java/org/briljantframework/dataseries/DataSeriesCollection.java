@@ -14,7 +14,6 @@ import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrameRow;
 import org.briljantframework.dataframe.NameAttribute;
-import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
@@ -41,8 +40,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   public DataSeriesCollection(List<Vector> series, VectorType type) {
     this.series = new ArrayList<>(series);
     this.type = type;
-    this.columns =
-        series.stream().mapToInt(Vector::size).max().orElseThrow(IllegalArgumentException::new);
+    this.columns = series.stream().mapToInt(Vector::size).max().orElse(0);
   }
 
   protected DataSeriesCollection(NameAttribute columnNames, NameAttribute rowNames,
@@ -287,8 +285,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public int columns() {
-      return builders.stream().mapToInt(Vector.Builder::size).max()
-          .orElseThrow(IllegalArgumentException::new);
+      return builders.stream().mapToInt(Vector.Builder::size).max().orElse(0);
     }
 
     @Override

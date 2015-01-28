@@ -41,6 +41,16 @@ public interface DataFrame extends Iterable<DataFrameRow> {
   DataFrame setColumnNames(List<String> names);
 
   /**
+   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   *
+   * @param names the names
+   * @return receiver modified
+   */
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
+
+  /**
    * Get value at {@code row} and {@code column} as string.
    *
    * @param row the row
@@ -183,16 +193,6 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @return modified receiver to allow for chaining
    */
   DataFrame setColumnName(int index, String columnName);
-
-  /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
-   *
-   * @param names the names
-   * @return receiver modified
-   */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
 
   /**
    * Get the name for the row at {@code index}
@@ -369,9 +369,19 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      */
     Builder set(int row, int column, Object value);
 
-    Builder setColumnName(int index, String name);
+    /**
+     * Returns the column names collection.
+     * 
+     * @return the name attribute
+     */
+    NameAttribute getColumnNames();
 
-    Builder setRowName(int index, String name);
+    /**
+     * Returns the row names collection.
+     * 
+     * @return the name attribute
+     */
+    NameAttribute getRowNames();
 
     /**
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the

@@ -150,12 +150,15 @@ public abstract class AbstractDataFrame implements DataFrame {
       indexes = new HashSet<>(indexes);
     }
 
-    Builder builder = newCopyBuilder();
-    for (int i = 0; i < builder.columns(); i++) {
-      if (indexes.contains(i)) {
-        builder.removeColumn(i);
+    Builder builder = newBuilder();
+    for (int i = 0; i < columns(); i++) {
+      if (!indexes.contains(i)) {
+        builder.addColumn(getColumn(i));
+      } else {
+        builder.getColumnNames().remove(i);
       }
     }
+
     return builder.build();
   }
 
@@ -367,17 +370,13 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder setColumnName(int index, String name) {
-      checkArgument(index >= 0 && index < columns());
-      columnNames.put(index, name);
-      return this;
+    public NameAttribute getColumnNames() {
+      return columnNames;
     }
 
     @Override
-    public Builder setRowName(int index, String name) {
-      checkArgument(index >= 0 && index < columns());
-      rowNames.put(index, name);
-      return this;
+    public NameAttribute getRowNames() {
+      return rowNames;
     }
 
     @Override
@@ -388,7 +387,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder addColumn(Vector vector) {
-      return setColumn(rows(), vector);
+      return setColumn(columns(), vector);
     }
 
     @Override
@@ -398,14 +397,12 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder setColumn(int index, Vector vector) {
-      final int rows = rows();
       final int size = vector.size();
-      for (int i = 0; i < rows; i++) {
-        if (i < size) {
-          set(i, index, vector, i);
-        } else {
-          setNA(i, index);
-        }
+      for (int i = 0; i < size; i++) {
+        set(i, index, vector, i);
+      }
+      for (int i = size; i < rows(); i++) {
+        setNA(i, index);
       }
       return this;
     }

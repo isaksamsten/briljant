@@ -193,7 +193,7 @@ public final class DataFrames {
         if (!on.contains(columnName)) {
           if (i == 0) {
             builder.addColumn(b.getColumnType(j).newBuilder());
-            builder.setColumnName(column, columnName);
+            builder.getColumnNames().put(column, columnName);
           }
           if (bRow < 0) {
             builder.setNA(i, column);
