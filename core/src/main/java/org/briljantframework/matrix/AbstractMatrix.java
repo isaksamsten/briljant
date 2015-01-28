@@ -1,8 +1,7 @@
- package org.briljantframework.matrix;
+package org.briljantframework.matrix;
 
 import java.util.Collection;
 
-import org.briljantframework.Range;
 import org.briljantframework.complex.Complex;
 
 /**

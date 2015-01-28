@@ -19,7 +19,6 @@ package org.briljantframework.matrix;
 import java.util.Collection;
 import java.util.function.*;
 
-import org.briljantframework.Range;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.Vector;
 

@@ -1,6 +1,5 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.Range;
 import org.briljantframework.Utils;
 
 /**

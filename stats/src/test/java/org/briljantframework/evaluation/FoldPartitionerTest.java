@@ -2,9 +2,9 @@ package org.briljantframework.evaluation;
 
 import static org.junit.Assert.assertTrue;
 
-import org.briljantframework.Range;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.matrix.Range;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 

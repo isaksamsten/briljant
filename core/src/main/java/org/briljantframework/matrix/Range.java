@@ -1,14 +1,9 @@
-package org.briljantframework;
+package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
 
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.briljantframework.matrix.AbstractIntMatrix;
-import org.briljantframework.matrix.ArrayIntMatrix;
-import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.IntMatrix;
 
 import com.google.common.base.Preconditions;
 

@@ -6,7 +6,6 @@ import static org.briljantframework.matrix.Indexer.sliceIndex;
 
 import java.util.Objects;
 
-import org.briljantframework.Range;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 
