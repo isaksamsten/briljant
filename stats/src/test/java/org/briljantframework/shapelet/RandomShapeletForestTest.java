@@ -20,7 +20,9 @@ import org.briljantframework.io.DelimitedInputStream;
 import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Doubles;
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.Convert;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -61,7 +63,7 @@ public class RandomShapeletForestTest {
       builder.addRow(aggregator.partialAggregate(row));
     }
 
-//    x = builder.build();
+    // x = builder.build();
     System.out.println(x);
 
     RandomShapeletForest forest =
@@ -358,7 +360,7 @@ public class RandomShapeletForestTest {
   public void testCreateSizePlot() throws Exception {
     DoubleMatrix error =
         ArrayDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
-                0.1738586474, 0.1724606892);
+            0.1738586474, 0.1724606892);
     DoubleMatrix errors =
         Doubles
             .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
@@ -378,14 +380,15 @@ public class RandomShapeletForestTest {
 
     DoubleMatrix auc =
         ArrayDoubleMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
-                0.9582902467, 0.959242855);
+            0.9582902467, 0.959242855);
     JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
     ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);
     Chartable.saveSVG("/Users/isak/Desktop/no_trees_auc.svg", aucChart, 250, 200);
 
   }
 
-  public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel, String[] labels) {
+  public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel,
+      String[] labels) {
     XYSeriesCollection collection = new XYSeriesCollection();
 
     for (int i = 0; i < y.rows(); i++) {
@@ -428,7 +431,7 @@ public class RandomShapeletForestTest {
   }
 
   public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
-    return plot(x, xlabel, y, ylabel, (String[]) null);
+    return plot(x, xlabel, y, ylabel, null);
   }
 
   @Test
@@ -441,7 +444,8 @@ public class RandomShapeletForestTest {
     for (String file : files) {
       try (DelimitedInputStream in =
           new DelimitedInputStream(new FileInputStream("/Users/isak/Desktop/" + file + ".csv"))) {
-        DataFrame frame = new MixedDataFrame();// in.read(MatrixDataFrame.copyTo());
+        DataFrame frame =
+            new MixedDataFrame.Builder(in.readColumnNames(), in.readColumnTypes()).read(in).build();
 
         XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer(false, true);
         XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, false);
