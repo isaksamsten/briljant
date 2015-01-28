@@ -138,11 +138,12 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Constructs a new DataFrame by dropping the columns in {@code indexes}.
    * 
-   * This implementations rely on {@link #newCopyBuilder()} returning a builder and that
-   * {@link org.briljantframework.dataframe.DataFrame.Builder#removeColumn(int)}.
+   * This implementations rely on {@link #newBuilder()} returning a builder and that
+   * {@link org.briljantframework.dataframe.DataFrame.Builder#addColumn(org.briljantframework.vector.Vector)}
+   * adds a vector.
    * 
    * @param indexes collection of indexes
-   * @return a new data frame as created by {@link #newCopyBuilder()}
+   * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
   public DataFrame dropColumns(Collection<Integer> indexes) {
