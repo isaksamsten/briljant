@@ -1,14 +1,16 @@
 package org.briljantframework;
 
-import java.util.AbstractSet;
+import static com.google.common.base.Preconditions.checkElementIndex;
+
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.google.common.base.Preconditions;
 import org.briljantframework.matrix.AbstractIntMatrix;
 import org.briljantframework.matrix.ArrayIntMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.IntMatrix;
+
+import com.google.common.base.Preconditions;
 
 /**
  * @author Isak Karlsson
@@ -181,7 +183,7 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
 
   @Override
   public int get(int index) {
-    return start + (index * step);
+    return start + (checkElementIndex(index, size()) * step);
   }
 
   @Override
