@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,6 +134,24 @@ public class DataSeriesCollection extends AbstractDataFrame {
     } else {
       throw new IndexOutOfBoundsException();
     }
+  }
+
+  @Override
+  public DataFrame dropColumns(Collection<Integer> indexes) {
+    Builder builder = newBuilder();
+    for (int i = 0; i < rows(); i++) {
+      Vector row = getRow(i);
+      Vector.Builder vecBuilder = row.newBuilder();
+      for (int j = 0; j < row.size(); j++) {
+        if (!indexes.contains(j)) {
+          vecBuilder.add(row, j);
+        } else {
+          builder.getColumnNames().remove(j);
+        }
+      }
+      builder.addRow(vecBuilder);
+    }
+    return builder.build();
   }
 
   @Override
