@@ -266,7 +266,8 @@ public class MixedDataFrame extends AbstractDataFrame {
   public DataFrame takeColumns(Collection<Integer> indexes) {
     ArrayList<Vector> columns = new ArrayList<>();
     NameAttribute columnNames = new NameAttribute();
-    for (int index : indexes) {
+    for (Number number : indexes) {
+      int index = number.intValue();
       checkArgument(index >= 0 && index < columns());
       columns.add(getColumn(index));
       String name = getColumnName(index);

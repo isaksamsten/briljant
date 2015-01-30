@@ -150,7 +150,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     if (!(indexes instanceof Set)) {
       indexes = new HashSet<>(indexes);
     }
-
     Builder builder = newBuilder();
     for (int i = 0; i < columns(); i++) {
       if (!indexes.contains(i)) {
@@ -175,7 +174,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame takeColumns(Collection<Integer> indexes) {
     Builder builder = newBuilder();
-    for (int i : indexes) {
+    for (Number n : indexes) {
+      int i = n.intValue();
       for (int j = 0; j < columns(); j++) {
         builder.set(i, j, this, i, j);
       }
@@ -259,7 +259,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame takeRows(Collection<Integer> indexes) {
     Builder builder = newBuilder();
-    for (int i : indexes) {
+    for (Number num : indexes) {
+      int i = num.intValue();
       for (int j = 0; j < columns(); j++) {
         builder.set(i, j, this, i, j);
       }
