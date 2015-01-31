@@ -266,7 +266,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public Storage getStorage() {
-    return null;
+    return storage;
   }
 
   @Override
