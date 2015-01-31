@@ -2,6 +2,7 @@ package org.briljantframework.dataframe;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
+import static com.google.common.primitives.Ints.checkedCast;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,7 +14,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.vector.*;
@@ -120,12 +121,12 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   @Override
   public int rows() {
-    return matrix.rows();
+    return checkedCast(matrix.rows());
   }
 
   @Override
   public int columns() {
-    return matrix.columns();
+    return checkedCast(matrix.columns());
   }
 
   @Override
@@ -259,7 +260,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         reInitializeBuffer(rows, column + 1);
       }
 
-      return Indexer.columnMajor(row, column, rows, columns);
+      return checkedCast(Indexer.columnMajor(row, column, rows, columns));
 
     }
 
@@ -272,8 +273,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       Arrays.fill(tmp, DoubleVector.NA);
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
-          int newIndex = Indexer.columnMajor(i, j, rows, columns);
-          int oldIndex = Indexer.columnMajor(i, j, this.rows, this.columns);
+          int newIndex = (int) Indexer.columnMajor(i, j, rows, columns);
+          int oldIndex = (int) Indexer.columnMajor(i, j, this.rows, this.columns);
           double oldVal = buffer[oldIndex];
           tmp[newIndex] = oldVal;
         }
@@ -319,8 +320,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
           if (j != column) {
-            tmp[Indexer.columnMajor(i, j, rows, newColumns)] =
-                buffer[Indexer.columnMajor(i, j, rows, columns)];
+            tmp[(int) Indexer.columnMajor(i, j, rows, newColumns)] =
+                buffer[(int) Indexer.columnMajor(i, j, rows, columns)];
           }
         }
       }
@@ -333,8 +334,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
       for (int i = 0; i < rows(); i++) {
-        int oldIndex = Indexer.columnMajor(i, a, rows(), columns());
-        int newIndex = Indexer.columnMajor(i, b, rows(), columns());
+        int oldIndex = (int) Indexer.columnMajor(i, a, rows(), columns());
+        int newIndex = (int) Indexer.columnMajor(i, b, rows(), columns());
         double tmp = buffer[oldIndex];
         buffer[oldIndex] = buffer[newIndex];
         buffer[newIndex] = tmp;
@@ -348,8 +349,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       checkArgument(column >= 0 && column < columns());
       checkArgument(a >= 0 && a < rows() && b >= 0 && b < rows());
 
-      int oldIndex = Indexer.columnMajor(a, column, rows(), columns());
-      int newIndex = Indexer.columnMajor(b, column, rows(), columns());
+      int oldIndex = (int) Indexer.columnMajor(a, column, rows(), columns());
+      int newIndex = (int) Indexer.columnMajor(b, column, rows(), columns());
 
       double tmp = buffer[oldIndex];
       buffer[oldIndex] = buffer[newIndex];
@@ -382,7 +383,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame build() {
-      ArrayDoubleMatrix mat = new ArrayDoubleMatrix(rows, columns, buffer);
+      DefaultDoubleMatrix mat = new DefaultDoubleMatrix(buffer, rows, columns);
       return new MatrixDataFrame(mat, columnNames, rowNames, false);
     }
   }
@@ -562,7 +563,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       for (int j = 0; j < columns(); j++) {
         IntDoubleMap col = buffer.get(j);
         for (int i = 0; i < rows(); i++) {
-          int index = Indexer.columnMajor(i, j, rows(), columns());
+          int index = (int) Indexer.columnMajor(i, j, rows(), columns());
           double dval = DoubleVector.NA;
           if (col != null) {
             if (col.containsKey(i)) {
@@ -573,7 +574,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         }
       }
 
-      ArrayDoubleMatrix matrix = new ArrayDoubleMatrix(rows(), columns(), values);
+      DefaultDoubleMatrix matrix = new DefaultDoubleMatrix(values, rows(), columns());
       return new MatrixDataFrame(matrix, columnNames, rowNames, false);
     }
   }

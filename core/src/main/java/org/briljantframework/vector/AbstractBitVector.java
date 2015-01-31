@@ -1,10 +1,13 @@
 package org.briljantframework.vector;
 
-import com.google.common.collect.UnmodifiableIterator;
-import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.BitMatrix;
-
 import java.util.Iterator;
+
+import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.matrix.DefaultBitMatrix;
+import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.storage.VectorStorage;
+
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -121,7 +124,7 @@ public abstract class AbstractBitVector extends AbstractVector implements Iterab
   @Override
   public Matrix asMatrix() {
     if (adapter == null) {
-      adapter = new VectorBitMatrixAdapter(this);
+      adapter = new DefaultBitMatrix(new VectorStorage(this));
     }
     return adapter;
   }

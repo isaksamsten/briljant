@@ -34,7 +34,7 @@ public class PrincipalComponentAnalysis implements Analysis, InvertibleTransform
   }
 
   private int components(DoubleMatrix matrix) {
-    return this.components > 0 ? this.components : Math.min(matrix.rows(), matrix.columns());
+    return this.components > 0 ? this.components : (int) Math.min(matrix.rows(), matrix.columns());
   }
 
   public int getComponents() {

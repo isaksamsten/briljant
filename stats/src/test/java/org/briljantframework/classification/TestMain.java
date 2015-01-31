@@ -3,7 +3,7 @@ package org.briljantframework.classification;
 
 import static org.briljantframework.matrix.Doubles.randn;
 
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 
 /**
@@ -76,7 +76,7 @@ public class TestMain {
     long s = System.currentTimeMillis();
     // Matrix rowMean = a.reduceRows(x -> x.mapReduce(0, Double::sum, xy -> xy) / x.size());
 
-    DoubleMatrix rowMeans = new ArrayDoubleMatrix(1, a.rows());
+    DoubleMatrix rowMeans = new DefaultDoubleMatrix(1, a.rows());
     double div = a.columns();
     for (int j = 0; j < a.columns(); j++) {
       double mean = 0;

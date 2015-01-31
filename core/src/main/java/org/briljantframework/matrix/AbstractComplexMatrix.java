@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.*;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.matrix.storage.Storage;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
@@ -30,11 +32,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   protected AbstractComplexMatrix(int rows, int cols) {
     super(rows, cols);
-  }
-
-  @Override
-  public DataType getDataType() {
-    return DataType.COMPLEX;
   }
 
   @Override
@@ -57,15 +54,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
     return get(index).doubleValue();
   }
 
-  @Override
-  public void set(int i, int j, double value) {
-    set(i, j, Complex.valueOf(value));
-  }
-
-  @Override
-  public void set(int index, double value) {
-    set(index, Complex.valueOf(value));
-  }
 
   @Override
   public int getAsInt(int i, int j) {
@@ -78,32 +66,42 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   }
 
   @Override
-  public void set(int i, int j, int value) {
-    set(i, j, Complex.valueOf(value));
+  public boolean getAsBit(int index) {
+    return getAsInt(index) == 1;
   }
 
   @Override
-  public void set(int index, int value) {
-    set(index, Complex.valueOf(value));
+  public boolean getAsBit(int i, int j) {
+    return getAsInt(i, j) == 1;
   }
 
   @Override
-  public void set(int i, int j, Number number) {
-    if (number instanceof Complex) {
-      set(i, j, (Complex) number);
-    } else {
-      set(i, j, number.doubleValue());
-    }
+  public long getAsLong(int index) {
+    return (long) getAsDouble(index);
   }
 
   @Override
-  public void set(int index, Number number) {
-    if (number instanceof Complex) {
-      set(index, (Complex) number);
-    } else {
-      set(index, number.doubleValue());
-    }
+  public long getAsLong(int i, int j) {
+    return (long) getAsDouble(i, j);
   }
+
+
+  // public void set(int i, int j, Number number) {
+  // if (number instanceof Complex) {
+  // set(i, j, (Complex) number);
+  // } else {
+  // set(i, j, number.doubleValue());
+  // }
+  // }
+  //
+  // @Override
+  // public void set(int index, Number number) {
+  // if (number instanceof Complex) {
+  // set(index, (Complex) number);
+  // } else {
+  // set(index, number.doubleValue());
+  // }
+  // }
 
   @Override
   public void set(int atIndex, Matrix from, int fromIndex) {
@@ -340,7 +338,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public double[] asDoubleArray() {
-    double[] array = new double[size() * 2];
+    double[] array = new double[Math.multiplyExact(checkedCast(size()), 2)];
     for (int i = 0; i < size(); i++) {
       Complex complex = get(i);
       array[i] = complex.real();
@@ -642,7 +640,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
     @Override
     public ComplexMatrix build() {
-      return new ArrayComplexMatrix(buffer.size(), 1, buffer.toArray(new Complex[buffer.size()]));
+      return new DefaultComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
     }
 
     public void add(Complex value) {
@@ -688,6 +686,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
     @Override
     public boolean isView() {
       return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
     }
 
     @Override
@@ -746,6 +749,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
     @Override
     public boolean isView() {
       return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
     }
 
     @Override

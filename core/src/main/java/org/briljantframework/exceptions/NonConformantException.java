@@ -47,19 +47,19 @@ public class NonConformantException extends RuntimeException {
 
   /**
    * Instantiates a new Non conformant exception.
-   *
+   * 
    * @param am the am
    * @param an the an
    * @param bm the bm
    * @param bn the bn
    */
-  public NonConformantException(int am, int an, int bm, int bn) {
+  public NonConformantException(long am, long an, long bm, long bn) {
     this("op1", am, an, "op2", bm, bn);
   }
 
   /**
    * Instantiates a new Non conformant exception.
-   *
+   * 
    * @param op1 the op 1
    * @param am the am
    * @param an the an
@@ -67,7 +67,7 @@ public class NonConformantException extends RuntimeException {
    * @param bm the bm
    * @param bn the bn
    */
-  public NonConformantException(String op1, int am, int an, String op2, int bm, int bn) {
+  public NonConformantException(String op1, long am, long an, String op2, long bm, long bn) {
     super(String.format("nonconformant arguments (%s is %dx%d, %s is %dx%d)", op1, am, an, op2, bm,
         bn));
   }

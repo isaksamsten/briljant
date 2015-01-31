@@ -26,7 +26,7 @@ import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
@@ -88,8 +88,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
 
 
-    return new Model(models, ArrayDoubleMatrix.rowVector(averageLengthImportance),
-        ArrayDoubleMatrix.rowVector(averagePositionImportance));
+    return new Model(models, DefaultDoubleMatrix.rowVector(averageLengthImportance),
+        DefaultDoubleMatrix.rowVector(averagePositionImportance));
   }
 
   @Override
@@ -148,8 +148,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
    */
   public static class Model extends AbstractEnsemble.Model {
 
-    private final ArrayDoubleMatrix lengthImportance;
-    private final ArrayDoubleMatrix positionImportance;
+    private final DefaultDoubleMatrix lengthImportance;
+    private final DefaultDoubleMatrix positionImportance;
 
     /**
      * Instantiates a new Model.
@@ -157,8 +157,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
      * @param lengthImportance the length importance
      * @param positionImportance the position importance
      */
-    public Model(List<? extends ClassifierModel> models, ArrayDoubleMatrix lengthImportance,
-        ArrayDoubleMatrix positionImportance) {
+    public Model(List<? extends ClassifierModel> models, DefaultDoubleMatrix lengthImportance,
+        DefaultDoubleMatrix positionImportance) {
       super(models);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;

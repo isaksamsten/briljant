@@ -16,7 +16,6 @@
 
 package org.briljantframework.matrix;
 
-import java.util.Collection;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
@@ -269,18 +268,25 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rows
+   * @param columns
    */
   @Override
   DoubleMatrix reshape(int rows, int columns);
 
   /**
    * {@inheritDoc}
+   *
+   * @param i
    */
   @Override
   DoubleMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
+   *
+   * @param index
    */
   @Override
   DoubleMatrix getColumnView(int index);
@@ -293,15 +299,20 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rowOffset
+   * @param colOffset
+   * @param rows
+   * @param columns
    */
   @Override
   DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   @Override
-  DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
+  DoubleMatrix slice(IntMatrix rows, IntMatrix columns);
 
   @Override
-  DoubleMatrix slice(Collection<Integer> indexes);
+  DoubleMatrix slice(IntMatrix indexes);
 
   @Override
   DoubleMatrix slice(Range range);
@@ -313,7 +324,7 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix slice(Range range, Axis axis);
 
   @Override
-  DoubleMatrix slice(Collection<Integer> indexes, Axis axis);
+  DoubleMatrix slice(IntMatrix indexes, Axis axis);
 
   /**
    * {@inheritDoc}
@@ -885,6 +896,10 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    * @return a new matrix
    */
   DoubleMatrix negate();
+
+  void set(int i, int j, double value);
+
+  void set(int index, double value);
 
   /**
    * Get value at row {@code i} and column {@code j}

@@ -1,9 +1,9 @@
 package org.briljantframework.matrix;
 
-import static com.google.common.base.Preconditions.checkElementIndex;
-
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.briljantframework.matrix.storage.Storage;
 
 import com.google.common.base.Preconditions;
 
@@ -68,6 +68,16 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
   }
 
   @Override
+  public boolean isEmpty() {
+    return false;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return false;
+  }
+
+  @Override
   public Iterator<Integer> iterator() {
     return new Iterator<Integer>() {
       private int current = start;
@@ -88,62 +98,47 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
 
   @Override
   public Object[] toArray() {
-    throw new UnsupportedOperationException();
+    return new Object[0];
   }
 
   @Override
   public <T> T[] toArray(T[] ts) {
-    throw new UnsupportedOperationException();
+    return null;
   }
 
   @Override
   public boolean add(Integer integer) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public boolean remove(Object o) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public boolean containsAll(Collection<?> collection) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public boolean addAll(Collection<? extends Integer> collection) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public boolean removeAll(Collection<?> collection) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public boolean retainAll(Collection<?> collection) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public void clear() {
-    throw new UnsupportedOperationException();
-  }
 
-  @Override
-  public boolean isEmpty() {
-    return size() == 0;
-  }
-
-  @Override
-  public boolean contains(Object o) {
-    if (o instanceof Integer) {
-      int value = (int) o;
-      return value % step == 0 && value < end && value >= start;
-    } else {
-      return false;
-    }
   }
 
   @Override
@@ -167,8 +162,13 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
   }
 
   @Override
+  public Storage getStorage() {
+    return copy().getStorage();
+  }
+
+  @Override
   public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayIntMatrix(rows, columns);
+    return new DefaultIntMatrix(rows, columns);
   }
 
   @Override
@@ -178,11 +178,10 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
 
   @Override
   public int get(int index) {
-    return start + (checkElementIndex(index, size()) * step);
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
+    if (index < size() && index >= 0) {
+      return start + index * step;
+    } else {
+      throw new IndexOutOfBoundsException();
+    }
   }
 }

@@ -2,6 +2,8 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import org.briljantframework.matrix.storage.Storage;
+
 /**
  * Created by Isak Karlsson on 13/01/15.
  */
@@ -61,7 +63,7 @@ public class BitMatrixView extends AbstractBitMatrix {
 
   @Override
   public BitMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayBitMatrix(rows, columns);
+    return new DefaultBitMatrix(rows, columns);
   }
 
   @Override
@@ -71,5 +73,10 @@ public class BitMatrixView extends AbstractBitMatrix {
       mat.set(i, get(i));
     }
     return mat;
+  }
+
+  @Override
+  public Storage getStorage() {
+    return parent.getStorage();
   }
 }

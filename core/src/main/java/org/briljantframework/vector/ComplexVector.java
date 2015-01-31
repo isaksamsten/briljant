@@ -1,10 +1,9 @@
 package org.briljantframework.vector;
 
+import static com.google.common.primitives.Ints.checkedCast;
+
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
@@ -13,7 +12,6 @@ import org.briljantframework.matrix.ComplexMatrix;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 21/11/14.
@@ -60,8 +58,8 @@ public class ComplexVector extends AbstractComplexVector {
   }
 
   public ComplexVector(ComplexMatrix freq) {
-    this.values = new double[freq.size() * 2];
-    this.size = freq.size();
+    this.values = new double[checkedCast(freq.size()) * 2];
+    this.size = (int) freq.size();
     for (int i = 0; i < freq.size(); i++) {
       Complex c = freq.get(i);
       this.values[i * 2] = c.real();

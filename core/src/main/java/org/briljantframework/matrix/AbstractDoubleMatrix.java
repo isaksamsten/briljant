@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.*;
@@ -28,6 +27,7 @@ import java.util.function.*;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.DoubleArrayList;
@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableTable;
  * Created by Isak Karlsson on 20/08/14.
  */
 public abstract class AbstractDoubleMatrix extends AbstractMatrix implements DoubleMatrix {
+
   protected AbstractDoubleMatrix(int size) {
     super(size);
   }
@@ -47,28 +48,13 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DataType getDataType() {
-    return DataType.DOUBLE;
-  }
-
-  @Override
   public Complex getAsComplex(int i, int j) {
-    return new Complex(get(i, j));
+    return Complex.valueOf(getAsDouble(i, j));
   }
 
   @Override
   public Complex getAsComplex(int index) {
-    return new Complex(get(index));
-  }
-
-  @Override
-  public void set(int i, int j, Complex value) {
-    set(i, j, value.doubleValue());
-  }
-
-  @Override
-  public void set(int index, Complex value) {
-    set(index, value.doubleValue());
+    return Complex.valueOf(getAsDouble(index));
   }
 
   @Override
@@ -83,32 +69,32 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public int getAsInt(int i, int j) {
-    return (int) get(i, j);
+    return (int) getAsDouble(i, j);
   }
 
   @Override
   public int getAsInt(int index) {
-    return (int) get(index);
+    return (int) getAsDouble(index);
   }
 
   @Override
-  public void set(int i, int j, int value) {
-    set(i, j, (double) value);
+  public boolean getAsBit(int index) {
+    return getAsInt(index) == 1;
   }
 
   @Override
-  public void set(int index, int value) {
-    set(index, (double) value);
+  public boolean getAsBit(int i, int j) {
+    return getAsInt(i, j) == 1;
   }
 
   @Override
-  public void set(int i, int j, Number number) {
-    set(i, j, number.doubleValue());
+  public long getAsLong(int index) {
+    return (long) getAsDouble(index);
   }
 
   @Override
-  public void set(int index, Number number) {
-    set(index, number.doubleValue());
+  public long getAsLong(int i, int j) {
+    return (long) getAsDouble(i, j);
   }
 
   @Override
@@ -205,12 +191,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        set(i, operator.applyAsDouble(get(i), other.getAsDouble(i % rows())));
+        // set(i, operator.applyAsDouble(get(i), other.getAsDouble(i % rows())));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        set(i, operator.applyAsDouble(get(i), other.getAsDouble(i / rows())));
+        // set(i, operator.applyAsDouble(get(i), other.getAsDouble(i / rows())));
       }
     }
     return this;
@@ -338,7 +324,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
       throw new NonConformantException(this, diagonal);
     }
     DoubleMatrix matrix = newEmptyMatrix(this.rows(), diagonal.columns());
-    int rows = this.rows(), columns = diagonal.columns();
+    long rows = this.rows(), columns = diagonal.columns();
     for (int column = 0; column < columns; column++) {
       if (column < this.columns()) {
         for (int row = 0; row < rows; row++) {
@@ -463,12 +449,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) * (other.getAsDouble(i % rows()) * beta));
+        // this.set(i, (alpha * get(i)) * (other.getAsDouble(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) * (other.getAsDouble(i / rows()) * beta));
+        // this.set(i, (alpha * get(i)) * (other.getAsDouble(i / rows()) * beta));
       }
     }
     return this;
@@ -538,12 +524,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) + (other.getAsDouble(i % rows()) * beta));
+        // this.set(i, (alpha * get(i)) + (other.getAsDouble(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) + (other.getAsDouble(i / rows()) * beta));
+        // this.set(i, (alpha * get(i)) + (other.getAsDouble(i / rows()) * beta));
       }
     }
     return this;
@@ -593,12 +579,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+  public DoubleMatrix slice(IntMatrix rows, IntMatrix columns) {
     return super.slice(rows, columns).asDoubleMatrix();
   }
 
   @Override
-  public DoubleMatrix slice(Collection<Integer> indexes) {
+  public DoubleMatrix slice(IntMatrix indexes) {
     return super.slice(indexes).asDoubleMatrix();
   }
 
@@ -622,7 +608,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix slice(Collection<Integer> indexes, Axis axis) {
+  public DoubleMatrix slice(IntMatrix indexes, Axis axis) {
     return super.slice(indexes, axis).asDoubleMatrix();
   }
 
@@ -648,12 +634,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) - (other.getAsDouble(i % rows()) * beta));
+        // this.set(i, (alpha * get(i)) - (other.getAsDouble(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) - (other.getAsDouble(i / rows()) * beta));
+        // this.set(i, (alpha * get(i)) - (other.getAsDouble(i / rows()) * beta));
       }
     }
     return this;
@@ -706,12 +692,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (other.getAsDouble(i % rows()) * beta) - (alpha * get(i)));
+        // this.set(i, (other.getAsDouble(i % rows()) * beta) - (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (other.getAsDouble(i / rows()) * beta) - (alpha * get(i)));
+        // this.set(i, (other.getAsDouble(i / rows()) * beta) - (alpha * get(i)));
       }
     }
     return this;
@@ -767,12 +753,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) / (other.getAsDouble(i % rows()) * beta));
+        // this.set(i, (alpha * get(i)) / (other.getAsDouble(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) / (other.getAsDouble(i / rows()) * beta));
+        // this.set(i, (alpha * get(i)) / (other.getAsDouble(i / rows()) * beta));
       }
     }
     return this;
@@ -815,12 +801,12 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
-        this.set(i, (other.getAsDouble(i % rows()) * beta) / (alpha * get(i)));
+        // this.set(i, (other.getAsDouble(i % rows()) * beta) / (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns());
       for (int i = 0; i < size(); i++) {
-        this.set(i, (other.getAsDouble(i / rows()) * beta) / (alpha * get(i)));
+        // this.set(i, (other.getAsDouble(i / rows()) * beta) / (alpha * get(i)));
       }
     }
     return this;
@@ -837,11 +823,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public double[] asDoubleArray() {
-    double[] array = new double[size()];
-    for (int i = 0; i < size(); i++) {
-      array[i] = get(i);
-    }
-    return array;
+    return getStorage().asDoubleArray();
   }
 
   @Override
@@ -939,7 +921,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public DoubleMatrix build() {
-      return new ArrayDoubleMatrix(buffer.size(), 1, buffer.toArray());
+      return new DefaultDoubleMatrix(buffer.toArray(), buffer.size(), 1);
     }
 
     public void add(double value) {
@@ -985,6 +967,11 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     @Override
     public boolean isView() {
       return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
     }
 
     @Override
@@ -1043,6 +1030,11 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     @Override
     public boolean isView() {
       return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
     }
 
     @Override

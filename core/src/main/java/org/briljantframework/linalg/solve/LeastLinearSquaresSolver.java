@@ -19,7 +19,7 @@ package org.briljantframework.linalg.solve;
 import java.util.Arrays;
 
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
 
@@ -83,6 +83,6 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
     // r.put(i, result.get(i));
     // }
 
-    return ArrayDoubleMatrix.columnVector(array);
+    return DefaultDoubleMatrix.columnVector(array);
   }
 }

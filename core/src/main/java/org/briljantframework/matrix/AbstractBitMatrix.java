@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.storage.Storage;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.ImmutableTable;
@@ -26,48 +27,33 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
   }
 
   @Override
-  public DataType getDataType() {
-    return DataType.BOOLEAN;
-  }
-
-  @Override
   public Complex getAsComplex(int i, int j) {
-    return new Complex(getAsDouble(i, j));
+    return get(i, j) ? Complex.ONE : Complex.ZERO;
   }
 
   @Override
   public Complex getAsComplex(int index) {
-    return new Complex(getAsDouble(index));
-  }
-
-  @Override
-  public void set(int i, int j, Complex value) {
-    set(i, j, value.doubleValue());
-  }
-
-  @Override
-  public void set(int index, Complex value) {
-    set(index, value.doubleValue());
+    return get(index) ? Complex.ONE : Complex.ZERO;
   }
 
   @Override
   public double getAsDouble(int i, int j) {
-    return get(i, j) ? 1 : 0;
+    return getAsInt(i, j);
   }
 
   @Override
   public double getAsDouble(int index) {
-    return get(index) ? 1 : 0;
+    return getAsInt(index);
   }
 
   @Override
-  public void set(int i, int j, double value) {
-    set(i, j, (int) value);
+  public long getAsLong(int i, int j) {
+    return getAsInt(i, j);
   }
 
   @Override
-  public void set(int index, double value) {
-    set(index, (int) value);
+  public long getAsLong(int index) {
+    return getAsInt(index);
   }
 
   @Override
@@ -81,33 +67,39 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
   }
 
   @Override
-  public void set(int i, int j, int value) {
-    set(i, j, value == 1);
+  public boolean getAsBit(int i, int j) {
+    return get(i, j);
   }
 
   @Override
-  public void set(int index, int value) {
-    set(index, value == 1);
+  public boolean getAsBit(int index) {
+    return get(index);
   }
 
-  @Override
-  public void set(int i, int j, Number number) {
-    set(i, j, number.intValue());
+  public void set(int i, int j, boolean value) {
+    getStorage().setBoolean(Indexer.columnMajor(i, j, rows(), columns()), value);
   }
 
-  @Override
-  public void set(int index, Number number) {
-    set(index, number.intValue());
+  public void set(int index, boolean value) {
+    getStorage().setBoolean(index, value);
+  }
+
+  public boolean get(int i, int j) {
+    return getStorage().getBoolean(Indexer.columnMajor(i, j, rows(), columns()));
+  }
+
+  public boolean get(int index) {
+    return getStorage().getBoolean(index);
   }
 
   @Override
   public void set(int atIndex, Matrix from, int fromIndex) {
-    set(atIndex, from.getAsInt(fromIndex));
+    set(atIndex, from.getAsBit(fromIndex));
   }
 
   @Override
   public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
-    set(atRow, atColumn, from.getAsInt(fromRow, fromColumn));
+    set(atRow, atColumn, from.getAsBit(fromRow, fromColumn));
   }
 
   @Override
@@ -117,7 +109,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
   @Override
   public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
-    return Boolean.compare(get(toRow, toColumn), from.getAsInt(fromRow, fromColumn) == 1);
+    return Boolean.compare(get(toRow, toColumn), from.getAsBit(fromRow, fromColumn));
   }
 
   @Override
@@ -320,9 +312,9 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
     @Override
     public Matrix build() {
-      BitMatrix n = new ArrayBitMatrix(buffer.size(), 1);
+      BitMatrix n = new DefaultBitMatrix(buffer.size(), 1);
       for (int i = 0; i < buffer.size(); i++) {
-        n.set(i, n.get(i));
+        n.set(i, buffer.get(i) == 1);
       }
       return n;
     }
@@ -380,6 +372,11 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
     }
 
     @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
     public boolean get(int index) {
       int row = index % rows();
       int col = index / rows();
@@ -419,6 +416,11 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
     @Override
     public boolean isView() {
       return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
     }
 
     @Override

@@ -102,7 +102,7 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   /**
    * Assigns elements from {@code iterable} to this matrix added in the order implemented by
-   * {@link #set(int, double)} and transformed to double precision using {@code function}.
+   * {@link #set(int, int)} and transformed to double precision using {@code function}.
    *
    * @param iterable the iterable
    * @param function the function, transforming {@code T} to double
@@ -156,7 +156,7 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   /**
    * Filters
-   * 
+   *
    * @param operator
    * @return
    */
@@ -200,17 +200,24 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rows
+   * @param columns
    */
   @Override
   IntMatrix reshape(int rows, int columns);
 
   /**
    * {@inheritDoc}
+   * 
+   * @param i
    */
   IntMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
+   * 
+   * @param index
    */
   IntMatrix getColumnView(int index);
 
@@ -221,6 +228,11 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rowOffset
+   * @param colOffset
+   * @param rows
+   * @param columns
    */
   IntMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
@@ -822,9 +834,20 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   /**
    * @param index get int
    * @return int at {@code index}
-   * @see #getAsInt(int)
    */
   int get(int index);
+
+  void set(int index, int value);
+
+  void set(int row, int column, int value);
+
+  void addTo(int index, int value);
+
+  void addTo(int i, int j, int value);
+
+  void update(int index, IntUnaryOperator operator);
+
+  void update(int i, int j, IntUnaryOperator operator);
 
   /**
    * Equal shape (i.e.
@@ -835,12 +858,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   default boolean hasEqualShape(IntMatrix other) {
     return rows() == other.rows() && columns() == other.columns();
   }
-
-  /**
-   * @return the matrix as a column-major int array
-   * @see #isArrayBased()
-   */
-  int[] asIntArray();
 
   /**
    * @return true if {@link #asIntArray()} is {@code O(1)}

@@ -17,11 +17,14 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
 
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.matrix.storage.DoubleStorage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -36,45 +39,38 @@ import com.google.common.base.Preconditions;
  * 
  * @author Isak Karlsson
  */
-public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
+public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   protected static final String INVALID_SIZE = "Sizes does not match.";
-  private final double[] values;
+  private final Storage storage;
 
-  /**
-   * Create a new matrix from {@code values} with {@code column} columns. {@code values.length} must
-   * be evenly dividable by {@code columns}.
-   * 
-   * @param columns the columns
-   * @param values the values
-   */
-  public ArrayDoubleMatrix(int columns, double[] values) {
-    super(values.length / columns, columns);
-    this.values = values; // new double[Math.multiplyExact(rows, columns)];
-    checkArgument(values.length % columns == 0, INVALID_SIZE);
+  public DefaultDoubleMatrix(int size) {
+    super(size);
+    storage = DoubleStorage.withSize(size);
+  }
+
+  public DefaultDoubleMatrix(Storage storage, int size) {
+    super(size);
+    this.storage = storage;
+  }
+
+  public DefaultDoubleMatrix(Storage storage, int rows, int columns) {
+    super(rows, columns);
+    this.storage = storage;
   }
 
   /**
    * Create a new matrix from {@code values}. Asserts that {@code rows * columns == values.length}
-   *
+   * 
+   * @param values the values
    * @param rows the rows
    * @param columns the columns
-   * @param values the values
    */
-  public ArrayDoubleMatrix(int rows, int columns, double[] values) {
-    super(rows, columns);
+  public DefaultDoubleMatrix(double[] values, int rows, int columns) {
+    this(new DoubleStorage(values), rows, columns);
     checkArgument(rows * columns == values.length, "Sizes does not match.");
-    this.values = values;
   }
 
-  /**
-   * Creates a new empty matrix with a shape defined by {@code shape}
-   *
-   * @param shape the shape
-   */
-  public ArrayDoubleMatrix(Shape shape) {
-    this(shape.rows, shape.columns);
-  }
 
   /**
    * Creates a new empty matrix with {@code rows} and {@code columns}. Asserts that
@@ -83,17 +79,9 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * @param rows in matrix
    * @param columns columns in matrix
    */
-  public ArrayDoubleMatrix(int rows, int columns) {
-    this(rows, columns, new double[Math.multiplyExact(rows, columns)]);
-  }
-
-  /**
-   * @param shape the shape
-   * @param values the values
-   * @see #ArrayDoubleMatrix(int, int, double[])
-   */
-  public ArrayDoubleMatrix(Shape shape, double[] values) {
-    this(shape.rows, shape.columns, values);
+  public DefaultDoubleMatrix(long rows, long columns) {
+    this(new double[Math.multiplyExact(checkedCast(rows), checkedCast(columns))],
+        checkedCast(rows), checkedCast(columns));
   }
 
   /**
@@ -101,34 +89,11 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * 
    * @param matrix the tensor like
    */
-  public ArrayDoubleMatrix(DoubleMatrix matrix) {
-    this(matrix.getShape(), matrix);
+  public DefaultDoubleMatrix(Matrix matrix) {
+    this(matrix.getStorage(), matrix.rows(), matrix.columns());
   }
 
-  /**
-   * Copy {@code matrix}, changing the dimensions to {@code shape}. Asserts that
-   * {@code shape.size() == matrix.size()}
-   *
-   * @param shape the shape
-   * @param matrix to copy
-   */
-  public ArrayDoubleMatrix(Shape shape, DoubleMatrix matrix) {
-    super(shape.rows, shape.columns);
-    if (!hasEqualShape(matrix)) {
-      throw new IllegalArgumentException("matrix can't fit");
-    }
-
-    values = new double[size()];
-    if (matrix instanceof ArrayDoubleMatrix) {
-      System.arraycopy(((ArrayDoubleMatrix) matrix).values, 0, values, 0, size());
-    } else {
-      for (int i = 0; i < matrix.size(); i++) {
-        values[i] = matrix.get(i);
-      }
-    }
-  }
-
-  public ArrayDoubleMatrix(Vector vec) {
+  public DefaultDoubleMatrix(Vector vec) {
     this(vec.size(), 1);
     for (int i = 0; i < vec.size(); i++) {
       set(i, vec.getAsDouble(i));
@@ -140,13 +105,22 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    *
    * @param values the values
    */
-  public ArrayDoubleMatrix(double[][] values) {
+  public DefaultDoubleMatrix(double[][] values) {
     this(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[i].length; j++) {
         set(i, j, values[i][j]);
       }
     }
+  }
+
+  public DefaultDoubleMatrix(Storage storage) {
+    super(storage.size());
+    this.storage = storage;
+  }
+
+  public DefaultDoubleMatrix(double... values) {
+    this(new DoubleStorage(values));
   }
 
   /**
@@ -157,10 +131,10 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * @param value fill matrix with
    * @return a new matrix filled with <code>value</code>
    */
-  public static ArrayDoubleMatrix filledWith(int rows, int cols, double value) {
-    ArrayDoubleMatrix m = new ArrayDoubleMatrix(rows, cols);
-    Arrays.fill(m.values, value);
-    return m;
+  public static DefaultDoubleMatrix filledWith(int rows, int cols, double value) {
+    double[] values = new double[Math.multiplyExact(rows, cols)];
+    Arrays.fill(values, value);
+    return new DefaultDoubleMatrix(values, rows, cols);
   }
 
   public static Builder withSize(int rows, int cols) {
@@ -183,7 +157,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * @param args the args
    * @return dense matrix
    */
-  public static ArrayDoubleMatrix fromRowOrder(int rows, int cols, double... args) {
+  public static DefaultDoubleMatrix fromRowOrder(int rows, int cols, double... args) {
     return of(rows, cols, args);
   }
 
@@ -211,7 +185,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * @param data in row-major format
    * @return a matrix
    */
-  public static ArrayDoubleMatrix of(int rows, int cols, double... data) {
+  public static DefaultDoubleMatrix of(int rows, int cols, double... data) {
     Preconditions.checkNotNull(data, "data");
     if (rows * cols != data.length) {
       throw new IllegalArgumentException("rows * headers != data.length");
@@ -224,11 +198,11 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
         colOrder[j * rows + i] = data[i * cols + j];
       }
     }
-    return new ArrayDoubleMatrix(rows, cols, colOrder);
+    return new DefaultDoubleMatrix(colOrder, rows, cols);
   }
 
-  public static ArrayDoubleMatrix fromColumnOrder(int rows, int cols, double... args) {
-    return new ArrayDoubleMatrix(rows, cols, args);
+  public static DefaultDoubleMatrix fromColumnOrder(int rows, int cols, double... args) {
+    return new DefaultDoubleMatrix(args, rows, cols);
   }
 
   /**
@@ -237,8 +211,8 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * @param args the double values
    * @return a new matrix
    */
-  public static ArrayDoubleMatrix columnVector(double... args) {
-    return new ArrayDoubleMatrix(args.length, 1, args);
+  public static DefaultDoubleMatrix columnVector(double... args) {
+    return new DefaultDoubleMatrix(args, args.length, 1);
   }
 
   /**
@@ -247,15 +221,15 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
    * @param args the double values
    * @return a new matrix
    */
-  public static ArrayDoubleMatrix rowVector(double... args) {
-    return new ArrayDoubleMatrix(1, args.length, args);
+  public static DefaultDoubleMatrix rowVector(double... args) {
+    return new DefaultDoubleMatrix(args, 1, args.length);
   }
 
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
     Preconditions.checkArgument(rows * columns == size(),
         "Total size of new matrix must be unchanged.");
-    return new ArrayDoubleMatrix(rows, columns, values);
+    return new DefaultDoubleMatrix(getStorage(), rows, columns);
   }
 
   @Override
@@ -265,17 +239,17 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayDoubleMatrix(rows, columns);
+    return new DefaultDoubleMatrix(rows, columns);
   }
 
   @Override
   public double get(int i, int j) {
-    return values[columnMajor(i, j, rows(), columns())];
+    return storage.getAsDouble(columnMajor(i, j, rows(), columns()));
   }
 
   @Override
   public double get(int index) {
-    return values[index];
+    return storage.getAsDouble(index);
   }
 
   @Override
@@ -286,10 +260,13 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
   /**
    * @return a copy of this matrix
    */
-  public ArrayDoubleMatrix copy() {
-    ArrayDoubleMatrix m = new ArrayDoubleMatrix(this.rows(), this.columns());
-    System.arraycopy(values, 0, m.values, 0, values.length);
-    return m;
+  public DefaultDoubleMatrix copy() {
+    return new DefaultDoubleMatrix(storage.copy(), rows(), columns());
+  }
+
+  @Override
+  public Storage getStorage() {
+    return null;
   }
 
   @Override
@@ -299,9 +276,10 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
     }
 
     if (other.isArrayBased()) {
-      double[] tmp = new double[this.rows() * other.columns()];
+      double[] tmp =
+          new double[Math.multiplyExact(checkedCast(this.rows()), checkedCast(other.columns()))];
       Doubles.mmul(this, alpha, other, beta, tmp);
-      return new ArrayDoubleMatrix(other.columns(), tmp);
+      return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
     } else {
       return super.mmul(alpha, other, beta);
     }
@@ -329,7 +307,7 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
     if (other.isArrayBased()) {
       double[] tmp = new double[thisRows * otherColumns];
       Doubles.mmul(this, alpha, a, other, beta, b, tmp);
-      return new ArrayDoubleMatrix(thisRows, otherColumns, tmp);
+      return new DefaultDoubleMatrix(new DoubleStorage(tmp), thisRows, otherColumns);
     } else {
       return super.mmul(alpha, a, other, beta, b);
     }
@@ -337,22 +315,22 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public double[] asDoubleArray() {
-    return values;
+    return storage.asDoubleArray();
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(values);
+    return Arrays.hashCode(storage.asDoubleArray());
   }
 
   @Override
   public void set(int i, int j, double value) {
-    values[columnMajor(i, j, rows(), columns())] = value;
+    getStorage().setDouble(columnMajor(i, j, rows(), columns()), value);
   }
 
   @Override
   public void set(int index, double value) {
-    values[index] = value;
+    getStorage().setDouble(index, value);
   }
 
   /**
@@ -405,8 +383,8 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
      *
      * @return the dense matrix
      */
-    public ArrayDoubleMatrix create() {
-      return new ArrayDoubleMatrix(values);
+    public DefaultDoubleMatrix create() {
+      return new DefaultDoubleMatrix(values);
     }
 
     /**
@@ -415,8 +393,8 @@ public class ArrayDoubleMatrix extends AbstractDoubleMatrix {
      * @param args the args
      * @return the dense matrix
      */
-    public ArrayDoubleMatrix withValues(double... args) {
-      return ArrayDoubleMatrix.of(rows, cols, args);
+    public DefaultDoubleMatrix withValues(double... args) {
+      return DefaultDoubleMatrix.of(rows, cols, args);
     }
   }
 }

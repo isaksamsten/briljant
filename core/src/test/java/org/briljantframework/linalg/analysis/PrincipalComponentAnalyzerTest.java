@@ -1,6 +1,6 @@
 package org.briljantframework.linalg.analysis;
 
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,8 @@ public class PrincipalComponentAnalyzerTest {
   @Before
   public void setUp() throws Exception {
     matrix =
-        ArrayDoubleMatrix.of(5, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5, 1, 2, 3, 4);
+        DefaultDoubleMatrix
+            .of(5, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5, 1, 2, 3, 4);
   }
 
   @Test

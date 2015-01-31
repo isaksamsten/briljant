@@ -8,7 +8,7 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsReturnThisOnCorrectType() throws Exception {
-    IntMatrix a = Ints.range(0, 10);
+    IntMatrix a = Matrices.range(0, 10);
     assertTrue(a == a.asDoubleMatrix().asComplexMatrix().asIntMatrix());
 
     DoubleMatrix b = Doubles.linspace(0, 2, 10);
@@ -17,7 +17,7 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsDoubleMatrix() throws Exception {
-    IntMatrix a = Ints.range(0, 10);
+    IntMatrix a = Matrices.range(0, 10);
 
     IntMatrix x = a.asDoubleMatrix().asIntMatrix();
     assertTrue(a == x);

@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.*;
 
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -299,14 +299,14 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleMatrix}. This
    * implementation rely on {@link #getAsDouble(int, int)} and returns an
-   * {@link org.briljantframework.matrix.ArrayDoubleMatrix}. Sub-classes are allowed to return any
+   * {@link org.briljantframework.matrix.DefaultDoubleMatrix}. Sub-classes are allowed to return any
    * concrete implementation of {@link org.briljantframework.matrix.DoubleMatrix}.
    * 
    * @return a new matrix
    */
   @Override
   public DoubleMatrix asMatrix() {
-    DoubleMatrix matrix = new ArrayDoubleMatrix(rows(), columns());
+    DoubleMatrix matrix = new DefaultDoubleMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDouble(i, j));

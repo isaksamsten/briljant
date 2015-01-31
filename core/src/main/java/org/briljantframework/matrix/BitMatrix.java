@@ -30,12 +30,16 @@ public interface BitMatrix extends Matrix {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param i
    */
   @Override
   BitMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
+   * 
+   * @param index
    */
   @Override
   BitMatrix getColumnView(int index);
@@ -48,6 +52,11 @@ public interface BitMatrix extends Matrix {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rowOffset
+   * @param colOffset
+   * @param rows
+   * @param columns
    */
   @Override
   BitMatrix getView(int rowOffset, int colOffset, int rows, int columns);

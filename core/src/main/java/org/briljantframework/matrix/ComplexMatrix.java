@@ -180,18 +180,25 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rows
+   * @param columns
    */
   @Override
   ComplexMatrix reshape(int rows, int columns);
 
   /**
    * {@inheritDoc}
+   * 
+   * @param i
    */
   @Override
   ComplexMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
+   * 
+   * @param index
    */
   @Override
   ComplexMatrix getColumnView(int index);
@@ -204,6 +211,11 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
 
   /**
    * {@inheritDoc}
+   * 
+   * @param rowOffset
+   * @param colOffset
+   * @param rows
+   * @param columns
    */
   @Override
   ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns);
@@ -241,6 +253,10 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * @return a new matrix
    */
   ComplexMatrix negate();
+
+  void set(int index, Complex complex);
+
+  void set(int i, int j, Complex complex);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -385,7 +401,7 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * Element wise addition.
    *
    * @param scalar the scalar
-   * @return a new matrix
+   * @return a new matrixget(
    */
   ComplexMatrix add(Complex scalar);
 

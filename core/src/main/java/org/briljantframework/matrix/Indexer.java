@@ -40,7 +40,7 @@ public final class Indexer {
     int i = Math.multiplyExact(step, index);
     if (i >= n || i < 0) {
       throw new IllegalArgumentException(String.format(
-              "index out of bounds; value %d out of bound %d", i, n));
+          "index out of bounds; value %d out of bound %d", i, n));
     }
     return i;
   }

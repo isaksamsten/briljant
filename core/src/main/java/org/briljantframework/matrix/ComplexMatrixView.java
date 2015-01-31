@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.storage.Storage;
 
 /**
  * Created by Isak Karlsson on 08/12/14.
@@ -29,7 +30,7 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
   }
 
   @Override
-  public ComplexMatrixView reshape(int rows, int columns) {
+  public ComplexMatrix reshape(int rows, int columns) {
     return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
   }
 
@@ -48,8 +49,13 @@ public class ComplexMatrixView extends AbstractComplexMatrix {
   }
 
   @Override
+  public Storage getStorage() {
+    return parent.getStorage();
+  }
+
+  @Override
   public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayComplexMatrix(rows, columns);
+    return new DefaultComplexMatrix(rows, columns);
   }
 
   @Override

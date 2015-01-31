@@ -1,9 +1,8 @@
 package org.briljantframework.matrix;
 
-import java.util.Collection;
-
 import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.storage.Storage;
 
 // TODO: implement mapToComplex(...), mapToInt(...), mapToDouble(...)
 // TODO: implement assign(C, ...), assign(d, mapper), assign(i, mapper)
@@ -66,7 +65,7 @@ import org.briljantframework.complex.Complex;
  * 
  * <p>
  * Remember that most subclasses provide, {@code get(int, int)} and {@code get(int)}, returning the
- * specialized type. For example, {@link org.briljantframework.matrix.DoubleMatrix#get(int, int)}.
+ * specialized type. For example, {@link DoubleMatrix#get(int, int)}.
  * </p>
  *
  * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code Matrix}es</h1>
@@ -115,24 +114,6 @@ public interface Matrix extends Swappable {
    */
   Complex getAsComplex(int index);
 
-  /**
-   * Set value at row {@code i} and column {@code j} to value
-   *
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  void set(int i, int j, Complex value);
-
-  /**
-   * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
-   * enforced.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #getAsComplex(int)
-   */
-  void set(int index, Complex value);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -152,24 +133,9 @@ public interface Matrix extends Swappable {
    */
   double getAsDouble(int index);
 
-  /**
-   * Set value at row {@code i} and column {@code j} to value
-   *
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  void set(int i, int j, double value);
+  long getAsLong(int i, int j);
 
-  /**
-   * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
-   * enforced.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #getAsInt(int)
-   */
-  void set(int index, double value);
+  long getAsLong(int index);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -183,47 +149,15 @@ public interface Matrix extends Swappable {
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
    * column-major order.
-   * 
+   *
    * @param index the index
    * @return the int value index
    */
   int getAsInt(int index);
 
-  /**
-   * Set value at row {@code i} and column {@code j} to value
-   * 
-   * @param i row
-   * @param j column
-   * @param value value
-   */
-  void set(int i, int j, int value);
+  boolean getAsBit(int i, int j);
 
-  /**
-   * Puts {@code value} at the linearized position {@code index}. Column major order is strictly
-   * enforced.
-   *
-   * @param index the index
-   * @param value the value
-   * @see #getAsInt(int)
-   */
-  void set(int index, int value);
-
-  /**
-   * Set {@code number} at the row {@code i} and column {@code j}.
-   * 
-   * @param i the row
-   * @param j the column
-   * @param number the number
-   */
-  void set(int i, int j, Number number);
-
-  /**
-   * Set {@code number} at the linearized position {@code index}.
-   * 
-   * @param index the index
-   * @param number the number
-   */
-  void set(int index, Number number);
+  boolean getAsBit(int index);
 
   /**
    * Set value at {@code atIndex} to the value in {@code from} at {@code fromIndex}
@@ -356,7 +290,7 @@ public interface Matrix extends Swappable {
    * @param columns the columns to include
    * @return a new matrix with the same size as {@code this}
    */
-  Matrix slice(Collection<Integer> rows, Collection<Integer> columns);
+  Matrix slice(IntMatrix rows, IntMatrix columns);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the return
@@ -372,9 +306,9 @@ public interface Matrix extends Swappable {
 
   Matrix slice(Range range, Axis axis);
 
-  Matrix slice(Collection<Integer> indexes);
+  Matrix slice(IntMatrix indexes);
 
-  Matrix slice(Collection<Integer> indexes, Axis axis);
+  Matrix slice(IntMatrix indexes, Axis axis);
 
   /**
    * The number of rows.
@@ -456,6 +390,8 @@ public interface Matrix extends Swappable {
    */
   IntMatrix asIntMatrix();
 
+  LongMatrix asLongMatrix();
+
   /**
    * @return this matrix as an {@link BitMatrix}.
    */
@@ -524,7 +460,7 @@ public interface Matrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThanEquals(Matrix other);
+  BitMatrix greaterThanEqual(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
@@ -532,7 +468,7 @@ public interface Matrix extends Swappable {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThanEquals(Number value);
+  BitMatrix greaterThanEqual(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -564,6 +500,13 @@ public interface Matrix extends Swappable {
   Matrix copy();
 
   /**
+   * Get the storage
+   * 
+   * @return the storage
+   */
+  Storage getStorage();
+
+  /**
    * Incrementally construct a new matrix by adding values.
    * 
    * @return a new builder
@@ -586,26 +529,6 @@ public interface Matrix extends Swappable {
    * @return a new empty vector
    */
   Matrix newEmptyVector(int size);
-
-  /**
-   * If {@code getType()} equals
-   * <ul>
-   * <li>{@link Matrix.DataType#DOUBLE} {@link #asDoubleMatrix()} returns {@code this}.</li>
-   * <li>{@link Matrix.DataType#INT} {@link #asIntMatrix()} returns {@code this}.</li>
-   * <li>{@link Matrix.DataType#BOOLEAN} {@link #asBitMatrix()} returns {@code this}.</li>
-   * <li>{@link Matrix.DataType#COMPLEX} {@link #asComplexMatrix()} returns {@code this}.</li>
-   * </ul>
-   *
-   * @return the type of this matrix
-   */
-  DataType getDataType();
-
-  /**
-   *
-   */
-  enum DataType {
-    DOUBLE, INT, BOOLEAN, COMPLEX
-  }
 
   interface IncrementalBuilder {
 

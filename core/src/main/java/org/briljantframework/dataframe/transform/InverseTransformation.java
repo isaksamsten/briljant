@@ -16,9 +16,11 @@
 
 package org.briljantframework.dataframe.transform;
 
+import static com.google.common.primitives.Ints.checkedCast;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
 
@@ -38,13 +40,13 @@ public class InverseTransformation implements Transformation {
    * @param matrix the matrix
    * @return the dense matrix
    */
-  public ArrayDoubleMatrix transform(DoubleMatrix matrix) {
-    ArrayDoubleMatrix out = new ArrayDoubleMatrix(matrix);
+  public DefaultDoubleMatrix transform(DoubleMatrix matrix) {
+    DefaultDoubleMatrix out = new DefaultDoubleMatrix(matrix);
     return invert(out); // TODO(isak) refactor
   }
 
-  private ArrayDoubleMatrix invert(DoubleMatrix in) {
-    int n = in.rows();
+  private DefaultDoubleMatrix invert(DoubleMatrix in) {
+    int n = checkedCast(in.rows());
 
     int[] ipiv = new int[n];
     intW error = new intW(0);
@@ -69,7 +71,7 @@ public class InverseTransformation implements Transformation {
       throw new BlasException("dgetri", error.val, "Inverse failed. The matrix is singular.");
     }
 
-    return new ArrayDoubleMatrix(in.rows(), in.columns(), outArray);
+    return new DefaultDoubleMatrix(outArray, in.rows(), in.columns());
   }
 
   @Override
