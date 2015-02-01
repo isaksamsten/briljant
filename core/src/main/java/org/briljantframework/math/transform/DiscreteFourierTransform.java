@@ -1,11 +1,9 @@
 package org.briljantframework.math.transform;
 
-import static org.briljantframework.matrix.Doubles.zeros;
+import static org.briljantframework.matrix.Matrices.zeros;
 
-import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.Complexes;
 import org.briljantframework.matrix.DoubleMatrix;
 
 /*
@@ -48,7 +46,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexMatrix ifft(ComplexMatrix a) {
-    ComplexMatrix copy = Complexes.zeros(a.size());
+    ComplexMatrix copy = zeros(a.size(), Complex.class).asComplexMatrix();
     for (int i = 0; i < a.size(); i++) {
       Complex c = a.get(i);
       copy.set(i, new Complex(c.imag(), c.real()));
@@ -86,8 +84,8 @@ public final class DiscreteFourierTransform {
       sinTable.set(i, Math.sin(Math.PI * j / n));
     }
 
-    ComplexMatrix an = Complexes.zeros(m);
-    ComplexMatrix bn = Complexes.zeros(m);
+    ComplexMatrix an = zeros(m, Complex.class).asComplexMatrix();
+    ComplexMatrix bn = zeros(m, Complex.class).asComplexMatrix();
 
     bn.set(0, new Complex(cosTable.get(0), sinTable.get(0)));
     for (int i = 0; i < n; i++) {

@@ -4,19 +4,19 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LuDecompositionTest {
 
-  ArrayDoubleMatrix matrix;
+  DefaultDoubleMatrix matrix;
   LuDecomposition decomposition;
 
   @Before
   public void setUp() throws Exception {
-    matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
+    matrix = DefaultDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
 
     decomposition = new LuDecomposer().decompose(matrix);
   }

@@ -21,7 +21,7 @@ import org.briljantframework.classification.ClassifierModel;
 import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
@@ -47,7 +47,7 @@ public class LinearRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     Preconditions.checkArgument(x.rows() == y.size());
 
-    ArrayDoubleMatrix yMatrix = new ArrayDoubleMatrix(y);
+    DefaultDoubleMatrix yMatrix = new DefaultDoubleMatrix(y);
     return new Model(LinearAlgebra.leastLinearSquares(x.asMatrix(), yMatrix));
   }
 

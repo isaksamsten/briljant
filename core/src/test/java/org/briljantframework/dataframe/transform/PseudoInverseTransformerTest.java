@@ -2,7 +2,7 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Doubles;
@@ -11,11 +11,11 @@ import org.junit.Test;
 
 public class PseudoInverseTransformerTest {
 
-  private ArrayDoubleMatrix matrix;
+  private DefaultDoubleMatrix matrix;
 
   @Before
   public void setUp() throws Exception {
-    matrix = ArrayDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
+    matrix = DefaultDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5
     // 0, 1, 1, 1
         );
 
@@ -40,7 +40,7 @@ public class PseudoInverseTransformerTest {
     //
     // System.out.println(Matrices.multiplyByDiagonal(a, x, DenseMatrix::new));
 
-    DoubleMatrix A = ArrayDoubleMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
+    DoubleMatrix A = DefaultDoubleMatrix.withSize(4, 2).withValues(1, 2, 3, 4, 5, 6, 7, 8);
     System.out.println(A);
 
     SingularValueDecomposition svd = LinearAlgebra.svd(A);

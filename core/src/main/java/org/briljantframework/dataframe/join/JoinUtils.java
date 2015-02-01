@@ -3,8 +3,9 @@ package org.briljantframework.dataframe.join;
 import java.util.Collection;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.ArrayIntMatrix;
+import org.briljantframework.matrix.DefaultIntMatrix;
 import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
@@ -24,25 +25,27 @@ public class JoinUtils {
    * @return retVal[0] := indexer, retVal[1] := counts
    */
   public static IntMatrix[] groupSortIndexer(IntMatrix index, int maxGroups) {
-    int[] counts = new int[maxGroups + 1];
+    IntMatrix counts = Matrices.newIntVector(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
-      counts[index.get(i) + 1] += 1;
+      counts.update(index.get(i) + 1, x -> x + 1);
     }
 
     int[] where = new int[maxGroups + 1];
     for (int i = 1; i < maxGroups + 1; i++) {
-      where[i] = where[i - 1] + counts[i - 1];
+      where[i] = where[i - 1] + counts.get(i - 1);
     }
 
-    int[] result = new int[n];
+
+    IntMatrix results = Matrices.newIntVector(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
-      result[where[label]] = i;
+      results.set(where[label], i);
+      // result[where[label]] = i;
       where[label] += 1;
     }
 
-    return new IntMatrix[] {ArrayIntMatrix.wrap(result), ArrayIntMatrix.wrap(counts)};
+    return new IntMatrix[] {results, counts};
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<String> columns) {
@@ -65,9 +68,9 @@ public class JoinUtils {
       noGroups = noGroups * (pool.getMaxGroups() + 1);
     }
 
-    IntMatrix left = ArrayIntMatrix.wrap(newLeftPool);
-    IntMatrix right = ArrayIntMatrix.wrap(newRightPool);
-    if(left.size() + right.size() > noGroups) {
+    IntMatrix left = new DefaultIntMatrix(newLeftPool); // AbstractIntMatrix.wrap(newLeftPool);
+    IntMatrix right = new DefaultIntMatrix(newRightPool); // AbstractIntMatrix.wrap(newRightPool);
+    if (left.size() + right.size() > noGroups) {
       noGroups = downMap(left, right);
     }
     return new JoinKeys(left, right, noGroups);
@@ -133,7 +136,7 @@ public class JoinUtils {
       }
     }
 
-    return new JoinKeys(ArrayIntMatrix.wrap(left), ArrayIntMatrix.wrap(right), pool.size());
+    return new JoinKeys(new DefaultIntMatrix(left), new DefaultIntMatrix(right), pool.size());
   }
 
 }

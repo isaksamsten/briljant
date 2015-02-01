@@ -1,9 +1,12 @@
 package org.briljantframework.vector;
 
-import com.google.common.collect.UnmodifiableIterator;
-import org.briljantframework.matrix.IntMatrix;
-
 import java.util.Iterator;
+
+import org.briljantframework.matrix.DefaultIntMatrix;
+import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.storage.VectorStorage;
+
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -98,7 +101,7 @@ public abstract class AbstractIntVector extends AbstractVector implements Iterab
   @Override
   public IntMatrix asMatrix() {
     if (adapter == null) {
-      adapter = new VectorIntMatrixAdapter(this);
+      adapter = new DefaultIntMatrix(new VectorStorage(this));
     }
     return adapter;
   }

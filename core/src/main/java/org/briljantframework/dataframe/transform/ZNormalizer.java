@@ -17,10 +17,10 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
 import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Doubles;
+import org.briljantframework.matrix.Matrices;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
@@ -37,7 +37,7 @@ public class ZNormalizer implements Transformer {
     DoubleMatrix mean = Doubles.mean(frame.asMatrix(), Axis.COLUMN);
 
     DoubleMatrix x = frame.asMatrix();
-    DoubleMatrix xNorm = new ArrayDoubleMatrix(x.getShape());
+    DoubleMatrix xNorm = Matrices.newDoubleMatrix(x.rows(), x.columns());
 
     for (int i = 0; i < xNorm.rows(); i++) {
       for (int j = 0; j < xNorm.columns(); j++) {

@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import static org.briljantframework.matrix.Doubles.parseMatrix;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Iterator;
 
@@ -21,8 +22,8 @@ public class DoubleMatrixTest {
 
     DoubleMatrix AxB = parseMatrix("6,12;6,12");
     DoubleMatrix BxA = parseMatrix("3,6,9;3,6,9;3,6,9");
-    // assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
-    // assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
+    assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
+    assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
 
     DoubleMatrix m = Doubles.rand(4, 4);
 

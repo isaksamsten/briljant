@@ -1,11 +1,14 @@
 package org.briljantframework.vector;
 
-import com.google.common.collect.UnmodifiableIterator;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.ComplexMatrix;
-
 import java.util.Iterator;
+
+import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.ComplexMatrix;
+import org.briljantframework.matrix.DefaultComplexMatrix;
+import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.storage.VectorStorage;
+
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -123,7 +126,7 @@ public abstract class AbstractComplexVector extends AbstractVector implements It
   @Override
   public Matrix asMatrix() {
     if (adapter == null) {
-      adapter = new VectorComplexMatrixAdapter(this);
+      adapter = new DefaultComplexMatrix(new VectorStorage(this));
     }
     return adapter;
   }

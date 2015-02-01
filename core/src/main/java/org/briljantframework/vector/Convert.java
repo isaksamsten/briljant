@@ -1,5 +1,7 @@
 package org.briljantframework.vector;
 
+import static com.google.common.primitives.Ints.checkedCast;
+
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
@@ -50,7 +52,7 @@ public final class Convert {
 
       @Override
       public int size() {
-        return matrix.size();
+        return checkedCast(matrix.size());
       }
     };
   }
@@ -71,7 +73,7 @@ public final class Convert {
 
       @Override
       public int size() {
-        return matrix.size();
+        return checkedCast(matrix.size());
       }
     };
   }
@@ -92,7 +94,7 @@ public final class Convert {
 
       @Override
       public int size() {
-        return matrix.size();
+        return checkedCast(matrix.size());
       }
     };
   }
@@ -118,7 +120,7 @@ public final class Convert {
 
       @Override
       public int size() {
-        return matrix.size();
+        return checkedCast(matrix.size());
       }
     };
   }
@@ -129,7 +131,7 @@ public final class Convert {
    * @return a vector representation of {@code matrix}
    */
   public static DoubleVector toVector(DoubleMatrix matrix) {
-    DoubleVector.Builder builder = new DoubleVector.Builder(0, matrix.size());
+    DoubleVector.Builder builder = new DoubleVector.Builder(0, checkedCast(matrix.size()));
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
     }
@@ -137,7 +139,7 @@ public final class Convert {
   }
 
   public static IntVector toVector(IntMatrix matrix) {
-    IntVector.Builder builder = new IntVector.Builder(0, matrix.size());
+    IntVector.Builder builder = new IntVector.Builder(0, checkedCast(matrix.size()));
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
     }
@@ -145,7 +147,7 @@ public final class Convert {
   }
 
   public static ComplexVector toVector(ComplexMatrix matrix) {
-    ComplexVector.Builder builder = new ComplexVector.Builder(0, matrix.size());
+    ComplexVector.Builder builder = new ComplexVector.Builder(0, checkedCast(matrix.size()));
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
     }
@@ -153,7 +155,7 @@ public final class Convert {
   }
 
   public static BitVector toVector(BitMatrix matrix) {
-    BitVector.Builder builder = new BitVector.Builder(0, matrix.size());
+    BitVector.Builder builder = new BitVector.Builder(0, checkedCast(matrix.size()));
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
     }

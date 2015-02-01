@@ -5,19 +5,19 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ArrayBitMatrixTest {
+public class DefaultBitMatrixTest {
 
   BitMatrix a, b;
 
   @Before
   public void setUp() throws Exception {
-    a = Bits.newMatrix(3, 2, true, true, true, false, false, true);
-    b = Bits.newMatrix(3, 2, true, false, true, false, true, true);
+    a = Matrices.newBitMatrix(true, true, true, false, false, true).reshape(3, 2);
+    b = Matrices.newBitMatrix(true, false, true, false, true, true).reshape(3, 2);
   }
 
   @Test
   public void testVariableArgConstructor() {
-    BitMatrix a = new ArrayBitMatrix(true, true, true, false, false);
+    BitMatrix a = new DefaultBitMatrix(true, true, true, false, false);
     assertEquals(5, a.rows());
     assertEquals(5, a.size());
     assertEquals(1, a.columns());

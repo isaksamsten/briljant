@@ -3,14 +3,15 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
+import org.briljantframework.matrix.storage.Storage;
+
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
 public class IntMatrixView extends AbstractIntMatrix {
 
-  private final IntMatrix parent;
-
   private final int rowOffset, colOffset;
+  private final IntMatrix parent;
 
   public IntMatrixView(IntMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
     super(rows, cols);
@@ -20,19 +21,23 @@ public class IntMatrixView extends AbstractIntMatrix {
 
     checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
         "Requested row out of bounds.");
-    checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
+    checkArgument(colOffset >= 0 && colOffset + columns() <= parent.rows(),
         "Requested column out of bounds");
   }
 
   @Override
   public IntMatrix reshape(int rows, int columns) {
-    // TODO(isak): this might be strange..
-    return new IntMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
+    return new IntMatrixView(parent, rowOffset, colOffset, rows, columns);
   }
 
   @Override
   public boolean isView() {
     return true;
+  }
+
+  @Override
+  public Storage getStorage() {
+    return parent.getStorage();
   }
 
   @Override

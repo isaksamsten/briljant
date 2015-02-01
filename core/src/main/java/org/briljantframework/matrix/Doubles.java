@@ -17,6 +17,7 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.primitives.Ints.checkedCast;
 
 import java.util.List;
 import java.util.Random;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
+import org.briljantframework.matrix.storage.DoubleStorage;
 import org.briljantframework.vector.Vector;
 
 import com.github.fommil.netlib.BLAS;
@@ -65,7 +67,7 @@ public class Doubles {
    * For example, {@code 1, 2, 3, 4; 1, 2, 3, 4;1, 2, 3, 4} is a 3-by-4 matrix with ones in the
    * first column, twos in the second column etc.
    * <p>
-   * Returns an {@link ArrayDoubleMatrix}.
+   * Returns an {@link DefaultDoubleMatrix}.
    *
    * @param str the input matrix as a string
    * @return a matrix
@@ -83,7 +85,7 @@ public class Doubles {
     for (int i = 0; i < rows.length; i++) {
       String[] values = VALUE_SEPARATOR.split(rows[i]);
       if (i == 0) {
-        matrix = new ArrayDoubleMatrix(rows.length, values.length);
+        matrix = new DefaultDoubleMatrix(rows.length, values.length);
       }
 
       for (int j = 0; j < values.length; j++) {
@@ -95,11 +97,11 @@ public class Doubles {
   }
 
   public static DoubleMatrix newMatrix(int size, DoubleSupplier supplier) {
-    return zeros(size, 1).assign(supplier);
+    return Matrices.zeros(size, 1).assign(supplier);
   }
 
   public static DoubleMatrix newMatrix(double[][] values) {
-    DoubleMatrix m = new ArrayDoubleMatrix(values.length, values[0].length);
+    DoubleMatrix m = new DefaultDoubleMatrix(values.length, values[0].length);
     for (int i = 0; i < values.length; i++) {
       for (int j = 0; j < values[0].length; j++) {
         m.set(i, j, values[i][j]);
@@ -109,7 +111,7 @@ public class Doubles {
   }
 
   public static DoubleMatrix newMatrix(double... values) {
-    return new ArrayDoubleMatrix(1, values);
+    return new DefaultDoubleMatrix(new DoubleStorage(values));
   }
 
   @SuppressWarnings("unchecked")
@@ -120,7 +122,7 @@ public class Doubles {
     } else {
       numbers = Lists.newArrayList(iter);
     }
-    DoubleMatrix m = new ArrayDoubleMatrix(numbers.size(), 1);
+    DoubleMatrix m = new DefaultDoubleMatrix(numbers.size(), 1);
     for (int i = 0; i < numbers.size(); i++) {
       m.set(i, numbers.get(i).doubleValue());
     }
@@ -135,7 +137,7 @@ public class Doubles {
    * @return the dense matrix
    */
   public static DoubleMatrix zeros(int rows, int cols) {
-    return new ArrayDoubleMatrix(rows, cols);
+    return new DefaultDoubleMatrix(rows, cols);
   }
 
   /**
@@ -166,7 +168,7 @@ public class Doubles {
    * @return the matrix
    */
   public static DoubleMatrix ones(int rows, int cols) {
-    return ArrayDoubleMatrix.filledWith(rows, cols, 1);
+    return DefaultDoubleMatrix.filledWith(rows, cols, 1);
   }
 
   /**
@@ -178,11 +180,11 @@ public class Doubles {
    * @return the dense matrix
    */
   public static DoubleMatrix fill(int rows, int cols, double n) {
-    return ArrayDoubleMatrix.filledWith(rows, cols, n);
+    return DefaultDoubleMatrix.filledWith(rows, cols, n);
   }
 
   public static DoubleMatrix fill(int size, double n) {
-    return ArrayDoubleMatrix.filledWith(size, 1, n);
+    return DefaultDoubleMatrix.filledWith(size, 1, n);
   }
 
   /**
@@ -226,12 +228,12 @@ public class Doubles {
 
   public static DoubleMatrix sort(DoubleMatrix matrix) {
     DoubleMatrix out = matrix.copy();
-    QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)),
-        (a, b) -> {
-          double tmp = out.get(a);
-          out.set(a, out.get(b));
-          out.set(b, tmp);
-        });
+    QuickSort.quickSort(0, (int) out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)), (a,
+        b) -> {
+      double tmp = out.get(a);
+      out.set(a, out.get(b));
+      out.set(b, tmp);
+    });
     return out;
   }
 
@@ -240,7 +242,7 @@ public class Doubles {
     if (axis == Axis.ROW) {
       for (int i = 0; i < matrix.rows(); i++) {
         DoubleMatrix row = out.getRowView(i);
-        QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
+        QuickSort.quickSort(0, (int) row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
             (a, b) -> {
               double tmp = row.get(a);
               row.set(a, row.get(b));
@@ -250,7 +252,7 @@ public class Doubles {
     } else {
       for (int i = 0; i < matrix.columns(); i++) {
         DoubleMatrix col = out.getColumnView(i);
-        QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
+        QuickSort.quickSort(0, (int) col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
             (a, b) -> {
               double tmp = col.get(a);
               col.set(a, col.get(b));
@@ -329,7 +331,7 @@ public class Doubles {
       value += step;
     }
 
-    return new ArrayDoubleMatrix(1, builder);
+    return new DefaultDoubleMatrix(builder, builder.length, 1);
   }
 
   /**
@@ -341,8 +343,9 @@ public class Doubles {
    */
   public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
     DoubleMatrix mean = mean(matrix, axis);
-    int columns = matrix.columns();
-    double[] sigmas = new double[columns];
+    long columns = matrix.columns();
+    DoubleMatrix sigmas = Matrices.newDoubleVector(matrix.columns());
+
 
     for (int j = 0; j < columns; j++) {
       double std = 0.0;
@@ -350,9 +353,9 @@ public class Doubles {
         double residual = matrix.get(i, j) - mean.get(j);
         std += residual * residual;
       }
-      sigmas[j] = Math.sqrt(std / (matrix.rows() - 1));
+      sigmas.set(j, Math.sqrt(std / (matrix.rows() - 1)));
     }
-    return ArrayDoubleMatrix.rowVector(sigmas);
+    return sigmas;
   }
 
   /**
@@ -364,16 +367,16 @@ public class Doubles {
    */
   public static DoubleMatrix mean(DoubleMatrix matrix, Axis axis) {
     int columns = matrix.columns();
-    double[] means = new double[matrix.columns()];
+    DoubleMatrix means = Matrices.newDoubleVector(columns);
     for (int j = 0; j < matrix.columns(); j++) {
       double mean = 0.0;
       for (int i = 0; i < matrix.rows(); i++) {
         mean += matrix.get(i, j);
       }
-      means[j] = mean / matrix.rows();
+      means.set(j, mean / matrix.rows());
     }
 
-    return ArrayDoubleMatrix.rowVector(means);
+    return means;
   }
 
   /**
@@ -384,7 +387,7 @@ public class Doubles {
    * @return out out
    */
   public static DoubleMatrix randn(int rows, int cols) {
-    return new ArrayDoubleMatrix(rows, cols).assign(RANDOM::nextGaussian);
+    return Matrices.newDoubleMatrix(rows, cols).assign(RANDOM::nextGaussian);
   }
 
   /**
@@ -395,7 +398,7 @@ public class Doubles {
    * @return out out
    */
   public static DoubleMatrix rand(int rows, int cols) {
-    return new ArrayDoubleMatrix(rows, cols).assign(RANDOM::nextDouble);
+    return Matrices.newDoubleMatrix(rows, cols).assign(RANDOM::nextDouble);
   }
 
   /**
@@ -452,29 +455,31 @@ public class Doubles {
    */
   public static void mmul(DoubleMatrix t, double alpha, DoubleMatrix other, double beta,
       double[] tmp) {
-    BLAS.dgemm("n", "n", t.rows(), other.columns(), other.rows(), alpha, t.asDoubleArray(),
-        t.rows(), other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
+    BLAS.dgemm("n", "n", checkedCast(t.rows()), checkedCast(other.columns()),
+        checkedCast(other.rows()), alpha, t.asDoubleArray(), checkedCast(t.rows()),
+        other.asDoubleArray(), checkedCast(other.rows()), beta, tmp, checkedCast(t.rows()));
   }
 
   public static void mmul(DoubleMatrix t, double alpha, Transpose a, DoubleMatrix other,
       double beta, Transpose b, double[] tmp) {
     String transA = "n";
-    int thisRows = t.rows();
+    int thisRows = checkedCast(t.rows());
     if (a.transpose()) {
-      thisRows = t.columns();
+      thisRows = checkedCast(t.columns());
       transA = "t";
     }
 
     String transB = "n";
-    int otherRows = other.rows();
-    int otherColumns = other.columns();
+    int otherRows = checkedCast(other.rows());
+    int otherColumns = checkedCast(other.columns());
     if (b.transpose()) {
-      otherRows = other.columns();
-      otherColumns = other.rows();
+      otherRows = checkedCast(other.columns());
+      otherColumns = checkedCast(other.rows());
       transB = "t";
     }
     BLAS.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, t.asDoubleArray(),
-        t.rows(), other.asDoubleArray(), other.rows(), beta, tmp, thisRows);
+        checkedCast(t.rows()), other.asDoubleArray(), checkedCast(other.rows()), beta, tmp,
+        thisRows);
   }
 
   /**
@@ -571,24 +576,24 @@ public class Doubles {
   }
 
   private static Matrix columnSum(Matrix m) {
-    double[] values = new double[m.rows()];
+    DoubleMatrix values = Matrices.newDoubleMatrix(m.rows(), 1);
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
-        values[i] += m.getAsDouble(i, j);
+        values.set(i, values.get(i) + m.getAsDouble(i, j));
       }
     }
-    return new ArrayDoubleMatrix(m.rows(), 1, values);
+    return values;
   }
 
 
   private static Matrix rowSum(Matrix m) {
-    double[] values = new double[m.columns()];
+    DoubleMatrix values = Matrices.newDoubleMatrix(1, m.columns());
     for (int j = 0; j < m.columns(); j++) {
       for (int i = 0; i < m.rows(); i++) {
-        values[j] += m.getAsDouble(i, j);
+        values.set(j, values.get(i) + m.getAsDouble(i, j));
       }
     }
 
-    return new ArrayDoubleMatrix(1, m.columns(), values);
+    return values;
   }
 }

@@ -3,7 +3,9 @@ package org.briljantframework.vector;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.storage.VectorStorage;
 
 import com.google.common.collect.UnmodifiableIterator;
 
@@ -99,7 +101,7 @@ public abstract class AbstractDoubleVector extends AbstractVector implements Ite
   @Override
   public DoubleMatrix asMatrix() {
     if (adapter == null) {
-      adapter = new VectorDoubleMatrixAdapter(this);
+      adapter = new DefaultDoubleMatrix(new VectorStorage(this));
     }
     return adapter;
   }

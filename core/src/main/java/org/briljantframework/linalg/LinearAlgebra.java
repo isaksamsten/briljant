@@ -24,7 +24,7 @@ import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Shape;
@@ -110,11 +110,11 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return the out
    */
-  public static ArrayDoubleMatrix pinv(DoubleMatrix matrix) {
+  public static DefaultDoubleMatrix pinv(DoubleMatrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getArrayOfShape();
     pinvi(matrix, array);
-    return new ArrayDoubleMatrix(shape, array);
+    return new DefaultDoubleMatrix(array, matrix.columns(), matrix.rows());
   }
 
   /**
@@ -126,8 +126,8 @@ public class LinearAlgebra {
   public static void pinvi(DoubleMatrix matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
     Diagonal diagonal = svd.getDiagonal();
-    ArrayDoubleMatrix rightSingularValues = svd.getRightSingularValues();
-    ArrayDoubleMatrix leftSingularValues = svd.getLeftSingularValues();
+    DefaultDoubleMatrix rightSingularValues = svd.getRightSingularValues();
+    DefaultDoubleMatrix leftSingularValues = svd.getLeftSingularValues();
 
     diagonal.mapi(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transpose();

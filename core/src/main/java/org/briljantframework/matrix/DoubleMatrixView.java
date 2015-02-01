@@ -3,6 +3,8 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.matrix.storage.DoubleStorage;
+import org.briljantframework.matrix.storage.Storage;
 
 /**
  * Created by Isak Karlsson on 08/12/14.
@@ -40,7 +42,7 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
 
   @Override
   public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new ArrayDoubleMatrix(rows, columns);
+    return new DefaultDoubleMatrix(rows, columns);
   }
 
   @Override
@@ -69,14 +71,19 @@ public class DoubleMatrixView extends AbstractDoubleMatrix {
   }
 
   @Override
+  public Storage getStorage() {
+    return parent.getStorage();
+  }
+
+  @Override
   public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
     if (this.columns() != other.rows()) {
       throw new NonConformantException(this, other);
     }
     if (isArrayBased() && other.isArrayBased()) {
-      double[] tmp = new double[this.rows() * other.columns()];
+      double[] tmp = new double[(int) this.rows() * (int) other.columns()];
       Doubles.mmul(this, alpha, other, beta, tmp);
-      return new ArrayDoubleMatrix(other.columns(), tmp);
+      return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
     } else {
       return super.mmul(alpha, other, beta);
     }

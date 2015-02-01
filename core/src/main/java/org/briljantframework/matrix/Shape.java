@@ -19,18 +19,11 @@ package org.briljantframework.matrix;
 /**
  * Created by Isak Karlsson on 03/09/14.
  */
-public class Shape {
+public final class Shape {
 
-  /**
-   * The Rows.
-   */
-  public final int rows;
-  /**
-   * The Columns.
-   */
-  public final int columns;
+  public final long rows, columns;
 
-  private Shape(int rows, int columns) {
+  private Shape(long rows, long columns) {
     this.rows = rows;
     this.columns = columns;
   }
@@ -42,7 +35,7 @@ public class Shape {
    * @param cols the cols
    * @return the shape
    */
-  public static Shape of(int rows, int cols) {
+  public static Shape of(long rows, long cols) {
     return new Shape(rows, cols);
   }
 
@@ -51,22 +44,36 @@ public class Shape {
    *
    * @return the int
    */
-  public int size() {
-    return rows * columns;
+  public long size() {
+    return Math.multiplyExact(rows, columns);
   }
 
   public double[] getArrayOfShape() {
-    return new double[size()];
+    return new double[(int) size()];
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    Shape shape = (Shape) o;
+
+    if (columns != shape.columns)
+      return false;
+    if (rows != shape.rows)
+      return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return rows + columns + 17;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof Shape && ((Shape) obj).rows == rows && ((Shape) obj).columns == columns;
+    int result = (int) (rows ^ (rows >>> 32));
+    result = 31 * result + (int) (columns ^ (columns >>> 32));
+    return result;
   }
 
   @Override

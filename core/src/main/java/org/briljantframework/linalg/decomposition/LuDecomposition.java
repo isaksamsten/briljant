@@ -19,9 +19,9 @@ package org.briljantframework.linalg.decomposition;
 import java.util.Optional;
 
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Doubles;
+import org.briljantframework.matrix.Matrices;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -147,7 +147,7 @@ public class LuDecomposition implements Decomposition {
   }
 
   private DoubleMatrix computeUpper() {
-    ArrayDoubleMatrix upperMatrix = new ArrayDoubleMatrix(lu.rows(), lu.columns());
+    DefaultDoubleMatrix upperMatrix = new DefaultDoubleMatrix(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         upperMatrix.set(i, j, lu.get(i, j));
@@ -167,7 +167,7 @@ public class LuDecomposition implements Decomposition {
   }
 
   private DoubleMatrix computeLower() {
-    DoubleMatrix lowerMatrix = Doubles.zeros(lu.rows(), lu.columns());
+    DoubleMatrix lowerMatrix = Matrices.zeros(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         int ii = lu.rows() - 1 - i;

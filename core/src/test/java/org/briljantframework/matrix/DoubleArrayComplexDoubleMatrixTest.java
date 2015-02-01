@@ -1,9 +1,7 @@
 package org.briljantframework.matrix;
 
 import static org.briljantframework.matrix.Doubles.randn;
-import static org.briljantframework.matrix.Doubles.zeros;
-
-import java.util.Arrays;
+import static org.briljantframework.matrix.Matrices.zeros;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
@@ -14,8 +12,8 @@ public class DoubleArrayComplexDoubleMatrixTest {
   @Test
   public void testConstructor() throws Exception {
     ComplexMatrix matrix =
-        new DoubleArrayComplexMatrix(2, 3, Arrays.asList(new Complex(1, 2.0), Complex.I,
-            Complex.ONE, Complex.ZERO, new Complex(3, 4), new Complex(10, 0)));
+        new DefaultComplexMatrix(2, 3, new Complex(1, 2.0), Complex.I, Complex.ONE, Complex.ZERO,
+            new Complex(3, 4), new Complex(10, 0));
     //
     // System.out.println(matrix);
     // System.out.println(matrix.conjugateTranspose());
@@ -30,9 +28,9 @@ public class DoubleArrayComplexDoubleMatrixTest {
     DoubleMatrix zeros = zeros(100, 10000);
     Utils.setRandomSeed(123);
     ComplexMatrix rndc =
-        new ArrayComplexMatrix(10000, 100).assign(() -> new Complex(Utils.getRandom()
+        new DefaultComplexMatrix(10000, 100).assign(() -> new Complex(Utils.getRandom()
             .nextGaussian()));
-    ComplexMatrix zerosc = new ArrayComplexMatrix(100, 10000);
+    ComplexMatrix zerosc = new DefaultComplexMatrix(100, 10000);
 
     System.out.println(rndc.getShape());
     System.out.println(zerosc.getShape());

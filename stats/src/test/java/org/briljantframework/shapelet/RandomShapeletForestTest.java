@@ -17,7 +17,7 @@ import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.io.DelimitedInputStream;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Doubles;
 import org.briljantframework.vector.Convert;
@@ -359,18 +359,18 @@ public class RandomShapeletForestTest {
   @Test
   public void testCreateSizePlot() throws Exception {
     DoubleMatrix error =
-        ArrayDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
+        DefaultDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
             0.1738586474, 0.1724606892);
     DoubleMatrix errors =
         Doubles
             .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
-                    + "0.249,0.249,0.249,0.249,0.249,0.249;"
-                    + "0.190,0.190,0.190,0.190,0.190,0.190;"
-                    + "0.210,0.210,0.210,0.210,0.210,0.210");
+                + "0.249,0.249,0.249,0.249,0.249,0.249;"
+                + "0.190,0.190,0.190,0.190,0.190,0.190;"
+                + "0.210,0.210,0.210,0.210,0.210,0.210");
     System.out.println(errors);
 
 
-    DoubleMatrix size = ArrayDoubleMatrix.rowVector(10, 25, 50, 100, 250, 500);
+    DoubleMatrix size = DefaultDoubleMatrix.rowVector(10, 25, 50, 100, 250, 500);
     JFreeChart errorChart =
         plot(size, "No. trees", errors, "Average error", new String[] {"RSF", "1-NN",
             "1-NN DTW-best", "1-NN DTW-no"});
@@ -379,7 +379,7 @@ public class RandomShapeletForestTest {
     Chartable.saveSVG("/Users/isak/Desktop/no_trees_error.svg", errorChart, 300, 140);
 
     DoubleMatrix auc =
-        ArrayDoubleMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
+        DefaultDoubleMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
             0.9582902467, 0.959242855);
     JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
     ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);

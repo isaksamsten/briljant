@@ -13,7 +13,7 @@ public class SizeMismatchException extends RuntimeException {
    * @param expected expected size
    * @param actual actual size
    */
-  public SizeMismatchException(int expected, int actual) {
+  public SizeMismatchException(long expected, long actual) {
     super(String.format("Expected size %d but got %d.", expected, actual));
   }
 
@@ -27,7 +27,7 @@ public class SizeMismatchException extends RuntimeException {
    * @param expected expected size
    * @param actual actual size
    */
-  public SizeMismatchException(String message, int expected, int actual) {
+  public SizeMismatchException(String message, long expected, long actual) {
     super(String.format(message, expected, actual));
   }
 }

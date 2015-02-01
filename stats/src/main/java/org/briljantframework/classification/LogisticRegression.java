@@ -20,9 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.ArrayDoubleMatrix;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
@@ -119,7 +118,7 @@ public class LogisticRegression implements Classifier {
    * @return the logistic regression model
    */
   protected Model fit(DataFrame x, Vector y, int[] indexes) {
-    DoubleMatrix theta = new ArrayDoubleMatrix(1, x.columns());
+    DoubleMatrix theta = new DefaultDoubleMatrix(1, x.columns());
     Vector adaptedTheta = DoubleVector.zeros(x.columns());
     for (int j = 0; j < this.iterations; j++) {
       Utils.permute(indexes);
