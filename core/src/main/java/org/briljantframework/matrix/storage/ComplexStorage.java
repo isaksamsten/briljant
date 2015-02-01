@@ -11,9 +11,13 @@ public class ComplexStorage extends AbstractStorage {
 
   private final Complex[] values;
 
-  public ComplexStorage(Complex... values) {
+  public ComplexStorage(Complex[] values) {
     super(values.length);
     this.values = values;
+  }
+
+  public ComplexStorage withSize(int size) {
+    return new ComplexStorage(new Complex[size]);
   }
 
   @Override

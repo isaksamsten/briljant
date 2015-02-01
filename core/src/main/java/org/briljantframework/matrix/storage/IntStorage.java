@@ -10,7 +10,7 @@ import org.briljantframework.complex.Complex;
 public class IntStorage extends AbstractStorage {
   private final int[] values;
 
-  public IntStorage(int... values) {
+  public IntStorage(int[] values) {
     super(values.length);
     this.values = values;
   }

@@ -11,9 +11,13 @@ public class LongStorage extends AbstractStorage {
 
   private final long[] values;
 
-  public LongStorage(long... values) {
+  public LongStorage(long[] values) {
     super(values.length);
     this.values = values;
+  }
+
+  public static LongStorage withSize(int size) {
+    return new LongStorage(new long[size]);
   }
 
   @Override

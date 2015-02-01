@@ -10,7 +10,7 @@ import org.briljantframework.complex.Complex;
 public class BooleanStorage extends AbstractStorage {
   private final boolean[] values;
 
-  public BooleanStorage(boolean... values) {
+  public BooleanStorage(boolean[] values) {
     super(values.length);
     this.values = values;
   }

@@ -7,9 +7,9 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 
 /**
  * <p>
- * A sparse matrix implemented using rather efficient hash maps. Although the performance is rather
- * fine in many cases, the {@link org.briljantframework.matrix.storage.DoubleStorage} is several
- * order of magnitudes faster, especially for complex operations such as matrix-matrix
+ * A sparse double storage is implemented using rather efficient hash maps. Although the performance
+ * is rather fine in many cases, the {@link org.briljantframework.matrix.storage.DoubleStorage} is
+ * several order of magnitudes faster, especially for complex operations such as matrix-matrix
  * multiplication (
  * {@link org.briljantframework.matrix.DoubleMatrix#mmul(org.briljantframework.matrix.DoubleMatrix)}
  * ) and should hence be preferred for all cases except when the number of non-zero elements is
@@ -30,22 +30,26 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
  * 
  * @author Isak Karlsson
  */
-public class DoubleHashStorage extends AbstractStorage {
+public class SparseDoubleStorage extends AbstractStorage {
   private final IntDoubleMap values;
   private final double defaultValue;
 
-  public DoubleHashStorage(int size, double defaultValue) {
+  public SparseDoubleStorage(int size, double defaultValue) {
     this(size, new IntDoubleOpenHashMap(), defaultValue);
   }
 
-  public DoubleHashStorage(int size) {
+  public SparseDoubleStorage(int size) {
     this(size, 0);
   }
 
-  public DoubleHashStorage(int size, IntDoubleMap values, double defaultValue) {
+  public SparseDoubleStorage(int size, IntDoubleMap values, double defaultValue) {
     super(size);
     this.values = values;
     this.defaultValue = defaultValue;
+  }
+
+  public SparseDoubleStorage withSize(int size) {
+    return new SparseDoubleStorage(size, 0);
   }
 
   @Override
@@ -110,6 +114,6 @@ public class DoubleHashStorage extends AbstractStorage {
 
   @Override
   public Storage copy() {
-    return new DoubleHashStorage(size(), new IntDoubleOpenHashMap(values), defaultValue);
+    return new SparseDoubleStorage(size(), new IntDoubleOpenHashMap(values), defaultValue);
   }
 }

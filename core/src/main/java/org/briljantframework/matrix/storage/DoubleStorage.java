@@ -12,7 +12,7 @@ import org.briljantframework.complex.Complex;
 public class DoubleStorage extends AbstractStorage {
   private final double[] values;
 
-  public DoubleStorage(double... values) {
+  public DoubleStorage(double[] values) {
     super(values.length);
     this.values = values;
   }

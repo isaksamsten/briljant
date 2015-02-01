@@ -17,7 +17,6 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
@@ -79,9 +78,8 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
    * @param rows in matrix
    * @param columns columns in matrix
    */
-  public DefaultDoubleMatrix(long rows, long columns) {
-    this(new double[Math.multiplyExact(checkedCast(rows), checkedCast(columns))],
-        checkedCast(rows), checkedCast(columns));
+  public DefaultDoubleMatrix(int rows, int columns) {
+    this(new double[Math.multiplyExact(rows, columns)], rows, columns);
   }
 
   /**
@@ -254,7 +252,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public boolean isArrayBased() {
-    return true;
+    return storage.isArrayBased() && storage.getNativeType() == Double.TYPE;
   }
 
   /**
@@ -276,8 +274,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
     }
 
     if (other.isArrayBased()) {
-      double[] tmp =
-          new double[Math.multiplyExact(checkedCast(this.rows()), checkedCast(other.columns()))];
+      double[] tmp = new double[Math.multiplyExact(this.rows(), other.columns())];
       Doubles.mmul(this, alpha, other, beta, tmp);
       return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
     } else {
