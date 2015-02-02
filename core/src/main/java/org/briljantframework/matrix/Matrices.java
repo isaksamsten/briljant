@@ -3,12 +3,13 @@ package org.briljantframework.matrix;
 import static com.google.common.primitives.Ints.checkedCast;
 
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Random;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntPredicate;
 
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
+import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.storage.Storage;
@@ -19,24 +20,174 @@ import com.google.common.collect.ImmutableMap;
  * @author Isak Karlsson
  */
 public final class Matrices {
-  private final static Map<Class, Function<Integer, Matrix>> NATIVE_TO_VECTOR = ImmutableMap.of(
-      Double.TYPE, DefaultDoubleMatrix::new, Integer.TYPE, DefaultIntMatrix::new, Complex.class,
-      DefaultComplexMatrix::new, Long.TYPE, DefaultLongMatrix::new);
 
-  private final static Map<Class, BiFunction<Integer, Integer, Matrix>> NATIVE_TO_MATRIX =
-      ImmutableMap.of(Double.TYPE, DefaultDoubleMatrix::new, Integer.TYPE, DefaultIntMatrix::new,
-          Complex.class, DefaultComplexMatrix::new, Long.TYPE, DefaultLongMatrix::new);
+  /**
+   * The constant RANDOM.
+   */
+  public static final Random RANDOM = Utils.getRandom();
+  /**
+   * The constant LOG_2.
+   */
+  public static final double LOG_2 = Math.log(2);
+  private final static Map<Class, MatrixFactory<?>> NATIVE_TO_FACTORY;
+  static {
+    NATIVE_TO_FACTORY = ImmutableMap.of(Double.class, new MatrixFactory<Double>() {
+      @Override
+      public Matrix newVector(int size) {
+        return new DefaultDoubleMatrix(size);
+      }
+
+      @Override
+      public Matrix newMatrix(int rows, int columns) {
+        return new DefaultDoubleMatrix(rows, columns);
+      }
+
+      @Override
+      public Matrix newVectorFilledWith(int size, Double fill) {
+        return new DefaultDoubleMatrix(size).assign(fill);
+      }
+
+      @Override
+      public Matrix newMatrixFilledWith(int rows, int columns, Double fill) {
+        return new DefaultDoubleMatrix(rows, columns).assign(fill);
+      }
+    }, Integer.class, new MatrixFactory<Integer>() {
+      @Override
+      public Matrix newVector(int size) {
+        return new DefaultIntMatrix(size);
+      }
+
+      @Override
+      public Matrix newMatrix(int rows, int columns) {
+        return new DefaultIntMatrix(rows, columns);
+      }
+
+      @Override
+      public Matrix newVectorFilledWith(int size, Integer fill) {
+        return new DefaultIntMatrix(size).assign(fill);
+      }
+
+      @Override
+      public Matrix newMatrixFilledWith(int rows, int columns, Integer fill) {
+        return new DefaultIntMatrix(rows, columns).assign(fill);
+      }
+    }, Complex.class, new MatrixFactory<Complex>() {
+      @Override
+      public Matrix newVector(int size) {
+        return new DefaultComplexMatrix(size);
+      }
+
+      @Override
+      public Matrix newMatrix(int rows, int columns) {
+        return new DefaultComplexMatrix(rows, columns);
+      }
+
+      @Override
+      public Matrix newVectorFilledWith(int size, Complex fill) {
+        return new DefaultComplexMatrix(size, fill);
+      }
+
+      @Override
+      public Matrix newMatrixFilledWith(int rows, int columns, Complex fill) {
+        return new DefaultComplexMatrix(rows, columns, fill);
+      }
+    }, Boolean.class, new MatrixFactory<Boolean>() {
+      @Override
+      public Matrix newVector(int size) {
+        return new DefaultBitMatrix(size);
+      }
+
+      @Override
+      public Matrix newMatrix(int rows, int columns) {
+        return new DefaultBitMatrix(rows, columns);
+      }
+
+      @Override
+      public Matrix newVectorFilledWith(int size, Boolean fill) {
+        return new DefaultBitMatrix(size, fill);
+      }
+
+      @Override
+      public Matrix newMatrixFilledWith(int rows, int columns, Boolean fill) {
+        return new DefaultBitMatrix(rows, columns, fill);
+      }
+    }, Long.class, new MatrixFactory<Long>() {
+      @Override
+      public Matrix newVector(int size) {
+        return new DefaultLongMatrix(size);
+      }
+
+      @Override
+      public Matrix newMatrix(int rows, int columns) {
+        return new DefaultLongMatrix(rows, columns);
+      }
+
+      @Override
+      public Matrix newVectorFilledWith(int size, Long fill) {
+        return new DefaultLongMatrix(size).assign(fill);
+      }
+
+      @Override
+      public Matrix newMatrixFilledWith(int rows, int columns, Long fill) {
+        return new DefaultLongMatrix(rows, columns).assign(fill);
+      }
+    });
+  }
 
   private Matrices() {}
 
+  @SuppressWarnings("unchecked")
+  public static <T> MatrixFactory<T> getMatrixFactory(Class<T> type) {
+    MatrixFactory<T> f = (MatrixFactory<T>) NATIVE_TO_FACTORY.get(type);
+    if (f == null) {
+      throw new TypeConversionException(type.toString());
+    }
+    return f;
+  }
+
+  /**
+   * <p>
+   * Returns a new {@code BitMatrix} with {@code values}.
+   * </p>
+   * 
+   * <p>
+   * For example
+   * </p>
+   * 
+   * <pre>
+   *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
+   *    
+   *    true  false  true
+   *    true  false  true  
+   *    shape: 2x3 type: boolean
+   * </pre>
+   * 
+   * @param values an array of booleans
+   * @return a new boolean vector
+   */
   public static BitMatrix newBitMatrix(boolean... values) {
     return new DefaultBitMatrix(values);
   }
 
+  /**
+   * Return a new empty (all elements are {@code false}), {@code BitMatrix} (column-vector) of
+   * {@code size}.
+   * 
+   * @param size size
+   * @return a new boolean vector
+   */
   public static BitMatrix newBitVector(int size) {
     return new DefaultBitMatrix(size);
   }
 
+  /**
+   * Return a new empty (all elements are {@code false}) {@code BitMatrix} of {@code rows} and
+   * {@code columns}.
+   * 
+   * @param rows the rows
+   * @param cols the columns
+   * @return a new boolean matrix
+   */
   public static BitMatrix newBitMatrix(int rows, int cols) {
     return new DefaultBitMatrix(rows, cols);
   }
@@ -58,39 +209,89 @@ public final class Matrices {
   }
 
   public static IntMatrix newIntMatrix(int... values) {
-    return new DefaultIntMatrix(values, 1).assign(values);
+    return new DefaultIntMatrix(values);
+  }
+
+  public static LongMatrix newLongMatrix(int rows, int columns) {
+    return new DefaultLongMatrix(rows, columns);
+  }
+
+  public static LongMatrix newLongVector(int size) {
+    return new DefaultLongMatrix(size);
   }
 
   public static Matrix zeros(int size, Class<?> type) {
-    Function<Integer, Matrix> f = NATIVE_TO_VECTOR.get(type);
-    if (f == null) {
-      throw new TypeConversionException(type.toString());
-    }
-    return f.apply(size);
+    return getMatrixFactory(type).newVector(size);
+  }
+
+  public static Matrix zeros(int rows, int columns, Class<?> type) {
+    return getMatrixFactory(type).newMatrix(rows, columns);
   }
 
   public static DoubleMatrix zeros(int size) {
     return newDoubleVector(size);
   }
 
-  public static Matrix zeros(int rows, int columns, Class<?> type) {
-    BiFunction<Integer, Integer, Matrix> f = NATIVE_TO_MATRIX.get(type);
-    if (f == null) {
-      throw new TypeConversionException(type.toString());
-    }
-    return f.apply(rows, columns);
-  }
-
   public static DoubleMatrix zeros(int rows, int columns) {
     return newDoubleMatrix(rows, columns);
   }
 
-  public static ComplexMatrix ones(int size) {
-    return fill(size, Complex.ONE);
+  public static DoubleMatrix ones(int size) {
+    return zeros(size).assign(1);
   }
 
-  static ComplexMatrix fill(int size, Complex fill) {
-    return DefaultComplexMatrix.withDefaultValue(size, 1, fill);
+  public static DoubleMatrix ones(int rows, int columns) {
+    return zeros(rows, columns).assign(1);
+  }
+
+  public static <T> Matrix ones(int size, Class<T> type) {
+    throw new UnsupportedOperationException();
+  }
+
+  public static Matrix filledWith(int size, double value) {
+    return zeros(size).assign(value);
+  }
+
+  public static Matrix filledWith(int rows, int columns, double value) {
+    return zeros(rows, columns).assign(value);
+  }
+
+  public static <T> Matrix filledWith(int size, Class<T> type, T value) {
+    return getMatrixFactory(type).newVectorFilledWith(size, value);
+  }
+
+  public static <T> Matrix filledWith(int rows, int columns, Class<T> type, T value) {
+    return getMatrixFactory(type).newMatrixFilledWith(rows, columns, value);
+  }
+
+  public static DoubleMatrix randn(int rows, int cols) {
+    return newDoubleMatrix(rows, cols).assign(RANDOM::nextGaussian);
+  }
+
+  public static DoubleMatrix randn(int size) {
+    return newDoubleVector(size).assign(RANDOM::nextGaussian);
+  }
+
+  public static DoubleMatrix rand(int rows, int cols) {
+    return newDoubleMatrix(rows, cols).assign(RANDOM::nextDouble);
+  }
+
+  public static DoubleMatrix rand(int size) {
+    return newDoubleVector(size).assign(RANDOM::nextDouble);
+  }
+
+  /**
+   * Diagonal identity matrix of {@code size}
+   *
+   * @param size the size
+   * @return the identity matrix
+   */
+  public static DoubleMatrix eye(int size) {
+    double[] diagonal = new double[size];
+    for (int i = 0; i < size; i++) {
+      diagonal[i] = 1;
+    }
+    return Diagonal.of(size, size, diagonal);
   }
 
   public static IntMatrix range(int start, int end) {
@@ -410,5 +611,155 @@ public final class Matrices {
       }
     }
     return builder.build();
+  }
+
+  /**
+   * <p>
+   * Create a vector of length {@code num} with evenly spaced values between {@code start} and
+   * {@code end}.
+   * </p>
+   *
+   * @param start the start value
+   * @param stop the end value
+   * @param num the number of steps (i.e. intermediate values)
+   * @return a vector
+   */
+  public static DoubleMatrix linspace(double start, double stop, int num) {
+    DoubleMatrix values = newDoubleVector(num);
+    double step = (stop - start) / (num - 1);
+    double value = start;
+    for (int index = 0; index < num; index++) {
+      values.set(index, value);
+      value += step;
+    }
+    return values;
+  }
+
+  public static DoubleMatrix map(DoubleMatrix in, DoubleUnaryOperator operator) {
+    return in.newEmptyMatrix(in.rows(), in.columns()).assign(in, operator);
+  }
+
+  public static DoubleMatrix sqrt(DoubleMatrix matrix) {
+    return map(matrix, Math::sqrt);
+  }
+
+  public static DoubleMatrix log(DoubleMatrix in) {
+    return map(in, Math::log);
+  }
+
+  public static DoubleMatrix log2(DoubleMatrix in) {
+    return map(in, x -> Math.log(x) / LOG_2);
+  }
+
+  public static DoubleMatrix pow(DoubleMatrix in, double power) {
+    switch ((int) power) {
+      case 2:
+        return map(in, x -> x * x);
+      case 3:
+        return map(in, x -> x * x * x);
+      case 4:
+        return map(in, x -> x * x * x * x);
+      default:
+        return map(in, x -> Math.pow(x, power));
+    }
+  }
+
+  public static DoubleMatrix log10(DoubleMatrix in) {
+    return map(in, Math::log10);
+  }
+
+  public static DoubleMatrix signum(DoubleMatrix in) {
+    return map(in, Math::signum);
+  }
+
+  public static DoubleMatrix abs(DoubleMatrix in) {
+    return map(in, Math::abs);
+  }
+
+  public static LongMatrix round(DoubleMatrix in) {
+    return newLongMatrix(in.rows(), in.columns()).assign(in, Math::round);
+  }
+
+  public static double trace(DoubleMatrix matrix) {
+    int min = Math.min(matrix.rows(), matrix.columns());
+    double sum = 0;
+    for (int i = 0; i < min; i++) {
+      sum += matrix.get(i, i);
+    }
+    return sum;
+  }
+
+  public static double sum(DoubleMatrix matrix) {
+    double sum = 0;
+    for (int i = 0; i < matrix.size(); i++) {
+      sum += matrix.get(i);
+    }
+    return sum;
+  }
+
+  public static int sum(IntMatrix matrix) {
+    int sum = 0;
+    for (int i = 0; i < matrix.size(); i++) {
+      sum += matrix.get(i);
+    }
+    return sum;
+  }
+
+  public static int sum(BitMatrix matrix) {
+    int sum = 0;
+    for (int i = 0; i < matrix.size(); i++) {
+      sum += matrix.get(i) ? 1 : 0;
+    }
+    return sum;
+  }
+
+  /**
+   * Sum t.
+   *
+   * @param m the m
+   * @param axis the axis
+   * @return the t
+   */
+  public static Matrix sum(Matrix m, Axis axis) {
+    switch (axis) {
+      case ROW:
+        return rowSum(m);
+      case COLUMN:
+        return columnSum(m);
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  private static Matrix columnSum(Matrix m) {
+    DoubleMatrix values = newDoubleMatrix(m.rows(), 1);
+    for (int j = 0; j < m.columns(); j++) {
+      for (int i = 0; i < m.rows(); i++) {
+        values.set(i, values.get(i) + m.getAsDouble(i, j));
+      }
+    }
+    return values;
+  }
+
+  private static Matrix rowSum(Matrix m) {
+    DoubleMatrix values = newDoubleMatrix(1, m.columns());
+    for (int j = 0; j < m.columns(); j++) {
+      for (int i = 0; i < m.rows(); i++) {
+        values.set(j, values.get(i) + m.getAsDouble(i, j));
+      }
+    }
+
+    return values;
+  }
+
+
+  private static interface MatrixFactory<T> {
+    Matrix newVector(int size);
+
+    Matrix newMatrix(int rows, int columns);
+
+    Matrix newVectorFilledWith(int size, T fill);
+
+    Matrix newMatrixFilledWith(int rows, int columns, T fill);
   }
 }

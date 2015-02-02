@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import java.util.Arrays;
+
 import org.briljantframework.matrix.storage.BooleanStorage;
 import org.briljantframework.matrix.storage.Storage;
 
@@ -12,6 +14,16 @@ public class DefaultBitMatrix extends AbstractBitMatrix {
   public DefaultBitMatrix(int rows, int cols) {
     super(rows, cols);
     this.storage = new BooleanStorage(new boolean[Math.multiplyExact(rows, cols)]);
+  }
+
+  public DefaultBitMatrix(int size, boolean defaultValue) {
+    this(size);
+    Arrays.fill(getStorage().asBooleanArray(), defaultValue);
+  }
+
+  public DefaultBitMatrix(int rows, int columns, boolean defaultValue) {
+    this(rows, columns);
+    Arrays.fill(getStorage().asBooleanArray(), defaultValue);
   }
 
   public DefaultBitMatrix(boolean... values) {

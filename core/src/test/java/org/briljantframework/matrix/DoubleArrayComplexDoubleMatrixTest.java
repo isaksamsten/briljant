@@ -1,6 +1,6 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Doubles.randn;
+import static org.briljantframework.matrix.Matrices.randn;
 import static org.briljantframework.matrix.Matrices.zeros;
 
 import org.briljantframework.Utils;

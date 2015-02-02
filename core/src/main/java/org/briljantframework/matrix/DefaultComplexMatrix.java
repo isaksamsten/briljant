@@ -25,8 +25,13 @@ public class DefaultComplexMatrix extends AbstractComplexMatrix {
     this(new ComplexStorage(values), rows, cols);
   }
 
-  protected DefaultComplexMatrix(int rows, int columns, Complex defaultValue) {
+  public DefaultComplexMatrix(int rows, int columns, Complex defaultValue) {
     this(rows, columns);
+    this.defaultValue = defaultValue;
+  }
+
+  public DefaultComplexMatrix(int size, Complex defaultValue) {
+    this(size);
     this.defaultValue = defaultValue;
   }
 

@@ -4,10 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.Diagonal;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Doubles;
+import org.briljantframework.matrix.*;
 import org.junit.Test;
 
 public class LinearAlgebraTest {
@@ -31,7 +28,7 @@ public class LinearAlgebraTest {
 
   @Test
   public void testPinvNonSymetric() throws Exception {
-    DoubleMatrix x = Doubles.randn(20, 20);
+    DoubleMatrix x = Matrices.randn(20, 20);
     Diagonal d = Doubles.eye(20, 10);
 
     Diagonal d2 = Doubles.eye(10, 20);
@@ -42,7 +39,7 @@ public class LinearAlgebraTest {
     // Matrix dmmul = Matrices.dmmul(d2, x);
     // System.out.println(dmmul);
 
-    DoubleMatrix a = Doubles.randn(10, 20);
+    DoubleMatrix a = Matrices.randn(10, 20);
     System.out.println(LinearAlgebra.pinv(a));
 
     DoubleMatrix m = Doubles.parseMatrix("1,2,3,4;1,2,3,4");

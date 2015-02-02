@@ -11,7 +11,7 @@ public class AbstractMatrixTest {
     IntMatrix a = Matrices.range(0, 10);
     assertTrue(a == a.asDoubleMatrix().asComplexMatrix().asIntMatrix());
 
-    DoubleMatrix b = Doubles.linspace(0, 2, 10);
+    DoubleMatrix b = Matrices.linspace(0, 2, 10);
     assertTrue(b == b.asIntMatrix().asDoubleMatrix());
   }
 

@@ -22,7 +22,6 @@ public abstract class AbstractMatrix implements Matrix {
     this.size = Math.multiplyExact(rows, cols);
   }
 
-
   @Override
   public Matrix slice(IntMatrix rows, IntMatrix columns) {
     Matrix matrix = newEmptyMatrix(rows.size(), columns.size());
@@ -75,6 +74,22 @@ public abstract class AbstractMatrix implements Matrix {
       }
       return matrix;
     }
+  }
+
+  @Override
+  public Matrix slice(BitMatrix bits) {
+    IncrementalBuilder builder = newIncrementalBuilder();
+    int r = 0, s = bits.size();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(r++)) {
+        builder.add(this, i);
+      }
+      if (r >= s) {
+        r = 0;
+      }
+    }
+
+    return builder.build();
   }
 
   @Override

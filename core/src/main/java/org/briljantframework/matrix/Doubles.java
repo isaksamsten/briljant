@@ -20,15 +20,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.primitives.Ints.checkedCast;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.DoubleSupplier;
-import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
 import org.briljantframework.QuickSort;
-import org.briljantframework.Utils;
 import org.briljantframework.matrix.storage.DoubleStorage;
-import org.briljantframework.vector.Vector;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.collect.Lists;
@@ -41,15 +37,6 @@ import com.google.common.collect.Lists;
  */
 public class Doubles {
 
-  /**
-   * The constant RANDOM.
-   */
-  public static final Random RANDOM = Utils.getRandom();
-
-  /**
-   * The constant LOG_2.
-   */
-  public static final double LOG_2 = Math.log(2);
   protected static final BLAS BLAS = com.github.fommil.netlib.BLAS.getInstance();
   private static final Pattern ROW_SEPARATOR = Pattern.compile(";");
   private static final Pattern VALUE_SEPARATOR = Pattern.compile(",");
@@ -187,29 +174,6 @@ public class Doubles {
     return DefaultDoubleMatrix.filledWith(size, 1, n);
   }
 
-  /**
-   * Diagonal identity matrix of {@code size}
-   *
-   * @param size the size
-   * @return the identity matrix
-   */
-  public static DoubleMatrix eye(int size) {
-    double[] diagonal = new double[size];
-    for (int i = 0; i < size; i++) {
-      diagonal[i] = 1;
-    }
-    return Diagonal.of(size, size, diagonal);
-  }
-
-  /**
-   * @param in input tensorlike
-   * @param operator operator to apply
-   * @param out the out
-   */
-  public static void map(DoubleMatrix in, DoubleUnaryOperator operator, DoubleMatrix out) {
-    out.assign(in, operator);
-  }
-
 
   /**
    * Eye diagonal.
@@ -228,12 +192,12 @@ public class Doubles {
 
   public static DoubleMatrix sort(DoubleMatrix matrix) {
     DoubleMatrix out = matrix.copy();
-    QuickSort.quickSort(0, (int) out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)), (a,
-        b) -> {
-      double tmp = out.get(a);
-      out.set(a, out.get(b));
-      out.set(b, tmp);
-    });
+    QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)),
+        (a, b) -> {
+          double tmp = out.get(a);
+          out.set(a, out.get(b));
+          out.set(b, tmp);
+        });
     return out;
   }
 
@@ -242,7 +206,7 @@ public class Doubles {
     if (axis == Axis.ROW) {
       for (int i = 0; i < matrix.rows(); i++) {
         DoubleMatrix row = out.getRowView(i);
-        QuickSort.quickSort(0, (int) row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
+        QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)),
             (a, b) -> {
               double tmp = row.get(a);
               row.set(a, row.get(b));
@@ -252,7 +216,7 @@ public class Doubles {
     } else {
       for (int i = 0; i < matrix.columns(); i++) {
         DoubleMatrix col = out.getColumnView(i);
-        QuickSort.quickSort(0, (int) col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
+        QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)),
             (a, b) -> {
               double tmp = col.get(a);
               col.set(a, col.get(b));
@@ -263,76 +227,6 @@ public class Doubles {
     return out;
   }
 
-  /**
-   * <pre>
-   *
-   * </pre>
-   *
-   * @param in the in
-   * @param operator the operator
-   * @return out out
-   */
-  public static DoubleMatrix map(DoubleMatrix in, DoubleUnaryOperator operator) {
-    return in.newEmptyMatrix(in.rows(), in.columns()).assign(in, operator);
-  }
-
-
-  /**
-   * Sqrt matrix.
-   *
-   * @param matrix the matrix
-   * @return the matrix
-   */
-  public static DoubleMatrix sqrt(DoubleMatrix matrix) {
-    return map(matrix, Math::sqrt);
-  }
-
-  /**
-   * Log out.
-   *
-   * @param in the in
-   * @return out out
-   */
-  public static DoubleMatrix log(DoubleMatrix in) {
-    return map(in, Math::log);
-  }
-
-  /**
-   * Log 2.
-   *
-   * @param in the in
-   * @return out out
-   */
-  public static DoubleMatrix log2(DoubleMatrix in) {
-    return map(in, x -> Math.log(x) / LOG_2);
-  }
-
-  public static DoubleMatrix reshape(Vector a, int m, int n) {
-    return a.asMatrix().asDoubleMatrix().reshape(m, n);
-  }
-
-  /**
-   * <p>
-   * Create a vector of length {@code num} with evenly spaced values between {@code start} and
-   * {@code end}.
-   * </p>
-   *
-   * @param start the start value
-   * @param stop the end value
-   * @param num the number of steps (i.e. intermediate values)
-   * @return a vector
-   */
-  public static DoubleMatrix linspace(double start, double stop, int num) {
-    double[] builder = new double[num];
-    double step = (stop - start) / (num - 1);
-    double value = start;
-    for (int index = 0; index < num; index++) {
-      builder[index] = value;
-      value += step;
-    }
-
-    return new DefaultDoubleMatrix(builder, builder.length, 1);
-  }
 
   /**
    * Std out.
@@ -380,68 +274,6 @@ public class Doubles {
   }
 
   /**
-   * Randn out.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return out out
-   */
-  public static DoubleMatrix randn(int rows, int cols) {
-    return Matrices.newDoubleMatrix(rows, cols).assign(RANDOM::nextGaussian);
-  }
-
-  /**
-   * Rand out.
-   *
-   * @param rows the rows
-   * @param cols the cols
-   * @return out out
-   */
-  public static DoubleMatrix rand(int rows, int cols) {
-    return Matrices.newDoubleMatrix(rows, cols).assign(RANDOM::nextDouble);
-  }
-
-  /**
-   * Pow out.
-   *
-   * @param in the in
-   * @param power the power
-   * @return out out
-   */
-  public static DoubleMatrix pow(DoubleMatrix in, double power) {
-    switch ((int) power) {
-      case 2:
-        return map(in, x -> x * x);
-      case 3:
-        return map(in, x -> x * x * x);
-      case 4:
-        return map(in, x -> x * x * x * x);
-      default:
-        return map(in, x -> Math.pow(x, power));
-    }
-  }
-
-  /**
-   * Log 10.
-   *
-   * @param in the in
-   * @return out out
-   */
-  public static DoubleMatrix log10(DoubleMatrix in) {
-    return map(in, Math::log10);
-  }
-
-  /**
-   * Sign out.
-   *
-   * @param in the in
-   * @return out out
-   */
-  public static DoubleMatrix signum(DoubleMatrix in) {
-    return map(in, Math::signum);
-  }
-
-  /**
    * Simple wrapper around
    * {@link com.github.fommil.netlib.BLAS#dgemm(String, String, int, int, int, double, double[], int, double[], int, double, double[], int)}
    * <p>
@@ -480,20 +312,6 @@ public class Doubles {
     BLAS.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, t.asDoubleArray(),
         checkedCast(t.rows()), other.asDoubleArray(), checkedCast(other.rows()), beta, tmp,
         thisRows);
-  }
-
-  /**
-   *
-   * @param matrix
-   * @return
-   */
-  public static double trace(DoubleMatrix matrix) {
-    int min = Math.min(matrix.rows(), matrix.columns());
-    double sum = 0;
-    for (int i = 0; i < min; i++) {
-      sum += matrix.get(i, i);
-    }
-    return sum;
   }
 
   /**
@@ -549,51 +367,5 @@ public class Doubles {
     return var(vector, mean(vector));
   }
 
-  public static double sum(Matrix matrix) {
-    double sum = 0;
-    for (int i = 0; i < matrix.size(); i++) {
-      sum += matrix.getAsDouble(i);
-    }
-    return sum;
-  }
 
-  /**
-   * Sum t.
-   *
-   * @param m the m
-   * @param axis the axis
-   * @return the t
-   */
-  public static Matrix sum(Matrix m, Axis axis) {
-    switch (axis) {
-      case ROW:
-        return rowSum(m);
-      case COLUMN:
-        return columnSum(m);
-      default:
-        throw new IllegalArgumentException();
-    }
-  }
-
-  private static Matrix columnSum(Matrix m) {
-    DoubleMatrix values = Matrices.newDoubleMatrix(m.rows(), 1);
-    for (int j = 0; j < m.columns(); j++) {
-      for (int i = 0; i < m.rows(); i++) {
-        values.set(i, values.get(i) + m.getAsDouble(i, j));
-      }
-    }
-    return values;
-  }
-
-
-  private static Matrix rowSum(Matrix m) {
-    DoubleMatrix values = Matrices.newDoubleMatrix(1, m.columns());
-    for (int j = 0; j < m.columns(); j++) {
-      for (int i = 0; i < m.rows(); i++) {
-        values.set(j, values.get(i) + m.getAsDouble(i, j));
-      }
-    }
-
-    return values;
-  }
 }

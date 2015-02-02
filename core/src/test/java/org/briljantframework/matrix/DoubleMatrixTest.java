@@ -25,7 +25,7 @@ public class DoubleMatrixTest {
     assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
     assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
 
-    DoubleMatrix m = Doubles.rand(4, 4);
+    DoubleMatrix m = Matrices.rand(4, 4);
 
     System.out.println(m);
     Iterator<Integer> i = Range.range(50).iterator();
@@ -41,6 +41,8 @@ public class DoubleMatrixTest {
     System.out.println(a.slice(Range.range(0, 1)));
 
     System.out.println(m.slice(Range.range(10)));
+
+    System.out.println(a.slice(a.lessThan(2)));
 
   }
 

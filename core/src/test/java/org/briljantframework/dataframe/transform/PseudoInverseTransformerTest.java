@@ -2,10 +2,7 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.Diagonal;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Doubles;
+import org.briljantframework.matrix.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,7 +66,7 @@ public class PseudoInverseTransformerTest {
     // System.out.println(mmul);
 
 
-    DoubleMatrix large = Doubles.randn(1000, 100);
+    DoubleMatrix large = Matrices.randn(1000, 100);
 
     System.out.println(LinearAlgebra.pinv(A));
   }

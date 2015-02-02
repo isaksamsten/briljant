@@ -4,7 +4,7 @@ import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Doubles;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // Shapelet candidate = NormalizedShapelet.create(5, 10, l);
     //
     //
-    Vector l = Convert.toAdapter(Doubles.randn(1, 3213));
+    Vector l = Convert.toAdapter(Matrices.randn(1, 3213));
     Shapelet candidate = new Shapelet(2314, 500, l);
     //
 

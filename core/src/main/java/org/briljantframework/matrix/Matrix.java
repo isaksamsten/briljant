@@ -284,15 +284,6 @@ public interface Matrix extends Swappable {
   Matrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
-   * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
-   * 
-   * @param rows the rows to include
-   * @param columns the columns to include
-   * @return a new matrix with the same size as {@code this}
-   */
-  Matrix slice(IntMatrix rows, IntMatrix columns);
-
-  /**
    * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the return
    * type.
    * 
@@ -302,13 +293,38 @@ public interface Matrix extends Swappable {
    */
   Matrix slice(Range rows, Range columns);
 
+  /**
+   * Basic slicing. Returns a view of the underlying matrix.
+   * 
+   * @param range the range
+   * @return a view
+   */
   Matrix slice(Range range);
 
+  /**
+   * Basic slicing. Returns a view of the underlying matrix, sliced from the axis defined by
+   * {@code axis}.
+   * 
+   * @param range the range
+   * @param axis the axis
+   * @return a view
+   */
   Matrix slice(Range range, Axis axis);
+
+  /**
+   * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
+   *
+   * @param rows the rows to include
+   * @param columns the columns to include
+   * @return a new matrix with the same size as {@code this}
+   */
+  Matrix slice(IntMatrix rows, IntMatrix columns);
 
   Matrix slice(IntMatrix indexes);
 
   Matrix slice(IntMatrix indexes, Axis axis);
+
+  Matrix slice(BitMatrix bits);
 
   /**
    * The number of rows.

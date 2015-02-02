@@ -1,7 +1,7 @@
 package org.briljantframework.classification;
 
 
-import static org.briljantframework.matrix.Doubles.randn;
+import static org.briljantframework.matrix.Matrices.randn;
 
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
