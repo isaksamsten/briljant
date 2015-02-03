@@ -112,7 +112,7 @@ public class LinearAlgebra {
    */
   public static DefaultDoubleMatrix pinv(DoubleMatrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
-    double[] array = shape.getArrayOfShape();
+    double[] array = shape.getDoubleArray();
     pinvi(matrix, array);
     return new DefaultDoubleMatrix(array, matrix.columns(), matrix.rows());
   }

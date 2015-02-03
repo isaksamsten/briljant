@@ -176,22 +176,22 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   }
 
   @Override
-  public Matrix slice(Range rows, Range columns) {
+  public Matrix slice(Slice rows, Slice columns) {
     return new SliceIntMatrix(this, rows, columns);
   }
 
   @Override
-  public Matrix slice(Range range, Axis axis) {
+  public Matrix slice(Slice slice, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceIntMatrix(this, range, Range.range(columns()));
+      return new SliceIntMatrix(this, slice, Slice.slice(columns()));
     } else {
-      return new SliceIntMatrix(this, Range.range(rows()), range);
+      return new SliceIntMatrix(this, Slice.slice(rows()), slice);
     }
   }
 
   @Override
-  public Matrix slice(Range range) {
-    return new FlatSliceIntMatrix(this, range);
+  public Matrix slice(Slice slice) {
+    return new FlatSliceIntMatrix(this, slice);
   }
 
   @Override
@@ -923,14 +923,14 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   protected static class SliceIntMatrix extends AbstractIntMatrix {
 
-    private final Range row, column;
+    private final Slice row, column;
     private final IntMatrix parent;
 
-    public SliceIntMatrix(IntMatrix parent, Range row, Range column) {
+    public SliceIntMatrix(IntMatrix parent, Slice row, Slice column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceIntMatrix(IntMatrix parent, int rows, Range row, int columns, Range column) {
+    public SliceIntMatrix(IntMatrix parent, int rows, Slice row, int columns, Slice column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -992,16 +992,16 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   protected class FlatSliceIntMatrix extends AbstractIntMatrix {
     private final IntMatrix parent;
-    private final Range range;
+    private final Slice slice;
 
-    private FlatSliceIntMatrix(IntMatrix parent, int size, Range range) {
+    private FlatSliceIntMatrix(IntMatrix parent, int size, Slice slice) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
+      this.slice = checkNotNull(slice);
     }
 
-    public FlatSliceIntMatrix(IntMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceIntMatrix(IntMatrix parent, Slice slice) {
+      this(parent, checkNotNull(slice).size(), slice);
     }
 
     @Override
@@ -1011,7 +1011,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
     @Override
     public void set(int index, int value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
     }
 
     @Override
@@ -1041,7 +1041,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
     @Override
     public int get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
+      return parent.get(sliceIndex(slice.step(), index, parent.size()));
     }
 
     @Override

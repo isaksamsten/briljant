@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 
@@ -11,12 +13,12 @@ public class DefaultLongMatrix extends AbstractLongMatrix {
 
   public DefaultLongMatrix(Storage storage, int size) {
     super(size);
-    this.storage = storage;
+    this.storage = checkNotNull(storage);
   }
 
   public DefaultLongMatrix(Storage storage, int rows, int cols) {
     super(rows, cols);
-    this.storage = storage;
+    this.storage = checkNotNull(storage);
   }
 
   public DefaultLongMatrix(int rows, int cols) {
@@ -34,7 +36,8 @@ public class DefaultLongMatrix extends AbstractLongMatrix {
 
   @Override
   public LongMatrix reshape(int rows, int columns) {
-    return null;
+    Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+    return new DefaultLongMatrix(getStorage(), rows, columns);
   }
 
   @Override
@@ -44,11 +47,11 @@ public class DefaultLongMatrix extends AbstractLongMatrix {
 
   @Override
   public Storage getStorage() {
-    return null;
+    return storage;
   }
 
   @Override
   public LongMatrix newEmptyMatrix(int rows, int columns) {
-    return null;
+    return new DefaultLongMatrix(rows, columns);
   }
 }

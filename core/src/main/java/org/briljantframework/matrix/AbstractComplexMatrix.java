@@ -144,22 +144,22 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   }
 
   @Override
-  public Matrix slice(Range rows, Range columns) {
+  public Matrix slice(Slice rows, Slice columns) {
     return new SliceComplexMatrix(this, rows, columns);
   }
 
   @Override
-  public Matrix slice(Range range, Axis axis) {
+  public Matrix slice(Slice slice, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceComplexMatrix(this, range, Range.range(columns()));
+      return new SliceComplexMatrix(this, slice, Slice.slice(columns()));
     } else {
-      return new SliceComplexMatrix(this, Range.range(rows()), range);
+      return new SliceComplexMatrix(this, Slice.slice(rows()), slice);
     }
   }
 
   @Override
-  public Matrix slice(Range range) {
-    return new FlatSliceComplexMatrix(this, range);
+  public Matrix slice(Slice slice) {
+    return new FlatSliceComplexMatrix(this, slice);
   }
 
   @Override
@@ -650,14 +650,14 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   protected static class SliceComplexMatrix extends AbstractComplexMatrix {
 
-    private final Range row, column;
+    private final Slice row, column;
     private final ComplexMatrix parent;
 
-    public SliceComplexMatrix(ComplexMatrix parent, Range row, Range column) {
+    public SliceComplexMatrix(ComplexMatrix parent, Slice row, Slice column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceComplexMatrix(ComplexMatrix parent, int rows, Range row, int columns, Range column) {
+    public SliceComplexMatrix(ComplexMatrix parent, int rows, Slice row, int columns, Slice column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -719,16 +719,16 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
     private final ComplexMatrix parent;
-    private final Range range;
+    private final Slice slice;
 
-    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Range range) {
+    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Slice slice) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
+      this.slice = checkNotNull(slice);
     }
 
-    public FlatSliceComplexMatrix(ComplexMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceComplexMatrix(ComplexMatrix parent, Slice slice) {
+      this(parent, checkNotNull(slice).size(), slice);
     }
 
     @Override
@@ -738,7 +738,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
     @Override
     public void set(int index, Complex value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
     }
 
     @Override
@@ -768,7 +768,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
     @Override
     public Complex get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
+      return parent.get(sliceIndex(slice.step(), index, parent.size()));
     }
 
     @Override

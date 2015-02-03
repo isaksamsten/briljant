@@ -3,7 +3,7 @@ package org.briljantframework.matrix;
 /**
  * Created by Isak Karlsson on 12/01/15.
  */
-public interface BitMatrix extends Matrix {
+public interface BitMatrix extends Matrix, Iterable<Boolean> {
 
   void set(int i, int j, boolean value);
 
@@ -30,7 +30,7 @@ public interface BitMatrix extends Matrix {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @param i
    */
   @Override
@@ -38,7 +38,7 @@ public interface BitMatrix extends Matrix {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @param index
    */
   @Override
@@ -52,7 +52,7 @@ public interface BitMatrix extends Matrix {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @param rowOffset
    * @param colOffset
    * @param rows

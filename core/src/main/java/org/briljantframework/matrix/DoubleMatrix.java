@@ -315,13 +315,13 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix slice(IntMatrix indexes);
 
   @Override
-  DoubleMatrix slice(Range range);
+  DoubleMatrix slice(Slice slice);
 
   @Override
-  DoubleMatrix slice(Range rows, Range columns);
+  DoubleMatrix slice(Slice rows, Slice columns);
 
   @Override
-  DoubleMatrix slice(Range range, Axis axis);
+  DoubleMatrix slice(Slice slice, Axis axis);
 
   @Override
   DoubleMatrix slice(IntMatrix indexes, Axis axis);

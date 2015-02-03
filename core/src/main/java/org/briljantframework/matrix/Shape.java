@@ -21,9 +21,9 @@ package org.briljantframework.matrix;
  */
 public final class Shape {
 
-  public final long rows, columns;
+  public final int rows, columns;
 
-  private Shape(long rows, long columns) {
+  private Shape(int rows, int columns) {
     this.rows = rows;
     this.columns = columns;
   }
@@ -35,7 +35,7 @@ public final class Shape {
    * @param cols the cols
    * @return the shape
    */
-  public static Shape of(long rows, long cols) {
+  public static Shape of(int rows, int cols) {
     return new Shape(rows, cols);
   }
 
@@ -44,13 +44,27 @@ public final class Shape {
    *
    * @return the int
    */
-  public long size() {
+  public int size() {
     return Math.multiplyExact(rows, columns);
   }
 
-  public double[] getArrayOfShape() {
-    return new double[(int) size()];
+  public double[] getDoubleArray() {
+    return new double[size()];
   }
+
+  public int[] getIntArray() {
+    return new int[size()];
+  }
+
+  public long[] getLongArray() {
+    return new long[size()];
+  }
+
+  public boolean[] getBooleanArray() {
+    return new boolean[size()];
+  }
+
+
 
   @Override
   public boolean equals(Object o) {
@@ -60,20 +74,12 @@ public final class Shape {
       return false;
 
     Shape shape = (Shape) o;
-
-    if (columns != shape.columns)
-      return false;
-    if (rows != shape.rows)
-      return false;
-
-    return true;
+    return columns == shape.columns && rows == shape.rows;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (rows ^ (rows >>> 32));
-    result = 31 * result + (int) (columns ^ (columns >>> 32));
-    return result;
+    return 12 + rows * 31 + columns * 31;
   }
 
   @Override

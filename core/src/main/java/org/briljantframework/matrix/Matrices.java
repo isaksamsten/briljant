@@ -51,7 +51,7 @@ public final class Matrices {
       public Matrix newMatrixFilledWith(int rows, int columns, Double fill) {
         return new DefaultDoubleMatrix(rows, columns).assign(fill);
       }
-    }, Integer.class, new MatrixFactory<Integer>() {
+    }, Integer.class, new MatrixFactory<Number>() {
       @Override
       public Matrix newVector(int size) {
         return new DefaultIntMatrix(size);
@@ -63,13 +63,13 @@ public final class Matrices {
       }
 
       @Override
-      public Matrix newVectorFilledWith(int size, Integer fill) {
-        return new DefaultIntMatrix(size).assign(fill);
+      public Matrix newVectorFilledWith(int size, Number fill) {
+        return new DefaultIntMatrix(size).assign(fill.intValue());
       }
 
       @Override
-      public Matrix newMatrixFilledWith(int rows, int columns, Integer fill) {
-        return new DefaultIntMatrix(rows, columns).assign(fill);
+      public Matrix newMatrixFilledWith(int rows, int columns, Number fill) {
+        return new DefaultIntMatrix(rows, columns).assign(fill.intValue());
       }
     }, Complex.class, new MatrixFactory<Complex>() {
       @Override
@@ -244,10 +244,6 @@ public final class Matrices {
     return zeros(rows, columns).assign(1);
   }
 
-  public static <T> Matrix ones(int size, Class<T> type) {
-    throw new UnsupportedOperationException();
-  }
-
   public static Matrix filledWith(int size, double value) {
     return zeros(size).assign(value);
   }
@@ -299,7 +295,7 @@ public final class Matrices {
   }
 
   public static IntMatrix range(int start, int end, int step) {
-    return Range.range(start, end, step).copy();
+    return Slice.slice(start, end, step).copy();
   }
 
   public static IntMatrix take(IntMatrix a, IntMatrix b) {

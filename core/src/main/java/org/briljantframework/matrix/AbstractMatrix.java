@@ -47,8 +47,8 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix slice(Range range, Axis axis) {
-    return slice((IntMatrix) range, axis);
+  public Matrix slice(Slice slice, Axis axis) {
+    return slice((IntMatrix) slice, axis);
   }
 
   @Override
@@ -93,12 +93,12 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public Matrix slice(Range range) {
-    return slice((IntMatrix) range);
+  public Matrix slice(Slice slice) {
+    return slice((IntMatrix) slice);
   }
 
   @Override
-  public Matrix slice(Range rows, Range columns) {
+  public Matrix slice(Slice rows, Slice columns) {
     return slice((IntMatrix) rows, columns);
   }
 
@@ -148,7 +148,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix lessThan(Matrix other) {
+  public BitMatrix lt(Matrix other) {
     Check.equalSize(this, other);
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -159,7 +159,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix lessThan(Number value) {
+  public BitMatrix lt(Number value) {
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) < value.doubleValue());
@@ -168,7 +168,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix lessThanEqual(Matrix other) {
+  public BitMatrix lte(Matrix other) {
     Check.equalSize(this, other);
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -178,7 +178,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix lessThanEqual(Number value) {
+  public BitMatrix lte(Number value) {
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) <= value.doubleValue());
@@ -187,7 +187,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix greaterThan(Matrix other) {
+  public BitMatrix gt(Matrix other) {
     Check.equalSize(this, other);
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -197,7 +197,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix greaterThan(Number value) {
+  public BitMatrix gt(Number value) {
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) > value.doubleValue());
@@ -206,7 +206,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix greaterThanEqual(Matrix other) {
+  public BitMatrix gte(Matrix other) {
     Check.equalSize(this, other);
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -217,7 +217,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix greaterThanEqual(Number value) {
+  public BitMatrix gte(Number value) {
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) >= value.doubleValue());
@@ -226,7 +226,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix equalsTo(Matrix other) {
+  public BitMatrix eq(Matrix other) {
     Check.equalSize(this, other);
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -237,7 +237,7 @@ public abstract class AbstractMatrix implements Matrix {
   }
 
   @Override
-  public BitMatrix equalsTo(Number value) {
+  public BitMatrix eq(Number value) {
     BitMatrix bm = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, getAsDouble(i) == value.doubleValue());

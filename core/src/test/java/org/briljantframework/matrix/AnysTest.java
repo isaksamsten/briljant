@@ -32,7 +32,7 @@ public class AnysTest {
   @Test
   public void testMask() throws Exception {
     IntMatrix x = Matrices.range(0, 6).reshape(2, 3);
-    System.out.println(Matrices.mask(x, x.greaterThan(2), x.mul(2)).asDoubleMatrix());
+    System.out.println(Matrices.mask(x, x.gt(2), x.mul(2)).asDoubleMatrix());
 
   }
 }

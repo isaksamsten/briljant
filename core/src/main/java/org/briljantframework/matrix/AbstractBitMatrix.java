@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.sliceIndex;
 
+import java.util.Iterator;
 import java.util.Objects;
 
 import org.briljantframework.Utils;
@@ -12,6 +13,7 @@ import org.briljantframework.matrix.storage.Storage;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 12/01/15.
@@ -133,22 +135,22 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
   }
 
   @Override
-  public Matrix slice(Range rows, Range columns) {
+  public Matrix slice(Slice rows, Slice columns) {
     return new SliceBitMatrix(this, rows, columns);
   }
 
   @Override
-  public Matrix slice(Range range, Axis axis) {
+  public Matrix slice(Slice slice, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceBitMatrix(this, range, Range.range(columns()));
+      return new SliceBitMatrix(this, slice, Slice.slice(columns()));
     } else {
-      return new SliceBitMatrix(this, Range.range(rows()), range);
+      return new SliceBitMatrix(this, Slice.slice(rows()), slice);
     }
   }
 
   @Override
-  public Matrix slice(Range range) {
-    return new FlatSliceBitMatrix(this, range);
+  public Matrix slice(Slice slice) {
+    return new FlatSliceBitMatrix(this, slice);
   }
 
   @Override
@@ -221,6 +223,23 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
     out.append("shape: ").append(getShape()).append(" type: boolean");
     return out.toString();
+  }
+
+  @Override
+  public Iterator<Boolean> iterator() {
+    return new UnmodifiableIterator<Boolean>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Boolean next() {
+        return get(current++);
+      }
+    };
   }
 
   @Override
@@ -322,14 +341,14 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
   protected static class SliceBitMatrix extends AbstractBitMatrix {
 
-    private final Range row, column;
+    private final Slice row, column;
     private final BitMatrix parent;
 
-    public SliceBitMatrix(BitMatrix parent, Range row, Range column) {
+    public SliceBitMatrix(BitMatrix parent, Slice row, Slice column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceBitMatrix(BitMatrix parent, int rows, Range row, int columns, Range column) {
+    public SliceBitMatrix(BitMatrix parent, int rows, Slice row, int columns, Slice column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -386,16 +405,16 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
   protected class FlatSliceBitMatrix extends AbstractBitMatrix {
     private final BitMatrix parent;
-    private final Range range;
+    private final Slice slice;
 
-    public FlatSliceBitMatrix(BitMatrix parent, int size, Range range) {
+    public FlatSliceBitMatrix(BitMatrix parent, int size, Slice slice) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
+      this.slice = checkNotNull(slice);
     }
 
-    public FlatSliceBitMatrix(BitMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceBitMatrix(BitMatrix parent, Slice slice) {
+      this(parent, checkNotNull(slice).size(), slice);
     }
 
     @Override
@@ -405,7 +424,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
     @Override
     public void set(int index, boolean value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
     }
 
     @Override
@@ -435,7 +454,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
     @Override
     public boolean get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
+      return parent.get(sliceIndex(slice.step(), index, parent.size()));
     }
   }
 }

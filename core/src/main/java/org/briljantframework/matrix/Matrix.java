@@ -291,25 +291,25 @@ public interface Matrix extends Swappable {
    * @param columns the columns to include
    * @return a view
    */
-  Matrix slice(Range rows, Range columns);
+  Matrix slice(Slice rows, Slice columns);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix.
    * 
-   * @param range the range
+   * @param slice the range
    * @return a view
    */
-  Matrix slice(Range range);
+  Matrix slice(Slice slice);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix, sliced from the axis defined by
    * {@code axis}.
    * 
-   * @param range the range
+   * @param slice the range
    * @param axis the axis
    * @return a view
    */
-  Matrix slice(Range range, Axis axis);
+  Matrix slice(Slice slice, Axis axis);
 
   /**
    * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
@@ -425,7 +425,7 @@ public interface Matrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix lessThan(Matrix other);
+  BitMatrix lt(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) < value}.
@@ -433,7 +433,7 @@ public interface Matrix extends Swappable {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BitMatrix lessThan(Number value);
+  BitMatrix lt(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -442,7 +442,7 @@ public interface Matrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix lessThanEqual(Matrix other);
+  BitMatrix lte(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) <= value}.
@@ -450,7 +450,7 @@ public interface Matrix extends Swappable {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BitMatrix lessThanEqual(Number value);
+  BitMatrix lte(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -459,7 +459,7 @@ public interface Matrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThan(Matrix other);
+  BitMatrix gt(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) > value}.
@@ -467,7 +467,7 @@ public interface Matrix extends Swappable {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThan(Number value);
+  BitMatrix gt(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -476,7 +476,7 @@ public interface Matrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThanEqual(Matrix other);
+  BitMatrix gte(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
@@ -484,7 +484,7 @@ public interface Matrix extends Swappable {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BitMatrix greaterThanEqual(Number value);
+  BitMatrix gte(Number value);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if
@@ -493,7 +493,7 @@ public interface Matrix extends Swappable {
    * @param other the matrix
    * @return a boolean matrix
    */
-  BitMatrix equalsTo(Matrix other);
+  BitMatrix eq(Matrix other);
 
   /**
    * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) == value}.
@@ -501,7 +501,7 @@ public interface Matrix extends Swappable {
    * @param value the matrix
    * @return a boolean matrix
    */
-  BitMatrix equalsTo(Number value);
+  BitMatrix eq(Number value);
 
   /**
    * @return the transpose of {@code this}.

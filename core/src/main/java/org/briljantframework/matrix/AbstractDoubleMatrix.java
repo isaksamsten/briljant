@@ -589,21 +589,21 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix slice(Range range) {
-    return new FlatSliceDoubleMatrix(this, range);
+  public DoubleMatrix slice(Slice slice) {
+    return new FlatSliceDoubleMatrix(this, slice);
   }
 
   @Override
-  public DoubleMatrix slice(Range rows, Range columns) {
+  public DoubleMatrix slice(Slice rows, Slice columns) {
     return new SliceDoubleMatrix(this, rows, columns);
   }
 
   @Override
-  public DoubleMatrix slice(Range range, Axis axis) {
+  public DoubleMatrix slice(Slice slice, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceDoubleMatrix(this, range, Range.range(columns()));
+      return new SliceDoubleMatrix(this, slice, Slice.slice(columns()));
     } else {
-      return new SliceDoubleMatrix(this, Range.range(rows()), range);
+      return new SliceDoubleMatrix(this, Slice.slice(rows()), slice);
     }
   }
 
@@ -931,14 +931,14 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   protected static class SliceDoubleMatrix extends AbstractDoubleMatrix {
 
-    private final Range row, column;
+    private final Slice row, column;
     private final DoubleMatrix parent;
 
-    public SliceDoubleMatrix(DoubleMatrix parent, Range row, Range column) {
+    public SliceDoubleMatrix(DoubleMatrix parent, Slice row, Slice column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceDoubleMatrix(DoubleMatrix parent, int rows, Range row, int columns, Range column) {
+    public SliceDoubleMatrix(DoubleMatrix parent, int rows, Slice row, int columns, Slice column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -1000,16 +1000,16 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   protected class FlatSliceDoubleMatrix extends AbstractDoubleMatrix {
     private final DoubleMatrix parent;
-    private final Range range;
+    private final Slice slice;
 
-    public FlatSliceDoubleMatrix(DoubleMatrix parent, int size, Range range) {
+    public FlatSliceDoubleMatrix(DoubleMatrix parent, int size, Slice slice) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
+      this.slice = checkNotNull(slice);
     }
 
-    public FlatSliceDoubleMatrix(DoubleMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceDoubleMatrix(DoubleMatrix parent, Slice slice) {
+      this(parent, checkNotNull(slice).size(), slice);
     }
 
     @Override
@@ -1019,7 +1019,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public void set(int index, double value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
     }
 
     @Override
@@ -1049,7 +1049,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public double get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
+      return parent.get(sliceIndex(slice.step(), index, parent.size()));
     }
 
     @Override

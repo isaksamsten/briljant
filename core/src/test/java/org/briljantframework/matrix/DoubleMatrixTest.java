@@ -25,24 +25,28 @@ public class DoubleMatrixTest {
     assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
     assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
 
+    DoubleMatrix x = Matrices.randn(10, 100);
+    DoubleMatrix y = Matrices.randn(100, 10);
+    x.mmul(y);
+
     DoubleMatrix m = Matrices.rand(4, 4);
 
     System.out.println(m);
-    Iterator<Integer> i = Range.range(50).iterator();
+    Iterator<Integer> i = Slice.slice(50).iterator();
     m.assign(i::next);
     System.out.println(m);
     Axis ax = Axis.COLUMN;
-    DoubleMatrix d = m.slice(Range.range(3), Range.range(3));
+    DoubleMatrix d = m.slice(Slice.slice(3), Slice.slice(3));
     for (int j = 0; j < d.size(); j++) {
       System.out.println(d.get(j));
     }
 
-    System.out.println(m.slice(Range.range(3), Range.range(3)));
-    System.out.println(a.slice(Range.range(0, 1)));
+    System.out.println(m.slice(Slice.slice(3), Slice.slice(3)));
+    System.out.println(a.slice(Slice.slice(0, 1)));
 
-    System.out.println(m.slice(Range.range(10)));
+    System.out.println(m.slice(Slice.slice(10)));
 
-    System.out.println(a.slice(a.lessThan(2)));
+    System.out.println(a.slice(a.lt(2)));
 
   }
 

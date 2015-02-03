@@ -151,22 +151,22 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public Matrix slice(Range rows, Range columns) {
+  public Matrix slice(Slice rows, Slice columns) {
     return new SliceLongMatrix(this, rows, columns);
   }
 
   @Override
-  public Matrix slice(Range range, Axis axis) {
+  public Matrix slice(Slice slice, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceLongMatrix(this, range, Range.range(columns()));
+      return new SliceLongMatrix(this, slice, Slice.slice(columns()));
     } else {
-      return new SliceLongMatrix(this, Range.range(rows()), range);
+      return new SliceLongMatrix(this, Slice.slice(rows()), slice);
     }
   }
 
   @Override
-  public Matrix slice(Range range) {
-    return new FlatSliceLongMatrix(this, range);
+  public Matrix slice(Slice slice) {
+    return new FlatSliceLongMatrix(this, slice);
   }
 
   @Override
@@ -851,7 +851,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     }
     StringBuilder out = new StringBuilder();
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("shape: ").append(getShape()).append(" type: int");
+    out.append("shape: ").append(getShape()).append(" type: long");
     return out.toString();
   }
 
@@ -898,14 +898,14 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   protected static class SliceLongMatrix extends AbstractLongMatrix {
 
-    private final Range row, column;
+    private final Slice row, column;
     private final LongMatrix parent;
 
-    public SliceLongMatrix(LongMatrix parent, Range row, Range column) {
+    public SliceLongMatrix(LongMatrix parent, Slice row, Slice column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceLongMatrix(LongMatrix parent, int rows, Range row, int columns, Range column) {
+    public SliceLongMatrix(LongMatrix parent, int rows, Slice row, int columns, Slice column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -962,16 +962,16 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   protected class FlatSliceLongMatrix extends AbstractLongMatrix {
     private final LongMatrix parent;
-    private final Range range;
+    private final Slice slice;
 
-    private FlatSliceLongMatrix(LongMatrix parent, int size, Range range) {
+    private FlatSliceLongMatrix(LongMatrix parent, int size, Slice slice) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
+      this.slice = checkNotNull(slice);
     }
 
-    public FlatSliceLongMatrix(LongMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceLongMatrix(LongMatrix parent, Slice slice) {
+      this(parent, checkNotNull(slice).size(), slice);
     }
 
     @Override
@@ -981,7 +981,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
     @Override
     public void set(int index, long value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
     }
 
     @Override
@@ -1011,7 +1011,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
     @Override
     public long get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
+      return parent.get(sliceIndex(slice.step(), index, parent.size()));
     }
 
   }
