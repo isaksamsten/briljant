@@ -105,9 +105,9 @@ public class MatricesTest {
 
   @Test
   public void testFilledWith() throws Exception {
-    Matrix a = filledWith(3, Integer.class, 10);
-    assertTrue(a instanceof IntMatrix);
-    assertEquals(10, a.getAsInt(0));
+    IntMatrix a = filledWith(3, Integer.class, 10).asIntMatrix();
+    assertTrue(a != null);
+    assertEquals(10, a.get(0));
   }
 
   @Test

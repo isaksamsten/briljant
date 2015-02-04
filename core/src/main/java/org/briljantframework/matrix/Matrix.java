@@ -1,7 +1,6 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Swappable;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.storage.Storage;
 
 // TODO: implement mapToComplex(...), mapToInt(...), mapToDouble(...)
@@ -95,130 +94,6 @@ import org.briljantframework.matrix.storage.Storage;
  * @author Isak Karlsson
  */
 public interface Matrix extends Swappable {
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return complex value
-   */
-  Complex getAsComplex(int i, int j);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order.
-   *
-   * @param index the index
-   * @return the complex value index
-   */
-  Complex getAsComplex(int index);
-
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return double value
-   */
-  double getAsDouble(int i, int j);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order.
-   *
-   * @param index the index
-   * @return the double value index
-   */
-  double getAsDouble(int index);
-
-  long getAsLong(int i, int j);
-
-  long getAsLong(int index);
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return int value
-   */
-  int getAsInt(int i, int j);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order.
-   *
-   * @param index the index
-   * @return the int value index
-   */
-  int getAsInt(int index);
-
-  boolean getAsBit(int i, int j);
-
-  boolean getAsBit(int index);
-
-  /**
-   * Set value at {@code atIndex} to the value in {@code from} at {@code fromIndex}
-   * 
-   * @param atIndex the index
-   * @param from the other matrix
-   * @param fromIndex the index
-   */
-  void set(int atIndex, Matrix from, int fromIndex);
-
-  /**
-   * Set value at {@code atRow, atColumn} to the value in {@code from} at
-   * {@code fromRow, fromColumn}
-   * 
-   * @param atRow the row index
-   * @param atColumn the column index
-   * @param from the other matrix
-   * @param fromRow the row index
-   * @param fromColumn the column index
-   */
-  void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn);
-
-  /**
-   * Compare value at {@code a} to value at {@code b}.
-   * 
-   * @param a first index
-   * @param b second index
-   * @return the comparison
-   * @see java.lang.Double#compare(double, double)
-   * @see java.lang.Integer#compare(int, int)
-   * @see java.lang.Boolean#compare(boolean, boolean)
-   */
-  int compare(int a, int b);
-
-  /**
-   * Compare value at {@code toIndex} in {@code this} to value at {@code fromIndex} in {@code from}.
-   * 
-   * @param toIndex index in {@code this}
-   * @param fromIndex index in {@code from}
-   * @return the comparison
-   * @see java.lang.Double#compare(double, double)
-   * @see java.lang.Integer#compare(int, int)
-   * @see java.lang.Boolean#compare(boolean, boolean)
-   */
-  int compare(int toIndex, Matrix from, int fromIndex);
-
-  /**
-   * Compare value at {@code toRow, toColumn} in {@code this} to value at
-   * {@code fromRow, fromColumn} in {@code from}.
-   * 
-   * @param toRow row in {@code this}
-   * @param toColumn column in {@code this}
-   * @param from other matrix
-   * @param fromRow row in {@code from}
-   * @param fromColumn column in {@code from}
-   * @return the comparison
-   * @see java.lang.Double#compare(double, double)
-   * @see java.lang.Integer#compare(int, int)
-   * @see java.lang.Boolean#compare(boolean, boolean)
-   */
-  int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn);
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -368,8 +243,6 @@ public interface Matrix extends Swappable {
    */
   int size();
 
-  boolean isView();
-
   /**
    * Is square.
    *
@@ -396,6 +269,12 @@ public interface Matrix extends Swappable {
     return rows() == other.rows() && columns() == other.columns();
   }
 
+  Matrix newEmptyMatrix(int rows, int columns);
+
+  Matrix newEmptyVector(int size);
+
+  boolean isView();
+
   /**
    * @return this matrix as a {@link DoubleMatrix}.
    */
@@ -406,6 +285,9 @@ public interface Matrix extends Swappable {
    */
   IntMatrix asIntMatrix();
 
+  /**
+   * @return return this matrix as a {@link LongMatrix}
+   */
   LongMatrix asLongMatrix();
 
   /**
@@ -417,91 +299,6 @@ public interface Matrix extends Swappable {
    * @return this matrix as a {@link ComplexMatrix}.
    */
   ComplexMatrix asComplexMatrix();
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) < other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix lt(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) < value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix lt(Number value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) <= other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix lte(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) <= value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix lte(Number value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) > other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix gt(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) > value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix gt(Number value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) >= other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix gte(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) >= value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix gte(Number value);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if
-   * {@code get(i, j) == other.get(i, j)}.
-   *
-   * @param other the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix eq(Matrix other);
-
-  /**
-   * Return a boolean matrix with element {@code i, j} set to true if {@code get(i, j) == value}.
-   *
-   * @param value the matrix
-   * @return a boolean matrix
-   */
-  BitMatrix eq(Number value);
 
   /**
    * @return the transpose of {@code this}.
@@ -521,38 +318,4 @@ public interface Matrix extends Swappable {
    * @return the storage
    */
   Storage getStorage();
-
-  /**
-   * Incrementally construct a new matrix by adding values.
-   * 
-   * @return a new builder
-   */
-  IncrementalBuilder newIncrementalBuilder();
-
-  /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows the number of rows
-   * @param columns the number of columns
-   * @return a new empty matrix
-   */
-  Matrix newEmptyMatrix(int rows, int columns);
-
-  /**
-   * Returns a new column-vector of {@code size}
-   *
-   * @param size the size
-   * @return a new empty vector
-   */
-  Matrix newEmptyVector(int size);
-
-  interface IncrementalBuilder {
-
-    void add(Matrix from, int i, int j);
-
-    void add(Matrix from, int index);
-
-    Matrix build();
-  }
-
 }

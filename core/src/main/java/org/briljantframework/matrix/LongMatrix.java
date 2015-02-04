@@ -3,12 +3,22 @@ package org.briljantframework.matrix;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
 public interface LongMatrix extends Matrix, Iterable<Long> {
+
+  // Assignments
+  /**
+   * Assign {@code value} to {@code this}
+   *
+   * @param value the value to assign
+   * @return receiver modified
+   */
+  LongMatrix assign(long value);
 
   /**
    * Assign value returned by {@link #size()} successive calls to
@@ -20,33 +30,12 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
   LongMatrix assign(LongSupplier supplier);
 
   /**
-   * Assign {@code value} to {@code this}
+   * Perform {@code operator} element wise to receiver.
    *
-   * @param value the value to assign
+   * @param operator the operator to apply to each element
    * @return receiver modified
    */
-  LongMatrix assign(long value);
-
-  /**
-   * Assign {@code vector} extending row or column wise
-   *
-   * Note: {@code vector.size()} must equal {@code matrix.rows()} or {@code matrix.columns()}
-   *
-   * @param vector the vector
-   * @param axis the extending direction
-   * @return receiver modified
-   */
-  LongMatrix assign(Vector vector, Axis axis);
-
-  /**
-   * Assign {@code vector} and apply operator to every element extending row or column wise
-   *
-   * @param vector the vector
-   * @param operator the operator
-   * @param axis the extending direction
-   * @return receiver modified
-   */
-  LongMatrix assign(Vector vector, LongBinaryOperator operator, Axis axis);
+  LongMatrix assign(LongUnaryOperator operator);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -58,17 +47,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
   LongMatrix assign(LongMatrix matrix);
 
   /**
-   * Assign {@code matrix} to {@code this}, applying {@code operator} to each value. Compare:
-   *
-   * <pre>
-   * Matrix original = ArrayMatrix.filledWith(10, 10, 2);
-   * Matrix other = ArrayMatrix.filledWith(10, 10, 3);
-   * for (long i = 0; i &lt; matrix.size(); i++) {
-   *   original.put(i, other.get(i) * 3);
-   * }
-   * </pre>
-   *
-   * and {@code original.assign(other, x -> * 3)} or {@code original.add(1, other, 3)}
+   * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
    * @param matrix the matrix
    * @param operator the operator
@@ -76,51 +55,13 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    */
   LongMatrix assign(LongMatrix matrix, LongUnaryOperator operator);
 
-  /**
-   *
-   * @param matrix
-   * @param function
-   * @return
-   */
   LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function);
 
-  /**
-   *
-   * @param matrix
-   * @param function
-   * @return
-   */
+  LongMatrix assign(IntMatrix matrix, IntToLongFunction operator);
+
   LongMatrix assign(DoubleMatrix matrix, DoubleToLongFunction function);
 
-  /**
-   * Assigns values in {@code numbers}.
-   *
-   * @param numbers iterable of numbers
-   * @return receiver modified
-   */
-  LongMatrix assignStream(Iterable<? extends Number> numbers);
-
-  /**
-   * Assigns elements from {@code iterable} to this matrix added in the order implemented by
-   * {@link #set(int, long)} and transformed to double precision using {@code function}.
-   *
-   * @param iterable the iterable
-   * @param function the function, transforming {@code T} to double
-   * @param <T> the type
-   * @return receiver modified
-   */
-  <T> LongMatrix assignStream(Iterable<T> iterable, ToLongFunction<? super T> function);
-
-  /**
-   * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must
-   * equal {@code this.size()}. The array is assumed to be in column major order, hence
-   * {@code [1,2,3,4]} assigned to a matrix will result in {@code [1 3; 2 4]} and not
-   * {@code [1,2; 3,4]}, similar to R.
-   *
-   * @param values the column major array
-   * @return receiver modified
-   */
-  LongMatrix assign(long[] values);
+  // Transform
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -146,21 +87,17 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    */
   LongMatrix map(LongUnaryOperator operator);
 
-  /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  LongMatrix mapi(LongUnaryOperator operator);
+  IntMatrix mapToInt(LongToIntFunction map);
 
-  /**
-   * Filters
-   *
-   * @param operator
-   * @return
-   */
-  LongMatrix filter(LongPredicate operator);
+  DoubleMatrix mapToDouble(LongToDoubleFunction map);
+
+  ComplexMatrix mapToComplex(LongFunction<Complex> map);
+
+  BitMatrix satisfies(LongPredicate predicate);
+
+  BitMatrix satisfies(LongMatrix matrix, LongBiPredicate predicate);
+
+  long reduce(long identity, LongBinaryOperator reduce);
 
   /**
    * Reduces {@code this} longo a real value. For example, summing can be implemented as
@@ -198,6 +135,11 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    */
   LongMatrix reduceRows(ToLongFunction<? super LongMatrix> reduce);
 
+
+  // Filter
+
+  LongMatrix filter(LongPredicate operator);
+
   /**
    * {@inheritDoc}
    * 
@@ -206,6 +148,27 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    */
   @Override
   LongMatrix reshape(int rows, int columns);
+
+  // Get / set
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value long
+   */
+  long get(int i, int j);
+
+  /**
+   * @param index get long
+   * @return long at {@code index}
+   */
+  long get(int index);
+
+  void set(int index, long value);
+
+  void set(int row, int column, long value);
 
   /**
    * {@inheritDoc}
@@ -243,16 +206,6 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    */
   LongMatrix transpose();
 
-  // Arithmetical operations ///////////
-
-  /**
-   * Create a copy of this matrix.
-   *
-   * @return the copy
-   */
-  @Override
-  LongMatrix copy();
-
   /**
    * Construct a new empty matrix with {@code this.getClass()}
    *
@@ -262,7 +215,23 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    */
   LongMatrix newEmptyMatrix(int rows, int columns);
 
+  /**
+   * Construct a new empty (column) vector.
+   * 
+   * @param size the size
+   * @return the new vector
+   */
   LongMatrix newEmptyVector(int size);
+
+  /**
+   * Create a copy of this matrix.
+   *
+   * @return the copy
+   */
+  @Override
+  LongMatrix copy();
+
+  // Arithmetical operations ///////////
 
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
@@ -821,33 +790,4 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @return a new matrix
    */
   LongMatrix negate();
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value long
-   */
-  long get(int i, int j);
-
-  /**
-   * @param index get long
-   * @return long at {@code index}
-   */
-  long get(int index);
-
-  void set(int index, long value);
-
-  void set(int row, int column, long value);
-
-  /**
-   * Equal shape (i.e.
-   *
-   * @param other the other
-   * @return the boolean
-   */
-  default boolean hasEqualShape(LongMatrix other) {
-    return rows() == other.rows() && columns() == other.columns();
-  }
 }

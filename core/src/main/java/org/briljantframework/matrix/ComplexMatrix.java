@@ -12,6 +12,14 @@ import org.briljantframework.complex.Complex;
 public interface ComplexMatrix extends Matrix, Iterable<Complex> {
 
   /**
+   * Assign {@code value} to {@code this}
+   *
+   * @param value the value to assign
+   * @return receiver modified
+   */
+  ComplexMatrix assign(Complex value);
+
+  /**
    * Assign value returned by {@link #size()} successive calls to
    * {@link java.util.function.DoubleSupplier#getAsDouble()}
    *
@@ -21,23 +29,12 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix assign(Supplier<Complex> supplier);
 
   /**
-   * Assign {@code value} to {@code this}
+   * Perform {@code operator} element wise to receiver.
    *
-   * @param value the value to assign
+   * @param operator the operator to apply to each element
    * @return receiver modified
    */
-  ComplexMatrix assign(Complex value);
-
-  /**
-   * Assign the values in {@code values} to this matrix. The {@code length} of {@code value} must
-   * equal {@code this.size()}. The array is assumed to be in column major order, hence
-   * {@code [1,2,3,4]} assigned to a matrix will result in {@code [1 3; 2 4]} and not
-   * {@code [1,2; 3,4]}, similar to R.
-   *
-   * @param values the column major array
-   * @return receiver modified
-   */
-  ComplexMatrix assign(Complex[] values);
+  ComplexMatrix assign(UnaryOperator<Complex> operator);
 
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
@@ -49,17 +46,7 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix assign(ComplexMatrix matrix);
 
   /**
-   * Assign {@code matrix} to {@code this}, applying {@code operator} to each value. Compare:
-   *
-   * <pre>
-   * ComplexMatrix original = ...;
-   * ComplexMatrix other = ...;
-   * for (int i = 0; i &lt; original.size(); i++) {
-   *   original.put(i, other.get(i).multiply(3));
-   * }
-   * </pre>
-   *
-   * and {@code original.assign(other, x-> x.multiply(3))}
+   * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
    * @param matrix the matrix
    * @param operator the operator
@@ -69,7 +56,7 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
 
   /**
    * Assign {@code matrix} to this complex matrix.
-   * 
+   *
    * @param matrix matrix of real values
    * @return receiver modified
    */
@@ -77,29 +64,16 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
 
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
-   * 
+   *
    * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
-  ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<? extends Complex> operator);
+  ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<Complex> operator);
 
-  /**
-   * 
-   * @param complexes
-   * @return
-   */
-  ComplexMatrix assignStream(Iterable<? extends Complex> complexes);
+  ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator);
 
-  /**
-   * 
-   * @param iterable
-   * @param function
-   * @param <T>
-   * @return
-   */
-  <T> ComplexMatrix assignStream(Iterable<T> iterable,
-      Function<? super T, ? extends Complex> function);
+  ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator);
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -125,15 +99,17 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    */
   ComplexMatrix map(UnaryOperator<Complex> operator);
 
-  /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  ComplexMatrix mapi(UnaryOperator<Complex> operator);
+  IntMatrix mapToInt(ToIntFunction<Complex> function);
 
-  ComplexMatrix filter(Predicate<? super Complex> predicate);
+  LongMatrix mapToLong(ToLongFunction<Complex> function);
+
+  DoubleMatrix mapToDouble(ToDoubleFunction<Complex> function);
+
+  ComplexMatrix filter(Predicate<Complex> predicate);
+
+  BitMatrix satisfies(Predicate<Complex> predicate);
+
+  Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
   /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
@@ -186,6 +162,51 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    */
   @Override
   ComplexMatrix reshape(int rows, int columns);
+
+
+  void set(int index, Complex complex);
+
+  void set(int i, int j, Complex complex);
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value Complex
+   */
+  Complex get(int i, int j);
+
+  /**
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
+   * column-major order. For example, given the following matrix
+   * <p>
+   *
+   * <pre>
+   *     1 2 3
+   *     4 5 6
+   * </pre>
+   * <p>
+   * this code
+   * <p>
+   *
+   * <pre>
+   * for (int i = 0; i &lt; x.size(); i++) {
+   *   System.out.print(x.get(i));
+   * }
+   * </pre>
+   * <p>
+   * prints
+   * <p>
+   *
+   * <pre>
+   * 142536
+   * </pre>
+   *
+   * @param index the index
+   * @return the value index
+   */
+  Complex get(int index);
 
   /**
    * {@inheritDoc}
@@ -246,57 +267,6 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix newEmptyMatrix(int rows, int columns);
 
   ComplexMatrix newEmptyVector(int size);
-
-  /**
-   * Returns a new matrix with elements negated.
-   *
-   * @return a new matrix
-   */
-  ComplexMatrix negate();
-
-  void set(int index, Complex complex);
-
-  void set(int i, int j, Complex complex);
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value Complex
-   */
-  Complex get(int i, int j);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
-   *
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   *
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   *
-   * <pre>
-   * 142536
-   * </pre>
-   *
-   * @param index the index
-   * @return the value index
-   */
-  Complex get(int index);
 
   /**
    * @return the matrix as a column-major Complex array
@@ -566,4 +536,11 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
   ComplexMatrix rdivi(Complex other);
+
+  /**
+   * Returns a new matrix with elements negated.
+   *
+   * @return a new matrix
+   */
+  ComplexMatrix negate();
 }

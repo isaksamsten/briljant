@@ -34,6 +34,11 @@ public class DefaultLongMatrix extends AbstractLongMatrix {
     this(new LongStorage(new long[size]), size);
   }
 
+  public DefaultLongMatrix(Storage storage) {
+    super(checkNotNull(storage).size());
+    this.storage = storage;
+  }
+
   @Override
   public LongMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);

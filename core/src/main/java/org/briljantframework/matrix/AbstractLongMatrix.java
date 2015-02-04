@@ -11,11 +11,12 @@ import java.util.function.*;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.function.LongBiPredicate;
+import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.LongArrayList;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
 
 /**
@@ -29,106 +30,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   protected AbstractLongMatrix(int rows, int cols) {
     super(rows, cols);
-  }
-
-
-  @Override
-  public boolean getAsBit(int index) {
-    return getAsLong(index) == 1;
-  }
-
-  @Override
-  public boolean getAsBit(int i, int j) {
-    return getAsLong(i, j) == 1;
-  }
-
-  @Override
-  public int getAsInt(int index) {
-    return (int) getAsLong(index);
-  }
-
-  @Override
-  public int getAsInt(int i, int j) {
-    return (int) getAsLong(i, j);
-  }
-
-  @Override
-  public long getAsLong(int index) {
-    return get(index);
-  }
-
-  @Override
-  public long getAsLong(int i, int j) {
-    return get(i, j);
-  }
-
-  @Override
-  public double getAsDouble(int index) {
-    return getAsLong(index);
-  }
-
-  @Override
-  public double getAsDouble(int i, int j) {
-    return getAsLong(i, j);
-  }
-
-  @Override
-  public Complex getAsComplex(int index) {
-    return Complex.valueOf(getAsDouble(index));
-  }
-
-  @Override
-  public Complex getAsComplex(int i, int j) {
-    return Complex.valueOf(getAsDouble(i, j));
-  }
-
-  @Override
-  public LongMatrix copy() {
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, get(i));
-    }
-    return matrix;
-  }
-
-  @Override
-  public long get(int i, int j) {
-    return getStorage().getAsLong(Indexer.columnMajor(i, j, rows(), columns()));
-  }
-
-  @Override
-  public long get(int index) {
-    return getStorage().getAsLong(index);
-  }
-
-  @Override
-  public void set(int i, int j, long value) {
-    getStorage().setLong(Indexer.columnMajor(i, j, rows(), columns()), value);
-  }
-
-  @Override
-  public void set(int index, long value) {
-    getStorage().setLong(index, value);
-  }
-
-  @Override
-  public void set(int atIndex, Matrix from, int fromIndex) {
-    set(atIndex, from.getAsLong(fromIndex));
-  }
-
-  @Override
-  public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
-    set(atRow, atColumn, from.getAsLong(fromRow, fromColumn));
-  }
-
-  @Override
-  public int compare(int toIndex, Matrix from, int fromIndex) {
-    return Long.compare(get(toIndex), from.getAsInt(fromIndex));
-  }
-
-  @Override
-  public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
-    return Long.compare(get(toRow, toColumn), from.getAsLong(fromRow, fromColumn));
   }
 
   @Override
@@ -156,6 +57,11 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
+  public Matrix slice(Slice slice) {
+    return new FlatSliceLongMatrix(this, slice);
+  }
+
+  @Override
   public Matrix slice(Slice slice, Axis axis) {
     if (axis == Axis.ROW) {
       return new SliceLongMatrix(this, slice, Slice.slice(columns()));
@@ -165,24 +71,23 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public Matrix slice(Slice slice) {
-    return new FlatSliceLongMatrix(this, slice);
+  public Matrix slice(IntMatrix rows, IntMatrix columns) {
+    return null;
   }
 
   @Override
-  public LongMatrix transpose() {
-    LongMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(j, i, get(i, j));
-      }
-    }
-    return matrix;
+  public Matrix slice(IntMatrix indexes) {
+    return null;
   }
 
   @Override
-  public IncrementalBuilder newIncrementalBuilder() {
-    return new IncrementalBuilder();
+  public Matrix slice(IntMatrix indexes, Axis axis) {
+    return null;
+  }
+
+  @Override
+  public Matrix slice(BitMatrix bits) {
+    return null;
   }
 
   @Override
@@ -190,14 +95,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     long tmp = get(a);
     set(a, get(b));
     set(b, tmp);
-  }
-
-  @Override
-  public LongMatrix assign(LongSupplier supplier) {
-    for (int i = 0; i < size(); i++) {
-      set(i, supplier.getAsLong());
-    }
-    return this;
   }
 
   @Override
@@ -209,27 +106,17 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix assign(Vector vector, Axis axis) {
-    return assign(vector, (a, b) -> b, axis);
+  public LongMatrix assign(LongSupplier supplier) {
+    for (int i = 0; i < size(); i++) {
+      set(i, supplier.getAsLong());
+    }
+    return this;
   }
 
   @Override
-  public LongMatrix assign(Vector other, LongBinaryOperator operator, Axis axis) {
-    /*
-     * Due to cache-locality, put(i, ) is for most (at least array based) matrices a _big_ win.
-     * Therefore, the straightforward implementation using two for-loops is not used below. This is
-     * a big win since this.size() >= other.size().
-     */
-    if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // set(i, operator.applyAsLong(get(i), other.getAsLong(i % rows())));
-      }
-    } else {
-      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // set(i, operator.applyAsLong(get(i), other.getAsLong(i / rows())));
-      }
+  public LongMatrix assign(LongUnaryOperator operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.applyAsLong(get(i)));
     }
     return this;
   }
@@ -250,9 +137,18 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function) {
-    Preconditions.checkArgument(matrix.size() == size());
+    Check.equalSize(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsLong(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public LongMatrix assign(IntMatrix matrix, IntToLongFunction operator) {
+    Check.equalSize(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.applyAsLong(matrix.get(i)));
     }
     return this;
   }
@@ -261,33 +157,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   public LongMatrix assign(DoubleMatrix matrix, DoubleToLongFunction function) {
     for (int i = 0; i < matrix.size(); i++) {
       set(i, function.applyAsLong(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix assignStream(Iterable<? extends Number> numbers) {
-    int index = 0;
-    for (Number number : numbers) {
-      set(index++, number.longValue());
-    }
-    return this;
-  }
-
-  @Override
-  public <T> LongMatrix assignStream(Iterable<T> iterable, ToLongFunction<? super T> function) {
-    int index = 0;
-    for (T t : iterable) {
-      set(index++, function.applyAsLong(t));
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix assign(long[] values) {
-    checkArgument(size() == values.length);
-    for (int i = 0; i < size(); i++) {
-      set(i, values[i]);
     }
     return this;
   }
@@ -302,23 +171,54 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix mapi(LongUnaryOperator operator) {
+  public IntMatrix mapToInt(LongToIntFunction map) {
+    IntMatrix matrix = Matrices.newIntMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsLong(get(i)));
+      matrix.set(i, map.applyAsInt(get(i)));
     }
-    return this;
+    return matrix;
   }
 
   @Override
-  public LongMatrix filter(LongPredicate operator) {
-    IncrementalBuilder builder = newIncrementalBuilder();
+  public DoubleMatrix mapToDouble(LongToDoubleFunction map) {
+    DoubleMatrix matrix = Matrices.newDoubleMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      long value = get(i);
-      if (operator.test(value)) {
-        builder.add(value);
-      }
+      matrix.set(i, map.applyAsDouble(get(i)));
     }
-    return builder.build();
+    return matrix;
+  }
+
+  @Override
+  public ComplexMatrix mapToComplex(LongFunction<Complex> map) {
+    ComplexMatrix matrix = Matrices.newComplexMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, map.apply(get(i)));
+    }
+    return matrix;
+  }
+
+  @Override
+  public BitMatrix satisfies(LongPredicate predicate) {
+    BitMatrix bits = Matrices.newBitMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      bits.set(i, predicate.test(get(i)));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitMatrix satisfies(LongMatrix matrix, LongBiPredicate predicate) {
+    Check.equalShape(this, matrix);
+    BitMatrix bits = Matrices.newBitMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      bits.set(i, predicate.test(get(i), matrix.get(i)));
+    }
+    return bits;
+  }
+
+  @Override
+  public long reduce(long identity, LongBinaryOperator reduce) {
+    return reduce(identity, reduce, LongUnaryOperator.identity());
   }
 
   @Override
@@ -339,12 +239,63 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
+  public LongMatrix copy() {
+    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, get(i));
+    }
+    return matrix;
+  }
+
+  @Override
   public LongMatrix reduceRows(ToLongFunction<? super LongMatrix> reduce) {
     LongMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
       mat.set(i, reduce.applyAsLong(getRowView(i)));
     }
     return mat;
+  }
+
+  @Override
+  public LongMatrix filter(LongPredicate operator) {
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      long value = get(i);
+      if (operator.test(value)) {
+        builder.add(value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public long get(int i, int j) {
+    return getStorage().getAsLong(Indexer.columnMajor(i, j, rows(), columns()));
+  }
+
+  @Override
+  public long get(int index) {
+    return getStorage().getAsLong(index);
+  }
+
+  @Override
+  public void set(int index, long value) {
+    getStorage().setLong(index, value);
+  }
+
+  @Override
+  public void set(int i, int j, long value) {
+    getStorage().setLong(Indexer.columnMajor(i, j, rows(), columns()), value);
+  }
+
+  @Override
+  public LongMatrix newEmptyMatrix(int rows, int columns) {
+    return null;
+  }
+
+  @Override
+  public LongMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
   }
 
   @Override
@@ -428,6 +379,17 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   @Override
   public LongMatrix muli(LongMatrix other) {
     return muli(1, other, 1);
+  }
+
+  @Override
+  public LongMatrix transpose() {
+    LongMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(j, i, get(i, j));
+      }
+    }
+    return matrix;
   }
 
   @Override
@@ -801,11 +763,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
-  }
-
-  @Override
   public int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
@@ -872,23 +829,12 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     };
   }
 
-  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
+  private static class IncrementalBuilder {
 
     private LongArrayList buffer = new LongArrayList();
 
-    @Override
-    public void add(Matrix from, int i, int j) {
-      buffer.add(from.getAsLong(i, j));
-    }
-
-    @Override
-    public void add(Matrix from, int index) {
-      buffer.add(from.getAsLong(index));
-    }
-
-    @Override
     public LongMatrix build() {
-      return null; // TODO
+      return new DefaultLongMatrix(new LongStorage(buffer.toArray()));
     }
 
     public void add(long value) {
@@ -913,6 +859,18 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     }
 
     @Override
+    public LongMatrix reshape(int rows, int columns) {
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return new SliceLongMatrix(parent, rows, row, columns, column);
+    }
+
+    @Override
+    public long get(int i, int j) {
+      return parent.get(sliceIndex(row.step(), i, parent.rows()),
+          sliceIndex(column.step(), j, parent.columns()));
+    }
+
+    @Override
     public void set(int i, int j, long value) {
       parent.set(sliceIndex(row.step(), i, parent.rows()),
           sliceIndex(column.step(), j, parent.columns()), value);
@@ -925,11 +883,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
       set(row, col, value);
     }
 
-    @Override
-    public LongMatrix reshape(int rows, int columns) {
-      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-      return new SliceLongMatrix(parent, rows, row, columns, column);
-    }
+
 
     @Override
     public boolean isView() {
@@ -946,11 +900,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
       return parent.newEmptyMatrix(rows, columns);
     }
 
-    @Override
-    public long get(int i, int j) {
-      return parent.get(sliceIndex(row.step(), i, parent.rows()),
-          sliceIndex(column.step(), j, parent.columns()));
-    }
+
 
     @Override
     public long get(int index) {
@@ -1015,4 +965,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     }
 
   }
+
+
+
 }

@@ -59,11 +59,11 @@ public class JoinUtils {
       IntMatrix left = pool.getLeft();
       IntMatrix right = pool.getRight();
       for (int i = 0; i < newLeftPool.length; i++) {
-        newLeftPool[i] += left.getAsInt(i) * noGroups;
+        newLeftPool[i] += left.get(i) * noGroups;
       }
 
       for (int i = 0; i < newRightPool.length; i++) {
-        newRightPool[i] += right.getAsInt(i) * noGroups;
+        newRightPool[i] += right.get(i) * noGroups;
       }
       noGroups = noGroups * (pool.getMaxGroups() + 1);
     }

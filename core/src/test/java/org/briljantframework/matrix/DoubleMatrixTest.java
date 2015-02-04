@@ -46,7 +46,7 @@ public class DoubleMatrixTest {
 
     System.out.println(m.slice(Slice.slice(10)));
 
-    System.out.println(a.slice(a.lt(2)));
+    // System.out.println(a.slice(a.lt(2)));
 
   }
 

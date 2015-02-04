@@ -46,7 +46,7 @@ public class PseudoInverseTransformerTest {
     System.out.println(svd.v);
 
 
-    svd.s.mapi(y -> 1.0 / y);
+    svd.s.assign(y -> 1.0 / y);
     // System.out.println(svd.s.transpose());
 
 

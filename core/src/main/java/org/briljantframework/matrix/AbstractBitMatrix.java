@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import org.briljantframework.Utils;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.storage.Storage;
 
 import com.carrotsearch.hppc.IntArrayList;
@@ -26,92 +25,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
 
   protected AbstractBitMatrix(int rows, int cols) {
     super(rows, cols);
-  }
-
-  @Override
-  public Complex getAsComplex(int i, int j) {
-    return get(i, j) ? Complex.ONE : Complex.ZERO;
-  }
-
-  @Override
-  public Complex getAsComplex(int index) {
-    return get(index) ? Complex.ONE : Complex.ZERO;
-  }
-
-  @Override
-  public double getAsDouble(int i, int j) {
-    return getAsInt(i, j);
-  }
-
-  @Override
-  public double getAsDouble(int index) {
-    return getAsInt(index);
-  }
-
-  @Override
-  public long getAsLong(int i, int j) {
-    return getAsInt(i, j);
-  }
-
-  @Override
-  public long getAsLong(int index) {
-    return getAsInt(index);
-  }
-
-  @Override
-  public int getAsInt(int i, int j) {
-    return get(i, j) ? 1 : 0;
-  }
-
-  @Override
-  public int getAsInt(int index) {
-    return get(index) ? 1 : 0;
-  }
-
-  @Override
-  public boolean getAsBit(int i, int j) {
-    return get(i, j);
-  }
-
-  @Override
-  public boolean getAsBit(int index) {
-    return get(index);
-  }
-
-  public void set(int i, int j, boolean value) {
-    getStorage().setBoolean(Indexer.columnMajor(i, j, rows(), columns()), value);
-  }
-
-  public void set(int index, boolean value) {
-    getStorage().setBoolean(index, value);
-  }
-
-  public boolean get(int i, int j) {
-    return getStorage().getBoolean(Indexer.columnMajor(i, j, rows(), columns()));
-  }
-
-  public boolean get(int index) {
-    return getStorage().getBoolean(index);
-  }
-
-  @Override
-  public void set(int atIndex, Matrix from, int fromIndex) {
-    set(atIndex, from.getAsBit(fromIndex));
-  }
-
-  @Override
-  public void set(int atRow, int atColumn, Matrix from, int fromRow, int fromColumn) {
-    set(atRow, atColumn, from.getAsBit(fromRow, fromColumn));
-  }
-
-  @Override
-  public int compare(int toIndex, Matrix from, int fromIndex) {
-    return Boolean.compare(get(toIndex), from.getAsInt(fromIndex) == 1);
-  }
-
-  @Override
-  public int compare(int toRow, int toColumn, Matrix from, int fromRow, int fromColumn) {
-    return Boolean.compare(get(toRow, toColumn), from.getAsBit(fromRow, fromColumn));
   }
 
   @Override
@@ -154,6 +67,26 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
   }
 
   @Override
+  public Matrix slice(IntMatrix rows, IntMatrix columns) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix slice(IntMatrix indexes) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix slice(IntMatrix indexes, Axis axis) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Matrix slice(BitMatrix bits) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public BitMatrix transpose() {
     BitMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
@@ -171,11 +104,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
       n.set(i, get(i));
     }
     return n;
-  }
-
-  @Override
-  public IncrementalBuilder newIncrementalBuilder() {
-    return new IncrementalBuilder();
   }
 
   @Override
@@ -315,21 +243,10 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
     return newEmptyMatrix(size, 1);
   }
 
-  public static class IncrementalBuilder implements Matrix.IncrementalBuilder {
+  public static class IncrementalBuilder {
 
     private IntArrayList buffer = new IntArrayList();
 
-    @Override
-    public void add(Matrix from, int i, int j) {
-      buffer.add(from.getAsInt(i, j));
-    }
-
-    @Override
-    public void add(Matrix from, int index) {
-      buffer.add(from.getAsInt(index));
-    }
-
-    @Override
     public Matrix build() {
       BitMatrix n = new DefaultBitMatrix(buffer.size(), 1);
       for (int i = 0; i < buffer.size(); i++) {

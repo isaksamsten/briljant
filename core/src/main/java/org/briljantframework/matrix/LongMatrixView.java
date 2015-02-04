@@ -52,15 +52,6 @@ public class LongMatrixView extends AbstractLongMatrix {
   }
 
   @Override
-  public LongMatrix copy() {
-    LongMatrix mat = parent.newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      mat.set(i, get(i));
-    }
-    return mat;
-  }
-
-  @Override
   public void set(int i, int j, long value) {
     parent.set(rowOffset + i, colOffset + j, value);
   }

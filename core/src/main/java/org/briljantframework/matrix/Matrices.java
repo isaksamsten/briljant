@@ -5,7 +5,6 @@ import static com.google.common.primitives.Ints.checkedCast;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntPredicate;
 
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
@@ -212,6 +211,10 @@ public final class Matrices {
     return new DefaultIntMatrix(values);
   }
 
+  public static IntMatrix newIntMatrix(int rows, int columns) {
+    return new DefaultIntMatrix(rows, columns);
+  }
+
   public static LongMatrix newLongMatrix(int rows, int columns) {
     return new DefaultLongMatrix(rows, columns);
   }
@@ -298,10 +301,6 @@ public final class Matrices {
     return Slice.slice(start, end, step).copy();
   }
 
-  public static IntMatrix take(IntMatrix a, IntMatrix b) {
-    return take((Matrix) a, b).asIntMatrix();
-  }
-
   /**
    * <p>
    * Take values in {@code a}, using the indexes in {@code indexes}.
@@ -328,10 +327,10 @@ public final class Matrices {
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
    *         {@link org.briljantframework.matrix.Matrix#newEmptyMatrix(int, int)}).
    */
-  public static Matrix take(Matrix a, IntMatrix indexes) {
-    Matrix taken = a.newEmptyVector(indexes.size());
+  public static IntMatrix take(IntMatrix a, IntMatrix indexes) {
+    IntMatrix taken = a.newEmptyVector(indexes.size());
     for (int i = 0; i < indexes.size(); i++) {
-      taken.set(i, a, indexes.get(i));
+      taken.set(i, a.get(indexes.get(i)));
     }
     return taken;
   }
@@ -362,11 +361,11 @@ public final class Matrices {
    * @param values the values; same shape as {@code a}
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static Matrix mask(Matrix a, BitMatrix mask, Matrix values) {
+  public static IntMatrix mask(IntMatrix a, BitMatrix mask, IntMatrix values) {
     Check.equalShape(a, mask);
     Check.equalShape(a, values);
 
-    Matrix masked = a.copy();
+    IntMatrix masked = a.copy();
     putMask(masked, mask, values);
     return masked;
   }
@@ -395,15 +394,13 @@ public final class Matrices {
    * @param a the target matrix
    * @param mask the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
-   * @see #mask(org.briljantframework.matrix.Matrix, org.briljantframework.matrix.BitMatrix,
-   *      org.briljantframework.matrix.Matrix)
    */
-  public static void putMask(Matrix a, BitMatrix mask, Matrix values) {
+  public static void putMask(IntMatrix a, BitMatrix mask, IntMatrix values) {
     Check.equalShape(a, mask);
     Check.equalShape(a, values);
     for (int i = 0; i < a.size(); i++) {
       if (mask.get(i)) {
-        a.set(i, values, i);
+        a.set(i, values.get(i));
       }
     }
   }
@@ -445,63 +442,31 @@ public final class Matrices {
     return copy;
   }
 
-  /**
-   * Selects the values in {@code a} according to the values in {@code where}.
-   * <p>
-   *
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
-   *    BitMatrix mask = a.greaterThan(5)
-   *    DoubleMatrix b = Anys.select(a.asDoubleMatrix(), mask).asDoubleMatrix()
-   * 
-   *    6.0000
-   *    7.0000
-   *    8.0000
-   *    9.0000
-   *    shape: 4x1 type: double
-   * </pre>
-   *
-   * @param a the source matrix
-   * @param where the selection matrix; same shape as {@code a}
-   * @return a new matrix; the returned matrix has the same type as {@code a}
-   */
-  public static Matrix select(Matrix a, BitMatrix where) {
-    Check.equalShape(a, where);
-    Matrix.IncrementalBuilder builder = a.newIncrementalBuilder();
-    for (int i = 0; i < a.size(); i++) {
-      if (where.get(i)) {
-        builder.add(a, i);
-      }
-    }
-    return builder.build();
-  }
-
-  /**
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    DoubleMatrix a = Doubles.randn(10, 1)
-   *    DoubleMatrix x = Anys.sort(a).asDoubleMatrix()
-   * 
-   *    -1.8718
-   *    -0.8834
-   *    -0.6161
-   *    -0.0953
-   *    0.0125
-   *    0.3538
-   *    0.4326
-   *    0.4543
-   *    1.0947
-   *    1.1936
-   *    shape: 10x1 type: double
-   * </pre>
-   *
-   * @param matrix the source matrix
-   * @return a new matrix; the returned matrix has the same type as {@code a}
-   */
-  public static Matrix sort(Matrix matrix) {
-    return sort(matrix, Matrix::compare);
-  }
+  // /**
+  // * <pre>
+  // * > import org.briljantframework.matrix.*;
+  // * DoubleMatrix a = Doubles.randn(10, 1)
+  // * DoubleMatrix x = Anys.sort(a).asDoubleMatrix()
+  // *
+  // * -1.8718
+  // * -0.8834
+  // * -0.6161
+  // * -0.0953
+  // * 0.0125
+  // * 0.3538
+  // * 0.4326
+  // * 0.4543
+  // * 1.0947
+  // * 1.1936
+  // * shape: 10x1 type: double
+  // * </pre>
+  // *
+  // * @param matrix the source matrix
+  // * @return a new matrix; the returned matrix has the same type as {@code a}
+  // */
+  // public static Matrix sort(Matrix matrix) {
+  // return sort(matrix, Matrix::compare);
+  // }
 
   /**
    * <p>
@@ -551,35 +516,35 @@ public final class Matrices {
     return out;
   }
 
-  /**
-   * Sort {@code a} each dimension, set by {@code axis}, in increasing order. For example, if
-   * {@code axis == Axis.ROW}, each row is sorted in increasing order.
-   * <p>
-   * <p>
-   *
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    DoubleMatrix a = Doubles.randn(12, 1).reshape(3,4)
-   *    AnyMatrix x = Anys.sort(a, Axis.COLUMN)
-   *    -0.2836   0.0603  -1.1870  -0.7840
-   *    0.1644   0.2489   0.2159   0.6990
-   *    0.4199   0.5131   0.9911   1.7952
-   *    shape: 3x4 type: double
-   * 
-   *    AnyMatrix y = Anys.sort(a, Axis.ROW)
-   *    -0.7840   0.0603   0.4199   0.9911
-   *    -0.2836   0.2159   0.5131   1.7952
-   *    -1.1870   0.1644   0.2489   0.6990
-   *    shape: 3x4 type: double
-   * </pre>
-   *
-   * @param a the source matrix
-   * @param axis the axis to sort
-   * @return a new matrix; the returned matrix has the same type as {@code a}
-   */
-  public static Matrix sort(Matrix a, Axis axis) {
-    return sort(a, axis, Matrix::compare);
-  }
+  // /**
+  // * Sort {@code a} each dimension, set by {@code axis}, in increasing order. For example, if
+  // * {@code axis == Axis.ROW}, each row is sorted in increasing order.
+  // * <p>
+  // * <p>
+  // *
+  // * <pre>
+  // * > import org.briljantframework.matrix.*;
+  // * DoubleMatrix a = Doubles.randn(12, 1).reshape(3,4)
+  // * AnyMatrix x = Anys.sort(a, Axis.COLUMN)
+  // * -0.2836 0.0603 -1.1870 -0.7840
+  // * 0.1644 0.2489 0.2159 0.6990
+  // * 0.4199 0.5131 0.9911 1.7952
+  // * shape: 3x4 type: double
+  // *
+  // * AnyMatrix y = Anys.sort(a, Axis.ROW)
+  // * -0.7840 0.0603 0.4199 0.9911
+  // * -0.2836 0.2159 0.5131 1.7952
+  // * -1.1870 0.1644 0.2489 0.6990
+  // * shape: 3x4 type: double
+  // * </pre>
+  // *
+  // * @param a the source matrix
+  // * @param axis the axis to sort
+  // * @return a new matrix; the returned matrix has the same type as {@code a}
+  // */
+  // public static Matrix sort(Matrix a, Axis axis) {
+  // return sort(a, axis, Matrix::compare);
+  // }
 
   public static Matrix sort(Matrix a, Axis axis, IndexComparator<? super Matrix> comparator) {
     Matrix out = a.copy();
@@ -599,15 +564,15 @@ public final class Matrices {
     return out;
   }
 
-  public static Matrix selectIndex(Matrix matrix, IntPredicate predicate) {
-    Matrix.IncrementalBuilder builder = matrix.newIncrementalBuilder();
-    for (int i = 0; i < matrix.size(); i++) {
-      if (predicate.test(i)) {
-        builder.add(matrix, i);
-      }
-    }
-    return builder.build();
-  }
+  // public static Matrix selectIndex(Matrix matrix, IntPredicate predicate) {
+  // Matrix.IncrementalBuilder builder = matrix.newIncrementalBuilder();
+  // for (int i = 0; i < matrix.size(); i++) {
+  // if (predicate.test(i)) {
+  // builder.add(matrix, i);
+  // }
+  // }
+  // return builder.build();
+  // }
 
   /**
    * <p>
@@ -685,20 +650,16 @@ public final class Matrices {
     return sum;
   }
 
+  public static long sum(LongMatrix matrix) {
+    return matrix.reduce(0, Long::sum);
+  }
+
   public static double sum(DoubleMatrix matrix) {
-    double sum = 0;
-    for (int i = 0; i < matrix.size(); i++) {
-      sum += matrix.get(i);
-    }
-    return sum;
+    return matrix.reduce(0, Double::sum);
   }
 
   public static int sum(IntMatrix matrix) {
-    int sum = 0;
-    for (int i = 0; i < matrix.size(); i++) {
-      sum += matrix.get(i);
-    }
-    return sum;
+    return matrix.reduce(0, Integer::sum);
   }
 
   public static int sum(BitMatrix matrix) {
@@ -716,36 +677,19 @@ public final class Matrices {
    * @param axis the axis
    * @return the t
    */
-  public static Matrix sum(Matrix m, Axis axis) {
+  public static DoubleMatrix sum(DoubleMatrix m, Axis axis) {
     switch (axis) {
       case ROW:
-        return rowSum(m);
+        return m.reduceRows(Matrices::sum);
       case COLUMN:
-        return columnSum(m);
+        return m.reduceColumns(Matrices::sum);
       default:
         throw new IllegalArgumentException();
     }
   }
 
-  private static Matrix columnSum(Matrix m) {
-    DoubleMatrix values = newDoubleMatrix(m.rows(), 1);
-    for (int j = 0; j < m.columns(); j++) {
-      for (int i = 0; i < m.rows(); i++) {
-        values.set(i, values.get(i) + m.getAsDouble(i, j));
-      }
-    }
-    return values;
-  }
-
-  private static Matrix rowSum(Matrix m) {
-    DoubleMatrix values = newDoubleMatrix(1, m.columns());
-    for (int j = 0; j < m.columns(); j++) {
-      for (int i = 0; i < m.rows(); i++) {
-        values.set(j, values.get(i) + m.getAsDouble(i, j));
-      }
-    }
-
-    return values;
+  public static ComplexMatrix newComplexMatrix(int rows, int columns) {
+    return new DefaultComplexMatrix(rows, columns);
   }
 
 

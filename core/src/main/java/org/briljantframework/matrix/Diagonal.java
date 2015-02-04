@@ -67,7 +67,7 @@ public class Diagonal extends AbstractDoubleMatrix {
 
   @Deprecated
   public void apply(DoubleUnaryOperator operator) {
-    mapi(operator);
+    assign(operator);
   }
 
   /**

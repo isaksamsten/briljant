@@ -56,11 +56,6 @@ public class IntMatrixView extends AbstractIntMatrix {
   }
 
   @Override
-  public boolean isArrayBased() {
-    return parent.isArrayBased();
-  }
-
-  @Override
   public IntMatrix copy() {
     IntMatrix mat = parent.newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {

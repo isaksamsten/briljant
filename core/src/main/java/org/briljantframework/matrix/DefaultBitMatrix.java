@@ -54,6 +54,26 @@ public class DefaultBitMatrix extends AbstractBitMatrix {
   }
 
   @Override
+  public void set(int i, int j, boolean value) {
+    set(Indexer.columnMajor(i, j, rows(), columns()), value);
+  }
+
+  @Override
+  public void set(int index, boolean value) {
+    getStorage().setBoolean(index, value);
+  }
+
+  @Override
+  public boolean get(int i, int j) {
+    return get(Indexer.columnMajor(i, j, rows(), columns()));
+  }
+
+  @Override
+  public boolean get(int index) {
+    return getStorage().getBoolean(index);
+  }
+
+  @Override
   public BitMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new DefaultBitMatrix(storage, rows, columns);
