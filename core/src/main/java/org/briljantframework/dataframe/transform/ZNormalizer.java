@@ -19,7 +19,6 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Doubles;
 import org.briljantframework.matrix.Matrices;
 
 /**
@@ -34,7 +33,7 @@ public class ZNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix mean = Doubles.mean(frame.asMatrix(), Axis.COLUMN);
+    DoubleMatrix mean = Matrices.mean(frame.asMatrix(), Axis.COLUMN);
 
     DoubleMatrix x = frame.asMatrix();
     DoubleMatrix xNorm = Matrices.newDoubleMatrix(x.rows(), x.columns());
@@ -45,7 +44,7 @@ public class ZNormalizer implements Transformer {
       }
     }
 
-    DoubleMatrix sigma = Doubles.std(xNorm, Axis.COLUMN);
+    DoubleMatrix sigma = Matrices.std(xNorm, Axis.COLUMN);
     return new ZNormalization(mean, sigma);
   }
 

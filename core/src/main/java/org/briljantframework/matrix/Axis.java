@@ -1,7 +1,7 @@
 package org.briljantframework.matrix;
 
 /**
- * Created by Isak Karlsson on 23/10/14.
+ * @author Isak Karlsson
  */
 public enum Axis {
   ROW, COLUMN

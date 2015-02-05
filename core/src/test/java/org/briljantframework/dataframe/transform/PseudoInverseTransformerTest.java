@@ -2,7 +2,10 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.*;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
+import org.briljantframework.matrix.Diagonal;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +33,7 @@ public class PseudoInverseTransformerTest {
 
     // assertArrayEquals(expected, inverse.asDoubleArray(), 0.001);
 
-    DoubleMatrix a = Doubles.parseMatrix("1,2,3; 1,2,3; 1,2,3; 1,2,3");
+    DoubleMatrix a = Matrices.parseMatrix("1,2,3; 1,2,3; 1,2,3; 1,2,3");
     Diagonal x = Diagonal.of(3, 3, 1, 1, 1);
 
     // System.out.println(matrix);

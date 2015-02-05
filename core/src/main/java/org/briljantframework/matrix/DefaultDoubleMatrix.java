@@ -275,7 +275,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[Math.multiplyExact(this.rows(), other.columns())];
-      Doubles.mmul(this, alpha, other, beta, tmp);
+      Matrices.mmul(this, alpha, other, beta, tmp);
       return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
     } else {
       return super.mmul(alpha, other, beta);
@@ -303,7 +303,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[thisRows * otherColumns];
-      Doubles.mmul(this, alpha, a, other, beta, b, tmp);
+      Matrices.mmul(this, alpha, a, other, beta, b, tmp);
       return new DefaultDoubleMatrix(new DoubleStorage(tmp), thisRows, otherColumns);
     } else {
       return super.mmul(alpha, a, other, beta, b);

@@ -1,10 +1,12 @@
 package org.briljantframework.matrix;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.primitives.Ints.checkedCast;
 
 import java.util.Map;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
+import java.util.regex.Pattern;
 
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
@@ -13,6 +15,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.storage.Storage;
 
+import com.github.fommil.netlib.BLAS;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -20,14 +23,12 @@ import com.google.common.collect.ImmutableMap;
  */
 public final class Matrices {
 
-  /**
-   * The constant RANDOM.
-   */
   public static final Random RANDOM = Utils.getRandom();
-  /**
-   * The constant LOG_2.
-   */
   public static final double LOG_2 = Math.log(2);
+
+  private static final BLAS BLAS = com.github.fommil.netlib.BLAS.getInstance();
+
+
   private final static Map<Class, MatrixFactory<?>> NATIVE_TO_FACTORY;
   static {
     NATIVE_TO_FACTORY = ImmutableMap.of(Double.class, new MatrixFactory<Double>() {
@@ -132,6 +133,9 @@ public final class Matrices {
       }
     });
   }
+
+  private static final Pattern ROW_SEPARATOR = Pattern.compile(";");
+  private static final Pattern VALUE_SEPARATOR = Pattern.compile(",");
 
   private Matrices() {}
 
@@ -706,6 +710,219 @@ public final class Matrices {
         shuffle(matrix.getColumnView(i));
       }
     }
+  }
+
+  /**
+   * Parse a matrix in the format
+   * <p>
+   * <p>
+   *
+   * <pre>
+   *     row :== double<sub>1</sub>, {double<sub>n</sub>}
+   *     matrix :== row<sub>1</sub>; {row<sub>m</sub>}
+   * </pre>
+   * <p>
+   * For example, {@code 1, 2, 3, 4; 1, 2, 3, 4;1, 2, 3, 4} is a 3-by-4 matrix with ones in the
+   * first column, twos in the second column etc.
+   * <p>
+   * Returns an {@link org.briljantframework.matrix.DefaultDoubleMatrix}.
+   *
+   * @param str the input matrix as a string
+   * @return a matrix
+   * @throws NumberFormatException
+   */
+  public static DoubleMatrix parseMatrix(String str) {
+    checkArgument(str != null && str.length() > 0);
+
+    String[] rows = ROW_SEPARATOR.split(str);
+    if (rows.length < 1) {
+      throw new NumberFormatException("Illegally formatted Matrix");
+    }
+
+    DoubleMatrix matrix = null;
+    for (int i = 0; i < rows.length; i++) {
+      String[] values = VALUE_SEPARATOR.split(rows[i]);
+      if (i == 0) {
+        matrix = new DefaultDoubleMatrix(rows.length, values.length);
+      }
+
+      for (int j = 0; j < values.length; j++) {
+        matrix.set(i, j, Double.parseDouble(values[j].trim()));
+      }
+    }
+
+    return matrix;
+  }
+
+  /**
+   * Eye diagonal.
+   *
+   * @param rows the rows
+   * @param cols the cols
+   * @return the diagonal
+   */
+  public static Diagonal eye(int rows, int cols) {
+    double[] diagonal = new double[rows * cols];
+    for (int i = 0; i < diagonal.length; i++) {
+      diagonal[i] = 1;
+    }
+    return Diagonal.of(rows, cols, diagonal);
+  }
+
+  public static DoubleMatrix sort(DoubleMatrix matrix, IndexComparator<DoubleMatrix> cmp) {
+    DoubleMatrix out = matrix.copy();
+    QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
+    return out;
+  }
+
+  public static DoubleMatrix sort(DoubleMatrix matrix) {
+    DoubleMatrix out = matrix.copy();
+    QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)), out);
+    return out;
+  }
+
+  public static DoubleMatrix sort(DoubleMatrix matrix, Axis axis) {
+    DoubleMatrix out = matrix.copy();
+    if (axis == Axis.ROW) {
+      for (int i = 0; i < matrix.rows(); i++) {
+        DoubleMatrix row = out.getRowView(i);
+        QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)), row);
+      }
+    } else {
+      for (int i = 0; i < matrix.columns(); i++) {
+        DoubleMatrix col = out.getColumnView(i);
+        QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)), col);
+      }
+    }
+    return out;
+  }
+
+  /**
+   * Std out.
+   *
+   * @param matrix the matrix
+   * @param axis the axis
+   * @return the out
+   */
+  public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
+    DoubleMatrix mean = mean(matrix, axis);
+    long columns = matrix.columns();
+    DoubleMatrix sigmas = newDoubleVector(matrix.columns());
+
+    for (int j = 0; j < columns; j++) {
+      double std = 0.0;
+      for (int i = 0; i < matrix.rows(); i++) {
+        double residual = matrix.get(i, j) - mean.get(j);
+        std += residual * residual;
+      }
+      sigmas.set(j, Math.sqrt(std / (matrix.rows() - 1)));
+    }
+    return sigmas;
+  }
+
+  /**
+   * Mean out.
+   *
+   * @param matrix the matrix
+   * @param axis the axis
+   * @return the out
+   */
+  public static DoubleMatrix mean(DoubleMatrix matrix, Axis axis) {
+    int columns = matrix.columns();
+    DoubleMatrix means = newDoubleVector(columns);
+    for (int j = 0; j < matrix.columns(); j++) {
+      double mean = 0.0;
+      for (int i = 0; i < matrix.rows(); i++) {
+        mean += matrix.get(i, j);
+      }
+      means.set(j, mean / matrix.rows());
+    }
+
+    return means;
+  }
+
+  /**
+   * @param vector the vector
+   * @return the standard deviation
+   */
+  public static double std(DoubleMatrix vector) {
+    return std(vector, mean(vector));
+  }
+
+  /**
+   * @param vector the vector
+   * @param mean the mean
+   * @return the standard deviation
+   */
+  public static double std(DoubleMatrix vector, double mean) {
+    double var = var(vector, mean);
+    return Math.sqrt(var / (vector.size() - 1));
+  }
+
+  /**
+   * @param matrix the vector
+   * @return the mean
+   */
+  public static double mean(DoubleMatrix matrix) {
+    return matrix.reduce(0, Double::sum) / matrix.size();
+  }
+
+  /**
+   * @param matrix the vector
+   * @param mean the mean
+   * @return the variance
+   */
+  public static double var(DoubleMatrix matrix, double mean) {
+    return matrix.reduce(0, (v, acc) -> (v - mean) * (v - mean));
+  }
+
+  /**
+   * @param vector the vector
+   * @return the variance
+   */
+  public static double var(DoubleMatrix vector) {
+    return var(vector, mean(vector));
+  }
+
+  /**
+   * Simple wrapper around
+   * {@link com.github.fommil.netlib.BLAS#dgemm(String, String, int, int, int, double, double[], int, double[], int, double, double[], int)}
+   * <p>
+   * Performs no additional error checking.
+   *
+   * @param t left hand side
+   * @param alpha scaling for lhs
+   * @param other right hand side
+   * @param beta scaling for rhs
+   * @param tmp result is written to {@code tmp}
+   */
+  public static void mmul(DoubleMatrix t, double alpha, DoubleMatrix other, double beta,
+      double[] tmp) {
+    BLAS.dgemm("n", "n", checkedCast(t.rows()), checkedCast(other.columns()),
+        checkedCast(other.rows()), alpha, t.asDoubleArray(), checkedCast(t.rows()),
+        other.asDoubleArray(), checkedCast(other.rows()), beta, tmp, checkedCast(t.rows()));
+  }
+
+  public static void mmul(DoubleMatrix t, double alpha, Transpose a, DoubleMatrix other,
+      double beta, Transpose b, double[] tmp) {
+    String transA = "n";
+    int thisRows = checkedCast(t.rows());
+    if (a.transpose()) {
+      thisRows = checkedCast(t.columns());
+      transA = "t";
+    }
+
+    String transB = "n";
+    int otherRows = checkedCast(other.rows());
+    int otherColumns = checkedCast(other.columns());
+    if (b.transpose()) {
+      otherRows = checkedCast(other.columns());
+      otherColumns = checkedCast(other.rows());
+      transB = "t";
+    }
+    BLAS.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, t.asDoubleArray(),
+        checkedCast(t.rows()), other.asDoubleArray(), checkedCast(other.rows()), beta, tmp,
+        thisRows);
   }
 
 

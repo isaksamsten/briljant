@@ -5,8 +5,6 @@ import java.util.Collection;
 import org.briljantframework.Swappable;
 import org.briljantframework.matrix.storage.Storage;
 
-// TODO: implement mapToComplex(...), mapToInt(...), mapToDouble(...)
-// TODO: implement assign(C, ...), assign(d, mapper), assign(i, mapper)
 /**
  * <p>
  * The {@code Matrix} interface is a base interface for several different matrix implementations.

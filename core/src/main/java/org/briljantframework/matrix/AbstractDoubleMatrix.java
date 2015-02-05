@@ -943,8 +943,8 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
         throw new NonConformantException(this, other);
       }
       if (isArrayBased() && other.isArrayBased()) {
-        double[] tmp = new double[(int) this.rows() * (int) other.columns()];
-        Doubles.mmul(this, alpha, other, beta, tmp);
+        double[] tmp = new double[this.rows() * other.columns()];
+        Matrices.mmul(this, alpha, other, beta, tmp);
         return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
       } else {
         return super.mmul(alpha, other, beta);

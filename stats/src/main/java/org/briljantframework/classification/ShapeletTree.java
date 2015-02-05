@@ -19,6 +19,7 @@ package org.briljantframework.classification;
 import static org.briljantframework.classification.tree.Tree.Leaf;
 import static org.briljantframework.classification.tree.Tree.Node;
 
+import org.briljantframework.Utils;
 import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataseries.Aggregator;
@@ -26,7 +27,6 @@ import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Ints;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
 
@@ -82,7 +82,7 @@ public class ShapeletTree implements Classifier {
     params.noExamples = examples.getTotalWeight();
     params.lengthImportance = new double[x.columns()];
     params.positionImportance = new double[x.columns()];
-    int size = Ints.randInt(10, x.columns() - 1);
+    int size = Utils.randInt(10, x.columns() - 1);
     // x = Approximations.paa(x, size);
     // System.out.println(size);
     Node<ShapeletThreshold> node = build(x, y, examples, params);
