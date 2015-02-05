@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.*;
@@ -127,6 +128,15 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
     Check.equalSize(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public ComplexMatrix assign(ComplexMatrix matrix, BinaryOperator<Complex> combine) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, combine.apply(get(i), matrix.get(i)));
     }
     return this;
   }
@@ -432,34 +442,21 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix mul(Complex alpha, ComplexMatrix other, Complex beta) {
-    return copy().muli(alpha, other, beta);
+    Check.equalShape(this, other);
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
+    }
+    return m;
   }
 
   @Override
   public ComplexMatrix mul(Complex scalar) {
-    return copy().muli(scalar);
-  }
-
-  @Override
-  public ComplexMatrix muli(ComplexMatrix other) {
-    return muli(Complex.ONE, other, Complex.ONE);
-  }
-
-  @Override
-  public ComplexMatrix muli(Complex scalar) {
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, get(i).multiply(scalar));
+      m.set(i, get(i).multiply(scalar));
     }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix muli(Complex alpha, ComplexMatrix other, Complex beta) {
-    Check.equalSize(this, other);
-    for (int i = 0; i < size(); i++) {
-      set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
-    }
-    return this;
+    return m;
   }
 
   @Override
@@ -469,34 +466,21 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix add(Complex scalar) {
-    return copy().addi(scalar);
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i).plus(scalar));
+    }
+    return m;
   }
 
   @Override
   public ComplexMatrix add(Complex alpha, ComplexMatrix other, Complex beta) {
-    return copy().addi(alpha, other, beta);
-  }
-
-  @Override
-  public ComplexMatrix addi(ComplexMatrix other) {
-    return addi(Complex.ONE, other, Complex.ONE);
-  }
-
-  @Override
-  public ComplexMatrix addi(Complex scalar) {
+    Check.equalShape(this, other);
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, get(i).plus(scalar));
+      m.set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
     }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix addi(Complex alpha, ComplexMatrix other, Complex beta) {
-    Check.equalSize(this, other);
-    for (int i = 0; i < size(); i++) {
-      set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
-    }
-    return this;
+    return m;
   }
 
   @Override
@@ -506,86 +490,57 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix sub(Complex scalar) {
-    return copy().subi(scalar);
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i).minus(scalar));
+    }
+    return m;
   }
 
   @Override
   public ComplexMatrix sub(Complex alpha, ComplexMatrix other, Complex beta) {
-    return copy().subi(alpha, other, beta);
-  }
-
-  @Override
-  public ComplexMatrix subi(ComplexMatrix other) {
-    return subi(Complex.ONE, other, Complex.ONE);
-  }
-
-  @Override
-  public ComplexMatrix subi(Complex scalar) {
-    for (int i = 0; i < size(); i++) {
-      set(i, get(i).minus(scalar));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix subi(Complex alpha, ComplexMatrix other, Complex beta) {
     Check.equalSize(this, other);
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
+      m.set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
     }
-    return this;
+    return m;
   }
 
   @Override
   public ComplexMatrix rsub(Complex scalar) {
-    return copy().rsubi(scalar);
-  }
-
-  @Override
-  public ComplexMatrix rsubi(Complex scalar) {
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, scalar.minus(get(i)));
+      m.set(i, scalar.minus(get(i)));
     }
-    return this;
+    return m;
   }
 
   @Override
   public ComplexMatrix div(ComplexMatrix other) {
-    return copy().divi(other);
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i).div(other.get(i)));
+    }
+    return m;
   }
 
   @Override
   public ComplexMatrix div(Complex other) {
-    return copy().divi(other);
-  }
-
-  @Override
-  public ComplexMatrix divi(ComplexMatrix other) {
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, get(i).div(other.get(i)));
+      m.set(i, get(i).div(other));
     }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix divi(Complex other) {
-    for (int i = 0; i < size(); i++) {
-      set(i, get(i).div(other));
-    }
-    return this;
+    return m;
   }
 
   @Override
   public ComplexMatrix rdiv(Complex other) {
-    return copy().rdivi(other);
-  }
-
-  @Override
-  public ComplexMatrix rdivi(Complex other) {
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
-      set(i, other.div(get(i)));
+      m.set(i, other.div(get(i)));
     }
-    return this;
+    return m;
   }
 
   public static class IncrementalBuilder {
@@ -670,6 +625,91 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
     }
   }
 
+  /**
+   * Created by Isak Karlsson on 08/12/14.
+   */
+  public static class ComplexMatrixView extends AbstractComplexMatrix {
+    private static final int ROW = 0;
+    private static final int COLUMN = 1;
+
+    private final ComplexMatrix parent;
+
+    private final int rowOffset, colOffset;
+
+    public ComplexMatrixView(ComplexMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
+      super(rows, cols);
+      this.rowOffset = rowOffset;
+      this.colOffset = colOffset;
+      this.parent = parent;
+
+      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
+          "Requested row out of bounds.");
+      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
+          "Requested column out of bounds");
+    }
+
+    @Override
+    public ComplexMatrix reshape(int rows, int columns) {
+      return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows,
+          columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public ComplexMatrix copy() {
+      ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        mat.set(i, get(i));
+      }
+      return mat;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return new DefaultComplexMatrix(rows, columns);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return parent.get(rowOffset + i, colOffset + j);
+    }
+
+    @Override
+    public Complex get(int index) {
+      return parent.get(computeLinearIndex(index));
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+
+    @Override
+    public void set(int i, int j, Complex value) {
+      parent.set(rowOffset + i, colOffset + j, value);
+    }
+
+    @Override
+    public void set(int index, Complex value) {
+      parent.set(computeLinearIndex(index), value);
+    }
+
+    private int computeLinearIndex(int index) {
+      int currentColumn = index / rows() + colOffset;
+      int currentRow = index % rows() + rowOffset;
+      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+    }
+  }
+
   protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
     private final ComplexMatrix parent;
     private final Slice slice;
@@ -729,7 +769,4 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
       return parent.isArrayBased();
     }
   }
-
-
-
 }

@@ -49,6 +49,16 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    */
   IntMatrix assign(IntMatrix matrix, IntUnaryOperator operator);
 
+  /**
+   * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
+   * {@code this} and {@code matrix}
+   * 
+   * @param matrix the matrix
+   * @param combine the combiner
+   * @return receiver modified
+   */
+  IntMatrix assign(IntMatrix matrix, IntBinaryOperator combine);
+
   IntMatrix assign(ComplexMatrix matrix, ToIntFunction<? super Complex> function);
 
   IntMatrix assign(DoubleMatrix matrix, DoubleToIntFunction function);
@@ -317,51 +327,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   IntMatrix mul(int scalar);
 
   /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param other the other
-   * @return receiver modified
-   */
-  IntMatrix muli(IntMatrix other);
-
-  /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param scalar the scalar
-   * @return receiver multiplied
-   */
-  IntMatrix muli(int scalar);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #mul(int, IntMatrix, int)
-   * @return a new matrix
-   */
-  IntMatrix muli(int alpha, IntMatrix other, int beta);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #mul(org.briljantframework.matrix.IntMatrix, Axis)
-   */
-  IntMatrix muli(IntMatrix other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #mul(int, org.briljantframework.matrix.IntMatrix, int, Axis)
-   */
-  IntMatrix muli(int alpha, IntMatrix other, int beta, Axis axis);
-
-  /**
    * Element wise addition.
    *
    * @param other the other matrix
@@ -413,54 +378,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    * @return a new matrix
    */
   IntMatrix add(int alpha, IntMatrix other, int beta);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntMatrix addi(IntMatrix other);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  IntMatrix addi(int scalar);
-
-  /**
-   * In place version of {@code add}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  IntMatrix addi(IntMatrix other, Axis axis);
-
-  /**
-   * In place version of {@code add}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Axis)
-   */
-  IntMatrix addi(int alpha, IntMatrix other, int beta, Axis axis);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #add(int, IntMatrix, int)
-   * @return a new matrix
-   */
-  IntMatrix addi(int alpha, IntMatrix other, int beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -516,54 +433,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   IntMatrix sub(int alpha, IntMatrix other, int beta);
 
   /**
-   * In place element wise subtraction.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   */
-  IntMatrix subi(IntMatrix other);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  IntMatrix subi(int scalar);
-
-  /**
-   * In place version of {@code sub}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  IntMatrix subi(IntMatrix other, Axis axis);
-
-  /**
-   * In place version of {@code sub}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #sub(int, org.briljantframework.matrix.IntMatrix, int, Axis)
-   */
-  IntMatrix subi(int alpha, IntMatrix other, int beta, Axis axis);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #sub(int, IntMatrix, int)
-   * @return a new matrix
-   */
-  IntMatrix subi(int alpha, IntMatrix other, int beta);
-
-  /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
    * @param scalar the scalar
@@ -597,35 +466,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    * @return a new matrix
    */
   IntMatrix rsub(int alpha, IntMatrix other, int beta, Axis axis);
-
-  /**
-   * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  IntMatrix rsubi(int scalar);
-
-  /**
-   * In place version of {@code rsub}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  IntMatrix rsubi(IntMatrix other, Axis axis);
-
-  /**
-   * In place version of {@code rsub}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #rsub(int, org.briljantframework.matrix.IntMatrix, int, Axis)
-   */
-  IntMatrix rsubi(int alpha, IntMatrix other, int beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -672,42 +512,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   IntMatrix div(int alpha, IntMatrix other, int beta, Axis axis);
 
   /**
-   * In place element wise division.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  IntMatrix divi(IntMatrix other);
-
-  /**
-   * In place element wise division.
-   *
-   * @param other the other
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  IntMatrix divi(int other);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #div(org.briljantframework.matrix.IntMatrix, Axis)
-   */
-  IntMatrix divi(IntMatrix other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #div(int, org.briljantframework.matrix.IntMatrix, int, Axis)
-   */
-  IntMatrix divi(int alpha, IntMatrix other, int beta, Axis axis);
-
-  /**
    * Element wise division. {@code other / this}.
    *
    * @param other the scalar
@@ -742,33 +546,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    * @return a new matrix
    */
   IntMatrix rdiv(int alpha, IntMatrix other, int beta, Axis axis);
-
-  /**
-   * In place element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  IntMatrix rdivi(int other);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #divi(org.briljantframework.matrix.IntMatrix, Axis)
-   */
-  IntMatrix rdivi(IntMatrix other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #divi(int, org.briljantframework.matrix.IntMatrix, int, Axis)
-   */
-  IntMatrix rdivi(int alpha, IntMatrix other, int beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.

@@ -177,9 +177,18 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix assign(IntMatrix matrix, IntUnaryOperator operator) {
-    Check.equalSize(this, matrix);
+    Check.equalShape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public IntMatrix assign(IntMatrix matrix, IntBinaryOperator combine) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, combine.applyAsInt(get(i), matrix.get(i)));
     }
     return this;
   }
@@ -447,7 +456,14 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix mul(int alpha, IntMatrix other, int beta) {
-    return copy().muli(alpha, other, beta);
+    Check.equalSize(this, other);
+    IntMatrix m = newEmptyMatrix(rows(), columns());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        m.set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
+      }
+    }
+    return m;
   }
 
   @Override
@@ -457,59 +473,30 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix mul(int alpha, IntMatrix other, int beta, Axis axis) {
-    return copy().muli(alpha, other, beta, axis);
-  }
-
-  @Override
-  public IntMatrix mul(int scalar) {
-    return copy().muli(scalar);
-  }
-
-  @Override
-  public IntMatrix muli(IntMatrix other) {
-    return muli(1, other, 1);
-  }
-
-  @Override
-  public IntMatrix muli(int scalar) {
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, get(i, j) * scalar);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix muli(int alpha, IntMatrix other, int beta) {
-    Check.equalSize(this, other);
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix muli(IntMatrix other, Axis axis) {
-    return muli(1, other, 1, axis);
-  }
-
-  @Override
-  public IntMatrix muli(int alpha, IntMatrix other, int beta, Axis axis) {
+    IntMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) * (other.getAsInt(i % rows()) * beta));
+        m.set(i, (alpha * get(i)) * (other.get(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) * (other.getAsInt(i / rows()) * beta));
+        m.set(i, (alpha * get(i)) * (other.get(i / rows()) * beta));
       }
     }
-    return this;
+    return m;
+  }
+
+  @Override
+  public IntMatrix mul(int scalar) {
+    IntMatrix m = newEmptyMatrix(rows(), columns());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        m.set(i, j, get(i, j) * scalar);
+      }
+    }
+    return m;
   }
 
   @Override
@@ -535,7 +522,19 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix add(int alpha, IntMatrix other, int beta, Axis axis) {
-    return copy().addi(alpha, other, beta, axis);
+    IntMatrix m = newEmptyMatrix(rows(), columns());
+    if (axis == Axis.COLUMN) {
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) + (other.get(i % rows()) * beta));
+      }
+    } else {
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) + (other.get(i / rows()) * beta));
+      }
+    }
+    return m;
   }
 
   @Override
@@ -550,53 +549,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
     return matrix;
   }
 
-  @Override
-  public IntMatrix addi(IntMatrix other) {
-    addi(1, other, 1);
-    return this;
-  }
-
-  @Override
-  public IntMatrix addi(int scalar) {
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        this.set(i, j, get(i, j) + scalar);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix addi(IntMatrix other, Axis axis) {
-    return addi(1, other, 1, axis);
-  }
-
-  @Override
-  public IntMatrix addi(int alpha, IntMatrix other, int beta, Axis axis) {
-    if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) + (other.getAsInt(i % rows()) * beta));
-      }
-    } else {
-      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) + (other.getAsInt(i / rows()) * beta));
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix addi(int alpha, IntMatrix other, int beta) {
-    Check.equalSize(this, other);
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
-      }
-    }
-    return this;
-  }
 
   @Override
   public IntMatrix sub(IntMatrix other) {
@@ -615,7 +567,19 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix sub(int alpha, IntMatrix other, int beta, Axis axis) {
-    return copy().subi(alpha, other, beta, axis);
+    IntMatrix m = newEmptyMatrix(rows(), columns());
+    if (axis == Axis.COLUMN) {
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) - (other.get(i % rows()) * beta));
+      }
+    } else {
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) - (other.get(i / rows()) * beta));
+      }
+    }
+    return m;
   }
 
   @Override
@@ -628,45 +592,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
       }
     }
     return matrix;
-  }
-
-  @Override
-  public IntMatrix subi(IntMatrix other) {
-    addi(1, other, -1);
-    return this;
-  }
-
-  @Override
-  public IntMatrix subi(int scalar) {
-    addi(-scalar);
-    return this;
-  }
-
-  @Override
-  public IntMatrix subi(IntMatrix other, Axis axis) {
-    return subi(1, other, 1, axis);
-  }
-
-  @Override
-  public IntMatrix subi(int alpha, IntMatrix other, int beta, Axis axis) {
-    if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) - (other.getAsInt(i % rows()) * beta));
-      }
-    } else {
-      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) - (other.getAsInt(i / rows()) * beta));
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix subi(int alpha, IntMatrix other, int beta) {
-    addi(alpha, other, -1 * beta);
-    return this;
   }
 
   @Override
@@ -687,38 +612,19 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix rsub(int alpha, IntMatrix other, int beta, Axis axis) {
-    return copy().rsubi(alpha, other, beta, axis);
-  }
-
-  @Override
-  public IntMatrix rsubi(int scalar) {
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, scalar - get(i, j));
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix rsubi(IntMatrix other, Axis axis) {
-    return rsubi(1, other, 1, axis);
-  }
-
-  @Override
-  public IntMatrix rsubi(int alpha, IntMatrix other, int beta, Axis axis) {
+    IntMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsInt(i % rows()) * beta) - (alpha * get(i)));
+        m.set(i, (other.get(i % rows()) * beta) - (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsInt(i / rows()) * beta) - (alpha * get(i)));
+        m.set(i, (other.get(i / rows()) * beta) - (alpha * get(i)));
       }
     }
-    return this;
+    return m;
   }
 
   @Override
@@ -745,42 +651,19 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix div(int alpha, IntMatrix other, int beta, Axis axis) {
-    return copy().divi(alpha, other, beta, axis);
-  }
-
-  @Override
-  public IntMatrix divi(IntMatrix other) {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      set(i, get(i) / other.get(i));
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix divi(int other) {
-    return muli(1 / other);
-  }
-
-  @Override
-  public IntMatrix divi(IntMatrix other, Axis axis) {
-    return divi(1, other, 1, axis);
-  }
-
-  @Override
-  public IntMatrix divi(int alpha, IntMatrix other, int beta, Axis axis) {
+    IntMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) / (other.getAsInt(i % rows()) * beta));
+        m.set(i, (alpha * get(i)) / (other.get(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) / (other.getAsInt(i / rows()) * beta));
+        this.set(i, (alpha * get(i)) / (other.get(i / rows()) * beta));
       }
     }
-    return this;
+    return m;
   }
 
   @Override
@@ -799,36 +682,19 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix rdiv(int alpha, IntMatrix other, int beta, Axis axis) {
-    return copy().rdivi(alpha, other, beta, axis);
-  }
-
-  @Override
-  public IntMatrix rdivi(int other) {
-    for (int i = 0; i < size(); i++) {
-      set(i, other / get(i));
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix rdivi(IntMatrix other, Axis axis) {
-    return rdivi(1, other, 1, axis);
-  }
-
-  @Override
-  public IntMatrix rdivi(int alpha, IntMatrix other, int beta, Axis axis) {
+    IntMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsInt(i % rows()) * beta) / (alpha * get(i)));
+        m.set(i, (other.get(i % rows()) * beta) / (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns());
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsInt(i / rows()) * beta) / (alpha * get(i)));
+        m.set(i, (other.get(i / rows()) * beta) / (alpha * get(i)));
       }
     }
-    return this;
+    return m;
   }
 
   @Override
@@ -926,6 +792,82 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   }
 
+  /**
+   * Created by Isak Karlsson on 09/01/15.
+   */
+  public static class IntMatrixView extends AbstractIntMatrix {
+
+    private final int rowOffset, colOffset;
+    private final IntMatrix parent;
+
+    public IntMatrixView(IntMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
+      super(rows, cols);
+      this.rowOffset = rowOffset;
+      this.colOffset = colOffset;
+      this.parent = parent;
+
+      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
+          "Requested row out of bounds.");
+      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
+          "Requested column out of bounds");
+    }
+
+    @Override
+    public IntMatrix reshape(int rows, int columns) {
+      return new IntMatrixView(parent, rowOffset, colOffset, rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return null;
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return parent.get(rowOffset + i, colOffset + j);
+    }
+
+    @Override
+    public int get(int index) {
+      return parent.get(computeLinearIndex(index));
+    }
+
+    @Override
+    public IntMatrix copy() {
+      IntMatrix mat = parent.newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        mat.set(i, get(i));
+      }
+      return mat;
+    }
+
+    @Override
+    public void set(int i, int j, int value) {
+      parent.set(rowOffset + i, colOffset + j, value);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      parent.set(computeLinearIndex(index), value);
+    }
+
+    private int computeLinearIndex(int index) {
+      int currentColumn = index / rows() + colOffset;
+      int currentRow = index % rows() + rowOffset;
+      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+    }
+  }
+
   protected class FlatSliceIntMatrix extends AbstractIntMatrix {
     private final IntMatrix parent;
     private final Slice slice;
@@ -982,7 +924,4 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
 
   }
-
-
-
 }

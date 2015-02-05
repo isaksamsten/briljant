@@ -130,6 +130,8 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    */
   DoubleMatrix assign(DoubleMatrix matrix, DoubleUnaryOperator operator);
 
+  DoubleMatrix assign(DoubleMatrix matrix, DoubleBinaryOperator combine);
+
   DoubleMatrix assign(IntMatrix matrix, IntToDoubleFunction function);
 
   DoubleMatrix assign(LongMatrix matrix, LongToDoubleFunction function);
@@ -161,6 +163,12 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    * @return a new matrix
    */
   DoubleMatrix map(DoubleUnaryOperator operator);
+
+  IntMatrix mapToInt(DoubleToIntFunction function);
+
+  LongMatrix mapToLong(DoubleToLongFunction function);
+
+  ComplexMatrix mapToComplex(DoubleFunction<Complex> function);
 
   // Filter
 
@@ -433,51 +441,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix mul(double scalar);
 
   /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param other the other
-   * @return receiver modified
-   */
-  DoubleMatrix muli(DoubleMatrix other);
-
-  /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param scalar the scalar
-   * @return receiver multiplied
-   */
-  DoubleMatrix muli(double scalar);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #mul(double, DoubleMatrix, double)
-   * @return a new matrix
-   */
-  DoubleMatrix muli(double alpha, DoubleMatrix other, double beta);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #mul(DoubleMatrix, Axis)
-   */
-  DoubleMatrix muli(DoubleMatrix other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #mul(double, DoubleMatrix, double, Axis)
-   */
-  DoubleMatrix muli(double alpha, DoubleMatrix other, double beta, Axis axis);
-
-  /**
    * Element wise addition.
    *
    * @param other the other matrix
@@ -529,54 +492,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    * @return a new matrix
    */
   DoubleMatrix add(double alpha, DoubleMatrix other, double beta);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleMatrix addi(DoubleMatrix other);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  DoubleMatrix addi(double scalar);
-
-  /**
-   * In place version of {@code add}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  DoubleMatrix addi(DoubleMatrix other, Axis axis);
-
-  /**
-   * In place version of {@code add}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #add(double, org.briljantframework.matrix.DoubleMatrix, double, Axis)
-   */
-  DoubleMatrix addi(double alpha, DoubleMatrix other, double beta, Axis axis);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #add(double, DoubleMatrix, double)
-   * @return a new matrix
-   */
-  DoubleMatrix addi(double alpha, DoubleMatrix other, double beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -632,54 +547,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix sub(double alpha, DoubleMatrix other, double beta);
 
   /**
-   * In place element wise subtraction.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   */
-  DoubleMatrix subi(DoubleMatrix other);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  DoubleMatrix subi(double scalar);
-
-  /**
-   * In place version of {@code sub}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  DoubleMatrix subi(DoubleMatrix other, Axis axis);
-
-  /**
-   * In place version of {@code sub}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #sub(double, org.briljantframework.matrix.DoubleMatrix, double, Axis)
-   */
-  DoubleMatrix subi(double alpha, DoubleMatrix other, double beta, Axis axis);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #sub(double, DoubleMatrix, double)
-   * @return a new matrix
-   */
-  DoubleMatrix subi(double alpha, DoubleMatrix other, double beta);
-
-  /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
    * @param scalar the scalar
@@ -713,35 +580,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    * @return a new matrix
    */
   DoubleMatrix rsub(double alpha, DoubleMatrix other, double beta, Axis axis);
-
-  /**
-   * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  DoubleMatrix rsubi(double scalar);
-
-  /**
-   * In place version of {@code rsub}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  DoubleMatrix rsubi(DoubleMatrix other, Axis axis);
-
-  /**
-   * In place version of {@code rsub}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #rsub(double, org.briljantframework.matrix.DoubleMatrix, double, Axis)
-   */
-  DoubleMatrix rsubi(double alpha, DoubleMatrix other, double beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -788,42 +626,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix div(double alpha, DoubleMatrix other, double beta, Axis axis);
 
   /**
-   * In place element wise division.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  DoubleMatrix divi(DoubleMatrix other);
-
-  /**
-   * In place element wise division.
-   *
-   * @param other the other
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  DoubleMatrix divi(double other);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #div(org.briljantframework.matrix.DoubleMatrix, Axis)
-   */
-  DoubleMatrix divi(DoubleMatrix other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #div(double, org.briljantframework.matrix.DoubleMatrix, double, Axis)
-   */
-  DoubleMatrix divi(double alpha, DoubleMatrix other, double beta, Axis axis);
-
-  /**
    * Element wise division. {@code other / this}.
    *
    * @param other the scalar
@@ -858,33 +660,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    * @return a new matrix
    */
   DoubleMatrix rdiv(double alpha, DoubleMatrix other, double beta, Axis axis);
-
-  /**
-   * In place element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  DoubleMatrix rdivi(double other);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #divi(org.briljantframework.matrix.DoubleMatrix, Axis)
-   */
-  DoubleMatrix rdivi(DoubleMatrix other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #divi(double, org.briljantframework.matrix.DoubleMatrix, double, Axis)
-   */
-  DoubleMatrix rdivi(double alpha, DoubleMatrix other, double beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.

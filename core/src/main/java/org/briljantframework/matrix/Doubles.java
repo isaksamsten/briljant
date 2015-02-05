@@ -240,7 +240,6 @@ public class Doubles {
     long columns = matrix.columns();
     DoubleMatrix sigmas = Matrices.newDoubleVector(matrix.columns());
 
-
     for (int j = 0; j < columns; j++) {
       double std = 0.0;
       for (int i = 0; i < matrix.rows(); i++) {

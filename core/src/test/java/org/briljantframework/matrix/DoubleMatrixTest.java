@@ -1,151 +1,390 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Doubles.parseMatrix;
-import static org.junit.Assert.assertArrayEquals;
+import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
+import static org.junit.Assert.assertEquals;
 
-import java.util.Iterator;
-
+import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
 public class DoubleMatrixTest {
 
+  private final double epsilon = 0.00001;
+
   @Test
-  public void testDropRow() throws Exception {
-    DoubleMatrix a = parseMatrix("1,1,1;2,2,2");
+  public void testAssign() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
+    assertMatrixEquals(x, 3, epsilon);
+  }
+
+  @Test
+  public void testAssign1() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(() -> 3);
+    assertMatrixEquals(x, 3, epsilon);
+  }
+
+  @Test
+  public void testAssign2() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(newDoubleMatrix(3, 3).assign(3));
+    assertMatrixEquals(x, 3, epsilon);
+  }
+
+  @Test
+  public void testAssign3() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(newDoubleMatrix(3, 3).assign(3), i -> i * 2);
+    assertMatrixEquals(x, 6, epsilon);
+  }
+
+  @Test
+  public void testAssign4() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(newDoubleMatrix(3, 3).assign(3), Double::sum);
+    assertMatrixEquals(x, 3, epsilon);
+  }
+
+  @Test
+  public void testAssign5() throws Exception {
+    DoubleMatrix x =
+        newDoubleMatrix(3, 3).assign(newComplexMatrix(3, 3).assign(Complex.valueOf(3)),
+            Complex::real);
+    assertMatrixEquals(x, 3, epsilon);
+  }
+
+  @Test
+  public void testAssign6() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(newIntMatrix(3, 3).assign(3), Math::sqrt);
+    assertMatrixEquals(x, Math.sqrt(3), epsilon);
+  }
+
+  @Test
+  public void testAssign7() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(newLongMatrix(3, 3).assign(3), Math::sqrt);
+    assertMatrixEquals(x, Math.sqrt(3), epsilon);
+  }
+
+  @Test
+  public void testAssign8() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(i -> i + 3);
+    assertMatrixEquals(x, 3, epsilon);
+  }
+
+  @Test
+  public void testMap() throws Exception {
+    DoubleMatrix m = newDoubleMatrix(1, 2, 3, 4).map(Math::sqrt);
+    MatrixAssert.assertMatrixEquals(m, epsilon, Math.sqrt(1), Math.sqrt(2), Math.sqrt(3),
+        Math.sqrt(4));
+  }
+
+  @Test
+  public void testMapToLong() throws Exception {
+    LongMatrix m = newDoubleMatrix(1.2, 2.2, 3.2, 4.2).mapToLong(Math::round);
+    MatrixAssert.assertMatrixEquals(m, 1, 2, 3, 4);
+  }
+
+  @Test
+  public void testMapToInt() throws Exception {
+    IntMatrix m = newDoubleMatrix(1, 2, 3, 4).mapToInt(x -> (int) x);
+    assertMatrixEquals(m, 1, 2, 3, 4);
+  }
+
+  @Test
+  public void testMapToComplex() throws Exception {
+    ComplexMatrix m = newDoubleMatrix(1, 2, 3, -4).mapToComplex(Complex::sqrt);
+    MatrixAssert.assertMatrixEquals(m, Complex.sqrt(1), Complex.sqrt(2), Complex.sqrt(3),
+        Complex.sqrt(-4));
+  }
+
+  @Test
+  public void testFilter() throws Exception {
+    DoubleMatrix m = newDoubleMatrix(1, 2, 3, 4, 5, 6).reshape(2, 3).filter(x -> x > 3);
+    assertMatrixEquals(m, 4, 5, 6);
+  }
+
+  @Test
+  public void testSatisfies() throws Exception {
+    BitMatrix m = newDoubleMatrix(0, 1, 2, 3).satisfies(i -> i > 1);
+    assertMatrixEquals(m, false, false, true, true);
+  }
+
+  @Test
+  public void testSatisfies1() throws Exception {
+    BitMatrix m =
+        newDoubleMatrix(1, 2, 3, 4).satisfies(newDoubleMatrix(1, 3, 3, 3), (a, b) -> a == b);
+    assertMatrixEquals(m, true, false, true, false);
+  }
+
+  @Test
+  public void testReduce() throws Exception {
+    double sum = newDoubleMatrix(3, 3).assign(3).reduce(0, Double::sum);
+    assertEquals(3 * 3 * 3, sum, epsilon);
+  }
+
+  @Test
+  public void testReduce1() throws Exception {
+
+  }
+
+  @Test
+  public void testReduceColumns() throws Exception {
+
+  }
+
+  @Test
+  public void testReduceRows() throws Exception {
+
+  }
+
+  @Test
+  public void testReshape() throws Exception {
+
+  }
+
+  @Test
+  public void testTranspose() throws Exception {
+
+  }
+
+  @Test
+  public void testSet() throws Exception {
+
+  }
+
+  @Test
+  public void testSet1() throws Exception {
+
+  }
+
+  @Test
+  public void testGet() throws Exception {
+
+  }
+
+  @Test
+  public void testGet1() throws Exception {
+
+  }
+
+  @Test
+  public void testGetRowView() throws Exception {
+
+  }
+
+  @Test
+  public void testGetColumnView() throws Exception {
+
+  }
+
+  @Test
+  public void testGetDiagonalView() throws Exception {
+
+  }
+
+  @Test
+  public void testGetView() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice1() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice2() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice3() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice4() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice5() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice6() throws Exception {
+
+  }
+
+  @Test
+  public void testCopy() throws Exception {
+
+  }
+
+  @Test
+  public void testNewEmptyMatrix() throws Exception {
+
+  }
+
+  @Test
+  public void testNewEmptyVector() throws Exception {
 
   }
 
   @Test
   public void testMmul() throws Exception {
-    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
-    DoubleMatrix b = parseMatrix("1,2;1,2;1,2");
 
-    DoubleMatrix AxB = parseMatrix("6,12;6,12");
-    DoubleMatrix BxA = parseMatrix("3,6,9;3,6,9;3,6,9");
-    assertArrayEquals(AxB.asDoubleArray(), a.mmul(b).asDoubleArray(), 0.00001);
-    assertArrayEquals(BxA.asDoubleArray(), b.mmul(a).asDoubleArray(), 0.00001);
+  }
 
-    DoubleMatrix x = Matrices.randn(10, 100);
-    DoubleMatrix y = Matrices.randn(100, 10);
-    x.mmul(y);
+  @Test
+  public void testMmul1() throws Exception {
 
-    DoubleMatrix m = Matrices.rand(4, 4);
+  }
 
-    System.out.println(m);
-    Iterator<Integer> i = Slice.slice(50).iterator();
-    m.assign(i::next);
-    System.out.println(m);
-    Axis ax = Axis.COLUMN;
-    DoubleMatrix d = m.slice(Slice.slice(3), Slice.slice(3));
-    for (int j = 0; j < d.size(); j++) {
-      System.out.println(d.get(j));
-    }
+  @Test
+  public void testMmul2() throws Exception {
 
-    System.out.println(m.slice(Slice.slice(3), Slice.slice(3)));
-    System.out.println(a.slice(Slice.slice(0, 1)));
+  }
 
-    System.out.println(m.slice(Slice.slice(10)));
+  @Test
+  public void testMmul3() throws Exception {
 
-    // System.out.println(a.slice(a.lt(2)));
+  }
+
+  @Test
+  public void testMmul4() throws Exception {
 
   }
 
   @Test
   public void testMul() throws Exception {
-    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
-    DoubleMatrix b = parseMatrix("1,2,3;1,2,3");
 
-    System.out.println(a.mmul(Transpose.CONJ, a, Transpose.NO));
-
-    System.out.println(a.transpose().mmul(a));
-    //
-    // System.out.println(a.add(b));
-    //
-    // Matrix a = fill(3, 3, 2);
-    // Matrix b = randn(3, 3);
-    //
-    // System.out.println(b.add(a));
-    // System.out.println(b.sub(a));
-    // System.out.println(b.mul(a));
-    // System.out.println(b.mmul(a));
-    // System.out.println(b.add(1, a, -1));
-    // System.out.println(b.add(a.mul(-1)));
-    //
-    // System.out.println(b.add(1, a, -1).equalsTo(b.add(a.mul(-1))));
-    //
-    // System.out.println(Arrays.toString(b.add(1, a, -1).asDoubleArray()));
-    //
-    // System.out.println(Arrays.toString(b.add(a.mul(-1)).asDoubleArray()));
-    // assertArrayEquals(parseMatrix("1,4,9;1,4,9").asDoubleArray(), a.mul(b).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("1,4,9;1,4,9").asDoubleArray(), a.muli(b).asDoubleArray(),
-    // 0.0001);
-    //
-    // assertArrayEquals(parseMatrix("2,4,6;2,4,6").asDoubleArray(), b.mul(2).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("2,4,6;2,4,6").asDoubleArray(), b.muli(2).asDoubleArray(),
-    // 0.0001);
   }
 
   @Test
-  public void testSub() throws Exception {
-    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
-    DoubleMatrix b = parseMatrix("10,10,10;2,2,2");
+  public void testMul1() throws Exception {
 
-    // assertArrayEquals(parseMatrix("-9,-8,-7;-1,0,1").asDoubleArray(), a.sub(b).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("-9,-8,-7;-9,-8,-7").asDoubleArray(),
-    // a.sub(10).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("9,8,7;9,8,7").asDoubleArray(), a.rsub(10).asDoubleArray(),
-    // 0.00001);
-    //
-    // assertArrayEquals(parseMatrix("-9,-8,-7;-9,-8,-7").asDoubleArray(),
-    // a.subi(10).asDoubleArray(),
-    // 0.001);
+  }
 
-    a = parseMatrix("1,2,3;1,2,3");
+  @Test
+  public void testMul2() throws Exception {
 
-    // assertArrayEquals(parseMatrix("9,8,7;9,8,7").asDoubleArray(), a.rsubi(10).asDoubleArray(),
-    // 0.00001);
+  }
+
+  @Test
+  public void testMul3() throws Exception {
+
+  }
+
+  @Test
+  public void testMul4() throws Exception {
+
   }
 
   @Test
   public void testAdd() throws Exception {
-    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
-    DoubleMatrix b = parseMatrix("10,10,10;2,2,2");
 
-    // assertArrayEquals(parseMatrix("11,12,13;3,4,5").asDoubleArray(), a.add(b).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("2,3,4;2,3,4").asDoubleArray(), a.add(1).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("11,12,13;3,4,5").asDoubleArray(), a.addi(b).asDoubleArray(),
-    // 0.0001);
-    //
-    // a = parseMatrix("1,2,3;1,2,3");
-    // assertArrayEquals(parseMatrix("2,3,4;2,3,4").asDoubleArray(), a.addi(1).asDoubleArray(),
-    // 0.0001);
+  }
+
+  @Test
+  public void testAdd1() throws Exception {
+
+  }
+
+  @Test
+  public void testAdd2() throws Exception {
+
+  }
+
+  @Test
+  public void testAdd3() throws Exception {
+
+  }
+
+  @Test
+  public void testAdd4() throws Exception {
+
+  }
+
+  @Test
+  public void testSub() throws Exception {
+
+  }
+
+  @Test
+  public void testSub1() throws Exception {
+
+  }
+
+  @Test
+  public void testSub2() throws Exception {
+
+  }
+
+  @Test
+  public void testSub3() throws Exception {
+
+  }
+
+  @Test
+  public void testSub4() throws Exception {
+
+  }
+
+  @Test
+  public void testRsub() throws Exception {
+
+  }
+
+  @Test
+  public void testRsub1() throws Exception {
+
+  }
+
+  @Test
+  public void testRsub2() throws Exception {
 
   }
 
   @Test
   public void testDiv() throws Exception {
-    DoubleMatrix a = parseMatrix("1,2,3;2,3,4");
-    DoubleMatrix b = parseMatrix("10,2,3;43,2,1");
 
-    // assertArrayEquals(parseMatrix("0.1,1,1;0.0465,1.5,4").asDoubleArray(),
-    // a.div(b).asDoubleArray(), 0.0001);
-    //
-    // assertArrayEquals(parseMatrix("0.5,1,1.5;1,1.5,2").asDoubleArray(), a.div(2).asDoubleArray(),
-    // 0.0001);
-    // assertArrayEquals(parseMatrix("2,1,0.6667;1,0.6667,0.5").asDoubleArray(), a.rdiv(2)
-    // .asDoubleArray(), 0.0001);
   }
 
   @Test
-  public void testTranspose() throws Exception {
-    DoubleMatrix a = parseMatrix("1,2,3;1,2,3");
-    DoubleMatrix result = parseMatrix("1,1;2,2;3,3");
-    // assertArrayEquals(result.asDoubleArray(), a.transpose().asDoubleArray(), 0.0000001);
+  public void testDiv1() throws Exception {
+
+  }
+
+  @Test
+  public void testDiv2() throws Exception {
+
+  }
+
+  @Test
+  public void testDiv3() throws Exception {
+
+  }
+
+  @Test
+  public void testRdiv() throws Exception {
+
+  }
+
+  @Test
+  public void testRdiv1() throws Exception {
+
+  }
+
+  @Test
+  public void testRdiv2() throws Exception {
+
+  }
+
+  @Test
+  public void testNegate() throws Exception {
+
   }
 }

@@ -14,13 +14,12 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
-import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.LongArrayList;
 import com.google.common.collect.ImmutableTable;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public abstract class AbstractLongMatrix extends AbstractMatrix implements LongMatrix {
 
@@ -136,6 +135,15 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
+  public LongMatrix assign(LongMatrix matrix, LongBinaryOperator combine) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, combine.applyAsLong(get(i), matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function) {
     Check.equalSize(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -236,6 +244,17 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
       mat.set(i, reduce.applyAsLong(getColumnView(i)));
     }
     return mat;
+  }
+
+  @Override
+  public LongMatrix transpose() {
+    LongMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(j, i, get(i, j));
+      }
+    }
+    return matrix;
   }
 
   @Override
@@ -358,80 +377,45 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix mul(long alpha, LongMatrix other, long beta) {
-    return copy().muli(alpha, other, beta);
+    Check.equalSize(this, other);
+    LongMatrix m = newEmptyMatrix(rows(), columns());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        m.set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
+      }
+    }
+    return m;
   }
 
   @Override
-  public LongMatrix mul(Vector other, Axis axis) {
+  public LongMatrix mul(LongMatrix other, Axis axis) {
     return mul(1, other, 1, axis);
   }
 
   @Override
-  public LongMatrix mul(long alpha, Vector other, long beta, Axis axis) {
-    return copy().muli(alpha, other, beta, axis);
-  }
-
-  @Override
-  public LongMatrix mul(long scalar) {
-    return copy().muli(scalar);
-  }
-
-  @Override
-  public LongMatrix muli(LongMatrix other) {
-    return muli(1, other, 1);
-  }
-
-  @Override
-  public LongMatrix transpose() {
-    LongMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(j, i, get(i, j));
-      }
-    }
-    return matrix;
-  }
-
-  @Override
-  public LongMatrix muli(long scalar) {
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, get(i, j) * scalar);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix muli(long alpha, LongMatrix other, long beta) {
-    Check.equalSize(this, other);
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix muli(Vector other, Axis axis) {
-    return muli(1, other, 1, axis);
-  }
-
-  @Override
-  public LongMatrix muli(long alpha, Vector other, long beta, Axis axis) {
+  public LongMatrix mul(long alpha, LongMatrix other, long beta, Axis axis) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) * (other.getAsLong(i % rows()) * beta));
+        m.set(i, (alpha * get(i)) * (other.get(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) * (other.getAsLong(i / rows()) * beta));
+        m.set(i, (alpha * get(i)) * (other.get(i / rows()) * beta));
       }
     }
-    return this;
+    return m;
+  }
+
+  @Override
+  public LongMatrix mul(long scalar) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i) * scalar);
+    }
+    return m;
   }
 
   @Override
@@ -451,13 +435,25 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix add(Vector other, Axis axis) {
+  public LongMatrix add(LongMatrix other, Axis axis) {
     return add(1, other, 1, axis);
   }
 
   @Override
-  public LongMatrix add(long alpha, Vector other, long beta, Axis axis) {
-    return copy().addi(alpha, other, beta, axis);
+  public LongMatrix add(long alpha, LongMatrix other, long beta, Axis axis) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
+    if (axis == Axis.COLUMN) {
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) + (other.get(i % rows()) * beta));
+      }
+    } else {
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) + (other.get(i / rows()) * beta));
+      }
+    }
+    return m;
   }
 
   @Override
@@ -473,54 +469,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix addi(LongMatrix other) {
-    addi(1, other, 1);
-    return this;
-  }
-
-  @Override
-  public LongMatrix addi(long scalar) {
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        this.set(i, j, get(i, j) + scalar);
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix addi(Vector other, Axis axis) {
-    return addi(1, other, 1, axis);
-  }
-
-  @Override
-  public LongMatrix addi(long alpha, Vector other, long beta, Axis axis) {
-    if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) + (other.getAsLong(i % rows()) * beta));
-      }
-    } else {
-      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) + (other.getAsLong(i / rows()) * beta));
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix addi(long alpha, LongMatrix other, long beta) {
-    Check.equalSize(this, other);
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
-      }
-    }
-    return this;
-  }
-
-  @Override
   public LongMatrix sub(LongMatrix other) {
     return sub(1, other, 1);
   }
@@ -531,13 +479,25 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix sub(Vector other, Axis axis) {
+  public LongMatrix sub(LongMatrix other, Axis axis) {
     return sub(1, other, 1, axis);
   }
 
   @Override
-  public LongMatrix sub(long alpha, Vector other, long beta, Axis axis) {
-    return copy().subi(alpha, other, beta, axis);
+  public LongMatrix sub(long alpha, LongMatrix other, long beta, Axis axis) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
+    if (axis == Axis.COLUMN) {
+      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) - (other.get(i % rows()) * beta));
+      }
+    } else {
+      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
+      for (int i = 0; i < size(); i++) {
+        m.set(i, (alpha * get(i)) - (other.get(i / rows()) * beta));
+      }
+    }
+    return m;
   }
 
   @Override
@@ -553,45 +513,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix subi(LongMatrix other) {
-    addi(1, other, -1);
-    return this;
-  }
-
-  @Override
-  public LongMatrix subi(long scalar) {
-    addi(-scalar);
-    return this;
-  }
-
-  @Override
-  public LongMatrix subi(Vector other, Axis axis) {
-    return subi(1, other, 1, axis);
-  }
-
-  @Override
-  public LongMatrix subi(long alpha, Vector other, long beta, Axis axis) {
-    if (axis == Axis.COLUMN) {
-      checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) - (other.getAsLong(i % rows()) * beta));
-      }
-    } else {
-      checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
-      for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) - (other.getAsLong(i / rows()) * beta));
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix subi(long alpha, LongMatrix other, long beta) {
-    addi(alpha, other, -1 * beta);
-    return this;
-  }
-
-  @Override
   public LongMatrix rsub(long scalar) {
     LongMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
@@ -603,44 +524,25 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix rsub(Vector other, Axis axis) {
+  public LongMatrix rsub(LongMatrix other, Axis axis) {
     return rsub(1, other, 1, axis);
   }
 
   @Override
-  public LongMatrix rsub(long alpha, Vector other, long beta, Axis axis) {
-    return copy().rsubi(alpha, other, beta, axis);
-  }
-
-  @Override
-  public LongMatrix rsubi(long scalar) {
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        set(i, j, scalar - get(i, j));
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix rsubi(Vector other, Axis axis) {
-    return rsubi(1, other, 1, axis);
-  }
-
-  @Override
-  public LongMatrix rsubi(long alpha, Vector other, long beta, Axis axis) {
+  public LongMatrix rsub(long alpha, LongMatrix other, long beta, Axis axis) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsLong(i % rows()) * beta) - (alpha * get(i)));
+        m.set(i, (other.get(i % rows()) * beta) - (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsLong(i / rows()) * beta) - (alpha * get(i)));
+        m.set(i, (other.get(i / rows()) * beta) - (alpha * get(i)));
       }
     }
-    return this;
+    return m;
   }
 
   @Override
@@ -661,48 +563,25 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix div(Vector other, Axis axis) {
+  public LongMatrix div(LongMatrix other, Axis axis) {
     return div(1, other, 1, axis);
   }
 
   @Override
-  public LongMatrix div(long alpha, Vector other, long beta, Axis axis) {
-    return copy().divi(alpha, other, beta, axis);
-  }
-
-  @Override
-  public LongMatrix divi(LongMatrix other) {
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      set(i, get(i) / other.get(i));
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix divi(long other) {
-    return muli(1 / other);
-  }
-
-  @Override
-  public LongMatrix divi(Vector other, Axis axis) {
-    return divi(1, other, 1, axis);
-  }
-
-  @Override
-  public LongMatrix divi(long alpha, Vector other, long beta, Axis axis) {
+  public LongMatrix div(long alpha, LongMatrix other, long beta, Axis axis) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) / (other.getAsLong(i % rows()) * beta));
+        m.set(i, (alpha * get(i)) / (other.get(i % rows()) * beta));
       }
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (alpha * get(i)) / (other.getAsLong(i / rows()) * beta));
+        m.set(i, (alpha * get(i)) / (other.get(i / rows()) * beta));
       }
     }
-    return this;
+    return m;
   }
 
   @Override
@@ -715,39 +594,22 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix rdiv(Vector other, Axis axis) {
+  public LongMatrix rdiv(LongMatrix other, Axis axis) {
     return rdiv(1, other, 1, axis);
   }
 
   @Override
-  public LongMatrix rdiv(long alpha, Vector other, long beta, Axis axis) {
-    return copy().rdivi(alpha, other, beta, axis);
-  }
-
-  @Override
-  public LongMatrix rdivi(long other) {
-    for (int i = 0; i < size(); i++) {
-      set(i, other / get(i));
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix rdivi(Vector other, Axis axis) {
-    return rdivi(1, other, 1, axis);
-  }
-
-  @Override
-  public LongMatrix rdivi(long alpha, Vector other, long beta, Axis axis) {
+  public LongMatrix rdiv(long alpha, LongMatrix other, long beta, Axis axis) {
+    LongMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsLong(i % rows()) * beta) / (alpha * get(i)));
+        m.set(i, (other.get(i % rows()) * beta) / (alpha * get(i)));
       }
     } else {
       checkArgument(other.size() == columns());
       for (int i = 0; i < size(); i++) {
-        // this.set(i, (other.getAsLong(i / rows()) * beta) / (alpha * get(i)));
+        m.set(i, (other.get(i / rows()) * beta) / (alpha * get(i)));
       }
     }
     return this;
@@ -910,6 +772,70 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     }
   }
 
+  public static class LongMatrixView extends AbstractLongMatrix {
+
+    private final int rowOffset, colOffset;
+    private final LongMatrix parent;
+
+    public LongMatrixView(LongMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
+      super(rows, cols);
+      this.rowOffset = rowOffset;
+      this.colOffset = colOffset;
+      this.parent = parent;
+
+      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
+          "Requested row out of bounds.");
+      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.rows(),
+          "Requested column out of bounds");
+    }
+
+    @Override
+    public LongMatrix reshape(int rows, int columns) {
+      return new LongMatrixView(parent, rowOffset, colOffset, rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public LongMatrix newEmptyMatrix(int rows, int columns) {
+      return null;
+    }
+
+    @Override
+    public long get(int i, int j) {
+      return parent.get(rowOffset + i, colOffset + j);
+    }
+
+    @Override
+    public long get(int index) {
+      return parent.get(computeLinearIndex(index));
+    }
+
+    @Override
+    public void set(int i, int j, long value) {
+      parent.set(rowOffset + i, colOffset + j, value);
+    }
+
+    @Override
+    public void set(int index, long value) {
+      parent.set(computeLinearIndex(index), value);
+    }
+
+    private int computeLinearIndex(int index) {
+      int currentColumn = index / rows() + colOffset;
+      int currentRow = index % rows() + rowOffset;
+      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+    }
+  }
+
   protected class FlatSliceLongMatrix extends AbstractLongMatrix {
     private final LongMatrix parent;
     private final Slice slice;
@@ -965,7 +891,4 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     }
 
   }
-
-
-
 }

@@ -54,6 +54,8 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    */
   ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator);
 
+  ComplexMatrix assign(ComplexMatrix matrix, BinaryOperator<Complex> combine);
+
   /**
    * Assign {@code matrix} to this complex matrix.
    *
@@ -333,33 +335,6 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix mul(Complex scalar);
 
   /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param other the other
-   * @return receiver modified
-   */
-  ComplexMatrix muli(ComplexMatrix other);
-
-  /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param scalar the scalar
-   * @return receiver multiplied
-   */
-  ComplexMatrix muli(Complex scalar);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #mul(Complex, ComplexMatrix, Complex)
-   * @return a new matrix
-   */
-  ComplexMatrix muli(Complex alpha, ComplexMatrix other, Complex beta);
-
-  /**
    * Element wise addition.
    *
    * @param other the other matrix
@@ -385,33 +360,6 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * @return a new matrix
    */
   ComplexMatrix add(Complex alpha, ComplexMatrix other, Complex beta);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexMatrix addi(ComplexMatrix other);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  ComplexMatrix addi(Complex scalar);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #add(Complex, ComplexMatrix, Complex)
-   * @return a new matrix
-   */
-  ComplexMatrix addi(Complex alpha, ComplexMatrix other, Complex beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -441,47 +389,12 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix sub(Complex alpha, ComplexMatrix other, Complex beta);
 
   /**
-   * In place element wise subtraction.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   */
-  ComplexMatrix subi(ComplexMatrix other);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  ComplexMatrix subi(Complex scalar);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #sub(Complex, ComplexMatrix, Complex)
-   * @return a new matrix
-   */
-  ComplexMatrix subi(Complex alpha, ComplexMatrix other, Complex beta);
-
-  /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
    *
    * @param scalar the scalar
    * @return a new matrix
    */
   ComplexMatrix rsub(Complex scalar);
-
-  /**
-   * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  ComplexMatrix rsubi(Complex scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -502,24 +415,6 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix div(Complex other);
 
   /**
-   * In place element wise division.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  ComplexMatrix divi(ComplexMatrix other);
-
-  /**
-   * In place element wise division.
-   *
-   * @param other the other
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  ComplexMatrix divi(Complex other);
-
-  /**
    * Element wise division. {@code other / this}.
    *
    * @param other the scalar
@@ -528,14 +423,6 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    */
   ComplexMatrix rdiv(Complex other);
 
-  /**
-   * In place element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  ComplexMatrix rdivi(Complex other);
 
   /**
    * Returns a new matrix with elements negated.

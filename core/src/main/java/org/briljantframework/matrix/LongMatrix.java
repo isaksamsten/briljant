@@ -4,7 +4,6 @@ import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.LongBiPredicate;
-import org.briljantframework.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -54,6 +53,8 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @return receiver modified
    */
   LongMatrix assign(LongMatrix matrix, LongUnaryOperator operator);
+
+  LongMatrix assign(LongMatrix matrix, LongBinaryOperator combine);
 
   LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function);
 
@@ -302,9 +303,9 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param other the vector
    * @param axis the extending direction
    * @return a new matrix
-   * @see #mul(long, org.briljantframework.vector.Vector, long, Axis)
+   * @see #mul(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
-  LongMatrix mul(Vector other, Axis axis);
+  LongMatrix mul(LongMatrix other, Axis axis);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
@@ -320,7 +321,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  LongMatrix mul(long alpha, Vector other, long beta, Axis axis);
+  LongMatrix mul(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -329,51 +330,6 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @return a new matrix
    */
   LongMatrix mul(long scalar);
-
-  /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param other the other
-   * @return receiver modified
-   */
-  LongMatrix muli(LongMatrix other);
-
-  /**
-   * In place element wise <u>m</u>ultiplication.
-   *
-   * @param scalar the scalar
-   * @return receiver multiplied
-   */
-  LongMatrix muli(long scalar);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #mul(long, LongMatrix, long)
-   * @return a new matrix
-   */
-  LongMatrix muli(long alpha, LongMatrix other, long beta);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #mul(org.briljantframework.vector.Vector, Axis)
-   */
-  LongMatrix muli(Vector other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #mul(long, org.briljantframework.vector.Vector, long, Axis)
-   */
-  LongMatrix muli(long alpha, Vector other, long beta, Axis axis);
 
   /**
    * Element wise addition.
@@ -397,9 +353,9 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(long, org.briljantframework.vector.Vector, long, Axis)
+   * @see #add(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
-  LongMatrix add(Vector other, Axis axis);
+  LongMatrix add(LongMatrix other, Axis axis);
 
   /**
    * Element wise add, extending {@code other} row or column wise
@@ -415,7 +371,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  LongMatrix add(long alpha, Vector other, long beta, Axis axis);
+  LongMatrix add(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -427,54 +383,6 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @return a new matrix
    */
   LongMatrix add(long alpha, LongMatrix other, long beta);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  LongMatrix addi(LongMatrix other);
-
-  /**
-   * In place element wise addition.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  LongMatrix addi(long scalar);
-
-  /**
-   * In place version of {@code add}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  LongMatrix addi(Vector other, Axis axis);
-
-  /**
-   * In place version of {@code add}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #add(long, org.briljantframework.vector.Vector, long, Axis)
-   */
-  LongMatrix addi(long alpha, Vector other, long beta, Axis axis);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #add(long, LongMatrix, long)
-   * @return a new matrix
-   */
-  LongMatrix addi(long alpha, LongMatrix other, long beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -498,9 +406,9 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(long, org.briljantframework.vector.Vector, long, Axis)
+   * @see #sub(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
-  LongMatrix sub(Vector other, Axis axis);
+  LongMatrix sub(LongMatrix other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise
@@ -516,7 +424,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  LongMatrix sub(long alpha, Vector other, long beta, Axis axis);
+  LongMatrix sub(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -528,54 +436,6 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @return a new matrix
    */
   LongMatrix sub(long alpha, LongMatrix other, long beta);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   */
-  LongMatrix subi(LongMatrix other);
-
-  /**
-   * In place element wise subtraction.
-   *
-   * @param scalar the scalar
-   * @return receiver modified
-   */
-  LongMatrix subi(long scalar);
-
-  /**
-   * In place version of {@code sub}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  LongMatrix subi(Vector other, Axis axis);
-
-  /**
-   * In place version of {@code sub}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #sub(long, org.briljantframework.vector.Vector, long, Axis)
-   */
-  LongMatrix subi(long alpha, Vector other, long beta, Axis axis);
-
-  /**
-   * In place Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @param beta scaling for {@code other}
-   * @see #sub(long, LongMatrix, long)
-   * @return a new matrix
-   */
-  LongMatrix subi(long alpha, LongMatrix other, long beta);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -591,9 +451,9 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #sub(long, org.briljantframework.vector.Vector, long, Axis)
+   * @see #sub(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
-  LongMatrix rsub(Vector other, Axis axis);
+  LongMatrix rsub(LongMatrix other, Axis axis);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
@@ -610,36 +470,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  LongMatrix rsub(long alpha, Vector other, long beta, Axis axis);
-
-  /**
-   * In place <u>r</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  LongMatrix rsubi(long scalar);
-
-  /**
-   * In place version of {@code rsub}
-   *
-   * @param other the array
-   * @param axis the extending direction
-   * @return reciver modified
-   */
-  LongMatrix rsubi(Vector other, Axis axis);
-
-  /**
-   * In place version of {@code rsub}.
-   *
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #rsub(long, org.briljantframework.vector.Vector, long, Axis)
-   */
-  LongMatrix rsubi(long alpha, Vector other, long beta, Axis axis);
+  LongMatrix rsub(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.
@@ -665,9 +496,9 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(long, org.briljantframework.vector.Vector, long, Axis)
+   * @see #add(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
-  LongMatrix div(Vector other, Axis axis);
+  LongMatrix div(LongMatrix other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise
@@ -683,43 +514,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  LongMatrix div(long alpha, Vector other, long beta, Axis axis);
-
-  /**
-   * In place element wise division.
-   *
-   * @param other the other matrix
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  LongMatrix divi(LongMatrix other);
-
-  /**
-   * In place element wise division.
-   *
-   * @param other the other
-   * @return receiver modified
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  LongMatrix divi(long other);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #div(org.briljantframework.vector.Vector, Axis)
-   */
-  LongMatrix divi(Vector other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #div(long, org.briljantframework.vector.Vector, long, Axis)
-   */
-  LongMatrix divi(long alpha, Vector other, long beta, Axis axis);
+  LongMatrix div(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
    * Element wise division. {@code other / this}.
@@ -736,9 +531,9 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param other the array
    * @param axis the extending direction
    * @return a new matrix
-   * @see #add(long, org.briljantframework.vector.Vector, long, Axis)
+   * @see #add(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
-  LongMatrix rdiv(Vector other, Axis axis);
+  LongMatrix rdiv(LongMatrix other, Axis axis);
 
   /**
    * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
@@ -755,34 +550,7 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * @param axis the extending direction
    * @return a new matrix
    */
-  LongMatrix rdiv(long alpha, Vector other, long beta, Axis axis);
-
-  /**
-   * In place element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  LongMatrix rdivi(long other);
-
-  /**
-   * @param other the array
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #divi(org.briljantframework.vector.Vector, Axis)
-   */
-  LongMatrix rdivi(Vector other, Axis axis);
-
-  /**
-   * @param alpha scaling factor for {@code this}
-   * @param other the array
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
-   * @return receiver modified
-   * @see #divi(long, org.briljantframework.vector.Vector, long, Axis)
-   */
-  LongMatrix rdivi(long alpha, Vector other, long beta, Axis axis);
+  LongMatrix rdiv(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
    * Returns a new matrix with elements negated.
