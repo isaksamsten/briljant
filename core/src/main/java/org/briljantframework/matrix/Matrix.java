@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import java.util.Collection;
+
 import org.briljantframework.Swappable;
 import org.briljantframework.matrix.storage.Storage;
 
@@ -166,25 +168,25 @@ public interface Matrix extends Swappable {
    * @param columns the columns to include
    * @return a view
    */
-  Matrix slice(Slice rows, Slice columns);
+  Matrix slice(Range rows, Range columns);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix.
    * 
-   * @param slice the range
+   * @param range the range
    * @return a view
    */
-  Matrix slice(Slice slice);
+  Matrix slice(Range range);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix, sliced from the axis defined by
    * {@code axis}.
    * 
-   * @param slice the range
+   * @param range the range
    * @param axis the axis
    * @return a view
    */
-  Matrix slice(Slice slice, Axis axis);
+  Matrix slice(Range range, Axis axis);
 
   /**
    * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
@@ -193,13 +195,15 @@ public interface Matrix extends Swappable {
    * @param columns the columns to include
    * @return a new matrix with the same size as {@code this}
    */
-  Matrix slice(IntMatrix rows, IntMatrix columns);
+  Matrix slice(Collection<Integer> rows, Collection<Integer> columns);
 
-  Matrix slice(IntMatrix indexes);
+  Matrix slice(Collection<Integer> indexes);
 
-  Matrix slice(IntMatrix indexes, Axis axis);
+  Matrix slice(Collection<Integer> indexes, Axis axis);
 
   Matrix slice(BitMatrix bits);
+
+  Matrix slice(BitMatrix indexes, Axis axis);
 
   /**
    * The number of rows.

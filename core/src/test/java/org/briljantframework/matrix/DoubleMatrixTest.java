@@ -96,7 +96,7 @@ public class DoubleMatrixTest {
   @Test
   public void testFilter() throws Exception {
     DoubleMatrix m = newDoubleMatrix(1, 2, 3, 4, 5, 6).reshape(2, 3).filter(x -> x > 3);
-    assertMatrixEquals(m, 4, 5, 6);
+    assertMatrixEquals(m, epsilon, 4, 5, 6);
   }
 
   @Test
@@ -120,27 +120,46 @@ public class DoubleMatrixTest {
 
   @Test
   public void testReduce1() throws Exception {
-
+    double squaredSum = newDoubleMatrix(3, 3).assign(3).reduce(0, Double::sum, x -> x * 2);
+    assertEquals(3 * 2 * 3 * 3, squaredSum, epsilon);
   }
 
   @Test
   public void testReduceColumns() throws Exception {
-
+    DoubleMatrix row = newDoubleMatrix(3, 4).assign(3).reduceColumns(x -> x.reduce(0, Double::sum));
+    assertEquals(1, row.rows());
+    assertEquals(4, row.columns());
+    assertMatrixEquals(row, 9, epsilon);
   }
 
   @Test
   public void testReduceRows() throws Exception {
-
+    DoubleMatrix col = newDoubleMatrix(4, 3).assign(3).reduceRows(x -> x.reduce(0, Double::sum));
+    assertEquals(1, col.columns());
+    assertEquals(4, col.rows());
+    assertMatrixEquals(col, 9, epsilon);
   }
 
   @Test
   public void testReshape() throws Exception {
-
+    DoubleMatrix x = newDoubleMatrix(1, 2, 3, 4).reshape(2, 2);
+    assertEquals(2, x.rows());
+    assertEquals(2, x.rows());
+    assertEquals(1, x.get(0, 0), epsilon);
+    assertEquals(4, x.get(1, 1), epsilon);
   }
 
   @Test
   public void testTranspose() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(1, 2, 3, 1, 2, 3).reshape(3, 2).transpose();
+    assertMatrixEquals(x, epsilon, 1, 1, 2, 2, 3, 3);
+  }
 
+  @Test
+  public void testShuffle() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(1, 2, 3, 4, 5, 6);
+    Matrices.shuffle(x);
+    System.out.println(x);
   }
 
   @Test

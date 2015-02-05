@@ -298,7 +298,7 @@ public final class Matrices {
   }
 
   public static IntMatrix range(int start, int end, int step) {
-    return Slice.slice(start, end, step).copy();
+    return Range.range(start, end, step).copy();
   }
 
   /**
@@ -690,6 +690,22 @@ public final class Matrices {
 
   public static ComplexMatrix newComplexMatrix(int rows, int columns) {
     return new DefaultComplexMatrix(rows, columns);
+  }
+
+  public static void shuffle(Matrix matrix) {
+    Utils.permute(matrix.size(), matrix);
+  }
+
+  public static void shuffle(Matrix matrix, Axis axis) {
+    if (axis == Axis.ROW) {
+      for (int i = 0; i < matrix.rows(); i++) {
+        shuffle(matrix.getRowView(i));
+      }
+    } else {
+      for (int i = 0; i < matrix.columns(); i++) {
+        shuffle(matrix.getColumnView(i));
+      }
+    }
   }
 
 

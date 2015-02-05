@@ -5,10 +5,12 @@ import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Arrays;
+
 import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
-public class IntMatrixTest {
+public class AbstractIntMatrixTest {
 
   @Test
   public void testAssign() throws Exception {
@@ -324,31 +326,6 @@ public class IntMatrixTest {
   }
 
   @Test
-  public void testMuli() throws Exception {
-
-  }
-
-  @Test
-  public void testMuli1() throws Exception {
-
-  }
-
-  @Test
-  public void testMuli2() throws Exception {
-
-  }
-
-  @Test
-  public void testMuli3() throws Exception {
-
-  }
-
-  @Test
-  public void testMuli4() throws Exception {
-
-  }
-
-  @Test
   public void testAdd() throws Exception {
 
   }
@@ -370,31 +347,6 @@ public class IntMatrixTest {
 
   @Test
   public void testAdd4() throws Exception {
-
-  }
-
-  @Test
-  public void testAddi() throws Exception {
-
-  }
-
-  @Test
-  public void testAddi1() throws Exception {
-
-  }
-
-  @Test
-  public void testAddi2() throws Exception {
-
-  }
-
-  @Test
-  public void testAddi3() throws Exception {
-
-  }
-
-  @Test
-  public void testAddi4() throws Exception {
 
   }
 
@@ -424,31 +376,6 @@ public class IntMatrixTest {
   }
 
   @Test
-  public void testSubi() throws Exception {
-
-  }
-
-  @Test
-  public void testSubi1() throws Exception {
-
-  }
-
-  @Test
-  public void testSubi2() throws Exception {
-
-  }
-
-  @Test
-  public void testSubi3() throws Exception {
-
-  }
-
-  @Test
-  public void testSubi4() throws Exception {
-
-  }
-
-  @Test
   public void testRsub() throws Exception {
 
   }
@@ -460,21 +387,6 @@ public class IntMatrixTest {
 
   @Test
   public void testRsub2() throws Exception {
-
-  }
-
-  @Test
-  public void testRsubi() throws Exception {
-
-  }
-
-  @Test
-  public void testRsubi1() throws Exception {
-
-  }
-
-  @Test
-  public void testRsubi2() throws Exception {
 
   }
 
@@ -499,26 +411,6 @@ public class IntMatrixTest {
   }
 
   @Test
-  public void testDivi() throws Exception {
-
-  }
-
-  @Test
-  public void testDivi1() throws Exception {
-
-  }
-
-  @Test
-  public void testDivi2() throws Exception {
-
-  }
-
-  @Test
-  public void testDivi3() throws Exception {
-
-  }
-
-  @Test
   public void testRdiv() throws Exception {
 
   }
@@ -534,22 +426,108 @@ public class IntMatrixTest {
   }
 
   @Test
-  public void testRdivi() throws Exception {
-
-  }
-
-  @Test
-  public void testRdivi1() throws Exception {
-
-  }
-
-  @Test
-  public void testRdivi2() throws Exception {
-
-  }
-
-  @Test
   public void testNegate() throws Exception {
+
+  }
+
+  @Test
+  public void testSlice1() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3).reshape(3, 2);
+    IntMatrix slice = x.slice(Range.range(3));
+    assertMatrixEquals(slice, 1, 2, 3);
+  }
+
+  @Test
+  public void testSlice2() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix slice = x.slice(Range.range(2), Axis.ROW);
+    assertEquals(2, slice.rows());
+    assertMatrixEquals(slice.getRowView(0), 1, 1, 1);
+    assertMatrixEquals(slice.getRowView(1), 2, 2, 2);
+  }
+
+  @Test
+  public void testSlice3() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix s = x.slice(Range.range(2), Range.range(2));
+    assertEquals(2, s.rows());
+    assertEquals(2, s.columns());
+    assertMatrixEquals(s.getRowView(0), 1, 1);
+    assertMatrixEquals(s.getRowView(1), 2, 2);
+  }
+
+  @Test
+  public void testSlice4() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix s = x.slice(Arrays.asList(0, 2, 5, 7));
+    assertMatrixEquals(s, 1, 3, 3, 2);
+  }
+
+  @Test
+  public void testSlice5() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix s = x.slice(Arrays.asList(0, 2), Axis.ROW);
+    assertMatrixEquals(s.getRowView(0), 1, 1, 1);
+    assertMatrixEquals(s.getRowView(1), 3, 3, 3);
+  }
+
+  @Test
+  public void testSlice6() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix s = x.slice(Arrays.asList(0, 1), Arrays.asList(0, 1));
+    assertMatrixEquals(s.getRowView(0), 1, 1);
+    assertMatrixEquals(s.getRowView(1), 2, 2);
+  }
+
+  @Test
+  public void testSlice7() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix s = x.slice(newBitMatrix(true, true, true, false, false, false, false, false, false));
+    assertMatrixEquals(s, 1, 2, 3, 1);
+  }
+
+  @Test
+  public void testSlice() throws Exception {
+    IntMatrix x = newIntMatrix(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    IntMatrix s = x.slice(newBitMatrix(true, false, true), Axis.ROW);
+    assertMatrixEquals(s.getRowView(0), 1, 1, 1);
+    assertMatrixEquals(s.getRowView(1), 3, 3, 3);
+  }
+
+  @Test
+  public void testSwap() throws Exception {
+
+  }
+
+  @Test
+  public void testSetRow() throws Exception {
+    IntMatrix x = newIntMatrix(3, 3);
+    x.setRow(0, newIntMatrix(1, 2, 3));
+    assertMatrixEquals(x.getRowView(0), 1, 2, 3);
+  }
+
+  @Test
+  public void testSetColumn() throws Exception {
+
+  }
+
+  @Test
+  public void testHashCode() throws Exception {
+
+  }
+
+  @Test
+  public void testEquals() throws Exception {
+
+  }
+
+  @Test
+  public void testToString() throws Exception {
+
+  }
+
+  @Test
+  public void testIterator() throws Exception {
 
   }
 }

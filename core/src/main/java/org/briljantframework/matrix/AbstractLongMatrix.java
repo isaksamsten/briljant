@@ -3,7 +3,9 @@ package org.briljantframework.matrix;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
+import static org.briljantframework.matrix.Matrices.sum;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.*;
@@ -51,42 +53,116 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public Matrix slice(Slice rows, Slice columns) {
+  public LongMatrix slice(Range rows, Range columns) {
     return new SliceLongMatrix(this, rows, columns);
   }
 
   @Override
-  public Matrix slice(Slice slice) {
-    return new FlatSliceLongMatrix(this, slice);
+  public LongMatrix slice(Range range) {
+    return new FlatSliceLongMatrix(this, range);
   }
 
   @Override
-  public Matrix slice(Slice slice, Axis axis) {
+  public LongMatrix slice(Range range, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceLongMatrix(this, slice, Slice.slice(columns()));
+      return new SliceLongMatrix(this, range, Range.range(columns()));
     } else {
-      return new SliceLongMatrix(this, Slice.slice(rows()), slice);
+      return new SliceLongMatrix(this, Range.range(rows()), range);
     }
   }
 
   @Override
-  public Matrix slice(IntMatrix rows, IntMatrix columns) {
-    return null;
+  public LongMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    LongMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    int i = 0;
+    for (int row : rows) {
+      int j = 0;
+      for (int column : columns) {
+        m.set(i, j++, get(row, column));
+      }
+      i++;
+    }
+    return m;
   }
 
   @Override
-  public Matrix slice(IntMatrix indexes) {
-    return null;
+  public LongMatrix slice(Collection<Integer> indexes) {
+    IncrementalBuilder builder = new IncrementalBuilder();
+    indexes.forEach(index -> builder.add(get(index)));
+    return builder.build();
   }
 
   @Override
-  public Matrix slice(IntMatrix indexes, Axis axis) {
-    return null;
+  public LongMatrix slice(Collection<Integer> indexes, Axis axis) {
+    LongMatrix matrix;
+    if (axis == Axis.ROW) {
+      matrix = newEmptyMatrix(indexes.size(), columns());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setRow(i++, getRowView(index));
+      }
+    } else {
+      matrix = newEmptyMatrix(rows(), indexes.size());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setColumn(i++, getColumnView(index));
+      }
+    }
+    return matrix;
   }
 
   @Override
-  public Matrix slice(BitMatrix bits) {
-    return null;
+  public LongMatrix slice(BitMatrix bits) {
+    Check.equalShape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public LongMatrix slice(BitMatrix indexes, Axis axis) {
+    int size = sum(indexes);
+    LongMatrix matrix;
+    if (axis == Axis.ROW) {
+      Check.size(rows(), indexes);
+      matrix = newEmptyMatrix(size, columns());
+      int index = 0;
+      for (int i = 0; i < rows(); i++) {
+        if (indexes.get(i)) {
+          matrix.setRow(index++, getRowView(i));
+        }
+      }
+    } else {
+      Check.size(columns(), indexes);
+      matrix = newEmptyMatrix(rows(), size);
+      int index = 0;
+      for (int j = 0; j < columns(); j++) {
+        if (indexes.get(j)) {
+          matrix.setColumn(index++, getColumnView(j));
+        }
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public void setRow(int index, LongMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
+    }
+  }
+
+  @Override
+  public void setColumn(int index, LongMatrix column) {
+    Check.size(rows(), column);
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
+    }
   }
 
   @Override
@@ -706,14 +782,14 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   protected static class SliceLongMatrix extends AbstractLongMatrix {
 
-    private final Slice row, column;
+    private final Range row, column;
     private final LongMatrix parent;
 
-    public SliceLongMatrix(LongMatrix parent, Slice row, Slice column) {
+    public SliceLongMatrix(LongMatrix parent, Range row, Range column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceLongMatrix(LongMatrix parent, int rows, Slice row, int columns, Slice column) {
+    public SliceLongMatrix(LongMatrix parent, int rows, Range row, int columns, Range column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -838,16 +914,16 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   protected class FlatSliceLongMatrix extends AbstractLongMatrix {
     private final LongMatrix parent;
-    private final Slice slice;
+    private final Range range;
 
-    private FlatSliceLongMatrix(LongMatrix parent, int size, Slice slice) {
+    private FlatSliceLongMatrix(LongMatrix parent, int size, Range range) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.slice = checkNotNull(slice);
+      this.range = checkNotNull(range);
     }
 
-    public FlatSliceLongMatrix(LongMatrix parent, Slice slice) {
-      this(parent, checkNotNull(slice).size(), slice);
+    public FlatSliceLongMatrix(LongMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
     }
 
     @Override
@@ -857,7 +933,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
     @Override
     public void set(int index, long value) {
-      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
     }
 
     @Override
@@ -887,7 +963,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
     @Override
     public long get(int index) {
-      return parent.get(sliceIndex(slice.step(), index, parent.size()));
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
     }
 
   }

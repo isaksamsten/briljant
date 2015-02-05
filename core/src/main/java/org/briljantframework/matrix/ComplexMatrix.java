@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import java.util.Collection;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
@@ -165,10 +166,13 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   @Override
   ComplexMatrix reshape(int rows, int columns);
 
-
   void set(int index, Complex complex);
 
   void set(int i, int j, Complex complex);
+
+  void setRow(int index, ComplexMatrix row);
+
+  void setColumn(int index, ComplexMatrix column);
 
   /**
    * Get value at row {@code i} and column {@code j}
@@ -242,6 +246,30 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    */
   @Override
   ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+
+  @Override
+  ComplexMatrix slice(Range rows, Range columns);
+
+  @Override
+  ComplexMatrix slice(Range range);
+
+  @Override
+  ComplexMatrix slice(Range range, Axis axis);
+
+  @Override
+  ComplexMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
+
+  @Override
+  ComplexMatrix slice(Collection<Integer> indexes);
+
+  @Override
+  ComplexMatrix slice(Collection<Integer> indexes, Axis axis);
+
+  @Override
+  ComplexMatrix slice(BitMatrix bits);
+
+  @Override
+  ComplexMatrix slice(BitMatrix indexes, Axis axis);
 
   /**
    * Transpose matrix like.

@@ -3,6 +3,7 @@ package org.briljantframework;
 /**
  * @author Isak Karlsson
  */
+@FunctionalInterface
 public interface Swappable {
 
   /**

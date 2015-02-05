@@ -10,11 +10,11 @@ import com.google.common.base.Preconditions;
 /**
  * @author Isak Karlsson
  */
-public class Slice extends AbstractIntMatrix implements Collection<Integer> {
+public class Range extends AbstractIntMatrix implements Collection<Integer> {
 
   private final int start, end, step;
 
-  private Slice(int start, int end, int step) {
+  private Range(int start, int end, int step) {
     super(1, (end - start) / step);
     Preconditions.checkArgument(start < end);
     this.start = start;
@@ -30,8 +30,8 @@ public class Slice extends AbstractIntMatrix implements Collection<Integer> {
    * @param step the step
    * @return the range
    */
-  public static Slice slice(int start, int end, int step) {
-    return new Slice(start, end, step);
+  public static Range range(int start, int end, int step) {
+    return new Range(start, end, step);
   }
 
   /**
@@ -41,8 +41,8 @@ public class Slice extends AbstractIntMatrix implements Collection<Integer> {
    * @param end the end
    * @return the range
    */
-  public static Slice slice(int start, int end) {
-    return new Slice(start, end, 1);
+  public static Range range(int start, int end) {
+    return new Range(start, end, 1);
   }
 
   /**
@@ -51,8 +51,8 @@ public class Slice extends AbstractIntMatrix implements Collection<Integer> {
    * @param end the end
    * @return a new range
    */
-  public static Slice slice(int end) {
-    return slice(0, end);
+  public static Range range(int end) {
+    return range(0, end);
   }
 
   public int start() {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -321,7 +322,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
    */
-  interface Builder {
+  interface Builder extends Swappable {
 
     /**
      * Set value at {@code row} in {@code column} to NA.
@@ -458,6 +459,10 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @return a modified builder
      */
     Builder swapRows(int a, int b);
+
+    default void swap(int a, int b) {
+      swapRows(a, b);
+    }
 
     /**
      * Add all values in {@code vector} to column {@code toCol}, starting at {@code startRow}. If

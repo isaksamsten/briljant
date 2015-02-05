@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.matrix.Slice;
+import org.briljantframework.matrix.Range;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class FoldPartitionerTest {
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadConnect4();
-    DataFrame x = dummy.takeColumns(Slice.slice(0, 2));
+    DataFrame x = dummy.takeColumns(Range.range(0, 2));
     Vector y = dummy.getColumn(2);
 
     System.out.println(x);

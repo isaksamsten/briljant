@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import java.util.Collection;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
@@ -173,6 +174,10 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   void set(int row, int column, int value);
 
+  void setRow(int index, IntMatrix matrix);
+
+  void setColumn(int index, IntMatrix matrix);
+
   void addTo(int index, int value);
 
   void addTo(int i, int j, int value);
@@ -204,6 +209,30 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    * {@inheritDoc}
    */
   IntMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+
+  @Override
+  IntMatrix slice(Range rows, Range columns);
+
+  @Override
+  IntMatrix slice(Range range);
+
+  @Override
+  IntMatrix slice(Range range, Axis axis);
+
+  @Override
+  IntMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
+
+  @Override
+  IntMatrix slice(Collection<Integer> indexes);
+
+  @Override
+  IntMatrix slice(Collection<Integer> indexes, Axis axis);
+
+  @Override
+  IntMatrix slice(BitMatrix bits);
+
+  @Override
+  IntMatrix slice(BitMatrix indexes, Axis axis);
 
   /**
    * {@inheritDoc}

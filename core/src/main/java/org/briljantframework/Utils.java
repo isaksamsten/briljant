@@ -61,6 +61,14 @@ public final class Utils {
     }
   }
 
+  public static void permute(int count, Swappable swappable) {
+    if (random == null)
+      random = new Random();
+    for (int i = count; i > 1; i--) {
+      swappable.swap(i - 1, random.nextInt(i));
+    }
+  }
+
   /**
    * Swap values {@code i} and {@code j} in {@code array}
    *

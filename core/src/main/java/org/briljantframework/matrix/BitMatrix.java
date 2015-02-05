@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import java.util.Collection;
+
 /**
  * Created by Isak Karlsson on 12/01/15.
  */
@@ -8,6 +10,10 @@ public interface BitMatrix extends Matrix, Iterable<Boolean> {
   void set(int i, int j, boolean value);
 
   void set(int index, boolean value);
+
+  void setRow(int index, BitMatrix row);
+
+  void setColumn(int index, BitMatrix column);
 
   boolean get(int i, int j);
 
@@ -60,6 +66,30 @@ public interface BitMatrix extends Matrix, Iterable<Boolean> {
    */
   @Override
   BitMatrix getView(int rowOffset, int colOffset, int rows, int columns);
+
+  @Override
+  BitMatrix slice(Range rows, Range columns);
+
+  @Override
+  BitMatrix slice(Range range);
+
+  @Override
+  BitMatrix slice(Range range, Axis axis);
+
+  @Override
+  BitMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
+
+  @Override
+  BitMatrix slice(Collection<Integer> indexes);
+
+  @Override
+  BitMatrix slice(Collection<Integer> indexes, Axis axis);
+
+  @Override
+  BitMatrix slice(BitMatrix bits);
+
+  @Override
+  BitMatrix slice(BitMatrix indexes, Axis axis);
 
   @Override
   BitMatrix transpose();

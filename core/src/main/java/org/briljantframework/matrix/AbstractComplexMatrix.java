@@ -6,6 +6,7 @@ import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
@@ -56,42 +57,116 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   }
 
   @Override
-  public Matrix slice(Slice rows, Slice columns) {
+  public ComplexMatrix slice(Range rows, Range columns) {
     return new SliceComplexMatrix(this, rows, columns);
   }
 
   @Override
-  public Matrix slice(Slice slice) {
-    return new FlatSliceComplexMatrix(this, slice);
+  public ComplexMatrix slice(Range range) {
+    return new FlatSliceComplexMatrix(this, range);
   }
 
   @Override
-  public Matrix slice(Slice slice, Axis axis) {
+  public ComplexMatrix slice(Range range, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceComplexMatrix(this, slice, Slice.slice(columns()));
+      return new SliceComplexMatrix(this, range, Range.range(columns()));
     } else {
-      return new SliceComplexMatrix(this, Slice.slice(rows()), slice);
+      return new SliceComplexMatrix(this, Range.range(rows()), range);
     }
   }
 
   @Override
-  public Matrix slice(IntMatrix rows, IntMatrix columns) {
-    throw new UnsupportedOperationException();
+  public ComplexMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    ComplexMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    int i = 0;
+    for (int row : rows) {
+      int j = 0;
+      for (int column : columns) {
+        m.set(i, j++, get(row, column));
+      }
+      i++;
+    }
+    return m;
   }
 
   @Override
-  public Matrix slice(IntMatrix indexes) {
-    throw new UnsupportedOperationException();
+  public ComplexMatrix slice(Collection<Integer> indexes) {
+    IncrementalBuilder builder = new IncrementalBuilder();
+    indexes.forEach(index -> builder.add(get(index)));
+    return builder.build();
   }
 
   @Override
-  public Matrix slice(IntMatrix indexes, Axis axis) {
-    throw new UnsupportedOperationException();
+  public ComplexMatrix slice(Collection<Integer> indexes, Axis axis) {
+    ComplexMatrix matrix;
+    if (axis == Axis.ROW) {
+      matrix = newEmptyMatrix(indexes.size(), columns());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setRow(i++, getRowView(index));
+      }
+    } else {
+      matrix = newEmptyMatrix(rows(), indexes.size());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setColumn(i++, getColumnView(index));
+      }
+    }
+    return matrix;
   }
 
   @Override
-  public Matrix slice(BitMatrix bits) {
-    throw new UnsupportedOperationException();
+  public ComplexMatrix slice(BitMatrix bits) {
+    Check.equalShape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public ComplexMatrix slice(BitMatrix indexes, Axis axis) {
+    int size = Matrices.sum(indexes);
+    ComplexMatrix matrix;
+    if (axis == Axis.ROW) {
+      Check.size(rows(), indexes);
+      matrix = newEmptyMatrix(size, columns());
+      int index = 0;
+      for (int i = 0; i < rows(); i++) {
+        if (indexes.get(i)) {
+          matrix.setRow(index++, getRowView(i));
+        }
+      }
+    } else {
+      Check.size(columns(), indexes);
+      matrix = newEmptyMatrix(rows(), size);
+      int index = 0;
+      for (int j = 0; j < columns(); j++) {
+        if (indexes.get(j)) {
+          matrix.setColumn(index++, getColumnView(j));
+        }
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public void setRow(int index, ComplexMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
+    }
+  }
+
+  @Override
+  public void setColumn(int index, ComplexMatrix column) {
+    Check.size(rows(), column);
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
+    }
   }
 
   @Override
@@ -558,14 +633,14 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   protected static class SliceComplexMatrix extends AbstractComplexMatrix {
 
-    private final Slice row, column;
+    private final Range row, column;
     private final ComplexMatrix parent;
 
-    public SliceComplexMatrix(ComplexMatrix parent, Slice row, Slice column) {
+    public SliceComplexMatrix(ComplexMatrix parent, Range row, Range column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceComplexMatrix(ComplexMatrix parent, int rows, Slice row, int columns, Slice column) {
+    public SliceComplexMatrix(ComplexMatrix parent, int rows, Range row, int columns, Range column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -712,16 +787,16 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
     private final ComplexMatrix parent;
-    private final Slice slice;
+    private final Range range;
 
-    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Slice slice) {
+    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Range range) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.slice = checkNotNull(slice);
+      this.range = checkNotNull(range);
     }
 
-    public FlatSliceComplexMatrix(ComplexMatrix parent, Slice slice) {
-      this(parent, checkNotNull(slice).size(), slice);
+    public FlatSliceComplexMatrix(ComplexMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
     }
 
     @Override
@@ -731,7 +806,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
     @Override
     public void set(int index, Complex value) {
-      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
     }
 
     @Override
@@ -761,7 +836,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
     @Override
     public Complex get(int index) {
-      return parent.get(sliceIndex(slice.step(), index, parent.size()));
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
     }
 
     @Override

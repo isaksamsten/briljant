@@ -16,6 +16,7 @@
 
 package org.briljantframework.matrix;
 
+import java.util.Collection;
 import java.util.function.*;
 
 import org.briljantframework.complex.Complex;
@@ -239,6 +240,10 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
 
   void set(int index, double value);
 
+  void setRow(int index, DoubleMatrix row);
+
+  void setColumn(int index, DoubleMatrix column);
+
   /**
    * Get value at row {@code i} and column {@code j}
    *
@@ -317,24 +322,28 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
   @Override
-  DoubleMatrix slice(IntMatrix rows, IntMatrix columns);
+  DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
 
   @Override
-  DoubleMatrix slice(IntMatrix indexes);
+  DoubleMatrix slice(Collection<Integer> indexes);
 
   @Override
-  DoubleMatrix slice(Slice slice);
+  DoubleMatrix slice(Range range);
 
   @Override
-  DoubleMatrix slice(Slice rows, Slice columns);
+  DoubleMatrix slice(Range rows, Range columns);
 
   @Override
-  DoubleMatrix slice(Slice slice, Axis axis);
+  DoubleMatrix slice(Range range, Axis axis);
 
   @Override
-  DoubleMatrix slice(IntMatrix indexes, Axis axis);
+  DoubleMatrix slice(Collection<Integer> indexes, Axis axis);
 
+  @Override
   DoubleMatrix slice(BitMatrix bits);
+
+  @Override
+  DoubleMatrix slice(BitMatrix indexes, Axis axis);
 
   /**
    * {@inheritDoc}

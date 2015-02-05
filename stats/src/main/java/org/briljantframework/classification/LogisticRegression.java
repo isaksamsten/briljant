@@ -17,11 +17,13 @@
 package org.briljantframework.classification;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.briljantframework.matrix.Matrices.range;
 
-import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
@@ -99,14 +101,9 @@ public class LogisticRegression implements Classifier {
   @Override
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(),
-        "The number of training instances must equal the number ot target");
+        "The number of training instances must equal the number of target");
 
-    int[] perms = new int[x.rows()];
-    for (int i = 0; i < x.rows(); i++) {
-      perms[i] = i;
-    }
-
-    return fit(x, y, perms);
+    return fit(x, y, range(0, y.size()));
   }
 
   /**
@@ -117,20 +114,21 @@ public class LogisticRegression implements Classifier {
    * @param indexes the indicies
    * @return the logistic regression model
    */
-  protected Model fit(DataFrame x, Vector y, int[] indexes) {
+  protected Model fit(DataFrame x, Vector y, IntMatrix indexes) {
     DoubleMatrix theta = new DefaultDoubleMatrix(1, x.columns());
     Vector adaptedTheta = DoubleVector.zeros(x.columns());
     for (int j = 0; j < this.iterations; j++) {
-      Utils.permute(indexes);
+      Matrices.shuffle(indexes);
 
-      for (int i : indexes) {
+      for (int k = 0; k < indexes.size(); k++) {
+        int i = indexes.get(k);
         Vector row = x.getRow(i);
         double update = learningRate * (y.getAsDouble(i) - Vectors.sigmoid(row, adaptedTheta));
         // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
         // Matrices.add(row, update, theta, 1, theta.asDoubleArray());
-        theta.muli(1.0 - (learningRate * regularization) / x.rows());
+        theta.assign(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
       }
     }
 

@@ -67,6 +67,6 @@ public class DefaultIntMatrix extends AbstractIntMatrix {
 
   @Override
   public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return new DefaultIntMatrix(getStorage(), rows, columns);
+    return new DefaultIntMatrix(rows, columns);
   }
 }

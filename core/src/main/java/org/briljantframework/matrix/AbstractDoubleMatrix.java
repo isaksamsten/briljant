@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
 import static org.briljantframework.matrix.Matrices.*;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.*;
@@ -69,37 +70,119 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix slice(Slice rows, Slice columns) {
+  public DoubleMatrix slice(Range rows, Range columns) {
     return new SliceDoubleMatrix(this, rows, columns);
   }
 
   @Override
-  public DoubleMatrix slice(Slice slice) {
-    return new FlatSliceDoubleMatrix(this, slice);
+  public DoubleMatrix slice(Range range) {
+    return new FlatSliceDoubleMatrix(this, range);
   }
 
   @Override
-  public DoubleMatrix slice(Slice slice, Axis axis) {
+  public DoubleMatrix slice(Range range, Axis axis) {
     if (axis == Axis.ROW) {
-      return new SliceDoubleMatrix(this, slice, Slice.slice(columns()));
+      return new SliceDoubleMatrix(this, range, Range.range(columns()));
     } else {
-      return new SliceDoubleMatrix(this, Slice.slice(rows()), slice);
+      return new SliceDoubleMatrix(this, Range.range(rows()), range);
     }
   }
 
   @Override
-  public DoubleMatrix slice(IntMatrix rows, IntMatrix columns) {
-    throw new UnsupportedOperationException();
+  public DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    DoubleMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    int i = 0;
+    for (int row : rows) {
+      int j = 0;
+      for (int column : columns) {
+        m.set(i, j++, get(row, column));
+      }
+      i++;
+    }
+    return m;
   }
 
   @Override
-  public DoubleMatrix slice(IntMatrix indexes) {
-    throw new UnsupportedOperationException();
+  public DoubleMatrix slice(Collection<Integer> indexes) {
+    DoubleMatrix m = newEmptyVector(indexes.size());
+    int i = 0;
+    for (int index : indexes) {
+      m.set(i++, get(index));
+    }
+    return m;
   }
 
   @Override
   public DoubleMatrix slice(BitMatrix bits) {
-    throw new UnsupportedOperationException();
+    Check.equalShape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public DoubleMatrix slice(BitMatrix indexes, Axis axis) {
+    int size = sum(indexes);
+    DoubleMatrix matrix;
+    if (axis == Axis.ROW) {
+      Check.size(rows(), indexes);
+      matrix = newEmptyMatrix(size, columns());
+      int index = 0;
+      for (int i = 0; i < rows(); i++) {
+        if (indexes.get(i)) {
+          matrix.setRow(index++, getRowView(i));
+        }
+      }
+    } else {
+      Check.size(columns(), indexes);
+      matrix = newEmptyMatrix(rows(), size);
+      int index = 0;
+      for (int j = 0; j < columns(); j++) {
+        if (indexes.get(j)) {
+          matrix.setColumn(index++, getColumnView(j));
+        }
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public DoubleMatrix slice(Collection<Integer> indexes, Axis axis) {
+    DoubleMatrix matrix;
+    if (axis == Axis.ROW) {
+      matrix = newEmptyMatrix(indexes.size(), columns());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setRow(i++, getRowView(index));
+      }
+    } else {
+      matrix = newEmptyMatrix(rows(), indexes.size());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setColumn(i++, getColumnView(index));
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public void setRow(int index, DoubleMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
+    }
+  }
+
+  @Override
+  public void setColumn(int index, DoubleMatrix column) {
+    Check.size(rows(), column);
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
+    }
   }
 
   @Override
@@ -111,11 +194,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
       }
     }
     return matrix;
-  }
-
-  @Override
-  public DoubleMatrix slice(IntMatrix indexes, Axis axis) {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -723,14 +801,14 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   protected static class SliceDoubleMatrix extends AbstractDoubleMatrix {
 
-    private final Slice row, column;
+    private final Range row, column;
     private final DoubleMatrix parent;
 
-    public SliceDoubleMatrix(DoubleMatrix parent, Slice row, Slice column) {
+    public SliceDoubleMatrix(DoubleMatrix parent, Range row, Range column) {
       this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceDoubleMatrix(DoubleMatrix parent, int rows, Slice row, int columns, Slice column) {
+    public SliceDoubleMatrix(DoubleMatrix parent, int rows, Range row, int columns, Range column) {
       super(rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
@@ -888,16 +966,16 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   protected class FlatSliceDoubleMatrix extends AbstractDoubleMatrix {
     private final DoubleMatrix parent;
-    private final Slice slice;
+    private final Range range;
 
-    public FlatSliceDoubleMatrix(DoubleMatrix parent, int size, Slice slice) {
+    public FlatSliceDoubleMatrix(DoubleMatrix parent, int size, Range range) {
       super(size);
       this.parent = checkNotNull(parent);
-      this.slice = checkNotNull(slice);
+      this.range = checkNotNull(range);
     }
 
-    public FlatSliceDoubleMatrix(DoubleMatrix parent, Slice slice) {
-      this(parent, checkNotNull(slice).size(), slice);
+    public FlatSliceDoubleMatrix(DoubleMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
     }
 
     @Override
@@ -907,7 +985,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public void set(int index, double value) {
-      parent.set(sliceIndex(slice.step(), index, parent.size()), value);
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
     }
 
     @Override
@@ -937,7 +1015,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public double get(int index) {
-      return parent.get(sliceIndex(slice.step(), index, parent.size()));
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
     }
 
     @Override
