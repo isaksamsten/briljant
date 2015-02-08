@@ -8,7 +8,44 @@ import org.briljantframework.complex.Complex;
  * Created by isak on 2/4/15.
  */
 public final class MatrixAssert {
+  private static final String ROW_SIZE = "Size of rows does not match.";
+  private static final String COL_SIZE = "Size of columns does not match.";
+  private static final String VAL_MATCH = "Values does not match.";
+
   private MatrixAssert() {}
+
+  public static void assertEqualShape(Matrix expected, Matrix actual) {
+    assertEquals(ROW_SIZE, expected.rows(), actual.rows());
+    assertEquals(COL_SIZE, expected.columns(), actual.columns());
+  }
+
+  public static void assertMatrixEquals(IntMatrix expect, IntMatrix actual) {
+    assertEqualShape(expect, actual);
+    for (int i = 0; i < expect.size(); i++) {
+      assertEquals(VAL_MATCH, expect.get(i), actual.get(i));
+    }
+  }
+
+  public static void assertMatrixEquals(LongMatrix expect, LongMatrix actual) {
+    assertEqualShape(expect, actual);
+    for (int i = 0; i < expect.size(); i++) {
+      assertEquals(VAL_MATCH, expect.get(i), actual.get(i));
+    }
+  }
+
+  public static void assertMatrixEquals(DoubleMatrix expect, DoubleMatrix actual, double epsilon) {
+    assertEqualShape(expect, actual);
+    for (int i = 0; i < expect.size(); i++) {
+      assertEquals(VAL_MATCH, expect.get(i), actual.get(i), epsilon);
+    }
+  }
+
+  public static void assertValueEquals(DoubleMatrix actual, DoubleMatrix expected, double epsilon) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i), epsilon);
+    }
+  }
 
   public static void assertMatrixEquals(IntMatrix m, int expected) {
     for (int i = 0; i < m.size(); i++) {
@@ -28,10 +65,10 @@ public final class MatrixAssert {
     }
   }
 
-  public static void assertMatrixEquals(IntMatrix m, int... values) {
-    assertEquals(values.length, m.size());
+  public static void assertValuesEquals(IntMatrix m, IntMatrix values) {
+    assertEquals(values.size(), m.size());
     for (int i = 0; i < m.size(); i++) {
-      assertEquals(values[i], m.get(i));
+      assertEquals(values.get(i), m.get(i));
     }
   }
 
@@ -54,17 +91,10 @@ public final class MatrixAssert {
     }
   }
 
-  public static void assertMatrixEquals(DoubleMatrix m, double epsilon, double... values) {
-    assertEquals(values.length, m.size());
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(values[i], m.get(i), epsilon);
-    }
-  }
-
-  public static void assertMatrixEquals(LongMatrix m, long... values) {
-    assertEquals(values.length, m.size());
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(values[i], m.get(i));
+  public static void assertValuesEquals(LongMatrix actual, LongMatrix expected) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i));
     }
   }
 

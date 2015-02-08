@@ -473,21 +473,21 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix mmul(IntMatrix other) {
-    return mmul(1, other, 1);
+    return mmul(1, other);
   }
 
   @Override
-  public IntMatrix mmul(int alpha, IntMatrix other, int beta) {
-    return mmul(alpha, Transpose.NO, other, beta, Transpose.NO);
+  public IntMatrix mmul(int alpha, IntMatrix other) {
+    return mmul(alpha, Transpose.NO, other, Transpose.NO);
   }
 
   @Override
   public IntMatrix mmul(Transpose a, IntMatrix other, Transpose b) {
-    return mmul(1, a, other, 1, b);
+    return mmul(1, a, other, b);
   }
 
   @Override
-  public IntMatrix mmul(int alpha, Transpose a, IntMatrix other, int beta, Transpose b) {
+  public IntMatrix mmul(int alpha, Transpose a, IntMatrix other, Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
     if (a == Transpose.YES) {
@@ -516,9 +516,9 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
           int otherIndex =
               b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                   otherRows, otherColumns);
-          sum += alpha * get(thisIndex) * beta * other.get(otherIndex);
+          sum += get(thisIndex) * other.get(otherIndex);
         }
-        result.set(row, col, sum);
+        result.set(row, col, alpha * sum);
       }
     }
     return result;
@@ -716,7 +716,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix div(int other) {
-    return mul(1 / other);
+    IntMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i) / other);
+    }
+    return m;
   }
 
   @Override
@@ -735,7 +739,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
     } else {
       checkArgument(other.size() == columns(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
-        this.set(i, (alpha * get(i)) / (other.get(i / rows()) * beta));
+        m.set(i, (alpha * get(i)) / (other.get(i / rows()) * beta));
       }
     }
     return m;

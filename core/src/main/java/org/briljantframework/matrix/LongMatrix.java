@@ -276,12 +276,11 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * {@code other} with {@code beta}. Hence, it computes
    * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
-   * @param alpha scaling for {@code this}
+   * @param alpha scaling for {@code this * other}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongMatrix mmul(long alpha, LongMatrix other, long beta);
+  LongMatrix mmul(long alpha, LongMatrix other);
 
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
@@ -297,14 +296,13 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
    * scaling by {@code alpha} {@code beta}.
    *
-   * @param alpha scaling factor for {@code this}
+   * @param alpha scaling factor for {@code this * other}
    * @param a transpose for {@code this}
    * @param other the matrix
-   * @param beta scaling factor for {@code other}
    * @param b transpose for {@code other}
    * @return a new matrix
    */
-  LongMatrix mmul(long alpha, Transpose a, LongMatrix other, long beta, Transpose b);
+  LongMatrix mmul(long alpha, Transpose a, LongMatrix other, Transpose b);
 
   /**
    * Element wise <u>m</u>ultiplication

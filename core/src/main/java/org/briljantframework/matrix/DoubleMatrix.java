@@ -384,16 +384,15 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    * {@code other} with {@code beta}. Hence, it computes
    * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
-   * @param alpha scaling for {@code this}
+   * @param alpha scaling for {@code this*other}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta);
+  DoubleMatrix mmul(double alpha, DoubleMatrix other);
 
   DoubleMatrix mmul(Transpose a, DoubleMatrix other, Transpose b);
 
-  DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, double beta, Transpose b);
+  DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, Transpose b);
 
   /**
    * Element wise <u>m</u>ultiplication

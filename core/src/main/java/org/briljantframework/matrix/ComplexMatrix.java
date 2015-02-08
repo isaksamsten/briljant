@@ -324,16 +324,15 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * {@code other} with {@code beta}. Hence, it computes
    * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
-   * @param alpha scaling for {@code this}
+   * @param alpha scaling for {@code this*other}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexMatrix mmul(Complex alpha, ComplexMatrix other, Complex beta);
+  ComplexMatrix mmul(Complex alpha, ComplexMatrix other);
 
   ComplexMatrix mmul(Transpose a, ComplexMatrix other, Transpose b);
 
-  ComplexMatrix mmul(Complex alpha, Transpose a, ComplexMatrix other, Complex beta, Transpose b);
+  ComplexMatrix mmul(Complex alpha, Transpose a, ComplexMatrix other, Transpose b);
 
   /**
    * Element wise <u>m</u>ultiplication

@@ -271,12 +271,11 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    * {@code other} with {@code beta}. Hence, it computes
    * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
-   * @param alpha scaling for {@code this}
+   * @param alpha scaling for {@code this*other}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  IntMatrix mmul(int alpha, IntMatrix other, int beta);
+  IntMatrix mmul(int alpha, IntMatrix other);
 
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
@@ -292,14 +291,13 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
    * scaling by {@code alpha} {@code beta}.
    *
-   * @param alpha scaling factor for {@code this}
+   * @param alpha scaling factor for {@code this * other}
    * @param a transpose for {@code this}
    * @param other the matrix
-   * @param beta scaling factor for {@code other}
    * @param b transpose for {@code other}
    * @return a new matrix
    */
-  IntMatrix mmul(int alpha, Transpose a, IntMatrix other, int beta, Transpose b);
+  IntMatrix mmul(int alpha, Transpose a, IntMatrix other, Transpose b);
 
   /**
    * Element wise <u>m</u>ultiplication

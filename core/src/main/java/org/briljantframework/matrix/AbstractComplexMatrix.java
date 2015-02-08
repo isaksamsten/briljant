@@ -441,22 +441,21 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix mmul(ComplexMatrix other) {
-    return mmul(Complex.ONE, other, Complex.ONE);
+    return mmul(Complex.ONE, other);
   }
 
   @Override
-  public ComplexMatrix mmul(Complex alpha, ComplexMatrix other, Complex beta) {
-    return mmul(alpha, Transpose.NO, other, beta, Transpose.NO);
+  public ComplexMatrix mmul(Complex alpha, ComplexMatrix other) {
+    return mmul(alpha, Transpose.NO, other, Transpose.NO);
   }
 
   @Override
   public ComplexMatrix mmul(Transpose a, ComplexMatrix other, Transpose b) {
-    return mmul(Complex.ONE, a, other, Complex.ONE, b);
+    return mmul(Complex.ONE, a, other, b);
   }
 
   @Override
-  public ComplexMatrix mmul(Complex alpha, Transpose a, ComplexMatrix other, Complex beta,
-      Transpose b) {
+  public ComplexMatrix mmul(Complex alpha, Transpose a, ComplexMatrix other, Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
     if (a.transpose()) {
@@ -497,14 +496,14 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
           Complex otherValue = other.get(otherIndex);
           thisValue = a == Transpose.CONJ ? thisValue.conjugate() : thisValue;
           otherValue = b == Transpose.CONJ ? otherValue.conjugate() : otherValue;
-
-          if (alpha.equals(Complex.ONE) && beta.equals(Complex.ONE)) {
-            sumAcc.plus(thisValue.multiply(otherValue));
-          } else {
-            sumAcc.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
-          }
+          sumAcc.plus(thisValue.multiply(otherValue));
+          // if (alpha.equals(Complex.ONE) && beta.equals(Complex.ONE)) {
+          // sumAcc.plus(thisValue.multiply(otherValue));
+          // } else {
+          // sumAcc.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
+          // }
         }
-        result.set(row, col, sumAcc.toComplex());
+        result.set(row, col, sumAcc.multiply(alpha).toComplex());
       }
     }
     return result;

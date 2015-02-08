@@ -13,6 +13,7 @@ import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 
 import com.github.fommil.netlib.BLAS;
@@ -195,7 +196,7 @@ public final class Matrices {
     return new DefaultBitMatrix(rows, cols);
   }
 
-  public static DoubleMatrix newDoubleMatrix(double... values) {
+  public static DoubleMatrix newDoubleVector(double... values) {
     return new DefaultDoubleMatrix(values);
   }
 
@@ -211,7 +212,7 @@ public final class Matrices {
     return new DefaultIntMatrix(n);
   }
 
-  public static IntMatrix newIntMatrix(int... values) {
+  public static IntMatrix newIntVector(int... values) {
     return new DefaultIntMatrix(values);
   }
 
@@ -225,6 +226,10 @@ public final class Matrices {
 
   public static LongMatrix newLongVector(int size) {
     return new DefaultLongMatrix(size);
+  }
+
+  public static LongMatrix newLongVector(long... values) {
+    return new DefaultLongMatrix(new LongStorage(values));
   }
 
   public static Matrix zeros(int size, Class<?> type) {

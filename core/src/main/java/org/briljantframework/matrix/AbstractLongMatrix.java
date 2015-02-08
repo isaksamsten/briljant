@@ -395,21 +395,21 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix mmul(LongMatrix other) {
-    return mmul(1, other, 1);
+    return mmul(1, other);
   }
 
   @Override
-  public LongMatrix mmul(long alpha, LongMatrix other, long beta) {
-    return mmul(alpha, Transpose.NO, other, beta, Transpose.NO);
+  public LongMatrix mmul(long alpha, LongMatrix other) {
+    return mmul(alpha, Transpose.NO, other, Transpose.NO);
   }
 
   @Override
   public LongMatrix mmul(Transpose a, LongMatrix other, Transpose b) {
-    return mmul(1, a, other, 1, b);
+    return mmul(1, a, other, b);
   }
 
   @Override
-  public LongMatrix mmul(long alpha, Transpose a, LongMatrix other, long beta, Transpose b) {
+  public LongMatrix mmul(long alpha, Transpose a, LongMatrix other, Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
     if (a == Transpose.YES) {
@@ -438,9 +438,9 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
           int otherIndex =
               b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                   otherRows, otherColumns);
-          sum += alpha * get(thisIndex) * beta * other.get(otherIndex);
+          sum += get(thisIndex) * other.get(otherIndex);
         }
-        result.set(row, col, sum);
+        result.set(row, col, alpha * sum);
       }
     }
     return result;
@@ -635,7 +635,11 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix div(long other) {
-    return mul(1 / other);
+    LongMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i) / other);
+    }
+    return m;
   }
 
   @Override
@@ -688,7 +692,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
         m.set(i, (other.get(i / rows()) * beta) / (alpha * get(i)));
       }
     }
-    return this;
+    return m;
   }
 
   @Override
@@ -861,7 +865,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
       checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
           "Requested row out of bounds.");
-      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.rows(),
+      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
           "Requested column out of bounds");
     }
 

@@ -359,7 +359,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     if (other instanceof Diagonal) {
       return mmul((Diagonal) other);
     }
-    return mmul(1, other, 1);
+    return mmul(1, other);
   }
 
   @Override
@@ -401,8 +401,8 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
-    return mmul(alpha, Transpose.NO, other, beta, Transpose.NO);
+  public DoubleMatrix mmul(double alpha, DoubleMatrix other) {
+    return mmul(alpha, Transpose.NO, other, Transpose.NO);
   }
 
   @Override
@@ -416,7 +416,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix mmul(Transpose a, DoubleMatrix other, Transpose b) {
-    return mmul(1, a, other, 1, b);
+    return mmul(1, a, other, b);
   }
 
   @Override
@@ -431,7 +431,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, double beta, Transpose b) {
+  public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, Transpose b) {
     int thisRows = rows();
     int thisCols = columns();
     if (a.transpose()) {
@@ -460,9 +460,9 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
           int otherIndex =
               b.transpose() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                   otherRows, otherColumns);
-          sum += alpha * get(thisIndex) * beta * other.get(otherIndex);
+          sum += get(thisIndex) * other.get(otherIndex);
         }
-        result.set(row, col, sum);
+        result.set(row, col, alpha * sum);
       }
     }
     return result;
@@ -938,16 +938,16 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     }
 
     @Override
-    public DoubleMatrix mmul(double alpha, DoubleMatrix other, double beta) {
+    public DoubleMatrix mmul(double alpha, DoubleMatrix other) {
       if (this.columns() != other.rows()) {
         throw new NonConformantException(this, other);
       }
       if (isArrayBased() && other.isArrayBased()) {
         double[] tmp = new double[this.rows() * other.columns()];
-        Matrices.mmul(this, alpha, other, beta, tmp);
+        Matrices.mmul(this, alpha, other, 1.0, tmp);
         return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
       } else {
-        return super.mmul(alpha, other, beta);
+        return super.mmul(alpha, other);
       }
     }
 

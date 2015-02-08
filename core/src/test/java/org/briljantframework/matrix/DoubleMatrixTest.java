@@ -69,46 +69,46 @@ public class DoubleMatrixTest {
 
   @Test
   public void testMap() throws Exception {
-    DoubleMatrix m = newDoubleMatrix(1, 2, 3, 4).map(Math::sqrt);
-    MatrixAssert.assertMatrixEquals(m, epsilon, Math.sqrt(1), Math.sqrt(2), Math.sqrt(3),
-        Math.sqrt(4));
+    DoubleMatrix m = newDoubleVector(1, 2, 3, 4).map(Math::sqrt);
+    MatrixAssert.assertValueEquals(m,
+        newDoubleVector(Math.sqrt(1), Math.sqrt(2), Math.sqrt(3), Math.sqrt(4)), epsilon);
   }
 
   @Test
   public void testMapToLong() throws Exception {
-    LongMatrix m = newDoubleMatrix(1.2, 2.2, 3.2, 4.2).mapToLong(Math::round);
-    MatrixAssert.assertMatrixEquals(m, 1, 2, 3, 4);
+    LongMatrix m = newDoubleVector(1.2, 2.2, 3.2, 4.2).mapToLong(Math::round);
+    MatrixAssert.assertValuesEquals(m, newLongVector(1, 2, 3, 4));
   }
 
   @Test
   public void testMapToInt() throws Exception {
-    IntMatrix m = newDoubleMatrix(1, 2, 3, 4).mapToInt(x -> (int) x);
-    assertMatrixEquals(m, 1, 2, 3, 4);
+    IntMatrix m = newDoubleVector(1, 2, 3, 4).mapToInt(x -> (int) x);
+    MatrixAssert.assertValuesEquals(m, newIntVector(1, 2, 3, 4));
   }
 
   @Test
   public void testMapToComplex() throws Exception {
-    ComplexMatrix m = newDoubleMatrix(1, 2, 3, -4).mapToComplex(Complex::sqrt);
+    ComplexMatrix m = newDoubleVector(1, 2, 3, -4).mapToComplex(Complex::sqrt);
     MatrixAssert.assertMatrixEquals(m, Complex.sqrt(1), Complex.sqrt(2), Complex.sqrt(3),
         Complex.sqrt(-4));
   }
 
   @Test
   public void testFilter() throws Exception {
-    DoubleMatrix m = newDoubleMatrix(1, 2, 3, 4, 5, 6).reshape(2, 3).filter(x -> x > 3);
-    assertMatrixEquals(m, epsilon, 4, 5, 6);
+    DoubleMatrix m = newDoubleVector(1, 2, 3, 4, 5, 6).reshape(2, 3).filter(x -> x > 3);
+    MatrixAssert.assertValueEquals(m, newDoubleVector(4, 5, 6), epsilon);
   }
 
   @Test
   public void testSatisfies() throws Exception {
-    BitMatrix m = newDoubleMatrix(0, 1, 2, 3).satisfies(i -> i > 1);
+    BitMatrix m = newDoubleVector(0, 1, 2, 3).satisfies(i -> i > 1);
     assertMatrixEquals(m, false, false, true, true);
   }
 
   @Test
   public void testSatisfies1() throws Exception {
     BitMatrix m =
-        newDoubleMatrix(1, 2, 3, 4).satisfies(newDoubleMatrix(1, 3, 3, 3), (a, b) -> a == b);
+        newDoubleVector(1, 2, 3, 4).satisfies(newDoubleVector(1, 3, 3, 3), (a, b) -> a == b);
     assertMatrixEquals(m, true, false, true, false);
   }
 
@@ -142,7 +142,7 @@ public class DoubleMatrixTest {
 
   @Test
   public void testReshape() throws Exception {
-    DoubleMatrix x = newDoubleMatrix(1, 2, 3, 4).reshape(2, 2);
+    DoubleMatrix x = newDoubleVector(1, 2, 3, 4).reshape(2, 2);
     assertEquals(2, x.rows());
     assertEquals(2, x.rows());
     assertEquals(1, x.get(0, 0), epsilon);
@@ -151,13 +151,13 @@ public class DoubleMatrixTest {
 
   @Test
   public void testTranspose() throws Exception {
-    DoubleMatrix x = newDoubleMatrix(1, 2, 3, 1, 2, 3).reshape(3, 2).transpose();
-    assertMatrixEquals(x, epsilon, 1, 1, 2, 2, 3, 3);
+    DoubleMatrix x = newDoubleVector(1, 2, 3, 1, 2, 3).reshape(3, 2).transpose();
+    MatrixAssert.assertValueEquals(x, newDoubleVector(1, 1, 2, 2, 3, 3), epsilon);
   }
 
   @Test
   public void testShuffle() throws Exception {
-    DoubleMatrix x = newDoubleMatrix(1, 2, 3, 4, 5, 6);
+    DoubleMatrix x = newDoubleVector(1, 2, 3, 4, 5, 6);
     Matrices.shuffle(x);
     System.out.println(x);
   }

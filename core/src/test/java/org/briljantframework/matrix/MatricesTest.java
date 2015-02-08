@@ -28,8 +28,8 @@ public class MatricesTest {
 
   @Test
   public void testNewDoubleMatrix() throws Exception {
-    assertEquals(3, newDoubleMatrix(1, 2, 3).size());
-    assertEquals(3, newDoubleMatrix(1, 2, 3).get(2), 0);
+    assertEquals(3, newDoubleVector(1, 2, 3).size());
+    assertEquals(3, newDoubleVector(1, 2, 3).get(2), 0);
   }
 
   @Test

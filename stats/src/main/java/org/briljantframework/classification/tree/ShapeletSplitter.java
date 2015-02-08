@@ -25,7 +25,7 @@ public abstract class ShapeletSplitter implements Splitter<ShapeletThreshold> {
    *
    * @return the metric
    */
-  public Distance getDistanceMetric() {
+  public final Distance getDistanceMetric() {
     return metric;
   }
 
@@ -34,7 +34,7 @@ public abstract class ShapeletSplitter implements Splitter<ShapeletThreshold> {
    *
    * @return the gain
    */
-  public Gain getGain() {
+  public final Gain getGain() {
     return gain;
   }
 }

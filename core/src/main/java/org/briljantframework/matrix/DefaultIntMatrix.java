@@ -47,6 +47,7 @@ public class DefaultIntMatrix extends AbstractIntMatrix {
 
   @Override
   public IntMatrix reshape(int rows, int columns) {
+    Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new DefaultIntMatrix(getStorage(), rows, columns);
   }
 

@@ -16,8 +16,8 @@
 
 package org.briljantframework.distance;
 
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.primitives.Doubles;
@@ -32,10 +32,6 @@ import com.google.common.primitives.Doubles;
  * in the time dimension. This sequence alignment method is often used in time series
  * classification. Although DTW measures a distance-like quantity between two given sequences, it
  * doesn't guarantee the triangle inequality to hold.
- * <p>
- * Specifically note that this implementation is NOT - I repeat - NOT, thread safe. Create one
- * {@link DynamicTimeWarping}** object for every thread! This way, the number of created matrices
- * equals the number of threads, not the number of computations of {@link #distance(double, double)}.
  * <p>
  * Created by Isak Karlsson on 01/09/14.
  */
@@ -67,20 +63,20 @@ public class DynamicTimeWarping implements Distance {
    * @return the distance between a and b
    */
   @Override
-  public double distance(double a, double b) {
+  public final double distance(double a, double b) {
     return distance.distance(a, b);
   }
 
   @Override
   public double distance(Vector a, Vector b) {
     int n = a.size(), m = b.size();
-    DoubleMatrix dwt = DefaultDoubleMatrix.filledWith(n, m, Double.POSITIVE_INFINITY);
+    DoubleMatrix dwt = Matrices.newDoubleMatrix(n, m).assign(Double.POSITIVE_INFINITY);
     dwt.set(0, 0, 0);
 
     int width = Math.max(constraint, Math.abs(n - m));
     for (int i = 1; i < n; i++) {
-      int end = constraint == -1 ? m : Math.min(m, i + width);
-      int start = constraint == -1 ? 1 : Math.max(1, i - width);
+      int end = constraint <= -1 ? m : Math.min(m, i + width);
+      int start = constraint <= -1 ? 1 : Math.max(1, i - width);
       for (int j = start; j < end; j++) {
         double cost = distance.distance(a.getAsDouble(i), b.getAsDouble(j));
         dwt.set(i, j,
