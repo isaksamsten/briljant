@@ -5,11 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
@@ -370,6 +369,23 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   }
 
   @Override
+  public Stream<Complex> stream() {
+    return StreamSupport.stream(Spliterators.spliterator(new Iterator<Complex>() {
+      int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Complex next() {
+        return get(current++);
+      }
+    }, size(), Spliterator.SIZED), false);
+  }
+
+  @Override
   public ComplexMatrix conjugateTranspose() {
     ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
     for (int j = 0; j < columns(); j++) {
@@ -497,11 +513,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
           thisValue = a == Transpose.CONJ ? thisValue.conjugate() : thisValue;
           otherValue = b == Transpose.CONJ ? otherValue.conjugate() : otherValue;
           sumAcc.plus(thisValue.multiply(otherValue));
-          // if (alpha.equals(Complex.ONE) && beta.equals(Complex.ONE)) {
-          // sumAcc.plus(thisValue.multiply(otherValue));
-          // } else {
-          // sumAcc.plus(alpha.multiply(thisValue).multiply(beta).multiply(otherValue));
-          // }
         }
         result.set(row, col, sumAcc.multiply(alpha).toComplex());
       }
@@ -588,6 +599,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
       m.set(i, scalar.minus(get(i)));
     }
     return m;
+  }
+
+  @Override
+  public ComplexMatrix rsub(ComplexMatrix matrix, Axis axis) {
+    return null;
   }
 
   @Override

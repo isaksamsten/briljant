@@ -21,10 +21,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
 import static org.briljantframework.matrix.Matrices.*;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.*;
+import java.util.stream.DoubleStream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
@@ -203,6 +203,26 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
       set(i, get(i));
     }
     return n;
+  }
+
+  @Override
+  public DoubleStream stream() {
+    PrimitiveIterator.OfDouble ofDouble = new PrimitiveIterator.OfDouble() {
+      public int current = 0;
+
+      @Override
+      public double nextDouble() {
+        return get(current++);
+      }
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+    };
+    Spliterator.OfDouble spliterator =
+        Spliterators.spliterator(ofDouble, size(), Spliterator.SIZED);
+    return StreamSupport.doubleStream(spliterator, false);
   }
 
   @Override

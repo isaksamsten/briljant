@@ -31,6 +31,7 @@ public final class Matrices {
 
 
   private final static Map<Class, MatrixFactory<?>> NATIVE_TO_FACTORY;
+
   static {
     NATIVE_TO_FACTORY = ImmutableMap.of(Double.class, new MatrixFactory<Double>() {
       @Override
@@ -153,30 +154,31 @@ public final class Matrices {
    * <p>
    * Returns a new {@code BitMatrix} with {@code values}.
    * </p>
-   * 
+   * <p>
    * <p>
    * For example
    * </p>
+   * <p>
    * 
    * <pre>
    *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
-   *    
+   * 
    *    true  false  true
-   *    true  false  true  
+   *    true  false  true
    *    shape: 2x3 type: boolean
    * </pre>
-   * 
+   *
    * @param values an array of booleans
    * @return a new boolean vector
    */
-  public static BitMatrix newBitMatrix(boolean... values) {
+  public static BitMatrix newBitVector(boolean... values) {
     return new DefaultBitMatrix(values);
   }
 
   /**
    * Return a new empty (all elements are {@code false}), {@code BitMatrix} (column-vector) of
    * {@code size}.
-   * 
+   *
    * @param size size
    * @return a new boolean vector
    */
@@ -187,7 +189,7 @@ public final class Matrices {
   /**
    * Return a new empty (all elements are {@code false}) {@code BitMatrix} of {@code rows} and
    * {@code columns}.
-   * 
+   *
    * @param rows the rows
    * @param cols the columns
    * @return a new boolean matrix
@@ -218,6 +220,14 @@ public final class Matrices {
 
   public static IntMatrix newIntMatrix(int rows, int columns) {
     return new DefaultIntMatrix(rows, columns);
+  }
+
+  public static ComplexMatrix newComplexVector(double... values) {
+    Complex[] c = new Complex[values.length];
+    for (int i = 0; i < c.length; i++) {
+      c[i] = Complex.valueOf(values[i]);
+    }
+    return new DefaultComplexMatrix(c);
   }
 
   public static LongMatrix newLongMatrix(int rows, int columns) {
@@ -317,7 +327,8 @@ public final class Matrices {
    * For example,
    * </p>
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    IntMatrix a = Ints.newMatrix(1, 2, 3, 4);
@@ -349,7 +360,8 @@ public final class Matrices {
    * values in {@code values}. The value at {@code i} in a copy of {@code a} is set to value at
    * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
@@ -383,7 +395,8 @@ public final class Matrices {
    * Changes the values of {@code a} according to the values of the {@code mask} and the values in
    * {@code values}.
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
@@ -418,7 +431,8 @@ public final class Matrices {
    * Selects the values in {@code a} according to the values in {@code where}, replacing those not
    * selected with {@code replace}.
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
@@ -483,7 +497,8 @@ public final class Matrices {
    * </p>
    * For example, reversed sorted
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    DoubleMatrix a = Doubles.randn(12, 1)
@@ -493,7 +508,8 @@ public final class Matrices {
    * {@link org.briljantframework.complex.Complex} and {@link ComplexMatrix} do not have a natural
    * sort order.
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    ComplexMatrix a = Doubles.randn(12, 1).asComplexMatrix().map(Complex::sqrt)
@@ -721,7 +737,8 @@ public final class Matrices {
    * Parse a matrix in the format
    * <p>
    * <p>
-   *
+   * <p>
+   * 
    * <pre>
    *     row :== double<sub>1</sub>, {double<sub>n</sub>}
    *     matrix :== row<sub>1</sub>; {row<sub>m</sub>}
@@ -930,6 +947,9 @@ public final class Matrices {
         thisRows);
   }
 
+  public static ComplexMatrix newComplexVector(Complex... values) {
+    return new DefaultComplexMatrix(values);
+  }
 
   private static interface MatrixFactory<T> {
     Matrix newVector(int size);

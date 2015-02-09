@@ -2,10 +2,11 @@ package org.briljantframework.matrix;
 
 import static java.util.Arrays.asList;
 import static org.briljantframework.matrix.Matrices.*;
-import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
-import static org.briljantframework.matrix.MatrixAssert.assertValueEquals;
+import static org.briljantframework.matrix.MatrixAssert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.DoubleSummaryStatistics;
 
 import org.briljantframework.complex.Complex;
 import org.junit.Test;
@@ -86,7 +87,7 @@ public class AbstractDoubleMatrixTest {
   public void testMapToInt() throws Exception {
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(Integer.MAX_VALUE + 10L);
     IntMatrix l = i.mapToInt(x -> (int) (x - Integer.MAX_VALUE));
-    MatrixAssert.assertMatrixEquals(l, 10);
+    MatrixAssert.assertMatrixEquals(10, l);
   }
 
   @Test
@@ -110,7 +111,7 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testSatisfies() throws Exception {
     BitMatrix i = newDoubleVector(0, 1, 2, 3, 4, 5).satisfies(x -> x >= 3);
-    assertMatrixEquals(i, false, false, false, true, true, true);
+    assertValuesEquals(newBitVector(false, false, false, true, true, true), i);
   }
 
   @Test
@@ -671,7 +672,7 @@ public class AbstractDoubleMatrixTest {
   public void testSlice7() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     BitMatrix bits =
-        newBitMatrix(true, true, true, false, false, false, false, false, false).reshape(3, 3);
+        newBitVector(true, true, true, false, false, false, false, false, false).reshape(3, 3);
     DoubleMatrix s = x.slice(bits);
     assertValueEquals(s, newDoubleVector(1, 2, 3), epsilon);
   }
@@ -679,7 +680,7 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testSlice() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
-    DoubleMatrix s = x.slice(newBitMatrix(true, false, true), Axis.ROW);
+    DoubleMatrix s = x.slice(newBitVector(true, false, true), Axis.ROW);
     assertValueEquals(s.getRowView(0), newDoubleVector(1, 1, 1), epsilon);
     assertValueEquals(s.getRowView(1), newDoubleVector(3, 3, 3), epsilon);
   }
@@ -725,5 +726,12 @@ public class AbstractDoubleMatrixTest {
     for (double v : x) {
       assertEquals(x.get(i++), v, epsilon);
     }
+  }
+
+  @Test
+  public void testStream() throws Exception {
+    DoubleMatrix m = newDoubleMatrix(3, 3).assign(3);
+    DoubleSummaryStatistics s = m.stream().summaryStatistics();
+    assertEquals(3 * 3 * 3, s.getSum(), epsilon);
   }
 }

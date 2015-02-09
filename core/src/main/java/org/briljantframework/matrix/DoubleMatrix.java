@@ -18,6 +18,7 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.function.*;
+import java.util.stream.DoubleStream;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.DoubleBiPredicate;
@@ -350,6 +351,8 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
    */
   @Override
   DoubleMatrix copy();
+
+  DoubleStream stream();
 
   /**
    * {@inheritDoc}

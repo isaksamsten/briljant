@@ -6,6 +6,8 @@ import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.LongSummaryStatistics;
+
 import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
@@ -99,7 +101,7 @@ public class AbstractLongMatrixTest {
   public void testMapToInt() throws Exception {
     LongMatrix i = newLongMatrix(3, 3).assign(Integer.MAX_VALUE + 10L);
     IntMatrix l = i.mapToInt(x -> (int) (x - Integer.MAX_VALUE));
-    MatrixAssert.assertMatrixEquals(l, 10);
+    MatrixAssert.assertMatrixEquals(10, l);
   }
 
   @Test
@@ -123,7 +125,7 @@ public class AbstractLongMatrixTest {
   @Test
   public void testSatisfies() throws Exception {
     BitMatrix i = newLongVector(0, 1, 2, 3, 4, 5).satisfies(x -> x >= 3);
-    assertMatrixEquals(i, false, false, false, true, true, true);
+    MatrixAssert.assertValuesEquals(newBitVector(false, false, false, true, true, true), i);
   }
 
   @Test
@@ -670,7 +672,7 @@ public class AbstractLongMatrixTest {
   public void testSlice7() throws Exception {
     LongMatrix x = newLongVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     BitMatrix bits =
-        newBitMatrix(true, true, true, false, false, false, false, false, false).reshape(3, 3);
+        newBitVector(true, true, true, false, false, false, false, false, false).reshape(3, 3);
     LongMatrix s = x.slice(bits);
     MatrixAssert.assertValuesEquals(s, newLongVector(1, 2, 3));
   }
@@ -678,7 +680,7 @@ public class AbstractLongMatrixTest {
   @Test
   public void testSlice() throws Exception {
     LongMatrix x = newLongVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
-    LongMatrix s = x.slice(newBitMatrix(true, false, true), Axis.ROW);
+    LongMatrix s = x.slice(newBitVector(true, false, true), Axis.ROW);
     MatrixAssert.assertValuesEquals(s.getRowView(0), newLongVector(1, 1, 1));
     MatrixAssert.assertValuesEquals(s.getRowView(1), newLongVector(3, 3, 3));
   }
@@ -726,5 +728,12 @@ public class AbstractLongMatrixTest {
     for (long v : x) {
       assertEquals(x.get(i++), v);
     }
+  }
+
+  @Test
+  public void testStream() throws Exception {
+    LongMatrix m = newLongMatrix(3, 3).assign(3);
+    LongSummaryStatistics s = m.stream().summaryStatistics();
+    assertEquals(3 * 3 * 3, s.getSum());
   }
 }

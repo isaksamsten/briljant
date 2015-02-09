@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.function.*;
+import java.util.stream.Stream;
 
 import org.briljantframework.complex.Complex;
 
@@ -19,6 +20,10 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * @return receiver modified
    */
   ComplexMatrix assign(Complex value);
+
+  default ComplexMatrix assign(double real) {
+    return assign(Complex.valueOf(real));
+  }
 
   /**
    * Assign value returned by {@link #size()} successive calls to
@@ -111,6 +116,8 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix filter(Predicate<Complex> predicate);
 
   BitMatrix satisfies(Predicate<Complex> predicate);
+
+  BitMatrix satisfies(ComplexMatrix matrix, BiPredicate<Complex, Complex> predicate);
 
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
@@ -287,6 +294,8 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   @Override
   ComplexMatrix copy();
 
+  Stream<Complex> stream();
+
   /**
    * Construct a new empty matrix with {@code this.getClass()}
    *
@@ -422,6 +431,8 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
    * @return a new matrix
    */
   ComplexMatrix rsub(Complex scalar);
+
+  ComplexMatrix rsub(ComplexMatrix matrix, Axis axis);
 
   /**
    * Element wise division. {@code this / other}.

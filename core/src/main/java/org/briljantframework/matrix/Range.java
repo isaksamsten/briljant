@@ -1,6 +1,5 @@
 package org.briljantframework.matrix;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.briljantframework.matrix.storage.Storage;
@@ -10,7 +9,7 @@ import com.google.common.base.Preconditions;
 /**
  * @author Isak Karlsson
  */
-public class Range extends AbstractIntMatrix implements Collection<Integer> {
+public class Range extends AbstractIntMatrix {
 
   private final int start, end, step;
 
@@ -68,11 +67,6 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
   }
 
   @Override
-  public boolean isEmpty() {
-    return false;
-  }
-
-  @Override
   public Iterator<Integer> iterator() {
     return new Iterator<Integer>() {
       private int current = start;
@@ -91,52 +85,6 @@ public class Range extends AbstractIntMatrix implements Collection<Integer> {
     };
   }
 
-  @Override
-  public Object[] toArray() {
-    return new Object[0];
-  }
-
-  @Override
-  public <T> T[] toArray(T[] ts) {
-    return null;
-  }
-
-  @Override
-  public boolean add(Integer integer) {
-    return false;
-  }
-
-  @Override
-  public boolean remove(Object o) {
-    return false;
-  }
-
-  @Override
-  public boolean containsAll(Collection<?> collection) {
-    return false;
-  }
-
-  @Override
-  public boolean addAll(Collection<? extends Integer> collection) {
-    return false;
-  }
-
-  @Override
-  public boolean removeAll(Collection<?> collection) {
-    return false;
-  }
-
-  @Override
-  public boolean retainAll(Collection<?> collection) {
-    return false;
-  }
-
-  @Override
-  public void clear() {
-
-  }
-
-  @Override
   public boolean contains(Object o) {
     if (o instanceof Integer) {
       int value = (int) o;

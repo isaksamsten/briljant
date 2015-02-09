@@ -56,6 +56,11 @@ public class DefaultComplexMatrix extends AbstractComplexMatrix {
     this(new ComplexStorage(new Complex[size]), size);
   }
 
+  public DefaultComplexMatrix(Complex[] values) {
+    this(values, values.length, 1);
+  }
+
+
   public static DefaultComplexMatrix withDefaultValue(int rows, int columns, Complex zero) {
     return new DefaultComplexMatrix(rows, columns, zero);
   }

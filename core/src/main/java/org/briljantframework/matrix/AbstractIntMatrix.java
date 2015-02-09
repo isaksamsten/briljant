@@ -4,10 +4,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.*;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
@@ -156,6 +156,25 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
       }
     }
     return matrix;
+  }
+
+  @Override
+  public IntStream stream() {
+    PrimitiveIterator.OfInt ofInt = new PrimitiveIterator.OfInt() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public int nextInt() {
+        return get(current++);
+      }
+    };
+    Spliterator.OfInt spliterator = Spliterators.spliterator(ofInt, size(), Spliterator.SIZED);
+    return StreamSupport.intStream(spliterator, false);
   }
 
   @Override

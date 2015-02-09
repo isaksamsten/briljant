@@ -11,8 +11,8 @@ public class MatricesTest {
 
   @Test
   public void testNewBitMatrix() throws Exception {
-    assertEquals(3, newBitMatrix(true, true, true).size());
-    assertEquals(false, newBitMatrix(true, false, true).get(1));
+    assertEquals(3, newBitVector(true, true, true).size());
+    assertEquals(false, newBitVector(true, false, true).get(1));
   }
 
   @Test

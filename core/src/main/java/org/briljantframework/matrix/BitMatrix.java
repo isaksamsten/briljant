@@ -1,11 +1,19 @@
 package org.briljantframework.matrix;
 
 import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Created by Isak Karlsson on 12/01/15.
  */
 public interface BitMatrix extends Matrix, Iterable<Boolean> {
+
+  BitMatrix assign(Supplier<Boolean> supplier);
+
+  BitMatrix assign(boolean value);
+
+  BitMatrix assign(BitMatrix other);
 
   void set(int i, int j, boolean value);
 
@@ -90,6 +98,8 @@ public interface BitMatrix extends Matrix, Iterable<Boolean> {
 
   @Override
   BitMatrix slice(BitMatrix indexes, Axis axis);
+
+  Stream<Boolean> stream();
 
   @Override
   BitMatrix transpose();

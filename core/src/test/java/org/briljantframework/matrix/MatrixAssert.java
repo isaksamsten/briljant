@@ -47,47 +47,47 @@ public final class MatrixAssert {
     }
   }
 
-  public static void assertMatrixEquals(IntMatrix m, int expected) {
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(expected, m.get(i));
+  public static void assertMatrixEquals(int expected, IntMatrix actual) {
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected, actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(LongMatrix l, long value) {
-    for (int i = 0; i < l.size(); i++) {
-      assertEquals(value, l.get(i));
+  public static void assertMatrixEquals(LongMatrix actual, long value) {
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(value, actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(DoubleMatrix matrix, double v, double e) {
-    for (int i = 0; i < matrix.size(); i++) {
-      assertEquals(v, matrix.get(i), e);
+  public static void assertMatrixEquals(DoubleMatrix actual, double expected, double e) {
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected, actual.get(i), e);
     }
   }
 
-  public static void assertValuesEquals(IntMatrix m, IntMatrix values) {
-    assertEquals(values.size(), m.size());
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(values.get(i), m.get(i));
+  public static void assertValuesEquals(IntMatrix expected, IntMatrix actual) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(ComplexMatrix m, Complex value) {
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(value, m.get(i));
+  public static void assertMatrixEquals(ComplexMatrix actual, Complex value) {
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(value, actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(BitMatrix matrix, boolean... values) {
-    assertEquals(values.length, matrix.size());
-    for (int i = 0; i < matrix.size(); i++) {
-      assertEquals(values[i], matrix.get(i));
+  public static void assertValuesEquals(BitMatrix expected, BitMatrix actual) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(BitMatrix m, boolean b) {
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(b, m.get(i));
+  public static void assertMatrixEquals(BitMatrix actual, boolean expected) {
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected, actual.get(i));
     }
   }
 
@@ -98,10 +98,21 @@ public final class MatrixAssert {
     }
   }
 
-  public static void assertMatrixEquals(ComplexMatrix m, Complex... values) {
-    assertEquals(values.length, m.size());
-    for (int i = 0; i < m.size(); i++) {
-      assertEquals(values[i], m.get(i));
+  public static void assertValuesEquals(ComplexMatrix expected, ComplexMatrix actual) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i));
     }
+  }
+
+  public static void assertMatrixEquals(ComplexMatrix expected, ComplexMatrix actual) {
+    assertEqualShape(expected, actual);
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i));
+    }
+  }
+
+  public static void assertMatrixEquals(double expected, ComplexMatrix actual) {
+    assertMatrixEquals(actual, Complex.valueOf(expected));
   }
 }

@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.function.*;
+import java.util.stream.LongStream;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.LongBiPredicate;
@@ -228,6 +229,8 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
 
   @Override
   LongMatrix slice(BitMatrix indexes, Axis axis);
+
+  LongStream stream();
 
   /**
    * Transpose matrix like.

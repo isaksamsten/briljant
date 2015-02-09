@@ -5,9 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.sliceIndex;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.Utils;
 import org.briljantframework.matrix.storage.Storage;
@@ -144,6 +145,48 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
       }
     }
     return matrix;
+  }
+
+  @Override
+  public Stream<Boolean> stream() {
+    return StreamSupport.stream(Spliterators.spliterator(new Iterator<Boolean>() {
+      int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Boolean next() {
+        return get(current++);
+      }
+    }, size(), Spliterator.SIZED), false);
+  }
+
+  @Override
+  public BitMatrix assign(BitMatrix other) {
+    Check.equalShape(this, other);
+    for (int i = 0; i < size(); i++) {
+      set(i, other.get(i));
+    }
+    return this;
+  }
+
+  @Override
+  public BitMatrix assign(Supplier<Boolean> supplier) {
+    for (int i = 0; i < size(); i++) {
+      set(i, supplier.get());
+    }
+    return this;
+  }
+
+  @Override
+  public BitMatrix assign(boolean value) {
+    for (int i = 0; i < size(); i++) {
+      set(i, value);
+    }
+    return this;
   }
 
   @Override

@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.function.*;
+import java.util.stream.IntStream;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
@@ -233,6 +234,8 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   @Override
   IntMatrix slice(BitMatrix indexes, Axis axis);
+
+  IntStream stream();
 
   /**
    * {@inheritDoc}

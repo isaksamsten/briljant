@@ -5,10 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.*;
 import static org.briljantframework.matrix.Matrices.sum;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.*;
+import java.util.stream.LongStream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
@@ -147,6 +147,25 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
       }
     }
     return matrix;
+  }
+
+  @Override
+  public LongStream stream() {
+    PrimitiveIterator.OfLong ofLong = new PrimitiveIterator.OfLong() {
+      public int current = 0;
+
+      @Override
+      public long nextLong() {
+        return get(current++);
+      }
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+    };
+    Spliterator.OfLong spliterator = Spliterators.spliterator(ofLong, size(), Spliterator.SIZED);
+    return StreamSupport.longStream(spliterator, false);
   }
 
   @Override

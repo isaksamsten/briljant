@@ -11,8 +11,8 @@ public class DefaultBitMatrixTest {
 
   @Before
   public void setUp() throws Exception {
-    a = Matrices.newBitMatrix(true, true, true, false, false, true).reshape(3, 2);
-    b = Matrices.newBitMatrix(true, false, true, false, true, true).reshape(3, 2);
+    a = Matrices.newBitVector(true, true, true, false, false, true).reshape(3, 2);
+    b = Matrices.newBitVector(true, false, true, false, true, true).reshape(3, 2);
   }
 
   @Test

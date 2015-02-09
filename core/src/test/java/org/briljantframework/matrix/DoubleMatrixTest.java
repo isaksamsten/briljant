@@ -83,14 +83,14 @@ public class DoubleMatrixTest {
   @Test
   public void testMapToInt() throws Exception {
     IntMatrix m = newDoubleVector(1, 2, 3, 4).mapToInt(x -> (int) x);
-    MatrixAssert.assertValuesEquals(m, newIntVector(1, 2, 3, 4));
+    MatrixAssert.assertValuesEquals(newIntVector(1, 2, 3, 4), m);
   }
 
   @Test
   public void testMapToComplex() throws Exception {
     ComplexMatrix m = newDoubleVector(1, 2, 3, -4).mapToComplex(Complex::sqrt);
-    MatrixAssert.assertMatrixEquals(m, Complex.sqrt(1), Complex.sqrt(2), Complex.sqrt(3),
-        Complex.sqrt(-4));
+    MatrixAssert.assertMatrixEquals(m,
+        newComplexVector(Complex.sqrt(1), Complex.sqrt(2), Complex.sqrt(3), Complex.sqrt(-4)));
   }
 
   @Test
@@ -102,14 +102,14 @@ public class DoubleMatrixTest {
   @Test
   public void testSatisfies() throws Exception {
     BitMatrix m = newDoubleVector(0, 1, 2, 3).satisfies(i -> i > 1);
-    assertMatrixEquals(m, false, false, true, true);
+    MatrixAssert.assertValuesEquals(newBitVector(false, false, true, true), m);
   }
 
   @Test
   public void testSatisfies1() throws Exception {
     BitMatrix m =
         newDoubleVector(1, 2, 3, 4).satisfies(newDoubleVector(1, 3, 3, 3), (a, b) -> a == b);
-    assertMatrixEquals(m, true, false, true, false);
+    MatrixAssert.assertValuesEquals(newBitVector(true, false, true, false), m);
   }
 
   @Test
