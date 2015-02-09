@@ -21,8 +21,8 @@ public class LongStorage extends AbstractStorage {
   }
 
   @Override
-  public int getAsInt(int index) {
-    return (int) getAsLong(index);
+  public int getInt(int index) {
+    return (int) getLong(index);
   }
 
   @Override
@@ -31,7 +31,7 @@ public class LongStorage extends AbstractStorage {
   }
 
   @Override
-  public long getAsLong(int index) {
+  public long getLong(int index) {
     return values[arrayIndex(index)];
   }
 
@@ -41,8 +41,8 @@ public class LongStorage extends AbstractStorage {
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return getAsLong(index);
+  public double getDouble(int index) {
+    return getLong(index);
   }
 
   @Override
@@ -52,22 +52,12 @@ public class LongStorage extends AbstractStorage {
 
   @Override
   public Complex getComplex(int index) {
-    return Complex.valueOf(getAsDouble(index));
+    return Complex.valueOf(getDouble(index));
   }
 
   @Override
   public void setComplex(int index, Complex complex) {
     setLong(index, complex.longValue());
-  }
-
-  @Override
-  public void setNumber(int index, Number value) {
-    setLong(index, value.longValue());
-  }
-
-  @Override
-  public Number getNumber(int index) {
-    return getAsLong(index);
   }
 
   @Override

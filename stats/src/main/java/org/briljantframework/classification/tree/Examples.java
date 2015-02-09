@@ -19,6 +19,8 @@ package org.briljantframework.classification.tree;
 
 import java.util.*;
 
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -198,14 +200,14 @@ public final class Examples implements Iterable<Example> {
    *
    * @return the double [ ]
    */
-  public double[] getRelativeFrequencies() {
+  public DoubleMatrix getRelativeFrequencies() {
     double size = getTotalWeight();
     double[] rel = new double[samples.size()];
     int i = 0;
     for (Sample c : samples.values()) {
       rel[i++] = c.getWeight() / size;
     }
-    return rel;
+    return Matrices.newDoubleVector(rel);
   }
 
   /**

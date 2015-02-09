@@ -16,6 +16,8 @@
 
 package org.briljantframework.classification.tree;
 
+import org.briljantframework.matrix.DoubleMatrix;
+
 /**
  * Created by Isak Karlsson on 08/09/14.
  */
@@ -28,12 +30,12 @@ public interface Impurity {
    * @param values the getPosteriorProbabilities
    * @return the double
    */
-  double impurity(double[] values);
+  double impurity(DoubleMatrix values);
 
   /**
    * @param split the split
    * @return the double
-   * @see #impurity(double[])
+   * @see #impurity(org.briljantframework.matrix.DoubleMatrix)
    */
   default double impurity(Examples split) {
     return impurity(split.getRelativeFrequencies());

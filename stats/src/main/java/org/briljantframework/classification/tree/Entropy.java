@@ -1,5 +1,7 @@
 package org.briljantframework.classification.tree;
 
+import org.briljantframework.matrix.DoubleMatrix;
+
 /**
  * Created by Isak Karlsson on 08/09/14.
  */
@@ -21,16 +23,17 @@ public class Entropy implements Impurity {
   /**
    * @param values the getPosteriorProbabilities
    * @return the impurity
-   * @see org.briljantframework.classification.tree.Impurity#impurity(double[])
+   * @see Impurity#impurity(org.briljantframework.matrix.DoubleMatrix)
    */
   @Override
-  public double impurity(double[] values) {
-    double entropy = 0;
-    for (double value : values) {
-      if (value != 0) {
-        entropy += value * (Math.log(value) / LOG_2);
-      }
-    }
-    return -1 * entropy;
+  public double impurity(DoubleMatrix values) {
+    return -1 * values.reduce(0, (v, acc) -> acc + v * (Math.log(v) / LOG_2));
+
+    // for (double value : values) {
+    // if (value != 0) {
+    // entropy += value * (Math.log(value) / LOG_2);
+    // }
+    // }
+    // return -1 * entropy;
   }
 }

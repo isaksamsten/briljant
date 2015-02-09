@@ -53,8 +53,8 @@ public class SparseDoubleStorage extends AbstractStorage {
   }
 
   @Override
-  public int getAsInt(int index) {
-    return (int) getAsDouble(index);
+  public int getInt(int index) {
+    return (int) getDouble(index);
   }
 
   @Override
@@ -63,8 +63,8 @@ public class SparseDoubleStorage extends AbstractStorage {
   }
 
   @Override
-  public long getAsLong(int index) {
-    return (long) getAsDouble(index);
+  public long getLong(int index) {
+    return (long) getDouble(index);
   }
 
   @Override
@@ -73,7 +73,7 @@ public class SparseDoubleStorage extends AbstractStorage {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double getDouble(int index) {
     return values.getOrDefault(index, defaultValue);
   }
 
@@ -84,22 +84,12 @@ public class SparseDoubleStorage extends AbstractStorage {
 
   @Override
   public Complex getComplex(int index) {
-    return Complex.valueOf(getAsDouble(index));
+    return Complex.valueOf(getDouble(index));
   }
 
   @Override
   public void setComplex(int index, Complex complex) {
     setDouble(index, complex.doubleValue());
-  }
-
-  @Override
-  public void setNumber(int index, Number value) {
-    setDouble(index, value.doubleValue());
-  }
-
-  @Override
-  public Number getNumber(int index) {
-    return getAsDouble(index);
   }
 
   @Override

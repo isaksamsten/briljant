@@ -22,6 +22,8 @@ import com.google.common.collect.UnmodifiableIterator;
  */
 public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMatrix {
 
+  private BitListView listView = null;
+
   protected AbstractBitMatrix(int size) {
     super(size);
   }
@@ -162,6 +164,14 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
         return get(current++);
       }
     }, size(), Spliterator.SIZED), false);
+  }
+
+  @Override
+  public List<Boolean> asList() {
+    if (listView == null) {
+      listView = new BitListView();
+    }
+    return listView;
   }
 
   @Override
@@ -572,6 +582,26 @@ public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMat
     @Override
     public boolean get(int index) {
       return parent.get(sliceIndex(range.step(), index, parent.size()));
+    }
+  }
+
+  private class BitListView extends AbstractList<Boolean> {
+
+    @Override
+    public Boolean get(int i) {
+      return AbstractBitMatrix.this.get(i);
+    }
+
+    @Override
+    public Boolean set(int i, Boolean value) {
+      boolean old = AbstractBitMatrix.this.get(i);
+      AbstractBitMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public int size() {
+      return AbstractBitMatrix.this.size();
     }
   }
 }

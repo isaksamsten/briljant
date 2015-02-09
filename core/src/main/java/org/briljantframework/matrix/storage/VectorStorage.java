@@ -12,7 +12,7 @@ public class VectorStorage extends AbstractStorage {
   }
 
   @Override
-  public int getAsInt(int index) {
+  public int getInt(int index) {
     return 0;
   }
 
@@ -22,7 +22,7 @@ public class VectorStorage extends AbstractStorage {
   }
 
   @Override
-  public long getAsLong(int index) {
+  public long getLong(int index) {
     return 0;
   }
 
@@ -32,7 +32,7 @@ public class VectorStorage extends AbstractStorage {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double getDouble(int index) {
     return 0;
   }
 
@@ -49,16 +49,6 @@ public class VectorStorage extends AbstractStorage {
   @Override
   public void setComplex(int index, Complex complex) {
 
-  }
-
-  @Override
-  public void setNumber(int index, Number value) {
-
-  }
-
-  @Override
-  public Number getNumber(int index) {
-    return null;
   }
 
   @Override

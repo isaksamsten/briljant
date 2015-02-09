@@ -13,6 +13,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
+import org.briljantframework.function.ToIntIntObjBiFunction;
 import org.briljantframework.matrix.storage.IntStorage;
 import org.briljantframework.matrix.storage.Storage;
 
@@ -23,6 +24,8 @@ import com.google.common.collect.ImmutableTable;
  * Created by Isak Karlsson on 09/01/15.
  */
 public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMatrix {
+
+  private IntListView listView = null;
 
   protected AbstractIntMatrix(int size) {
     super(size);
@@ -178,6 +181,14 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   }
 
   @Override
+  public List<Integer> asList() {
+    if (listView == null) {
+      listView = new IntListView();
+    }
+    return listView;
+  }
+
+  @Override
   public void swap(int a, int b) {
     int tmp = get(a);
     set(a, get(b));
@@ -202,12 +213,12 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public int get(int i, int j) {
-    return getStorage().getAsInt(Indexer.columnMajor(i, j, rows(), columns()));
+    return getStorage().getInt(Indexer.columnMajor(i, j, rows(), columns()));
   }
 
   @Override
   public int get(int index) {
-    return getStorage().getAsInt(index);
+    return getStorage().getInt(index);
   }
 
   @Override
@@ -310,6 +321,15 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
     Check.equalSize(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public IntMatrix assign(BitMatrix matrix, ToIntIntObjBiFunction<Boolean> function) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, function.applyAsInt(matrix.get(i), get(i)));
     }
     return this;
   }
@@ -1019,7 +1039,30 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
     public int get(int index) {
       return parent.get(sliceIndex(range.step(), index, parent.size()));
     }
+  }
 
+  private class IntListView extends AbstractList<Integer> {
 
+    @Override
+    public Integer get(int i) {
+      return AbstractIntMatrix.this.get(i);
+    }
+
+    @Override
+    public Integer set(int i, Integer value) {
+      int old = AbstractIntMatrix.this.get(i);
+      AbstractIntMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+      return AbstractIntMatrix.this.iterator();
+    }
+
+    @Override
+    public int size() {
+      return AbstractIntMatrix.this.size();
+    }
   }
 }

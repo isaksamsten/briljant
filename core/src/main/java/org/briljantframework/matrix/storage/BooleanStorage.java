@@ -25,7 +25,7 @@ public class BooleanStorage extends AbstractStorage {
   }
 
   @Override
-  public int getAsInt(int index) {
+  public int getInt(int index) {
     return values[arrayIndex(index)] ? 1 : 0;
   }
 
@@ -35,8 +35,8 @@ public class BooleanStorage extends AbstractStorage {
   }
 
   @Override
-  public long getAsLong(int index) {
-    return getAsInt(index);
+  public long getLong(int index) {
+    return getInt(index);
   }
 
   @Override
@@ -45,8 +45,8 @@ public class BooleanStorage extends AbstractStorage {
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return getAsInt(index);
+  public double getDouble(int index) {
+    return getInt(index);
   }
 
   @Override
@@ -62,16 +62,6 @@ public class BooleanStorage extends AbstractStorage {
   @Override
   public void setComplex(int index, Complex complex) {
     setLong(index, complex.longValue());
-  }
-
-  @Override
-  public void setNumber(int index, Number value) {
-    setInt(index, value.intValue());
-  }
-
-  @Override
-  public Number getNumber(int index) {
-    return getAsInt(index);
   }
 
   @Override

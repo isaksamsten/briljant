@@ -25,7 +25,7 @@ import com.google.common.collect.UnmodifiableIterator;
  */
 public abstract class AbstractComplexMatrix extends AbstractMatrix implements ComplexMatrix {
 
-  public static final String INVALID_SORT = "Unable to sort Complex values";
+  private ComplexListView listView = null;
 
   protected AbstractComplexMatrix(int size) {
     super(size);
@@ -383,6 +383,14 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
         return get(current++);
       }
     }, size(), Spliterator.SIZED), false);
+  }
+
+  @Override
+  public final List<Complex> asList() {
+    if (listView == null) {
+      listView = new ComplexListView();
+    }
+    return listView;
   }
 
   @Override
@@ -857,6 +865,31 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
     @Override
     public boolean isArrayBased() {
       return parent.isArrayBased();
+    }
+  }
+
+  private class ComplexListView extends AbstractList<Complex> {
+
+    @Override
+    public Complex get(int i) {
+      return AbstractComplexMatrix.this.get(i);
+    }
+
+    @Override
+    public Complex set(int i, Complex value) {
+      Complex old = AbstractComplexMatrix.this.get(i);
+      AbstractComplexMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public Iterator<Complex> iterator() {
+      return AbstractComplexMatrix.this.iterator();
+    }
+
+    @Override
+    public int size() {
+      return AbstractComplexMatrix.this.size();
     }
   }
 }

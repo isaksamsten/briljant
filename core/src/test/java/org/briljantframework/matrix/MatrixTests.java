@@ -9,7 +9,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({AbstractIntMatrixTest.class, AbstractLongMatrixTest.class,
-    AbstractDoubleMatrixTest.class})
+    AbstractDoubleMatrixTest.class, AbstractComplexMatrixTest.class, AbstractBitMatrixTest.class})
 public class MatrixTests {
 
 }

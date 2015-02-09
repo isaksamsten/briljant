@@ -1,11 +1,13 @@
 package org.briljantframework.matrix;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.*;
 import java.util.stream.IntStream;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
+import org.briljantframework.function.ToIntIntObjBiFunction;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -66,6 +68,8 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   IntMatrix assign(DoubleMatrix matrix, DoubleToIntFunction function);
 
   IntMatrix assign(LongMatrix matrix, LongToIntFunction operator);
+
+  IntMatrix assign(BitMatrix matrix, ToIntIntObjBiFunction<Boolean> function);
 
   // Transform
 
@@ -236,6 +240,8 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   IntMatrix slice(BitMatrix indexes, Axis axis);
 
   IntStream stream();
+
+  List<Integer> asList();
 
   /**
    * {@inheritDoc}

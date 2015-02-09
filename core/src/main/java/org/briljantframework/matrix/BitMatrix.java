@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -100,6 +101,8 @@ public interface BitMatrix extends Matrix, Iterable<Boolean> {
   BitMatrix slice(BitMatrix indexes, Axis axis);
 
   Stream<Boolean> stream();
+
+  List<Boolean> asList();
 
   @Override
   BitMatrix transpose();

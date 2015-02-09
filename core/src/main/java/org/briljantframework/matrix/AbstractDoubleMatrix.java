@@ -42,6 +42,8 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractDoubleMatrix extends AbstractMatrix implements DoubleMatrix {
 
+  private DoubleListView listView = null;
+
   protected AbstractDoubleMatrix(int size) {
     super(size);
   }
@@ -223,6 +225,14 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     Spliterator.OfDouble spliterator =
         Spliterators.spliterator(ofDouble, size(), Spliterator.SIZED);
     return StreamSupport.doubleStream(spliterator, false);
+  }
+
+  @Override
+  public List<Double> asList() {
+    if (listView == null) {
+      listView = new DoubleListView();
+    }
+    return listView;
   }
 
   @Override
@@ -1041,6 +1051,31 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
     @Override
     public boolean isArrayBased() {
       return parent.isArrayBased();
+    }
+  }
+
+  private class DoubleListView extends AbstractList<Double> {
+
+    @Override
+    public Double get(int i) {
+      return AbstractDoubleMatrix.this.get(i);
+    }
+
+    @Override
+    public Double set(int i, Double value) {
+      Double old = AbstractDoubleMatrix.this.get(i);
+      AbstractDoubleMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public Iterator<Double> iterator() {
+      return AbstractDoubleMatrix.this.iterator();
+    }
+
+    @Override
+    public int size() {
+      return AbstractDoubleMatrix.this.size();
     }
   }
 }

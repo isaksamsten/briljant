@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.*;
 import java.util.stream.Stream;
 
@@ -295,6 +296,8 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix copy();
 
   Stream<Complex> stream();
+
+  List<Complex> asList();
 
   /**
    * Construct a new empty matrix with {@code this.getClass()}

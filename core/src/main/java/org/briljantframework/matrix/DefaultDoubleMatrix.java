@@ -242,12 +242,12 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public double get(int i, int j) {
-    return storage.getAsDouble(columnMajor(i, j, rows(), columns()));
+    return storage.getDouble(columnMajor(i, j, rows(), columns()));
   }
 
   @Override
   public double get(int index) {
-    return storage.getAsDouble(index);
+    return storage.getDouble(index);
   }
 
   @Override

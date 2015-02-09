@@ -14,7 +14,6 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.storage.LongStorage;
-import org.briljantframework.matrix.storage.Storage;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.collect.ImmutableMap;
@@ -352,6 +351,7 @@ public final class Matrices {
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a.get(indexes.get(i)));
     }
+    a.slice(indexes.asList());
     return taken;
   }
 
@@ -452,17 +452,9 @@ public final class Matrices {
    * @param replace the replacement value
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static Matrix select(Matrix a, BitMatrix where, Number replace) {
+  public static IntMatrix select(IntMatrix a, BitMatrix where, int replace) {
     Check.equalShape(a, where);
-    Matrix copy = a.copy();
-    Storage storage = copy.getStorage();
-    for (int i = 0; i < a.size(); i++) {
-      if (!where.get(i)) {
-        // TODO: either do check on storage.getNativeType() or implement several select(..) methods.
-        storage.setNumber(i, replace);
-      }
-    }
-    return copy;
+    return a.copy().assign(where, (b, i) -> b ? replace : i);
   }
 
   // /**

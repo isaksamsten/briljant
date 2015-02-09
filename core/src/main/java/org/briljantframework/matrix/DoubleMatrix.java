@@ -17,6 +17,7 @@
 package org.briljantframework.matrix;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.*;
 import java.util.stream.DoubleStream;
 
@@ -353,6 +354,8 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix copy();
 
   DoubleStream stream();
+
+  List<Double> asList();
 
   /**
    * {@inheritDoc}

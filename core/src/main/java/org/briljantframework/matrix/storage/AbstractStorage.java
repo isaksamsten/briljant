@@ -15,7 +15,7 @@ public abstract class AbstractStorage implements Storage {
 
   @Override
   public boolean getBoolean(int index) {
-    return getAsInt(index) == 1;
+    return getInt(index) == 1;
   }
 
   @Override
@@ -25,8 +25,7 @@ public abstract class AbstractStorage implements Storage {
 
   @Override
   public boolean[] asBooleanArray() {
-    checkIntegerSize();
-    boolean[] array = new boolean[(int) size()];
+    boolean[] array = new boolean[size()];
     for (int i = 0; i < size(); i++) {
       array[i] = getBoolean(i);
     }
@@ -35,48 +34,38 @@ public abstract class AbstractStorage implements Storage {
 
   @Override
   public int[] asIntArray() {
-    checkIntegerSize();
-    int[] array = new int[(int) size()];
+    int[] array = new int[size()];
     for (int i = 0; i < size(); i++) {
-      array[i] = getAsInt(i);
+      array[i] = getInt(i);
     }
     return array;
   }
 
   @Override
   public long[] asLongArray() {
-    checkIntegerSize();
-    long[] array = new long[(int) size()];
+    long[] array = new long[size()];
     for (int i = 0; i < size(); i++) {
-      array[i] = getAsLong(i);
+      array[i] = getLong(i);
     }
     return array;
   }
 
   @Override
   public double[] asDoubleArray() {
-    checkIntegerSize();
-    double[] array = new double[(int) size()];
+    double[] array = new double[size()];
     for (int i = 0; i < size(); i++) {
-      array[i] = getAsDouble(i);
+      array[i] = getDouble(i);
     }
     return array;
   }
 
   @Override
   public Complex[] asComplexArray() {
-    checkIntegerSize();
-    Complex[] array = new Complex[(int) size()];
+    Complex[] array = new Complex[size()];
     for (int i = 0; i < size(); i++) {
       array[i] = getComplex(i);
     }
     return array;
-  }
-
-  protected final void checkIntegerSize() throws ArrayStoreException {
-    if (size() > Integer.MAX_VALUE) {
-      throw new ArrayStoreException();
-    }
   }
 
   protected final int arrayIndex(long index) {
@@ -86,5 +75,10 @@ public abstract class AbstractStorage implements Storage {
   @Override
   public int size() {
     return size;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Storage for %s of %d values", getNativeType(), size());
   }
 }

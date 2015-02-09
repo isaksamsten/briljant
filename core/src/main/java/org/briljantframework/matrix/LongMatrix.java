@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.*;
 import java.util.stream.LongStream;
 
@@ -231,6 +232,8 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
   LongMatrix slice(BitMatrix indexes, Axis axis);
 
   LongStream stream();
+
+  List<Long> asList();
 
   /**
    * Transpose matrix like.

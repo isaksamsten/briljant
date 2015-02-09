@@ -161,34 +161,42 @@ public final class Vectors {
    */
   public static double std(Vector vector, double mean) {
     double var = var(vector, mean);
-    return Math.sqrt(var / (vector.size() - 1));
+    return Is.NA(var) ? DoubleVector.NA : Math.sqrt(var);
   }
 
   /**
    * @param vector the vector
-   * @return the mean
+   * @return the mean; or NA
    */
   public static double mean(Vector vector) {
     double mean = 0;
+    int nonNA = 0;
     for (int i = 0; i < vector.size(); i++) {
-      mean += vector.getAsDouble(i);
+      if (!vector.isNA(i)) {
+        mean += vector.getAsDouble(i);
+        nonNA += 1;
+      }
     }
 
-    return mean / vector.size();
+    return nonNA == 0 ? DoubleVector.NA : mean / nonNA;
   }
 
   /**
    * @param vector the vector
    * @param mean the mean
-   * @return the variance
+   * @return the variance; or NA
    */
   public static double var(Vector vector, double mean) {
     double var = 0;
+    int nonNA = 0;
     for (int i = 0; i < vector.size(); i++) {
-      double residual = vector.getAsDouble(i) - mean;
-      var += residual * residual;
+      if (vector.isNA(i)) {
+        double residual = vector.getAsDouble(i) - mean;
+        var += residual * residual;
+        nonNA += 1;
+      }
     }
-    return var;
+    return nonNA == 0 ? DoubleVector.NA : var / nonNA;
   }
 
   /**

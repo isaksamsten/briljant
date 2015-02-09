@@ -6,7 +6,7 @@ import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 
 /**
- * Created by isak on 1/30/15.
+ * @author Isak Karlsson
  */
 public class DefaultLongMatrix extends AbstractLongMatrix {
   private final Storage storage;

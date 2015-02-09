@@ -16,6 +16,8 @@
 
 package org.briljantframework.classification.tree;
 
+import org.briljantframework.matrix.DoubleMatrix;
+
 /**
  * Created by Isak Karlsson on 08/09/14.
  */
@@ -29,7 +31,7 @@ public class Gini implements Impurity {
   private Gini() {}
 
   @Override
-  public double impurity(double[] values) {
+  public double impurity(DoubleMatrix values) {
     double impurity = 1.0;
     for (double value : values) {
       impurity -= value * value;

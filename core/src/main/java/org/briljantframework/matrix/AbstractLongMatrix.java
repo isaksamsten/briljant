@@ -25,6 +25,8 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractLongMatrix extends AbstractMatrix implements LongMatrix {
 
+  private LongListView listView = null;
+
   protected AbstractLongMatrix(int size) {
     super(size);
   }
@@ -166,6 +168,14 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     };
     Spliterator.OfLong spliterator = Spliterators.spliterator(ofLong, size(), Spliterator.SIZED);
     return StreamSupport.longStream(spliterator, false);
+  }
+
+  @Override
+  public List<Long> asList() {
+    if (this.listView == null) {
+      this.listView = new LongListView();
+    }
+    return this.listView;
   }
 
   @Override
@@ -384,12 +394,12 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public long get(int i, int j) {
-    return getStorage().getAsLong(Indexer.columnMajor(i, j, rows(), columns()));
+    return getStorage().getLong(Indexer.columnMajor(i, j, rows(), columns()));
   }
 
   @Override
   public long get(int index) {
-    return getStorage().getAsLong(index);
+    return getStorage().getLong(index);
   }
 
   @Override
@@ -988,6 +998,25 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
     public long get(int index) {
       return parent.get(sliceIndex(range.step(), index, parent.size()));
     }
+  }
 
+  private class LongListView extends AbstractList<Long> {
+
+    @Override
+    public Long get(int i) {
+      return AbstractLongMatrix.this.get(i);
+    }
+
+    @Override
+    public Long set(int i, Long value) {
+      long old = AbstractLongMatrix.this.get(i);
+      AbstractLongMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public int size() {
+      return AbstractLongMatrix.this.size();
+    }
   }
 }
