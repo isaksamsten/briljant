@@ -5,9 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.briljantframework.complex.Complex;
@@ -18,6 +18,8 @@ import org.briljantframework.dataframe.NameAttribute;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
+
+import com.google.common.collect.Sets;
 
 /**
  * <p>
@@ -137,13 +139,14 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame dropColumns(Collection<Integer> indexes) {
+  public DataFrame dropColumns(Iterable<Integer> indexes) {
+    Set<Integer> set = Sets.newHashSet(indexes);
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
       Vector row = getRow(i);
       Vector.Builder vecBuilder = row.newBuilder();
       for (int j = 0; j < row.size(); j++) {
-        if (!indexes.contains(j)) {
+        if (!set.contains(j)) {
           vecBuilder.add(row, j);
         } else {
           builder.getColumnNames().remove(j);

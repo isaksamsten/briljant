@@ -238,46 +238,46 @@ public class MixedDataFrame extends AbstractDataFrame {
     return new MixedDataFrame(columnNames, rowNames, columns, rows());
   }
 
-  @Override
-  public DataFrame dropColumns(Collection<Integer> indexes) {
-    if (!(indexes instanceof Set)) {
-      indexes = new HashSet<>(indexes);
-    }
+  // @Override
+  // public DataFrame dropColumns(Iterable<Integer> indexes) {
+  // if (!(indexes instanceof Set)) {
+  // indexes = new HashSet<>(indexes);
+  // }
+  //
+  // ArrayList<Vector> columns = new ArrayList<>();
+  // NameAttribute columnNames = new NameAttribute();
+  //
+  // int index = 0;
+  // for (int i = 0; i < columns(); i++) {
+  // if (!indexes.contains(i)) {
+  // columns.add(getColumn(i));
+  // String name = getColumnName(i);
+  // if (name != null) {
+  // columnNames.put(index, name);
+  // }
+  // index += 1;
+  // }
+  // }
+  //
+  // return new MixedDataFrame(columnNames, rowNames, columns, rows());
+  // }
 
-    ArrayList<Vector> columns = new ArrayList<>();
-    NameAttribute columnNames = new NameAttribute();
-
-    int index = 0;
-    for (int i = 0; i < columns(); i++) {
-      if (!indexes.contains(i)) {
-        columns.add(getColumn(i));
-        String name = getColumnName(i);
-        if (name != null) {
-          columnNames.put(index, name);
-        }
-        index += 1;
-      }
-    }
-
-    return new MixedDataFrame(columnNames, rowNames, columns, rows());
-  }
-
-  @Override
-  public DataFrame takeColumns(Collection<Integer> indexes) {
-    ArrayList<Vector> columns = new ArrayList<>();
-    NameAttribute columnNames = new NameAttribute();
-    for (Number number : indexes) {
-      int index = number.intValue();
-      checkArgument(index >= 0 && index < columns());
-      columns.add(getColumn(index));
-      String name = getColumnName(index);
-      if (name != null) {
-        columnNames.put(index, name);
-      }
-    }
-
-    return new MixedDataFrame(columnNames, rowNames, columns, rows());
-  }
+  // @Override
+  // public DataFrame takeColumns(Iterable<Integer> indexes) {
+  // ArrayList<Vector> columns = new ArrayList<>();
+  // NameAttribute columnNames = new NameAttribute();
+  // for (Number number : indexes) {
+  // int index = number.intValue();
+  // checkArgument(index >= 0 && index < columns());
+  // columns.add(getColumn(index));
+  // String name = getColumnName(index);
+  // if (name != null) {
+  // columnNames.put(index, name);
+  // }
+  // }
+  //
+  // return new MixedDataFrame(columnNames, rowNames, columns, rows());
+  // }
 
   @Override
   public String toString() {

@@ -9,6 +9,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
+import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
@@ -146,13 +147,16 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame dropColumns(Collection<Integer> indexes) {
+  public DataFrame dropColumns(Iterable<Integer> indexes) {
+    Set<Integer> hash;
     if (!(indexes instanceof Set)) {
-      indexes = new HashSet<>(indexes);
+      hash = Sets.newHashSet(indexes);
+    } else {
+      hash = (Set<Integer>) indexes;
     }
     Builder builder = newBuilder();
     for (int i = 0; i < columns(); i++) {
-      if (!indexes.contains(i)) {
+      if (!hash.contains(i)) {
         builder.addColumn(getColumn(i));
       } else {
         builder.getColumnNames().remove(i);
@@ -172,10 +176,9 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame takeColumns(Collection<Integer> indexes) {
+  public DataFrame takeColumns(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
-    for (Number n : indexes) {
-      int i = n.intValue();
+    for (int i : indexes) {
       for (int j = 0; j < columns(); j++) {
         builder.set(i, j, this, i, j);
       }
@@ -257,7 +260,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame takeRows(Collection<Integer> indexes) {
+  public DataFrame takeRows(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
     for (Number num : indexes) {
       int i = num.intValue();
@@ -279,15 +282,17 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new DataFrame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame dropRows(Collection<Integer> indexes) {
+  public DataFrame dropRows(Iterable<Integer> indexes) {
+    Set<Integer> set;
     if (!(indexes instanceof Set)) {
-      indexes = new HashSet<>(indexes);
+      set = Sets.newHashSet(indexes);
+    } else {
+      set = (Set<Integer>) indexes;
     }
-
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
       for (int j = 0; j < columns(); j++) {
-        if (!indexes.contains(i)) {
+        if (!set.contains(i)) {
           builder.set(i, j, this, i, j);
         }
       }

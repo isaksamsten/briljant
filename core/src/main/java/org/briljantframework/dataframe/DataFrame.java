@@ -160,7 +160,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes collection of indexes
    * @return a new dataframe
    */
-  DataFrame dropColumns(Collection<Integer> indexes);
+  DataFrame dropColumns(Iterable<Integer> indexes);
 
   /**
    * Take columns with {@code indexes}
@@ -168,7 +168,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes collection of indexes
    * @return a new dataframe
    */
-  DataFrame takeColumns(Collection<Integer> indexes);
+  DataFrame takeColumns(Iterable<Integer> indexes);
 
   /**
    * Get the type of vector at {@code index}
@@ -260,7 +260,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes the indexes to take
    * @return a new data frame
    */
-  DataFrame takeRows(Collection<Integer> indexes);
+  DataFrame takeRows(Iterable<Integer> indexes);
 
   /**
    * Drop rows in {@code indexes} and return a new DataFrame
@@ -268,7 +268,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes the indexes to drop
    * @return a new data frame
    */
-  DataFrame dropRows(Collection<Integer> indexes);
+  DataFrame dropRows(Iterable<Integer> indexes);
 
   /**
    * Returns the number of rows in this data frame
