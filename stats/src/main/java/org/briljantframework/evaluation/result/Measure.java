@@ -2,23 +2,15 @@ package org.briljantframework.evaluation.result;
 
 import java.util.List;
 
-import org.briljantframework.chart.Chartable;
 import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
  * Metrics are produced from evaluators to contain the performance of algorithms.
  * <p>
  * Created by isak on 02/10/14.
  */
-public interface Measure extends Comparable<Measure>, Chartable {
+public interface Measure extends Comparable<Measure> {
 
   /**
    * Gets standard deviation.
@@ -114,30 +106,30 @@ public interface Measure extends Comparable<Measure>, Chartable {
    */
   int size();
 
-  @Override
-  default JFreeChart getChart() {
-    return Chartable.create(getName(), getPlot());
-  }
-
-  @Override
-  default Plot getPlot() {
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    List<Double> outValues = get(Sample.OUT);
-    List<Double> inValues = get(Sample.IN);
-
-    String outSampleName = "Out-sample";
-    String inSampleName = "In-sample";
-
-    for (int i = 0; i < outValues.size(); i++) {
-      dataset.addValue(outValues.get(i), outSampleName, String.valueOf(i));
-      dataset.addValue(inValues.get(i), inSampleName, String.valueOf(i));
-    }
-    dataset.addValue(getAverage(Sample.OUT), outSampleName, "Average");
-    dataset.addValue(getAverage(Sample.IN), inSampleName, "Average");
-    NumberAxis numberAxis = new NumberAxis(getName());
-    BarRenderer barRenderer = new BarRenderer();
-    return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
-  }
+  // @Override
+  // default JFreeChart getChart() {
+  // return Chartable.create(getName(), getPlot());
+  // }
+  //
+  // @Override
+  // default Plot getPlot() {
+  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  // List<Double> outValues = get(Sample.OUT);
+  // List<Double> inValues = get(Sample.IN);
+  //
+  // String outSampleName = "Out-sample";
+  // String inSampleName = "In-sample";
+  //
+  // for (int i = 0; i < outValues.size(); i++) {
+  // dataset.addValue(outValues.get(i), outSampleName, String.valueOf(i));
+  // dataset.addValue(inValues.get(i), inSampleName, String.valueOf(i));
+  // }
+  // dataset.addValue(getAverage(Sample.OUT), outSampleName, "Average");
+  // dataset.addValue(getAverage(Sample.IN), inSampleName, "Average");
+  // NumberAxis numberAxis = new NumberAxis(getName());
+  // BarRenderer barRenderer = new BarRenderer();
+  // return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
+  // }
 
   /**
    * Gets name.

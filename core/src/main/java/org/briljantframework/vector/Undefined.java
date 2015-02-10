@@ -1,9 +1,12 @@
 package org.briljantframework.vector;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.Matrix;
+
+import com.google.common.collect.Iterators;
 
 /**
  * Undefined is an immutable 1 size vector returning NA
@@ -133,6 +136,11 @@ public class Undefined implements Value {
   @Override
   public String toString() {
     return "NA";
+  }
+
+  @Override
+  public Iterator<Value> iterator() {
+    return Iterators.singletonIterator(this);
   }
 
   public static class Builder implements Vector.Builder {

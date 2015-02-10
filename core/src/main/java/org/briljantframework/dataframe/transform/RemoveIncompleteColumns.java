@@ -18,6 +18,8 @@ package org.briljantframework.dataframe.transform;
 
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Record;
+import org.briljantframework.vector.Value;
 
 /**
  * Transformation that removes columns with missing values.
@@ -63,13 +65,12 @@ public class RemoveIncompleteColumns implements Transformation {
 
   @Override
   public DataFrame transform(DataFrame x) {
-    DataFrame.Builder builder = x.newCopyBuilder();
-    for (int i = 0; i < x.columns(); i++) {
-      if (x.getColumn(i).hasNA()) {
-        builder.removeColumn(i);
+    DataFrame.Builder builder = x.newBuilder();
+    for (Record record : x) {
+      if (!record.stream().anyMatch(Value::isNA)) {
+        builder.addRecord(record);
       }
     }
-
     return builder.build();
   }
 }

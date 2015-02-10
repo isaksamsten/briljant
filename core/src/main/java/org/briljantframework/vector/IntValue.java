@@ -1,9 +1,5 @@
 package org.briljantframework.vector;
 
-import java.util.Iterator;
-
-import com.google.common.collect.Iterators;
-
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
@@ -12,6 +8,10 @@ public class IntValue extends AbstractIntVector implements Value {
 
   public IntValue(int value) {
     this.value = value;
+  }
+
+  public static Value valueOf(int i) {
+    return i == NA ? Undefined.INSTANCE : new IntValue(i);
   }
 
   @Override
@@ -67,14 +67,5 @@ public class IntValue extends AbstractIntVector implements Value {
   @Override
   public String toString() {
     return toString(0);
-  }
-
-  @Override
-  public Iterator<Integer> iterator() {
-    return Iterators.singletonIterator(value);
-  }
-
-  public static Value valueOf(int i) {
-    return i == NA ? Undefined.INSTANCE : new IntValue(i);
   }
 }

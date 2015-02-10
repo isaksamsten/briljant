@@ -1,5 +1,6 @@
 package org.briljantframework.dataseries;
 
+import static org.briljantframework.Check.requireType;
 import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
 import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft;
 
@@ -8,7 +9,6 @@ import org.briljantframework.dataframe.Record;
 import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Check;
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 
@@ -28,10 +28,10 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   public DataFrame transform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(ComplexVector.TYPE);
     for (Record row : x) {
-      Check.requireType(DoubleVector.TYPE, row);
+      requireType(DoubleVector.TYPE, row);
       DoubleMatrix timeDomain = row.asMatrix().asDoubleMatrix();
       ComplexMatrix frequencyDomain = fft(timeDomain);
-      ComplexVector.Builder rowBuilder = new ComplexVector.Builder(0, (int) frequencyDomain.size());
+      ComplexVector.Builder rowBuilder = new ComplexVector.Builder(0, frequencyDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.set(i, frequencyDomain.get(i));
       }
@@ -44,11 +44,10 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   public DataFrame inverseTransform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
     for (Record row : x) {
-      Check.requireType(ComplexVector.TYPE, row);
+      requireType(ComplexVector.TYPE, row);
       ComplexMatrix timeDomain = row.asMatrix().asComplexMatrix();
-      DoubleMatrix frequencyDomain = ifft(timeDomain).asDoubleMatrix(); // Let's ignore the tiny
-                                                                        // imaginary part :)
-      DoubleVector.Builder rowBuilder = new DoubleVector.Builder(0, (int) frequencyDomain.size());
+      DoubleMatrix frequencyDomain = ifft(timeDomain).asDoubleMatrix();
+      DoubleVector.Builder rowBuilder = new DoubleVector.Builder(0, frequencyDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.set(i, frequencyDomain.get(i));
       }

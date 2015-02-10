@@ -1,9 +1,7 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.DoubleVector;
 
 import com.google.common.base.Preconditions;
 
@@ -26,9 +24,7 @@ public class ZNormalization implements Transformation {
 
     DataFrame.Builder builder = x.newCopyBuilder();
     for (int j = 0; j < x.columns(); j++) {
-      if (x.getColumnType(j) != DoubleVector.TYPE) {
-        throw new TypeMismatchException(DoubleVector.TYPE, x.getColumnType(j));
-      }
+
       double mean = this.mean.get(j);
       double sigma = this.sigma.get(j);
       for (int i = 0; i < x.rows(); i++) {

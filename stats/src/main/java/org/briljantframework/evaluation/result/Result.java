@@ -20,13 +20,6 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import org.briljantframework.Utils;
-import org.briljantframework.chart.Chartable;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.CombinedDomainCategoryPlot;
-import org.jfree.chart.plot.Plot;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
@@ -34,7 +27,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 02/10/14.
  */
-public class Result implements Chartable {
+public class Result {
 
   private static final DecimalFormat FORMATTER = new DecimalFormat("##0.00");
   private final Map<Class<?>, Measure> metrics;
@@ -292,23 +285,23 @@ public class Result implements Chartable {
     return builder.toString();
   }
 
-  @Override
-  public JFreeChart getChart() {
-    return Chartable.create("Combined Result Metrics", getPlot());
-  }
-
-  @Override
-  public Plot getPlot() {
-    CombinedDomainCategoryPlot cdcp = new CombinedDomainCategoryPlot();
-    for (Measure measure : metrics.values()) {
-      Plot plot = measure.getPlot();
-      if (plot != null && plot instanceof CategoryPlot) {
-        NumberAxis axis = (NumberAxis) ((CategoryPlot) plot).getRangeAxis();
-        axis.setNumberFormatOverride(FORMATTER);
-        cdcp.add((CategoryPlot) plot);
-      }
-    }
-    cdcp.getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
-    return cdcp;
-  }
+  // @Override
+  // public JFreeChart getChart() {
+  // return Chartable.create("Combined Result Metrics", getPlot());
+  // }
+  //
+  // @Override
+  // public Plot getPlot() {
+  // CombinedDomainCategoryPlot cdcp = new CombinedDomainCategoryPlot();
+  // for (Measure measure : metrics.values()) {
+  // Plot plot = measure.getPlot();
+  // if (plot != null && plot instanceof CategoryPlot) {
+  // NumberAxis axis = (NumberAxis) ((CategoryPlot) plot).getRangeAxis();
+  // axis.setNumberFormatOverride(FORMATTER);
+  // cdcp.add((CategoryPlot) plot);
+  // }
+  // }
+  // cdcp.getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
+  // return cdcp;
+  // }
 }

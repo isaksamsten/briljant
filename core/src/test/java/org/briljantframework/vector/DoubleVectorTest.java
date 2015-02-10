@@ -43,8 +43,8 @@ public class DoubleVectorTest {
 
   @Test
   public void testIterator() throws Exception {
-    for (Double value : vector) {
-      assertEquals(value, DOUBLE_ARRAY[value.intValue()], 0.0);
+    for (Value value : vector) {
+      assertEquals(value.getAsDouble(), DOUBLE_ARRAY[value.getAsInt()], 0.0);
     }
   }
 

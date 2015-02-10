@@ -1,9 +1,5 @@
 package org.briljantframework.vector;
 
-import java.util.Iterator;
-
-import com.google.common.collect.Iterators;
-
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
@@ -18,9 +14,8 @@ public class BitValue extends AbstractBitVector implements Value {
     this(bit.asInt());
   }
 
-  @Override
-  public Iterator<Bit> iterator() {
-    return Iterators.singletonIterator(Bit.valueOf(binary));
+  public static Value valueOf(Bit bit) {
+    return bit == Bit.NA ? Undefined.INSTANCE : new BitValue(bit);
   }
 
   @Override
@@ -76,9 +71,5 @@ public class BitValue extends AbstractBitVector implements Value {
       return false;
 
     return true;
-  }
-
-  public static Value valueOf(Bit bit) {
-    return bit == Bit.NA ? Undefined.INSTANCE : new BitValue(bit);
   }
 }

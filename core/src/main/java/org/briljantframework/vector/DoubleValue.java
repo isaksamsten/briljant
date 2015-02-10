@@ -1,9 +1,5 @@
 package org.briljantframework.vector;
 
-import java.util.Iterator;
-
-import com.google.common.collect.Iterators;
-
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
@@ -13,6 +9,10 @@ public class DoubleValue extends AbstractDoubleVector implements Value {
 
   public DoubleValue(double value) {
     this.value = value;
+  }
+
+  public static Value valueOf(double d) {
+    return Is.NA(d) ? Undefined.INSTANCE : new DoubleValue(d);
   }
 
   @Override
@@ -59,14 +59,5 @@ public class DoubleValue extends AbstractDoubleVector implements Value {
   @Override
   public String toString() {
     return toString(0);
-  }
-
-  @Override
-  public Iterator<Double> iterator() {
-    return Iterators.singletonIterator(getAsDouble());
-  }
-
-  public static Value valueOf(double d) {
-    return Is.NA(d) ? Undefined.INSTANCE : new DoubleValue(d);
   }
 }

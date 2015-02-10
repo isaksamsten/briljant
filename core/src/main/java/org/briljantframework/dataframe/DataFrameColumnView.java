@@ -1,10 +1,14 @@
 package org.briljantframework.dataframe;
 
+import java.util.Iterator;
+
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * View into a DataFrame.
@@ -100,9 +104,26 @@ public class DataFrameColumnView implements Vector {
   public String toString() {
     StringBuilder builder = new StringBuilder("[");
     builder.append(toString(0));
-    for (int i = 1; i < size() ; i++) {
+    for (int i = 1; i < size(); i++) {
       builder.append(",").append(toString(i));
     }
     return builder.append("]").toString();
+  }
+
+  @Override
+  public Iterator<Value> iterator() {
+    return new UnmodifiableIterator<Value>() {
+      public int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Value next() {
+        return getAsValue(current++);
+      }
+    };
   }
 }

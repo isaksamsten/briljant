@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
+import org.briljantframework.Check;
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;

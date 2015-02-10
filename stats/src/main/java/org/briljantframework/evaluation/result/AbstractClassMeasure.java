@@ -21,14 +21,6 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
  * Created by Isak Karlsson on 08/10/14.
@@ -58,26 +50,26 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
     this.valueForValue = producer.sampleMetricValues;
   }
 
-  public JFreeChart getPerValueChart() {
-    JFreeChart chart = new JFreeChart(getName(), getPerValuePlot());
-    ChartFactory.getChartTheme().apply(chart);
-    return chart;
-  }
-
-  public Plot getPerValuePlot() {
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    for (String label : getLabels(Sample.OUT)) {
-      for (int i = 0; i < size(); i++) {
-        List<Double> outValues = get(Sample.OUT, label);
-        dataset.addValue(outValues.get(i), label, String.valueOf(i));
-      }
-      dataset.addValue(getAverage(Sample.OUT, label), label, "Average");
-    }
-
-    NumberAxis numberAxis = new NumberAxis(getName());
-    BarRenderer barRenderer = new BarRenderer();
-    return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
-  }
+  // public JFreeChart getPerValueChart() {
+  // JFreeChart chart = new JFreeChart(getName(), getPerValuePlot());
+  // ChartFactory.getChartTheme().apply(chart);
+  // return chart;
+  // }
+  //
+  // public Plot getPerValuePlot() {
+  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  // for (String label : getLabels(Sample.OUT)) {
+  // for (int i = 0; i < size(); i++) {
+  // List<Double> outValues = get(Sample.OUT, label);
+  // dataset.addValue(outValues.get(i), label, String.valueOf(i));
+  // }
+  // dataset.addValue(getAverage(Sample.OUT, label), label, "Average");
+  // }
+  //
+  // NumberAxis numberAxis = new NumberAxis(getName());
+  // BarRenderer barRenderer = new BarRenderer();
+  // return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
+  // }
 
   @Override
   public List<Double> get(Sample sample, String value) {

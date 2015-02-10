@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Check;
 import org.briljantframework.matrix.storage.IntStorage;
 import org.briljantframework.matrix.storage.Storage;
 

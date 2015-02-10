@@ -16,6 +16,8 @@
 
 package org.briljantframework.classification.tree;
 
+import org.briljantframework.matrix.DoubleMatrix;
+
 /**
  * Created by Isak Karlsson on 08/09/14.
  */
@@ -82,7 +84,8 @@ public class Gain {
    * @param right the right
    * @return the double
    */
-  public double calculate(double leftWeight, double[] left, double rightWeight, double[] right) {
+  public double calculate(double leftWeight, DoubleMatrix left, double rightWeight,
+      DoubleMatrix right) {
     return calculate(leftWeight, left, rightWeight, right, null);
   }
 
@@ -97,8 +100,8 @@ public class Gain {
    * @param leftRight
    * @return
    */
-  public double calculate(double leftWeight, double[] left, double rightWeight, double[] right,
-      double[] leftRight) {
+  public double calculate(double leftWeight, DoubleMatrix left, double rightWeight,
+      DoubleMatrix right, double[] leftRight) {
     double totalWeight = leftWeight + rightWeight;
     if (leftWeight > 0) {
       leftWeight = (leftWeight / totalWeight) * impurity.impurity(left);// * leftWeight;
@@ -130,8 +133,8 @@ public class Gain {
    * @param rightRelativeFrequencies the right relative frequencies
    * @return double double
    */
-  public double calculate(double leftWeight, double rightWeight, double[] leftRelativeFrequencies,
-      double[] rightRelativeFrequencies) {
+  public double calculate(double leftWeight, double rightWeight,
+      DoubleMatrix leftRelativeFrequencies, DoubleMatrix rightRelativeFrequencies) {
     return (leftWeight * impurity.impurity(leftRelativeFrequencies))
         + (rightWeight * impurity.impurity(rightRelativeFrequencies));
   }

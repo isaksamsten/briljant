@@ -1,43 +1,17 @@
 package org.briljantframework.shapelet;
 
-import java.awt.*;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.briljantframework.chart.Chartable;
 import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.dataseries.Aggregator;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.evaluation.ClassificationEvaluators;
-import org.briljantframework.io.DelimitedInputStream;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.block.BlockBorder;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYErrorRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
-import org.jfree.data.xy.*;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.RectangleInsets;
-import org.jfree.util.ShapeUtilities;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
@@ -317,306 +291,307 @@ public class RandomShapeletForestTest {
 
 
   }
-
-  private JFreeChart bar(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
-    XYSeriesCollection collection = new XYSeriesCollection();
-
-
-    XYSeries series = new XYSeries("Series");
-    for (int i = 0; i < x.size(); i++) {
-      series.add(x.get(i), y.get(i));
-    }
-
-    collection.addSeries(series);
-
-    JFreeChart chart =
-        ChartFactory.createXYBarChart(null, xlabel, false, ylabel, new XYBarDataset(collection, 4));
-    chart.removeLegend();
-    return Chartable.applyTheme(chart);
-  }
-
-  public JFreeChart area(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
-    XYSeriesCollection collection = new XYSeriesCollection();
-
-    XYSeries series = new XYSeries("Series");
-    for (int i = 0; i < x.size(); i++) {
-      series.add(x.get(i), y.get(i));
-    }
-
-    collection.addSeries(series);
-
-    JFreeChart chart = ChartFactory.createXYAreaChart(null, xlabel, ylabel, collection);
-    XYPlot plot = (XYPlot) chart.getPlot();
-    XYSplineRenderer r = new XYSplineRenderer(1, XYSplineRenderer.FillType.TO_ZERO);
-    r.setSeriesFillPaint(0, new Color(0, 55, 255, 180));
-    plot.setRenderer(r);
-
-
-    chart.removeLegend();
-    return Chartable.applyTheme(chart);
-  }
-
-  @Test
-  public void testCreateSizePlot() throws Exception {
-    DoubleMatrix error =
-        DefaultDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
-            0.1738586474, 0.1724606892);
-    DoubleMatrix errors =
-        Matrices
-            .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
-                + "0.249,0.249,0.249,0.249,0.249,0.249;"
-                + "0.190,0.190,0.190,0.190,0.190,0.190;"
-                + "0.210,0.210,0.210,0.210,0.210,0.210");
-    System.out.println(errors);
-
-
-    DoubleMatrix size = DefaultDoubleMatrix.rowVector(10, 25, 50, 100, 250, 500);
-    JFreeChart errorChart =
-        plot(size, "No. trees", errors, "Average error", new String[] {"RSF", "1-NN",
-            "1-NN DTW-best", "1-NN DTW-no"});
-    ((XYPlot) errorChart.getPlot()).getRangeAxis().setRange(0.15, 0.26);
-    errorChart.getLegend().setMargin(0, 45, -7, 0);
-    Chartable.saveSVG("/Users/isak/Desktop/no_trees_error.svg", errorChart, 300, 140);
-
-    DoubleMatrix auc =
-        DefaultDoubleMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
-            0.9582902467, 0.959242855);
-    JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
-    ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);
-    Chartable.saveSVG("/Users/isak/Desktop/no_trees_auc.svg", aucChart, 250, 200);
-
-  }
-
-  public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel,
-      String[] labels) {
-    XYSeriesCollection collection = new XYSeriesCollection();
-
-    for (int i = 0; i < y.rows(); i++) {
-      String label = "unkown";
-      if (labels != null && i < labels.length) {
-        label = labels[i];
-      }
-      XYSeries series = new XYSeries(label);
-      for (int j = 0; j < y.columns(); j++) {
-        series.add(x.get(j), y.get(i, j));
-      }
-      collection.addSeries(series);
-    }
-    JFreeChart chart =
-        Chartable.applyTheme(ChartFactory.createXYLineChart(null, xlabel, ylabel, collection));
-    chart.getXYPlot().setRenderer(new XYLineAndShapeRenderer(true, false));
-    chart.getXYPlot().setDomainGridlinesVisible(true);
-    chart.getXYPlot().setRangeGridlinesVisible(false);
-    chart.getLegend().setFrame(BlockBorder.NONE);
-    chart.getLegend().setItemLabelPadding(RectangleInsets.ZERO_INSETS);
-
-    ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesShapesVisible(0, true);
-    chart.getLegend().setPosition(RectangleEdge.TOP);
-
-    java.util.List<float[]> strokes = new ArrayList<>();
-    strokes.add(new float[] {3f, 3f});
-    strokes.add(new float[] {1f});
-    strokes.add(new float[] {3f, 3f, 1f});
-
-    for (int i = 1; i < y.rows(); i++) {
-      chart
-          .getXYPlot()
-          .getRenderer()
-          .setSeriesStroke(
-              i,
-              new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, strokes
-                  .get((i - 1) % strokes.size()), 0f));
-    }
-    return chart;
-  }
-
-  public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
-    return plot(x, xlabel, y, ylabel, null);
-  }
-
-  @Test
-  public void testPlotData() throws Exception {
-    String[] files = new String[] {"RSF-1NN", "RSF-1NNDTW-best", "RSF-1NNDTW-no"};
-    Map<String, String> map = new HashMap<>();
-    map.put("RSF-1NN", "1-nearest neighbor");
-    map.put("RSF-1NNDTW-best", "1-NN DTW-best)");
-    map.put("RSF-1NNDTW-no", "1-NN DTW-no)");
-    for (String file : files) {
-      try (DelimitedInputStream in =
-          new DelimitedInputStream(new FileInputStream("/Users/isak/Desktop/" + file + ".csv"))) {
-        DataFrame frame =
-            new MixedDataFrame.Builder(in.readColumnNames(), in.readColumnTypes()).read(in).build();
-
-        XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer(false, true);
-        XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, false);
-
-        // Draw the baseline line of equal performance
-        XYSeriesCollection baselineCollection = new XYSeriesCollection();
-        XYSeries baseline = new XYSeries("Baseline");
-        baseline.add(0, 0);
-        baseline.add(1, 1);
-        baselineCollection.addSeries(baseline);
-
-
-        // Draw the points of actual pair-wise performances
-        XYSeriesCollection rndknn = new XYSeriesCollection();
-        for (int i = 0; i < frame.rows(); i++) {
-          XYSeries series = new XYSeries("" + i);
-          series.add(frame.getAsDouble(i, 0), frame.getAsDouble(i, 1));
-          rndknn.addSeries(series);
-        }
-
-        ValueAxis xBase = new NumberAxis("Shapelet Forest");
-        ValueAxis yBase = new NumberAxis(map.get(file));
-
-        // The x and y axis can only be between 0 and 1
-        xBase.setRange(0, 1);
-        yBase.setRange(0, 1);
-
-        // First draw the scatter of pair-wise performances
-        XYPlot combined = new XYPlot();
-        combined.setDataset(0, rndknn);
-        combined.setRenderer(0, pointRenderer);
-        combined.setDomainAxis(0, xBase);
-        combined.setRangeAxis(0, yBase);
-        combined.mapDatasetToDomainAxis(0, 0);
-        combined.mapDatasetToRangeAxis(0, 0);
-
-        // Then draw the baseline curve
-        combined.setDataset(1, baselineCollection);
-        combined.setRenderer(1, lineRenderer);
-
-        combined.mapDatasetToDomainAxis(1, 0);
-        combined.mapDatasetToRangeAxis(1, 0);
-
-
-        JFreeChart chart = Chartable.applyTheme(new JFreeChart(null, combined));
-        chart.removeLegend();
-
-        // Change the baseline to a black dashed curve
-        chart.getXYPlot().getRenderer(1).setSeriesPaint(0, Color.black);
-        chart
-            .getXYPlot()
-            .getRenderer(1)
-            .setSeriesStroke(
-                0,
-                new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[] {
-                    5f, 3f}, 0f));
-
-        // ... and the points to blue diagonal crosses
-        Shape cross = ShapeUtilities.createDiagonalCross(2, 0.1f);
-        for (int i = 0; i < frame.rows(); i++) {
-          chart.getXYPlot().getRenderer(0).setSeriesPaint(i, Chartable.theme.getColor(0));
-          chart.getXYPlot().getRenderer(0).setSeriesShape(i, cross);
-        }
-
-        Chartable.saveSVG("/Users/isak/Desktop/" + file + ".svg", chart, 250, 200);
-      }
-    }
-  }
-
-  public JFreeChart plot(Vector x, Vector y) {
-    XYSeriesCollection collection = new XYSeriesCollection();
-    XYSeries series = new XYSeries("Line");
-    for (int i = 0; i < x.size(); i++) {
-      series.add(x.getAsDouble(i), y.getAsDouble(i));
-    }
-    collection.addSeries(series);
-
-    JFreeChart chart =
-        Chartable.applyTheme(ChartFactory.createXYLineChart(null, "Position", null, collection));
-    chart.removeLegend();
-    return chart;
-  }
-
-  @Test
-  public void testRandomData() throws Exception {
-    // DataFrame.Builder dataset = new MixedDataFrame.Builder(DoubleValue.TYPE);
-    // StringVector.Builder targetBuilder = new StringVector.Builder(dataset.rows());
-    // for (int i = 0; i < dataset.rows(); i++) {
-    // if (new Random().nextDouble() > 0.5) {
-    // for (int j = 40; j < 55; j++) {
-    // dataset.set(i, j, dataset.get(i, j) + j / 15);
-    // }
-    // targetBuilder.add(1);
-    // } else {
-    // for (int j = 10; j < 20; j++) {
-    // dataset.put(i, j, dataset.get(i, j) - j / 10);
-    // }
-    // targetBuilder.add(0);
-    // }
-    // }
-    // CategoricColumn categoricColumn = targetBuilder.create();
-    //
-    // Matrix x = Matrices.linspace(dataset.columns() - 1, dataset.columns(), 0);
-    // Chartable.saveSVG("/Users/isak/Desktop/timeSeries.svg", plotRows(x, dataset.asMatrix(),
-    // categoricColumn));
-    //
-    // RandomShapeletForest.Builder forestBuilder =
-    // RandomShapeletForest.withSize(100).withLowerLength(2).withUpperLength(-1).withInspectedShapelets(3).withSampler(Bootstrap.create());
-    // RandomShapeletForest forest = forestBuilder.create();
-    //
-    //
-    // SupervisedDataset<MatrixDataFrame, CategoricColumn> supervisedDataset = new
-    // SupervisedDataset<>(dataset, categoricColumn,
-    // MatrixDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
-    // Result result = Evaluators.splitValidation(forest, supervisedDataset, 0.33);
-    // System.out.println(result);
-    //
-    // RandomShapeletForest.Model model = forest.fit(dataset, categoricColumn);
-    // System.out.println(model.getLengthImportance());
-    // System.out.println(model.getPositionImportance());
-    //
-    // JFreeChart lengthImportance = plot(x, "Length", model.getLengthImportance(), "Importance");
-    // JFreeChart positionImportce = plot(x, "Position", model.getPositionImportance(),
-    // "Importance");
-    // Chartable.saveSVG("/Users/isak/Desktop/lengthImportance.svg", lengthImportance);
-    // Chartable.saveSVG("/Users/isak/Desktop/positionImportance.svg", positionImportce);
-    //
-  }
-
-  public JFreeChart plotRows(DoubleMatrix x, DoubleMatrix ys, Vector targets) {
-    XYSeriesCollection collection = new XYSeriesCollection();
-
-    for (int i = 0; i < ys.rows(); i++) {
-      XYSeries series = new XYSeries("" + i);
-      DoubleMatrix y = ys.getRowView(i);
-      for (int j = 0; j < x.size(); j++) {
-        series.add(x.get(j), y.get(j));
-      }
-      collection.addSeries(series);
-    }
-    JFreeChart chart =
-        Chartable.applyTheme(ChartFactory.createXYLineChart(null, "Position", null, collection));
-    XYPlot plot = (XYPlot) chart.getPlot();
-    XYItemRenderer renderer = plot.getRenderer();
-    for (int i = 0; i < targets.size(); i++) {
-      renderer.setSeriesPaint(i, targets.getAsDouble(i) == 1 ? Color.BLUE : Color.RED);
-    }
-
-    chart.removeLegend();
-    return chart;
-  }
-
-  public JFreeChart plot(Vector x, String xlabel, Vector y, String ylabel, Vector e) {
-    XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
-    XYIntervalSeries series = new XYIntervalSeries("Series");
-    for (int i = 0; i < x.size(); i++) {
-      double xv = x.getAsDouble(i);
-      double yv = y.getAsDouble(i);
-      double ev = e.getAsDouble(i);
-      series.add(xv, xv, xv, yv, yv - ev, yv + ev);
-    }
-    collection.addSeries(series);
-
-    NumberAxis xAxis = new NumberAxis(xlabel);
-    NumberAxis yAxis = new NumberAxis(ylabel);
-    XYErrorRenderer renderer = new XYErrorRenderer();
-    renderer.setBaseLinesVisible(true);
-    renderer.setBaseShapesVisible(false);
-    XYPlot plot = new XYPlot(collection, xAxis, yAxis, renderer);
-
-    JFreeChart chart = new JFreeChart(null, plot);
-    return Chartable.applyTheme(chart);
-  }
+  //
+  // private JFreeChart bar(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
+  // XYSeriesCollection collection = new XYSeriesCollection();
+  //
+  //
+  // XYSeries series = new XYSeries("Series");
+  // for (int i = 0; i < x.size(); i++) {
+  // series.add(x.get(i), y.get(i));
+  // }
+  //
+  // collection.addSeries(series);
+  //
+  // JFreeChart chart =
+  // ChartFactory.createXYBarChart(null, xlabel, false, ylabel, new XYBarDataset(collection, 4));
+  // chart.removeLegend();
+  // return Chartable.applyTheme(chart);
+  // }
+  //
+  // public JFreeChart area(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
+  // XYSeriesCollection collection = new XYSeriesCollection();
+  //
+  // XYSeries series = new XYSeries("Series");
+  // for (int i = 0; i < x.size(); i++) {
+  // series.add(x.get(i), y.get(i));
+  // }
+  //
+  // collection.addSeries(series);
+  //
+  // JFreeChart chart = ChartFactory.createXYAreaChart(null, xlabel, ylabel, collection);
+  // XYPlot plot = (XYPlot) chart.getPlot();
+  // XYSplineRenderer r = new XYSplineRenderer(1, XYSplineRenderer.FillType.TO_ZERO);
+  // r.setSeriesFillPaint(0, new Color(0, 55, 255, 180));
+  // plot.setRenderer(r);
+  //
+  //
+  // chart.removeLegend();
+  // return Chartable.applyTheme(chart);
+  // }
+  //
+  // @Test
+  // public void testCreateSizePlot() throws Exception {
+  // DoubleMatrix error =
+  // DefaultDoubleMatrix.rowVector(0.2352000996, 0.200126165, 0.1879845281, 0.176270231,
+  // 0.1738586474, 0.1724606892);
+  // DoubleMatrix errors =
+  // Matrices
+  // .parseMatrix("0.2352000996,0.200126165,0.1879845281,0.176270231,0.1738586474,0.1724606892;"
+  // + "0.249,0.249,0.249,0.249,0.249,0.249;"
+  // + "0.190,0.190,0.190,0.190,0.190,0.190;"
+  // + "0.210,0.210,0.210,0.210,0.210,0.210");
+  // System.out.println(errors);
+  //
+  //
+  // DoubleMatrix size = DefaultDoubleMatrix.rowVector(10, 25, 50, 100, 250, 500);
+  // JFreeChart errorChart =
+  // plot(size, "No. trees", errors, "Average error", new String[] {"RSF", "1-NN",
+  // "1-NN DTW-best", "1-NN DTW-no"});
+  // ((XYPlot) errorChart.getPlot()).getRangeAxis().setRange(0.15, 0.26);
+  // errorChart.getLegend().setMargin(0, 45, -7, 0);
+  // Chartable.saveSVG("/Users/isak/Desktop/no_trees_error.svg", errorChart, 300, 140);
+  //
+  // DoubleMatrix auc =
+  // DefaultDoubleMatrix.rowVector(0.9175961966, 0.9407329694, 0.9506284705, 0.9544230833,
+  // 0.9582902467, 0.959242855);
+  // JFreeChart aucChart = plot(size, "No. trees", auc, "Average AUC");
+  // ((XYPlot) aucChart.getPlot()).getRangeAxis().setRange(0.9, 1);
+  // Chartable.saveSVG("/Users/isak/Desktop/no_trees_auc.svg", aucChart, 250, 200);
+  //
+  // }
+  //
+  // public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel,
+  // String[] labels) {
+  // XYSeriesCollection collection = new XYSeriesCollection();
+  //
+  // for (int i = 0; i < y.rows(); i++) {
+  // String label = "unkown";
+  // if (labels != null && i < labels.length) {
+  // label = labels[i];
+  // }
+  // XYSeries series = new XYSeries(label);
+  // for (int j = 0; j < y.columns(); j++) {
+  // series.add(x.get(j), y.get(i, j));
+  // }
+  // collection.addSeries(series);
+  // }
+  // JFreeChart chart =
+  // Chartable.applyTheme(ChartFactory.createXYLineChart(null, xlabel, ylabel, collection));
+  // chart.getXYPlot().setRenderer(new XYLineAndShapeRenderer(true, false));
+  // chart.getXYPlot().setDomainGridlinesVisible(true);
+  // chart.getXYPlot().setRangeGridlinesVisible(false);
+  // chart.getLegend().setFrame(BlockBorder.NONE);
+  // chart.getLegend().setItemLabelPadding(RectangleInsets.ZERO_INSETS);
+  //
+  // ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesShapesVisible(0, true);
+  // chart.getLegend().setPosition(RectangleEdge.TOP);
+  //
+  // java.util.List<float[]> strokes = new ArrayList<>();
+  // strokes.add(new float[] {3f, 3f});
+  // strokes.add(new float[] {1f});
+  // strokes.add(new float[] {3f, 3f, 1f});
+  //
+  // for (int i = 1; i < y.rows(); i++) {
+  // chart
+  // .getXYPlot()
+  // .getRenderer()
+  // .setSeriesStroke(
+  // i,
+  // new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, strokes
+  // .get((i - 1) % strokes.size()), 0f));
+  // }
+  // return chart;
+  // }
+  //
+  // public JFreeChart plot(DoubleMatrix x, String xlabel, DoubleMatrix y, String ylabel) {
+  // return plot(x, xlabel, y, ylabel, null);
+  // }
+  //
+  // @Test
+  // public void testPlotData() throws Exception {
+  // String[] files = new String[] {"RSF-1NN", "RSF-1NNDTW-best", "RSF-1NNDTW-no"};
+  // Map<String, String> map = new HashMap<>();
+  // map.put("RSF-1NN", "1-nearest neighbor");
+  // map.put("RSF-1NNDTW-best", "1-NN DTW-best)");
+  // map.put("RSF-1NNDTW-no", "1-NN DTW-no)");
+  // for (String file : files) {
+  // try (DelimitedInputStream in =
+  // new DelimitedInputStream(new FileInputStream("/Users/isak/Desktop/" + file + ".csv"))) {
+  // DataFrame frame =
+  // new MixedDataFrame.Builder(in.readColumnNames(), in.readColumnTypes()).read(in).build();
+  //
+  // XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer(false, true);
+  // XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, false);
+  //
+  // // Draw the baseline line of equal performance
+  // XYSeriesCollection baselineCollection = new XYSeriesCollection();
+  // XYSeries baseline = new XYSeries("Baseline");
+  // baseline.add(0, 0);
+  // baseline.add(1, 1);
+  // baselineCollection.addSeries(baseline);
+  //
+  //
+  // // Draw the points of actual pair-wise performances
+  // XYSeriesCollection rndknn = new XYSeriesCollection();
+  // for (int i = 0; i < frame.rows(); i++) {
+  // XYSeries series = new XYSeries("" + i);
+  // series.add(frame.getAsDouble(i, 0), frame.getAsDouble(i, 1));
+  // rndknn.addSeries(series);
+  // }
+  //
+  // ValueAxis xBase = new NumberAxis("Shapelet Forest");
+  // ValueAxis yBase = new NumberAxis(map.get(file));
+  //
+  // // The x and y axis can only be between 0 and 1
+  // xBase.setRange(0, 1);
+  // yBase.setRange(0, 1);
+  //
+  // // First draw the scatter of pair-wise performances
+  // XYPlot combined = new XYPlot();
+  // combined.setDataset(0, rndknn);
+  // combined.setRenderer(0, pointRenderer);
+  // combined.setDomainAxis(0, xBase);
+  // combined.setRangeAxis(0, yBase);
+  // combined.mapDatasetToDomainAxis(0, 0);
+  // combined.mapDatasetToRangeAxis(0, 0);
+  //
+  // // Then draw the baseline curve
+  // combined.setDataset(1, baselineCollection);
+  // combined.setRenderer(1, lineRenderer);
+  //
+  // combined.mapDatasetToDomainAxis(1, 0);
+  // combined.mapDatasetToRangeAxis(1, 0);
+  //
+  //
+  // JFreeChart chart = Chartable.applyTheme(new JFreeChart(null, combined));
+  // chart.removeLegend();
+  //
+  // // Change the baseline to a black dashed curve
+  // chart.getXYPlot().getRenderer(1).setSeriesPaint(0, Color.black);
+  // chart
+  // .getXYPlot()
+  // .getRenderer(1)
+  // .setSeriesStroke(
+  // 0,
+  // new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f, new float[] {
+  // 5f, 3f}, 0f));
+  //
+  // // ... and the points to blue diagonal crosses
+  // Shape cross = ShapeUtilities.createDiagonalCross(2, 0.1f);
+  // for (int i = 0; i < frame.rows(); i++) {
+  // chart.getXYPlot().getRenderer(0).setSeriesPaint(i, Chartable.theme.getColor(0));
+  // chart.getXYPlot().getRenderer(0).setSeriesShape(i, cross);
+  // }
+  //
+  // Chartable.saveSVG("/Users/isak/Desktop/" + file + ".svg", chart, 250, 200);
+  // }
+  // }
+  // }
+  //
+  // public JFreeChart plot(Vector x, Vector y) {
+  // XYSeriesCollection collection = new XYSeriesCollection();
+  // XYSeries series = new XYSeries("Line");
+  // for (int i = 0; i < x.size(); i++) {
+  // series.add(x.getAsDouble(i), y.getAsDouble(i));
+  // }
+  // collection.addSeries(series);
+  //
+  // JFreeChart chart =
+  // Chartable.applyTheme(ChartFactory.createXYLineChart(null, "Position", null, collection));
+  // chart.removeLegend();
+  // return chart;
+  // }
+  //
+  // @Test
+  // public void testRandomData() throws Exception {
+  // // DataFrame.Builder dataset = new MixedDataFrame.Builder(DoubleValue.TYPE);
+  // // StringVector.Builder targetBuilder = new StringVector.Builder(dataset.rows());
+  // // for (int i = 0; i < dataset.rows(); i++) {
+  // // if (new Random().nextDouble() > 0.5) {
+  // // for (int j = 40; j < 55; j++) {
+  // // dataset.set(i, j, dataset.get(i, j) + j / 15);
+  // // }
+  // // targetBuilder.add(1);
+  // // } else {
+  // // for (int j = 10; j < 20; j++) {
+  // // dataset.put(i, j, dataset.get(i, j) - j / 10);
+  // // }
+  // // targetBuilder.add(0);
+  // // }
+  // // }
+  // // CategoricColumn categoricColumn = targetBuilder.create();
+  // //
+  // // Matrix x = Matrices.linspace(dataset.columns() - 1, dataset.columns(), 0);
+  // // Chartable.saveSVG("/Users/isak/Desktop/timeSeries.svg", plotRows(x, dataset.asMatrix(),
+  // // categoricColumn));
+  // //
+  // // RandomShapeletForest.Builder forestBuilder =
+  // //
+  // RandomShapeletForest.withSize(100).withLowerLength(2).withUpperLength(-1).withInspectedShapelets(3).withSampler(Bootstrap.create());
+  // // RandomShapeletForest forest = forestBuilder.create();
+  // //
+  // //
+  // // SupervisedDataset<MatrixDataFrame, CategoricColumn> supervisedDataset = new
+  // // SupervisedDataset<>(dataset, categoricColumn,
+  // // MatrixDataFrame.copyTo(), DefaultCategoricColumn.copyTo());
+  // // Result result = Evaluators.splitValidation(forest, supervisedDataset, 0.33);
+  // // System.out.println(result);
+  // //
+  // // RandomShapeletForest.Model model = forest.fit(dataset, categoricColumn);
+  // // System.out.println(model.getLengthImportance());
+  // // System.out.println(model.getPositionImportance());
+  // //
+  // // JFreeChart lengthImportance = plot(x, "Length", model.getLengthImportance(), "Importance");
+  // // JFreeChart positionImportce = plot(x, "Position", model.getPositionImportance(),
+  // // "Importance");
+  // // Chartable.saveSVG("/Users/isak/Desktop/lengthImportance.svg", lengthImportance);
+  // // Chartable.saveSVG("/Users/isak/Desktop/positionImportance.svg", positionImportce);
+  // //
+  // }
+  //
+  // public JFreeChart plotRows(DoubleMatrix x, DoubleMatrix ys, Vector targets) {
+  // XYSeriesCollection collection = new XYSeriesCollection();
+  //
+  // for (int i = 0; i < ys.rows(); i++) {
+  // XYSeries series = new XYSeries("" + i);
+  // DoubleMatrix y = ys.getRowView(i);
+  // for (int j = 0; j < x.size(); j++) {
+  // series.add(x.get(j), y.get(j));
+  // }
+  // collection.addSeries(series);
+  // }
+  // JFreeChart chart =
+  // Chartable.applyTheme(ChartFactory.createXYLineChart(null, "Position", null, collection));
+  // XYPlot plot = (XYPlot) chart.getPlot();
+  // XYItemRenderer renderer = plot.getRenderer();
+  // for (int i = 0; i < targets.size(); i++) {
+  // renderer.setSeriesPaint(i, targets.getAsDouble(i) == 1 ? Color.BLUE : Color.RED);
+  // }
+  //
+  // chart.removeLegend();
+  // return chart;
+  // }
+  //
+  // public JFreeChart plot(Vector x, String xlabel, Vector y, String ylabel, Vector e) {
+  // XYIntervalSeriesCollection collection = new XYIntervalSeriesCollection();
+  // XYIntervalSeries series = new XYIntervalSeries("Series");
+  // for (int i = 0; i < x.size(); i++) {
+  // double xv = x.getAsDouble(i);
+  // double yv = y.getAsDouble(i);
+  // double ev = e.getAsDouble(i);
+  // series.add(xv, xv, xv, yv, yv - ev, yv + ev);
+  // }
+  // collection.addSeries(series);
+  //
+  // NumberAxis xAxis = new NumberAxis(xlabel);
+  // NumberAxis yAxis = new NumberAxis(ylabel);
+  // XYErrorRenderer renderer = new XYErrorRenderer();
+  // renderer.setBaseLinesVisible(true);
+  // renderer.setBaseShapesVisible(false);
+  // XYPlot plot = new XYPlot(collection, xAxis, yAxis, renderer);
+  //
+  // JFreeChart chart = new JFreeChart(null, plot);
+  // return Chartable.applyTheme(chart);
+  // }
 }

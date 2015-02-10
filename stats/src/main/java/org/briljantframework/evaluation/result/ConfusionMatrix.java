@@ -3,27 +3,10 @@ package org.briljantframework.evaluation.result;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
-import org.briljantframework.chart.Chartable;
 import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.SymbolAxis;
-import org.jfree.chart.plot.*;
-import org.jfree.chart.renderer.GrayPaintScale;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.xy.XYBlockRenderer;
-import org.jfree.chart.title.PaintScaleLegend;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.xy.DefaultXYZDataset;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.RectangleInsets;
 
 import com.google.common.base.Strings;
 
@@ -47,10 +30,10 @@ import com.google.common.base.Strings;
  * 
  * Created by isak on 02/10/14.
  */
-public class ConfusionMatrix implements Chartable {
+public class ConfusionMatrix {
 
-  private static final InvertedGrayPaintScale GRAY_PAINT_SCALE = new InvertedGrayPaintScale(0, 1,
-      200);
+  // private static final InvertedGrayPaintScale GRAY_PAINT_SCALE = new InvertedGrayPaintScale(0, 1,
+  // 200);
 
   private final Map<String, Map<String, Double>> matrix;
   private final Set<String> labels;
@@ -280,107 +263,107 @@ public class ConfusionMatrix implements Chartable {
     return builder.toString();
   }
 
-  /**
-   * Gets precision recall chart.
-   *
-   * @return the precision recall chart
-   */
-  public JFreeChart getPrecisionRecallChart() {
-    return Chartable.create("Average precision and recall", getPlot());
-
-  }
-
-  @Override
-  public JFreeChart getChart() {
-    List<String> labels = new ArrayList<>(getLabels());
-    DefaultXYZDataset dataset = new DefaultXYZDataset();
-
-    double[] x = new double[labels.size() * labels.size()];
-    double[] y = new double[labels.size() * labels.size()];
-    double[] z = new double[labels.size() * labels.size()];
-
-    for (int i = 0; i < labels.size(); i++) {
-      for (int j = 0; j < labels.size(); j++) {
-        double zz = get(labels.get(i), labels.get(j)) / getActual(labels.get(j));
-        x[j * labels.size() + i] = i;
-        y[j * labels.size() + i] = j;
-        z[j * labels.size() + i] = zz;
-      }
-    }
-    dataset.addSeries("Class Labels", new double[][] {x, y, z});
-    XYBlockRenderer block = new XYBlockRenderer();
-    block.setPaintScale(GRAY_PAINT_SCALE);
-    String[] labelArray = labels.stream().toArray(String[]::new);
-
-    SymbolAxis predicted = new SymbolAxis("Predicted class label", labelArray);
-    predicted.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-    predicted.setLowerMargin(0.0D);
-    predicted.setUpperMargin(0.0D);
-    predicted.setAxisLinePaint(Color.white);
-    predicted.setTickMarkPaint(Color.white);
-
-
-    SymbolAxis actual = new SymbolAxis("Actual class label", labelArray);
-    actual.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-    actual.setLowerMargin(0.0D);
-    actual.setUpperMargin(0.0D);
-    actual.setAxisLinePaint(Color.white);
-    actual.setTickMarkPaint(Color.white);
-    actual.setInverted(true);
-
-    NumberAxis scale = new NumberAxis("Fraction");
-    scale.setAxisLinePaint(Color.white);
-    scale.setTickMarkPaint(Color.white);
-    scale.setTickLabelFont(new Font(Font.SANS_SERIF, 0, 7));
-
-
-    XYPlot plot = new XYPlot(dataset, predicted, actual, block);
-    plot.setAxisOffset(new RectangleInsets(5D, 5D, 5D, 5D));
-
-    JFreeChart chart = Chartable.create("Confusion Matrix", plot);
-    chart.removeLegend();
-
-    PaintScaleLegend paintscalelegend = new PaintScaleLegend(GRAY_PAINT_SCALE, scale);
-    paintscalelegend.setStripOutlineVisible(false);
-    paintscalelegend.setSubdivisionCount(20);
-    paintscalelegend.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
-    paintscalelegend.setAxisOffset(5D);
-    paintscalelegend.setMargin(new RectangleInsets(2D, 2D, 2D, 2D));
-    paintscalelegend.setPadding(new RectangleInsets(5D, 5D, 5D, 5D));
-    paintscalelegend.setStripWidth(10D);
-    paintscalelegend.setPosition(RectangleEdge.RIGHT);
-    chart.addSubtitle(paintscalelegend);
-    return Chartable.applyTheme(chart);
-  }
-
-  @Override
-  public Plot getPlot() {
-    CombinedDomainCategoryPlot c = new CombinedDomainCategoryPlot();
-
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    for (String label : getLabels()) {
-      dataset.addValue(getPrecision(label), "Precision", label);
-    }
-    c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Precision"),
-        new BarRenderer()));
-
-    dataset = new DefaultCategoryDataset();
-    for (String label : getLabels()) {
-      dataset.addValue(getRecall(label), "Recall", label);
-    }
-    c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Recall"),
-        new BarRenderer()));
-
-    dataset = new DefaultCategoryDataset();
-    for (String label : getLabels()) {
-      dataset.addValue(getFMeasure(label, 2), "F-measure", label);
-    }
-    c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("F-measure"),
-        new BarRenderer()));
-    c.setOrientation(PlotOrientation.HORIZONTAL);
-
-    return c;
-  }
+  // /**
+  // * Gets precision recall chart.
+  // *
+  // * @return the precision recall chart
+  // */
+  // public JFreeChart getPrecisionRecallChart() {
+  // return Chartable.create("Average precision and recall", getPlot());
+  //
+  // }
+  //
+  // @Override
+  // public JFreeChart getChart() {
+  // List<String> labels = new ArrayList<>(getLabels());
+  // DefaultXYZDataset dataset = new DefaultXYZDataset();
+  //
+  // double[] x = new double[labels.size() * labels.size()];
+  // double[] y = new double[labels.size() * labels.size()];
+  // double[] z = new double[labels.size() * labels.size()];
+  //
+  // for (int i = 0; i < labels.size(); i++) {
+  // for (int j = 0; j < labels.size(); j++) {
+  // double zz = get(labels.get(i), labels.get(j)) / getActual(labels.get(j));
+  // x[j * labels.size() + i] = i;
+  // y[j * labels.size() + i] = j;
+  // z[j * labels.size() + i] = zz;
+  // }
+  // }
+  // dataset.addSeries("Class Labels", new double[][] {x, y, z});
+  // XYBlockRenderer block = new XYBlockRenderer();
+  // block.setPaintScale(GRAY_PAINT_SCALE);
+  // String[] labelArray = labels.stream().toArray(String[]::new);
+  //
+  // SymbolAxis predicted = new SymbolAxis("Predicted class label", labelArray);
+  // predicted.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+  // predicted.setLowerMargin(0.0D);
+  // predicted.setUpperMargin(0.0D);
+  // predicted.setAxisLinePaint(Color.white);
+  // predicted.setTickMarkPaint(Color.white);
+  //
+  //
+  // SymbolAxis actual = new SymbolAxis("Actual class label", labelArray);
+  // actual.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+  // actual.setLowerMargin(0.0D);
+  // actual.setUpperMargin(0.0D);
+  // actual.setAxisLinePaint(Color.white);
+  // actual.setTickMarkPaint(Color.white);
+  // actual.setInverted(true);
+  //
+  // NumberAxis scale = new NumberAxis("Fraction");
+  // scale.setAxisLinePaint(Color.white);
+  // scale.setTickMarkPaint(Color.white);
+  // scale.setTickLabelFont(new Font(Font.SANS_SERIF, 0, 7));
+  //
+  //
+  // XYPlot plot = new XYPlot(dataset, predicted, actual, block);
+  // plot.setAxisOffset(new RectangleInsets(5D, 5D, 5D, 5D));
+  //
+  // JFreeChart chart = Chartable.create("Confusion Matrix", plot);
+  // chart.removeLegend();
+  //
+  // PaintScaleLegend paintscalelegend = new PaintScaleLegend(GRAY_PAINT_SCALE, scale);
+  // paintscalelegend.setStripOutlineVisible(false);
+  // paintscalelegend.setSubdivisionCount(20);
+  // paintscalelegend.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
+  // paintscalelegend.setAxisOffset(5D);
+  // paintscalelegend.setMargin(new RectangleInsets(2D, 2D, 2D, 2D));
+  // paintscalelegend.setPadding(new RectangleInsets(5D, 5D, 5D, 5D));
+  // paintscalelegend.setStripWidth(10D);
+  // paintscalelegend.setPosition(RectangleEdge.RIGHT);
+  // chart.addSubtitle(paintscalelegend);
+  // return Chartable.applyTheme(chart);
+  // }
+  //
+  // @Override
+  // public Plot getPlot() {
+  // CombinedDomainCategoryPlot c = new CombinedDomainCategoryPlot();
+  //
+  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  // for (String label : getLabels()) {
+  // dataset.addValue(getPrecision(label), "Precision", label);
+  // }
+  // c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Precision"),
+  // new BarRenderer()));
+  //
+  // dataset = new DefaultCategoryDataset();
+  // for (String label : getLabels()) {
+  // dataset.addValue(getRecall(label), "Recall", label);
+  // }
+  // c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Recall"),
+  // new BarRenderer()));
+  //
+  // dataset = new DefaultCategoryDataset();
+  // for (String label : getLabels()) {
+  // dataset.addValue(getFMeasure(label, 2), "F-measure", label);
+  // }
+  // c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("F-measure"),
+  // new BarRenderer()));
+  // c.setOrientation(PlotOrientation.HORIZONTAL);
+  //
+  // return c;
+  // }
 
   /**
    * Gets actual.
@@ -396,27 +379,27 @@ public class ConfusionMatrix implements Chartable {
     return sum;
   }
 
-  /**
-   * Inverts the GrayScalePaint, i.e., the largest getPosteriorProbabilities become black, and the
-   * smallest becomes white
-   */
-  private static class InvertedGrayPaintScale extends GrayPaintScale {
-
-    private InvertedGrayPaintScale(double lowerBound, double upperBound, int alpha) {
-      super(lowerBound, upperBound, alpha);
-    }
-
-    @Override
-    public Paint getPaint(double value) {
-      Paint s = super.getPaint(value);
-      if (s instanceof Color) {
-        return invert((Color) s);
-      }
-      return s;
-    }
-
-    private Paint invert(Color s) {
-      return new Color(255 - s.getRed(), 255 - s.getGreen(), 255 - s.getBlue(), s.getAlpha());
-    }
-  }
+  // /**
+  // * Inverts the GrayScalePaint, i.e., the largest getPosteriorProbabilities become black, and the
+  // * smallest becomes white
+  // */
+  // private static class InvertedGrayPaintScale extends GrayPaintScale {
+  //
+  // private InvertedGrayPaintScale(double lowerBound, double upperBound, int alpha) {
+  // super(lowerBound, upperBound, alpha);
+  // }
+  //
+  // @Override
+  // public Paint getPaint(double value) {
+  // Paint s = super.getPaint(value);
+  // if (s instanceof Color) {
+  // return invert((Color) s);
+  // }
+  // return s;
+  // }
+  //
+  // private Paint invert(Color s) {
+  // return new Color(255 - s.getRed(), 255 - s.getGreen(), 255 - s.getBlue(), s.getAlpha());
+  // }
+  // }
 }

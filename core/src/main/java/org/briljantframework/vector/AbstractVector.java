@@ -1,7 +1,11 @@
 package org.briljantframework.vector;
 
+import java.util.Iterator;
+
+import com.google.common.collect.UnmodifiableIterator;
+
 /**
- * Created by isak on 1/21/15.
+ * @author Isak Karlsson
  */
 public abstract class AbstractVector implements Vector {
 
@@ -22,6 +26,23 @@ public abstract class AbstractVector implements Vector {
       builder.add(this, i);
     }
     return builder;
+  }
+
+  @Override
+  public Iterator<Value> iterator() {
+    return new UnmodifiableIterator<Value>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Value next() {
+        return getAsValue(current++);
+      }
+    };
   }
 
   @Override

@@ -1,17 +1,13 @@
 package org.briljantframework.vector;
 
-import java.util.Iterator;
-
 import org.briljantframework.matrix.DefaultIntMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
-import com.google.common.collect.UnmodifiableIterator;
-
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractIntVector extends AbstractVector implements Iterable<Integer> {
+public abstract class AbstractIntVector extends AbstractVector {
   /**
    * The constant NA.
    */
@@ -114,22 +110,5 @@ public abstract class AbstractIntVector extends AbstractVector implements Iterab
   @Override
   public int compare(int a, int b, Vector other) {
     return getAsInt(a) - other.getAsInt(b);
-  }
-
-  @Override
-  public Iterator<Integer> iterator() {
-    return new UnmodifiableIterator<Integer>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Integer next() {
-        return getAsInt(current++);
-      }
-    };
   }
 }

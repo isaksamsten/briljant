@@ -1,11 +1,12 @@
 package org.briljantframework.vector;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.briljantframework.io.DataEntry;
-
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * A StringVector contains string values or NA.
@@ -38,23 +39,6 @@ public class StringVector extends AbstractStringVector {
     Builder builder = new Builder(0, values.length);
     builder.addAll(Arrays.asList(values));
     return builder;
-  }
-
-  @Override
-  public Iterator<String> iterator() {
-    return new UnmodifiableIterator<String>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public String next() {
-        return getAsString(current++);
-      }
-    };
   }
 
   @Override

@@ -1,18 +1,15 @@
 package org.briljantframework.vector;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
-import com.google.common.collect.UnmodifiableIterator;
-
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
-public abstract class AbstractDoubleVector extends AbstractVector implements Iterable<Double> {
+public abstract class AbstractDoubleVector extends AbstractVector {
   public static final VectorType TYPE = new VectorType() {
     @Override
     public DoubleVector.Builder newBuilder() {
@@ -143,22 +140,5 @@ public abstract class AbstractDoubleVector extends AbstractVector implements Ite
       return true;
     }
     return false;
-  }
-
-  @Override
-  public Iterator<Double> iterator() {
-    return new UnmodifiableIterator<Double>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Double next() {
-        return getAsDouble(current++);
-      }
-    };
   }
 }

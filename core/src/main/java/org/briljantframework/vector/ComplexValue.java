@@ -1,11 +1,8 @@
 package org.briljantframework.vector;
 
-import java.util.Iterator;
-
 import org.briljantframework.complex.Complex;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -15,6 +12,10 @@ public class ComplexValue extends AbstractComplexVector implements Value {
 
   public ComplexValue(Complex complex) {
     this.complex = Preconditions.checkNotNull(complex);
+  }
+
+  public static Value valueOf(Complex complex) {
+    return complex == NA ? Undefined.INSTANCE : new ComplexValue(complex);
   }
 
   @Override
@@ -72,14 +73,5 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   @Override
   public Builder newBuilder(int size) {
     return null;
-  }
-
-  @Override
-  public Iterator<Complex> iterator() {
-    return Iterators.singletonIterator(complex);
-  }
-
-  public static Value valueOf(Complex complex) {
-    return complex == NA ? Undefined.INSTANCE : new ComplexValue(complex);
   }
 }

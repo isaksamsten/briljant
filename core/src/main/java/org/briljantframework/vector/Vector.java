@@ -2,6 +2,8 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
@@ -18,7 +20,7 @@ import org.briljantframework.matrix.Matrix;
  *
  * @author Isak Karlsson
  */
-public interface Vector extends Serializable {
+public interface Vector extends Serializable, Iterable<Value> {
 
   /**
    * Returns value as {@link org.briljantframework.vector.Value}.
@@ -228,6 +230,10 @@ public interface Vector extends Serializable {
    */
   default double[] asDoubleArray() {
     return toDoubleArray();
+  }
+
+  default Stream<Value> stream() {
+    return StreamSupport.stream(spliterator(), false);
   }
 
   /**

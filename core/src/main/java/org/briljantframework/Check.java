@@ -1,7 +1,13 @@
-package org.briljantframework.matrix;
+package org.briljantframework;
+
+import java.util.Set;
 
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
+import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Created by Isak Karlsson on 12/01/15.
@@ -86,4 +92,47 @@ public final class Check {
     }
   }
 
+  public static void requireType(VectorType type, Vector vector) throws TypeConversionException {
+    requireType(type, vector.getType());
+  }
+
+  public static void requireType(VectorType expected, VectorType actual)
+      throws TypeConversionException {
+    if (!expected.equals(actual)) {
+      throw new TypeConversionException(String.format("Require type %s but got %s", expected,
+          actual));
+    }
+  }
+
+  public static void requireType(Set<VectorType> expected, VectorType actual)
+      throws TypeConversionException {
+    if (!expected.contains(actual)) {
+      throw new TypeConversionException(String.format("Require type %s but got %s", expected,
+          actual));
+    }
+  }
+
+  public static void size(Vector x, Vector y) {
+    if (x.size() != y.size()) {
+      throw new SizeMismatchException(x.size(), y.size());
+    }
+  }
+
+  public static void size(int actual, Vector x) {
+    if (actual != x.size()) {
+      throw new SizeMismatchException(actual, x.size());
+    }
+  }
+
+  /**
+   * @param x one vector
+   * @param y the other vector
+   * @param message the message; 2 {@code %d}
+   * @throws org.briljantframework.exceptions.SizeMismatchException if {@code x.size() != y.size()}
+   */
+  public static void size(Vector x, Vector y, String message) throws SizeMismatchException {
+    if (x.size() != y.size()) {
+      throw new SizeMismatchException(message, x.size(), y.size());
+    }
+  }
 }

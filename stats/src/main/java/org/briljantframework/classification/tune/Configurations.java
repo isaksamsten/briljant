@@ -17,27 +17,11 @@
 package org.briljantframework.classification.tune;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.briljantframework.Utils;
-import org.briljantframework.chart.Chartable;
 import org.briljantframework.evaluation.ClassificationEvaluator;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
-import org.briljantframework.evaluation.result.ErrorRate;
 import org.briljantframework.evaluation.result.Measure;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
@@ -45,7 +29,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * The type Configurations.
  */
-public class Configurations implements Iterable<Configuration>, Chartable {
+public class Configurations implements Iterable<Configuration> {
   private final List<Configuration> configurations;
   private final ClassificationEvaluator evaluator;
 
@@ -177,69 +161,69 @@ public class Configurations implements Iterable<Configuration>, Chartable {
     return out.toString();
   }
 
-  /**
-   * Gets plot for parameter.
-   *
-   * @param key the key
-   * @return the plot for parameter
-   */
-  public Plot getPlotForParameter(String key, Class<? extends Measure> metricKey) {
-    Map<Number, Double> map = new HashMap<>();
-    for (Configuration configuration : configurations) {
-      Measure measure = configuration.getMetric(metricKey);
-      double average = measure.getAverage(Measure.Sample.OUT);
-      Number param = (Number) configuration.get(key);
-      map.compute(param, (k, v) -> v == null ? average : v + average);
-    }
-
-    XYSeriesCollection collection = new XYSeriesCollection();
-    XYSeries series = new XYSeries(configurations.get(0).getMetric(metricKey).getName(), true);
-
-    int noParams = getParameters().size();
-    for (Map.Entry<Number, Double> entry : map.entrySet()) {
-      series.add(entry.getKey(), entry.getValue() / noParams);
-    }
-    collection.addSeries(series);
-
-
-    NumberAxis xAxis = new NumberAxis(key + " value");
-    xAxis.setAutoRangeIncludesZero(false);
-
-    return new XYPlot(collection, xAxis, new NumberAxis(configurations.get(0).getMetric(metricKey)
-        .getName()), new XYLineAndShapeRenderer());
-  }
-
-  public JFreeChart getChartForParameter(String key, Class<? extends Measure> metric) {
-    JFreeChart chart = new JFreeChart("Configurations", getPlotForParameter(key, metric));
-    ChartFactory.getChartTheme().apply(chart);
-    return chart;
-  }
-
-  @Override
-  public JFreeChart getChart() {
-    JFreeChart chart = new JFreeChart("Configurations", getPlot());
-    ChartFactory.getChartTheme().apply(chart);
-    return chart;
-  }
-
-  @Override
-  public Plot getPlot() {
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    for (Configuration configuration : configurations) {
-      dataset.addValue(configuration.getAverage(ErrorRate.class), "Error", configuration.entries()
-          .stream().map(kv -> kv.getKey() + ":" + kv.getValue()).collect(Collectors.joining(","))
-
-      );
-    }
-
-    NumberAxis numberAxis = new NumberAxis("Error");
-    CategoryAxis categoryAxis = new CategoryAxis();
-    categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
-    BarRenderer barRenderer = new BarRenderer();
-    barRenderer.setSeriesToolTipGenerator(0,
-        (dataset1, row, column) -> (String) dataset1.getColumnKey(column));
-
-    return new CategoryPlot(dataset, categoryAxis, numberAxis, barRenderer);
-  }
+  // /**
+  // * Gets plot for parameter.
+  // *
+  // * @param key the key
+  // * @return the plot for parameter
+  // */
+  // public Plot getPlotForParameter(String key, Class<? extends Measure> metricKey) {
+  // Map<Number, Double> map = new HashMap<>();
+  // for (Configuration configuration : configurations) {
+  // Measure measure = configuration.getMetric(metricKey);
+  // double average = measure.getAverage(Measure.Sample.OUT);
+  // Number param = (Number) configuration.get(key);
+  // map.compute(param, (k, v) -> v == null ? average : v + average);
+  // }
+  //
+  // XYSeriesCollection collection = new XYSeriesCollection();
+  // XYSeries series = new XYSeries(configurations.get(0).getMetric(metricKey).getName(), true);
+  //
+  // int noParams = getParameters().size();
+  // for (Map.Entry<Number, Double> entry : map.entrySet()) {
+  // series.add(entry.getKey(), entry.getValue() / noParams);
+  // }
+  // collection.addSeries(series);
+  //
+  //
+  // NumberAxis xAxis = new NumberAxis(key + " value");
+  // xAxis.setAutoRangeIncludesZero(false);
+  //
+  // return new XYPlot(collection, xAxis, new NumberAxis(configurations.get(0).getMetric(metricKey)
+  // .getName()), new XYLineAndShapeRenderer());
+  // }
+  //
+  // public JFreeChart getChartForParameter(String key, Class<? extends Measure> metric) {
+  // JFreeChart chart = new JFreeChart("Configurations", getPlotForParameter(key, metric));
+  // ChartFactory.getChartTheme().apply(chart);
+  // return chart;
+  // }
+  //
+  // @Override
+  // public JFreeChart getChart() {
+  // JFreeChart chart = new JFreeChart("Configurations", getPlot());
+  // ChartFactory.getChartTheme().apply(chart);
+  // return chart;
+  // }
+  //
+  // @Override
+  // public Plot getPlot() {
+  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  // for (Configuration configuration : configurations) {
+  // dataset.addValue(configuration.getAverage(ErrorRate.class), "Error", configuration.entries()
+  // .stream().map(kv -> kv.getKey() + ":" + kv.getValue()).collect(Collectors.joining(","))
+  //
+  // );
+  // }
+  //
+  // NumberAxis numberAxis = new NumberAxis("Error");
+  // CategoryAxis categoryAxis = new CategoryAxis();
+  // categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);
+  // BarRenderer barRenderer = new BarRenderer();
+  // barRenderer.setSeriesToolTipGenerator(0,
+  // (dataset1, row, column) -> (String) dataset1.getColumnKey(column));
+  //
+  // return new CategoryPlot(dataset, categoryAxis, numberAxis, barRenderer);
+  // }
 
 }

@@ -1,9 +1,6 @@
 package org.briljantframework.vector;
 
-import java.util.Iterator;
-
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -21,11 +18,6 @@ public class StringValue extends AbstractStringVector implements Value {
       return Undefined.INSTANCE;
     }
     return new StringValue(value1);
-  }
-
-  @Override
-  public Iterator<String> iterator() {
-    return Iterators.singletonIterator(value);
   }
 
   @Override

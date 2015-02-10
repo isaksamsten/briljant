@@ -14,7 +14,7 @@ import com.google.common.base.Preconditions;
 /**
  * Created by Isak Karlsson on 26/11/14.
  */
-public class ValueVector implements VariableVector {
+public class ValueVector extends AbstractVector implements VariableVector {
 
   private final List<? extends Value> values;
 

@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.matrix.storage.Storage;
 

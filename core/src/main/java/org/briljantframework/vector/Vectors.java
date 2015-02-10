@@ -7,6 +7,7 @@ import java.util.*;
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 
+import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
 
@@ -14,6 +15,17 @@ import com.google.common.primitives.Ints;
  * @author Isak Karlsson
  */
 public final class Vectors {
+
+  public static final Set<VectorType> NUMERIC = Sets.newIdentityHashSet();
+  public static final Set<VectorType> CATEGORIC = Sets.newIdentityHashSet();
+  static {
+    NUMERIC.add(DoubleVector.TYPE);
+    NUMERIC.add(IntVector.TYPE);
+    NUMERIC.add(ComplexVector.TYPE);
+
+    CATEGORIC.add(StringVector.TYPE);
+    CATEGORIC.add(BitVector.TYPE);
+  }
 
   private Vectors() {}
 
@@ -253,7 +265,7 @@ public final class Vectors {
    * @return the inner product
    */
   public static double dot(Vector x, double alpha, Vector y, double beta) {
-    Check.size(x, y);
+    org.briljantframework.Check.size(x, y);
     int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {

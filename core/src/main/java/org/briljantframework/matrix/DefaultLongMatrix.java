@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import org.briljantframework.Check;
 import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 

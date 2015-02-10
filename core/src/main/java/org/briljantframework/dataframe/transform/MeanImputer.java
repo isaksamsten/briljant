@@ -16,32 +16,21 @@
 
 package org.briljantframework.dataframe.transform;
 
-import java.util.Set;
-
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.exceptions.TypeMismatchException;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.IntVector;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.VectorType;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import org.briljantframework.vector.Vectors;
 
 /**
  * @author Isak Karlsson
  */
 public class MeanImputer implements Transformer {
 
-  private static final Set<VectorType> ALLOWED_TYPES = Sets.newIdentityHashSet();
-  static {
-    ALLOWED_TYPES.add(DoubleVector.TYPE);
-    ALLOWED_TYPES.add(IntVector.TYPE);
-  }
-
   @Override
   public Transformation fit(DataFrame frame) {
-    double[] means = new double[frame.columns()];
+    DoubleMatrix means = Matrices.newDoubleVector(frame.columns());
 
     for (int j = 0; j < frame.columns(); j++) {
       double mean = 0.0;
@@ -53,7 +42,7 @@ public class MeanImputer implements Transformer {
           rows += 1;
         }
       }
-      means[j] = mean / rows;
+      means.set(j, mean / rows);
     }
 
     return new MeanImputation(means);
@@ -61,25 +50,21 @@ public class MeanImputer implements Transformer {
 
   private static class MeanImputation implements Transformation {
 
-    private final double[] means;
+    private final DoubleMatrix means;
 
-    private MeanImputation(double[] means) {
+    private MeanImputation(DoubleMatrix means) {
       this.means = means;
     }
 
     @Override
     public DataFrame transform(DataFrame x) {
-      Preconditions.checkArgument(x.columns() == means.length);
-
-      DataFrame.Builder builder = x.newCopyBuilder();
+      Check.size(x.columns(), means);
+      DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        if (!ALLOWED_TYPES.contains(x.getColumnType(j))) {
-          throw new TypeMismatchException(DoubleVector.TYPE, x.getColumnType(j));
-        }
-
+        Check.requireType(Vectors.NUMERIC, x.getColumnType(j));
         for (int i = 0; i < x.rows(); i++) {
           if (x.isNA(i, j)) {
-            builder.set(i, j, means[j]);
+            builder.set(i, j, means.get(j));
           }
         }
       }

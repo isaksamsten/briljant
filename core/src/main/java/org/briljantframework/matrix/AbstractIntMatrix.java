@@ -9,6 +9,7 @@ import java.util.function.*;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;

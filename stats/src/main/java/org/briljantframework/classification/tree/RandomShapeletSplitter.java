@@ -23,6 +23,8 @@ import java.util.Random;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
@@ -264,8 +266,10 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
     List<String> presentTargets = examples.getTargets();
-    double[] ltRelativeFrequency = new double[presentTargets.size()];
-    double[] gtRelativeFrequency = new double[presentTargets.size()];
+    DoubleMatrix ltRelativeFrequency = Matrices.newDoubleVector(presentTargets.size());
+    DoubleMatrix gtRelativeFrequency = Matrices.newDoubleVector(presentTargets.size());
+
+
 
     double ltWeight = 0.0, gtWeight = 0.0;
 
@@ -309,8 +313,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
         // Generate the relative frequency distribution
         for (int j = 0; j < presentTargets.size(); j++) {
           String presentTarget = presentTargets.get(j);
-          ltRelativeFrequency[j] = ltWeight != 0 ? lt.get(presentTarget) / ltWeight : 0;
-          gtRelativeFrequency[j] = gtWeight != 0 ? gt.get(presentTarget) / gtWeight : 0;
+          ltRelativeFrequency.set(j, ltWeight != 0 ? lt.get(presentTarget) / ltWeight : 0);
+          gtRelativeFrequency.set(j, gtWeight != 0 ? gt.get(presentTarget) / gtWeight : 0);
         }
 
         // If this split is better, update the threshold
