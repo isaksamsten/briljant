@@ -33,9 +33,6 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
    */
   IntMatrix assign(IntSupplier supplier);
 
-
-  IntMatrix assign(IntUnaryOperator operator);
-
   /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
    * {@code this.getShape()}.
@@ -56,7 +53,7 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   /**
    * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
    * {@code this} and {@code matrix}
-   * 
+   *
    * @param matrix the matrix
    * @param combine the combiner
    * @return receiver modified
@@ -70,6 +67,8 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   IntMatrix assign(LongMatrix matrix, LongToIntFunction operator);
 
   IntMatrix assign(BitMatrix matrix, ToIntIntObjBiFunction<Boolean> function);
+
+  IntMatrix update(IntUnaryOperator operator);
 
   // Transform
 

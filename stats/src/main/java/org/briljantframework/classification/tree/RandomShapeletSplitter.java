@@ -126,7 +126,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
     for (int i = 0; i < maxShapelets; i++) {
-      Vector timeSeries = x.getRow(examples.getRandomSample().getRandomExample().getIndex());
+      Vector timeSeries = x.getRecord(examples.getRandomSample().getRandomExample().getIndex());
       int length = random.nextInt(upper) + lower;
       int start = random.nextInt(timeSeriesLength - length);
       shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
@@ -189,7 +189,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     List<ExampleDistance> exampleDistances = new ArrayList<>();
     double distanceSum = 0.0;
     for (Example example : examples) {
-      double distance = getDistanceMetric().distance(x.getRow(example.getIndex()), shapelet);
+      double distance = getDistanceMetric().distance(x.getRecord(example.getIndex()), shapelet);
       distanceSum += distance;
 
       exampleDistances.add(ExampleDistance.create(distance, example));

@@ -1,6 +1,6 @@
 package org.briljantframework.dataseries;
 
-import org.briljantframework.dataframe.DataFrameRow;
+import org.briljantframework.dataframe.Record;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
@@ -12,7 +12,7 @@ import org.briljantframework.vector.VectorType;
  * 
  * @author Isak Karlsson
  */
-public class DataSeries implements DataFrameRow {
+public class DataSeries implements Record {
   private final Vector vector;
 
   public DataSeries(Vector vector) {

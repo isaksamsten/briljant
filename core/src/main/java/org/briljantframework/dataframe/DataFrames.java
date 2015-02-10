@@ -74,7 +74,7 @@ public final class DataFrames {
    * terms, for randomly shuffling the finite set.
    * <p>
    * Requires that {@link DataFrame#newCopyBuilder()} returns a copy and that
-   * {@link DataFrame.Builder#swapRows(int, int)} swaps rows at indexes.
+   * {@link DataFrame.Builder#swapRecords(int, int)} swaps rows at indexes.
    *
    * @param in the input {@code DataFrame}
    * @param random the random number generator used
@@ -83,13 +83,14 @@ public final class DataFrames {
   public static DataFrame permuteRows(DataFrame in, Random random) {
     DataFrame.Builder builder = in.newCopyBuilder();
     for (int i = builder.rows(); i > 1; i--) {
-      builder.swapRows(i - 1, random.nextInt(i));
+      builder.swapRecords(i - 1, random.nextInt(i));
     }
     return builder.build();
   }
 
   /**
-   * Same as {@link #permuteRows(DataFrame, java.util.Random)} with a static random number generator.
+   * Same as {@link #permuteRows(DataFrame, java.util.Random)} with a static random number
+   * generator.
    * 
    * @param in the input data frame
    * @return a permuted copy of {@code in}
@@ -145,7 +146,7 @@ public final class DataFrames {
         builder = dataframe.newBuilder();
         builders.put(key, builder);
       }
-      builder.addRow(dataframe.getRow(i));
+      builder.addRecord(dataframe.getRecord(i));
     }
 
     Map<Value, DataFrame> frame = new HashMap<>();
@@ -244,7 +245,7 @@ public final class DataFrames {
 
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {
       // b.put(i + 1, 0, String.format("[%d,] ", i));
-      String rowName = dataFrame.getRowName(i);
+      String rowName = dataFrame.getRecordName(i);
       b.put(i + 1, 0, rowName == null ? " " : rowName + " ");
       for (int j = 0; j < dataFrame.columns(); j++) {
         b.put(i + 1, j + 1, dataFrame.toString(i, j));

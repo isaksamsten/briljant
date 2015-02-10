@@ -179,8 +179,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrameRow getRow(int index) {
-    return new DataFrameRowView(this, index, DoubleVector.TYPE);
+  public Record getRecord(int index) {
+    return new RecordView(this, index, DoubleVector.TYPE);
   }
 
   /**

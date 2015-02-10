@@ -32,14 +32,6 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
   LongMatrix assign(LongSupplier supplier);
 
   /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  LongMatrix assign(LongUnaryOperator operator);
-
-  /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
    * {@code this.getShape()}.
    *
@@ -64,6 +56,14 @@ public interface LongMatrix extends Matrix, Iterable<Long> {
   LongMatrix assign(IntMatrix matrix, IntToLongFunction operator);
 
   LongMatrix assign(DoubleMatrix matrix, DoubleToLongFunction function);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   * @return receiver modified
+   */
+  LongMatrix update(LongUnaryOperator operator);
 
   // Transform
 

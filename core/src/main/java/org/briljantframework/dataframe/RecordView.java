@@ -10,19 +10,19 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 26/11/14.
  */
-public class DataFrameRowView implements DataFrameRow {
+public class RecordView implements Record {
 
   private final DataFrame parent;
   private final int row;
   private final VectorType type;
 
-  public DataFrameRowView(DataFrame parent, int row, VectorType type) {
+  public RecordView(DataFrame parent, int row, VectorType type) {
     this.parent = parent;
     this.type = type;
     this.row = row;
   }
 
-  public DataFrameRowView(DataFrame parent, int row) {
+  public RecordView(DataFrame parent, int row) {
     this(parent, row, VariableVector.TYPE);
   }
 

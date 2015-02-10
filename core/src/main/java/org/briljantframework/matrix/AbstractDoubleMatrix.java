@@ -172,6 +172,26 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
+  public void update(int i, DoubleUnaryOperator update) {
+    set(i, update.applyAsDouble(get(i)));
+  }
+
+  @Override
+  public void update(int i, int j, DoubleUnaryOperator update) {
+    set(i, j, update.applyAsDouble(get(i, j)));
+  }
+
+  @Override
+  public void addTo(int i, double value) {
+    set(i, get(i) + value);
+  }
+
+  @Override
+  public void addTo(int i, int j, double value) {
+    set(i, j, get(i, j) + value);
+  }
+
+  @Override
   public void setRow(int index, DoubleMatrix row) {
     Check.size(columns(), row);
     for (int j = 0; j < columns(); j++) {
@@ -252,7 +272,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public DoubleMatrix assign(DoubleUnaryOperator operator) {
+  public DoubleMatrix update(DoubleUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsDouble(get(i)));
     }

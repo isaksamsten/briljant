@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.DataFrameRow;
 import org.briljantframework.dataframe.NameAttribute;
+import org.briljantframework.dataframe.Record;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.*;
@@ -143,7 +143,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     Set<Integer> set = Sets.newHashSet(indexes);
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
-      Vector row = getRow(i);
+      Vector row = getRecord(i);
       Vector.Builder vecBuilder = row.newBuilder();
       for (int j = 0; j < row.size(); j++) {
         if (!set.contains(j)) {
@@ -152,7 +152,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
           builder.getColumnNames().remove(j);
         }
       }
-      builder.addRow(vecBuilder);
+      builder.addRecord(vecBuilder);
     }
     return builder.build();
   }
@@ -203,7 +203,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public DataSeries getRow(int index) {
+  public DataSeries getRecord(int index) {
     return new DataSeries(series.get(index));
   }
 
@@ -243,7 +243,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
       // If the source row does not contain the source column requested
       // silently ignore the value. This is the case since data series
       // can be of unequal lengths.
-      DataFrameRow row = from.getRow(fromRow);
+      Record row = from.getRecord(fromRow);
       if (fromCol < row.size()) {
         builders.get(toRow).set(toCol, row, fromCol);
       }
@@ -323,7 +323,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder swapRows(int a, int b) {
+    public DataFrame.Builder swapRecords(int a, int b) {
       Collections.swap(builders, a, b);
       rowNames.swap(a, b);
       return this;
@@ -337,27 +337,27 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public Builder setRow(int index, Vector.Builder builder) {
+    public Builder setRecord(int index, Vector.Builder builder) {
       ensureCapacity(index);
       builders.set(index, builder);
       return this;
     }
 
     @Override
-    public DataFrame.Builder setRow(int index, Vector vector) {
-      return setRow(index, vector.newCopyBuilder());
+    public DataFrame.Builder setRecord(int index, Vector vector) {
+      return setRecord(index, vector.newCopyBuilder());
     }
 
     @Override
-    public Builder addRow(Vector.Builder row) {
+    public Builder addRecord(Vector.Builder row) {
       builders.add(row);
       return this;
     }
 
     @Override
-    public Builder addRow(Vector vector) {
+    public Builder addRecord(Vector vector) {
       Check.requireType(type, vector);
-      return addRow(vector.newCopyBuilder());
+      return addRecord(vector.newCopyBuilder());
     }
 
     private void ensureCapacity(int row) {

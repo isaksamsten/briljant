@@ -7,7 +7,7 @@ import org.briljantframework.vector.VariableVector;
  * 
  * @author Isak Karlsson
  */
-public interface DataFrameRow extends VariableVector {
+public interface Record extends VariableVector {
 
   /**
    * Get the column name for the value at {@code index}

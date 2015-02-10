@@ -129,7 +129,7 @@ public class LinearAlgebra {
     DefaultDoubleMatrix rightSingularValues = svd.getRightSingularValues();
     DefaultDoubleMatrix leftSingularValues = svd.getLeftSingularValues();
 
-    diagonal.assign(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
+    diagonal.update(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transpose();
     DoubleMatrix s = rightSingularValues.mmul(diagonal);
     throw new UnsupportedOperationException("must be implemented");

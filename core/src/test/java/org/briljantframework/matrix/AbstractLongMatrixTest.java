@@ -45,7 +45,7 @@ public class AbstractLongMatrixTest {
   @Test
   public void testAssign2() throws Exception {
     LongMatrix m = newLongMatrix(3, 3);
-    m.assign(3).assign(x -> x * 2);
+    m.assign(3).update(x -> x * 2);
     assertMatrixEquals(m, 6);
   }
 
@@ -107,7 +107,7 @@ public class AbstractLongMatrixTest {
   @Test
   public void testMapToDouble() throws Exception {
     DoubleMatrix i = newLongMatrix(3, 3).assign(3).mapToDouble(Math::sqrt);
-    assertMatrixEquals(i, Math.sqrt(3), 0.0001);
+    assertMatrixEquals(Math.sqrt(3), i, 0.0001);
   }
 
   @Test

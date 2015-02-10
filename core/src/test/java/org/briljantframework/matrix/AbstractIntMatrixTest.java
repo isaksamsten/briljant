@@ -31,7 +31,7 @@ public class AbstractIntMatrixTest {
   @Test
   public void testAssign2() throws Exception {
     IntMatrix m = newIntMatrix(3, 3);
-    m.assign(3).assign(x -> x * 2);
+    m.assign(3).update(x -> x * 2);
     assertMatrixEquals(6, m);
   }
 
@@ -93,7 +93,7 @@ public class AbstractIntMatrixTest {
   @Test
   public void testMapToDouble() throws Exception {
     DoubleMatrix i = newIntMatrix(3, 3).assign(3).mapToDouble(Math::sqrt);
-    assertMatrixEquals(i, Math.sqrt(3), 0.0001);
+    assertMatrixEquals(Math.sqrt(3), i, 0.0001);
   }
 
   @Test

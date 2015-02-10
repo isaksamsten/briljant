@@ -29,10 +29,10 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   protected final NameAttribute rowNames;
 
-  private final AbstractCollection<Vector> rowCollection = new AbstractCollection<Vector>() {
+  private final AbstractCollection<Record> rowCollection = new AbstractCollection<Record>() {
     @Override
-    public Iterator<Vector> iterator() {
-      return new UnmodifiableIterator<Vector>() {
+    public Iterator<Record> iterator() {
+      return new UnmodifiableIterator<Record>() {
         public int current;
 
         @Override
@@ -41,8 +41,8 @@ public abstract class AbstractDataFrame implements DataFrame {
         }
 
         @Override
-        public Vector next() {
-          return getRow(current++);
+        public Record next() {
+          return getRecord(current++);
         }
       };
     }
@@ -208,33 +208,33 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public String getRowName(int index) {
+  public String getRecordName(int index) {
     checkArgument(index >= 0 && index < rows());
     return rowNames.getOrDefault(index, () -> String.valueOf(index));
   }
 
   @Override
-  public DataFrame setRowName(int index, String rowName) {
+  public DataFrame setRecordName(int index, String rowName) {
     checkArgument(index >= 0 && index < rows());
     rowNames.put(index, rowName);
     return this;
   }
 
   @Override
-  public DataFrame setRowNames(List<String> names) {
+  public DataFrame setRecordNames(List<String> names) {
     for (int i = 0; i < names.size(); i++) {
-      setRowName(i, names.get(i));
+      setRecordName(i, names.get(i));
     }
     return this;
   }
 
   @Override
-  public VectorType getRowType(int index) {
-    return getRow(index).getType();
+  public VectorType getRecordType(int index) {
+    return getRecord(index).getType();
   }
 
   @Override
-  public Collection<Vector> getRows() {
+  public Collection<Record> getRecords() {
     return rowCollection;
   }
 
@@ -246,8 +246,8 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a view of the row at {@code index}
    */
   @Override
-  public DataFrameRow getRow(int index) {
-    return new DataFrameRowView(this, index);
+  public Record getRecord(int index) {
+    return new RecordView(this, index);
   }
 
   /**
@@ -260,7 +260,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame takeRows(Iterable<Integer> indexes) {
+  public DataFrame takeRecords(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
     for (Number num : indexes) {
       int i = num.intValue();
@@ -282,7 +282,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new DataFrame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame dropRows(Iterable<Integer> indexes) {
+  public DataFrame dropRecords(Iterable<Integer> indexes) {
     Set<Integer> set;
     if (!(indexes instanceof Set)) {
       set = Sets.newHashSet(indexes);
@@ -327,8 +327,8 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a row iterator
    */
   @Override
-  public Iterator<DataFrameRow> iterator() {
-    return new UnmodifiableIterator<DataFrameRow>() {
+  public Iterator<Record> iterator() {
+    return new UnmodifiableIterator<Record>() {
       private int index = 0;
 
       @Override
@@ -337,8 +337,8 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
 
       @Override
-      public DataFrameRow next() {
-        return getRow(index++);
+      public Record next() {
+        return getRecord(index++);
       }
     };
   }
@@ -382,7 +382,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public NameAttribute getRowNames() {
+    public NameAttribute getRecordNames() {
       return rowNames;
     }
 
@@ -415,22 +415,22 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder addRow(Vector.Builder builder) {
-      return addRow(builder.build());
+    public Builder addRecord(Vector.Builder builder) {
+      return addRecord(builder.build());
     }
 
     @Override
-    public Builder addRow(Vector vector) {
-      return setRow(rows(), vector);
+    public Builder addRecord(Vector vector) {
+      return setRecord(rows(), vector);
     }
 
     @Override
-    public Builder setRow(int index, Vector.Builder builder) {
-      return setRow(index, builder.build());
+    public Builder setRecord(int index, Vector.Builder builder) {
+      return setRecord(index, builder.build());
     }
 
     @Override
-    public Builder setRow(int index, Vector vector) {
+    public Builder setRecord(int index, Vector vector) {
       final int columns = columns();
       final int size = vector.size();
       for (int j = 0; j < columns; j++) {
@@ -444,7 +444,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder swapRows(int a, int b) {
+    public Builder swapRecords(int a, int b) {
       for (int i = 0; i < columns(); i++) {
         swapInColumn(i, a, b);
       }

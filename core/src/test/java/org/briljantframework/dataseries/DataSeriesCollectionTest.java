@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.briljantframework.chart.Chartable;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.DataFrameRow;
+import org.briljantframework.dataframe.Record;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.DoubleVector;
@@ -27,9 +27,9 @@ public class DataSeriesCollectionTest {
   @Test
   public void testDropRows() throws Exception {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    builder.addRow(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
-        .addRow(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
-        .addRow(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6));
+    builder.addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
+        .addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
+        .addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6));
 
     DataSeriesCollection collection = builder.build();
     collection.setColumnNames("a", "b", "c");
@@ -37,7 +37,7 @@ public class DataSeriesCollectionTest {
     DataFrame drop = collection.dropColumns(Arrays.asList(0, 1));
 
     assertEquals("b", drop.getColumnName(0));
-    for (DataFrameRow row : drop) {
+    for (Record row : drop) {
       assertEquals(3, row.getAsDouble(0), 0.0001);
       assertEquals(4, row.getAsDouble(1), 0.0001);
       assertEquals(5, row.getAsDouble(2), 0.0001);
@@ -63,7 +63,7 @@ public class DataSeriesCollectionTest {
       DataSeriesCollection coll = builder.build();
       System.out.println(coll);
 
-      Vector vec = coll.getRow(0);
+      Vector vec = coll.getRecord(0);
 
       for (Map.Entry<String, Aggregator> entry : resamplers.entrySet()) {
         Vector resampled = entry.getValue().aggregate(vec);
@@ -92,7 +92,7 @@ public class DataSeriesCollectionTest {
     DataSeriesCollection frame = builder.build();
     System.out.println(frame);
 
-    System.out.println(frame.getRow(4));
+    System.out.println(frame.getRecord(4));
   }
 
   @Test
@@ -106,7 +106,7 @@ public class DataSeriesCollectionTest {
       DataSeriesCollection coll = builder.build();
       System.out.println(coll);
 
-      Vector vec = coll.getRow(77);
+      Vector vec = coll.getRecord(77);
 
       Aggregator aggregator = new MeanAggregator(387);
       Vector resampled = aggregator.aggregate(vec);

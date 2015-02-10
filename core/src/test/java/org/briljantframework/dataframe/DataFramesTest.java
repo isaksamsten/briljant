@@ -1,18 +1,17 @@
 package org.briljantframework.dataframe;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Random;
+
 import org.briljantframework.Utils;
 import org.briljantframework.dataseries.Approximations;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
 
 public class DataFramesTest {
 
@@ -29,8 +28,8 @@ public class DataFramesTest {
     DataFrame shuffle = DataFrames.permuteRows(iris);
     System.out.println(shuffle);
     System.out.println(shuffle.getColumn("Class"));
-    System.out.println(shuffle.getRow(0));
-    System.out.println(iris.getRow(0));
+    System.out.println(shuffle.getRecord(0));
+    System.out.println(iris.getRecord(0));
 
     Map<Value, DataFrame> groups = DataFrames.groupBy(shuffle, "Class");
     System.out.println(groups.get(Convert.toValue("Iris-versicolor")));
@@ -44,8 +43,8 @@ public class DataFramesTest {
     DataFrame shuffled = DataFrames.permuteRows(connect4);
     System.out.println(System.currentTimeMillis() - start);
 
-    System.out.println(shuffled.getRow(100));
-    System.out.println(connect4.getRow(100));
+    System.out.println(shuffled.getRecord(100));
+    System.out.println(connect4.getRecord(100));
 
     Assert.assertEquals(connect4.rows(), shuffled.rows());
   }
@@ -53,8 +52,8 @@ public class DataFramesTest {
   @Test
   public void testLoadMultiChannel() throws Exception {
     DataFrame channel =
-            Datasets.load((a, b) -> new DataSeriesCollection.Builder(DoubleVector.TYPE),
-                    MatlabTextInputStream::new, "multichannel");
+        Datasets.load((a, b) -> new DataSeriesCollection.Builder(DoubleVector.TYPE),
+            MatlabTextInputStream::new, "multichannel");
     channel.setColumnNames("Seq ID", "channel", "Class");
 
     Map<Value, DataFrame> channels = DataFrames.groupBy(channel, "channel");
@@ -69,15 +68,15 @@ public class DataFramesTest {
 
 
 
-
     // Drop the first 3 columns
-//    DoubleMatrix matrix = channel.asMatrix().getView(0, 3, channel.rows(), channel.columns() - 3);
-//    DoubleMatrix cls = channel.asMatrix().getColumnView(2);
-//    System.out.println(cls);
-//    long s = System.currentTimeMillis();
-//    DoubleMatrix rowSum = matrix.reduceRows(x -> x.reduce(0, Double::sum, d -> d));
-//    System.out.println(System.currentTimeMillis() - s);
-//    System.out.println(rowSum);
+    // DoubleMatrix matrix = channel.asMatrix().getView(0, 3, channel.rows(), channel.columns() -
+    // 3);
+    // DoubleMatrix cls = channel.asMatrix().getColumnView(2);
+    // System.out.println(cls);
+    // long s = System.currentTimeMillis();
+    // DoubleMatrix rowSum = matrix.reduceRows(x -> x.reduce(0, Double::sum, d -> d));
+    // System.out.println(System.currentTimeMillis() - s);
+    // System.out.println(rowSum);
 
 
 

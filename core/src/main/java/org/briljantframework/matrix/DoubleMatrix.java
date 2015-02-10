@@ -108,14 +108,6 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix assign(DoubleSupplier supplier);
 
   /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  DoubleMatrix assign(DoubleUnaryOperator operator);
-
-  /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
    * {@code this.getShape()}.
    *
@@ -140,6 +132,14 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix assign(LongMatrix matrix, LongToDoubleFunction function);
 
   DoubleMatrix assign(ComplexMatrix matrix, ToDoubleFunction<? super Complex> function);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   * @return receiver modified
+   */
+  DoubleMatrix update(DoubleUnaryOperator operator);
 
   // Transform
 
@@ -237,6 +237,14 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   DoubleMatrix transpose();
 
   // GET SET
+
+  void update(int i, DoubleUnaryOperator update);
+
+  void update(int i, int j, DoubleUnaryOperator update);
+
+  void addTo(int i, double value);
+
+  void addTo(int i, int j, double value);
 
   void set(int i, int j, double value);
 

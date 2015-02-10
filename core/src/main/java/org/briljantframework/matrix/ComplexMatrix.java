@@ -36,14 +36,6 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix assign(Supplier<Complex> supplier);
 
   /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  ComplexMatrix assign(UnaryOperator<Complex> operator);
-
-  /**
    * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
    * {@code this.getShape()}.
    *
@@ -83,6 +75,14 @@ public interface ComplexMatrix extends Matrix, Iterable<Complex> {
   ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator);
 
   ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   * @return receiver modified
+   */
+  ComplexMatrix update(UnaryOperator<Complex> operator);
 
   /**
    * Perform {@code operator} element wise to receiver.

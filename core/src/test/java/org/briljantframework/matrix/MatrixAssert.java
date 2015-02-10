@@ -59,7 +59,7 @@ public final class MatrixAssert {
     }
   }
 
-  public static void assertMatrixEquals(DoubleMatrix actual, double expected, double e) {
+  public static void assertMatrixEquals(double expected, DoubleMatrix actual, double e) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected, actual.get(i), e);
     }

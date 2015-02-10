@@ -185,7 +185,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   }
 
   @Override
-  public ComplexMatrix assign(UnaryOperator<Complex> operator) {
+  public ComplexMatrix update(UnaryOperator<Complex> operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(get(i)));
     }

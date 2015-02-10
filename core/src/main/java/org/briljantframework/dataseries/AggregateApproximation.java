@@ -57,7 +57,7 @@ public class AggregateApproximation implements Transformation {
     DataSeriesCollection.Builder builder =
         new DataSeriesCollection.Builder(aggregator.getAggregatedType());
     for (int i = 0; i < x.rows(); i++) {
-      builder.addRow(aggregator.partialAggregate(x.getRow(i)));
+      builder.addRecord(aggregator.partialAggregate(x.getRecord(i)));
     }
     return builder.build();
   }

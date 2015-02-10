@@ -10,7 +10,7 @@ public class DoubleMatrixDataFrameTest {
     builder.set(0, 3, 30);
     builder.set(1, 0, 50);
     builder.swapColumns(0, 3);
-    builder.swapRows(0, 1);
+    builder.swapRecords(0, 1);
     System.out.println(builder.build());
 
 
@@ -20,7 +20,7 @@ public class DoubleMatrixDataFrameTest {
     builder.set(2, 2, 20);
     builder.set(3, 1, 22);
     builder.swapColumns(0, 3);
-    builder.swapRows(0, 1);
+    builder.swapRecords(0, 1);
     // builder.removeColumn(1);
     DataFrame frame = builder.build();
     System.out.println(frame);

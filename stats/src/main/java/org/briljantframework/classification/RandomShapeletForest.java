@@ -26,13 +26,19 @@ import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 24/09/14.
+ * <h1>Publications</h1>
+ * <ul>
+ * <li>Karlsson, I., Bostrom, H., Papapetrou, P. Forests of Randomized Shapelet Trees In Proc. the
+ * 3rd International Symposium on Learning and Data Sciences (SLDS), 2015</li>
+ * </ul>
+ *
+ * @author Isak Karlsson
  */
 public class RandomShapeletForest extends AbstractEnsemble {
 
@@ -43,12 +49,6 @@ public class RandomShapeletForest extends AbstractEnsemble {
     this.tree = builder.tree;
   }
 
-  /**
-   * Size builder.
-   *
-   * @param size the size
-   * @return the builder
-   */
   public static Builder withSize(int size) {
     return new Builder().withSize(size);
   }
@@ -61,9 +61,6 @@ public class RandomShapeletForest extends AbstractEnsemble {
       tasks.add(new FitTask(examples, x, y, tree));
     }
 
-    // double noModels = model.getModels().size();
-    double[] averageLengthImportance = null;
-    double[] averagePositionImportance = null;
     List<ShapeletTree.Model> models;
     try {
       models = execute(tasks);
@@ -71,25 +68,24 @@ public class RandomShapeletForest extends AbstractEnsemble {
       throw new RuntimeException(e);
     }
 
+    DoubleMatrix averageLengthImportance = null;
+    DoubleMatrix averagePositionImportance = null;
     for (ShapeletTree.Model m : models) {
       DoubleMatrix lengthImportance = m.getLengthImportance();
       DoubleMatrix positionImportance = m.getPositionImportance();
 
       if (averageLengthImportance == null) {
-        averageLengthImportance = new double[lengthImportance.columns()];
-        averagePositionImportance = new double[positionImportance.columns()];
+        averageLengthImportance = Matrices.newDoubleVector(lengthImportance.size());
+        averagePositionImportance = Matrices.newDoubleVector(positionImportance.size());
       }
-      for (int i = 0; i < averageLengthImportance.length; i++) {
-        averageLengthImportance[i] =
-            averageLengthImportance[i] + (lengthImportance.get(i) / size());
-        averagePositionImportance[i] =
-            averagePositionImportance[i] + (positionImportance.get(i) / size());
+      for (int i = 0; i < averageLengthImportance.size(); i++) {
+        averageLengthImportance.update(i, v -> v / size());
+        averagePositionImportance.update(i, v -> v / size());
       }
     }
 
 
-    return new Model(models, DefaultDoubleMatrix.rowVector(averageLengthImportance),
-        DefaultDoubleMatrix.rowVector(averagePositionImportance));
+    return new Model(models, averageLengthImportance, averagePositionImportance);
   }
 
   @Override
@@ -148,8 +144,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
    */
   public static class Model extends AbstractEnsemble.Model {
 
-    private final DefaultDoubleMatrix lengthImportance;
-    private final DefaultDoubleMatrix positionImportance;
+    private final DoubleMatrix lengthImportance;
+    private final DoubleMatrix positionImportance;
 
     /**
      * Instantiates a new Model.
@@ -157,8 +153,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
      * @param lengthImportance the length importance
      * @param positionImportance the position importance
      */
-    public Model(List<? extends ClassifierModel> models, DefaultDoubleMatrix lengthImportance,
-        DefaultDoubleMatrix positionImportance) {
+    public Model(List<? extends ClassifierModel> models, DoubleMatrix lengthImportance,
+        DoubleMatrix positionImportance) {
       super(models);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;

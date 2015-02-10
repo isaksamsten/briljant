@@ -25,8 +25,9 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataseries.Aggregator;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.Range;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
 
@@ -80,15 +81,14 @@ public class ShapeletTree implements Classifier {
 
     Params params = new Params();
     params.noExamples = examples.getTotalWeight();
-    params.lengthImportance = new double[x.columns()];
-    params.positionImportance = new double[x.columns()];
+    params.lengthImportance = Matrices.newDoubleVector(x.columns());
+    params.positionImportance = Matrices.newDoubleVector(x.columns());
     int size = Utils.randInt(10, x.columns() - 1);
     // x = Approximations.paa(x, size);
     // System.out.println(size);
     Node<ShapeletThreshold> node = build(x, y, examples, params);
     return new Model(node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
-        new DefaultDoubleMatrix(params.lengthImportance, 1, params.lengthImportance.length),
-        new DefaultDoubleMatrix(params.positionImportance, 1, params.positionImportance.length));
+        params.lengthImportance, params.positionImportance);
   }
 
   /**
@@ -122,8 +122,9 @@ public class ShapeletTree implements Classifier {
     }
 
     /*
-     * STEP 2b: [if] the split result in only one partition, create a leaf STEP 2c: [else]
-     * recursively build new sub-trees
+     * STEP 2b: [if] the split result in only one partition, create a leaf
+     * 
+     * STEP 2c: [else] recursively build new sub-trees
      */
     if (maxSplit.getLeft().isEmpty()) {
       return Leaf.fromExamples(maxSplit.getRight());
@@ -136,11 +137,12 @@ public class ShapeletTree implements Classifier {
       double imp = impurity.impurity(examples);
       double weight = (maxSplit.size() / params.noExamples) * (imp - maxSplit.getImpurity());
 
-      params.lengthImportance[shapelet.size()] += weight;
-      double length = shapelet.size();
-      for (int i = shapelet.start(); i < length + shapelet.start(); i++) {
-        params.positionImportance[i] = params.positionImportance[i] + (weight / length);
-      }
+      params.lengthImportance.addTo(shapelet.size(), weight);
+      int length = shapelet.size();
+      int start = shapelet.start();
+      int end = start + length;
+      params.positionImportance.slice(Range.range(start, end)).update(
+          i -> i + (weight / (double) length));
 
       Node<ShapeletThreshold> leftNode = build(x, y, maxSplit.getLeft(), params);
       Node<ShapeletThreshold> rightNode = build(x, y, maxSplit.getRight(), params);
@@ -150,8 +152,8 @@ public class ShapeletTree implements Classifier {
 
   private static class Params {
     public double noExamples;
-    private double[] lengthImportance;
-    private double[] positionImportance;
+    private DoubleMatrix lengthImportance;
+    private DoubleMatrix positionImportance;
     private int depth = 0;
   }
 
@@ -160,8 +162,8 @@ public class ShapeletTree implements Classifier {
    */
   public static class Model extends Tree.Model<ShapeletThreshold> {
 
-    private final DefaultDoubleMatrix lengthImportance;
-    private final DefaultDoubleMatrix positionImportance;
+    private final DoubleMatrix lengthImportance;
+    private final DoubleMatrix positionImportance;
 
 
     /**
@@ -173,7 +175,7 @@ public class ShapeletTree implements Classifier {
      * @param positionImportance the position importance
      */
     protected Model(Node<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
-        DefaultDoubleMatrix lengthImportance, DefaultDoubleMatrix positionImportance) {
+        DoubleMatrix lengthImportance, DoubleMatrix positionImportance) {
       super(node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -184,7 +186,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the position importance
      */
-    public DefaultDoubleMatrix getPositionImportance() {
+    public DoubleMatrix getPositionImportance() {
       return positionImportance;
     }
 

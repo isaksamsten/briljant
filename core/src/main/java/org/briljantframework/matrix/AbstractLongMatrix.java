@@ -218,7 +218,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
   }
 
   @Override
-  public LongMatrix assign(LongUnaryOperator operator) {
+  public LongMatrix update(LongUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsLong(get(i)));
     }

@@ -18,54 +18,54 @@ public class AbstractDoubleMatrixTest {
   public void testAssign() throws Exception {
     DoubleMatrix m = newDoubleMatrix(3, 3);
     m.assign(3);
-    MatrixAssert.assertMatrixEquals(m, 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3, m, epsilon);
   }
 
   @Test
   public void testAssign1() throws Exception {
     DoubleMatrix m = newDoubleMatrix(3, 3);
     m.assign(() -> 3);
-    MatrixAssert.assertMatrixEquals(m, 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3, m, epsilon);
   }
 
   @Test
   public void testAssign2() throws Exception {
     DoubleMatrix m = newDoubleMatrix(3, 3);
-    m.assign(3).assign(x -> x * 2);
-    MatrixAssert.assertMatrixEquals(m, 6, epsilon);
+    m.assign(3).update(x -> x * 2);
+    MatrixAssert.assertMatrixEquals(6, m, epsilon);
   }
 
   @Test
   public void testAssign3() throws Exception {
     DoubleMatrix d = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(d, x -> (int) x);
-    MatrixAssert.assertMatrixEquals(i, 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3, i, epsilon);
   }
 
   @Test
   public void testAssign4() throws Exception {
     ComplexMatrix c = newComplexMatrix(3, 3).assign(Complex.valueOf(3));
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(c, Complex::intValue);
-    MatrixAssert.assertMatrixEquals(i, 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3, i, epsilon);
   }
 
   @Test
   public void testAssign5() throws Exception {
     DoubleMatrix l = newDoubleMatrix(3, 3).assign(3L);
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(l, x -> (int) x);
-    MatrixAssert.assertMatrixEquals(i, 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3, i, epsilon);
   }
 
   @Test
   public void testAssign6() throws Exception {
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(newDoubleMatrix(3, 3).assign(3));
-    MatrixAssert.assertMatrixEquals(i, 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3, i, epsilon);
   }
 
   @Test
   public void testAssign7() throws Exception {
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(newDoubleMatrix(3, 3).assign(3), x -> x * 2);
-    MatrixAssert.assertMatrixEquals(i, 6, epsilon);
+    MatrixAssert.assertMatrixEquals(6, i, epsilon);
   }
 
   @Test
@@ -73,14 +73,14 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix d = newDoubleMatrix(3, 3).assign(5);
     x.assign(d, Double::sum);
-    assertMatrixEquals(x, epsilon, 7);
+    assertMatrixEquals(epsilon, x, 7);
   }
 
   @Test
   public void testMap() throws Exception {
     DoubleMatrix i = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix m = i.map(Math::sqrt);
-    MatrixAssert.assertMatrixEquals(m, Math.sqrt(3), epsilon);
+    MatrixAssert.assertMatrixEquals(Math.sqrt(3), m, epsilon);
   }
 
   @Test
@@ -141,7 +141,7 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleMatrix(3, 4).assign(3).reduceColumns(y -> y.reduce(0, Double::sum));
     assertEquals(4, x.columns());
     assertEquals(1, x.rows());
-    MatrixAssert.assertMatrixEquals(x, 3 * 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3 * 3, x, epsilon);
   }
 
   @Test
@@ -149,7 +149,7 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleMatrix(4, 3).assign(3).reduceRows(y -> y.reduce(0, Double::sum));
     assertEquals(4, x.rows());
     assertEquals(1, x.columns());
-    MatrixAssert.assertMatrixEquals(x, 3 * 3, epsilon);
+    MatrixAssert.assertMatrixEquals(3 * 3, x, epsilon);
   }
 
   @Test
@@ -228,17 +228,17 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testGetRowView() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
-    MatrixAssert.assertMatrixEquals(x.getRowView(0), 1, epsilon);
-    MatrixAssert.assertMatrixEquals(x.getRowView(1), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(x.getRowView(2), 3, epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.getRowView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, x.getRowView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(3, x.getRowView(2), epsilon);
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 1, 1, 2, 2, 2, 3, 3, 3).reshape(3, 3);
-    MatrixAssert.assertMatrixEquals(x.getColumnView(0), 1, epsilon);
-    MatrixAssert.assertMatrixEquals(x.getColumnView(1), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(x.getColumnView(2), 3, epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.getColumnView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, x.getColumnView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(3, x.getColumnView(2), epsilon);
   }
 
   @Test
@@ -249,7 +249,7 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testGetView() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 1, 1, 1, 2, 2).reshape(2, 3);
-    MatrixAssert.assertMatrixEquals(x.getView(0, 0, 2, 2), 1, epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.getView(0, 0, 2, 2), epsilon);
   }
 
   @Test
@@ -340,7 +340,7 @@ public class AbstractDoubleMatrixTest {
   public void testMul() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix z = x.mul(2);
-    MatrixAssert.assertMatrixEquals(z, 6, epsilon);
+    MatrixAssert.assertMatrixEquals(6, z, epsilon);
   }
 
   @Test
@@ -348,7 +348,7 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix z = x.mul(y);
-    MatrixAssert.assertMatrixEquals(z, 6, epsilon);
+    MatrixAssert.assertMatrixEquals(6, z, epsilon);
   }
 
   @Test
@@ -356,7 +356,7 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix z = x.mul(-1, y, -1);
-    MatrixAssert.assertMatrixEquals(z, 6, epsilon);
+    MatrixAssert.assertMatrixEquals(6, z, epsilon);
   }
 
   @Test
@@ -364,14 +364,14 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleVector(1, 2, 3);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix z = y.mul(x, Axis.ROW);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(0), 3, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(1), 6, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(2), 9, epsilon);
+    MatrixAssert.assertMatrixEquals(3, z.getColumnView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(6, z.getColumnView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(9, z.getColumnView(2), epsilon);
 
     z = y.mul(x, Axis.COLUMN);
-    MatrixAssert.assertMatrixEquals(z.getRowView(0), 3, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(1), 6, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(2), 9, epsilon);
+    MatrixAssert.assertMatrixEquals(3, z.getRowView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(6, z.getRowView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(9, z.getRowView(2), epsilon);
   }
 
   @Test
@@ -379,35 +379,35 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleVector(1, 2, 3);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix z = y.mul(1, x, -1, Axis.ROW);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(0), -3, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(1), -6, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(2), -9, epsilon);
+    MatrixAssert.assertMatrixEquals(-3, z.getColumnView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(-6, z.getColumnView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(-9, z.getColumnView(2), epsilon);
 
     z = y.mul(1, x, -1, Axis.COLUMN);
-    MatrixAssert.assertMatrixEquals(z.getRowView(0), -3, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(1), -6, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(2), -9, epsilon);
+    MatrixAssert.assertMatrixEquals(-3, z.getRowView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(-6, z.getRowView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(-9, z.getRowView(2), epsilon);
 
   }
 
   @Test
   public void testAdd() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(2);
-    MatrixAssert.assertMatrixEquals(x.add(3), 5, epsilon);
+    MatrixAssert.assertMatrixEquals(5, x.add(3), epsilon);
   }
 
   @Test
   public void testAdd1() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(3);
-    MatrixAssert.assertMatrixEquals(x.add(y), 5, epsilon);
+    MatrixAssert.assertMatrixEquals(5, x.add(y), epsilon);
   }
 
   @Test
   public void testAdd2() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(3);
-    MatrixAssert.assertMatrixEquals(x.add(1, y, -1), -1, epsilon);
+    MatrixAssert.assertMatrixEquals(-1, x.add(1, y, -1), epsilon);
   }
 
   @Test
@@ -443,21 +443,21 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testSub() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
-    MatrixAssert.assertMatrixEquals(x.sub(2), 1, epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.sub(2), epsilon);
   }
 
   @Test
   public void testSub1() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(2);
-    MatrixAssert.assertMatrixEquals(x.sub(y), 1, epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.sub(y), epsilon);
   }
 
   @Test
   public void testSub2() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(2);
-    MatrixAssert.assertMatrixEquals(x.sub(1, y, -1), 5, epsilon);
+    MatrixAssert.assertMatrixEquals(5, x.sub(1, y, -1), epsilon);
   }
 
   @Test
@@ -494,7 +494,7 @@ public class AbstractDoubleMatrixTest {
   public void testRsub() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix y = x.rsub(3);
-    MatrixAssert.assertMatrixEquals(y, 1, epsilon);
+    MatrixAssert.assertMatrixEquals(1, y, epsilon);
   }
 
   @Test
@@ -531,7 +531,7 @@ public class AbstractDoubleMatrixTest {
   public void testDiv() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(4);
     DoubleMatrix y = x.div(2);
-    MatrixAssert.assertMatrixEquals(y, 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, y, epsilon);
   }
 
   @Test
@@ -539,7 +539,7 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(4);
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(2);
     DoubleMatrix z = x.div(y);
-    MatrixAssert.assertMatrixEquals(z, 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, z, epsilon);
   }
 
   @Test
@@ -578,7 +578,7 @@ public class AbstractDoubleMatrixTest {
   public void testRdiv() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(6);
     DoubleMatrix y = x.rdiv(12);
-    MatrixAssert.assertMatrixEquals(y, 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, y, epsilon);
   }
 
   @Test
@@ -587,14 +587,14 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(6);
     DoubleMatrix z = y.rdiv(x, Axis.ROW);
 
-    MatrixAssert.assertMatrixEquals(z.getRowView(0), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(1), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(2), 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getRowView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getRowView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getRowView(2), epsilon);
 
     z = y.rdiv(x, Axis.COLUMN);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(0), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(1), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(2), 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getColumnView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getColumnView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getColumnView(2), epsilon);
   }
 
   @Test
@@ -603,20 +603,20 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix y = newDoubleMatrix(3, 3).assign(6);
     DoubleMatrix z = y.rdiv(1, x, 2, Axis.ROW);
 
-    MatrixAssert.assertMatrixEquals(z.getRowView(0), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(1), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getRowView(2), 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getRowView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getRowView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getRowView(2), epsilon);
 
     z = y.rdiv(1, x, 2, Axis.COLUMN);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(0), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(1), 2, epsilon);
-    MatrixAssert.assertMatrixEquals(z.getColumnView(2), 2, epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getColumnView(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getColumnView(1), epsilon);
+    MatrixAssert.assertMatrixEquals(2, z.getColumnView(2), epsilon);
   }
 
   @Test
   public void testNegate() throws Exception {
     DoubleMatrix x = newDoubleMatrix(3, 3).assign(3).negate();
-    MatrixAssert.assertMatrixEquals(x, -3, epsilon);
+    MatrixAssert.assertMatrixEquals(-3, x, epsilon);
   }
 
   @Test
@@ -664,8 +664,8 @@ public class AbstractDoubleMatrixTest {
   public void testSlice6() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     DoubleMatrix s = x.slice(asList(0, 1), asList(0, 1));
-    assertMatrixEquals(s.getRowView(0), 1, 1);
-    assertMatrixEquals(s.getRowView(1), 2, 2);
+    assertMatrixEquals(1, s.getRowView(0), 1);
+    assertMatrixEquals(2, s.getRowView(1), 2);
   }
 
   @Test
@@ -717,6 +717,13 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testToString() throws Exception {
 
+  }
+
+  @Test
+  public void testReduceRows3() throws Exception {
+    DoubleMatrix x = newDoubleMatrix(3, 3).assign(3);
+    DoubleMatrix rowSums = x.reduceRows(Matrices::std);
+    assertMatrixEquals(3, rowSums, epsilon);
   }
 
   @Test

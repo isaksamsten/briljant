@@ -23,14 +23,19 @@ import org.briljantframework.vector.VectorType;
  * 
  * <p>
  * While {@code DataFrame} is immutable, {@link #setColumnName(int, String)},
- * {@link #setRowName(int, String)} are allowed to mutate the receiver. The rationale is simple,
+ * {@link #setRecordName(int, String)} are allowed to mutate the receiver. The rationale is simple,
  * chang the names won't affect the validity of {@code DataFrame} usages.
  * </p>
  *
  * @author Isak Karlsson
  */
-public interface DataFrame extends Iterable<DataFrameRow> {
+public interface DataFrame extends Iterable<Record> {
 
+  /**
+   * Get the column name attribute
+   * 
+   * @return the column names
+   */
   NameAttribute getColumnNames();
 
   /**
@@ -201,7 +206,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the name
    */
-  String getRowName(int index);
+  String getRecordName(int index);
 
   /**
    * Set the name for the row at {@code index} to {@code rowName}
@@ -210,7 +215,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param rowName the row name
    * @return receiver modified
    */
-  DataFrame setRowName(int index, String rowName);
+  DataFrame setRecordName(int index, String rowName);
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
@@ -218,8 +223,8 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param names the names
    * @return receiver modified
    */
-  default DataFrame setRowNames(String... names) {
-    return setRowNames(Arrays.asList(names));
+  default DataFrame setRecordNames(String... names) {
+    return setRecordNames(Arrays.asList(names));
   }
 
   /**
@@ -228,7 +233,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param names the names
    * @return receiver modified
    */
-  DataFrame setRowNames(List<String> names);
+  DataFrame setRecordNames(List<String> names);
 
   /**
    * Get the type of the row at {@code index}
@@ -236,14 +241,14 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the type
    */
-  VectorType getRowType(int index);
+  VectorType getRecordType(int index);
 
   /**
    * Returns a collection of rows
    * 
    * @return an (immutable) collection of rows
    */
-  Collection<Vector> getRows();
+  Collection<Record> getRecords();
 
   /**
    * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types, the
@@ -252,7 +257,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param index the index
    * @return the row sequence
    */
-  DataFrameRow getRow(int index);
+  Record getRecord(int index);
 
   /**
    * Take the rows in {@code indexes}
@@ -260,7 +265,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes the indexes to take
    * @return a new data frame
    */
-  DataFrame takeRows(Iterable<Integer> indexes);
+  DataFrame takeRecords(Iterable<Integer> indexes);
 
   /**
    * Drop rows in {@code indexes} and return a new DataFrame
@@ -268,7 +273,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    * @param indexes the indexes to drop
    * @return a new data frame
    */
-  DataFrame dropRows(Iterable<Integer> indexes);
+  DataFrame dropRecords(Iterable<Integer> indexes);
 
   /**
    * Returns the number of rows in this data frame
@@ -315,7 +320,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
    */
   DoubleMatrix asMatrix();
 
-  default Stream<DataFrameRow> stream() {
+  default Stream<Record> stream() {
     return StreamSupport.stream(spliterator(), false);
   }
 
@@ -382,7 +387,7 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * 
      * @return the name attribute
      */
-    NameAttribute getRowNames();
+    NameAttribute getRecordNames();
 
     /**
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the
@@ -406,13 +411,13 @@ public interface DataFrame extends Iterable<DataFrameRow> {
 
     Builder setColumn(int index, Vector vector);
 
-    Builder addRow(Vector.Builder builder);
+    Builder addRecord(Vector.Builder builder);
 
-    Builder addRow(Vector vector);
+    Builder addRecord(Vector vector);
 
-    Builder setRow(int index, Vector.Builder builder);
+    Builder setRecord(int index, Vector.Builder builder);
 
-    Builder setRow(int index, Vector vector);
+    Builder setRecord(int index, Vector vector);
 
     /**
      * Removes vector builder at {@code column}.
@@ -458,10 +463,10 @@ public interface DataFrame extends Iterable<DataFrameRow> {
      * @param b the second row
      * @return a modified builder
      */
-    Builder swapRows(int a, int b);
+    Builder swapRecords(int a, int b);
 
     default void swap(int a, int b) {
-      swapRows(a, b);
+      swapRecords(a, b);
     }
 
     /**

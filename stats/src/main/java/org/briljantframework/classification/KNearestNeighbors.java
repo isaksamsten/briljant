@@ -199,7 +199,7 @@ public class KNearestNeighbors implements Classifier {
     public Label predict(Vector row) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
-        double d = distance.distance(row, frame.getRow(i));
+        double d = distance.distance(row, frame.getRecord(i));
         queue.add(new DistanceIndex(d, i, targets.getAsString(i)));
       }
 

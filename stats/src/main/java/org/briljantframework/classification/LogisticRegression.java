@@ -122,13 +122,13 @@ public class LogisticRegression implements Classifier {
 
       for (int k = 0; k < indexes.size(); k++) {
         int i = indexes.get(k);
-        Vector row = x.getRow(i);
+        Vector row = x.getRecord(i);
         double update = learningRate * (y.getAsDouble(i) - Vectors.sigmoid(row, adaptedTheta));
         // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
         // Matrices.add(row, update, theta, 1, theta.asDoubleArray());
-        theta.assign(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
+        theta.update(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
       }
     }
 

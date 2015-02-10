@@ -268,7 +268,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   }
 
   @Override
-  public IntMatrix assign(IntUnaryOperator operator) {
+  public IntMatrix update(IntUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(get(i)));
     }

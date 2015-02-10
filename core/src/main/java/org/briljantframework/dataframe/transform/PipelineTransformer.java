@@ -49,11 +49,11 @@ public class PipelineTransformer implements Transformer {
   }
 
   @Override
-  public Transformation fit(DataFrame dataset) {
+  public Transformation fit(DataFrame dataFrame) {
     List<Transformation> transformations = new ArrayList<>();
     for (Transformer transformer : transformers) {
-      Transformation transformation = transformer.fit(dataset);
-      dataset = transformation.transform(dataset);
+      Transformation transformation = transformer.fit(dataFrame);
+      dataFrame = transformation.transform(dataFrame);
       transformations.add(transformation);
     }
 
