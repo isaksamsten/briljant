@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.briljantframework.classification.tree.Examples;
+import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
@@ -165,7 +165,7 @@ public class KNearestNeighbors implements Classifier {
       return new KNearestNeighbors(this);
     }
 
-    public KNearestNeighbors create(Examples sample) {
+    public KNearestNeighbors create(ClassSet sample) {
       return new KNearestNeighbors(this);
     }
   }
@@ -199,7 +199,7 @@ public class KNearestNeighbors implements Classifier {
     public Label predict(Vector row) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
-        double d = distance.distance(row, frame.getRecord(i));
+        double d = distance.compute(row, frame.getRecord(i));
         queue.add(new DistanceIndex(d, i, targets.getAsString(i)));
       }
 

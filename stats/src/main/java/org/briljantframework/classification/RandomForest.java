@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-import org.briljantframework.classification.tree.Examples;
+import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.RandomSplitter;
+import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
@@ -15,19 +16,11 @@ import org.briljantframework.vector.Vector;
  */
 public class RandomForest extends AbstractEnsemble {
 
-  private DecisionTree.Builder tree;
+  private Splitter splitter;
 
-  public RandomForest() {
-    this(withSize(100));
-  }
-
-  public RandomForest(int trees) {
-    this(withSize(trees));
-  }
-
-  public RandomForest(Builder builder) {
-    super(builder.size);
-    this.tree = builder.tree;
+  public RandomForest(Splitter splitter, int size) {
+    super(size);
+    this.splitter = splitter;
   }
 
   public static Builder withSize(int size) {
@@ -36,10 +29,10 @@ public class RandomForest extends AbstractEnsemble {
 
   @Override
   public AbstractEnsemble.Model fit(DataFrame x, Vector y) {
-    Examples examples = Examples.fromVector(y);
+    ClassSet classSet = ClassSet.fromVector(y);
     List<FitTask> fitTasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      fitTasks.add(new FitTask(examples, x, y, tree));
+      fitTasks.add(new FitTask(classSet, x, y, splitter));
     }
 
     try {
@@ -57,29 +50,29 @@ public class RandomForest extends AbstractEnsemble {
 
   private static final class FitTask implements Callable<ClassifierModel> {
 
-    private final Examples examples;
+    private final ClassSet classSet;
     private final DataFrame x;
     private final Vector y;
-    private final DecisionTree.Builder builder;
+    private final Splitter splitter;
 
 
-    private FitTask(Examples examples, DataFrame x, Vector y, DecisionTree.Builder builder) {
-      this.examples = examples;
+    private FitTask(ClassSet classSet, DataFrame x, Vector y, Splitter splitter) {
+      this.classSet = classSet;
       this.x = x;
       this.y = y;
-      this.builder = builder;
+      this.splitter = splitter;
     }
 
     @Override
     public ClassifierModel call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
-      return builder.create(sample(examples, random)).fit(x, y);
+      return new DecisionTree(splitter, sample(classSet, random)).fit(x, y);
     }
 
-    public Examples sample(Examples examples, Random random) {
-      Examples inBag = Examples.create();
-      for (Examples.Sample sample : examples.samples()) {
-        Examples.Sample inSample = Examples.Sample.create(sample.getTarget());
+    public ClassSet sample(ClassSet classSet, Random random) {
+      ClassSet inBag = ClassSet.create();
+      for (ClassSet.Sample sample : classSet.samples()) {
+        ClassSet.Sample inSample = ClassSet.Sample.create(sample.getTarget());
         int[] bootstrap = bootstrap(sample, random);
         for (int i = 0; i < bootstrap.length; i++) {
           if (bootstrap[i] > 0) {
@@ -91,7 +84,7 @@ public class RandomForest extends AbstractEnsemble {
       return inBag;
     }
 
-    private int[] bootstrap(Examples.Sample sample, Random random) {
+    private int[] bootstrap(ClassSet.Sample sample, Random random) {
       int[] bootstrap = new int[sample.size()];
       for (int i = 0; i < bootstrap.length; i++) {
         bootstrap[random.nextInt(bootstrap.length)]++;
@@ -104,7 +97,6 @@ public class RandomForest extends AbstractEnsemble {
   public static class Builder implements Classifier.Builder<RandomForest> {
 
     private RandomSplitter.Builder splitter = RandomSplitter.withMaximumFeatures(-1);
-    private DecisionTree.Builder tree = DecisionTree.withSplitter(splitter);
     private int size = 100;
 
     public Builder withSize(int size) {
@@ -119,7 +111,7 @@ public class RandomForest extends AbstractEnsemble {
 
     @Override
     public RandomForest build() {
-      return new RandomForest(this);
+      return new RandomForest(splitter.create(), size);
     }
   }
 }

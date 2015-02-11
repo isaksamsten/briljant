@@ -26,7 +26,7 @@ import org.briljantframework.vector.VectorType;
 /**
  * Created by Isak Karlsson on 10/09/14.
  */
-public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
+public abstract class AbstractSplitter implements Splitter {
 
   public static final int MISSING = 0;
   public static final int LEFT = -1;
@@ -39,27 +39,27 @@ public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
   /**
    * Basic implementation of the splitting procedure
    *
-   * @param examples the examples
+   * @param classSet the examples
    * @param axis the axis
    * @param threshold the threshold
    * @return the examples . split
    */
-  protected Tree.Split<ValueThreshold> split(DataFrame dataset, Examples examples, int axis,
+  protected TreeSplit<ValueThreshold> split(DataFrame dataset, ClassSet classSet, int axis,
       Value threshold) {
-    Examples left = Examples.create();
-    Examples right = Examples.create();
+    ClassSet left = ClassSet.create();
+    ClassSet right = ClassSet.create();
     Vector axisVector = dataset.getColumn(axis);
     VectorType axisType = axisVector.getType();
 
     /*
      * Partition every class separately
      */
-    for (Examples.Sample sample : examples.samples()) {
+    for (ClassSet.Sample sample : classSet.samples()) {
       String target = sample.getTarget();
 
-      Examples.Sample leftSample = Examples.Sample.create(target);
-      Examples.Sample rightSample = Examples.Sample.create(target);
-      Examples.Sample missingSample = Examples.Sample.create(target);
+      ClassSet.Sample leftSample = ClassSet.Sample.create(target);
+      ClassSet.Sample rightSample = ClassSet.Sample.create(target);
+      ClassSet.Sample missingSample = ClassSet.Sample.create(target);
 
       /*
        * STEP 1: Partition the examples according to threshold
@@ -112,7 +112,7 @@ public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
       }
     }
 
-    return new Tree.Split<>(left, right, ValueThreshold.create(axis, threshold));
+    return new TreeSplit<>(left, right, ValueThreshold.create(axis, threshold));
   }
 
   /**
@@ -122,8 +122,8 @@ public abstract class AbstractSplitter implements Splitter<ValueThreshold> {
    * @param right the right
    * @param missing the missing
    */
-  protected void distributeMissing(Examples.Sample left, Examples.Sample right,
-      Examples.Sample missing) {
+  protected void distributeMissing(ClassSet.Sample left, ClassSet.Sample right,
+      ClassSet.Sample missing) {
     for (Example example : missing) {
       if (random.nextDouble() > 0.5)
         left.add(example);

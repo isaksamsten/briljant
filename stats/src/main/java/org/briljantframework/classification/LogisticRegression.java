@@ -18,13 +18,14 @@ package org.briljantframework.classification;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Matrices.range;
+import static org.briljantframework.matrix.Matrices.shuffle;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Record;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
@@ -46,48 +47,22 @@ public class LogisticRegression implements Classifier {
     this.regularization = builder.regularization;
   }
 
-  /**
-   * Builder builder.
-   *
-   * @return the builder
-   */
   public static Builder builder() {
     return withIterations(10);
   }
 
-  /**
-   * Iterations builder.
-   *
-   * @param iterations the iterations
-   * @return the builder
-   */
   public static Builder withIterations(int iterations) {
     return new Builder(iterations);
   }
 
-  /**
-   * Gets learning rate.
-   *
-   * @return the learning rate
-   */
   public double getLearningRate() {
     return learningRate;
   }
 
-  /**
-   * Gets regularization.
-   *
-   * @return the regularization
-   */
   public double getRegularization() {
     return regularization;
   }
 
-  /**
-   * Gets iterations.
-   *
-   * @return the iterations
-   */
   public int getIterations() {
     return iterations;
   }
@@ -106,38 +81,24 @@ public class LogisticRegression implements Classifier {
     return fit(x, y, range(0, y.size()));
   }
 
-  /**
-   * Fit logistic regression classification.
-   *
-   * @param x the x
-   * @param y the y
-   * @param indexes the indicies
-   * @return the logistic regression model
-   */
   protected Model fit(DataFrame x, Vector y, IntMatrix indexes) {
     DoubleMatrix theta = new DefaultDoubleMatrix(1, x.columns());
-    Vector adaptedTheta = DoubleVector.zeros(x.columns());
+    Vector adaptedTheta = Convert.toAdapter(theta);
     for (int j = 0; j < this.iterations; j++) {
-      Matrices.shuffle(indexes);
-
-      for (int k = 0; k < indexes.size(); k++) {
-        int i = indexes.get(k);
-        Vector row = x.getRecord(i);
+      shuffle(indexes).forEach(i -> {
+        Record row = x.getRecord(i);
         double update = learningRate * (y.getAsDouble(i) - Vectors.sigmoid(row, adaptedTheta));
         // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
         // Matrices.add(row, update, theta, 1, theta.asDoubleArray());
-        theta.update(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
-      }
+          theta.update(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
+        });
     }
 
     return new Model(adaptedTheta);
   }
 
-  /**
-   * Builder for constructing a logistic regression classifier
-   */
   public static class Builder implements Classifier.Builder<LogisticRegression> {
 
     private int iterations = 100;
@@ -148,44 +109,21 @@ public class LogisticRegression implements Classifier {
       this.iterations = iterations;
     }
 
-    /**
-     * Iterations builder.
-     *
-     * @param it the it
-     * @return the builder
-     */
     public Builder withIterations(int it) {
       this.iterations = it;
       return this;
     }
 
-    /**
-     * The learning rate (i.e. the "step-size") of the gradient descent
-     *
-     * @param lambda default 0.01
-     * @return this builder
-     */
     public Builder withLearningRate(double lambda) {
       this.learningRate = lambda;
       return this;
     }
 
-    /**
-     * The regularization constant - reduced if underfitting and increased if overfitting
-     *
-     * @param alpha default 0.0001
-     * @return this builder
-     */
     public Builder withRegularization(double alpha) {
       this.regularization = alpha;
       return this;
     }
 
-    /**
-     * Create logistic regression.
-     *
-     * @return the finished LogisticRegression classifier
-     */
     @Override
     public LogisticRegression build() {
       return new LogisticRegression(this);
@@ -193,16 +131,11 @@ public class LogisticRegression implements Classifier {
   }
 
   /**
-   * Created by isak on 03/07/14.
+   * @author Isak Karlsson
    */
   public static class Model implements ClassifierModel {
     private final Vector theta;
 
-    /**
-     * Instantiates a new Logistic regression classification.
-     *
-     * @param theta the theta
-     */
     public Model(Vector theta) {
       this.theta = theta;
     }
@@ -213,15 +146,9 @@ public class LogisticRegression implements Classifier {
       return Label.binary("1", prob, "0", 1 - prob);
     }
 
-    /**
-     * Theta vector.
-     *
-     * @return the vector
-     */
     public Vector theta() {
       return theta;
     }
-
 
     @Override
     public String toString() {

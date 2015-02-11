@@ -21,7 +21,7 @@ public final class Measures {
     @Override
     public List<Measure.Builder> getMeasures() {
       return Arrays.asList(new ErrorRate.Builder(), new Accuracy.Builder(),
-          new AreaUnderCurve.Builder());
+          new AreaUnderCurve.Builder(), new Brier.Builder());
     }
   }
 }

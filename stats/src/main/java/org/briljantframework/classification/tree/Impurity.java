@@ -37,7 +37,7 @@ public interface Impurity {
    * @return the double
    * @see #impurity(org.briljantframework.matrix.DoubleMatrix)
    */
-  default double impurity(Examples split) {
+  default double impurity(ClassSet split) {
     return impurity(split.getRelativeFrequencies());
   }
 }

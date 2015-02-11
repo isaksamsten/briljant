@@ -144,9 +144,6 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
     @Override
     public void compute(Sample sample, List<Label> predicted, Vector truth) {
-      // checkArgument(targets.getType().getScale() != Type.Scale.NUMERICAL,
-      // "Can't calculate per-value metrics for numerical targets");
-
       Map<String, Double> valueMetrics = new HashMap<>();
       Set<String> labels = new HashSet<>();
 

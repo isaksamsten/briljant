@@ -37,9 +37,6 @@ public class RandomShapeletForestTest {
       builder.addRecord(aggregator.partialAggregate(row));
     }
 
-    // x = builder.build();
-    System.out.println(x);
-
     RandomShapeletForest forest =
         RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
             .withUpperLength(-1).build();

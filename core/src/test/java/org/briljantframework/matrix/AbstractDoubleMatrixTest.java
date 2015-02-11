@@ -730,7 +730,7 @@ public class AbstractDoubleMatrixTest {
   public void testIterator() throws Exception {
     DoubleMatrix x = newDoubleVector(1, 2, 3, 4, 5, 6);
     int i = 0;
-    for (double v : x) {
+    for (double v : x.flat()) {
       assertEquals(x.get(i++), v, epsilon);
     }
   }

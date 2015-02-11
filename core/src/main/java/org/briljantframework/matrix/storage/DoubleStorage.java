@@ -43,7 +43,7 @@ public class DoubleStorage extends AbstractStorage {
 
   @Override
   public double getDouble(int index) {
-    return values[((int) index)];
+    return values[index];
   }
 
   @Override

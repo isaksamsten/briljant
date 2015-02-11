@@ -182,7 +182,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   }
 
   @Override
-  public List<Integer> asList() {
+  public List<Integer> flat() {
     if (listView == null) {
       listView = new IntListView();
     }
@@ -408,6 +408,13 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   }
 
   @Override
+  public void forEach(IntConsumer consumer) {
+    for (int i = 0; i < size(); i++) {
+      consumer.accept(get(i));
+    }
+  }
+
+  @Override
   public int reduce(int identity, IntBinaryOperator reduce, IntUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.applyAsInt(identity, map.applyAsInt(get(i)));
@@ -494,22 +501,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
     return out.toString();
   }
 
-  @Override
-  public Iterator<Integer> iterator() {
-    return new Iterator<Integer>() {
-      private int index = 0;
-
-      @Override
-      public boolean hasNext() {
-        return index < size();
-      }
-
-      @Override
-      public Integer next() {
-        return get(index++);
-      }
-    };
-  }
 
   @Override
   public IntMatrix mmul(IntMatrix other) {
@@ -1058,7 +1049,19 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
     @Override
     public Iterator<Integer> iterator() {
-      return AbstractIntMatrix.this.iterator();
+      return new Iterator<Integer>() {
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+          return index < size();
+        }
+
+        @Override
+        public Integer next() {
+          return get(index++);
+        }
+      };
     }
 
     @Override

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-import org.briljantframework.classification.tree.Examples;
+import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.RandomShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
@@ -44,9 +44,9 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
   private final ShapeletTree.Builder tree;
 
-  private RandomShapeletForest(Builder builder) {
-    super(builder.size);
-    this.tree = builder.tree;
+  private RandomShapeletForest(ShapeletTree.Builder builder, int size) {
+    super(size);
+    this.tree = builder;
   }
 
   public static Builder withSize(int size) {
@@ -55,10 +55,10 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
   @Override
   public Model fit(DataFrame x, Vector y) {
-    Examples examples = Examples.fromVector(y);
+    ClassSet classSet = ClassSet.fromVector(y);
     List<FitTask> tasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      tasks.add(new FitTask(examples, x, y, tree));
+      tasks.add(new FitTask(classSet, x, y, tree));
     }
 
     List<ShapeletTree.Model> models;
@@ -68,24 +68,14 @@ public class RandomShapeletForest extends AbstractEnsemble {
       throw new RuntimeException(e);
     }
 
-    DoubleMatrix averageLengthImportance = null;
-    DoubleMatrix averagePositionImportance = null;
+    DoubleMatrix lenSum = Matrices.newDoubleVector(x.columns());
+    DoubleMatrix posSum = Matrices.newDoubleVector(x.columns());
     for (ShapeletTree.Model m : models) {
-      DoubleMatrix lengthImportance = m.getLengthImportance();
-      DoubleMatrix positionImportance = m.getPositionImportance();
-
-      if (averageLengthImportance == null) {
-        averageLengthImportance = Matrices.newDoubleVector(lengthImportance.size());
-        averagePositionImportance = Matrices.newDoubleVector(positionImportance.size());
-      }
-      for (int i = 0; i < averageLengthImportance.size(); i++) {
-        averageLengthImportance.update(i, v -> v / size());
-        averagePositionImportance.update(i, v -> v / size());
-      }
+      lenSum.assign(m.getLengthImportance(), Double::sum);
+      posSum.assign(m.getPositionImportance(), Double::sum);
     }
 
-
-    return new Model(models, averageLengthImportance, averagePositionImportance);
+    return new Model(models, lenSum.update(v -> v / size()), posSum.update(v -> v / size()));
   }
 
   @Override
@@ -95,14 +85,14 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
   private static final class FitTask implements Callable<ShapeletTree.Model> {
 
-    private final Examples examples;
+    private final ClassSet classSet;
     private final DataFrame x;
     private final Vector y;
     private final ShapeletTree.Builder builder;
 
 
-    private FitTask(Examples examples, DataFrame x, Vector y, ShapeletTree.Builder builder) {
-      this.examples = examples;
+    private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder) {
+      this.classSet = classSet;
       this.x = x;
       this.y = y;
       this.builder = builder;
@@ -111,13 +101,13 @@ public class RandomShapeletForest extends AbstractEnsemble {
     @Override
     public ShapeletTree.Model call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
-      return builder.create(sample(examples, random)).fit(x, y);
+      return builder.create(sample(classSet, random)).fit(x, y);
     }
 
-    public Examples sample(Examples examples, Random random) {
-      Examples inBag = Examples.create();
-      for (Examples.Sample sample : examples.samples()) {
-        Examples.Sample inSample = Examples.Sample.create(sample.getTarget());
+    public ClassSet sample(ClassSet classSet, Random random) {
+      ClassSet inBag = ClassSet.create();
+      for (ClassSet.Sample sample : classSet.samples()) {
+        ClassSet.Sample inSample = ClassSet.Sample.create(sample.getTarget());
         int[] bootstrap = bootstrap(sample, random);
         for (int i = 0; i < bootstrap.length; i++) {
           if (bootstrap[i] > 0) {
@@ -129,7 +119,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
       return inBag;
     }
 
-    private int[] bootstrap(Examples.Sample sample, Random random) {
+    private int[] bootstrap(ClassSet.Sample sample, Random random) {
       int[] bootstrap = new int[sample.size()];
       for (int i = 0; i < bootstrap.length; i++) {
         bootstrap[random.nextInt(bootstrap.length)]++;
@@ -139,20 +129,11 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
   }
 
-  /**
-   * The type Model.
-   */
   public static class Model extends AbstractEnsemble.Model {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
-    /**
-     * Instantiates a new Model.
-     *
-     * @param lengthImportance the length importance
-     * @param positionImportance the position importance
-     */
     public Model(List<? extends ClassifierModel> models, DoubleMatrix lengthImportance,
         DoubleMatrix positionImportance) {
       super(models);
@@ -160,130 +141,64 @@ public class RandomShapeletForest extends AbstractEnsemble {
       this.positionImportance = positionImportance;
     }
 
-    /**
-     * Gets length importance.
-     *
-     * @return the length importance
-     */
     public DoubleMatrix getLengthImportance() {
       return lengthImportance;
     }
 
-    /**
-     * Gets position importance.
-     *
-     * @return the position importance
-     */
     public DoubleMatrix getPositionImportance() {
       return positionImportance;
     }
   }
 
-  /**
-   * The type Builder.
-   */
   public static class Builder implements Classifier.Builder<RandomShapeletForest> {
 
     private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter
         .withDistance(new EarlyAbandonSlidingDistance(Euclidean.getInstance()));
-
-    private final ShapeletTree.Builder tree = ShapeletTree.withSplitter(randomShapeletSplitter);
     private int size = 100;
 
     // private final AbstractEnsemble.Builder ensemble = AbstractEnsemble.withMember(
     // ShapeletTree.withSplitter(randomShapeletSplitter)).withSampler(BootstrapSample.create());
 
-    /**
-     * Lower builder.
-     *
-     * @param lower the setLowerLength
-     * @return the builder
-     */
     public Builder withLowerLength(int lower) {
       randomShapeletSplitter.withLowerLength(lower);
       return this;
     }
 
-    /**
-     * Sample size.
-     *
-     * @param sampleSize the sample size
-     * @return the builder
-     */
     public Builder withSampleSize(int sampleSize) {
       randomShapeletSplitter.withSampleSize(sampleSize);
       return this;
     }
 
-    /**
-     * Shapelets builder.
-     *
-     * @param maxShapelets the max shapelets
-     * @return the builder
-     */
     public Builder withInspectedShapelets(int maxShapelets) {
       randomShapeletSplitter.withInspectedShapelets(maxShapelets);
       return this;
     }
 
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
     public Builder withDistance(Distance distance) {
       randomShapeletSplitter.withDistance(distance);
       return this;
     }
 
-    /**
-     * Upper builder.
-     *
-     * @param upper the setUpperLength
-     * @return the builder
-     */
     public Builder withUpperLength(int upper) {
       randomShapeletSplitter.withUpperLength(upper);
       return this;
     }
 
-    /**
-     * Size builder.
-     *
-     * @param size the size
-     * @return the builder
-     */
     public Builder withSize(int size) {
       this.size = size;
       return this;
     }
 
-    /**
-     * Alpha builder.
-     *
-     * @param alpha the setAlpha
-     * @return the builder
-     */
     public Builder withAlpha(double alpha) {
       randomShapeletSplitter.withAlpha(alpha);
       return this;
     }
 
-    // /**
-    // * Randomizer builder.
-    // *
-    // * @param randomizer the setRandomizer
-    // * @return the builder
-    // */
-    // public Builder withSampler(SampleStrategy randomizer) {
-    // ensemble.withSampler(randomizer);
-    // return this;
-    // }
-
     @Override
     public RandomShapeletForest build() {
-      return new RandomShapeletForest(this);
+      ShapeletTree.Builder builder = ShapeletTree.withSplitter(randomShapeletSplitter.create());
+      return new RandomShapeletForest(builder, size);
     }
+
   }
 }

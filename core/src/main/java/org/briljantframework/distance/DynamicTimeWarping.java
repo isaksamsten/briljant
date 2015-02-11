@@ -63,12 +63,12 @@ public class DynamicTimeWarping implements Distance {
    * @return the distance between a and b
    */
   @Override
-  public final double distance(double a, double b) {
-    return distance.distance(a, b);
+  public final double compute(double a, double b) {
+    return distance.compute(a, b);
   }
 
   @Override
-  public double distance(Vector a, Vector b) {
+  public double compute(Vector a, Vector b) {
     int n = a.size(), m = b.size();
     DoubleMatrix dwt = Matrices.newDoubleMatrix(n, m).assign(Double.POSITIVE_INFINITY);
     dwt.set(0, 0, 0);
@@ -78,7 +78,7 @@ public class DynamicTimeWarping implements Distance {
       int end = constraint <= -1 ? m : Math.min(m, i + width);
       int start = constraint <= -1 ? 1 : Math.max(1, i - width);
       for (int j = start; j < end; j++) {
-        double cost = distance.distance(a.getAsDouble(i), b.getAsDouble(j));
+        double cost = distance.compute(a.getAsDouble(i), b.getAsDouble(j));
         dwt.set(i, j,
             cost + Doubles.min(dwt.get(i - 1, j), dwt.get(i, j - 1), dwt.get(i - 1, j - 1)));
       }

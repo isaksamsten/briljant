@@ -36,12 +36,12 @@ public class Manhattan implements Distance {
   }
 
   @Override
-  public double distance(double a, double b) {
+  public double compute(double a, double b) {
     return Math.abs(a - b);
   }
 
   @Override
-  public double distance(Vector a, Vector b) {
+  public double compute(Vector a, Vector b) {
     int size = Math.min(a.size(), b.size());
     double distance = 0.0;
     for (int i = 0; i < size; i++) {

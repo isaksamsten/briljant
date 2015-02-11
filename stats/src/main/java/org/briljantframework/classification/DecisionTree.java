@@ -16,10 +16,7 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.classification.tree.Examples;
-import org.briljantframework.classification.tree.Splitter;
-import org.briljantframework.classification.tree.Tree;
-import org.briljantframework.classification.tree.ValueThreshold;
+import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
@@ -28,64 +25,103 @@ import org.briljantframework.vector.VectorType;
 /**
  * Created by Isak Karlsson on 17/09/14.
  */
-public class DecisionTree extends Tree<ValueThreshold> {
+public class DecisionTree implements Classifier {
 
-  public DecisionTree(Splitter<ValueThreshold> splitter) {
-    super(splitter);
+  protected final double mininumWeight = 2;
+  protected final Splitter splitter;
+
+  protected ClassSet classSet;
+
+
+  public DecisionTree(Splitter splitter) {
+    this(splitter, null);
   }
 
-  /**
-   * Instantiates a new Decision tree.
-   *
-   * @param builder the splitter
-   */
-  protected DecisionTree(Builder builder) {
-    super(builder.splitter.create());
-  }
-
-  /**
-   * Instantiates a new Decision tree.
-   *
-   * @param splitter the splitter
-   * @param examples the examples
-   */
-  protected DecisionTree(Builder splitter, Examples examples) {
-    super(splitter.splitter.create(), examples);
-  }
-
-  /**
-   * With splitter.
-   *
-   * @param splitter the splitter
-   * @return the builder
-   */
-  public static Builder withSplitter(Splitter.Builder<? extends Splitter<ValueThreshold>> splitter) {
-    return new Builder(splitter);
+  protected DecisionTree(Splitter splitter, ClassSet classSet) {
+    this.splitter = splitter;
+    this.classSet = classSet;
   }
 
   @Override
   public Model fit(DataFrame x, Vector y) {
-    Examples examples = this.examples;
-    // Initialize the examples, if not already initialized
-    if (examples == null)
-      examples = Examples.fromVector(y);
+    ClassSet classSet = this.classSet;
+    if (classSet == null) {
+      classSet = ClassSet.fromVector(y);
+    }
 
-    Node<ValueThreshold> node = build(x, y, examples);
+    TreeNode<ValueThreshold> node = build(x, y, classSet);
     return new Model(node, new SimplePredictionVisitor());
   }
 
+  /**
+   * Build node.
+   *
+   * @param frame the frame
+   * @param target the target
+   * @param classSet the examples
+   * @return the node
+   */
+  protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet) {
+    return build(frame, target, classSet, 0);
+  }
 
-  private static final class SimplePredictionVisitor implements Visitor<ValueThreshold> {
+  /**
+   * Build node.
+   *
+   * @param frame the frame
+   * @param target the target
+   * @param classSet the examples
+   * @param depth the depth
+   * @return the node
+   */
+  protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet,
+      int depth) {
+    /*
+     * STEP 0: pre-prune some useless branches
+     */
+    if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
+      return TreeLeaf.fromExamples(classSet);
+    }
+
+    /*
+     * STEP 1: Find a good separating feature
+     */
+    TreeSplit<ValueThreshold> maxSplit = splitter.find(classSet, frame, target);
+
+    /*
+     * STEP 2a: if no split could be found create a leaf
+     */
+    if (maxSplit == null) {
+      return TreeLeaf.fromExamples(classSet);
+    }
+
+    /*
+     * STEP 2b: [if] the split result in only one partition, create a leaf STEP 2c: [else]
+     * recursively build new sub-trees
+     */
+    if (maxSplit.getLeft().isEmpty()) {
+      return TreeLeaf.fromExamples(maxSplit.getRight());
+    } else if (maxSplit.getRight().isEmpty()) {
+      return TreeLeaf.fromExamples(maxSplit.getLeft());
+    } else {
+      TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
+      TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);
+      return new TreeBranch<>(leftNode, rightNode, maxSplit.getThreshold());
+    }
+  }
+
+
+  private static final class SimplePredictionVisitor implements TreeVisitor<ValueThreshold> {
 
     private static final int MISSING = 0, LEFT = -1, RIGHT = 1;
 
     @Override
-    public Label visitLeaf(Leaf<ValueThreshold> leaf, Vector example) {
+    public Label visitLeaf(TreeLeaf<ValueThreshold> leaf, Vector example) {
       return Label.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
     }
 
     @Override
-    public Label visitBranch(Branch<ValueThreshold> node, Vector example) {
+    public Label visitBranch(TreeBranch<ValueThreshold> node, Vector example) {
       Value threshold = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
       VectorType type = threshold.getType();
@@ -110,50 +146,15 @@ public class DecisionTree extends Tree<ValueThreshold> {
           return visit(node.getRight(), example);
         case MISSING:
         default:
-          return visit(node.getLeft(), example);
-          // throw new
-          // IllegalStateException("ClassificationTree cannot handle missing getPosteriorProbabilities");
+          return visit(node.getLeft(), example); // TODO: what to do with missing values?
       }
     }
   }
 
-  /**
-   * The type Model.
-   */
-  public static class Model extends Tree.Model<ValueThreshold> {
+  public static class Model extends TreeModel<ValueThreshold> {
 
-    private Model(Node<ValueThreshold> node, Visitor<ValueThreshold> predictionVisitor) {
+    private Model(TreeNode<ValueThreshold> node, TreeVisitor<ValueThreshold> predictionVisitor) {
       super(node, predictionVisitor);
-    }
-  }
-
-  /**
-   * The type Builder.
-   */
-  public static class Builder implements Classifier.Builder<DecisionTree> {
-
-    private final Splitter.Builder<? extends Splitter<ValueThreshold>> splitter;
-
-    /**
-     * Instantiates a new Builder.
-     *
-     * @param splitter the splitter
-     */
-    public Builder(Splitter.Builder<? extends Splitter<ValueThreshold>> splitter) {
-      this.splitter = splitter;
-    }
-
-    /**
-     * Create decision tree.
-     *
-     * @return the decision tree
-     */
-    public DecisionTree build() {
-      return new DecisionTree(this);
-    }
-
-    public DecisionTree create(Examples sample) {
-      return new DecisionTree(this, sample);
     }
   }
 }

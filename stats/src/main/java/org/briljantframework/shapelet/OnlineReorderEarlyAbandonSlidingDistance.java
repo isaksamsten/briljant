@@ -29,7 +29,7 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
 
 
   @Override
-  public double distance(Vector a, Vector b) {
+  public double compute(Vector a, Vector b) {
     // Candidate is normalized
     Vector candidate = a.size() < b.size() ? a : b;
     int l = candidate.size();

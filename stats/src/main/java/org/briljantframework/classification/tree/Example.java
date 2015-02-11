@@ -24,41 +24,19 @@ public final class Example {
   private final int index;
   private final double weight;
 
-  /**
-   * Instantiates a new Example.
-   *
-   * @param index the index
-   * @param weight the weight
-   */
   public Example(int index, double weight) {
     this.index = index;
     this.weight = weight;
   }
 
-  /**
-   * Gets index.
-   *
-   * @return the index
-   */
   public int getIndex() {
     return index;
   }
 
-  /**
-   * Gets weight.
-   *
-   * @return the weight
-   */
   public double getWeight() {
     return weight;
   }
 
-  /**
-   * Update example.
-   *
-   * @param weight the weight
-   * @return the example
-   */
   public Example updateWeight(float weight) {
     return new Example(index, weight);
   }

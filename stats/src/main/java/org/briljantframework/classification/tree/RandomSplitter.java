@@ -35,12 +35,6 @@ public class RandomSplitter extends AbstractSplitter {
   private final Gain criterion;
   private int[] features = null;
 
-  /**
-   * Instantiates a new Random splitter.
-   *
-   * @param maxFeatures the max features
-   * @param criterion the withCriterion
-   */
   public RandomSplitter(int maxFeatures, Gain criterion) {
     this.maxFeatures = maxFeatures;
     this.criterion = criterion;
@@ -50,18 +44,12 @@ public class RandomSplitter extends AbstractSplitter {
     this(maxFeatures, Gain.INFO);
   }
 
-  /**
-   * With maximum features.
-   *
-   * @param maxFeatures the max features
-   * @return the builder
-   */
   public static Builder withMaximumFeatures(int maxFeatures) {
     return new Builder(maxFeatures);
   }
 
   @Override
-  public Tree.Split<ValueThreshold> find(Examples examples, DataFrame dataFrame, Vector column) {
+  public TreeSplit<ValueThreshold> find(ClassSet classSet, DataFrame dataFrame, Vector column) {
     if (features == null) {
       initialize(dataFrame);
     }
@@ -70,20 +58,23 @@ public class RandomSplitter extends AbstractSplitter {
         this.maxFeatures > 0 ? this.maxFeatures
             : (int) Math.round(Math.sqrt(dataFrame.columns())) + 1;
 
-    Utils.permute(features);
+    // TODO! Fix me!
+    synchronized (features) {
+      Utils.permute(features);
+    }
 
-    Tree.Split<ValueThreshold> bestSplit = null;
+    TreeSplit<ValueThreshold> bestSplit = null;
     double bestImpurity = Double.POSITIVE_INFINITY;
     for (int i = 0; i < features.length && i < maxFeatures; i++) {
       int axis = features[i];
 
-      Value threshold = search(dataFrame.getColumn(axis), examples);
+      Value threshold = search(dataFrame.getColumn(axis), classSet);
       if (threshold.isNA()) {
         continue;
       }
 
-      Tree.Split<ValueThreshold> split = split(dataFrame, examples, axis, threshold);
-      double impurity = criterion.calculate(examples, split);
+      TreeSplit<ValueThreshold> split = split(dataFrame, classSet, axis, threshold);
+      double impurity = criterion.compute(classSet, split);
       if (impurity < bestImpurity) {
         bestSplit = split;
         bestImpurity = impurity;
@@ -91,7 +82,7 @@ public class RandomSplitter extends AbstractSplitter {
     }
 
     if (bestSplit != null) {
-      bestSplit.setImpurity(new double[] {bestImpurity, 0, 0});
+      bestSplit.setImpurity(bestImpurity);
     }
     return bestSplit;
   }
@@ -107,15 +98,15 @@ public class RandomSplitter extends AbstractSplitter {
    * Search value.
    *
    * @param axis the dataset
-   * @param examples the examples
+   * @param classSet the examples
    * @return the value
    */
-  protected Value search(Vector axis, Examples examples) {
+  protected Value search(Vector axis, ClassSet classSet) {
     switch (axis.getType().getScale()) {
       case CATEGORICAL:
-        return sampleCategoricValue(axis, examples);
+        return sampleCategoricValue(axis, classSet);
       case NUMERICAL:
-        return sampleNumericValue(axis, examples);
+        return sampleNumericValue(axis, classSet);
       default:
         throw new IllegalStateException(String.format("Header: %s, not supported", axis.getType()));
     }
@@ -125,12 +116,12 @@ public class RandomSplitter extends AbstractSplitter {
    * Sample numeric value.
    *
    * @param vector the dataset
-   * @param examples the examples
+   * @param classSet the examples
    * @return the value
    */
-  protected Value sampleNumericValue(Vector vector, Examples examples) {
-    Example a = examples.getRandomSample().getRandomExample();
-    Example b = examples.getRandomSample().getRandomExample();
+  protected Value sampleNumericValue(Vector vector, ClassSet classSet) {
+    Example a = classSet.getRandomSample().getRandomExample();
+    Example b = classSet.getRandomSample().getRandomExample();
 
     double valueA = vector.getAsDouble(a.getIndex());
     double valueB = vector.getAsDouble(b.getIndex());
@@ -150,18 +141,18 @@ public class RandomSplitter extends AbstractSplitter {
    * Sample categoric value.
    *
    * @param axisVector the dataset
-   * @param examples the examples
+   * @param classSet the examples
    * @return the value
    */
-  protected Value sampleCategoricValue(Vector axisVector, Examples examples) {
-    Example example = examples.getRandomSample().getRandomExample();
+  protected Value sampleCategoricValue(Vector axisVector, ClassSet classSet) {
+    Example example = classSet.getRandomSample().getRandomExample();
     return axisVector.getAsValue(example.getIndex());
   }
 
   /**
    * The type Builder.
    */
-  public static class Builder implements Splitter.Builder<RandomSplitter> {
+  public static class Builder {
     private int maxFeatures;
     private Gain criterion = Gain.INFO;
 

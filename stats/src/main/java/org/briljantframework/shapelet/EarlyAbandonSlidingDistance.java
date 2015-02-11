@@ -48,8 +48,8 @@ public class EarlyAbandonSlidingDistance implements Distance {
   }
 
   @Override
-  public double distance(double a, double b) {
-    return distance.distance(a, b);
+  public double compute(double a, double b) {
+    return distance.compute(a, b);
   }
 
   /**
@@ -63,7 +63,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
    * @return the shortest possible distance of a (or b) as it is slid agains b (or a)
    */
   @Override
-  public double distance(Vector a, Vector b) {
+  public double compute(Vector a, Vector b) {
     double minDistance = Double.POSITIVE_INFINITY;
     boolean earlyStop = false;
 
@@ -93,7 +93,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
         double kv = candidate.getAsDouble(k);
         double iv = subShapelet.getAsDouble(k);
 
-        sumDistance += distance(kv, iv);
+        sumDistance += compute(kv, iv);
         if (sumDistance > minDistance) {
           earlyStop = true;
           break;

@@ -88,7 +88,7 @@ import org.briljantframework.function.DoubleBiPredicate;
  *
  * @author Isak Karlsson
  */
-public interface DoubleMatrix extends Matrix, Iterable<Double> {
+public interface DoubleMatrix extends Matrix {
 
   /**
    * Assign {@code value} to {@code this}
@@ -180,6 +180,8 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
   BitMatrix satisfies(DoublePredicate predicate);
 
   BitMatrix satisfies(DoubleMatrix matrix, DoubleBiPredicate predicate);
+
+  void forEach(DoubleConsumer consumer);
 
   // Reduce
 
@@ -363,7 +365,7 @@ public interface DoubleMatrix extends Matrix, Iterable<Double> {
 
   DoubleStream stream();
 
-  List<Double> asList();
+  List<Double> flat();
 
   /**
    * {@inheritDoc}

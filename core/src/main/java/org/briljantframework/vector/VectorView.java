@@ -4,6 +4,8 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Created by isak on 1/21/15.
  */
@@ -11,29 +13,36 @@ public abstract class VectorView extends AbstractVector {
 
   public static final String OVERRIDE_TO_SUPPORT = "Override to support";
   protected final Vector parent;
+  protected final int offset, length;
 
   protected VectorView(Vector parent) {
-    this.parent = parent;
+    this(parent, 0, 1);
+  }
+
+  public VectorView(Vector parent, int offset, int length) {
+    this.parent = Preconditions.checkNotNull(parent);
+    this.offset = Preconditions.checkElementIndex(offset, parent.size());
+    this.length = Preconditions.checkPositionIndex(offset + length, parent.size());
   }
 
   @Override
   public Value getAsValue(int index) {
-    return parent.getAsValue(index);
+    return parent.getAsValue(offset + index);
   }
 
   @Override
   public String toString(int index) {
-    return parent.toString(index);
+    return parent.toString(offset + index);
   }
 
   @Override
   public boolean isTrue(int index) {
-    return parent.isTrue(index);
+    return parent.isTrue(offset + index);
   }
 
   @Override
   public boolean isNA(int index) {
-    return parent.isNA(index);
+    return parent.isNA(offset + index);
   }
 
   @Override
@@ -43,32 +52,32 @@ public abstract class VectorView extends AbstractVector {
 
   @Override
   public double getAsDouble(int index) {
-    return parent.getAsDouble(index);
+    return parent.getAsDouble(offset + index);
   }
 
   @Override
   public int getAsInt(int index) {
-    return parent.getAsInt(index);
+    return parent.getAsInt(offset + index);
   }
 
   @Override
   public Bit getAsBit(int index) {
-    return parent.getAsBit(index);
+    return parent.getAsBit(offset + index);
   }
 
   @Override
   public Complex getAsComplex(int index) {
-    return parent.getAsComplex(index);
+    return parent.getAsComplex(offset + index);
   }
 
   @Override
   public String getAsString(int index) {
-    return parent.getAsString(index);
+    return parent.getAsString(offset + index);
   }
 
   @Override
   public int size() {
-    return parent.size();
+    return length;
   }
 
   @Override

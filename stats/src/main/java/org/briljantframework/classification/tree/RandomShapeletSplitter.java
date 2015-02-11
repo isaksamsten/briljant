@@ -106,8 +106,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     return alpha;
   }
 
-  @Override
-  public Tree.Split<ShapeletThreshold> find(Examples examples, DataFrame x, Vector y) {
+  public TreeSplit<ShapeletThreshold> find(ClassSet classSet, DataFrame x, Vector y) {
     int timeSeriesLength = x.columns();
     int upper = this.upperLength;
     int lower = this.lowerLength;
@@ -128,49 +127,42 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
     for (int i = 0; i < maxShapelets; i++) {
-      Vector timeSeries = x.getRecord(examples.getRandomSample().getRandomExample().getIndex());
+      Vector timeSeries = x.getRecord(classSet.getRandomSample().getRandomExample().getIndex());
       int length = random.nextInt(upper) + lower;
       int start = random.nextInt(timeSeriesLength - length);
       shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
     }
 
 
-    return findBestSplit(examples, x, y, shapelets);
+    return findBestSplit(classSet, x, y, shapelets);
   }
 
   /**
    * Find best split.
    *
-   * @param examples the examples
+   * @param classSet the examples
    * @param x the storage
    * @param y
    * @param shapelets the shapelets @return the tree . split
    */
-  protected Tree.Split<ShapeletThreshold> findBestSplit(Examples examples, DataFrame x, Vector y,
+  protected TreeSplit<ShapeletThreshold> findBestSplit(ClassSet classSet, DataFrame x, Vector y,
       List<Shapelet> shapelets) {
-    Tree.Split<ShapeletThreshold> bestSplit = null;
-    Threshold bestThreshold =
-        Threshold.create(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-            Double.NEGATIVE_INFINITY, null);
-
+    TreeSplit<ShapeletThreshold> bestSplit = null;
+    Threshold bestThreshold = Threshold.optimal();
     for (Shapelet shapelet : shapelets) {
       IntDoubleMap distanceMap = new IntDoubleOpenHashMap();
-      Threshold threshold = bestDistanceThresholdInSample(examples, x, y, shapelet, distanceMap);
-
-      // TODO(isak) - don't split before we know the split is good
-      Tree.Split<ShapeletThreshold> split =
-          split(distanceMap, examples, threshold.threshold, shapelet);
-      if (threshold.impurity < bestThreshold.impurity
-          || (threshold.impurity == bestThreshold.impurity && threshold.gap > bestThreshold.gap)) {
-        bestSplit = split;
+      Threshold threshold = bestDistanceThresholdInSample(classSet, x, y, shapelet, distanceMap);
+      boolean lowerImpurity = threshold.impurity < bestThreshold.impurity;
+      boolean equalImpuritySmallerGap =
+          threshold.impurity == bestThreshold.impurity && threshold.gap > bestThreshold.gap;
+      if (lowerImpurity || equalImpuritySmallerGap) {
+        bestSplit = split(distanceMap, classSet, threshold.threshold, shapelet);
         bestThreshold = threshold;
       }
     }
 
     if (bestSplit != null) {
-      bestSplit.setImpurity(new double[] {bestThreshold.impurity, bestThreshold.leftRight[0],
-          bestThreshold.leftRight[1]});
-
+      bestSplit.setImpurity(bestThreshold.impurity);
     }
     return bestSplit;
   }
@@ -178,52 +170,52 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
   /**
    * Best distance threshold in sample.
    *
-   * @param examples the examples
+   * @param classSet the examples
    * @param x the frame
    * @param y the target
    * @param shapelet the shapelet
-   * @param distanceMap the distance map
+   * @param memoizedDistances the distance map
    * @return the double [ ]
    */
-  protected Threshold bestDistanceThresholdInSample(Examples examples, DataFrame x, Vector y,
-      Shapelet shapelet, IntDoubleMap distanceMap) {
+  protected Threshold bestDistanceThresholdInSample(ClassSet classSet, DataFrame x, Vector y,
+      Shapelet shapelet, IntDoubleMap memoizedDistances) {
 
-    List<ExampleDistance> exampleDistances = new ArrayList<>();
-    double distanceSum = 0.0;
-    for (Example example : examples) {
-      double distance = getDistanceMetric().distance(x.getRecord(example.getIndex()), shapelet);
-      distanceSum += distance;
-
-      exampleDistances.add(ExampleDistance.create(distance, example));
-      distanceMap.put(example.getIndex(), distance);
+    double sum = 0.0;
+    List<ExampleDistance> distances = new ArrayList<>();
+    Distance distanceMetric = getDistanceMetric();
+    for (Example example : classSet) {
+      double distance = distanceMetric.compute(x.getRecord(example.getIndex()), shapelet);
+      memoizedDistances.put(example.getIndex(), distance);
+      distances.add(new ExampleDistance(distance, example));
+      sum += distance;
     }
 
-    Collections.sort(exampleDistances);
-    return findBestThreshold(exampleDistances, examples, y, distanceSum);
+    Collections.sort(distances);
+    return findBestThreshold(distances, classSet, y, sum);
   }
 
   /**
    * Basic implementation of the splitting procedure
    *
    * @param distanceMap the distance map (mapping examples to distances to the shapelet)
-   * @param examples the examples
+   * @param classSet the examples
    * @param threshold the threshold
    * @param shapelet the shapelet
    * @return the examples . split
    */
-  protected Tree.Split<ShapeletThreshold> split(IntDoubleMap distanceMap, Examples examples,
+  protected TreeSplit<ShapeletThreshold> split(IntDoubleMap distanceMap, ClassSet classSet,
       double threshold, Shapelet shapelet) {
-    Examples left = Examples.create();
-    Examples right = Examples.create();
+    ClassSet left = ClassSet.create();
+    ClassSet right = ClassSet.create();
 
     /*
      * Partition every class separately
      */
-    for (Examples.Sample sample : examples.samples()) {
+    for (ClassSet.Sample sample : classSet.samples()) {
       String target = sample.getTarget();
 
-      Examples.Sample leftSample = Examples.Sample.create(target);
-      Examples.Sample rightSample = Examples.Sample.create(target);
+      ClassSet.Sample leftSample = ClassSet.Sample.create(target);
+      ClassSet.Sample rightSample = ClassSet.Sample.create(target);
 
       /*
        * STEP 1: Partition the examples according to threshold
@@ -248,24 +240,24 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
       }
     }
 
-    return new Tree.Split<>(left, right, ShapeletThreshold.create(shapelet, threshold));
+    return new TreeSplit<>(left, right, new ShapeletThreshold(shapelet, threshold));
   }
 
   /**
    * Find best threshold.
    *
-   * @param exampleDistances the example distances
-   * @param examples the examples
+   * @param distances the example distances
+   * @param classSet the examples
    * @param y the targets
    * @param distanceSum the distance sum
    * @return the double [ ]
    */
-  public Threshold findBestThreshold(List<ExampleDistance> exampleDistances, Examples examples,
-      Vector y, double distanceSum) {
+  public Threshold findBestThreshold(List<ExampleDistance> distances, ClassSet classSet, Vector y,
+      double distanceSum) {
     ObjectDoubleMap<String> lt = new ObjectDoubleOpenHashMap<>();
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
-    List<String> presentTargets = examples.getTargets();
+    List<String> presentTargets = classSet.getTargets();
     DoubleMatrix ltRelativeFrequency = Matrices.newDoubleVector(presentTargets.size());
     DoubleMatrix gtRelativeFrequency = Matrices.newDoubleVector(presentTargets.size());
 
@@ -275,7 +267,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     // Initialize all value to the right (i.e. all getPosteriorProbabilities are larger than the
     // initial threshold)
-    for (Examples.Sample sample : examples.samples()) {
+    for (ClassSet.Sample sample : classSet.samples()) {
       double weight = sample.getWeight();
       gtWeight += weight;
 
@@ -285,30 +277,29 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
 
     // Transfer weights from the initial example
-    Example first = exampleDistances.get(0).example;
+    Example first = distances.get(0).example;
     String prevTarget = y.getAsString(first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
     ltWeight += first.getWeight();
 
-    double[] leftRight = new double[2];
-    double[] bestLeftRight = new double[2];
-
-    double prevDistance = exampleDistances.get(0).distance;
+    double prevDistance = distances.get(0).distance;
     double lowestImpurity = Double.POSITIVE_INFINITY;
-    double threshold = exampleDistances.get(0).distance / 2;
+    double threshold = distances.get(0).distance / 2;
+    Gain gain = getGain();
     double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
-    for (int i = 1; i < exampleDistances.size(); i++) {
-      ExampleDistance ed = exampleDistances.get(i);
+    for (int i = 1; i < distances.size(); i++) {
+      ExampleDistance ed = distances.get(i);
       String target = y.getAsString(ed.example.getIndex());
 
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current
-      // (except for
-      // the first)
-      if (i == 1
-          || (ed.distance != prevDistance && (prevTarget == null || !prevTarget.equals(target)))) {
+      // (except for the first)
+      boolean notSameDistance = ed.distance != prevDistance;
+      boolean firstOrEqualTarget = prevTarget == null || !prevTarget.equals(target);
+      boolean firstIteration = i == 1;
+      if (firstIteration || notSameDistance && firstOrEqualTarget) {
 
         // Generate the relative frequency distribution
         for (int j = 0; j < presentTargets.size(); j++) {
@@ -319,25 +310,21 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
         // If this split is better, update the threshold
         double impurity =
-            getGain().calculate(ltWeight, ltRelativeFrequency, gtWeight, gtRelativeFrequency,
-                leftRight);
+            gain.compute(ltWeight, ltRelativeFrequency, gtWeight, gtRelativeFrequency);
         double gap = (1 / ltWeight * ltGap) - (1 / gtWeight * gtGap);
-        if (impurity < lowestImpurity || (impurity == lowestImpurity && gap > largestGap)) {
+        boolean lowerImpurity = impurity < lowestImpurity;
+        boolean equalImpuritySmallerGap = impurity == lowestImpurity && gap > largestGap;
+        if (lowerImpurity || equalImpuritySmallerGap) {
           lowestImpurity = impurity;
           largestGap = gap;
-          bestLeftRight = new double[] {leftRight[0], leftRight[1]};
           threshold = (ed.distance + prevDistance) / 2;
         }
       }
+
       /*
-       * Move cursor one example forward, and adjust the weights accordingly p = previous, c =
-       * current
-       * 
-       * p c p c CLS : a a b b b a a b b b VAL : 0 | 1 2 3 4 => 0 1 | 2 3 4 CNT : 1 4 2 3 FREQ: 1/1
-       * 3/4 2/2 3/3
-       * 
-       * Then calculate the new gain for moving the threshold. If this results in a cleaner split,
-       * adjust the threshold (by taking the average of the current and the previous value).
+       * Move cursor one example forward, and adjust the weights accordingly. Then calculate the new
+       * gain for moving the threshold. If this results in a cleaner split, adjust the threshold (by
+       * taking the average of the current and the previous value).
        */
       double weight = ed.example.getWeight();
       ltWeight += weight;
@@ -353,20 +340,13 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     }
 
     double minimumMargin = Double.POSITIVE_INFINITY;
-    // for (ExampleDistance exampleDistance : exampleDistances) {
-    // double residual = Math.abs(threshold - exampleDistance.distance);
-    // if (residual < minimumMargin) {
-    // minimumMargin = residual;
-    // }
-    // }
-
-    return Threshold.create(threshold, lowestImpurity, largestGap, minimumMargin, bestLeftRight);
+    return new Threshold(threshold, lowestImpurity, largestGap, minimumMargin);
   }
 
   /**
    * The type Example distance.
    */
-  public static class ExampleDistance implements Comparable<ExampleDistance> {
+  private static class ExampleDistance implements Comparable<ExampleDistance> {
     /**
      * The Distance.
      */
@@ -376,20 +356,9 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
      */
     public final Example example;
 
-    private ExampleDistance(double distance, Example example) {
+    public ExampleDistance(double distance, Example example) {
       this.distance = distance;
       this.example = example;
-    }
-
-    /**
-     * Create example distance.
-     *
-     * @param distance the distance
-     * @param example the example
-     * @return the example distance
-     */
-    public static ExampleDistance create(double distance, Example example) {
-      return new ExampleDistance(distance, example);
     }
 
     @Override
@@ -399,14 +368,14 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     @Override
     public String toString() {
-      return String.format("ED(id=%d, %.2f)", example.getIndex(), distance);
+      return String.format("ExampleDistance(id=%d, %.2f)", example.getIndex(), distance);
     }
   }
 
   /**
    * The type Builder.
    */
-  public static class Builder implements Splitter.Builder<RandomShapeletSplitter> {
+  public static class Builder {
 
     private int shapelets = 10;
     private int sampleSize = -1;
@@ -420,121 +389,56 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
       this.distance = distance;
     }
 
-    /**
-     * Distance builder.
-     *
-     * @param distance the distance
-     * @return the builder
-     */
     public Builder withDistance(Distance distance) {
       this.distance = distance;
       return this;
     }
 
-    /**
-     * Upper builder.
-     *
-     * @param upper the setUpperLength
-     * @return the builder
-     */
     public Builder withUpperLength(int upper) {
       this.upper = upper;
       return this;
     }
 
-    /**
-     * Lower builder.
-     *
-     * @param lower the setLowerLength
-     * @return the builder
-     */
     public Builder withLowerLength(int lower) {
       this.lower = lower;
       return this;
     }
 
-    /**
-     * Sample size.
-     *
-     * @param sampleSize the sample size
-     * @return the builder
-     */
     public Builder withSampleSize(int sampleSize) {
       this.sampleSize = sampleSize;
       return this;
     }
 
-    /**
-     * Alpha builder.
-     *
-     * @param alpha the setAlpha
-     * @return the builder
-     */
     public Builder withAlpha(double alpha) {
       this.alpha = alpha;
       return this;
     }
 
-    /**
-     * Max shapelets.
-     *
-     * @param maxShapelets the max shapelets
-     * @return the builder
-     */
     public Builder withInspectedShapelets(int maxShapelets) {
       this.shapelets = maxShapelets;
       return this;
     }
 
-    @Override
     public RandomShapeletSplitter create() {
       return new RandomShapeletSplitter(this);
     }
   }
 
   private static class Threshold {
-    /**
-     * The Threshold.
-     */
-    public final double threshold,
+    public final double threshold, impurity, gap, margin;
 
-    /**
-     * The Impurity.
-     */
-    impurity,
-
-    /**
-     * The Gap.
-     */
-    gap,
-
-    /**
-     * The Margin.
-     */
-    margin;
-
-    public final double[] leftRight;
-
-    private Threshold(double threshold, double impurity, double gap, double margin,
-        double[] leftRight) {
+    public Threshold(double threshold, double impurity, double gap, double margin) {
       this.threshold = threshold;
       this.impurity = impurity;
       this.gap = gap;
       this.margin = margin;
-      this.leftRight = leftRight;
     }
 
-    private static Threshold create(double threshold, double impurity, double gap, double margin,
-        double[] leftRight) {
-      return new Threshold(threshold, impurity, gap, margin, leftRight);
+    public static Threshold optimal() {
+      return new Threshold(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+          Double.NEGATIVE_INFINITY);
     }
 
-    /**
-     * Better than.
-     *
-     * @param bestThreshold the best threshold
-     * @return the boolean
-     */
     public boolean isBetterThan(Threshold bestThreshold) {
       return this.impurity < bestThreshold.impurity
           || (this.impurity == bestThreshold.impurity && this.gap > bestThreshold.gap);

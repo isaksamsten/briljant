@@ -24,18 +24,18 @@ public class EarlyAbandonSlidingDistanceTest {
     // System.out.println(b);
 
     System.out.println(shapelet);
-    System.out.println(NormalizedShapelet.create(0, a2.size(), Convert.toAdapter(a1)));
+    System.out.println(NormalizedShapelet.create(0, a2.size(), Convert.toAdapter(a2)));
 
 
     Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
     // System.out.println(distance.distance(a, shapelet));
     // System.out.println(distance.distance(a1, shapelet));
-    System.out.println(distance.distance(Convert.toAdapter(a2), shapelet));
+    System.out.println(distance.compute(Convert.toAdapter(a2), shapelet));
 
 
     distance = OnlineReorderEarlyAbandonSlidingDistance.create();
 
-    System.out.println(distance.distance(Convert.toAdapter(a2), shapelet));
+    System.out.println(distance.compute(Convert.toAdapter(a2), shapelet));
 
 
     // System.out.println(Distance.EUCLIDEAN.distance(b, b));
@@ -61,7 +61,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // for (int i = 0; i < 100; i++) {
     // blacbox(distance.distance(l, candidate));
     // }
-    System.out.println(distance.distance(l, candidate));
+    System.out.println(distance.compute(l, candidate));
     System.out.println(System.currentTimeMillis() - s);
 
     Distance d = OnlineReorderEarlyAbandonSlidingDistance.create();
@@ -70,7 +70,7 @@ public class EarlyAbandonSlidingDistanceTest {
     // blacbox(d.distance(l, candidate));
     // }
 
-    System.out.println(d.distance(l, candidate));
+    System.out.println(d.compute(l, candidate));
     System.out.println(System.currentTimeMillis() - s);
 
   }

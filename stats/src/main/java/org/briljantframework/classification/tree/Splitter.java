@@ -20,33 +20,16 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 09/09/14.
- *
- * @param <T> the type parameter
+ * @author Isak Karlsson
  */
-public interface Splitter<T> {
+public interface Splitter {
 
   /**
    * Find find a "good" separating split in dataset using Examples
    *
-   * @param examples the examples
+   * @param classSet the examples
    * @param dataset the container
    * @return the examples . split
    */
-  Tree.Split<T> find(Examples examples, DataFrame dataset, Vector target);
-
-
-  /**
-   * The interface Builder.
-   *
-   * @param <T> the type parameter
-   */
-  public static interface Builder<T extends Splitter<?>> {
-    /**
-     * Create splitter.
-     *
-     * @return the splitter
-     */
-    T create();
-  }
+  TreeSplit<ValueThreshold> find(ClassSet classSet, DataFrame dataset, Vector target);
 }

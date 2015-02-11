@@ -40,18 +40,18 @@ public class Euclidean implements Distance {
   }
 
   @Override
-  public double distance(double a, double b) {
+  public double compute(double a, double b) {
     double r = a - b;
     return r * r;
   }
 
   @Override
-  public double distance(Vector a, Vector b) {
+  public double compute(Vector a, Vector b) {
     int size = Math.min(a.size(), b.size());
 
     double residual = 0.0;
     for (int i = 0; i < size; i++) {
-      residual += distance(a.getAsDouble(i), b.getAsDouble(i));
+      residual += compute(a.getAsDouble(i), b.getAsDouble(i));
     }
 
     return Math.sqrt(residual);

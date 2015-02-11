@@ -19,44 +19,22 @@ package org.briljantframework.classification.tree;
 import org.briljantframework.shapelet.Shapelet;
 
 /**
- * Created by Isak Karlsson on 17/09/14.
+ * @author Isak Karlsson
  */
 public class ShapeletThreshold {
 
   private final Shapelet shapelet;
   private final double distance;
 
-  private ShapeletThreshold(Shapelet shapelet, double distance) {
+  public ShapeletThreshold(Shapelet shapelet, double distance) {
     this.shapelet = shapelet;
     this.distance = distance;
   }
 
-  /**
-   * Create shapelet threshold.
-   *
-   * @param shapelet the shapelet
-   * @param distance the distance
-   * @return the shapelet threshold
-   */
-  public static ShapeletThreshold create(Shapelet shapelet, double distance) {
-    return new ShapeletThreshold(shapelet, distance);
-  }
-
-
-  /**
-   * Gets shapelet.
-   *
-   * @return the shapelet
-   */
   public Shapelet getShapelet() {
     return shapelet;
   }
 
-  /**
-   * Gets distance.
-   *
-   * @return the distance
-   */
   public double getDistance() {
     return distance;
   }

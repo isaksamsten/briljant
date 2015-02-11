@@ -12,7 +12,7 @@ import org.briljantframework.function.ToIntIntObjBiFunction;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public interface IntMatrix extends Matrix, Iterable<Integer> {
+public interface IntMatrix extends Matrix {
 
   // Assignments
 
@@ -109,6 +109,8 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
   BitMatrix satisfies(IntPredicate predicate);
 
   BitMatrix satisfies(IntMatrix matrix, IntBiPredicate predicate);
+
+  void forEach(IntConsumer consumer);
 
   int reduce(int identity, IntBinaryOperator reduce);
 
@@ -240,7 +242,7 @@ public interface IntMatrix extends Matrix, Iterable<Integer> {
 
   IntStream stream();
 
-  List<Integer> asList();
+  List<Integer> flat();
 
   /**
    * {@inheritDoc}

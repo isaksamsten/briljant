@@ -23,12 +23,10 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.base.Preconditions;
-
 /**
- * Created by Isak Karlsson on 08/09/14.
+ * @author Isak Karlsson
  */
-public final class Examples implements Iterable<Example> {
+public final class ClassSet implements Iterable<Example> {
 
   private static final Random RANDOM = new Random();
 
@@ -36,65 +34,31 @@ public final class Examples implements Iterable<Example> {
 
   private final List<String> targets;
 
-  private Examples(Examples examples) {
-    samples = new HashMap<>(examples.samples);
-    targets = new ArrayList<>(examples.targets);
+  private ClassSet(ClassSet classSet) {
+    samples = new HashMap<>(classSet.samples);
+    targets = new ArrayList<>(classSet.targets);
   }
 
-  /**
-   * Instantiates new Examples from Targets
-   *
-   * @param column the target
-   */
-  private Examples(Vector column) {
+  private ClassSet(Vector column) {
     this();
     for (int i = 0; i < column.size(); i++) {
       add(column.getAsString(i), i, 1);
     }
   }
 
-  private Examples() {
+  private ClassSet() {
     samples = new HashMap<>();
     targets = new ArrayList<>();
   }
 
-  /**
-   * From target.
-   *
-   * @param y the targets
-   * @return the examples
-   */
-  public static Examples fromVector(Vector y) {
-    return new Examples(y);
+  public static ClassSet fromVector(Vector y) {
+    return new ClassSet(y);
   }
 
-  public static Examples fromSample(double[] sample, Vector y) {
-    Preconditions.checkArgument(sample.length == y.size());
-    Examples examples = new Examples();
-    for (int i = 0; i < y.size(); i++) {
-      if (sample[i] > 0) {
-        examples.add(y.getAsString(i), i, sample[i]);
-      }
-    }
-    return examples;
+  public static ClassSet create() {
+    return new ClassSet();
   }
 
-  /**
-   * Empty examples.
-   *
-   * @return the examples
-   */
-  public static Examples create() {
-    return new Examples();
-  }
-
-  /**
-   * Add void.
-   *
-   * @param target the target
-   * @param index the index
-   * @param weight the weight
-   */
   public void add(String target, int index, double weight) {
     Sample sample = samples.get(target);
     if (sample == null) {
@@ -107,31 +71,16 @@ public final class Examples implements Iterable<Example> {
     }
   }
 
-  /**
-   * Add class set.
-   *
-   * @param sample the class set
-   */
   public void add(Sample sample) {
     String target = sample.getTarget();
     targets.add(target);
     samples.put(target, sample);
   }
 
-  /**
-   * Entry set.
-   *
-   * @return the set
-   */
   public Collection<Sample> samples() {
     return samples.values();
   }
 
-  /**
-   * Size int.
-   *
-   * @return the int
-   */
   public int size() {
     int i = 0;
     for (Map.Entry<String, Sample> kv : samples.entrySet()) {
@@ -140,11 +89,6 @@ public final class Examples implements Iterable<Example> {
     return i;
   }
 
-  /**
-   * Gets most probable.
-   *
-   * @return the most probable
-   */
   public String getMostProbable() {
     double max = Double.NEGATIVE_INFINITY;
     String target = null;
@@ -158,48 +102,26 @@ public final class Examples implements Iterable<Example> {
     return target;
   }
 
-  /**
-   * Get class set.
-   *
-   * @param target the target
-   * @return the class set
-   */
+  public Vector[] getPredictions() {
+    return null;
+  }
+
   public Sample get(String target) {
     return samples.get(target);
   }
 
-  /**
-   * Gets random.
-   *
-   * @return the random
-   */
   public Sample getRandomSample() {
     return samples.get(targets.get(RANDOM.nextInt(targets.size())));
   }
 
-  /**
-   * Is empty.
-   *
-   * @return the boolean
-   */
   public boolean isEmpty() {
     return targets.isEmpty();
   }
 
-  /**
-   * Gets targets.
-   *
-   * @return the targets
-   */
   public List<String> getTargets() {
     return Collections.unmodifiableList(targets);
   }
 
-  /**
-   * Get relative frequencies.
-   *
-   * @return the double [ ]
-   */
   public DoubleMatrix getRelativeFrequencies() {
     double size = getTotalWeight();
     double[] rel = new double[samples.size()];
@@ -210,11 +132,6 @@ public final class Examples implements Iterable<Example> {
     return Matrices.newDoubleVector(rel);
   }
 
-  /**
-   * Gets total count.
-   *
-   * @return the total count
-   */
   public double getTotalWeight() {
     double size = 0;
     for (Map.Entry<String, Sample> kv : samples.entrySet()) {
@@ -230,11 +147,6 @@ public final class Examples implements Iterable<Example> {
         System.identityHashCode(this));
   }
 
-  /**
-   * Gets target count.
-   *
-   * @return the target count
-   */
   public int getTargetCount() {
     return targets.size();
   }
@@ -266,106 +178,51 @@ public final class Examples implements Iterable<Example> {
 
   }
 
-  /**
-   * Copy examples.
-   *
-   * @return the examples
-   */
-  public Examples copy() {
-    return new Examples(this);
+  public ClassSet copy() {
+    return new ClassSet(this);
   }
 
-  /**
-   * The type Class set.
-   */
   public static final class Sample implements Iterable<Example> {
 
     private final String target;
     private final ArrayList<Example> examples;
     private double weight;
 
-    /**
-     * Instantiates a new Class set.
-     *
-     * @param target the target
-     */
     private Sample(String target) {
       this.target = target;
       this.examples = new ArrayList<>();
       this.weight = 0;
     }
 
-    /**
-     * Empty sample.
-     *
-     * @param target the target
-     * @return the sample
-     */
     public static Sample create(String target) {
       return new Sample(target);
     }
 
-    /**
-     * Gets target.
-     *
-     * @return the target
-     */
     public String getTarget() {
       return target;
     }
 
-    /**
-     * Get example.
-     *
-     * @param index the index
-     * @return the example
-     */
     public Example get(int index) {
       return examples.get(index);
     }
 
-    /**
-     * Size int.
-     *
-     * @return the int
-     */
     public int size() {
       return examples.size();
     }
 
-    /**
-     * Is empty.
-     *
-     * @return the boolean
-     */
     public boolean isEmpty() {
       return getWeight() == 0;
     }
 
-    /**
-     * Gets weight.
-     *
-     * @return the weight
-     */
     public double getWeight() {
       return weight;
     }
 
-    /**
-     * Add void.
-     *
-     * @param example the example
-     */
     public void add(Example example) {
       examples.add(example);
       weight += example.getWeight();
     }
 
-    /**
-     * Gets random.
-     *
-     * @return the random
-     */
     public Example getRandomExample() {
       return examples.get(RANDOM.nextInt(examples.size()));
     }

@@ -34,10 +34,11 @@ import org.briljantframework.vector.VectorView;
  * creates a short view of the 10-th entry
  * <p>
  * <p>
+ * 
  * @author Isak Karlsson
  */
 // TODO: override getAs... to support the changed indexing
-public class Shapelet extends VectorView  {
+public class Shapelet extends VectorView {
   private final int start, length;
 
   /**

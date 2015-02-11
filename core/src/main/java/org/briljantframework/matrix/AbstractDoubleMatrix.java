@@ -249,7 +249,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
   }
 
   @Override
-  public List<Double> asList() {
+  public List<Double> flat() {
     if (listView == null) {
       listView = new DoubleListView();
     }
@@ -395,6 +395,13 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
       bits.set(i, predicate.test(get(i), matrix.get(i)));
     }
     return bits;
+  }
+
+  @Override
+  public void forEach(DoubleConsumer consumer) {
+    for (int i = 0; i < size(); i++) {
+      consumer.accept(get(i));
+    }
   }
 
   @Override
@@ -605,23 +612,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
       }
     }
     return m;
-  }
-
-  @Override
-  public Iterator<Double> iterator() {
-    return new Iterator<Double>() {
-      private int index = 0;
-
-      @Override
-      public boolean hasNext() {
-        return index < size();
-      }
-
-      @Override
-      public Double next() {
-        return get(index++);
-      }
-    };
   }
 
   @Override
@@ -1091,7 +1081,19 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
     @Override
     public Iterator<Double> iterator() {
-      return AbstractDoubleMatrix.this.iterator();
+      return new Iterator<Double>() {
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+          return index < size();
+        }
+
+        @Override
+        public Double next() {
+          return get(index++);
+        }
+      };
     }
 
     @Override

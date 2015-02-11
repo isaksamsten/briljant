@@ -52,7 +52,7 @@ public interface Distance {
    * @param b scalar
    * @return distance double
    */
-  double distance(double a, double b);
+  double compute(double a, double b);
 
   /**
    * Compute the distance between two vectors
@@ -61,7 +61,7 @@ public interface Distance {
    * @param b a vector
    * @return the distance
    */
-  double distance(Vector a, Vector b);
+  double compute(Vector a, Vector b);
 
   /**
    * Max double.

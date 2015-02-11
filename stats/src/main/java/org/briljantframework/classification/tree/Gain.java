@@ -26,7 +26,7 @@ public class Gain {
   /**
    * The constant GINI.
    */
-  public static final Gain GINI = Gain.with(Gini.INSTANCE);
+  public static final Gain GINI = Gain.with(Gini.getInstance());
 
   /**
    * The constant INFO.
@@ -35,73 +35,26 @@ public class Gain {
 
   private final Impurity impurity;
 
-  /**
-   * Instantiates a new Gain.
-   *
-   * @param impurity the impurity
-   */
   private Gain(Impurity impurity) {
     this.impurity = impurity;
   }
 
-  /**
-   * With gain.
-   *
-   * @param impurity the impurity
-   * @return the gain
-   */
   public static Gain with(Impurity impurity) {
     return new Gain(impurity);
   }
 
-  /**
-   * Gets impurity.
-   *
-   * @return the impurity
-   */
   public Impurity getImpurity() {
     return impurity;
   }
 
-  /**
-   * Calculate double.
-   *
-   * @param before the before
-   * @param split the split
-   * @return the double
-   */
-  public double calculate(Examples before, Tree.Split split) {
-    return calculate(split.getLeft().getTotalWeight(), split.getLeft().getRelativeFrequencies(),
-        split.getRight().getTotalWeight(), split.getRight().getRelativeFrequencies());
+  public double compute(ClassSet before, TreeSplit<?> split) {
+    ClassSet left = split.getLeft();
+    ClassSet right = split.getRight();
+    return compute(left.getTotalWeight(), left.getRelativeFrequencies(), right.getTotalWeight(),
+        right.getRelativeFrequencies());
   }
 
-  /**
-   * Calculate double.
-   *
-   * @param leftWeight the left weight
-   * @param left the left
-   * @param rightWeight the right weight
-   * @param right the right
-   * @return the double
-   */
-  public double calculate(double leftWeight, DoubleMatrix left, double rightWeight,
-      DoubleMatrix right) {
-    return calculate(leftWeight, left, rightWeight, right, null);
-  }
-
-  /**
-   * Calculate the gain from the vectors left and right, wighted by their respective weight.
-   * {@code leftRight} is used to pass out-parameters (this is a hack :)) consisting of the error
-   * 
-   * @param leftWeight
-   * @param left
-   * @param rightWeight
-   * @param right
-   * @param leftRight
-   * @return
-   */
-  public double calculate(double leftWeight, DoubleMatrix left, double rightWeight,
-      DoubleMatrix right, double[] leftRight) {
+  public double compute(double leftWeight, DoubleMatrix left, double rightWeight, DoubleMatrix right) {
     double totalWeight = leftWeight + rightWeight;
     if (leftWeight > 0) {
       leftWeight = (leftWeight / totalWeight) * impurity.impurity(left);// * leftWeight;
@@ -115,39 +68,6 @@ public class Gain {
       rightWeight = 0.0;
     }
 
-    if (leftRight != null && leftRight.length == 2) {
-      leftRight[0] = leftWeight;
-      leftRight[1] = rightWeight;
-    }
-
     return leftWeight + rightWeight;
   }
-
-
-  /**
-   * Calculate double.
-   *
-   * @param leftWeight the left weight
-   * @param rightWeight the right weight
-   * @param leftRelativeFrequencies the left relative frequencies
-   * @param rightRelativeFrequencies the right relative frequencies
-   * @return double double
-   */
-  public double calculate(double leftWeight, double rightWeight,
-      DoubleMatrix leftRelativeFrequencies, DoubleMatrix rightRelativeFrequencies) {
-    return (leftWeight * impurity.impurity(leftRelativeFrequencies))
-        + (rightWeight * impurity.impurity(rightRelativeFrequencies));
-  }
-
-  /**
-   * Is better.
-   *
-   * @param candidate the impurity
-   * @param best the so far
-   * @return the boolean
-   */
-  public boolean isBetter(double candidate, double best) {
-    return candidate < best;
-  }
-
 }

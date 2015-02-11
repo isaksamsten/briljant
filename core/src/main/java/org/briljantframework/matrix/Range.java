@@ -1,7 +1,5 @@
 package org.briljantframework.matrix;
 
-import java.util.Iterator;
-
 import org.briljantframework.matrix.storage.Storage;
 
 import com.google.common.base.Preconditions;
@@ -66,32 +64,8 @@ public class Range extends AbstractIntMatrix {
     return step;
   }
 
-  @Override
-  public Iterator<Integer> iterator() {
-    return new Iterator<Integer>() {
-      private int current = start;
-
-      @Override
-      public boolean hasNext() {
-        return current < end;
-      }
-
-      @Override
-      public Integer next() {
-        int tmp = current;
-        current += step;
-        return tmp;
-      }
-    };
-  }
-
-  public boolean contains(Object o) {
-    if (o instanceof Integer) {
-      int value = (int) o;
-      return value % step == 0 && value < end && value >= start;
-    } else {
-      return false;
-    }
+  public boolean contains(int value) {
+    return value % step == 0 && value < end && value >= start;
   }
 
   @Override

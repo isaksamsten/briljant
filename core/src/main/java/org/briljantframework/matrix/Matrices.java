@@ -352,7 +352,7 @@ public final class Matrices {
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a.get(indexes.get(i)));
     }
-    a.slice(indexes.asList());
+    a.slice(indexes.flat());
     return taken;
   }
 
@@ -710,8 +710,9 @@ public final class Matrices {
     return new DefaultComplexMatrix(rows, columns);
   }
 
-  public static void shuffle(Matrix matrix) {
+  public static <T extends Matrix> T shuffle(T matrix) {
     Utils.permute(matrix.size(), matrix);
+    return matrix;
   }
 
   public static void shuffle(Matrix matrix, Axis axis) {

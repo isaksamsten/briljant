@@ -190,7 +190,7 @@ public final class Vectors {
       }
     }
 
-    return nonNA == 0 ? DoubleVector.NA : mean / nonNA;
+    return nonNA == 0 ? DoubleVector.NA : mean / (double) nonNA;
   }
 
   /**
@@ -202,13 +202,13 @@ public final class Vectors {
     double var = 0;
     int nonNA = 0;
     for (int i = 0; i < vector.size(); i++) {
-      if (vector.isNA(i)) {
+      if (!vector.isNA(i)) {
         double residual = vector.getAsDouble(i) - mean;
         var += residual * residual;
         nonNA += 1;
       }
     }
-    return nonNA == 0 ? DoubleVector.NA : var / nonNA;
+    return nonNA == 0 ? DoubleVector.NA : var / (double) nonNA;
   }
 
   /**

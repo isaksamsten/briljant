@@ -726,7 +726,7 @@ public class AbstractIntMatrixTest {
   public void testIterator() throws Exception {
     IntMatrix x = newIntVector(1, 2, 3, 4, 5, 6);
     int i = 0;
-    for (int v : x) {
+    for (int v : x.flat()) {
       assertEquals(x.get(i++), v);
     }
   }

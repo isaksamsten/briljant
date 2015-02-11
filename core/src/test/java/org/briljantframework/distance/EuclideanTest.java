@@ -13,7 +13,7 @@ public class EuclideanTest {
     System.out.println(a);
     System.out.println(b);
 
-    System.out.println(e.distance(a, b));
-    System.out.println(Manhattan.getInstance().distance(a, b));
+    System.out.println(e.compute(a, b));
+    System.out.println(Manhattan.getInstance().compute(a, b));
   }
 }

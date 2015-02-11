@@ -33,12 +33,12 @@ public class SaxDistance implements Distance {
   }
 
   @Override
-  public double distance(double a, double b) {
+  public double compute(double a, double b) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public double distance(Vector a, Vector b) {
+  public double compute(Vector a, Vector b) {
     org.briljantframework.Check.requireType(StringVector.TYPE, a);
 
     Preconditions.checkArgument(a.size() == b.size());

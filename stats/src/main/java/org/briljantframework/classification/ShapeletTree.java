@@ -16,9 +16,6 @@
 
 package org.briljantframework.classification;
 
-import static org.briljantframework.classification.tree.Tree.Leaf;
-import static org.briljantframework.classification.tree.Tree.Node;
-
 import org.briljantframework.Utils;
 import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
@@ -37,88 +34,63 @@ import org.briljantframework.vector.Vector;
 public class ShapeletTree implements Classifier {
 
   private final ShapeletSplitter splitter;
-  private final Examples examples;
+  private final ClassSet classSet;
 
-  /**
-   * Instantiates a new Time series tree.
-   *
-   * @param splitter the splitter
-   */
   protected ShapeletTree(ShapeletSplitter splitter) {
     this(splitter, null);
   }
 
-  /**
-   * Instantiates a new Time series tree.
-   *
-   * @param splitter the splitter
-   * @param examples the examples
-   */
-  protected ShapeletTree(ShapeletSplitter splitter, Examples examples) {
+  protected ShapeletTree(ShapeletSplitter splitter, ClassSet classSet) {
     this.splitter = splitter;
-    this.examples = examples;
+    this.classSet = classSet;
 
   }
 
-  /**
-   * With splitter.
-   *
-   * @param splitter the splitter
-   * @return the builder
-   */
-  public static Builder withSplitter(Splitter.Builder<? extends ShapeletSplitter> splitter) {
+  public static Builder withSplitter(ShapeletSplitter splitter) {
     return new Builder(splitter);
   }
 
   @Override
   public Model fit(DataFrame x, Vector y) {
-    Examples examples = this.examples;
+    ClassSet classSet = this.classSet;
 
     // Initialize the examples, if not already initialized
-    if (examples == null) {
-      examples = Examples.fromVector(y);
+    if (classSet == null) {
+      classSet = ClassSet.fromVector(y);
     }
 
     Params params = new Params();
-    params.noExamples = examples.getTotalWeight();
+    params.noExamples = classSet.getTotalWeight();
     params.lengthImportance = Matrices.newDoubleVector(x.columns());
     params.positionImportance = Matrices.newDoubleVector(x.columns());
     int size = Utils.randInt(10, x.columns() - 1);
     // x = Approximations.paa(x, size);
     // System.out.println(size);
-    Node<ShapeletThreshold> node = build(x, y, examples, params);
+    TreeNode<ShapeletThreshold> node = build(x, y, classSet, params);
     return new Model(node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
         params.lengthImportance, params.positionImportance);
   }
 
-  /**
-   * Build node.
-   *
-   * @param x the frame
-   * @param y the target
-   * @param examples the examples
-   * @param params the depth
-   * @return the node
-   */
-  protected Node<ShapeletThreshold> build(DataFrame x, Vector y, Examples examples, Params params) {
+  protected TreeNode<ShapeletThreshold> build(DataFrame x, Vector y, ClassSet classSet,
+      Params params) {
     /*
      * STEP 0: pre-prune some useless branches
      */
-    if (examples.getTotalWeight() <= 2 || examples.getTargetCount() == 1) {
-      return Leaf.fromExamples(examples);
+    if (classSet.getTotalWeight() <= 2 || classSet.getTargetCount() == 1) {
+      return TreeLeaf.fromExamples(classSet);
     }
 
     params.depth += 1;
     /*
      * STEP 1: Find a good separating feature
      */
-    Tree.Split<ShapeletThreshold> maxSplit = splitter.find(examples, x, y);
+    TreeSplit<ShapeletThreshold> maxSplit = splitter.find(classSet, x, y);
 
     /*
      * STEP 2a: if no split could be found create a leaf
      */
     if (maxSplit == null) {
-      return Leaf.fromExamples(examples);
+      return TreeLeaf.fromExamples(classSet);
     }
 
     /*
@@ -127,14 +99,14 @@ public class ShapeletTree implements Classifier {
      * STEP 2c: [else] recursively build new sub-trees
      */
     if (maxSplit.getLeft().isEmpty()) {
-      return Leaf.fromExamples(maxSplit.getRight());
+      return TreeLeaf.fromExamples(maxSplit.getRight());
     } else if (maxSplit.getRight().isEmpty()) {
-      return Leaf.fromExamples(maxSplit.getLeft());
+      return TreeLeaf.fromExamples(maxSplit.getLeft());
     } else {
       Shapelet shapelet = maxSplit.getThreshold().getShapelet();
       Impurity impurity = splitter.getGain().getImpurity();
 
-      double imp = impurity.impurity(examples);
+      double imp = impurity.impurity(classSet);
       double weight = (maxSplit.size() / params.noExamples) * (imp - maxSplit.getImpurity());
 
       params.lengthImportance.addTo(shapelet.size(), weight);
@@ -144,9 +116,9 @@ public class ShapeletTree implements Classifier {
       params.positionImportance.slice(Range.range(start, end)).update(
           i -> i + (weight / (double) length));
 
-      Node<ShapeletThreshold> leftNode = build(x, y, maxSplit.getLeft(), params);
-      Node<ShapeletThreshold> rightNode = build(x, y, maxSplit.getRight(), params);
-      return new Tree.Branch<>(leftNode, rightNode, maxSplit.getThreshold());
+      TreeNode<ShapeletThreshold> leftNode = build(x, y, maxSplit.getLeft(), params);
+      TreeNode<ShapeletThreshold> rightNode = build(x, y, maxSplit.getRight(), params);
+      return new TreeBranch<>(leftNode, rightNode, maxSplit.getThreshold());
     }
   }
 
@@ -157,24 +129,12 @@ public class ShapeletTree implements Classifier {
     private int depth = 0;
   }
 
-  /**
-   * The type Model.
-   */
-  public static class Model extends Tree.Model<ShapeletThreshold> {
+  public static class Model extends TreeModel<ShapeletThreshold> {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
-
-    /**
-     * Instantiates a new Model.
-     * 
-     * @param node the node
-     * @param predictionVisitor the prediction visitor
-     * @param lengthImportance the dense matrix
-     * @param positionImportance the position importance
-     */
-    protected Model(Node<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
+    protected Model(TreeNode<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
         DoubleMatrix lengthImportance, DoubleMatrix positionImportance) {
       super(node, predictionVisitor);
       this.lengthImportance = lengthImportance;
@@ -200,7 +160,7 @@ public class ShapeletTree implements Classifier {
     }
   }
 
-  private static class ShapletTreeVisitor implements Tree.Visitor<ShapeletThreshold> {
+  private static class ShapletTreeVisitor implements TreeVisitor<ShapeletThreshold> {
 
     private final Distance metric;
     private final Aggregator aggregator;
@@ -211,14 +171,14 @@ public class ShapeletTree implements Classifier {
     }
 
     @Override
-    public Label visitLeaf(Leaf<ShapeletThreshold> leaf, Vector example) {
+    public Label visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
       return Label.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
     }
 
     @Override
-    public Label visitBranch(Tree.Branch<ShapeletThreshold> node, Vector example) {
+    public Label visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
       // aggregator.aggregate(example)
-      if (metric.distance(example, node.getThreshold().getShapelet()) < node.getThreshold()
+      if (metric.compute(example, node.getThreshold().getShapelet()) < node.getThreshold()
           .getDistance()) {
         return visit(node.getLeft(), example);
       } else {
@@ -227,33 +187,20 @@ public class ShapeletTree implements Classifier {
     }
   }
 
-  /**
-   * The type Builder.
-   */
   public static class Builder implements Classifier.Builder<ShapeletTree> {
 
-    private final Splitter.Builder<? extends ShapeletSplitter> splitter;
+    private final ShapeletSplitter splitter;
 
-    /**
-     * Instantiates a new Builder.
-     *
-     * @param splitter the splitter
-     */
-    public Builder(Splitter.Builder<? extends ShapeletSplitter> splitter) {
+    public Builder(ShapeletSplitter splitter) {
       this.splitter = splitter;
     }
 
-    /**
-     * Create time series tree.
-     *
-     * @return the time series tree
-     */
     public ShapeletTree build() {
-      return new ShapeletTree(splitter.create());
+      return new ShapeletTree(splitter);
     }
 
-    public ShapeletTree create(Examples sample) {
-      return new ShapeletTree(splitter.create(), sample);
+    public ShapeletTree create(ClassSet sample) {
+      return new ShapeletTree(splitter, sample);
     }
   }
 

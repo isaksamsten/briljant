@@ -14,6 +14,7 @@ import org.briljantframework.vector.*;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
@@ -238,29 +239,32 @@ public class MixedDataFrame extends AbstractDataFrame {
     return new MixedDataFrame(columnNames, rowNames, columns, rows());
   }
 
-  // @Override
-  // public DataFrame dropColumns(Iterable<Integer> indexes) {
-  // if (!(indexes instanceof Set)) {
-  // indexes = new HashSet<>(indexes);
-  // }
-  //
-  // ArrayList<Vector> columns = new ArrayList<>();
-  // NameAttribute columnNames = new NameAttribute();
-  //
-  // int index = 0;
-  // for (int i = 0; i < columns(); i++) {
-  // if (!indexes.contains(i)) {
-  // columns.add(getColumn(i));
-  // String name = getColumnName(i);
-  // if (name != null) {
-  // columnNames.put(index, name);
-  // }
-  // index += 1;
-  // }
-  // }
-  //
-  // return new MixedDataFrame(columnNames, rowNames, columns, rows());
-  // }
+  @Override
+  public DataFrame dropColumns(Iterable<Integer> indexes) {
+    Set<Integer> set = null;
+    if (indexes instanceof Set) {
+      set = (Set<Integer>) indexes;
+    } else {
+      set = Sets.newHashSet(indexes);
+    }
+
+    ArrayList<Vector> columns = new ArrayList<>();
+    NameAttribute columnNames = new NameAttribute();
+
+    int index = 0;
+    for (int i = 0; i < columns(); i++) {
+      if (!set.contains(i)) {
+        columns.add(getColumn(i));
+        String name = getColumnName(i);
+        if (name != null) {
+          columnNames.put(index, name);
+        }
+        index += 1;
+      }
+    }
+
+    return new MixedDataFrame(columnNames, rowNames, columns, rows());
+  }
 
   // @Override
   // public DataFrame takeColumns(Iterable<Integer> indexes) {
