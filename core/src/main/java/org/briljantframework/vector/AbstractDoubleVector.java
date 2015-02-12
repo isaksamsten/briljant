@@ -1,7 +1,5 @@
 package org.briljantframework.vector;
 
-import java.util.Arrays;
-
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.storage.VectorStorage;
@@ -50,8 +48,6 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     }
   };
 
-  private DoubleMatrix adapter;
-
   public double get(int index) {
     return getAsDouble(index);
   }
@@ -97,10 +93,39 @@ public abstract class AbstractDoubleVector extends AbstractVector {
 
   @Override
   public DoubleMatrix asMatrix() {
-    if (adapter == null) {
-      adapter = new DefaultDoubleMatrix(new VectorStorage(this));
+    return new DefaultDoubleMatrix(new VectorStorage(this));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-    return adapter;
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsDouble(i) != ov.getAsDouble(i)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      long v = Double.doubleToLongBits(getAsDouble(i));
+      code += 31 * (int) (v ^ v >>> 32);
+    }
+    return code;
   }
 
   @Override
@@ -117,28 +142,4 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
   }
 
-  @Override
-  public int hashCode() {
-    return 31 * size() + Arrays.hashCode(asDoubleArray());
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof Vector) {
-      Vector other = (Vector) obj;
-      if (other.size() != this.size()) {
-        return false;
-      }
-      for (int i = 0; i < size(); i++) {
-        if (getAsDouble(i) != other.getAsDouble(i)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
 }

@@ -5,7 +5,7 @@ import org.briljantframework.matrix.storage.IntStorage;
 import org.briljantframework.matrix.storage.Storage;
 
 /**
- * Created by isak on 1/30/15.
+ * @author Isak Karlsson
  */
 public class DefaultIntMatrix extends AbstractIntMatrix {
 

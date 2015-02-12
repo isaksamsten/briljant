@@ -29,8 +29,16 @@ public class IntVectorTest {
     builder.set(10, 10);
     System.out.println(builder.size());
     System.out.println(builder.build().get(0));
+  }
 
+  @Test
+  public void testEquals() throws Exception {
+    IntVector a = Vectors.newIntVector(1, 2, 3);
+    IntVector b = Vectors.newIntVector(1, 2, 3);
+    assertEquals(a.asMatrix(), b.asMatrix());
 
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
   }
 
   @Test

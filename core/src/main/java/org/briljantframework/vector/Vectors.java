@@ -29,6 +29,10 @@ public final class Vectors {
 
   private Vectors() {}
 
+  public static IntVector newIntVector(int... values) {
+    return IntVector.newBuilderWithInitialValues(values).build();
+  }
+
   /**
    * @param in the vector
    * @return a new vector sorted in ascending order

@@ -11,6 +11,7 @@ import org.briljantframework.vector.Vector;
 /**
  * Creates a k-fold partitioner
  * <p>
+ * 
  * @author Isak Karlsson
  */
 public class FoldPartitioner implements Partitioner {
@@ -44,7 +45,6 @@ public class FoldPartitioner implements Partitioner {
       this.folds = folds;
       this.foldSize = this.rows / folds;
       this.reminder = this.rows % folds;
-      System.out.println(reminder);
     }
 
     @Override

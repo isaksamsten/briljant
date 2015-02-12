@@ -23,7 +23,7 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 /**
- * Created by Isak Karlsson on 17/09/14.
+ * @author Isak Karlsson
  */
 public class DecisionTree implements Classifier {
 
@@ -53,53 +53,20 @@ public class DecisionTree implements Classifier {
     return new Model(node, new SimplePredictionVisitor());
   }
 
-  /**
-   * Build node.
-   *
-   * @param frame the frame
-   * @param target the target
-   * @param classSet the examples
-   * @return the node
-   */
   protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet) {
     return build(frame, target, classSet, 0);
   }
 
-  /**
-   * Build node.
-   *
-   * @param frame the frame
-   * @param target the target
-   * @param classSet the examples
-   * @param depth the depth
-   * @return the node
-   */
   protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet,
       int depth) {
-    /*
-     * STEP 0: pre-prune some useless branches
-     */
     if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
       return TreeLeaf.fromExamples(classSet);
     }
 
-    /*
-     * STEP 1: Find a good separating feature
-     */
     TreeSplit<ValueThreshold> maxSplit = splitter.find(classSet, frame, target);
-
-    /*
-     * STEP 2a: if no split could be found create a leaf
-     */
     if (maxSplit == null) {
       return TreeLeaf.fromExamples(classSet);
-    }
-
-    /*
-     * STEP 2b: [if] the split result in only one partition, create a leaf STEP 2c: [else]
-     * recursively build new sub-trees
-     */
-    if (maxSplit.getLeft().isEmpty()) {
+    } else if (maxSplit.getLeft().isEmpty()) {
       return TreeLeaf.fromExamples(maxSplit.getRight());
     } else if (maxSplit.getRight().isEmpty()) {
       return TreeLeaf.fromExamples(maxSplit.getLeft());

@@ -26,31 +26,6 @@ public class StringValue extends AbstractStringVector implements Value {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-
-    StringValue strings = (StringValue) o;
-
-    if (!value.equals(strings.value))
-      return false;
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return value.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return value;
-  }
-
-  @Override
   public String getAsString(int index) {
     return value;
   }
@@ -58,6 +33,11 @@ public class StringValue extends AbstractStringVector implements Value {
   @Override
   public int size() {
     return 1;
+  }
+
+  @Override
+  public String toString() {
+    return toString(0);
   }
 
   @Override

@@ -1,6 +1,5 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DefaultBitMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.storage.VectorStorage;
@@ -47,8 +46,6 @@ public abstract class AbstractBitVector extends AbstractVector {
       return "binary";
     }
   };
-
-  private BitMatrix adapter;
 
   @Override
   public Value getAsValue(int index) {
@@ -102,10 +99,39 @@ public abstract class AbstractBitVector extends AbstractVector {
 
   @Override
   public Matrix asMatrix() {
-    if (adapter == null) {
-      adapter = new DefaultBitMatrix(new VectorStorage(this));
+    return new DefaultBitMatrix(new VectorStorage(this));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-    return adapter;
+
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsInt(i) != ov.getAsInt(i)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsInt(i);
+    }
+    return code;
   }
 
   @Override

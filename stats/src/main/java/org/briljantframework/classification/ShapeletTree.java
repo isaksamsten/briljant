@@ -91,14 +91,7 @@ public class ShapeletTree implements Classifier {
      */
     if (maxSplit == null) {
       return TreeLeaf.fromExamples(classSet);
-    }
-
-    /*
-     * STEP 2b: [if] the split result in only one partition, create a leaf
-     * 
-     * STEP 2c: [else] recursively build new sub-trees
-     */
-    if (maxSplit.getLeft().isEmpty()) {
+    } else if (maxSplit.getLeft().isEmpty()) {
       return TreeLeaf.fromExamples(maxSplit.getRight());
     } else if (maxSplit.getRight().isEmpty()) {
       return TreeLeaf.fromExamples(maxSplit.getLeft());

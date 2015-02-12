@@ -33,7 +33,7 @@ public final class TreeLeaf<T> implements TreeNode<T> {
   }
 
   @Override
-  public Label visit(TreeVisitor<T> visitor, Vector example) {
+  public final Label visit(TreeVisitor<T> visitor, Vector example) {
     return visitor.visitLeaf(this, example);
   }
 }

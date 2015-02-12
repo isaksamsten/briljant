@@ -2,16 +2,12 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.briljantframework.Utils;
 import org.briljantframework.io.DataEntry;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -36,7 +32,7 @@ public class IntVector extends AbstractIntVector {
     }
   }
 
-  public static Vector.Builder newBuilderWithInitialValues(int... values) {
+  public static Builder newBuilderWithInitialValues(int... values) {
     Builder builder = new Builder(0, values.length);
     for (int value : values) {
       builder.add(value);

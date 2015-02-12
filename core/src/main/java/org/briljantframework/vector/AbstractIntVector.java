@@ -49,8 +49,6 @@ public abstract class AbstractIntVector extends AbstractVector {
     }
   };
 
-  private IntMatrix adapter;
-
   public int get(int index) {
     return getAsInt(index);
   }
@@ -96,10 +94,38 @@ public abstract class AbstractIntVector extends AbstractVector {
 
   @Override
   public IntMatrix asMatrix() {
-    if (adapter == null) {
-      adapter = new DefaultIntMatrix(new VectorStorage(this));
+    return new DefaultIntMatrix(new VectorStorage(this));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-    return adapter;
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsInt(i) != ov.getAsInt(i)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * get(i);
+    }
+    return code;
   }
 
   @Override

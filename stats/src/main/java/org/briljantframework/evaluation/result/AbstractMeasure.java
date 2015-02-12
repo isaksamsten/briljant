@@ -16,9 +16,9 @@
 
 package org.briljantframework.evaluation.result;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.*;
+
+import org.briljantframework.vector.Value;
 
 /**
  * Created by Isak Karlsson on 06/10/14.
@@ -86,30 +86,23 @@ public abstract class AbstractMeasure implements Measure {
         getStandardDeviation(), size());
   }
 
-  /**
-   * The type Producer.
-   */
   protected abstract static class Builder implements Measure.Builder {
 
-    /**
-     * The Values.
-     */
     protected final EnumMap<Sample, List<Double>> values = new EnumMap<>(Sample.class);
-
-    /**
-     * The Max.
-     */
     protected final EnumMap<Sample, Double> max = new EnumMap<>(Sample.class);
-
-    /**
-     * The Min.
-     */
     protected final EnumMap<Sample, Double> min = new EnumMap<>(Sample.class);
-
-    /**
-     * The Sum.
-     */
     protected final EnumMap<Sample, Double> sum = new EnumMap<>(Sample.class);
+
+    private final Set<Value> domain;
+
+    protected Builder(Set<Value> domain) {
+      this.domain = domain;
+    }
+
+
+    public Set<Value> getDomain() {
+      return Collections.unmodifiableSet(domain);
+    }
 
     /**
      * Add value while maintaining the minimum and the maximum value so far. And the sum.

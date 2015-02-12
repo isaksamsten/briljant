@@ -1,16 +1,18 @@
 package org.briljantframework.evaluation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.ClassifierModel;
 import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -55,11 +57,14 @@ public class HoldOutValidation extends AbstractClassificationEvaluator {
    * @return the result
    */
   public Result evaluate(ClassifierModel model, DataFrame x, Vector y) {
+    Set<Value> domain = Stream.concat(y.stream(), holdoutY.stream()).collect(Collectors.toSet());
     List<Label> holdOutPredictions = model.predict(holdoutX);
     List<Label> inSamplePredictions = model.predict(x);
 
     ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, holdoutY);
-    List<Measure> measures = getMeasureProvider().getMeasures().stream().map(producer -> {
+
+
+    List<Measure> measures = getMeasureProvider().getMeasures(domain).stream().map(producer -> {
       producer.compute(Measure.Sample.IN, inSamplePredictions, y);
       producer.compute(Measure.Sample.OUT, holdOutPredictions, holdoutY);
       return producer.build();

@@ -109,6 +109,37 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (!getAsString(i).equals(ov.getAsString(i))) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsString(i).hashCode();
+    }
+    return code;
+  }
+
+  @Override
   public int compare(int a, int b) {
     return !isNA(a) && !isNA(b) ? getAsString(a).compareTo(getAsString(b)) : 0;
   }

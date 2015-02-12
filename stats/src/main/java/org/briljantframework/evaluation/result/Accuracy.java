@@ -17,32 +17,21 @@
 package org.briljantframework.evaluation.result;
 
 import java.util.List;
+import java.util.Set;
 
 import org.briljantframework.classification.Label;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
 
 /**
- * Created by Isak Karlsson on 06/10/14.
+ * @author Isak Karlsson
  */
 public class Accuracy extends AbstractMeasure {
 
-
-  /**
-   * Instantiates a new Accuracy.
-   *
-   * @param builder the producer
-   */
   private Accuracy(AbstractMeasure.Builder builder) {
     super(builder);
-  }
-
-  /**
-   * @return the factory
-   */
-  public static Factory getFactory() {
-    return Builder::new;
   }
 
   @Override
@@ -51,6 +40,10 @@ public class Accuracy extends AbstractMeasure {
   }
 
   public static final class Builder extends AbstractMeasure.Builder {
+
+    public Builder(Set<Value> domain) {
+      super(domain);
+    }
 
     @Override
     public void compute(Sample sample, List<Label> predicted, Vector truth) {

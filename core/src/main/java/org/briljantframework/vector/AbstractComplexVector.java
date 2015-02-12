@@ -3,11 +3,10 @@ package org.briljantframework.vector;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DefaultComplexMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
- * Created by Isak Karlsson on 27/11/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractComplexVector extends AbstractVector {
   public static final VectorType TYPE = new VectorType() {
@@ -48,7 +47,6 @@ public abstract class AbstractComplexVector extends AbstractVector {
   };
 
   public static final Complex NA = Complex.NaN;
-  private ComplexMatrix adapter;
 
   public Complex get(int index) {
     return getAsComplex(index);
@@ -120,11 +118,39 @@ public abstract class AbstractComplexVector extends AbstractVector {
   }
 
   @Override
-  public Matrix asMatrix() {
-    if (adapter == null) {
-      adapter = new DefaultComplexMatrix(new VectorStorage(this));
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-    return adapter;
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsComplex(i).equals(ov.getAsComplex(i))) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsComplex(i).hashCode();
+    }
+    return code;
+  }
+
+  @Override
+  public ComplexMatrix asMatrix() {
+    return new DefaultComplexMatrix(new VectorStorage(this));
   }
 
   /**

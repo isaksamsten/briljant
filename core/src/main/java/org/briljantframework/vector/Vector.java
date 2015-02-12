@@ -17,6 +17,13 @@ import org.briljantframework.matrix.Matrix;
  * implemented differently depending value type, checking for NA-values are done via the
  * {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
  * <p>
+ * 
+ * <p>
+ * Implementors must ensure that
+ * <ul>
+ * <li>{@link #hashCode()} and {@link #equals(Object)}</li> work as expected.
+ * </ul>
+ * </p>
  *
  * @author Isak Karlsson
  */

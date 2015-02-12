@@ -19,29 +19,19 @@ package org.briljantframework.evaluation.result;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.briljantframework.classification.Label;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 06/10/14.
+ * @author Isak Karlsson
  */
 public class AreaUnderCurve extends AbstractClassMeasure {
 
-  /**
-   * Instantiates a new Area under curve.
-   *
-   * @param producer the producer
-   */
-  protected AreaUnderCurve(AbstractClassMeasure.Builder producer) {
+  private AreaUnderCurve(AbstractClassMeasure.Builder producer) {
     super(producer);
-  }
-
-  /**
-   * The constant FACTORY.
-   */
-  public static Factory getFactory() {
-    return Builder::new;
   }
 
   @Override
@@ -51,6 +41,10 @@ public class AreaUnderCurve extends AbstractClassMeasure {
 
   // TODO(isak): warn user if a numeric target is used
   public static final class Builder extends AbstractClassMeasure.Builder {
+
+    public Builder(Set<Value> domain) {
+      super(domain);
+    }
 
     @Override
     protected double calculateMetricForLabel(String value, List<Label> predictions, Vector truth) {

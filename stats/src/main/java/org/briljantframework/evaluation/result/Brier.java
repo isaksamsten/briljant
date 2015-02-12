@@ -1,20 +1,18 @@
 package org.briljantframework.evaluation.result;
 
 import java.util.List;
+import java.util.Set;
 
 import org.briljantframework.Check;
 import org.briljantframework.classification.Label;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by isak on 2/11/15.
+ * @author Isak Karlsson
  */
 public class Brier extends AbstractMeasure {
-  /**
-   * Instantiates a new Abstract metric.
-   *
-   * @param producer the producer
-   */
+
   protected Brier(Builder producer) {
     super(producer);
   }
@@ -25,6 +23,10 @@ public class Brier extends AbstractMeasure {
   }
 
   public static class Builder extends AbstractMeasure.Builder {
+
+    public Builder(Set<Value> domain) {
+      super(domain);
+    }
 
     @Override
     public void compute(Sample sample, List<Label> predicted, Vector truth) {

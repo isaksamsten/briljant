@@ -20,56 +20,22 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Label;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 08/10/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractClassMeasure extends AbstractMeasure implements ClassMeasure {
 
-  /**
-   * The Labels.
-   */
   protected final EnumMap<Sample, Set<String>> labels;
-
-  /**
-   * The Value for value.
-   */
   protected final EnumMap<Sample, List<Map<String, Double>>> valueForValue;
-
-
-  /**
-   * Instantiates a new Abstract metric.
-   *
-   * @param producer the producer
-   */
 
   protected AbstractClassMeasure(Builder producer) {
     super(producer);
     this.labels = producer.sampleLabels;
     this.valueForValue = producer.sampleMetricValues;
   }
-
-  // public JFreeChart getPerValueChart() {
-  // JFreeChart chart = new JFreeChart(getName(), getPerValuePlot());
-  // ChartFactory.getChartTheme().apply(chart);
-  // return chart;
-  // }
-  //
-  // public Plot getPerValuePlot() {
-  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-  // for (String label : getLabels(Sample.OUT)) {
-  // for (int i = 0; i < size(); i++) {
-  // List<Double> outValues = get(Sample.OUT, label);
-  // dataset.addValue(outValues.get(i), label, String.valueOf(i));
-  // }
-  // dataset.addValue(getAverage(Sample.OUT, label), label, "Average");
-  // }
-  //
-  // NumberAxis numberAxis = new NumberAxis(getName());
-  // BarRenderer barRenderer = new BarRenderer();
-  // return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
-  // }
 
   @Override
   public List<Double> get(Sample sample, String value) {
@@ -102,7 +68,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
   @Override
   public double getMin(Sample sample, String value) {
-    if (!getLabels().contains(value)) {
+    if (!getLabels(sample).contains(value)) {
       throw new IllegalArgumentException(String.format("Min not calculate for value %s", value));
     }
     List<Map<String, Double>> valueForValue = this.valueForValue.get(sample);
@@ -112,7 +78,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
   @Override
   public double getMax(Sample sample, String value) {
-    if (!getLabels().contains(value)) {
+    if (!getLabels(sample).contains(value)) {
       throw new IllegalArgumentException(String.format("Max not calculate for value %s", value));
     }
     List<Map<String, Double>> valueForValue = this.valueForValue.get(sample);
@@ -125,14 +91,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
     return labels.get(sample);
   }
 
-  /**
-   * The type Producer.
-   */
   protected static abstract class Builder extends AbstractMeasure.Builder {
-
-    /**
-     * The
-     */
     protected final EnumMap<Sample, List<Map<String, Double>>> sampleMetricValues = new EnumMap<>(
         Sample.class);
 
@@ -142,20 +101,18 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
      */
     protected final EnumMap<Sample, Set<String>> sampleLabels = new EnumMap<>(Sample.class);
 
+    protected Builder(Set<Value> domain) {
+      super(domain);
+    }
+
     @Override
     public void compute(Sample sample, List<Label> predicted, Vector truth) {
       Map<String, Double> valueMetrics = new HashMap<>();
-      Set<String> labels = new HashSet<>();
-
-      // FIXME! targets.getType().getDomain();
-      for (int i = 0; i < truth.size(); i++) {
-        labels.add(truth.getAsString(i));
-      }
 
       double average = 0.0;
-      for (String value : labels) {
-        double metricForValue = calculateMetricForLabel(value, predicted, truth);
-        valueMetrics.put(value, metricForValue);
+      for (Value value : getDomain()) {
+        double metricForValue = calculateMetricForLabel(value.getAsString(), predicted, truth);
+        valueMetrics.put(value.getAsString(), metricForValue);
         average += metricForValue;
       }
 
@@ -166,14 +123,10 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
       }
       metricValues.add(valueMetrics);
 
-      Set<String> sampleLabels = this.sampleLabels.get(sample);
-      if (sampleLabels == null) {
-        sampleLabels = new HashSet<>();
-        this.sampleLabels.put(sample, sampleLabels);
-      }
-      sampleLabels.addAll(labels);
+      this.sampleLabels.put(sample,
+          getDomain().stream().map(Value::getAsString).collect(Collectors.toSet()));
 
-      addComputedValue(sample, average / labels.size());
+      addComputedValue(sample, average / getDomain().size());
     }
 
     /**

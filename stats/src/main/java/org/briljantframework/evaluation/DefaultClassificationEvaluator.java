@@ -2,12 +2,15 @@ package org.briljantframework.evaluation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.ClassifierModel;
 import org.briljantframework.classification.Label;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -32,7 +35,9 @@ public class DefaultClassificationEvaluator extends AbstractClassificationEvalua
   @Override
   public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
     Iterable<Partition> partitions = getPartitioner().partition(x, y);
-    List<Measure.Builder> builders = getMeasureProvider().getMeasures();
+    Set<Value> domain = y.stream().collect(Collectors.toSet());
+    System.out.println(domain);
+    List<Measure.Builder> builders = getMeasureProvider().getMeasures(domain);
     List<ConfusionMatrix> confusionMatrices = new ArrayList<>();
 
     for (Partition partition : partitions) {

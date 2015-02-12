@@ -144,7 +144,6 @@ public class Result {
     if (measure != null) {
       return key.cast(measure);
     } else {
-      // TODO(isak) - is it reasonable to throw an ex
       throw new NoSuchElementException(String.format("%s can't be found", key.getSimpleName()));
     }
 
