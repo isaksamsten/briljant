@@ -1,15 +1,11 @@
 package org.briljantframework.dataseries;
 
-import java.util.Iterator;
-
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
-
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * A data series is a vector of ordered events.
@@ -111,22 +107,5 @@ public class DataSeries implements Record {
   @Override
   public String toString() {
     return vector.toString();
-  }
-
-  @Override
-  public Iterator<Value> iterator() {
-    return new UnmodifiableIterator<Value>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Value next() {
-        return getAsValue(current++);
-      }
-    };
   }
 }

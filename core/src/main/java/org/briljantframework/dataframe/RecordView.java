@@ -1,14 +1,11 @@
 package org.briljantframework.dataframe;
 
-import java.util.Iterator;
-
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.*;
 
 import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 26/11/14.
@@ -129,22 +126,5 @@ public class RecordView implements Record {
       b.put(1, i + 1, toString(i));
     }
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
-  }
-
-  @Override
-  public Iterator<Value> iterator() {
-    return new UnmodifiableIterator<Value>() {
-      public int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < 0;
-      }
-
-      @Override
-      public Value next() {
-        return getAsValue(current++);
-      }
-    };
   }
 }

@@ -1,6 +1,5 @@
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -31,7 +30,7 @@ public final class TreeBranch<T> implements TreeNode<T> {
   }
 
   @Override
-  public Label visit(TreeVisitor<T> visitor, Vector example) {
+  public Vector visit(TreeVisitor<T> visitor, Vector example) {
     return visitor.visitBranch(this, example);
   }
 }

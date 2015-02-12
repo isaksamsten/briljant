@@ -419,7 +419,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
       return this;
     }
 
-    public RandomShapeletSplitter create() {
+    public RandomShapeletSplitter build() {
       return new RandomShapeletSplitter(this);
     }
   }

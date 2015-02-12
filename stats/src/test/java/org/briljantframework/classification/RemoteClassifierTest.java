@@ -66,7 +66,7 @@ public class RemoteClassifierTest {
     //
 
     // AreaUnderCurve auc = result.get(AreaUnderCurve.class);
-    // for (Value value : auc.getLabels())
+    // for (Value value : auc.getDomain())
     // System.out.println(value + " " + auc.getAverage(value) + "(" +
     // auc.getAverage(Metric.Sample.IN) + ")");
     //

@@ -18,8 +18,7 @@ package org.briljantframework.evaluation.result;
 
 import static org.briljantframework.evaluation.result.Measure.Sample;
 
-import java.util.List;
-import java.util.Set;
+import org.briljantframework.vector.DoubleVector;
 
 /**
  * Created by Isak Karlsson on 08/10/14.
@@ -32,7 +31,7 @@ public interface ClassMeasure {
    * @param value the value
    * @return the list
    */
-  default List<Double> get(String value) {
+  default DoubleVector get(String value) {
     return get(Sample.OUT, value);
   }
 
@@ -43,7 +42,7 @@ public interface ClassMeasure {
    * @param value the value
    * @return the list
    */
-  List<Double> get(Sample sample, String value);
+  DoubleVector get(Sample sample, String value);
 
   /**
    * Gets for value.
@@ -120,21 +119,4 @@ public interface ClassMeasure {
    * @return the max
    */
   double getMax(Sample out, String value);
-
-  /**
-   * Gets labels.
-   *
-   * @param sample the sample
-   * @return the labels
-   */
-  Set<String> getLabels(Sample sample);
-
-  /**
-   * Gets labels.
-   *
-   * @return the labels
-   */
-  default Set<String> getLabels() {
-    return getLabels(Sample.OUT);
-  }
 }

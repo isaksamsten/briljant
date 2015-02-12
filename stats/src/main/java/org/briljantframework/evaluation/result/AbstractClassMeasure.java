@@ -16,129 +16,92 @@
 
 package org.briljantframework.evaluation.result;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.briljantframework.classification.Label;
+import org.briljantframework.classification.Predictor;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractClassMeasure extends AbstractMeasure implements ClassMeasure {
 
-  protected final EnumMap<Sample, Set<String>> labels;
-  protected final EnumMap<Sample, List<Map<String, Double>>> valueForValue;
+  protected final EnumMap<Sample, Map<String, DoubleVector>> valueForValue;
 
   protected AbstractClassMeasure(Builder producer) {
     super(producer);
-    this.labels = producer.sampleLabels;
-    this.valueForValue = producer.sampleMetricValues;
+    this.valueForValue = new EnumMap<>(Sample.class);
+    for (Map.Entry<Sample, Map<String, DoubleVector.Builder>> e : producer.sampleMetricValues
+        .entrySet()) {
+      Map<String, DoubleVector> values = new HashMap<>();
+      for (Map.Entry<String, DoubleVector.Builder> ve : e.getValue().entrySet()) {
+        values.put(ve.getKey(), ve.getValue().build());
+      }
+      valueForValue.put(e.getKey(), values);
+    }
   }
 
   @Override
-  public List<Double> get(Sample sample, String value) {
-    List<Map<String, Double>> valueForValue = this.valueForValue.get(sample);
-
-    return valueForValue.stream().map(x -> x.getOrDefault(value, 0.0)).collect(Collectors.toList());
+  public DoubleVector get(Sample sample, String value) {
+    return valueForValue.get(sample).getOrDefault(value, zeroVector);
   }
 
   @Override
   public double getAverage(Sample sample, String value) {
-    if (!getLabels(sample).contains(value)) {
-      throw new IllegalArgumentException(String.format("Average not calculate for value %s", value));
-    }
-    List<Map<String, Double>> valueForValue = this.valueForValue.get(sample);
-    return valueForValue.stream().mapToDouble(x -> x.getOrDefault(value, 0.0)).summaryStatistics()
-        .getAverage();
+    return Vectors.mean(get(sample, value));
   }
 
   @Override
   public double getStandardDeviation(Sample sample, String value) {
     double mean = getAverage(sample, value);
-    double std = 0.0;
-    for (double d : get(sample, value)) {
-      double r = d - mean;
-      std += r * r;
-    }
-
-    return size() > 1 ? Math.sqrt(std / size() - 1) : 0.0;
+    return Vectors.std(get(sample, value), mean);
   }
 
   @Override
   public double getMin(Sample sample, String value) {
-    if (!getLabels(sample).contains(value)) {
-      throw new IllegalArgumentException(String.format("Min not calculate for value %s", value));
-    }
-    List<Map<String, Double>> valueForValue = this.valueForValue.get(sample);
-    return valueForValue.stream().mapToDouble(x -> x.getOrDefault(value, 0.0)).summaryStatistics()
-        .getMin();
+    return get(sample, value).stream().mapToDouble(Value::getAsDouble).min().orElse(0);
   }
 
   @Override
   public double getMax(Sample sample, String value) {
-    if (!getLabels(sample).contains(value)) {
-      throw new IllegalArgumentException(String.format("Max not calculate for value %s", value));
-    }
-    List<Map<String, Double>> valueForValue = this.valueForValue.get(sample);
-    return valueForValue.stream().mapToDouble(x -> x.getOrDefault(value, 0.0)).summaryStatistics()
-        .getMax();
-  }
-
-  @Override
-  public Set<String> getLabels(Sample sample) {
-    return labels.get(sample);
+    return get(sample, value).stream().mapToDouble(Value::getAsDouble).min().orElse(0);
   }
 
   protected static abstract class Builder extends AbstractMeasure.Builder {
-    protected final EnumMap<Sample, List<Map<String, Double>>> sampleMetricValues = new EnumMap<>(
-        Sample.class);
+    protected final EnumMap<Sample, Map<String, DoubleVector.Builder>> sampleMetricValues =
+        new EnumMap<>(Sample.class);
 
-    /**
-     * FIXME: this stores the labels produced for a particular sample. Shouldn't this be the same as
-     * FIXME: sampleMetricValues.get(Sample.IN).keySet()?
-     */
-    protected final EnumMap<Sample, Set<String>> sampleLabels = new EnumMap<>(Sample.class);
-
-    protected Builder(Set<Value> domain) {
+    protected Builder(Vector domain) {
       super(domain);
     }
 
     @Override
-    public void compute(Sample sample, List<Label> predicted, Vector truth) {
-      Map<String, Double> valueMetrics = new HashMap<>();
+    public void compute(Sample sample, Predictor predictor, Vector predicted,
+        DoubleMatrix probabilities, Vector truth) {
+      Map<String, DoubleVector.Builder> metricValues =
+          sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());
 
       double average = 0.0;
-      for (Value value : getDomain()) {
-        double metricForValue = calculateMetricForLabel(value.getAsString(), predicted, truth);
-        valueMetrics.put(value.getAsString(), metricForValue);
+      Vector classes = predictor.getClasses();
+      for (int i = 0; i < classes.size(); i++) {
+        double metricForValue =
+            calculateMetricForLabel(classes.getAsString(i), predicted,
+                probabilities.getColumnView(i), truth);
+        metricValues.computeIfAbsent(classes.getAsString(i), x -> new DoubleVector.Builder()).add(
+            metricForValue);
         average += metricForValue;
       }
-
-      List<Map<String, Double>> metricValues = sampleMetricValues.get(sample);
-      if (metricValues == null) {
-        metricValues = new ArrayList<>();
-        sampleMetricValues.put(sample, metricValues);
-      }
-      metricValues.add(valueMetrics);
-
-      this.sampleLabels.put(sample,
-          getDomain().stream().map(Value::getAsString).collect(Collectors.toSet()));
-
       addComputedValue(sample, average / getDomain().size());
     }
 
-    /**
-     * Calculate a metric for the value {@code value}.
-     *
-     * @param value the value
-     * @param predictions the predictions
-     * @param column the target
-     * @return the double
-     */
-    protected abstract double calculateMetricForLabel(String value, List<Label> predictions,
-        Vector column);
+    protected abstract double calculateMetricForLabel(String real, Vector predictions,
+        DoubleMatrix proba, Vector column);
   }
 
 

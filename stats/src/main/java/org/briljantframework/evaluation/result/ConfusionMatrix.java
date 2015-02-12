@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.*;
 
-import org.briljantframework.classification.Label;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Strings;
@@ -60,7 +59,7 @@ public class ConfusionMatrix {
    * @param truth the target
    * @return the confusion matrix
    */
-  public static ConfusionMatrix compute(List<Label> predictions, Vector truth) {
+  public static ConfusionMatrix compute(Vector predictions, Vector truth, Vector domain) {
     checkArgument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
         predictions.size(), truth.size());
 
@@ -68,7 +67,7 @@ public class ConfusionMatrix {
     Set<String> labels = new HashSet<>();
     double sum = 0;
     for (int i = 0; i < predictions.size(); i++) {
-      String predicted = predictions.get(i).getPredictedValue();
+      String predicted = predictions.getAsString(i);
       String actual = truth.getAsString(i);
 
       Map<String, Double> actuals = matrix.get(predicted);
@@ -263,114 +262,6 @@ public class ConfusionMatrix {
     return builder.toString();
   }
 
-  // /**
-  // * Gets precision recall chart.
-  // *
-  // * @return the precision recall chart
-  // */
-  // public JFreeChart getPrecisionRecallChart() {
-  // return Chartable.create("Average precision and recall", getPlot());
-  //
-  // }
-  //
-  // @Override
-  // public JFreeChart getChart() {
-  // List<String> labels = new ArrayList<>(getLabels());
-  // DefaultXYZDataset dataset = new DefaultXYZDataset();
-  //
-  // double[] x = new double[labels.size() * labels.size()];
-  // double[] y = new double[labels.size() * labels.size()];
-  // double[] z = new double[labels.size() * labels.size()];
-  //
-  // for (int i = 0; i < labels.size(); i++) {
-  // for (int j = 0; j < labels.size(); j++) {
-  // double zz = get(labels.get(i), labels.get(j)) / getActual(labels.get(j));
-  // x[j * labels.size() + i] = i;
-  // y[j * labels.size() + i] = j;
-  // z[j * labels.size() + i] = zz;
-  // }
-  // }
-  // dataset.addSeries("Class Labels", new double[][] {x, y, z});
-  // XYBlockRenderer block = new XYBlockRenderer();
-  // block.setPaintScale(GRAY_PAINT_SCALE);
-  // String[] labelArray = labels.stream().toArray(String[]::new);
-  //
-  // SymbolAxis predicted = new SymbolAxis("Predicted class label", labelArray);
-  // predicted.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-  // predicted.setLowerMargin(0.0D);
-  // predicted.setUpperMargin(0.0D);
-  // predicted.setAxisLinePaint(Color.white);
-  // predicted.setTickMarkPaint(Color.white);
-  //
-  //
-  // SymbolAxis actual = new SymbolAxis("Actual class label", labelArray);
-  // actual.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-  // actual.setLowerMargin(0.0D);
-  // actual.setUpperMargin(0.0D);
-  // actual.setAxisLinePaint(Color.white);
-  // actual.setTickMarkPaint(Color.white);
-  // actual.setInverted(true);
-  //
-  // NumberAxis scale = new NumberAxis("Fraction");
-  // scale.setAxisLinePaint(Color.white);
-  // scale.setTickMarkPaint(Color.white);
-  // scale.setTickLabelFont(new Font(Font.SANS_SERIF, 0, 7));
-  //
-  //
-  // XYPlot plot = new XYPlot(dataset, predicted, actual, block);
-  // plot.setAxisOffset(new RectangleInsets(5D, 5D, 5D, 5D));
-  //
-  // JFreeChart chart = Chartable.create("Confusion Matrix", plot);
-  // chart.removeLegend();
-  //
-  // PaintScaleLegend paintscalelegend = new PaintScaleLegend(GRAY_PAINT_SCALE, scale);
-  // paintscalelegend.setStripOutlineVisible(false);
-  // paintscalelegend.setSubdivisionCount(20);
-  // paintscalelegend.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
-  // paintscalelegend.setAxisOffset(5D);
-  // paintscalelegend.setMargin(new RectangleInsets(2D, 2D, 2D, 2D));
-  // paintscalelegend.setPadding(new RectangleInsets(5D, 5D, 5D, 5D));
-  // paintscalelegend.setStripWidth(10D);
-  // paintscalelegend.setPosition(RectangleEdge.RIGHT);
-  // chart.addSubtitle(paintscalelegend);
-  // return Chartable.applyTheme(chart);
-  // }
-  //
-  // @Override
-  // public Plot getPlot() {
-  // CombinedDomainCategoryPlot c = new CombinedDomainCategoryPlot();
-  //
-  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-  // for (String label : getLabels()) {
-  // dataset.addValue(getPrecision(label), "Precision", label);
-  // }
-  // c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Precision"),
-  // new BarRenderer()));
-  //
-  // dataset = new DefaultCategoryDataset();
-  // for (String label : getLabels()) {
-  // dataset.addValue(getRecall(label), "Recall", label);
-  // }
-  // c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("Recall"),
-  // new BarRenderer()));
-  //
-  // dataset = new DefaultCategoryDataset();
-  // for (String label : getLabels()) {
-  // dataset.addValue(getFMeasure(label, 2), "F-measure", label);
-  // }
-  // c.add(new CategoryPlot(dataset, new CategoryAxis("Label"), new NumberAxis("F-measure"),
-  // new BarRenderer()));
-  // c.setOrientation(PlotOrientation.HORIZONTAL);
-  //
-  // return c;
-  // }
-
-  /**
-   * Gets actual.
-   *
-   * @param actual the actual
-   * @return the actual
-   */
   public double getActual(String actual) {
     double sum = 0;
     for (String predicted : getLabels()) {
@@ -378,28 +269,4 @@ public class ConfusionMatrix {
     }
     return sum;
   }
-
-  // /**
-  // * Inverts the GrayScalePaint, i.e., the largest getPosteriorProbabilities become black, and the
-  // * smallest becomes white
-  // */
-  // private static class InvertedGrayPaintScale extends GrayPaintScale {
-  //
-  // private InvertedGrayPaintScale(double lowerBound, double upperBound, int alpha) {
-  // super(lowerBound, upperBound, alpha);
-  // }
-  //
-  // @Override
-  // public Paint getPaint(double value) {
-  // Paint s = super.getPaint(value);
-  // if (s instanceof Color) {
-  // return invert((Color) s);
-  // }
-  // return s;
-  // }
-  //
-  // private Paint invert(Color s) {
-  // return new Color(255 - s.getRed(), 255 - s.getGreen(), 255 - s.getBlue(), s.getAlpha());
-  // }
-  // }
 }

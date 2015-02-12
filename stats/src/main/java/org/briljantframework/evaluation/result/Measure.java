@@ -1,8 +1,8 @@
 package org.briljantframework.evaluation.result;
 
-import java.util.List;
-
-import org.briljantframework.classification.Label;
+import org.briljantframework.classification.Predictor;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -30,7 +30,7 @@ public interface Measure extends Comparable<Measure> {
   double getStandardDeviation(Sample sample);
 
   /**
-   * Gets min.
+   * Gets the minimum value of a specified run.
    *
    * @return the min
    */
@@ -87,7 +87,7 @@ public interface Measure extends Comparable<Measure> {
    *
    * @return the list
    */
-  default List<Double> get() {
+  default DoubleVector get() {
     return get(Sample.OUT);
   }
 
@@ -97,7 +97,9 @@ public interface Measure extends Comparable<Measure> {
    * @param sample the sample
    * @return the list
    */
-  List<Double> get(Sample sample);
+  DoubleVector get(Sample sample);
+
+  Vector getDomain();
 
   /**
    * Size int.
@@ -105,31 +107,6 @@ public interface Measure extends Comparable<Measure> {
    * @return the int
    */
   int size();
-
-  // @Override
-  // default JFreeChart getChart() {
-  // return Chartable.create(getName(), getPlot());
-  // }
-  //
-  // @Override
-  // default Plot getPlot() {
-  // DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-  // List<Double> outValues = get(Sample.OUT);
-  // List<Double> inValues = get(Sample.IN);
-  //
-  // String outSampleName = "Out-sample";
-  // String inSampleName = "In-sample";
-  //
-  // for (int i = 0; i < outValues.size(); i++) {
-  // dataset.addValue(outValues.get(i), outSampleName, String.valueOf(i));
-  // dataset.addValue(inValues.get(i), inSampleName, String.valueOf(i));
-  // }
-  // dataset.addValue(getAverage(Sample.OUT), outSampleName, "Average");
-  // dataset.addValue(getAverage(Sample.IN), inSampleName, "Average");
-  // NumberAxis numberAxis = new NumberAxis(getName());
-  // BarRenderer barRenderer = new BarRenderer();
-  // return new CategoryPlot(dataset, new CategoryAxis("Result"), numberAxis, barRenderer);
-  // }
 
   /**
    * Gets name.
@@ -183,22 +160,6 @@ public interface Measure extends Comparable<Measure> {
     OUT
   }
 
-
-  /**
-   * Constructs a new metric producer.
-   * <p>
-   * Created by isak on 02/10/14.
-   */
-  interface Factory {
-
-    /**
-     * Create producer.
-     *
-     * @return the producer
-     */
-    Builder newProducer();
-  }
-
   /**
    * Metrics can be produced either in sample (denoted by {@link Measure.Sample#IN}) or out of
    * sample (denoted by {@link Measure.Sample#OUT})
@@ -211,10 +172,13 @@ public interface Measure extends Comparable<Measure> {
      * Add producer.
      * 
      * @param sample the sample
+     * @param predictor
      * @param predicted the predictions
+     * @param probabilities
      * @param truth the target
      */
-    public void compute(Sample sample, List<Label> predicted, Vector truth);
+    public void compute(Sample sample, Predictor predictor, Vector predicted,
+        DoubleMatrix probabilities, Vector truth);
 
     /**
      * Gets performance metric.

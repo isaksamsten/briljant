@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
 
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.RandomShapeletSplitter;
+import org.briljantframework.classification.tree.ShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
@@ -30,6 +31,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
  * <h1>Publications</h1>
@@ -42,11 +44,11 @@ import org.briljantframework.vector.Vector;
  */
 public class RandomShapeletForest extends AbstractEnsemble {
 
-  private final ShapeletTree.Builder tree;
+  private final ShapeletSplitter splitter;
 
-  private RandomShapeletForest(ShapeletTree.Builder builder, int size) {
+  private RandomShapeletForest(ShapeletSplitter builder, int size) {
     super(size);
-    this.tree = builder;
+    this.splitter = builder;
   }
 
   public static Builder withSize(int size) {
@@ -56,12 +58,13 @@ public class RandomShapeletForest extends AbstractEnsemble {
   @Override
   public Model fit(DataFrame x, Vector y) {
     ClassSet classSet = ClassSet.fromVector(y);
+    Vector classes = Vectors.unique(y);
     List<FitTask> tasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      tasks.add(new FitTask(classSet, x, y, tree));
+      tasks.add(new FitTask(classSet, x, y, splitter, classes));
     }
 
-    List<ShapeletTree.Model> models;
+    List<ShapeletTree.Predictor> models;
     try {
       models = execute(tasks);
     } catch (Exception e) {
@@ -70,12 +73,13 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
     DoubleMatrix lenSum = Matrices.newDoubleVector(x.columns());
     DoubleMatrix posSum = Matrices.newDoubleVector(x.columns());
-    for (ShapeletTree.Model m : models) {
+    for (ShapeletTree.Predictor m : models) {
       lenSum.assign(m.getLengthImportance(), Double::sum);
       posSum.assign(m.getPositionImportance(), Double::sum);
     }
 
-    return new Model(models, lenSum.update(v -> v / size()), posSum.update(v -> v / size()));
+    return new Model(classes, models, lenSum.update(v -> v / size()),
+        posSum.update(v -> v / size()));
   }
 
   @Override
@@ -83,25 +87,28 @@ public class RandomShapeletForest extends AbstractEnsemble {
     return "Ensemble of Randomized Shapelet Trees";
   }
 
-  private static final class FitTask implements Callable<ShapeletTree.Model> {
+  private static final class FitTask implements Callable<ShapeletTree.Predictor> {
 
     private final ClassSet classSet;
     private final DataFrame x;
     private final Vector y;
-    private final ShapeletTree.Builder builder;
+    private final Vector classes;
+    private final ShapeletSplitter splitter;
 
 
-    private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder) {
+    private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletSplitter builder,
+        Vector classes) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
-      this.builder = builder;
+      this.classes = classes;
+      this.splitter = builder;
     }
 
     @Override
-    public ShapeletTree.Model call() throws Exception {
+    public ShapeletTree.Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
-      return builder.create(sample(classSet, random)).fit(x, y);
+      return new ShapeletTree(splitter, sample(classSet, random), classes).fit(x, y);
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
@@ -134,9 +141,9 @@ public class RandomShapeletForest extends AbstractEnsemble {
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
-    public Model(List<? extends ClassifierModel> models, DoubleMatrix lengthImportance,
+    public Model(Vector classes, List<? extends Predictor> models, DoubleMatrix lengthImportance,
         DoubleMatrix positionImportance) {
-      super(models);
+      super(classes, models);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
     }
@@ -196,8 +203,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
     @Override
     public RandomShapeletForest build() {
-      ShapeletTree.Builder builder = ShapeletTree.withSplitter(randomShapeletSplitter.create());
-      return new RandomShapeletForest(builder, size);
+      return new RandomShapeletForest(randomShapeletSplitter.build(), size);
     }
 
   }

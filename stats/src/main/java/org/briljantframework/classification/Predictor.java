@@ -1,10 +1,8 @@
 package org.briljantframework.classification;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -19,7 +17,9 @@ import org.briljantframework.vector.Vector;
  * might be useful to have for example a summary() function or similar. Perhaps even a plot(onto)
  * function.
  */
-public interface ClassifierModel {
+public interface Predictor {
+
+  Vector getClasses();
 
   /**
    * Determine the class label of every instance in {@code x}
@@ -27,12 +27,12 @@ public interface ClassifierModel {
    * @param x to determine class labels for
    * @return the predictions
    */
-  default List<Label> predict(DataFrame x) {
-    List<Label> labels = new ArrayList<>();
-    for (Vector e : x) {
-      labels.add(predict(e));
+  default Vector predict(DataFrame x) {
+    Vector.Builder labels = new StringVector.Builder(x.rows());
+    for (int i = 0; i < x.rows(); i++) {
+      labels.set(i, predict(x.getRecord(i)), 0);
     }
-    return Collections.unmodifiableList(labels);
+    return labels.build();
   }
 
   /**
@@ -41,5 +41,9 @@ public interface ClassifierModel {
    * @param row to which the class label shall be assigned
    * @return the prediction
    */
-  Label predict(Vector row);
+  Vector predict(Vector row);
+
+  DoubleMatrix predictProba(DataFrame x);
+
+  DoubleMatrix predictProba(Vector row);
 }

@@ -12,7 +12,7 @@ import org.briljantframework.matrix.Matrix;
 import com.google.common.base.Preconditions;
 
 /**
- * Created by Isak Karlsson on 26/11/14.
+ * @
  */
 public class ValueVector extends AbstractVector implements VariableVector {
 

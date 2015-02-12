@@ -159,6 +159,7 @@ public final class Matrices {
    * For example
    * </p>
    * <p>
+   * <p>
    * 
    * <pre>
    *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
@@ -312,6 +313,19 @@ public final class Matrices {
     return Diagonal.of(size, size, diagonal);
   }
 
+  public static int argMax(DoubleMatrix matrix) {
+    int index = 0;
+    double largest = matrix.get(0);
+    for (int i = 1; i < matrix.size(); i++) {
+      double v = matrix.get(i);
+      if (v > largest) {
+        index = i;
+        largest = v;
+      }
+    }
+    return index;
+  }
+
   public static IntMatrix range(int start, int end) {
     return range(start, end, 1);
   }
@@ -326,6 +340,7 @@ public final class Matrices {
    * <p>
    * For example,
    * </p>
+   * <p>
    * <p>
    * <p>
    * 
@@ -360,6 +375,7 @@ public final class Matrices {
    * Changes the values of a copy of {@code a} according to the values of the {@code mask} and the
    * values in {@code values}. The value at {@code i} in a copy of {@code a} is set to value at
    * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
+   * <p>
    * <p>
    * <p>
    * 
@@ -397,6 +413,7 @@ public final class Matrices {
    * {@code values}.
    * <p>
    * <p>
+   * <p>
    * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
@@ -431,6 +448,7 @@ public final class Matrices {
   /**
    * Selects the values in {@code a} according to the values in {@code where}, replacing those not
    * selected with {@code replace}.
+   * <p>
    * <p>
    * <p>
    * 
@@ -491,6 +509,7 @@ public final class Matrices {
    * For example, reversed sorted
    * <p>
    * <p>
+   * <p>
    * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
@@ -500,6 +519,7 @@ public final class Matrices {
    * <p>
    * {@link org.briljantframework.complex.Complex} and {@link ComplexMatrix} do not have a natural
    * sort order.
+   * <p>
    * <p>
    * <p>
    * 
@@ -729,6 +749,7 @@ public final class Matrices {
 
   /**
    * Parse a matrix in the format
+   * <p>
    * <p>
    * <p>
    * <p>

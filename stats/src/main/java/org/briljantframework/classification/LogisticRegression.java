@@ -26,6 +26,7 @@ import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Convert;
+import org.briljantframework.vector.StringValue;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
@@ -77,13 +78,13 @@ public class LogisticRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(),
         "The number of training instances must equal the number of target");
-
     return fit(x, y, range(0, y.size()));
   }
 
   protected Model fit(DataFrame x, Vector y, IntMatrix indexes) {
     DoubleMatrix theta = new DefaultDoubleMatrix(1, x.columns());
     Vector adaptedTheta = Convert.toAdapter(theta);
+    Vector classes = Vectors.unique(y);
     for (int j = 0; j < this.iterations; j++) {
       shuffle(indexes).forEach(i -> {
         Record row = x.getRecord(i);
@@ -96,7 +97,7 @@ public class LogisticRegression implements Classifier {
         });
     }
 
-    return new Model(adaptedTheta);
+    return new Model(adaptedTheta, classes);
   }
 
   public static class Builder implements Classifier.Builder<LogisticRegression> {
@@ -133,17 +134,28 @@ public class LogisticRegression implements Classifier {
   /**
    * @author Isak Karlsson
    */
-  public static class Model implements ClassifierModel {
+  public static class Model extends AbstractPredictor {
     private final Vector theta;
 
-    public Model(Vector theta) {
+    public Model(Vector theta, Vector classes) {
+      super(classes);
       this.theta = theta;
     }
 
     @Override
-    public Label predict(Vector row) {
+    public Vector predict(Vector row) {
       double prob = Vectors.sigmoid(row, theta);
-      return Label.binary("1", prob, "0", 1 - prob);
+      return new StringValue("1"); // TODO!
+    }
+
+    @Override
+    public DoubleMatrix predictProba(DataFrame x) {
+      return null;
+    }
+
+    @Override
+    public DoubleMatrix predictProba(Vector row) {
+      return null;
     }
 
     public Vector theta() {

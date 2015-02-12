@@ -32,7 +32,7 @@ import org.briljantframework.vector.Vector;
  * </p>
  * 
  * <p>
- * The output of the classifier is a {@link ClassifierModel} (i.e., the {@code g}) which (hopefully)
+ * The output of the classifier is a {@link Predictor} (i.e., the {@code g}) which (hopefully)
  * approximates {@code h}. To estimate how well {@code g} approximates {@code h}, cross-validation
  * {@link org.briljantframework.evaluation.ClassificationEvaluators#crossValidation(int)} can be
  * employed.
@@ -69,7 +69,7 @@ public interface Classifier {
    * @param y the classes
    * @return a classification model
    */
-  public abstract ClassifierModel fit(DataFrame x, Vector y);
+  public abstract Predictor fit(DataFrame x, Vector y);
 
   /**
    * The interface Builder.

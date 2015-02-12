@@ -1,13 +1,12 @@
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.classification.ClassifierModel;
-import org.briljantframework.classification.Label;
+import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.vector.Vector;
 
 /**
  * Created by isak on 2/11/15.
  */
-public abstract class TreeModel<T> implements ClassifierModel {
+public abstract class TreePredictor<T> extends AbstractPredictor {
 
   private final TreeVisitor<T> predictionVisitor;
 
@@ -19,7 +18,8 @@ public abstract class TreeModel<T> implements ClassifierModel {
    * @param node the node
    * @param predictionVisitor the prediction visitor
    */
-  protected TreeModel(TreeNode<T> node, TreeVisitor<T> predictionVisitor) {
+  protected TreePredictor(Vector classes, TreeNode<T> node, TreeVisitor<T> predictionVisitor) {
+    super(classes);
     this.node = node;
     this.predictionVisitor = predictionVisitor;
   }
@@ -34,7 +34,7 @@ public abstract class TreeModel<T> implements ClassifierModel {
   }
 
   @Override
-  public Label predict(Vector row) {
+  public Vector predict(Vector row) {
     return predictionVisitor.visit(node, row);
   }
 

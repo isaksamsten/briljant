@@ -16,29 +16,35 @@
 
 package org.briljantframework.evaluation.result;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.Map;
 
-import org.briljantframework.vector.Value;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
- * Created by Isak Karlsson on 06/10/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractMeasure implements Measure {
 
-  private final EnumMap<Sample, List<Double>> values;
+  protected final Vector domain;
+  protected final DoubleVector zeroVector;
+
+  private final EnumMap<Sample, DoubleVector> values;
   private final EnumMap<Sample, Double> min, max, mean, std;
 
-  /**
-   * Instantiates a new Abstract metric.
-   *
-   * @param builder the producer
-   */
   protected AbstractMeasure(Builder builder) {
-    this.values = builder.values;
+    this.values = new EnumMap<>(Sample.class);
+    for (Map.Entry<Sample, DoubleVector.Builder> entry : builder.values.entrySet()) {
+      values.put(entry.getKey(), entry.getValue().build());
+    }
     this.max = builder.max;
     this.min = builder.min;
+    this.domain = builder.getDomain();
     this.mean = builder.computeMean();
     this.std = builder.computeStandardDeviation(mean);
+    this.zeroVector = Vectors.newDoubleNA(size());
   }
 
   @Override
@@ -58,12 +64,12 @@ public abstract class AbstractMeasure implements Measure {
 
   @Override
   public double get(Sample sample, int i) {
-    return values.containsKey(sample) ? values.get(sample).get(i) : 0;
+    return values.getOrDefault(sample, zeroVector).get(i);
   }
 
   @Override
-  public List<Double> get(Sample sample) {
-    return values.get(sample);
+  public DoubleVector get(Sample sample) {
+    return values.getOrDefault(sample, zeroVector);
   }
 
   @Override
@@ -73,6 +79,11 @@ public abstract class AbstractMeasure implements Measure {
     } else {
       return 0;
     }
+  }
+
+  @Override
+  public Vector getDomain() {
+    return domain;
   }
 
   @Override
@@ -88,20 +99,19 @@ public abstract class AbstractMeasure implements Measure {
 
   protected abstract static class Builder implements Measure.Builder {
 
-    protected final EnumMap<Sample, List<Double>> values = new EnumMap<>(Sample.class);
+    protected final EnumMap<Sample, DoubleVector.Builder> values = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> max = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> min = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> sum = new EnumMap<>(Sample.class);
 
-    private final Set<Value> domain;
+    private final Vector domain;
 
-    protected Builder(Set<Value> domain) {
+    protected Builder(Vector domain) {
       this.domain = domain;
     }
 
-
-    public Set<Value> getDomain() {
-      return Collections.unmodifiableSet(domain);
+    public Vector getDomain() {
+      return domain;
     }
 
     /**
@@ -111,12 +121,7 @@ public abstract class AbstractMeasure implements Measure {
      */
     protected void addComputedValue(Sample sample, double value) {
       sum.compute(sample, (k, v) -> v == null ? value : value + v);
-      List<Double> values = this.values.get(sample);
-      if (values == null) {
-        values = new ArrayList<>();
-        this.values.put(sample, values);
-      }
-      values.add(value);
+      this.values.computeIfAbsent(sample, x -> new DoubleVector.Builder()).add(value);
     }
 
     /**
@@ -127,8 +132,8 @@ public abstract class AbstractMeasure implements Measure {
     protected EnumMap<Sample, Double> computeMean() {
       double inSum = sum.getOrDefault(Sample.IN, 0d);
       double outSum = sum.getOrDefault(Sample.OUT, 0d);
-      List<Double> inValues = values.get(Sample.IN);
-      List<Double> outValues = values.get(Sample.OUT);
+      DoubleVector.Builder inValues = values.get(Sample.IN);
+      DoubleVector.Builder outValues = values.get(Sample.OUT);
 
       EnumMap<Sample, Double> mean = new EnumMap<>(Sample.class);
       if (inValues != null && inValues.size() > 0) {
@@ -151,18 +156,18 @@ public abstract class AbstractMeasure implements Measure {
     protected EnumMap<Sample, Double> computeStandardDeviation(EnumMap<Sample, Double> means) {
       EnumMap<Sample, Double> std = new EnumMap<>(Sample.class);
 
-      for (Sample sample : Sample.values()) {
-        double mean = means.getOrDefault(sample, 0d);
-        List<Double> sampleValues = values.get(sample);
-        double stdAcc = 0.0;
-
-        if (sampleValues != null && sampleValues.size() > 1) {
-          for (double value : sampleValues) {
-            stdAcc += (value - mean) * (value - mean);
-          }
-          stdAcc = Math.sqrt(stdAcc / (sampleValues.size() - 1));
-        }
-        std.put(sample, stdAcc);
+      for (Map.Entry<Sample, DoubleVector.Builder> e : values.entrySet()) {
+        double mean = means.getOrDefault(e.getKey(), 0d);
+        // List<Double> sampleValues = values.get(sample);
+        // double stdAcc = 0.0;
+        //
+        // if (sampleValues != null && sampleValues.size() > 1) {
+        // for (double value : sampleValues) {
+        // stdAcc += (value - mean) * (value - mean);
+        // }
+        // stdAcc = Math.sqrt(stdAcc / (sampleValues.size() - 1));
+        // }
+        std.put(e.getKey(), Vectors.std(e.getValue().getTemporaryVector(), mean));
       }
 
       return std;

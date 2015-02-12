@@ -1,10 +1,7 @@
 package org.briljantframework.evaluation.result;
 
-import java.util.List;
-import java.util.Set;
-
-import org.briljantframework.classification.Label;
-import org.briljantframework.vector.Value;
+import org.briljantframework.classification.Predictor;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -32,17 +29,18 @@ public class ErrorRate extends AbstractMeasure {
 
   public static class Builder extends AbstractMeasure.Builder {
 
-    public Builder(Set<Value> domain) {
+    public Builder(Vector domain) {
       super(domain);
     }
 
     @Override
-    public void compute(Sample sample, List<Label> predicted, Vector truth) {
+    public void compute(Sample sample, Predictor predictor, Vector predicted,
+        DoubleMatrix probabilities, Vector truth) {
       Preconditions.checkArgument(predicted.size() == truth.size());
 
       double accuracy = 0.0;
       for (int i = 0; i < predicted.size(); i++) {
-        if (predicted.get(i).getPredictedValue().equals(truth.getAsString(i))) {
+        if (predicted.getAsString(i).equals(truth.getAsString(i))) {
           accuracy++;
         }
       }

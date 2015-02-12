@@ -26,10 +26,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
+import com.carrotsearch.hppc.ObjectDoubleMap;
+import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
 /**
  * 
@@ -67,8 +70,8 @@ public abstract class AbstractEnsemble implements Classifier {
    * @return a list of produced models
    * @throws Exception if something goes wrong
    */
-  protected static <T extends ClassifierModel> List<T> execute(
-      Collection<? extends Callable<T>> callables) throws Exception {
+  protected static <T extends Predictor> List<T> execute(Collection<? extends Callable<T>> callables)
+      throws Exception {
     List<T> models = new ArrayList<>();
     if (THREAD_POOL != null && THREAD_POOL.getActiveCount() < CORES) {
       for (Future<T> future : THREAD_POOL.invokeAll(callables)) {
@@ -96,39 +99,19 @@ public abstract class AbstractEnsemble implements Classifier {
    * The type Model.
    * <p>
    */
-  protected static class Model implements ClassifierModel {
+  protected static class Model extends AbstractPredictor {
 
-    private final List<? extends ClassifierModel> models;
-
+    private final List<? extends Predictor> models;
 
     /**
      * Instantiates a new Model.
-     * 
+     *
      * @param models the models
      * 
      */
-    public Model(List<? extends ClassifierModel> models) {
+    public Model(Vector classes, List<? extends Predictor> models) {
+      super(classes);
       this.models = models;
-    }
-
-    @Override
-    public Label predict(Vector row) {
-      List<String> predictions =
-          models.parallelStream().map(model -> model.predict(row).getPredictedValue())
-              .collect(Collectors.toList());
-      return majority(predictions);
-    }
-
-    protected Label majority(Collection<String> predictions) {
-      Multiset<String> targets = HashMultiset.create(predictions);
-      List<String> values = new ArrayList<>();
-      List<Double> probabilities = new ArrayList<>();
-      for (Multiset.Entry<String> kv : targets.entrySet()) {
-        String prediction = kv.getElement();
-        values.add(prediction);
-        probabilities.add(kv.getCount() / (double) predictions.size());
-      }
-      return Label.nominal(values, probabilities);
     }
 
     /**
@@ -136,8 +119,41 @@ public abstract class AbstractEnsemble implements Classifier {
      *
      * @return the models
      */
-    public List<? extends ClassifierModel> getModels() {
+    public List<? extends Predictor> getModels() {
       return Collections.unmodifiableList(models);
+    }
+
+    @Override
+    public Vector predict(Vector row) {
+      DoubleMatrix probas = predictProba(row);
+      return getClasses().getAsValue(Matrices.argMax(probas));
+    }
+
+    @Override
+    public DoubleMatrix predictProba(DataFrame x) {
+      DoubleMatrix proba = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
+      for (int i = 0; i < x.rows(); i++) {
+        proba.setRow(i, predictProba(x.getRecord(i)));
+      }
+      return proba;
+    }
+
+    @Override
+    public DoubleMatrix predictProba(Vector row) {
+      List<Vector> predictions =
+          models.parallelStream().map(model -> model.predict(row)).collect(Collectors.toList());
+      ObjectDoubleMap votes = new ObjectDoubleOpenHashMap<>();
+      for (Vector prediction : predictions) {
+        votes.putOrAdd(prediction.getAsString(0), 1, 1);
+      }
+
+      int estimators = getModels().size();
+      Vector classes = getClasses();
+      DoubleMatrix m = Matrices.newDoubleVector(classes.size());
+      for (int i = 0; i < classes.size(); i++) {
+        m.set(i, votes.getOrDefault(classes.getAsString(i), 0) / estimators);
+      }
+      return m;
     }
   }
 }

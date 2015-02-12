@@ -26,7 +26,9 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Range;
 import org.briljantframework.shapelet.Shapelet;
+import org.briljantframework.vector.StringValue;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
  * Created by Isak Karlsson on 16/09/14.
@@ -35,15 +37,16 @@ public class ShapeletTree implements Classifier {
 
   private final ShapeletSplitter splitter;
   private final ClassSet classSet;
+  private Vector classes;
 
   protected ShapeletTree(ShapeletSplitter splitter) {
-    this(splitter, null);
+    this(splitter, null, null);
   }
 
-  protected ShapeletTree(ShapeletSplitter splitter, ClassSet classSet) {
+  protected ShapeletTree(ShapeletSplitter splitter, ClassSet classSet, Vector classes) {
     this.splitter = splitter;
     this.classSet = classSet;
-
+    this.classes = classes;
   }
 
   public static Builder withSplitter(ShapeletSplitter splitter) {
@@ -51,7 +54,7 @@ public class ShapeletTree implements Classifier {
   }
 
   @Override
-  public Model fit(DataFrame x, Vector y) {
+  public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
 
     // Initialize the examples, if not already initialized
@@ -67,8 +70,9 @@ public class ShapeletTree implements Classifier {
     // x = Approximations.paa(x, size);
     // System.out.println(size);
     TreeNode<ShapeletThreshold> node = build(x, y, classSet, params);
-    return new Model(node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
-        params.lengthImportance, params.positionImportance);
+    return new Predictor(classes != null ? classes : Vectors.unique(y), node,
+        new ShapletTreeVisitor(size, splitter.getDistanceMetric()), params.lengthImportance,
+        params.positionImportance);
   }
 
   protected TreeNode<ShapeletThreshold> build(DataFrame x, Vector y, ClassSet classSet,
@@ -122,14 +126,15 @@ public class ShapeletTree implements Classifier {
     private int depth = 0;
   }
 
-  public static class Model extends TreeModel<ShapeletThreshold> {
+  public static class Predictor extends TreePredictor<ShapeletThreshold> {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
-    protected Model(TreeNode<ShapeletThreshold> node, ShapletTreeVisitor predictionVisitor,
-        DoubleMatrix lengthImportance, DoubleMatrix positionImportance) {
-      super(node, predictionVisitor);
+    protected Predictor(Vector classes, TreeNode<ShapeletThreshold> node,
+        ShapletTreeVisitor predictionVisitor, DoubleMatrix lengthImportance,
+        DoubleMatrix positionImportance) {
+      super(classes, node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
     }
@@ -151,6 +156,29 @@ public class ShapeletTree implements Classifier {
     public DoubleMatrix getLengthImportance() {
       return lengthImportance;
     }
+
+    @Override
+    public DoubleMatrix predictProba(DataFrame x) {
+      DoubleMatrix probas = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
+      for (int i = 0; i < x.rows(); i++) {
+        probas.setRow(i, predictProba(x.getRecord(i)));
+      }
+      return probas;
+    }
+
+    @Override
+    public DoubleMatrix predictProba(Vector row) {
+      Vector prediction = predict(row);
+      Vector classes = getClasses();
+      DoubleMatrix probas = Matrices.newDoubleVector(classes.size());
+      for (int i = 0; i < classes.size(); i++) {
+        if (prediction.compare(0, i, classes) == 0) {
+          probas.set(i, 1);
+          break;
+        }
+      }
+      return probas;
+    }
   }
 
   private static class ShapletTreeVisitor implements TreeVisitor<ShapeletThreshold> {
@@ -164,12 +192,12 @@ public class ShapeletTree implements Classifier {
     }
 
     @Override
-    public Label visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
-      return Label.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
+    public Vector visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
+      return new StringValue(leaf.getLabel());
     }
 
     @Override
-    public Label visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
+    public Vector visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
       // aggregator.aggregate(example)
       if (metric.compute(example, node.getThreshold().getShapelet()) < node.getThreshold()
           .getDistance()) {
@@ -193,7 +221,7 @@ public class ShapeletTree implements Classifier {
     }
 
     public ShapeletTree create(ClassSet sample) {
-      return new ShapeletTree(splitter, sample);
+      return new ShapeletTree(splitter, sample, null);
     }
   }
 

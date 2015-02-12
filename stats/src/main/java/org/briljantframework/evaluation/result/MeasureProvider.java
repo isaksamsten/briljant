@@ -1,9 +1,8 @@
 package org.briljantframework.evaluation.result;
 
 import java.util.List;
-import java.util.Set;
 
-import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
 
 /**
  * A measure provider provides measure builders to be used while evaluating algorithms.
@@ -25,5 +24,5 @@ import org.briljantframework.vector.Value;
  */
 public interface MeasureProvider {
 
-  List<Measure.Builder> getMeasures(Set<Value> domain);
+  List<Measure.Builder> getMeasures(Vector domain);
 }

@@ -18,18 +18,18 @@ package org.briljantframework.classification;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
 
+import com.carrotsearch.hppc.ObjectIntMap;
+import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.google.common.collect.MinMaxPriorityQueue;
 
 /**
@@ -106,7 +106,7 @@ public class KNearestNeighbors implements Classifier {
       checkArgument(x.getColumnType(i).getScale() == VectorType.Scale.NUMERICAL,
           "Can't handle non-numerical values");
     }
-    return new Model(x, y, distance, neighbors);
+    return new Model(x, y, distance, neighbors, Vectors.unique(y));
   }
 
   @Override
@@ -173,7 +173,7 @@ public class KNearestNeighbors implements Classifier {
   /**
    * Created by Isak Karlsson on 01/09/14.
    */
-  public static class Model implements ClassifierModel {
+  public static class Model extends AbstractPredictor {
 
     private final DataFrame frame;
     private final Vector targets;
@@ -187,7 +187,8 @@ public class KNearestNeighbors implements Classifier {
      * @param distance the distance
      * @param k the k
      */
-    Model(DataFrame x, Vector y, Distance distance, int k) {
+    Model(DataFrame x, Vector y, Distance distance, int k, Vector classes) {
+      super(classes);
       this.frame = x;
       this.targets = y;
 
@@ -196,41 +197,46 @@ public class KNearestNeighbors implements Classifier {
     }
 
     @Override
-    public Label predict(Vector row) {
+    public Vector predict(Vector row) {
+      return getClasses().getAsValue(Matrices.argMax(predictProba(row)));
+    }
+
+    @Override
+    public DoubleMatrix predictProba(DataFrame x) {
+      DoubleMatrix probas = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
+      for (int i = 0; i < x.rows(); i++) {
+        probas.setRow(i, predictProba(x.getRecord(i)));
+      }
+      return probas;
+    }
+
+    @Override
+    public DoubleMatrix predictProba(Vector row) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
         double d = distance.compute(row, frame.getRecord(i));
-        queue.add(new DistanceIndex(d, i, targets.getAsString(i)));
+        queue.add(new DistanceIndex(targets.getAsString(i), d));
       }
-
-      return majority(queue);
-    }
-
-    private Label majority(MinMaxPriorityQueue<DistanceIndex> it) {
-      Map<String, Integer> values = new HashMap<>();
-      for (DistanceIndex di : it) {
-        values.compute(di.target, (i, v) -> v == null ? 1 : v + 1);
+      ObjectIntMap<String> votes = new ObjectIntOpenHashMap<>();
+      for (DistanceIndex di : queue) {
+        votes.putOrAdd(di.target, 1, 1);
       }
-
-      List<String> target = new ArrayList<>();
-      List<Double> probabilities = new ArrayList<>();
-      for (Map.Entry<String, Integer> kv : values.entrySet()) {
-        target.add(kv.getKey());
-        probabilities.add(kv.getValue() / (double) it.size());
+      Vector classes = getClasses();
+      int voters = queue.size();
+      DoubleMatrix probas = Matrices.newDoubleVector(classes.size());
+      for (int i = 0; i < classes.size(); i++) {
+        probas.set(i, votes.getOrDefault(classes.getAsString(i), 0) / voters);
       }
-
-      return Label.nominal(target, probabilities);
+      return probas;
     }
   }
 
   private static class DistanceIndex implements Comparable<DistanceIndex> {
     private final double distance;
-    private final int index;
     private final String target;
 
-    private DistanceIndex(double distance, int index, String value) {
+    private DistanceIndex(String value, double distance) {
       this.distance = distance;
-      this.index = index;
       this.target = value;
     }
 
@@ -241,7 +247,7 @@ public class KNearestNeighbors implements Classifier {
 
     @Override
     public String toString() {
-      return String.format("%f:%d", distance, index);
+      return String.format("%f", distance);
     }
   }
 }

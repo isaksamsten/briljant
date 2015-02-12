@@ -3,17 +3,15 @@ package org.briljantframework.evaluation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.ClassifierModel;
-import org.briljantframework.classification.Label;
+import org.briljantframework.classification.Predictor;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
-import org.briljantframework.vector.Value;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
  * Created by isak on 05/10/14.
@@ -46,27 +44,27 @@ public class HoldOutValidation extends AbstractClassificationEvaluator {
 
   @Override
   public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
-    ClassifierModel model = classifier.fit(x, y);
+    Predictor model = classifier.fit(x, y);
     return evaluate(model, x, y);
   }
 
   /**
    * Evaluate result.
    *
-   * @param model the model
+   * @param predictor the model
    * @return the result
    */
-  public Result evaluate(ClassifierModel model, DataFrame x, Vector y) {
-    Set<Value> domain = Stream.concat(y.stream(), holdoutY.stream()).collect(Collectors.toSet());
-    List<Label> holdOutPredictions = model.predict(holdoutX);
-    List<Label> inSamplePredictions = model.predict(x);
+  public Result evaluate(Predictor predictor, DataFrame x, Vector y) {
+    Vector domain = Vectors.unique(holdoutY, y);
+    Vector holdOutPredictions = predictor.predict(holdoutX);
+    Vector inSamplePredictions = predictor.predict(x);
+    DoubleMatrix holdOutProba = predictor.predictProba(holdoutX);
+    DoubleMatrix inSampleProba = predictor.predictProba(x);
 
-    ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, holdoutY);
-
-
+    ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, holdoutY, domain);
     List<Measure> measures = getMeasureProvider().getMeasures(domain).stream().map(producer -> {
-      producer.compute(Measure.Sample.IN, inSamplePredictions, y);
-      producer.compute(Measure.Sample.OUT, holdOutPredictions, holdoutY);
+      producer.compute(Measure.Sample.IN, predictor, inSamplePredictions, inSampleProba, y);
+      producer.compute(Measure.Sample.OUT, predictor, holdOutPredictions, holdOutProba, holdoutY);
       return producer.build();
     }).collect(Collectors.toCollection(ArrayList::new));
     return Result.create(measures, Collections.singletonList(confusionMatrix));

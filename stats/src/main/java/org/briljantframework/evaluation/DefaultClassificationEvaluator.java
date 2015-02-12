@@ -1,17 +1,18 @@
 package org.briljantframework.evaluation;
 
+import static org.briljantframework.evaluation.result.Measure.Sample.IN;
+import static org.briljantframework.evaluation.result.Measure.Sample.OUT;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.ClassifierModel;
-import org.briljantframework.classification.Label;
+import org.briljantframework.classification.Predictor;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
-import org.briljantframework.vector.Value;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
  * The default
@@ -35,26 +36,30 @@ public class DefaultClassificationEvaluator extends AbstractClassificationEvalua
   @Override
   public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
     Iterable<Partition> partitions = getPartitioner().partition(x, y);
-    Set<Value> domain = y.stream().collect(Collectors.toSet());
-    System.out.println(domain);
+    Vector domain = Vectors.unique(y);
     List<Measure.Builder> builders = getMeasureProvider().getMeasures(domain);
     List<ConfusionMatrix> confusionMatrices = new ArrayList<>();
 
     for (Partition partition : partitions) {
       DataFrame trainingData = partition.getTrainingData();
       Vector trainingTarget = partition.getTrainingTarget();
-      ClassifierModel model = classifier.fit(trainingData, trainingTarget);
+      Predictor predictor = classifier.fit(trainingData, trainingTarget);
 
       DataFrame validationData = partition.getValidationData();
       Vector validationTarget = partition.getValidationTarget();
 
-      List<Label> outSamplePredictions = model.predict(validationData);
-      List<Label> inSamplePredictions = model.predict(trainingData);
+      Vector outSamplePredictions = predictor.predict(validationData);
+      Vector inSamplePredictions = predictor.predict(trainingData);
 
-      confusionMatrices.add(ConfusionMatrix.compute(outSamplePredictions, validationTarget));
+      DoubleMatrix outSampleProba = predictor.predictProba(validationData);
+      DoubleMatrix inSampleProba = predictor.predictProba(trainingData);
+
+      ConfusionMatrix matrix =
+          ConfusionMatrix.compute(outSamplePredictions, validationTarget, domain);
+      confusionMatrices.add(matrix);
       for (Measure.Builder builder : builders) {
-        builder.compute(Measure.Sample.IN, inSamplePredictions, trainingTarget);
-        builder.compute(Measure.Sample.OUT, outSamplePredictions, validationTarget);
+        builder.compute(IN, predictor, inSamplePredictions, inSampleProba, trainingTarget);
+        builder.compute(OUT, predictor, outSamplePredictions, outSampleProba, validationTarget);
       }
     }
     return Result.create(collect(builders), confusionMatrices);

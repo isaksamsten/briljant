@@ -1,8 +1,10 @@
 package org.briljantframework.vector;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
@@ -28,6 +30,42 @@ public final class Vectors {
   }
 
   private Vectors() {}
+
+  public static int find(Vector vector, Value value) {
+    for (int i = 0; i < vector.size(); i++) {
+      if (vector.compare(i, value) == 0) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  public static int find(Vector vector, int value) {
+    return find(vector, Convert.toValue(value));
+  }
+
+  public static int find(Vector vector, String value) {
+    return find(vector, Convert.toValue(value));
+  }
+
+  public static int find(Vector vector, Predicate<Value> predicate) {
+    for (int i = 0; i < vector.size(); i++) {
+      if (predicate.test(vector.getAsValue(i))) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Creates a double vector of {@code size} filled with {@code NA}
+   * 
+   * @param size the size
+   * @return a new vector
+   */
+  public static DoubleVector newDoubleNA(int size) {
+    return new DoubleVector.Builder(size).build();
+  }
 
   public static IntVector newIntVector(int... values) {
     return IntVector.newBuilderWithInitialValues(values).build();
@@ -299,5 +337,22 @@ public final class Vectors {
       sum += vector.getAsDouble(i);
     }
     return sum;
+  }
+
+  public static Vector unique(Vector... vectors) {
+    vectors = checkNotNull(vectors);
+    checkArgument(vectors.length > 0);
+    Vector.Builder builder = vectors[0].newBuilder();
+    Set<Value> taken = new HashSet<>();
+    for (Vector vector : vectors) {
+      for (int i = 0; i < vector.size(); i++) {
+        Value value = vector.getAsValue(i);
+        if (!taken.contains(value)) {
+          taken.add(value);
+          builder.add(vector, i);
+        }
+      }
+    }
+    return builder.build();
   }
 }

@@ -18,9 +18,9 @@ package org.briljantframework.classification;
 
 import org.briljantframework.classification.tree.*;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.vector.*;
 
 /**
  * @author Isak Karlsson
@@ -31,26 +31,29 @@ public class DecisionTree implements Classifier {
   protected final Splitter splitter;
 
   protected ClassSet classSet;
+  protected Vector classes = null;
 
 
   public DecisionTree(Splitter splitter) {
-    this(splitter, null);
+    this(splitter, null, null);
   }
 
-  protected DecisionTree(Splitter splitter, ClassSet classSet) {
+  protected DecisionTree(Splitter splitter, ClassSet classSet, Vector classes) {
     this.splitter = splitter;
     this.classSet = classSet;
+    this.classes = classes;
   }
 
   @Override
-  public Model fit(DataFrame x, Vector y) {
+  public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
     if (classSet == null) {
       classSet = ClassSet.fromVector(y);
     }
 
     TreeNode<ValueThreshold> node = build(x, y, classSet);
-    return new Model(node, new SimplePredictionVisitor());
+    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
+    return new Predictor(classes, node, new SimplePredictionVisitor());
   }
 
   protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet) {
@@ -83,12 +86,12 @@ public class DecisionTree implements Classifier {
     private static final int MISSING = 0, LEFT = -1, RIGHT = 1;
 
     @Override
-    public Label visitLeaf(TreeLeaf<ValueThreshold> leaf, Vector example) {
-      return Label.unary(leaf.getLabel());// , leaf.getRelativeFrequency());
+    public Vector visitLeaf(TreeLeaf<ValueThreshold> leaf, Vector example) {
+      return new StringValue(leaf.getLabel());
     }
 
     @Override
-    public Label visitBranch(TreeBranch<ValueThreshold> node, Vector example) {
+    public Vector visitBranch(TreeBranch<ValueThreshold> node, Vector example) {
       Value threshold = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
       VectorType type = threshold.getType();
@@ -118,10 +121,34 @@ public class DecisionTree implements Classifier {
     }
   }
 
-  public static class Model extends TreeModel<ValueThreshold> {
+  public static class Predictor extends TreePredictor<ValueThreshold> {
 
-    private Model(TreeNode<ValueThreshold> node, TreeVisitor<ValueThreshold> predictionVisitor) {
-      super(node, predictionVisitor);
+    private Predictor(Vector classes, TreeNode<ValueThreshold> node,
+        TreeVisitor<ValueThreshold> predictionVisitor) {
+      super(classes, node, predictionVisitor);
+    }
+
+    @Override
+    public DoubleMatrix predictProba(DataFrame x) {
+      DoubleMatrix probas = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
+      for (int i = 0; i < x.rows(); i++) {
+        probas.setRow(i, predictProba(x.getRecord(i)));
+      }
+      return probas;
+    }
+
+    @Override
+    public DoubleMatrix predictProba(Vector row) {
+      Vector prediction = predict(row);
+      Vector classes = getClasses();
+      DoubleMatrix probas = Matrices.newDoubleVector(classes.size());
+      for (int i = 0; i < classes.size(); i++) {
+        if (prediction.compare(0, i, classes) == 0) {
+          probas.set(i, 1);
+          break;
+        }
+      }
+      return probas;
     }
   }
 }

@@ -19,10 +19,8 @@ package org.briljantframework.evaluation.result;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-import org.briljantframework.classification.Label;
-import org.briljantframework.vector.Value;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -42,27 +40,27 @@ public class AreaUnderCurve extends AbstractClassMeasure {
   // TODO(isak): warn user if a numeric target is used
   public static final class Builder extends AbstractClassMeasure.Builder {
 
-    public Builder(Set<Value> domain) {
+    public Builder(Vector domain) {
       super(domain);
     }
 
     @Override
-    protected double calculateMetricForLabel(String value, List<Label> predictions, Vector truth) {
-      return calculateAreaUnderCurve(predictions, truth, value);
+    protected double calculateMetricForLabel(String real, Vector predictions, DoubleMatrix proba,
+        Vector truth) {
+      return calculateAreaUnderCurve(predictions, proba, truth, real);
     }
 
-    private double calculateAreaUnderCurve(List<Label> predicted, Vector truth, String value) {
+    private double calculateAreaUnderCurve(Vector predicted, DoubleMatrix proba, Vector truth,
+        String value) {
       double truePositives = 0, falsePositives = 0, positives = 0;
 
       List<PredictionProbability> pairs = new ArrayList<>(predicted.size());
       for (int i = 0; i < truth.size(); i++) {
-        Label p = predicted.get(i);
-
         boolean positiveness = truth.getAsString(i).equals(value);
         if (positiveness) {
           positives++;
         }
-        pairs.add(new PredictionProbability(positiveness, p.getPosteriorProbability(value)));
+        pairs.add(new PredictionProbability(positiveness, proba.get(i)));
       }
 
       // Sort in decreasing order of posterior probability
@@ -108,14 +106,7 @@ public class AreaUnderCurve extends AbstractClassMeasure {
     }
 
     private static final class PredictionProbability implements Comparable<PredictionProbability> {
-      /**
-       * True if the AucPair is positive
-       */
       public final boolean positive;
-
-      /**
-       * The Probability.
-       */
       public final double probability;
 
       private PredictionProbability(boolean positive, double probability) {

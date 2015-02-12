@@ -2,6 +2,8 @@ package org.briljantframework.vector;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.AbstractList;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -27,7 +29,7 @@ import org.briljantframework.matrix.Matrix;
  *
  * @author Isak Karlsson
  */
-public interface Vector extends Serializable, Iterable<Value> {
+public interface Vector extends Serializable {
 
   /**
    * Returns value as {@link org.briljantframework.vector.Value}.
@@ -240,7 +242,35 @@ public interface Vector extends Serializable, Iterable<Value> {
   }
 
   default Stream<Value> stream() {
-    return StreamSupport.stream(spliterator(), false);
+    return StreamSupport.stream(asValueList().spliterator(), false);
+  }
+
+  default List<Value> asValueList() {
+    return new AbstractList<Value>() {
+      @Override
+      public Value get(int i) {
+        return getAsValue(i);
+      }
+
+      @Override
+      public int size() {
+        return size();
+      }
+    };
+  }
+
+  default List<String> asStringList() {
+    return new AbstractList<String>() {
+      @Override
+      public int size() {
+        return size();
+      }
+
+      @Override
+      public String get(int i) {
+        return getAsString(i);
+      }
+    };
   }
 
   /**
@@ -352,6 +382,10 @@ public interface Vector extends Serializable, Iterable<Value> {
      * @return a modified build
      */
     Builder set(int atIndex, Vector from, int fromIndex);
+
+    default Builder set(int atIndex, Value from) {
+      return set(atIndex, from, 0);
+    }
 
     /**
      * Add {@code value} at {@code index}. Padding with NA:s between {@code atIndex} and

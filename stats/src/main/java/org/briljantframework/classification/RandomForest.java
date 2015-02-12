@@ -10,9 +10,10 @@ import org.briljantframework.classification.tree.RandomSplitter;
 import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 /**
- * Created by Isak Karlsson on 19/11/14.
+ * @author Isak Karlsson
  */
 public class RandomForest extends AbstractEnsemble {
 
@@ -24,19 +25,19 @@ public class RandomForest extends AbstractEnsemble {
   }
 
   public static Builder withSize(int size) {
-    return new Builder().withSize(10);
+    return new Builder().withSize(size);
   }
 
   @Override
   public AbstractEnsemble.Model fit(DataFrame x, Vector y) {
     ClassSet classSet = ClassSet.fromVector(y);
+    Vector classes = Vectors.unique(y);
     List<FitTask> fitTasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      fitTasks.add(new FitTask(classSet, x, y, splitter));
+      fitTasks.add(new FitTask(classSet, x, y, splitter, classes));
     }
-
     try {
-      return new Model(execute(fitTasks));
+      return new Model(classes, execute(fitTasks));
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -48,25 +49,27 @@ public class RandomForest extends AbstractEnsemble {
     return String.format("Random Classification Forest");
   }
 
-  private static final class FitTask implements Callable<ClassifierModel> {
+  private static final class FitTask implements Callable<Predictor> {
 
     private final ClassSet classSet;
     private final DataFrame x;
     private final Vector y;
     private final Splitter splitter;
+    private final Vector classes;
 
-
-    private FitTask(ClassSet classSet, DataFrame x, Vector y, Splitter splitter) {
+    private FitTask(ClassSet classSet, DataFrame x, Vector y, Splitter splitter, Vector classes) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
       this.splitter = splitter;
+      this.classes = classes;
     }
 
     @Override
-    public ClassifierModel call() throws Exception {
+    public Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
-      return new DecisionTree(splitter, sample(classSet, random)).fit(x, y);
+      ClassSet bootstrap = sample(classSet, random);
+      return new DecisionTree(splitter, bootstrap, classes).fit(x, y);
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
