@@ -197,20 +197,6 @@ public class KNearestNeighbors implements Classifier {
     }
 
     @Override
-    public Vector predict(Vector row) {
-      return getClasses().getAsValue(Matrices.argMax(predictProba(row)));
-    }
-
-    @Override
-    public DoubleMatrix predictProba(DataFrame x) {
-      DoubleMatrix probas = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
-      for (int i = 0; i < x.rows(); i++) {
-        probas.setRow(i, predictProba(x.getRecord(i)));
-      }
-      return probas;
-    }
-
-    @Override
     public DoubleMatrix predictProba(Vector row) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {

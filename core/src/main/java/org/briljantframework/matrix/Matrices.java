@@ -300,7 +300,7 @@ public final class Matrices {
   }
 
   /**
-   * Diagonal identity matrix of {@code size}
+   * Identity matrix of {@code size}
    *
    * @param size the size
    * @return the identity matrix
@@ -313,7 +313,12 @@ public final class Matrices {
     return Diagonal.of(size, size, diagonal);
   }
 
-  public static int argMax(DoubleMatrix matrix) {
+
+  /**
+   * @param matrix the matrix
+   * @return the index of the maximum value
+   */
+  public static int argmax(DoubleMatrix matrix) {
     int index = 0;
     double largest = matrix.get(0);
     for (int i = 1; i < matrix.size(); i++) {
@@ -326,6 +331,32 @@ public final class Matrices {
     return index;
   }
 
+  /**
+   * @param matrix the matrix
+   * @return the index of the minimum value
+   */
+  public static int argmin(DoubleMatrix matrix) {
+    int index = 0;
+    double smallest = matrix.get(0);
+    for (int i = 1; i < matrix.size(); i++) {
+      double v = matrix.get(i);
+      if (v < smallest) {
+        smallest = v;
+        index = i;
+      }
+    }
+    return index;
+  }
+
+  public static double norm(DoubleMatrix a, DoubleMatrix b, double pow) {
+    Check.size(a, b);
+    double norm = 0;
+    for (int j = 0; j < a.size(); j++) {
+      norm += Math.pow(a.get(j) - b.get(j), pow);
+    }
+    return norm;
+  }
+
   public static IntMatrix range(int start, int end) {
     return range(start, end, 1);
   }
@@ -336,27 +367,9 @@ public final class Matrices {
 
   /**
    * <p>
-   * Take values in {@code a}, using the indexes in {@code indexes}.
-   * <p>
-   * For example,
+   * Take values in {@code a}, using the indexes in {@code indexes}. For example,
    * </p>
-   * <p>
-   * <p>
-   * <p>
    * 
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    IntMatrix a = Ints.newMatrix(1, 2, 3, 4);
-   *    IntMatrix indexes = Ints.newMatrix(0, 0, 1, 2, 3);
-   *    IntMatrix taken = Anys.take(a, indexes).asIntMatrix();
-   *    1
-   *    1
-   *    2
-   *    3
-   *    4
-   *    shape: 5x1 type: int
-   * </pre>
-   *
    * @param a the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
@@ -372,28 +385,12 @@ public final class Matrices {
   }
 
   /**
+   * <p>
    * Changes the values of a copy of {@code a} according to the values of the {@code mask} and the
    * values in {@code values}. The value at {@code i} in a copy of {@code a} is set to value at
    * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
-   * <p>
-   * <p>
-   * <p>
+   * </p>
    * 
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
-   *    BitMatrix mask = a.greaterThan(5)
-   *    IntMatrix values = a.mul(2)
-   *    IntMatrix result = Anys.mask(a, mask, values).asIntMatrix()
-   * 
-   *    0   5
-   *    1   12
-   *    2   14
-   *    3   16
-   *    4   18
-   *    shape: 5x2 type: int
-   * </pre>
-   *
    * @param a a source array
    * @param mask the mask; same shape as {@code a}
    * @param values the values; same shape as {@code a}
@@ -409,28 +406,11 @@ public final class Matrices {
   }
 
   /**
+   * <p>
    * Changes the values of {@code a} according to the values of the {@code mask} and the values in
    * {@code values}.
-   * <p>
-   * <p>
-   * <p>
+   * </p>
    * 
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
-   *    BitMatrix mask = a.greaterThan(5)
-   *    IntMatrix values = a.mul(2)
-   *    Anys.putMask(a, mask, values)
-   *    System.out.println(a)
-   * 
-   *    0   5
-   *    1   12
-   *    2   14
-   *    3   16
-   *    4   18
-   *    shape: 5x2 type: int
-   * </pre>
-   *
    * @param a the target matrix
    * @param mask the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
@@ -446,25 +426,10 @@ public final class Matrices {
   }
 
   /**
+   * <p>
    * Selects the values in {@code a} according to the values in {@code where}, replacing those not
    * selected with {@code replace}.
-   * <p>
-   * <p>
-   * <p>
-   * 
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    IntMatrix a = Ints.range(0, 10).reshape(5, 2)
-   *    BitMatrix mask = a.greaterThan(5)
-   *    IntMatrix b = Anys.select(a, mask, -1)
-   * 
-   *    -1  -1
-   *    -1   6
-   *    -1   7
-   *    -1   8
-   *    -1   9
-   *    shape: 5x2 type: int
-   * </pre>
+   * </p>
    *
    * @param a the source matrix
    * @param where the selection matrix; same shape as {@code a}
@@ -504,29 +469,24 @@ public final class Matrices {
 
   /**
    * <p>
-   * Sorts the source matrix {@code a} in the order specified by {@code comparator}
+   * Sorts the source matrix {@code a} in the order specified by {@code comparator}. For example,
+   * reversed sorted
    * </p>
-   * For example, reversed sorted
-   * <p>
-   * <p>
-   * <p>
-   * 
+   *
    * <pre>
    *  > import org.briljantframework.matrix.*;
-   *    DoubleMatrix a = Doubles.randn(12, 1)
-   *    DoubleMatrix x = Anys.sort(a, (c, i, j) -> -c.compare(a, b)).asDoubleMatrix()
+   *    DoubleMatrix a = Matrices.randn(12, 1)
+   *    DoubleMatrix x = Matrices.sort(a, (c, i, j) -> -c.compare(a, b)).asDoubleMatrix()
    * </pre>
    * <p>
    * {@link org.briljantframework.complex.Complex} and {@link ComplexMatrix} do not have a natural
    * sort order.
-   * <p>
-   * <p>
-   * <p>
+   * </p>
    * 
    * <pre>
    *  > import org.briljantframework.matrix.*;
-   *    ComplexMatrix a = Doubles.randn(12, 1).asComplexMatrix().map(Complex::sqrt)
-   *    ComplexMatrix x = Anys.sort(a, (c, i, j) -> Double.compare(c.getAsComplex(i).abs(),
+   *    ComplexMatrix a = randn(12, 1).asComplexMatrix().map(Complex::sqrt)
+   *    ComplexMatrix x = sort(a, (c, i, j) -> Double.compare(c.getAsComplex(i).abs(),
    *        c.getAsComplex(j).abs()).asComplexMatrix()
    * 
    *    0.1499 + 0.0000i
@@ -554,36 +514,6 @@ public final class Matrices {
     return out;
   }
 
-  // /**
-  // * Sort {@code a} each dimension, set by {@code axis}, in increasing order. For example, if
-  // * {@code axis == Axis.ROW}, each row is sorted in increasing order.
-  // * <p>
-  // * <p>
-  // *
-  // * <pre>
-  // * > import org.briljantframework.matrix.*;
-  // * DoubleMatrix a = Doubles.randn(12, 1).reshape(3,4)
-  // * AnyMatrix x = Anys.sort(a, Axis.COLUMN)
-  // * -0.2836 0.0603 -1.1870 -0.7840
-  // * 0.1644 0.2489 0.2159 0.6990
-  // * 0.4199 0.5131 0.9911 1.7952
-  // * shape: 3x4 type: double
-  // *
-  // * AnyMatrix y = Anys.sort(a, Axis.ROW)
-  // * -0.7840 0.0603 0.4199 0.9911
-  // * -0.2836 0.2159 0.5131 1.7952
-  // * -1.1870 0.1644 0.2489 0.6990
-  // * shape: 3x4 type: double
-  // * </pre>
-  // *
-  // * @param a the source matrix
-  // * @param axis the axis to sort
-  // * @return a new matrix; the returned matrix has the same type as {@code a}
-  // */
-  // public static Matrix sort(Matrix a, Axis axis) {
-  // return sort(a, axis, Matrix::compare);
-  // }
-
   public static Matrix sort(Matrix a, Axis axis, IndexComparator<? super Matrix> comparator) {
     Matrix out = a.copy();
     if (axis == Axis.ROW) {
@@ -601,16 +531,6 @@ public final class Matrices {
     }
     return out;
   }
-
-  // public static Matrix selectIndex(Matrix matrix, IntPredicate predicate) {
-  // Matrix.IncrementalBuilder builder = matrix.newIncrementalBuilder();
-  // for (int i = 0; i < matrix.size(); i++) {
-  // if (predicate.test(i)) {
-  // builder.add(matrix, i);
-  // }
-  // }
-  // return builder.build();
-  // }
 
   /**
    * <p>

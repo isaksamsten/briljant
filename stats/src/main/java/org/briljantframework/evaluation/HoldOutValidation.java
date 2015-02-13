@@ -62,11 +62,17 @@ public class HoldOutValidation extends AbstractClassificationEvaluator {
     DoubleMatrix inSampleProba = predictor.predictProba(x);
 
     ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, holdoutY, domain);
-    List<Measure> measures = getMeasureProvider().getMeasures(domain).stream().map(producer -> {
-      producer.compute(Measure.Sample.IN, predictor, inSamplePredictions, inSampleProba, y);
-      producer.compute(Measure.Sample.OUT, predictor, holdOutPredictions, holdOutProba, holdoutY);
-      return producer.build();
-    }).collect(Collectors.toCollection(ArrayList::new));
+    List<Measure> measures =
+        getMeasureProvider()
+            .getMeasures(domain)
+            .stream()
+            .map(
+                producer -> {
+                  producer.compute(Sample.IN, predictor, x, inSamplePredictions, inSampleProba, y);
+                  producer.compute(Sample.OUT, predictor, holdoutX, holdOutPredictions,
+                      holdOutProba, holdoutY);
+                  return producer.build();
+                }).collect(Collectors.toCollection(ArrayList::new));
     return Result.create(measures, Collections.singletonList(confusionMatrix));
   }
 }

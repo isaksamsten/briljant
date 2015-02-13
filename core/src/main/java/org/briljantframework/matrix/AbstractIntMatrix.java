@@ -301,7 +301,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix assign(ComplexMatrix matrix, ToIntFunction<? super Complex> function) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i)));
     }
@@ -310,7 +310,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix assign(DoubleMatrix matrix, DoubleToIntFunction function) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < matrix.size(); i++) {
       set(i, function.applyAsInt(matrix.get(i)));
     }
@@ -319,7 +319,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix assign(LongMatrix matrix, LongToIntFunction operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
     }
@@ -562,7 +562,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix mul(int alpha, IntMatrix other, int beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     IntMatrix m = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -645,7 +645,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix add(int alpha, IntMatrix other, int beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -690,7 +690,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix sub(int alpha, IntMatrix other, int beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -735,7 +735,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix div(IntMatrix other) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {

@@ -205,8 +205,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
    */
   protected TreeSplit<ShapeletThreshold> split(IntDoubleMap distanceMap, ClassSet classSet,
       double threshold, Shapelet shapelet) {
-    ClassSet left = ClassSet.create();
-    ClassSet right = ClassSet.create();
+    ClassSet left = new ClassSet(classSet.getDomain());
+    ClassSet right = new ClassSet(classSet.getDomain());
 
     /*
      * Partition every class separately

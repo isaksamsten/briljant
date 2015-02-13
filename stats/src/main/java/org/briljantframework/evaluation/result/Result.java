@@ -156,7 +156,7 @@ public class Result {
    * @return the average
    */
   public double getAverage(Class<? extends Measure> key) {
-    return getAverage(key, Measure.Sample.OUT);
+    return getAverage(key, Sample.OUT);
   }
 
   /**
@@ -166,8 +166,8 @@ public class Result {
    * @param sample the sample
    * @return the average
    */
-  public double getAverage(Class<? extends Measure> key, Measure.Sample sample) {
-    return get(key).getAverage(sample);
+  public double getAverage(Class<? extends Measure> key, Sample sample) {
+    return get(key).getMean(sample);
   }
 
   /**
@@ -177,7 +177,7 @@ public class Result {
    * @return the standard deviation
    */
   public double getStandardDeviation(Class<? extends Measure> key) {
-    return getStandardDeviation(key, Measure.Sample.OUT);
+    return getStandardDeviation(key, Sample.OUT);
   }
 
   /**
@@ -187,7 +187,7 @@ public class Result {
    * @param sample the sample
    * @return the standard deviation
    */
-  public double getStandardDeviation(Class<? extends Measure> key, Measure.Sample sample) {
+  public double getStandardDeviation(Class<? extends Measure> key, Sample sample) {
     return get(key).getStandardDeviation(sample);
   }
 
@@ -198,7 +198,7 @@ public class Result {
    * @return the min
    */
   public double getMin(Class<? extends Measure> key) {
-    return getMin(key, Measure.Sample.OUT);
+    return getMin(key, Sample.OUT);
   }
 
   /**
@@ -208,7 +208,7 @@ public class Result {
    * @param sample the sample
    * @return the min
    */
-  public double getMin(Class<? extends Measure> key, Measure.Sample sample) {
+  public double getMin(Class<? extends Measure> key, Sample sample) {
     return get(key).getMin(sample);
   }
 
@@ -219,7 +219,7 @@ public class Result {
    * @return the max
    */
   public double getMax(Class<? extends Measure> key) {
-    return getMax(key, Measure.Sample.OUT);
+    return getMax(key, Sample.OUT);
   }
 
   /**
@@ -229,7 +229,7 @@ public class Result {
    * @param sample the sample
    * @return the max
    */
-  public double getMax(Class<? extends Measure> key, Measure.Sample sample) {
+  public double getMax(Class<? extends Measure> key, Sample sample) {
     return get(key).getMax(sample);
   }
 
@@ -252,7 +252,7 @@ public class Result {
    * @param index the index
    * @return the double
    */
-  public double get(Class<? extends Measure> key, Measure.Sample sample, int index) {
+  public double get(Class<? extends Measure> key, Sample sample, int index) {
     return get(key).get(sample, index);
   }
 
@@ -272,18 +272,21 @@ public class Result {
         .append("Metrics\n");
 
     ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
-    for (Measure measure : getMetrics()) {
-      for (int i = 0; i < measure.size(); i++) {
-        table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
-      }
-      table.put("Average", measure.getName(), String.format("%.4f", measure.getAverage()));
-      table.put("Standard Deviation", measure.getName(),
-          String.format("%.4f", measure.getStandardDeviation()));
-    }
+    getMetrics()
+        .stream()
+        .sorted((a, b) -> a.getName().compareTo(b.getName()))
+        .forEach(
+            measure -> {
+              for (int i = 0; i < measure.size(); i++) {
+                table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
+              }
+              table.put("Average", measure.getName(), String.format("%.4f", measure.getMean()));
+              table.put("Standard Deviation", measure.getName(),
+                  String.format("%.4f", measure.getStandardDeviation()));
+            });
     Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
     return builder.toString();
   }
-
   // @Override
   // public JFreeChart getChart() {
   // return Chartable.create("Combined Result Metrics", getPlot());

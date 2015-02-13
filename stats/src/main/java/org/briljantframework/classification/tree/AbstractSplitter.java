@@ -46,8 +46,8 @@ public abstract class AbstractSplitter implements Splitter {
    */
   protected TreeSplit<ValueThreshold> split(DataFrame dataset, ClassSet classSet, int axis,
       Value threshold) {
-    ClassSet left = ClassSet.create();
-    ClassSet right = ClassSet.create();
+    ClassSet left = new ClassSet(classSet.getDomain());
+    ClassSet right = new ClassSet(classSet.getDomain());
     Vector axisVector = dataset.getColumn(axis);
     VectorType axisType = axisVector.getType();
 

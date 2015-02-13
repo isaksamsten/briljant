@@ -1,5 +1,7 @@
 package org.briljantframework.classification.tree;
 
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -7,32 +9,40 @@ import org.briljantframework.vector.Vector;
  */
 public final class TreeLeaf<T> implements TreeNode<T> {
 
-  private String label;
-  private double relativeFrequency;
+  private final Vector domain;
+  private final DoubleMatrix probabilities;
 
-  private Vector labels;
-  private Vector probabilities;
-
-  public TreeLeaf(String label, double relativeFrequency) {
-    this.label = label;
-    this.relativeFrequency = relativeFrequency;
+  public TreeLeaf(Vector domain, DoubleMatrix probabilities) {
+    this.domain = domain;
+    this.probabilities = probabilities;
   }
 
   public static <T> TreeLeaf<T> fromExamples(ClassSet classSet) {
-    String probable = classSet.getMostProbable();
-    return new TreeLeaf<>(probable, classSet.get(probable).getWeight() / classSet.getTotalWeight());
+    Vector domain = classSet.getDomain();
+    DoubleMatrix prob = Matrices.newDoubleVector(domain.size());
+    double totalWeight = classSet.getTotalWeight();
+    for (int i = 0; i < domain.size(); i++) {
+      String label = domain.getAsString(i);
+      ClassSet.Sample sample = classSet.get(label);
+      if (sample == null) {
+        prob.set(i, 0);
+      } else {
+        prob.set(i, sample.getWeight() / totalWeight);
+      }
+    }
+    return new TreeLeaf<>(domain, prob);
   }
 
-  public double getRelativeFrequency() {
-    return relativeFrequency;
+  public Vector getDomain() {
+    return domain;
   }
 
-  public String getLabel() {
-    return label;
+  public DoubleMatrix getProbabilities() {
+    return probabilities;
   }
 
   @Override
-  public final Vector visit(TreeVisitor<T> visitor, Vector example) {
+  public final DoubleMatrix visit(TreeVisitor<T> visitor, Vector example) {
     return visitor.visitLeaf(this, example);
   }
 }

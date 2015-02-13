@@ -4,14 +4,9 @@ import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.dataseries.Aggregator;
-import org.briljantframework.dataseries.DataSeriesCollection;
-import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.evaluation.ClassificationEvaluators;
 import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
@@ -26,20 +21,19 @@ public class RandomShapeletForestTest {
     //
     // DataSeriesCollection collection = builder.build();
     DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
-    System.out.println(synthetic);
     DataFrame x = synthetic.dropColumn(0);
     StringVector y = Convert.toStringVector(synthetic.getColumn(0));
 
-    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    Aggregator aggregator = new MeanAggregator(30);
-
-    for (Vector row : x) {
-      builder.addRecord(aggregator.partialAggregate(row));
-    }
+    // DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
+    // Aggregator aggregator = new MeanAggregator(30);
+    //
+    // for (Vector row : x) {
+    // builder.addRecord(aggregator.partialAggregate(row));
+    // }
 
     RandomShapeletForest forest =
         RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
-            .withUpperLength(-1).build();
+            .withUpperLength(20).build();
 
     long start = System.currentTimeMillis();
     System.out.println(ClassificationEvaluators.splitValidation(0.33).evaluate(forest, x, y));

@@ -37,7 +37,7 @@ public final class Check {
    * @param b a matrix
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
    */
-  public static void equalSize(Matrix a, Matrix b) throws SizeMismatchException {
+  public static void size(Matrix a, Matrix b) throws SizeMismatchException {
     if (a.size() != b.size()) {
       throw new SizeMismatchException(a.size(), b.size());
     }

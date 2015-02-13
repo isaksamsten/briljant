@@ -1,5 +1,6 @@
 package org.briljantframework.classification.tree;
 
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -30,7 +31,7 @@ public final class TreeBranch<T> implements TreeNode<T> {
   }
 
   @Override
-  public Vector visit(TreeVisitor<T> visitor, Vector example) {
+  public DoubleMatrix visit(TreeVisitor<T> visitor, Vector example) {
     return visitor.visitBranch(this, example);
   }
 }

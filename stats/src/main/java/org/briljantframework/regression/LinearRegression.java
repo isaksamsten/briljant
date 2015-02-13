@@ -16,8 +16,8 @@
 
 package org.briljantframework.regression;
 
+import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Predictor;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
@@ -53,7 +53,7 @@ public class LinearRegression implements Classifier {
   /**
    * The type Model.
    */
-  public static final class Model implements Predictor {
+  public static final class Model extends AbstractPredictor {
 
     private final DoubleMatrix theta;
 
@@ -63,6 +63,7 @@ public class LinearRegression implements Classifier {
      * @param theta the theta
      */
     public Model(DoubleMatrix theta) {
+      super(null);
       this.theta = theta;
     }
 
@@ -76,23 +77,8 @@ public class LinearRegression implements Classifier {
     }
 
     @Override
-    public Vector getClasses() {
-      return null;
-    }
-
-    @Override
-    public Vector predict(Vector row) {
-      return null; // TODO(isak): FIXME //Prediction.numeric(Matrices.dot(theta, row));
-    }
-
-    @Override
-    public DoubleMatrix predictProba(DataFrame x) {
-      return null;
-    }
-
-    @Override
     public DoubleMatrix predictProba(Vector row) {
-      return null;
+      throw new UnsupportedOperationException();
     }
   }
 }

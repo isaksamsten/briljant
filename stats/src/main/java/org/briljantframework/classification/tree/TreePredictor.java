@@ -1,6 +1,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.classification.AbstractPredictor;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -34,9 +35,7 @@ public abstract class TreePredictor<T> extends AbstractPredictor {
   }
 
   @Override
-  public Vector predict(Vector row) {
+  public DoubleMatrix predictProba(Vector row) {
     return predictionVisitor.visit(node, row);
   }
-
-
 }

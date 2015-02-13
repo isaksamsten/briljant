@@ -200,7 +200,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
     }
@@ -236,7 +236,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
     }
@@ -245,7 +245,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
     }
@@ -315,7 +315,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
   }
 
   public BitMatrix satisfies(ComplexMatrix other, BiPredicate<Complex, Complex> predicate) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     BitMatrix bits = Matrices.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
@@ -593,7 +593,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public ComplexMatrix sub(Complex alpha, ComplexMatrix other, Complex beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     ComplexMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       m.set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));

@@ -26,9 +26,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
-import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.ObjectDoubleMap;
@@ -95,56 +95,26 @@ public abstract class AbstractEnsemble implements Classifier {
     return size;
   }
 
-  /**
-   * The type Model.
-   * <p>
-   */
-  protected static class Model extends AbstractPredictor {
+  public static class Model extends AbstractPredictor {
 
     private final List<? extends Predictor> models;
 
-    /**
-     * Instantiates a new Model.
-     *
-     * @param models the models
-     * 
-     */
     public Model(Vector classes, List<? extends Predictor> models) {
       super(classes);
       this.models = models;
     }
 
-    /**
-     * Gets models.
-     *
-     * @return the models
-     */
     public List<? extends Predictor> getModels() {
       return Collections.unmodifiableList(models);
     }
 
     @Override
-    public Vector predict(Vector row) {
-      DoubleMatrix probas = predictProba(row);
-      return getClasses().getAsValue(Matrices.argMax(probas));
-    }
-
-    @Override
-    public DoubleMatrix predictProba(DataFrame x) {
-      DoubleMatrix proba = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
-      for (int i = 0; i < x.rows(); i++) {
-        proba.setRow(i, predictProba(x.getRecord(i)));
-      }
-      return proba;
-    }
-
-    @Override
     public DoubleMatrix predictProba(Vector row) {
-      List<Vector> predictions =
+      List<Value> predictions =
           models.parallelStream().map(model -> model.predict(row)).collect(Collectors.toList());
-      ObjectDoubleMap votes = new ObjectDoubleOpenHashMap<>();
-      for (Vector prediction : predictions) {
-        votes.putOrAdd(prediction.getAsString(0), 1, 1);
+      ObjectDoubleMap<String> votes = new ObjectDoubleOpenHashMap<>();
+      for (Value prediction : predictions) {
+        votes.putOrAdd(prediction.getAsString(), 1, 1);
       }
 
       int estimators = getModels().size();

@@ -1,7 +1,7 @@
 package org.briljantframework.evaluation;
 
-import static org.briljantframework.evaluation.result.Measure.Sample.IN;
-import static org.briljantframework.evaluation.result.Measure.Sample.OUT;
+import static org.briljantframework.evaluation.result.Sample.IN;
+import static org.briljantframework.evaluation.result.Sample.OUT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +54,15 @@ public class DefaultClassificationEvaluator extends AbstractClassificationEvalua
       DoubleMatrix outSampleProba = predictor.predictProba(validationData);
       DoubleMatrix inSampleProba = predictor.predictProba(trainingData);
 
+
       ConfusionMatrix matrix =
           ConfusionMatrix.compute(outSamplePredictions, validationTarget, domain);
       confusionMatrices.add(matrix);
       for (Measure.Builder builder : builders) {
-        builder.compute(IN, predictor, inSamplePredictions, inSampleProba, trainingTarget);
-        builder.compute(OUT, predictor, outSamplePredictions, outSampleProba, validationTarget);
+        builder.compute(IN, predictor, trainingData, inSamplePredictions, inSampleProba,
+            trainingTarget);
+        builder.compute(OUT, predictor, validationData, outSamplePredictions, outSampleProba,
+            validationTarget);
       }
     }
     return Result.create(collect(builders), confusionMatrices);

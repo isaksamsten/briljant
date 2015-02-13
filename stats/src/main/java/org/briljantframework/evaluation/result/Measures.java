@@ -23,7 +23,8 @@ public final class Measures {
     @Override
     public List<Measure.Builder> getMeasures(Vector domain) {
       return Arrays.asList(new ErrorRate.Builder(domain), new Accuracy.Builder(domain),
-          new AreaUnderCurve.Builder(domain), new Brier.Builder(domain));
+          new AreaUnderCurve.Builder(domain), new Brier.Builder(domain),
+          new EnsembleVariance.Builder(domain));
     }
   }
 }

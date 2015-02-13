@@ -1,10 +1,12 @@
 package org.briljantframework.evaluation.result;
 
+import static org.briljantframework.vector.Vectors.find;
+
 import org.briljantframework.Check;
 import org.briljantframework.classification.Predictor;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
 
 /**
  * @author Isak Karlsson
@@ -27,16 +29,18 @@ public class Brier extends AbstractMeasure {
     }
 
     @Override
-    public void compute(Sample sample, Predictor predictor, Vector predicted,
+    public void compute(Sample sample, Predictor predictor, DataFrame dataFrame, Vector predicted,
         DoubleMatrix probabilities, Vector truth) {
       Check.size(predicted.size(), truth.size());
       Check.size(truth.size(), probabilities.rows());
+      Vector classes = predictor.getClasses();
 
       double brier = 0;
       for (int i = 0; i < predicted.size(); i++) {
-        String label = predicted.getAsString(i);
-        double prob = probabilities.get(i, Vectors.find(predictor.getClasses(), label));
-        if (truth.getAsString(i).equals(label)) {
+        String pred = predicted.getAsString(i);
+        String actual = truth.getAsString(i);
+        double prob = probabilities.get(i, find(classes, pred));
+        if (actual.equals(pred)) {
           brier += Math.pow(1 - prob, 2);
         } else {
           brier += prob * prob;

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.briljantframework.classification.Predictor;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
@@ -82,7 +83,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
     }
 
     @Override
-    public void compute(Sample sample, Predictor predictor, Vector predicted,
+    public void compute(Sample sample, Predictor predictor, DataFrame dataFrame, Vector predicted,
         DoubleMatrix probabilities, Vector truth) {
       Map<String, DoubleVector.Builder> metricValues =
           sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());

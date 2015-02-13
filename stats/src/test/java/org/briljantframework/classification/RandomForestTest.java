@@ -24,7 +24,7 @@ public class RandomForestTest {
     Vector y = Convert.toStringVector(iris.getColumn(4));
 
     RandomForest f = RandomForest.withSize(100).build();
-    Result result = ClassificationEvaluators.crossValidation(2).evaluate(f, x, y);
+    Result result = ClassificationEvaluators.crossValidation(10).evaluate(f, x, y);
     System.out.println(result);
     System.out.println(result.get(AreaUnderCurve.class).get(y.getAsString(0)));
 

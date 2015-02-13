@@ -287,7 +287,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix assign(DoubleMatrix matrix, DoubleUnaryOperator operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsDouble(matrix.get(i)));
     }
@@ -305,7 +305,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix assign(IntMatrix matrix, IntToDoubleFunction function) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(matrix.get(i)));
     }
@@ -314,7 +314,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix assign(LongMatrix matrix, LongToDoubleFunction function) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(matrix.get(i)));
     }
@@ -572,7 +572,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix mul(double alpha, DoubleMatrix other, double beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     DoubleMatrix m = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       m.set(i, alpha * get(i) * other.get(i) * beta);
@@ -663,7 +663,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix add(double alpha, DoubleMatrix other, double beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, alpha * get(i) + other.get(i) * beta);
@@ -705,7 +705,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix sub(double alpha, DoubleMatrix other, double beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, alpha * get(i) - other.get(i) * beta);
@@ -747,7 +747,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix div(DoubleMatrix other) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     DoubleMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, get(i) / other.get(i));

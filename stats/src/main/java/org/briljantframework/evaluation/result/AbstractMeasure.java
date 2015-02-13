@@ -87,13 +87,13 @@ public abstract class AbstractMeasure implements Measure {
   }
 
   @Override
-  public double getAverage(Sample sample) {
+  public double getMean(Sample sample) {
     return mean.getOrDefault(sample, 0d);
   }
 
   @Override
   public String toString() {
-    return String.format("Average %s: %.4f (std: %.4f) (of %d value(s))", getName(), getAverage(),
+    return String.format("Average %s: %.4f (std: %.4f) (of %d value(s))", getName(), getMean(),
         getStandardDeviation(), size());
   }
 

@@ -2,7 +2,7 @@ package org.briljantframework.classification;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -27,13 +27,7 @@ public interface Predictor {
    * @param x to determine class labels for
    * @return the predictions
    */
-  default Vector predict(DataFrame x) {
-    Vector.Builder labels = new StringVector.Builder(x.rows());
-    for (int i = 0; i < x.rows(); i++) {
-      labels.set(i, predict(x.getRecord(i)), 0);
-    }
-    return labels.build();
-  }
+  Vector predict(DataFrame x);
 
   /**
    * Predict the class label of a specific {@link org.briljantframework.vector.Vector}
@@ -41,7 +35,7 @@ public interface Predictor {
    * @param row to which the class label shall be assigned
    * @return the prediction
    */
-  Vector predict(Vector row);
+  Value predict(Vector row);
 
   DoubleMatrix predictProba(DataFrame x);
 

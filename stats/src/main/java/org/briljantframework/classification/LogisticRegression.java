@@ -25,10 +25,7 @@ import org.briljantframework.dataframe.Record;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.StringValue;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.*;
 
 /**
  * Logistic regression implemented using Stochastic Gradient Descent.
@@ -143,14 +140,9 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public Vector predict(Vector row) {
+    public Value predict(Vector row) {
       double prob = Vectors.sigmoid(row, theta);
       return new StringValue("1"); // TODO!
-    }
-
-    @Override
-    public DoubleMatrix predictProba(DataFrame x) {
-      return null;
     }
 
     @Override

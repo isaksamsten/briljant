@@ -33,30 +33,19 @@ public final class ClassSet implements Iterable<Example> {
   private final Map<String, Sample> samples;
 
   private final List<String> targets;
+  private final Vector domain;
 
-  private ClassSet(ClassSet classSet) {
-    samples = new HashMap<>(classSet.samples);
-    targets = new ArrayList<>(classSet.targets);
-  }
-
-  private ClassSet(Vector column) {
-    this();
+  public ClassSet(Vector column, Vector domain) {
+    this(domain);
     for (int i = 0; i < column.size(); i++) {
       add(column.getAsString(i), i, 1);
     }
   }
 
-  private ClassSet() {
+  public ClassSet(Vector domain) {
     samples = new HashMap<>();
     targets = new ArrayList<>();
-  }
-
-  public static ClassSet fromVector(Vector y) {
-    return new ClassSet(y);
-  }
-
-  public static ClassSet create() {
-    return new ClassSet();
+    this.domain = domain;
   }
 
   public void add(String target, int index, double weight) {
@@ -102,8 +91,8 @@ public final class ClassSet implements Iterable<Example> {
     return target;
   }
 
-  public Vector[] getPredictions() {
-    return null;
+  public Vector getDomain() {
+    return domain;
   }
 
   public Sample get(String target) {
@@ -176,10 +165,6 @@ public final class ClassSet implements Iterable<Example> {
       }
     };
 
-  }
-
-  public ClassSet copy() {
-    return new ClassSet(this);
   }
 
   public static final class Sample implements Iterable<Example> {

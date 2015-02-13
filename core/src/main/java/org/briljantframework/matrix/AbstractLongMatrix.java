@@ -233,7 +233,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix assign(LongMatrix matrix, LongUnaryOperator operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsLong(matrix.get(i)));
     }
@@ -251,7 +251,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsLong(matrix.get(i)));
     }
@@ -260,7 +260,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix assign(IntMatrix matrix, IntToLongFunction operator) {
-    Check.equalSize(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsLong(matrix.get(i)));
     }
@@ -483,7 +483,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix mul(long alpha, LongMatrix other, long beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     LongMatrix m = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -564,7 +564,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix add(long alpha, LongMatrix other, long beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     LongMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -608,7 +608,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix sub(long alpha, LongMatrix other, long beta) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     LongMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -653,7 +653,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public LongMatrix div(LongMatrix other) {
-    Check.equalSize(this, other);
+    Check.size(this, other);
     LongMatrix matrix = newEmptyMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {

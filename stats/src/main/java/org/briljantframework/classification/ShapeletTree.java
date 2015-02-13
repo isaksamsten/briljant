@@ -26,7 +26,6 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Range;
 import org.briljantframework.shapelet.Shapelet;
-import org.briljantframework.vector.StringValue;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
@@ -56,10 +55,9 @@ public class ShapeletTree implements Classifier {
   @Override
   public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
-
-    // Initialize the examples, if not already initialized
+    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
     if (classSet == null) {
-      classSet = ClassSet.fromVector(y);
+      classSet = new ClassSet(y, classes);
     }
 
     Params params = new Params();
@@ -70,9 +68,11 @@ public class ShapeletTree implements Classifier {
     // x = Approximations.paa(x, size);
     // System.out.println(size);
     TreeNode<ShapeletThreshold> node = build(x, y, classSet, params);
-    return new Predictor(classes != null ? classes : Vectors.unique(y), node,
-        new ShapletTreeVisitor(size, splitter.getDistanceMetric()), params.lengthImportance,
-        params.positionImportance);
+    Predictor predictor =
+        new Predictor(classes, node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
+            params.lengthImportance, params.positionImportance);
+    System.out.println(params.depth);
+    return predictor;
   }
 
   protected TreeNode<ShapeletThreshold> build(DataFrame x, Vector y, ClassSet classSet,
@@ -80,7 +80,7 @@ public class ShapeletTree implements Classifier {
     /*
      * STEP 0: pre-prune some useless branches
      */
-    if (classSet.getTotalWeight() <= 2 || classSet.getTargetCount() == 1) {
+    if (classSet.getTotalWeight() <= 3 || classSet.getTargetCount() == 1) {
       return TreeLeaf.fromExamples(classSet);
     }
 
@@ -156,29 +156,6 @@ public class ShapeletTree implements Classifier {
     public DoubleMatrix getLengthImportance() {
       return lengthImportance;
     }
-
-    @Override
-    public DoubleMatrix predictProba(DataFrame x) {
-      DoubleMatrix probas = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
-      for (int i = 0; i < x.rows(); i++) {
-        probas.setRow(i, predictProba(x.getRecord(i)));
-      }
-      return probas;
-    }
-
-    @Override
-    public DoubleMatrix predictProba(Vector row) {
-      Vector prediction = predict(row);
-      Vector classes = getClasses();
-      DoubleMatrix probas = Matrices.newDoubleVector(classes.size());
-      for (int i = 0; i < classes.size(); i++) {
-        if (prediction.compare(0, i, classes) == 0) {
-          probas.set(i, 1);
-          break;
-        }
-      }
-      return probas;
-    }
   }
 
   private static class ShapletTreeVisitor implements TreeVisitor<ShapeletThreshold> {
@@ -192,12 +169,12 @@ public class ShapeletTree implements Classifier {
     }
 
     @Override
-    public Vector visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
-      return new StringValue(leaf.getLabel());
+    public DoubleMatrix visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
+      return leaf.getProbabilities();
     }
 
     @Override
-    public Vector visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
+    public DoubleMatrix visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
       // aggregator.aggregate(example)
       if (metric.compute(example, node.getThreshold().getShapelet()) < node.getThreshold()
           .getDistance()) {

@@ -16,8 +16,6 @@
 
 package org.briljantframework.evaluation.result;
 
-import static org.briljantframework.evaluation.result.Measure.Sample;
-
 import org.briljantframework.vector.DoubleVector;
 
 /**

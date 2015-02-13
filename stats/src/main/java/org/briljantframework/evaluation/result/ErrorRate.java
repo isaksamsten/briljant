@@ -1,6 +1,7 @@
 package org.briljantframework.evaluation.result;
 
 import org.briljantframework.classification.Predictor;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
@@ -24,7 +25,7 @@ public class ErrorRate extends AbstractMeasure {
 
   @Override
   public int compareTo(Measure other) {
-    return Double.compare(getAverage(), other.getAverage());
+    return Double.compare(getMean(), other.getMean());
   }
 
   public static class Builder extends AbstractMeasure.Builder {
@@ -34,7 +35,7 @@ public class ErrorRate extends AbstractMeasure {
     }
 
     @Override
-    public void compute(Sample sample, Predictor predictor, Vector predicted,
+    public void compute(Sample sample, Predictor predictor, DataFrame dataFrame, Vector predicted,
         DoubleMatrix probabilities, Vector truth) {
       Preconditions.checkArgument(predicted.size() == truth.size());
 

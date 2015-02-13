@@ -57,8 +57,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
   @Override
   public Model fit(DataFrame x, Vector y) {
-    ClassSet classSet = ClassSet.fromVector(y);
     Vector classes = Vectors.unique(y);
+    ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, splitter, classes));
@@ -112,7 +112,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
-      ClassSet inBag = ClassSet.create();
+      ClassSet inBag = new ClassSet(classSet.getDomain());
       for (ClassSet.Sample sample : classSet.samples()) {
         ClassSet.Sample inSample = ClassSet.Sample.create(sample.getTarget());
         int[] bootstrap = bootstrap(sample, random);

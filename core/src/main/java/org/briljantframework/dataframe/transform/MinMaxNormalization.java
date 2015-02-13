@@ -14,7 +14,7 @@ public class MinMaxNormalization implements Transformation {
   private final DoubleMatrix min, max;
 
   public MinMaxNormalization(DoubleMatrix min, DoubleMatrix max) {
-    Check.equalSize(min, max);
+    Check.size(min, max);
     this.min = min;
     this.max = max;
   }

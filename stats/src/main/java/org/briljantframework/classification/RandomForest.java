@@ -30,8 +30,8 @@ public class RandomForest extends AbstractEnsemble {
 
   @Override
   public AbstractEnsemble.Model fit(DataFrame x, Vector y) {
-    ClassSet classSet = ClassSet.fromVector(y);
     Vector classes = Vectors.unique(y);
+    ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> fitTasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
       fitTasks.add(new FitTask(classSet, x, y, splitter, classes));
@@ -73,7 +73,7 @@ public class RandomForest extends AbstractEnsemble {
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
-      ClassSet inBag = ClassSet.create();
+      ClassSet inBag = new ClassSet(classSet.getDomain());
       for (ClassSet.Sample sample : classSet.samples()) {
         ClassSet.Sample inSample = ClassSet.Sample.create(sample.getTarget());
         int[] bootstrap = bootstrap(sample, random);
