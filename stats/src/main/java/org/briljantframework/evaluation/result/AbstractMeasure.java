@@ -172,6 +172,11 @@ public abstract class AbstractMeasure implements Measure {
 
       return std;
     }
+
+    @Override
+    public void add(double measurement) {
+      addComputedValue(Sample.OUT, measurement);
+    }
   }
 
 }

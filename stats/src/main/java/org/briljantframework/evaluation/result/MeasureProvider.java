@@ -18,6 +18,8 @@ import org.briljantframework.vector.Vector;
  * eval.evaluate(classifier, x, y);
  * </pre>
  * 
+ * ErrorConsumer
+ * 
  * Evaluates {@code classifier} using 10-fold cross-validation
  * 
  * @author Isak Karlsson

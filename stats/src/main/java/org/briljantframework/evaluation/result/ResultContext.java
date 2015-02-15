@@ -16,6 +16,8 @@ public interface ResultContext {
 
   Partition getPartition();
 
+  Vector getPredictions(Sample sample);
+
   Predictor getPredictor();
 
   Measure.Builder get(Class<? extends Measure> measure);

@@ -124,6 +124,8 @@ public interface Measure extends Comparable<Measure> {
    */
   interface Builder {
 
+    public void add(double measurement);
+
     /**
      * Add producer.
      * 

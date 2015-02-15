@@ -39,8 +39,8 @@ public class Accuracy extends AbstractMeasure {
 
   public static final class Builder extends AbstractMeasure.Builder {
 
-    public Builder(Vector domain) {
-      super(domain);
+    public Builder() {
+      super(null);
     }
 
     @Override

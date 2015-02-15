@@ -30,8 +30,8 @@ public class ErrorRate extends AbstractMeasure {
 
   public static class Builder extends AbstractMeasure.Builder {
 
-    public Builder(Vector domain) {
-      super(domain);
+    public Builder() {
+      super(null);
     }
 
     @Override
