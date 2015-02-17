@@ -2,12 +2,16 @@ package org.briljantframework.classification;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.evaluation.ClassificationEvaluators;
-import org.briljantframework.evaluation.result.Accuracy;
-import org.briljantframework.evaluation.result.AreaUnderCurve;
+import org.briljantframework.evaluation.ClassificationValidators;
+import org.briljantframework.evaluation.measure.Accuracy;
+import org.briljantframework.evaluation.measure.AreaUnderCurve;
+import org.briljantframework.evaluation.result.Evaluator;
+import org.briljantframework.evaluation.result.Measures;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
@@ -24,7 +28,9 @@ public class RandomForestTest {
     Vector y = Convert.toStringVector(iris.getColumn(4));
 
     RandomForest f = RandomForest.withSize(100).build();
-    Result result = ClassificationEvaluators.crossValidation(10).evaluate(f, x, y);
+    List<Evaluator> measures = Measures.getDefaultClassificationMeasures();
+
+    Result result = ClassificationValidators.crossValidation(measures, 10).test(f, x, y);
     System.out.println(result);
     System.out.println(result.get(AreaUnderCurve.class).get(y.getAsString(0)));
 

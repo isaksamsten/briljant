@@ -92,7 +92,7 @@ public class DataFrameColumnView implements Vector {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
   }
 

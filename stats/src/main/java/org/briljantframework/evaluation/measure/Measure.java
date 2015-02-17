@@ -1,10 +1,10 @@
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.measure;
 
-import org.briljantframework.classification.Predictor;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DoubleMatrix;
+import java.util.Map;
+
+import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Value;
 
 /**
  * <p>
@@ -92,13 +92,6 @@ public interface Measure extends Comparable<Measure> {
   DoubleVector get(Sample sample);
 
   /**
-   * The domain, i.e. the classes this measurement can represent.
-   * 
-   * @return the domain
-   */
-  Vector getDomain();
-
-  /**
    * @return the number of measurements
    */
   int size();
@@ -122,28 +115,23 @@ public interface Measure extends Comparable<Measure> {
    * <p>
    * Created by isak on 02/10/14.
    */
-  interface Builder {
-
-    public void add(double measurement);
+  interface Builder<T extends Measure> {
 
     /**
-     * Add producer.
+     * Add a performance metric
      * 
      * @param sample the sample
-     * @param predictor
-     * @param dataFrame
-     * @param predicted the predictions
-     * @param probabilities
-     * @param truth the target
+     * @param measurement the measurement
      */
-    public void compute(Sample sample, Predictor predictor, DataFrame dataFrame, Vector predicted,
-        DoubleMatrix probabilities, Vector truth);
+    public void add(Sample sample, double measurement);
+
+    public void add(Sample sample, Map<Value, Double> values);
 
     /**
      * Gets performance metric.
      *
      * @return the performance metric
      */
-    Measure build();
+    T build();
   }
 }

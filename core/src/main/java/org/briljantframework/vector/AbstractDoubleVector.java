@@ -136,7 +136,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     double va = getAsDouble(a);
     double vb = other.getAsDouble(b);
     return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;

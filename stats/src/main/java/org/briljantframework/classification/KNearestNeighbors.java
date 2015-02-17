@@ -197,7 +197,7 @@ public class KNearestNeighbors implements Classifier {
     }
 
     @Override
-    public DoubleMatrix predictProba(Vector row) {
+    public DoubleMatrix estimate(Vector row) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
         double d = distance.compute(row, frame.getRecord(i));

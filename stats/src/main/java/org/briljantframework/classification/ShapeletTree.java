@@ -68,11 +68,8 @@ public class ShapeletTree implements Classifier {
     // x = Approximations.paa(x, size);
     // System.out.println(size);
     TreeNode<ShapeletThreshold> node = build(x, y, classSet, params);
-    Predictor predictor =
-        new Predictor(classes, node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
-            params.lengthImportance, params.positionImportance);
-    System.out.println(params.depth);
-    return predictor;
+    return new Predictor(classes, node, new ShapletTreeVisitor(size, splitter.getDistanceMetric()),
+        params.lengthImportance, params.positionImportance);
   }
 
   protected TreeNode<ShapeletThreshold> build(DataFrame x, Vector y, ClassSet classSet,

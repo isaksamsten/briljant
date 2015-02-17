@@ -16,6 +16,9 @@
 
 package org.briljantframework.classification;
 
+import static org.briljantframework.evaluation.result.Sample.OUT;
+import static org.briljantframework.matrix.Matrices.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,10 +29,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Record;
+import org.briljantframework.evaluation.measure.BaseAccuracy;
+import org.briljantframework.evaluation.measure.EnsembleBias;
+import org.briljantframework.evaluation.measure.EnsembleVariance;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 
 import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
@@ -95,21 +106,71 @@ public abstract class AbstractEnsemble implements Classifier {
     return size;
   }
 
-  public static class Model extends AbstractPredictor {
+  public static class AbstractEnsemblePredictor extends AbstractPredictor implements
+      EnsemblePredictor {
 
     private final List<? extends Predictor> models;
 
-    public Model(Vector classes, List<? extends Predictor> models) {
+    public AbstractEnsemblePredictor(Vector classes, List<? extends Predictor> models) {
       super(classes);
       this.models = models;
     }
 
-    public List<? extends Predictor> getModels() {
+    @Override
+    public void evaluation(EvaluationContext ctx) {
+      super.evaluation(ctx);
+      EnsemblePredictor predictor = (EnsemblePredictor) ctx.getPredictor();
+      List<Predictor> members = predictor.getPredictors();
+      DataFrame x = ctx.getPartition().getValidationData();
+      Vector y = ctx.getPartition().getValidationTarget();
+      Vector classes = predictor.getClasses();
+      double meanVar = 0;
+      double meanBias = 0;
+      double baseAccuracy = 0;
+
+      DoubleMatrix prob = newDoubleMatrix(members.size(), classes.size());
+
+      for (int i = 0; i < x.rows(); i++) {
+        Record record = x.getRecord(i);
+        DoubleMatrix c = newDoubleVector(classes.size());
+        for (int j = 0; j < classes.size(); j++) {
+          if (classes.equals(j, y, i)) {
+            c.set(j, 1);
+          }
+        }
+        for (int j = 0; j < members.size(); j++) {
+          Predictor member = members.get(j);
+          prob.setRow(j, member.estimate(record));
+        }
+
+        DoubleMatrix mean = mean(prob, Axis.COLUMN);
+        double var = 0;
+        double bias = 0;
+        double accuracy = 0;
+        for (int j = 0; j < prob.rows(); j++) {
+          DoubleMatrix r = prob.getRowView(j);
+          var += norm(mean, r, 2);
+          bias += norm(c, r, 2);
+          accuracy += Matrices.argmax(r) == Vectors.find(classes, y.getAsValue(i)) ? 1 : 0;
+        }
+        meanVar += var / members.size();
+        meanBias += bias / members.size();
+        baseAccuracy += accuracy / members.size();
+      }
+      ctx.getOrDefault(EnsembleVariance.class, EnsembleVariance.Builder::new).add(OUT,
+          meanVar / x.rows());
+      ctx.getOrDefault(EnsembleBias.class, EnsembleBias.Builder::new).add(OUT, meanBias / x.rows());
+      ctx.getOrDefault(BaseAccuracy.class, BaseAccuracy.Builder::new).add(OUT,
+          baseAccuracy / x.rows());
+    }
+
+    @Override
+    public List<Predictor> getPredictors() {
       return Collections.unmodifiableList(models);
     }
 
     @Override
-    public DoubleMatrix predictProba(Vector row) {
+    public DoubleMatrix estimate(Vector row) {
       List<Value> predictions =
           models.parallelStream().map(model -> model.predict(row)).collect(Collectors.toList());
       ObjectDoubleMap<String> votes = new ObjectDoubleOpenHashMap<>();
@@ -117,7 +178,7 @@ public abstract class AbstractEnsemble implements Classifier {
         votes.putOrAdd(prediction.getAsString(), 1, 1);
       }
 
-      int estimators = getModels().size();
+      int estimators = getPredictors().size();
       Vector classes = getClasses();
       DoubleMatrix m = Matrices.newDoubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {

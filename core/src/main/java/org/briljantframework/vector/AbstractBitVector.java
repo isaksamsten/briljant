@@ -5,7 +5,7 @@ import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
- * Created by Isak Karlsson on 27/11/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractBitVector extends AbstractVector {
   public static final Bit NA = Bit.NA;
@@ -140,7 +140,7 @@ public abstract class AbstractBitVector extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     return getAsInt(a) - other.getAsInt(b);
   }
 }

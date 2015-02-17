@@ -131,8 +131,8 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
-    return parent.compare(a, b, other);
+  public int compare(int a, Vector other, int b) {
+    return parent.compare(a, other, b);
   }
 
   @Override

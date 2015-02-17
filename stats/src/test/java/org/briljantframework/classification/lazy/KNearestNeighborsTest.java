@@ -4,7 +4,7 @@ import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.evaluation.ClassificationEvaluators;
+import org.briljantframework.evaluation.ClassificationValidators;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class KNearestNeighborsTest {
     Vector y = iris.getColumn(4);
     DataFrame x = iris.dropColumn(4);
 
-    Result res = ClassificationEvaluators.crossValidation(10).evaluate(oneNearestNeighbours, x, y);
+    Result res = ClassificationValidators.crossValidation(10).test(oneNearestNeighbours, x, y);
     System.out.println(res);
     // ClassificationFrame train = DataSeriesInputStream.load(datasetPath + "TRAIN", 0,
     // Frame.FACTORY, DefaultTarget.FACTORY);

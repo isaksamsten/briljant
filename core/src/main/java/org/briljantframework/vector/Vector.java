@@ -68,6 +68,7 @@ public interface Vector extends Serializable {
    * @param index the index
    * @return true or false
    */
+  /**/
   default boolean isTrue(int index) {
     return getAsBit(index) == Bit.TRUE;
   }
@@ -307,12 +308,25 @@ public interface Vector extends Serializable {
    * greater performance.
    *
    * @param a the index in {@code this}
-   * @param b the index in {@code other}
    * @param other the other vector
+   * @param b the index in {@code other}
    * @return the comparison
    * @see java.lang.Comparable#compareTo(Object)
    */
-  int compare(int a, int b, Vector other);
+  int compare(int a, Vector other, int b);
+
+  /**
+   * Returns true if element at {@code a} in {@code this} equals element at {@code b} in
+   * {@code other}.
+   * 
+   * @param a the index in this
+   * @param other the other vector
+   * @param b the index in other
+   * @return true if values are equal
+   */
+  default boolean equals(int a, Vector other, int b) {
+    return compare(a, other, b) == 0;
+  }
 
   /**
    * Compare value at position {@code a} in {@code this} to {@code other}. Equivalent to
@@ -323,7 +337,7 @@ public interface Vector extends Serializable {
    * @return the comparison
    */
   default int compare(int a, Value other) {
-    return compare(a, 0, other);
+    return compare(a, other, 0);
   }
 
   /**

@@ -34,7 +34,7 @@ import org.briljantframework.vector.Vector;
  * <p>
  * The output of the classifier is a {@link Predictor} (i.e., the {@code g}) which (hopefully)
  * approximates {@code h}. To estimate how well {@code g} approximates {@code h}, cross-validation
- * {@link org.briljantframework.evaluation.ClassificationEvaluators#crossValidation(int)} can be
+ * {@link org.briljantframework.evaluation.ClassificationValidators#crossValidation(int)} can be
  * employed.
  * </p>
  * 

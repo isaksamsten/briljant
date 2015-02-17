@@ -100,8 +100,8 @@ public class DataSeries implements Record {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
-    return vector.compare(a, b, other);
+  public int compare(int a, Vector other, int b) {
+    return vector.compare(a, other, b);
   }
 
   @Override

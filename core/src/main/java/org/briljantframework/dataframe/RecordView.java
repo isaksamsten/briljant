@@ -112,7 +112,7 @@ public class RecordView implements Record {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     return getAsValue(a).compareTo(other.getAsValue(b));
   }
 

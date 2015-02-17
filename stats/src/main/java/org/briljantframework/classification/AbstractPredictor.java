@@ -4,6 +4,7 @@ import static org.briljantframework.matrix.Matrices.argmax;
 import static org.briljantframework.matrix.Matrices.newDoubleMatrix;
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Value;
@@ -38,15 +39,20 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Value predict(Vector row) {
-    return classes.getAsValue(argmax(predictProba(row)));
+    return classes.getAsValue(argmax(estimate(row)));
   }
 
   @Override
-  public DoubleMatrix predictProba(DataFrame x) {
+  public DoubleMatrix estimate(DataFrame x) {
     DoubleMatrix proba = newDoubleMatrix(x.rows(), getClasses().size());
     for (int i = 0; i < x.rows(); i++) {
-      proba.setRow(i, predictProba(x.getRecord(i)));
+      proba.setRow(i, estimate(x.getRecord(i)));
     }
     return proba;
+  }
+
+  @Override
+  public void evaluation(EvaluationContext ctx) {
+
   }
 }

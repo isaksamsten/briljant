@@ -14,13 +14,14 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.measure;
 
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -28,20 +29,18 @@ import org.briljantframework.vector.Vectors;
  */
 public abstract class AbstractMeasure implements Measure {
 
-  protected final Vector domain;
   protected final DoubleVector zeroVector;
 
   private final EnumMap<Sample, DoubleVector> values;
   private final EnumMap<Sample, Double> min, max, mean, std;
 
-  protected AbstractMeasure(Builder builder) {
+  protected AbstractMeasure(Builder<? extends Measure> builder) {
     this.values = new EnumMap<>(Sample.class);
     for (Map.Entry<Sample, DoubleVector.Builder> entry : builder.values.entrySet()) {
       values.put(entry.getKey(), entry.getValue().build());
     }
     this.max = builder.max;
     this.min = builder.min;
-    this.domain = builder.getDomain();
     this.mean = builder.computeMean();
     this.std = builder.computeStandardDeviation(mean);
     this.zeroVector = Vectors.newDoubleNA(size());
@@ -82,11 +81,6 @@ public abstract class AbstractMeasure implements Measure {
   }
 
   @Override
-  public Vector getDomain() {
-    return domain;
-  }
-
-  @Override
   public double getMean(Sample sample) {
     return mean.getOrDefault(sample, 0d);
   }
@@ -97,38 +91,24 @@ public abstract class AbstractMeasure implements Measure {
         getStandardDeviation(), size());
   }
 
-  protected abstract static class Builder implements Measure.Builder {
+  protected abstract static class Builder<T extends Measure> implements Measure.Builder<T> {
 
     protected final EnumMap<Sample, DoubleVector.Builder> values = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> max = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> min = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> sum = new EnumMap<>(Sample.class);
 
-    private final Vector domain;
-
-    protected Builder(Vector domain) {
-      this.domain = domain;
-    }
-
-    public Vector getDomain() {
-      return domain;
-    }
-
-    /**
-     * Add value while maintaining the minimum and the maximum value so far. And the sum.
-     *
-     * @param value the value
-     */
-    protected void addComputedValue(Sample sample, double value) {
+    @Override
+    public final void add(Sample sample, double value) {
       sum.compute(sample, (k, v) -> v == null ? value : value + v);
       this.values.computeIfAbsent(sample, x -> new DoubleVector.Builder()).add(value);
     }
 
-    /**
-     * Compute mean.
-     *
-     * @return the enum map
-     */
+    @Override
+    public void add(Sample sample, Map<Value, Double> values) {
+      add(sample, values.values().stream().mapToDouble(Double::doubleValue).average().orElse(0));
+    }
+
     protected EnumMap<Sample, Double> computeMean() {
       double inSum = sum.getOrDefault(Sample.IN, 0d);
       double outSum = sum.getOrDefault(Sample.OUT, 0d);
@@ -147,36 +127,15 @@ public abstract class AbstractMeasure implements Measure {
       return mean;
     }
 
-    /**
-     * Compute standard deviation.
-     *
-     * @param means the means
-     * @return the enum map
-     */
     protected EnumMap<Sample, Double> computeStandardDeviation(EnumMap<Sample, Double> means) {
       EnumMap<Sample, Double> std = new EnumMap<>(Sample.class);
 
       for (Map.Entry<Sample, DoubleVector.Builder> e : values.entrySet()) {
         double mean = means.getOrDefault(e.getKey(), 0d);
-        // List<Double> sampleValues = values.get(sample);
-        // double stdAcc = 0.0;
-        //
-        // if (sampleValues != null && sampleValues.size() > 1) {
-        // for (double value : sampleValues) {
-        // stdAcc += (value - mean) * (value - mean);
-        // }
-        // stdAcc = Math.sqrt(stdAcc / (sampleValues.size() - 1));
-        // }
         std.put(e.getKey(), Vectors.std(e.getValue().getTemporaryVector(), mean));
       }
 
       return std;
     }
-
-    @Override
-    public void add(double measurement) {
-      addComputedValue(Sample.OUT, measurement);
-    }
   }
-
 }

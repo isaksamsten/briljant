@@ -1,12 +1,23 @@
 package org.briljantframework.shapelet;
 
+import java.io.FileInputStream;
+
 import org.briljantframework.classification.RandomShapeletForest;
+import org.briljantframework.classification.tune.Configuration;
+import org.briljantframework.classification.tune.Configurations;
+import org.briljantframework.classification.tune.Tuners;
+import org.briljantframework.classification.tune.Updaters;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
-import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.evaluation.ClassificationEvaluators;
+import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.evaluation.HoldoutValidator;
+import org.briljantframework.evaluation.measure.Accuracy;
+import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
@@ -20,9 +31,47 @@ public class RandomShapeletForestTest {
     // builder.read(dfis);
     //
     // DataSeriesCollection collection = builder.build();
-    DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
-    DataFrame x = synthetic.dropColumn(0);
-    StringVector y = Convert.toStringVector(synthetic.getColumn(0));
+    // DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
+    // DataFrame x = synthetic.dropColumn(0);
+    // StringVector y = Convert.toStringVector(synthetic.getColumn(0));
+
+    try (DataInputStream train =
+        new MatlabTextInputStream(new FileInputStream(
+            "/Users/isak/Downloads/dataset/Gun_Point/Gun_Point_TRAIN"));
+        DataInputStream test =
+            new MatlabTextInputStream(new FileInputStream(
+                "/Users/isak/Downloads/dataset/Gun_Point/Gun_Point_TEST"))) {
+      DataFrame trainingSet =
+          DataFrames.permuteRows(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
+              .build());
+      DataFrame validationSet =
+          new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
+
+      RandomShapeletForest forest =
+          RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
+              .withUpperLength(40).build();
+
+      DataFrame xTrain = trainingSet.dropColumn(0);
+      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(0));
+
+      DataFrame xTest = validationSet.dropColumn(0);
+      Vector yTest = Convert.toStringVector(validationSet.getColumn(0));
+
+
+      RandomShapeletForest.Builder fb =
+          RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2);
+      Configurations configs =
+          Tuners
+              .crossValidation(fb, xTrain, yTrain, Configuration.metricComparator(Accuracy.class),
+                  4, Updaters.enumeration("upper-length",
+                      RandomShapeletForest.Builder::withUpperLength, 5, 10, 20, 40, -1));
+      System.out.println(configs);
+      Result result =
+          HoldoutValidator.withHoldout(xTest, yTest).test(configs.best().getClassifier(), xTrain,
+              yTrain);
+      System.out.println(result);
+    }
+
 
     // DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
     // Aggregator aggregator = new MeanAggregator(30);
@@ -31,13 +80,13 @@ public class RandomShapeletForestTest {
     // builder.addRecord(aggregator.partialAggregate(row));
     // }
 
-    RandomShapeletForest forest =
-        RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
-            .withUpperLength(20).build();
+    // RandomShapeletForest forest =
+    // RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
+    // .withUpperLength(-1).build();
 
-    long start = System.currentTimeMillis();
-    System.out.println(ClassificationEvaluators.splitValidation(0.33).evaluate(forest, x, y));
-    System.out.println(System.currentTimeMillis() - start);
+    // long start = System.currentTimeMillis();
+    // System.out.println(ClassificationValidators.splitValidation(0.33).test(forest, x, y));
+    // System.out.println(System.currentTimeMillis() - start);
 
     // }
 

@@ -43,8 +43,6 @@ import com.google.common.collect.ImmutableTable;
  */
 public abstract class AbstractDoubleMatrix extends AbstractMatrix implements DoubleMatrix {
 
-  private DoubleListView listView = null;
-
   protected AbstractDoubleMatrix(int size) {
     super(size);
   }
@@ -250,10 +248,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public List<Double> flat() {
-    if (listView == null) {
-      listView = new DoubleListView();
-    }
-    return listView;
+    return new DoubleListView();
   }
 
   @Override

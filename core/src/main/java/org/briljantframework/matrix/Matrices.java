@@ -754,48 +754,52 @@ public final class Matrices {
     return out;
   }
 
-  /**
-   * Std out.
-   *
-   * @param matrix the matrix
-   * @param axis the axis
-   * @return the out
-   */
-  public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
-    DoubleMatrix mean = mean(matrix, axis);
-    long columns = matrix.columns();
-    DoubleMatrix sigmas = newDoubleVector(matrix.columns());
+  //
+  // /**
+  // * Std out.
+  // *
+  // * @param matrix the matrix
+  // * @param axis the axis
+  // * @return the out
+  // */
+  // public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
+  // DoubleMatrix mean = mean(matrix, axis);
+  // long columns = matrix.columns();
+  // DoubleMatrix sigmas = newDoubleVector(matrix.columns());
+  //
+  // for (int j = 0; j < columns; j++) {
+  // double std = 0.0;
+  // for (int i = 0; i < matrix.rows(); i++) {
+  // double residual = matrix.get(i, j) - mean.get(j);
+  // std += residual * residual;
+  // }
+  // sigmas.set(j, Math.sqrt(std / (matrix.rows() - 1)));
+  // }
+  // return sigmas;
+  // }
 
-    for (int j = 0; j < columns; j++) {
-      double std = 0.0;
-      for (int i = 0; i < matrix.rows(); i++) {
-        double residual = matrix.get(i, j) - mean.get(j);
-        std += residual * residual;
-      }
-      sigmas.set(j, Math.sqrt(std / (matrix.rows() - 1)));
-    }
-    return sigmas;
+  /**
+   * Computes the mean of the matrix.
+   * 
+   * @param matrix the matrix
+   * @return the mean
+   */
+  public static double mean(DoubleMatrix matrix) {
+    return matrix.reduce(0, Double::sum) / matrix.size();
   }
 
   /**
-   * Mean out.
-   *
    * @param matrix the matrix
    * @param axis the axis
-   * @return the out
+   * @return a mean matrix; if {@code axis == ROW} with shape = {@code [1, columns]}; or
+   *         {@code axis == COLUMN} with shape {@code [rows, 1]}.
    */
   public static DoubleMatrix mean(DoubleMatrix matrix, Axis axis) {
-    int columns = matrix.columns();
-    DoubleMatrix means = newDoubleVector(columns);
-    for (int j = 0; j < matrix.columns(); j++) {
-      double mean = 0.0;
-      for (int i = 0; i < matrix.rows(); i++) {
-        mean += matrix.get(i, j);
-      }
-      means.set(j, mean / matrix.rows());
+    if (axis == Axis.ROW) {
+      return matrix.reduceRows(Matrices::mean);
+    } else {
+      return matrix.reduceColumns(Matrices::mean);
     }
-
-    return means;
   }
 
   /**
@@ -816,12 +820,12 @@ public final class Matrices {
     return Math.sqrt(var / (vector.size() - 1));
   }
 
-  /**
-   * @param matrix the vector
-   * @return the mean
-   */
-  public static double mean(DoubleMatrix matrix) {
-    return matrix.reduce(0, Double::sum) / matrix.size();
+  public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
+    if (axis == Axis.ROW) {
+      return matrix.reduceRows(Matrices::std);
+    } else {
+      return matrix.reduceColumns(Matrices::std);
+    }
   }
 
   /**
@@ -839,6 +843,14 @@ public final class Matrices {
    */
   public static double var(DoubleMatrix vector) {
     return var(vector, mean(vector));
+  }
+
+  public static DoubleMatrix var(DoubleMatrix matrix, Axis axis) {
+    if (axis == Axis.ROW) {
+      return matrix.reduceRows(Matrices::var);
+    } else {
+      return matrix.reduceColumns(Matrices::var);
+    }
   }
 
   /**

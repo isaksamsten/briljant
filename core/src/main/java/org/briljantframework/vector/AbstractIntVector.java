@@ -5,7 +5,7 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
- * Created by Isak Karlsson on 27/11/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractIntVector extends AbstractVector {
   /**
@@ -123,7 +123,7 @@ public abstract class AbstractIntVector extends AbstractVector {
   public int hashCode() {
     int code = 1;
     for (int i = 0; i < size(); i++) {
-      code += 31 * get(i);
+      code += 31 * getAsInt(i);
     }
     return code;
   }
@@ -134,7 +134,7 @@ public abstract class AbstractIntVector extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     return getAsInt(a) - other.getAsInt(b);
   }
 }

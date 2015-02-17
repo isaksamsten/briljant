@@ -12,7 +12,7 @@ public final class Validation {
   private Validation() {}
 
   public static Result cv(int folds, Classifier c, DataFrame x, Vector y) {
-    return ClassificationEvaluators.crossValidation(folds).evaluate(c, x, y);
+    return ClassificationValidators.crossValidation(folds).test(c, x, y);
   }
 
 }

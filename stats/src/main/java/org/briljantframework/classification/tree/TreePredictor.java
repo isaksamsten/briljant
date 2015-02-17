@@ -5,9 +5,12 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by isak on 2/11/15.
+ * Represents a Tree based predictor. Uses a
+ * {@link org.briljantframework.classification.tree.TreeVisitor} to make predictions.
+ * 
+ * @author Isak Karlsson
  */
-public abstract class TreePredictor<T> extends AbstractPredictor {
+public class TreePredictor<T> extends AbstractPredictor {
 
   private final TreeVisitor<T> predictionVisitor;
 
@@ -35,7 +38,7 @@ public abstract class TreePredictor<T> extends AbstractPredictor {
   }
 
   @Override
-  public DoubleMatrix predictProba(Vector row) {
+  public DoubleMatrix estimate(Vector row) {
     return predictionVisitor.visit(node, row);
   }
 }

@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import org.briljantframework.Utils;
+import org.briljantframework.evaluation.measure.Measure;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;

@@ -145,7 +145,7 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     String va = getAsString(a);
     String vb = other.getAsString(b);
     return !Is.NA(va) && !Is.NA(vb) ? va.compareTo(vb) : 0;

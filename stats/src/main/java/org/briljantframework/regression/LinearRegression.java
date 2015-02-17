@@ -77,7 +77,7 @@ public class LinearRegression implements Classifier {
     }
 
     @Override
-    public DoubleMatrix predictProba(Vector row) {
+    public DoubleMatrix estimate(Vector row) {
       throw new UnsupportedOperationException();
     }
   }

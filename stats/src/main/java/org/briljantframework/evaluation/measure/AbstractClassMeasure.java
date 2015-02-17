@@ -14,18 +14,15 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.measure;
 
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.briljantframework.classification.Predictor;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -35,7 +32,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
   protected final EnumMap<Sample, Map<String, DoubleVector>> valueForValue;
 
-  protected AbstractClassMeasure(Builder producer) {
+  protected AbstractClassMeasure(Builder<? extends Measure> producer) {
     super(producer);
     this.valueForValue = new EnumMap<>(Sample.class);
     for (Map.Entry<Sample, Map<String, DoubleVector.Builder>> e : producer.sampleMetricValues
@@ -74,36 +71,21 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
     return get(sample, value).stream().mapToDouble(Value::getAsDouble).min().orElse(0);
   }
 
-  protected static abstract class Builder extends AbstractMeasure.Builder {
+  protected static abstract class Builder<T extends Measure> extends AbstractMeasure.Builder<T> {
     protected final EnumMap<Sample, Map<String, DoubleVector.Builder>> sampleMetricValues =
         new EnumMap<>(Sample.class);
 
-    protected Builder(Vector domain) {
-      super(domain);
-    }
-
-    @Override
-    public void compute(Sample sample, Predictor predictor, DataFrame dataFrame, Vector predicted,
-        DoubleMatrix probabilities, Vector truth) {
-      Map<String, DoubleVector.Builder> metricValues =
+    public void add(Sample sample, Map<Value, Double> values) {
+      Map<String, DoubleVector.Builder> all =
           sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());
-
       double average = 0.0;
-      Vector classes = predictor.getClasses();
-      for (int i = 0; i < classes.size(); i++) {
-        double metricForValue =
-            calculateMetricForLabel(classes.getAsString(i), predicted,
-                probabilities.getColumnView(i), truth);
-        metricValues.computeIfAbsent(classes.getAsString(i), x -> new DoubleVector.Builder()).add(
-            metricForValue);
-        average += metricForValue;
+      for (Map.Entry<Value, Double> entry : values.entrySet()) {
+        all.computeIfAbsent(entry.getKey().getAsString(), x -> new DoubleVector.Builder()).add(
+            entry.getValue());
+        average += entry.getValue();
       }
-      addComputedValue(sample, average / getDomain().size());
+      add(sample, average / values.size());
+      sampleMetricValues.put(sample, all);
     }
-
-    protected abstract double calculateMetricForLabel(String real, Vector predictions,
-        DoubleMatrix proba, Vector column);
   }
-
-
 }

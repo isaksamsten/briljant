@@ -146,7 +146,7 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public DoubleMatrix predictProba(Vector row) {
+    public DoubleMatrix estimate(Vector row) {
       return null;
     }
 

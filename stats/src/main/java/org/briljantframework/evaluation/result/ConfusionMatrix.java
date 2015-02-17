@@ -31,20 +31,10 @@ import com.google.common.base.Strings;
  */
 public class ConfusionMatrix {
 
-  // private static final InvertedGrayPaintScale GRAY_PAINT_SCALE = new InvertedGrayPaintScale(0, 1,
-  // 200);
-
   private final Map<String, Map<String, Double>> matrix;
   private final Set<String> labels;
   private final double sum;
 
-  /**
-   * Instantiates a new Confusion matrix.
-   *
-   * @param matrix the matrix
-   * @param labels the labels
-   * @param sum the sum
-   */
   public ConfusionMatrix(Map<String, Map<String, Double>> matrix, Set<String> labels, double sum) {
     this.matrix = checkNotNull(matrix, "Matrix cannot be null");
     this.labels = Collections.unmodifiableSet(checkNotNull(labels, "Labels cannot be null"));
@@ -52,13 +42,6 @@ public class ConfusionMatrix {
     this.sum = sum;
   }
 
-  /**
-   * Create confusion matrix.
-   *
-   * @param predictions the predictions
-   * @param truth the target
-   * @return the confusion matrix
-   */
   public static ConfusionMatrix compute(Vector predictions, Vector truth, Vector domain) {
     checkArgument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
         predictions.size(), truth.size());
@@ -84,42 +67,18 @@ public class ConfusionMatrix {
     return new ConfusionMatrix(matrix, labels, sum);
   }
 
-  /**
-   * Gets average recall.
-   *
-   * @return the average recall
-   */
   public double getAverageRecall() {
-    return labels.stream().mapToDouble(this::getRecall).summaryStatistics().getAverage();
+    return labels.stream().mapToDouble(this::getRecall).average().orElse(0);
   }
 
-  /**
-   * Gets average precision.
-   *
-   * @return the average precision
-   */
   public double getAveragePrecision() {
-    return labels.stream().mapToDouble(this::getPrecision).summaryStatistics().getAverage();
+    return labels.stream().mapToDouble(this::getPrecision).average().orElse(0);
   }
 
-  /**
-   * Gets average f measure.
-   *
-   * @param beta the beta
-   * @return the average f measure
-   */
   public double getAverageFMeasure(double beta) {
-    return labels.stream().mapToDouble(value -> getFMeasure(value, beta)).summaryStatistics()
-        .getAverage();
+    return labels.stream().mapToDouble(value -> getFMeasure(value, beta)).average().orElse(0);
   }
 
-  /**
-   * Gets f measure.
-   *
-   * @param target the target
-   * @param beta the beta
-   * @return the f measure
-   */
   public double getFMeasure(String target, double beta) {
     double precision = getPrecision(target);
     double recall = getRecall(target);
@@ -131,12 +90,6 @@ public class ConfusionMatrix {
     }
   }
 
-  /**
-   * Gets precision.
-   *
-   * @param target the target
-   * @return the precision
-   */
   public double getPrecision(String target) {
     double tp = get(target, target);
     if (tp == 0) {
@@ -150,15 +103,8 @@ public class ConfusionMatrix {
     }
   }
 
-  /**
-   * Gets recall.
-   *
-   * @param target the target
-   * @return the recall
-   */
   public double getRecall(String target) {
     double tp = get(target, target);
-
     if (tp == 0) {
       return 0;
     } else {
@@ -170,13 +116,6 @@ public class ConfusionMatrix {
     }
   }
 
-  /**
-   * Get double.
-   *
-   * @param predicted the predicted
-   * @param actual the actual
-   * @return the double
-   */
   public double get(String predicted, String actual) {
     Map<String, Double> values = matrix.get(predicted);
     if (values == null) {
@@ -186,20 +125,10 @@ public class ConfusionMatrix {
     }
   }
 
-  /**
-   * Gets labels.
-   *
-   * @return the labels
-   */
   public Set<String> getLabels() {
     return labels;
   }
 
-  /**
-   * Gets accuracy.
-   *
-   * @return the accuracy
-   */
   public double getAccuracy() {
     double diagonal = 0.0;
     for (String value : labels) {
@@ -208,13 +137,16 @@ public class ConfusionMatrix {
     return diagonal / sum;
   }
 
-  /**
-   * Gets error.
-   *
-   * @return the error
-   */
   public double getError() {
     return 1 - getAccuracy();
+  }
+
+  public double getActual(String actual) {
+    double sum = 0;
+    for (String predicted : getLabels()) {
+      sum += get(predicted, actual);
+    }
+    return sum;
   }
 
   @Override
@@ -260,13 +192,5 @@ public class ConfusionMatrix {
     builder.append(")");
 
     return builder.toString();
-  }
-
-  public double getActual(String actual) {
-    double sum = 0;
-    for (String predicted : getLabels()) {
-      sum += get(predicted, actual);
-    }
-    return sum;
   }
 }

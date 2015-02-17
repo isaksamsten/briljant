@@ -56,7 +56,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
   }
 
   @Override
-  public Model fit(DataFrame x, Vector y) {
+  public Predictor fit(DataFrame x, Vector y) {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
@@ -78,8 +78,8 @@ public class RandomShapeletForest extends AbstractEnsemble {
       posSum.assign(m.getPositionImportance(), Double::sum);
     }
 
-    return new Model(classes, models, lenSum.update(v -> v / size()),
-        posSum.update(v -> v / size()));
+    return new Predictor(classes, models, lenSum.update(v -> v / size()), posSum.update(v -> v
+        / size()));
   }
 
   @Override
@@ -136,13 +136,14 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
   }
 
-  public static class Model extends AbstractEnsemble.Model {
+  public static class Predictor extends AbstractEnsemble.AbstractEnsemblePredictor {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
-    public Model(Vector classes, List<? extends Predictor> models, DoubleMatrix lengthImportance,
-        DoubleMatrix positionImportance) {
+    public Predictor(Vector classes,
+        List<? extends org.briljantframework.classification.Predictor> models,
+        DoubleMatrix lengthImportance, DoubleMatrix positionImportance) {
       super(classes, models);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -162,9 +163,6 @@ public class RandomShapeletForest extends AbstractEnsemble {
     private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter
         .withDistance(new EarlyAbandonSlidingDistance(Euclidean.getInstance()));
     private int size = 100;
-
-    // private final AbstractEnsemble.Builder ensemble = AbstractEnsemble.withMember(
-    // ShapeletTree.withSplitter(randomShapeletSplitter)).withSampler(BootstrapSample.create());
 
     public Builder withLowerLength(int lower) {
       randomShapeletSplitter.withLowerLength(lower);

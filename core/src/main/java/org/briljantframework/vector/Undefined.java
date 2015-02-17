@@ -121,7 +121,7 @@ public class Undefined implements Value {
   }
 
   @Override
-  public int compare(int a, int b, Vector other) {
+  public int compare(int a, Vector other, int b) {
     return 0;
   }
 

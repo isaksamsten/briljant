@@ -124,7 +124,6 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
       int length = upper - lower;
       maxShapelets = (int) Math.round(Math.sqrt((length * (length + 1) / 2)));
     }
-
     List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
     for (int i = 0; i < maxShapelets; i++) {
       Vector timeSeries = x.getRecord(classSet.getRandomSample().getRandomExample().getIndex());

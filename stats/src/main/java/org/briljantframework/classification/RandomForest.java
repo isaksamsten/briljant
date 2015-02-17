@@ -29,7 +29,7 @@ public class RandomForest extends AbstractEnsemble {
   }
 
   @Override
-  public AbstractEnsemble.Model fit(DataFrame x, Vector y) {
+  public AbstractEnsemblePredictor fit(DataFrame x, Vector y) {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> fitTasks = new ArrayList<>();
@@ -37,7 +37,7 @@ public class RandomForest extends AbstractEnsemble {
       fitTasks.add(new FitTask(classSet, x, y, splitter, classes));
     }
     try {
-      return new Model(classes, execute(fitTasks));
+      return new AbstractEnsemblePredictor(classes, execute(fitTasks));
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -49,7 +49,8 @@ public class RandomForest extends AbstractEnsemble {
     return String.format("Random Classification Forest");
   }
 
-  private static final class FitTask implements Callable<Predictor> {
+  private static final class FitTask implements
+      Callable<org.briljantframework.classification.Predictor> {
 
     private final ClassSet classSet;
     private final DataFrame x;
@@ -66,7 +67,7 @@ public class RandomForest extends AbstractEnsemble {
     }
 
     @Override
-    public Predictor call() throws Exception {
+    public org.briljantframework.classification.Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
       ClassSet bootstrap = sample(classSet, random);
       return new DecisionTree(splitter, bootstrap, classes).fit(x, y);

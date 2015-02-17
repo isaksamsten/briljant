@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
-import org.briljantframework.evaluation.result.Measure;
 import org.briljantframework.evaluation.result.Result;
 
 import com.google.common.base.Strings;
