@@ -20,7 +20,6 @@ import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -31,18 +30,8 @@ public class MeanImputer implements Transformer {
   @Override
   public Transformation fit(DataFrame frame) {
     DoubleMatrix means = Matrices.newDoubleVector(frame.columns());
-
     for (int j = 0; j < frame.columns(); j++) {
-      double mean = 0.0;
-      int rows = 0;
-      for (int i = 0; i < frame.rows(); i++) {
-        double value = frame.getAsDouble(i, j);
-        if (!Is.NA(value)) {
-          mean += value;
-          rows += 1;
-        }
-      }
-      means.set(j, mean / rows);
+      means.set(j, Vectors.mean(frame.getColumn(j)));
     }
 
     return new MeanImputation(means);
@@ -61,10 +50,12 @@ public class MeanImputer implements Transformer {
       Check.size(x.columns(), means);
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        Check.requireType(Vectors.NUMERIC, x.getColumnType(j));
+        Check.requireType(Vectors.DOUBLE, x.getColumnType(j));
         for (int i = 0; i < x.rows(); i++) {
           if (x.isNA(i, j)) {
             builder.set(i, j, means.get(j));
+          } else {
+            builder.set(i, j, x, i, j);
           }
         }
       }

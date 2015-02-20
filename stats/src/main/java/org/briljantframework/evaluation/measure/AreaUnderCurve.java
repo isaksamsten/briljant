@@ -21,7 +21,7 @@ package org.briljantframework.evaluation.measure;
  */
 public class AreaUnderCurve extends AbstractClassMeasure {
 
-  private AreaUnderCurve(AbstractClassMeasure.Builder producer) {
+  private AreaUnderCurve(AbstractClassMeasure.Builder<? extends Measure> producer) {
     super(producer);
   }
 
@@ -30,7 +30,6 @@ public class AreaUnderCurve extends AbstractClassMeasure {
     return "Area Under ROC Curve";
   }
 
-  // TODO(isak): warn user if a numeric target is used
   public static final class Builder extends AbstractClassMeasure.Builder<AreaUnderCurve> {
 
     public Builder() {

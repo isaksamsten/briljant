@@ -22,14 +22,10 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import org.briljantframework.classification.tree.ClassSet;
-import org.briljantframework.classification.tree.RandomShapeletSplitter;
-import org.briljantframework.classification.tree.ShapeletSplitter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
@@ -44,11 +40,11 @@ import org.briljantframework.vector.Vectors;
  */
 public class RandomShapeletForest extends AbstractEnsemble {
 
-  private final ShapeletSplitter splitter;
+  private final ShapeletTree.Builder builder;
 
-  private RandomShapeletForest(ShapeletSplitter builder, int size) {
+  private RandomShapeletForest(ShapeletTree.Builder builder, int size) {
     super(size);
-    this.splitter = builder;
+    this.builder = builder;
   }
 
   public static Builder withSize(int size) {
@@ -61,13 +57,14 @@ public class RandomShapeletForest extends AbstractEnsemble {
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      tasks.add(new FitTask(classSet, x, y, splitter, classes));
+      tasks.add(new FitTask(classSet, x, y, builder, classes));
     }
 
     List<ShapeletTree.Predictor> models;
     try {
       models = execute(tasks);
     } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
     }
 
@@ -93,22 +90,25 @@ public class RandomShapeletForest extends AbstractEnsemble {
     private final DataFrame x;
     private final Vector y;
     private final Vector classes;
-    private final ShapeletSplitter splitter;
+    private final ShapeletTree.Builder builder;
 
 
-    private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletSplitter builder,
+    private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder,
         Vector classes) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
       this.classes = classes;
-      this.splitter = builder;
+      this.builder = builder;
     }
 
     @Override
     public ShapeletTree.Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
-      return new ShapeletTree(splitter, sample(classSet, random), classes).fit(x, y);
+      // double aggregateFraction = Utils.randDouble(0.3, 0.7);
+      // System.out.println(aggregateFraction);
+      // builder.withAggregateFraction(aggregateFraction);
+      return new ShapeletTree(builder, sample(classSet, random), classes).fit(x, y);
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
@@ -160,32 +160,34 @@ public class RandomShapeletForest extends AbstractEnsemble {
 
   public static class Builder implements Classifier.Builder<RandomShapeletForest> {
 
-    private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter
-        .withDistance(new EarlyAbandonSlidingDistance(Euclidean.getInstance()));
+    // private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter
+    // .withDistance(new EarlyAbandonSlidingDistance(Euclidean.getInstance()));
+
+    private final ShapeletTree.Builder shapeletTree = new ShapeletTree.Builder();
     private int size = 100;
 
     public Builder withLowerLength(int lower) {
-      randomShapeletSplitter.withLowerLength(lower);
+      shapeletTree.withLowerLength(lower);
       return this;
     }
 
     public Builder withSampleSize(int sampleSize) {
-      randomShapeletSplitter.withSampleSize(sampleSize);
+      // randomShapeletSplitter.withSampleSize(sampleSize);
       return this;
     }
 
     public Builder withInspectedShapelets(int maxShapelets) {
-      randomShapeletSplitter.withInspectedShapelets(maxShapelets);
+      shapeletTree.withInspectedShapelets(maxShapelets);
       return this;
     }
 
     public Builder withDistance(Distance distance) {
-      randomShapeletSplitter.withDistance(distance);
+      shapeletTree.withDistance(distance);
       return this;
     }
 
     public Builder withUpperLength(int upper) {
-      randomShapeletSplitter.withUpperLength(upper);
+      shapeletTree.withUpperLength(upper);
       return this;
     }
 
@@ -195,14 +197,23 @@ public class RandomShapeletForest extends AbstractEnsemble {
     }
 
     public Builder withAlpha(double alpha) {
-      randomShapeletSplitter.withAlpha(alpha);
+      shapeletTree.withAlpha(alpha);
+      return this;
+    }
+
+    public Builder withMode(ShapeletTree.Mode mode) {
+      shapeletTree.withMode(mode);
       return this;
     }
 
     @Override
     public RandomShapeletForest build() {
-      return new RandomShapeletForest(randomShapeletSplitter.build(), size);
+      return new RandomShapeletForest(shapeletTree, size);
     }
 
+    public Builder withAggregateFraction(double v) {
+      shapeletTree.withAggregateFraction(v);
+      return this;
+    }
   }
 }

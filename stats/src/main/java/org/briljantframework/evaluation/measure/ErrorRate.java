@@ -7,7 +7,7 @@ package org.briljantframework.evaluation.measure;
  */
 public class ErrorRate extends AbstractMeasure {
 
-  protected ErrorRate(AbstractMeasure.Builder builder) {
+  protected ErrorRate(AbstractMeasure.Builder<? extends Measure> builder) {
     super(builder);
   }
 
@@ -26,22 +26,6 @@ public class ErrorRate extends AbstractMeasure {
     public Builder() {
       super();
     }
-
-    // @Override
-    // public void compute(Sample sample, Predictor predictor, DataFrame dataFrame, Vector
-    // predicted,
-    // DoubleMatrix probabilities, Vector truth) {
-    // Preconditions.checkArgument(predicted.size() == truth.size());
-    //
-    // double accuracy = 0.0;
-    // for (int i = 0; i < predicted.size(); i++) {
-    // if (predicted.getAsString(i).equals(truth.getAsString(i))) {
-    // accuracy++;
-    // }
-    // }
-    //
-    // addComputedValue(sample, 1 - (accuracy / predicted.size()));
-    // }
 
     @Override
     public ErrorRate build() {

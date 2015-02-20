@@ -20,13 +20,19 @@ public final class Vectors {
 
   public static final Set<VectorType> NUMERIC = Sets.newIdentityHashSet();
   public static final Set<VectorType> CATEGORIC = Sets.newIdentityHashSet();
-  static {
-    NUMERIC.add(DoubleVector.TYPE);
-    NUMERIC.add(IntVector.TYPE);
-    NUMERIC.add(ComplexVector.TYPE);
+  public static final VectorType DOUBLE = DoubleVector.TYPE;
+  public static final VectorType COMPLEX = ComplexVector.TYPE;
+  public static final VectorType INT = IntVector.TYPE;
+  public static final VectorType BIT = BitVector.TYPE;
+  public static final VectorType STRING = StringVector.TYPE;
 
-    CATEGORIC.add(StringVector.TYPE);
-    CATEGORIC.add(BitVector.TYPE);
+  static {
+    NUMERIC.add(DOUBLE);
+    NUMERIC.add(INT);
+    NUMERIC.add(COMPLEX);
+
+    CATEGORIC.add(STRING);
+    CATEGORIC.add(BIT);
   }
 
   private Vectors() {}

@@ -307,6 +307,10 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     private List<Vector.Builder> buffers = null;
 
+    public Builder() {
+      this.buffers = new ArrayList<>();
+    }
+
     /**
      * Construct a builder with {@code types.length} columns.
      *

@@ -3,15 +3,11 @@ package org.briljantframework.shapelet;
 import java.io.FileInputStream;
 
 import org.briljantframework.classification.RandomShapeletForest;
-import org.briljantframework.classification.tune.Configuration;
-import org.briljantframework.classification.tune.Configurations;
-import org.briljantframework.classification.tune.Tuners;
-import org.briljantframework.classification.tune.Updaters;
+import org.briljantframework.classification.ShapeletTree;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.evaluation.HoldoutValidator;
-import org.briljantframework.evaluation.measure.Accuracy;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
@@ -37,10 +33,10 @@ public class RandomShapeletForestTest {
 
     try (DataInputStream train =
         new MatlabTextInputStream(new FileInputStream(
-            "/Users/isak/Downloads/dataset/Gun_Point/Gun_Point_TRAIN"));
+            "/Users/isak/Downloads/dataset/SwedishLeaf/SwedishLeaf_TRAIN"));
         DataInputStream test =
             new MatlabTextInputStream(new FileInputStream(
-                "/Users/isak/Downloads/dataset/Gun_Point/Gun_Point_TEST"))) {
+                "/Users/isak/Downloads/dataset/SwedishLeaf/SwedishLeaf_TEST"))) {
       DataFrame trainingSet =
           DataFrames.permuteRows(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
               .build());
@@ -48,8 +44,9 @@ public class RandomShapeletForestTest {
           new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
 
       RandomShapeletForest forest =
-          RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2)
-              .withUpperLength(40).build();
+          RandomShapeletForest.withSize(500).withInspectedShapelets(100).withLowerLength(2)
+              .withUpperLength(10).withMode(ShapeletTree.Mode.NORMAL).withAggregateFraction(0.7)
+              .build();
 
       DataFrame xTrain = trainingSet.dropColumn(0);
       Vector yTrain = Convert.toStringVector(trainingSet.getColumn(0));
@@ -60,16 +57,19 @@ public class RandomShapeletForestTest {
 
       RandomShapeletForest.Builder fb =
           RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(2);
-      Configurations configs =
-          Tuners
-              .crossValidation(fb, xTrain, yTrain, Configuration.metricComparator(Accuracy.class),
-                  4, Updaters.enumeration("upper-length",
-                      RandomShapeletForest.Builder::withUpperLength, 5, 10, 20, 40, -1));
-      System.out.println(configs);
+      // Configurations configs =
+      // Tuners
+      // .crossValidation(fb, xTrain, yTrain, Configuration.metricComparator(Accuracy.class),
+      // 4, Updaters.enumeration("upper-length",
+      // RandomShapeletForest.Builder::withUpperLength, 5, 10, 20, 40, -1));
+      // System.out.println(configs);
+      long start = System.nanoTime();
       Result result =
-          HoldoutValidator.withHoldout(xTest, yTest).test(configs.best().getClassifier(), xTrain,
+ HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain,
               yTrain);
+      System.out.println((System.nanoTime() - start) / 1e6);
       System.out.println(result);
+
     }
 
 

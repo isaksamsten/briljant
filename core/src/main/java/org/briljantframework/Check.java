@@ -10,10 +10,17 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 /**
- * Created by Isak Karlsson on 12/01/15.
+ * @author Isak Karlsson
  */
 public final class Check {
   private Check() {}
+
+  public static void range(double v, double min, double max) {
+    if (v < min || v > max) {
+      throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", v, min, v,
+          max));
+    }
+  }
 
 
   /**

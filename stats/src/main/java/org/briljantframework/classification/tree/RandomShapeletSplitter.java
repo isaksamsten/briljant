@@ -35,17 +35,17 @@ import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
 /**
- * Created by Isak Karlsson on 17/09/14.
+ * @author Isak Karlsson
  */
 public class RandomShapeletSplitter extends ShapeletSplitter {
-  /**
-   * The Metric.
-   */
-  private final Random random = new Random();
+  protected final Random random = new Random();
   private final int inspectedShapelets;
 
-  private final int lowerLength, upperLength;
+  private final int lowerLength;
+  private final int upperLength;
   private final double alpha;
+
+
 
   /**
    * Instantiates a new Random shapelet splitter.
@@ -60,48 +60,22 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     this.alpha = builder.alpha;
   }
 
-  /**
-   * With distance.
-   *
-   * @param distance the distance
-   * @return the builder
-   */
   public static Builder withDistance(Distance distance) {
     return new Builder(distance);
   }
 
-  /**
-   * Gets inspected shapelets.
-   *
-   * @return the inspected shapelets
-   */
   public int getInspectedShapelets() {
     return inspectedShapelets;
   }
 
-  /**
-   * Gets lower length.
-   *
-   * @return the lower length
-   */
   public int getLowerLength() {
     return lowerLength;
   }
 
-  /**
-   * Gets upper length.
-   *
-   * @return the upper length
-   */
   public int getUpperLength() {
     return upperLength;
   }
 
-  /**
-   * Gets alpha.
-   *
-   * @return the alpha
-   */
   public double getAlpha() {
     return alpha;
   }
@@ -113,6 +87,9 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     if (upper < 0) {
       upper = timeSeriesLength;
+    }
+    if (lower < 2) {
+      lower = 2;
     }
 
     if (Math.addExact(upper, lower) > timeSeriesLength) {
@@ -132,22 +109,13 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
       shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
     }
 
-
     return findBestSplit(classSet, x, y, shapelets);
   }
 
-  /**
-   * Find best split.
-   *
-   * @param classSet the examples
-   * @param x the storage
-   * @param y
-   * @param shapelets the shapelets @return the tree . split
-   */
   protected TreeSplit<ShapeletThreshold> findBestSplit(ClassSet classSet, DataFrame x, Vector y,
       List<Shapelet> shapelets) {
     TreeSplit<ShapeletThreshold> bestSplit = null;
-    Threshold bestThreshold = Threshold.optimal();
+    Threshold bestThreshold = Threshold.inf();
     for (Shapelet shapelet : shapelets) {
       IntDoubleMap distanceMap = new IntDoubleOpenHashMap();
       Threshold threshold = bestDistanceThresholdInSample(classSet, x, y, shapelet, distanceMap);
@@ -166,16 +134,6 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     return bestSplit;
   }
 
-  /**
-   * Best distance threshold in sample.
-   *
-   * @param classSet the examples
-   * @param x the frame
-   * @param y the target
-   * @param shapelet the shapelet
-   * @param memoizedDistances the distance map
-   * @return the double [ ]
-   */
   protected Threshold bestDistanceThresholdInSample(ClassSet classSet, DataFrame x, Vector y,
       Shapelet shapelet, IntDoubleMap memoizedDistances) {
 
@@ -193,64 +151,6 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     return findBestThreshold(distances, classSet, y, sum);
   }
 
-  /**
-   * Basic implementation of the splitting procedure
-   *
-   * @param distanceMap the distance map (mapping examples to distances to the shapelet)
-   * @param classSet the examples
-   * @param threshold the threshold
-   * @param shapelet the shapelet
-   * @return the examples . split
-   */
-  protected TreeSplit<ShapeletThreshold> split(IntDoubleMap distanceMap, ClassSet classSet,
-      double threshold, Shapelet shapelet) {
-    ClassSet left = new ClassSet(classSet.getDomain());
-    ClassSet right = new ClassSet(classSet.getDomain());
-
-    /*
-     * Partition every class separately
-     */
-    for (ClassSet.Sample sample : classSet.samples()) {
-      String target = sample.getTarget();
-
-      ClassSet.Sample leftSample = ClassSet.Sample.create(target);
-      ClassSet.Sample rightSample = ClassSet.Sample.create(target);
-
-      /*
-       * STEP 1: Partition the examples according to threshold
-       */
-      for (Example example : sample) {
-        double shapeletDistance = distanceMap.get(example.getIndex());
-        if (shapeletDistance < threshold) {
-          leftSample.add(example);
-        } else {
-          rightSample.add(example);
-        }
-      }
-
-      /*
-       * STEP 3: Ignore classes with no examples in the partition
-       */
-      if (!leftSample.isEmpty()) {
-        left.add(leftSample);
-      }
-      if (!rightSample.isEmpty()) {
-        right.add(rightSample);
-      }
-    }
-
-    return new TreeSplit<>(left, right, new ShapeletThreshold(shapelet, threshold));
-  }
-
-  /**
-   * Find best threshold.
-   *
-   * @param distances the example distances
-   * @param classSet the examples
-   * @param y the targets
-   * @param distanceSum the distance sum
-   * @return the double [ ]
-   */
   public Threshold findBestThreshold(List<ExampleDistance> distances, ClassSet classSet, Vector y,
       double distanceSum) {
     ObjectDoubleMap<String> lt = new ObjectDoubleOpenHashMap<>();
@@ -343,6 +243,57 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
   }
 
   /**
+   * Basic implementation of the splitting procedure
+   *
+   * @param distanceMap the distance map (mapping examples to distances to the shapelet)
+   * @param classSet the examples
+   * @param threshold the threshold
+   * @param shapelet the shapelet
+   * @return the examples . split
+   */
+  protected TreeSplit<ShapeletThreshold> split(IntDoubleMap distanceMap, ClassSet classSet,
+      double threshold, Shapelet shapelet) {
+    ClassSet left = new ClassSet(classSet.getDomain());
+    ClassSet right = new ClassSet(classSet.getDomain());
+
+    /*
+     * Partition every class separately
+     */
+    for (ClassSet.Sample sample : classSet.samples()) {
+      String target = sample.getTarget();
+
+      ClassSet.Sample leftSample = ClassSet.Sample.create(target);
+      ClassSet.Sample rightSample = ClassSet.Sample.create(target);
+
+      /*
+       * STEP 1: Partition the examples according to threshold
+       */
+      for (Example example : sample) {
+        double shapeletDistance = distanceMap.get(example.getIndex());
+        if (shapeletDistance < threshold) {
+          leftSample.add(example);
+        } else {
+          rightSample.add(example);
+        }
+      }
+
+      /*
+       * STEP 3: Ignore classes with no examples in the partition
+       */
+      if (!leftSample.isEmpty()) {
+        left.add(leftSample);
+      }
+      if (!rightSample.isEmpty()) {
+        right.add(rightSample);
+      }
+    }
+
+    return new TreeSplit<>(left, right, new ShapeletThreshold(shapelet, threshold));
+  }
+
+
+
+  /**
    * The type Example distance.
    */
   private static class ExampleDistance implements Comparable<ExampleDistance> {
@@ -371,9 +322,6 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     }
   }
 
-  /**
-   * The type Builder.
-   */
   public static class Builder {
 
     private int shapelets = 10;
@@ -419,11 +367,11 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     }
 
     public RandomShapeletSplitter build() {
-      return new RandomShapeletSplitter(this);
+      return new AggregateRandomShapeletSplitter(this);
     }
   }
 
-  private static class Threshold {
+  protected static class Threshold {
     public final double threshold, impurity, gap, margin;
 
     public Threshold(double threshold, double impurity, double gap, double margin) {
@@ -433,7 +381,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
       this.margin = margin;
     }
 
-    public static Threshold optimal() {
+    public static Threshold inf() {
       return new Threshold(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
           Double.NEGATIVE_INFINITY);
     }

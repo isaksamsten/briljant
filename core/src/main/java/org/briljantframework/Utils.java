@@ -223,6 +223,10 @@ public final class Utils {
     return getRandom().nextInt((max - min) + 1) + min;
   }
 
+  public static double randDouble(double min, double max) {
+    return min + (max - min) * getRandom().nextDouble();
+  }
+
   // /**
   // * Min double.
   // *
