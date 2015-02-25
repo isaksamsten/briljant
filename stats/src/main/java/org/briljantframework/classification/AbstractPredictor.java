@@ -3,6 +3,8 @@ package org.briljantframework.classification;
 import static org.briljantframework.matrix.Matrices.argmax;
 import static org.briljantframework.matrix.Matrices.newDoubleMatrix;
 
+import java.util.EnumSet;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -30,10 +32,12 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Vector predict(DataFrame x) {
+    long time = System.nanoTime();
     Vector.Builder labels = new StringVector.Builder(x.rows());
     for (int i = 0; i < x.rows(); i++) {
       labels.set(i, predict(x.getRecord(i)));
     }
+    System.out.println((System.nanoTime() - time) / 1e6);
     return labels.build();
   }
 
@@ -44,11 +48,18 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public DoubleMatrix estimate(DataFrame x) {
-    DoubleMatrix proba = newDoubleMatrix(x.rows(), getClasses().size());
+    long time = System.nanoTime();
+    DoubleMatrix estimations = newDoubleMatrix(x.rows(), getClasses().size());
     for (int i = 0; i < x.rows(); i++) {
-      proba.setRow(i, estimate(x.getRecord(i)));
+      estimations.setRow(i, estimate(x.getRecord(i)));
     }
-    return proba;
+    System.out.println((System.nanoTime() - time) / 1e6);
+    return estimations;
+  }
+
+  @Override
+  public EnumSet<Characteristics> getCharacteristics() {
+    return EnumSet.noneOf(Characteristics.class);
   }
 
   @Override

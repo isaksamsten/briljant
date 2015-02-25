@@ -15,7 +15,7 @@ import org.briljantframework.vector.Vectors;
 /**
  * @author Isak Karlsson
  */
-public class RandomForest extends AbstractEnsemble {
+public class RandomForest extends Ensemble {
 
   private Splitter splitter;
 
@@ -29,7 +29,7 @@ public class RandomForest extends AbstractEnsemble {
   }
 
   @Override
-  public AbstractEnsemblePredictor fit(DataFrame x, Vector y) {
+  public EnsemblePredictor fit(DataFrame x, Vector y) {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> fitTasks = new ArrayList<>();
@@ -37,7 +37,7 @@ public class RandomForest extends AbstractEnsemble {
       fitTasks.add(new FitTask(classSet, x, y, splitter, classes));
     }
     try {
-      return new AbstractEnsemblePredictor(classes, execute(fitTasks));
+      return new EnsemblePredictor(classes, execute(fitTasks), null);
     } catch (Exception e) {
       e.printStackTrace();
       return null;

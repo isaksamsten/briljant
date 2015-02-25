@@ -34,12 +34,15 @@ public class DefaultClassificationValidator extends AbstractClassificationValida
     Iterable<Partition> partitions = getPartitioner().partition(x, y);
     Vector domain = Vectors.unique(y);
     List<ConfusionMatrix> confusionMatrices = new ArrayList<>();
-    EvaluationContext ctx = new EvaluationContext(domain);
+    EvaluationContext ctx = new EvaluationContext();
     for (Partition partition : partitions) {
       DataFrame trainingData = partition.getTrainingData();
       Vector trainingTarget = partition.getTrainingTarget();
       Predictor predictor = classifier.fit(trainingData, trainingTarget);
       Vector predictions = predictor.predict(partition.getValidationData());
+      if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
+        ctx.setEstimation(predictor.estimate(partition.getValidationData()));
+      }
 
       ctx.setPredictor(predictor);
       ctx.setPartition(partition);

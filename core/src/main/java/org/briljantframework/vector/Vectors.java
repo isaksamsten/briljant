@@ -37,21 +37,43 @@ public final class Vectors {
 
   private Vectors() {}
 
-  public static int find(Vector vector, Value value) {
-    for (int i = 0; i < vector.size(); i++) {
-      if (vector.compare(i, value) == 0) {
+  /**
+   * Finds the index, in {@code vector}, of the value at {@code index} in {@code values}. This
+   * should be preferred over {@link #find(Vector, Value)} when possible. Hence, given
+   * {@code Vector a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should be
+   * preferred over {@code find(a, b.getAsValue(i))}.
+   *
+   * 
+   * @param haystack the vector to search
+   * @param needleSource the source of the needle
+   * @param needle the needle in the source
+   * @return the (first) index of {@code needleSource.getAsValue(needle)} in {@code haystack} or
+   *         {@code -1}
+   */
+  public static int find(Vector haystack, Vector needleSource, int needle) {
+    for (int i = 0; i < haystack.size(); i++) {
+      if (haystack.compare(i, needleSource, needle) == 0) {
         return i;
       }
     }
     return -1;
   }
 
-  public static int find(Vector vector, int value) {
-    return find(vector, Convert.toValue(value));
+  public static int find(Vector haystack, Value needle) {
+    for (int i = 0; i < haystack.size(); i++) {
+      if (haystack.compare(i, needle) == 0) {
+        return i;
+      }
+    }
+    return -1;
   }
 
-  public static int find(Vector vector, String value) {
-    return find(vector, Convert.toValue(value));
+  public static int find(Vector haystack, int needle) {
+    return find(haystack, Convert.toValue(needle));
+  }
+
+  public static int find(Vector haystack, String needle) {
+    return find(haystack, Convert.toValue(needle));
   }
 
   public static int find(Vector vector, Predicate<Value> predicate) {

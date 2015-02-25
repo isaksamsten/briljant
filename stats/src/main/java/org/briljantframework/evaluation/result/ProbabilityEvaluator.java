@@ -21,7 +21,7 @@ public class ProbabilityEvaluator implements Evaluator {
     DataFrame validationData = ctx.getPartition().getValidationData();
     Predictor predictor = ctx.getPredictor();
 
-    DoubleMatrix probabilities = predictor.estimate(validationData);
+    DoubleMatrix probabilities = ctx.getEstimation(Sample.OUT);
     Vector classes = predictor.getClasses();
 
     Map<Value, Double> auc = Measures.auc(predicted, probabilities, actual, classes);

@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.evaluation.Partition;
 import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 import com.google.common.base.Preconditions;
@@ -17,30 +18,16 @@ import com.google.common.base.Preconditions;
 public class EvaluationContext {
 
   private final HashMap<Class<?>, Measure.Builder<?>> builders = new HashMap<>();
-  private final Vector domain;
 
   private Vector predictions;
   private Predictor predictor;
   private Partition partition;
+  private DoubleMatrix estimation;
 
-  public EvaluationContext(Vector domain) {
-    this.domain = domain;
-  }
+  public EvaluationContext() {}
 
   public void setPredictions(Vector predictions) {
     this.predictions = Preconditions.checkNotNull(predictions);
-  }
-
-  /**
-   * Gets the domain of the predictions. For classification, this contains the classes present in
-   * both the training and evaluation set and
-   * {@link org.briljantframework.vector.VectorType#getScale()} returns
-   * {@link org.briljantframework.vector.VectorType.Scale#CATEGORICAL}.
-   *
-   * @return the classification domain
-   */
-  public Vector getDomain() {
-    return domain;
   }
 
   /**
@@ -67,6 +54,22 @@ public class EvaluationContext {
    */
   public Vector getPredictions(Sample sample) {
     return sample == Sample.OUT ? predictions : getPredictor().predict(
+        getPartition().getTrainingData());
+  }
+
+  public void setEstimation(DoubleMatrix estimation) {
+    this.estimation = Preconditions.checkNotNull(estimation);
+  }
+
+  /**
+   * If the predictor returned {@link #getPredictor()} has the
+   * {@link org.briljantframework.classification.Predictor.Characteristics#ESTIMATOR} characteristic
+   * 
+   * @param sample the sample
+   * @return the probability estimations made by predictor; shape [no samples, domain]
+   */
+  public DoubleMatrix getEstimation(Sample sample) {
+    return sample == Sample.OUT ? estimation : getPredictor().estimate(
         getPartition().getTrainingData());
   }
 

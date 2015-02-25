@@ -1,5 +1,7 @@
 package org.briljantframework.evaluation;
 
+import static org.briljantframework.matrix.Matrices.argmax;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -7,8 +9,8 @@ import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.*;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
 
 /**
  * @author Isak Karlsson
@@ -34,14 +36,31 @@ public class HoldoutValidator extends AbstractClassificationValidator {
   }
 
   public Result evaluate(Predictor predictor, DataFrame x, Vector y) {
-    Vector domain = Vectors.unique(holdoutY, y);
-    Vector holdOutPredictions = predictor.predict(holdoutX);
+    Vector classes = predictor.getClasses();
+    EvaluationContext ctx = new EvaluationContext();
 
-    ConfusionMatrix confusionMatrix = ConfusionMatrix.compute(holdOutPredictions, holdoutY, domain);
-    EvaluationContext ctx = new EvaluationContext(domain);
+    Vector holdOutPredictions;
+    if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
+      DoubleMatrix estimate = predictor.estimate(holdoutX);
+      ctx.setEstimation(estimate);
+
+      Vector.Builder builder = y.newBuilder();
+      for (int i = 0; i < estimate.rows(); i++) {
+        builder.set(i, classes, argmax(estimate.getRowView(i)));
+      }
+      holdOutPredictions = builder.build();
+    } else {
+      holdOutPredictions = predictor.predict(holdoutX);
+    }
+
+
+    ConfusionMatrix confusionMatrix =
+        ConfusionMatrix.compute(holdOutPredictions, holdoutY, classes);
     ctx.setPredictor(predictor);
     ctx.setPredictions(holdOutPredictions);
     ctx.setPartition(new Partition(x, holdoutX, y, holdoutY));
+
+
     getMeasureProvider().forEach(mc -> mc.accept(ctx));
     predictor.evaluation(ctx);
     return Result.create(collect(ctx.builders()), Collections.singletonList(confusionMatrix));

@@ -1,5 +1,7 @@
 package org.briljantframework.classification;
 
+import java.util.EnumSet;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -62,6 +64,12 @@ public interface Predictor {
    */
   DoubleMatrix estimate(Vector row);
 
+  EnumSet<Characteristics> getCharacteristics();
+
   void evaluation(EvaluationContext ctx);
+
+  public enum Characteristics {
+    ESTIMATOR
+  }
 
 }

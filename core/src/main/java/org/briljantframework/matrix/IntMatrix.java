@@ -8,6 +8,9 @@ import java.util.stream.IntStream;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntIntObjBiFunction;
+import org.briljantframework.matrix.storage.IntStorage;
+
+import com.carrotsearch.hppc.IntArrayList;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -591,4 +594,16 @@ public interface IntMatrix extends Matrix {
    */
   IntMatrix negate();
 
+  class Builder {
+
+    private IntArrayList buffer = new IntArrayList();
+
+    public void add(int value) {
+      buffer.add(value);
+    }
+
+    public IntMatrix build() {
+      return new DefaultIntMatrix(new IntStorage(buffer.toArray()), buffer.size());
+    }
+  }
 }

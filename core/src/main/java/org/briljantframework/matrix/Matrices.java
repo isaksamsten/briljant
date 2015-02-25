@@ -160,7 +160,7 @@ public final class Matrices {
    * </p>
    * <p>
    * <p>
-   * 
+   *
    * <pre>
    *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
    * 
@@ -313,6 +313,10 @@ public final class Matrices {
     return Diagonal.of(size, size, diagonal);
   }
 
+  public static double max(DoubleMatrix matrix) {
+    return matrix.reduce(Double.NEGATIVE_INFINITY, Math::max);
+  }
+
 
   /**
    * @param matrix the matrix
@@ -348,14 +352,6 @@ public final class Matrices {
     return index;
   }
 
-  public static double norm(DoubleMatrix a, DoubleMatrix b, double pow) {
-    Check.size(a, b);
-    double norm = 0;
-    for (int j = 0; j < a.size(); j++) {
-      norm += Math.pow(a.get(j) - b.get(j), pow);
-    }
-    return norm;
-  }
 
   public static IntMatrix range(int start, int end) {
     return range(start, end, 1);
@@ -369,7 +365,7 @@ public final class Matrices {
    * <p>
    * Take values in {@code a}, using the indexes in {@code indexes}. For example,
    * </p>
-   * 
+   *
    * @param a the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
@@ -390,7 +386,7 @@ public final class Matrices {
    * values in {@code values}. The value at {@code i} in a copy of {@code a} is set to value at
    * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
    * </p>
-   * 
+   *
    * @param a a source array
    * @param mask the mask; same shape as {@code a}
    * @param values the values; same shape as {@code a}
@@ -410,7 +406,7 @@ public final class Matrices {
    * Changes the values of {@code a} according to the values of the {@code mask} and the values in
    * {@code values}.
    * </p>
-   * 
+   *
    * @param a the target matrix
    * @param mask the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
@@ -482,7 +478,7 @@ public final class Matrices {
    * {@link org.briljantframework.complex.Complex} and {@link ComplexMatrix} do not have a natural
    * sort order.
    * </p>
-   * 
+   *
    * <pre>
    *  > import org.briljantframework.matrix.*;
    *    ComplexMatrix a = randn(12, 1).asComplexMatrix().map(Complex::sqrt)
@@ -673,7 +669,7 @@ public final class Matrices {
    * <p>
    * <p>
    * <p>
-   * 
+   *
    * <pre>
    *     row :== double<sub>1</sub>, {double<sub>n</sub>}
    *     matrix :== row<sub>1</sub>; {row<sub>m</sub>}
@@ -780,7 +776,7 @@ public final class Matrices {
 
   /**
    * Computes the mean of the matrix.
-   * 
+   *
    * @param matrix the matrix
    * @return the mean
    */

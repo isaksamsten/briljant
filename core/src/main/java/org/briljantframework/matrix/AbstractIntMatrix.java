@@ -15,10 +15,8 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntIntObjBiFunction;
-import org.briljantframework.matrix.storage.IntStorage;
 import org.briljantframework.matrix.storage.Storage;
 
-import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.ImmutableTable;
 
 /**
@@ -100,7 +98,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix slice(Collection<Integer> indexes) {
-    IncrementalBuilder builder = new IncrementalBuilder();
+    Builder builder = new Builder();
     indexes.forEach(index -> builder.add(get(index)));
     return builder.build();
   }
@@ -127,7 +125,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   @Override
   public IntMatrix slice(BitMatrix bits) {
     Check.equalShape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
+    Builder builder = new Builder();
     for (int i = 0; i < size(); i++) {
       if (bits.get(i)) {
         builder.add(get(i));
@@ -378,7 +376,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public IntMatrix filter(IntPredicate operator) {
-    IncrementalBuilder builder = new IncrementalBuilder();
+    Builder builder = new Builder();
     for (int i = 0; i < size(); i++) {
       int value = get(i);
       if (operator.test(value)) {
@@ -819,19 +817,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
   @Override
   public IntMatrix newEmptyVector(int size) {
     return newEmptyMatrix(size, 1);
-  }
-
-  public static class IncrementalBuilder {
-
-    private IntArrayList buffer = new IntArrayList();
-
-    public void add(int value) {
-      buffer.add(value);
-    }
-
-    public IntMatrix build() {
-      return new DefaultIntMatrix(new IntStorage(buffer.toArray()), buffer.size());
-    }
   }
 
   protected static class SliceIntMatrix extends AbstractIntMatrix {

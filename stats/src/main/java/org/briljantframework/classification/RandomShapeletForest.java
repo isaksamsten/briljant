@@ -22,8 +22,13 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import org.briljantframework.classification.tree.ClassSet;
+import org.briljantframework.classification.tree.Example;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
+import org.briljantframework.evaluation.measure.AbstractMeasure;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.result.Sample;
+import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
@@ -38,7 +43,7 @@ import org.briljantframework.vector.Vectors;
  *
  * @author Isak Karlsson
  */
-public class RandomShapeletForest extends AbstractEnsemble {
+public class RandomShapeletForest extends Ensemble {
 
   private final ShapeletTree.Builder builder;
 
@@ -56,8 +61,9 @@ public class RandomShapeletForest extends AbstractEnsemble {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
+    BitMatrix oobIndicator = Matrices.newBitMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
-      tasks.add(new FitTask(classSet, x, y, builder, classes));
+      tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumnView(i)));
     }
 
     List<ShapeletTree.Predictor> models;
@@ -75,8 +81,9 @@ public class RandomShapeletForest extends AbstractEnsemble {
       posSum.assign(m.getPositionImportance(), Double::sum);
     }
 
-    return new Predictor(classes, models, lenSum.update(v -> v / size()), posSum.update(v -> v
-        / size()));
+    lenSum.update(v -> v / size());
+    posSum.update(v -> v / size());
+    return new Predictor(classes, models, lenSum, posSum, oobIndicator);
   }
 
   @Override
@@ -91,60 +98,67 @@ public class RandomShapeletForest extends AbstractEnsemble {
     private final Vector y;
     private final Vector classes;
     private final ShapeletTree.Builder builder;
+    private final BitMatrix outbag;
 
 
     private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder,
-        Vector classes) {
+        Vector classes, BitMatrix outbag) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
       this.classes = classes;
       this.builder = builder;
+      this.outbag = outbag;
     }
 
     @Override
     public ShapeletTree.Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
-      // double aggregateFraction = Utils.randDouble(0.3, 0.7);
-      // System.out.println(aggregateFraction);
-      // builder.withAggregateFraction(aggregateFraction);
-      return new ShapeletTree(builder, sample(classSet, random), classes).fit(x, y);
+      ClassSet sample = sample(classSet, random);
+      ShapeletTree tree = new ShapeletTree(builder, sample, classes);
+      return tree.fit(x, y);
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
       ClassSet inBag = new ClassSet(classSet.getDomain());
+      int[] bootstrap = bootstrap(classSet, random);
       for (ClassSet.Sample sample : classSet.samples()) {
         ClassSet.Sample inSample = ClassSet.Sample.create(sample.getTarget());
-        int[] bootstrap = bootstrap(sample, random);
-        for (int i = 0; i < bootstrap.length; i++) {
-          if (bootstrap[i] > 0) {
-            inSample.add(sample.get(i).updateWeight(bootstrap[i]));
+        for (Example example : sample) {
+          int id = example.getIndex();
+          if (bootstrap[id] > 0) {
+            inSample.add(example.updateWeight(bootstrap[id]));
+          } else {
+            outbag.set(id, true);
           }
         }
-        inBag.add(inSample);
+        if (!inSample.isEmpty()) {
+          inBag.add(inSample);
+        }
       }
       return inBag;
     }
 
-    private int[] bootstrap(ClassSet.Sample sample, Random random) {
+    private int[] bootstrap(ClassSet sample, Random random) {
       int[] bootstrap = new int[sample.size()];
       for (int i = 0; i < bootstrap.length; i++) {
-        bootstrap[random.nextInt(bootstrap.length)]++;
+        int idx = random.nextInt(bootstrap.length);
+        bootstrap[idx]++;
       }
 
       return bootstrap;
     }
   }
 
-  public static class Predictor extends AbstractEnsemble.AbstractEnsemblePredictor {
+  public static class Predictor extends EnsemblePredictor {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
     public Predictor(Vector classes,
-        List<? extends org.briljantframework.classification.Predictor> models,
-        DoubleMatrix lengthImportance, DoubleMatrix positionImportance) {
-      super(classes, models);
+        List<? extends org.briljantframework.classification.Predictor> members,
+        DoubleMatrix lengthImportance, DoubleMatrix positionImportance, BitMatrix outbag) {
+      super(classes, members, outbag);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
     }
@@ -156,6 +170,39 @@ public class RandomShapeletForest extends AbstractEnsemble {
     public DoubleMatrix getPositionImportance() {
       return positionImportance;
     }
+
+    @Override
+    public void evaluation(EvaluationContext ctx) {
+      super.evaluation(ctx);
+      double depth = 0;
+      for (org.briljantframework.classification.Predictor predictor : getPredictors()) {
+        if (predictor instanceof ShapeletTree.Predictor) {
+          depth += ((ShapeletTree.Predictor) predictor).getDepth();
+        }
+      }
+      ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT,
+          depth / getPredictors().size());
+    }
+  }
+
+  public static class Depth extends AbstractMeasure {
+
+    protected Depth(Builder builder) {
+      super(builder);
+    }
+
+    @Override
+    public String getName() {
+      return "Depth";
+    }
+
+    public static class Builder extends AbstractMeasure.Builder<Depth> {
+
+      @Override
+      public Depth build() {
+        return new Depth(this);
+      }
+    }
   }
 
   public static class Builder implements Classifier.Builder<RandomShapeletForest> {
@@ -166,7 +213,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
     private final ShapeletTree.Builder shapeletTree = new ShapeletTree.Builder();
     private int size = 100;
 
-    public Builder withLowerLength(int lower) {
+    public Builder withLowerLength(double lower) {
       shapeletTree.withLowerLength(lower);
       return this;
     }
@@ -186,7 +233,7 @@ public class RandomShapeletForest extends AbstractEnsemble {
       return this;
     }
 
-    public Builder withUpperLength(int upper) {
+    public Builder withUpperLength(double upper) {
       shapeletTree.withUpperLength(upper);
       return this;
     }
@@ -201,8 +248,13 @@ public class RandomShapeletForest extends AbstractEnsemble {
       return this;
     }
 
-    public Builder withMode(ShapeletTree.Mode mode) {
-      shapeletTree.withMode(mode);
+    public Builder withSampleMode(ShapeletTree.SampleMode sampleMode) {
+      shapeletTree.withMode(sampleMode);
+      return this;
+    }
+
+    public Builder withAssessment(ShapeletTree.Assessment assessment) {
+      shapeletTree.withAssessment(assessment);
       return this;
     }
 

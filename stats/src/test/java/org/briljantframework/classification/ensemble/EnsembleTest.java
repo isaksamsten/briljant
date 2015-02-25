@@ -12,7 +12,7 @@ import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
-public class AbstractEnsembleTest {
+public class EnsembleTest {
 
   @Test
   public void testFit() throws Exception {

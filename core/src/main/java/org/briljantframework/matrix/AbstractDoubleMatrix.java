@@ -291,7 +291,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public DoubleMatrix assign(DoubleMatrix matrix, DoubleBinaryOperator combine) {
-    Check.equalShape(this, matrix);
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsDouble(get(i), matrix.get(i)));
     }
