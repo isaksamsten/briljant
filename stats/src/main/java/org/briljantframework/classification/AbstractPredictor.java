@@ -4,6 +4,7 @@ import static org.briljantframework.matrix.Matrices.argmax;
 import static org.briljantframework.matrix.Matrices.newDoubleMatrix;
 
 import java.util.EnumSet;
+import java.util.stream.IntStream;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
@@ -32,12 +33,12 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Vector predict(DataFrame x) {
-    long time = System.nanoTime();
+    // long time = System.nanoTime();
     Vector.Builder labels = new StringVector.Builder(x.rows());
     for (int i = 0; i < x.rows(); i++) {
       labels.set(i, predict(x.getRecord(i)));
     }
-    System.out.println((System.nanoTime() - time) / 1e6);
+    // System.out.println((System.nanoTime() - time) / 1e6);
     return labels.build();
   }
 
@@ -50,9 +51,11 @@ public abstract class AbstractPredictor implements Predictor {
   public DoubleMatrix estimate(DataFrame x) {
     long time = System.nanoTime();
     DoubleMatrix estimations = newDoubleMatrix(x.rows(), getClasses().size());
-    for (int i = 0; i < x.rows(); i++) {
-      estimations.setRow(i, estimate(x.getRecord(i)));
-    }
+    IntStream.range(0, x.rows()).parallel()
+        .forEach(i -> estimations.setRow(i, estimate(x.getRecord(i))));
+    // for (int i = 0; i < x.rows(); i++) {
+    // estimations.setRow(i, estimate(x.getRecord(i)));
+    // }
     System.out.println((System.nanoTime() - time) / 1e6);
     return estimations;
   }

@@ -77,7 +77,7 @@ public class RandomShapeletForestTest {
                 // .withSampleMode(ShapeletTree.SampleMode.RANDOMIZE)
                 .withAssessment(ShapeletTree.Assessment.FSTAT).build();
         Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
-        System.out.println(result);
+        // System.out.println(result);
         System.out.println(sizes.get(i) + ", " + result.getAverage(Ensemble.Correlation.class)
             + ", " + result.getAverage(Ensemble.Strength.class) + ", "
             + result.getAverage(Ensemble.Quality.class) + ", "

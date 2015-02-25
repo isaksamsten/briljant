@@ -43,7 +43,6 @@ public class HoldoutValidator extends AbstractClassificationValidator {
     if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
       DoubleMatrix estimate = predictor.estimate(holdoutX);
       ctx.setEstimation(estimate);
-
       Vector.Builder builder = y.newBuilder();
       for (int i = 0; i < estimate.rows(); i++) {
         builder.set(i, classes, argmax(estimate.getRowView(i)));

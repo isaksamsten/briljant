@@ -66,24 +66,23 @@ public class RandomShapeletForest extends Ensemble {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumnView(i)));
     }
 
-    List<ShapeletTree.Predictor> models;
     try {
-      models = execute(tasks);
+      List<ShapeletTree.Predictor> models = execute(tasks);
+      DoubleMatrix lenSum = Matrices.newDoubleVector(x.columns());
+      DoubleMatrix posSum = Matrices.newDoubleVector(x.columns());
+      for (ShapeletTree.Predictor m : models) {
+        lenSum.assign(m.getLengthImportance(), Double::sum);
+        posSum.assign(m.getPositionImportance(), Double::sum);
+      }
+
+      lenSum.update(v -> v / size());
+      posSum.update(v -> v / size());
+      return new Predictor(classes, models, lenSum, posSum, oobIndicator);
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
 
-    DoubleMatrix lenSum = Matrices.newDoubleVector(x.columns());
-    DoubleMatrix posSum = Matrices.newDoubleVector(x.columns());
-    for (ShapeletTree.Predictor m : models) {
-      lenSum.assign(m.getLengthImportance(), Double::sum);
-      posSum.assign(m.getPositionImportance(), Double::sum);
-    }
-
-    lenSum.update(v -> v / size());
-    posSum.update(v -> v / size());
-    return new Predictor(classes, models, lenSum, posSum, oobIndicator);
   }
 
   @Override
@@ -116,7 +115,8 @@ public class RandomShapeletForest extends Ensemble {
       Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
       ClassSet sample = sample(classSet, random);
       ShapeletTree tree = new ShapeletTree(builder, sample, classes);
-      return tree.fit(x, y);
+      ShapeletTree.Predictor fit = tree.fit(x, y);
+      return fit;
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
