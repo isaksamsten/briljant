@@ -5,19 +5,94 @@ import org.briljantframework.complex.Complex;
 /**
  * Represent a mutable storage unit. For example, an {@code Array}, {@link java.util.List} or memory
  * mapped file.
- * 
+ *
  * Values of different types coerces without exceptions, but precision might be lost.
- * 
+ *
  * To support large storage containers, indexes are {@code long}. In theory this might impact
  * performance slightly, however, in practice this is rarely a problem.
- * 
+ *
  * @author Isak Karlsson
  */
 public interface Storage {
 
+  static Storage freeze(Storage storage) {
+    return new AbstractStorage(storage.size()) {
+      @Override
+      public int getInt(int index) {
+        return storage.getInt(index);
+      }
+
+      @Override
+      public void setInt(int index, int value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public long getLong(int index) {
+        return storage.getLong(index);
+      }
+
+      @Override
+      public void setLong(int index, long value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public double getDouble(int index) {
+        return storage.getInt(index);
+      }
+
+      @Override
+      public void setDouble(int index, double value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Complex getComplex(int index) {
+        return storage.getComplex(index);
+      }
+
+      @Override
+      public void setComplex(int index, Complex complex) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean isArrayBased() {
+        return storage.isArrayBased();
+      }
+
+      @Override
+      public Class<?> getNativeType() {
+        return storage.getNativeType();
+      }
+
+      @Override
+      public Storage copy() {
+        return storage.copy().frozen();
+      }
+    };
+  }
+
+  /**
+   * Returns a froze representation of this storage container. While it is impossible to modify the
+   * storage returned, any references kept of the unfrozen storage can be modified and those
+   * modifications are propagated to the frozen instance. To create an independent and immutable
+   * storage, use {@code storage.copy().frozen()}. Since {@code as[Type]Array()} is allowed to
+   * return an underlying (mutable) representation, a frozen {@code Storage} can never be guaranteed
+   * to be immutable. Also, remember that copy is not synchronized, hence, modifications before the
+   * call to {@code frozen} can happen in another thread. Hence, {@code synchronize(storage)
+   * storage.copy().frozen()} could be preferred.
+   * 
+   * @return a frozen storage instance
+   */
+  default Storage frozen() {
+    return freeze(this);
+  }
+
   /**
    * Get value as boolean
-   * 
+   *
    * @param index the index
    * @return the boolean
    */
@@ -25,7 +100,7 @@ public interface Storage {
 
   /**
    * Set value as boolean
-   * 
+   *
    * @param index the index
    * @param value the value
    */
@@ -33,7 +108,7 @@ public interface Storage {
 
   /**
    * Get value as int
-   * 
+   *
    * @param index the index
    * @return the int
    */
@@ -41,7 +116,7 @@ public interface Storage {
 
   /**
    * Set value as int
-   * 
+   *
    * @param index the index
    * @param value the value
    */
@@ -49,7 +124,7 @@ public interface Storage {
 
   /**
    * Get value as long
-   * 
+   *
    * @param index the index
    * @return the long
    */
@@ -57,7 +132,7 @@ public interface Storage {
 
   /**
    * Set value as long
-   * 
+   *
    * @param index the index
    * @param value the value
    */
@@ -65,7 +140,7 @@ public interface Storage {
 
   /**
    * Get value as double
-   * 
+   *
    * @param index the index
    * @return the double
    */
@@ -73,7 +148,7 @@ public interface Storage {
 
   /**
    * Set value as double
-   * 
+   *
    * @param index the index
    * @param value the value
    */
@@ -81,7 +156,7 @@ public interface Storage {
 
   /**
    * Get value as complex
-   * 
+   *
    * @param index the index
    * @return the complex
    */
@@ -89,7 +164,7 @@ public interface Storage {
 
   /**
    * Set value as complex
-   * 
+   *
    * @param index the index
    * @param complex the value
    */
@@ -155,7 +230,7 @@ public interface Storage {
 
   /**
    * Creates an independent copy of this storage.
-   * 
+   *
    * @return a copy
    */
   Storage copy();

@@ -25,6 +25,8 @@ import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
+import org.briljantframework.distribution.Distribution;
+import org.briljantframework.distribution.TriangleDistribution;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
@@ -112,9 +114,18 @@ public class RandomShapeletForest extends Ensemble {
 
     @Override
     public ShapeletTree.Predictor call() throws Exception {
-      Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
+      Random random = new Random(Thread.currentThread().getId() * System.nanoTime());
       ClassSet sample = sample(classSet, random);
-      ShapeletTree tree = new ShapeletTree(builder, sample, classes);
+      Distribution lowerDist = new TriangleDistribution(random, 0, builder.lowerLength, 1);
+      Distribution upperDist =
+          new TriangleDistribution(random, builder.lowerLength, builder.upperLength, 1);
+      double low = lowerDist.next();
+      // builder.lowerLength + (builder.upperLength - builder.lowerLength) * random.nextDouble();
+      double high = upperDist.next();
+      // low + (builder.upperLength - low) * random.nextDouble();
+      // builder.withLowerLength(low).withUpperLength(high);
+      // System.out.println(low + " " + high);
+      ShapeletTree tree = new ShapeletTree(low, high, builder, sample, classes);
       ShapeletTree.Predictor fit = tree.fit(x, y);
       return fit;
     }
@@ -175,13 +186,18 @@ public class RandomShapeletForest extends Ensemble {
     public void evaluation(EvaluationContext ctx) {
       super.evaluation(ctx);
       double depth = 0;
+      double depthSquare = 0;
       for (org.briljantframework.classification.Predictor predictor : getPredictors()) {
         if (predictor instanceof ShapeletTree.Predictor) {
-          depth += ((ShapeletTree.Predictor) predictor).getDepth();
+          int d = ((ShapeletTree.Predictor) predictor).getDepth();
+          depth += d;
+          depthSquare += d * d;
         }
       }
-      ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT,
-          depth / getPredictors().size());
+      double avg = depth / getPredictors().size();
+      double d2 = depthSquare / getPredictors().size();
+      System.out.println(d2 - avg * avg);
+      ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT, avg);
     }
   }
 

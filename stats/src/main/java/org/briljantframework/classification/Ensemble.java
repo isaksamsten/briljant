@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -39,7 +40,6 @@ import org.briljantframework.vector.Vector;
 
 import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
-import com.google.common.util.concurrent.AtomicDouble;
 
 /**
  * @author Isak Karlsson
@@ -111,15 +111,16 @@ public abstract class Ensemble implements Classifier {
         BitMatrix oobIndicator) {
       super(classes);
       this.members = members;
-      this.oobIndicator = oobIndicator;
+      this.oobIndicator = oobIndicator.frozen();
     }
 
     /**
      * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code true}
      * the i:th training sample is out of the j:th members training sample.
-     * 
+     *
      * @return the out of bag indicator matrix
      */
+    @Override
     public BitMatrix getOobIndicator() {
       return oobIndicator;
     }
@@ -127,11 +128,11 @@ public abstract class Ensemble implements Classifier {
     @Override
     public void evaluation(EvaluationContext ctx) {
       super.evaluation(ctx);
-      meanSquareErrorDecomposition(ctx);
-      expectedCorrelation(ctx);
+      computeMeanSquareError(ctx);
+      computeOOBCorrelation(ctx);
     }
 
-    private void expectedCorrelation(EvaluationContext ctx) {
+    private void computeOOBCorrelation(EvaluationContext ctx) {
       if (!ctx.getPredictor().getCharacteristics().contains(Characteristics.ESTIMATOR)) {
         return;
       }
@@ -146,10 +147,9 @@ public abstract class Ensemble implements Classifier {
 
       // Count the number of times each training sample have been included
       IntMatrix counts = oobIndicator.asIntMatrix().reduceRows(Matrices::sum);
-      // long start = System.nanoTime();
 
-      double oobAccuracy = 0;
-      AtomicDouble oobAccuracyA = new AtomicDouble(0);
+      // Compute the in-bag and out-of-bag estimates for all examples
+      DoubleAdder oobAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         int inbSize = members.size() - counts.get(i);
         int oobSize = counts.get(i);
@@ -162,78 +162,46 @@ public abstract class Ensemble implements Classifier {
             inbEstimates.getRowView(i).assign(estimate, (e, v) -> e + v / inbSize);
           }
         }
-        oobAccuracyA.getAndAdd(find(classes, y, i) == argmax(oobEstimates.getRowView(i)) ? 1 : 0);
+        oobAccuracy.add(find(classes, y, i) == argmax(oobEstimates.getRowView(i)) ? 1 : 0);
       });
-      oobAccuracy = oobAccuracyA.get() / x.rows();
-      // for (int i = 0; i < x.rows(); i++) {
-      // int inbSize = members.size() - counts.get(i);
-      // int oobSize = counts.get(i);
-      // Record record = x.getRecord(i);
-      // for (int j = 0; j < members.size(); j++) {
-      // DoubleMatrix estimate = members.get(j).estimate(record);
-      // if (oobIndicator.get(i, j)) {
-      // oobEstimates.getRowView(i).assign(estimate, (e, v) -> e + v / oobSize);
-      // } else {
-      // inbEstimates.getRowView(i).assign(estimate, (e, v) -> e + v / inbSize);
-      // }
-      // }
-      // oobAccuracy += find(classes, y, i) == argmax(oobEstimates.getRowView(i)) ? 1 : 0;
-      // }
-      // oobAccuracy /= x.rows();
-      ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT, oobAccuracy);
+      ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT,
+          oobAccuracy.sum() / x.rows());
 
-
-      double strength = 0, strengthSquare = 0;
-      for (int i = 0; i < oobEstimates.rows(); i++) {
+      DoubleAdder strengthA = new DoubleAdder();
+      DoubleAdder strengthSquareA = new DoubleAdder();
+      IntStream.range(0, oobEstimates.rows()).parallel().forEach(i -> {
         DoubleMatrix estimation = oobEstimates.getRowView(i);
         int c = find(classes, y, i);
         double ma = estimation.get(c) - maxnot(estimation, c);
-        strength += ma;
-        strengthSquare += ma * ma;
-      }
-      strength /= y.size();
-      strengthSquare /= y.size();
+        strengthA.add(ma);
+        strengthSquareA.add(ma * ma);
+      });
+
+      double strength = strengthA.doubleValue() / y.size();
+      double strengthSquare = strengthSquareA.doubleValue() / y.size();
       double s2 = strength * strength;
       double variance = strengthSquare - s2;
       double std = 0;
       for (int j = 0; j < members.size(); j++) {
         Predictor member = members.get(j);
-        double p1 = 0, p2 = 0;
-        int oobSize = 0;
-
-        AtomicInteger oobSizaA = new AtomicInteger(0);
-        AtomicDouble p1A = new AtomicDouble(0);
-        AtomicDouble p2A = new AtomicDouble(0);
-        final int finalJ = j;
+        AtomicInteger oobSizeA = new AtomicInteger(0);
+        DoubleAdder p1A = new DoubleAdder();
+        DoubleAdder p2A = new DoubleAdder();
+        final int memberIndex = j;
         IntStream.range(0, x.rows()).parallel().forEach(i -> {
-          if (oobIndicator.get(i, finalJ)) {
-            oobSizaA.getAndIncrement();
+          if (oobIndicator.get(i, memberIndex)) {
+            oobSizeA.getAndIncrement();
             int c = find(classes, y, i);
             DoubleMatrix memberEstimation = member.estimate(x.getRecord(i));
             DoubleMatrix ibEstimation = inbEstimates.getRowView(i);
-            p1A.getAndAdd(argmax(memberEstimation) == c ? 1 : 0);
-            p2A.getAndAdd(argmax(memberEstimation) == argmaxnot(ibEstimation, c) ? 1 : 0);
+            p1A.add(argmax(memberEstimation) == c ? 1 : 0);
+            p2A.add(argmax(memberEstimation) == argmaxnot(ibEstimation, c) ? 1 : 0);
           }
         });
-        p1 = p1A.get() / oobSizaA.get();
-        p2 = p2A.get() / oobSizaA.get();
-        // for (int i = 0; i < x.rows(); i++) {
-        // if (oobIndicator.get(i, j)) {
-        // oobSize++;
-        // int c = find(classes, y, i);
-        // DoubleMatrix memberEstimation = member.estimate(x.getRecord(i));
-        // DoubleMatrix ibEstimation = inbEstimates.getRowView(i);
-        // p1 += argmax(memberEstimation) == c ? 1 : 0;
-        // p2 += argmax(memberEstimation) == argmaxnot(ibEstimation, c) ? 1 : 0;
-        // }
-        // }
-        // p1 /= oobSize;
-        // p2 /= oobSize;
-
+        double p1 = p1A.sum() / oobSizeA.get();
+        double p2 = p2A.sum() / oobSizeA.get();
         std += Math.sqrt(p1 + p2 + Math.pow(p1 - p2, 2));
       }
-      // System.out.println((System.nanoTime() - start) / 1e6);
-
       std = Math.pow(std / members.size(), 2);
       double correlation = variance / std;
       double errorBound = (correlation * (1 - s2)) / s2;
@@ -243,110 +211,55 @@ public abstract class Ensemble implements Classifier {
       ctx.getOrDefault(ErrorBound.class, ErrorBound.Builder::new).add(OUT, errorBound);
     }
 
-    public int argmaxnot(DoubleMatrix m, int not) {
-      double max = Double.NEGATIVE_INFINITY;
-      int argMax = -1;
-      for (int i = 0; i < m.size(); i++) {
-        if (not != i && m.get(i) > max) {
-          argMax = i;
-          max = m.get(i);
-        }
-      }
-      return argMax;
-    }
-
-    private double maxnot(DoubleMatrix m, int not) {
-      double max = Double.NEGATIVE_INFINITY;
-      for (int i = 0; i < m.size(); i++) {
-        if (not != i && m.get(i) > max) {
-          max = m.get(i);
-        }
-      }
-      return max;
-    }
-
-    private void meanSquareErrorDecomposition(EvaluationContext ctx) {
+    private void computeMeanSquareError(EvaluationContext ctx) {
       DataFrame x = ctx.getPartition().getValidationData();
       Vector y = ctx.getPartition().getValidationTarget();
       Vector classes = getClasses();
 
-      DoubleMatrix prob = newDoubleMatrix(members.size(), classes.size());
-
-      AtomicDouble meanVarA = new AtomicDouble(0);
-      AtomicDouble meanBiasA = new AtomicDouble(0);
-      AtomicDouble meanAccuracyA = new AtomicDouble(0);
-
-      // long start = System.nanoTime();
+      DoubleAdder meanVariance = new DoubleAdder();
+      DoubleAdder meanBias = new DoubleAdder();
+      DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         Record record = x.getRecord(i);
         DoubleMatrix c = newDoubleVector(classes.size());
+        /* Fill the true-class vector */
         for (int j = 0; j < classes.size(); j++) {
           if (classes.equals(j, y, i)) {
             c.set(j, 1);
           }
         }
-        for (int j = 0; j < members.size(); j++) {
+
+        /* Stores the probability of the m:th member for the j:th class */
+        int estimators = members.size();
+        DoubleMatrix memberEstimates = newDoubleMatrix(estimators, classes.size());
+        for (int j = 0; j < estimators; j++) {
           Predictor member = members.get(j);
-          prob.setRow(j, member.estimate(record));
+          memberEstimates.setRow(j, member.estimate(record));
         }
 
-        DoubleMatrix mean = mean(prob, Axis.COLUMN);
-        double var = 0;
-        double bias = 0;
-        double accuracy = 0;
-        for (int j = 0; j < prob.rows(); j++) {
-          DoubleMatrix r = prob.getRowView(j);
+        /* Get the mean probability vector for the i:th example */
+        DoubleMatrix meanEstimate = mean(memberEstimates, Axis.COLUMN);
+        double variance = 0, bias = 0, accuracy = 0;
+        for (int j = 0; j < memberEstimates.rows(); j++) {
+          DoubleMatrix r = memberEstimates.getRowView(j);
           double meanDiff = 0, trueDiff = 0;
           for (int k = 0; k < r.size(); k++) {
-            meanDiff += Math.pow(r.get(k) - mean.get(k), 2);
+            meanDiff += Math.pow(r.get(k) - meanEstimate.get(k), 2);
             trueDiff += Math.pow(r.get(k) - c.get(k), 2);
           }
-          var += meanDiff;
+          variance += meanDiff;
           bias += trueDiff;
           accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
         }
-        meanVarA.getAndAdd(var / members.size());
-        meanBiasA.getAndAdd(bias / members.size());
-        meanAccuracyA.getAndAdd(accuracy / members.size());
+        meanVariance.add(variance / estimators);
+        meanBias.add(bias / estimators);
+        baseAccuracy.add(accuracy / estimators);
       });
-
-      // for (int i = 0; i < x.rows(); i++) {
-      // Record record = x.getRecord(i);
-      // DoubleMatrix c = newDoubleVector(classes.size());
-      // for (int j = 0; j < classes.size(); j++) {
-      // if (classes.equals(j, y, i)) {
-      // c.set(j, 1);
-      // }
-      // }
-      // for (int j = 0; j < members.size(); j++) {
-      // Predictor member = members.get(j);
-      // prob.setRow(j, member.estimate(record));
-      // }
-      //
-      // DoubleMatrix mean = mean(prob, Axis.COLUMN);
-      // double var = 0;
-      // double bias = 0;
-      // double accuracy = 0;
-      // for (int j = 0; j < prob.rows(); j++) {
-      // DoubleMatrix r = prob.getRowView(j);
-      // double meanDiff = 0, trueDiff = 0;
-      // for (int k = 0; k < r.size(); k++) {
-      // meanDiff += Math.pow(r.get(k) - mean.get(k), 2);
-      // trueDiff += Math.pow(r.get(k) - c.get(k), 2);
-      // }
-      // var += meanDiff;
-      // bias += trueDiff;
-      // accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
-      // }
-      // meanVar += var / members.size();
-      // meanBias += bias / members.size();
-      // baseAccuracy += accuracy / members.size();
-      // }
-      // System.out.println((System.nanoTime() - start) / 1e6);
-      ctx.getOrDefault(Variance.class, Variance.Builder::new).add(OUT, meanVarA.get() / x.rows());
-      ctx.getOrDefault(Bias.class, Bias.Builder::new).add(OUT, meanBiasA.get() / x.rows());
+      ctx.getOrDefault(Variance.class, Variance.Builder::new).add(OUT,
+          meanVariance.doubleValue() / x.rows());
+      ctx.getOrDefault(Bias.class, Bias.Builder::new).add(OUT, meanBias.doubleValue() / x.rows());
       ctx.getOrDefault(BaseAccuracy.class, BaseAccuracy.Builder::new).add(OUT,
-          meanAccuracyA.get() / x.rows());
+          baseAccuracy.doubleValue() / x.rows());
     }
 
     @Override

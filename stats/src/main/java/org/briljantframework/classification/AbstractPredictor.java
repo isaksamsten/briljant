@@ -16,6 +16,10 @@ import org.briljantframework.vector.Vector;
 import com.google.common.base.Preconditions;
 
 /**
+ * Provides sane defaults for a predictor. Sub-classes only have to implement the
+ * {@link #estimate(org.briljantframework.vector.Vector)} method to have a sensible default
+ * predictor.
+ * 
  * @author Isak Karlsson
  */
 public abstract class AbstractPredictor implements Predictor {
@@ -33,12 +37,10 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Vector predict(DataFrame x) {
-    // long time = System.nanoTime();
     Vector.Builder labels = new StringVector.Builder(x.rows());
-    for (int i = 0; i < x.rows(); i++) {
+    IntStream.range(0, x.rows()).parallel().forEach(i -> {
       labels.set(i, predict(x.getRecord(i)));
-    }
-    // System.out.println((System.nanoTime() - time) / 1e6);
+    });
     return labels.build();
   }
 
@@ -49,14 +51,10 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public DoubleMatrix estimate(DataFrame x) {
-    long time = System.nanoTime();
     DoubleMatrix estimations = newDoubleMatrix(x.rows(), getClasses().size());
-    IntStream.range(0, x.rows()).parallel()
-        .forEach(i -> estimations.setRow(i, estimate(x.getRecord(i))));
-    // for (int i = 0; i < x.rows(); i++) {
-    // estimations.setRow(i, estimate(x.getRecord(i)));
-    // }
-    System.out.println((System.nanoTime() - time) / 1e6);
+    IntStream.range(0, x.rows()).parallel().forEach(i -> {
+      estimations.setRow(i, estimate(x.getRecord(i)));
+    });
     return estimations;
   }
 

@@ -9,16 +9,7 @@ import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
- * The interface Model.
- * <p>
- * TODO(isak) - below:
- * <p>
- * In some cases models produce additional measurements. For example, a random forest produces
- * variable importance and a linear models produce standard error, t-statistics R^2 etc. One
- * question is how to incorporate these measurements into the different models. Perhaps they may
- * feeling is that they don't belong here, but rather to the particular implementation. However, it
- * might be useful to have for example a summary() function or similar. Perhaps even a plot(onto)
- * function.
+ * A predictor is a model fit by a classifier to make predictions.
  */
 public interface Predictor {
 
@@ -64,8 +55,19 @@ public interface Predictor {
    */
   DoubleMatrix estimate(Vector row);
 
+  /**
+   * Get a set of characteristics for this particular predictor
+   * 
+   * @return the set of characteristics
+   */
   EnumSet<Characteristics> getCharacteristics();
 
+  /**
+   * Perform an evaluation of the predictor and appending those evaluations to the
+   * {@code EvaluationContext}.
+   * 
+   * @param ctx the evaluation context
+   */
   void evaluation(EvaluationContext ctx);
 
   public enum Characteristics {

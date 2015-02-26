@@ -52,18 +52,13 @@ public class ShapeletTree implements Classifier {
 
   private final Distance metric;
   private final int inspectedShapelets;
-
-  private final double lowerLength;
-  private final double upperLength;
-
   private final double alpha;
-
   private final double aggregateFraction;
   private final double minSplit;
-
   private final SampleMode sampleMode;
   private final Assessment assessment;
-
+  private double lowerLength;
+  private double upperLength;
   private Vector classes;
 
   protected ShapeletTree() {
@@ -89,6 +84,12 @@ public class ShapeletTree implements Classifier {
     Check.range(lowerLength, 0, upperLength);
     this.classSet = classSet;
     this.classes = classes;
+  }
+
+  public ShapeletTree(double low, double high, Builder builder, ClassSet sample, Vector classes) {
+    this(builder, sample, classes);
+    this.lowerLength = low;
+    this.upperLength = upperLength;
   }
 
   public Random getRandom() {
@@ -192,6 +193,9 @@ public class ShapeletTree implements Classifier {
 
     if (Math.addExact(upper, lower) > timeSeriesLength) {
       upper = timeSeriesLength - lower;
+    }
+    if (lower == upper) {
+      upper -= 2;
     }
 
     int maxShapelets = this.inspectedShapelets;
@@ -632,10 +636,10 @@ public class ShapeletTree implements Classifier {
 
   public static class Predictor extends TreePredictor<ShapeletThreshold> {
 
+    public final ClassSet classSet;
     private final int depth;
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
-    public final ClassSet classSet;
 
     protected Predictor(Vector classes, TreeNode<ShapeletThreshold> node,
         ShapletTreeVisitor predictionVisitor, DoubleMatrix lengthImportance,
@@ -701,13 +705,13 @@ public class ShapeletTree implements Classifier {
 
     public Assessment assessment = Assessment.FSTAT;
     public double minSplit = 1;
-    private Distance metric = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
-    private int inspectedShapelets = 100;
-    private double aggregateFraction = 0.5;
-    private SampleMode sampleMode = SampleMode.NORMAL;
-    private double lowerLength = 0.01;
-    private double upperLength = 1;
-    private double alpha = 0.5;
+    public Distance metric = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
+    public int inspectedShapelets = 100;
+    public double aggregateFraction = 0.5;
+    public SampleMode sampleMode = SampleMode.NORMAL;
+    public double lowerLength = 0.01;
+    public double upperLength = 1;
+    public double alpha = 0.5;
 
     public Builder withMinSplit(double minSplit) {
       this.minSplit = minSplit;

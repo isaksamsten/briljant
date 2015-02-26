@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- * Created by Isak Karlsson on 12/01/15.
+ * @author Isak Karlsson
  */
 public interface BitMatrix extends Matrix, Iterable<Boolean> {
 
@@ -103,6 +103,10 @@ public interface BitMatrix extends Matrix, Iterable<Boolean> {
   Stream<Boolean> stream();
 
   List<Boolean> asList();
+
+  default BitMatrix frozen() {
+    return new DefaultBitMatrix(getStorage().frozen(), rows(), columns());
+  }
 
   @Override
   BitMatrix transpose();

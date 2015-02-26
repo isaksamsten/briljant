@@ -38,10 +38,10 @@ public class RandomShapeletForestTest {
 
     try (DataInputStream train =
         new MatlabTextInputStream(new FileInputStream(
-            "/Users/isak/Downloads/dataset2/TwoLeadECG/TwoLeadECG_TRAIN"));
+            "/Users/isak-kar/Downloads/dataset2/DiatomSizeReduction/DiatomSizeReduction_TRAIN"));
         DataInputStream test =
             new MatlabTextInputStream(new FileInputStream(
-                "/Users/isak/Downloads/dataset2/TwoLeadECG/TwoLeadECG_TEST"))) {
+                "/Users/isak-kar/Downloads/dataset2/DiatomSizeReduction/DiatomSizeReduction_TEST"))) {
       DataFrame trainingSet =
           DataFrames.permuteRows(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
               .build());
@@ -67,13 +67,13 @@ public class RandomShapeletForestTest {
       // System.out.println(configs);
       long start = System.nanoTime();
       DoubleMatrix upper = Matrices.newDoubleVector(0.05, 0.1, 0.3, 0.5, 0.7, 1);
-      IntMatrix sizes = Matrices.newIntVector(1, 5, 10, 30, 50, 100, 200, 1000, 2000);
+      IntMatrix sizes = Matrices.newIntVector(1, 5, 10, 30, 50, 100, 200);
       System.out
           .println("Size,Correlation,Strength,Quality,Expected Error,Accuracy,OOB Accuracy,Depth");
       for (int i = 0; i < sizes.size(); i++) {
         RandomShapeletForest forest =
             RandomShapeletForest.withSize(100).withInspectedShapelets(sizes.get(i))
-                .withLowerLength(0).withUpperLength(0.2)
+                .withLowerLength(0.025).withUpperLength(1)
                 // .withSampleMode(ShapeletTree.SampleMode.RANDOMIZE)
                 .withAssessment(ShapeletTree.Assessment.FSTAT).build();
         Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);

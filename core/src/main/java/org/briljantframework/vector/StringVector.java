@@ -35,6 +35,10 @@ public class StringVector extends AbstractStringVector {
     this(Arrays.asList(values), false);
   }
 
+  public static StringVector of(String... values) {
+    return new StringVector(values);
+  }
+
   public static Builder newBuilderWithInitialValues(Object... values) {
     Builder builder = new Builder(0, values.length);
     builder.addAll(Arrays.asList(values));

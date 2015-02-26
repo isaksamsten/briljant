@@ -7,7 +7,7 @@ import org.briljantframework.vector.Vector;
 /**
  * @author Isak Karlsson
  */
-public class NormalDistribution {
+public class NormalDistribution extends Distribution {
 
   /*
    * Parameters for the ppf calculation
@@ -44,6 +44,18 @@ public class NormalDistribution {
   private static final double cdf_a3 = 1.781477937;
   private static final double cdf_a4 = -1.821255978;
   private static final double cdf_a5 = 1.330274429;
+
+  private final double mean;
+  private final double std;
+
+  public NormalDistribution(double mean, double std) {
+    this.mean = mean;
+    this.std = std;
+  }
+
+  public NormalDistribution() {
+    this(0, 1);
+  }
 
   /**
    * Cumulative distribution function. Returns the probability of a random variable being less than
@@ -209,5 +221,10 @@ public class NormalDistribution {
     double o = Math.sqrt(scale);
     double d = x - loc;
     return 1 / (o * Math.sqrt(2 * Math.PI)) * Math.exp(-(d * d) / (2 * scale));
+  }
+
+  @Override
+  public double next() {
+    return random.nextGaussian();
   }
 }

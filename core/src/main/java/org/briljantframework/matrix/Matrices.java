@@ -894,7 +894,29 @@ public final class Matrices {
     return new DefaultComplexMatrix(values);
   }
 
-  private static interface MatrixFactory<T> {
+    public static int argmaxnot(DoubleMatrix m, int not) {
+      double max = Double.NEGATIVE_INFINITY;
+      int argMax = -1;
+      for (int i = 0; i < m.size(); i++) {
+        if (not != i && m.get(i) > max) {
+          argMax = i;
+          max = m.get(i);
+        }
+      }
+      return argMax;
+    }
+
+    public static double maxnot(DoubleMatrix m, int not) {
+      double max = Double.NEGATIVE_INFINITY;
+      for (int i = 0; i < m.size(); i++) {
+        if (not != i && m.get(i) > max) {
+          max = m.get(i);
+        }
+      }
+      return max;
+    }
+
+    private static interface MatrixFactory<T> {
     Matrix newVector(int size);
 
     Matrix newMatrix(int rows, int columns);

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.briljantframework.complex.Complex;
 
 /**
- * Created by isak on 1/30/15.
+ * @author Isak Karlsson
  */
 public class BooleanStorage extends AbstractStorage {
   private final boolean[] values;
