@@ -17,6 +17,18 @@ import com.carrotsearch.hppc.IntArrayList;
  */
 public interface IntMatrix extends Matrix {
 
+  static IntMatrix newVector(int n) {
+    return new DefaultIntMatrix(n);
+  }
+
+  static IntMatrix newMatrix(int rows, int columns) {
+    return new DefaultIntMatrix(rows, columns);
+  }
+
+  static IntMatrix of(int... values) {
+    return new DefaultIntMatrix(values);
+  }
+
   // Assignments
 
   /**

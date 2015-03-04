@@ -199,31 +199,7 @@ public final class Matrices {
     return new DefaultBitMatrix(rows, cols);
   }
 
-  public static DoubleMatrix newDoubleVector(double... values) {
-    return new DefaultDoubleMatrix(values);
-  }
-
-  public static DoubleMatrix newDoubleVector(int size) {
-    return new DefaultDoubleMatrix(size);
-  }
-
-  public static DoubleMatrix newDoubleMatrix(int rows, int columns) {
-    return new DefaultDoubleMatrix(rows, columns);
-  }
-
-  public static IntMatrix newIntVector(int n) {
-    return new DefaultIntMatrix(n);
-  }
-
-  public static IntMatrix newIntVector(int... values) {
-    return new DefaultIntMatrix(values);
-  }
-
-  public static IntMatrix newIntMatrix(int rows, int columns) {
-    return new DefaultIntMatrix(rows, columns);
-  }
-
-  public static ComplexMatrix newComplexVector(double... values) {
+    public static ComplexMatrix newComplexVector(double... values) {
     Complex[] c = new Complex[values.length];
     for (int i = 0; i < c.length; i++) {
       c[i] = Complex.valueOf(values[i]);
@@ -252,11 +228,11 @@ public final class Matrices {
   }
 
   public static DoubleMatrix zeros(int size) {
-    return newDoubleVector(size);
+    return DoubleMatrix.newVector(size);
   }
 
   public static DoubleMatrix zeros(int rows, int columns) {
-    return newDoubleMatrix(rows, columns);
+    return DoubleMatrix.newMatrix(rows, columns);
   }
 
   public static DoubleMatrix ones(int size) {
@@ -284,19 +260,19 @@ public final class Matrices {
   }
 
   public static DoubleMatrix randn(int rows, int cols) {
-    return newDoubleMatrix(rows, cols).assign(RANDOM::nextGaussian);
+    return DoubleMatrix.newMatrix(rows, cols).assign(RANDOM::nextGaussian);
   }
 
   public static DoubleMatrix randn(int size) {
-    return newDoubleVector(size).assign(RANDOM::nextGaussian);
+    return DoubleMatrix.newVector(size).assign(RANDOM::nextGaussian);
   }
 
   public static DoubleMatrix rand(int rows, int cols) {
-    return newDoubleMatrix(rows, cols).assign(RANDOM::nextDouble);
+    return DoubleMatrix.newMatrix(rows, cols).assign(RANDOM::nextDouble);
   }
 
   public static DoubleMatrix rand(int size) {
-    return newDoubleVector(size).assign(RANDOM::nextDouble);
+    return DoubleMatrix.newVector(size).assign(RANDOM::nextDouble);
   }
 
   /**
@@ -540,7 +516,7 @@ public final class Matrices {
    * @return a vector
    */
   public static DoubleMatrix linspace(double start, double stop, int num) {
-    DoubleMatrix values = newDoubleVector(num);
+    DoubleMatrix values = DoubleMatrix.newVector(num);
     double step = (stop - start) / (num - 1);
     double value = start;
     for (int index = 0; index < num; index++) {
@@ -761,7 +737,7 @@ public final class Matrices {
   // public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
   // DoubleMatrix mean = mean(matrix, axis);
   // long columns = matrix.columns();
-  // DoubleMatrix sigmas = newDoubleVector(matrix.columns());
+  // DoubleMatrix sigmas = of(matrix.columns());
   //
   // for (int j = 0; j < columns; j++) {
   // double std = 0.0;

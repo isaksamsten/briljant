@@ -1,6 +1,8 @@
 package org.briljantframework.dataframe;
 
+import java.util.AbstractCollection;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -11,11 +13,13 @@ import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 07/01/15.
  */
-public class NameAttribute implements AttributeCollection<String> {
+public class NameAttribute extends AbstractCollection<String> implements
+    AttributeCollection<String> {
 
   private IntObjectMap<String> names;
   private ObjectIntMap<String> reverse;
@@ -89,6 +93,28 @@ public class NameAttribute implements AttributeCollection<String> {
     reverse.put(get(a), b);
     reverse.put(get(b), a);
     Utils.swap(names, a, b);
+  }
+
+  @Override
+  public Iterator<String> iterator() {
+    return new UnmodifiableIterator<String>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public String next() {
+        return get(current++);
+      }
+    };
+  }
+
+  @Override
+  public int size() {
+    return names.size();
   }
 
   @Override

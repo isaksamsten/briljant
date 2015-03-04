@@ -22,7 +22,7 @@ public class DefaultClassificationValidator extends AbstractClassificationValida
   }
 
   public DefaultClassificationValidator(Partitioner partitioner) {
-    this(Measures.getDefaultClassificationMeasures(), partitioner);
+    this(Measures.getDefaultClassificationEvaluators(), partitioner);
   }
 
   public DefaultClassificationValidator() {
@@ -51,8 +51,8 @@ public class DefaultClassificationValidator extends AbstractClassificationValida
       Vector evalData = partition.getValidationTarget();
       ConfusionMatrix matrix = ConfusionMatrix.compute(predictions, evalData, domain);
       confusionMatrices.add(matrix);
-      for (Evaluator consumer : getMeasureProvider()) {
-        consumer.accept(ctx);
+      for (Evaluator evaluator : getEvaluators()) {
+        evaluator.accept(ctx);
       }
       predictor.evaluation(ctx);
     }

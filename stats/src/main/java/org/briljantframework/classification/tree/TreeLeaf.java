@@ -1,7 +1,6 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -19,7 +18,7 @@ public final class TreeLeaf<T> implements TreeNode<T> {
 
   public static <T> TreeLeaf<T> fromExamples(ClassSet classSet) {
     Vector domain = classSet.getDomain();
-    DoubleMatrix prob = Matrices.newDoubleVector(domain.size());
+    DoubleMatrix prob = DoubleMatrix.newVector(domain.size());
     double totalWeight = classSet.getTotalWeight();
     for (int i = 0; i < domain.size(); i++) {
       String label = domain.getAsString(i);

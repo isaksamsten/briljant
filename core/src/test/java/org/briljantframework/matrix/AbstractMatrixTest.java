@@ -34,7 +34,7 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsDoubleMatrix() throws Exception {
-    IntMatrix a = newIntMatrix(3, 3).assign(10);
+    IntMatrix a = IntMatrix.newMatrix(3, 3).assign(10);
     LongMatrix b = newLongMatrix(3, 3).assign(10);
     ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
     BitMatrix d = newBitMatrix(3, 3).assign(true);
@@ -47,7 +47,7 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsIntMatrix() throws Exception {
-    DoubleMatrix a = newDoubleMatrix(3, 3).assign(10);
+    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
     LongMatrix b = newLongMatrix(3, 3).assign(10);
     ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
     BitMatrix d = newBitMatrix(3, 3).assign(true);
@@ -60,8 +60,8 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsLongMatrix() throws Exception {
-    DoubleMatrix a = newDoubleMatrix(3, 3).assign(10);
-    IntMatrix b = newIntMatrix(3, 3).assign(10);
+    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
+    IntMatrix b = IntMatrix.newMatrix(3, 3).assign(10);
     ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
     BitMatrix d = newBitMatrix(3, 3).assign(true);
 
@@ -74,8 +74,8 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsBitMatrix() throws Exception {
-    DoubleMatrix a = newDoubleMatrix(3, 3).assign(10);
-    IntMatrix b = newIntMatrix(3, 3).assign(10);
+    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
+    IntMatrix b = IntMatrix.newMatrix(3, 3).assign(10);
     ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
     LongMatrix d = newLongMatrix(3, 3).assign(1);
 
@@ -87,9 +87,9 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsComplexMatrix() throws Exception {
-    DoubleMatrix a = newDoubleMatrix(3, 3).assign(10);
+    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
     LongMatrix b = newLongMatrix(3, 3).assign(10);
-    IntMatrix c = newIntMatrix(3, 3).assign(10);
+    IntMatrix c = IntMatrix.newMatrix(3, 3).assign(10);
     BitMatrix d = newBitMatrix(3, 3).assign(true);
 
     assertEquals(Complex.valueOf(10), a.asComplexMatrix().get(0));

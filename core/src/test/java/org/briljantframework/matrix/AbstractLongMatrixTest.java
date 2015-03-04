@@ -51,7 +51,7 @@ public class AbstractLongMatrixTest {
 
   @Test
   public void testAssign3() throws Exception {
-    DoubleMatrix d = newDoubleMatrix(3, 3).assign(3);
+    DoubleMatrix d = DoubleMatrix.newMatrix(3, 3).assign(3);
     LongMatrix i = newLongMatrix(3, 3).assign(d, x -> (int) x);
     assertMatrixEquals(i, 3);
   }

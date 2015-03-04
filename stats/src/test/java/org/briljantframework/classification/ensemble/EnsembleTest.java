@@ -50,7 +50,7 @@ public class EnsembleTest {
             .withLowerLength(2).build();
     //
     // Result result =
-    // new HoldOutValidation(Measures.getDefaultClassificationMeasures(), xtest, ytest).evaluate(
+    // new HoldOutValidation(Measures.getDefaultClassificationEvaluators(), xtest, ytest).evaluate(
     // f, xtrain, ytrain);
     // System.out.println(result);
 

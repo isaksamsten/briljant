@@ -50,7 +50,7 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testAssign3() throws Exception {
-    DoubleMatrix d = newDoubleMatrix(3, 3).assign(3);
+    DoubleMatrix d = DoubleMatrix.newMatrix(3, 3).assign(3);
     ComplexMatrix i = newComplexMatrix(3, 3).assign(d, Complex::valueOf);
     assertMatrixEquals(3, i);
   }

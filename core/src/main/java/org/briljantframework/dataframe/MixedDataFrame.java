@@ -153,6 +153,10 @@ public class MixedDataFrame extends AbstractDataFrame {
     return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5));
   }
 
+  public static MixedDataFrame read(DataInputStream io) throws IOException {
+    return new MixedDataFrame.Builder(io.readColumnNames(), io.readColumnTypes()).read(io).build();
+  }
+
   @Override
   public String getAsString(int row, int column) {
     return columns.get(column).getAsString(row);
@@ -460,13 +464,13 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder swapInColumn(int column, int a, int b) {
+    public Builder swapInColumn(int column, int a, int b) {
       buffers.get(column).swap(a, b);
       return this;
     }
 
     @Override
-    public DataFrame.Builder read(DataInputStream inputStream) throws IOException {
+    public Builder read(DataInputStream inputStream) throws IOException {
       while (inputStream.hasNext()) {
         DataEntry entry = inputStream.next();
         for (int i = 0; i < entry.size(); i++) {

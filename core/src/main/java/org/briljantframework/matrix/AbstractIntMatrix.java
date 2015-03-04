@@ -344,7 +344,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
   @Override
   public DoubleMatrix mapToDouble(IntToDoubleFunction function) {
-    DoubleMatrix matrix = Matrices.newDoubleMatrix(rows(), columns());
+    DoubleMatrix matrix = DoubleMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }

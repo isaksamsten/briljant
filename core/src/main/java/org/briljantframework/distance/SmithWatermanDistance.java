@@ -3,7 +3,6 @@ package org.briljantframework.distance;
 import java.util.stream.DoubleStream;
 
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -87,7 +86,7 @@ public class SmithWatermanDistance implements Distance {
 
   @Override
   public double compute(Vector a, Vector b) {
-    DoubleMatrix h = Matrices.newDoubleMatrix(a.size() + 1, b.size() + 1);
+    DoubleMatrix h = DoubleMatrix.newMatrix(a.size() + 1, b.size() + 1);
     double minDist = Double.POSITIVE_INFINITY;
     for (int i = 1; i < h.rows(); i++) {
       for (int j = 1; j < h.columns(); j++) {

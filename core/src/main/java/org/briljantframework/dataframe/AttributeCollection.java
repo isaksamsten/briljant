@@ -1,11 +1,12 @@
 package org.briljantframework.dataframe;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
  * Created by Isak Karlsson on 07/01/15.
  */
-public interface AttributeCollection<T> {
+public interface AttributeCollection<T> extends Collection<T> {
 
   T get(int index);
 

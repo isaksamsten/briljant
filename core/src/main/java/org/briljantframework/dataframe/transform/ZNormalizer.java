@@ -36,7 +36,7 @@ public class ZNormalizer implements Transformer {
     DoubleMatrix mean = Matrices.mean(frame.asMatrix(), Axis.COLUMN);
 
     DoubleMatrix x = frame.asMatrix();
-    DoubleMatrix xNorm = Matrices.newDoubleMatrix(x.rows(), x.columns());
+    DoubleMatrix xNorm = DoubleMatrix.newMatrix(x.rows(), x.columns());
 
     for (int i = 0; i < xNorm.rows(); i++) {
       for (int j = 0; j < xNorm.columns(); j++) {

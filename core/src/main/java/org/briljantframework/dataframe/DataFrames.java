@@ -15,6 +15,7 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
@@ -65,6 +66,27 @@ public final class DataFrames {
         in.close();
       }
     }
+  }
+
+  public static DataFrame summary(DataFrame df) {
+    DataFrame.Builder builder =
+        new MixedDataFrame.Builder(Arrays.asList("Mean", "Min", "Max", "Mode"), Arrays.asList(
+            Vectors.DOUBLE, Vectors.DOUBLE, Vectors.DOUBLE, Vectors.STRING));
+
+    for (int j = 0; j < df.columns(); j++) {
+      Vector column = df.getColumn(j);
+      builder.getRecordNames().put(j, df.getColumnName(j));
+      if (column.getType().getScale() == VectorType.Scale.NUMERICAL) {
+        double mean = Vectors.mean(column);
+        double min = Vectors.min(column);
+        double max = Vectors.max(column);
+        builder.set(j, 0, mean).set(j, 1, min).set(j, 2, max);
+      } else {
+        Value mode = Vectors.mode(column);
+        builder.set(j, 3, mode);
+      }
+    }
+    return builder.build();
   }
 
   /**

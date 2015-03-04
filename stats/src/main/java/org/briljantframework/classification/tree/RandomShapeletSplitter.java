@@ -24,7 +24,6 @@ import java.util.Random;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
@@ -157,8 +156,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
     List<String> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = Matrices.newDoubleVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = Matrices.newDoubleVector(presentTargets.size());
+    DoubleMatrix ltRelativeFrequency = DoubleMatrix.newVector(presentTargets.size());
+    DoubleMatrix gtRelativeFrequency = DoubleMatrix.newVector(presentTargets.size());
 
 
 

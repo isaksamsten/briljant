@@ -44,7 +44,9 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  DataFrame setColumnNames(List<String> names);
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
@@ -52,9 +54,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
+  DataFrame setColumnNames(List<String> names);
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -324,6 +324,8 @@ public interface DataFrame extends Iterable<Record> {
     return StreamSupport.stream(spliterator(), false);
   }
 
+  Collection<VectorType> getColumnTypes();
+
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
    */
@@ -494,7 +496,7 @@ public interface DataFrame extends Iterable<Record> {
      * @return a modified builder
      */
     default Builder addAll(int startRow, DataFrame frame) {
-      for (int i = 0; i < columns(); i++) {
+      for (int i = 0; i < frame.columns(); i++) {
         addAll(startRow, i, frame.getColumn(i));
       }
       return this;

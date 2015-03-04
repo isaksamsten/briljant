@@ -133,7 +133,7 @@ public class DecisionTree implements Classifier {
 
     // @Override
     // public DoubleMatrix predictProba(DataFrame x) {
-    // DoubleMatrix probas = Matrices.newDoubleMatrix(x.rows(), getClasses().size());
+    // DoubleMatrix probas = Matrices.newMatrix(x.rows(), getClasses().size());
     // for (int i = 0; i < x.rows(); i++) {
     // probas.setRow(i, predictProba(x.getRecord(i)));
     // }
@@ -144,7 +144,7 @@ public class DecisionTree implements Classifier {
     // public DoubleMatrix predictProba(Vector row) {
     // Vector prediction = predict(row);
     // Vector classes = getClasses();
-    // DoubleMatrix probas = Matrices.newDoubleVector(classes.size());
+    // DoubleMatrix probas = Matrices.of(classes.size());
     // for (int i = 0; i < classes.size(); i++) {
     // if (prediction.compare(0, i, classes) == 0) {
     // probas.set(i, 1);

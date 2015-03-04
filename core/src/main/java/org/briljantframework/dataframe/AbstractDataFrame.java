@@ -321,6 +321,15 @@ public abstract class AbstractDataFrame implements DataFrame {
     return matrix;
   }
 
+  @Override
+  public Collection<VectorType> getColumnTypes() {
+    List<VectorType> types = new ArrayList<>();
+    for (int i = 0; i < columns(); i++) {
+      types.add(getColumnType(i));
+    }
+    return types;
+  }
+
   /**
    * Returns an iterator over the rows of this DataFrame
    * 

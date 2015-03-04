@@ -19,7 +19,6 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vectors;
 
 /**
@@ -29,7 +28,7 @@ public class MeanImputer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix means = Matrices.newDoubleVector(frame.columns());
+    DoubleMatrix means = DoubleMatrix.newVector(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
       means.set(j, Vectors.mean(frame.getColumn(j)));
     }

@@ -225,6 +225,6 @@ public class NormalDistribution extends Distribution {
 
   @Override
   public double next() {
-    return random.nextGaussian();
+    return mean + random.nextGaussian() * std;
   }
 }

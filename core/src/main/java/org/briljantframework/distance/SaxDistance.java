@@ -4,11 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.briljantframework.Check;
 import org.briljantframework.dataseries.SymbolicAggregator;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
-
-import com.google.common.base.Preconditions;
 
 /**
  *
@@ -39,9 +38,8 @@ public class SaxDistance implements Distance {
 
   @Override
   public double compute(Vector a, Vector b) {
-    org.briljantframework.Check.requireType(StringVector.TYPE, a);
-
-    Preconditions.checkArgument(a.size() == b.size());
+    Check.requireType(StringVector.TYPE, a);
+    Check.size(a, b);
 
     double w = a.size();
     double sum = 0;

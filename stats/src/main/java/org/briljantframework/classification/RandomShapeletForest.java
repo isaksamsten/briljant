@@ -70,8 +70,8 @@ public class RandomShapeletForest extends Ensemble {
 
     try {
       List<ShapeletTree.Predictor> models = execute(tasks);
-      DoubleMatrix lenSum = Matrices.newDoubleVector(x.columns());
-      DoubleMatrix posSum = Matrices.newDoubleVector(x.columns());
+      DoubleMatrix lenSum = DoubleMatrix.newVector(x.columns());
+      DoubleMatrix posSum = DoubleMatrix.newVector(x.columns());
       for (ShapeletTree.Predictor m : models) {
         lenSum.assign(m.getLengthImportance(), Double::sum);
         posSum.assign(m.getPositionImportance(), Double::sum);
@@ -116,15 +116,17 @@ public class RandomShapeletForest extends Ensemble {
     public ShapeletTree.Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.nanoTime());
       ClassSet sample = sample(classSet, random);
-      Distribution lowerDist = new TriangleDistribution(random, 0, builder.lowerLength, 1);
+      Distribution lowerDist =
+      new TriangleDistribution(random, builder.lowerLength, builder.upperLength,
+      builder.lowerLength);
       Distribution upperDist =
-          new TriangleDistribution(random, builder.lowerLength, builder.upperLength, 1);
-      double low = lowerDist.next();
+          new TriangleDistribution(random, builder.lowerLength, 1, builder.upperLength);
+      double low = /*builder.lowerLength; // */lowerDist.next();
       // builder.lowerLength + (builder.upperLength - builder.lowerLength) * random.nextDouble();
       double high = upperDist.next();
       // low + (builder.upperLength - low) * random.nextDouble();
       // builder.withLowerLength(low).withUpperLength(high);
-      // System.out.println(low + " " + high);
+//      System.out.println(low + " " + high);
       ShapeletTree tree = new ShapeletTree(low, high, builder, sample, classes);
       ShapeletTree.Predictor fit = tree.fit(x, y);
       return fit;
@@ -196,7 +198,6 @@ public class RandomShapeletForest extends Ensemble {
       }
       double avg = depth / getPredictors().size();
       double d2 = depthSquare / getPredictors().size();
-      System.out.println(d2 - avg * avg);
       ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT, avg);
     }
   }
@@ -231,6 +232,11 @@ public class RandomShapeletForest extends Ensemble {
 
     public Builder withLowerLength(double lower) {
       shapeletTree.withLowerLength(lower);
+      return this;
+    }
+
+    public Builder withDistanceMeasure(Distance distance) {
+      shapeletTree.withDistance(distance);
       return this;
     }
 

@@ -29,7 +29,14 @@ public class VectorsTest {
         (vec, a, b) -> Integer.compare(vec.getAsString(a).length(), vec.getAsString(b).length())));
   }
 
-  @Test
+    @Test
+    public void testMode() throws Exception {
+        Vector v = new StringVector("a", "b", "c", "d", "e", "f", "a");
+        System.out.println(Vectors.mode(v));
+
+    }
+
+    @Test
   public void testSort() throws Exception {
     DoubleVector.Builder b = new DoubleVector.Builder();
     for (int i = 0; i < 7; i++) {

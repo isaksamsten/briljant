@@ -255,7 +255,7 @@ public interface Vector extends Serializable {
 
       @Override
       public int size() {
-        return size();
+        return Vector.this.size();
       }
     };
   }
@@ -264,7 +264,7 @@ public interface Vector extends Serializable {
     return new AbstractList<String>() {
       @Override
       public int size() {
-        return size();
+        return Vector.this.size();
       }
 
       @Override

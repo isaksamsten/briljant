@@ -142,8 +142,8 @@ public abstract class Ensemble implements Classifier {
       Vector y = ctx.getPartition().getTrainingTarget();
 
       // Store the out-of-bag and in-bag probability estimates
-      DoubleMatrix oobEstimates = newDoubleMatrix(x.rows(), classes.size());
-      DoubleMatrix inbEstimates = newDoubleMatrix(x.rows(), classes.size());
+      DoubleMatrix oobEstimates = DoubleMatrix.newMatrix(x.rows(), classes.size());
+      DoubleMatrix inbEstimates = DoubleMatrix.newMatrix(x.rows(), classes.size());
 
       // Count the number of times each training sample have been included
       IntMatrix counts = oobIndicator.asIntMatrix().reduceRows(Matrices::sum);
@@ -221,7 +221,7 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         Record record = x.getRecord(i);
-        DoubleMatrix c = newDoubleVector(classes.size());
+        DoubleMatrix c = DoubleMatrix.newVector(classes.size());
         /* Fill the true-class vector */
         for (int j = 0; j < classes.size(); j++) {
           if (classes.equals(j, y, i)) {
@@ -231,7 +231,7 @@ public abstract class Ensemble implements Classifier {
 
         /* Stores the probability of the m:th member for the j:th class */
         int estimators = members.size();
-        DoubleMatrix memberEstimates = newDoubleMatrix(estimators, classes.size());
+        DoubleMatrix memberEstimates = DoubleMatrix.newMatrix(estimators, classes.size());
         for (int j = 0; j < estimators; j++) {
           Predictor member = members.get(j);
           memberEstimates.setRow(j, member.estimate(record));
@@ -283,7 +283,7 @@ public abstract class Ensemble implements Classifier {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = Matrices.newDoubleVector(classes.size());
+      DoubleMatrix m = DoubleMatrix.newVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         m.set(i, votes.getOrDefault(classes.getAsString(i), 0) / estimators);
       }

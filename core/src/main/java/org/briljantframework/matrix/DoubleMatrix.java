@@ -90,6 +90,18 @@ import org.briljantframework.function.DoubleBiPredicate;
  */
 public interface DoubleMatrix extends Matrix {
 
+  static DoubleMatrix of(double... values) {
+    return new DefaultDoubleMatrix(values);
+  }
+
+  static DoubleMatrix newVector(int size) {
+    return new DefaultDoubleMatrix(size);
+  }
+
+  static DoubleMatrix newMatrix(int rows, int columns) {
+    return new DefaultDoubleMatrix(rows, columns);
+  }
+
   /**
    * Assign {@code value} to {@code this}
    *

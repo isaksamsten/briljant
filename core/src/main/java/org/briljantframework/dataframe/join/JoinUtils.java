@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DefaultIntMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
@@ -25,7 +24,7 @@ public class JoinUtils {
    * @return retVal[0] := indexer, retVal[1] := counts
    */
   public static IntMatrix[] groupSortIndexer(IntMatrix index, int maxGroups) {
-    IntMatrix counts = Matrices.newIntVector(maxGroups + 1);
+    IntMatrix counts = IntMatrix.newVector(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
       counts.update(index.get(i) + 1, x -> x + 1);
@@ -37,7 +36,7 @@ public class JoinUtils {
     }
 
 
-    IntMatrix results = Matrices.newIntVector(n);
+    IntMatrix results = IntMatrix.newVector(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
       results.set(where[label], i);

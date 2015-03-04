@@ -23,7 +23,6 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 import org.briljantframework.vector.Vectors;
@@ -209,7 +208,7 @@ public class KNearestNeighbors implements Classifier {
       }
       Vector classes = getClasses();
       int voters = queue.size();
-      DoubleMatrix probas = Matrices.newDoubleVector(classes.size());
+      DoubleMatrix probas = DoubleMatrix.newVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         probas.set(i, votes.getOrDefault(classes.getAsString(i), 0) / voters);
       }

@@ -7,7 +7,7 @@ public class MatricesTest {
 
   @Test
   public void testArgMax() throws Exception {
-    DoubleMatrix v = Matrices.newDoubleVector(1, 2, 3, 9, 5, 1, 2);
+    DoubleMatrix v = DoubleMatrix.of(1, 2, 3, 9, 5, 1, 2);
     Assert.assertEquals(3, Matrices.argmax(v));
   }
 }

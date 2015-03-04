@@ -32,8 +32,8 @@ import org.briljantframework.vector.VectorType;
  * <p>
  * There are three steps associated with this
  * <ol>
- * <li>Read the types of the Columns via {@link #readColumnType()}</li>
- * <li>Read the names of the Columns via {@link #readColumnName()}</li>
+ * <li>Read the types of the Columns via {@link #readColumnTypes()}</li>
+ * <li>Read the names of the Columns via {@link #readColumnNames()}</li>
  * <li>Read values</li>
  * </ol>
  * <p>
@@ -44,10 +44,10 @@ import org.briljantframework.vector.VectorType;
  * For example: <code>
  * <pre>
  *      DataFrameInputStream dfis = ...;
- *      Collection<Type> types = dfis.readTypes();
- *      Collection<String> names = dfis.readNames();
+ *      Collection<Type> types = dfis.readColumnTypes();
+ *      Collection<String> names = dfis.readColumnNames();
  *      DataFrame.Builder builder = new MixedDataFrame(names, types);
- *      DataFrame dataFrame = builder.read(dfis).create();
+ *      DataFrame dataFrame = builder.read(dfis).build();
  * </pre>
  * </code>
  * 
@@ -124,7 +124,7 @@ public abstract class DataInputStream extends FilterInputStream {
    * @return a type or {@code null}
    * @throws IOException
    */
-  public abstract VectorType readColumnType() throws IOException;
+  protected abstract VectorType readColumnType() throws IOException;
 
   /**
    * Reads the column names from the input stream. Returns {@code null} when there are no more
@@ -133,7 +133,7 @@ public abstract class DataInputStream extends FilterInputStream {
    * @return a column name or {@code null}
    * @throws IOException
    */
-  public abstract String readColumnName() throws IOException;
+  protected abstract String readColumnName() throws IOException;
 
   /**
    * For convenience. This method reads all column types from the input stream.
@@ -196,69 +196,4 @@ public abstract class DataInputStream extends FilterInputStream {
    * @throws IOException
    */
   public abstract boolean hasNext() throws IOException;
-
-  // /**
-  // * Reads the next string in this stream
-  // *
-  // * @return the next string
-  // * @throws IOException
-  // */
-  // public abstract String nextString() throws IOException;
-  //
-  // /**
-  // * Reads the next int in this stream
-  // *
-  // * @return the next int
-  // * @throws IOException
-  // * @throws java.lang.NumberFormatException
-  // */
-  // public int nextInt() throws IOException {
-  // String repr = nextString();
-  // return repr == StringVector.NA ? IntVector.NA : Integer.parseInt(repr);
-  // }
-  //
-  // /**
-  // * Reads the next {@code double} in this stream
-  // *
-  // * @return the next {@code double}
-  // * @throws IOException
-  // * @throws java.lang.NumberFormatException
-  // */
-  // public double nextDouble() throws IOException {
-  // String repr = nextString();
-  // if (repr == StringVector.NA) {
-  // return DoubleVector.NA;
-  // } else {
-  // Double d = Doubles.tryParse(repr);
-  // return d == null ? DoubleVector.NA : d;
-  // }
-  // }
-  //
-  // /**
-  // * Reads the next {@code Binary} in this stream.
-  // *
-  // * @return the next binary
-  // * @throws IOException
-  // * @throws java.lang.NumberFormatException
-  // */
-  // public Binary nextBinary() throws IOException {
-  // return Binary.valueOf(nextInt());
-  // }
-  //
-  // /**
-  // * Reads the next {@code Complex} in this stream.
-  // *
-  // * @return the next complex
-  // * @throws IOException
-  // * @throws NumberFormatException
-  // */
-  // public Complex nextComplex() throws IOException {
-  // throw new UnsupportedOperationException();
-  // }
-  //
-  // public abstract boolean hasNext() throws IOException;
-  //
-  // public int currentRowSize() throws IOException {
-  // throw new UnsupportedOperationException();
-  // }
 }

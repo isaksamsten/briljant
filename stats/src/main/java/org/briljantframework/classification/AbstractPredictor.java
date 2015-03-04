@@ -1,7 +1,7 @@
 package org.briljantframework.classification;
 
 import static org.briljantframework.matrix.Matrices.argmax;
-import static org.briljantframework.matrix.Matrices.newDoubleMatrix;
+import static org.briljantframework.matrix.DoubleMatrix.newMatrix;
 
 import java.util.EnumSet;
 import java.util.stream.IntStream;
@@ -51,7 +51,7 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public DoubleMatrix estimate(DataFrame x) {
-    DoubleMatrix estimations = newDoubleMatrix(x.rows(), getClasses().size());
+    DoubleMatrix estimations = newMatrix(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
       estimations.setRow(i, estimate(x.getRecord(i)));
     });

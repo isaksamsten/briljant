@@ -9,8 +9,8 @@ import java.util.function.Predicate;
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 
-import com.google.common.collect.Sets;
-import com.google.common.collect.UnmodifiableIterator;
+import com.google.common.base.Function;
+import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 
 /**
@@ -382,5 +382,34 @@ public final class Vectors {
       }
     }
     return builder.build();
+  }
+
+  public static double min(Vector column) {
+    return column.stream().filter(x -> !x.isNA()).mapToDouble(Value::getAsDouble).min()
+        .orElse(DoubleVector.NA);
+  }
+
+  public static double max(Vector column) {
+    return column.stream().filter(x -> !x.isNA()).mapToDouble(Value::getAsDouble).max()
+        .orElse(DoubleVector.NA);
+  }
+
+  public static Map<Value, Integer> freq(Vector vector) {
+    Map<Value, Integer> freq = new HashMap<>();
+    for (Value value : vector.asValueList()) {
+      freq.compute(value, (x, i) -> i == null ? 1 : i + 1);
+    }
+    return Collections.unmodifiableMap(freq);
+  }
+
+  public static Value mode(Vector column) {
+    Multiset<Value> values = HashMultiset.create();
+    column.stream().forEach(values::add);
+    return Ordering.natural().onResultOf(new Function<Multiset.Entry<Value>, Integer>() {
+      @Override
+      public Integer apply(Multiset.Entry<Value> input) {
+        return input.getCount();
+      }
+    }).max(values.entrySet()).getElement();
   }
 }

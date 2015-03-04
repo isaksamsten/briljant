@@ -293,11 +293,11 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public Builder read(DataInputStream inputStream) throws IOException {
+    public Builder read(DataInputStream is) throws IOException {
       int row = 0;
-      while (inputStream.hasNext()) {
+      while (is.hasNext()) {
         ensureCapacity(row);
-        DataEntry entry = inputStream.next();
+        DataEntry entry = is.next();
         for (int i = 0; i < entry.size() && entry.hasNext(); i++) {
           builders.get(row).read(i, entry);
         }

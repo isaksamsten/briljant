@@ -9,24 +9,12 @@ import org.briljantframework.evaluation.result.Evaluator;
  */
 public class ClassificationValidators {
 
-  /**
-   * Cross validation.
-   *
-   * @param folds the folds
-   * @return the evaluator
-   */
-  public static ClassificationValidator crossValidation(int folds) {
-    return new DefaultClassificationValidator(new FoldPartitioner(folds));
-  }
-
-  /**
-   * Split validation
-   * 
-   * @param testFraction the validation fraction
-   * @return an evaluator
-   */
   public static ClassificationValidator splitValidation(double testFraction) {
     return new DefaultClassificationValidator(new SplitPartitioner(testFraction));
+  }
+
+  public static ClassificationValidator crossValidation(int folds) {
+    return new DefaultClassificationValidator(new FoldPartitioner(folds));
   }
 
   public static ClassificationValidator crossValidation(List<Evaluator> measures, int folds) {

@@ -336,7 +336,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix implements Dou
 
   @Override
   public IntMatrix mapToInt(DoubleToIntFunction function) {
-    IntMatrix m = newIntMatrix(rows(), columns());
+    IntMatrix m = IntMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.applyAsInt(get(i)));
     }

@@ -124,6 +124,8 @@ public class StringVector extends AbstractStringVector {
       String str = StringVector.NA;
       if (value != null && value instanceof String || value instanceof Number) {
         str = value.toString();
+      } else if (value instanceof Value) {
+        str = ((Value) value).getAsString();
       }
       buffer.set(index, str);
       return this;
@@ -182,7 +184,7 @@ public class StringVector extends AbstractStringVector {
     @Override
     public StringVector build() {
       StringVector vector = new StringVector(buffer, false);
-      buffer = null;
+      // buffer = null; // TODO:fix-me for all series
       return vector;
     }
 

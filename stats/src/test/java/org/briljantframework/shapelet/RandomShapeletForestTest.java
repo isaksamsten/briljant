@@ -1,27 +1,152 @@
 package org.briljantframework.shapelet;
 
 import java.io.FileInputStream;
+import java.util.List;
 
+import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Ensemble;
 import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.classification.ShapeletTree;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
+import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.dataseries.DataSeriesNormalization;
+import org.briljantframework.distance.SmithWatermanDistance;
+import org.briljantframework.evaluation.ClassificationValidators;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.measure.Accuracy;
+import org.briljantframework.evaluation.measure.Brier;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.result.Evaluator;
+import org.briljantframework.evaluation.result.Measures;
 import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.io.ArffInputStream;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
+import org.briljantframework.io.SequenceInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.*;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
+
+  @Test
+  public void testLOOCV() throws Exception {
+    String name = "BirdChicken";
+    String trainFile = String.format("/Users/isak-kar/Downloads/dataset3/%s/%s.arff", name, name);
+    try (DataInputStream train = new ArffInputStream(new FileInputStream(trainFile))) {
+      DataFrame trainingSet = MixedDataFrame.read(train);
+      Transformation znorm = new DataSeriesNormalization();
+      DataFrame xTrain =
+          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).addAll(0,
+              trainingSet.dropColumn(trainingSet.columns() - 1)).build());
+      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(trainingSet.columns() - 1));
+
+      RandomShapeletForest f =
+          RandomShapeletForest.withSize(100).withInspectedShapelets(50).withLowerLength(0.025)
+              .withUpperLength(0.3).withAssessment(ShapeletTree.Assessment.FSTAT).build();
+      List<Evaluator> evaluatorList = Measures.getDefaultClassificationEvaluators();
+      evaluatorList.add(new Evaluator() {
+        private int fold = 0;
+
+        @Override
+        public void accept(EvaluationContext ctx) {
+          System.out.printf("Fold %d\n", fold++);
+        }
+      });
+      Result re =
+          ClassificationValidators.crossValidation(evaluatorList, 40).test(f, xTrain, yTrain);
+      System.out.println(re);
+    }
+
+  }
+
+  @Test
+  public void testClassifiy2() throws Exception {
+    String name = "DP_Middle";
+    String trainFile =
+        String.format("/Users/isak-kar/Downloads/dataset3/%s/%s_TRAIN.arff", name, name);
+    String testFile =
+        String.format("/Users/isak-kar/Downloads/dataset3/%s/%s_TEST.arff", name, name);
+    try (DataInputStream train = new ArffInputStream(new FileInputStream(trainFile));
+        DataInputStream test = new ArffInputStream(new FileInputStream(testFile))) {
+      DataFrame trainingSet =
+          new MixedDataFrame.Builder(train.readColumnNames(), train.readColumnTypes()).read(train)
+              .build();
+
+      DataFrame validationSet =
+          new MixedDataFrame.Builder(test.readColumnNames(), test.readColumnTypes()).read(test)
+              .build();
+
+      Transformation znorm = new DataSeriesNormalization();
+      DataFrame xTrain =
+          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).addAll(0,
+              trainingSet.dropColumn(trainingSet.columns() - 1)).build());
+      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(trainingSet.columns() - 1));
+
+      DataFrame xTest =
+          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).addAll(0,
+              validationSet.dropColumn(validationSet.columns() - 1)).build());
+      Vector yTest = Convert.toStringVector(validationSet.getColumn(validationSet.columns() - 1));
+
+      long start = System.nanoTime();
+      DoubleMatrix upper = DoubleMatrix.of(0.05, 0.1, 0.3, 0.5, 0.7, 1);
+      IntMatrix sizes = IntMatrix.of(100);
+      // IntMatrix sizes = IntMatrix.of(500);
+      System.out
+          .println("Size,Correlation,Strength,Quality,Expected Error,Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
+      for (int i = 0; i < sizes.size(); i++) {
+        RandomShapeletForest forest =
+            RandomShapeletForest.withSize(1000).withInspectedShapelets(sizes.get(i))
+                .withLowerLength(0.025).withUpperLength(0.5)
+                // .withSampleMode(ShapeletTree.SampleMode.RANDOMIZE)
+                .withAssessment(ShapeletTree.Assessment.FSTAT).build();
+        Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
+        // System.out.println(result);
+        System.out.println(sizes.get(i) + ", " + result.getAverage(Ensemble.Correlation.class)
+            + ", " + result.getAverage(Ensemble.Strength.class) + ", "
+            + result.getAverage(Ensemble.Quality.class) + ", "
+            + result.getAverage(Ensemble.ErrorBound.class) + ", "
+            + result.getAverage(Accuracy.class) + ", "
+            + result.getAverage(Ensemble.OobAccuracy.class) + ", "
+            + result.getAverage(Ensemble.Variance.class) + ", "
+            + result.getAverage(Ensemble.Bias.class) + ", " + result.getAverage(Brier.class) + ", "
+            + result.getAverage(RandomShapeletForest.Depth.class));
+      }
+      System.out.println((System.nanoTime() - start) / 1e6);
+
+    }
+  }
+
+  @Test
+  public void testSequences() throws Exception {
+    DataInputStream in =
+        new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/ade_hist.sequences"));
+
+    DataFrame frame = new DataSeriesCollection.Builder(StringVector.TYPE).read(in).build();
+    frame = DataFrames.permuteRows(frame);
+    Vector y = frame.getColumn(0);
+    DataFrame x = frame.dropColumn(0);
+    Vector.Builder bin = new StringVector.Builder();
+    for (int i = 0; i < y.size(); i++) {
+      if (y.getAsString(i).equals("T887")) {
+        bin.set(i, "True");
+      } else {
+        bin.set(i, "False");
+      }
+    }
+    y = bin.build();
+
+    Classifier forest =
+        RandomShapeletForest.withSize(10).withDistance(new SmithWatermanDistance(-1, 0, 0))
+            .withUpperLength(1).withLowerLength(0.1).withInspectedShapelets(10).build();
+
+    Result result = ClassificationValidators.splitValidation(0.3).test(forest, x, y);
+    System.out.println(result);
+  }
 
   @Test
   public void testClassify() throws Exception {
@@ -36,25 +161,22 @@ public class RandomShapeletForestTest {
     // DataFrame x = synthetic.dropColumn(0);
     // StringVector y = Convert.toStringVector(synthetic.getColumn(0));
 
-    try (DataInputStream train =
-        new MatlabTextInputStream(new FileInputStream(
-            "/Users/isak-kar/Downloads/dataset2/DiatomSizeReduction/DiatomSizeReduction_TRAIN"));
-        DataInputStream test =
-            new MatlabTextInputStream(new FileInputStream(
-                "/Users/isak-kar/Downloads/dataset2/DiatomSizeReduction/DiatomSizeReduction_TEST"))) {
+    String name = "Lighting7";
+    String trainFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TRAIN", name, name);
+    String testFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TEST", name, name);
+    try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
+        DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
           DataFrames.permuteRows(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
               .build());
       DataFrame validationSet =
           new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
 
-
       DataFrame xTrain = trainingSet.dropColumn(0);
       Vector yTrain = Convert.toStringVector(trainingSet.getColumn(0));
 
       DataFrame xTest = validationSet.dropColumn(0);
       Vector yTest = Convert.toStringVector(validationSet.getColumn(0));
-
 
       // RandomShapeletForest.Builder fb =
       // RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(0.025)
@@ -66,14 +188,22 @@ public class RandomShapeletForestTest {
       // "with-inspected", RandomShapeletForest.Builder::withInspectedShapelets, 1,3,10,20,50));
       // System.out.println(configs);
       long start = System.nanoTime();
-      DoubleMatrix upper = Matrices.newDoubleVector(0.05, 0.1, 0.3, 0.5, 0.7, 1);
-      IntMatrix sizes = Matrices.newIntVector(1, 5, 10, 30, 50, 100, 200);
+      DoubleMatrix upper = DoubleMatrix.of(0.05, 0.1, 0.3, 0.5, 0.7, 1);
+      // IntMatrix sizes = IntMatrix.of(1, 5, 10, 30, 50, 100, 200);
+
+      System.out.println(Vectors.freq(yTrain));
+      System.out.println(Vectors.freq(yTest));
       System.out
-          .println("Size,Correlation,Strength,Quality,Expected Error,Accuracy,OOB Accuracy,Depth");
+          .println(Vectors.mean(xTrain.getRecord(0)) + " " + Vectors.std(xTrain.getRecord(0)));
+
+      IntMatrix sizes = IntMatrix.of(100);
+
+      System.out
+          .println("Size,Correlation,Strength,Quality,Expected Error,Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
       for (int i = 0; i < sizes.size(); i++) {
         RandomShapeletForest forest =
             RandomShapeletForest.withSize(100).withInspectedShapelets(sizes.get(i))
-                .withLowerLength(0.025).withUpperLength(1)
+                .withLowerLength(0.95).withUpperLength(1)
                 // .withSampleMode(ShapeletTree.SampleMode.RANDOMIZE)
                 .withAssessment(ShapeletTree.Assessment.FSTAT).build();
         Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
@@ -84,6 +214,8 @@ public class RandomShapeletForestTest {
             + result.getAverage(Ensemble.ErrorBound.class) + ", "
             + result.getAverage(Accuracy.class) + ", "
             + result.getAverage(Ensemble.OobAccuracy.class) + ", "
+            + result.getAverage(Ensemble.Variance.class) + ", "
+            + result.getAverage(Ensemble.Bias.class) + ", " + result.getAverage(Brier.class) + ", "
             + result.getAverage(RandomShapeletForest.Depth.class));
       }
       System.out.println((System.nanoTime() - start) / 1e6);

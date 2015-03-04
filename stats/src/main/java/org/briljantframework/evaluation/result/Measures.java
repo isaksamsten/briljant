@@ -18,7 +18,7 @@ public final class Measures {
 
   private Measures() {}
 
-  public static List<Evaluator> getDefaultClassificationMeasures() {
+  public static List<Evaluator> getDefaultClassificationEvaluators() {
     return Lists.newArrayList(new ErrorEvaluator(), new ProbabilityEvaluator());
   }
 

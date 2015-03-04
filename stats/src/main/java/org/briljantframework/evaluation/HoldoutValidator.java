@@ -26,7 +26,7 @@ public class HoldoutValidator extends AbstractClassificationValidator {
   }
 
   public static HoldoutValidator withHoldout(DataFrame x, Vector y) {
-    return new HoldoutValidator(Measures.getDefaultClassificationMeasures(), x, y);
+    return new HoldoutValidator(Measures.getDefaultClassificationEvaluators(), x, y);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class HoldoutValidator extends AbstractClassificationValidator {
     ctx.setPartition(new Partition(x, holdoutX, y, holdoutY));
 
 
-    getMeasureProvider().forEach(mc -> mc.accept(ctx));
+    getEvaluators().forEach(mc -> mc.accept(ctx));
     predictor.evaluation(ctx);
     return Result.create(collect(ctx.builders()), Collections.singletonList(confusionMatrix));
   }

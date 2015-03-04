@@ -21,7 +21,7 @@ public abstract class AbstractClassificationValidator implements ClassificationV
     this.partitioner = partitioner;
   }
 
-  public List<Evaluator> getMeasureProvider() {
+  public List<Evaluator> getEvaluators() {
     return evaluators;
   }
 

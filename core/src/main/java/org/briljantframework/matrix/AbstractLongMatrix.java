@@ -286,7 +286,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public IntMatrix mapToInt(LongToIntFunction map) {
-    IntMatrix matrix = Matrices.newIntMatrix(rows(), columns());
+    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.applyAsInt(get(i)));
     }
@@ -295,7 +295,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix implements LongM
 
   @Override
   public DoubleMatrix mapToDouble(LongToDoubleFunction map) {
-    DoubleMatrix matrix = Matrices.newDoubleMatrix(rows(), columns());
+    DoubleMatrix matrix = DoubleMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.applyAsDouble(get(i)));
     }

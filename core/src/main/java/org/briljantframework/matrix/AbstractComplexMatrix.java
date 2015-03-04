@@ -254,7 +254,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public IntMatrix mapToInt(ToIntFunction<Complex> function) {
-    IntMatrix matrix = Matrices.newIntMatrix(rows(), columns());
+    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsInt(get(i)));
     }
@@ -272,7 +272,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix implements Co
 
   @Override
   public DoubleMatrix mapToDouble(ToDoubleFunction<Complex> function) {
-    DoubleMatrix matrix = Matrices.newDoubleMatrix(rows(), columns());
+    DoubleMatrix matrix = DoubleMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }

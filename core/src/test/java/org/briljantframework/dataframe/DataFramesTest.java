@@ -22,7 +22,13 @@ public class DataFramesTest {
     iris = Datasets.loadIris();
   }
 
-  @Test
+    @Test
+    public void testSummary() throws Exception {
+        System.out.println(DataFrames.summary(iris));
+
+    }
+
+    @Test
   public void testShuffle() throws Exception {
     Utils.setRandomSeed(123);
     DataFrame shuffle = DataFrames.permuteRows(iris);
