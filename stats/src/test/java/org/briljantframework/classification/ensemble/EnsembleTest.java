@@ -6,7 +6,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.dataframe.MatrixDataFrame;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.evaluation.ClassificationValidators;
+import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
@@ -60,7 +60,7 @@ public class EnsembleTest {
     DataFrame syntheticControl = Datasets.loadSyntheticControl();
     Vector y = Convert.toStringVector(syntheticControl.getColumn(0));
     DataFrame x = syntheticControl.dropColumn(0);
-    Result result = ClassificationValidators.crossValidation(5).test(f, x, y);
+    Result result = Validators.crossValidation(5).test(f, x, y);
     System.out.println(result);
 
   }

@@ -11,16 +11,17 @@ import org.briljantframework.evaluation.result.Evaluator;
  * Created by isak on 03/10/14.
  * <p>
  */
-public abstract class AbstractClassificationValidator implements ClassificationValidator {
+public abstract class AbstractValidator implements Validator {
 
   private final List<Evaluator> evaluators;
   private final Partitioner partitioner;
 
-  protected AbstractClassificationValidator(List<Evaluator> evaluators, Partitioner partitioner) {
+  protected AbstractValidator(List<Evaluator> evaluators, Partitioner partitioner) {
     this.evaluators = new ArrayList<>(evaluators);
     this.partitioner = partitioner;
   }
 
+  @Override
   public List<Evaluator> getEvaluators() {
     return evaluators;
   }
@@ -30,7 +31,8 @@ public abstract class AbstractClassificationValidator implements ClassificationV
    * 
    * @return the partition strategy
    */
-  protected Partitioner getPartitioner() {
+  @Override
+  public Partitioner getPartitioner() {
     return partitioner;
   }
 

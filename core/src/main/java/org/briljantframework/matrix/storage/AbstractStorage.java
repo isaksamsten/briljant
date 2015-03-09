@@ -68,10 +68,6 @@ public abstract class AbstractStorage implements Storage {
     return array;
   }
 
-  protected final int arrayIndex(long index) {
-    return (int) index;
-  }
-
   @Override
   public int size() {
     return size;

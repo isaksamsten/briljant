@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 
 import java.util.Arrays;
+import java.util.function.IntFunction;
 
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.storage.DoubleStorage;
@@ -56,6 +57,11 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
   public DefaultDoubleMatrix(Storage storage, int rows, int columns) {
     super(rows, columns);
     this.storage = storage;
+  }
+
+  public DefaultDoubleMatrix(IntFunction<Storage> supplier, int rows, int columns) {
+    super(rows, columns);
+    this.storage = supplier.apply(Math.multiplyExact(rows, columns));
   }
 
   /**

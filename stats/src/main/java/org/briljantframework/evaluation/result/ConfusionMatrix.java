@@ -96,7 +96,7 @@ public class ConfusionMatrix {
       return 0;
     } else {
       double conditional = 0.0;
-      for (String actual : labels) {
+      for (String actual : getLabels()) {
         conditional += get(target, actual);
       }
       return conditional > 0 ? tp / conditional : 0;
@@ -184,12 +184,14 @@ public class ConfusionMatrix {
       }
       builder.append("\n");
     }
-
-    builder.append("Accuracy: ");
+    builder.append(" ---- (rows: predicted, columns: actual) ---- \n");
+    builder.append("Accuracy       ");
     builder.append(String.format("%.2f", getAccuracy()));
     builder.append(" (");
     builder.append(String.format("%.2f", getError()));
-    builder.append(")");
+    builder.append(")\n");
+    builder.append("Avg. precision ").append(String.format("%.2f\n", getAveragePrecision()));
+    builder.append("Avg. recall    ").append(String.format("%.2f\n", getAverageRecall()));
 
     return builder.toString();
   }

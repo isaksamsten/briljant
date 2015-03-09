@@ -93,7 +93,7 @@ public interface VectorType {
   }
 
   /**
-   * Returns the scale of this type. If the scale is {@link Scale#CATEGORICAL}, the
+   * Returns the scale of this type. If the scale is {@link Scale#NOMINAL}, the
    * {@link Vector#getAsString(int)} is expected to return a meaningful value. On the other hand, if
    * the value is {@link Scale#NUMERICAL} {@link Vector#getAsDouble(int)} is expected to return a
    * meaning ful value (or NA).
@@ -139,18 +139,4 @@ public interface VectorType {
     return equals(0, va, b, ba);
   }
 
-  /**
-   * The expectations on the data stored within this type. If the data is
-   */
-  public enum Scale {
-    /**
-     * If the scale is categorical
-     */
-    CATEGORICAL,
-
-    /**
-     * If the scale is numerical
-     */
-    NUMERICAL
-  }
 }

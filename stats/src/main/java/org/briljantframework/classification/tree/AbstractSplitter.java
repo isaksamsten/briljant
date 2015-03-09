@@ -68,7 +68,7 @@ public abstract class AbstractSplitter implements Splitter {
         Value value = axisVector.getAsValue(example.getIndex());
         int direction = MISSING;
         switch (axisType.getScale()) {
-          case CATEGORICAL:
+          case NOMINAL:
             direction = axisType.equals(threshold, value) ? LEFT : RIGHT;
             break;
           case NUMERICAL:

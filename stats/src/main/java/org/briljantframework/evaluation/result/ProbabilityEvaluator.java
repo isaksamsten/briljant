@@ -16,6 +16,9 @@ import org.briljantframework.vector.Vector;
 public class ProbabilityEvaluator implements Evaluator {
   @Override
   public void accept(EvaluationContext ctx) {
+    if (!ctx.getPredictor().getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
+      return;
+    }
     Vector actual = ctx.getPartition().getValidationTarget();
     Vector predicted = ctx.getPredictions(Sample.OUT);
     DataFrame validationData = ctx.getPartition().getValidationData();

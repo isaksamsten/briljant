@@ -19,7 +19,7 @@ package org.briljantframework.classification.tune;
 import java.util.*;
 
 import org.briljantframework.Utils;
-import org.briljantframework.evaluation.ClassificationValidator;
+import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
 
@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableTable;
  */
 public class Configurations implements Iterable<Configuration> {
   private final List<Configuration> configurations;
-  private final ClassificationValidator evaluator;
+  private final Validator evaluator;
 
   /**
    * Instantiates a new Configurations.
@@ -39,7 +39,7 @@ public class Configurations implements Iterable<Configuration> {
    * @param configurations the configurations
    * @param evaluator the evaluator
    */
-  protected Configurations(List<Configuration> configurations, ClassificationValidator evaluator) {
+  protected Configurations(List<Configuration> configurations, Validator evaluator) {
     this.configurations = configurations;
     this.evaluator = evaluator;
   }
@@ -52,7 +52,7 @@ public class Configurations implements Iterable<Configuration> {
    * @return the configurations
    */
   public static Configurations create(List<Configuration> configurations,
-      ClassificationValidator evaluator) {
+      Validator evaluator) {
     Preconditions.checkArgument(configurations.size() > 0);
     return new Configurations(configurations, evaluator);
   }

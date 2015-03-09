@@ -103,7 +103,7 @@ public class RandomSplitter extends AbstractSplitter {
    */
   protected Value search(Vector axis, ClassSet classSet) {
     switch (axis.getType().getScale()) {
-      case CATEGORICAL:
+      case NOMINAL:
         return sampleCategoricValue(axis, classSet);
       case NUMERICAL:
         return sampleNumericValue(axis, classSet);

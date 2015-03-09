@@ -16,8 +16,11 @@
 package org.briljantframework.evaluation;
 
 
+import java.util.List;
+
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.vector.Vector;
 
@@ -26,7 +29,7 @@ import org.briljantframework.vector.Vector;
  * <p>
  * Created by Isak Karlsson on 20/08/14.
  */
-public interface ClassificationValidator {
+public interface Validator {
 
   /**
    * Evaluate {@code classifier} using the data {@code x} and {@code y}
@@ -36,4 +39,27 @@ public interface ClassificationValidator {
    */
   Result test(Classifier classifier, DataFrame x, Vector y);
 
+  /**
+   * Get a list of evaluators used but this validator. The list is mutable and support adding new
+   * evaluators.
+   * 
+   * <pre>
+   * Validator cv = Validators.crossValidation(10);
+   * cv.getEvaluators().add(Evaluator.foldOutput(System.out::println))
+   * // prints the current fold to std-out
+   * </pre>
+   * 
+   * @return the evaluators
+   */
+  List<Evaluator> getEvaluators();
+
+  /**
+   * Gets the partitioner used for this validator. The partitioner partitions the data into training
+   * and validation folds. For example, {@link org.briljantframework.evaluation.FoldPartitioner}
+   * partitions the data into {@code k} folds and
+   * {@link org.briljantframework.evaluation.SplitPartitioner} partitions the data into two folds.
+   * 
+   * @return the partitioner used by this validator
+   */
+  Partitioner getPartitioner();
 }

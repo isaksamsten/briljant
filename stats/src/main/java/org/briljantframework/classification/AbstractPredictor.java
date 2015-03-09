@@ -1,7 +1,7 @@
 package org.briljantframework.classification;
 
-import static org.briljantframework.matrix.Matrices.argmax;
 import static org.briljantframework.matrix.DoubleMatrix.newMatrix;
+import static org.briljantframework.matrix.Matrices.argmax;
 
 import java.util.EnumSet;
 import java.util.stream.IntStream;
@@ -38,6 +38,7 @@ public abstract class AbstractPredictor implements Predictor {
   @Override
   public Vector predict(DataFrame x) {
     Vector.Builder labels = new StringVector.Builder(x.rows());
+    // This is really only safe since Builder is initialized with a size i.e. filled with NA
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
       labels.set(i, predict(x.getRecord(i)));
     });

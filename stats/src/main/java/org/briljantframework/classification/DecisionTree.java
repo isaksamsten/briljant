@@ -103,7 +103,7 @@ public class DecisionTree implements Classifier {
       int direction = MISSING;
       if (!example.isNA(axis)) {
         switch (threshold.getType().getScale()) {
-          case CATEGORICAL:
+          case NOMINAL:
             direction = type.equals(threshold, axis, example) ? LEFT : RIGHT;
             break;
           case NUMERICAL:

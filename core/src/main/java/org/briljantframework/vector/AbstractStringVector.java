@@ -39,7 +39,7 @@ public abstract class AbstractStringVector extends AbstractVector {
 
     @Override
     public Scale getScale() {
-      return Scale.CATEGORICAL;
+      return Scale.NOMINAL;
     }
 
     @Override

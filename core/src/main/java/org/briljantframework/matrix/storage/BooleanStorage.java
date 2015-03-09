@@ -21,17 +21,17 @@ public class BooleanStorage extends AbstractStorage {
 
   @Override
   public boolean getBoolean(int index) {
-    return values[arrayIndex(index)];
+    return values[index];
   }
 
   @Override
   public int getInt(int index) {
-    return values[arrayIndex(index)] ? 1 : 0;
+    return values[index] ? 1 : 0;
   }
 
   @Override
   public void setInt(int index, int value) {
-    values[arrayIndex(index)] = value == 1;
+    values[index] = value == 1;
   }
 
   @Override
@@ -41,7 +41,7 @@ public class BooleanStorage extends AbstractStorage {
 
   @Override
   public void setLong(int index, long value) {
-    values[arrayIndex(index)] = value == 1;
+    values[index] = value == 1;
   }
 
   @Override
@@ -76,7 +76,7 @@ public class BooleanStorage extends AbstractStorage {
 
   @Override
   public Class<?> getNativeType() {
-    return Boolean.TYPE;
+    return Byte.TYPE;
   }
 
   @Override

@@ -2,8 +2,11 @@ package org.briljantframework.matrix.storage;
 
 import static com.google.common.primitives.Ints.checkedCast;
 
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.util.Arrays;
 
+import com.github.fommil.netlib.BLAS;
 import org.briljantframework.complex.Complex;
 
 /**
@@ -15,6 +18,10 @@ public class DoubleStorage extends AbstractStorage {
   public DoubleStorage(double[] values) {
     super(values.length);
     this.values = values;
+  }
+
+  public DoubleStorage(int size) {
+    this(new double[size]);
   }
 
   public static DoubleStorage withSize(long size) {

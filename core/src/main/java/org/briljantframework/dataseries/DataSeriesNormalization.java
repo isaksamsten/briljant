@@ -40,7 +40,7 @@ public class DataSeriesNormalization implements Transformation {
       Vector row = x.getRecord(i);
       double mean = Vectors.mean(row);
       double sigma = Vectors.std(row, mean);
-      for (int j = 0; j < x.columns(); j++) {
+      for (int j = 0; j < row.size(); j++) {
         double value = row.getAsDouble(j);
         builder.set(i, j, (value - mean) / sigma);
       }

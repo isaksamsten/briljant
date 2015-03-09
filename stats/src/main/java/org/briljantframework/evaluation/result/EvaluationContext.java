@@ -1,5 +1,7 @@
 package org.briljantframework.evaluation.result;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -9,8 +11,6 @@ import org.briljantframework.evaluation.Partition;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-
-import com.google.common.base.Preconditions;
 
 /**
  * @author Isak Karlsson
@@ -27,7 +27,7 @@ public class EvaluationContext {
   public EvaluationContext() {}
 
   public void setPredictions(Vector predictions) {
-    this.predictions = Preconditions.checkNotNull(predictions);
+    this.predictions = checkNotNull(predictions);
   }
 
   /**
@@ -40,7 +40,7 @@ public class EvaluationContext {
   }
 
   public void setPartition(Partition partition) {
-    this.partition = Preconditions.checkNotNull(partition);
+    this.partition = checkNotNull(partition);
   }
 
   /**
@@ -58,11 +58,11 @@ public class EvaluationContext {
   }
 
   public void setEstimation(DoubleMatrix estimation) {
-    this.estimation = Preconditions.checkNotNull(estimation);
+    this.estimation = checkNotNull(estimation);
   }
 
   /**
-   * If the predictor returned {@link #getPredictor()} has the
+   * If the predictor returned by {@link #getPredictor()} has the
    * {@link org.briljantframework.classification.Predictor.Characteristics#ESTIMATOR} characteristic
    * 
    * @param sample the sample
@@ -83,7 +83,7 @@ public class EvaluationContext {
   }
 
   public void setPredictor(Predictor predictor) {
-    this.predictor = Preconditions.checkNotNull(predictor);
+    this.predictor = checkNotNull(predictor);
   }
 
   /**
@@ -98,7 +98,7 @@ public class EvaluationContext {
    *     Measure.Builder b = ctx.get(Accuracy.class);
    *     if(b == null) {
    *         b = new Accuracy.Builder();
-   *         ctx.put(Accuracy.class, new Accuracy.Builder());
+   *         ctx.put(Accuracy.class, b);
    *     }
    *     b.add(0.3)
    * </pre>

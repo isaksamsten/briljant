@@ -14,16 +14,19 @@ import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.Matrix;
 
 /**
+ * <p>
  * A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the contents
  * cannot change) array of values supporting missing entries (i.e. NA). Since NA values are
  * implemented differently depending value type, checking for NA-values are done via the
  * {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
- * <p>
+ * </p>
  * 
  * <p>
- * Implementors must ensure that
+ * Implementers must ensure that
  * <ul>
  * <li>{@link #hashCode()} and {@link #equals(Object)}</li> work as expected.
+ * <li>The vector cannot be changed, i.e. a vector cannot expose it's underlying implementation and
+ * be mutated. This simplifies parallel algorithms.</li>
  * </ul>
  * </p>
  *
@@ -37,7 +40,7 @@ public interface Vector extends Serializable {
    *
    * While wrapping the return type in a {@code Value} require additional space and impose some
    * overhead it brings the benefit of knowing the type of a particular value, which in some cases
-   * might be useful.
+   * is very useful.
    *
    * @param index the index
    * @return a {@code Vector}
@@ -57,6 +60,7 @@ public interface Vector extends Serializable {
    * <p>
    * The following conventions apply:
    * <ul>
+   * <li>{@code 1.0+-0i == TRUE}</li>
    * <li>{@code 1.0 == TRUE}</li>
    * <li>{@code 1 == TRUE}</li>
    * <li>{@code &quot;true&quot; == TRUE}</li>
@@ -156,18 +160,20 @@ public interface Vector extends Serializable {
    */
   VectorType getType();
 
+  default Scale getScale() {
+    return getType().getScale();
+  }
+
   /**
    * Creates a new builder able to build new vectors of this type, initialized with the values in
    * this builder.
    * <p>
-   * <code>
-   * <pre>
-   *         Vector vec = vector.newCopyBuilder().add("Hello world")
    * 
-   *         assert vec.size() == vector.size() + 1
-   *         assert vec.getAsString(0) == vector.getAsString(0)
-   *     </pre>
-   * </code>
+   * <pre>
+   * Vector vec = vector.newCopyBuilder().add("Hello world")
+   * assert vec.size() == vector.size() + 1
+   * assert vec.getAsString(0) == vector.getAsString(0)
+   * </pre>
    *
    * @return a new builder
    */
@@ -242,10 +248,30 @@ public interface Vector extends Serializable {
     return toDoubleArray();
   }
 
+  /**
+   * Returns a sequential {@code Stream} of values with this vector as its source.
+   * 
+   * @return a sequential {@code Stream} over the elements of this {@code Vector}.
+   */
   default Stream<Value> stream() {
     return StreamSupport.stream(asValueList().spliterator(), false);
   }
 
+  /**
+   * Returns a parallel {@code Stream} of values with this {@code Vector} as its source.
+   * 
+   * @return a parallel {@code Stream} over the elements of this {@code Vector}
+   */
+  default Stream<Value> parallelStream() {
+    return StreamSupport.stream(asValueList().spliterator(), true);
+  }
+
+  /**
+   * Returns this Vector as an {@link java.util.List} of {@link org.briljantframework.vector.Value}.
+   * The returned list is unmodifiable
+   * 
+   * @return an unmodifiable list
+   */
   default List<Value> asValueList() {
     return new AbstractList<Value>() {
       @Override
@@ -260,28 +286,20 @@ public interface Vector extends Serializable {
     };
   }
 
-  default List<String> asStringList() {
-    return new AbstractList<String>() {
-      @Override
-      public int size() {
-        return Vector.this.size();
-      }
-
-      @Override
-      public String get(int i) {
-        return getAsString(i);
-      }
-    };
-  }
-
   /**
-   * Returns this vector as an immutable matrix. Should return an appropriate specialization of the
-   * {@link org.briljantframework.matrix.Matrix} interface. For example, a
+   * Returns this vector as an immutable {@code Matrix}. Should return an appropriate specialization
+   * of the {@link org.briljantframework.matrix.Matrix} interface. For example, a
    * {@link org.briljantframework.vector.DoubleVector} should return a
    * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
    * 
    * Since {@code Vector}s are immutable, mutations of the returned matrix throws
    * {@link org.briljantframework.exceptions.ImmutableModificationException}.
+   * 
+   * <pre>
+   * Vector a = new DoubleVector(1, 2, 3, 4, 5);
+   * DoubleMatrix mat = a.asMatrix().asDoubleMatrix();
+   * double sum = mat.reduce(0, Double::sum);
+   * </pre>
    * 
    * @return this vector as a matrix
    * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector to
@@ -341,7 +359,21 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * Builds a new vector
+   * <p>
+   * Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if a
+   * builder is initialized with size {@code 8}, {@link #add(Object)} (et. al.) adds a value at
+   * index {@code 8} and indexes {@code 0-7} have the value {@code NA}. If the value at index
+   * {@code 11} is set, values {@code 9, 10} are set to {@code NA}.
+   * </p>
+   * 
+   * <p>
+   * When transferring values between vectors, prefer {@link #set(int, Vector, int)} to
+   * {@link #set(int, Object)}. For example, {@code Vector.Builder a; Vector b; a.set(0, b, 10)}
+   * sets the value of {@code a} at index {@code 0} to the value at index {@code 10} in {@code b}.
+   * This avoids unboxing values from one vector to another. For the numerical vectors, values are
+   * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or
+   * {@code Bit.TRUE} in a bit-vector.
+   * </p>
    */
   public static interface Builder extends Swappable {
 

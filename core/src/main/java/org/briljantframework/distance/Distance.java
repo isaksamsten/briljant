@@ -38,10 +38,11 @@ import org.briljantframework.vector.Vector;
  *        d(x, z) ≤ d(x, y) + d(y, z)     (subadditivity / triangle inequality).
  * </pre>
  * <p>
- * Users of this class should not assume that all conditions are fulfilled. In some cases only the
- * relative order is important.
- * <p>
- * Created by Isak Karlsson on 01/09/14.
+ * 
+ * For a {@code Distance}-function the triangle inequality is not required to hold. For
+ * implementations of {@link MetricDistance} this is required.
+ * 
+ * @author Isak Karlsson
  */
 public interface Distance {
 

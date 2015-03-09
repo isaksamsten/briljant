@@ -5,22 +5,12 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
 /**
- * Creates a k-fold partitioner
- * <p>
- * 
- * @author Isak Karlsson
+ * Created by isak on 09/03/15.
  */
-public class FoldPartitioner implements Partitioner {
-
-  private final int folds;
-
-  public FoldPartitioner(int folds) {
-    this.folds = folds;
-  }
-
+public class LeaveOneOutPartitioner implements Partitioner {
   @Override
   public Iterable<Partition> partition(DataFrame x, Vector y) {
     Check.size(x, y);
-    return () -> new FoldIterator(x, y, folds);
+    return () -> new FoldIterator(x, y, x.rows());
   }
 }

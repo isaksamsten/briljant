@@ -2,6 +2,7 @@ package org.briljantframework;
 
 import java.util.Set;
 
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.exceptions.TypeConversionException;
@@ -141,5 +142,9 @@ public final class Check {
     if (x.size() != y.size()) {
       throw new SizeMismatchException(message, x.size(), y.size());
     }
+  }
+
+  public static void size(DataFrame x, Vector y) {
+    size(x.rows(), y.size());
   }
 }

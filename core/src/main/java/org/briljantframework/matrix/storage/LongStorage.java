@@ -32,12 +32,12 @@ public class LongStorage extends AbstractStorage {
 
   @Override
   public long getLong(int index) {
-    return values[arrayIndex(index)];
+    return values[index];
   }
 
   @Override
   public void setLong(int index, long value) {
-    values[arrayIndex(index)] = value;
+    values[index] = value;
   }
 
   @Override

@@ -15,18 +15,22 @@ public class IntStorage extends AbstractStorage {
     this.values = values;
   }
 
+  public IntStorage(int size) {
+    this(new int[size]);
+  }
+
   public static IntStorage withSize(int size) {
     return new IntStorage(new int[size]);
   }
 
   @Override
   public int getInt(int index) {
-    return values[arrayIndex(index)];
+    return values[index];
   }
 
   @Override
   public void setInt(int index, int value) {
-    values[arrayIndex(index)] = value;
+    values[index] = value;
   }
 
   @Override

@@ -12,13 +12,11 @@ import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.*;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
+import org.briljantframework.vector.Vector;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -76,7 +74,7 @@ public final class DataFrames {
     for (int j = 0; j < df.columns(); j++) {
       Vector column = df.getColumn(j);
       builder.getRecordNames().put(j, df.getColumnName(j));
-      if (column.getType().getScale() == VectorType.Scale.NUMERICAL) {
+      if (column.getType().getScale() == Scale.NUMERICAL) {
         double mean = Vectors.mean(column);
         double min = Vectors.min(column);
         double max = Vectors.max(column);

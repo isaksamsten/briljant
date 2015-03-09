@@ -18,11 +18,7 @@ public final class Measures {
 
   private Measures() {}
 
-  public static List<Evaluator> getDefaultClassificationEvaluators() {
-    return Lists.newArrayList(new ErrorEvaluator(), new ProbabilityEvaluator());
-  }
-
-  /**
+    /**
    * Returns the prediction error, i.e. the fraction of miss-classified values. The same as
    * {@code 1 - accuracy}.
    * 

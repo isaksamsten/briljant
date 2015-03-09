@@ -183,7 +183,7 @@ public interface Storage {
   /**
    * Returns this storage as a {@code int} array, with the i:th element set to {@code getInt(i)} .
    *
-   * It this storage uses a boolean array, modifications of the returned array propagates.
+   * It this storage uses a int array, modifications of the returned array propagates.
    *
    * @return a int array
    */
@@ -192,7 +192,7 @@ public interface Storage {
   /**
    * Returns this storage as a {@code long} array, with the i:th element set to {@code getLong(i)}.
    *
-   * It this storage uses a boolean array, modifications of the returned array propagates.
+   * It this storage uses a long array, modifications of the returned array propagates.
    *
    * @return a long array
    */
@@ -202,7 +202,7 @@ public interface Storage {
    * Returns this storage as a {@code double} array, with the i:th element set to
    * {@code getDouble(i)}.
    *
-   * It this storage uses a boolean array, modifications of the returned array propagates.
+   * It this storage uses a double array, modifications of the returned array propagates.
    *
    * @return a boolean array
    */
@@ -212,7 +212,7 @@ public interface Storage {
    * Returns this storage as a {@code Complex} array, with the i:th element set to
    * {@code getComplex(i)}.
    *
-   * It this storage uses a boolean array, modifications of the returned array propagates.
+   * It this storage uses a complex array, modifications of the returned array propagates.
    *
    * @return a complex array
    */

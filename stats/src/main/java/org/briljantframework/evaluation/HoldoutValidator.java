@@ -15,7 +15,7 @@ import org.briljantframework.vector.Vector;
 /**
  * @author Isak Karlsson
  */
-public class HoldoutValidator extends AbstractClassificationValidator {
+public class HoldoutValidator extends AbstractValidator {
   private final DataFrame holdoutX;
   private final Vector holdoutY;
 
@@ -26,7 +26,7 @@ public class HoldoutValidator extends AbstractClassificationValidator {
   }
 
   public static HoldoutValidator withHoldout(DataFrame x, Vector y) {
-    return new HoldoutValidator(Measures.getDefaultClassificationEvaluators(), x, y);
+    return new HoldoutValidator(Evaluator.getDefaultClassificationEvaluators(), x, y);
   }
 
   @Override

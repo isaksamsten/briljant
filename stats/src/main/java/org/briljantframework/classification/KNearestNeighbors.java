@@ -18,13 +18,14 @@ package org.briljantframework.classification;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.util.EnumSet;
+
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
 import org.briljantframework.vector.Vectors;
 
 import com.carrotsearch.hppc.ObjectIntMap;
@@ -67,30 +68,14 @@ public class KNearestNeighbors implements Classifier {
     return new Builder(10);
   }
 
-  /**
-   * Neighbours builder.
-   *
-   * @param k the k
-   * @return the builder
-   */
   public static Builder withNeighbors(int k) {
     return new Builder(k);
   }
 
-  /**
-   * Gets distance.
-   *
-   * @return the distance
-   */
   public Distance getDistance() {
     return distance;
   }
 
-  /**
-   * Gets neighbors.
-   *
-   * @return the neighbors
-   */
   public int getNeighbors() {
     return neighbors;
   }
@@ -99,12 +84,6 @@ public class KNearestNeighbors implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
         y.size());
-    checkArgument(y.getType().getScale() == VectorType.Scale.CATEGORICAL,
-        "Can't handle continuous targets. ");
-    for (int i = 0; i < x.columns(); i++) {
-      checkArgument(x.getColumnType(i).getScale() == VectorType.Scale.NUMERICAL,
-          "Can't handle non-numerical values");
-    }
     return new Model(x, y, distance, neighbors, Vectors.unique(y));
   }
 
@@ -213,6 +192,11 @@ public class KNearestNeighbors implements Classifier {
         probas.set(i, votes.getOrDefault(classes.getAsString(i), 0) / voters);
       }
       return probas;
+    }
+
+    @Override
+    public EnumSet<Characteristics> getCharacteristics() {
+      return EnumSet.of(Characteristics.ESTIMATOR);
     }
   }
 

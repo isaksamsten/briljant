@@ -38,7 +38,7 @@ public abstract class AbstractBitVector extends AbstractVector {
 
     @Override
     public Scale getScale() {
-      return Scale.CATEGORICAL;
+      return Scale.NOMINAL;
     }
 
     @Override
