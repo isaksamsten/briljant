@@ -8,8 +8,9 @@ import java.io.OutputStreamWriter;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.distance.SmithWatermanDistance;
+import org.briljantframework.distance.SimilarityDistance;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.similiarity.SmithWatermanSimilarity;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class SequenceInputStreamTest {
     DataFrame frame = new DataSeriesCollection.Builder(StringVector.TYPE).read(in).build();
     DoubleMatrix distanceMatrix = DoubleMatrix.newMatrix(frame.rows(), frame.rows());
 
-    Distance distance = new SmithWatermanDistance(-1, 0, 0);
+    Distance distance = new SimilarityDistance(new SmithWatermanSimilarity(-1, 0, 0));
     for (int i = 0; i < frame.rows(); i++) {
       System.out.println("Done with " + i);
       for (int j = 0; j < frame.rows(); j++) {

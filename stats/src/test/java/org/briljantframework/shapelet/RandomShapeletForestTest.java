@@ -2,6 +2,7 @@ package org.briljantframework.shapelet;
 
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.briljantframework.Utils;
 import org.briljantframework.classification.*;
@@ -11,10 +12,10 @@ import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.DataSeriesNormalization;
-import org.briljantframework.distance.SmithWatermanDistance;
+import org.briljantframework.distance.SimilarityDistance;
+import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.Validators;
-import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.measure.Accuracy;
 import org.briljantframework.evaluation.measure.Brier;
 import org.briljantframework.evaluation.result.EvaluationContext;
@@ -26,10 +27,8 @@ import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.io.SequenceInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.similiarity.SmithWatermanSimilarity;
+import org.briljantframework.vector.*;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
@@ -58,8 +57,7 @@ public class RandomShapeletForestTest {
           System.out.printf("Fold %d\n", fold++);
         }
       });
-      Result re =
-          Validators.crossValidation(evaluatorList, 40).test(f, xTrain, yTrain);
+      Result re = Validators.crossValidation(evaluatorList, 40).test(f, xTrain, yTrain);
       System.out.println(re);
     }
 
@@ -124,29 +122,34 @@ public class RandomShapeletForestTest {
 
   @Test
   public void testSequences() throws Exception {
+    String ade = "L271";
     DataInputStream in =
-        new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/l270.seq.txt"));
+        new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
 
     DataFrame frame = new DataSeriesCollection.Builder(Vectors.STRING).read(in).build();
-    Utils.setRandomSeed(13232);
+    System.out.println(frame.rows() + ", " + frame.columns());
+    Utils.setRandomSeed(32);
     frame = DataFrames.permuteRows(frame);
     Vector y = frame.getColumn(0);
     DataFrame x = frame.dropColumn(0);
-    System.out.println(Vectors.freq(y));
+    Map<Value, Integer> freq = Vectors.freq(y);
+    int sum = freq.values().stream().reduce(0, Integer::sum);
+    int min = freq.values().stream().min(Integer::min).get();
+    System.out.println(freq + " => " + ((double) min / sum));
 
     Classifier forest =
-        KNearestNeighbors.withNeighbors(1).withDistance(new SmithWatermanDistance(-2, 1, 0))
-            .build();
-    // RandomShapeletForest.withSize(100).withDistance(new SmithWatermanDistance(-2, 1, 0))
-    // .withUpperLength(1).withLowerLength(0.025).withInspectedShapelets(100).build();
+        KNearestNeighbors.withNeighbors(1)
+            .withDistance(new SimilarityDistance(new SmithWatermanSimilarity(2, -1, -1))).build();
+    // RandomShapeletForest.withSize(100).withDistance(new SmithWatermanSimilarity(-2, 1, 0))
+    // .withUpperLength(1).withLowerLength(0.025).withInspectedShapelets(1).build();
 
     Validator cv = Validators.crossValidation(5);
     cv.getEvaluators().add(
         Evaluator.foldOutput(fold -> System.out.printf("Completed fold %d\n", fold)));
     Result result = cv.test(forest, x, y);
-    System.out.println(result.getAverageConfusionMatrix().getPrecision("L270"));
-    System.out.println(result.getAverageConfusionMatrix().getRecall("L270"));
-    System.out.println(result.getAverageConfusionMatrix().getFMeasure("L270", 2));
+    System.out.println(result.getAverageConfusionMatrix().getPrecision("ade"));
+    System.out.println(result.getAverageConfusionMatrix().getRecall("ade"));
+    System.out.println(result.getAverageConfusionMatrix().getFMeasure("ade", 2));
     System.out.println(result);
   }
 
