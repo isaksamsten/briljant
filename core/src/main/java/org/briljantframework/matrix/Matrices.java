@@ -106,7 +106,7 @@ public final class Matrices {
 
       @Override
       public Matrix newVectorFilledWith(int size, Boolean fill) {
-        return new DefaultBitMatrix(size, fill);
+        return null;
       }
 
       @Override
@@ -199,7 +199,7 @@ public final class Matrices {
     return new DefaultBitMatrix(rows, cols);
   }
 
-    public static ComplexMatrix newComplexVector(double... values) {
+  public static ComplexMatrix newComplexVector(double... values) {
     Complex[] c = new Complex[values.length];
     for (int i = 0; i < c.length; i++) {
       c[i] = Complex.valueOf(values[i]);
@@ -482,7 +482,7 @@ public final class Matrices {
    */
   public static Matrix sort(Matrix a, IndexComparator<? super Matrix> comparator) {
     Matrix out = a.copy();
-    QuickSort.quickSort(0, checkedCast(out.size()), (x, y) -> comparator.compare(out, x, y), out);
+    QuickSort.quickSort(0, out.size(), (x, y) -> comparator.compare(out, x, y), out);
     return out;
   }
 
@@ -491,14 +491,12 @@ public final class Matrices {
     if (axis == Axis.ROW) {
       for (int i = 0; i < a.rows(); i++) {
         Matrix row = out.getRowView(i);
-        QuickSort.quickSort(0, checkedCast(row.size()), (x, y) -> comparator.compare(row, x, y),
-            row);
+        QuickSort.quickSort(0, row.size(), (x, y) -> comparator.compare(row, x, y), row);
       }
     } else {
       for (int i = 0; i < a.columns(); i++) {
         Matrix col = out.getColumnView(i);
-        QuickSort.quickSort(0, checkedCast(col.size()), (x, y) -> comparator.compare(col, x, y),
-            col);
+        QuickSort.quickSort(0, col.size(), (x, y) -> comparator.compare(col, x, y), col);
       }
     }
     return out;
@@ -870,29 +868,29 @@ public final class Matrices {
     return new DefaultComplexMatrix(values);
   }
 
-    public static int argmaxnot(DoubleMatrix m, int not) {
-      double max = Double.NEGATIVE_INFINITY;
-      int argMax = -1;
-      for (int i = 0; i < m.size(); i++) {
-        if (not != i && m.get(i) > max) {
-          argMax = i;
-          max = m.get(i);
-        }
+  public static int argmaxnot(DoubleMatrix m, int not) {
+    double max = Double.NEGATIVE_INFINITY;
+    int argMax = -1;
+    for (int i = 0; i < m.size(); i++) {
+      if (not != i && m.get(i) > max) {
+        argMax = i;
+        max = m.get(i);
       }
-      return argMax;
     }
+    return argMax;
+  }
 
-    public static double maxnot(DoubleMatrix m, int not) {
-      double max = Double.NEGATIVE_INFINITY;
-      for (int i = 0; i < m.size(); i++) {
-        if (not != i && m.get(i) > max) {
-          max = m.get(i);
-        }
+  public static double maxnot(DoubleMatrix m, int not) {
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < m.size(); i++) {
+      if (not != i && m.get(i) > max) {
+        max = m.get(i);
       }
-      return max;
     }
+    return max;
+  }
 
-    private static interface MatrixFactory<T> {
+  private static interface MatrixFactory<T> {
     Matrix newVector(int size);
 
     Matrix newMatrix(int rows, int columns);

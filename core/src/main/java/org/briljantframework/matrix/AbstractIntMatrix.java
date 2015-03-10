@@ -924,7 +924,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMat
 
     @Override
     public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return null;
+      return parent.newEmptyMatrix(rows, columns);
     }
 
     @Override
