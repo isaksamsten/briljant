@@ -79,7 +79,7 @@ public final class ArrayBuffers {
    * 
    * @param array the array
    * @param minCapacity the minimum capacity
-   * @return an array of {@code minCapacity} might return the input array
+   * @return an array of {@code minCapacity}; might return the input array
    */
   public static double[] reallocate(double[] array, int minCapacity) {
     int oldCapacity = array.length;

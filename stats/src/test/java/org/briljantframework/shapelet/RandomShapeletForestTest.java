@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.briljantframework.Utils;
-import org.briljantframework.classification.*;
+import org.briljantframework.classification.Classifier;
+import org.briljantframework.classification.Ensemble;
+import org.briljantframework.classification.KNearestNeighbors;
+import org.briljantframework.classification.RandomShapeletForest;
+import org.briljantframework.classification.ShapeletTree;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.MixedDataFrame;
@@ -28,7 +32,11 @@ import org.briljantframework.io.SequenceInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.similiarity.SmithWatermanSimilarity;
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.Convert;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
@@ -203,13 +211,12 @@ public class RandomShapeletForestTest {
 
       IntMatrix sizes = IntMatrix.of(20);
 
-      System.out
-          .println("Size,Correlation,Strength,Quality,Expected Error,Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
+      System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
+          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
       for (int i = 0; i < sizes.size(); i++) {
         RandomShapeletForest forest =
             RandomShapeletForest.withSize(1000).withInspectedShapelets(sizes.get(i))
                 .withLowerLength(0.01).withUpperLength(0.8)
-                // .withSampleMode(ShapeletTree.SampleMode.RANDOMIZE)
                 .withAssessment(ShapeletTree.Assessment.FSTAT).build();
         Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
         // System.out.println(result);

@@ -25,17 +25,17 @@ public class QuickSort {
    * @return the largest value with index
    */
   private static int med3(int a, int b, int c, IntBinaryOperator comp) {
-    int comparisonab = comp.applyAsInt(a, b);
-    int comparisonac = comp.applyAsInt(a, c);
-    int comparisonbc = comp.applyAsInt(b, c);
-    return comparisonab < 0 ? (comparisonbc < 0 ? b : (comparisonac < 0 ? c : a))
-        : (comparisonbc > 0 ? b : (comparisonac > 0 ? c : a));
+    int cmpab = comp.applyAsInt(a, b);
+    int cmpac = comp.applyAsInt(a, c);
+    int cmpbc = comp.applyAsInt(b, c);
+    return cmpab < 0 ? (cmpbc < 0 ? b : (cmpac < 0 ? c : a))
+        : (cmpbc > 0 ? b : (cmpac > 0 ? c : a));
   }
 
   private static void checkBounds(int arrLength, int start, int end) {
     if (start > end) {
-      // K0033=Start index ({0}) is greater than end index ({1})
-      throw new IllegalArgumentException(String.format("Start index %d is greater than end index %d", start, end));
+      throw new IllegalArgumentException(String.format(
+          "Start index %d is greater than end index %d", start, end));
     }
     if (start < 0) {
       throw new ArrayIndexOutOfBoundsException("Array index out of range " + start);
@@ -74,8 +74,6 @@ public class QuickSort {
       int bottom = start;
       int top = end - 1;
       if (length > 40) {
-        // for lots of data, bottom, middle and top are medians near the beginning, middle or end of
-        // the data
         int skosh = length / 8;
         bottom = med3(bottom, bottom + skosh, bottom + (2 * skosh), comp);
         middle = med3(middle - skosh, middle, middle + skosh, comp);

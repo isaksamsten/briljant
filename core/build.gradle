@@ -1,26 +1,26 @@
+//apply from: "../gradle/application.java.gradle"
+//apply from: "../gradle/application.kotlin.gradle"
+
+apply plugin: "kotlin"
 sourceSets {
     main {
         java {
             srcDir 'src/main/java'
+            srcDir 'src/main/kotlin'
             srcDir 'src/generated/java'
         }
     }
 }
 
-jar {
-    from sourceSets.main.allJava
-}
+//jar {
+//    from sourceSets.main.allJava
+//}
 
 dependencies {
-    compile(group: 'com.github.fommil.netlib', name: 'all', version: '1.1.2', ext: 'pom') {
-        transitive = true
-    }
+    compile(group: 'com.github.fommil.netlib', name: 'all', version: '1.1.2')
 
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '2.6.1'
-
     compile group: 'com.carrotsearch', name: 'hppc', version: '0.6.1'
-
-//    compile group: 'org.jfree', name: 'jfreechart', version: '1.0.19'
-//    compile group: 'org.jfree', name: 'jfreesvg', version: '2.1'
 }

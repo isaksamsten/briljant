@@ -7,20 +7,29 @@
  * user guide available at http://gradle.org/docs/1.12/userguide/tutorial_java_projects.html
  */
 buildscript {
-    repositories { jcenter() }
+    ext.kotlinVersion = "0.10.195"
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
     }
 }
 
+ext.applicationVersion = "0.1"
+
+allprojects {
+    group = "org.briljantframework"
+    version = "${applicationVersion}-SNAPSHOT"
+}
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'com.github.johnrengelman.shadow'
-
-    group = "org.briljantframework"
-    version = '0.1-SNAPSHOT'
 
     sourceCompatibility = 1.8
 
