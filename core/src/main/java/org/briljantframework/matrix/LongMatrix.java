@@ -2,7 +2,16 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.LongToIntFunction;
+import java.util.function.LongUnaryOperator;
+import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 
 import org.briljantframework.complex.Complex;
@@ -11,7 +20,7 @@ import org.briljantframework.function.LongBiPredicate;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public interface LongMatrix extends Matrix, Iterable<Long> {
+public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
 
   // Assignments
   /**

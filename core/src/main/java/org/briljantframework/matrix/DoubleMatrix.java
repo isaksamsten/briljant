@@ -18,7 +18,17 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
 
 import org.briljantframework.complex.Complex;
@@ -88,7 +98,7 @@ import org.briljantframework.function.DoubleBiPredicate;
  *
  * @author Isak Karlsson
  */
-public interface DoubleMatrix extends Matrix {
+public interface DoubleMatrix extends Matrix<DoubleMatrix> {
 
   static DoubleMatrix of(double... values) {
     return new DefaultDoubleMatrix(values);

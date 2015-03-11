@@ -2,10 +2,29 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.briljantframework.matrix.Indexer.*;
+import static org.briljantframework.matrix.Indexer.columnMajor;
+import static org.briljantframework.matrix.Indexer.rowMajor;
+import static org.briljantframework.matrix.Indexer.sliceIndex;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.PrimitiveIterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.IntBinaryOperator;
+import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
+import java.util.function.IntSupplier;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongToIntFunction;
+import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -22,7 +41,7 @@ import com.google.common.collect.ImmutableTable;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public abstract class AbstractIntMatrix extends AbstractMatrix implements IntMatrix {
+public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implements IntMatrix {
 
   private IntListView listView = null;
 

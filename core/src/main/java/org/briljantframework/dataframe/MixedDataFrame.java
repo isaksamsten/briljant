@@ -3,15 +3,25 @@ package org.briljantframework.dataframe;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -200,6 +210,18 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   public VectorType getColumnType(int index) {
     return columns.get(index).getType();
+  }
+
+  @Override
+  public DataFrame takeColumns(Iterable<Integer> indexes) {
+    DataFrame.Builder builder = new MixedDataFrame.Builder();
+    for (int index : indexes) {
+      builder.addColumn(getColumn(index));
+      if (getColumnNames().containsKey(index)) {
+        builder.getColumnNames().put(index, getColumnName(index));
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -478,6 +500,23 @@ public class MixedDataFrame extends AbstractDataFrame {
         }
       }
 
+      return this;
+    }
+
+    @Override
+    public DataFrame.Builder setColumn(int index, Vector.Builder builder) {
+      this.buffers.set(index, builder);
+      return this;
+    }
+
+    @Override
+    public DataFrame.Builder setColumn(int index, Vector vector) {
+      return setColumn(index, vector.newCopyBuilder());
+    }
+
+    @Override
+    public DataFrame.Builder addColumn(Vector vector) {
+      buffers.add(vector.newCopyBuilder());
       return this;
     }
 

@@ -1,7 +1,6 @@
 package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.primitives.Ints.checkedCast;
 
 import java.util.Map;
 import java.util.Random;
@@ -17,6 +16,7 @@ import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.storage.LongStorage;
 
 import com.github.fommil.netlib.BLAS;
+
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -480,22 +480,23 @@ public final class Matrices {
    * @param comparator the comparator; first argument is the container, and the next are indexes
    * @return a new sorted matrix; the returned matrix has the same type as {@code a}
    */
-  public static Matrix sort(Matrix a, IndexComparator<? super Matrix> comparator) {
-    Matrix out = a.copy();
+  public static <T extends Matrix> T sort(Matrix<T> a, IndexComparator<? super T> comparator) {
+    T out = a.copy();
     QuickSort.quickSort(0, out.size(), (x, y) -> comparator.compare(out, x, y), out);
     return out;
   }
 
-  public static Matrix sort(Matrix a, Axis axis, IndexComparator<? super Matrix> comparator) {
-    Matrix out = a.copy();
+  @SuppressWarnings("unchecked")
+  public static <T extends Matrix> T sort(Matrix<T> a, Axis axis, IndexComparator<? super T> comparator) {
+    T out = a.copy();
     if (axis == Axis.ROW) {
       for (int i = 0; i < a.rows(); i++) {
-        Matrix row = out.getRowView(i);
+        T row = (T) out.getRowView(i);
         QuickSort.quickSort(0, row.size(), (x, y) -> comparator.compare(row, x, y), row);
       }
     } else {
       for (int i = 0; i < a.columns(); i++) {
-        Matrix col = out.getColumnView(i);
+        T col = (T) out.getColumnView(i);
         QuickSort.quickSort(0, col.size(), (x, y) -> comparator.compare(col, x, y), col);
       }
     }
@@ -837,30 +838,30 @@ public final class Matrices {
    */
   public static void mmul(DoubleMatrix t, double alpha, DoubleMatrix other, double beta,
       double[] tmp) {
-    BLAS.dgemm("n", "n", checkedCast(t.rows()), checkedCast(other.columns()),
-        checkedCast(other.rows()), alpha, t.asDoubleArray(), checkedCast(t.rows()),
-        other.asDoubleArray(), checkedCast(other.rows()), beta, tmp, checkedCast(t.rows()));
+    BLAS.dgemm("n", "n", t.rows(), other.columns(),
+        other.rows(), alpha, t.asDoubleArray(), t.rows(),
+        other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
   }
 
   public static void mmul(DoubleMatrix t, double alpha, Transpose a, DoubleMatrix other,
       double beta, Transpose b, double[] tmp) {
     String transA = "n";
-    int thisRows = checkedCast(t.rows());
+    int thisRows = t.rows();
     if (a.transpose()) {
-      thisRows = checkedCast(t.columns());
+      thisRows = t.columns();
       transA = "t";
     }
 
     String transB = "n";
-    int otherRows = checkedCast(other.rows());
-    int otherColumns = checkedCast(other.columns());
+    int otherRows = other.rows();
+    int otherColumns = other.columns();
     if (b.transpose()) {
-      otherRows = checkedCast(other.columns());
-      otherColumns = checkedCast(other.rows());
+      otherRows = other.columns();
+      otherColumns = other.rows();
       transB = "t";
     }
     BLAS.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, t.asDoubleArray(),
-        checkedCast(t.rows()), other.asDoubleArray(), checkedCast(other.rows()), beta, tmp,
+        t.rows(), other.asDoubleArray(), other.rows(), beta, tmp,
         thisRows);
   }
 

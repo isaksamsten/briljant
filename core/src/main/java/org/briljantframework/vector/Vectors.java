@@ -3,14 +3,27 @@ package org.briljantframework.vector;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 
 import com.google.common.base.Function;
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
 
 /**
@@ -394,7 +407,7 @@ public final class Vectors {
         .orElse(DoubleVector.NA);
   }
 
-  public static Map<Value, Integer> freq(Vector vector) {
+  public static Map<Value, Integer> count(Vector vector) {
     Map<Value, Integer> freq = new HashMap<>();
     for (Value value : vector.asValueList()) {
       freq.compute(value, (x, i) -> i == null ? 1 : i + 1);

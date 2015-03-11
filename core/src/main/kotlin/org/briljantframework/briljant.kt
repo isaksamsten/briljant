@@ -17,7 +17,6 @@ public object all : Iterable<Int> {
     }
 }
 
-
 /*
  * Matrix creation
  */

@@ -2,7 +2,18 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
+import java.util.function.DoubleFunction;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.LongFunction;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.briljantframework.complex.Complex;
@@ -12,7 +23,7 @@ import org.briljantframework.complex.Complex;
  *
  * @author Isak Karlsson
  */
-public interface ComplexMatrix extends Matrix, Iterable<Complex> {
+public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> {
 
   /**
    * Assign {@code value} to {@code this}

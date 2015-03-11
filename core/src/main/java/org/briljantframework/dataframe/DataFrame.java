@@ -44,9 +44,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
+  DataFrame setColumnNames(List<String> names);
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
@@ -54,7 +52,9 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  DataFrame setColumnNames(List<String> names);
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -228,7 +228,7 @@ public interface DataFrame extends Iterable<Record> {
   }
 
   /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
+   * Sets the name of column c<sub>0</sub>...c<sub>names.size()</sub>
    *
    * @param names the names
    * @return receiver modified
@@ -244,7 +244,7 @@ public interface DataFrame extends Iterable<Record> {
   VectorType getRecordType(int index);
 
   /**
-   * Returns a collection of rows
+   * Returns a collection of records.
    * 
    * @return an (immutable) collection of rows
    */
@@ -324,6 +324,10 @@ public interface DataFrame extends Iterable<Record> {
     return StreamSupport.stream(spliterator(), false);
   }
 
+  default Stream<Record> parallelStream() {
+    return StreamSupport.stream(spliterator(), true);
+  }
+
   Collection<VectorType> getColumnTypes();
 
   /**
@@ -376,6 +380,10 @@ public interface DataFrame extends Iterable<Record> {
      * @see org.briljantframework.vector.Vector.Builder#set(int, Object)
      */
     Builder set(int row, int column, Object value);
+
+    default Builder set(int row, int column, Value value) {
+      return set(row, column, value, 0);
+    }
 
     /**
      * Returns the column names collection.

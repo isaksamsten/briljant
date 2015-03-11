@@ -5,7 +5,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.sliceIndex;
 
-import java.util.*;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -15,13 +21,14 @@ import org.briljantframework.Utils;
 import org.briljantframework.matrix.storage.Storage;
 
 import com.carrotsearch.hppc.IntArrayList;
+
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
  * Created by Isak Karlsson on 12/01/15.
  */
-public abstract class AbstractBitMatrix extends AbstractMatrix implements BitMatrix {
+public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implements BitMatrix {
 
   private BitListView listView = null;
 

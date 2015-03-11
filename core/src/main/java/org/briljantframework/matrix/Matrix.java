@@ -93,7 +93,7 @@ import org.briljantframework.matrix.storage.Storage;
  *
  * @author Isak Karlsson
  */
-public interface Matrix extends Swappable {
+public interface Matrix<T extends Matrix> extends Swappable {
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -104,7 +104,7 @@ public interface Matrix extends Swappable {
    * @param columns the new columns
    * @return a new matrix
    */
-  Matrix reshape(int rows, int columns);
+  T reshape(int rows, int columns);
 
   /**
    * Get row vector at {@code i}. Modifications will change to original matrix.
@@ -112,7 +112,7 @@ public interface Matrix extends Swappable {
    * @param i row
    * @return a vector
    */
-  Matrix getRowView(int i);
+  T getRowView(int i);
 
   /**
    * Gets vector at {@code index}. Modifications will change the original matrix.
@@ -120,14 +120,14 @@ public interface Matrix extends Swappable {
    * @param index the index
    * @return the column
    */
-  Matrix getColumnView(int index);
+  T getColumnView(int index);
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
    *
    * @return a diagonal view
    */
-  Matrix getDiagonalView();
+  T getDiagonalView();
 
   /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
@@ -156,7 +156,7 @@ public interface Matrix extends Swappable {
    * @param columns number of columns after column offset
    * @return the matrix view
    */
-  Matrix getView(int rowOffset, int colOffset, int rows, int columns);
+  T getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the return
@@ -166,7 +166,7 @@ public interface Matrix extends Swappable {
    * @param columns the columns to include
    * @return a view
    */
-  Matrix slice(Range rows, Range columns);
+  T slice(Range rows, Range columns);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix.
@@ -174,7 +174,7 @@ public interface Matrix extends Swappable {
    * @param range the range
    * @return a view
    */
-  Matrix slice(Range range);
+  T slice(Range range);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix, sliced from the axis defined by
@@ -184,7 +184,7 @@ public interface Matrix extends Swappable {
    * @param axis the axis
    * @return a view
    */
-  Matrix slice(Range range, Axis axis);
+  T slice(Range range, Axis axis);
 
   /**
    * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
@@ -193,15 +193,15 @@ public interface Matrix extends Swappable {
    * @param columns the columns to include
    * @return a new matrix with the same size as {@code this}
    */
-  Matrix slice(Collection<Integer> rows, Collection<Integer> columns);
+  T slice(Collection<Integer> rows, Collection<Integer> columns);
 
-  Matrix slice(Collection<Integer> indexes);
+  T slice(Collection<Integer> indexes);
 
-  Matrix slice(Collection<Integer> indexes, Axis axis);
+  T slice(Collection<Integer> indexes, Axis axis);
 
-  Matrix slice(BitMatrix bits);
+  T slice(BitMatrix bits);
 
-  Matrix slice(BitMatrix indexes, Axis axis);
+  T slice(BitMatrix indexes, Axis axis);
 
   /**
    * The number of rows.
@@ -271,9 +271,9 @@ public interface Matrix extends Swappable {
     return rows() == other.rows() && columns() == other.columns();
   }
 
-  Matrix newEmptyMatrix(int rows, int columns);
+  T newEmptyMatrix(int rows, int columns);
 
-  Matrix newEmptyVector(int size);
+  T newEmptyVector(int size);
 
   boolean isView();
 
@@ -305,14 +305,24 @@ public interface Matrix extends Swappable {
   /**
    * @return the transpose of {@code this}.
    */
-  Matrix transpose();
+  T transpose();
 
   /**
    * Create a copy of this matrix.
    *
    * @return the copy
    */
-  Matrix copy();
+  T copy();
+
+  BitMatrix lt(T other);
+
+  BitMatrix gt(T other);
+
+  BitMatrix eq(T other);
+
+  BitMatrix lte(T other);
+
+  BitMatrix gte(T other);
 
   /**
    * Get the storage

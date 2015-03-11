@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 /**
  * @author Isak Karlsson
  */
-public interface BitMatrix extends Matrix, Iterable<Boolean> {
+public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
 
   BitMatrix assign(Supplier<Boolean> supplier);
 

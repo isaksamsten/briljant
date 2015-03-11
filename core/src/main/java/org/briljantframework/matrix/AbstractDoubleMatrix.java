@@ -18,11 +18,33 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.briljantframework.matrix.Indexer.*;
-import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.Indexer.columnMajor;
+import static org.briljantframework.matrix.Indexer.computeLinearIndex;
+import static org.briljantframework.matrix.Indexer.rowMajor;
+import static org.briljantframework.matrix.Indexer.sliceIndex;
+import static org.briljantframework.matrix.Matrices.newComplexMatrix;
+import static org.briljantframework.matrix.Matrices.newLongMatrix;
+import static org.briljantframework.matrix.Matrices.sum;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.PrimitiveIterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
@@ -35,13 +57,14 @@ import org.briljantframework.matrix.storage.DoubleStorage;
 import org.briljantframework.matrix.storage.Storage;
 
 import com.carrotsearch.hppc.DoubleArrayList;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
 
 /**
  * Created by Isak Karlsson on 20/08/14.
  */
-public abstract class AbstractDoubleMatrix extends AbstractMatrix implements DoubleMatrix {
+public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix> implements DoubleMatrix {
 
   protected AbstractDoubleMatrix(int size) {
     super(size);

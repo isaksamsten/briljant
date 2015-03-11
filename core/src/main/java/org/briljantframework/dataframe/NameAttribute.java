@@ -13,6 +13,7 @@ import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+
 import com.google.common.collect.UnmodifiableIterator;
 
 /**
@@ -61,6 +62,11 @@ public class NameAttribute extends AbstractCollection<String> implements
   public String getOrDefault(int index, Supplier<String> defaultValue) {
     String name = names.get(index);
     return name != null ? name : defaultValue.get();
+  }
+
+  @Override
+  public boolean containsKey(int index) {
+    return names.containsKey(index);
   }
 
   @Override

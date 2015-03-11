@@ -2,11 +2,29 @@ package org.briljantframework.matrix;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.briljantframework.matrix.Indexer.*;
+import static org.briljantframework.matrix.Indexer.columnMajor;
+import static org.briljantframework.matrix.Indexer.rowMajor;
+import static org.briljantframework.matrix.Indexer.sliceIndex;
 import static org.briljantframework.matrix.Matrices.sum;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.PrimitiveIterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.LongToIntFunction;
+import java.util.function.LongUnaryOperator;
+import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
@@ -19,12 +37,13 @@ import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 
 import com.carrotsearch.hppc.LongArrayList;
+
 import com.google.common.collect.ImmutableTable;
 
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractLongMatrix extends AbstractMatrix implements LongMatrix {
+public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> implements LongMatrix {
 
   private LongListView listView = null;
 

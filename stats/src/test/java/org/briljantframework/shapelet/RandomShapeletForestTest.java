@@ -140,7 +140,7 @@ public class RandomShapeletForestTest {
     frame = DataFrames.permuteRows(frame);
     Vector y = frame.getColumn(0);
     DataFrame x = frame.dropColumn(0);
-    Map<Value, Integer> freq = Vectors.freq(y);
+    Map<Value, Integer> freq = Vectors.count(y);
     int sum = freq.values().stream().reduce(0, Integer::sum);
     int min = freq.values().stream().min(Integer::min).get();
     System.out.println(freq + " => " + ((double) min / sum));
@@ -204,8 +204,8 @@ public class RandomShapeletForestTest {
       DoubleMatrix upper = DoubleMatrix.of(0.05, 0.1, 0.3, 0.5, 0.7, 1);
       // IntMatrix sizes = IntMatrix.of(1, 5, 10, 30, 50, 100, 200);
 
-      System.out.println(Vectors.freq(yTrain));
-      System.out.println(Vectors.freq(yTest));
+      System.out.println(Vectors.count(yTrain));
+      System.out.println(Vectors.count(yTest));
       System.out
           .println(Vectors.mean(xTrain.getRecord(0)) + " " + Vectors.std(xTrain.getRecord(0)));
 

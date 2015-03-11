@@ -2,7 +2,17 @@ package org.briljantframework.matrix;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.IntBinaryOperator;
+import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
+import java.util.function.IntSupplier;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongToIntFunction;
+import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 
 import org.briljantframework.complex.Complex;
@@ -15,7 +25,7 @@ import com.carrotsearch.hppc.IntArrayList;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public interface IntMatrix extends Matrix {
+public interface IntMatrix extends Matrix<IntMatrix> {
 
   static IntMatrix newVector(int n) {
     return new DefaultIntMatrix(n);

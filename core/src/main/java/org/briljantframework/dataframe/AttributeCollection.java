@@ -12,6 +12,8 @@ public interface AttributeCollection<T> extends Collection<T> {
 
   T getOrDefault(int index, Supplier<T> dafault);
 
+  boolean containsKey(int index);
+
   void put(int index, T value);
 
   void remove(int index);

@@ -1,6 +1,19 @@
 package org.briljantframework.dataframe
 
 import org.briljantframework.all
+import java.io.File
+import org.briljantframework.io.DelimitedInputStream
+import java.io.FileInputStream
+
+fun loadCSV(file: File): DataFrame {
+    DelimitedInputStream(FileInputStream(file)).use {
+        val types = it.readColumnTypes()
+        val names = it.readColumnNames()
+        val builder = MixedDataFrame.Builder(names, types)
+        return builder.read(it).build()
+    }
+}
+
 
 fun DataFrame.get(row: Int, column: Int) = this.getAsValue(row, column)
 

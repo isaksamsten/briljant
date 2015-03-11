@@ -2,7 +2,12 @@ package org.briljantframework.dataframe;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -178,8 +183,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame takeColumns(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
-    for (int i : indexes) {
-      for (int j = 0; j < columns(); j++) {
+    for (int j : indexes) {
+      for (int i = 0; i < rows(); i++) {
         builder.set(i, j, this, i, j);
       }
     }
