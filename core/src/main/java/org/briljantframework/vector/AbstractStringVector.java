@@ -1,14 +1,15 @@
 package org.briljantframework.vector;
 
+import com.google.common.primitives.Doubles;
+
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
-
-import com.google.common.primitives.Doubles;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractStringVector extends AbstractVector {
+
   public static final String NA = null;
   public static final VectorType TYPE = new VectorType() {
     @Override
@@ -53,14 +54,15 @@ public abstract class AbstractStringVector extends AbstractVector {
     }
   };
 
-  public String get(int index) {
-    return getAsString(index);
+  @Override
+  public Value get(int index) {
+    String value = getAsString(index);
+    return Is.NA(value) ? Undefined.INSTANCE : new StringValue(value);
   }
 
   @Override
-  public Value getAsValue(int index) {
-    String value = getAsString(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new StringValue(value);
+  public <T> T getAs(Class<T> cls, int index) {
+    return cls.cast(getAsString(index));
   }
 
   @Override
@@ -109,6 +111,27 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   @Override
+  public int compare(int a, int b) {
+    return !isNA(a) && !isNA(b) ? getAsString(a).compareTo(getAsString(b)) : 0;
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    String va = getAsString(a);
+    String vb = other.getAsString(b);
+    return !Is.NA(va) && !Is.NA(vb) ? va.compareTo(vb) : 0;
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsString(i).hashCode();
+    }
+    return code;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -128,27 +151,6 @@ public abstract class AbstractStringVector extends AbstractVector {
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    int code = 1;
-    for (int i = 0; i < size(); i++) {
-      code += 31 * getAsString(i).hashCode();
-    }
-    return code;
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return !isNA(a) && !isNA(b) ? getAsString(a).compareTo(getAsString(b)) : 0;
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    String va = getAsString(a);
-    String vb = other.getAsString(b);
-    return !Is.NA(va) && !Is.NA(vb) ? va.compareTo(vb) : 0;
   }
 
   protected double tryParseDouble(String str) {

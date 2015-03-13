@@ -54,12 +54,4 @@ public interface VariableVector extends Vector {
   default VectorType getType() {
     return TYPE;
   }
-
-  /**
-   * Get type of value at {@code index}
-   *
-   * @param index the index
-   * @return the type of value
-   */
-  VectorType getType(int index);
 }

@@ -3,9 +3,7 @@ package org.briljantframework.vector;
 import org.briljantframework.complex.Complex;
 
 /**
- * A value is vector of size one.
- * <p>
- * Created by Isak Karlsson on 27/11/14.
+ * A value is vector of size one. <p> Created by Isak Karlsson on 27/11/14.
  */
 public interface Value extends Vector, Comparable<Value> {
 
@@ -65,8 +63,12 @@ public interface Value extends Vector, Comparable<Value> {
    *
    * @return the value
    */
-  default Value getAsValue() {
+  default Value get() {
     return this;
+  }
+
+  default <T> T getAs(Class<T> cls) {
+    return getAs(cls, 0);
   }
 
   /**

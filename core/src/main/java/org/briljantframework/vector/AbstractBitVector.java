@@ -8,16 +8,17 @@ import org.briljantframework.matrix.storage.VectorStorage;
  * @author Isak Karlsson
  */
 public abstract class AbstractBitVector extends AbstractVector {
+
   public static final Bit NA = Bit.NA;
   public static VectorType TYPE = new VectorType() {
     @Override
     public BitVector.Builder newBuilder() {
-      return null;
+      return new BitVector.Builder();
     }
 
     @Override
     public BitVector.Builder newBuilder(int size) {
-      return null;
+      return new BitVector.Builder(size);
     }
 
     @Override
@@ -27,8 +28,9 @@ public abstract class AbstractBitVector extends AbstractVector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Bit && value == NA)
-          || (value instanceof Integer && (int) value == IntVector.NA);
+      return value == null ||
+             (value instanceof Bit && value.equals(NA)) ||
+             (value instanceof Integer && (int) value == IntVector.NA);
     }
 
     @Override
@@ -48,9 +50,14 @@ public abstract class AbstractBitVector extends AbstractVector {
   };
 
   @Override
-  public Value getAsValue(int index) {
+  public Value get(int index) {
     Bit bit = getAsBit(index);
     return bit == NA ? Undefined.INSTANCE : new BitValue(bit);
+  }
+
+  @Override
+  public <T> T getAs(Class<T> cls, int index) {
+    return cls.cast(getAsBit(index));
   }
 
   @Override
@@ -71,10 +78,6 @@ public abstract class AbstractBitVector extends AbstractVector {
     } else {
       return i;
     }
-  }
-
-  public Bit get(int index) {
-    return getAsBit(index);
   }
 
   @Override
@@ -103,6 +106,25 @@ public abstract class AbstractBitVector extends AbstractVector {
   }
 
   @Override
+  public int compare(int a, int b) {
+    return getAsInt(a) - getAsInt(b);
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    return getAsInt(a) - other.getAsInt(b);
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsInt(i);
+    }
+    return code;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -123,24 +145,5 @@ public abstract class AbstractBitVector extends AbstractVector {
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    int code = 1;
-    for (int i = 0; i < size(); i++) {
-      code += 31 * getAsInt(i);
-    }
-    return code;
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return getAsInt(a) - getAsInt(b);
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    return getAsInt(a) - other.getAsInt(b);
   }
 }

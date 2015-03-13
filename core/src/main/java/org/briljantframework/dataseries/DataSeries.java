@@ -9,10 +9,11 @@ import org.briljantframework.vector.VectorType;
 
 /**
  * A data series is a vector of ordered events.
- * 
+ *
  * @author Isak Karlsson
  */
 public class DataSeries implements Record {
+
   private final Vector vector;
 
   public DataSeries(Vector vector) {
@@ -30,13 +31,13 @@ public class DataSeries implements Record {
   }
 
   @Override
-  public VectorType getType(int index) {
-    return vector.getType();
+  public Value get(int index) {
+    return vector.get(index);
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return vector.getAsValue(index);
+  public <T> T getAs(Class<T> cls, int index) {
+    return vector.getAs(cls, index);
   }
 
   @Override
@@ -72,6 +73,11 @@ public class DataSeries implements Record {
   @Override
   public int size() {
     return vector.size();
+  }
+
+  @Override
+  public VectorType getType(int index) {
+    return vector.getType();
   }
 
   @Override

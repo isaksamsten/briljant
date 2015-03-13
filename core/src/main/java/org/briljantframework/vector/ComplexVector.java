@@ -1,17 +1,18 @@
 package org.briljantframework.vector;
 
-import static com.google.common.primitives.Ints.checkedCast;
+import com.google.common.base.Preconditions;
 
-import java.io.IOException;
-import java.util.Arrays;
+import com.carrotsearch.hppc.DoubleArrayList;
 
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.ComplexMatrix;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.util.Arrays;
+
+import static com.google.common.primitives.Ints.checkedCast;
 
 /**
  * Created by Isak Karlsson on 21/11/14.
@@ -36,7 +37,7 @@ public class ComplexVector extends AbstractComplexVector {
     Preconditions.checkArgument(values.length > 0);
     this.values = new double[values.length * 2];
     this.size = values.length;
-    for (int i = 0; i < values.length; i++) {
+    for (int i = 0; i < values.length; i += 2) {
       Complex c = values[i];
       this.values[i] = c.real();
       this.values[i + 1] = c.imag();
@@ -49,7 +50,6 @@ public class ComplexVector extends AbstractComplexVector {
    * unequal (i.e. {@code size % 2 == 1}) and less than or equal to {@code buffer.length / 2}.
    *
    * @param buffer buffer of double values interpreted as complex numbers
-   * @param size
    */
   public ComplexVector(double[] buffer, int size) {
     Preconditions.checkArgument(size * 2 <= buffer.length, "Un-even number of doubles.");
@@ -59,7 +59,7 @@ public class ComplexVector extends AbstractComplexVector {
 
   public ComplexVector(ComplexMatrix freq) {
     this.values = new double[checkedCast(freq.size()) * 2];
-    this.size = (int) freq.size();
+    this.size = freq.size();
     for (int i = 0; i < freq.size(); i++) {
       Complex c = freq.get(i);
       this.values[i * 2] = c.real();
@@ -85,36 +85,6 @@ public class ComplexVector extends AbstractComplexVector {
    * {@inheritDoc}
    */
   @Override
-  public Complex getAsComplex(int index) {
-    int pos = index * 2;
-    double real = values[pos], imag = values[pos + 1];
-    if (Double.isNaN(real) || Double.isNaN(imag)) {
-      return Complex.NaN;
-    } else {
-      return new Complex(real, imag);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int size() {
-    return size;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Builder newCopyBuilder() {
-    return new Builder(this);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public Builder newBuilder() {
     return new Builder();
   }
@@ -123,30 +93,14 @@ public class ComplexVector extends AbstractComplexVector {
    * {@inheritDoc}
    */
   @Override
-  public Builder newBuilder(int size) {
-    return new Builder(size);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public double[] toDoubleArray() {
-    return values.clone();
-  }
-
-  /**
-   * Returns the underlying array which represents complex numbers as two consecutive positions in
-   * the array.
-   * <p>
-   * The number of complex numbers are {@code array.length / 2}. This array can be used in suitable
-   * BLAS operations.
-   *
-   * @return the underlying array
-   */
-  @Override
-  public double[] asDoubleArray() {
-    return values;
+  public Complex getAsComplex(int index) {
+    int pos = index * 2;
+    double real = values[pos], imag = values[pos + 1];
+    if (Double.isNaN(real) || Double.isNaN(imag)) {
+      return Complex.NaN;
+    } else {
+      return new Complex(real, imag);
+    }
   }
 
   public static final class Builder implements Vector.Builder {
@@ -330,6 +284,53 @@ public class ComplexVector extends AbstractComplexVector {
       }
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int size() {
+    return size;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Builder newCopyBuilder() {
+    return new Builder(this);
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Builder newBuilder(int size) {
+    return new Builder(size);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public double[] toDoubleArray() {
+    return values.clone();
+  }
+
+  /**
+   * Returns the underlying array which represents complex numbers as two consecutive positions in
+   * the array. <p> The number of complex numbers are {@code array.length / 2}. This array can be
+   * used in suitable BLAS operations.
+   *
+   * @return the underlying array
+   */
+  @Override
+  public double[] asDoubleArray() {
+    return values;
+  }
+
+
 
 
 }

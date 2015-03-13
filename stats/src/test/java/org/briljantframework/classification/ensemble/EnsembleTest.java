@@ -21,7 +21,7 @@ public class EnsembleTest {
     // iris = DataFrames.shuffle(iris);
     //
     // Vector y = iris.getColumn(iris.columns() - 1);
-    // DataFrame x = iris.dropColumn(iris.columns() - 1);
+    // DataFrame x = iris.removeColumn(iris.columns() - 1);
     //
     // RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(7).build();
     // ClassificationEvaluator cv = ClassificationEvaluators.crossValidation(10);
@@ -33,7 +33,7 @@ public class EnsembleTest {
     System.out.println(synt.getClass().getName());
     Vector ytrain = Convert.toStringVector(synt.getColumn(0));
 
-    DataFrame xtrain = synt.dropColumn(0);
+    DataFrame xtrain = synt.removeColumn(0);
 
     System.out.println(xtrain);
 
@@ -43,7 +43,7 @@ public class EnsembleTest {
     // Datasets.load(MixedDataFrame.Builder::new, MatlabTextInputStream::new,
     // "synthetic_control_TEST");
     // Vector ytest = As.stringVector(synt.getColumn(0));
-    // DataFrame xtest = synt.dropColumn(0);
+    // DataFrame xtest = synt.removeColumn(0);
     //
     RandomShapeletForest f =
         RandomShapeletForest.withSize(100).withInspectedShapelets(100).withUpperLength(-1)
@@ -59,7 +59,7 @@ public class EnsembleTest {
 
     DataFrame syntheticControl = Datasets.loadSyntheticControl();
     Vector y = Convert.toStringVector(syntheticControl.getColumn(0));
-    DataFrame x = syntheticControl.dropColumn(0);
+    DataFrame x = syntheticControl.removeColumn(0);
     Result result = Validators.crossValidation(5).test(f, x, y);
     System.out.println(result);
 

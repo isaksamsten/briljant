@@ -1,6 +1,8 @@
 package org.briljantframework.dataframe;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -11,6 +13,8 @@ public interface AttributeCollection<T> extends Collection<T> {
   T get(int index);
 
   T getOrDefault(int index, Supplier<T> dafault);
+
+  Set<Map.Entry<Integer, T>> entrySet();
 
   boolean containsKey(int index);
 

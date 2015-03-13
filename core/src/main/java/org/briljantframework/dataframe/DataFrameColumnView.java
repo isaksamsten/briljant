@@ -1,5 +1,6 @@
 package org.briljantframework.dataframe;
 
+import org.briljantframework.Check;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
@@ -8,7 +9,7 @@ import org.briljantframework.vector.VectorType;
 
 /**
  * View into a DataFrame.
- * 
+ *
  * @author Isak Karlsson
  */
 public class DataFrameColumnView implements Vector {
@@ -22,8 +23,13 @@ public class DataFrameColumnView implements Vector {
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return parent.getAsValue(index, column);
+  public Value get(int index) {
+    return parent.get(index, column);
+  }
+
+  @Override
+  public <T> T getAs(Class<T> cls, int index) {
+    return getAs(cls, index);
   }
 
   @Override
@@ -48,7 +54,7 @@ public class DataFrameColumnView implements Vector {
 
   @Override
   public Bit getAsBit(int index) {
-    return parent.getAsBinary(index, column);
+    return parent.getAsBit(index, column);
   }
 
   @Override
@@ -64,6 +70,12 @@ public class DataFrameColumnView implements Vector {
   @Override
   public VectorType getType() {
     return parent.getColumnType(column);
+  }
+
+  @Override
+  public VectorType getType(int index) {
+    Check.size(index, size());
+    return getType();
   }
 
   @Override

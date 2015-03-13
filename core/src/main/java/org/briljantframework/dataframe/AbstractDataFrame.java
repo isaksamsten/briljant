@@ -1,6 +1,13 @@
 package org.briljantframework.dataframe;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
+
+import org.briljantframework.Check;
+import org.briljantframework.matrix.DefaultDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -9,17 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
-
-import com.google.common.collect.Sets;
-import com.google.common.collect.UnmodifiableIterator;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Implements some default behaviour for DataFrames
- * 
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractDataFrame implements DataFrame {
@@ -106,6 +107,24 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
+  public DataFrame setColumnNames(List<String> names) {
+    for (int i = 0; i < names.size(); i++) {
+      setColumnName(i, names.get(i));
+    }
+    return this;
+  }
+
+  @Override
+  public DataFrame addColumn(Vector column) {
+    return newCopyBuilder().addColumn(column).build();
+  }
+
+  @Override
+  public DataFrame addColumn(int index, Vector column) {
+    return newCopyBuilder().insertColumn(index, column).build();
+  }
+
+  @Override
   public Collection<Vector> getColumns() {
     return columnCollection;
   }
@@ -113,7 +132,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Returns the column at {@code index}. This implementation supplies a view into the underlying
    * data frame.
-   * 
+   *
    * @param index the index
    * @return a view of column {@code index}
    */
@@ -129,30 +148,30 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Constructs a new DataFrame by dropping {@code index}.
-   * 
-   * This implementations rely on {@link #newCopyBuilder()} returning a builder and that
-   * {@link org.briljantframework.dataframe.DataFrame.Builder#removeColumn(int)}.
-   * 
+   *
+   * This implementations rely on {@link #newCopyBuilder()} returning a builder and that {@link
+   * org.briljantframework.dataframe.DataFrame.Builder#removeColumn(int)}.
+   *
    * @param index the index
    * @return a new data frame as created by {@link #newCopyBuilder()}
    */
   @Override
-  public DataFrame dropColumn(int index) {
+  public DataFrame removeColumn(int index) {
     return newCopyBuilder().removeColumn(index).build();
   }
 
   /**
    * Constructs a new DataFrame by dropping the columns in {@code indexes}.
-   * 
-   * This implementations rely on {@link #newBuilder()} returning a builder and that
-   * {@link org.briljantframework.dataframe.DataFrame.Builder#addColumn(org.briljantframework.vector.Vector)}
+   *
+   * This implementations rely on {@link #newBuilder()} returning a builder and that {@link
+   * org.briljantframework.dataframe.DataFrame.Builder#addColumn(org.briljantframework.vector.Vector)}
    * adds a vector.
-   * 
+   *
    * @param indexes collection of indexes
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame dropColumns(Iterable<Integer> indexes) {
+  public DataFrame removeColumns(Iterable<Integer> indexes) {
     Set<Integer> hash;
     if (!(indexes instanceof Set)) {
       hash = Sets.newHashSet(indexes);
@@ -173,10 +192,10 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Constructs a new DataFrame by including the rows in {@code indexes}.
-   * 
-   * This implementation rely on {@link #newBuilder()} and
-   * {@link Builder#set(int, int, DataFrame, int, int)}.
-   * 
+   *
+   * This implementation rely on {@link #newBuilder()} and {@link Builder#set(int, int, DataFrame,
+   * int, int)}.
+   *
    * @param indexes collection of indexes
    * @return a new data frame as created by {@link #newBuilder()}
    */
@@ -201,14 +220,6 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame setColumnName(int index, String columnName) {
     checkArgument(index >= 0 && index < columns());
     columnNames.put(index, columnName);
-    return this;
-  }
-
-  @Override
-  public DataFrame setColumnNames(List<String> names) {
-    for (int i = 0; i < names.size(); i++) {
-      setColumnName(i, names.get(i));
-    }
     return this;
   }
 
@@ -246,7 +257,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Returns the row at {@code index}. This implementation supplies a view into the underlying data
    * frame.
-   * 
+   *
    * @param index the index
    * @return a view of the row at {@code index}
    */
@@ -257,16 +268,17 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Constructs a new DataFrame by including the rows in {@code indexes}
-   * 
-   * This implementation rely on {@link #newBuilder()} and
-   * {@link Builder#set(int, int, DataFrame, int, int)}.
-   * 
+   *
+   * This implementation rely on {@link #newBuilder()} and {@link Builder#set(int, int, DataFrame,
+   * int, int)}.
+   *
    * @param indexes the indexes to take
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame takeRecords(Iterable<Integer> indexes) {
+  public DataFrame getRecords(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
+    builder.getColumnNames().putAll(getColumnNames());
     for (Number num : indexes) {
       int i = num.intValue();
       for (int j = 0; j < columns(); j++) {
@@ -279,15 +291,15 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Constructs a new DataFrame by dropping the rows in {@code indexes}
-   * 
-   * This implementation rely on {@link #newBuilder()} and
-   * {@link Builder#set(int, int, DataFrame, int, int)}
-   * 
+   *
+   * This implementation rely on {@link #newBuilder()} and {@link Builder#set(int, int, DataFrame,
+   * int, int)}
+   *
    * @param indexes the indexes to drop
    * @return a new DataFrame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame dropRecords(Iterable<Integer> indexes) {
+  public DataFrame removeRecords(Iterable<Integer> indexes) {
     Set<Integer> set;
     if (!(indexes instanceof Set)) {
       set = Sets.newHashSet(indexes);
@@ -295,6 +307,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       set = (Set<Integer>) indexes;
     }
     Builder builder = newBuilder();
+    builder.getColumnNames().putAll(getColumnNames());
     for (int i = 0; i < rows(); i++) {
       for (int j = 0; j < columns(); j++) {
         if (!set.contains(i)) {
@@ -306,12 +319,42 @@ public abstract class AbstractDataFrame implements DataFrame {
     return builder.build();
   }
 
+  @Override
+  public DataFrame addRecord(int index, Vector record) {
+    return newCopyBuilder().insertRecord(index, record).build();
+  }
+
+  @Override
+  public DataFrame addRecord(Vector record) {
+    return newCopyBuilder().addRecord(record).build();
+  }
+
+  @Override
+  public DataFrame stack(Iterable<DataFrame> dataFrames) {
+    DataFrame.Builder builder = newCopyBuilder();
+    for (DataFrame dataFrame : dataFrames) {
+      Check.columnSize(this, dataFrame);
+      builder.stack(dataFrame);
+    }
+    return builder.build();
+  }
+
+  @Override
+  public DataFrame concat(Iterable<DataFrame> dataFrames) {
+    DataFrame.Builder builder = newCopyBuilder();
+    for (DataFrame dataFrame : dataFrames) {
+      Check.columnSize(this, dataFrame);
+      builder.concat(dataFrame);
+    }
+    return builder.build();
+  }
+
   /**
    * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleMatrix}. This
-   * implementation rely on {@link #getAsDouble(int, int)} and returns an
-   * {@link org.briljantframework.matrix.DefaultDoubleMatrix}. Sub-classes are allowed to return any
+   * implementation rely on {@link #getAsDouble(int, int)} and returns an {@link
+   * org.briljantframework.matrix.DefaultDoubleMatrix}. Sub-classes are allowed to return any
    * concrete implementation of {@link org.briljantframework.matrix.DoubleMatrix}.
-   * 
+   *
    * @return a new matrix
    */
   @Override
@@ -337,7 +380,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Returns an iterator over the rows of this DataFrame
-   * 
+   *
    * @return a row iterator
    */
   @Override
@@ -359,7 +402,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Returns a tabular string representation of this DataFrame.
-   * 
+   *
    * @return the string representation
    */
   @Override
@@ -378,7 +421,7 @@ public abstract class AbstractDataFrame implements DataFrame {
      * The attribute containers are copied on construction.
      *
      * @param columnNames the column names
-     * @param rowNames the row names
+     * @param rowNames    the row names
      */
     protected AbstractBuilder(NameAttribute columnNames, NameAttribute rowNames) {
       this.columnNames = new NameAttribute(columnNames);
@@ -401,23 +444,28 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame.Builder addColumn(Vector.Builder builder) {
+    public DataFrame.Builder addColumnBuilder(Vector.Builder builder) {
       Vector vector = builder.build();
       return addColumn(vector);
     }
 
     @Override
+    public Builder addColumnBuilder(VectorType type) {
+      return addColumnBuilder(type.newBuilder());
+    }
+
+    @Override
     public Builder addColumn(Vector vector) {
-      return setColumn(columns(), vector);
+      return insertColumn(columns(), vector);
     }
 
     @Override
-    public Builder setColumn(int index, Vector.Builder builder) {
-      return setColumn(index, builder.build());
+    public Builder insertColumn(int index, Vector.Builder builder) {
+      return insertColumn(index, builder.build());
     }
 
     @Override
-    public Builder setColumn(int index, Vector vector) {
+    public Builder insertColumn(int index, Vector vector) {
       final int size = vector.size();
       for (int i = 0; i < size; i++) {
         set(i, index, vector, i);
@@ -435,20 +483,23 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder addRecord(Vector vector) {
-      return setRecord(rows(), vector);
+      return insertRecord(rows(), vector);
     }
 
     @Override
-    public Builder setRecord(int index, Vector.Builder builder) {
-      return setRecord(index, builder.build());
+    public Builder insertRecord(int index, Vector.Builder builder) {
+      return insertRecord(index, builder.build());
     }
 
     @Override
-    public Builder setRecord(int index, Vector vector) {
+    public Builder insertRecord(int index, Vector vector) {
       final int columns = columns();
       final int size = vector.size();
-      for (int j = 0; j < columns; j++) {
+      for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
+          if (vector instanceof Record && !getColumnNames().containsKey(j)) {
+            getColumnNames().put(j, ((Record) vector).getColumnName(j));
+          }
           set(index, j, vector, j);
         } else {
           setNA(index, j);

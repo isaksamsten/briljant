@@ -1,7 +1,15 @@
 package org.briljantframework.vector;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Function;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.UnmodifiableIterator;
+import com.google.common.primitives.Ints;
+
+import org.briljantframework.IndexComparator;
+import org.briljantframework.QuickSort;
+import org.briljantframework.complex.Complex;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -15,53 +23,55 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import org.briljantframework.IndexComparator;
-import org.briljantframework.QuickSort;
-
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.google.common.collect.UnmodifiableIterator;
-import com.google.common.primitives.Ints;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Isak Karlsson
  */
 public final class Vectors {
 
-  public static final Set<VectorType> NUMERIC = Sets.newIdentityHashSet();
-  public static final Set<VectorType> CATEGORIC = Sets.newIdentityHashSet();
-  public static final VectorType DOUBLE = DoubleVector.TYPE;
-  public static final VectorType COMPLEX = ComplexVector.TYPE;
-  public static final VectorType INT = IntVector.TYPE;
-  public static final VectorType BIT = BitVector.TYPE;
-  public static final VectorType STRING = StringVector.TYPE;
+  private static final Map<Class<?>, Object> CLASS_TO_NA;
 
   static {
-    NUMERIC.add(DOUBLE);
-    NUMERIC.add(INT);
-    NUMERIC.add(COMPLEX);
+    VectorType.NUMERIC.add(VectorType.DOUBLE);
+    VectorType.NUMERIC.add(VectorType.INT);
+    VectorType.NUMERIC.add(VectorType.COMPLEX);
 
-    CATEGORIC.add(STRING);
-    CATEGORIC.add(BIT);
+    VectorType.CATEGORIC.add(VectorType.STRING);
+    VectorType.CATEGORIC.add(VectorType.BIT);
+
+    Map<Class<?>, Object> clsToNa = new HashMap<>();
+    clsToNa.put(Integer.class, IntVector.NA);
+    clsToNa.put(Integer.TYPE, IntVector.NA);
+    clsToNa.put(Double.class, DoubleVector.NA);
+    clsToNa.put(Double.TYPE, DoubleVector.NA);
+    clsToNa.put(String.class, StringVector.NA);
+    clsToNa.put(Bit.class, BitVector.NA);
+    clsToNa.put(Complex.class, ComplexVector.NA);
+    clsToNa.put(Object.class, null);
+    CLASS_TO_NA = Collections.unmodifiableMap(clsToNa);
   }
 
-  private Vectors() {}
+  private Vectors() {
+  }
+
+  public static <T> T naValue(Class<T> cls) {
+    @SuppressWarnings("unchecked")
+    T t = (T) CLASS_TO_NA.get(checkNotNull(cls));
+    return t;
+  }
 
   /**
    * Finds the index, in {@code vector}, of the value at {@code index} in {@code values}. This
-   * should be preferred over {@link #find(Vector, Value)} when possible. Hence, given
-   * {@code Vector a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should be
-   * preferred over {@code find(a, b.getAsValue(i))}.
+   * should be preferred over {@link #find(Vector, Value)} when possible. Hence, given {@code Vector
+   * a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should be preferred over
+   * {@code find(a, b.get(i))}.
    *
-   * 
-   * @param haystack the vector to search
+   * @param haystack     the vector to search
    * @param needleSource the source of the needle
-   * @param needle the needle in the source
-   * @return the (first) index of {@code needleSource.getAsValue(needle)} in {@code haystack} or
-   *         {@code -1}
+   * @param needle       the needle in the source
+   * @return the (first) index of {@code needleSource.get(needle)} in {@code haystack} or {@code -1}
    */
   public static int find(Vector haystack, Vector needleSource, int needle) {
     for (int i = 0; i < haystack.size(); i++) {
@@ -91,7 +101,7 @@ public final class Vectors {
 
   public static int find(Vector vector, Predicate<Value> predicate) {
     for (int i = 0; i < vector.size(); i++) {
-      if (predicate.test(vector.getAsValue(i))) {
+      if (predicate.test(vector.get(i))) {
         return i;
       }
     }
@@ -100,7 +110,7 @@ public final class Vectors {
 
   /**
    * Creates a double vector of {@code size} filled with {@code NA}
-   * 
+   *
    * @param size the size
    * @return a new vector
    */
@@ -140,19 +150,14 @@ public final class Vectors {
   }
 
   /**
-   * <p>
-   * Create a vector of length {@code num} with evenly spaced values between {@code start} and
-   * {@code end}.
-   * </p>
-   * 
-   * <p>
-   * Returns a vector of {@link org.briljantframework.vector.DoubleVector#TYPE}
-   * </p>
-   * 
-   * 
+   * <p> Create a vector of length {@code num} with evenly spaced values between {@code start} and
+   * {@code end}. </p>
+   *
+   * <p> Returns a vector of {@link org.briljantframework.vector.DoubleVector#TYPE} </p>
+   *
    * @param start the start value
-   * @param stop the end value
-   * @param num the number of steps (i.e. intermediate values)
+   * @param stop  the end value
+   * @param num   the number of steps (i.e. intermediate values)
    * @return a vector
    */
   public static Vector linspace(double start, double stop, int num) {
@@ -170,9 +175,9 @@ public final class Vectors {
   /**
    * Returns a vector of length {@code 50}. With evenly spaced values in the range {@code start} to
    * {@code end}.
-   * 
+   *
    * @param start the start value
-   * @param stop the end value
+   * @param stop  the end value
    * @return a vector
    */
   public static Vector linspace(double start, double stop) {
@@ -180,20 +185,14 @@ public final class Vectors {
   }
 
   /**
-   * <p>
-   * Split {@code vector} into {@code chunks}. Handles the case when {@code vector.size()} is not
-   * evenly dividable by chunks by making some chunks larger.
-   * </p>
+   * <p> Split {@code vector} into {@code chunks}. Handles the case when {@code vector.size()} is
+   * not evenly dividable by chunks by making some chunks larger. </p>
    *
-   * <p>
-   * This implementation is lazy, i.e. chunking is done 'on-the-fly'. To get a list,
-   * {@code new ArrayList<>(Vectors.split(vec, 10))}
-   * </p>
-   * 
-   * <p>
-   * Ensures that {@code vector.getType()} is preserved.
-   * </p>
-   * 
+   * <p> This implementation is lazy, i.e. chunking is done 'on-the-fly'. To get a list, {@code new
+   * ArrayList<>(Vectors.split(vec, 10))} </p>
+   *
+   * <p> Ensures that {@code vector.getType()} is preserved. </p>
+   *
    * @param vector the vector
    * @param chunks the number of chunks
    * @return a collection of {@code chunk} chunks
@@ -251,7 +250,7 @@ public final class Vectors {
 
   /**
    * @param vector the vector
-   * @param mean the mean
+   * @param mean   the mean
    * @return the standard deviation
    */
   public static double std(Vector vector, double mean) {
@@ -278,7 +277,7 @@ public final class Vectors {
 
   /**
    * @param vector the vector
-   * @param mean the mean
+   * @param mean   the mean
    * @return the variance; or NA
    */
   public static double var(Vector vector, double mean) {
@@ -308,11 +307,11 @@ public final class Vectors {
    */
   public static int[] sortIndex(Vector vector) {
     return sortIndex(vector,
-        (o1, o2) -> Double.compare(vector.getAsDouble(o1), vector.getAsDouble(o2)));
+                     (o1, o2) -> Double.compare(vector.getAsDouble(o1), vector.getAsDouble(o2)));
   }
 
   /**
-   * @param vector the vector
+   * @param vector     the vector
    * @param comparator the comparator
    * @return the indexes of {@code vector} sorted according to {@code comparator} by value
    */
@@ -341,10 +340,10 @@ public final class Vectors {
    * Take the inner product of two vectors (m x 1) and (1 x m) scaling them by alpha and beta
    * respectively
    *
-   * @param x a row vector
+   * @param x     a row vector
    * @param alpha scaling factor for a
-   * @param y a column vector
-   * @param beta scaling factor for y
+   * @param y     a column vector
+   * @param beta  scaling factor for y
    * @return the inner product
    */
   public static double dot(Vector x, double alpha, Vector y, double beta) {
@@ -387,7 +386,7 @@ public final class Vectors {
     Set<Value> taken = new HashSet<>();
     for (Vector vector : vectors) {
       for (int i = 0; i < vector.size(); i++) {
-        Value value = vector.getAsValue(i);
+        Value value = vector.get(i);
         if (!taken.contains(value)) {
           taken.add(value);
           builder.add(vector, i);

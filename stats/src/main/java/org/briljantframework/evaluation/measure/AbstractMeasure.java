@@ -16,13 +16,13 @@
 
 package org.briljantframework.evaluation.measure;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vectors;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * @author Isak Karlsson
@@ -63,7 +63,7 @@ public abstract class AbstractMeasure implements Measure {
 
   @Override
   public double get(Sample sample, int i) {
-    return values.getOrDefault(sample, zeroVector).get(i);
+    return values.getOrDefault(sample, zeroVector).getAsDouble(i);
   }
 
   @Override

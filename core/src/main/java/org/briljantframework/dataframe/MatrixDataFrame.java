@@ -1,13 +1,9 @@
 package org.briljantframework.dataframe;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.primitives.Ints.checkedCast;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import com.carrotsearch.hppc.IntDoubleMap;
+import com.carrotsearch.hppc.IntDoubleOpenHashMap;
+import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.IntObjectOpenHashMap;
 
 import org.briljantframework.ArrayBuffers;
 import org.briljantframework.Utils;
@@ -17,18 +13,31 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.Convert;
+import org.briljantframework.vector.DoubleValue;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Is;
+import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Undefined;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
-import com.carrotsearch.hppc.IntDoubleMap;
-import com.carrotsearch.hppc.IntDoubleOpenHashMap;
-import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
+import static com.google.common.primitives.Ints.checkedCast;
 
 /**
  * Initial implementation of the matrix data frame. While the DataFrame interface allows for
- * heterogeneous implementations, the {@code MatrixDataFrame} is homogeneous over
- * {@link org.briljantframework.vector.DoubleVector#TYPE}, i.e. {@code double} values.
- * 
+ * heterogeneous implementations, the {@code MatrixDataFrame} is homogeneous over {@link
+ * org.briljantframework.vector.DoubleVector#TYPE}, i.e. {@code double} values.
+ *
  * @author Isak Karlsson
  */
 public class MatrixDataFrame extends AbstractDataFrame {
@@ -40,18 +49,24 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   protected MatrixDataFrame(DoubleMatrix matrix, NameAttribute columnNames, NameAttribute rowNames,
-      boolean copy) {
+                            boolean copy) {
     super(columnNames, rowNames, copy);
     this.matrix = matrix;
   }
 
+  @Override
+  public <T> T getAs(Class<T> cls, int row, int column) {
+    return cls.equals(Double.TYPE) || cls.equals(Double.class)
+           ? cls.cast(getAsDouble(row, column)) : cls.cast(DoubleVector.NA);
+  }
+
   /**
    * Returns the double value as a string. Returns {@code null}, if value is missing
-   * 
-   * @param row the row
+   *
+   * @param row    the row
    * @param column the column
-   * @return the string representation (as returned by {@link String#valueOf(double)} or
-   *         {@code null}
+   * @return the string representation (as returned by {@link String#valueOf(double)} or {@code
+   * null}
    */
   @Override
   public String getAsString(int row, int column) {
@@ -70,15 +85,15 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Bit getAsBinary(int row, int column) {
+  public Bit getAsBit(int row, int column) {
     double value = matrix.get(row, column);
     return Is.NA(value) ? Bit.NA : value == 1 ? Bit.TRUE : Bit.FALSE;
   }
 
   /**
    * Returns a {@link org.briljantframework.complex.Complex} usign the double as the real part.
-   * 
-   * @param row the row
+   *
+   * @param row    the row
    * @param column the column
    * @return a complex
    */
@@ -89,15 +104,15 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Returns a {@link org.briljantframework.vector.DoubleValue} or
-   * {@link org.briljantframework.vector.Undefined#INSTANCE}
-   * 
-   * @param row the row
+   * Returns a {@link org.briljantframework.vector.DoubleValue} or {@link
+   * org.briljantframework.vector.Undefined#INSTANCE}
+   *
+   * @param row    the row
    * @param column the column
    * @return the value
    */
   @Override
-  public Value getAsValue(int row, int column) {
+  public Value get(int row, int column) {
     double value = matrix.get(row, column);
     return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }
@@ -135,11 +150,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame.Builder newBuilder(int rows) {
-    return new ArrayBuilder(columnNames, rowNames, rows(), columns());
-  }
-
-  @Override
   public DataFrame.Builder newCopyBuilder() {
     double[] array = new double[rows() * columns()];
     System.arraycopy(matrix.asDoubleArray(), 0, array, 0, array.length);
@@ -149,9 +159,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   /**
    * Returns a
-   * 
+   *
    * @param index the index
-   * @return
    */
   @Override
   public Vector getColumn(int index) {
@@ -159,7 +168,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame dropColumn(int index) {
+  public DataFrame removeColumn(int index) {
     checkElementIndex(index, columns(), "Column-index out of bounds.");
     NameAttribute columnNames = new NameAttribute(this.columnNames);
     columnNames.remove(index);
@@ -184,25 +193,19 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Dynamically allocates a new {@code MatrixDataFrame}.
-   * <p>
-   * Appending and increasing the size is rather costly (due to reallocation) using this builder. It
-   * is therefore recommended to initialize with a size. If linearly adding elements, it's way
-   * faster to append backwards, i.e., starting with the bottom right and proceed to the top left
-   * corner of the matrix
-   * <p>
-   * 
+   * Dynamically allocates a new {@code MatrixDataFrame}. <p> Appending and increasing the size is
+   * rather costly (due to reallocation) using this builder. It is therefore recommended to
+   * initialize with a size. If linearly adding elements, it's way faster to append backwards, i.e.,
+   * starting with the bottom right and proceed to the top left corner of the matrix <p>
+   *
    * <pre>
    *     for(int i = 100; i >= 0; i--)
    *       for(int j = 100; i >= 0; j--)
    *         builder.set(i, j, ....);
    * </pre>
-   * <p>
-   * is faster than starting at {@code i = 0} and {@code j = 0}.
-   * <p>
-   * Alternatively, if the size is unknown prefer
-   * {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}, which is both sparse and
-   * fast to incrementally build.
+   * <p> is faster than starting at {@code i = 0} and {@code j = 0}. <p> Alternatively, if the size
+   * is unknown prefer {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}, which is
+   * both sparse and fast to incrementally build.
    */
   public static class ArrayBuilder extends AbstractBuilder {
 
@@ -234,14 +237,15 @@ public class MatrixDataFrame extends AbstractDataFrame {
     }
 
     protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows,
-        int columns, double[] buffer) {
+                           int columns, double[] buffer) {
       super(columnNames, rowNames);
       this.rows = rows;
       this.columns = columns;
       this.buffer = buffer;
     }
 
-    protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows, int columns) {
+    protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows,
+                           int columns) {
       this(columnNames, rowNames, rows, columns, new double[rows * columns]);
     }
 
@@ -260,7 +264,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         reInitializeBuffer(rows, column + 1);
       }
 
-      return checkedCast(Indexer.columnMajor(row, column, rows, columns));
+      return Indexer.columnMajor(row, column, rows, columns);
 
     }
 
@@ -273,8 +277,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       Arrays.fill(tmp, DoubleVector.NA);
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
-          int newIndex = (int) Indexer.columnMajor(i, j, rows, columns);
-          int oldIndex = (int) Indexer.columnMajor(i, j, this.rows, this.columns);
+          int newIndex = Indexer.columnMajor(i, j, rows, columns);
+          int oldIndex = Indexer.columnMajor(i, j, this.rows, this.columns);
           double oldVal = buffer[oldIndex];
           tmp[newIndex] = oldVal;
         }
@@ -320,8 +324,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
           if (j != column) {
-            tmp[(int) Indexer.columnMajor(i, j, rows, newColumns)] =
-                buffer[(int) Indexer.columnMajor(i, j, rows, columns)];
+            tmp[Indexer.columnMajor(i, j, rows, newColumns)] =
+                buffer[Indexer.columnMajor(i, j, rows, columns)];
           }
         }
       }
@@ -334,8 +338,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
       for (int i = 0; i < rows(); i++) {
-        int oldIndex = (int) Indexer.columnMajor(i, a, rows(), columns());
-        int newIndex = (int) Indexer.columnMajor(i, b, rows(), columns());
+        int oldIndex = Indexer.columnMajor(i, a, rows(), columns());
+        int newIndex = Indexer.columnMajor(i, b, rows(), columns());
         double tmp = buffer[oldIndex];
         buffer[oldIndex] = buffer[newIndex];
         buffer[newIndex] = tmp;
@@ -349,8 +353,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       checkArgument(column >= 0 && column < columns());
       checkArgument(a >= 0 && a < rows() && b >= 0 && b < rows());
 
-      int oldIndex = (int) Indexer.columnMajor(a, column, rows(), columns());
-      int newIndex = (int) Indexer.columnMajor(b, column, rows(), columns());
+      int oldIndex = Indexer.columnMajor(a, column, rows(), columns());
+      int newIndex = Indexer.columnMajor(b, column, rows(), columns());
 
       double tmp = buffer[oldIndex];
       buffer[oldIndex] = buffer[newIndex];
@@ -389,8 +393,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Incrementally build a {@code MatrixDataFrame}. If the initial size is known, prefer
-   * {@link org.briljantframework.dataframe.MatrixDataFrame.ArrayBuilder}.
+   * Incrementally build a {@code MatrixDataFrame}. If the initial size is known, prefer {@link
+   * org.briljantframework.dataframe.MatrixDataFrame.ArrayBuilder}.
    */
   public static class HashBuilder extends AbstractBuilder {
 
@@ -428,7 +432,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       super(columnNames, rowNames);
     }
 
-    public HashBuilder() {}
+    public HashBuilder() {
+    }
 
     private void ensureCapacity(int rows, int columns) {
       if (rows >= this.rows && columns >= this.columns) {
@@ -453,7 +458,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder addColumn(Vector.Builder builder) {
+    public DataFrame.Builder addColumnBuilder(Vector.Builder builder) {
       Vector vector = builder.build();
       int column = columns();
       for (int i = 0; i < vector.size(); i++) {
@@ -563,7 +568,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       for (int j = 0; j < columns(); j++) {
         IntDoubleMap col = buffer.get(j);
         for (int i = 0; i < rows(); i++) {
-          int index = (int) Indexer.columnMajor(i, j, rows(), columns());
+          int index = Indexer.columnMajor(i, j, rows(), columns());
           double dval = DoubleVector.NA;
           if (col != null) {
             if (col.containsKey(i)) {

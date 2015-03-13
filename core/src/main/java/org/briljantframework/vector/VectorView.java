@@ -1,10 +1,10 @@
 package org.briljantframework.vector;
 
+import com.google.common.base.Preconditions;
+
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Created by isak on 1/21/15.
@@ -26,8 +26,13 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return parent.getAsValue(offset + index);
+  public Value get(int index) {
+    return parent.get(offset + index);
+  }
+
+  @Override
+  public <T> T getAs(Class<T> cls, int index) {
+    return parent.getAs(cls, offset + index);
   }
 
   @Override
@@ -86,21 +91,6 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Builder newCopyBuilder() {
-    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
-  }
-
-  @Override
-  public Builder newBuilder() {
-    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
-  }
-
-  @Override
   public int[] toIntArray() {
     return parent.toIntArray();
   }
@@ -138,5 +128,25 @@ public abstract class VectorView extends AbstractVector {
   @Override
   public int compare(int a, Value other) {
     return parent.compare(a, other);
+  }
+
+  @Override
+  public Builder newBuilder() {
+    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
+  }
+
+  @Override
+  public VectorType getType(int index) {
+    return parent.getType(offset + index);
+  }
+
+  @Override
+  public Builder newCopyBuilder() {
+    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
   }
 }

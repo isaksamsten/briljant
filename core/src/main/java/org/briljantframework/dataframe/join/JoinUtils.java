@@ -1,6 +1,9 @@
 package org.briljantframework.dataframe.join;
 
-import java.util.Collection;
+import com.carrotsearch.hppc.IntIntMap;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.carrotsearch.hppc.ObjectIntMap;
+import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DefaultIntMatrix;
@@ -8,10 +11,7 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
-import com.carrotsearch.hppc.IntIntMap;
-import com.carrotsearch.hppc.IntIntOpenHashMap;
-import com.carrotsearch.hppc.ObjectIntMap;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
+import java.util.Collection;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -112,7 +112,7 @@ public class JoinUtils {
 
     int j = 0;
     for (int i = 0; i < a.size(); i++) {
-      Value val = a.getAsValue(i);
+      Value val = a.get(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
         left[i] = pool.get(val);
@@ -124,7 +124,7 @@ public class JoinUtils {
     }
 
     for (int i = 0; i < b.size(); i++) {
-      Value val = b.getAsValue(i);
+      Value val = b.get(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
         right[i] = pool.get(val);

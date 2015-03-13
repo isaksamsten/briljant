@@ -28,7 +28,7 @@ public class MeanImputerTest {
     long ss = System.currentTimeMillis();
     DataFrame iris = Datasets.loadSyntheticControl();
     System.out.println(System.currentTimeMillis() - ss);
-    DataFrame x = iris.dropColumn(4);
+    DataFrame x = iris.removeColumn(4);
 
 
     long l = System.currentTimeMillis();

@@ -1,15 +1,15 @@
 package org.briljantframework.vector;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.Matrix;
 
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @
@@ -28,8 +28,13 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public Value getAsValue(int index) {
+  public Value get(int index) {
     return values.get(index);
+  }
+
+  @Override
+  public <T> T getAs(Class<T> cls, int index) {
+    return get(index).getAs(cls, 0);
   }
 
   @Override
@@ -73,8 +78,18 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public Builder newCopyBuilder() {
-    return new Builder(new ArrayList<>(values));
+  public Matrix asMatrix() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int compare(int a, int b) {
+    return get(a).compareTo(get(b));
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    return get(a).compareTo(other.get(b));
   }
 
   @Override
@@ -88,23 +103,13 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public Matrix asMatrix() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return getAsValue(a).compareTo(getAsValue(b));
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    return getAsValue(a).compareTo(other.getAsValue(b));
-  }
-
-  @Override
   public VectorType getType(int index) {
     return values.get(index).getType();
+  }
+
+  @Override
+  public Builder newCopyBuilder() {
+    return new Builder(new ArrayList<>(values));
   }
 
   // @Override
@@ -119,7 +124,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
   //
   // @Override
   // public Value next() {
-  // return getAsValue(current++);
+  // return get(current++);
   // }
   // };
   // }
@@ -168,7 +173,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
     @Override
     public Builder set(int atIndex, Vector from, int fromIndex) {
       ensureCapacity(atIndex);
-      buffer.set(atIndex, from.getAsValue(fromIndex));
+      buffer.set(atIndex, from.get(fromIndex));
       return this;
     }
 
@@ -204,7 +209,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
     @Override
     public Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        buffer.add(from.getAsValue(i));
+        buffer.add(from.get(i));
       }
       return this;
     }

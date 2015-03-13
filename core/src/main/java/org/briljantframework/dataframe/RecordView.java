@@ -1,11 +1,15 @@
 package org.briljantframework.dataframe;
 
+import com.google.common.collect.ImmutableTable;
+
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.vector.*;
-
-import com.google.common.collect.ImmutableTable;
+import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.VariableVector;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Created by Isak Karlsson on 26/11/14.
@@ -37,13 +41,13 @@ public class RecordView implements Record {
   }
 
   @Override
-  public VectorType getType(int index) {
-    return parent.getColumnType(index);
+  public Value get(int index) {
+    return parent.getColumn(index).get(row);
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return parent.getColumn(index).getAsValue(row);
+  public <T> T getAs(Class<T> cls, int index) {
+    return getAs(cls, index);
   }
 
   @Override
@@ -68,7 +72,7 @@ public class RecordView implements Record {
 
   @Override
   public Bit getAsBit(int index) {
-    return parent.getAsBinary(row, index);
+    return parent.getAsBit(row, index);
   }
 
   @Override
@@ -84,6 +88,11 @@ public class RecordView implements Record {
   @Override
   public int size() {
     return parent.columns();
+  }
+
+  @Override
+  public VectorType getType(int index) {
+    return parent.getColumnType(index);
   }
 
   @Override
@@ -108,12 +117,12 @@ public class RecordView implements Record {
 
   @Override
   public int compare(int a, int b) {
-    return getAsValue(a).compareTo(getAsValue(b));
+    return get(a).compareTo(get(b));
   }
 
   @Override
   public int compare(int a, Vector other, int b) {
-    return getAsValue(a).compareTo(other.getAsValue(b));
+    return get(a).compareTo(other.get(b));
   }
 
   @Override

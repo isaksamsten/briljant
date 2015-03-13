@@ -6,13 +6,8 @@ package org.briljantframework.vector;
 public abstract class AbstractVector implements Vector {
 
   @Override
-  public Builder newBuilder() {
-    return getType().newBuilder();
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return getType().newBuilder(size);
+  public VectorType getType(int index) {
+    return getType();
   }
 
   @Override
@@ -22,6 +17,16 @@ public abstract class AbstractVector implements Vector {
       builder.add(this, i);
     }
     return builder;
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return getType().newBuilder();
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    return getType().newBuilder(size);
   }
 
   @Override

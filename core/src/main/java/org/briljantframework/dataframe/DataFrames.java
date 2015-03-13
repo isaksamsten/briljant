@@ -1,22 +1,35 @@
 package org.briljantframework.dataframe;
 
-import static org.briljantframework.dataframe.join.JoinUtils.createJoinKeys;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.BiFunction;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
 
 import org.briljantframework.Utils;
-import org.briljantframework.dataframe.join.*;
+import org.briljantframework.dataframe.join.InnerJoin;
+import org.briljantframework.dataframe.join.JoinKeys;
+import org.briljantframework.dataframe.join.JoinOperation;
+import org.briljantframework.dataframe.join.Joiner;
+import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.vector.*;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
+import org.briljantframework.vector.Scale;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.BiFunction;
+
+import static org.briljantframework.dataframe.join.JoinUtils.createJoinKeys;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -69,7 +82,7 @@ public final class DataFrames {
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder =
         new MixedDataFrame.Builder(Arrays.asList("Mean", "Min", "Max", "Mode"), Arrays.asList(
-            Vectors.DOUBLE, Vectors.DOUBLE, Vectors.DOUBLE, Vectors.STRING));
+            VectorType.DOUBLE, VectorType.DOUBLE, VectorType.DOUBLE, VectorType.STRING));
 
     for (int j = 0; j < df.columns(); j++) {
       Vector column = df.getColumn(j);
@@ -111,7 +124,7 @@ public final class DataFrames {
   /**
    * Same as {@link #permuteRows(DataFrame, java.util.Random)} with a static random number
    * generator.
-   * 
+   *
    * @param in the input data frame
    * @return a permuted copy of {@code in}
    */
@@ -121,7 +134,7 @@ public final class DataFrames {
 
   /**
    * Returns a column-permuted copy of {@code in}. See {@link #permuteRows(DataFrame)} for details.
-   * 
+   *
    * @param in input data frame
    * @return a column permuted copy
    * @see #permuteRows(DataFrame)
@@ -137,7 +150,7 @@ public final class DataFrames {
 
   /**
    * Drop columns with NA
-   * 
+   *
    * @param x the data frame
    * @return a new data frame with no missing values
    */
@@ -147,7 +160,7 @@ public final class DataFrames {
 
   /**
    * Drop cases (rows) with NA
-   * 
+   *
    * @param x the data frame
    * @return a new data frame with no missing values
    */
@@ -160,7 +173,7 @@ public final class DataFrames {
     Vector keyColumn = dataframe.getColumn(column);
 
     for (int i = 0; i < dataframe.rows(); i++) {
-      Value key = keyColumn.getAsValue(i);
+      Value key = keyColumn.get(i);
       DataFrame.Builder builder = builders.get(key);
       if (builder == null) {
         builder = dataframe.newBuilder();
@@ -213,7 +226,7 @@ public final class DataFrames {
         String columnName = b.getColumnName(j);
         if (!on.contains(columnName)) {
           if (i == 0) {
-            builder.addColumn(b.getColumnType(j).newBuilder());
+            builder.addColumnBuilder(b.getColumnType(j).newBuilder());
             builder.getColumnNames().put(column, columnName);
           }
           if (bRow < 0) {
@@ -243,7 +256,7 @@ public final class DataFrames {
    * <p>
    * For example:
    * <p>
-   * 
+   *
    * <pre>
    *        a    b    c
    *  [0,]  2    3    3
@@ -277,5 +290,12 @@ public final class DataFrames {
             .append(dataFrame.rows()).append("x").append(dataFrame.columns()).append(")\n");
     Utils.prettyPrintTable(builder, b.build(), 1, 2, false, false);
     return builder.toString();
+  }
+
+  public static final class Builder {
+
+    private Builder() {
+
+    }
   }
 }

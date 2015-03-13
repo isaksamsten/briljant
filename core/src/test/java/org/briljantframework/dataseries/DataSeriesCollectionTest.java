@@ -1,13 +1,13 @@
 package org.briljantframework.dataseries;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.vector.DoubleVector;
 import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 public class DataSeriesCollectionTest {
 
@@ -21,7 +21,7 @@ public class DataSeriesCollectionTest {
     DataSeriesCollection collection = builder.build();
     collection.setColumnNames("a", "b", "c");
 
-    DataFrame drop = collection.dropColumns(Arrays.asList(0, 1));
+    DataFrame drop = collection.removeColumns(Arrays.asList(0, 1));
 
     assertEquals("b", drop.getColumnName(0));
     for (Record row : drop) {

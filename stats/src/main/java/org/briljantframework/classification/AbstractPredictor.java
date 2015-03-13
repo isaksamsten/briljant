@@ -1,10 +1,6 @@
 package org.briljantframework.classification;
 
-import static org.briljantframework.matrix.DoubleMatrix.newMatrix;
-import static org.briljantframework.matrix.Matrices.argmax;
-
-import java.util.EnumSet;
-import java.util.stream.IntStream;
+import com.google.common.base.Preconditions;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
@@ -13,7 +9,11 @@ import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.base.Preconditions;
+import java.util.EnumSet;
+import java.util.stream.IntStream;
+
+import static org.briljantframework.matrix.DoubleMatrix.newMatrix;
+import static org.briljantframework.matrix.Matrices.argmax;
 
 /**
  * Provides sane defaults for a predictor. Sub-classes only have to implement the
@@ -47,7 +47,7 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Value predict(Vector row) {
-    return classes.getAsValue(argmax(estimate(row)));
+    return classes.get(argmax(estimate(row)));
   }
 
   @Override

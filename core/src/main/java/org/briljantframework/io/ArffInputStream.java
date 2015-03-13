@@ -1,19 +1,23 @@
 package org.briljantframework.io;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.collect.ImmutableMap;
 
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Undefined;
 import org.briljantframework.vector.VectorType;
 
-import com.google.common.collect.ImmutableMap;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by isak on 02/03/15.
@@ -25,10 +29,10 @@ public class ArffInputStream extends DataInputStream {
 
   private static Pattern RELATION = Pattern.compile("@relation\\s+.*$", Pattern.CASE_INSENSITIVE);
   private static Pattern ATTRIBUTE = Pattern.compile("@attribute\\s+([a-zA-Z0-9]+)\\s+(.+)$",
-      Pattern.CASE_INSENSITIVE);
+                                                     Pattern.CASE_INSENSITIVE);
   private static Pattern DATA = Pattern.compile("@data\\s*$", Pattern.CASE_INSENSITIVE);
   private static Pattern NOMINAL = Pattern.compile("\\{([a-zA-Z0-9]+,?\\s?)+\\}",
-      Pattern.CASE_INSENSITIVE);
+                                                   Pattern.CASE_INSENSITIVE);
 
   static {
     TYPE_MAP = ImmutableMap.of("real", DoubleVector.TYPE, "numeric", DoubleVector.TYPE);
@@ -53,18 +57,6 @@ public class ArffInputStream extends DataInputStream {
     reader.close();
   }
 
-  @Override
-  public Collection<VectorType> readColumnTypes() throws IOException {
-    initialize();
-    return columnTypes;
-  }
-
-  @Override
-  public Collection<String> readColumnNames() throws IOException {
-    initialize();
-    return columnNames;
-  }
-
   private void initialize() throws IOException {
     if (columnNames != null) {
       return;
@@ -73,7 +65,7 @@ public class ArffInputStream extends DataInputStream {
     columnTypes = new ArrayList<>();
 
     while ((currentLine = reader.readLine()) != null
-        && (RELATION.matcher(currentLine).matches() || currentLine.trim().equals(""))) {
+           && (RELATION.matcher(currentLine).matches() || currentLine.trim().equals(""))) {
 
     }
     Matcher attr = null;
@@ -82,9 +74,9 @@ public class ArffInputStream extends DataInputStream {
       String typeRepr = attr.group(2).trim().toLowerCase();
       VectorType type = TYPE_MAP.getOrDefault(typeRepr, Undefined.TYPE);
       columnNames.add(name);
-      if (type != Undefined.TYPE) {
+      if (type.equals(VectorType.NA)) {
         columnTypes.add(type);
-      } else if (type == Undefined.TYPE && (NOMINAL.matcher(typeRepr)).matches()) {
+      } else if (type.equals(VectorType.NA) && (NOMINAL.matcher(typeRepr)).matches()) {
         columnTypes.add(StringVector.TYPE);
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));
@@ -93,7 +85,7 @@ public class ArffInputStream extends DataInputStream {
     }
 
     while (currentLine != null
-        && (currentLine.trim().isEmpty() || DATA.matcher(currentLine).matches())) {
+           && (currentLine.trim().isEmpty() || DATA.matcher(currentLine).matches())) {
       currentLine = reader.readLine();
     }
   }
@@ -106,6 +98,18 @@ public class ArffInputStream extends DataInputStream {
   @Override
   protected String readColumnName() throws IOException {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection<VectorType> readColumnTypes() throws IOException {
+    initialize();
+    return columnTypes;
+  }
+
+  @Override
+  public Collection<String> readColumnNames() throws IOException {
+    initialize();
+    return columnNames;
   }
 
   @Override

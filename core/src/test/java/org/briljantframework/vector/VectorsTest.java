@@ -1,14 +1,15 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.assertEquals;
+import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.briljantframework.Utils;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class VectorsTest {
 
@@ -22,21 +23,37 @@ public class VectorsTest {
   }
 
   @Test
+  public void testInferType() throws Exception {
+    assertEquals(VectorType.DOUBLE, VectorType.getInstance(Double.class));
+    assertEquals(VectorType.INT, VectorType.getInstance(Integer.class));
+    assertEquals(VectorType.BIT, VectorType.getInstance(Boolean.class));
+    assertEquals(VectorType.BIT, VectorType.getInstance(Bit.class));
+    assertEquals(VectorType.COMPLEX, VectorType.getInstance(Complex.class));
+    assertEquals(VectorType.STRING, VectorType.getInstance(String.class));
+    assertEquals(VectorType.DOUBLE, VectorType.getInstance(Double.TYPE));
+    assertEquals(VectorType.INT, VectorType.getInstance(Integer.TYPE));
+    assertEquals(VectorType.VARIABLE, VectorType.getInstance(Object.class));
+    assertEquals(VectorType.VARIABLE, VectorType.infer(null));
+
+  }
+
+  @Test
   public void testTest() throws Exception {
     System.out.println(Vectors.sortDesc(vec8));
     System.out.println(Vectors.sortAsc(vec8));
     System.out.println(Vectors.sort(vec8,
-        (vec, a, b) -> Integer.compare(vec.getAsString(a).length(), vec.getAsString(b).length())));
+                                    (vec, a, b) -> Integer.compare(vec.getAsString(a).length(),
+                                                                   vec.getAsString(b).length())));
   }
 
-    @Test
-    public void testMode() throws Exception {
-        Vector v = new StringVector("a", "b", "c", "d", "e", "f", "a");
-        System.out.println(Vectors.mode(v));
+  @Test
+  public void testMode() throws Exception {
+    Vector v = new StringVector("a", "b", "c", "d", "e", "f", "a");
+    System.out.println(Vectors.mode(v));
 
-    }
+  }
 
-    @Test
+  @Test
   public void testSort() throws Exception {
     DoubleVector.Builder b = new DoubleVector.Builder();
     for (int i = 0; i < 7; i++) {
@@ -47,7 +64,6 @@ public class VectorsTest {
     Vector v2 = Vectors.sortAsc(v);
     System.out.println(v2);
     // System.out.println(v2.getAsDouble(v2.size() - 1));
-
 
   }
 

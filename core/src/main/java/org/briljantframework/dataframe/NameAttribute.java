@@ -1,12 +1,6 @@
 package org.briljantframework.dataframe;
 
-import java.util.AbstractCollection;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Supplier;
-
-import org.briljantframework.Utils;
+import com.google.common.collect.UnmodifiableIterator;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
@@ -14,13 +8,23 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 
-import com.google.common.collect.UnmodifiableIterator;
+import org.briljantframework.Utils;
+
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Created by Isak Karlsson on 07/01/15.
  */
 public class NameAttribute extends AbstractCollection<String> implements
-    AttributeCollection<String> {
+                                                              AttributeCollection<String> {
 
   private IntObjectMap<String> names;
   private ObjectIntMap<String> reverse;
@@ -53,6 +57,12 @@ public class NameAttribute extends AbstractCollection<String> implements
     }
   }
 
+  public void putAll(NameAttribute other) {
+    for (IntObjectCursor<String> name : other.names) {
+      put(name.index, name.value);
+    }
+  }
+
   @Override
   public String get(int index) {
     return names.get(index);
@@ -62,6 +72,36 @@ public class NameAttribute extends AbstractCollection<String> implements
   public String getOrDefault(int index, Supplier<String> defaultValue) {
     String name = names.get(index);
     return name != null ? name : defaultValue.get();
+  }
+
+  @Override
+  public Set<Map.Entry<Integer, String>> entrySet() {
+    return new AbstractSet<Map.Entry<Integer, String>>() {
+      Iterator<IntObjectCursor<String>> it = names.iterator();
+
+
+      @Override
+      public Iterator<Map.Entry<Integer, String>> iterator() {
+        return new UnmodifiableIterator<Map.Entry<Integer, String>>() {
+          @Override
+          public boolean hasNext() {
+            return it.hasNext();
+          }
+
+          @Override
+          public Map.Entry<Integer, String> next() {
+            IntObjectCursor<String> c = it.next();
+            return new AbstractMap.SimpleImmutableEntry<>(c.key, c.value);
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return names.size();
+      }
+    };
+
   }
 
   @Override

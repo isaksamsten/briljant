@@ -16,27 +16,27 @@
 
 package org.briljantframework.matrix;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.briljantframework.matrix.Indexer.columnMajor;
-
-import java.util.Arrays;
-import java.util.function.IntFunction;
+import com.google.common.base.Preconditions;
 
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.storage.DoubleStorage;
 import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.function.IntFunction;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.briljantframework.matrix.Indexer.columnMajor;
 
 /**
  * Implementation of {@link DoubleMatrix} using a single {@code double} array. Indexing is
  * calculated in column-major order, hence varying column faster than row is preferred when
  * iterating.
- * 
+ *
  * Assuming that {@link com.github.fommil.netlib.BLAS} initializes correctly and that the second
  * operand is {@link #isArrayBased()}, matrix-matrix multiplication is fast.
- * 
+ *
  * @author Isak Karlsson
  */
 public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
@@ -66,9 +66,9 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   /**
    * Create a new matrix from {@code values}. Asserts that {@code rows * columns == values.length}
-   * 
-   * @param values the values
-   * @param rows the rows
+   *
+   * @param values  the values
+   * @param rows    the rows
    * @param columns the columns
    */
   public DefaultDoubleMatrix(double[] values, int rows, int columns) {
@@ -78,10 +78,10 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
 
   /**
-   * Creates a new empty matrix with {@code rows} and {@code columns}. Asserts that
-   * {@code rows * columns < Integer.MAX_VALUE}.
-   * 
-   * @param rows in matrix
+   * Creates a new empty matrix with {@code rows} and {@code columns}. Asserts that {@code rows *
+   * columns < Integer.MAX_VALUE}.
+   *
+   * @param rows    in matrix
    * @param columns columns in matrix
    */
   public DefaultDoubleMatrix(int rows, int columns) {
@@ -90,7 +90,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   /**
    * Copy {@code matrix}, retaining the dimensions.
-   * 
+   *
    * @param matrix the tensor like
    */
   public DefaultDoubleMatrix(Matrix matrix) {
@@ -130,8 +130,8 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
   /**
    * Construct a new matrix filled with {@code value}.
    *
-   * @param rows number of rows
-   * @param cols number of columns
+   * @param rows  number of rows
+   * @param cols  number of columns
    * @param value fill matrix with
    * @return a new matrix filled with <code>value</code>
    */
@@ -166,15 +166,12 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   /**
-   * Mostly for convenience when writing matrices in code.
-   * <p>
+   * Mostly for convenience when writing matrices in code. <p>
    *
    * <pre>
    * ArrayMatrix.of(2, 3, 1, 2, 3, 4, 5, 6);
    * </pre>
-   * <p>
-   * Compared to:
-   * <p>
+   * <p> Compared to: <p>
    *
    * <pre>
    *     ArrayMatrix.fromColumnOrder(2, 3,
@@ -211,7 +208,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
   /**
    * Construct a row vector (i.e. a {@code 1 x args.length} matrix)
-   * 
+   *
    * @param args the double values
    * @return a new matrix
    */
@@ -232,13 +229,8 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
     Preconditions.checkArgument(rows * columns == size(),
-        "Total size of new matrix must be unchanged.");
+                                "Total size of new matrix must be unchanged.");
     return new DefaultDoubleMatrix(getStorage(), rows, columns);
-  }
-
-  @Override
-  public boolean isView() {
-    return false;
   }
 
   @Override
@@ -247,18 +239,13 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public double get(int i, int j) {
-    return storage.getDouble(columnMajor(i, j, rows(), columns()));
+  public boolean isView() {
+    return false;
   }
 
   @Override
-  public double get(int index) {
-    return storage.getDouble(index);
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return storage.isArrayBased() && storage.getNativeType() == Double.TYPE;
+  public Storage getStorage() {
+    return storage;
   }
 
   /**
@@ -266,11 +253,6 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
    */
   public DefaultDoubleMatrix copy() {
     return new DefaultDoubleMatrix(storage.copy(), rows(), columns());
-  }
-
-  @Override
-  public Storage getStorage() {
-    return storage;
   }
 
   @Override
@@ -286,6 +268,11 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
     } else {
       return super.mmul(alpha, other);
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(storage.asDoubleArray());
   }
 
   @Override
@@ -322,11 +309,6 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public int hashCode() {
-    return Arrays.hashCode(storage.asDoubleArray());
-  }
-
-  @Override
   public void set(int i, int j, double value) {
     getStorage().setDouble(columnMajor(i, j, rows(), columns()), value);
   }
@@ -336,10 +318,26 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
     getStorage().setDouble(index, value);
   }
 
+  @Override
+  public double get(int i, int j) {
+    return storage.getDouble(columnMajor(i, j, rows(), columns()));
+  }
+
+  @Override
+  public double get(int index) {
+    return storage.getDouble(index);
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return storage.isArrayBased() && storage.getNativeType().equals(Double.TYPE);
+  }
+
   /**
    * The type Builder.
    */
   public static class Builder {
+
     private final int rows, cols;
     private double[][] values;
     private int currentRow = 0;
@@ -364,7 +362,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
     public Builder row(double... args) {
       if (args.length != cols) {
         throw new IllegalArgumentException(String.format("Expecting %d rows but got %d", rows,
-            args.length));
+                                                         args.length));
       }
       initialize();
       if (currentRow < rows) {

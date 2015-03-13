@@ -1,9 +1,9 @@
 package org.briljantframework.vector;
 
-import java.io.IOException;
-
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.Matrix;
+
+import java.io.IOException;
 
 /**
  * Undefined is an immutable 1 size vector returning NA
@@ -51,8 +51,13 @@ public class Undefined implements Value {
   protected static final String ILLEGAL = "Can't index undefined.";
 
   @Override
-  public Value getAsValue(int index) {
+  public Value get(int index) {
     return this;
+  }
+
+  @Override
+  public <T> T getAs(Class<T> cls, int index) {
+    return null;
   }
 
   @Override
@@ -92,6 +97,11 @@ public class Undefined implements Value {
 
   @Override
   public VectorType getType() {
+    return TYPE;
+  }
+
+  @Override
+  public VectorType getType(int index) {
     return TYPE;
   }
 

@@ -1,10 +1,55 @@
 package org.briljantframework.vector;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
+
+import org.briljantframework.complex.Complex;
+
+import java.util.Map;
+import java.util.Set;
+
 /**
- * Provides information of a particular vectors type. The common choice is that referential equality
- * is used when comparing types.
+ * Provides information of a particular vectors type.
  */
 public interface VectorType {
+
+  VectorType STRING = StringVector.TYPE;
+  VectorType BIT = BitVector.TYPE;
+  VectorType INT = IntVector.TYPE;
+  VectorType COMPLEX = ComplexVector.TYPE;
+  VectorType DOUBLE = DoubleVector.TYPE;
+  Set<VectorType> NUMERIC = Sets.newHashSet();
+  Set<VectorType> CATEGORIC = Sets.newHashSet();
+  VectorType VARIABLE = VariableVector.TYPE;
+  VectorType NA = Undefined.TYPE;
+
+  Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE =
+      ImmutableMap.<Class<?>, VectorType>builder()
+          .put(Integer.class, INT)
+          .put(Integer.TYPE, INT)
+          .put(Double.class, DOUBLE)
+          .put(Double.TYPE, DOUBLE)
+          .put(String.class, STRING)
+          .put(Boolean.class, BIT)
+          .put(Bit.class, BIT)
+          .put(Complex.class, COMPLEX)
+          .build();
+
+  static VectorType getInstance(Class<?> cls) {
+    VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
+    if (type == null) {
+      return new GenericVectorType(cls);
+    }
+    return type;
+  }
+
+  static VectorType infer(Object object) {
+    if (object != null) {
+      return getInstance(object.getClass());
+    } else {
+      return VARIABLE;
+    }
+  }
 
   /**
    * Creates a new builder able to build vectors of this type
@@ -47,19 +92,19 @@ public interface VectorType {
   boolean isNA(Object value);
 
   /**
-   * Compare value at position {@code a} from {@code va} to value at position {@code b} from
-   * {@code ba}.
+   * Compare value at position {@code a} from {@code va} to value at position {@code b} from {@code
+   * ba}.
    *
-   * @param a the index in va
+   * @param a  the index in va
    * @param va the vector
-   * @param b the index in ba
+   * @param b  the index in ba
    * @param ba the vector
    * @return the comparison
    */
   int compare(int a, Vector va, int b, Vector ba);
 
   /**
-   * @param a the index in {@code va}
+   * @param a  the index in {@code va}
    * @param va the vector
    * @param ba the value
    * @return the comparison
@@ -71,7 +116,7 @@ public interface VectorType {
 
   /**
    * @param va the value
-   * @param b the index in ba
+   * @param b  the index in ba
    * @param ba the vector
    * @return the comparison
    * @see #compare(int, Vector, int, Vector)
@@ -93,9 +138,9 @@ public interface VectorType {
   }
 
   /**
-   * Returns the scale of this type. If the scale is {@link Scale#NOMINAL}, the
-   * {@link Vector#getAsString(int)} is expected to return a meaningful value. On the other hand, if
-   * the value is {@link Scale#NUMERICAL} {@link Vector#getAsDouble(int)} is expected to return a
+   * Returns the scale of this type. If the scale is {@link Scale#NOMINAL}, the {@link
+   * Vector#getAsString(int)} is expected to return a meaningful value. On the other hand, if the
+   * value is {@link Scale#NUMERICAL} {@link Vector#getAsDouble(int)} is expected to return a
    * meaning ful value (or NA).
    *
    * @return the scale
@@ -106,9 +151,9 @@ public interface VectorType {
    * Check if value at position {@code a} from {@code va} and value at position {@code b} from
    * {@code va} are equal.
    *
-   * @param a the index in va
+   * @param a  the index in va
    * @param va the vector
-   * @param b the index in ba
+   * @param b  the index in ba
    * @param ba the vector
    * @return true if equal false otherwise
    */
@@ -129,9 +174,9 @@ public interface VectorType {
 
   /**
    * Check if value {@code va} is equal to {@code ba.getValue(b)}
-   * 
+   *
    * @param va the value
-   * @param b the index in ba
+   * @param b  the index in ba
    * @param ba the vector
    * @return true if equal false otherwise
    */

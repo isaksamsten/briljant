@@ -36,22 +36,22 @@ public class StringValue extends AbstractStringVector implements Value {
   }
 
   @Override
-  public String toString() {
-    return toString(0);
-  }
-
-  @Override
-  public Builder newCopyBuilder() {
-    return null;
-  }
-
-  @Override
   public Builder newBuilder() {
-    return null;
+    return new StringVector.Builder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    return null;
+    return new StringVector.Builder(size);
+  }
+
+  @Override
+  public Builder newCopyBuilder() {
+    return new StringVector.Builder().add(this);
+  }
+
+  @Override
+  public String toString() {
+    return toString(0);
   }
 }

@@ -18,7 +18,7 @@ public class KNearestNeighborsTest {
 
     DataFrame iris = Datasets.loadIris();
     Vector y = iris.getColumn(4);
-    DataFrame x = iris.dropColumn(4);
+    DataFrame x = iris.removeColumn(4);
 
     Result res = Validators.crossValidation(10).test(oneNearestNeighbours, x, y);
     System.out.println(res);

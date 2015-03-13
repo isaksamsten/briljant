@@ -45,7 +45,7 @@ public class DataSeriesNormalizationTest {
     //
     //
     // Vector y = syntheticControl.getColumn(0);
-    // DataFrame x = Approximations.paa(syntheticControl.dropColumn(0), 40);
+    // DataFrame x = Approximations.paa(syntheticControl.removeColumn(0), 40);
     // System.out.println(x);
     //
     //

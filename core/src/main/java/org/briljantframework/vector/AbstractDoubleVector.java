@@ -8,6 +8,7 @@ import org.briljantframework.matrix.storage.VectorStorage;
  * Created by Isak Karlsson on 27/11/14.
  */
 public abstract class AbstractDoubleVector extends AbstractVector {
+
   public static final VectorType TYPE = new VectorType() {
     @Override
     public DoubleVector.Builder newBuilder() {
@@ -48,14 +49,15 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     }
   };
 
-  public double get(int index) {
-    return getAsDouble(index);
+  @Override
+  public Value get(int index) {
+    double value = getAsDouble(index);
+    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }
 
   @Override
-  public Value getAsValue(int index) {
-    double value = getAsDouble(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
+  public <T> T getAs(Class<T> cls, int index) {
+    return cls.cast(getAsDouble(index));
   }
 
   @Override
@@ -97,6 +99,30 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   }
 
   @Override
+  public int compare(int a, int b) {
+    double va = getAsDouble(a);
+    double vb = getAsDouble(b);
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    double va = getAsDouble(a);
+    double vb = other.getAsDouble(b);
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      long v = Double.doubleToLongBits(getAsDouble(i));
+      code += 31 * (int) (v ^ v >>> 32);
+    }
+    return code;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -116,30 +142,6 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    int code = 1;
-    for (int i = 0; i < size(); i++) {
-      long v = Double.doubleToLongBits(getAsDouble(i));
-      code += 31 * (int) (v ^ v >>> 32);
-    }
-    return code;
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    double va = getAsDouble(a);
-    double vb = getAsDouble(b);
-    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    double va = getAsDouble(a);
-    double vb = other.getAsDouble(b);
-    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
   }
 
 }

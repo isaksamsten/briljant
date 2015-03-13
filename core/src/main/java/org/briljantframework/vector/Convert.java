@@ -1,19 +1,20 @@
 package org.briljantframework.vector;
 
-import static com.google.common.primitives.Ints.checkedCast;
-
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 
+import static com.google.common.primitives.Ints.checkedCast;
+
 /**
  * @author Isak Karlsson
  */
 public final class Convert {
 
-  private Convert() {}
+  private Convert() {
+  }
 
   public static Value toValue(String s) {
     return StringValue.valueOf(s);
@@ -31,8 +32,30 @@ public final class Convert {
     return BitValue.valueOf(bit);
   }
 
+  public static Value toValue(boolean bit) {
+    return toValue(Bit.valueOf(bit));
+  }
+
   public static Value toValue(Complex complex) {
     return ComplexValue.valueOf(complex);
+  }
+
+  public static Value toValue(Object object) {
+    if (object instanceof String) {
+      return toValue((String) object);
+    } else if (object instanceof Double) {
+      return toValue((double) object);
+    } else if (object instanceof Integer) {
+      return toValue((int) object);
+    } else if (object instanceof Complex) {
+      return toValue((Complex) object);
+    } else if (object instanceof Bit) {
+      return toValue((Bit) object);
+    } else if (object instanceof Boolean) {
+      return toValue((boolean) object);
+    } else {
+      return new GenericValue(object);
+    }
   }
 
   /**
@@ -164,7 +187,7 @@ public final class Convert {
 
   /**
    * Convert {@code vector} to a StringVector.
-   * 
+   *
    * @param vector the vector
    * @return a new StringVector
    */

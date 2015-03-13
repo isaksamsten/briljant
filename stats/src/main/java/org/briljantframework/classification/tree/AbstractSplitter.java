@@ -16,12 +16,12 @@
 
 package org.briljantframework.classification.tree;
 
-import java.util.Random;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+
+import java.util.Random;
 
 /**
  * Created by Isak Karlsson on 10/09/14.
@@ -65,7 +65,7 @@ public abstract class AbstractSplitter implements Splitter {
        * STEP 1: Partition the examples according to threshold
        */
       for (Example example : sample) {
-        Value value = axisVector.getAsValue(example.getIndex());
+        Value value = axisVector.get(example.getIndex());
         int direction = MISSING;
         switch (axisType.getScale()) {
           case NOMINAL:

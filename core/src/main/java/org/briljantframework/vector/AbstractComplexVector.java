@@ -9,6 +9,7 @@ import org.briljantframework.matrix.storage.VectorStorage;
  * @author Isak Karlsson
  */
 public abstract class AbstractComplexVector extends AbstractVector {
+
   public static final VectorType TYPE = new VectorType() {
     @Override
     public ComplexVector.Builder newBuilder() {
@@ -48,14 +49,15 @@ public abstract class AbstractComplexVector extends AbstractVector {
 
   public static final Complex NA = Complex.NaN;
 
-  public Complex get(int index) {
-    return getAsComplex(index);
+  @Override
+  public Value get(int index) {
+    Complex complex = getAsComplex(index);
+    return complex.isNaN() ? Undefined.INSTANCE : new ComplexValue(complex);
   }
 
   @Override
-  public Value getAsValue(int index) {
-    Complex complex = getAsComplex(index);
-    return complex.isNaN() ? Undefined.INSTANCE : new ComplexValue(complex);
+  public <T> T getAs(Class<T> cls, int index) {
+    return cls.cast(getAsComplex(index));
   }
 
   /**
@@ -118,6 +120,36 @@ public abstract class AbstractComplexVector extends AbstractVector {
   }
 
   @Override
+  public ComplexMatrix asMatrix() {
+    return new DefaultComplexMatrix(new VectorStorage(this));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compare(int a, int b) {
+    throw new UnsupportedOperationException("Can't compare complex numbers.");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compare(int a, Vector other, int b) {
+    throw new UnsupportedOperationException("Can't compare complex number.");
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsComplex(i).hashCode();
+    }
+    return code;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -137,35 +169,5 @@ public abstract class AbstractComplexVector extends AbstractVector {
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    int code = 1;
-    for (int i = 0; i < size(); i++) {
-      code += 31 * getAsComplex(i).hashCode();
-    }
-    return code;
-  }
-
-  @Override
-  public ComplexMatrix asMatrix() {
-    return new DefaultComplexMatrix(new VectorStorage(this));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int compare(int a, int b) {
-    throw new UnsupportedOperationException("Can't compare complex numbers.");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int compare(int a, Vector other, int b) {
-    throw new UnsupportedOperationException("Can't compare complex number.");
   }
 }

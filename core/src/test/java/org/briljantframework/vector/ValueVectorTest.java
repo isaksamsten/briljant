@@ -1,10 +1,10 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.assertEquals;
-
 import org.briljantframework.complex.Complex;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class ValueVectorTest {
 
@@ -80,7 +80,7 @@ public class ValueVectorTest {
     ValueVector copy = builder.build();
     assertEquals(7, copy.size());
     assertEquals("hello", copy.getAsString(5));
-    assertEquals(VariableVector.NA, copy.getAsValue(6));
+    assertEquals(VariableVector.NA, copy.get(6));
 
   }
 
@@ -101,10 +101,10 @@ public class ValueVectorTest {
 
   @Test
   public void testGetAsObject() throws Exception {
-    assertEquals("1", sequence.getAsValue(0));
-    assertEquals("2", sequence.getAsValue(1));
-    assertEquals("hello", sequence.getAsValue(2));
-    assertEquals(VariableVector.NA, sequence.getAsValue(4));
+    assertEquals("1", sequence.get(0));
+    assertEquals("2", sequence.get(1));
+    assertEquals("hello", sequence.get(2));
+    assertEquals(VariableVector.NA, sequence.get(4));
   }
 
   @Test

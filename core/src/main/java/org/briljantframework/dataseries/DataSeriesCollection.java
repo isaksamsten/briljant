@@ -1,14 +1,6 @@
 package org.briljantframework.dataseries;
 
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.google.common.collect.Sets;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
@@ -18,17 +10,34 @@ import org.briljantframework.dataframe.NameAttribute;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.vector.*;
+import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.BitVector;
+import org.briljantframework.vector.ComplexVector;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.IntVector;
+import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.VariableVector;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
 
-import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkElementIndex;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * <p>
- * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
- * {@link org.briljantframework.vector.DoubleVector#TYPE}. There are some interesting differences
- * between this implementation and the traditional {@code DataFrame}. It is possible for the data
- * series in the collection to be of different length. Therefore, {@link #columns()} return the
- * maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
+ * <p> A DataSeries collection is collection of data series, i.e., vectors of the same type -
+ * usually {@link org.briljantframework.vector.DoubleVector#TYPE}. There are some interesting
+ * differences between this implementation and the traditional {@code DataFrame}. It is possible for
+ * the data series in the collection to be of different length. Therefore, {@link #columns()} return
+ * the maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
  * {@code col < coll.getRow(n).size()}. If not (and {@code index < columns()}), NA is returned.
  * </p>
  *
@@ -48,11 +57,23 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   protected DataSeriesCollection(NameAttribute columnNames, NameAttribute rowNames,
-      List<Vector> series, VectorType type, int columns) {
+                                 List<Vector> series, VectorType type, int columns) {
     super(columnNames, rowNames);
     this.type = checkNotNull(type);
     this.series = checkNotNull(series);
     this.columns = columns;
+  }
+
+  @Override
+  public <T> T getAs(Class<T> cls, int row, int column) {
+    Vector rvec = series.get(row);
+    if (column >= 0 && column < rvec.size()) {
+      return rvec.getAs(cls, column);
+    } else if (column >= 0 && column < columns) {
+      return Vectors.naValue(cls);
+    } else {
+      throw new IndexOutOfBoundsException();
+    }
   }
 
   @Override
@@ -92,7 +113,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Bit getAsBinary(int row, int column) {
+  public Bit getAsBit(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
       return rvec.getAsBit(column);
@@ -116,10 +137,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Value getAsValue(int row, int column) {
+  public Value get(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsValue(column);
+      return rvec.get(column);
     } else if (column >= 0 && column < columns) {
       return VariableVector.NA;
     } else {
@@ -137,25 +158,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
     } else {
       throw new IndexOutOfBoundsException();
     }
-  }
-
-  @Override
-  public DataFrame dropColumns(Iterable<Integer> indexes) {
-    Set<Integer> set = Sets.newHashSet(indexes);
-    Builder builder = newBuilder();
-    for (int i = 0; i < rows(); i++) {
-      Vector row = getRecord(i);
-      Vector.Builder vecBuilder = row.newBuilder();
-      for (int j = 0; j < row.size(); j++) {
-        if (!set.contains(j)) {
-          vecBuilder.add(row, j);
-        } else {
-          builder.getColumnNames().remove(j);
-        }
-      }
-      builder.addRecord(vecBuilder);
-    }
-    return builder.build();
   }
 
   @Override
@@ -180,12 +182,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Builder newBuilder() {
-    return new Builder(columnNames, rowNames, type);
-  }
-
-  @Override
-  public Builder newBuilder(int rows) {
-    return new Builder(columnNames, rowNames, type);
+    return new Builder(type);
   }
 
   @Override
@@ -194,18 +191,37 @@ public class DataSeriesCollection extends AbstractDataFrame {
         .collect(Collectors.toCollection(ArrayList::new)), type);
   }
 
-  /**
-   * Returns the type of data series in this DataSeries collection
-   * 
-   * @return the type
-   */
-  public VectorType getType() {
-    return type;
+  @Override
+  public DataFrame removeColumns(Iterable<Integer> indexes) {
+    Set<Integer> set = Sets.newHashSet(indexes);
+    Builder builder = newBuilder();
+    for (int i = 0; i < rows(); i++) {
+      Vector row = getRecord(i);
+      Vector.Builder vecBuilder = row.newBuilder();
+      for (int j = 0; j < row.size(); j++) {
+        if (!set.contains(j)) {
+          vecBuilder.add(row, j);
+        } else {
+          builder.getColumnNames().remove(j);
+        }
+      }
+      builder.addRecord(vecBuilder);
+    }
+    return builder.build();
   }
 
   @Override
   public DataSeries getRecord(int index) {
     return new DataSeries(series.get(index));
+  }
+
+  /**
+   * Returns the type of data series in this DataSeries collection
+   *
+   * @return the type
+   */
+  public VectorType getType() {
+    return type;
   }
 
   public static class Builder extends AbstractBuilder {
@@ -225,7 +241,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     protected Builder(NameAttribute columnNames, NameAttribute rowNames,
-        List<Vector.Builder> builders, VectorType type) {
+                      List<Vector.Builder> builders, VectorType type) {
       super(columnNames, rowNames);
       this.type = type;
       this.builders = builders;
@@ -320,14 +336,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     public DataSeriesCollection build() {
       return new DataSeriesCollection(columnNames, rowNames, builders.stream()
           .map(Vector.Builder::build).collect(Collectors.toCollection(ArrayList::new)), type,
-          columns());
-    }
-
-    @Override
-    public DataFrame.Builder swapRecords(int a, int b) {
-      Collections.swap(builders, a, b);
-      rowNames.swap(a, b);
-      return this;
+                                      columns());
     }
 
     public Builder removeRow(int index) {
@@ -335,18 +344,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
       rowNames.remove(index);
       builders.remove(index);
       return this;
-    }
-
-    @Override
-    public Builder setRecord(int index, Vector.Builder builder) {
-      ensureCapacity(index);
-      builders.set(index, builder);
-      return this;
-    }
-
-    @Override
-    public DataFrame.Builder setRecord(int index, Vector vector) {
-      return setRecord(index, vector.newCopyBuilder());
     }
 
     @Override
@@ -359,6 +356,25 @@ public class DataSeriesCollection extends AbstractDataFrame {
     public Builder addRecord(Vector vector) {
       Check.requireType(type, vector);
       return addRecord(vector.newCopyBuilder());
+    }
+
+    @Override
+    public Builder insertRecord(int index, Vector.Builder builder) {
+      ensureCapacity(index);
+      builders.set(index, builder);
+      return this;
+    }
+
+    @Override
+    public DataFrame.Builder insertRecord(int index, Vector vector) {
+      return insertRecord(index, vector.newCopyBuilder());
+    }
+
+    @Override
+    public DataFrame.Builder swapRecords(int a, int b) {
+      Collections.swap(builders, a, b);
+      rowNames.swap(a, b);
+      return this;
     }
 
     private void ensureCapacity(int row) {

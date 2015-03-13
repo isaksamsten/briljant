@@ -49,14 +49,15 @@ public abstract class AbstractIntVector extends AbstractVector {
     }
   };
 
-  public int get(int index) {
-    return getAsInt(index);
+  @Override
+  public Value get(int index) {
+    int value = getAsInt(index);
+    return Is.NA(value) ? Undefined.INSTANCE : new IntValue(value);
   }
 
   @Override
-  public Value getAsValue(int index) {
-    int value = getAsInt(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new IntValue(value);
+  public <T> T getAs(Class<T> cls, int index) {
+    return cls.cast(getAsInt(index));
   }
 
   @Override
@@ -98,6 +99,25 @@ public abstract class AbstractIntVector extends AbstractVector {
   }
 
   @Override
+  public int compare(int a, int b) {
+    return getAsInt(a) - getAsInt(b);
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    return getAsInt(a) - other.getAsInt(b);
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsInt(i);
+    }
+    return code;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -117,24 +137,5 @@ public abstract class AbstractIntVector extends AbstractVector {
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    int code = 1;
-    for (int i = 0; i < size(); i++) {
-      code += 31 * getAsInt(i);
-    }
-    return code;
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return getAsInt(a) - getAsInt(b);
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    return getAsInt(a) - other.getAsInt(b);
   }
 }

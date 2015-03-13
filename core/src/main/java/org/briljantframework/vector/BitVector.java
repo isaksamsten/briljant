@@ -1,15 +1,14 @@
 package org.briljantframework.vector;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
+import com.google.common.base.Preconditions;
+
+import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Utils;
 import org.briljantframework.io.DataEntry;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -45,31 +44,13 @@ public class BitVector extends AbstractBitVector {
   }
 
   @Override
-  public int size() {
-    return values.length;
-  }
-
-  @Override
   public Builder newCopyBuilder() {
     return new Builder(toIntArray());
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return new Builder(size);
-  }
-
-  public int[] toIntArray() {
-    return values.clone();
-  }
-
-  public int[] asIntArray() {
-    return values;
+  public int size() {
+    return values.length;
   }
 
   public static class Builder implements Vector.Builder {
@@ -127,6 +108,8 @@ public class BitVector extends AbstractBitVector {
         intValue = ((Number) value).intValue();
       } else if (value instanceof Bit) {
         intValue = ((Bit) value).asInt();
+      } else if (value instanceof Boolean) {
+        intValue = (boolean) value ? 1 : 0;
       }
       buffer.buffer[index] = intValue;
       return this;
@@ -254,4 +237,24 @@ public class BitVector extends AbstractBitVector {
       }
     }
   }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    return new Builder(size);
+  }
+
+  public int[] toIntArray() {
+    return values.clone();
+  }
+
+  public int[] asIntArray() {
+    return values;
+  }
+
+
 }

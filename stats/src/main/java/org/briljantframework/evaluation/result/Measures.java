@@ -1,15 +1,17 @@
 package org.briljantframework.evaluation.result;
 
-import static org.briljantframework.vector.Vectors.find;
-
-import java.util.*;
-
 import org.briljantframework.Check;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.briljantframework.vector.Vectors.find;
 
 /**
  * @author Isak Karlsson
@@ -67,7 +69,7 @@ public final class Measures {
     int n = predicted.size();
     double brier = 0;
     for (int i = 0; i < n; i++) {
-      double prob = scores.get(i, find(classes, predicted.getAsValue(i)));
+      double prob = scores.get(i, find(classes, predicted.get(i)));
       if (predicted.equals(i, actual, i)) {
         brier += Math.pow(1 - prob, 2);
       } else {
@@ -88,7 +90,7 @@ public final class Measures {
       Vector domain) {
     Map<Value, Double> aucs = new HashMap<>();
     for (int i = 0; i < domain.size(); i++) {
-      Value value = domain.getAsValue(i);
+      Value value = domain.get(i);
       DoubleMatrix p = probabilities.getColumnView(i);
       aucs.put(value, computeAuc(value, predicted, p, actual));
     }

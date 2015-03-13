@@ -146,7 +146,7 @@ public class RandomSplitter extends AbstractSplitter {
    */
   protected Value sampleCategoricValue(Vector axisVector, ClassSet classSet) {
     Example example = classSet.getRandomSample().getRandomExample();
-    return axisVector.getAsValue(example.getIndex());
+    return axisVector.get(example.getIndex());
   }
 
   /**

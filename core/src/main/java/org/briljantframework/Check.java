@@ -1,7 +1,5 @@
 package org.briljantframework;
 
-import java.util.Set;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
@@ -9,6 +7,8 @@ import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+
+import java.util.Set;
 
 /**
  * @author Isak Karlsson
@@ -146,5 +146,9 @@ public final class Check {
 
   public static void size(DataFrame x, Vector y) {
     size(x.rows(), y.size());
+  }
+
+  public static void columnSize(DataFrame expected, DataFrame actual) {
+    size(expected.columns(), actual.columns());
   }
 }
