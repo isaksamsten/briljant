@@ -130,6 +130,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
   // }
 
   public static class Builder implements Vector.Builder {
+
     private List<Value> buffer;
 
 
@@ -172,8 +173,12 @@ public class ValueVector extends AbstractVector implements VariableVector {
 
     @Override
     public Builder set(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.set(atIndex, from.get(fromIndex));
+      if (from == null) {
+        setNA(atIndex);
+      } else {
+        ensureCapacity(atIndex);
+        buffer.set(atIndex, from.get(fromIndex));
+      }
       return this;
     }
 

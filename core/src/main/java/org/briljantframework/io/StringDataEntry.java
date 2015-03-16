@@ -1,15 +1,18 @@
 package org.briljantframework.io;
 
-import java.io.IOException;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Vectors;
 
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
+import java.io.IOException;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
@@ -29,6 +32,21 @@ public class StringDataEntry implements DataEntry {
   public StringDataEntry(String[] values, String missingValue) {
     this.values = values;
     this.missingValue = missingValue;
+  }
+
+  @Override
+  public <T> T next(Class<T> cls) throws IOException {
+    String value = nextString();
+    if (value == StringVector.NA) {
+      return Vectors.naValue(cls);
+    } else {
+      Resolver<T> resolver = Resolvers.find(cls);
+      if (resolver == null) {
+        return Vectors.naValue(cls);
+      } else {
+        return resolver.resolve(value);
+      }
+    }
   }
 
   @Override
@@ -65,7 +83,7 @@ public class StringDataEntry implements DataEntry {
 
   @Override
   public Complex nextComplex() throws IOException {
-    throw new UnsupportedOperationException();
+    return next(Complex.class);
   }
 
   @Override

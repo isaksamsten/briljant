@@ -10,6 +10,47 @@ import java.util.stream.Stream;
  */
 public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
 
+  /**
+   * <p> Returns a new {@code BitMatrix} with {@code values}. </p> <p> <p> For example </p> <p> <p>
+   *
+   * <pre>
+   *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
+   *
+   *    true  false  true
+   *    true  false  true
+   *    shape: 2x3 type: boolean
+   * </pre>
+   *
+   * @param values an array of booleans
+   * @return a new boolean vector
+   */
+  static BitMatrix newBitVector(boolean... values) {
+    return new DefaultBitMatrix(values);
+  }
+
+  /**
+   * Return a new empty (all elements are {@code false}), {@code BitMatrix} (column-vector) of
+   * {@code size}.
+   *
+   * @param size size
+   * @return a new boolean vector
+   */
+  static BitMatrix newBitVector(int size) {
+    return new DefaultBitMatrix(size);
+  }
+
+  /**
+   * Return a new empty (all elements are {@code false}) {@code BitMatrix} of {@code rows} and
+   * {@code columns}.
+   *
+   * @param rows the rows
+   * @param cols the columns
+   * @return a new boolean matrix
+   */
+  static BitMatrix newBitMatrix(int rows, int cols) {
+    return new DefaultBitMatrix(rows, cols);
+  }
+
   BitMatrix assign(Supplier<Boolean> supplier);
 
   BitMatrix assign(boolean value);
@@ -100,13 +141,10 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
   @Override
   BitMatrix slice(BitMatrix indexes, Axis axis);
 
-  Stream<Boolean> stream();
+  @Override
+  BitMatrix newEmptyMatrix(int rows, int columns);
 
-  List<Boolean> asList();
-
-  default BitMatrix frozen() {
-    return new DefaultBitMatrix(getStorage().frozen(), rows(), columns());
-  }
+  BitMatrix newEmptyVector(int size);
 
   @Override
   BitMatrix transpose();
@@ -114,8 +152,11 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
   @Override
   BitMatrix copy();
 
-  @Override
-  BitMatrix newEmptyMatrix(int rows, int columns);
+  Stream<Boolean> stream();
 
-  BitMatrix newEmptyVector(int size);
+  List<Boolean> asList();
+
+  default BitMatrix frozen() {
+    return new DefaultBitMatrix(getStorage().frozen(), rows(), columns());
+  }
 }

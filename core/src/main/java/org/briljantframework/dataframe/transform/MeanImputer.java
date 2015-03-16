@@ -48,6 +48,7 @@ public class MeanImputer implements Transformer {
     public DataFrame transform(DataFrame x) {
       Check.size(x.columns(), means);
       DataFrame.Builder builder = x.newBuilder();
+      builder.getColumnNames().putAll(x.getColumnNames());
       for (int j = 0; j < x.columns(); j++) {
         Check.requireType(Vectors.DOUBLE, x.getColumnType(j));
         for (int i = 0; i < x.rows(); i++) {

@@ -1,16 +1,16 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Matrices.*;
-import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
-import static org.briljantframework.matrix.MatrixAssert.assertValuesEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.briljantframework.complex.Complex;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.IntSummaryStatistics;
 
-import org.briljantframework.complex.Complex;
-import org.junit.Test;
+import static org.briljantframework.matrix.Matrices.newComplexMatrix;
+import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
+import static org.briljantframework.matrix.MatrixAssert.assertValuesEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AbstractIntMatrixTest {
 
@@ -51,7 +51,7 @@ public class AbstractIntMatrixTest {
 
   @Test
   public void testAssign5() throws Exception {
-    LongMatrix l = newLongMatrix(3, 3).assign(3L);
+    LongMatrix l = LongMatrix.newMatrix(3, 3).assign(3L);
     IntMatrix i = IntMatrix.newMatrix(3, 3).assign(l, x -> (int) x);
     assertMatrixEquals(3, i);
   }
@@ -111,7 +111,8 @@ public class AbstractIntMatrixTest {
   @Test
   public void testSatisfies() throws Exception {
     BitMatrix i = IntMatrix.of(0, 1, 2, 3, 4, 5).satisfies(x -> x >= 3);
-    MatrixAssert.assertValuesEquals(newBitVector(false, false, false, true, true, true), i);
+    MatrixAssert
+        .assertValuesEquals(BitMatrix.newBitVector(false, false, false, true, true, true), i);
   }
 
   @Test
@@ -673,7 +674,8 @@ public class AbstractIntMatrixTest {
   public void testSlice7() throws Exception {
     IntMatrix x = IntMatrix.of(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     BitMatrix bits =
-        newBitVector(true, true, true, false, false, false, false, false, false).reshape(3, 3);
+        BitMatrix.newBitVector(true, true, true, false, false, false, false, false, false)
+            .reshape(3, 3);
     IntMatrix s = x.slice(bits);
     assertValuesEquals(IntMatrix.of(1, 2, 3), s);
   }
@@ -681,7 +683,7 @@ public class AbstractIntMatrixTest {
   @Test
   public void testSlice() throws Exception {
     IntMatrix x = IntMatrix.of(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
-    IntMatrix s = x.slice(newBitVector(true, false, true), Axis.ROW);
+    IntMatrix s = x.slice(BitMatrix.newBitVector(true, false, true), Axis.ROW);
     assertValuesEquals(IntMatrix.of(1, 1, 1), s.getRowView(0));
     assertValuesEquals(IntMatrix.of(3, 3, 3), s.getRowView(1));
   }

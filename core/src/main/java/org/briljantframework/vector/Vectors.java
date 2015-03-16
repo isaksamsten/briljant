@@ -43,6 +43,7 @@ public final class Vectors {
   public static final Set<VectorType> NUMERIC = Sets.newHashSet();
   public static final Set<VectorType> CATEGORIC = Sets.newHashSet();
   public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
+
   static {
     NUMERIC.add(DOUBLE);
     NUMERIC.add(INT);
@@ -54,6 +55,8 @@ public final class Vectors {
     Map<Class<?>, Object> clsToNa = new HashMap<>();
     clsToNa.put(Integer.class, IntVector.NA);
     clsToNa.put(Integer.TYPE, IntVector.NA);
+    clsToNa.put(Long.class, Long.MAX_VALUE);
+    clsToNa.put(Long.TYPE, Long.MAX_VALUE);
     clsToNa.put(Double.class, DoubleVector.NA);
     clsToNa.put(Double.TYPE, DoubleVector.NA);
     clsToNa.put(String.class, StringVector.NA);

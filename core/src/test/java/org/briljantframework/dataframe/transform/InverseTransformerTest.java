@@ -1,10 +1,11 @@
 package org.briljantframework.dataframe.transform;
 
-import static org.junit.Assert.assertEquals;
-
 import org.briljantframework.matrix.DefaultDoubleMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class InverseTransformerTest {
 
@@ -18,7 +19,7 @@ public class InverseTransformerTest {
   @Test
   public void testTransform() throws Exception {
     InverseTransformation transformer = new InverseTransformation();
-    DefaultDoubleMatrix inverse = transformer.transform(matrix);
+    DoubleMatrix inverse = transformer.transform(matrix);
     assertEquals(-0.02564102564102574, inverse.get(0, 0), 0.01);
   }
 }

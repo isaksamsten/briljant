@@ -1,17 +1,20 @@
 package org.briljantframework.matrix;
 
-import static java.util.Arrays.asList;
-import static org.briljantframework.matrix.Matrices.*;
-import static org.briljantframework.matrix.MatrixAssert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.DoubleSummaryStatistics;
-
 import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
+import java.util.DoubleSummaryStatistics;
+
+import static java.util.Arrays.asList;
+import static org.briljantframework.matrix.Matrices.newComplexMatrix;
+import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
+import static org.briljantframework.matrix.MatrixAssert.assertValueEquals;
+import static org.briljantframework.matrix.MatrixAssert.assertValuesEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 public class AbstractDoubleMatrixTest {
+
   private final double epsilon = 0.00001;
 
   @Test
@@ -64,7 +67,9 @@ public class AbstractDoubleMatrixTest {
 
   @Test
   public void testAssign7() throws Exception {
-    DoubleMatrix i = DoubleMatrix.newMatrix(3, 3).assign(DoubleMatrix.newMatrix(3, 3).assign(3), x -> x * 2);
+    DoubleMatrix
+        i =
+        DoubleMatrix.newMatrix(3, 3).assign(DoubleMatrix.newMatrix(3, 3).assign(3), x -> x * 2);
     MatrixAssert.assertMatrixEquals(6, i, epsilon);
   }
 
@@ -111,7 +116,7 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testSatisfies() throws Exception {
     BitMatrix i = DoubleMatrix.of(0, 1, 2, 3, 4, 5).satisfies(x -> x >= 3);
-    assertValuesEquals(newBitVector(false, false, false, true, true, true), i);
+    assertValuesEquals(BitMatrix.newBitVector(false, false, false, true, true, true), i);
   }
 
   @Test
@@ -138,7 +143,9 @@ public class AbstractDoubleMatrixTest {
 
   @Test
   public void testReduceColumns() throws Exception {
-    DoubleMatrix x = DoubleMatrix.newMatrix(3, 4).assign(3).reduceColumns(y -> y.reduce(0, Double::sum));
+    DoubleMatrix
+        x =
+        DoubleMatrix.newMatrix(3, 4).assign(3).reduceColumns(y -> y.reduce(0, Double::sum));
     assertEquals(4, x.columns());
     assertEquals(1, x.rows());
     MatrixAssert.assertMatrixEquals(3 * 3, x, epsilon);
@@ -146,7 +153,9 @@ public class AbstractDoubleMatrixTest {
 
   @Test
   public void testReduceRows() throws Exception {
-    DoubleMatrix x = DoubleMatrix.newMatrix(4, 3).assign(3).reduceRows(y -> y.reduce(0, Double::sum));
+    DoubleMatrix
+        x =
+        DoubleMatrix.newMatrix(4, 3).assign(3).reduceRows(y -> y.reduce(0, Double::sum));
     assertEquals(4, x.rows());
     assertEquals(1, x.columns());
     MatrixAssert.assertMatrixEquals(3 * 3, x, epsilon);
@@ -672,7 +681,8 @@ public class AbstractDoubleMatrixTest {
   public void testSlice7() throws Exception {
     DoubleMatrix x = DoubleMatrix.of(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     BitMatrix bits =
-        newBitVector(true, true, true, false, false, false, false, false, false).reshape(3, 3);
+        BitMatrix.newBitVector(true, true, true, false, false, false, false, false, false)
+            .reshape(3, 3);
     DoubleMatrix s = x.slice(bits);
     assertValueEquals(s, DoubleMatrix.of(1, 2, 3), epsilon);
   }
@@ -680,7 +690,7 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testSlice() throws Exception {
     DoubleMatrix x = DoubleMatrix.of(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
-    DoubleMatrix s = x.slice(newBitVector(true, false, true), Axis.ROW);
+    DoubleMatrix s = x.slice(BitMatrix.newBitVector(true, false, true), Axis.ROW);
     assertValueEquals(s.getRowView(0), DoubleMatrix.of(1, 1, 1), epsilon);
     assertValueEquals(s.getRowView(1), DoubleMatrix.of(3, 3, 3), epsilon);
   }
@@ -712,7 +722,8 @@ public class AbstractDoubleMatrixTest {
   }
 
   @Test
-  public void testEquals() throws Exception {}
+  public void testEquals() throws Exception {
+  }
 
   @Test
   public void testToString() throws Exception {
@@ -723,7 +734,7 @@ public class AbstractDoubleMatrixTest {
   public void testReduceRows3() throws Exception {
     DoubleMatrix x = DoubleMatrix.newMatrix(3, 3).assign(3);
     DoubleMatrix rowSums = x.reduceRows(Matrices::std);
-    assertMatrixEquals(3, rowSums, epsilon);
+    assertMatrixEquals(0, rowSums, epsilon);
   }
 
   @Test

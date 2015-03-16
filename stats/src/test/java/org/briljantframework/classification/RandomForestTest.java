@@ -12,19 +12,22 @@ import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 public class RandomForestTest {
+
   @Test
   public void testFit() throws Exception {
-    DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
+    DataFrame iris = DataFrames.permuteRows(Datasets.loadConnect4());
 
     DataFrame x = iris.removeColumn(iris.columns() - 1);
     Vector y = Convert.toStringVector(iris.getColumn(iris.columns() - 1));
 
     IntMatrix f = IntMatrix.of(1, 2, 3);
     for (int i = 0; i < f.size(); i++) {
-      RandomForest forest = RandomForest.withSize(1000).withMaximumFeatures(f.get(i)).build();
-      Result result = Validators.crossValidation(10).test(forest, x, y);
-      System.out.println(result.getAverage(Ensemble.Correlation.class) + " "
-          + result.getAverage(Ensemble.Strength.class) + " " + result.getAverage(Accuracy.class));
+      RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(f.get(i)).build();
+      Result result = Validators.splitValidation(0.3).test(forest, x, y);
+      System.out.println(
+          result.getAverage(Ensemble.Correlation.class) + " "
+          + result.getAverage(Ensemble.Strength.class) + " "
+          + result.getAverage(Accuracy.class));
     }
 
   }

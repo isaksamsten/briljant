@@ -1,11 +1,8 @@
 package org.briljantframework.matrix;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.function.DoubleUnaryOperator;
-import java.util.regex.Pattern;
+import com.github.fommil.netlib.BLAS;
 
 import org.briljantframework.Check;
 import org.briljantframework.IndexComparator;
@@ -13,11 +10,13 @@ import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
-import org.briljantframework.matrix.storage.LongStorage;
 
-import com.github.fommil.netlib.BLAS;
+import java.util.Map;
+import java.util.Random;
+import java.util.function.DoubleUnaryOperator;
+import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableMap;
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author Isak Karlsson
@@ -148,75 +147,6 @@ public final class Matrices {
       throw new TypeConversionException(type.toString());
     }
     return f;
-  }
-
-  /**
-   * <p>
-   * Returns a new {@code BitMatrix} with {@code values}.
-   * </p>
-   * <p>
-   * <p>
-   * For example
-   * </p>
-   * <p>
-   * <p>
-   *
-   * <pre>
-   *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
-   * 
-   *    true  false  true
-   *    true  false  true
-   *    shape: 2x3 type: boolean
-   * </pre>
-   *
-   * @param values an array of booleans
-   * @return a new boolean vector
-   */
-  public static BitMatrix newBitVector(boolean... values) {
-    return new DefaultBitMatrix(values);
-  }
-
-  /**
-   * Return a new empty (all elements are {@code false}), {@code BitMatrix} (column-vector) of
-   * {@code size}.
-   *
-   * @param size size
-   * @return a new boolean vector
-   */
-  public static BitMatrix newBitVector(int size) {
-    return new DefaultBitMatrix(size);
-  }
-
-  /**
-   * Return a new empty (all elements are {@code false}) {@code BitMatrix} of {@code rows} and
-   * {@code columns}.
-   *
-   * @param rows the rows
-   * @param cols the columns
-   * @return a new boolean matrix
-   */
-  public static BitMatrix newBitMatrix(int rows, int cols) {
-    return new DefaultBitMatrix(rows, cols);
-  }
-
-  public static ComplexMatrix newComplexVector(double... values) {
-    Complex[] c = new Complex[values.length];
-    for (int i = 0; i < c.length; i++) {
-      c[i] = Complex.valueOf(values[i]);
-    }
-    return new DefaultComplexMatrix(c);
-  }
-
-  public static LongMatrix newLongMatrix(int rows, int columns) {
-    return new DefaultLongMatrix(rows, columns);
-  }
-
-  public static LongMatrix newLongVector(int size) {
-    return new DefaultLongMatrix(size);
-  }
-
-  public static LongMatrix newLongVector(long... values) {
-    return new DefaultLongMatrix(new LongStorage(values));
   }
 
   public static Matrix zeros(int size, Class<?> type) {
@@ -567,7 +497,7 @@ public final class Matrices {
   }
 
   public static LongMatrix round(DoubleMatrix in) {
-    return newLongMatrix(in.rows(), in.columns()).assign(in, Math::round);
+    return LongMatrix.newMatrix(in.rows(), in.columns()).assign(in, Math::round);
   }
 
   public static double trace(DoubleMatrix matrix) {
@@ -805,7 +735,7 @@ public final class Matrices {
    * @return the variance
    */
   public static double var(DoubleMatrix matrix, double mean) {
-    return matrix.reduce(0, (v, acc) -> (v - mean) * (v - mean));
+    return matrix.reduce(0, (v, acc) -> acc + (v - mean) * (v - mean));
   }
 
   /**

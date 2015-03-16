@@ -1,11 +1,12 @@
 package org.briljantframework.matrix;
 
-import static org.briljantframework.matrix.Matrices.newBitVector;
-import static org.briljantframework.matrix.MatrixAssert.assertValuesEquals;
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.briljantframework.matrix.MatrixAssert.assertValuesEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AbstractBitMatrixTest {
 
@@ -14,26 +15,29 @@ public class AbstractBitMatrixTest {
   @Test
   public void testGetRowView() throws Exception {
     BitMatrix m =
-        newBitVector(true, false, false, true, false, true, true, false, false).reshape(3, 3);
-    assertValuesEquals(newBitVector(true, true, true), m.getRowView(0));
-    assertValuesEquals(newBitVector(false, false, false), m.getRowView(1));
+        BitMatrix.newBitVector(true, false, false, true, false, true, true, false, false)
+            .reshape(3, 3);
+    assertValuesEquals(BitMatrix.newBitVector(true, true, true), m.getRowView(0));
+    assertValuesEquals(BitMatrix.newBitVector(false, false, false), m.getRowView(1));
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     BitMatrix m =
-        newBitVector(true, false, false, true, false, true, true, false, false).reshape(3, 3);
-    assertValuesEquals(newBitVector(true, false, false), m.getColumnView(0));
-    assertValuesEquals(newBitVector(true, false, true), m.getColumnView(1));
+        BitMatrix.newBitVector(true, false, false, true, false, true, true, false, false)
+            .reshape(3, 3);
+    assertValuesEquals(BitMatrix.newBitVector(true, false, false), m.getColumnView(0));
+    assertValuesEquals(BitMatrix.newBitVector(true, false, true), m.getColumnView(1));
   }
 
   @Test
   public void testGetView() throws Exception {
     BitMatrix m =
-        newBitVector(true, false, false, true, false, true, true, false, false).reshape(3, 3);
+        BitMatrix.newBitVector(true, false, false, true, false, true, true, false, false)
+            .reshape(3, 3);
     BitMatrix view = m.getView(0, 0, 2, 2);
-    assertValuesEquals(newBitVector(true, false), view.getColumnView(0));
-    assertValuesEquals(newBitVector(true, false), view.getColumnView(1));
+    assertValuesEquals(BitMatrix.newBitVector(true, false), view.getColumnView(0));
+    assertValuesEquals(BitMatrix.newBitVector(true, false), view.getColumnView(1));
   }
 
   @Test
@@ -93,8 +97,8 @@ public class AbstractBitMatrixTest {
 
   @Before
   public void setUp() throws Exception {
-    a = Matrices.newBitVector(true, true, true, false, false, true).reshape(3, 2);
-    b = Matrices.newBitVector(true, false, true, false, true, true).reshape(3, 2);
+    a = BitMatrix.newBitVector(true, true, true, false, false, true).reshape(3, 2);
+    b = BitMatrix.newBitVector(true, false, true, false, true, true).reshape(3, 2);
   }
 
   @Test

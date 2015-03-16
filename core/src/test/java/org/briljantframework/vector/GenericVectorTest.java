@@ -42,9 +42,6 @@ public class GenericVectorTest {
       builder.add((long) i);
     }
     System.out.println(System.currentTimeMillis() - start);
-
-//    Vector dateVector = builder.build();
-    System.out.println(dateVector);
   }
 
   @Test

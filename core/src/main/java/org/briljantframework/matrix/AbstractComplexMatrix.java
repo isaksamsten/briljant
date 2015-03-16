@@ -1,11 +1,15 @@
 package org.briljantframework.matrix;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.primitives.Ints.checkedCast;
-import static org.briljantframework.matrix.Indexer.columnMajor;
-import static org.briljantframework.matrix.Indexer.rowMajor;
-import static org.briljantframework.matrix.Indexer.sliceIndex;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.UnmodifiableIterator;
+
+import org.briljantframework.Check;
+import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
+import org.briljantframework.complex.ComplexBuilder;
+import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.matrix.storage.Storage;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -29,21 +33,18 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.briljantframework.Check;
-import org.briljantframework.Utils;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.complex.ComplexBuilder;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.matrix.storage.Storage;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.UnmodifiableIterator;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.primitives.Ints.checkedCast;
+import static org.briljantframework.matrix.Indexer.columnMajor;
+import static org.briljantframework.matrix.Indexer.rowMajor;
+import static org.briljantframework.matrix.Indexer.sliceIndex;
 
 /**
  * Created by Isak Karlsson on 02/01/15.
  */
-public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix> implements ComplexMatrix {
+public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix>
+    implements ComplexMatrix {
 
   private ComplexListView listView = null;
 
@@ -56,8 +57,24 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public ComplexMatrix assign(Complex value) {
+    for (int i = 0; i < size(); i++) {
+      set(i, value);
+    }
+    return this;
+  }
+
+  @Override
   public ComplexMatrix getRowView(int i) {
     return new ComplexMatrixView(this, i, 0, 1, columns());
+  }
+
+  @Override
+  public ComplexMatrix assign(Supplier<Complex> supplier) {
+    for (int i = 0; i < size(); i++) {
+      set(i, supplier.get());
+    }
+    return this;
   }
 
   @Override
@@ -66,8 +83,22 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public ComplexMatrix assign(ComplexMatrix matrix) {
+    return assign(matrix, UnaryOperator.identity());
+  }
+
+  @Override
   public ComplexMatrix getDiagonalView() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
+    Check.size(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
   }
 
   @Override
@@ -76,13 +107,40 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public ComplexMatrix assign(ComplexMatrix matrix, BinaryOperator<Complex> combine) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, combine.apply(get(i), matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public ComplexMatrix slice(Range rows, Range columns) {
     return new SliceComplexMatrix(this, rows, columns);
   }
 
   @Override
+  public ComplexMatrix assign(DoubleMatrix matrix) {
+    Preconditions.checkArgument(matrix.size() == size());
+    for (int i = 0; i < size(); i++) {
+      set(i, Complex.valueOf(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public ComplexMatrix slice(Range range) {
     return new FlatSliceComplexMatrix(this, range);
+  }
+
+  @Override
+  public ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<Complex> operator) {
+    Preconditions.checkArgument(matrix.size() == size());
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
   }
 
   @Override
@@ -92,6 +150,15 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     } else {
       return new SliceComplexMatrix(this, Range.range(rows()), range);
     }
+  }
+
+  @Override
+  public ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator) {
+    Check.size(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
   }
 
   @Override
@@ -109,10 +176,27 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator) {
+    Check.size(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public ComplexMatrix slice(Collection<Integer> indexes) {
     IncrementalBuilder builder = new IncrementalBuilder();
     indexes.forEach(index -> builder.add(get(index)));
     return builder.build();
+  }
+
+  @Override
+  public ComplexMatrix update(UnaryOperator<Complex> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
+    return this;
   }
 
   @Override
@@ -135,6 +219,15 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public ComplexMatrix map(UnaryOperator<Complex> operator) {
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, operator.apply(get(i)));
+    }
+    return m;
+  }
+
+  @Override
   public ComplexMatrix slice(BitMatrix bits) {
     Check.equalShape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
@@ -144,6 +237,15 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
       }
     }
     return builder.build();
+  }
+
+  @Override
+  public IntMatrix mapToInt(ToIntFunction<Complex> function) {
+    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, function.applyAsInt(get(i)));
+    }
+    return matrix;
   }
 
   @Override
@@ -173,120 +275,20 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public LongMatrix mapToLong(ToLongFunction<Complex> function) {
+    LongMatrix matrix = LongMatrix.newMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, function.applyAsLong(get(i)));
+    }
+    return matrix;
+  }
+
+  @Override
   public void setRow(int index, ComplexMatrix row) {
     Check.size(columns(), row);
     for (int j = 0; j < columns(); j++) {
       set(index, j, row.get(j));
     }
-  }
-
-  @Override
-  public void setColumn(int index, ComplexMatrix column) {
-    Check.size(rows(), column);
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
-  }
-
-  @Override
-  public ComplexMatrix assign(Complex value) {
-    for (int i = 0; i < size(); i++) {
-      set(i, value);
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(Supplier<Complex> supplier) {
-    for (int i = 0; i < size(); i++) {
-      set(i, supplier.get());
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix update(UnaryOperator<Complex> operator) {
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(ComplexMatrix matrix) {
-    return assign(matrix, UnaryOperator.identity());
-  }
-
-  @Override
-  public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
-    Check.size(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(ComplexMatrix matrix, BinaryOperator<Complex> combine) {
-    Check.equalShape(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, combine.apply(get(i), matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(DoubleMatrix matrix) {
-    Preconditions.checkArgument(matrix.size() == size());
-    for (int i = 0; i < size(); i++) {
-      set(i, Complex.valueOf(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<Complex> operator) {
-    Preconditions.checkArgument(matrix.size() == size());
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator) {
-    Check.size(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator) {
-    Check.size(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public IntMatrix mapToInt(ToIntFunction<Complex> function) {
-    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, function.applyAsInt(get(i)));
-    }
-    return matrix;
-  }
-
-  @Override
-  public LongMatrix mapToLong(ToLongFunction<Complex> function) {
-    LongMatrix matrix = Matrices.newLongMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, function.applyAsLong(get(i)));
-    }
-    return matrix;
   }
 
   @Override
@@ -299,17 +301,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
-  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
-    return reduce(identity, reduce, UnaryOperator.identity());
-  }
-
-  @Override
-  public ComplexMatrix map(UnaryOperator<Complex> operator) {
-    ComplexMatrix m = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, operator.apply(get(i)));
+  public void setColumn(int index, ComplexMatrix column) {
+    Check.size(rows(), column);
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
     }
-    return m;
   }
 
   @Override
@@ -326,7 +322,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public BitMatrix satisfies(Predicate<Complex> predicate) {
-    BitMatrix bits = Matrices.newBitMatrix(rows(), columns());
+    BitMatrix bits = BitMatrix.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -335,7 +331,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   public BitMatrix satisfies(ComplexMatrix other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BitMatrix bits = Matrices.newBitMatrix(rows(), columns());
+    BitMatrix bits = BitMatrix.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -343,9 +339,15 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
-  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map) {
+  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
+    return reduce(identity, reduce, UnaryOperator.identity());
+  }
+
+  @Override
+  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
+                        UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
-      identity = reduce.apply(identity, map.apply(get(i)));
+      identity = reduce.apply(map.apply(get(i)), identity);
     }
     return identity;
   }
@@ -367,6 +369,322 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     }
     return mat;
   }
+
+  @Override
+  public ComplexMatrix conjugateTranspose() {
+    ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(j, i, get(i, j).conjugate());
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public ComplexMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
+  }
+
+  @Override
+  public void swap(int a, int b) {
+    Complex tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder str = new StringBuilder();
+    ImmutableTable.Builder<Object, Object, Object> builder = new ImmutableTable.Builder<>();
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        builder.put(i, j, get(i, j));
+      }
+    }
+    Utils.prettyPrintTable(str, builder.build(), 0, 2, false, false);
+    str.append("shape: ").append(getShape()).append(" type: complex");
+    return str.toString();
+  }
+
+  @Override
+  public Iterator<Complex> iterator() {
+    return new UnmodifiableIterator<Complex>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Complex next() {
+        return get(current++);
+      }
+    };
+  }
+
+  public static class IncrementalBuilder {
+
+    private List<Complex> buffer = new ArrayList<>();
+
+    public ComplexMatrix build() {
+      return new DefaultComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
+    }
+
+    public void add(Complex value) {
+      buffer.add(value);
+    }
+  }
+
+  protected static class SliceComplexMatrix extends AbstractComplexMatrix {
+
+    private final Range row, column;
+    private final ComplexMatrix parent;
+
+    public SliceComplexMatrix(ComplexMatrix parent, Range row, Range column) {
+      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    }
+
+    public SliceComplexMatrix(ComplexMatrix parent, int rows, Range row, int columns,
+                              Range column) {
+      super(rows, columns);
+      this.row = checkNotNull(row);
+      this.column = checkNotNull(column);
+      this.parent = checkNotNull(parent);
+    }
+
+    @Override
+    public ComplexMatrix reshape(int rows, int columns) {
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return new SliceComplexMatrix(parent, rows, row, columns, column);
+    }
+
+    @Override
+    public void set(int i, int j, Complex value) {
+      parent.set(sliceIndex(row.step(), i, parent.rows()),
+                 sliceIndex(column.step(), j, parent.columns()), value);
+    }
+
+    @Override
+    public void set(int index, Complex value) {
+      int row = index % rows();
+      int col = index / rows();
+      set(row, col, value);
+    }
+
+
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return parent.get(sliceIndex(row.step(), i, parent.rows()),
+                        sliceIndex(column.step(), j, parent.columns()));
+    }
+
+    @Override
+    public Complex get(int index) {
+      int row = index % rows();
+      int col = index / rows();
+      return get(row, col);
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+  }
+
+  /**
+   * Created by Isak Karlsson on 08/12/14.
+   */
+  public static class ComplexMatrixView extends AbstractComplexMatrix {
+
+    private static final int ROW = 0;
+    private static final int COLUMN = 1;
+
+    private final ComplexMatrix parent;
+
+    private final int rowOffset, colOffset;
+
+    public ComplexMatrixView(ComplexMatrix parent, int rowOffset, int colOffset, int rows,
+                             int cols) {
+      super(rows, cols);
+      this.rowOffset = rowOffset;
+      this.colOffset = colOffset;
+      this.parent = parent;
+
+      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
+                    "Requested row out of bounds.");
+      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
+                    "Requested column out of bounds");
+    }
+
+    @Override
+    public ComplexMatrix copy() {
+      ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        mat.set(i, get(i));
+      }
+      return mat;
+    }
+
+    @Override
+    public ComplexMatrix reshape(int rows, int columns) {
+      return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows,
+                                   columns);
+    }
+
+    private int computeLinearIndex(int index) {
+      int currentColumn = index / rows() + colOffset;
+      int currentRow = index % rows() + rowOffset;
+      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return new DefaultComplexMatrix(rows, columns);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return parent.get(rowOffset + i, colOffset + j);
+    }
+
+    @Override
+    public Complex get(int index) {
+      return parent.get(computeLinearIndex(index));
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+
+    @Override
+    public void set(int i, int j, Complex value) {
+      parent.set(rowOffset + i, colOffset + j, value);
+    }
+
+    @Override
+    public void set(int index, Complex value) {
+      parent.set(computeLinearIndex(index), value);
+    }
+
+
+  }
+
+  protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
+
+    private final ComplexMatrix parent;
+    private final Range range;
+
+    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Range range) {
+      super(size);
+      this.parent = checkNotNull(parent);
+      this.range = checkNotNull(range);
+    }
+
+    public FlatSliceComplexMatrix(ComplexMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
+    }
+
+    @Override
+    public void set(int i, int j, Complex value) {
+      set(columnMajor(i, j, rows(), columns()), value);
+    }
+
+    @Override
+    public void set(int index, Complex value) {
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+    }
+
+    @Override
+    public ComplexMatrix reshape(int rows, int columns) {
+      return copy().reshape(rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return get(columnMajor(i, j, rows(), columns()));
+    }
+
+    @Override
+    public Complex get(int index) {
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return parent.isArrayBased();
+    }
+  }
+
+  private class ComplexListView extends AbstractList<Complex> {
+
+    @Override
+    public Complex get(int i) {
+      return AbstractComplexMatrix.this.get(i);
+    }
+
+    @Override
+    public Complex set(int i, Complex value) {
+      Complex old = AbstractComplexMatrix.this.get(i);
+      AbstractComplexMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public Iterator<Complex> iterator() {
+      return AbstractComplexMatrix.this.iterator();
+    }
+
+    @Override
+    public int size() {
+      return AbstractComplexMatrix.this.size();
+    }
+  }
+
 
   @Override
   public ComplexMatrix transpose() {
@@ -413,64 +731,12 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     return listView;
   }
 
-  @Override
-  public ComplexMatrix conjugateTranspose() {
-    ComplexMatrix matrix = newEmptyMatrix(columns(), rows());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(j, i, get(i, j).conjugate());
-      }
-    }
-    return matrix;
-  }
-
-  @Override
-  public ComplexMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
-  }
-
-  @Override
-  public void swap(int a, int b) {
-    Complex tmp = get(a);
-    set(a, get(b));
-    set(b, tmp);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-    ImmutableTable.Builder<Object, Object, Object> builder = new ImmutableTable.Builder<>();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        builder.put(i, j, get(i, j));
-      }
-    }
-    Utils.prettyPrintTable(str, builder.build(), 0, 2, false, false);
-    str.append("shape: ").append(getShape()).append(" type: complex");
-    return str.toString();
-  }
 
   @Override
   public ComplexMatrix negate() {
     return map(Complex::negate);
   }
 
-  @Override
-  public Iterator<Complex> iterator() {
-    return new UnmodifiableIterator<Complex>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Complex next() {
-        return get(current++);
-      }
-    };
-  }
 
   @Override
   public double[] asDoubleArray() {
@@ -661,255 +927,13 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     return m;
   }
 
-  public static class IncrementalBuilder {
 
-    private List<Complex> buffer = new ArrayList<>();
 
-    public ComplexMatrix build() {
-      return new DefaultComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
-    }
 
-    public void add(Complex value) {
-      buffer.add(value);
-    }
-  }
 
-  protected static class SliceComplexMatrix extends AbstractComplexMatrix {
 
-    private final Range row, column;
-    private final ComplexMatrix parent;
 
-    public SliceComplexMatrix(ComplexMatrix parent, Range row, Range column) {
-      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
-    }
 
-    public SliceComplexMatrix(ComplexMatrix parent, int rows, Range row, int columns, Range column) {
-      super(rows, columns);
-      this.row = checkNotNull(row);
-      this.column = checkNotNull(column);
-      this.parent = checkNotNull(parent);
-    }
 
-    @Override
-    public void set(int i, int j, Complex value) {
-      parent.set(sliceIndex(row.step(), i, parent.rows()),
-          sliceIndex(column.step(), j, parent.columns()), value);
-    }
 
-    @Override
-    public void set(int index, Complex value) {
-      int row = index % rows();
-      int col = index / rows();
-      set(row, col, value);
-    }
-
-    @Override
-    public ComplexMatrix reshape(int rows, int columns) {
-      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-      return new SliceComplexMatrix(parent, rows, row, columns, column);
-    }
-
-    @Override
-    public boolean isView() {
-      return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
-    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
-    public Complex get(int i, int j) {
-      return parent.get(sliceIndex(row.step(), i, parent.rows()),
-          sliceIndex(column.step(), j, parent.columns()));
-    }
-
-    @Override
-    public Complex get(int index) {
-      int row = index % rows();
-      int col = index / rows();
-      return get(row, col);
-    }
-
-    @Override
-    public boolean isArrayBased() {
-      return parent.isArrayBased();
-    }
-  }
-
-  /**
-   * Created by Isak Karlsson on 08/12/14.
-   */
-  public static class ComplexMatrixView extends AbstractComplexMatrix {
-    private static final int ROW = 0;
-    private static final int COLUMN = 1;
-
-    private final ComplexMatrix parent;
-
-    private final int rowOffset, colOffset;
-
-    public ComplexMatrixView(ComplexMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
-      super(rows, cols);
-      this.rowOffset = rowOffset;
-      this.colOffset = colOffset;
-      this.parent = parent;
-
-      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
-          "Requested row out of bounds.");
-      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
-          "Requested column out of bounds");
-    }
-
-    @Override
-    public ComplexMatrix reshape(int rows, int columns) {
-      return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows,
-          columns);
-    }
-
-    @Override
-    public boolean isView() {
-      return true;
-    }
-
-    @Override
-    public ComplexMatrix copy() {
-      ComplexMatrix mat = parent.newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        mat.set(i, get(i));
-      }
-      return mat;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
-    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-      return new DefaultComplexMatrix(rows, columns);
-    }
-
-    @Override
-    public Complex get(int i, int j) {
-      return parent.get(rowOffset + i, colOffset + j);
-    }
-
-    @Override
-    public Complex get(int index) {
-      return parent.get(computeLinearIndex(index));
-    }
-
-    @Override
-    public boolean isArrayBased() {
-      return parent.isArrayBased();
-    }
-
-    @Override
-    public void set(int i, int j, Complex value) {
-      parent.set(rowOffset + i, colOffset + j, value);
-    }
-
-    @Override
-    public void set(int index, Complex value) {
-      parent.set(computeLinearIndex(index), value);
-    }
-
-    private int computeLinearIndex(int index) {
-      int currentColumn = index / rows() + colOffset;
-      int currentRow = index % rows() + rowOffset;
-      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
-    }
-  }
-
-  protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
-    private final ComplexMatrix parent;
-    private final Range range;
-
-    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Range range) {
-      super(size);
-      this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
-    }
-
-    public FlatSliceComplexMatrix(ComplexMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
-    }
-
-    @Override
-    public void set(int i, int j, Complex value) {
-      set(columnMajor(i, j, rows(), columns()), value);
-    }
-
-    @Override
-    public void set(int index, Complex value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
-    }
-
-    @Override
-    public ComplexMatrix reshape(int rows, int columns) {
-      return copy().reshape(rows, columns);
-    }
-
-    @Override
-    public boolean isView() {
-      return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
-    public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
-    public Complex get(int i, int j) {
-      return get(columnMajor(i, j, rows(), columns()));
-    }
-
-    @Override
-    public Complex get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
-    }
-
-    @Override
-    public boolean isArrayBased() {
-      return parent.isArrayBased();
-    }
-  }
-
-  private class ComplexListView extends AbstractList<Complex> {
-
-    @Override
-    public Complex get(int i) {
-      return AbstractComplexMatrix.this.get(i);
-    }
-
-    @Override
-    public Complex set(int i, Complex value) {
-      Complex old = AbstractComplexMatrix.this.get(i);
-      AbstractComplexMatrix.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public Iterator<Complex> iterator() {
-      return AbstractComplexMatrix.this.iterator();
-    }
-
-    @Override
-    public int size() {
-      return AbstractComplexMatrix.this.size();
-    }
-  }
 }

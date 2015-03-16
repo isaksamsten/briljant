@@ -1,5 +1,9 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.complex.Complex;
+import org.briljantframework.function.LongBiPredicate;
+import org.briljantframework.matrix.storage.LongStorage;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.DoubleToLongFunction;
@@ -14,15 +18,25 @@ import java.util.function.LongUnaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 
-import org.briljantframework.complex.Complex;
-import org.briljantframework.function.LongBiPredicate;
-
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
 public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
 
+  static LongMatrix newMatrix(int rows, int columns) {
+    return new DefaultLongMatrix(rows, columns);
+  }
+
+  static LongMatrix newVector(int size) {
+    return new DefaultLongMatrix(size);
+  }
+
+  static LongMatrix of(long... values) {
+    return new DefaultLongMatrix(new LongStorage(values));
+  }
+
   // Assignments
+
   /**
    * Assign {@code value} to {@code this}
    *
@@ -32,8 +46,8 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   LongMatrix assign(long value);
 
   /**
-   * Assign value returned by {@link #size()} successive calls to
-   * {@link java.util.function.LongSupplier#getAsLong()}
+   * Assign value returned by {@link #size()} successive calls to {@link
+   * java.util.function.LongSupplier#getAsLong()}
    *
    * @param supplier the supplier
    * @return receiver modified
@@ -41,8 +55,8 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   LongMatrix assign(LongSupplier supplier);
 
   /**
-   * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
-   * {@code this.getShape()}.
+   * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal {@code
+   * this.getShape()}.
    *
    * @param matrix the matrix
    * @return receiver modified
@@ -52,7 +66,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param matrix   the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -113,13 +127,15 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   long reduce(long identity, LongBinaryOperator reduce);
 
   /**
-   * Reduces {@code this} longo a real value. For example, summing can be implemented as
-   * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
+   * Reduces {@code this} longo a real value. For example, summing can be implemented as {@code
+   * matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
+   * The first value of {@code reduce} is the current value and the second value is the
+   * accumulator.
    *
    * @param identity the initial value
-   * @param reduce takes two values and reduces them to one
-   * @param map takes a value and possibly transforms it
+   * @param reduce   takes two values and reduces them to one
+   * @param map      takes a value and possibly transforms it
    * @return the result
    */
   long reduce(long identity, LongBinaryOperator reduce, LongUnaryOperator map);
@@ -148,16 +164,12 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    */
   LongMatrix reduceRows(ToLongFunction<? super LongMatrix> reduce);
 
-
   // Filter
 
   LongMatrix filter(LongPredicate operator);
 
   /**
    * {@inheritDoc}
-   * 
-   * @param rows
-   * @param columns
    */
   @Override
   LongMatrix reshape(int rows, int columns);
@@ -165,39 +177,12 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   // Get / set
 
   /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value long
-   */
-  long get(int i, int j);
-
-  /**
-   * @param index get long
-   * @return long at {@code index}
-   */
-  long get(int index);
-
-  void set(int index, long value);
-
-  void set(int row, int column, long value);
-
-  void setRow(int index, LongMatrix row);
-
-  void setColumn(int index, LongMatrix column);
-
-  /**
    * {@inheritDoc}
-   *
-   * @param i
    */
   LongMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
-   *
-   * @param index
    */
   LongMatrix getColumnView(int index);
 
@@ -208,11 +193,6 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
 
   /**
    * {@inheritDoc}
-   * 
-   * @param rowOffset
-   * @param colOffset
-   * @param rows
-   * @param columns
    */
   LongMatrix getView(int rowOffset, int colOffset, int rows, int columns);
 
@@ -240,9 +220,22 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   @Override
   LongMatrix slice(BitMatrix indexes, Axis axis);
 
-  LongStream stream();
+  /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows    the number of rows
+   * @param columns the number of colums
+   * @return a new empty matrix (
+   */
+  LongMatrix newEmptyMatrix(int rows, int columns);
 
-  List<Long> asList();
+  /**
+   * Construct a new empty (column) vector.
+   *
+   * @param size the size
+   * @return the new vector
+   */
+  LongMatrix newEmptyVector(int size);
 
   /**
    * Transpose matrix like.
@@ -252,29 +245,39 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   LongMatrix transpose();
 
   /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows the number of rows
-   * @param columns the number of colums
-   * @return a new empty matrix (
-   */
-  LongMatrix newEmptyMatrix(int rows, int columns);
-
-  /**
-   * Construct a new empty (column) vector.
-   * 
-   * @param size the size
-   * @return the new vector
-   */
-  LongMatrix newEmptyVector(int size);
-
-  /**
    * Create a copy of this matrix.
    *
    * @return the copy
    */
   @Override
   LongMatrix copy();
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value long
+   */
+  long get(int i, int j);
+
+  /**
+   * @param index get long
+   * @return long at {@code index}
+   */
+  long get(int index);
+
+  void set(int index, long value);
+
+  void set(int row, int column, long value);
+
+  void setRow(int index, LongMatrix row);
+
+  void setColumn(int index, LongMatrix column);
+
+  LongStream stream();
+
+  List<Long> asList();
 
   // Arithmetical operations ///////////
 
@@ -288,8 +291,8 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
 
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code other} with {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))},
+   * but in one pass.
    *
    * @param alpha scaling for {@code this * other}
    * @param other the other matrix
@@ -300,9 +303,9 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
    *
-   * @param a transpose for {@code this}
+   * @param a     transpose for {@code this}
    * @param other the matrix
-   * @param b transpose for {@code other}
+   * @param b     transpose for {@code other}
    * @return a new matrix
    */
   LongMatrix mmul(Transpose a, LongMatrix other, Transpose b);
@@ -312,9 +315,9 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * scaling by {@code alpha} {@code beta}.
    *
    * @param alpha scaling factor for {@code this * other}
-   * @param a transpose for {@code this}
+   * @param a     transpose for {@code this}
    * @param other the matrix
-   * @param b transpose for {@code other}
+   * @param b     transpose for {@code other}
    * @return a new matrix
    */
   LongMatrix mmul(long alpha, Transpose a, LongMatrix other, Transpose b);
@@ -329,21 +332,22 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   LongMatrix mul(long alpha, LongMatrix other, long beta);
 
   /**
-   * Element wise multiplication, extending {@code other} row or column wise (determined by
-   * {@code axis})
+   * Element wise multiplication, extending {@code other} row or column wise (determined by {@code
+   * axis})
    *
    * @param other the vector
-   * @param axis the extending direction
+   * @param axis  the extending direction
    * @return a new matrix
    * @see #mul(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
@@ -352,15 +356,14 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   /**
    * Element wise multiplication, extending {@code other} row or column wise
    *
-   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
-   * {@code x.mul(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [1,2,3;2,4,6]}.
-   * Instead, using {@code y=[0, 2, 2]} and {@code x.mul(1, y, Axis.ROW)} result in
-   * {@code [0,4,6;0,4,6]}.
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]}, {@code x.mul(1, y, 1,
+   *Axis.COLUMN)} extends column-wise, resulting in {@code [1, 2, 3;2,4,6]}. Instead, using {@code
+   * y=[0, 2, 2]} and {@code x.mul(1, y, Axis.ROW)} result in {@code [0, 4, 6;0,4,6]}.
    *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
+   * @param beta  scaling factor for {@code other}
+   * @param axis  the extending direction
    * @return a new matrix
    */
   LongMatrix mul(long alpha, LongMatrix other, long beta, Axis axis);
@@ -393,7 +396,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * Element wise addition. Same as {@code add(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis the extending direction
+   * @param axis  the extending direction
    * @return a new matrix
    * @see #add(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
@@ -402,26 +405,25 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   /**
    * Element wise add, extending {@code other} row or column wise
    *
-   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
-   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [2,3,4;3,4,5]}.
-   * Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
-   * {@code [1,4,5;1,4,5]}.
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]}, {@code x.add(1, y, 1,
+   *Axis.COLUMN)} extends column-wise, resulting in {@code [2, 3, 4;3,4,5]}. Instead, using {@code
+   * y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in {@code [1, 4, 5;1,4,5]}.
    *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
+   * @param beta  scaling factor for {@code other}
+   * @param axis  the extending direction
    * @return a new matrix
    */
   LongMatrix add(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   LongMatrix add(long alpha, LongMatrix other, long beta);
@@ -446,7 +448,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * Element wise subtraction. Same as {@code sub(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis the extending direction
+   * @param axis  the extending direction
    * @return a new matrix
    * @see #sub(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
@@ -455,26 +457,25 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   /**
    * Element wise subtraction, extending {@code other} row or column wise
    *
-   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
-   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [0,1,2;-1,0,1]}.
-   * Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
-   * {@code [1,0,1;1,0,1]}.
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]}, {@code x.add(1, y, 1,
+   *Axis.COLUMN)} extends column-wise, resulting in {@code [0, 1, 2;-1,0,1]}. Instead, using {@code
+   * y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in {@code [1, 0, 1;1,0,1]}.
    *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
+   * @param beta  scaling factor for {@code other}
+   * @param axis  the extending direction
    * @return a new matrix
    */
   LongMatrix sub(long alpha, LongMatrix other, long beta, Axis axis);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   LongMatrix sub(long alpha, LongMatrix other, long beta);
@@ -491,25 +492,24 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * Element wise subtraction. Same as {@code rsub(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis the extending direction
+   * @param axis  the extending direction
    * @return a new matrix
    * @see #sub(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
   LongMatrix rsub(LongMatrix other, Axis axis);
 
   /**
-   * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
-   * {@code other - this}.
+   * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e., {@code
+   * other - this}.
    *
-   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
-   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [0,-1,-2;1,0,-1]}.
-   * Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
-   * {@code [-1,0,-1;-1,0,-1]}.
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]}, {@code x.add(1, y, 1,
+   *Axis.COLUMN)} extends column-wise, resulting in {@code [0,-1,-2;1,0,-1]}. Instead, using {@code
+   * y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in {@code [-1,0,-1;-1,0,-1]}.
    *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
+   * @param beta  scaling factor for {@code other}
+   * @param axis  the extending direction
    * @return a new matrix
    */
   LongMatrix rsub(long alpha, LongMatrix other, long beta, Axis axis);
@@ -536,7 +536,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * Element wise division. Same as {@code add(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis the extending direction
+   * @param axis  the extending direction
    * @return a new matrix
    * @see #add(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
@@ -545,15 +545,15 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
   /**
    * Element wise division, extending {@code other} row or column wise
    *
-   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
-   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [1,2,3;0.5,1,1.5]}
-   * . Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
-   * {@link java.lang.ArithmeticException}.
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]}, {@code x.add(1, y, 1,
+   *Axis.COLUMN)} extends column-wise, resulting in {@code [1, 2, 3;0.5,1,1.5]} . Instead, using
+   * {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in {@link
+   * java.lang.ArithmeticException}.
    *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
+   * @param beta  scaling factor for {@code other}
+   * @param axis  the extending direction
    * @return a new matrix
    */
   LongMatrix div(long alpha, LongMatrix other, long beta, Axis axis);
@@ -571,7 +571,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * Element wise division. Same as {@code add(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis the extending direction
+   * @param axis  the extending direction
    * @return a new matrix
    * @see #add(long, org.briljantframework.matrix.LongMatrix, long, Axis)
    */
@@ -581,15 +581,15 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * Element wise division, extending {@code other} row or column wise. Division is <b>reversed</b>,
    * i.e., {@code other / this}
    *
-   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]},
-   * {@code x.add(1, y, 1, Axis.COLUMN)} extends column-wise, resulting in {@code [1,2,3;0.5,1,1.5]}
-   * . Instead, using {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in
-   * {@link java.lang.ArithmeticException}.
+   * For example, given {@code y = [1,2]} and {@code x = [1,2,3;1,2,3]}, {@code x.add(1, y, 1,
+   *Axis.COLUMN)} extends column-wise, resulting in {@code [1, 2, 3;0.5,1,1.5]} . Instead, using
+   * {@code y=[0, 2, 2]} and {@code x.add(1, y, Axis.ROW)} result in {@link
+   * java.lang.ArithmeticException}.
    *
    * @param alpha scaling factor for {@code this}
    * @param other the vector
-   * @param beta scaling factor for {@code other}
-   * @param axis the extending direction
+   * @param beta  scaling factor for {@code other}
+   * @param axis  the extending direction
    * @return a new matrix
    */
   LongMatrix rdiv(long alpha, LongMatrix other, long beta, Axis axis);

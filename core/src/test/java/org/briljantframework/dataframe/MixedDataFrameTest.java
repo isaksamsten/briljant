@@ -61,6 +61,7 @@ public class MixedDataFrameTest {
     assertEquals(Vectors.VARIABLE, build.getColumnType(4));
     assertEquals(Vectors.DOUBLE, build.getColumnType(5));
     assertTrue(Is.NA(build.getAsDouble(5, 5)));
+    assertTrue(Is.NA(build.get(Double.class, 5, 5).doubleValue()));
   }
 
   @Test
@@ -327,9 +328,6 @@ public class MixedDataFrameTest {
     DataFrame frame = new MixedDataFrame(a, b, c);
     frame.setColumnNames("a", "b");
     frame = new RemoveIncompleteColumns().transform(frame);
-    System.out.println(frame);
-
-    System.out.println(frame.getColumn("b"));
     assertEquals("The second column should be removed", 2, frame.columns());
     assertEquals("The column names should be retained", "b", frame.getColumnName(0));
   }

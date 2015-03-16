@@ -16,7 +16,15 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.classification.tree.*;
+import org.briljantframework.classification.tree.ClassSet;
+import org.briljantframework.classification.tree.Splitter;
+import org.briljantframework.classification.tree.TreeBranch;
+import org.briljantframework.classification.tree.TreeLeaf;
+import org.briljantframework.classification.tree.TreeNode;
+import org.briljantframework.classification.tree.TreePredictor;
+import org.briljantframework.classification.tree.TreeSplit;
+import org.briljantframework.classification.tree.TreeVisitor;
+import org.briljantframework.classification.tree.ValueThreshold;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Value;
@@ -29,7 +37,7 @@ import org.briljantframework.vector.Vectors;
  */
 public class DecisionTree implements Classifier {
 
-  protected final double mininumWeight = 10;
+  protected final double mininumWeight = 1;
   protected final Splitter splitter;
 
   protected ClassSet classSet;
@@ -67,15 +75,10 @@ public class DecisionTree implements Classifier {
     if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
       return TreeLeaf.fromExamples(classSet);
     }
-
+    System.out.println(depth);
     TreeSplit<ValueThreshold> maxSplit = splitter.find(classSet, frame, target);
     if (maxSplit == null) {
       return TreeLeaf.fromExamples(classSet);
-
-      // } else if (maxSplit.getLeft().isEmpty()) {
-      // return TreeLeaf.fromExamples(maxSplit.getRight());
-      // } else if (maxSplit.getRight().isEmpty()) {
-      // return TreeLeaf.fromExamples(maxSplit.getLeft());
     } else {
       TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
       TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);

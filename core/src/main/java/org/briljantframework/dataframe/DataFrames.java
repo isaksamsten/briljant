@@ -32,9 +32,7 @@ import java.util.function.BiFunction;
 import static org.briljantframework.dataframe.join.JoinUtils.createJoinKeys;
 
 /**
- * Utility methods for handling {@code DataFrame}s
- * <p>
- * Created by Isak Karlsson on 27/11/14.
+ * Utility methods for handling {@code DataFrame}s <p> Created by Isak Karlsson on 27/11/14.
  */
 public final class DataFrames {
 
@@ -43,27 +41,29 @@ public final class DataFrames {
   private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
   private static final Map<String, JoinOperation> joinOperations = ImmutableMap.of(INNER,
-      InnerJoin.getInstance(), LEFT_OUTER, LeftOuterJoin.getInstance());
+                                                                                   InnerJoin
+                                                                                       .getInstance(),
+                                                                                   LEFT_OUTER,
+                                                                                   LeftOuterJoin
+                                                                                       .getInstance());
 
-  private DataFrames() {}
+  private DataFrames() {
+  }
 
   /**
-   * Load data frame using {@code in} and construct a new
-   * {@link org.briljantframework.dataframe.DataFrame} using the function {@code f} which should
-   * return a {@link org.briljantframework.dataframe.DataFrame.Builder} using the column names and
-   * the column types. The values from {@code in} are read to the {@code DataFrame.Builder} and
-   * returned as the DataFrame created by
-   * {@link org.briljantframework.dataframe.DataFrame.Builder#build()}.
-   * <p>
+   * Load data frame using {@code in} and construct a new {@link org.briljantframework.dataframe.DataFrame}
+   * using the function {@code f} which should return a {@link org.briljantframework.dataframe.DataFrame.Builder}
+   * using the column names and the column types. The values from {@code in} are read to the {@code
+   * DataFrame.Builder} and returned as the DataFrame created by {@link
+   * org.briljantframework.dataframe.DataFrame.Builder#build()}. <p>
    * <code><pre>
    *    DataFrame dataframe =
    *        DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris.txt"));
    * </pre></code>
    *
-   * @param f the producing {@code BiFunction}
+   * @param f  the producing {@code BiFunction}
    * @param in the input stream
    * @return a new dataframe
-   * @throws IOException
    */
   public static DataFrame load(
       BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f,
@@ -104,12 +104,11 @@ public final class DataFrames {
    * Returns a row-permuted copy of {@code in}. This implementations uses the Fisher–Yates shuffle
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
    * Knuth), which is an algorithm for generating a random permutation of a finite set — in plain
-   * terms, for randomly shuffling the finite set.
-   * <p>
-   * Requires that {@link DataFrame#newCopyBuilder()} returns a copy and that
-   * {@link DataFrame.Builder#swapRecords(int, int)} swaps rows at indexes.
+   * terms, for randomly shuffling the finite set. <p> Requires that {@link
+   * DataFrame#newCopyBuilder()} returns a copy and that {@link DataFrame.Builder#swapRecords(int,
+   * int)} swaps rows at indexes.
    *
-   * @param in the input {@code DataFrame}
+   * @param in     the input {@code DataFrame}
    * @param random the random number generator used
    * @return a permuted copy of {@code in}
    */
@@ -208,7 +207,7 @@ public final class DataFrames {
   }
 
   private static DataFrame.Builder join(DataFrame a, DataFrame b, Joiner joiner,
-      Collection<String> on) {
+                                        Collection<String> on) {
     DataFrame.Builder builder = a.newBuilder();
     for (int i = 0; i < joiner.size(); i++) {
       int aRow = joiner.getLeftIndex(i);
@@ -226,7 +225,7 @@ public final class DataFrames {
         String columnName = b.getColumnName(j);
         if (!on.contains(columnName)) {
           if (i == 0) {
-            builder.addColumnBuilder(b.getColumnType(j).newBuilder());
+            builder.addColumnBuilder(b.getColumnType(j));
             builder.getColumnNames().put(column, columnName);
           }
           if (bRow < 0) {
@@ -252,10 +251,7 @@ public final class DataFrames {
   }
 
   /**
-   * Generates a string representation from {@code dataFrame}.
-   * <p>
-   * For example:
-   * <p>
+   * Generates a string representation from {@code dataFrame}. <p> For example: <p>
    *
    * <pre>
    *        a    b    c
@@ -264,7 +260,7 @@ public final class DataFrames {
    * </pre>
    *
    * @param dataFrame the dataframe
-   * @param max the maximum number of rows to show
+   * @param max       the maximum number of rows to show
    * @return a tabular string representation
    */
   public static String toTabularString(DataFrame dataFrame, int max) {

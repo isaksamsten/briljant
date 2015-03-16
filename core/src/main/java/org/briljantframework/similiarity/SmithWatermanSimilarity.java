@@ -1,9 +1,9 @@
 package org.briljantframework.similiarity;
 
+import com.google.common.primitives.Doubles;
+
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-
-import com.google.common.primitives.Doubles;
 
 /**
  * @author Isak Karlsson
@@ -37,38 +37,38 @@ public class SmithWatermanSimilarity implements Similarity {
         }
       }
     }
-    int maxAlign = 0, length = 0;
-    int i = maxI, j = maxJ;
-    while (i > 0 && j > 0) {
-      double current = h.get(i, j);
-      double diag = h.get(i - 1, j - 1);
-      double up = h.get(i - 1, j);
-      double left = h.get(i, j - 1);
-      if (current == 0) {
-        break;
-      } else if (current == diag + (a.equals(i - 1, b, j - 1) ? match : miss)) {
-        length++;
-        if (length > maxAlign) {
-          maxAlign = length;
-        }
-        i--;
-        j--;
-      } else if (current == left + gap) {
-        j--;
-        length = 0;
-      } else if (current == up + gap) {
-        i--;
-        length = 0;
-      }
-    }
-    while (i > 0) {
-      // length++;
-      i--;
-    }
-    while (j > 0) {
-      // length++;
-      j--;
-    }
+//    int maxAlign = 0, length = 0;
+//    int i = maxI, j = maxJ;
+//    while (i > 0 && j > 0) {
+//      double current = h.get(i, j);
+//      double diag = h.get(i - 1, j - 1);
+//      double up = h.get(i - 1, j);
+//      double left = h.get(i, j - 1);
+//      if (current == 0) {
+//        break;
+//      } else if (current == diag + (a.equals(i - 1, b, j - 1) ? match : miss)) {
+//        length++;
+//        if (length > maxAlign) {
+//          maxAlign = length;
+//        }
+//        i--;
+//        j--;
+//      } else if (current == left + gap) {
+//        j--;
+//        length = 0;
+//      } else if (current == up + gap) {
+//        i--;
+//        length = 0;
+//      }
+//    }
+//    while (i > 0) {
+//      // length++;
+//      i--;
+//    }
+//    while (j > 0) {
+//      // length++;
+//      j--;
+//    }
 
 
     // int i = maxI, j = maxJ;
@@ -119,7 +119,7 @@ public class SmithWatermanSimilarity implements Similarity {
     // System.out.println(" ---------- " + computeScore(na, nb) + " " + minDist);
     // }
 
-    return maxScore / Math.max(a.size(), b.size());
+    return maxScore; /*/ Math.max(a.size(), b.size());*/
 
   }
 }

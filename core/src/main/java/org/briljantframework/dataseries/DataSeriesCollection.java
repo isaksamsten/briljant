@@ -195,6 +195,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   public DataFrame removeColumns(Iterable<Integer> indexes) {
     Set<Integer> set = Sets.newHashSet(indexes);
     Builder builder = newBuilder();
+    builder.getColumnNames().putAll(getColumnNames());
     for (int i = 0; i < rows(); i++) {
       Vector row = getRecord(i);
       Vector.Builder vecBuilder = row.newBuilder();

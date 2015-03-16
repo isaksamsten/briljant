@@ -47,7 +47,7 @@ public class Resolver<R> {
    * class matches)
    *
    * @param value the value to resolve
-   * @return the resolved value
+   * @return the resolved value; or {@code Vectors.naValue(value.getClass())} otherwise
    */
   public R resolve(Object value) {
     return resolve(value.getClass(), value);

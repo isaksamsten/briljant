@@ -12,8 +12,7 @@ public class ComplexVectorTest {
 
   @Before
   public void setUp() throws Exception {
-    // vector = new
-    // ComplexVector.Builder().add(1).add(2).add(Complex.NaN).add(Complex.ONE).create();
+    vector = new ComplexVector.Builder().add(1).add(2).add(Complex.NaN).add(Complex.ONE).build();
   }
 
   @Test
@@ -51,14 +50,14 @@ public class ComplexVectorTest {
   @Test
   public void testGetAsBinary() throws Exception {
     assertEquals(Bit.TRUE, vector.getAsBit(0));
-    assertEquals(Bit.FALSE, vector.getAsBit(1));
+    assertEquals(Bit.NA, vector.getAsBit(1));
     assertEquals(BitVector.NA, vector.getAsBit(2));
   }
 
   @Test
   public void testGetAsString() throws Exception {
-    assertEquals("1.0 + 0.0i", vector.getAsString(0));
-    assertEquals("2.0 + 0.0i", vector.getAsString(1));
+    assertEquals("1.0000 + 0.0000i", vector.getAsString(0));
+    assertEquals("2.0000 + 0.0000i", vector.getAsString(1));
     assertEquals(StringVector.NA, vector.getAsString(2));
   }
 

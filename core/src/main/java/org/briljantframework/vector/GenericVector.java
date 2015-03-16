@@ -235,14 +235,16 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
-      Resolver<?> resolver = Resolvers.find(cls);
-      String value = entry.nextString();
-      if (resolver == null || value == null) {
-        setNA(index);
-      } else {
-        Object resolve = resolver.resolve(value);
-        set(index, resolve);
-      }
+//      Resolver<?> resolver = Resolvers.find(cls);
+//      String value = entry.nextString();
+//      if (resolver == null || value == null) {
+//        setNA(index);
+//      } else {
+//        Object resolve = resolver.resolve(value);
+//        buffer.set(index, resolve);
+//      }
+      ensureCapacity(index);
+      buffer.set(index, entry.next(cls));
       return this;
     }
 

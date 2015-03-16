@@ -16,11 +16,6 @@
 
 package org.briljantframework.classification;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Callable;
-
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.dataframe.DataFrame;
@@ -32,9 +27,13 @@ import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Callable;
 
 /**
  * <h1>Publications</h1>
@@ -63,7 +62,7 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitMatrix oobIndicator = Matrices.newBitMatrix(x.rows(), size());
+    BitMatrix oobIndicator = BitMatrix.newBitMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumnView(i)));
     }
@@ -99,17 +98,17 @@ public class RandomShapeletForest extends Ensemble {
     private final Vector y;
     private final Vector classes;
     private final ShapeletTree.Builder builder;
-    private final BitMatrix outbag;
+    private final BitMatrix oobIndicator;
 
 
     private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder,
-        Vector classes, BitMatrix outbag) {
+                    Vector classes, BitMatrix oobIndicator) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
       this.classes = classes;
       this.builder = builder;
-      this.outbag = outbag;
+      this.oobIndicator = oobIndicator;
     }
 
     @Override
@@ -142,7 +141,7 @@ public class RandomShapeletForest extends Ensemble {
           if (bootstrap[id] > 0) {
             inSample.add(example.updateWeight(bootstrap[id]));
           } else {
-            outbag.set(id, true);
+            oobIndicator.set(id, true);
           }
         }
         if (!inSample.isEmpty()) {

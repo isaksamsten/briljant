@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.complex.Complex;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -16,14 +18,28 @@ import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import org.briljantframework.complex.Complex;
-
 /**
  * Implements a 2-dimensional matrix of complex numbers.
  *
  * @author Isak Karlsson
  */
 public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> {
+
+  static ComplexMatrix newVector(double... values) {
+    Complex[] c = new Complex[values.length];
+    for (int i = 0; i < c.length; i++) {
+      c[i] = Complex.valueOf(values[i]);
+    }
+    return new DefaultComplexMatrix(c);
+  }
+
+  static ComplexMatrix newMatrix(int rows, int colums) {
+    return new DefaultComplexMatrix(rows, colums);
+  }
+
+  static ComplexMatrix newVector(int size) {
+    return new DefaultComplexMatrix(size);
+  }
 
   /**
    * Assign {@code value} to {@code this}
@@ -38,8 +54,8 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   }
 
   /**
-   * Assign value returned by {@link #size()} successive calls to
-   * {@link java.util.function.DoubleSupplier#getAsDouble()}
+   * Assign value returned by {@link #size()} successive calls to {@link
+   * java.util.function.DoubleSupplier#getAsDouble()}
    *
    * @param supplier the supplier
    * @return receiver modified
@@ -47,8 +63,8 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   ComplexMatrix assign(Supplier<Complex> supplier);
 
   /**
-   * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
-   * {@code this.getShape()}.
+   * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal {@code
+   * this.getShape()}.
    *
    * @param matrix the matrix
    * @return receiver modified
@@ -58,7 +74,7 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param matrix   the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -77,7 +93,7 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
    *
-   * @param matrix the matrix
+   * @param matrix   the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -134,13 +150,12 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
   /**
-   * Reduces {@code this} into a real value. For example, summing can be implemented as
-   * {@code matrix.reduce(0, (a,b) -> a + b, x -> x)}
-   *
+   * Reduces {@code this} into a real value. For example, summing can be implemented as {@code
+   * matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
    * @param identity the initial value
-   * @param reduce takes two values and reduces them to one
-   * @param map takes a value and possibly transforms it
+   * @param reduce   takes two values and reduces them to one
+   * @param map      takes a value and possibly transforms it
    * @return the result
    */
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map);
@@ -178,73 +193,18 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
 
   /**
    * {@inheritDoc}
-   * 
-   * @param rows
-   * @param columns
    */
   @Override
   ComplexMatrix reshape(int rows, int columns);
 
-  void set(int index, Complex complex);
-
-  void set(int i, int j, Complex complex);
-
-  void setRow(int index, ComplexMatrix row);
-
-  void setColumn(int index, ComplexMatrix column);
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value Complex
-   */
-  Complex get(int i, int j);
-
-  /**
-   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
-   *
-   * <pre>
-   *     1 2 3
-   *     4 5 6
-   * </pre>
-   * <p>
-   * this code
-   * <p>
-   *
-   * <pre>
-   * for (int i = 0; i &lt; x.size(); i++) {
-   *   System.out.print(x.get(i));
-   * }
-   * </pre>
-   * <p>
-   * prints
-   * <p>
-   *
-   * <pre>
-   * 142536
-   * </pre>
-   *
-   * @param index the index
-   * @return the value index
-   */
-  Complex get(int index);
-
   /**
    * {@inheritDoc}
-   * 
-   * @param i
    */
   @Override
   ComplexMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
-   * 
-   * @param index
    */
   @Override
   ComplexMatrix getColumnView(int index);
@@ -257,11 +217,6 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
 
   /**
    * {@inheritDoc}
-   * 
-   * @param rowOffset
-   * @param colOffset
-   * @param rows
-   * @param columns
    */
   @Override
   ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns);
@@ -291,6 +246,17 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   ComplexMatrix slice(BitMatrix indexes, Axis axis);
 
   /**
+   * Construct a new empty matrix with {@code this.getClass()}
+   *
+   * @param rows    the number of rows
+   * @param columns the number of colums
+   * @return a new empty matrix (
+   */
+  ComplexMatrix newEmptyMatrix(int rows, int columns);
+
+  ComplexMatrix newEmptyVector(int size);
+
+  /**
    * Transpose matrix like.
    *
    * @return the matrix like
@@ -306,20 +272,52 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   @Override
   ComplexMatrix copy();
 
+  void set(int index, Complex complex);
+
+  void set(int i, int j, Complex complex);
+
+  void setRow(int index, ComplexMatrix row);
+
+  void setColumn(int index, ComplexMatrix column);
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value Complex
+   */
+  Complex get(int i, int j);
+
+  /**
+   * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
+   * column-major order. For example, given the following matrix <p>
+   *
+   * <pre>
+   *     1 2 3
+   *     4 5 6
+   * </pre>
+   * <p> this code <p>
+   *
+   * <pre>
+   * for (int i = 0; i &lt; x.size(); i++) {
+   *   System.out.print(x.get(i));
+   * }
+   * </pre>
+   * <p> prints <p>
+   *
+   * <pre>
+   * 142536
+   * </pre>
+   *
+   * @param index the index
+   * @return the value index
+   */
+  Complex get(int index);
+
   Stream<Complex> stream();
 
   List<Complex> asList();
-
-  /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows the number of rows
-   * @param columns the number of colums
-   * @return a new empty matrix (
-   */
-  ComplexMatrix newEmptyMatrix(int rows, int columns);
-
-  ComplexMatrix newEmptyVector(int size);
 
   /**
    * @return the matrix as a column-major Complex array
@@ -344,8 +342,8 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
 
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code other} with {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))},
+   * but in one pass.
    *
    * @param alpha scaling for {@code this*other}
    * @param other the other matrix
@@ -367,11 +365,12 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   ComplexMatrix mul(Complex alpha, ComplexMatrix other, Complex beta);
@@ -401,12 +400,12 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   ComplexMatrix add(Complex scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   ComplexMatrix add(Complex alpha, ComplexMatrix other, Complex beta);
@@ -428,12 +427,12 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
   ComplexMatrix sub(Complex scalar);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   ComplexMatrix sub(Complex alpha, ComplexMatrix other, Complex beta);

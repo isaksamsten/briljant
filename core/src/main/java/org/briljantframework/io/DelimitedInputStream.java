@@ -1,57 +1,58 @@
-/*
- * ADEB - machine learning pipelines made easy Copyright (C) 2014 Isak Karlsson
- * 
- * This program is free software; you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program; if
- * not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301 USA.
- */
-
 package org.briljantframework.io;
 
-import java.io.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import com.univocity.parsers.common.ParsingContext;
+import com.univocity.parsers.common.processor.RowProcessor;
+import com.univocity.parsers.csv.CsvFormat;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
+import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.VectorType;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Reads values from a typed CSV-file similar to those used in Rule Discovery System (RDS).
- * 
+ *
  * The file-format is simple, a comma separated file with the first two rows being the column names
  * and the types respectively.
- * 
- * The types are simple strings and are mapped to {@code briljant} data types as follows:
- * <ul>
- * <li>{@code numeric} and {@code regressor} {@link org.briljantframework.vector.DoubleVector}</li>
- * <li>{@code categoric} and {@code class} {@link org.briljantframework.vector.StringVector}</li>
- * </ul>
- * 
+ *
+ * <p>The types are simple strings and are mapped to {@code briljant} data types as follows:
+ *
+ * <ul> <li>{@code numeric} and {@code regressor}: {@link org.briljantframework.vector.DoubleVector}</li>
+ * <li>{@code categoric} and {@code class}: {@link org.briljantframework.vector.StringVector}</li>
+ * <li>{@code date}: {@link org.briljantframework.vector.GenericVector}</li> <li>{@code complex}:
+ * {@link org.briljantframework.vector.ComplexVector}</li> </ul>
+ *
  * By convention, missing values are represented as {@code ?}.
- * 
- * Created by Isak Karlsson on 14/08/14.
+ *
+ * @author Isak Karlsson
  */
 public class DelimitedInputStream extends DataInputStream {
 
-  public static final String INVALID_NAME = "Can't understand the type %s";
-  protected static final Map<String, VectorType> TYPE_MAP;
-  private static final String DEFAULT_SEPARATOR = ",";
+  private static final char DEFAULT_SEPARATOR = ',';
   private static final String DEFAULT_MISSING_VALUE = "?";
+  private static final Map<String, VectorType> TYPE_MAP;
 
   static {
     Map<String, VectorType> map = new HashMap<>();
+    map.put("complex", ComplexVector.TYPE);
     map.put("numeric", DoubleVector.TYPE);
+    map.put("date", VectorType.getInstance(Date.class));
     map.put("regressor", DoubleVector.TYPE);
     map.put("class", StringVector.TYPE);
     map.put("categoric", StringVector.TYPE);
@@ -59,159 +60,132 @@ public class DelimitedInputStream extends DataInputStream {
     TYPE_MAP = Collections.unmodifiableMap(map);
   }
 
-  private final BufferedReader reader;
-  private final String missingValue;
-  private final String separator;
-
-  private int currentType = -1;
-  private int currentName = -1;
-  private String[] types = null, names = null, values = null;
+  private final CsvParser parser;
+  private final RdsRowProcessor processor;
+  private String[] currentRow;
 
   /**
-   * Instantiates a new CSV input stream using {@code inputStream}.
-   *
-   * @param inputStream the input stream
+   * @param in the underlying input stream
    */
-  public DelimitedInputStream(InputStream inputStream, String missingValue, String separator) {
-    super(inputStream);
-    this.missingValue = missingValue;
-    this.separator = separator;
-    reader = new BufferedReader(new InputStreamReader(in));
+  public DelimitedInputStream(InputStream in, String missingValue, char separator) {
+    super(in);
+    CsvParserSettings settings = new CsvParserSettings();
+    settings.setIgnoreLeadingWhitespaces(true);
+    settings.setIgnoreTrailingWhitespaces(true);
+
+    CsvFormat format = new CsvFormat();
+    format.setDelimiter(DEFAULT_SEPARATOR);
+
+    processor = new RdsRowProcessor();
+    settings.setRowProcessor(processor);
+    parser = new CsvParser(settings);
+    parser.beginParsing(new InputStreamReader(in));
+    parser.parseNext();
+    parser.parseNext();
+
+    currentRow = null;
   }
 
+  /**
+   * @param inputStream
+   */
   public DelimitedInputStream(InputStream inputStream) {
     this(inputStream, DEFAULT_MISSING_VALUE, DEFAULT_SEPARATOR);
   }
 
-
   /**
    * Constructs a new buffered csv input stream from {@code file}
-   * 
+   *
    * @param file the file
-   * @throws FileNotFoundException
    */
   public DelimitedInputStream(File file) throws FileNotFoundException {
     this(new BufferedInputStream(new FileInputStream(file)), DEFAULT_MISSING_VALUE,
-        DEFAULT_SEPARATOR);
+         DEFAULT_SEPARATOR);
   }
+
 
   /**
    * @param fileName the file name
-   * @throws FileNotFoundException
    */
   public DelimitedInputStream(String fileName) throws FileNotFoundException {
     this(new File(fileName));
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public VectorType readColumnType() throws IOException {
-    initializeTypes();
-    if (currentType < types.length) {
-      String repr = types[currentType++].trim().toLowerCase();
-      VectorType type = TYPE_MAP.get(repr);
-      if (type == null) {
-        throw new IllegalArgumentException(String.format(INVALID_NAME, repr));
-      }
-      return type;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String readColumnName() throws IOException {
-    if (types == null) {
-      throw new IOException(NAMES_BEFORE_TYPE);
-    }
-    initializeNames();
-    if (currentName < names.length) {
-      return names[currentName++].trim();
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DataEntry next() throws IOException {
-    if (!hasNext()) {
-      throw new NoSuchElementException();
-    }
-    DataEntry entry = new StringDataEntry(values, missingValue);
-    values = null;
-    return entry;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasNext() throws IOException {
-    return initializeValues();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void close() throws IOException {
     super.close();
-    reader.close();
+    parser.stopParsing();
   }
 
-  private void initializeTypes() throws IOException {
-    if (types == null) {
-      String typeLine = reader.readLine();
-      if (typeLine == null) {
-        throw new IOException(UNEXPECTED_EOF);
-      }
-      types = typeLine.split(separator);
-      currentType = 0;
-    }
+  @Override
+  protected VectorType readColumnType() throws IOException {
+    throw new UnsupportedOperationException();
   }
 
-  private void initializeNames() throws IOException {
-    if (names == null) {
-      String namesLine = reader.readLine();
-      if (namesLine == null) {
-        throw new IOException(UNEXPECTED_EOF);
-      }
-      names = namesLine.split(separator);
-      if (names.length != types.length) {
-        throw new IOException(String.format(MISMATCH, types.length, names.length, 0));
-      }
-      currentName = 0;
-    }
+  @Override
+  protected String readColumnName() throws IOException {
+    throw new UnsupportedOperationException();
   }
 
-  /**
-   * @return true if successfully initialized and there are more values to consume
-   * @throws IOException
-   */
-  private boolean initializeValues() throws IOException {
-    if (names == null || types == null) {
-      throw new IOException(VALUES_BEFORE_NAMES_AND_TYPES);
-    }
-    if (values == null) {
-      String valueLine = reader.readLine();
-      if (valueLine == null) {
-        return false;
-      }
-      values = valueLine.split(separator);
-      if (values.length != types.length) {
-        throw new IOException(String.format(MISMATCH, types.length, values.length, 0));
-      }
-      // currentValue = 0;
-    }
-    return true;
+  @Override
+  public Collection<VectorType> readColumnTypes() throws IOException {
+    return processor.columnTypes;
   }
 
+  @Override
+  public Collection<String> readColumnNames() throws IOException {
+    return processor.columnNames;
+  }
+
+  @Override
+  public DataEntry next() throws IOException {
+    StringDataEntry entry = new StringDataEntry(currentRow, DEFAULT_MISSING_VALUE);
+    currentRow = null;
+    return entry;
+  }
+
+  @Override
+  public boolean hasNext() throws IOException {
+    if (currentRow == null) {
+      currentRow = parser.parseNext();
+    }
+
+    return currentRow != null;
+  }
+
+  private static class RdsRowProcessor implements RowProcessor {
+
+    private Collection<String> columnNames = null;
+
+    private Collection<VectorType> columnTypes = null;
+
+    @Override
+    public void processStarted(ParsingContext context) {
+    }
+
+    @Override
+    public void rowProcessed(String[] row, ParsingContext context) {
+      long line = context.currentLine();
+      if (line == 1) {
+        columnTypes = new ArrayList<>();
+        for (String col : row) {
+          VectorType type = TYPE_MAP.get(col);
+          if (type == null) {
+            throw new ParseException(line, context.currentColumn());
+          }
+          columnTypes.add(type);
+        }
+      } else if (line == 2) {
+        if (row.length != columnTypes.size()) {
+          throw new ParseException(line, context.currentColumn());
+        }
+        columnNames = new ArrayList<>();
+        Collections.addAll(columnNames, row);
+      }
+    }
+
+    @Override
+    public void processEnded(ParsingContext context) {
+    }
+  }
 }

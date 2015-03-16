@@ -1,10 +1,10 @@
 package org.briljantframework.distribution;
 
+import org.junit.Test;
+
 import static org.briljantframework.distribution.NormalDistribution.cdf;
 import static org.briljantframework.distribution.NormalDistribution.ppf;
 import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
 
 public class NormalDistributionTest {
 
@@ -12,7 +12,7 @@ public class NormalDistributionTest {
   public void testOt() throws Exception {
     double s = NormalDistribution.pdf(2, 0, 1);
     double e = NormalDistribution.pdf(2, 0, 1);
-    System.out.println(s - e);
+    assertEquals(0, s - e, 0);
   }
 
   @Test

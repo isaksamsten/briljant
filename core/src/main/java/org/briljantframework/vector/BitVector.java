@@ -227,9 +227,7 @@ public class BitVector extends AbstractBitVector {
     }
 
     public Builder add(int value) {
-      ensureCapacity(size());
-      buffer.buffer[size()] = value;
-      return this;
+      return set(size(), value);
     }
 
     private void ensureCapacity(int index) {
@@ -246,7 +244,6 @@ public class BitVector extends AbstractBitVector {
   public int size() {
     return values.length;
   }
-
 
 
   @Override

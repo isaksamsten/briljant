@@ -32,9 +32,7 @@ public class VectorsTest {
     assertEquals(Vectors.STRING, VectorType.getInstance(String.class));
     assertEquals(Vectors.DOUBLE, VectorType.getInstance(Double.TYPE));
     assertEquals(Vectors.INT, VectorType.getInstance(Integer.TYPE));
-    assertEquals(Vectors.VARIABLE, VectorType.getInstance(Object.class));
     assertEquals(Vectors.VARIABLE, VectorType.infer(null));
-
   }
 
   @Test

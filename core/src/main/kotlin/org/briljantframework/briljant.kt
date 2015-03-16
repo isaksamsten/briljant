@@ -24,11 +24,11 @@ fun matrix(vararg t: Int) = IntMatrix.of(*t)
 
 fun matrix(vararg t: Double) = DoubleMatrix.of(*t)
 
-fun matrix(vararg t: Long) = Matrices.newLongVector(*t)
+fun matrix(vararg t: Long) = LongMatrix.of(*t)
 
 fun matrix(vararg t: Complex) = Matrices.newComplexVector(*t)
 
-fun matrix(vararg t: Boolean) = Matrices.newBitVector(*t)
+fun matrix(vararg t: Boolean) = BitMatrix.newBitVector(*t)
 
 fun linspace(start: Double, end: Double, size: Int = 100) = Matrices.linspace(start, end, size)
 

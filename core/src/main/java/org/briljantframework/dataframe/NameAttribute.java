@@ -60,7 +60,7 @@ public class NameAttribute extends AbstractCollection<String> implements
 
   public void putAll(NameAttribute other) {
     for (IntObjectCursor<String> name : other.names) {
-      put(name.index, name.value);
+      put(name.key, name.value);
     }
   }
 

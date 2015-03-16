@@ -18,8 +18,9 @@ sourceSets {
 
 dependencies {
     compile(group: 'com.github.fommil.netlib', name: 'all', version: '1.1.2')
-
     compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+
+    compile group: 'com.univocity', name: 'univocity-parsers', version: '1.4.0'
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '2.6.1'
     compile group: 'com.carrotsearch', name: 'hppc', version: '0.6.1'

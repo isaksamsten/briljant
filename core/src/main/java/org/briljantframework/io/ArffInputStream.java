@@ -69,7 +69,7 @@ public class ArffInputStream extends DataInputStream {
            && (RELATION.matcher(currentLine).matches() || currentLine.trim().equals(""))) {
 
     }
-    Matcher attr = null;
+    Matcher attr;
     while (currentLine != null && (attr = ATTRIBUTE.matcher(currentLine)).matches()) {
       String name = attr.group(1);
       String typeRepr = attr.group(2).trim().toLowerCase();

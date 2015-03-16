@@ -1,14 +1,14 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.complex.Complex;
+import org.junit.Test;
+
 import static java.util.Arrays.asList;
-import static org.briljantframework.matrix.Matrices.*;
+import static org.briljantframework.matrix.Matrices.newComplexMatrix;
 import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
 import static org.briljantframework.matrix.MatrixAssert.assertValuesEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
-import org.briljantframework.complex.Complex;
-import org.junit.Test;
 
 public class AbstractComplexMatrixTest {
 
@@ -118,14 +118,15 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testFilter() throws Exception {
-    ComplexMatrix i = newComplexVector(0, 1, 2, 3, 4, 5, 6).filter(x -> x.real() > 3);
-    assertValuesEquals(newComplexVector(4, 5, 6), i);
+    ComplexMatrix i = ComplexMatrix.newVector(0, 1, 2, 3, 4, 5, 6).filter(x -> x.real() > 3);
+    assertValuesEquals(ComplexMatrix.newVector(4, 5, 6), i);
   }
 
   @Test
   public void testSatisfies() throws Exception {
-    BitMatrix i = newComplexVector(0, 1, 2, 3, 4, 5).satisfies(x -> x.real() >= 3);
-    MatrixAssert.assertValuesEquals(newBitVector(false, false, false, true, true, true), i);
+    BitMatrix i = ComplexMatrix.newVector(0, 1, 2, 3, 4, 5).satisfies(x -> x.real() >= 3);
+    MatrixAssert
+        .assertValuesEquals(BitMatrix.newBitVector(false, false, false, true, true, true), i);
   }
 
   @Test
@@ -170,21 +171,21 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testReshape() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
     assertEquals(2, x.rows());
     assertEquals(3, x.columns());
   }
 
   @Test
   public void testGet() throws Exception {
-    ComplexMatrix x = newComplexVector(0, 1, 2, 3, 4, 5).reshape(3, 2);
+    ComplexMatrix x = ComplexMatrix.newVector(0, 1, 2, 3, 4, 5).reshape(3, 2);
     assertEquals(Complex.valueOf(0), x.get(0));
     assertEquals(Complex.valueOf(5), x.get(5));
   }
 
   @Test
   public void testGet1() throws Exception {
-    ComplexMatrix x = newComplexVector(0, 1, 2, 3, 4, 5).reshape(3, 2);
+    ComplexMatrix x = ComplexMatrix.newVector(0, 1, 2, 3, 4, 5).reshape(3, 2);
     assertEquals(Complex.valueOf(0), x.get(0, 0));
     assertEquals(Complex.valueOf(3), x.get(0, 1));
     assertEquals(Complex.valueOf(4), x.get(1, 1));
@@ -234,7 +235,7 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testSet1() throws Exception {
-    ComplexMatrix x = newComplexVector(0, 1, 2, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(0, 1, 2, 3);
     assertEquals(Complex.valueOf(0), x.get(0));
     assertEquals(Complex.valueOf(1), x.get(1));
     assertEquals(Complex.valueOf(2), x.get(2));
@@ -243,7 +244,7 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testGetRowView() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     assertMatrixEquals(1, x.getRowView(0));
     assertMatrixEquals(2, x.getRowView(1));
     assertMatrixEquals(3, x.getRowView(2));
@@ -251,7 +252,7 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testGetColumnView() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 1, 1, 2, 2, 2, 3, 3, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 1, 1, 2, 2, 2, 3, 3, 3).reshape(3, 3);
     assertMatrixEquals(1, x.getColumnView(0));
     assertMatrixEquals(2, x.getColumnView(1));
     assertMatrixEquals(3, x.getColumnView(2));
@@ -264,13 +265,13 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testGetView() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 1, 1, 1, 2, 2).reshape(2, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 1, 1, 1, 2, 2).reshape(2, 3);
     assertMatrixEquals(1, x.getView(0, 0, 2, 2));
   }
 
   @Test
   public void testTranspose() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3).reshape(2, 3).transpose();
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3).reshape(2, 3).transpose();
     assertEquals(3, x.rows());
     assertEquals(2, x.columns());
     assertEquals(Complex.valueOf(1), x.get(0, 0));
@@ -279,7 +280,7 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testCopy() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 1, 1, 1);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 1, 1, 1);
     ComplexMatrix y = x.copy();
     x.set(0, Complex.valueOf(1000));
     assertEquals(Complex.valueOf(1), y.get(0));
@@ -300,56 +301,56 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testMmul() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
-    ComplexMatrix y = newComplexVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
+    ComplexMatrix y = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
 
     ComplexMatrix z = y.mmul(x);
-    ComplexMatrix za = newComplexVector(22, 28, 49, 64).reshape(2, 2);
+    ComplexMatrix za = ComplexMatrix.newVector(22, 28, 49, 64).reshape(2, 2);
     assertMatrixEquals(z, za);
 
     z = x.mmul(y);
-    za = newComplexVector(9, 12, 15, 19, 26, 33, 29, 40, 51).reshape(3, 3);
+    za = ComplexMatrix.newVector(9, 12, 15, 19, 26, 33, 29, 40, 51).reshape(3, 3);
     assertMatrixEquals(z, za);
   }
 
   @Test
   public void testMmul1() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
-    ComplexMatrix y = newComplexVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
+    ComplexMatrix y = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
 
     ComplexMatrix z = y.mmul(Complex.valueOf(2), x);
-    ComplexMatrix za = newComplexVector(44, 56, 98, 128).reshape(2, 2);
+    ComplexMatrix za = ComplexMatrix.newVector(44, 56, 98, 128).reshape(2, 2);
     assertMatrixEquals(z, za);
 
     z = x.mmul(Complex.valueOf(4), y);
-    za = newComplexVector(36, 48, 60, 76, 104, 132, 116, 160, 204).reshape(3, 3);
+    za = ComplexMatrix.newVector(36, 48, 60, 76, 104, 132, 116, 160, 204).reshape(3, 3);
     assertMatrixEquals(z, za);
   }
 
   @Test
   public void testMmul2() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
-    ComplexMatrix y = newComplexVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
+    ComplexMatrix y = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
 
     ComplexMatrix z = y.mmul(Transpose.YES, x, Transpose.NO);
-    ComplexMatrix za = newComplexVector(14, 32, 32, 77).reshape(2, 2);
+    ComplexMatrix za = ComplexMatrix.newVector(14, 32, 32, 77).reshape(2, 2);
     assertMatrixEquals(z, za);
 
     z = x.mmul(Transpose.NO, y, Transpose.YES);
-    za = newComplexVector(17, 22, 27, 22, 29, 36, 27, 36, 45).reshape(3, 3);
+    za = ComplexMatrix.newVector(17, 22, 27, 22, 29, 36, 27, 36, 45).reshape(3, 3);
     assertMatrixEquals(z, za);
   }
 
   @Test
   public void testMmul3() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
-    ComplexMatrix y = newComplexVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
+    ComplexMatrix y = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6).reshape(3, 2);
     ComplexMatrix z = y.mmul(Complex.valueOf(2), Transpose.YES, x, Transpose.NO);
-    ComplexMatrix za = newComplexVector(28, 64, 64, 154).reshape(2, 2);
+    ComplexMatrix za = ComplexMatrix.newVector(28, 64, 64, 154).reshape(2, 2);
     assertMatrixEquals(z, za);
 
     z = x.mmul(Complex.valueOf(2), Transpose.NO, y, Transpose.YES);
-    za = newComplexVector(34, 44, 54, 44, 58, 72, 54, 72, 90).reshape(3, 3);
+    za = ComplexMatrix.newVector(34, 44, 54, 44, 58, 72, 54, 72, 90).reshape(3, 3);
     assertMatrixEquals(z, za);
   }
 
@@ -622,89 +623,90 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testSlice1() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3).reshape(3, 2);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3).reshape(3, 2);
     ComplexMatrix slice = x.slice(Range.range(3));
-    assertValuesEquals(newComplexVector(1, 2, 3), slice);
+    assertValuesEquals(ComplexMatrix.newVector(1, 2, 3), slice);
   }
 
   @Test
   public void testSlice2() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     ComplexMatrix slice = x.slice(Range.range(2), Axis.ROW);
     assertEquals(2, slice.rows());
-    assertValuesEquals(newComplexVector(1, 1, 1), slice.getRowView(0));
-    assertValuesEquals(newComplexVector(2, 2, 2), slice.getRowView(1));
+    assertValuesEquals(ComplexMatrix.newVector(1, 1, 1), slice.getRowView(0));
+    assertValuesEquals(ComplexMatrix.newVector(2, 2, 2), slice.getRowView(1));
   }
 
   @Test
   public void testSlice3() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     ComplexMatrix s = x.slice(Range.range(2), Range.range(2));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
-    assertValuesEquals(newComplexVector(1, 1), s.getRowView(0));
-    assertValuesEquals(newComplexVector(2, 2), s.getRowView(1));
+    assertValuesEquals(ComplexMatrix.newVector(1, 1), s.getRowView(0));
+    assertValuesEquals(ComplexMatrix.newVector(2, 2), s.getRowView(1));
   }
 
   @Test
   public void testSlice4() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     ComplexMatrix s = x.slice(asList(0, 2, 5, 7));
-    assertValuesEquals(newComplexVector(1, 3, 3, 2), s);
+    assertValuesEquals(ComplexMatrix.newVector(1, 3, 3, 2), s);
   }
 
   @Test
   public void testSlice5() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     ComplexMatrix s = x.slice(asList(0, 2), Axis.ROW);
-    assertValuesEquals(newComplexVector(1, 1, 1), s.getRowView(0));
-    assertValuesEquals(newComplexVector(3, 3, 3), s.getRowView(1));
+    assertValuesEquals(ComplexMatrix.newVector(1, 1, 1), s.getRowView(0));
+    assertValuesEquals(ComplexMatrix.newVector(3, 3, 3), s.getRowView(1));
   }
 
   @Test
   public void testSlice6() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     ComplexMatrix s = x.slice(asList(0, 1), asList(0, 1));
-    assertValuesEquals(newComplexVector(1, 1), s.getRowView(0));
-    assertValuesEquals(newComplexVector(2, 2), s.getRowView(1));
+    assertValuesEquals(ComplexMatrix.newVector(1, 1), s.getRowView(0));
+    assertValuesEquals(ComplexMatrix.newVector(2, 2), s.getRowView(1));
   }
 
   @Test
   public void testSlice7() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
     BitMatrix bits =
-        newBitVector(true, true, true, false, false, false, false, false, false).reshape(3, 3);
+        BitMatrix.newBitVector(true, true, true, false, false, false, false, false, false)
+            .reshape(3, 3);
     ComplexMatrix s = x.slice(bits);
-    assertValuesEquals(newComplexVector(1, 2, 3), s);
+    assertValuesEquals(ComplexMatrix.newVector(1, 2, 3), s);
   }
 
   @Test
   public void testSlice() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
-    ComplexMatrix s = x.slice(newBitVector(true, false, true), Axis.ROW);
-    assertValuesEquals(newComplexVector(1, 1, 1), s.getRowView(0));
-    assertValuesEquals(newComplexVector(3, 3, 3), s.getRowView(1));
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 1, 2, 3, 1, 2, 3).reshape(3, 3);
+    ComplexMatrix s = x.slice(BitMatrix.newBitVector(true, false, true), Axis.ROW);
+    assertValuesEquals(ComplexMatrix.newVector(1, 1, 1), s.getRowView(0));
+    assertValuesEquals(ComplexMatrix.newVector(3, 3, 3), s.getRowView(1));
   }
 
   @Test
   public void testSwap() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3);
     x.swap(0, 2);
-    assertValuesEquals(newComplexVector(3, 2, 1), x);
+    assertValuesEquals(ComplexMatrix.newVector(3, 2, 1), x);
   }
 
   @Test
   public void testSetRow() throws Exception {
     ComplexMatrix x = newComplexMatrix(3, 3);
-    x.setRow(0, newComplexVector(1, 2, 3));
-    assertValuesEquals(newComplexVector(1, 2, 3), x.getRowView(0));
+    x.setRow(0, ComplexMatrix.newVector(1, 2, 3));
+    assertValuesEquals(ComplexMatrix.newVector(1, 2, 3), x.getRowView(0));
   }
 
   @Test
   public void testSetColumn() throws Exception {
     ComplexMatrix x = newComplexMatrix(3, 3);
-    x.setColumn(0, newComplexVector(1, 2, 3));
-    assertValuesEquals(newComplexVector(1, 2, 3), x.getColumnView(0));
+    x.setColumn(0, ComplexMatrix.newVector(1, 2, 3));
+    assertValuesEquals(ComplexMatrix.newVector(1, 2, 3), x.getColumnView(0));
   }
 
   @Test
@@ -724,7 +726,7 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testIterator() throws Exception {
-    ComplexMatrix x = newComplexVector(1, 2, 3, 4, 5, 6);
+    ComplexMatrix x = ComplexMatrix.newVector(1, 2, 3, 4, 5, 6);
     int i = 0;
     for (Complex v : x) {
       assertEquals(x.get(i++), v);

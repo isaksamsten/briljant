@@ -94,16 +94,15 @@ public class ValueVectorTest {
 
   }
 
-  @Test(expected = UnsupportedOperationException.class)
   public void testCompare() throws Exception {
     sequence.compare(0, 1);
   }
 
   @Test
   public void testGetAsObject() throws Exception {
-    assertEquals("1", sequence.get(0));
-    assertEquals("2", sequence.get(1));
-    assertEquals("hello", sequence.get(2));
+    assertEquals("1", sequence.get(0).getAsString());
+    assertEquals("2", sequence.get(1).getAsString());
+    assertEquals("hello", sequence.get(2).getAsString());
     assertEquals(VariableVector.NA, sequence.get(4));
   }
 
