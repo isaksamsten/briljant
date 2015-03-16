@@ -1,17 +1,18 @@
 package org.briljantframework.evaluation;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.Vector;
 
 import java.util.Iterator;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by isak on 09/03/15.
  */
 class FoldIterator implements Iterator<Partition> {
+
   private final int folds, foldSize, rows;
   private final DataFrame x;
   private final Vector y;
@@ -40,8 +41,10 @@ class FoldIterator implements Iterator<Partition> {
   public Partition next() {
     current += 1;
     DataFrame.Builder xTrainingBuilder = x.newBuilder();
+    xTrainingBuilder.getColumnNames().putAll(x.getColumnNames());
     Vector.Builder yTrainingBuilder = y.newBuilder();
     DataFrame.Builder xValidationBuilder = x.newBuilder();
+    xValidationBuilder.getColumnNames().putAll(x.getColumnNames());
     Vector.Builder yValidationBuilder = y.newBuilder();
 
     int index = 0;
@@ -92,6 +95,6 @@ class FoldIterator implements Iterator<Partition> {
 
     assert index == rows;
     return new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
-        yTrainingBuilder.build(), yValidationBuilder.build());
+                         yTrainingBuilder.build(), yValidationBuilder.build());
   }
 }

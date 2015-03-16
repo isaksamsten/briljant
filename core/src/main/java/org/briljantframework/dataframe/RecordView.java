@@ -12,7 +12,7 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 /**
- * Created by Isak Karlsson on 26/11/14.
+ * @author Isak Karlsson
  */
 public class RecordView implements Record {
 

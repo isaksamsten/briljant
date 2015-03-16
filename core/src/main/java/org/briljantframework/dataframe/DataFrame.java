@@ -40,7 +40,9 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  DataFrame setColumnNames(List<String> names);
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
@@ -48,11 +50,28 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
+  DataFrame setColumnNames(List<String> names);
 
-  <T> T getAs(Class<T> cls, int row, int column);
+  /**
+   * Get value at {@code row} and {@code column} as a value
+   *
+   * @param row    the row
+   * @param column the column
+   * @return the value
+   */
+  Value get(int row, int column);
+
+  /**
+   * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
+   * return {@code NA} as defined by {@link org.briljantframework.vector.Vectors#naValue(Class)}.
+   *
+   * @param cls    the class
+   * @param row    the row
+   * @param column the column
+   * @param <T>    the type of the returned value
+   * @return an instance of {@code T}
+   */
+  <T> T get(Class<T> cls, int row, int column);
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -98,15 +117,6 @@ public interface DataFrame extends Iterable<Record> {
    * @return the value
    */
   Complex getAsComplex(int row, int column);
-
-  /**
-   * Get value at {@code row} and {@code column} as a value
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  Value get(int row, int column);
 
   /**
    * Returns string representation of value at {@code row, column}

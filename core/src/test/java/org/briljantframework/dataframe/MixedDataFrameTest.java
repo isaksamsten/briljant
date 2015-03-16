@@ -207,7 +207,7 @@ public class MixedDataFrameTest {
     assertEquals(Vectors.VARIABLE, build.getColumnType(5));
     assertEquals(VectorType.getInstance(Date.class), build.getColumnType(6));
     assertEquals(new Date(321321321738L), build.getColumn(6).get(Date.class, 0));
-    assertEquals(1, (int) build.getAs(Integer.class, 0, 1));
+    assertEquals(1, (int) build.get(Integer.class, 0, 1));
   }
 
   @Test

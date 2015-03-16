@@ -65,7 +65,19 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int row, int column) {
+  public Value get(int row, int column) {
+    Vector rvec = series.get(row);
+    if (column >= 0 && column < rvec.size()) {
+      return rvec.get(column);
+    } else if (column >= 0 && column < columns) {
+      return VariableVector.NA;
+    } else {
+      throw new IndexOutOfBoundsException();
+    }
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
       return rvec.get(cls, column);
@@ -131,18 +143,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
       return rvec.getAsComplex(column);
     } else if (column >= 0 && column < columns) {
       return ComplexVector.NA;
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
-  @Override
-  public Value get(int row, int column) {
-    Vector rvec = series.get(row);
-    if (column >= 0 && column < rvec.size()) {
-      return rvec.get(column);
-    } else if (column >= 0 && column < columns) {
-      return VariableVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
     }

@@ -141,7 +141,12 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int row, int column) {
+  public Value get(int row, int column) {
+    return columns.get(column).get(row);
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int row, int column) {
     return columns.get(column).get(cls, row);
   }
 
@@ -168,11 +173,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   public Complex getAsComplex(int row, int column) {
     return columns.get(column).getAsComplex(row);
-  }
-
-  @Override
-  public Value get(int row, int column) {
-    return columns.get(column).get(row);
   }
 
   @Override

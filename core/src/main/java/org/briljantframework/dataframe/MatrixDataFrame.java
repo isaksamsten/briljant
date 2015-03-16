@@ -54,8 +54,22 @@ public class MatrixDataFrame extends AbstractDataFrame {
     this.matrix = matrix;
   }
 
+  /**
+   * Returns a {@link org.briljantframework.vector.DoubleValue} or {@link
+   * org.briljantframework.vector.Undefined#INSTANCE}
+   *
+   * @param row    the row
+   * @param column the column
+   * @return the value
+   */
   @Override
-  public <T> T getAs(Class<T> cls, int row, int column) {
+  public Value get(int row, int column) {
+    double value = matrix.get(row, column);
+    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int row, int column) {
     return cls.equals(Double.TYPE) || cls.equals(Double.class)
            ? cls.cast(getAsDouble(row, column)) : cls.cast(DoubleVector.NA);
   }
@@ -101,20 +115,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   public Complex getAsComplex(int row, int column) {
     double value = matrix.get(row, column);
     return Is.NA(value) ? Complex.NaN : new Complex(value);
-  }
-
-  /**
-   * Returns a {@link org.briljantframework.vector.DoubleValue} or {@link
-   * org.briljantframework.vector.Undefined#INSTANCE}
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  @Override
-  public Value get(int row, int column) {
-    double value = matrix.get(row, column);
-    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }
 
   @Override
