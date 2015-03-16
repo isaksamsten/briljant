@@ -27,7 +27,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Double && Is.NA((Double) value));
+      return value == null || (value instanceof Double && Is.NA(value));
     }
 
     @Override
@@ -56,8 +56,12 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return cls.cast(getAsDouble(index));
+  public <T> T get(Class<T> cls, int index) {
+    if (Double.class.isAssignableFrom(cls)) {
+      return cls.cast(getAsDouble(index));
+    } else {
+      return Vectors.naValue(cls);
+    }
   }
 
   @Override

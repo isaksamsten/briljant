@@ -28,8 +28,8 @@ public class DataFrameColumnView implements Vector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return getAs(cls, index);
+  public <T> T get(Class<T> cls, int index) {
+    return get(cls, index);
   }
 
   @Override

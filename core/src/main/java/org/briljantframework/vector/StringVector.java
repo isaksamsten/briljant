@@ -1,19 +1,20 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.briljantframework.io.DataEntry;
-
 /**
- * A StringVector contains string values or NA.
- * <p>
- * TODO(isak): It might be wasteful to store equal objects multiple times. Consider having a
- * subclass CompressedObjectVector or similar. TODO(isak): The CompressedStringVector requires
- * StringVector to be abstract Created by Isak Karlsson on 20/11/14.
+ * A StringVector contains string values or NA. <p> TODO(isak): It might be wasteful to store equal
+ * objects multiple times. Consider having a subclass CompressedObjectVector or similar. TODO(isak):
+ * The CompressedStringVector requires StringVector to be abstract Created by Isak Karlsson on
+ * 20/11/14.
  */
 public class StringVector extends AbstractStringVector {
 
@@ -122,10 +123,19 @@ public class StringVector extends AbstractStringVector {
       ensureCapacity(index);
 
       String str = StringVector.NA;
-      if (value != null && value instanceof String || value instanceof Number) {
-        str = value.toString();
-      } else if (value instanceof Value) {
-        str = ((Value) value).getAsString();
+      if (value != null) {
+        if (value instanceof Value) {
+          str = ((Value) value).getAsString();
+        } else {
+          Resolver<String> resolver = Resolvers.find(String.class);
+          if (resolver != null) {
+            str = resolver.resolve(value);
+          }
+
+          if (str == null) {
+            str = value.toString();
+          }
+        }
       }
       buffer.set(index, str);
       return this;

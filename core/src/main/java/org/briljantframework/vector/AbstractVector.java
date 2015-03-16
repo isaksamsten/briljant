@@ -14,7 +14,7 @@ public abstract class AbstractVector implements Vector {
   public Builder newCopyBuilder() {
     Builder builder = newBuilder(size());
     for (int i = 0; i < size(); i++) {
-      builder.add(this, i);
+      builder.set(i, this, i);
     }
     return builder;
   }

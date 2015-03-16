@@ -24,16 +24,16 @@ public class VectorsTest {
 
   @Test
   public void testInferType() throws Exception {
-    assertEquals(VectorType.DOUBLE, VectorType.getInstance(Double.class));
-    assertEquals(VectorType.INT, VectorType.getInstance(Integer.class));
-    assertEquals(VectorType.BIT, VectorType.getInstance(Boolean.class));
-    assertEquals(VectorType.BIT, VectorType.getInstance(Bit.class));
-    assertEquals(VectorType.COMPLEX, VectorType.getInstance(Complex.class));
-    assertEquals(VectorType.STRING, VectorType.getInstance(String.class));
-    assertEquals(VectorType.DOUBLE, VectorType.getInstance(Double.TYPE));
-    assertEquals(VectorType.INT, VectorType.getInstance(Integer.TYPE));
-    assertEquals(VectorType.VARIABLE, VectorType.getInstance(Object.class));
-    assertEquals(VectorType.VARIABLE, VectorType.infer(null));
+    assertEquals(Vectors.DOUBLE, VectorType.getInstance(Double.class));
+    assertEquals(Vectors.INT, VectorType.getInstance(Integer.class));
+    assertEquals(Vectors.BIT, VectorType.getInstance(Boolean.class));
+    assertEquals(Vectors.BIT, VectorType.getInstance(Bit.class));
+    assertEquals(Vectors.COMPLEX, VectorType.getInstance(Complex.class));
+    assertEquals(Vectors.STRING, VectorType.getInstance(String.class));
+    assertEquals(Vectors.DOUBLE, VectorType.getInstance(Double.TYPE));
+    assertEquals(Vectors.INT, VectorType.getInstance(Integer.TYPE));
+    assertEquals(Vectors.VARIABLE, VectorType.getInstance(Object.class));
+    assertEquals(Vectors.VARIABLE, VectorType.infer(null));
 
   }
 

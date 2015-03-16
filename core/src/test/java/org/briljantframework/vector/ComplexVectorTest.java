@@ -1,10 +1,10 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.assertEquals;
-
 import org.briljantframework.complex.Complex;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class ComplexVectorTest {
 
@@ -14,6 +14,14 @@ public class ComplexVectorTest {
   public void setUp() throws Exception {
     // vector = new
     // ComplexVector.Builder().add(1).add(2).add(Complex.NaN).add(Complex.ONE).create();
+  }
+
+  @Test
+  public void testBuilderAdd() throws Exception {
+    Vector.Builder builder = new ComplexVector.Builder();
+    builder.addAll("1+10i", "1+11i", "3-10i");
+    System.out.println(builder.build());
+
   }
 
   @Test

@@ -118,7 +118,7 @@ public interface DataFrame extends Iterable<Record> {
   String toString(int row, int column);
 
   /**
-   * Returns true if value at {@code row, column} is NA.
+   * Returns true if value at {@code row, column} is {@code NA}.
    *
    * @param row    the row
    * @param column the column
@@ -142,6 +142,7 @@ public interface DataFrame extends Iterable<Record> {
    *
    * @param index the index
    * @return the vector
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > columns}
    */
   Vector getColumn(int index);
 
@@ -150,6 +151,7 @@ public interface DataFrame extends Iterable<Record> {
    *
    * @param name the column name
    * @return the column
+   * @throws java.lang.IllegalArgumentException if key is not found
    */
   Vector getColumn(String name);
 
@@ -437,8 +439,7 @@ public interface DataFrame extends Iterable<Record> {
     Builder addColumnBuilder(Vector.Builder builder);
 
     /**
-     * Adds a new vector builder as an additional column using
-     * {@link org.briljantframework.vector.VectorType#newBuilder()}
+     * Adds a new vector builder as an additional column using {@link org.briljantframework.vector.VectorType#newBuilder()}
      *
      * @param type the type
      * @return receiver modified

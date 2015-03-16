@@ -34,8 +34,8 @@ public class GenericVectorType implements VectorType {
   @Override
   public int compare(int a, Vector va, int b, Vector ba) {
     if (Comparable.class.isAssignableFrom(cls)) {
-      Comparable oa = va.getAs(Comparable.class, a);
-      Comparable ob = va.getAs(Comparable.class, b);
+      Comparable oa = va.get(Comparable.class, a);
+      Comparable ob = va.get(Comparable.class, b);
 
       @SuppressWarnings("unchecked")
       int cmp = oa.compareTo(ob);
@@ -46,7 +46,7 @@ public class GenericVectorType implements VectorType {
 
   @Override
   public Scale getScale() {
-    return cls.isAssignableFrom(Comparable.class) ? Scale.NUMERICAL : Scale.NOMINAL;
+    return Number.class.isAssignableFrom(cls) ? Scale.NUMERICAL : Scale.NOMINAL;
   }
 
   @Override

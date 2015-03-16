@@ -31,8 +31,8 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return parent.getAs(cls, offset + index);
+  public <T> T get(Class<T> cls, int index) {
+    return parent.get(cls, offset + index);
   }
 
   @Override
@@ -131,22 +131,22 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Builder newBuilder() {
-    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
-  }
-
-  @Override
   public VectorType getType(int index) {
     return parent.getType(offset + index);
   }
 
   @Override
   public Builder newCopyBuilder() {
+    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
+  }
+
+  @Override
+  public Builder newBuilder() {
+    throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
     throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
   }
 }

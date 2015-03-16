@@ -9,6 +9,8 @@ import org.briljantframework.matrix.Matrix;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -40,7 +42,33 @@ public interface Vector extends Serializable {
    */
   Value get(int index);
 
-  <T> T getAs(Class<T> cls, int index);
+  /**
+   * Returns the value at {@code index} as an instance of {@code Class<T>}. If value at {@code
+   * index} is not an instance of {@code cls}, returns an appropriate {@code NA} value. For
+   * references types (apart from {@code Complex}) this means {@code null} and for {@code primitive}
+   * types their respective {@code NA} value. Hence, checking for {@code null} does not always work,
+   * instead {@link Is#NA(Object)} (and comrades) should be used.
+   *
+   * <pre>
+   *   Vector v = new GenericVector(Date.class, Arrays.asList(new Date(), new Date());
+   *   Date date = v.getAs(Date.class, 0);
+   *   if(Is.NA(date)) { // or date == null
+   *     // got a NA value
+   *   }
+   *
+   *   Vector v = ...; // for example an IntVector
+   *   int value = v.getAs(Integer.class, 32);
+   *   if(Is.NA(value)) { // or value == IntVector.NA (but not value == null)
+   *     // got a NA value
+   *   }
+   * </pre>
+   *
+   * @param cls   the class
+   * @param index the index
+   * @param <T>   the type
+   * @return a value of type; returns {@code NA} if value is not an instance of {@code cls}
+   */
+  <T> T get(Class<T> cls, int index);
 
   /**
    * Return the string representation of the value at {@code index}
@@ -155,6 +183,10 @@ public interface Vector extends Serializable {
    */
   VectorType getType(int index);
 
+  /**
+   * For values implementing {@link java.lang.Comparable}, {@link org.briljantframework.vector.Scale#NUMERICAL}
+   * should be returned; otherwise {@link org.briljantframework.vector.Scale#NOMINAL}.
+   */
   default Scale getScale() {
     return getType().getScale();
   }
@@ -184,8 +216,6 @@ public interface Vector extends Serializable {
   /**
    * Creates a new builder able to build vectors of this type. The constructed builder produces a
    * vector of length {@code size}, filled with NA.
-   *
-   * TODO(isak): add {@code newBuilderWithInitialCapacity(int capacity)}
    *
    * @param size the initial size
    * @return a new builder
@@ -423,6 +453,13 @@ public interface Vector extends Serializable {
      * size()} if {@code atIndex > size()}. <p> If value {@code value} cannot be added to this
      * vector type, a NA value is added instead.
      *
+     * <p>How values are resolved depend on the implementation but {@code null} always result in
+     * {@code NA} and an instance of {@link Value} always results in the value carried by the value.
+     * Finally, if {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a non-null
+     * value {@link org.briljantframework.io.reslover.Resolver#resolve(Class, Object)} is used
+     * (where the former {@code Class} is the value in the vector and the latter {@code Class} is
+     * {@code value.getClass()}).
+     *
      * @param index the index
      * @param value the value
      * @return a modified builder
@@ -436,6 +473,15 @@ public interface Vector extends Serializable {
      * @return a modified builder
      */
     Builder add(Object value);
+
+    default Builder addAll(Collection<Object> collection) {
+      collection.forEach(this::add);
+      return this;
+    }
+
+    default Builder addAll(Object... objects) {
+      return addAll(Arrays.asList(objects));
+    }
 
     /**
      * Add all values in {@code from} to this builder.
@@ -480,6 +526,13 @@ public interface Vector extends Serializable {
      * @param b the seconds index
      */
     void swap(int a, int b);
+
+    default Builder readAll(DataEntry entry) throws IOException {
+      while (entry.hasNext()) {
+        read(entry);
+      }
+      return this;
+    }
 
     /**
      * Reads a value from the input stream and appends it to the builder (after the last value).

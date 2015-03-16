@@ -18,46 +18,46 @@ package org.briljantframework.dataframe.transform;
 
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.NameAttribute;
 import org.briljantframework.vector.Vector;
 
 /**
  * Transformation that removes columns with missing values.
- * 
- * <p>
- * Given the DataFrame {@code x} equal to
- * 
+ *
+ * <p> Given the DataFrame {@code x} equal to
+ *
  * <pre>
  *    1  2 3
  *    NA 1 3
  *    1  2 3,
  * </pre>
- * 
+ *
  * the DataFrame {@code m} equal to
- * 
+ *
  * <pre>
  *     1  3 NA
  *     1  1 3
  *     2  2 2
  * </pre>
- * 
+ *
  * {@code new RemoveIncompleteColumns().transform(m)} returns a new DataFrame
- * 
+ *
  * <pre>
  *     1 3
  *     1 1
  *     2 2
  * </pre>
- * 
+ *
  * and {@code t.transform(x)} a new data frame
- * 
+ *
  * <pre>
  *     2 3
  *     1 3
  *     2 3
  * </pre>
- * 
+ *
  * </p>
- * 
+ *
  * @author Isak Karlsson
  */
 public class RemoveIncompleteColumns implements Transformation {
@@ -65,9 +65,14 @@ public class RemoveIncompleteColumns implements Transformation {
   @Override
   public DataFrame transform(DataFrame x) {
     DataFrame.Builder builder = x.newBuilder();
+    NameAttribute columnNames = builder.getColumnNames();
+    NameAttribute xColumnNames = x.getColumnNames();
 
-    for (Vector column : x.getColumns()) {
+    int j = 0;
+    for (int i = 0; i < x.columns(); i++) {
+      Vector column = x.getColumn(i);
       if (!column.hasNA()) {
+        columnNames.putFromIfPresent(j++, xColumnNames, i);
         builder.addColumn(column);
       }
     }

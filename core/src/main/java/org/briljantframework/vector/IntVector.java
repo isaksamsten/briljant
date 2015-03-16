@@ -1,13 +1,16 @@
 package org.briljantframework.vector;
 
-import java.io.IOException;
-import java.util.Arrays;
+import com.google.common.base.Preconditions;
+
+import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Utils;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -50,31 +53,13 @@ public class IntVector extends AbstractIntVector {
   }
 
   @Override
-  public int size() {
-    return values.length;
-  }
-
-  @Override
   public Builder newCopyBuilder() {
     return new Builder(toIntArray());
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return new Builder(size, size);
-  }
-
-  public int[] toIntArray() {
-    return values.clone();
-  }
-
-  public int[] asIntArray() {
-    return values;
+  public int size() {
+    return values.length;
   }
 
   public static final class Builder implements Vector.Builder {
@@ -126,12 +111,23 @@ public class IntVector extends AbstractIntVector {
 
     @Override
     public Builder set(int index, Object value) {
+      if (value == null) {
+        setNA(index);
+      }
       if (value instanceof Number) {
         ensureCapacity(index);
-        int intValue = ((Number) value).intValue();
-        buffer.buffer[index] = intValue;
+        buffer.buffer[index] = ((Number) value).intValue();
+      } else if (value instanceof Value) {
+        ensureCapacity(index);
+        buffer.buffer[index] = ((Value) value).getAsInt();
       } else {
-        setNA(index);
+        Resolver<Integer> resolver = Resolvers.find(Integer.class);
+        if (resolver != null) {
+          ensureCapacity(index);
+          buffer.buffer[index] = resolver.resolve(value);
+        } else {
+          setNA(index);
+        }
       }
 
       return this;
@@ -239,6 +235,24 @@ public class IntVector extends AbstractIntVector {
         buffer.elementsCount++;
       }
     }
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    return new Builder(size, size);
+  }
+
+  public int[] toIntArray() {
+    return values.clone();
+  }
+
+  public int[] asIntArray() {
+    return values;
   }
 
 

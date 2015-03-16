@@ -1,42 +1,12 @@
 package org.briljantframework.vector;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-
-import org.briljantframework.complex.Complex;
-
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Provides information of a particular vectors type.
  */
 public interface VectorType {
 
-  VectorType STRING = StringVector.TYPE;
-  VectorType BIT = BitVector.TYPE;
-  VectorType INT = IntVector.TYPE;
-  VectorType COMPLEX = ComplexVector.TYPE;
-  VectorType DOUBLE = DoubleVector.TYPE;
-  Set<VectorType> NUMERIC = Sets.newHashSet();
-  Set<VectorType> CATEGORIC = Sets.newHashSet();
-  VectorType VARIABLE = VariableVector.TYPE;
-  VectorType NA = Undefined.TYPE;
-
-  Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE =
-      ImmutableMap.<Class<?>, VectorType>builder()
-          .put(Integer.class, INT)
-          .put(Integer.TYPE, INT)
-          .put(Double.class, DOUBLE)
-          .put(Double.TYPE, DOUBLE)
-          .put(String.class, STRING)
-          .put(Boolean.class, BIT)
-          .put(Bit.class, BIT)
-          .put(Complex.class, COMPLEX)
-          .build();
-
   static VectorType getInstance(Class<?> cls) {
-    VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
+    VectorType type = Vectors.CLASS_TO_VECTOR_TYPE.get(cls);
     if (type == null) {
       return new GenericVectorType(cls);
     }
@@ -47,7 +17,7 @@ public interface VectorType {
     if (object != null) {
       return getInstance(object.getClass());
     } else {
-      return VARIABLE;
+      return Vectors.VARIABLE;
     }
   }
 

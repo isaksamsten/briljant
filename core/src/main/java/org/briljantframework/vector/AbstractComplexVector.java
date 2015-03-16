@@ -56,8 +56,12 @@ public abstract class AbstractComplexVector extends AbstractVector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return cls.cast(getAsComplex(index));
+  public <T> T get(Class<T> cls, int index) {
+    if (Complex.class.isAssignableFrom(cls)) {
+      return cls.cast(getAsInt(index));
+    } else {
+      return Vectors.naValue(cls);
+    }
   }
 
   /**

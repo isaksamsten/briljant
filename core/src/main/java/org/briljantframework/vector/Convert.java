@@ -41,7 +41,9 @@ public final class Convert {
   }
 
   public static Value toValue(Object object) {
-    if (object instanceof String) {
+    if (object == null) {
+      return Undefined.INSTANCE;
+    } else if (object instanceof String) {
       return toValue((String) object);
     } else if (object instanceof Double) {
       return toValue((double) object);

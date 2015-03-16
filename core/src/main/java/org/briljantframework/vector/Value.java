@@ -67,8 +67,8 @@ public interface Value extends Vector, Comparable<Value> {
     return this;
   }
 
-  default <T> T getAs(Class<T> cls) {
-    return getAs(cls, 0);
+  default <T> T get(Class<T> cls) {
+    return get(cls, 0);
   }
 
   /**

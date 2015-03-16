@@ -33,8 +33,8 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return get(index).getAs(cls, 0);
+  public <T> T get(Class<T> cls, int index) {
+    return get(index).get(cls, 0);
   }
 
   @Override
@@ -93,16 +93,6 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return new Builder(size);
-  }
-
-  @Override
   public VectorType getType(int index) {
     return values.get(index).getType();
   }
@@ -110,6 +100,16 @@ public class ValueVector extends AbstractVector implements VariableVector {
   @Override
   public Builder newCopyBuilder() {
     return new Builder(new ArrayList<>(values));
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    return new Builder(size);
   }
 
   // @Override

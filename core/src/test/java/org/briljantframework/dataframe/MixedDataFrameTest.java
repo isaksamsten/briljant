@@ -3,20 +3,25 @@ package org.briljantframework.dataframe;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
+import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.reslover.StringDateConverter;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.ValueVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,16 +50,16 @@ public class MixedDataFrameTest {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     builder.setNA(0, 0);
     builder.setNA(0, 4);
-    builder.addColumnBuilder(VectorType.DOUBLE);
+    builder.addColumnBuilder(Vectors.DOUBLE);
     builder.setNA(5, 5);
 
     DataFrame build = builder.build();
-    assertEquals(VectorType.VARIABLE, build.getColumnType(0));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(1));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(2));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(3));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(4));
-    assertEquals(VectorType.DOUBLE, build.getColumnType(5));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(0));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(1));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(2));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(3));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(4));
+    assertEquals(Vectors.DOUBLE, build.getColumnType(5));
     assertTrue(Is.NA(build.getAsDouble(5, 5)));
   }
 
@@ -97,12 +102,12 @@ public class MixedDataFrameTest {
     builder.set(6, 6, new Date());
 
     DataFrame build = builder.build();
-    assertEquals(VectorType.DOUBLE, build.getColumnType(0));
-    assertEquals(VectorType.INT, build.getColumnType(1));
-    assertEquals(VectorType.STRING, build.getColumnType(2));
-    assertEquals(VectorType.COMPLEX, build.getColumnType(3));
-    assertEquals(VectorType.BIT, build.getColumnType(4));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(5));
+    assertEquals(Vectors.DOUBLE, build.getColumnType(0));
+    assertEquals(Vectors.INT, build.getColumnType(1));
+    assertEquals(Vectors.STRING, build.getColumnType(2));
+    assertEquals(Vectors.COMPLEX, build.getColumnType(3));
+    assertEquals(Vectors.BIT, build.getColumnType(4));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(5));
     assertEquals(VectorType.getInstance(Date.class), build.getColumnType(6));
   }
 
@@ -121,12 +126,12 @@ public class MixedDataFrameTest {
                                                     Convert.toValue(new Complex(3)))));
 
     DataFrame build = builder.build();
-    assertEquals(VectorType.STRING, build.getColumnType(0));
-    assertEquals(VectorType.INT, build.getColumnType(1));
-    assertEquals(VectorType.DOUBLE, build.getColumnType(2));
-    assertEquals(VectorType.COMPLEX, build.getColumnType(3));
-    assertEquals(VectorType.BIT, build.getColumnType(4));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(5));
+    assertEquals(Vectors.STRING, build.getColumnType(0));
+    assertEquals(Vectors.INT, build.getColumnType(1));
+    assertEquals(Vectors.DOUBLE, build.getColumnType(2));
+    assertEquals(Vectors.COMPLEX, build.getColumnType(3));
+    assertEquals(Vectors.BIT, build.getColumnType(4));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(5));
 
     assertEquals(1, build.getAsInt(0, 1));
     assertEquals("1", build.getAsString(0, 0));
@@ -139,12 +144,12 @@ public class MixedDataFrameTest {
   @Test
   public void testBuilderAddBuilder() throws Exception {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.addColumnBuilder(VectorType.STRING);
-    builder.addColumnBuilder(VectorType.INT);
-    builder.addColumnBuilder(VectorType.DOUBLE);
-    builder.addColumnBuilder(VectorType.COMPLEX);
-    builder.addColumnBuilder(VectorType.BIT);
-    builder.addColumnBuilder(VectorType.VARIABLE);
+    builder.addColumnBuilder(Vectors.STRING);
+    builder.addColumnBuilder(Vectors.INT);
+    builder.addColumnBuilder(Vectors.DOUBLE);
+    builder.addColumnBuilder(Vectors.COMPLEX);
+    builder.addColumnBuilder(Vectors.BIT);
+    builder.addColumnBuilder(Vectors.VARIABLE);
     builder.set(0, 0, "hello")
         .set(0, 1, 1)
         .set(0, 2, 2)
@@ -153,28 +158,28 @@ public class MixedDataFrameTest {
         .set(0, 5, new Date());
 
     DataFrame build = builder.build();
-    assertEquals(VectorType.STRING, build.getColumnType(0));
+    assertEquals(Vectors.STRING, build.getColumnType(0));
     assertEquals("hello", build.getAsString(0, 0));
-    assertEquals(VectorType.INT, build.getColumnType(1));
+    assertEquals(Vectors.INT, build.getColumnType(1));
     assertEquals(1, build.getAsInt(0, 1));
-    assertEquals(VectorType.DOUBLE, build.getColumnType(2));
+    assertEquals(Vectors.DOUBLE, build.getColumnType(2));
     assertEquals(2, build.getAsDouble(0, 2), 0);
-    assertEquals(VectorType.COMPLEX, build.getColumnType(3));
+    assertEquals(Vectors.COMPLEX, build.getColumnType(3));
     assertEquals(Complex.I, build.getAsComplex(0, 3));
-    assertEquals(VectorType.BIT, build.getColumnType(4));
+    assertEquals(Vectors.BIT, build.getColumnType(4));
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(5));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(5));
   }
 
   @Test
   public void testBuilderAddBuilder1() throws Exception {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.addColumnBuilder(VectorType.STRING.newBuilder());
-    builder.addColumnBuilder(VectorType.INT.newBuilder());
-    builder.addColumnBuilder(VectorType.DOUBLE.newBuilder());
-    builder.addColumnBuilder(VectorType.COMPLEX.newBuilder());
-    builder.addColumnBuilder(VectorType.BIT.newBuilder());
-    builder.addColumnBuilder(VectorType.VARIABLE.newBuilder());
+    builder.addColumnBuilder(Vectors.STRING.newBuilder());
+    builder.addColumnBuilder(Vectors.INT.newBuilder());
+    builder.addColumnBuilder(Vectors.DOUBLE.newBuilder());
+    builder.addColumnBuilder(Vectors.COMPLEX.newBuilder());
+    builder.addColumnBuilder(Vectors.BIT.newBuilder());
+    builder.addColumnBuilder(Vectors.VARIABLE.newBuilder());
     builder.addColumnBuilder(VectorType.getInstance(Date.class).newBuilder());
 
     builder.set(0, 0, "hello")
@@ -183,23 +188,26 @@ public class MixedDataFrameTest {
         .set(0, 3, Complex.I)
         .set(0, 4, true)
         .set(0, 5, "dsadsA")
-        .set(0, 6, new Date(321321321738L));
+        .set(0, 6, new Date(321321321738L))
+        .set(1, 6, 1232L)
+        .set(2, 6, "2015-03-15");
 
     DataFrame build = builder.build();
     System.out.println(build);
-    assertEquals(VectorType.STRING, build.getColumnType(0));
+    assertEquals(Vectors.STRING, build.getColumnType(0));
     assertEquals("hello", build.getAsString(0, 0));
-    assertEquals(VectorType.INT, build.getColumnType(1));
+    assertEquals(Vectors.INT, build.getColumnType(1));
     assertEquals(1, build.getAsInt(0, 1));
-    assertEquals(VectorType.DOUBLE, build.getColumnType(2));
+    assertEquals(Vectors.DOUBLE, build.getColumnType(2));
     assertEquals(2, build.getAsDouble(0, 2), 0);
-    assertEquals(VectorType.COMPLEX, build.getColumnType(3));
+    assertEquals(Vectors.COMPLEX, build.getColumnType(3));
     assertEquals(Complex.I, build.getAsComplex(0, 3));
-    assertEquals(VectorType.BIT, build.getColumnType(4));
+    assertEquals(Vectors.BIT, build.getColumnType(4));
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
-    assertEquals(VectorType.VARIABLE, build.getColumnType(5));
+    assertEquals(Vectors.VARIABLE, build.getColumnType(5));
     assertEquals(VectorType.getInstance(Date.class), build.getColumnType(6));
-    assertEquals(new Date(321321321738L), build.getColumn(6).getAs(Date.class, 0));
+    assertEquals(new Date(321321321738L), build.getColumn(6).get(Date.class, 0));
+    assertEquals(1, (int) build.getAs(Integer.class, 0, 1));
   }
 
   @Test
@@ -305,13 +313,24 @@ public class MixedDataFrameTest {
 
   @Test
   public void testRemoveColumnUsingBuilder() throws Exception {
-    StringVector a = new StringVector.Builder().add("a").add("b").add("c").addNA().build();
+    Resolvers.find(Date.class)
+        .put(String.class, new StringDateConverter(new SimpleDateFormat("yyyy-MM-dd")));
+    StringVector a = new StringVector.Builder().add("a").add("b").add(32).addNA().build();
     DoubleVector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).build();
+    Vector c = new GenericVector.Builder(Date.class)
+        .add("2011-03-23")
+        .add(1000L)
+        .add(new Date())
+        .add(new Date())
+        .build();
 
-    DataFrame frame = new MixedDataFrame(a, b);
+    DataFrame frame = new MixedDataFrame(a, b, c);
+    frame.setColumnNames("a", "b");
     frame = new RemoveIncompleteColumns().transform(frame);
     System.out.println(frame);
-    assertEquals("The second column should be removed", 1, frame.columns());
-    assertEquals("The column names should be retained", "1", frame.getColumnName(0));
+
+    System.out.println(frame.getColumn("b"));
+    assertEquals("The second column should be removed", 2, frame.columns());
+    assertEquals("The column names should be retained", "b", frame.getColumnName(0));
   }
 }

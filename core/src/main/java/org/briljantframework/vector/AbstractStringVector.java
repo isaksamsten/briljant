@@ -61,14 +61,18 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return cls.cast(getAsString(index));
+  public <T> T get(Class<T> cls, int index) {
+    if (String.class.isAssignableFrom(cls)) {
+      return cls.cast(getAsString(index));
+    } else {
+      return Vectors.naValue(cls);
+    }
   }
 
   @Override
   public String toString(int index) {
     String value = getAsString(index);
-    return value == AbstractStringVector.NA ? "NA" : value;
+    return value == StringVector.NA ? "NA" : value;
   }
 
   @Override
@@ -154,7 +158,7 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   protected double tryParseDouble(String str) {
-    if (str == AbstractStringVector.NA) {
+    if (str == StringVector.NA) {
       return DoubleVector.NA;
     }
     Double d = Doubles.tryParse(str);
@@ -166,7 +170,7 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   protected int tryParseInteger(String str) {
-    if (str == AbstractStringVector.NA) {
+    if (str == StringVector.NA) {
       return IntVector.NA;
     }
     Double i = Doubles.tryParse(str);

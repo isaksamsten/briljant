@@ -8,7 +8,7 @@ import org.briljantframework.io.SequenceInputStream
 import org.briljantframework.dataseries.DataSeriesCollection
 import org.briljantframework.io.MatlabTextInputStream
 import org.briljantframework.io.ArffInputStream
-import org.briljantframework.vector.VectorType
+import org.briljantframework.vector.Vectors
 
 fun loadCSV(file: File): DataFrame {
     DelimitedInputStream(FileInputStream(file)).use {
@@ -21,13 +21,13 @@ fun loadCSV(file: File): DataFrame {
 
 fun loadSequence(file: File): DataFrame {
     SequenceInputStream(FileInputStream(file)).use {
-        return DataSeriesCollection.Builder(VectorType.STRING).read(it).build()
+        return DataSeriesCollection.Builder(Vectors.STRING).read(it).build()
     }
 }
 
 fun loadMatlab(file: File): DataFrame {
     MatlabTextInputStream(FileInputStream(file)).use {
-        return DataSeriesCollection.Builder(VectorType.DOUBLE).read(it).build()
+        return DataSeriesCollection.Builder(Vectors.DOUBLE).read(it).build()
     }
 }
 

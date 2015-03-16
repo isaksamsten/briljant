@@ -6,6 +6,7 @@ import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Undefined;
 import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -74,9 +75,9 @@ public class ArffInputStream extends DataInputStream {
       String typeRepr = attr.group(2).trim().toLowerCase();
       VectorType type = TYPE_MAP.getOrDefault(typeRepr, Undefined.TYPE);
       columnNames.add(name);
-      if (type.equals(VectorType.NA)) {
+      if (type.equals(Vectors.UNDEFINED)) {
         columnTypes.add(type);
-      } else if (type.equals(VectorType.NA) && (NOMINAL.matcher(typeRepr)).matches()) {
+      } else if (type.equals(Vectors.UNDEFINED) && (NOMINAL.matcher(typeRepr)).matches()) {
         columnTypes.add(StringVector.TYPE);
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));

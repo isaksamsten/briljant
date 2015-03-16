@@ -8,6 +8,7 @@ import org.briljantframework.matrix.storage.VectorStorage;
  * @author Isak Karlsson
  */
 public abstract class AbstractIntVector extends AbstractVector {
+
   /**
    * The constant NA.
    */
@@ -30,7 +31,7 @@ public abstract class AbstractIntVector extends AbstractVector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Integer && (int) value == NA);
+      return value == null || (value instanceof Integer && (int) value == IntVector.NA);
     }
 
     @Override
@@ -56,8 +57,12 @@ public abstract class AbstractIntVector extends AbstractVector {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return cls.cast(getAsInt(index));
+  public <T> T get(Class<T> cls, int index) {
+    if (Integer.class.isAssignableFrom(cls)) {
+      return cls.cast(getAsInt(index));
+    } else {
+      return Vectors.naValue(cls);
+    }
   }
 
   @Override

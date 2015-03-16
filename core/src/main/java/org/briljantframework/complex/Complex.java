@@ -2,6 +2,8 @@ package org.briljantframework.complex;
 
 import com.google.common.base.Preconditions;
 
+import java.text.ParsePosition;
+
 /**
  * Implementing complex
  *
@@ -10,23 +12,19 @@ import com.google.common.base.Preconditions;
 public final class Complex extends Number {
 
   public static final Complex I = new Complex(0, 1);
-
   public static final Complex POSITIVE_INFINITY = new Complex(Double.POSITIVE_INFINITY,
-      Double.POSITIVE_INFINITY);
-
+                                                              Double.POSITIVE_INFINITY);
   public static final Complex NEGATIVE_INFINITY = new Complex(Double.NEGATIVE_INFINITY,
-      Double.NEGATIVE_INFINITY);
-
+                                                              Double.NEGATIVE_INFINITY);
   public static final Complex ONE = new Complex(1, 0);
-
   public static final Complex ZERO = new Complex(0, 0);
-
   public static final Complex NaN = new Complex(Double.NaN, Double.NaN);
-
   public static final Complex NEG_I = I.negate();
+
   protected static final double LOG_10 = Math.log(10);
   protected static final double LOG_2 = Math.log(2);
 
+  private static final ComplexFormat FORMAT = new ComplexFormat();
 
   private final double real, imag;
   private final boolean isNaN;
@@ -41,6 +39,18 @@ public final class Complex extends Number {
 
   public Complex(double real) {
     this(real, 0);
+  }
+
+  public static Complex tryParse(String s) {
+    return FORMAT.parse(s, new ParsePosition(0));
+  }
+
+  public static Complex parse(String s) throws NumberFormatException {
+    Complex c = tryParse(s);
+    if (c == null) {
+      throw new NumberFormatException(String.format("For input string: %s", s));
+    }
+    return c;
   }
 
   public static Complex valueOf(double real) {
@@ -60,7 +70,7 @@ public final class Complex extends Number {
 
   /**
    * Return the square root of {@code real}. Safely handles the {@code real < 0} case.
-   * 
+   *
    * @param real the real value
    * @return a complex; possible with an imaginary part
    */
@@ -106,7 +116,8 @@ public final class Complex extends Number {
     if (isNaN() || other.isNaN()) {
       return NaN;
     }
-    return new Complex(real * other.real - imag * other.imag, real * other.imag + imag * other.real);
+    return new Complex(real * other.real - imag * other.imag,
+                       real * other.imag + imag * other.real);
   }
 
   public Complex multiply(double other) {
@@ -411,16 +422,20 @@ public final class Complex extends Number {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
 
     Complex complex = (Complex) o;
-    if (Double.compare(complex.imag, imag) != 0)
+    if (Double.compare(complex.imag, imag) != 0) {
       return false;
-    if (Double.compare(complex.real, real) != 0)
+    }
+    if (Double.compare(complex.real, real) != 0) {
       return false;
+    }
 
     return true;
   }

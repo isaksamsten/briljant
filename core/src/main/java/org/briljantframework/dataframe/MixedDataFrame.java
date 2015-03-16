@@ -11,6 +11,7 @@ import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vectors;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,8 +28,9 @@ import java.util.stream.Stream;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types. <p> Created
- * by Isak Karlsson on 21/11/14.
+ * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
+ *
+ * @author Isak Karlsson
  */
 public class MixedDataFrame extends AbstractDataFrame {
 
@@ -140,7 +142,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   public <T> T getAs(Class<T> cls, int row, int column) {
-    return columns.get(column).getAs(cls, row);
+    return columns.get(column).get(cls, row);
   }
 
   @Override
@@ -422,14 +424,14 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder setNA(int row, int column) {
-      ensureColumnCapacity(column, VectorType.VARIABLE);
+      ensureColumnCapacity(column, Vectors.VARIABLE);
       buffers.get(column).setNA(row);
       return this;
     }
 
     @Override
     public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
-      ensureColumnCapacity(toCol - 1, VectorType.VARIABLE);
+      ensureColumnCapacity(toCol - 1, Vectors.VARIABLE);
       ensureColumnCapacity(toCol, from.getColumnType(fromCol));
       buffers.get(toCol).set(toRow, from.getColumn(fromCol), fromRow);
       return this;
@@ -437,7 +439,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder set(int row, int column, Vector from, int index) {
-      ensureColumnCapacity(column - 1, VectorType.VARIABLE);
+      ensureColumnCapacity(column - 1, Vectors.VARIABLE);
       ensureColumnCapacity(column, from.getType(index));
       buffers.get(column).set(row, from, index);
       return this;
@@ -445,7 +447,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder set(int row, int column, Object value) {
-      ensureColumnCapacity(column - 1, VectorType.VARIABLE);
+      ensureColumnCapacity(column - 1, Vectors.VARIABLE);
       ensureColumnCapacity(column, VectorType.infer(value));
       buffers.get(column).set(row, value);
       return this;

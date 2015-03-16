@@ -36,8 +36,8 @@ public class DataSeries implements Record {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
-    return vector.getAs(cls, index);
+  public <T> T get(Class<T> cls, int index) {
+    return vector.get(cls, index);
   }
 
   @Override

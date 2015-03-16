@@ -68,7 +68,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   public <T> T getAs(Class<T> cls, int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.getAs(cls, column);
+      return rvec.get(cls, column);
     } else if (column >= 0 && column < columns) {
       return Vectors.naValue(cls);
     } else {

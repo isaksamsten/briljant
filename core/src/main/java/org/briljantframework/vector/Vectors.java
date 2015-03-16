@@ -2,8 +2,10 @@ package org.briljantframework.vector;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
 
@@ -31,15 +33,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Vectors {
 
-  private static final Map<Class<?>, Object> CLASS_TO_NA;
-
+  public static final VectorType STRING = StringVector.TYPE;
+  public static final VectorType BIT = BitVector.TYPE;
+  public static final VectorType INT = IntVector.TYPE;
+  public static final VectorType COMPLEX = ComplexVector.TYPE;
+  public static final VectorType DOUBLE = DoubleVector.TYPE;
+  public static final VectorType VARIABLE = VariableVector.TYPE;
+  public static final VectorType UNDEFINED = Undefined.TYPE;
+  public static final Set<VectorType> NUMERIC = Sets.newHashSet();
+  public static final Set<VectorType> CATEGORIC = Sets.newHashSet();
+  public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
   static {
-    VectorType.NUMERIC.add(VectorType.DOUBLE);
-    VectorType.NUMERIC.add(VectorType.INT);
-    VectorType.NUMERIC.add(VectorType.COMPLEX);
+    NUMERIC.add(DOUBLE);
+    NUMERIC.add(INT);
+    NUMERIC.add(COMPLEX);
 
-    VectorType.CATEGORIC.add(VectorType.STRING);
-    VectorType.CATEGORIC.add(VectorType.BIT);
+    CATEGORIC.add(STRING);
+    CATEGORIC.add(BIT);
 
     Map<Class<?>, Object> clsToNa = new HashMap<>();
     clsToNa.put(Integer.class, IntVector.NA);
@@ -51,7 +61,20 @@ public final class Vectors {
     clsToNa.put(Complex.class, ComplexVector.NA);
     clsToNa.put(Object.class, null);
     CLASS_TO_NA = Collections.unmodifiableMap(clsToNa);
+
+    CLASS_TO_VECTOR_TYPE = ImmutableMap.<Class<?>, VectorType>builder()
+        .put(Integer.class, INT)
+        .put(Integer.TYPE, INT)
+        .put(Double.class, DOUBLE)
+        .put(Double.TYPE, DOUBLE)
+        .put(String.class, STRING)
+        .put(Boolean.class, BIT)
+        .put(Bit.class, BIT)
+        .put(Complex.class, COMPLEX)
+        .build();
   }
+
+  private static final Map<Class<?>, Object> CLASS_TO_NA;
 
   private Vectors() {
   }
@@ -404,6 +427,15 @@ public final class Vectors {
   public static double max(Vector column) {
     return column.stream().filter(x -> !x.isNA()).mapToDouble(Value::getAsDouble).max()
         .orElse(DoubleVector.NA);
+  }
+
+  public static <T> Map<T, Integer> count(Class<T> cls, Vector vector) {
+    Map<T, Integer> count = new HashMap<>();
+    for (int i = 0; i < vector.size(); i++) {
+      T value = vector.get(cls, i);
+      count.compute(value, (x, v) -> v == null ? 1 : v + 1);
+    }
+    return Collections.unmodifiableMap(count);
   }
 
   public static Map<Value, Integer> count(Vector vector) {

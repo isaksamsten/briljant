@@ -20,7 +20,7 @@ public class GenericValue extends AbstractVector implements Value {
   public int compareTo(Value o) {
     if (obj instanceof Comparable) {
       Comparable a = (Comparable) obj;
-      Comparable b = o.getAs(Comparable.class);
+      Comparable b = o.get(Comparable.class);
       @SuppressWarnings("unchecked")
       int cmp = a.compareTo(b);
       return cmp;
@@ -34,7 +34,7 @@ public class GenericValue extends AbstractVector implements Value {
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
+  public <T> T get(Class<T> cls, int index) {
     if (index != 0) {
       throw new IndexOutOfBoundsException();
     }
@@ -134,11 +134,31 @@ public class GenericValue extends AbstractVector implements Value {
       throw new IndexOutOfBoundsException();
     }
     if (obj instanceof Comparable) {
-      Comparable bv = other.getAs(Comparable.class, b);
+      Comparable bv = other.get(Comparable.class, b);
       @SuppressWarnings("unchecked")
       int cmp = ((Comparable) obj).compareTo(b);
       return cmp;
     }
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int hashCode() {
+    return obj != null ? obj.hashCode() : -1;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof GenericValue) {
+      if (this.obj == null && ((GenericValue) obj).obj == null) {
+        return true;
+      } else if (this.obj != null && ((GenericValue) obj).obj != null) {
+        return this.obj.equals(((GenericValue) obj).obj);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }

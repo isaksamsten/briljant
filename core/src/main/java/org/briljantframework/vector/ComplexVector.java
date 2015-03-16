@@ -7,6 +7,8 @@ import com.carrotsearch.hppc.DoubleArrayList;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.matrix.ComplexMatrix;
 
 import java.io.IOException;
@@ -81,28 +83,6 @@ public class ComplexVector extends AbstractComplexVector {
     return values[index * 2];
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Complex getAsComplex(int index) {
-    int pos = index * 2;
-    double real = values[pos], imag = values[pos + 1];
-    if (Double.isNaN(real) || Double.isNaN(imag)) {
-      return Complex.NaN;
-    } else {
-      return new Complex(real, imag);
-    }
-  }
-
   public static final class Builder implements Vector.Builder {
 
     private DoubleArrayList buffer;
@@ -170,6 +150,15 @@ public class ComplexVector extends AbstractComplexVector {
       } else if (value instanceof Number) {
         real = ((Number) value).doubleValue();
         imag = 0;
+      } else {
+        Resolver<Complex> resolver = Resolvers.find(Complex.class);
+        if (resolver != null) {
+          Complex obj = resolver.resolve(value);
+          if (obj != null) {
+            real = obj.real();
+            imag = obj.imag();
+          }
+        }
       }
       buffer.buffer[pos] = real;
       buffer.buffer[pos + 1] = imag;
@@ -204,8 +193,10 @@ public class ComplexVector extends AbstractComplexVector {
     @Override
     public void swap(int a, int b) {
       Preconditions.checkArgument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
-      Utils.swap(buffer.buffer, a * 2, b * 2);
-      Utils.swap(buffer.buffer, a * 2 + 1, b * 2 + 1);
+      int i = a * 2;
+      int j = b * 2;
+      Utils.swap(buffer.buffer, i, j);
+      Utils.swap(buffer.buffer, i + 1, j + 1);
     }
 
     @Override
@@ -233,6 +224,11 @@ public class ComplexVector extends AbstractComplexVector {
     public Vector getTemporaryVector() {
       return new AbstractComplexVector() {
         @Override
+        public Builder newCopyBuilder() {
+          return ComplexVector.Builder.this;
+        }
+
+        @Override
         public double getAsDouble(int index) {
           return buffer.get(index * 2);
         }
@@ -253,10 +249,7 @@ public class ComplexVector extends AbstractComplexVector {
           return ComplexVector.Builder.this.size();
         }
 
-        @Override
-        public Builder newCopyBuilder() {
-          return ComplexVector.Builder.this;
-        }
+
 
         @Override
         public Builder newBuilder() {
@@ -284,6 +277,29 @@ public class ComplexVector extends AbstractComplexVector {
       }
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Complex getAsComplex(int index) {
+    int pos = index * 2;
+    double real = values[pos], imag = values[pos + 1];
+    if (Double.isNaN(real) || Double.isNaN(imag)) {
+      return Complex.NaN;
+    } else {
+      return new Complex(real, imag);
+    }
+  }
+
 
   /**
    * {@inheritDoc}
@@ -329,8 +345,6 @@ public class ComplexVector extends AbstractComplexVector {
   public double[] asDoubleArray() {
     return values;
   }
-
-
 
 
 }

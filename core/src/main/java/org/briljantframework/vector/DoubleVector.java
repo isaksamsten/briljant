@@ -1,17 +1,17 @@
 package org.briljantframework.vector;
 
+import com.google.common.base.Preconditions;
+
+import com.carrotsearch.hppc.DoubleArrayList;
+
+import org.briljantframework.Utils;
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.briljantframework.Utils;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.io.DataEntry;
-
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.google.common.base.Preconditions;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -77,32 +77,13 @@ public class DoubleVector extends AbstractDoubleVector {
   }
 
   @Override
-  public int size() {
-    return values.length;
-  }
-
-  @Override
   public DoubleVector.Builder newCopyBuilder() {
     return new DoubleVector.Builder(this);
   }
 
   @Override
-  public DoubleVector.Builder newBuilder() {
-    return new DoubleVector.Builder();
-  }
-
-  @Override
-  public DoubleVector.Builder newBuilder(int size) {
-    return new DoubleVector.Builder(size);
-  }
-
-  @Override
-  public double[] toDoubleArray() {
-    return values.clone();
-  }
-
-  public double[] asDoubleArray() {
-    return values;
+  public int size() {
+    return values.length;
   }
 
   public static class Builder implements Vector.Builder {
@@ -163,10 +144,13 @@ public class DoubleVector extends AbstractDoubleVector {
       double dval = DoubleVector.NA;
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
-      } else if (value instanceof Complex) {
-        dval = ((Complex) value).real();
       } else if (value instanceof Value) {
         dval = ((Value) value).getAsDouble();
+      } else {
+        Resolver<Double> resolver = Resolvers.find(Double.class);
+        if (resolver != null) {
+          dval = resolver.resolve(value);
+        }
       }
       buffer.buffer[index] = dval;
       return this;
@@ -282,6 +266,27 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
   }
+
+  @Override
+  public DoubleVector.Builder newBuilder() {
+    return new DoubleVector.Builder();
+  }
+
+  @Override
+  public DoubleVector.Builder newBuilder(int size) {
+    return new DoubleVector.Builder(size);
+  }
+
+  @Override
+  public double[] toDoubleArray() {
+    return values.clone();
+  }
+
+  public double[] asDoubleArray() {
+    return values;
+  }
+
+
 
 
 }

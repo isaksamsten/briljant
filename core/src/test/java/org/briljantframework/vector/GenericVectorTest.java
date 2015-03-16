@@ -1,6 +1,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.io.StringDataEntry;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,16 +31,38 @@ public class GenericVectorTest {
   }
 
   @Test
+  public void testBuilderRead() throws Exception {
+    Vector.Builder builder = new GenericVector.Builder(Date.class);
+    builder.readAll(new StringDataEntry("2001-01-01", "2011-12-1"))
+        .add("2001-01-31")
+        .add(System.currentTimeMillis());
+
+    long start = System.currentTimeMillis();
+    for (int i = 0; i < 1000000; i++) {
+      builder.add((long) i);
+    }
+    System.out.println(System.currentTimeMillis() - start);
+
+//    Vector dateVector = builder.build();
+    System.out.println(dateVector);
+  }
+
+  @Test
+  public void testGetScale() throws Exception {
+    assertEquals(Scale.NOMINAL, cmpVector.getScale());
+  }
+
+  @Test
   public void testGet() throws Exception {
     Value dateValue = dateVector.get(0);
-    assertEquals(firstDate, dateValue.getAs(Date.class));
+    assertEquals(firstDate, dateValue.get(Date.class));
   }
 
   @Test
   public void testGetAs() throws Exception {
-    Date date = dateVector.getAs(Date.class, 0);
-    Comparable cmp = cmpVector.getAs(Comparable.class, 1);
-    Character c = charVector.getAs(Character.class, 2);
+    Date date = dateVector.get(Date.class, 0);
+    Comparable cmp = cmpVector.get(Comparable.class, 1);
+    Character c = charVector.get(Character.class, 2);
 
     assertEquals(date, firstDate);
     assertEquals(cmp, 2);

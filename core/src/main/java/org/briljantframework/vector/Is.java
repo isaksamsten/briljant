@@ -3,11 +3,10 @@ package org.briljantframework.vector;
 import org.briljantframework.complex.Complex;
 
 /**
- * Utility class for checking value types
- * <p>
- * Created by Isak Karlsson on 26/11/14.
+ * Utility class for checking value types <p> Created by Isak Karlsson on 26/11/14.
  */
 public final class Is {
+
   private Is() {
 
   }
@@ -76,4 +75,12 @@ public final class Is {
     return value == Undefined.INSTANCE;
   }
 
+  public static boolean NA(Object o) {
+    if (o == null) {
+      return true;
+    } else {
+      Object na = Vectors.naValue(o.getClass());
+      return o.equals(na);
+    }
+  }
 }

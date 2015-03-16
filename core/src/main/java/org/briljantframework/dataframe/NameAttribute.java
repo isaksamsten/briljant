@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -141,6 +142,20 @@ public class NameAttribute extends AbstractCollection<String> implements
     Utils.swap(names, a, b);
   }
 
+  public void ifPresent(int i, Consumer<String> consumer) {
+    String v = getOrDefault(i, () -> null);
+    if (v != null) {
+      consumer.accept(v);
+    }
+  }
+
+  public void putFromIfPresent(int in, NameAttribute columnNames, int from) {
+    if (columnNames.containsKey(from)) {
+      String value = columnNames.get(from);
+      this.put(in, value);
+    }
+  }
+
   @Override
   public Iterator<String> iterator() {
     return new UnmodifiableIterator<String>() {
@@ -167,4 +182,6 @@ public class NameAttribute extends AbstractCollection<String> implements
   public String toString() {
     return names.toString();
   }
+
+
 }

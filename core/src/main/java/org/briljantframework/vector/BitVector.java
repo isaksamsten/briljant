@@ -6,6 +6,8 @@ import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Utils;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -46,11 +48,6 @@ public class BitVector extends AbstractBitVector {
   @Override
   public Builder newCopyBuilder() {
     return new Builder(toIntArray());
-  }
-
-  @Override
-  public int size() {
-    return values.length;
   }
 
   public static class Builder implements Vector.Builder {
@@ -110,6 +107,14 @@ public class BitVector extends AbstractBitVector {
         intValue = ((Bit) value).asInt();
       } else if (value instanceof Boolean) {
         intValue = (boolean) value ? 1 : 0;
+      } else {
+        Resolver<Bit> resolver = Resolvers.find(Bit.class);
+        if (resolver != null) {
+          Bit bit = resolver.resolve(value);
+          if (bit != null) {
+            intValue = bit.asInt();
+          }
+        }
       }
       buffer.buffer[index] = intValue;
       return this;
@@ -130,7 +135,6 @@ public class BitVector extends AbstractBitVector {
 
     @Override
     public Builder remove(int index) {
-      // ArrayBuffers.remove(buffer.buffer, index);
       buffer.remove(index);
       return this;
     }
@@ -237,6 +241,13 @@ public class BitVector extends AbstractBitVector {
       }
     }
   }
+
+  @Override
+  public int size() {
+    return values.length;
+  }
+
+
 
   @Override
   public Builder newBuilder() {

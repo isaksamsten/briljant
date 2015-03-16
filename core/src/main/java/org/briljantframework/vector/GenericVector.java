@@ -2,6 +2,8 @@ package org.briljantframework.vector;
 
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.reslover.Resolver;
+import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.matrix.Matrix;
 
 import java.io.IOException;
@@ -10,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by isak on 12/03/15.
+ * @author Isak Karlsson
  */
 public class GenericVector extends AbstractVector {
 
@@ -31,11 +33,11 @@ public class GenericVector extends AbstractVector {
 
   @Override
   public Value get(int index) {
-    return new GenericValue(getAs(cls, index));
+    return new GenericValue(get(cls, index));
   }
 
   @Override
-  public <T> T getAs(Class<T> cls, int index) {
+  public <T> T get(Class<T> cls, int index) {
     Object obj = values.get(index);
     if (obj == null || !cls.isInstance(obj)) {
       return Vectors.naValue(cls);
@@ -46,7 +48,7 @@ public class GenericVector extends AbstractVector {
   @Override
   public String toString(int index) {
     Object o = values.get(index);
-    return o == null ? "NA" : o.toString();
+    return Is.NA(o) ? "NA" : o.toString();
   }
 
   @Override
@@ -56,12 +58,12 @@ public class GenericVector extends AbstractVector {
 
   @Override
   public double getAsDouble(int index) {
-    return getAs(Double.TYPE, index);
+    return get(Double.TYPE, index);
   }
 
   @Override
   public int getAsInt(int index) {
-    return getAs(Integer.TYPE, index);
+    return get(Integer.TYPE, index);
   }
 
   @Override
@@ -93,7 +95,7 @@ public class GenericVector extends AbstractVector {
   @SuppressWarnings("unchecked")
   public int compare(int a, int b) {
     if (Comparable.class.isAssignableFrom(cls)) {
-      return getAs(Comparable.class, a).compareTo(getAs(Comparable.class, b));
+      return get(Comparable.class, a).compareTo(get(Comparable.class, b));
     }
     throw new UnsupportedOperationException();
   }
@@ -102,9 +104,26 @@ public class GenericVector extends AbstractVector {
   @SuppressWarnings("unchecked")
   public int compare(int a, Vector other, int b) {
     if (Comparable.class.isAssignableFrom(cls)) {
-      return getAs(Comparable.class, a).compareTo(other.getAs(Comparable.class, b));
+      return get(Comparable.class, a).compareTo(other.get(Comparable.class, b));
     }
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int hashCode() {
+    return cls.hashCode() + values.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof GenericVector) {
+      if (!this.cls.equals(((GenericVector) obj).cls)) {
+        return false;
+      } else {
+        return values.equals(((GenericVector) obj).values);
+      }
+    }
+    return super.equals(obj);
   }
 
   public static class Builder implements Vector.Builder {
@@ -140,14 +159,14 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector.Builder add(Vector from, int fromIndex) {
-      buffer.add(from.getAs(cls, fromIndex));
+      buffer.add(from.get(cls, fromIndex));
       return this;
     }
 
     @Override
     public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
       ensureCapacity(atIndex);
-      buffer.set(atIndex, from.getAs(cls, fromIndex));
+      buffer.set(atIndex, from.get(cls, fromIndex));
       return this;
     }
 
@@ -156,6 +175,17 @@ public class GenericVector extends AbstractVector {
       ensureCapacity(index);
       if (value != null && cls.isInstance(value)) {
         buffer.set(index, value);
+      } else if (value != null) {
+        if (value instanceof Value) {
+          buffer.set(index, ((Value) value).get(cls));
+        } else {
+          Resolver<?> resolver = Resolvers.find(cls);
+          if (resolver == null) {
+            buffer.set(index, null);
+          } else {
+            buffer.set(index, resolver.resolve(value));
+          }
+        }
       } else {
         buffer.set(index, null);
       }
@@ -170,7 +200,7 @@ public class GenericVector extends AbstractVector {
     @Override
     public Vector.Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        add(from.getAs(cls, i));
+        add(from.get(cls, i));
       }
       return this;
     }
@@ -200,12 +230,20 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector.Builder read(DataEntry entry) throws IOException {
-      throw new UnsupportedOperationException();
+      return read(size(), entry);
     }
 
     @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
-      throw new UnsupportedOperationException();
+      Resolver<?> resolver = Resolvers.find(cls);
+      String value = entry.nextString();
+      if (resolver == null || value == null) {
+        setNA(index);
+      } else {
+        Object resolve = resolver.resolve(value);
+        set(index, resolve);
+      }
+      return this;
     }
 
     @Override

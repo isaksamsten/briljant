@@ -82,7 +82,7 @@ public final class DataFrames {
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder =
         new MixedDataFrame.Builder(Arrays.asList("Mean", "Min", "Max", "Mode"), Arrays.asList(
-            VectorType.DOUBLE, VectorType.DOUBLE, VectorType.DOUBLE, VectorType.STRING));
+            Vectors.DOUBLE, Vectors.DOUBLE, Vectors.DOUBLE, Vectors.STRING));
 
     for (int j = 0; j < df.columns(); j++) {
       Vector column = df.getColumn(j);

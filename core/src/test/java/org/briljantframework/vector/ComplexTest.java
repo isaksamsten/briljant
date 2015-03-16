@@ -1,9 +1,9 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.assertTrue;
-
 import org.briljantframework.complex.Complex;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class ComplexTest {
 
@@ -18,6 +18,13 @@ public class ComplexTest {
     assertTrue(nanImag.isNaN());
     assertTrue(oneInf.isInfinite());
     assertTrue(infOne.isInfinite());
+  }
+
+  @Test
+  public void testParse() throws Exception {
+    Complex c = Complex.tryParse("10.3+363213.2i");
+    System.out.println(c);
+
   }
 
   @Test
