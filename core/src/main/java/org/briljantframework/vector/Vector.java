@@ -12,6 +12,8 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -304,6 +306,36 @@ public interface Vector extends Serializable {
         return Vector.this.size();
       }
     };
+  }
+
+  default <T> List<T> asList(Class<T> cls) {
+    return new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        return Vector.this.get(cls, index);
+      }
+
+      @Override
+      public int size() {
+        return Vector.this.size();
+      }
+    };
+  }
+
+  default <T> Stream<T> stream(Class<T> cls) {
+    return asList(cls).stream();
+  }
+
+  default IntStream intStream() {
+    return asMatrix().asIntMatrix().stream();
+  }
+
+  default Stream<Value> valueStream() {
+    return asValueList().stream();
+  }
+
+  default DoubleStream doubleStream() {
+    return asMatrix().asDoubleMatrix().stream();
   }
 
   /**

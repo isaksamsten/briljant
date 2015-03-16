@@ -17,14 +17,6 @@ public class BitVectorTest {
   }
 
   @Test
-  public void testIterator() throws Exception {
-    // int i = 0;
-    // for (Bit bin : vector) {
-    // assertEquals(trueArray[i++], bin.asInt());
-    // }
-  }
-
-  @Test
   public void testGetAsDouble() throws Exception {
     assertEquals(0, vector.getAsDouble(0), 0);
     assertEquals(1, vector.getAsDouble(1), 0);
