@@ -19,7 +19,8 @@ import java.util.stream.StreamSupport;
 
 /**
  * <p> A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the
- * contents cannot change) array of values supporting missing entries (i.e. NA). Since NA values are
+ * contents cannot change) array of values supporting missing entries (i.e. NA). Since NA values
+ * are
  * implemented differently depending value type, checking for NA-values are done via the {@link
  * #isNA(int)} method. For the default types, the {@link Is#NA} is available. </p>
  *
@@ -45,10 +46,11 @@ public interface Vector extends Serializable {
   Value get(int index);
 
   /**
-   * Returns the value at {@code index} as an instance of {@code Class<T>}. If value at {@code
-   * index} is not an instance of {@code cls}, returns an appropriate {@code NA} value. For
-   * references types (apart from {@code Complex}) this means {@code null} and for {@code primitive}
-   * types their respective {@code NA} value. Hence, checking for {@code null} does not always work,
+   * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
+   * not an instance of {@code cls}, returns an appropriate {@code NA} value. For references types
+   * (apart from {@code Complex} and {@code Bit}) this means {@code null} and for {@code primitive}
+   * types their respective {@code NA} value. Hence, checking for {@code null} does not always
+   * work,
    * instead {@link Is#NA(Object)} (and comrades) should be used.
    *
    * <pre>
@@ -64,6 +66,9 @@ public interface Vector extends Serializable {
    *     // got a NA value
    *   }
    * </pre>
+   *
+   * <p> {@link java.lang.ClassCastException} should not be thrown, instead {@code NA} should be
+   * returned
    *
    * @param cls   the class
    * @param index the index
@@ -82,9 +87,17 @@ public interface Vector extends Serializable {
 
   /**
    * Returns {@code true} if value at {@code index} is considered to be true. <p> The following
-   * conventions apply: <ul> <li>{@code 1.0+-0i == TRUE}</li> <li>{@code 1.0 == TRUE}</li>
-   * <li>{@code 1 == TRUE}</li> <li>{@code &quot;true&quot; == TRUE}</li> <li>{@code Binary.TRUE ==
-   * TRUE}</li> </ul> <p> All other values are considered to be FALSE
+   * conventions apply:
+   *
+   * <ul>
+   * <li>{@code 1.0+-0i == TRUE}</li>
+   * <li>{@code 1.0 == TRUE}</li>
+   * <li>{@code 1 == TRUE}</li>
+   * <li>{@code &quot;true&quot; == TRUE}</li>
+   * <li>{@code Binary.TRUE == TRUE}</li>
+   * </ul>
+   *
+   * <p> All other values are considered to be FALSE
    *
    * @param index the index
    * @return true or false
@@ -162,6 +175,18 @@ public interface Vector extends Serializable {
    * @return a {@code String} or {@code null}
    */
   String getAsString(int index);
+
+  // Slicing - basic
+//  Vector slice(Range range);
+
+  // Slicing - advanced?
+  default Vector slice(Collection<Integer> indexes) {
+    Builder builder = newBuilder();
+    for (int index : indexes) {
+      builder.add(this, index);
+    }
+    return builder.build();
+  }
 
   /**
    * Returns the size of the vector
@@ -271,24 +296,6 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * Returns a sequential {@code Stream} of values with this vector as its source.
-   *
-   * @return a sequential {@code Stream} over the elements of this {@code Vector}.
-   */
-  default Stream<Value> stream() {
-    return StreamSupport.stream(asValueList().spliterator(), false);
-  }
-
-  /**
-   * Returns a parallel {@code Stream} of values with this {@code Vector} as its source.
-   *
-   * @return a parallel {@code Stream} over the elements of this {@code Vector}
-   */
-  default Stream<Value> parallelStream() {
-    return StreamSupport.stream(asValueList().spliterator(), true);
-  }
-
-  /**
    * Returns this Vector as an {@link java.util.List} of {@link org.briljantframework.vector.Value}.
    * The returned list is unmodifiable
    *
@@ -322,16 +329,34 @@ public interface Vector extends Serializable {
     };
   }
 
+  /**
+   * Returns a sequential {@code Stream} of values with this vector as its source.
+   *
+   * @return a sequential {@code Stream} over the elements of this {@code Vector}.
+   */
+  default Stream<Value> stream() {
+    return StreamSupport.stream(asValueList().spliterator(), false);
+  }
+
+  /**
+   * Returns a parallel {@code Stream} of values with this {@code Vector} as its source.
+   *
+   * @return a parallel {@code Stream} over the elements of this {@code Vector}
+   */
+  default Stream<Value> parallelStream() {
+    return StreamSupport.stream(asValueList().spliterator(), true);
+  }
+
   default <T> Stream<T> stream(Class<T> cls) {
     return asList(cls).stream();
   }
 
-  default IntStream intStream() {
-    return asMatrix().asIntMatrix().stream();
+  default <T> Stream<T> parallelStream(Class<T> cls) {
+    return asList(cls).parallelStream();
   }
 
-  default Stream<Value> valueStream() {
-    return asValueList().stream();
+  default IntStream intStream() {
+    return asMatrix().asIntMatrix().stream();
   }
 
   default DoubleStream doubleStream() {
@@ -339,7 +364,8 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * Returns this vector as an immutable {@code Matrix}. Should return an appropriate specialization
+   * Returns this vector as an immutable {@code Matrix}. Should return an appropriate
+   * specialization
    * of the {@link org.briljantframework.matrix.Matrix} interface. For example, a {@link
    * org.briljantframework.vector.DoubleVector} should return a {@link
    * org.briljantframework.matrix.DoubleMatrix} implementation.
@@ -354,7 +380,8 @@ public interface Vector extends Serializable {
    * </pre>
    *
    * @return this vector as a matrix
-   * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector to
+   * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
+   *                                                                  to
    *                                                                  matrix
    */
   Matrix asMatrix() throws TypeConversionException;
@@ -412,7 +439,8 @@ public interface Vector extends Serializable {
   /**
    * <p> Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if
    * a builder is initialized with size {@code 8}, {@link #add(Object)} (et. al.) adds a value at
-   * index {@code 8} and indexes {@code 0-7} have the value {@code NA}. If the value at index {@code
+   * index {@code 8} and indexes {@code 0-7} have the value {@code NA}. If the value at index
+   * {@code
    * 11} is set, values {@code 9, 10} are set to {@code NA}. </p>
    *
    * <p> When transferring values between vectors, prefer {@link #set(int, Vector, int)} to {@link
@@ -430,7 +458,8 @@ public interface Vector extends Serializable {
     int INITIAL_CAPACITY = 50;
 
     /**
-     * Add NA at {@code index}. If {@code index > size()} the resulting vector should be padded with
+     * Add NA at {@code index}. If {@code index > size()} the resulting vector should be padded
+     * with
      * NA:s between {@code size} and {@code index} and {@code index} set to NA.
      *
      * @param index the index
@@ -486,8 +515,10 @@ public interface Vector extends Serializable {
      * vector type, a NA value is added instead.
      *
      * <p>How values are resolved depend on the implementation but {@code null} always result in
-     * {@code NA} and an instance of {@link Value} always results in the value carried by the value.
-     * Finally, if {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a non-null
+     * {@code NA} and an instance of {@link Value} always results in the value carried by the
+     * value.
+     * Finally, if {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a
+     * non-null
      * value {@link org.briljantframework.io.reslover.Resolver#resolve(Class, Object)} is used
      * (where the former {@code Class} is the value in the vector and the latter {@code Class} is
      * {@code value.getClass()}).

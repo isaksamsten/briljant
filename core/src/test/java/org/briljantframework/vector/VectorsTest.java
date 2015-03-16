@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,18 +37,17 @@ public class VectorsTest {
   }
 
   @Test
-  public void testTest() throws Exception {
-    System.out.println(Vectors.sortDesc(vec8));
-    System.out.println(Vectors.sortAsc(vec8));
-    System.out.println(Vectors.sort(vec8,
-                                    (vec, a, b) -> Integer.compare(vec.getAsString(a).length(),
-                                                                   vec.getAsString(b).length())));
+  public void testMode() throws Exception {
+    Vector v = new StringVector("a", "b", "c", "d", "e", "f", "a");
+    assertEquals("a", Vectors.mode(v));
   }
 
   @Test
-  public void testMode() throws Exception {
-    Vector v = new StringVector("a", "b", "c", "d", "e", "f", "a");
-    System.out.println(Vectors.mode(v));
+  public void testCount() throws Exception {
+    Map<Double, Integer> counts = Vectors.count(Double.class, vec6);
+    System.out.println(counts);
+
+    System.out.println(Vectors.count(vec6));
 
   }
 
@@ -63,6 +63,8 @@ public class VectorsTest {
     System.out.println(v2);
     // System.out.println(v2.getAsDouble(v2.size() - 1));
 
+    Vector space = Vectors.linspace(-10, 10, 10000000);
+    System.out.println(Vectors.mean(space));
   }
 
   @Test

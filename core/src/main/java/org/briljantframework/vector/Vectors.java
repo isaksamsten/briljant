@@ -434,8 +434,7 @@ public final class Vectors {
 
   public static <T> Map<T, Integer> count(Class<T> cls, Vector vector) {
     Map<T, Integer> count = new HashMap<>();
-    for (int i = 0; i < vector.size(); i++) {
-      T value = vector.get(cls, i);
+    for (T value : vector.asList(cls)) {
       count.compute(value, (x, v) -> v == null ? 1 : v + 1);
     }
     return Collections.unmodifiableMap(count);

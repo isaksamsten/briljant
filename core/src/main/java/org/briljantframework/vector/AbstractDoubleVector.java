@@ -67,7 +67,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   @Override
   public String toString(int index) {
     double value = getAsDouble(index);
-    return Is.NA(value) ? "NA" : String.format("%.3f", value);
+    return Is.NA(value) ? "NA" : Double.toString(value);
   }
 
   @Override
@@ -89,7 +89,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   @Override
   public String getAsString(int index) {
     double value = getAsDouble(index);
-    return Is.NA(value) ? StringVector.NA : String.valueOf(value);
+    return Is.NA(value) ? StringVector.NA : Double.toString(value);
   }
 
   @Override

@@ -26,25 +26,13 @@ public class DoubleValue extends AbstractDoubleVector implements Value {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-    if (!super.equals(o))
-      return false;
-
-    DoubleValue doubles = (DoubleValue) o;
-
-    if (Double.compare(doubles.value, value) != 0)
-      return false;
-
-    return true;
+  public int size() {
+    return 1;
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    int result = 0;
     long temp;
     temp = Double.doubleToLongBits(value);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
@@ -52,8 +40,24 @@ public class DoubleValue extends AbstractDoubleVector implements Value {
   }
 
   @Override
-  public int size() {
-    return 1;
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    DoubleValue doubles = (DoubleValue) o;
+
+    if (Double.compare(doubles.value, value) != 0) {
+      return false;
+    }
+
+    return true;
   }
 
   @Override

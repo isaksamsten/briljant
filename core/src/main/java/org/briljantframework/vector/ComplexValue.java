@@ -1,13 +1,14 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.complex.Complex;
-
 import com.google.common.base.Preconditions;
+
+import org.briljantframework.complex.Complex;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
  */
 public class ComplexValue extends AbstractComplexVector implements Value {
+
   private final Complex complex;
 
   public ComplexValue(Complex complex) {
@@ -34,20 +35,8 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-
-    ComplexValue complexes = (ComplexValue) o;
-
-    return !(complex != null ? !complex.equals(complexes.complex) : complexes.complex != null);
-  }
-
-  @Override
-  public String toString() {
-    return toString(0);
+  public int size() {
+    return 1;
   }
 
   @Override
@@ -56,22 +45,36 @@ public class ComplexValue extends AbstractComplexVector implements Value {
   }
 
   @Override
-  public int size() {
-    return 1;
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ComplexValue complexes = (ComplexValue) o;
+
+    return !(complex != null ? !complex.equals(complexes.complex) : complexes.complex != null);
   }
 
   @Override
   public Builder newCopyBuilder() {
-    return null;
+    return getType().newBuilder().add(complex);
   }
 
   @Override
   public Builder newBuilder() {
-    return null;
+    return getType().newBuilder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    return null;
+    return getType().newBuilder(size);
+  }
+
+  @Override
+  public String toString() {
+    return toString(0);
   }
 }

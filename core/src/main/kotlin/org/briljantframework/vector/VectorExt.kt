@@ -25,6 +25,8 @@ fun Vector.toSet() = Sets.newHashSet(this.asValueList())
 
 fun Vector.toList() = asValueList()
 
+fun <T> Vector.toList(cls: Class<T>) = this.asList(cls)
+
 fun Vector.unique() = Vectors.unique(this)
 
 fun Vector.unique(other: Vector, vararg rest: Vector) = Vectors.unique(this, other, *rest)
