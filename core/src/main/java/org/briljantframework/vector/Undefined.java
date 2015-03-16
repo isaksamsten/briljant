@@ -57,7 +57,7 @@ public class Undefined implements Value {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    return null;
+    return Vectors.naValue(cls);
   }
 
   @Override
