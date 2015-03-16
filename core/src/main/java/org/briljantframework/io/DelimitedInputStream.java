@@ -2,7 +2,6 @@ package org.briljantframework.io;
 
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.RowProcessor;
-import com.univocity.parsers.csv.CsvFormat;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
@@ -62,6 +61,7 @@ public class DelimitedInputStream extends DataInputStream {
 
   private final CsvParser parser;
   private final RdsRowProcessor processor;
+  private final String missingValue;
   private String[] currentRow;
 
   /**
@@ -72,16 +72,14 @@ public class DelimitedInputStream extends DataInputStream {
     CsvParserSettings settings = new CsvParserSettings();
     settings.setIgnoreLeadingWhitespaces(true);
     settings.setIgnoreTrailingWhitespaces(true);
-
-    CsvFormat format = new CsvFormat();
-    format.setDelimiter(DEFAULT_SEPARATOR);
-
+    settings.getFormat().setDelimiter(separator);
     processor = new RdsRowProcessor();
     settings.setRowProcessor(processor);
     parser = new CsvParser(settings);
     parser.beginParsing(new InputStreamReader(in));
     parser.parseNext();
     parser.parseNext();
+    this.missingValue = missingValue;
 
     currentRow = null;
   }
@@ -139,7 +137,7 @@ public class DelimitedInputStream extends DataInputStream {
 
   @Override
   public DataEntry next() throws IOException {
-    StringDataEntry entry = new StringDataEntry(currentRow, DEFAULT_MISSING_VALUE);
+    StringDataEntry entry = new StringDataEntry(currentRow, missingValue);
     currentRow = null;
     return entry;
   }
