@@ -27,7 +27,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Double && Is.NA(value));
+      return Is.NA(value);
     }
 
     @Override

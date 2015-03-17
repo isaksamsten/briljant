@@ -1,13 +1,15 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 public class DoubleVectorTest {
 
-  public static final double[] DOUBLE_ARRAY = new double[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  public static final double[] DOUBLE_ARRAY = new double[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private DoubleVector vector;
   private DoubleVector hasNA = new DoubleVector.Builder().addNA().addNA().add(1).add(2).build();
 
@@ -32,17 +34,13 @@ public class DoubleVectorTest {
   }
 
   @Test
-  public void testAsIntArray() throws Exception {
-    assertArrayEquals(DOUBLE_ARRAY, vector.asDoubleArray(), 0);
-  }
-
-  @Test
   public void testToIntArray() throws Exception {
     assertArrayEquals(DOUBLE_ARRAY, vector.toDoubleArray(), 0);
   }
 
   @Test
-  public void testIterator() throws Exception {}
+  public void testIterator() throws Exception {
+  }
 
   @Test
   public void testGetAsInteger() throws Exception {
@@ -117,9 +115,6 @@ public class DoubleVectorTest {
     builder.add(hasNA, 0);
     builder.add(vector, 0);
     builder.add(vector, 9);
-
-    assertArrayEquals(new double[] {DoubleVector.NA, 0, 9}, builder.build().asDoubleArray(), 0);
-
   }
 
   @Test

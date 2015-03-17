@@ -39,10 +39,10 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
       order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     } else {
       order =
-          Vectors.sortIndex(
+          Vectors.indexSort(
               candidate,
               (i, j) -> Double.compare(Math.abs(candidate.getAsDouble(j)),
-                  Math.abs(candidate.getAsDouble(i))));
+                                       Math.abs(candidate.getAsDouble(i))));
     }
 
     Vector vector = a.size() >= b.size() ? a : b;

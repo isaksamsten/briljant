@@ -11,6 +11,7 @@ import org.briljantframework.io.reslover.Resolvers;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -48,6 +49,15 @@ public class BitVector extends AbstractBitVector {
   @Override
   public Builder newCopyBuilder() {
     return new Builder(toIntArray());
+  }
+
+  public int[] asIntArray() {
+    return values;
+  }
+
+  @Override
+  public int size() {
+    return values.length;
   }
 
   public static class Builder implements Vector.Builder {
@@ -241,12 +251,6 @@ public class BitVector extends AbstractBitVector {
   }
 
   @Override
-  public int size() {
-    return values.length;
-  }
-
-
-  @Override
   public Builder newBuilder() {
     return new Builder();
   }
@@ -260,8 +264,10 @@ public class BitVector extends AbstractBitVector {
     return values.clone();
   }
 
-  public int[] asIntArray() {
-    return values;
+
+  @Override
+  public IntStream intStream() {
+    return IntStream.of(values);
   }
 
 

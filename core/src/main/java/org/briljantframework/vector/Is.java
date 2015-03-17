@@ -18,7 +18,7 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(int value) {
-    return IntVector.TYPE.isNA(value);
+    return value == IntVector.NA;
   }
 
   /**
@@ -28,7 +28,7 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(Complex value) {
-    return ComplexVector.TYPE.isNA(value);
+    return ComplexVector.NA.equals(value);
   }
 
   /**
@@ -49,7 +49,7 @@ public final class Is {
    */
   public static boolean NA(double value) {
     if (Double.isNaN(value)) {
-      return (Double.doubleToRawLongBits(value) & DoubleVector.NA_MASK) == 9;
+      return (Double.doubleToRawLongBits(value) & DoubleVector.NA_MASK) == DoubleVector.NA_RES;
     } else {
       return false;
     }

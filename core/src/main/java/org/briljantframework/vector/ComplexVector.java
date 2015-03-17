@@ -334,17 +334,5 @@ public class ComplexVector extends AbstractComplexVector {
     return values.clone();
   }
 
-  /**
-   * Returns the underlying array which represents complex numbers as two consecutive positions in
-   * the array. <p> The number of complex numbers are {@code array.length / 2}. This array can be
-   * used in suitable BLAS operations.
-   *
-   * @return the underlying array
-   */
-  @Override
-  public double[] asDoubleArray() {
-    return values;
-  }
-
 
 }

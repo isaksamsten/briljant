@@ -96,18 +96,8 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public int[] asIntArray() {
-    return parent.asIntArray();
-  }
-
-  @Override
   public double[] toDoubleArray() {
     return parent.toDoubleArray();
-  }
-
-  @Override
-  public double[] asDoubleArray() {
-    return parent.asDoubleArray();
   }
 
   @Override

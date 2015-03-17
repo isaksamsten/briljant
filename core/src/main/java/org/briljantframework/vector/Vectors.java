@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
 
+import org.briljantframework.Check;
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 import org.briljantframework.complex.Complex;
@@ -90,7 +91,8 @@ public final class Vectors {
 
   /**
    * Finds the index, in {@code vector}, of the value at {@code index} in {@code values}. This
-   * should be preferred over {@link #find(Vector, Value)} when possible. Hence, given {@code Vector
+   * should be preferred over {@link #find(Vector, Value)} when possible. Hence, given {@code
+   * Vector
    * a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should be preferred over
    * {@code find(a, b.get(i))}.
    *
@@ -108,6 +110,28 @@ public final class Vectors {
     return -1;
   }
 
+  /**
+   * Finds the index of {@code needle} in {@code haystack} or return {@code -1} if value cannot be
+   * found.
+   *
+   * @param haystack the haystack
+   * @param needle   the needle
+   * @param <T>      the type of object to be searched for
+   * @return the index of {@code needle} or {@code -1}
+   */
+  public static <T> int find(Vector haystack, T needle) {
+    Class<?> cls = needle.getClass();
+    for (int i = 0; i < haystack.size(); i++) {
+      if (haystack.get(cls, i).equals(needle)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * @see #find(Vector, Vector, int)
+   */
   public static int find(Vector haystack, Value needle) {
     for (int i = 0; i < haystack.size(); i++) {
       if (haystack.compare(i, needle) == 0) {
@@ -117,14 +141,27 @@ public final class Vectors {
     return -1;
   }
 
+  /**
+   * @see #find(Vector, Object)
+   */
   public static int find(Vector haystack, int needle) {
     return find(haystack, Convert.toValue(needle));
   }
 
+  /**
+   * @see #find(Vector, Object)
+   */
   public static int find(Vector haystack, String needle) {
     return find(haystack, Convert.toValue(needle));
   }
 
+  /**
+   * Finds the index of the first value for which {@code predicate} returns true.
+   *
+   * @param vector    the vector
+   * @param predicate the predicate
+   * @return the index or {@code -1} if no value matched the predicate {@code true}
+   */
   public static int find(Vector vector, Predicate<Value> predicate) {
     for (int i = 0; i < vector.size(); i++) {
       if (predicate.test(vector.get(i))) {
@@ -132,20 +169,6 @@ public final class Vectors {
       }
     }
     return -1;
-  }
-
-  /**
-   * Creates a double vector of {@code size} filled with {@code NA}
-   *
-   * @param size the size
-   * @return a new vector
-   */
-  public static DoubleVector newDoubleNA(int size) {
-    return new DoubleVector.Builder(size).build();
-  }
-
-  public static IntVector newIntVector(int... values) {
-    return IntVector.newBuilderWithInitialValues(values).build();
   }
 
   /**
@@ -172,6 +195,25 @@ public final class Vectors {
     Vector.Builder builder = in.newCopyBuilder();
     Vector tmp = builder.getTemporaryVector();
     QuickSort.quickSort(0, in.size(), (a, b) -> cmp.compare(tmp, a, b), builder);
+    return builder.build();
+  }
+
+  /**
+   * Sorts the vector according to {@code comparator} treating the values as {@code cls}
+   *
+   * @param cls        the value to sort
+   * @param in         the vector
+   * @param comparator the comparator
+   * @param <T>        the typ
+   * @return a new vector; sorted according to comparator
+   */
+  public static <T extends Comparable> Vector sort(Class<T> cls, Vector in,
+                                                   Comparator<T> comparator) {
+    Vector.Builder builder = in.newCopyBuilder();
+    Vector tmp = builder.getTemporaryVector();
+    QuickSort.quickSort(0, in.size(),
+                        (a, b) -> comparator.compare(tmp.get(cls, a), tmp.get(cls, b)),
+                        builder);
     return builder.build();
   }
 
@@ -267,6 +309,10 @@ public final class Vectors {
   }
 
   /**
+   * <p>Computes the population standard deviation of {@code vector}.
+   *
+   * <p>A vector of all {@code NA} returns {@code NA}
+   *
    * @param vector the vector
    * @return the standard deviation
    */
@@ -275,6 +321,11 @@ public final class Vectors {
   }
 
   /**
+   * <p>Computes the population standard deviation of {@code vector} using an already computed
+   * {@code mean}.
+   *
+   * <p>A vector of all {@code NA} returns {@code NA}
+   *
    * @param vector the vector
    * @param mean   the mean
    * @return the standard deviation
@@ -285,6 +336,10 @@ public final class Vectors {
   }
 
   /**
+   * <p>Computes the sample mean of {@code vector}.
+   *
+   * <p>A vector of all {@code NA} returns {@code NA}
+   *
    * @param vector the vector
    * @return the mean; or NA
    */
@@ -302,6 +357,11 @@ public final class Vectors {
   }
 
   /**
+   * <p>Computes the population variance of {@code vector} using an already computed
+   * {@code mean}.
+   *
+   * <p>A vector of all {@code NA} returns {@code NA}
+   *
    * @param vector the vector
    * @param mean   the mean
    * @return the variance; or NA
@@ -320,6 +380,10 @@ public final class Vectors {
   }
 
   /**
+   * <p>Computes the population variance of {@code vector}.
+   *
+   * <p>A vector of all {@code NA} returns {@code NA}
+   *
    * @param vector the vector
    * @return the variance
    */
@@ -328,12 +392,133 @@ public final class Vectors {
   }
 
   /**
+   * Computes the sum of values in {@code vector}. Ignores {@code NA} values.
+   *
+   * @param vector the vector
+   * @return the sum
+   */
+  public static double sum(Vector vector) {
+    double sum = 0;
+    for (int i = 0; i < vector.size(); i++) {
+      double d = vector.getAsDouble(i);
+      sum += !Is.NA(d) ? d : 0;
+    }
+    return sum;
+  }
+
+  /**
+   * Finds the minimum value in {@code v}. Ignores {@code NA} values.
+   *
+   * @param v the vector
+   * @return the minimum value or {@code NA} if all values are {@code NA}
+   */
+  public static double min(Vector v) {
+    return v.doubleStream().filter(Is::NA).min().orElse(DoubleVector.NA);
+  }
+
+  /**
+   * Finds the maximum value in {@code v}. Ignores {@code NA} values.
+   *
+   * @param v the vector
+   * @return the maximum value or {@code NA} if all values are {@code NA}
+   */
+  public static double max(Vector v) {
+    return v.doubleStream().filter(Is::NA).max().orElse(DoubleVector.NA);
+  }
+
+  /**
+   * Return the most frequently occurring item in {@code v}
+   *
+   * @param v the vector
+   * @return the most frequent item; or
+   */
+  public static Value mode(Vector v) {
+    Multiset<Value> values = HashMultiset.create();
+    v.stream().forEach(values::add);
+    return Ordering.natural().onResultOf(new Function<Multiset.Entry<Value>, Integer>() {
+      @Override
+      public Integer apply(Multiset.Entry<Value> input) {
+        return input.getCount();
+      }
+    }).max(values.entrySet()).getElement();
+  }
+
+  /**
+   * <p>Returns a vector consisting of the unique values in {@code vectors}
+   *
+   * <p>For example, given {@code a, b} and {@code c}
+   * <pre>{@code
+   * Vector a = new IntVector(1,2,3,4);
+   * Vector b = new IntVector(2,3,4,5);
+   * Vector c = new IntVector(3,4,5,6);
+   *
+   * Vector d = Vectors.unique(a, b, c);
+   * // d == [1,2,3,4,5,6];
+   * }</pre>
+   */
+  public static Vector unique(Vector... vectors) {
+    vectors = checkNotNull(vectors);
+    checkArgument(vectors.length > 0);
+    Vector.Builder builder = vectors[0].newBuilder();
+    Set<Value> taken = new HashSet<>();
+    for (Vector vector : vectors) {
+      for (int i = 0; i < vector.size(); i++) {
+        Value value = vector.get(i);
+        if (!taken.contains(value)) {
+          taken.add(value);
+          builder.add(vector, i);
+        }
+      }
+    }
+    return builder.build();
+  }
+
+  /**
+   * <p> Counts the number of occurrences for each value (of type {@code T}) in {@code vector}
+   *
+   * <p> Since {@link Vector#get(Class, int)} returns {@code NA} if value is not an instance of
+   * {@code T}, the resulting {@code Map} might contain a {@code null} key
+   *
+   * @param cls    the class
+   * @param vector the vector
+   * @param <T>    the type
+   * @return a map of values to counts
+   */
+  public static <T> Map<T, Integer> count(Class<T> cls, Vector vector) {
+    Map<T, Integer> count = new HashMap<>();
+    for (T value : vector.asList(cls)) {
+      count.compute(value, (x, v) -> v == null ? 1 : v + 1);
+    }
+    return Collections.unmodifiableMap(count);
+  }
+
+  /**
+   * <p> Counts the number of occurrences for each value (wrapping the in a {@link Value}) in
+   * {@code
+   * vector}
+   *
+   * <p> {@code NA} values are stored with {@link org.briljantframework.vector.Undefined#INSTANCE}
+   * as key
+   *
+   * @param vector the vector
+   * @return a map of values to counts
+   */
+  public static Map<Value, Integer> count(Vector vector) {
+    Map<Value, Integer> freq = new HashMap<>();
+    for (Value value : vector.asValueList()) {
+      freq.compute(value, (x, i) -> i == null ? 1 : i + 1);
+    }
+    return Collections.unmodifiableMap(freq);
+  }
+
+
+  /**
    * @param vector the vector
    * @return the indexes of {@code vector} sorted in increasing order by value
    */
-  public static int[] sortIndex(Vector vector) {
-    return sortIndex(vector,
-                     (o1, o2) -> Double.compare(vector.getAsDouble(o1), vector.getAsDouble(o2)));
+  public static int[] indexSort(Vector vector) {
+    return indexSort(vector, (o1, o2) -> Double.compare(vector.getAsDouble(o1),
+                                                        vector.getAsDouble(o2)));
   }
 
   /**
@@ -341,7 +526,7 @@ public final class Vectors {
    * @param comparator the comparator
    * @return the indexes of {@code vector} sorted according to {@code comparator} by value
    */
-  public static int[] sortIndex(Vector vector, Comparator<Integer> comparator) {
+  public static int[] indexSort(Vector vector, Comparator<Integer> comparator) {
     int[] indicies = new int[vector.size()];
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
@@ -352,7 +537,7 @@ public final class Vectors {
   }
 
   /**
-   * Inner product, i.e. the dot product x * y
+   * Inner product, i.e. the dot product x * y. Handles {@code NA} values.
    *
    * @param x a vector
    * @param y a vector
@@ -373,11 +558,13 @@ public final class Vectors {
    * @return the inner product
    */
   public static double dot(Vector x, double alpha, Vector y, double beta) {
-    org.briljantframework.Check.size(x, y);
+    Check.size(x, y);
     int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {
-      dot += (alpha * x.getAsDouble(i)) * (beta * y.getAsDouble(i));
+      if (!x.isNA(i) && !y.isNA(i)) {
+        dot += (alpha * x.getAsDouble(i)) * (beta * y.getAsDouble(i));
+      }
     }
     return dot;
   }
@@ -391,71 +578,5 @@ public final class Vectors {
    */
   public static double sigmoid(Vector a, Vector b) {
     return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
-  }
-
-  /**
-   * @param vector the vector
-   * @return the sum
-   */
-  public static double sum(Vector vector) {
-    double sum = 0;
-    for (int i = 0; i < vector.size(); i++) {
-      sum += vector.getAsDouble(i);
-    }
-    return sum;
-  }
-
-  public static Vector unique(Vector... vectors) {
-    vectors = checkNotNull(vectors);
-    checkArgument(vectors.length > 0);
-    Vector.Builder builder = vectors[0].newBuilder();
-    Set<Value> taken = new HashSet<>();
-    for (Vector vector : vectors) {
-      for (int i = 0; i < vector.size(); i++) {
-        Value value = vector.get(i);
-        if (!taken.contains(value)) {
-          taken.add(value);
-          builder.add(vector, i);
-        }
-      }
-    }
-    return builder.build();
-  }
-
-  public static double min(Vector column) {
-    return column.stream().filter(x -> !x.isNA()).mapToDouble(Value::getAsDouble).min()
-        .orElse(DoubleVector.NA);
-  }
-
-  public static double max(Vector column) {
-    return column.stream().filter(x -> !x.isNA()).mapToDouble(Value::getAsDouble).max()
-        .orElse(DoubleVector.NA);
-  }
-
-  public static <T> Map<T, Integer> count(Class<T> cls, Vector vector) {
-    Map<T, Integer> count = new HashMap<>();
-    for (T value : vector.asList(cls)) {
-      count.compute(value, (x, v) -> v == null ? 1 : v + 1);
-    }
-    return Collections.unmodifiableMap(count);
-  }
-
-  public static Map<Value, Integer> count(Vector vector) {
-    Map<Value, Integer> freq = new HashMap<>();
-    for (Value value : vector.asValueList()) {
-      freq.compute(value, (x, i) -> i == null ? 1 : i + 1);
-    }
-    return Collections.unmodifiableMap(freq);
-  }
-
-  public static Value mode(Vector column) {
-    Multiset<Value> values = HashMultiset.create();
-    column.stream().forEach(values::add);
-    return Ordering.natural().onResultOf(new Function<Multiset.Entry<Value>, Integer>() {
-      @Override
-      public Integer apply(Multiset.Entry<Value> input) {
-        return input.getCount();
-      }
-    }).max(values.entrySet()).getElement();
   }
 }

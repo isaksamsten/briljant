@@ -42,6 +42,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return a {@code Vector}
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   Value get(int index);
 
@@ -74,6 +75,7 @@ public interface Vector extends Serializable {
    * @param index the index
    * @param <T>   the type
    * @return a value of type; returns {@code NA} if value is not an instance of {@code cls}
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   <T> T get(Class<T> cls, int index);
 
@@ -101,6 +103,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return true or false
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   /**/
   default boolean isTrue(int index) {
@@ -112,6 +115,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return true or false
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   boolean isNA(int index);
 
@@ -134,6 +138,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return a double
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   double getAsDouble(int index);
 
@@ -142,6 +147,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return an int
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   int getAsInt(int index);
 
@@ -150,6 +156,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return a {@link Bit}
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   Bit getAsBit(int index);
 
@@ -159,6 +166,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return a {@link org.briljantframework.complex.Complex}
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   default Complex getAsComplex(int index) {
     double value = getAsDouble(index);
@@ -173,6 +181,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return a {@code String} or {@code null}
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   String getAsString(int index);
 
@@ -180,6 +189,14 @@ public interface Vector extends Serializable {
 //  Vector slice(Range range);
 
   // Slicing - advanced?
+
+  /**
+   * Returns a new vector of length {@code indexes.size()} of the elements in index
+   *
+   * @param indexes a collection of indexes
+   * @return a new vector
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
+   */
   default Vector slice(Collection<Integer> indexes) {
     Builder builder = newBuilder();
     for (int index : indexes) {
@@ -207,6 +224,7 @@ public interface Vector extends Serializable {
    *
    * @param index the index
    * @return the type of value
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   VectorType getType(int index);
 
@@ -249,6 +267,22 @@ public interface Vector extends Serializable {
    */
   Builder newBuilder(int size);
 
+  default Value[] toArray() {
+    return asValueList().toArray(new Value[size()]);
+  }
+
+  @SuppressWarnings("unchecked")
+  default <T> T[] toArray(T[] values) {
+    Class<?> cls = values.getClass().getComponentType();
+    int size = size();
+    values = values.length >= size ? values :
+             (T[]) java.lang.reflect.Array.newInstance(cls, size);
+    for (int i = 0; i < size; i++) {
+      values[i] = (T) get(cls, i);
+    }
+    return values;
+  }
+
   /**
    * Returns a copy of this vector as a int array.
    *
@@ -263,16 +297,6 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * Returns a, possibly underlying, int array representation of this vector. Mutations of this
-   * array is possibly unsafe. <p> The default implementation is however safe.
-   *
-   * @return a possible unsafe underlying array
-   */
-  default int[] asIntArray() {
-    return toIntArray();
-  }
-
-  /**
    * Returns a copy of this vector as a double array
    *
    * @return an array copy of this vector
@@ -283,16 +307,6 @@ public interface Vector extends Serializable {
       values[i] = getAsDouble(i);
     }
     return values;
-  }
-
-  /**
-   * Returns a, possibly underlying, double representation of this vector. Mutations of this array
-   * is possibly unsafe. <p> The default implementation is however safe.
-   *
-   * @return a possibly unsafe underlying array
-   */
-  default double[] asDoubleArray() {
-    return toDoubleArray();
   }
 
   /**
@@ -381,8 +395,7 @@ public interface Vector extends Serializable {
    *
    * @return this vector as a matrix
    * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
-   *                                                                  to
-   *                                                                  matrix
+   *                                                                  to matrix
    */
   Matrix asMatrix() throws TypeConversionException;
 
@@ -394,6 +407,7 @@ public interface Vector extends Serializable {
    * @param a the index a
    * @param b the index b
    * @return comparing int
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    * @see Comparable#compareTo(Object)
    */
   int compare(int a, int b);
@@ -407,6 +421,7 @@ public interface Vector extends Serializable {
    * @param other the other vector
    * @param b     the index in {@code other}
    * @return the comparison
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    * @see java.lang.Comparable#compareTo(Object)
    */
   int compare(int a, Vector other, int b);
@@ -419,6 +434,7 @@ public interface Vector extends Serializable {
    * @param other the other vector
    * @param b     the index in other
    * @return true if values are equal
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   default boolean equals(int a, Vector other, int b) {
     return compare(a, other, b) == 0;
@@ -431,6 +447,7 @@ public interface Vector extends Serializable {
    * @param a     the index in {@code this}
    * @param other the value
    * @return the comparison
+   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   default int compare(int a, Value other) {
     return compare(a, other, 0);

@@ -12,28 +12,67 @@ import org.briljantframework.io.reslover.Resolvers;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
 
 /**
- * Created by Isak Karlsson on 20/11/14.
+ * Vector of {@code double} primitives.
+ *
+ * <p>{@code NA} is represented by the value {@code Double.longBitsToDouble(0x7ff0000000000009L)}
+ * which is in the {@code NaN} range, but distinctive from {@code Double.NaN}.
+ *
+ * @author Isak Karlsson
  */
 public class DoubleVector extends AbstractDoubleVector {
 
-  public static final double NA = Double.longBitsToDouble(0x7ff0000000000009L); // Double.NaN;
+  /**
+   * The value denoting {@code NA} for a {@code double}. The value lies in
+   * a valid IEEE 754 floating point range for {@code NaN} values. Since no floating point
+   * operations can distinguish between values in the {@code NaN} range (see {@link
+   * Double#longBitsToDouble(long)}, a mask {@link #NA_MASK} in conjunction with an expected
+   * return value {@link #NA_RES} can be used to find if a particular {@code NaN} value is also
+   * {@code NA}. The most straight forward way is
+   * <pre>{@code
+   *  Double.isNaN(value) && Double.doubleToRawLongBits(value) & NA_MASK == NA_RES
+   * }</pre>
+   *
+   * <p>This implementation is provided by {@link Is#NA(double)}.
+   */
+  public static final double NA = Double.longBitsToDouble(0x7ff0000000000009L);
 
+  /**
+   * The mask used in conjunction with {@link #NA} and and {@link #NA_RES} to recognize
+   * a {@code NA} value from {@link Double#NaN}.
+   */
   public static final long NA_MASK = 0x000000000000000FL;
   public static final int NA_RES = 9;
 
   private final double[] values;
 
+  /**
+   * Construct a new {@code DoubleVector} of the values in {@code values} using {@code size}
+   * elements.
+   *
+   * @param values the array of values
+   * @param size   the size of values to take
+   */
   public DoubleVector(double[] values, int size) {
-    Preconditions.checkArgument(values.length > 0);
+    Preconditions.checkArgument(size > 0 && size <= values.length);
     this.values = Arrays.copyOf(values, size);
   }
 
+  /**
+   * Construct a new {@code DoubleVector}.
+   *
+   * @param values the values
+   */
   public DoubleVector(double... values) {
     this(values, true);
   }
 
+  /**
+   * Construct a new {@code DoubleVector}. If {@code copy} is true, the values of {@code values}
+   * are copied otherwise not. To presever the mutable nature of
+   */
   protected DoubleVector(double[] values, boolean copy) {
     if (copy) {
       this.values = Arrays.copyOf(values, values.length);
@@ -43,7 +82,7 @@ public class DoubleVector extends AbstractDoubleVector {
   }
 
   /**
-   * Construct a new {@code Vector} using the supplied values. Performs no copying.
+   * Construct a new {@code Vector} using the supplied values.
    *
    * @param values the values
    * @return the double vector
@@ -81,11 +120,6 @@ public class DoubleVector extends AbstractDoubleVector {
     return new DoubleVector.Builder(this);
   }
 
-  @Override
-  public int size() {
-    return values.length;
-  }
-
   public static class Builder implements Vector.Builder {
 
     private DoubleArrayList buffer;
@@ -106,7 +140,10 @@ public class DoubleVector extends AbstractDoubleVector {
     }
 
     public Builder(DoubleVector vector) {
-      this.buffer = DoubleArrayList.from(vector.asDoubleArray());
+      this.buffer = new DoubleArrayList(vector.size());
+      for (int i = 0; i < vector.size(); i++) {
+        this.buffer.add(vector.getAsDouble(i));
+      }
     }
 
     @Override
@@ -282,11 +319,15 @@ public class DoubleVector extends AbstractDoubleVector {
     return values.clone();
   }
 
-  public double[] asDoubleArray() {
-    return values;
+  @Override
+  public DoubleStream doubleStream() {
+    return DoubleStream.of(values);
   }
 
-
+  @Override
+  public int size() {
+    return values.length;
+  }
 
 
 }

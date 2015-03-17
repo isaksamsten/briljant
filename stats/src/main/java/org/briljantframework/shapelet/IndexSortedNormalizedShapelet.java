@@ -23,8 +23,9 @@ public class IndexSortedNormalizedShapelet extends NormalizedShapelet {
   public IndexSortedNormalizedShapelet(int start, int length, Vector vector) {
     super(start, length, vector);
     this.order =
-        Vectors.sortIndex(this,
-            (i, j) -> Double.compare(Math.abs(this.getAsDouble(j)), Math.abs(this.getAsDouble(i))));
+        Vectors.indexSort(this,
+                          (i, j) -> Double.compare(Math.abs(this.getAsDouble(j)),
+                                                   Math.abs(this.getAsDouble(i))));
   }
 
   /**

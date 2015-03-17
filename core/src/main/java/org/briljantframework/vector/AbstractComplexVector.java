@@ -28,7 +28,7 @@ public abstract class AbstractComplexVector extends AbstractVector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Complex && ((Complex) value).isNaN());
+      return Is.NA(value);
     }
 
     @Override

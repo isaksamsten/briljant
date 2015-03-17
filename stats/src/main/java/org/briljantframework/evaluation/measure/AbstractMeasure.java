@@ -43,7 +43,7 @@ public abstract class AbstractMeasure implements Measure {
     this.min = builder.min;
     this.mean = builder.computeMean();
     this.std = builder.computeStandardDeviation(mean);
-    this.zeroVector = Vectors.newDoubleNA(size());
+    this.zeroVector = new DoubleVector(size());
   }
 
   @Override
@@ -88,7 +88,7 @@ public abstract class AbstractMeasure implements Measure {
   @Override
   public String toString() {
     return String.format("Average %s: %.4f (std: %.4f) (of %d value(s))", getName(), getMean(),
-        getStandardDeviation(), size());
+                         getStandardDeviation(), size());
   }
 
   protected abstract static class Builder<T extends Measure> implements Measure.Builder<T> {

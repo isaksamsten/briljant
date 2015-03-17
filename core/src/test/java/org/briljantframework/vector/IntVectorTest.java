@@ -1,14 +1,14 @@
 package org.briljantframework.vector;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 public class IntVectorTest {
 
-  public static final int[] INT_ARRAY = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  public static final int[] INT_ARRAY = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private IntVector vector;
   private IntVector hasNA = new IntVector.Builder().addNA().addNA().add(1).add(2).build();
 
@@ -33,8 +33,8 @@ public class IntVectorTest {
 
   @Test
   public void testEquals() throws Exception {
-    IntVector a = Vectors.newIntVector(1, 2, 3);
-    IntVector b = Vectors.newIntVector(1, 2, 3);
+    IntVector a = new IntVector(1, 2, 3);
+    IntVector b = new IntVector(1, 2, 3);
     assertEquals(a.asMatrix(), b.asMatrix());
 
     assertEquals(a, b);
@@ -132,7 +132,7 @@ public class IntVectorTest {
     builder.add(vector, 0);
     builder.add(vector, 9);
 
-    assertArrayEquals(new int[] {IntVector.NA, 0, 9}, builder.build().asIntArray());
+    assertArrayEquals(new int[]{IntVector.NA, 0, 9}, builder.build().asIntArray());
 
   }
 

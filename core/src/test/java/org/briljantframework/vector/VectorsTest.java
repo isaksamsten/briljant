@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -61,10 +62,20 @@ public class VectorsTest {
     System.out.println(v);
     Vector v2 = Vectors.sortAsc(v);
     System.out.println(v2);
+
+    System.out.println(Arrays.toString(v.toArray(new Double[v.size()])));
+
     // System.out.println(v2.getAsDouble(v2.size() - 1));
 
     Vector space = Vectors.linspace(-10, 10, 10000000);
     System.out.println(Vectors.mean(space));
+  }
+
+  @Test
+  public void testSort2() throws Exception {
+    Vector sorted = Vectors.sortDesc(vec8);
+    System.out.println(sorted);
+
   }
 
   @Test
