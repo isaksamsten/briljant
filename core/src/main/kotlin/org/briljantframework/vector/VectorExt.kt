@@ -35,6 +35,8 @@ fun Vector.add(value: Value) = this.newCopyBuilder().add(value).build()
 
 fun Vector.count() = Vectors.count(this)
 
+fun <T> Vector.count(cls: Class<T>) = Vectors.count(cls, this)
+
 fun Vector.repeat(times: Int): Vector {
     if (times == 1) {
         return this

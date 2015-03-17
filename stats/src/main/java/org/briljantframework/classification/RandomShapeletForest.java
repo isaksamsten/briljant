@@ -115,20 +115,15 @@ public class RandomShapeletForest extends Ensemble {
     public ShapeletTree.Predictor call() throws Exception {
       Random random = new Random(Thread.currentThread().getId() * System.nanoTime());
       ClassSet sample = sample(classSet, random);
-      Distribution lowerDist =
-          new TriangleDistribution(random, builder.lowerLength, builder.upperLength,
-              builder.lowerLength);
-      Distribution upperDist =
-          new TriangleDistribution(random, builder.lowerLength, 1, builder.upperLength);
-      double low = /* builder.lowerLength; // */lowerDist.next();
-      // builder.lowerLength + (builder.upperLength - builder.lowerLength) * random.nextDouble();
+      Distribution lowerDist = new TriangleDistribution(
+          random, builder.lowerLength, builder.upperLength, builder.lowerLength);
+      Distribution upperDist = new TriangleDistribution(
+          random, builder.lowerLength, 1, builder.upperLength);
+
+      double low = lowerDist.next();
       double high = upperDist.next();
-      // low + (builder.upperLength - low) * random.nextDouble();
-      // builder.withLowerLength(low).withUpperLength(high);
-      // System.out.println(low + " " + high);
       ShapeletTree tree = new ShapeletTree(low, high, builder, sample, classes);
-      ShapeletTree.Predictor fit = tree.fit(x, y);
-      return fit;
+      return tree.fit(x, y);
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {
@@ -167,10 +162,10 @@ public class RandomShapeletForest extends Ensemble {
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
 
-    public Predictor(Vector classes,
-        List<? extends org.briljantframework.classification.Predictor> members,
-        DoubleMatrix lengthImportance, DoubleMatrix positionImportance, BitMatrix outbag) {
-      super(classes, members, outbag);
+    public Predictor(
+        Vector classes, List<? extends org.briljantframework.classification.Predictor> members,
+        DoubleMatrix lengthImportance, DoubleMatrix positionImportance, BitMatrix oobIndicator) {
+      super(classes, members, oobIndicator);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
     }
@@ -187,16 +182,13 @@ public class RandomShapeletForest extends Ensemble {
     public void evaluation(EvaluationContext ctx) {
       super.evaluation(ctx);
       double depth = 0;
-      double depthSquare = 0;
       for (org.briljantframework.classification.Predictor predictor : getPredictors()) {
         if (predictor instanceof ShapeletTree.Predictor) {
           int d = ((ShapeletTree.Predictor) predictor).getDepth();
           depth += d;
-          depthSquare += d * d;
         }
       }
       double avg = depth / getPredictors().size();
-      double d2 = depthSquare / getPredictors().size();
       ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT, avg);
     }
   }
@@ -223,9 +215,6 @@ public class RandomShapeletForest extends Ensemble {
 
   public static class Builder implements Classifier.Builder<RandomShapeletForest> {
 
-    // private final RandomShapeletSplitter.Builder randomShapeletSplitter = RandomShapeletSplitter
-    // .withDistance(new EarlyAbandonSlidingDistance(Euclidean.getInstance()));
-
     private final ShapeletTree.Builder shapeletTree = new ShapeletTree.Builder();
     private int size = 100;
 
@@ -236,11 +225,6 @@ public class RandomShapeletForest extends Ensemble {
 
     public Builder withDistanceMeasure(Distance distance) {
       shapeletTree.withDistance(distance);
-      return this;
-    }
-
-    public Builder withSampleSize(int sampleSize) {
-      // randomShapeletSplitter.withSampleSize(sampleSize);
       return this;
     }
 
@@ -261,11 +245,6 @@ public class RandomShapeletForest extends Ensemble {
 
     public Builder withSize(int size) {
       this.size = size;
-      return this;
-    }
-
-    public Builder withAlpha(double alpha) {
-      shapeletTree.withAlpha(alpha);
       return this;
     }
 

@@ -20,15 +20,20 @@ public class GenericVector extends AbstractVector {
   private final Class<?> cls;
   private final List<Object> values;
 
-  protected GenericVector(Class<?> cls, List<Object> values, boolean copy) {
-    this.cls = cls;
-    this.values = copy ? new ArrayList<>(values) : values;
-    this.type = VectorType.getInstance(cls);
+  @SuppressWarnings("unchecked")
+  public <T> GenericVector(Class<T> cls, List<T> values) {
+    this(cls, (List<Object>) values, null, true);
   }
 
   @SuppressWarnings("unchecked")
-  public <T> GenericVector(Class<T> cls, List<T> values) {
-    this(cls, (List<Object>) values, true);
+  public <T> GenericVector(Class<T> cls, List<T> values, Resolver<T> resolver) {
+    this(cls, (List<Object>) values, resolver, true);
+  }
+
+  protected GenericVector(Class<?> cls, List<Object> values, Resolver<?> resolver, boolean copy) {
+    this.cls = cls;
+    this.values = copy ? new ArrayList<>(values) : values;
+    this.type = VectorType.getInstance(cls);
   }
 
   @Override
@@ -130,6 +135,12 @@ public class GenericVector extends AbstractVector {
 
     private final Class<?> cls;
     private List<Object> buffer;
+    private Resolver<?> resolver = null;
+
+    public <T> Builder(Class<T> cls, Resolver<T> resolver) {
+      this.cls = cls;
+      this.resolver = resolver;
+    }
 
     public Builder(Class<?> cls) {
       this.cls = cls;
@@ -179,7 +190,7 @@ public class GenericVector extends AbstractVector {
         if (value instanceof Value) {
           buffer.set(index, ((Value) value).get(cls));
         } else {
-          Resolver<?> resolver = Resolvers.find(cls);
+          Resolver<?> resolver = this.resolver == null ? Resolvers.find(cls) : this.resolver;
           if (resolver == null) {
             buffer.set(index, null);
           } else {
@@ -255,12 +266,12 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new GenericVector(cls, buffer, false);
+      return new GenericVector(cls, buffer, resolver, false);
     }
 
     @Override
     public Vector build() {
-      Vector vector = new GenericVector(cls, buffer, false);
+      Vector vector = new GenericVector(cls, buffer, resolver, false);
       buffer = null;
       return vector;
     }

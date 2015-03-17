@@ -75,7 +75,7 @@ public class ArffInputStream extends DataInputStream {
       String typeRepr = attr.group(2).trim().toLowerCase();
       VectorType type = TYPE_MAP.getOrDefault(typeRepr, Undefined.TYPE);
       columnNames.add(name);
-      if (type.equals(Vectors.UNDEFINED)) {
+      if (!type.equals(Vectors.UNDEFINED)) {
         columnTypes.add(type);
       } else if (type.equals(Vectors.UNDEFINED) && (NOMINAL.matcher(typeRepr)).matches()) {
         columnTypes.add(StringVector.TYPE);

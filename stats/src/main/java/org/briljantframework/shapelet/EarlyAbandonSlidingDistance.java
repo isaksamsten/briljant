@@ -16,10 +16,10 @@
 
 package org.briljantframework.shapelet;
 
+import com.google.common.base.Preconditions;
+
 import org.briljantframework.distance.Distance;
 import org.briljantframework.vector.Vector;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Created by Isak Karlsson on 23/09/14.
@@ -55,12 +55,12 @@ public class EarlyAbandonSlidingDistance implements Distance {
   /**
    * If {@code a} is shorter than {@code b}, then {@code a} is considered a shapelet and slid
    * against {@code b} and wise-versa.
-   * <p>
-   * The shorter (i.e. the shapelet) is expected to be z-normalized
+   *
+   * <p> The shorter vector (i.e. the shapelet) is expected to be z-normalized
    *
    * @param a a vector
    * @param b a vector
-   * @return the shortest possible distance of a (or b) as it is slid agains b (or a)
+   * @return the shortest possible distance of a (or b) as it is slid against b (or a)
    */
   @Override
   public double compute(Vector a, Vector b) {
@@ -70,8 +70,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
     // Assumed to be normalized!
     Vector candidate = a.size() < b.size() ? a : b;
     if (!(candidate instanceof NormalizedShapelet)) {
-      System.out.println(candidate);
-      throw new IllegalArgumentException("candidate shapelet must be z-normalized");
+      throw new IllegalArgumentException("Candidate shapelet must be z-normalized");
     }
 
     int[] order = null;

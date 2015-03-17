@@ -16,17 +16,17 @@
 
 package org.briljantframework.shapelet;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Shapelet is a (short) view of a larger data series (i.e. a vector). The underlying vector
  * should not be mutated (as this will change the view).
  * <p>
- * 
+ *
  * <pre>
  *     Shapelet shapelet = Shapelet.create(10, 10, frame.getEntry(10))
  * </pre>
@@ -34,17 +34,18 @@ import org.briljantframework.vector.VectorView;
  * creates a short view of the 10-th entry
  * <p>
  * <p>
- * 
+ *
  * @author Isak Karlsson
  */
 // TODO: override getAs... to support the changed indexing
 public class Shapelet extends VectorView {
+
   private final int start, length;
 
   /**
    * Instantiates a new Shapelet.
    *
-   * @param start the start
+   * @param start  the start
    * @param length the length
    * @param vector the vector
    */
@@ -57,7 +58,7 @@ public class Shapelet extends VectorView {
   /**
    * From vector.
    *
-   * @param start the start
+   * @param start  the start
    * @param length the length
    * @param vector the vector
    * @return the shapelet
