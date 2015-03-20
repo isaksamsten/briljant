@@ -153,9 +153,10 @@ public class ShapeletTree implements Classifier {
     params.originalData = x;
     int size = Utils.randInt(10, x.columns() - 1);
     TreeNode<ShapeletThreshold> node = build(dataFrame, y, classSet, params);
-    Predictor predictor =
-        new Predictor(classes, node, new ShapletTreeVisitor(size, getDistanceMetric()),
-                      params.lengthImportance, params.positionImportance, params.depth, classSet);
+    Predictor predictor = new Predictor(
+        classes, node, new ShapletTreeVisitor(size, getDistanceMetric()),
+        params.lengthImportance, params.positionImportance, params.depth, classSet
+    );
     return predictor;
   }
 
@@ -477,7 +478,13 @@ public class ShapeletTree implements Classifier {
 
       for (Example example : sample) {
         double shapeletDistance = distanceMap.get(example.getIndex());
-        if (shapeletDistance < threshold) {
+        if (shapeletDistance == threshold) {
+          if (Utils.getRandom().nextDouble() <= 0.5) {
+            leftSample.add(example);
+          } else {
+            rightSample.add(example);
+          }
+        } else if (shapeletDistance < threshold) {
           leftSample.add(example);
         } else {
           rightSample.add(example);

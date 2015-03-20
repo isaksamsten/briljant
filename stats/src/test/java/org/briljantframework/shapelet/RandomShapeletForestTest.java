@@ -55,8 +55,13 @@ public class RandomShapeletForestTest {
       Vector yTrain = Convert.toStringVector(trainingSet.getColumn(trainingSet.columns() - 1));
 
       RandomShapeletForest f =
-          RandomShapeletForest.withSize(100).withInspectedShapelets(50).withLowerLength(0.025)
-              .withUpperLength(0.3).withAssessment(ShapeletTree.Assessment.FSTAT).build();
+          RandomShapeletForest
+              .withSize(100)
+              .withInspectedShapelets(50)
+              .withLowerLength(0.025)
+              .withUpperLength(0.3)
+              .withAssessment(ShapeletTree.Assessment.FSTAT)
+              .build();
       List<Evaluator> evaluatorList = Evaluator.getDefaultClassificationEvaluators();
       evaluatorList.add(new Evaluator() {
         private int fold = 0;
@@ -66,7 +71,7 @@ public class RandomShapeletForestTest {
           System.out.printf("Fold %d\n", fold++);
         }
       });
-      Result re = Validators.crossValidation(evaluatorList, 40).test(f, xTrain, yTrain);
+      Result re = Validators.leaveOneOutValidation().test(f, xTrain, yTrain);
       System.out.println(re);
     }
 
@@ -187,14 +192,14 @@ public class RandomShapeletForestTest {
     // DataFrame x = synthetic.removeColumn(0);
     // StringVector y = Convert.toStringVector(synthetic.getColumn(0));
 
-    String name = "SonyAIBORobotSurface";
+    String name = "MoteStrain";
     String trainFile = String.format("/Users/isak-kar/Downloads/dataset2/%s/%s_TRAIN", name, name);
     String testFile = String.format("/Users/isak-kar/Downloads/dataset2/%s/%s_TEST", name, name);
     try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
          DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
-          DataFrames.permuteRows(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
-                                     .build());
+          new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
+              .build();
       DataFrame validationSet =
           new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
 
@@ -222,27 +227,33 @@ public class RandomShapeletForestTest {
       System.out
           .println(Vectors.mean(xTrain.getRecord(0)) + " " + Vectors.std(xTrain.getRecord(0)));
 
-      IntMatrix sizes = IntMatrix.of(20);
+      IntMatrix sizes = IntMatrix.of(50);
 
       System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
                          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
       for (int i = 0; i < sizes.size(); i++) {
-        RandomShapeletForest forest =
-            RandomShapeletForest.withSize(1000).withInspectedShapelets(sizes.get(i))
-                .withLowerLength(0.01).withUpperLength(0.8)
-                .withAssessment(ShapeletTree.Assessment.FSTAT).build();
-        Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
+        RandomShapeletForest forest = RandomShapeletForest
+            .withSize(500)
+            .withInspectedShapelets(sizes.get(i))
+            .withLowerLength(0.025)
+            .withUpperLength(0.6)
+            .withAssessment(ShapeletTree.Assessment.FSTAT)
+            .build();
+
+        for (int j = 0; j < 1; j++) {
+          Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
+          System.out.println(sizes.get(i) + ", " + result.getAverage(Ensemble.Correlation.class)
+                             + ", " + result.getAverage(Ensemble.Strength.class) + ", "
+                             + result.getAverage(Ensemble.Quality.class) + ", "
+                             + result.getAverage(Ensemble.ErrorBound.class) + ", "
+                             + result.getAverage(Accuracy.class) + ", "
+                             + result.getAverage(Ensemble.OobAccuracy.class) + ", "
+                             + result.getAverage(Ensemble.Variance.class) + ", "
+                             + result.getAverage(Ensemble.Bias.class) + ", " + result
+                                 .getAverage(Brier.class) + ", "
+                             + result.getAverage(RandomShapeletForest.Depth.class));
+        }
         // System.out.println(result);
-        System.out.println(sizes.get(i) + ", " + result.getAverage(Ensemble.Correlation.class)
-                           + ", " + result.getAverage(Ensemble.Strength.class) + ", "
-                           + result.getAverage(Ensemble.Quality.class) + ", "
-                           + result.getAverage(Ensemble.ErrorBound.class) + ", "
-                           + result.getAverage(Accuracy.class) + ", "
-                           + result.getAverage(Ensemble.OobAccuracy.class) + ", "
-                           + result.getAverage(Ensemble.Variance.class) + ", "
-                           + result.getAverage(Ensemble.Bias.class) + ", " + result
-                               .getAverage(Brier.class) + ", "
-                           + result.getAverage(RandomShapeletForest.Depth.class));
       }
       System.out.println((System.nanoTime() - start) / 1e6);
 

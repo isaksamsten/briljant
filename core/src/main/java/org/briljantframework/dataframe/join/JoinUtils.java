@@ -112,7 +112,7 @@ public class JoinUtils {
 
     int j = 0;
     for (int i = 0; i < a.size(); i++) {
-      Value val = a.get(i);
+      Value val = a.getAsValue(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
         left[i] = pool.get(val);
@@ -124,7 +124,7 @@ public class JoinUtils {
     }
 
     for (int i = 0; i < b.size(); i++) {
-      Value val = b.get(i);
+      Value val = b.getAsValue(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
         right[i] = pool.get(val);

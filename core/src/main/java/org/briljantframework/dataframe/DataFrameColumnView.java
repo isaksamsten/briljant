@@ -23,8 +23,8 @@ public class DataFrameColumnView implements Vector {
   }
 
   @Override
-  public Value get(int index) {
-    return parent.get(index, column);
+  public Value getAsValue(int index) {
+    return parent.getAsValue(index, column);
   }
 
   @Override

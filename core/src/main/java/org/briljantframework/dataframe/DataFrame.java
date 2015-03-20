@@ -40,9 +40,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
+  DataFrame setColumnNames(List<String> names);
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
@@ -50,7 +48,9 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  DataFrame setColumnNames(List<String> names);
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
 
   /**
    * Get value at {@code row} and {@code column} as a value
@@ -59,7 +59,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param column the column
    * @return the value
    */
-  Value get(int row, int column);
+  Value getAsValue(int row, int column);
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,

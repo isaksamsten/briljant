@@ -65,7 +65,7 @@ public abstract class AbstractSplitter implements Splitter {
        * STEP 1: Partition the examples according to threshold
        */
       for (Example example : sample) {
-        Value value = axisVector.get(example.getIndex());
+        Value value = axisVector.getAsValue(example.getIndex());
         int direction = MISSING;
         switch (axisType.getScale()) {
           case NOMINAL:

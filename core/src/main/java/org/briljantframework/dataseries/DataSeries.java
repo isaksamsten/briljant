@@ -31,8 +31,8 @@ public class DataSeries implements Record {
   }
 
   @Override
-  public Value get(int index) {
-    return vector.get(index);
+  public Value getAsValue(int index) {
+    return vector.getAsValue(index);
   }
 
   @Override

@@ -7,7 +7,7 @@
  * user guide available at http://gradle.org/docs/1.12/userguide/tutorial_java_projects.html
  */
 buildscript {
-    ext.kotlinVersion = "0.10.195"
+    ext.kotlinVersion = "0.11.91"
     repositories {
         jcenter()
         mavenCentral()

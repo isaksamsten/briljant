@@ -50,7 +50,7 @@ public abstract class AbstractComplexVector extends AbstractVector {
   public static final Complex NA = Complex.NaN;
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     Complex complex = getAsComplex(index);
     return complex.isNaN() ? Undefined.INSTANCE : new ComplexValue(complex);
   }

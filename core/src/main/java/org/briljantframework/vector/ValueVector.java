@@ -28,13 +28,13 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     return values.get(index);
   }
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    return get(index).get(cls, 0);
+    return getAsValue(index).get(cls, 0);
   }
 
   @Override
@@ -84,12 +84,12 @@ public class ValueVector extends AbstractVector implements VariableVector {
 
   @Override
   public int compare(int a, int b) {
-    return get(a).compareTo(get(b));
+    return getAsValue(a).compareTo(getAsValue(b));
   }
 
   @Override
   public int compare(int a, Vector other, int b) {
-    return get(a).compareTo(other.get(b));
+    return getAsValue(a).compareTo(other.getAsValue(b));
   }
 
   @Override
@@ -177,7 +177,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
         setNA(atIndex);
       } else {
         ensureCapacity(atIndex);
-        buffer.set(atIndex, from.get(fromIndex));
+        buffer.set(atIndex, from.getAsValue(fromIndex));
       }
       return this;
     }
@@ -214,7 +214,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
     @Override
     public Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        buffer.add(from.get(i));
+        buffer.add(from.getAsValue(i));
       }
       return this;
     }

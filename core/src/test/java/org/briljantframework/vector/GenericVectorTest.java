@@ -51,7 +51,7 @@ public class GenericVectorTest {
 
   @Test
   public void testGet() throws Exception {
-    Value dateValue = dateVector.get(0);
+    Value dateValue = dateVector.getAsValue(0);
     assertEquals(firstDate, dateValue.get(Date.class));
   }
 

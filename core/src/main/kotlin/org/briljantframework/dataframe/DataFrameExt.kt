@@ -1,14 +1,14 @@
 package org.briljantframework.dataframe
 
 import org.briljantframework.all
-import java.io.File
-import org.briljantframework.io.DelimitedInputStream
-import java.io.FileInputStream
-import org.briljantframework.io.SequenceInputStream
 import org.briljantframework.dataseries.DataSeriesCollection
-import org.briljantframework.io.MatlabTextInputStream
 import org.briljantframework.io.ArffInputStream
+import org.briljantframework.io.DelimitedInputStream
+import org.briljantframework.io.MatlabTextInputStream
+import org.briljantframework.io.SequenceInputStream
 import org.briljantframework.vector.Vectors
+import java.io.File
+import java.io.FileInputStream
 
 fun loadCSV(file: File): DataFrame {
     DelimitedInputStream(FileInputStream(file)).use {
@@ -39,7 +39,7 @@ fun loadArff(file: File): DataFrame {
     }
 }
 
-fun DataFrame.get(row: Int, column: Int) = this.get(row, column)
+fun DataFrame.get(row: Int, column: Int) = this.getAsValue(row, column)
 
 fun DataFrame.get(all: all, column: Int) = this.getColumn(column)
 

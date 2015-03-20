@@ -80,15 +80,15 @@ public class MixedDataFrameTest {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     builder.set(0, 0, dataA.getRecord(0), 0);
     builder.set(3, 3, dataB.getColumn(1), 2);
-    builder.set(1, 1, dataA.get(0, 1));
+    builder.set(1, 1, dataA.getAsValue(0, 1));
 
     DataFrame build = builder.build();
     System.out.println(build);
     assertEquals(dataA.getColumnType(0), build.getColumnType(0));
     assertEquals(dataB.getColumnType(1), build.getColumnType(3));
-    assertEquals(dataA.get(0, 0), build.get(0, 0));
-    assertEquals(dataB.getColumn(1).get(2), build.get(3, 3));
-    assertEquals(dataA.get(0, 1), build.get(1, 1));
+    assertEquals(dataA.getAsValue(0, 0), build.getAsValue(0, 0));
+    assertEquals(dataB.getColumn(1).getAsValue(2), build.getAsValue(3, 3));
+    assertEquals(dataA.getAsValue(0, 1), build.getAsValue(1, 1));
   }
 
   @Test
@@ -139,7 +139,7 @@ public class MixedDataFrameTest {
     assertEquals(1, build.getAsDouble(0, 2), 0);
     assertEquals(Complex.I, build.getAsComplex(0, 3));
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
-    assertEquals(Convert.toValue(1), build.get(0, 5));
+    assertEquals(Convert.toValue(1), build.getAsValue(0, 5));
   }
 
   @Test

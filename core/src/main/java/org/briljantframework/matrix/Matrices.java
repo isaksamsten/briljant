@@ -11,6 +11,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
@@ -138,7 +139,8 @@ public final class Matrices {
   private static final Pattern ROW_SEPARATOR = Pattern.compile(";");
   private static final Pattern VALUE_SEPARATOR = Pattern.compile(",");
 
-  private Matrices() {}
+  private Matrices() {
+  }
 
   @SuppressWarnings("unchecked")
   public static <T> MatrixFactory<T> getMatrixFactory(Class<T> type) {
@@ -272,10 +274,10 @@ public final class Matrices {
    * Take values in {@code a}, using the indexes in {@code indexes}. For example,
    * </p>
    *
-   * @param a the source matrix
+   * @param a       the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
-   *         {@link org.briljantframework.matrix.Matrix#newEmptyMatrix(int, int)}).
+   * {@link org.briljantframework.matrix.Matrix#newEmptyMatrix(int, int)}).
    */
   public static IntMatrix take(IntMatrix a, IntMatrix indexes) {
     IntMatrix taken = a.newEmptyVector(indexes.size());
@@ -293,8 +295,8 @@ public final class Matrices {
    * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
    * </p>
    *
-   * @param a a source array
-   * @param mask the mask; same shape as {@code a}
+   * @param a      a source array
+   * @param mask   the mask; same shape as {@code a}
    * @param values the values; same shape as {@code a}
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
@@ -313,8 +315,8 @@ public final class Matrices {
    * {@code values}.
    * </p>
    *
-   * @param a the target matrix
-   * @param mask the mask; same shape as {@code a}
+   * @param a      the target matrix
+   * @param mask   the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
    */
   public static void putMask(IntMatrix a, BitMatrix mask, IntMatrix values) {
@@ -333,8 +335,8 @@ public final class Matrices {
    * selected with {@code replace}.
    * </p>
    *
-   * @param a the source matrix
-   * @param where the selection matrix; same shape as {@code a}
+   * @param a       the source matrix
+   * @param where   the selection matrix; same shape as {@code a}
    * @param replace the replacement value
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
@@ -390,7 +392,7 @@ public final class Matrices {
    *    ComplexMatrix a = randn(12, 1).asComplexMatrix().map(Complex::sqrt)
    *    ComplexMatrix x = sort(a, (c, i, j) -> Double.compare(c.getAsComplex(i).abs(),
    *        c.getAsComplex(j).abs()).asComplexMatrix()
-   * 
+   *
    *    0.1499 + 0.0000i
    *    0.5478 + 0.0000i
    *    0.5725 + 0.0000i
@@ -406,27 +408,28 @@ public final class Matrices {
    *    shape: 12x1 type: complex
    * </pre>
    *
-   * @param a the source matrix
+   * @param a          the source matrix
    * @param comparator the comparator; first argument is the container, and the next are indexes
    * @return a new sorted matrix; the returned matrix has the same type as {@code a}
    */
-  public static <T extends Matrix> T sort(Matrix<T> a, IndexComparator<? super T> comparator) {
+  public static <T extends Matrix<T>> T sort(T a,
+                                             IndexComparator<? super T> comparator) {
     T out = a.copy();
     QuickSort.quickSort(0, out.size(), (x, y) -> comparator.compare(out, x, y), out);
     return out;
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T extends Matrix> T sort(Matrix<T> a, Axis axis, IndexComparator<? super T> comparator) {
+  public static <T extends Matrix<T>> T sort(T a, Axis axis,
+                                             IndexComparator<? super T> comparator) {
     T out = a.copy();
     if (axis == Axis.ROW) {
       for (int i = 0; i < a.rows(); i++) {
-        T row = (T) out.getRowView(i);
+        T row = out.getRowView(i);
         QuickSort.quickSort(0, row.size(), (x, y) -> comparator.compare(row, x, y), row);
       }
     } else {
       for (int i = 0; i < a.columns(); i++) {
-        T col = (T) out.getColumnView(i);
+        T col = out.getColumnView(i);
         QuickSort.quickSort(0, col.size(), (x, y) -> comparator.compare(col, x, y), col);
       }
     }
@@ -440,8 +443,8 @@ public final class Matrices {
    * </p>
    *
    * @param start the start value
-   * @param stop the end value
-   * @param num the number of steps (i.e. intermediate values)
+   * @param stop  the end value
+   * @param num   the number of steps (i.e. intermediate values)
    * @return a vector
    */
   public static DoubleMatrix linspace(double start, double stop, int num) {
@@ -532,7 +535,7 @@ public final class Matrices {
   /**
    * Sum t.
    *
-   * @param m the m
+   * @param m    the m
    * @param axis the axis
    * @return the t
    */
@@ -554,6 +557,75 @@ public final class Matrices {
   public static <T extends Matrix> T shuffle(T matrix) {
     Utils.permute(matrix.size(), matrix);
     return matrix;
+  }
+
+  /**
+   * Stacks matrices vertically, i.e. a 2-by-3 matrix hstacked with a 10-by-3 matrix
+   * resuls in a 12-by-3 matrix.
+   *
+   * @param matrices a sequence of matrices; all having the same {@code columns}
+   * @param <T>      the matrix type
+   * @return a new matrix; {@code shape = [sum-of-rows, columns]}
+   */
+  public static <T extends Matrix<T>> T hstack(Collection<T> matrices) {
+    checkArgument(matrices.size() > 0);
+    int rows = 0;
+    int columns = 0;
+    T first = null;
+    for (T matrix : matrices) {
+      if (first == null) {
+        first = matrix;
+        columns = first.columns();
+      }
+      checkArgument(columns == matrix.columns());
+      rows += matrix.rows();
+    }
+
+    T newMatrix = first.newEmptyMatrix(rows, columns);
+    int pad = 0;
+    for (T matrix : matrices) {
+      for (int j = 0; j < matrix.columns(); j++) {
+        for (int i = 0; i < matrix.rows(); i++) {
+          newMatrix.set(i + pad, j, matrix, i, j);
+        }
+      }
+      pad += matrix.rows();
+    }
+    return newMatrix;
+  }
+
+  /**
+   * Stacks matrices horizontally, i.e. a 3-by-2 matrix vstacked with a 3-by-10 matrix
+   * results in a 3-by-12 matrix.
+   *
+   * @param matrices a sequence of matrices; all having the same {@code rows}
+   * @param <T>      the matrix type
+   * @return a new matrix; {@code shape = [rows, sum-of-columns]}
+   */
+  public static <T extends Matrix<T>> T vstack(Collection<T> matrices) {
+    checkArgument(matrices.size() > 0);
+    int columns = 0;
+    int rows = 0;
+    T first = null;
+    for (T matrix : matrices) {
+      if (first == null) {
+        first = matrix;
+        rows = first.rows();
+      }
+      checkArgument(rows == matrix.rows());
+      columns += matrix.columns();
+    }
+    T newMatrix = first.newEmptyMatrix(rows, columns);
+    int pad = 0;
+    for (T matrix : matrices) {
+      for (int j = 0; j < matrix.columns(); j++) {
+        for (int i = 0; i < matrix.rows(); i++) {
+          newMatrix.set(i, j + pad, matrix, i, j);
+        }
+      }
+      pad += matrix.columns();
+    }
+    return newMatrix;
   }
 
   public static void shuffle(Matrix matrix, Axis axis) {
@@ -587,7 +659,6 @@ public final class Matrices {
    *
    * @param str the input matrix as a string
    * @return a matrix
-   * @throws NumberFormatException
    */
   public static DoubleMatrix parseMatrix(String str) {
     checkArgument(str != null && str.length() > 0);
@@ -691,9 +762,9 @@ public final class Matrices {
 
   /**
    * @param matrix the matrix
-   * @param axis the axis
+   * @param axis   the axis
    * @return a mean matrix; if {@code axis == ROW} with shape = {@code [1, columns]}; or
-   *         {@code axis == COLUMN} with shape {@code [rows, 1]}.
+   * {@code axis == COLUMN} with shape {@code [rows, 1]}.
    */
   public static DoubleMatrix mean(DoubleMatrix matrix, Axis axis) {
     if (axis == Axis.ROW) {
@@ -713,7 +784,7 @@ public final class Matrices {
 
   /**
    * @param vector the vector
-   * @param mean the mean
+   * @param mean   the mean
    * @return the standard deviation
    */
   public static double std(DoubleMatrix vector, double mean) {
@@ -731,7 +802,7 @@ public final class Matrices {
 
   /**
    * @param matrix the vector
-   * @param mean the mean
+   * @param mean   the mean
    * @return the variance
    */
   public static double var(DoubleMatrix matrix, double mean) {
@@ -756,25 +827,26 @@ public final class Matrices {
 
   /**
    * Simple wrapper around
-   * {@link com.github.fommil.netlib.BLAS#dgemm(String, String, int, int, int, double, double[], int, double[], int, double, double[], int)}
+   * {@link com.github.fommil.netlib.BLAS#dgemm(String, String, int, int, int, double, double[],
+   * int, double[], int, double, double[], int)}
    * <p>
    * Performs no additional error checking.
    *
-   * @param t left hand side
+   * @param t     left hand side
    * @param alpha scaling for lhs
    * @param other right hand side
-   * @param beta scaling for rhs
-   * @param tmp result is written to {@code tmp}
+   * @param beta  scaling for rhs
+   * @param tmp   result is written to {@code tmp}
    */
   public static void mmul(DoubleMatrix t, double alpha, DoubleMatrix other, double beta,
-      double[] tmp) {
+                          double[] tmp) {
     BLAS.dgemm("n", "n", t.rows(), other.columns(),
-        other.rows(), alpha, t.asDoubleArray(), t.rows(),
-        other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
+               other.rows(), alpha, t.asDoubleArray(), t.rows(),
+               other.asDoubleArray(), other.rows(), beta, tmp, t.rows());
   }
 
   public static void mmul(DoubleMatrix t, double alpha, Transpose a, DoubleMatrix other,
-      double beta, Transpose b, double[] tmp) {
+                          double beta, Transpose b, double[] tmp) {
     String transA = "n";
     int thisRows = t.rows();
     if (a.transpose()) {
@@ -791,8 +863,8 @@ public final class Matrices {
       transB = "t";
     }
     BLAS.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, t.asDoubleArray(),
-        t.rows(), other.asDoubleArray(), other.rows(), beta, tmp,
-        thisRows);
+               t.rows(), other.asDoubleArray(), other.rows(), beta, tmp,
+               thisRows);
   }
 
   public static ComplexMatrix newComplexVector(Complex... values) {
@@ -822,6 +894,7 @@ public final class Matrices {
   }
 
   private static interface MatrixFactory<T> {
+
     Matrix newVector(int size);
 
     Matrix newMatrix(int rows, int columns);

@@ -41,8 +41,8 @@ public class RecordView implements Record {
   }
 
   @Override
-  public Value get(int index) {
-    return parent.getColumn(index).get(row);
+  public Value getAsValue(int index) {
+    return parent.getColumn(index).getAsValue(row);
   }
 
   @Override
@@ -117,12 +117,12 @@ public class RecordView implements Record {
 
   @Override
   public int compare(int a, int b) {
-    return get(a).compareTo(get(b));
+    return getAsValue(a).compareTo(getAsValue(b));
   }
 
   @Override
   public int compare(int a, Vector other, int b) {
-    return get(a).compareTo(other.get(b));
+    return getAsValue(a).compareTo(other.getAsValue(b));
   }
 
   @Override

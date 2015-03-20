@@ -50,7 +50,7 @@ public abstract class AbstractBitVector extends AbstractVector {
   };
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     Bit bit = getAsBit(index);
     return bit == NA ? Undefined.INSTANCE : new BitValue(bit);
   }

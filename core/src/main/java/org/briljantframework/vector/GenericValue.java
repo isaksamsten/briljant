@@ -29,7 +29,7 @@ public class GenericValue extends AbstractVector implements Value {
   }
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     return this;
   }
 

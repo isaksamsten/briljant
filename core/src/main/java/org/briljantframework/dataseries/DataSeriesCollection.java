@@ -65,10 +65,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Value get(int row, int column) {
+  public Value getAsValue(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.get(column);
+      return rvec.getAsValue(column);
     } else if (column >= 0 && column < columns) {
       return VariableVector.NA;
     } else {

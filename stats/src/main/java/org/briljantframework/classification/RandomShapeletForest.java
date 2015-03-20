@@ -119,11 +119,11 @@ public class RandomShapeletForest extends Ensemble {
           random, builder.lowerLength, builder.upperLength, builder.lowerLength);
       Distribution upperDist = new TriangleDistribution(
           random, builder.lowerLength, 1, builder.upperLength);
-
-      double low = lowerDist.next();
-      double high = upperDist.next();
-      ShapeletTree tree = new ShapeletTree(low, high, builder, sample, classes);
-      return tree.fit(x, y);
+//      double low = lowerDist.next();
+//      double high = upperDist.next();
+      double low = builder.lowerLength;
+      double high = builder.upperLength;
+      return new ShapeletTree(low, high, builder, sample, classes).fit(x, y);
     }
 
     public ClassSet sample(ClassSet classSet, Random random) {

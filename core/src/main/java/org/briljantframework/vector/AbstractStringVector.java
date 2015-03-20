@@ -55,7 +55,7 @@ public abstract class AbstractStringVector extends AbstractVector {
   };
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     String value = getAsString(index);
     return Is.NA(value) ? Undefined.INSTANCE : new StringValue(value);
   }

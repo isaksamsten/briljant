@@ -37,7 +37,7 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     return new GenericValue(get(cls, index));
   }
 

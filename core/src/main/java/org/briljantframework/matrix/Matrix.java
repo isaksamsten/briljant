@@ -1,21 +1,21 @@
 package org.briljantframework.matrix;
 
-import java.util.Collection;
-
 import org.briljantframework.Swappable;
 import org.briljantframework.matrix.storage.Storage;
+
+import java.util.Collection;
 
 /**
  * <p>
  * The {@code Matrix} interface is a base interface for several different matrix implementations.
- * 
+ *
  * There are four supported matrix types {@code double}, {@code int}, {@code boolean} and
  * {@link org.briljantframework.complex.Complex}, specialized in
  * {@link org.briljantframework.matrix.DoubleMatrix}, {@link org.briljantframework.matrix.IntMatrix}
  * , {@link org.briljantframework.matrix.BitMatrix} and
  * {@link org.briljantframework.matrix.ComplexMatrix} respectively.
  * </p>
- * 
+ *
  * <p>
  * The {@code Matrix} interface provides ways to
  *
@@ -32,14 +32,14 @@ import org.briljantframework.matrix.storage.Storage;
  * <p>
  * {@code Matrix} defines four methods for adapting the current implementation to any of the four
  * specialized types. However, there are some caveats when adapting matrices and perform mutations.
- * 
+ *
  * For example, given a {@code DoubleMatrix d} which is adapted to a
  * {@code ComplexMatrix c = d.asComplexMatrix()}, then setting a position to a new {@code Complex}
  * with an imaginary part, e.g., {@code c.set(0, Complex.I)}, would just propagate the real part to
  * the underlying {@code DoubleMatrix}. Likewise, given an {@code IntMatrix} adapted to a
  * {@code DoubleMatrix}, setting a position to a double converts it to an {@code int} (using
  * {@link Math#round(double)}).
- * 
+ *
  * Finally, if receiver is
  * <ul>
  * <li>{@link org.briljantframework.matrix.DoubleMatrix}, {@link #asDoubleMatrix()} must return
@@ -61,24 +61,25 @@ import org.briljantframework.matrix.storage.Storage;
  * <li>{@code int => double}: {@code value}</li>
  * <li>{@code double => Complex}: {@code Complex.valueOf(value)}</li>
  * </ul>
- * 
+ *
  * <p>
  * Remember that most subclasses provide, {@code get(int, int)} and {@code get(int)}, returning the
  * specialized type. For example, {@link DoubleMatrix#get(int, int)}.
  * </p>
  *
- * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code Matrix}es</h1>
+ * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code
+ * Matrix}es</h1>
  * <p>
  * Prefer:
- * 
+ *
  * <pre>
  *   Matrix a = Doubles.randn(10, 1)
  *   Matrix b = Doubles.zeros(10, 1)
  *   a.set(3, b, 0)
  * </pre>
- * 
+ *
  * to:
- * 
+ *
  * <pre>
  *   swith(b.getDataType()) {
  *       DataType.COMPLEX: a.set(3, b.getAsComplex(0); break;
@@ -88,19 +89,23 @@ import org.briljantframework.matrix.storage.Storage;
  *       default: ...;
  *   }
  * </pre>
- * 
+ *
  * </p>
  *
  * @author Isak Karlsson
  */
 public interface Matrix<T extends Matrix> extends Swappable {
 
+  void set(int toIndex, T from, int fromIndex);
+
+  void set(int toRow, int toColumn, T from, int fromRow, int fromColumn);
+
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
    * where modifications of the reshape propagates. I.e. the reshape is a view of the original
    * matrix.
    *
-   * @param rows the new rows
+   * @param rows    the new rows
    * @param columns the new columns
    * @return a new matrix
    */
@@ -152,17 +157,18 @@ public interface Matrix<T extends Matrix> extends Swappable {
    *
    * @param rowOffset the row offset
    * @param colOffset the column offset
-   * @param rows number of rows after row offset
-   * @param columns number of columns after column offset
+   * @param rows      number of rows after row offset
+   * @param columns   number of columns after column offset
    * @return the matrix view
    */
   T getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
-   * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the return
+   * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the
+   * return
    * type.
-   * 
-   * @param rows the rows to include
+   *
+   * @param rows    the rows to include
    * @param columns the columns to include
    * @return a view
    */
@@ -170,7 +176,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
 
   /**
    * Basic slicing. Returns a view of the underlying matrix.
-   * 
+   *
    * @param range the range
    * @return a view
    */
@@ -179,9 +185,9 @@ public interface Matrix<T extends Matrix> extends Swappable {
   /**
    * Basic slicing. Returns a view of the underlying matrix, sliced from the axis defined by
    * {@code axis}.
-   * 
+   *
    * @param range the range
-   * @param axis the axis
+   * @param axis  the axis
    * @return a view
    */
   T slice(Range range, Axis axis);
@@ -189,7 +195,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
   /**
    * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
    *
-   * @param rows the rows to include
+   * @param rows    the rows to include
    * @param columns the columns to include
    * @return a new matrix with the same size as {@code this}
    */
@@ -228,10 +234,10 @@ public interface Matrix<T extends Matrix> extends Swappable {
    *   for(int j = 0; j < m.columns(); j++)
    *      m.set(i, j, o.getAsDouble(i, j))
    * </pre>
-   * 
+   *
    * Since, {@code set(int, int, ....)} shouldn't be used in conjunction with
    * {@code getAs...(int, int)}, the example above should be written as
-   * 
+   *
    * <pre>
    * for (int i = 0; i &lt; m.rows(); i++)
    *   for (int j = 0; j &lt; m.columns(); j++)
@@ -326,7 +332,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
 
   /**
    * Get the storage
-   * 
+   *
    * @return the storage
    */
   Storage getStorage();

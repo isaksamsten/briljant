@@ -172,7 +172,7 @@ public final class DataFrames {
     Vector keyColumn = dataframe.getColumn(column);
 
     for (int i = 0; i < dataframe.rows(); i++) {
-      Value key = keyColumn.get(i);
+      Value key = keyColumn.getAsValue(i);
       DataFrame.Builder builder = builders.get(key);
       if (builder == null) {
         builder = dataframe.newBuilder();

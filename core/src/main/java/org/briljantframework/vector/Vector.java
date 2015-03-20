@@ -44,7 +44,7 @@ public interface Vector extends Serializable {
    * @return a {@code Vector}
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
-  Value get(int index);
+  Value getAsValue(int index);
 
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
@@ -319,7 +319,7 @@ public interface Vector extends Serializable {
     return new AbstractList<Value>() {
       @Override
       public Value get(int i) {
-        return Vector.this.get(i);
+        return Vector.this.getAsValue(i);
       }
 
       @Override

@@ -50,7 +50,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   };
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     double value = getAsDouble(index);
     return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }

@@ -51,7 +51,7 @@ public abstract class AbstractIntVector extends AbstractVector {
   };
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     int value = getAsInt(index);
     return Is.NA(value) ? Undefined.INSTANCE : new IntValue(value);
   }

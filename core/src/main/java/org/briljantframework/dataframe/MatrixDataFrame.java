@@ -63,7 +63,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
    * @return the value
    */
   @Override
-  public Value get(int row, int column) {
+  public Value getAsValue(int row, int column) {
     double value = matrix.get(row, column);
     return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }

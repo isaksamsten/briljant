@@ -26,8 +26,8 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Value get(int index) {
-    return parent.get(offset + index);
+  public Value getAsValue(int index) {
+    return parent.getAsValue(offset + index);
   }
 
   @Override

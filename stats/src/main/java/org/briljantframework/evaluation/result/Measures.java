@@ -69,7 +69,7 @@ public final class Measures {
     int n = predicted.size();
     double brier = 0;
     for (int i = 0; i < n; i++) {
-      double prob = scores.get(i, find(classes, predicted.get(i)));
+      double prob = scores.get(i, find(classes, predicted.getAsValue(i)));
       if (predicted.equals(i, actual, i)) {
         brier += Math.pow(1 - prob, 2);
       } else {
@@ -90,7 +90,7 @@ public final class Measures {
       Vector domain) {
     Map<Value, Double> aucs = new HashMap<>();
     for (int i = 0; i < domain.size(); i++) {
-      Value value = domain.get(i);
+      Value value = domain.getAsValue(i);
       DoubleMatrix p = probabilities.getColumnView(i);
       aucs.put(value, computeAuc(value, predicted, p, actual));
     }

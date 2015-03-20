@@ -1,7 +1,7 @@
 package org.briljantframework.vector
 
-import org.briljantframework.complex.Complex
 import com.google.common.collect.Sets
+import org.briljantframework.complex.Complex
 
 fun Double.toValue() = Convert.toValue(this)
 
@@ -13,29 +13,37 @@ fun Complex.toValue() = Convert.toValue(this)
 
 fun Bit.toValue() = Convert.toValue(this)
 
+fun Boolean.toValue() = Convert.toValue(this)
+
 fun Vector.contains(value: Value) = this.find(value) != -1
 
-fun Vector.contains(value: String) = Vectors.find(this, value) != -1
+public fun Vector.contains(value: String): Boolean = Vectors.find(this, value) != -1
 
-fun Vector.contains(value: Int) = Vectors.find(this, value) != -1
+public fun Vector.contains(value: Int): Boolean = Vectors.find(this, value) != -1
 
-fun Vector.find(value: Value) = Vectors.find(this, value)
+public fun Vector.find(value: Value): Int = Vectors.find(this, value)
 
-fun Vector.toSet() = Sets.newHashSet(this.asValueList())
+public fun <T> Vector.find(value: T): Boolean = Vectors.find(this, value) == 1
 
-fun Vector.toList() = asValueList()
+public inline fun <reified T> Vector.toSet(): Set<T> = Sets.newHashSet(this.asList(javaClass<T>()))
 
-fun <T> Vector.toList(cls: Class<T>) = this.asList(cls)
+public inline fun <reified T : Any> Vector.toList(): List<T> = this.asList(javaClass<T>())
 
-fun Vector.unique() = Vectors.unique(this)
+fun Vector.unique(): Vector = Vectors.unique(this)
 
-fun Vector.unique(other: Vector, vararg rest: Vector) = Vectors.unique(this, other, *rest)
+public fun Vector.unique(other: Vector, vararg rest: Vector): Vector
+        = Vectors.unique(this, other, *rest)
 
-fun Vector.add(value: Value) = this.newCopyBuilder().add(value).build()
+public fun Vector.add(value: Value): Vector = this.newCopyBuilder().add(value).build()
 
-fun Vector.count() = Vectors.count(this)
+[suppress("UNCHECKED_CAST")]
+public inline fun <reified T> Vector.count(): Map<T, Int> = when (javaClass<T>()) {
+    javaClass<Value>() -> Vectors.count(this) as Map<T, Int>
+    else -> Vectors.count(javaClass<T>(), this)
 
-fun <T> Vector.count(cls: Class<T>) = Vectors.count(cls, this)
+}
+
+public inline fun <reified T> Vector.get(index: Int): T = this.get(javaClass<T>(), index)
 
 fun Vector.repeat(times: Int): Vector {
     if (times == 1) {

@@ -47,7 +47,7 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Value predict(Vector row) {
-    return classes.get(argmax(estimate(row)));
+    return classes.getAsValue(argmax(estimate(row)));
   }
 
   @Override

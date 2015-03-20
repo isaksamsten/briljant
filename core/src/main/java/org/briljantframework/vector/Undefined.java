@@ -51,7 +51,7 @@ public class Undefined implements Value {
   protected static final String ILLEGAL = "Can't index undefined.";
 
   @Override
-  public Value get(int index) {
+  public Value getAsValue(int index) {
     return this;
   }
 

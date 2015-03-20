@@ -164,7 +164,7 @@ public final class Vectors {
    */
   public static int find(Vector vector, Predicate<Value> predicate) {
     for (int i = 0; i < vector.size(); i++) {
-      if (predicate.test(vector.get(i))) {
+      if (predicate.test(vector.getAsValue(i))) {
         return i;
       }
     }
@@ -463,7 +463,7 @@ public final class Vectors {
     Set<Value> taken = new HashSet<>();
     for (Vector vector : vectors) {
       for (int i = 0; i < vector.size(); i++) {
-        Value value = vector.get(i);
+        Value value = vector.getAsValue(i);
         if (!taken.contains(value)) {
           taken.add(value);
           builder.add(vector, i);
