@@ -378,71 +378,6 @@ public final class Matrices {
 
   /**
    * <p>
-   * Sorts the source matrix {@code a} in the order specified by {@code comparator}. For example,
-   * reversed sorted
-   * </p>
-   *
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    DoubleMatrix a = Matrices.randn(12, 1)
-   *    DoubleMatrix x = Matrices.sort(a, (c, i, j) -> -c.compare(a, b)).asDoubleMatrix()
-   * </pre>
-   * <p>
-   * {@link org.briljantframework.complex.Complex} and {@link ComplexMatrix} do not have a natural
-   * sort order.
-   * </p>
-   *
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    ComplexMatrix a = randn(12, 1).asComplexMatrix().map(Complex::sqrt)
-   *    ComplexMatrix x = sort(a, (c, i, j) -> Double.compare(c.getAsComplex(i).abs(),
-   *        c.getAsComplex(j).abs()).asComplexMatrix()
-   *
-   *    0.1499 + 0.0000i
-   *    0.5478 + 0.0000i
-   *    0.5725 + 0.0000i
-   *    0.0000 + 0.5916i
-   *    0.0000 + 0.6856i
-   *    0.0000 + 0.8922i
-   *    0.0000 + 0.9139i
-   *    0.0000 + 1.0130i
-   *    0.0000 + 1.1572i
-   *    1.1912 + 0.0000i
-   *    1.2493 + 0.0000i
-   *    1.2746 + 0.0000i
-   *    shape: 12x1 type: complex
-   * </pre>
-   *
-   * @param a          the source matrix
-   * @param comparator the comparator; first argument is the container, and the next are indexes
-   * @return a new sorted matrix; the returned matrix has the same type as {@code a}
-   */
-  public static <T extends Matrix<T>> T sort(T a,
-                                             IndexComparator<? super T> comparator) {
-    T out = a.copy();
-    QuickSort.quickSort(0, out.size(), (x, y) -> comparator.compare(out, x, y), out);
-    return out;
-  }
-
-  public static <T extends Matrix<T>> T sort(T a, Axis axis,
-                                             IndexComparator<? super T> comparator) {
-    T out = a.copy();
-    if (axis == Axis.ROW) {
-      for (int i = 0; i < a.rows(); i++) {
-        T row = out.getRowView(i);
-        QuickSort.quickSort(0, row.size(), (x, y) -> comparator.compare(row, x, y), row);
-      }
-    } else {
-      for (int i = 0; i < a.columns(); i++) {
-        T col = out.getColumnView(i);
-        QuickSort.quickSort(0, col.size(), (x, y) -> comparator.compare(col, x, y), col);
-      }
-    }
-    return out;
-  }
-
-  /**
-   * <p>
    * Create a vector of length {@code num} with evenly spaced values between {@code start} and
    * {@code end}.
    * </p>
@@ -724,10 +659,6 @@ public final class Matrices {
 
   /**
    * Parse a matrix in the format
-   * <p>
-   * <p>
-   * <p>
-   * <p>
    *
    * <pre>
    *     row :== double<sub>1</sub>, {double<sub>n</sub>}
@@ -780,57 +711,67 @@ public final class Matrices {
     return Diagonal.of(rows, cols, diagonal);
   }
 
-  public static DoubleMatrix sort(DoubleMatrix matrix, IndexComparator<DoubleMatrix> cmp) {
-    DoubleMatrix out = matrix.copy();
+  /**
+   * <p>
+   * Sorts the source matrix {@code a} in the order specified by {@code comparator}. For example,
+   * reversed sorted
+   * </p>
+   *
+   * <pre>
+   *  > import org.briljantframework.matrix.*;
+   *    DoubleMatrix a = Matrices.randn(12, 1)
+   *    DoubleMatrix x = Matrices.sort(a, (c, i, j) -> -c.compare(a, b));
+   * </pre>
+   * <p>
+   * {@link org.briljantframework.complex.Complex} and {@link ComplexMatrix} do not have a natural
+   * sort order.
+   * </p>
+   *
+   * <pre>
+   *  > import org.briljantframework.matrix.*;
+   *    ComplexMatrix a = randn(12, 1).asComplexMatrix().map(Complex::sqrt)
+   *    ComplexMatrix x = sort(a, (c, i, j) -> Double.compare(c.get(i).abs(), c.get(j).abs());
+   *
+   *    0.1499 + 0.0000i
+   *    0.5478 + 0.0000i
+   *    0.5725 + 0.0000i
+   *    0.0000 + 0.5916i
+   *    0.0000 + 0.6856i
+   *    0.0000 + 0.8922i
+   *    0.0000 + 0.9139i
+   *    0.0000 + 1.0130i
+   *    0.0000 + 1.1572i
+   *    1.1912 + 0.0000i
+   *    1.2493 + 0.0000i
+   *    1.2746 + 0.0000i
+   *    shape: 12x1 type: complex
+   * </pre>
+   *
+   * @param matrix the source matrix
+   * @param cmp    the comparator; first argument is the container, and the next are indexes
+   * @return a new sorted matrix; the returned matrix has the same type as {@code a}
+   */
+  public static <T extends Matrix<T>> T sort(T matrix, IndexComparator<T> cmp) {
+    T out = matrix.copy();
     QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
     return out;
   }
 
-  public static DoubleMatrix sort(DoubleMatrix matrix) {
-    DoubleMatrix out = matrix.copy();
-    QuickSort.quickSort(0, out.size(), (a, b) -> Double.compare(out.get(a), out.get(b)), out);
-    return out;
-  }
-
-  public static DoubleMatrix sort(DoubleMatrix matrix, Axis axis) {
-    DoubleMatrix out = matrix.copy();
+  public static <T extends Matrix<T>> T sort(T matrix, IndexComparator<T> cmp, Axis axis) {
+    T out = matrix.copy();
     if (axis == Axis.ROW) {
       for (int i = 0; i < matrix.rows(); i++) {
-        DoubleMatrix row = out.getRowView(i);
-        QuickSort.quickSort(0, row.size(), (a, b) -> Double.compare(row.get(a), row.get(b)), row);
+        T row = out.getRowView(i);
+        QuickSort.quickSort(0, row.size(), (a, b) -> cmp.compare(row, a, b), row);
       }
     } else {
       for (int i = 0; i < matrix.columns(); i++) {
-        DoubleMatrix col = out.getColumnView(i);
-        QuickSort.quickSort(0, col.size(), (a, b) -> Double.compare(col.get(a), col.get(b)), col);
+        T col = out.getColumnView(i);
+        QuickSort.quickSort(0, col.size(), (a, b) -> cmp.compare(col, a, b), col);
       }
     }
     return out;
   }
-
-  //
-  // /**
-  // * Std out.
-  // *
-  // * @param matrix the matrix
-  // * @param axis the axis
-  // * @return the out
-  // */
-  // public static DoubleMatrix std(DoubleMatrix matrix, Axis axis) {
-  // DoubleMatrix mean = mean(matrix, axis);
-  // long columns = matrix.columns();
-  // DoubleMatrix sigmas = of(matrix.columns());
-  //
-  // for (int j = 0; j < columns; j++) {
-  // double std = 0.0;
-  // for (int i = 0; i < matrix.rows(); i++) {
-  // double residual = matrix.get(i, j) - mean.get(j);
-  // std += residual * residual;
-  // }
-  // sigmas.set(j, Math.sqrt(std / (matrix.rows() - 1)));
-  // }
-  // return sigmas;
-  // }
 
   /**
    * Computes the mean of the matrix.
