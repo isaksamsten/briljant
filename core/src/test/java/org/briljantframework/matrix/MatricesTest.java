@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -370,12 +369,22 @@ public class MatricesTest {
   @Test
   public void testVsplit() throws Exception {
     DoubleMatrix a = Range.range(0, 9).reshape(3, 3).asDoubleMatrix();
-    List<DoubleMatrix> m = new ArrayList<>(Matrices.vsplit(a, 3));
+    List<DoubleMatrix> m = Matrices.vsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getRowView(0), m.get(0), 0);
     assertMatrixEquals(a.getRowView(1), m.get(1), 0);
     assertMatrixEquals(a.getRowView(2), m.get(2), 0);
 
 
+  }
+
+  @Test
+  public void testHsplit() throws Exception {
+    DoubleMatrix a = Range.range(0, 9).reshape(3, 3).asDoubleMatrix();
+    List<DoubleMatrix> m = Matrices.hsplit(a, 3);
+    assertEquals(3, m.size());
+    assertMatrixEquals(a.getColumnView(0), m.get(0), 0);
+    assertMatrixEquals(a.getColumnView(1), m.get(1), 0);
+    assertMatrixEquals(a.getColumnView(2), m.get(2), 0);
   }
 }

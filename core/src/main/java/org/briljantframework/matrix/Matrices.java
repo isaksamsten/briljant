@@ -10,8 +10,9 @@ import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -631,23 +633,81 @@ public final class Matrices {
     return newMatrix;
   }
 
-  public static <T extends Matrix<T>> Collection<T> vsplit(T matrix, int parts) {
+  /**
+   * Split matrix horizontally (i.e. column-wise). A 3-by-3 matrix hsplit into 3 parts
+   * return a (lazy) list of 3 3-by-1 matrices.
+   *
+   * <p>The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is
+   * called. To get a computed list, use {@code new ArrayList<>(Matrices.hsplit(m, 3))}.
+   * This is useful when {@link List#get(int)} is used multiple times.
+   *
+   * @param matrix matrix to be split
+   * @param parts  parts to split matrix (must evenly devide {@code matrix.columns()})
+   * @param <T>    the matrix type
+   * @return a (lazy) list of {@code part} elements
+   */
+  public static <T extends Matrix<T>> List<T> hsplit(T matrix, int parts) {
     checkNotNull(matrix);
-    checkArgument(matrix.rows() % parts == 0, "parts does not evenly divide rows");
-    int partRows = matrix.rows() / parts;
+    checkArgument(matrix.rows() % parts == 0, "Parts does not evenly dived columns.");
+    int partColumns = matrix.columns() / parts;
+    return new AbstractList<T>() {
 
-    List<T> values = new ArrayList<>();
-    for (int p = 0; p < parts; p++) {
-      T part = matrix.newEmptyMatrix(partRows, matrix.columns());
-      for (int j = 0; j < part.columns(); j++) {
-        for (int i = 0; i < part.rows(); i++) {
-          part.set(i, j, matrix, i + partRows * p, j);
+      @NotNull
+      @Override
+      public T get(int index) {
+        checkElementIndex(index, size());
+        T part = matrix.newEmptyMatrix(matrix.rows(), partColumns);
+        for (int j = 0; j < part.columns(); j++) {
+          for (int i = 0; i < part.rows(); i++) {
+            part.set(i, j, matrix, i, j + partColumns * index);
+          }
         }
+        return part;
       }
-      values.add(part);
-    }
 
-    return values;
+      @Override
+      public int size() {
+        return parts;
+      }
+    };
+  }
+
+  /**
+   * Split matrix vertically (i.e. row-wise). A 3-by-3 matrix hsplit into 3 parts
+   * return a (lazy) list of 3 1-by-3 matrices.
+   *
+   * <p>The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is
+   * called. To get a computed list, use {@code new ArrayList<>(Matrices.hsplit(m, 3))}.
+   * This is useful when {@link List#get(int)} is used multiple times.
+   *
+   * @param matrix matrix to be split
+   * @param parts  parts to split matrix (must evenly devide {@code matrix.columns()})
+   * @param <T>    the matrix type
+   * @return a (lazy) list of {@code part} elements
+   */
+  public static <T extends Matrix<T>> List<T> vsplit(T matrix, int parts) {
+    checkNotNull(matrix);
+    checkArgument(matrix.rows() % parts == 0, "Parts does not evenly divide rows.");
+    int partRows = matrix.rows() / parts;
+    return new AbstractList<T>() {
+      @NotNull
+      @Override
+      public T get(int index) {
+        checkElementIndex(index, size());
+        T part = matrix.newEmptyMatrix(partRows, matrix.columns());
+        for (int j = 0; j < part.columns(); j++) {
+          for (int i = 0; i < part.rows(); i++) {
+            part.set(i, j, matrix, i + partRows * index, j);
+          }
+        }
+        return part;
+      }
+
+      @Override
+      public int size() {
+        return parts;
+      }
+    };
   }
 
   public static void shuffle(Matrix matrix, Axis axis) {
