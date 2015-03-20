@@ -5,13 +5,13 @@ import org.briljantframework.complex.Complex
 import org.briljantframework.matrix.storage.Storage
 
 
-fun <T : Matrix<T>> T.vstack(other: T): T = Matrices.vstack(listOf(this, other))
-
-fun <T : Matrix<T>> vstack(vararg others: T): T = Matrices.vstack(listOf(*others))
-
 fun <T : Matrix<T>> T.hstack(other: T): T = Matrices.hstack(listOf(this, other))
 
 fun <T : Matrix<T>> hstack(vararg others: T): T = Matrices.hstack(listOf(*others))
+
+fun <T : Matrix<T>> T.vstack(other: T): T = Matrices.vstack(listOf(this, other))
+
+fun <T : Matrix<T>> vstack(vararg others: T): T = Matrices.vstack(listOf(*others))
 
 private fun Progression<Int>.toSlice() = Range.range(start, end, increment.toInt())
 

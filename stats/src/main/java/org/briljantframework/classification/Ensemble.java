@@ -112,15 +112,14 @@ public abstract class Ensemble implements Classifier {
     return size;
   }
 
-  public static class EnsemblePredictor
-      extends AbstractPredictor
-      implements org.briljantframework.classification.EnsemblePredictor {
+  public static class DefaultEnsemblePredictor
+      extends AbstractPredictor implements EnsemblePredictor {
 
     private final List<? extends Predictor> members;
     private final BitMatrix oobIndicator;
 
-    public EnsemblePredictor(Vector classes, List<? extends Predictor> members,
-                             BitMatrix oobIndicator) {
+    public DefaultEnsemblePredictor(Vector classes, List<? extends Predictor> members,
+                                    BitMatrix oobIndicator) {
       super(classes);
       this.members = members;
       this.oobIndicator = oobIndicator.frozen();
@@ -128,8 +127,7 @@ public abstract class Ensemble implements Classifier {
 
     /**
      * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code
-     * true}
-     * the i:th training sample is out of the j:th members training sample.
+     * true} the i:th training sample is out of the j:th members training sample.
      *
      * @return the out of bag indicator matrix
      */
@@ -175,9 +173,8 @@ public abstract class Ensemble implements Classifier {
         }
         oobAccuracy.add(find(classes, y, i) == argmax(oobEstimates.getRowView(i)) ? 1 : 0);
       });
-      ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT,
-                                                                        oobAccuracy.sum() / x
-                                                                            .rows());
+      double avgOobAccuracy = oobAccuracy.sum() / x.rows();
+      ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT, avgOobAccuracy);
 
       DoubleAdder strengthA = new DoubleAdder();
       DoubleAdder strengthSquareA = new DoubleAdder();
@@ -299,8 +296,10 @@ public abstract class Ensemble implements Classifier {
 
     @Override
     public DoubleMatrix estimate(Vector row) {
-      List<Value> predictions =
-          members.parallelStream().map(model -> model.predict(row)).collect(Collectors.toList());
+      List<Value> predictions = members.parallelStream()
+          .map(model -> model.predict(row))
+          .collect(Collectors.toList());
+
       ObjectDoubleMap<String> votes = new ObjectDoubleOpenHashMap<>();
       for (Value prediction : predictions) {
         votes.putOrAdd(prediction.getAsString(), 1, 1);
@@ -357,8 +356,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "OOB Accuracy";
     }
-
-
   }
 
 
@@ -383,8 +380,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Correlation";
     }
-
-
   }
 
   /**
@@ -408,8 +403,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Strength";
     }
-
-
   }
 
   /**
@@ -433,8 +426,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Ensemble Error Bound";
     }
-
-
   }
 
   /**
@@ -458,8 +449,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Ensemble Variance";
     }
-
-
   }
 
   public static class Bias extends AbstractMeasure {
@@ -480,8 +469,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Ensemble Bias";
     }
-
-
   }
 
   /**
@@ -505,8 +492,6 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Ensemble Mean Square Error";
     }
-
-
   }
 
   /**
@@ -530,7 +515,5 @@ public abstract class Ensemble implements Classifier {
     public String getName() {
       return "Base classifier accuracy";
     }
-
-
   }
 }

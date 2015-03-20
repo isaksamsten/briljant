@@ -16,10 +16,15 @@ class briljantTest {
 
         val x = DoubleMatrix.newMatrix(3, 3) assign 10.0
         val y = DoubleMatrix.newMatrix(3, 10) assign 3.0
-        val z = (x vstack y) vstack x
 
-        val o = vstack(x, x, x, x, x, x, x)
-        println(o)
+
+        val e = DoubleMatrix.newMatrix(1, 3).assign(3.0)
+        val r = DoubleMatrix.newMatrix(1, 3).assign(1.9)
+
+        println(e vstack r)
+
+
+
 
     }
 }

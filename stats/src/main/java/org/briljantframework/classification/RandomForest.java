@@ -31,7 +31,7 @@ public class RandomForest extends Ensemble {
   }
 
   @Override
-  public EnsemblePredictor fit(DataFrame x, Vector y) {
+  public DefaultEnsemblePredictor fit(DataFrame x, Vector y) {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> fitTasks = new ArrayList<>();
@@ -40,7 +40,7 @@ public class RandomForest extends Ensemble {
       fitTasks.add(new FitTask(classSet, x, y, splitter, classes, oobIndicator.getColumnView(i)));
     }
     try {
-      return new EnsemblePredictor(classes, execute(fitTasks), oobIndicator);
+      return new DefaultEnsemblePredictor(classes, execute(fitTasks), oobIndicator);
     } catch (Exception e) {
       e.printStackTrace();
       return null;

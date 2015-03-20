@@ -38,7 +38,7 @@ public class RandomPointTreeTest {
           fitTasks.add(new FitTask(classSet, x, y, classes, oobIndicator.getColumnView(i)));
         }
         try {
-          return new EnsemblePredictor(classes, execute(fitTasks), oobIndicator);
+          return new DefaultEnsemblePredictor(classes, execute(fitTasks), oobIndicator);
         } catch (Exception e) {
           e.printStackTrace();
           return null;

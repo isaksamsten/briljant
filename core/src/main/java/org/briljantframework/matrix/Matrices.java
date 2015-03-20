@@ -11,13 +11,16 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Isak Karlsson
@@ -560,14 +563,14 @@ public final class Matrices {
   }
 
   /**
-   * Stacks matrices vertically, i.e. a 2-by-3 matrix hstacked with a 10-by-3 matrix
+   * Stacks matrices vertically, i.e. a 2-by-3 matrix vstacked with a 10-by-3 matrix
    * resuls in a 12-by-3 matrix.
    *
    * @param matrices a sequence of matrices; all having the same {@code columns}
    * @param <T>      the matrix type
    * @return a new matrix; {@code shape = [sum-of-rows, columns]}
    */
-  public static <T extends Matrix<T>> T hstack(Collection<T> matrices) {
+  public static <T extends Matrix<T>> T vstack(Collection<T> matrices) {
     checkArgument(matrices.size() > 0);
     int rows = 0;
     int columns = 0;
@@ -595,14 +598,14 @@ public final class Matrices {
   }
 
   /**
-   * Stacks matrices horizontally, i.e. a 3-by-2 matrix vstacked with a 3-by-10 matrix
+   * Stacks matrices horizontally, i.e. a 3-by-2 matrix hstacked with a 3-by-10 matrix
    * results in a 3-by-12 matrix.
    *
    * @param matrices a sequence of matrices; all having the same {@code rows}
    * @param <T>      the matrix type
    * @return a new matrix; {@code shape = [rows, sum-of-columns]}
    */
-  public static <T extends Matrix<T>> T vstack(Collection<T> matrices) {
+  public static <T extends Matrix<T>> T hstack(Collection<T> matrices) {
     checkArgument(matrices.size() > 0);
     int columns = 0;
     int rows = 0;
@@ -626,6 +629,25 @@ public final class Matrices {
       pad += matrix.columns();
     }
     return newMatrix;
+  }
+
+  public static <T extends Matrix<T>> Collection<T> vsplit(T matrix, int parts) {
+    checkNotNull(matrix);
+    checkArgument(matrix.rows() % parts == 0, "parts does not evenly divide rows");
+    int partRows = matrix.rows() / parts;
+
+    List<T> values = new ArrayList<>();
+    for (int p = 0; p < parts; p++) {
+      T part = matrix.newEmptyMatrix(partRows, matrix.columns());
+      for (int j = 0; j < part.columns(); j++) {
+        for (int i = 0; i < part.rows(); i++) {
+          part.set(i, j, matrix, i + partRows * p, j);
+        }
+      }
+      values.add(part);
+    }
+
+    return values;
   }
 
   public static void shuffle(Matrix matrix, Axis axis) {

@@ -3,6 +3,7 @@ package org.briljantframework.matrix;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
 import static org.junit.Assert.assertEquals;
@@ -241,13 +242,13 @@ public class MatricesTest {
   }
 
   @Test
-  public void testHstack() throws Exception {
+  public void testVstack() throws Exception {
     DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
     DoubleMatrix b = DoubleMatrix.newMatrix(2, 3).assign(3);
     DoubleMatrix c = DoubleMatrix.newMatrix(1, 3).assign(1);
-    DoubleMatrix hstack = Matrices.hstack(Arrays.asList(a, b, c));
+    DoubleMatrix hstack = Matrices.vstack(Arrays.asList(a, b, c));
     System.out.println(hstack);
-    assertMatrixEquals(a, Matrices.hstack(Arrays.asList(a)), 0);
+    assertMatrixEquals(a, Matrices.vstack(Arrays.asList(a)), 0);
     assertEquals(3 + 2 + 1, hstack.rows());
     assertEquals(3, hstack.columns());
     assertMatrixEquals(10, hstack.getView(0, 0, 3, 3), 0);
@@ -256,13 +257,13 @@ public class MatricesTest {
   }
 
   @Test
-  public void testVstack() throws Exception {
+  public void testHstack() throws Exception {
     DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
     DoubleMatrix b = DoubleMatrix.newMatrix(3, 2).assign(2);
     DoubleMatrix c = DoubleMatrix.newMatrix(3, 1).assign(1);
-    DoubleMatrix vstack = Matrices.vstack(Arrays.asList(a, b, c));
+    DoubleMatrix vstack = Matrices.hstack(Arrays.asList(a, b, c));
 
-    assertMatrixEquals(a, Matrices.vstack(Arrays.asList(a)), 0);
+    assertMatrixEquals(a, Matrices.hstack(Arrays.asList(a)), 0);
     assertEquals(3 + 2 + 1, vstack.columns());
     assertEquals(3, vstack.rows());
     assertMatrixEquals(10, vstack.getView(0, 0, 3, 3), 0);
@@ -362,6 +363,14 @@ public class MatricesTest {
 
   @Test
   public void testMaxnot() throws Exception {
+
+  }
+
+  @Test
+  public void testVsplit() throws Exception {
+    DoubleMatrix a = Range.range(0, 9).reshape(3, 3).asDoubleMatrix();
+    Collection<DoubleMatrix> m = Matrices.vsplit(a, 3);
+    System.out.println(m);
 
   }
 }

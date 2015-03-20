@@ -157,7 +157,7 @@ public class RandomShapeletForest extends Ensemble {
     }
   }
 
-  public static class Predictor extends EnsemblePredictor {
+  public static class Predictor extends DefaultEnsemblePredictor {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
