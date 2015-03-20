@@ -16,11 +16,26 @@
 
 package org.briljantframework.classification;
 
-import static org.briljantframework.evaluation.result.Sample.OUT;
-import static org.briljantframework.matrix.Matrices.*;
-import static org.briljantframework.vector.Vectors.find;
+import com.carrotsearch.hppc.ObjectDoubleMap;
+import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
-import java.util.*;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Record;
+import org.briljantframework.evaluation.measure.AbstractMeasure;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.matrix.Axis;
+import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.Matrices;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -30,16 +45,12 @@ import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Record;
-import org.briljantframework.evaluation.measure.AbstractMeasure;
-import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.*;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
-
-import com.carrotsearch.hppc.ObjectDoubleMap;
-import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
+import static org.briljantframework.evaluation.result.Sample.OUT;
+import static org.briljantframework.matrix.Matrices.argmax;
+import static org.briljantframework.matrix.Matrices.argmaxnot;
+import static org.briljantframework.matrix.Matrices.maxnot;
+import static org.briljantframework.matrix.Matrices.mean;
+import static org.briljantframework.vector.Vectors.find;
 
 /**
  * @author Isak Karlsson
@@ -69,16 +80,16 @@ public abstract class Ensemble implements Classifier {
   }
 
   /**
-   * Executes {@code callable} either sequential or in parallel depending on the number of available
-   * cores.
+   * Executes {@code callable} either sequential or in parallel depending on the number of
+   * available cores.
    *
    * @param callables the callables
-   * @param <T> the models produced
+   * @param <T>       the models produced
    * @return a list of produced models
    * @throws Exception if something goes wrong
    */
-  protected static <T extends Predictor> List<T> execute(Collection<? extends Callable<T>> callables)
-      throws Exception {
+  protected static <T extends Predictor> List<T> execute(
+      Collection<? extends Callable<T>> callables) throws Exception {
     List<T> models = new ArrayList<>();
     if (THREAD_POOL != null && THREAD_POOL.getActiveCount() < CORES) {
       for (Future<T> future : THREAD_POOL.invokeAll(callables)) {
@@ -101,21 +112,23 @@ public abstract class Ensemble implements Classifier {
     return size;
   }
 
-  public static class EnsemblePredictor extends AbstractPredictor implements
-      org.briljantframework.classification.EnsemblePredictor {
+  public static class EnsemblePredictor
+      extends AbstractPredictor
+      implements org.briljantframework.classification.EnsemblePredictor {
 
     private final List<? extends Predictor> members;
     private final BitMatrix oobIndicator;
 
     public EnsemblePredictor(Vector classes, List<? extends Predictor> members,
-        BitMatrix oobIndicator) {
+                             BitMatrix oobIndicator) {
       super(classes);
       this.members = members;
       this.oobIndicator = oobIndicator.frozen();
     }
 
     /**
-     * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code true}
+     * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code
+     * true}
      * the i:th training sample is out of the j:th members training sample.
      *
      * @return the out of bag indicator matrix
@@ -126,10 +139,8 @@ public abstract class Ensemble implements Classifier {
     }
 
     @Override
-    public void evaluation(EvaluationContext ctx) {
-      super.evaluation(ctx);
-      computeMeanSquareError(ctx);
-      computeOOBCorrelation(ctx);
+    public List<Predictor> getPredictors() {
+      return Collections.unmodifiableList(members);
     }
 
     private void computeOOBCorrelation(EvaluationContext ctx) {
@@ -165,7 +176,8 @@ public abstract class Ensemble implements Classifier {
         oobAccuracy.add(find(classes, y, i) == argmax(oobEstimates.getRowView(i)) ? 1 : 0);
       });
       ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT,
-          oobAccuracy.sum() / x.rows());
+                                                                        oobAccuracy.sum() / x
+                                                                            .rows());
 
       DoubleAdder strengthA = new DoubleAdder();
       DoubleAdder strengthSquareA = new DoubleAdder();
@@ -217,6 +229,7 @@ public abstract class Ensemble implements Classifier {
       Vector classes = getClasses();
 
       DoubleAdder meanVariance = new DoubleAdder();
+      DoubleAdder meanSquareError = new DoubleAdder();
       DoubleAdder meanBias = new DoubleAdder();
       DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
@@ -239,27 +252,37 @@ public abstract class Ensemble implements Classifier {
 
         /* Get the mean probability vector for the i:th example */
         DoubleMatrix meanEstimate = mean(memberEstimates, Axis.COLUMN);
-        double variance = 0, bias = 0, accuracy = 0;
+        double variance = 0, mse = 0, bias = 0, accuracy = 0;
         for (int j = 0; j < memberEstimates.rows(); j++) {
           DoubleMatrix r = memberEstimates.getRowView(j);
-          double meanDiff = 0, trueDiff = 0;
+          double meanDiff = 0;
+          double trueDiff = 0;
+          double meanTrueDiff = 0;
           for (int k = 0; k < r.size(); k++) {
             meanDiff += Math.pow(r.get(k) - meanEstimate.get(k), 2);
             trueDiff += Math.pow(r.get(k) - c.get(k), 2);
+            meanTrueDiff += Math.pow(meanEstimate.get(k) - c.get(k), 2);
           }
           variance += meanDiff;
-          bias += trueDiff;
+          mse += trueDiff;
+          bias += meanTrueDiff;
           accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
         }
         meanVariance.add(variance / estimators);
-        meanBias.add(bias / estimators);
+        meanSquareError.add(mse / estimators);
         baseAccuracy.add(accuracy / estimators);
+        meanBias.add(bias / estimators);
       });
-      ctx.getOrDefault(Variance.class, Variance.Builder::new).add(OUT,
-          meanVariance.doubleValue() / x.rows());
-      ctx.getOrDefault(Bias.class, Bias.Builder::new).add(OUT, meanBias.doubleValue() / x.rows());
-      ctx.getOrDefault(BaseAccuracy.class, BaseAccuracy.Builder::new).add(OUT,
-          baseAccuracy.doubleValue() / x.rows());
+
+      double avgVariance = meanVariance.doubleValue() / x.rows();
+      double avgBias = meanBias.doubleValue() / x.rows();
+      double avgMse = meanSquareError.doubleValue() / x.rows();
+      double avgBaseAccuracy = baseAccuracy.doubleValue() / x.rows();
+
+      ctx.getOrDefault(Variance.class, Variance.Builder::new).add(OUT, avgVariance);
+      ctx.getOrDefault(Bias.class, Bias.Builder::new).add(OUT, avgBias);
+      ctx.getOrDefault(MeanSquareError.class, MeanSquareError.Builder::new).add(OUT, avgMse);
+      ctx.getOrDefault(BaseAccuracy.class, BaseAccuracy.Builder::new).add(OUT, avgBaseAccuracy);
     }
 
     @Override
@@ -268,8 +291,10 @@ public abstract class Ensemble implements Classifier {
     }
 
     @Override
-    public List<Predictor> getPredictors() {
-      return Collections.unmodifiableList(members);
+    public void evaluation(EvaluationContext ctx) {
+      super.evaluation(ctx);
+      computeMeanSquareError(ctx);
+      computeOOBCorrelation(ctx);
     }
 
     @Override
@@ -320,11 +345,6 @@ public abstract class Ensemble implements Classifier {
       super(builder);
     }
 
-    @Override
-    public String getName() {
-      return "OOB Accuracy";
-    }
-
     public static class Builder extends AbstractMeasure.Builder<OobAccuracy> {
 
       @Override
@@ -332,6 +352,13 @@ public abstract class Ensemble implements Classifier {
         return new OobAccuracy(this);
       }
     }
+
+    @Override
+    public String getName() {
+      return "OOB Accuracy";
+    }
+
+
   }
 
 
@@ -344,11 +371,6 @@ public abstract class Ensemble implements Classifier {
       super(builder);
     }
 
-    @Override
-    public String getName() {
-      return "Correlation";
-    }
-
     public static class Builder extends AbstractMeasure.Builder<Correlation> {
 
       @Override
@@ -356,6 +378,13 @@ public abstract class Ensemble implements Classifier {
         return new Correlation(this);
       }
     }
+
+    @Override
+    public String getName() {
+      return "Correlation";
+    }
+
+
   }
 
   /**
@@ -367,11 +396,6 @@ public abstract class Ensemble implements Classifier {
       super(builder);
     }
 
-    @Override
-    public String getName() {
-      return "Strength";
-    }
-
     public static class Builder extends AbstractMeasure.Builder<Strength> {
 
       @Override
@@ -379,6 +403,13 @@ public abstract class Ensemble implements Classifier {
         return new Strength(this);
       }
     }
+
+    @Override
+    public String getName() {
+      return "Strength";
+    }
+
+
   }
 
   /**
@@ -390,11 +421,6 @@ public abstract class Ensemble implements Classifier {
       super(builder);
     }
 
-    @Override
-    public String getName() {
-      return "Ensemble Error Bound";
-    }
-
     public static class Builder extends AbstractMeasure.Builder<ErrorBound> {
 
       @Override
@@ -402,14 +428,30 @@ public abstract class Ensemble implements Classifier {
         return new ErrorBound(this);
       }
     }
+
+    @Override
+    public String getName() {
+      return "Ensemble Error Bound";
+    }
+
+
   }
 
   /**
    * @author Isak Karlsson
    */
   public static class Variance extends AbstractMeasure {
+
     protected Variance(Builder builder) {
       super(builder);
+    }
+
+    public static class Builder extends AbstractMeasure.Builder<Variance> {
+
+      @Override
+      public Variance build() {
+        return new Variance(this);
+      }
     }
 
     @Override
@@ -417,26 +459,13 @@ public abstract class Ensemble implements Classifier {
       return "Ensemble Variance";
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Variance> {
-      @Override
-      public Variance build() {
-        return new Variance(this);
-      }
-    }
+
   }
 
-  /**
-   * @author Isak Karlsson
-   */
   public static class Bias extends AbstractMeasure {
 
     protected Bias(Builder builder) {
       super(builder);
-    }
-
-    @Override
-    public String getName() {
-      return "Ensemble Bias";
     }
 
     public static class Builder extends AbstractMeasure.Builder<Bias> {
@@ -446,6 +475,38 @@ public abstract class Ensemble implements Classifier {
         return new Bias(this);
       }
     }
+
+    @Override
+    public String getName() {
+      return "Ensemble Bias";
+    }
+
+
+  }
+
+  /**
+   * @author Isak Karlsson
+   */
+  public static class MeanSquareError extends AbstractMeasure {
+
+    protected MeanSquareError(Builder builder) {
+      super(builder);
+    }
+
+    public static class Builder extends AbstractMeasure.Builder<MeanSquareError> {
+
+      @Override
+      public MeanSquareError build() {
+        return new MeanSquareError(this);
+      }
+    }
+
+    @Override
+    public String getName() {
+      return "Ensemble Mean Square Error";
+    }
+
+
   }
 
   /**
@@ -457,11 +518,6 @@ public abstract class Ensemble implements Classifier {
       super(builder);
     }
 
-    @Override
-    public String getName() {
-      return "Base classifier accuracy";
-    }
-
     public static final class Builder extends AbstractMeasure.Builder<BaseAccuracy> {
 
       @Override
@@ -469,5 +525,12 @@ public abstract class Ensemble implements Classifier {
         return new BaseAccuracy(this);
       }
     }
+
+    @Override
+    public String getName() {
+      return "Base classifier accuracy";
+    }
+
+
   }
 }

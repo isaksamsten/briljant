@@ -137,7 +137,7 @@ public class RandomShapeletForestTest {
                            + result.getAverage(Accuracy.class) + ", "
                            + result.getAverage(Ensemble.OobAccuracy.class) + ", "
                            + result.getAverage(Ensemble.Variance.class) + ", "
-                           + result.getAverage(Ensemble.Bias.class) + ", "
+                           + result.getAverage(Ensemble.MeanSquareError.class) + ", "
                            + result.getAverage(Brier.class) + ", "
                            + result.getAverage(RandomShapeletForest.Depth.class));
       }
@@ -249,7 +249,7 @@ public class RandomShapeletForestTest {
                              + result.getAverage(Accuracy.class) + ", "
                              + result.getAverage(Ensemble.OobAccuracy.class) + ", "
                              + result.getAverage(Ensemble.Variance.class) + ", "
-                             + result.getAverage(Ensemble.Bias.class) + ", " + result
+                             + result.getAverage(Ensemble.MeanSquareError.class) + ", " + result
                                  .getAverage(Brier.class) + ", "
                              + result.getAverage(RandomShapeletForest.Depth.class));
         }
