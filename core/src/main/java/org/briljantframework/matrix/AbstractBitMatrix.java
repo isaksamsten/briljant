@@ -51,16 +51,16 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
+  public int compare(int a, int b) {
+    return Boolean.compare(get(a), get(b));
+  }
+
+  @Override
   public BitMatrix assign(Supplier<Boolean> supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.get());
     }
     return this;
-  }
-
-  @Override
-  public BitMatrix getRowView(int i) {
-    return new BitMatrixView(this, i, 0, 1, columns());
   }
 
   @Override
@@ -72,8 +72,8 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix getColumnView(int index) {
-    return new BitMatrixView(this, 0, index, rows(), 1);
+  public BitMatrix getRowView(int i) {
+    return new BitMatrixView(this, i, 0, 1, columns());
   }
 
   @Override
@@ -86,11 +86,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix getDiagonalView() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public int hashCode() {
     int value = Objects.hash(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -100,8 +95,8 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new BitMatrixView(this, rowOffset, colOffset, rows, columns);
+  public BitMatrix getColumnView(int index) {
+    return new BitMatrixView(this, 0, index, rows(), 1);
   }
 
   @Override
@@ -129,11 +124,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix slice(Range rows, Range columns) {
-    return new SliceBitMatrix(this, rows, columns);
-  }
-
-  @Override
   public String toString() {
     ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
     for (int i = 0; i < rows(); i++) {
@@ -148,12 +138,8 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix slice(Range range, Axis axis) {
-    if (axis == Axis.ROW) {
-      return new SliceBitMatrix(this, range, Range.range(columns()));
-    } else {
-      return new SliceBitMatrix(this, Range.range(rows()), range);
-    }
+  public BitMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -174,11 +160,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix slice(Range range) {
-    return new FlatSliceBitMatrix(this, range);
-  }
-
-  @Override
   public void swap(int a, int b) {
     boolean tmp = get(a);
     set(a, get(b));
@@ -186,29 +167,13 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
-    BitMatrix m = newEmptyMatrix(rows.size(), columns.size());
-    int i = 0;
-    for (int row : rows) {
-      int j = 0;
-      for (int column : columns) {
-        m.set(i, j++, get(row, column));
-      }
-      i++;
-    }
-    return m;
+  public BitMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new BitMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
   public BitMatrix newEmptyVector(int size) {
     return newEmptyMatrix(size, 1);
-  }
-
-  @Override
-  public BitMatrix slice(Collection<Integer> indexes) {
-    IncrementalBuilder builder = new IncrementalBuilder();
-    indexes.forEach(index -> builder.add(get(index)));
-    return builder.build();
   }
 
   public static class IncrementalBuilder {
@@ -229,22 +194,8 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix slice(Collection<Integer> indexes, Axis axis) {
-    BitMatrix matrix;
-    if (axis == Axis.ROW) {
-      matrix = newEmptyMatrix(indexes.size(), columns());
-      int i = 0;
-      for (int index : indexes) {
-        matrix.setRow(i++, getRowView(index));
-      }
-    } else {
-      matrix = newEmptyMatrix(rows(), indexes.size());
-      int i = 0;
-      for (int index : indexes) {
-        matrix.setColumn(i++, getColumnView(index));
-      }
-    }
-    return matrix;
+  public BitMatrix slice(Range rows, Range columns) {
+    return new SliceBitMatrix(this, rows, columns);
   }
 
   protected static class SliceBitMatrix extends AbstractBitMatrix {
@@ -309,18 +260,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       int col = index / rows();
       return get(row, col);
     }
-  }
-
-  @Override
-  public BitMatrix slice(BitMatrix bits) {
-    Check.equalShape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
   }
 
   /**
@@ -396,7 +335,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
 
 
-
     @Override
     public Storage getStorage() {
       return parent.getStorage();
@@ -404,29 +342,12 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix slice(BitMatrix indexes, Axis axis) {
-    int size = Matrices.sum(indexes);
-    BitMatrix matrix;
+  public BitMatrix slice(Range range, Axis axis) {
     if (axis == Axis.ROW) {
-      Check.size(rows(), indexes);
-      matrix = newEmptyMatrix(size, columns());
-      int index = 0;
-      for (int i = 0; i < rows(); i++) {
-        if (indexes.get(i)) {
-          matrix.setRow(index++, getRowView(i));
-        }
-      }
+      return new SliceBitMatrix(this, range, Range.range(columns()));
     } else {
-      Check.size(columns(), indexes);
-      matrix = newEmptyMatrix(rows(), size);
-      int index = 0;
-      for (int j = 0; j < columns(); j++) {
-        if (indexes.get(j)) {
-          matrix.setColumn(index++, getColumnView(j));
-        }
-      }
+      return new SliceBitMatrix(this, Range.range(rows()), range);
     }
-    return matrix;
   }
 
   protected class FlatSliceBitMatrix extends AbstractBitMatrix {
@@ -485,23 +406,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
   }
 
-  @Override
-  public Stream<Boolean> stream() {
-    return StreamSupport.stream(Spliterators.spliterator(new Iterator<Boolean>() {
-      int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Boolean next() {
-        return get(current++);
-      }
-    }, size(), Spliterator.SIZED), false);
-  }
-
   private class BitListView extends AbstractList<Boolean> {
 
     @Override
@@ -521,6 +425,118 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       return AbstractBitMatrix.this.size();
     }
   }
+
+  @Override
+  public BitMatrix slice(Range range) {
+    return new FlatSliceBitMatrix(this, range);
+  }
+
+
+  @Override
+  public BitMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    BitMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    int i = 0;
+    for (int row : rows) {
+      int j = 0;
+      for (int column : columns) {
+        m.set(i, j++, get(row, column));
+      }
+      i++;
+    }
+    return m;
+  }
+
+
+  @Override
+  public BitMatrix slice(Collection<Integer> indexes) {
+    IncrementalBuilder builder = new IncrementalBuilder();
+    indexes.forEach(index -> builder.add(get(index)));
+    return builder.build();
+  }
+
+
+
+  @Override
+  public BitMatrix slice(Collection<Integer> indexes, Axis axis) {
+    BitMatrix matrix;
+    if (axis == Axis.ROW) {
+      matrix = newEmptyMatrix(indexes.size(), columns());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setRow(i++, getRowView(index));
+      }
+    } else {
+      matrix = newEmptyMatrix(rows(), indexes.size());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setColumn(i++, getColumnView(index));
+      }
+    }
+    return matrix;
+  }
+
+
+
+  @Override
+  public BitMatrix slice(BitMatrix bits) {
+    Check.equalShape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+
+
+  @Override
+  public BitMatrix slice(BitMatrix indexes, Axis axis) {
+    int size = Matrices.sum(indexes);
+    BitMatrix matrix;
+    if (axis == Axis.ROW) {
+      Check.size(rows(), indexes);
+      matrix = newEmptyMatrix(size, columns());
+      int index = 0;
+      for (int i = 0; i < rows(); i++) {
+        if (indexes.get(i)) {
+          matrix.setRow(index++, getRowView(i));
+        }
+      }
+    } else {
+      Check.size(columns(), indexes);
+      matrix = newEmptyMatrix(rows(), size);
+      int index = 0;
+      for (int j = 0; j < columns(); j++) {
+        if (indexes.get(j)) {
+          matrix.setColumn(index++, getColumnView(j));
+        }
+      }
+    }
+    return matrix;
+  }
+
+
+
+  @Override
+  public Stream<Boolean> stream() {
+    return StreamSupport.stream(Spliterators.spliterator(new Iterator<Boolean>() {
+      int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Boolean next() {
+        return get(current++);
+      }
+    }, size(), Spliterator.SIZED), false);
+  }
+
+
 
   @Override
   public List<Boolean> asList() {
@@ -628,16 +644,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
     return bm;
   }
-
-
-
-
-
-
-
-
-
-
 
 
 }

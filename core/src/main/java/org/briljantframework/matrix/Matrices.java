@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 import com.github.fommil.netlib.BLAS;
@@ -517,7 +518,8 @@ public final class Matrices {
         first = matrix;
         columns = first.columns();
       }
-      checkArgument(columns == matrix.columns());
+      checkArgument(columns == matrix.columns(),
+                    "Can't vstack %s with %s.", matrix.getShape(), first.getShape());
       rows += matrix.rows();
     }
 
@@ -552,7 +554,8 @@ public final class Matrices {
         first = matrix;
         rows = first.rows();
       }
-      checkArgument(rows == matrix.rows());
+      Preconditions.checkArgument(rows == matrix.rows(),
+                                  "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
       columns += matrix.columns();
     }
     T newMatrix = first.newEmptyMatrix(rows, columns);
@@ -762,7 +765,7 @@ public final class Matrices {
     if (axis == Axis.ROW) {
       for (int i = 0; i < matrix.rows(); i++) {
         T row = out.getRowView(i);
-        QuickSort.quickSort(0, row.size(), (a, b) -> cmp.compare(row, a, b), row);
+        QuickSort.quickSort(0, row.size(), (a, b) -> cmp.compare(row, b, b), row);
       }
     } else {
       for (int i = 0; i < matrix.columns(); i++) {

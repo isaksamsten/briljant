@@ -13,6 +13,14 @@ fun <T : Matrix<T>> T.vstack(other: T): T = Matrices.vstack(listOf(this, other))
 
 fun <T : Matrix<T>> vstack(vararg others: T): T = Matrices.vstack(listOf(*others))
 
+fun <T : Matrix<T>> T.sort(): T = Matrices.sort(this, { mat, a, b -> mat.compare(a, b) })
+
+fun <T : Matrix<T>> T.sort(axis: Axis): T
+        = Matrices.sort(this, { mat, a, b -> mat.compare(a, b) }, axis)
+
+fun <T : Matrix<T>> T.sort(axis: Axis = Axis.ROW, cmp: (t: T, i: Int, j: Int) -> Int): T
+        = Matrices.sort(this, cmp, axis)
+
 private fun Progression<Int>.toSlice() = Range.range(start, end, increment.toInt())
 
 // Shape accessor

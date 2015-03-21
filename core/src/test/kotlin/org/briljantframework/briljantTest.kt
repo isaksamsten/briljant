@@ -2,8 +2,7 @@ package org.briljantframework
 
 import org.briljantframework.dataframe.DataFrames.summary
 import org.briljantframework.dataframe.get
-import org.briljantframework.matrix.DoubleMatrix
-import org.briljantframework.matrix.vstack
+import org.briljantframework.matrix.*
 import org.junit.Test as test
 
 class briljantTest {
@@ -15,16 +14,12 @@ class briljantTest {
         println(summary(dt))
 
         val x = DoubleMatrix.newMatrix(3, 3) assign 10.0
-        val y = DoubleMatrix.newMatrix(3, 10) assign 3.0
-
+        val y = DoubleMatrix.newMatrix(5, 10) assign { Utils.getRandom().nextDouble() }
 
         val e = DoubleMatrix.newMatrix(1, 3).assign(3.0)
         val r = DoubleMatrix.newMatrix(1, 3).assign(1.9)
 
-        println(e vstack r)
-
-
-
+        println((e vstack r vstack x hstack y).sort(Axis.COLUMN))
 
     }
 }

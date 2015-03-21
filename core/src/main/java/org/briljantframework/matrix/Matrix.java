@@ -100,6 +100,8 @@ public interface Matrix<T extends Matrix> extends Swappable {
 
   void set(int toRow, int toColumn, T from, int fromRow, int fromColumn);
 
+  int compare(int a, int b);
+
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
    * where modifications of the reshape propagates. I.e. the reshape is a view of the original
