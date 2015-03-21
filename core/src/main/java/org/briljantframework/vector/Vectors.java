@@ -207,8 +207,7 @@ public final class Vectors {
    * @param <T>        the typ
    * @return a new vector; sorted according to comparator
    */
-  public static <T extends Comparable> Vector sort(Class<T> cls, Vector in,
-                                                   Comparator<T> comparator) {
+  public static <T> Vector sort(Class<T> cls, Vector in, Comparator<T> comparator) {
     Vector.Builder builder = in.newCopyBuilder();
     Vector tmp = builder.getTemporaryVector();
     QuickSort.quickSort(0, in.size(),

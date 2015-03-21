@@ -476,8 +476,7 @@ public interface Vector extends Serializable {
 
     /**
      * Add NA at {@code index}. If {@code index > size()} the resulting vector should be padded
-     * with
-     * NA:s between {@code size} and {@code index} and {@code index} set to NA.
+     * with NA:s between {@code size} and {@code index} and {@code index} set to NA.
      *
      * @param index the index
      * @return a modified builder
@@ -502,7 +501,7 @@ public interface Vector extends Serializable {
     Builder add(Vector from, int fromIndex);
 
     /**
-     * Same as {@code add(value, 0)} (i.e. a more convinient way of adding 1-length vectors)
+     * Same as {@code add(value, 0)} (i.e. a more convenient way of adding 1-length vectors)
      *
      * @param value the value
      * @return a modified builder
@@ -531,14 +530,18 @@ public interface Vector extends Serializable {
      * size()} if {@code atIndex > size()}. <p> If value {@code value} cannot be added to this
      * vector type, a NA value is added instead.
      *
-     * <p>How values are resolved depend on the implementation but {@code null} always result in
-     * {@code NA} and an instance of {@link Value} always results in the value carried by the
-     * value.
-     * Finally, if {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a
-     * non-null
-     * value {@link org.briljantframework.io.reslover.Resolver#resolve(Class, Object)} is used
-     * (where the former {@code Class} is the value in the vector and the latter {@code Class} is
-     * {@code value.getClass()}).
+     * <p>How values are resolved depend on the implementation.
+     *
+     * <p>This must hold:
+     *
+     * <ul>
+     * <li>{@code null} always result in {@code NA}</li>
+     * <li>An instance of {@link Value} always results in the value carried by the
+     * value</li>
+     * <li>If {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a
+     * non-null value the returned {@link org.briljantframework.io.reslover.Resolver#resolve(Class,
+     * Object)} shall be used to produce the converted value. </li>
+     * </ul>
      *
      * @param index the index
      * @param value the value

@@ -36,14 +36,18 @@ public fun Vector.unique(other: Vector, vararg rest: Vector): Vector
 
 public fun Vector.add(value: Value): Vector = this.newCopyBuilder().add(value).build()
 
+public fun Vector.add(value: Any): Vector = newCopyBuilder().add(value).build()
+
 [suppress("UNCHECKED_CAST")]
 public inline fun <reified T> Vector.count(): Map<T, Int> = when (javaClass<T>()) {
     javaClass<Value>() -> Vectors.count(this) as Map<T, Int>
     else -> Vectors.count(javaClass<T>(), this)
-
 }
 
 public inline fun <reified T> Vector.get(index: Int): T = this.get(javaClass<T>(), index)
+
+public inline fun <reified T> Vector.sort([noinline] cmp: (T, T) -> Int): Vector
+        = Vectors.sort(javaClass<T>(), this, cmp)
 
 fun Vector.repeat(times: Int): Vector {
     if (times == 1) {
