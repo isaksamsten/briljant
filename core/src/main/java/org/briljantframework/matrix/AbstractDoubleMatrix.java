@@ -114,17 +114,17 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix getRowView(int i) {
-    return new DoubleMatrixView(this, i, 0, 1, columns());
-  }
-
-  @Override
   public DoubleMatrix assign(IntMatrix matrix, IntToDoubleFunction function) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(matrix.get(i)));
     }
     return this;
+  }
+
+  @Override
+  public DoubleMatrix getRowView(int i) {
+    return new DoubleMatrixView(this, i, 0, 1, columns());
   }
 
   @Override
@@ -145,10 +145,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     return this;
   }
 
-  public DoubleMatrix getColumnView(int index) {
-    return new DoubleMatrixView(this, 0, index, rows(), 1);
-  }
-
   @Override
   public DoubleMatrix update(DoubleUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
@@ -166,6 +162,10 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     return mat;
   }
 
+  public DoubleMatrix getColumnView(int index) {
+    return new DoubleMatrixView(this, 0, index, rows(), 1);
+  }
+
   @Override
   public IntMatrix mapToInt(DoubleToIntFunction function) {
     IntMatrix m = IntMatrix.newMatrix(rows(), columns());
@@ -173,11 +173,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       m.set(i, function.applyAsInt(get(i)));
     }
     return m;
-  }
-
-  @Override
-  public Diagonal getDiagonalView() {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -211,8 +206,8 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new DoubleMatrixView(this, rowOffset, colOffset, rows, columns);
+  public Diagonal getDiagonalView() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -242,13 +237,13 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix slice(Range rows, Range columns) {
-    return new SliceDoubleMatrix(this, rows, columns);
+  public double reduce(double identity, DoubleBinaryOperator reduce) {
+    return reduce(identity, reduce, DoubleUnaryOperator.identity());
   }
 
   @Override
-  public double reduce(double identity, DoubleBinaryOperator reduce) {
-    return reduce(identity, reduce, DoubleUnaryOperator.identity());
+  public DoubleMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new DoubleMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -269,11 +264,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix slice(Range range) {
-    return new FlatSliceDoubleMatrix(this, range);
-  }
-
-  @Override
   public DoubleMatrix reduceRows(ToDoubleFunction<? super DoubleMatrix> reduce) {
     DoubleMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
@@ -288,17 +278,13 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public void update(int i, int j, DoubleUnaryOperator update) {
-    set(i, j, update.applyAsDouble(get(i, j)));
+  public DoubleMatrix slice(Range rows, Range columns) {
+    return new SliceDoubleMatrix(this, rows, columns);
   }
 
   @Override
-  public DoubleMatrix slice(Range range, Axis axis) {
-    if (axis == Axis.ROW) {
-      return new SliceDoubleMatrix(this, range, Range.range(columns()));
-    } else {
-      return new SliceDoubleMatrix(this, Range.range(rows()), range);
-    }
+  public void update(int i, int j, DoubleUnaryOperator update) {
+    set(i, j, update.applyAsDouble(get(i, j)));
   }
 
   @Override
@@ -317,17 +303,8 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
-    DoubleMatrix m = newEmptyMatrix(rows.size(), columns.size());
-    int i = 0;
-    for (int row : rows) {
-      int j = 0;
-      for (int column : columns) {
-        m.set(i, j++, get(row, column));
-      }
-      i++;
-    }
-    return m;
+  public DoubleMatrix slice(Range range) {
+    return new FlatSliceDoubleMatrix(this, range);
   }
 
   @Override
@@ -352,16 +329,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix slice(Collection<Integer> indexes) {
-    DoubleMatrix m = newEmptyVector(indexes.size());
-    int i = 0;
-    for (int index : indexes) {
-      m.set(i++, get(index));
-    }
-    return m;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
@@ -379,6 +346,15 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       return true;
     } else {
       return false;
+    }
+  }
+
+  @Override
+  public DoubleMatrix slice(Range range, Axis axis) {
+    if (axis == Axis.ROW) {
+      return new SliceDoubleMatrix(this, range, Range.range(columns()));
+    } else {
+      return new SliceDoubleMatrix(this, Range.range(rows()), range);
     }
   }
 
@@ -406,18 +382,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix slice(BitMatrix bits) {
-    Check.equalShape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
   public void swap(int a, int b) {
     double tmp = get(a);
     set(a, get(b));
@@ -435,6 +399,20 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     public DoubleMatrix build() {
       return new DefaultDoubleMatrix(buffer.toArray(), buffer.size(), 1);
     }
+  }
+
+  @Override
+  public DoubleMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    DoubleMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    int i = 0;
+    for (int row : rows) {
+      int j = 0;
+      for (int column : columns) {
+        m.set(i, j++, get(row, column));
+      }
+      i++;
+    }
+    return m;
   }
 
   protected static class SliceDoubleMatrix extends AbstractDoubleMatrix {
@@ -505,32 +483,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     public boolean isArrayBased() {
       return parent.isArrayBased();
     }
-  }
-
-  @Override
-  public DoubleMatrix slice(BitMatrix indexes, Axis axis) {
-    int size = sum(indexes);
-    DoubleMatrix matrix;
-    if (axis == Axis.ROW) {
-      Check.size(rows(), indexes);
-      matrix = newEmptyMatrix(size, columns());
-      int index = 0;
-      for (int i = 0; i < rows(); i++) {
-        if (indexes.get(i)) {
-          matrix.setRow(index++, getRowView(i));
-        }
-      }
-    } else {
-      Check.size(columns(), indexes);
-      matrix = newEmptyMatrix(rows(), size);
-      int index = 0;
-      for (int j = 0; j < columns(); j++) {
-        if (indexes.get(j)) {
-          matrix.setColumn(index++, getColumnView(j));
-        }
-      }
-    }
-    return matrix;
   }
 
   /**
@@ -730,6 +682,57 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       return AbstractDoubleMatrix.this.size();
     }
   }
+
+  @Override
+  public DoubleMatrix slice(Collection<Integer> indexes) {
+    DoubleMatrix m = newEmptyVector(indexes.size());
+    int i = 0;
+    for (int index : indexes) {
+      m.set(i++, get(index));
+    }
+    return m;
+  }
+
+
+  @Override
+  public DoubleMatrix slice(BitMatrix bits) {
+    Check.equalShape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+
+  @Override
+  public DoubleMatrix slice(BitMatrix indexes, Axis axis) {
+    int size = sum(indexes);
+    DoubleMatrix matrix;
+    if (axis == Axis.ROW) {
+      Check.size(rows(), indexes);
+      matrix = newEmptyMatrix(size, columns());
+      int index = 0;
+      for (int i = 0; i < rows(); i++) {
+        if (indexes.get(i)) {
+          matrix.setRow(index++, getRowView(i));
+        }
+      }
+    } else {
+      Check.size(columns(), indexes);
+      matrix = newEmptyMatrix(rows(), size);
+      int index = 0;
+      for (int j = 0; j < columns(); j++) {
+        if (indexes.get(j)) {
+          matrix.setColumn(index++, getColumnView(j));
+        }
+      }
+    }
+    return matrix;
+  }
+
 
   @Override
   public DoubleMatrix slice(Collection<Integer> indexes, Axis axis) {
