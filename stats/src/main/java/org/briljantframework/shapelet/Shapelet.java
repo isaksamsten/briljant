@@ -77,8 +77,18 @@ public class Shapelet extends VectorView {
   }
 
   @Override
+  public String toString(int index) {
+    return parent.toString(index);
+  }
+
+  @Override
   public double getAsDouble(int index) {
     return parent.getAsDouble(start + index);
+  }
+
+  @Override
+  public String getAsString(int index) {
+    return parent.getAsString(start + index);
   }
 
   @Override
@@ -88,9 +98,9 @@ public class Shapelet extends VectorView {
 
   @Override
   public String toString() {
-    List<Double> r = new ArrayList<>();
+    List<String> r = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      r.add(getAsDouble(i));
+      r.add(toString(i));
     }
     return String.format("Shapelet(%s, shape=(%d, 1))", r, size());
   }

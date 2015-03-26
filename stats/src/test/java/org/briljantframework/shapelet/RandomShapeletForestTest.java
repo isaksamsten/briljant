@@ -12,7 +12,7 @@ import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.dataseries.DataSeriesCollection;
 import org.briljantframework.dataseries.DataSeriesNormalization;
-import org.briljantframework.distance.SimilarityDistance;
+import org.briljantframework.distance.EditDistance;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.Validators;
@@ -27,7 +27,6 @@ import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.io.SequenceInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.similiarity.SmithWatermanSimilarity;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
@@ -148,7 +147,7 @@ public class RandomShapeletForestTest {
 
   @Test
   public void testSequences() throws Exception {
-    String ade = "L271";
+    String ade = "L270";
     DataInputStream in =
         new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
 
@@ -165,9 +164,9 @@ public class RandomShapeletForestTest {
 
     Classifier forest =
         KNearestNeighbors.withNeighbors(1)
-            .withDistance(new SimilarityDistance(new SmithWatermanSimilarity(2, -1, -1))).build();
-    // RandomShapeletForest.withSize(100).withDistance(new SmithWatermanSimilarity(-2, 1, 0))
-    // .withUpperLength(1).withLowerLength(0.025).withInspectedShapelets(1).build();
+            .withDistance(new EditDistance()).build();
+//        RandomShapeletForest.withSize(5).withDistance(new SlidingDistance())
+//            .withUpperLength(1).withLowerLength(0.025).withInspectedShapelets(1).build();
 
     Validator cv = Validators.crossValidation(5);
     cv.getEvaluators().add(

@@ -4,6 +4,7 @@ package org.briljantframework.vector;
  * Created by Isak Karlsson on 27/11/14.
  */
 public class BitValue extends AbstractBitVector implements Value {
+
   private final int binary;
 
   public BitValue(int binary) {
@@ -35,17 +36,17 @@ public class BitValue extends AbstractBitVector implements Value {
 
   @Override
   public Builder newCopyBuilder() {
-    return null;
+    return getType().newBuilder().add(this);
   }
 
   @Override
   public Builder newBuilder() {
-    return null;
+    return getType().newBuilder();
   }
 
   @Override
   public Builder newBuilder(int size) {
-    return null;
+    return getType().newBuilder(size);
   }
 
   @Override
@@ -60,15 +61,18 @@ public class BitValue extends AbstractBitVector implements Value {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
 
     BitValue binaries = (BitValue) o;
 
-    if (binary != binaries.binary)
+    if (binary != binaries.binary) {
       return false;
+    }
 
     return true;
   }
