@@ -58,7 +58,7 @@ public abstract class AbstractIntVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    if (Integer.class.isAssignableFrom(cls)) {
+    if (cls.isAssignableFrom(Integer.class)) {
       return cls.cast(getAsInt(index));
     } else {
       return Vectors.naValue(cls);

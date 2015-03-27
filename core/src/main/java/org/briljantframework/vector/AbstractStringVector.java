@@ -62,7 +62,7 @@ public abstract class AbstractStringVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    if (String.class.isAssignableFrom(cls)) {
+    if (cls.isAssignableFrom(String.class)) {
       return cls.cast(getAsString(index));
     } else {
       return Vectors.naValue(cls);

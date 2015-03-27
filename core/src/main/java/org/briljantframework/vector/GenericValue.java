@@ -38,6 +38,9 @@ public class GenericValue extends AbstractVector implements Value {
     if (index != 0) {
       throw new IndexOutOfBoundsException();
     }
+    if (obj == null || !cls.isInstance(obj)) {
+      return Vectors.naValue(cls);
+    }
     return cls.cast(obj);
   }
 

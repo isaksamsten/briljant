@@ -262,7 +262,7 @@ public class RandomShapeletForestTest {
     // Aggregator aggregator = new MeanAggregator(30);
     //
     // for (Vector row : x) {
-    // builder.addRecord(aggregator.partialAggregate(row));
+    // builder.insertRecord(aggregator.partialAggregate(row));
     // }
 
     // RandomShapeletForest forest =

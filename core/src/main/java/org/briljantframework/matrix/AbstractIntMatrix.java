@@ -1,9 +1,6 @@
 package org.briljantframework.matrix;
 
-import com.google.common.collect.ImmutableTable;
-
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
@@ -42,8 +39,6 @@ import static org.briljantframework.matrix.Indexer.sliceIndex;
  * Created by Isak Karlsson on 09/01/15.
  */
 public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implements IntMatrix {
-
-  private IntListView listView = null;
 
   protected AbstractIntMatrix(int size) {
     super(size);
@@ -97,11 +92,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getRowView(int i) {
-    return new IntMatrixView(this, i, 0, 1, columns());
-  }
-
-  @Override
   public IntMatrix assign(IntMatrix matrix, IntUnaryOperator operator) {
     Check.equalShape(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -120,6 +110,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public IntMatrix getRowView(int i) {
+    return new IntMatrixView(this, i, 0, 1, columns());
+  }
+
+  @Override
   public IntMatrix assign(ComplexMatrix matrix, ToIntFunction<? super Complex> function) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -135,15 +130,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       set(i, function.applyAsInt(matrix.get(i)));
     }
     return this;
-  }
-
-  @Override
-  public IntMatrix copy() {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, get(i));
-    }
-    return matrix;
   }
 
   @Override
@@ -182,8 +168,12 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getColumnView(int index) {
-    return new IntMatrixView(this, 0, index, rows(), 1);
+  public IntMatrix copy() {
+    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, get(i));
+    }
+    return matrix;
   }
 
   @Override
@@ -226,11 +216,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getDiagonalView() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public BitMatrix satisfies(IntPredicate predicate) {
     BitMatrix bits = BitMatrix.newBitMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
@@ -250,6 +235,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public IntMatrix getColumnView(int index) {
+    return new IntMatrixView(this, 0, index, rows(), 1);
+  }
+
+  @Override
   public void forEach(IntConsumer consumer) {
     for (int i = 0; i < size(); i++) {
       consumer.accept(get(i));
@@ -259,11 +249,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public int reduce(int identity, IntBinaryOperator reduce) {
     return reduce(identity, reduce, IntUnaryOperator.identity());
-  }
-
-  @Override
-  public IntMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new IntMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -298,17 +283,8 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
-    IntMatrix m = newEmptyMatrix(rows.size(), columns.size());
-    int i = 0;
-    for (int row : rows) {
-      int j = 0;
-      for (int column : columns) {
-        m.set(i, j++, get(row, column));
-      }
-      i++;
-    }
-    return m;
+  public IntMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -335,25 +311,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix slice(Collection<Integer> indexes, Axis axis) {
-    IntMatrix matrix;
-    if (axis == Axis.ROW) {
-      matrix = newEmptyMatrix(indexes.size(), columns());
-      int i = 0;
-      for (int index : indexes) {
-        matrix.setRow(i++, getRowView(index));
-      }
-    } else {
-      matrix = newEmptyMatrix(rows(), indexes.size());
-      int i = 0;
-      for (int index : indexes) {
-        matrix.setColumn(i++, getColumnView(index));
-      }
-    }
-    return matrix;
-  }
-
-  @Override
   public void setColumn(int index, IntMatrix column) {
     Check.size(rows(), column.size());
     for (int i = 0; i < rows(); i++) {
@@ -367,6 +324,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public IntMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new IntMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+  @Override
   public void addTo(int i, int j, int value) {
     set(i, j, get(i, j) + value);
   }
@@ -374,13 +336,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public void update(int index, IntUnaryOperator operator) {
     set(index, operator.applyAsInt(get(index)));
-  }
-
-  @Override
-  public IntMatrix slice(Collection<Integer> indexes) {
-    Builder builder = new Builder();
-    indexes.forEach(index -> builder.add(get(index)));
-    return builder.build();
   }
 
   @Override
@@ -409,10 +364,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public List<Integer> flat() {
-    if (listView == null) {
-      listView = new IntListView();
-    }
-    return listView;
+    return new IntListView();
   }
 
   @Override
@@ -421,8 +373,17 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix slice(Range rows, Range columns) {
-    return new SliceIntMatrix(this, rows, columns);
+  public IntMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
+    IntMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    int i = 0;
+    for (int row : rows) {
+      int j = 0;
+      for (int column : columns) {
+        m.set(i, j++, get(row, column));
+      }
+      i++;
+    }
+    return m;
   }
 
   @Override
@@ -481,11 +442,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix slice(Range range) {
-    return new FlatSliceIntMatrix(this, range);
-  }
-
-  @Override
   public IntMatrix mul(int alpha, IntMatrix other, int beta) {
     Check.size(this, other);
     IntMatrix m = newEmptyMatrix(rows(), columns());
@@ -500,6 +456,25 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public IntMatrix mul(IntMatrix other, Axis axis) {
     return mul(1, other, 1, axis);
+  }
+
+  @Override
+  public IntMatrix slice(Collection<Integer> indexes, Axis axis) {
+    IntMatrix matrix;
+    if (axis == Axis.ROW) {
+      matrix = newEmptyMatrix(indexes.size(), columns());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setRow(i++, getRowView(index));
+      }
+    } else {
+      matrix = newEmptyMatrix(rows(), indexes.size());
+      int i = 0;
+      for (int index : indexes) {
+        matrix.setColumn(i++, getColumnView(index));
+      }
+    }
+    return matrix;
   }
 
   @Override
@@ -528,15 +503,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       }
     }
     return m;
-  }
-
-  @Override
-  public IntMatrix slice(Range range, Axis axis) {
-    if (axis == Axis.ROW) {
-      return new SliceIntMatrix(this, range, Range.range(columns()));
-    } else {
-      return new SliceIntMatrix(this, Range.range(rows()), range);
-    }
   }
 
   @Override
@@ -578,14 +544,9 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix slice(BitMatrix bits) {
-    Check.equalShape(this, bits);
+  public IntMatrix slice(Collection<Integer> indexes) {
     Builder builder = new Builder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
+    indexes.forEach(index -> builder.add(get(index)));
     return builder.build();
   }
 
@@ -617,32 +578,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix slice(BitMatrix indexes, Axis axis) {
-    int size = Matrices.sum(indexes);
-    IntMatrix matrix;
-    if (axis == Axis.ROW) {
-      Check.size(rows(), indexes);
-      matrix = newEmptyMatrix(size, columns());
-      int index = 0;
-      for (int i = 0; i < rows(); i++) {
-        if (indexes.get(i)) {
-          matrix.setRow(index++, getRowView(i));
-        }
-      }
-    } else {
-      Check.size(columns(), indexes);
-      matrix = newEmptyMatrix(rows(), size);
-      int index = 0;
-      for (int j = 0; j < columns(); j++) {
-        if (indexes.get(j)) {
-          matrix.setColumn(index++, getColumnView(j));
-        }
-      }
-    }
-    return matrix;
-  }
-
-  @Override
   public IntMatrix sub(int alpha, IntMatrix other, int beta, Axis axis) {
     IntMatrix m = newEmptyMatrix(rows(), columns());
     if (axis == Axis.COLUMN) {
@@ -669,6 +604,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       }
     }
     return matrix;
+  }
+
+  @Override
+  public IntMatrix slice(Range rows, Range columns) {
+    return new SliceIntMatrix(this, rows, columns);
   }
 
   @Override
@@ -728,6 +668,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public IntMatrix div(IntMatrix other, Axis axis) {
     return div(1, other, 1, axis);
+  }
+
+  @Override
+  public IntMatrix slice(Range range) {
+    return new FlatSliceIntMatrix(this, range);
   }
 
   @Override
@@ -799,6 +744,15 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public IntMatrix slice(Range range, Axis axis) {
+    if (axis == Axis.ROW) {
+      return new SliceIntMatrix(this, range, Range.range(columns()));
+    } else {
+      return new SliceIntMatrix(this, Range.range(rows()), range);
+    }
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
@@ -821,20 +775,20 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public String toString() {
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        if (get(i, j) < 0) {
-          builder.put(i, j, String.format("%d", get(i, j)));
-        } else {
-          builder.put(i, j, String.format(" %d", get(i, j)));
-        }
-      }
-    }
-    StringBuilder out = new StringBuilder();
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("shape: ").append(getShape()).append(" type: int");
-    return out.toString();
+//    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
+//    for (int i = 0; i < rows(); i++) {
+//      for (int j = 0; j < columns(); j++) {
+//        if (get(i, j) < 0) {
+//          builder.put(i, j, String.format("%d", get(i, j)));
+//        } else {
+//          builder.put(i, j, String.format(" %d", get(i, j)));
+//        }
+//      }
+//    }
+//    StringBuilder out = new StringBuilder();
+//    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
+//    out.append("shape: ").append(getShape()).append(" type: int");
+    return "IntMatrix";
   }
 
   @Override
@@ -1046,6 +1000,18 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
   }
 
+  @Override
+  public IntMatrix slice(BitMatrix bits) {
+    Check.equalShape(this, bits);
+    Builder builder = new Builder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
   private class IntListView extends AbstractList<Integer> {
 
     @Override
@@ -1085,6 +1051,33 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
 
   @Override
+  public IntMatrix slice(BitMatrix indexes, Axis axis) {
+    int size = Matrices.sum(indexes);
+    IntMatrix matrix;
+    if (axis == Axis.ROW) {
+      Check.size(rows(), indexes);
+      matrix = newEmptyMatrix(size, columns());
+      int index = 0;
+      for (int i = 0; i < rows(); i++) {
+        if (indexes.get(i)) {
+          matrix.setRow(index++, getRowView(i));
+        }
+      }
+    } else {
+      Check.size(columns(), indexes);
+      matrix = newEmptyMatrix(rows(), size);
+      int index = 0;
+      for (int j = 0; j < columns(); j++) {
+        if (indexes.get(j)) {
+          matrix.setColumn(index++, getColumnView(j));
+        }
+      }
+    }
+    return matrix;
+  }
+
+
+  @Override
   public IntMatrix transpose() {
     IntMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
@@ -1094,26 +1087,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
     return matrix;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

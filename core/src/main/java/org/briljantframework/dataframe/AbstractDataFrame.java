@@ -35,53 +35,6 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   protected final NameAttribute rowNames;
 
-  private final AbstractCollection<Record> rowCollection = new AbstractCollection<Record>() {
-    @Override
-    public Iterator<Record> iterator() {
-      return new UnmodifiableIterator<Record>() {
-        public int current;
-
-        @Override
-        public boolean hasNext() {
-          return current < size();
-        }
-
-        @Override
-        public Record next() {
-          return getRecord(current++);
-        }
-      };
-    }
-
-    @Override
-    public int size() {
-      return rows();
-    }
-  };
-  private final AbstractCollection<Vector> columnCollection = new AbstractCollection<Vector>() {
-    @Override
-    public Iterator<Vector> iterator() {
-      return new UnmodifiableIterator<Vector>() {
-        private int current = 0;
-
-        @Override
-        public boolean hasNext() {
-          return current < columns();
-        }
-
-        @Override
-        public Vector next() {
-          return getColumn(current++);
-        }
-      };
-    }
-
-    @Override
-    public int size() {
-      return columns();
-    }
-  };
-
   protected AbstractDataFrame(NameAttribute columnNames, NameAttribute rowNames) {
     this.columnNames = columnNames;
     this.rowNames = rowNames;
@@ -126,7 +79,29 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public Collection<Vector> getColumns() {
-    return columnCollection;
+    return new AbstractCollection<Vector>() {
+      @Override
+      public Iterator<Vector> iterator() {
+        return new UnmodifiableIterator<Vector>() {
+          private int current = 0;
+
+          @Override
+          public boolean hasNext() {
+            return current < columns();
+          }
+
+          @Override
+          public Vector next() {
+            return getColumn(current++);
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return columns();
+      }
+    };
   }
 
   /**
@@ -251,7 +226,29 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public Collection<Record> getRecords() {
-    return rowCollection;
+    return new AbstractCollection<Record>() {
+      @Override
+      public Iterator<Record> iterator() {
+        return new UnmodifiableIterator<Record>() {
+          public int current;
+
+          @Override
+          public boolean hasNext() {
+            return current < size();
+          }
+
+          @Override
+          public Record next() {
+            return getRecord(current++);
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return rows();
+      }
+    };
   }
 
   /**
@@ -320,7 +317,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrame addRecord(int index, Vector record) {
+  public DataFrame insertRecord(int index, Vector record) {
     return newCopyBuilder().insertRecord(index, record).build();
   }
 
@@ -385,19 +382,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   @Override
   public Iterator<Record> iterator() {
-    return new UnmodifiableIterator<Record>() {
-      private int index = 0;
-
-      @Override
-      public boolean hasNext() {
-        return index < rows();
-      }
-
-      @Override
-      public Record next() {
-        return getRecord(index++);
-      }
-    };
+    return getRecords().iterator();
   }
 
   /**

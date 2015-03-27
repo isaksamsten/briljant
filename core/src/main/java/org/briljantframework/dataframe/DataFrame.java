@@ -289,7 +289,7 @@ public interface DataFrame extends Iterable<Record> {
    */
   DataFrame removeRecords(Iterable<Integer> indexes);
 
-  DataFrame addRecord(int index, Vector record);
+  DataFrame insertRecord(int index, Vector record);
 
   DataFrame addRecord(Vector record);
 

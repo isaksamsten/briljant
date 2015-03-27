@@ -27,8 +27,8 @@ public class IntVector extends AbstractIntVector {
     this(values, size, true);
   }
 
-  IntVector(int[] values, int size, boolean unsafe) {
-    if (unsafe) {
+  IntVector(int[] values, int size, boolean safe) {
+    if (safe) {
       this.values = Arrays.copyOf(values, size);
     } else {
       this.values = values;
@@ -47,6 +47,14 @@ public class IntVector extends AbstractIntVector {
     return new IntVector(newLeftPool, newLeftPool.length, false);
   }
 
+  public static IntVector range(int end) {
+    int[] v = new int[end];
+    for (int i = 0; i < v.length; i++) {
+      v[i] = i;
+    }
+    return new IntVector(v, v.length, false);
+  }
+
   @Override
   public int getAsInt(int index) {
     return values[index];
@@ -57,9 +65,8 @@ public class IntVector extends AbstractIntVector {
     return new Builder(toIntArray());
   }
 
-  @Override
-  public int size() {
-    return values.length;
+  public int[] asIntArray() {
+    return values;
   }
 
   public static final class Builder implements Vector.Builder {
@@ -238,6 +245,13 @@ public class IntVector extends AbstractIntVector {
   }
 
   @Override
+  public int size() {
+    return values.length;
+  }
+
+
+
+  @Override
   public Builder newBuilder() {
     return new Builder();
   }
@@ -249,10 +263,6 @@ public class IntVector extends AbstractIntVector {
 
   public int[] toIntArray() {
     return values.clone();
-  }
-
-  public int[] asIntArray() {
-    return values;
   }
 
 

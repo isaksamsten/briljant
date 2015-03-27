@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class IntVectorTest {
 
@@ -56,6 +57,13 @@ public class IntVectorTest {
     // for (Integer integer : vector) {
     // assertEquals((int) integer, INT_ARRAY[integer]);
     // }
+  }
+
+  @Test
+  public void testGet() throws Exception {
+    Object i = vector.get(Number.class, 0);
+    assertNotNull(i);
+
   }
 
   @Test

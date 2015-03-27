@@ -52,9 +52,9 @@ fun DataFrame.get(row: Int, all: all) = this.getRecord(row)
 //}
 //
 //fun DataFrame.set(row: Int, column: all, value: Vector) = when {
-//    row == this.rows() -> this.addRecord(value)
+//    row == this.rows() -> this.insertRecord(value)
 //    row > this.rows() || row < 0 -> throw IndexOutOfBoundsException()
-//    else -> this.addRecord(row, value)
+//    else -> this.insertRecord(row, value)
 //}
 
 fun DataFrame.get(rows: Iterable<Int>, columns: Iterable<Int>): DataFrame {

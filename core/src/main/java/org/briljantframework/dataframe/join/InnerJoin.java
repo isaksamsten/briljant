@@ -7,14 +7,15 @@ import org.briljantframework.matrix.IntMatrix;
  * {@link org.briljantframework.dataframe.join.Joiner#getLeftIndex(int)} and
  * {@link org.briljantframework.dataframe.join.Joiner#getRightIndex(int)} returns indexes, in turn,
  * which produces the elements where {@code left} and {@code right} are the same.
- * 
+ *
  * An {@code Inner Join} require that the index exists in both the left and the right indexer.
  */
 public class InnerJoin implements JoinOperation {
 
   public static final InnerJoin INSTANCE = new InnerJoin();
 
-  private InnerJoin() {}
+  private InnerJoin() {
+  }
 
   public static InnerJoin getInstance() {
     return INSTANCE;
@@ -26,8 +27,10 @@ public class InnerJoin implements JoinOperation {
     IntMatrix[] l = JoinUtils.groupSortIndexer(keys.getLeft(), noGroups);
     IntMatrix[] r = JoinUtils.groupSortIndexer(keys.getRight(), noGroups);
 
-    IntMatrix leftSorter = l[0], leftCount = l[1];
-    IntMatrix rightSorter = r[0], rightCount = r[1];
+    IntMatrix leftSorter = l[0];
+    IntMatrix rightSorter = r[0];
+    IntMatrix leftCount = l[1];
+    IntMatrix rightCount = r[1];
 
     int count = 0;
     for (int i = 1; i < noGroups + 1; i++) {
@@ -35,7 +38,7 @@ public class InnerJoin implements JoinOperation {
       int rc = rightCount.get(i);
 
       if (rc > 0 && lc > 0) {
-        count += rc * lc;
+        count += lc * rc;
       }
     }
 
@@ -43,9 +46,11 @@ public class InnerJoin implements JoinOperation {
     int leftPos = leftCount.get(0);
     int rightPos = rightCount.get(0);
 
+//    int[] leftIndexer = new int[count];
+//    int[] rightIndexer = new int[count];
+
     int[] leftIndexer = new int[count];
     int[] rightIndexer = new int[count];
-
     for (int i = 1; i < noGroups + 1; i++) {
       int lc = leftCount.get(i);
       int rc = rightCount.get(i);

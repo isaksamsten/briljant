@@ -57,7 +57,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    if (Double.class.isAssignableFrom(cls)) {
+    if (cls.isAssignableFrom(Double.class)) {
       return cls.cast(getAsDouble(index));
     } else {
       return Vectors.naValue(cls);

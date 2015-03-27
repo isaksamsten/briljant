@@ -7,6 +7,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.dataframe.join.InnerJoin;
 import org.briljantframework.dataframe.join.JoinKeys;
 import org.briljantframework.dataframe.join.JoinOperation;
+import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.Joiner;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
@@ -29,8 +30,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import static org.briljantframework.dataframe.join.JoinUtils.createJoinKeys;
-
 /**
  * Utility methods for handling {@code DataFrame}s <p> Created by Isak Karlsson on 27/11/14.
  */
@@ -40,12 +39,9 @@ public final class DataFrames {
   public static final String INNER = "inner";
   private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
-  private static final Map<String, JoinOperation> joinOperations = ImmutableMap.of(INNER,
-                                                                                   InnerJoin
-                                                                                       .getInstance(),
-                                                                                   LEFT_OUTER,
-                                                                                   LeftOuterJoin
-                                                                                       .getInstance());
+  private static final Map<String, JoinOperation> joinOperations =
+      ImmutableMap.of(INNER, InnerJoin.getInstance(),
+                      LEFT_OUTER, LeftOuterJoin.getInstance());
 
   private DataFrames() {
   }
@@ -79,6 +75,15 @@ public final class DataFrames {
     }
   }
 
+  /**
+   * Presents a summary of the given data frame. For each column of {@code df}
+   * the returned summary contains one row. Each row is described by four
+   * values, the {@code min}, {@code max}, {@code mean} and {@code mode}. The first
+   * three are presented for numerical columns and the fourth for categorical.
+   *
+   * @param df the data frame
+   * @return a data frame summarizing {@code df}
+   */
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder =
         new MixedDataFrame.Builder(Arrays.asList("Mean", "Min", "Max", "Mode"), Arrays.asList(
@@ -104,9 +109,7 @@ public final class DataFrames {
    * Returns a row-permuted copy of {@code in}. This implementations uses the Fisher–Yates shuffle
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
    * Knuth), which is an algorithm for generating a random permutation of a finite set — in plain
-   * terms, for randomly shuffling the finite set. <p> Requires that {@link
-   * DataFrame#newCopyBuilder()} returns a copy and that {@link DataFrame.Builder#swapRecords(int,
-   * int)} swaps rows at indexes.
+   * terms, for randomly shuffling the finite set.
    *
    * @param in     the input {@code DataFrame}
    * @param random the random number generator used
@@ -167,6 +170,7 @@ public final class DataFrames {
     return removeIncompleteCases.transform(x);
   }
 
+  //TODO(isak) - this is quick and dirty. Implement a real group by data frame
   public static Map<Value, DataFrame> groupBy(DataFrame dataframe, String column) {
     Map<Value, DataFrame.Builder> builders = new HashMap<>();
     Vector keyColumn = dataframe.getColumn(column);
@@ -188,52 +192,62 @@ public final class DataFrames {
     return frame;
   }
 
+  /**
+   * Performs an inner join of {@code a} and {@code b} using the columns described by {@code on}
+   * as the keys.
+   *
+   * @param a  the first data frame
+   * @param b  the second data frame
+   * @param on the key columns to use for joining
+   * @return a new data frame of {@code a} and {@code b} joined
+   */
   public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<String> on) {
     if (!(on instanceof Set)) {
       on = new HashSet<>(on);
     }
-    JoinKeys joinKeys = createJoinKeys(a, b, on);
+    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
     Joiner joiner = joinOperations.get(INNER).createJoiner(joinKeys);
-    return join(a, b, joiner, on).build();
+    return join(a, b, joiner).build();
   }
 
   public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<String> on) {
     if (!(on instanceof Set)) {
       on = new HashSet<>(on);
     }
-    JoinKeys joinKeys = createJoinKeys(a, b, on);
+    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
     Joiner joiner = joinOperations.get(LEFT_OUTER).createJoiner(joinKeys);
-    return join(a, b, joiner, on).build();
+    return join(a, b, joiner).build();
   }
 
-  private static DataFrame.Builder join(DataFrame a, DataFrame b, Joiner joiner,
-                                        Collection<String> on) {
+  private static DataFrame.Builder join(DataFrame a, DataFrame b, Joiner joiner) {
+    int size = joiner.size();
+    int aCol = a.columns();
+    int bCol = b.columns();
+
     DataFrame.Builder builder = a.newBuilder();
-    for (int i = 0; i < joiner.size(); i++) {
+    for (int i = 0; i < aCol; i++) {
+      builder.getColumnNames().putFromIfPresent(i, a.getColumnNames(), i);
+      builder.addColumnBuilder(a.getColumnType(i).newBuilder(size));
+    }
+    for (int i = 0; i < bCol; i++) {
+      builder.getColumnNames().putFromIfPresent(i + aCol, b.getColumnNames(), i);
+      builder.addColumnBuilder(b.getColumnType(i).newBuilder(size));
+    }
+    for (int i = 0; i < size; i++) {
       int aRow = joiner.getLeftIndex(i);
       int bRow = joiner.getRightIndex(i);
-      int column = 0;
-      for (int j = 0; j < a.columns(); j++) {
+      for (int j = 0; j < aCol; j++) {
         if (aRow < 0) {
-          builder.setNA(i, column);
+          builder.setNA(i, j);
         } else {
-          builder.set(i, column, a, aRow, column);
+          builder.set(i, j, a, aRow, j);
         }
-        column += 1;
       }
-      for (int j = 0; j < b.columns(); j++) {
-        String columnName = b.getColumnName(j);
-        if (!on.contains(columnName)) {
-          if (i == 0) {
-            builder.addColumnBuilder(b.getColumnType(j));
-            builder.getColumnNames().put(column, columnName);
-          }
-          if (bRow < 0) {
-            builder.setNA(i, column);
-          } else {
-            builder.set(i, column, b, bRow, j);
-          }
-          column += 1;
+      for (int j = 0; j < bCol; j++) {
+        if (bRow < 0) {
+          builder.setNA(i, j + aCol);
+        } else {
+          builder.set(i, j + aCol, b, bRow, j);
         }
       }
     }

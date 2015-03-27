@@ -6,9 +6,7 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DefaultIntMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;
@@ -27,7 +25,8 @@ public class JoinUtils {
     IntMatrix counts = IntMatrix.newVector(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
-      counts.update(index.get(i) + 1, x -> x + 1);
+      int idx = index.get(i) + 1;
+      counts.set(idx, counts.get(idx) + 1);
     }
 
     int[] where = new int[maxGroups + 1];
@@ -35,42 +34,39 @@ public class JoinUtils {
       where[i] = where[i - 1] + counts.get(i - 1);
     }
 
-
     IntMatrix results = IntMatrix.newVector(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
       results.set(where[label], i);
-      // result[where[label]] = i;
       where[label] += 1;
     }
 
-    return new IntMatrix[] {results, counts};
+    return new IntMatrix[]{results, counts};
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<String> columns) {
-    int[] newLeftPool = new int[a.rows()];
-    int[] newRightPool = new int[b.rows()];
+    IntMatrix left = null;
+    IntMatrix right = null;
 
     int noGroups = 1;
     for (String column : columns) {
       JoinKeys pool = createJoinKeys(a.getColumn(column), b.getColumn(column));
 
-      IntMatrix left = pool.getLeft();
-      IntMatrix right = pool.getRight();
-      for (int i = 0; i < newLeftPool.length; i++) {
-        newLeftPool[i] += left.get(i) * noGroups;
-      }
+      if (noGroups > 1) {
+        IntMatrix lt = pool.getLeft();
+        IntMatrix rt = pool.getRight();
+        for (int i = 0; i < lt.size(); i++) {
+          left.set(i, left.get(i) + lt.get(i) * noGroups);
+        }
 
-      for (int i = 0; i < newRightPool.length; i++) {
-        newRightPool[i] += right.get(i) * noGroups;
+        for (int i = 0; i < rt.size(); i++) {
+          right.set(i, right.get(i) + rt.get(i) * noGroups);
+        }
+      } else {
+        left = pool.getLeft();
+        right = pool.getRight();
       }
       noGroups = noGroups * (pool.getMaxGroups() + 1);
-    }
-
-    IntMatrix left = new DefaultIntMatrix(newLeftPool); // AbstractIntMatrix.wrap(newLeftPool);
-    IntMatrix right = new DefaultIntMatrix(newRightPool); // AbstractIntMatrix.wrap(newRightPool);
-    if (left.size() + right.size() > noGroups) {
-      noGroups = downMap(left, right);
     }
     return new JoinKeys(left, right, noGroups);
   }
@@ -78,7 +74,8 @@ public class JoinUtils {
   private static int downMap(IntMatrix left, IntMatrix right) {
     IntIntMap pool = new IntIntOpenHashMap();
     int j = 0;
-    for (int i = 0; i < left.size(); i++) {
+    int lSize = left.size();
+    for (int i = 0; i < lSize; i++) {
       int value = left.get(i);
       int ref = pool.getOrDefault(value, -1);
       if (ref != -1) {
@@ -90,7 +87,8 @@ public class JoinUtils {
       }
     }
 
-    for (int i = 0; i < right.size(); i++) {
+    int rSize = right.size();
+    for (int i = 0; i < rSize; i++) {
       int value = right.get(i);
       int ref = pool.getOrDefault(value, -1);
       if (ref != -1) {
@@ -106,16 +104,18 @@ public class JoinUtils {
   }
 
   public static JoinKeys createJoinKeys(Vector a, Vector b) {
-    int[] left = new int[a.size()];
-    int[] right = new int[b.size()];
-    ObjectIntMap<Value> pool = new ObjectIntOpenHashMap<>();
+    int aSize = a.size();
+    int bSize = b.size();
+    int[] left = new int[aSize];
+    int[] right = new int[bSize];
+    ObjectIntMap<Object> pool = new ObjectIntOpenHashMap<>();
 
     int j = 0;
-    for (int i = 0; i < a.size(); i++) {
-      Value val = a.getAsValue(i);
+    for (int i = 0; i < aSize; i++) {
+      Object val = a.get(Object.class, i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
-        left[i] = pool.get(val);
+        left[i] = ref;
       } else {
         left[i] = j;
         pool.put(val, j);
@@ -123,11 +123,11 @@ public class JoinUtils {
       }
     }
 
-    for (int i = 0; i < b.size(); i++) {
-      Value val = b.getAsValue(i);
+    for (int i = 0; i < bSize; i++) {
+      Object val = b.get(Object.class, i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
-        right[i] = pool.get(val);
+        right[i] = ref;
       } else {
         right[i] = j;
         pool.put(val, j);
@@ -135,7 +135,7 @@ public class JoinUtils {
       }
     }
 
-    return new JoinKeys(new DefaultIntMatrix(left), new DefaultIntMatrix(right), pool.size());
+    return new JoinKeys(IntMatrix.of(left), IntMatrix.of(right), pool.size());
   }
 
 }

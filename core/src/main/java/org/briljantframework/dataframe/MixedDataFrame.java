@@ -1,9 +1,9 @@
 package org.briljantframework.dataframe;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
-import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
@@ -225,7 +225,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   public DataFrame addColumn(int index, Vector column) {
-    Check.size(columns(), index);
+    Preconditions.checkElementIndex(index, columns());
     List<Vector> newColumns = new ArrayList<>(columns);
     if (column.size() == rows()) {
       newColumns.add(index, column);
