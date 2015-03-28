@@ -20,19 +20,16 @@ public class InnerJoinTest extends TestCase {
 
     System.out.println(cats);
     System.out.println(dogs);
-//    System.out.println(DataFrames.leftOuterJoin(cats, dogs, Arrays.asList("User")));
+    System.out.println(DataFrames.innerJoin(cats, dogs, Arrays.asList("User")));
 
     DataFrame connect4 = Datasets.loadConnect4();
     connect4 = connect4.addColumn(0, IntVector.range(connect4.rows()));
     connect4.setColumnName(0, "index");
-//    DataFrame a = connect4.getRecords(Range.range(0, 4000).flat());
-//    DataFrame b = connect4.getRecords(Range.range(0, 4000).flat());
 
     for (int i = 0; i < 10; i++) {
       long s = System.nanoTime();
       DataFrame f = DataFrames.innerJoin(connect4, connect4, Arrays.asList("index"));
       System.out.println((System.nanoTime() - s) / 1e6);
-      System.out.println(f.columns());
     }
 
     // System.out.println(DataFrames.leftOuterJoin(dogs, cats, Arrays.asList(0)));

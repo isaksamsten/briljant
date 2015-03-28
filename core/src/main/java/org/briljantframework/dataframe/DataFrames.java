@@ -233,21 +233,26 @@ public final class DataFrames {
       builder.getColumnNames().putFromIfPresent(i + aCol, b.getColumnNames(), i);
       builder.addColumnBuilder(b.getColumnType(i).newBuilder(size));
     }
-    for (int i = 0; i < size; i++) {
-      int aRow = joiner.getLeftIndex(i);
-      int bRow = joiner.getRightIndex(i);
-      for (int j = 0; j < aCol; j++) {
-        if (aRow < 0) {
+
+    for (int j = 0; j < aCol; j++) {
+      Vector col = a.getColumn(j);
+      for (int i = 0; i < size; i++) {
+        int row = joiner.getLeftIndex(i);
+        if (row < 0) {
           builder.setNA(i, j);
         } else {
-          builder.set(i, j, a, aRow, j);
+          builder.set(i, j, col, row);
         }
       }
-      for (int j = 0; j < bCol; j++) {
-        if (bRow < 0) {
+    }
+    for (int j = 0; j < bCol; j++) {
+      Vector col = b.getColumn(j);
+      for (int i = 0; i < size; i++) {
+        int row = joiner.getRightIndex(i);
+        if (row < 0) {
           builder.setNA(i, j + aCol);
         } else {
-          builder.set(i, j + aCol, b, bRow, j);
+          builder.set(i, j + aCol, col, row);
         }
       }
     }
