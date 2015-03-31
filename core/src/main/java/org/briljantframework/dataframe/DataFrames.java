@@ -8,8 +8,8 @@ import org.briljantframework.dataframe.join.InnerJoin;
 import org.briljantframework.dataframe.join.JoinKeys;
 import org.briljantframework.dataframe.join.JoinOperation;
 import org.briljantframework.dataframe.join.JoinUtils;
-import org.briljantframework.dataframe.join.Joiner;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
+import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
@@ -36,12 +36,15 @@ import java.util.function.BiFunction;
 public final class DataFrames {
 
   public static final String LEFT_OUTER = "left_outer";
+  public static final String OUTER = "outer";
   public static final String INNER = "inner";
+  public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
   private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
   private static final Map<String, JoinOperation> joinOperations =
       ImmutableMap.of(INNER, InnerJoin.getInstance(),
-                      LEFT_OUTER, LeftOuterJoin.getInstance());
+                      LEFT_OUTER, LeftOuterJoin.getInstance(),
+                      OUTER, OuterJoin.getInstance());
 
   private DataFrames() {
   }
@@ -202,61 +205,71 @@ public final class DataFrames {
    * @return a new data frame of {@code a} and {@code b} joined
    */
   public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<String> on) {
-    if (!(on instanceof Set)) {
-      on = new HashSet<>(on);
+    return join(INNER, a, b, on);
+  }
+
+  /**
+   * Performing an inner join of {@code a} and {@code } b using their columns with intersecting
+   * names
+   *
+   * @param a the left data frame
+   * @param b the right data frame
+   * @return a new data frame joined using the intersection of {@code a.getColumnNames()} and
+   * {@code b.getColumnNames()}
+   */
+  public static DataFrame innerJoin(DataFrame a, DataFrame b) {
+    Set<String> on = getIntersectingColumnNames(a, b);
+    if (on.size() < 1) {
+      throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
     }
-    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
-    Joiner joiner = joinOperations.get(INNER).createJoiner(joinKeys);
-    return join(a, b, joiner).build();
+    return innerJoin(a, b, on);
+  }
+
+  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b) {
+    Set<String> on = getIntersectingColumnNames(a, b);
+    if (on.size() < 1) {
+      throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
+    }
+    return leftOuterJoin(a, b, on);
   }
 
   public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<String> on) {
-    if (!(on instanceof Set)) {
-      on = new HashSet<>(on);
-    }
-    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
-    Joiner joiner = joinOperations.get(LEFT_OUTER).createJoiner(joinKeys);
-    return join(a, b, joiner).build();
+    return join(LEFT_OUTER, a, b, on);
   }
 
-  private static DataFrame.Builder join(DataFrame a, DataFrame b, Joiner joiner) {
-    int size = joiner.size();
-    int aCol = a.columns();
-    int bCol = b.columns();
+  public static DataFrame rightOuterJoin(DataFrame a, DataFrame b, Collection<String> on) {
+    return leftOuterJoin(b, a, on);
+  }
 
-    DataFrame.Builder builder = a.newBuilder();
-    for (int i = 0; i < aCol; i++) {
-      builder.getColumnNames().putFromIfPresent(i, a.getColumnNames(), i);
-      builder.addColumnBuilder(a.getColumnType(i).newBuilder(size));
-    }
-    for (int i = 0; i < bCol; i++) {
-      builder.getColumnNames().putFromIfPresent(i + aCol, b.getColumnNames(), i);
-      builder.addColumnBuilder(b.getColumnType(i).newBuilder(size));
-    }
+  public static DataFrame rightOuterJoin(DataFrame a, DataFrame b) {
+    return leftOuterJoin(b, a);
+  }
 
-    for (int j = 0; j < aCol; j++) {
-      Vector col = a.getColumn(j);
-      for (int i = 0; i < size; i++) {
-        int row = joiner.getLeftIndex(i);
-        if (row < 0) {
-          builder.setNA(i, j);
-        } else {
-          builder.set(i, j, col, row);
-        }
-      }
+  public static DataFrame outerJoin(DataFrame a, DataFrame b, Collection<String> on) {
+    return join(OUTER, a, b, on);
+  }
+
+  public static DataFrame outerJoin(DataFrame a, DataFrame b) {
+    Set<String> on = getIntersectingColumnNames(a, b);
+    if (on.size() < 1) {
+      throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
     }
-    for (int j = 0; j < bCol; j++) {
-      Vector col = b.getColumn(j);
-      for (int i = 0; i < size; i++) {
-        int row = joiner.getRightIndex(i);
-        if (row < 0) {
-          builder.setNA(i, j + aCol);
-        } else {
-          builder.set(i, j + aCol, col, row);
-        }
-      }
+    return outerJoin(a, b, on);
+  }
+
+  public static DataFrame join(String how, DataFrame a, DataFrame b, Collection<String> on) {
+    if (!joinOperations.containsKey(how)) {
+      throw new IllegalArgumentException();
     }
-    return builder;
+    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
+    return joinOperations.get(how).createJoiner(joinKeys).join(a, b, on).build();
+  }
+
+  private static Set<String> getIntersectingColumnNames(DataFrame a, DataFrame b) {
+    Set<String> on = new HashSet<>(a.getColumnNames());
+    Set<String> bCol = new HashSet<>(b.getColumnNames());
+    on.retainAll(bCol);
+    return on;
   }
 
   /**

@@ -71,21 +71,6 @@ public class LeftOuterJoin implements JoinOperation {
       }
     }
 
-    return new Joiner() {
-      @Override
-      public int size() {
-        return leftSorted.length;
-      }
-
-      @Override
-      public int getLeftIndex(int i) {
-        return leftSorted[i];
-      }
-
-      @Override
-      public int getRightIndex(int i) {
-        return rightSorted[i];
-      }
-    };
+    return new ArrayJoiner(leftSorted, rightSorted);
   }
 }

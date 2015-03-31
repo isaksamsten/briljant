@@ -94,7 +94,8 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Unsafe construction of a mixed data frame. Performs no sanity checking (should only be used for
+   * Unsafe construction of a mixed data frame. Performs no sanity checking (should only be used
+   * for
    * performance by checked builder).
    *
    * @param vectors the vectors
@@ -300,7 +301,8 @@ public class MixedDataFrame extends AbstractDataFrame {
   /**
    * <p> Type for constructing a new MixedDataFrame. While for example, {@link
    * org.briljantframework.dataframe.MatrixDataFrame} and {@link org.briljantframework.dataseries.DataSeriesCollection.Builder}
-   * can dynamically adapt the number of columns in the constructed DataFrame, this builder can only
+   * can dynamically adapt the number of columns in the constructed DataFrame, this builder can
+   * only
    * construct DataFrames with a fixed number of columns due to the fact that each column can be of
    * different types. </p>
    *
@@ -535,7 +537,11 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame.Builder insertColumn(int index, Vector.Builder builder) {
-      this.buffers.set(index, builder);
+      if (index == buffers.size()) {
+        this.buffers.add(builder);
+      } else {
+        this.buffers.set(index, builder);
+      }
       return this;
     }
 

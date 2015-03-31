@@ -45,10 +45,6 @@ public class InnerJoin implements JoinOperation {
     int pos = 0;
     int leftPos = leftCount.get(0);
     int rightPos = rightCount.get(0);
-
-//    int[] leftIndexer = new int[count];
-//    int[] rightIndexer = new int[count];
-
     int[] leftIndexer = new int[count];
     int[] rightIndexer = new int[count];
     for (int i = 1; i < noGroups + 1; i++) {
@@ -76,22 +72,7 @@ public class InnerJoin implements JoinOperation {
       rightSorted[i] = rightSorter.get(rightIndexer[i]);
     }
 
-    return new Joiner() {
-      @Override
-      public int size() {
-        return leftSorted.length;
-      }
-
-      @Override
-      public int getLeftIndex(int i) {
-        return leftSorted[i];
-      }
-
-      @Override
-      public int getRightIndex(int i) {
-        return rightSorted[i];
-      }
-    };
+    return new ArrayJoiner(leftSorted, rightSorted);
   }
 
 }

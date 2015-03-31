@@ -1,10 +1,5 @@
 package org.briljantframework.evaluation;
 
-import static org.briljantframework.matrix.Matrices.argmax;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.dataframe.DataFrame;
@@ -12,10 +7,16 @@ import org.briljantframework.evaluation.measure.FitTime;
 import org.briljantframework.evaluation.measure.PredictTime;
 import org.briljantframework.evaluation.measure.TrainingSetSize;
 import org.briljantframework.evaluation.measure.ValidationSetSize;
-import org.briljantframework.evaluation.result.*;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.evaluation.result.ConfusionMatrix;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.result.Evaluator;
+import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The default
@@ -50,19 +51,8 @@ public class DefaultValidator extends AbstractValidator {
       double fitTime = (System.nanoTime() - start) / 1e6;
 
       start = System.nanoTime();
-      Vector classes = predictor.getClasses();
-      Vector predictions;
-      if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
-        DoubleMatrix estimate = predictor.estimate(partition.getValidationData());
-        ctx.setEstimation(estimate);
-        Vector.Builder builder = y.newBuilder();
-        for (int i = 0; i < estimate.rows(); i++) {
-          builder.set(i, classes, argmax(estimate.getRowView(i)));
-        }
-        predictions = builder.build();
-      } else {
-        predictions = predictor.predict(partition.getValidationData());
-      }
+      Vector predictions = computeClassLabels(
+          partition.getValidationData(), predictor, y.getType(), ctx);
       double predictTime = (System.nanoTime() - start) / 1e6;
 
       ctx.setPredictor(predictor);
@@ -77,10 +67,10 @@ public class DefaultValidator extends AbstractValidator {
       }
       predictor.evaluation(ctx);
 
-      ctx.getOrDefault(TrainingSetSize.class, TrainingSetSize.Builder::new).add(Sample.OUT,
-          trainingData.rows());
-      ctx.getOrDefault(ValidationSetSize.class, ValidationSetSize.Builder::new).add(Sample.OUT,
-          partition.getValidationData().rows());
+      ctx.getOrDefault(TrainingSetSize.class, TrainingSetSize.Builder::new)
+          .add(Sample.OUT, trainingData.rows());
+      ctx.getOrDefault(ValidationSetSize.class, ValidationSetSize.Builder::new)
+          .add(Sample.OUT, partition.getValidationData().rows());
       ctx.getOrDefault(FitTime.class, FitTime.Builder::new).add(Sample.OUT, fitTime);
       ctx.getOrDefault(PredictTime.class, PredictTime.Builder::new).add(Sample.OUT, predictTime);
     }

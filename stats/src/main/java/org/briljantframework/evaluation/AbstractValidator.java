@@ -1,11 +1,19 @@
 package org.briljantframework.evaluation;
 
+import org.briljantframework.classification.Predictor;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.result.Evaluator;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.evaluation.result.Evaluator;
+import static org.briljantframework.matrix.Matrices.argmax;
 
 /**
  * Created by isak on 03/10/14.
@@ -48,5 +56,30 @@ public abstract class AbstractValidator implements Validator {
       measures.add(builder.build());
     }
     return measures;
+  }
+
+  /**
+   * Computes the class labels. Chooses the 'best' strategy to avoid computing the probability
+   * estimation matrix twice.
+   *
+   * @param predictor the predictor
+   * @param type      the the resulting vector type
+   * @param ctx       the evaluation context
+   * @return a vector of class-labels produced for {@code predictor} using the hold-out dataset
+   */
+  protected Vector computeClassLabels(DataFrame holdoutX, Predictor predictor, VectorType type,
+                                      EvaluationContext ctx) {
+    Vector classes = predictor.getClasses();
+    Vector.Builder builder = type.newBuilder();
+    if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
+      DoubleMatrix estimate = predictor.estimate(holdoutX);
+      ctx.setEstimation(estimate);
+      for (int i = 0; i < estimate.rows(); i++) {
+        builder.set(i, classes, argmax(estimate.getRowView(i)));
+      }
+      return builder.build();
+    } else {
+      return predictor.predict(holdoutX);
+    }
   }
 }

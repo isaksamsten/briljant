@@ -159,16 +159,16 @@ public class NameAttribute extends AbstractCollection<String> implements
   @Override
   public Iterator<String> iterator() {
     return new UnmodifiableIterator<String>() {
-      private int current = 0;
+      private Iterator<IntObjectCursor<String>> cursor = names.iterator();
 
       @Override
       public boolean hasNext() {
-        return current < size();
+        return cursor.hasNext();
       }
 
       @Override
       public String next() {
-        return get(current++);
+        return cursor.next().value;
       }
     };
   }

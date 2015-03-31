@@ -1,7 +1,10 @@
 package org.briljantframework.dataframe.join;
 
 /**
- * Created by Isak on 2015-01-08.
+ * A join-operation produces a {@link org.briljantframework.dataframe.join.Joiner}. For example,
+ * {@link org.briljantframework.dataframe.join.InnerJoin}.
+ *
+ * @author Isak Karlsson
  */
 public interface JoinOperation {
 
