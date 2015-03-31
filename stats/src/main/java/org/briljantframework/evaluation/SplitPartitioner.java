@@ -1,12 +1,19 @@
 package org.briljantframework.evaluation;
 
+import com.google.common.collect.Iterators;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
-import com.google.common.collect.Iterators;
-
 /**
- * Created by Isak Karlsson on 01/12/14.
+ * The split partitioner simply partitions the input {@code DataFrame} (with {@code m rows}) and
+ * {@code Vector} (of length {@code m}) into two parts (according to {@code testFraction} (in the
+ * range {@code [0, 1]}).
+ *
+ * <p>The training partition is of size {@code m*(1-testFraction)} and the validation partition of
+ * size {@code m*testFraction}
+ *
+ * @author Isak Karlsson
  */
 public class SplitPartitioner implements Partitioner {
 

@@ -4,13 +4,16 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 01/12/14.
+ * The partitioner represents a strategy of how to partition a {@code DataFrame} and {@code Vector}
+ * into training and validation partitions.
+ *
+ * @author Isak Karlsson
  */
 public interface Partitioner {
 
   /**
    * Partitions {@code x} and {@code y} into training and validation partitions
-   * 
+   *
    * @param x the data
    * @param y the target
    * @return an

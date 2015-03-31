@@ -4,12 +4,13 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by isak on 09/03/15.
+ * @author Isak Karlsson
  */
 class FoldIterator implements Iterator<Partition> {
 
@@ -39,6 +40,10 @@ class FoldIterator implements Iterator<Partition> {
 
   @Override
   public Partition next() {
+    if (!hasNext()) {
+      throw new NoSuchElementException();
+    }
+
     current += 1;
     DataFrame.Builder xTrainingBuilder = x.newBuilder();
     xTrainingBuilder.getColumnNames().putAll(x.getColumnNames());
@@ -70,7 +75,7 @@ class FoldIterator implements Iterator<Partition> {
     }
 
     // Part 2: this is a validation part. Add the second
-    // next foldSize * current examples until
+    // next foldSize * current examples until validation end
     int newIndex = 0;
     int validationEnd = foldEnd + foldSize;
     for (int i = trainingEnd; i < validationEnd; i++) {
