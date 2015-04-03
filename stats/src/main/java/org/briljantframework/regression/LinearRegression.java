@@ -16,22 +16,22 @@
 
 package org.briljantframework.regression;
 
+import com.google.common.base.Preconditions;
+
 import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Created by Isak Karlsson on 29/09/14.
  */
 public class LinearRegression implements Classifier {
 
-  private LinearRegression() {}
+  private LinearRegression() {
+  }
 
   /**
    * Create linear regression.
@@ -46,7 +46,7 @@ public class LinearRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     Preconditions.checkArgument(x.rows() == y.size());
 
-    DefaultDoubleMatrix yMatrix = new DefaultDoubleMatrix(y);
+    DoubleMatrix yMatrix = y.asMatrix().asDoubleMatrix();
     return new Model(LinearAlgebra.leastLinearSquares(x.asMatrix(), yMatrix));
   }
 

@@ -4,6 +4,11 @@ import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
+import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.matrix.ComplexMatrix;
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Matrix;
 
 import java.io.IOException;
@@ -378,26 +383,53 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * Returns this vector as an immutable {@code Matrix}. Should return an appropriate
-   * specialization
-   * of the {@link org.briljantframework.matrix.Matrix} interface. For example, a {@link
-   * org.briljantframework.vector.DoubleVector} should return a {@link
-   * org.briljantframework.matrix.DoubleMatrix} implementation.
+   * <p>Returns this vector as an immutable {@code Matrix}. An appropriate
+   * specialization of the {@link org.briljantframework.matrix.Matrix} interface should be
+   * preferred. For example, a {@link org.briljantframework.vector.DoubleVector} should return a
+   * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
    *
-   * Since {@code Vector}s are immutable, mutations of the returned matrix throws {@link
-   * org.briljantframework.exceptions.ImmutableModificationException}.
+   * <p>Since {@code Vector}s are immutable, mutations of the returned matrix throws {@link
+   * org.briljantframework.exceptions.ImmutableModificationException}. Use {@link
+   * org.briljantframework.matrix.Matrix#copy()} to get a modifiable matrix.
    *
    * <pre>
    * Vector a = new DoubleVector(1, 2, 3, 4, 5);
    * DoubleMatrix mat = a.asMatrix().asDoubleMatrix();
    * double sum = mat.reduce(0, Double::sum);
+   *
+   * mat.set(0, 100.0); // throws ImmutableModificationException
+   * mat = mat.copy();
+   * mat.set(0, 100.0); // Works fine
    * </pre>
+   *
+   * <p> The general implementation should return a matrix in constant time, i.e., without copying.
+   * But this is not a requirement.
    *
    * @return this vector as a matrix
    * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
    *                                                                  to matrix
    */
   Matrix asMatrix() throws TypeConversionException;
+
+  default DoubleMatrix asDoubleMatrix() throws TypeConversionException {
+    return asMatrix().asDoubleMatrix();
+  }
+
+  default ComplexMatrix asComplexMatrix() throws TypeConversionException {
+    return asMatrix().asComplexMatrix();
+  }
+
+  default LongMatrix asLongMatrix() throws TypeConversionException {
+    return asMatrix().asLongMatrix();
+  }
+
+  default BitMatrix asBitMatrix() throws TypeConversionException {
+    return asMatrix().asBitMatrix();
+  }
+
+  default IntMatrix asIntMatrix() throws TypeConversionException {
+    return asMatrix().asIntMatrix();
+  }
 
   /**
    * Follows the conventions from {@link Comparable#compareTo(Object)}. <p> Returns value {@code <}

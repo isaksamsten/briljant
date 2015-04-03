@@ -61,6 +61,36 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public DoubleMatrix asDoubleMatrix() {
+    return new AbstractDoubleMatrixWrapper(rows(), columns()) {
+      @Override
+      public void set(int i, int j, double value) {
+        AbstractIntMatrix.this.set(i, j, (int) value);
+      }
+
+      @Override
+      public void set(int index, double value) {
+        AbstractIntMatrix.this.set(index, (int) value);
+      }
+
+      @Override
+      public double get(int i, int j) {
+        return AbstractIntMatrix.this.get(i, j);
+      }
+
+      @Override
+      public double get(int index) {
+        return AbstractIntMatrix.this.get(index);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractIntMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
   public void set(int toRow, int toColumn, IntMatrix from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
@@ -68,6 +98,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public int compare(int a, int b) {
     return Integer.compare(get(a), get(b));
+  }
+
+  @Override
+  public IntMatrix asIntMatrix() {
+    return this;
   }
 
   @Override
@@ -87,6 +122,36 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public LongMatrix asLongMatrix() {
+    return new AbstractLongMatrixWrapper(rows(), columns()) {
+      @Override
+      public long get(int i, int j) {
+        return AbstractIntMatrix.this.get(i, j);
+      }
+
+      @Override
+      public long get(int index) {
+        return AbstractIntMatrix.this.get(index);
+      }
+
+      @Override
+      public void set(int index, long value) {
+        AbstractIntMatrix.this.set(index, (int) value);
+      }
+
+      @Override
+      public void set(int i, int j, long value) {
+        AbstractIntMatrix.this.set(i, j, (int) value);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractIntMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
   public IntMatrix assign(IntMatrix matrix) {
     return assign(matrix, IntUnaryOperator.identity());
   }
@@ -101,6 +166,36 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public BitMatrix asBitMatrix() {
+    return new AbstractBitMatrixWrapper(rows(), columns()) {
+      @Override
+      public void set(int i, int j, boolean value) {
+        AbstractIntMatrix.this.set(i, j, value ? 1 : 0);
+      }
+
+      @Override
+      public void set(int index, boolean value) {
+        AbstractIntMatrix.this.set(index, value ? 1 : 0);
+      }
+
+      @Override
+      public boolean get(int i, int j) {
+        return AbstractIntMatrix.this.get(i, j) == 1;
+      }
+
+      @Override
+      public boolean get(int index) {
+        return AbstractIntMatrix.this.get(index) == 1;
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractIntMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
   public IntMatrix assign(IntMatrix matrix, IntBinaryOperator combine) {
     Check.equalShape(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -110,17 +205,42 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getRowView(int i) {
-    return new IntMatrixView(this, i, 0, 1, columns());
-  }
-
-  @Override
   public IntMatrix assign(ComplexMatrix matrix, ToIntFunction<? super Complex> function) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i)));
     }
     return this;
+  }
+
+  @Override
+  public ComplexMatrix asComplexMatrix() {
+    return new AbstractComplexMatrixWrapper(rows(), columns()) {
+      @Override
+      public void set(int index, Complex value) {
+        AbstractIntMatrix.this.set(index, value.intValue());
+      }
+
+      @Override
+      public void set(int i, int j, Complex value) {
+        AbstractIntMatrix.this.set(i, j, value.intValue());
+      }
+
+      @Override
+      public Complex get(int i, int j) {
+        return Complex.valueOf(AbstractIntMatrix.this.get(i, j));
+      }
+
+      @Override
+      public Complex get(int index) {
+        return Complex.valueOf(AbstractIntMatrix.this.get(index));
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractIntMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
@@ -165,15 +285,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       mat.set(i, operator.applyAsInt(get(i)));
     }
     return mat;
-  }
-
-  @Override
-  public IntMatrix copy() {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, get(i));
-    }
-    return matrix;
   }
 
   @Override
@@ -235,8 +346,8 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getColumnView(int index) {
-    return new IntMatrixView(this, 0, index, rows(), 1);
+  public IntMatrix getRowView(int i) {
+    return new IntMatrixView(this, i, 0, 1, columns());
   }
 
   @Override
@@ -278,28 +389,320 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public int get(int i, int j) {
-    return getStorage().getInt(Indexer.columnMajor(i, j, rows(), columns()));
+  public int hashCode() {
+    int result = 1;
+    for (int i = 0; i < size(); i++) {
+      long bits = get(i);
+      result = 31 * result + (int) (bits ^ (bits >>> 32));
+    }
+
+    return Objects.hash(rows(), columns(), result);
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof IntMatrix) {
+      IntMatrix mat = (IntMatrix) obj;
+      if (!mat.hasEqualShape(this)) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (get(i) != mat.get(i)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public String toString() {
+//    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
+//    for (int i = 0; i < rows(); i++) {
+//      for (int j = 0; j < columns(); j++) {
+//        if (get(i, j) < 0) {
+//          builder.put(i, j, String.format("%d", get(i, j)));
+//        } else {
+//          builder.put(i, j, String.format(" %d", get(i, j)));
+//        }
+//      }
+//    }
+//    StringBuilder out = new StringBuilder();
+//    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
+//    out.append("shape: ").append(getShape()).append(" type: int");
+    return "IntMatrix";
+  }
+
+  @Override
+  public IntMatrix copy() {
+    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, get(i));
+    }
+    return matrix;
+  }
+
+  @Override
+  public IntMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
+  }
+
+  protected static class SliceIntMatrix extends AbstractIntMatrix {
+
+    private final Range row, column;
+    private final IntMatrix parent;
+
+    public SliceIntMatrix(IntMatrix parent, Range row, Range column) {
+      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    }
+
+    public SliceIntMatrix(IntMatrix parent, int rows, Range row, int columns, Range column) {
+      super(rows, columns);
+      this.row = checkNotNull(row);
+      this.column = checkNotNull(column);
+      this.parent = parent;
+    }
+
+    @Override
+    public IntMatrix reshape(int rows, int columns) {
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return new SliceIntMatrix(parent, rows, row, columns, column);
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return parent.get(sliceIndex(row.step(), i, parent.rows()),
+                        sliceIndex(column.step(), j, parent.columns()));
+    }
+
+    @Override
+    public void set(int i, int j, int value) {
+      parent.set(sliceIndex(row.step(), i, parent.rows()),
+                 sliceIndex(column.step(), j, parent.columns()), value);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      int row = index % rows();
+      int col = index / rows();
+      set(row, col, value);
+    }
+
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+
+    @Override
+    public int get(int index) {
+      int row = index % rows();
+      int col = index / rows();
+      return get(row, col);
+    }
+
+
+  }
+
+  /**
+   * Created by Isak Karlsson on 09/01/15.
+   */
+  public static class IntMatrixView extends AbstractIntMatrix {
+
+    private final int rowOffset, colOffset;
+    private final IntMatrix parent;
+
+    public IntMatrixView(IntMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
+      super(rows, cols);
+      this.rowOffset = rowOffset;
+      this.colOffset = colOffset;
+      this.parent = parent;
+
+      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
+                    "Requested row out of bounds.");
+      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
+                    "Requested column out of bounds");
+    }
+
+    @Override
+    public IntMatrix copy() {
+      IntMatrix mat = parent.newEmptyMatrix(rows(), columns());
+      for (int i = 0; i < size(); i++) {
+        mat.set(i, get(i));
+      }
+      return mat;
+    }
+
+    private int computeLinearIndex(int index) {
+      int currentColumn = index / rows() + colOffset;
+      int currentRow = index % rows() + rowOffset;
+      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+    }
+
+    @Override
+    public IntMatrix reshape(int rows, int columns) {
+      return new IntMatrixView(parent, rowOffset, colOffset, rows, columns);
+    }
+
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return parent.get(rowOffset + i, colOffset + j);
+    }
+
+    @Override
+    public int get(int index) {
+      return parent.get(computeLinearIndex(index));
+    }
+
+
+    @Override
+    public void set(int i, int j, int value) {
+      parent.set(rowOffset + i, colOffset + j, value);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      parent.set(computeLinearIndex(index), value);
+    }
+
+
+  }
+
+  protected class FlatSliceIntMatrix extends AbstractIntMatrix {
+
+    private final IntMatrix parent;
+    private final Range range;
+
+    private FlatSliceIntMatrix(IntMatrix parent, int size, Range range) {
+      super(size);
+      this.parent = checkNotNull(parent);
+      this.range = checkNotNull(range);
+    }
+
+    public FlatSliceIntMatrix(IntMatrix parent, Range range) {
+      this(parent, checkNotNull(range).size(), range);
+    }
+
+    @Override
+    public void set(int i, int j, int value) {
+      set(columnMajor(i, j, rows(), columns()), value);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      parent.set(sliceIndex(range.step(), index, parent.size()), value);
+    }
+
+    @Override
+    public IntMatrix reshape(int rows, int columns) {
+      return copy().reshape(rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return parent.getStorage();
+    }
+
+    @Override
+    public IntMatrix newEmptyMatrix(int rows, int columns) {
+      return parent.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return get(columnMajor(i, j, rows(), columns()));
+    }
+
+    @Override
+    public int get(int index) {
+      return parent.get(sliceIndex(range.step(), index, parent.size()));
+    }
+  }
+
+  private class IntListView extends AbstractList<Integer> {
+
+    @Override
+    public Integer get(int i) {
+      return AbstractIntMatrix.this.get(i);
+    }
+
+    @Override
+    public Integer set(int i, Integer value) {
+      int old = AbstractIntMatrix.this.get(i);
+      AbstractIntMatrix.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+      return new Iterator<Integer>() {
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+          return index < size();
+        }
+
+        @Override
+        public Integer next() {
+          return get(index++);
+        }
+      };
+    }
+
+    @Override
+    public int size() {
+      return AbstractIntMatrix.this.size();
+    }
+  }
+
+
+  @Override
+  public IntMatrix getColumnView(int index) {
+    return new IntMatrixView(this, 0, index, rows(), 1);
+  }
+
 
   @Override
   public IntMatrix getDiagonalView() {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int get(int index) {
-    return getStorage().getInt(index);
-  }
-
-  @Override
-  public void set(int index, int value) {
-    getStorage().setInt(index, value);
-  }
-
-  @Override
-  public void set(int i, int j, int value) {
-    getStorage().setInt(Indexer.columnMajor(i, j, rows(), columns()), value);
   }
 
   @Override
@@ -349,14 +752,16 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       private int current = 0;
 
       @Override
+      public int nextInt() {
+        return get(current++);
+      }
+
+      @Override
       public boolean hasNext() {
         return current < size();
       }
 
-      @Override
-      public int nextInt() {
-        return get(current++);
-      }
+
     };
     Spliterator.OfInt spliterator = Spliterators.spliterator(ofInt, size(), Spliterator.SIZED);
     return StreamSupport.intStream(spliterator, false);
@@ -732,16 +1137,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     return n;
   }
 
-  @Override
-  public int hashCode() {
-    int result = 1;
-    for (int i = 0; i < size(); i++) {
-      long bits = get(i);
-      result = 31 * result + (int) (bits ^ (bits >>> 32));
-    }
 
-    return Objects.hash(rows(), columns(), result);
-  }
 
   @Override
   public IntMatrix slice(Range range, Axis axis) {
@@ -752,253 +1148,17 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj instanceof IntMatrix) {
-      IntMatrix mat = (IntMatrix) obj;
-      if (!mat.hasEqualShape(this)) {
-        return false;
-      }
-      for (int i = 0; i < size(); i++) {
-        if (get(i) != mat.get(i)) {
-          return false;
-        }
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public String toString() {
-//    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-//    for (int i = 0; i < rows(); i++) {
-//      for (int j = 0; j < columns(); j++) {
-//        if (get(i, j) < 0) {
-//          builder.put(i, j, String.format("%d", get(i, j)));
-//        } else {
-//          builder.put(i, j, String.format(" %d", get(i, j)));
-//        }
-//      }
-//    }
-//    StringBuilder out = new StringBuilder();
-//    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-//    out.append("shape: ").append(getShape()).append(" type: int");
-    return "IntMatrix";
-  }
-
-  @Override
-  public IntMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
-  }
-
-  protected static class SliceIntMatrix extends AbstractIntMatrix {
-
-    private final Range row, column;
-    private final IntMatrix parent;
-
-    public SliceIntMatrix(IntMatrix parent, Range row, Range column) {
-      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
-    }
-
-    public SliceIntMatrix(IntMatrix parent, int rows, Range row, int columns, Range column) {
-      super(rows, columns);
-      this.row = checkNotNull(row);
-      this.column = checkNotNull(column);
-      this.parent = parent;
-    }
-
-    @Override
-    public IntMatrix reshape(int rows, int columns) {
-      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-      return new SliceIntMatrix(parent, rows, row, columns, column);
-    }
-
-    @Override
-    public int get(int i, int j) {
-      return parent.get(sliceIndex(row.step(), i, parent.rows()),
-                        sliceIndex(column.step(), j, parent.columns()));
-    }
-
-    @Override
-    public void set(int i, int j, int value) {
-      parent.set(sliceIndex(row.step(), i, parent.rows()),
-                 sliceIndex(column.step(), j, parent.columns()), value);
-    }
-
-    @Override
-    public void set(int index, int value) {
-      int row = index % rows();
-      int col = index / rows();
-      set(row, col, value);
-    }
 
 
-    @Override
-    public boolean isView() {
-      return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
 
 
-    @Override
-    public int get(int index) {
-      int row = index % rows();
-      int col = index / rows();
-      return get(row, col);
-    }
 
 
-  }
-
-  /**
-   * Created by Isak Karlsson on 09/01/15.
-   */
-  public static class IntMatrixView extends AbstractIntMatrix {
-
-    private final int rowOffset, colOffset;
-    private final IntMatrix parent;
-
-    public IntMatrixView(IntMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
-      super(rows, cols);
-      this.rowOffset = rowOffset;
-      this.colOffset = colOffset;
-      this.parent = parent;
-
-      checkArgument(rowOffset >= 0 && rowOffset + rows() <= parent.rows(),
-                    "Requested row out of bounds.");
-      checkArgument(colOffset >= 0 && colOffset + columns() <= parent.columns(),
-                    "Requested column out of bounds");
-    }
-
-    @Override
-    public IntMatrix copy() {
-      IntMatrix mat = parent.newEmptyMatrix(rows(), columns());
-      for (int i = 0; i < size(); i++) {
-        mat.set(i, get(i));
-      }
-      return mat;
-    }
-
-    private int computeLinearIndex(int index) {
-      int currentColumn = index / rows() + colOffset;
-      int currentRow = index % rows() + rowOffset;
-      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
-    }
-
-    @Override
-    public IntMatrix reshape(int rows, int columns) {
-      return new IntMatrixView(parent, rowOffset, colOffset, rows, columns);
-    }
 
 
-    @Override
-    public boolean isView() {
-      return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
-    public int get(int i, int j) {
-      return parent.get(rowOffset + i, colOffset + j);
-    }
-
-    @Override
-    public int get(int index) {
-      return parent.get(computeLinearIndex(index));
-    }
 
 
-    @Override
-    public void set(int i, int j, int value) {
-      parent.set(rowOffset + i, colOffset + j, value);
-    }
 
-    @Override
-    public void set(int index, int value) {
-      parent.set(computeLinearIndex(index), value);
-    }
-
-
-  }
-
-  protected class FlatSliceIntMatrix extends AbstractIntMatrix {
-
-    private final IntMatrix parent;
-    private final Range range;
-
-    private FlatSliceIntMatrix(IntMatrix parent, int size, Range range) {
-      super(size);
-      this.parent = checkNotNull(parent);
-      this.range = checkNotNull(range);
-    }
-
-    public FlatSliceIntMatrix(IntMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
-    }
-
-    @Override
-    public void set(int i, int j, int value) {
-      set(columnMajor(i, j, rows(), columns()), value);
-    }
-
-    @Override
-    public void set(int index, int value) {
-      parent.set(sliceIndex(range.step(), index, parent.size()), value);
-    }
-
-    @Override
-    public IntMatrix reshape(int rows, int columns) {
-      return copy().reshape(rows, columns);
-    }
-
-    @Override
-    public boolean isView() {
-      return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
-    public int get(int i, int j) {
-      return get(columnMajor(i, j, rows(), columns()));
-    }
-
-    @Override
-    public int get(int index) {
-      return parent.get(sliceIndex(range.step(), index, parent.size()));
-    }
-  }
 
   @Override
   public IntMatrix slice(BitMatrix bits) {
@@ -1012,42 +1172,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     return builder.build();
   }
 
-  private class IntListView extends AbstractList<Integer> {
 
-    @Override
-    public Integer get(int i) {
-      return AbstractIntMatrix.this.get(i);
-    }
-
-    @Override
-    public Integer set(int i, Integer value) {
-      int old = AbstractIntMatrix.this.get(i);
-      AbstractIntMatrix.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public Iterator<Integer> iterator() {
-      return new Iterator<Integer>() {
-        private int index = 0;
-
-        @Override
-        public boolean hasNext() {
-          return index < size();
-        }
-
-        @Override
-        public Integer next() {
-          return get(index++);
-        }
-      };
-    }
-
-    @Override
-    public int size() {
-      return AbstractIntMatrix.this.size();
-    }
-  }
 
 
   @Override

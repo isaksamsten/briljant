@@ -48,8 +48,9 @@ public class SplitPartitioner implements Partitioner {
         index += 1;
       }
 
-      return Iterators.singletonIterator(new Partition(xTrainingBuilder.build(), xValidationBuilder
-          .build(), yTrainingBuilder.build(), yValidationBuilder.build()));
+      return Iterators.singletonIterator(
+          new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
+                        yTrainingBuilder.build(), yValidationBuilder.build()));
     };
   }
 }

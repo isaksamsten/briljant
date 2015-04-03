@@ -23,31 +23,6 @@ public abstract class AbstractMatrix<T extends Matrix> implements Matrix<T> {
   }
 
   @Override
-  public DoubleMatrix asDoubleMatrix() {
-    return this instanceof DoubleMatrix ? (DoubleMatrix) this : new DefaultDoubleMatrix(this);
-  }
-
-  @Override
-  public IntMatrix asIntMatrix() {
-    return this instanceof IntMatrix ? (IntMatrix) this : new DefaultIntMatrix(this);
-  }
-
-  @Override
-  public LongMatrix asLongMatrix() {
-    return this instanceof LongMatrix ? (LongMatrix) this : new DefaultLongMatrix(this);
-  }
-
-  @Override
-  public BitMatrix asBitMatrix() {
-    return this instanceof BitMatrix ? (BitMatrix) this : new DefaultBitMatrix(this);
-  }
-
-  @Override
-  public ComplexMatrix asComplexMatrix() {
-    return this instanceof ComplexMatrix ? (ComplexMatrix) this : new DefaultComplexMatrix(this);
-  }
-
-  @Override
   public final int rows() {
     return rows;
   }
@@ -60,6 +35,11 @@ public abstract class AbstractMatrix<T extends Matrix> implements Matrix<T> {
   @Override
   public int size() {
     return size;
+  }
+
+  @Override
+  public T newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
   }
 
   @Override
@@ -85,10 +65,5 @@ public abstract class AbstractMatrix<T extends Matrix> implements Matrix<T> {
   @Override
   public BitMatrix gte(T other) {
     return null;
-  }
-
-  @Override
-  public T newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
   }
 }

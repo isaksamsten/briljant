@@ -7,6 +7,7 @@ import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.storage.Storage;
 
 import java.util.AbstractList;
@@ -51,6 +52,37 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
+  public DoubleMatrix asDoubleMatrix() {
+    return new AbstractDoubleMatrixWrapper(rows(), columns()) {
+      @Override
+      public void set(int i, int j, double value) {
+        AbstractBitMatrix.this.set(i, j, value == 1);
+      }
+
+      @Override
+      public void set(int index, double value) {
+        AbstractBitMatrix.this.set(index, value == 1);
+      }
+
+      @Override
+      public double get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+      }
+
+      @Override
+      public double get(int index) {
+        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
   public int compare(int a, int b) {
     return Boolean.compare(get(a), get(b));
   }
@@ -61,6 +93,37 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       set(i, supplier.get());
     }
     return this;
+  }
+
+  @Override
+  public IntMatrix asIntMatrix() {
+    return new AbstractIntMatrixWrapper(rows(), columns()) {
+      @Override
+      public int get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+      }
+
+      @Override
+      public int get(int index) {
+        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+
+      }
+
+      @Override
+      public void set(int index, int value) {
+        AbstractBitMatrix.this.set(index, value == 1);
+      }
+
+      @Override
+      public void set(int i, int j, int value) {
+        AbstractBitMatrix.this.set(i, j, value == 1);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
@@ -81,8 +144,34 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix getRowView(int i) {
-    return new BitMatrixView(this, i, 0, 1, columns());
+  public LongMatrix asLongMatrix() {
+    return new AbstractLongMatrixWrapper(rows(), columns()) {
+      @Override
+      public long get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+      }
+
+      @Override
+      public long get(int index) {
+        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+
+      }
+
+      @Override
+      public void set(int index, long value) {
+        AbstractBitMatrix.this.set(index, value == 1);
+      }
+
+      @Override
+      public void set(int i, int j, long value) {
+        AbstractBitMatrix.this.set(i, j, value == 1);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
@@ -119,6 +208,11 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
+  public BitMatrix asBitMatrix() {
+    return this;
+  }
+
+  @Override
   public String toString() {
     ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
     for (int i = 0; i < rows(); i++) {
@@ -130,11 +224,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
     out.append("shape: ").append(getShape()).append(" type: boolean");
     return out.toString();
-  }
-
-  @Override
-  public BitMatrix getColumnView(int index) {
-    return new BitMatrixView(this, 0, index, rows(), 1);
   }
 
   @Override
@@ -155,6 +244,36 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
+  public ComplexMatrix asComplexMatrix() {
+    return new AbstractComplexMatrixWrapper(rows(), columns()) {
+      @Override
+      public void set(int index, Complex value) {
+        AbstractBitMatrix.this.set(index, value.equals(Complex.ONE));
+      }
+
+      @Override
+      public void set(int i, int j, Complex value) {
+        AbstractBitMatrix.this.set(i, j, value.equals(Complex.ONE));
+      }
+
+      @Override
+      public Complex get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? Complex.ONE : Complex.ZERO;
+      }
+
+      @Override
+      public Complex get(int index) {
+        return AbstractBitMatrix.this.get(index) ? Complex.ONE : Complex.ZERO;
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
   public void swap(int a, int b) {
     boolean tmp = get(a);
     set(a, get(b));
@@ -164,11 +283,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix newEmptyVector(int size) {
     return newEmptyMatrix(size, 1);
-  }
-
-  @Override
-  public BitMatrix getDiagonalView() {
-    throw new UnsupportedOperationException();
   }
 
   public static class IncrementalBuilder {
@@ -331,11 +445,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
   }
 
-  @Override
-  public BitMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new BitMatrixView(this, rowOffset, colOffset, rows, columns);
-  }
-
   protected class FlatSliceBitMatrix extends AbstractBitMatrix {
 
     private final BitMatrix parent;
@@ -413,6 +522,40 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
+  public BitMatrix getRowView(int i) {
+    return new BitMatrixView(this, i, 0, 1, columns());
+  }
+
+
+  @Override
+  public BitMatrix getColumnView(int index) {
+    return new BitMatrixView(this, 0, index, rows(), 1);
+  }
+
+
+
+
+  @Override
+  public BitMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+
+
+
+
+  @Override
+  public BitMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new BitMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+
+
+
+
+  @Override
   public BitMatrix slice(Range rows, Range columns) {
     return new SliceBitMatrix(this, rows, columns);
   }
@@ -457,7 +600,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
 
-
   @Override
   public BitMatrix slice(Collection<Integer> indexes, Axis axis) {
     BitMatrix matrix;
@@ -478,7 +620,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
 
-
   @Override
   public BitMatrix slice(BitMatrix bits) {
     Check.equalShape(this, bits);
@@ -490,7 +631,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
     return builder.build();
   }
-
 
 
   @Override
@@ -520,7 +660,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
 
-
   @Override
   public Stream<Boolean> stream() {
     return StreamSupport.stream(Spliterators.spliterator(new Iterator<Boolean>() {
@@ -537,7 +676,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       }
     }, size(), Spliterator.SIZED), false);
   }
-
 
 
   @Override

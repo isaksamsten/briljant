@@ -53,13 +53,13 @@ public class DefaultIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
-  public boolean isView() {
-    return false;
+  public IntMatrix newEmptyMatrix(int rows, int columns) {
+    return new DefaultIntMatrix(rows, columns);
   }
 
   @Override
-  public IntMatrix copy() {
-    return new DefaultIntMatrix(getStorage().copy(), rows(), columns());
+  public boolean isView() {
+    return false;
   }
 
   @Override
@@ -68,7 +68,27 @@ public class DefaultIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
-  public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return new DefaultIntMatrix(rows, columns);
+  public int get(int i, int j) {
+    return getStorage().getInt(Indexer.columnMajor(i, j, rows(), columns()));
+  }
+
+  @Override
+  public int get(int index) {
+    return getStorage().getInt(index);
+  }
+
+  @Override
+  public void set(int index, int value) {
+    getStorage().setInt(index, value);
+  }
+
+  @Override
+  public void set(int i, int j, int value) {
+    getStorage().setInt(Indexer.columnMajor(i, j, rows(), columns()), value);
+  }
+
+  @Override
+  public IntMatrix copy() {
+    return new DefaultIntMatrix(getStorage().copy(), rows(), columns());
   }
 }

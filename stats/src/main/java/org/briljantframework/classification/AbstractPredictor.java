@@ -19,7 +19,7 @@ import static org.briljantframework.matrix.Matrices.argmax;
  * Provides sane defaults for a predictor. Sub-classes only have to implement the
  * {@link #estimate(org.briljantframework.vector.Vector)} method to have a sensible default
  * predictor.
- * 
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractPredictor implements Predictor {
@@ -37,8 +37,8 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Vector predict(DataFrame x) {
-    Vector.Builder labels = new StringVector.Builder(x.rows());
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
+    Vector.Builder labels = new StringVector.Builder(x.rows());
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
       labels.set(i, predict(x.getRecord(i)));
     });

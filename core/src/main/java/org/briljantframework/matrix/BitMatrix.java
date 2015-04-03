@@ -51,6 +51,10 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
     return new DefaultBitMatrix(rows, cols);
   }
 
+  static BitMatrix newMatrix(int rows, int columns) {
+    return new DefaultBitMatrix(rows, columns);
+  }
+
   BitMatrix assign(Supplier<Boolean> supplier);
 
   BitMatrix assign(boolean value);
@@ -86,16 +90,12 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
 
   /**
    * {@inheritDoc}
-   *
-   * @param i
    */
   @Override
   BitMatrix getRowView(int i);
 
   /**
    * {@inheritDoc}
-   *
-   * @param index
    */
   @Override
   BitMatrix getColumnView(int index);
@@ -108,11 +108,6 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
 
   /**
    * {@inheritDoc}
-   *
-   * @param rowOffset
-   * @param colOffset
-   * @param rows
-   * @param columns
    */
   @Override
   BitMatrix getView(int rowOffset, int colOffset, int rows, int columns);

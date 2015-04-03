@@ -25,8 +25,8 @@ import java.util.List;
  */
 public class DefaultValidator extends AbstractValidator {
 
-  public DefaultValidator(List<Evaluator> consumers, Partitioner partitioner) {
-    super(consumers, partitioner);
+  public DefaultValidator(List<Evaluator> evaluators, Partitioner partitioner) {
+    super(evaluators, partitioner);
   }
 
   public DefaultValidator(Partitioner partitioner) {
