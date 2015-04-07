@@ -65,45 +65,43 @@ public class EarlyAbandonSlidingDistance implements Distance {
   @Override
   public double compute(Vector a, Vector b) {
     double minDistance = Double.POSITIVE_INFINITY;
-    boolean earlyStop = false;
-
-    // Assumed to be normalized!
     Vector candidate = a.size() < b.size() ? a : b;
     if (!(candidate instanceof NormalizedShapelet)) {
       throw new IllegalArgumentException("Candidate shapelet must be z-normalized");
     }
 
     int[] order = null;
-
     // If the candidate is IndexSorted, use this to optimize the search
     if (candidate instanceof IndexSortedNormalizedShapelet) {
       order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     }
 
     Vector vector = a.size() >= b.size() ? a : b;
-    for (int i = 0; i <= vector.size() - candidate.size(); i++) {
-      double sumDistance = 0.0;
-      Shapelet subShapelet = NormalizedShapelet.create(i, candidate.size(), vector);
+    int seriesSize = vector.size();
+    int m = candidate.size();
+    double[] t = new double[m * 2];
 
-      for (int k = 0; k < candidate.size(); k++) {
-        if (order != null) {
-          k = order[k];
+    double ex = 0;
+    double ex2 = 0;
+    for (int i = 0; i < seriesSize; i++) {
+      double d = vector.getAsDouble(i);
+      ex += d;
+      ex2 += d * d;
+      t[i % m] = d;
+      t[(i % m) + m] = d;
+
+      if (i >= m - 1) {
+        int j = (i + 1) % m;
+        double mean = ex / m;
+        double sigma = StrictMath.sqrt(ex2 / m - mean * mean);
+        double dist = distance(candidate, t, j, m, order, mean, sigma, minDistance);
+        if (dist < minDistance) {
+          minDistance = dist;
         }
-        double kv = candidate.getAsDouble(k);
-        double iv = subShapelet.getAsDouble(k);
 
-        sumDistance += compute(kv, iv);
-        if (sumDistance > minDistance) {
-          earlyStop = true;
-          break;
-        }
+        ex -= t[j];
+        ex2 -= t[j] * t[j];
       }
-      if (!earlyStop) {
-        // System.out.println(i);
-        minDistance = sumDistance;
-      }
-
-      earlyStop = false;
     }
     return Math.sqrt(minDistance / candidate.size());
   }
@@ -116,5 +114,18 @@ public class EarlyAbandonSlidingDistance implements Distance {
   @Override
   public double min() {
     return distance.min();
+  }
+
+  double distance(Vector c, double[] t, int j, int m, int[] order, double mean, double std,
+                  double bsf) {
+    double sum = 0;
+    for (int i = 0; i < m && sum < bsf; i++) {
+      if (order != null) {
+        i = order[i];
+      }
+      double x = ((t[i + j] - mean) / std) - c.getAsDouble(i);
+      sum += x * x;
+    }
+    return sum;
   }
 }

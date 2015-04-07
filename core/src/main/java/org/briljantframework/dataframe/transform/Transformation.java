@@ -22,7 +22,8 @@ import org.briljantframework.dataframe.DataFrame;
 /**
  * A transformation takes a dataset D and applies a transformation, resulting in an new dataset D'
  * <p>
- * Created by Isak Karlsson on 11/08/14.
+ *
+ * @author Isak Karlsson
  */
 @FunctionalInterface
 public interface Transformation {

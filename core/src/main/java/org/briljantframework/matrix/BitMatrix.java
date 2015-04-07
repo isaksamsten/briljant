@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.matrix.storage.Storage;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
@@ -14,7 +16,7 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
    * <p> Returns a new {@code BitMatrix} with {@code values}. </p> <p> <p> For example </p> <p> <p>
    *
    * <pre>
-   *  > BitMatrix a = Matrices.newBitMatrix(true, true, false, false, true, true).reshape(2, 3);
+   *  > BitMatrix a = BitMatrix.newMatrix(true, true, false, false, true, true).reshape(2, 3);
    *
    *    true  false  true
    *    true  false  true
@@ -47,12 +49,16 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
    * @param cols the columns
    * @return a new boolean matrix
    */
-  static BitMatrix newBitMatrix(int rows, int cols) {
+  static BitMatrix newMatrix(int rows, int cols) {
     return new DefaultBitMatrix(rows, cols);
   }
 
-  static BitMatrix newMatrix(int rows, int columns) {
-    return new DefaultBitMatrix(rows, columns);
+  static BitMatrix newSparseMatrix(int rows, int cols) {
+    return new SparseBitMatrix(rows, cols);
+  }
+
+  static BitMatrix newSparseVector(int size) {
+    return new SparseBitMatrix(size);
   }
 
   BitMatrix assign(Supplier<Boolean> supplier);
@@ -88,6 +94,10 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
   @Override
   BitMatrix reshape(int rows, int columns);
 
+  Stream<Boolean> stream();
+
+  List<Boolean> asList();
+
   /**
    * {@inheritDoc}
    */
@@ -95,10 +105,60 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
   BitMatrix getRowView(int i);
 
   /**
+   * Returns an unmodifiable view of this matrix.
+   *
+   * @return an unmodifiable view
+   */
+  default BitMatrix frozen() {
+    return new AbstractBitMatrix(rows(), columns()) {
+      @Override
+      public void set(int i, int j, boolean value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void set(int index, boolean value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean get(int i, int j) {
+        return BitMatrix.this.get(i, j);
+      }
+
+      @Override
+      public boolean get(int index) {
+        return BitMatrix.this.get(index);
+      }
+
+      @Override
+      public BitMatrix reshape(int rows, int columns) {
+        return BitMatrix.this.reshape(rows, columns);
+      }
+
+      @Override
+      public BitMatrix newEmptyMatrix(int rows, int columns) {
+        return BitMatrix.this.newEmptyMatrix(rows, columns);
+      }
+
+      @Override
+      public boolean isView() {
+        return BitMatrix.this.isView();
+      }
+
+      @Override
+      public Storage getStorage() {
+        return BitMatrix.this.getStorage().frozen();
+      }
+    };
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
   BitMatrix getColumnView(int index);
+
 
   /**
    * {@inheritDoc}
@@ -147,11 +207,5 @@ public interface BitMatrix extends Matrix<BitMatrix>, Iterable<Boolean> {
   @Override
   BitMatrix copy();
 
-  Stream<Boolean> stream();
 
-  List<Boolean> asList();
-
-  default BitMatrix frozen() {
-    return new DefaultBitMatrix(getStorage().frozen(), rows(), columns());
-  }
 }

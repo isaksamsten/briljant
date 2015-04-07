@@ -73,8 +73,22 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
+  public ComplexMatrix assign(ComplexMatrix matrix) {
+    return assign(matrix, UnaryOperator.identity());
+  }
+
+  @Override
+  public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
+    Check.size(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public DoubleMatrix asDoubleMatrix() {
-    return new AbstractDoubleMatrixWrapper(rows(), columns()) {
+    return new AsDoubleMatrix(rows(), columns()) {
       @Override
       public void set(int i, int j, double value) {
         AbstractComplexMatrix.this.set(i, j, Complex.valueOf(value));
@@ -103,12 +117,34 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
-  public ComplexMatrix assign(ComplexMatrix matrix) {
-    return assign(matrix, UnaryOperator.identity());
+  public ComplexMatrix assign(ComplexMatrix matrix, BinaryOperator<Complex> combine) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, combine.apply(get(i), matrix.get(i)));
+    }
+    return this;
   }
 
   @Override
-  public ComplexMatrix assign(ComplexMatrix matrix, UnaryOperator<Complex> operator) {
+  public ComplexMatrix assign(DoubleMatrix matrix) {
+    Preconditions.checkArgument(matrix.size() == size());
+    for (int i = 0; i < size(); i++) {
+      set(i, Complex.valueOf(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<Complex> operator) {
+    Preconditions.checkArgument(matrix.size() == size());
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
@@ -118,7 +154,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public IntMatrix asIntMatrix() {
-    return new AbstractIntMatrixWrapper(rows(), columns()) {
+    return new AsIntMatrix(rows(), columns()) {
       @Override
       public int get(int i, int j) {
         return AbstractComplexMatrix.this.get(i, j).intValue();
@@ -147,26 +183,43 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
-  public ComplexMatrix assign(ComplexMatrix matrix, BinaryOperator<Complex> combine) {
-    Check.equalShape(this, matrix);
+  public ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator) {
+    Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
-      set(i, combine.apply(get(i), matrix.get(i)));
+      set(i, operator.apply(matrix.get(i)));
     }
     return this;
   }
 
   @Override
-  public ComplexMatrix assign(DoubleMatrix matrix) {
-    Preconditions.checkArgument(matrix.size() == size());
+  public ComplexMatrix update(UnaryOperator<Complex> operator) {
     for (int i = 0; i < size(); i++) {
-      set(i, Complex.valueOf(matrix.get(i)));
+      set(i, operator.apply(get(i)));
     }
     return this;
+  }
+
+  @Override
+  public ComplexMatrix map(UnaryOperator<Complex> operator) {
+    ComplexMatrix m = newEmptyMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, operator.apply(get(i)));
+    }
+    return m;
+  }
+
+  @Override
+  public IntMatrix mapToInt(ToIntFunction<Complex> function) {
+    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, function.applyAsInt(get(i)));
+    }
+    return matrix;
   }
 
   @Override
   public LongMatrix asLongMatrix() {
-    return new AbstractLongMatrixWrapper(rows(), columns()) {
+    return new AsLongMatrix(rows(), columns()) {
       @Override
       public long get(int i, int j) {
         return AbstractComplexMatrix.this.get(i, j).longValue();
@@ -192,96 +245,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
         return AbstractComplexMatrix.this.getStorage();
       }
     };
-  }
-
-  @Override
-  public ComplexMatrix assign(DoubleMatrix matrix, DoubleFunction<Complex> operator) {
-    Preconditions.checkArgument(matrix.size() == size());
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(LongMatrix matrix, LongFunction<Complex> operator) {
-    Check.size(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public BitMatrix asBitMatrix() {
-    return new AbstractBitMatrixWrapper(rows(), columns()) {
-
-      @Override
-      public void set(int i, int j, boolean value) {
-        AbstractComplexMatrix.this.set(i, j, value ? Complex.ONE : Complex.ZERO);
-      }
-
-      @Override
-      public void set(int index, boolean value) {
-        AbstractComplexMatrix.this.set(index, value ? Complex.ONE : Complex.ZERO);
-
-      }
-
-      @Override
-      public boolean get(int i, int j) {
-        return AbstractComplexMatrix.this.get(i, j).equals(Complex.ONE);
-      }
-
-      @Override
-      public boolean get(int index) {
-        return AbstractComplexMatrix.this.get(index).equals(Complex.ONE);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractComplexMatrix.this.getStorage();
-      }
-    };
-  }
-
-  @Override
-  public ComplexMatrix assign(IntMatrix matrix, IntFunction<Complex> operator) {
-    Check.size(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix update(UnaryOperator<Complex> operator) {
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix asComplexMatrix() {
-    return this;
-  }
-
-  @Override
-  public ComplexMatrix map(UnaryOperator<Complex> operator) {
-    ComplexMatrix m = newEmptyMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, operator.apply(get(i)));
-    }
-    return m;
-  }
-
-  @Override
-  public IntMatrix mapToInt(ToIntFunction<Complex> function) {
-    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, function.applyAsInt(get(i)));
-    }
-    return matrix;
   }
 
   @Override
@@ -316,16 +279,48 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public BitMatrix satisfies(Predicate<Complex> predicate) {
-    BitMatrix bits = BitMatrix.newBitMatrix(rows(), columns());
+    BitMatrix bits = BitMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
     return bits;
   }
 
+  @Override
+  public BitMatrix asBitMatrix() {
+    return new AsBitMatrix(rows(), columns()) {
+
+      @Override
+      public void set(int i, int j, boolean value) {
+        AbstractComplexMatrix.this.set(i, j, value ? Complex.ONE : Complex.ZERO);
+      }
+
+      @Override
+      public void set(int index, boolean value) {
+        AbstractComplexMatrix.this.set(index, value ? Complex.ONE : Complex.ZERO);
+
+      }
+
+      @Override
+      public boolean get(int i, int j) {
+        return AbstractComplexMatrix.this.get(i, j).equals(Complex.ONE);
+      }
+
+      @Override
+      public boolean get(int index) {
+        return AbstractComplexMatrix.this.get(index).equals(Complex.ONE);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractComplexMatrix.this.getStorage();
+      }
+    };
+  }
+
   public BitMatrix satisfies(ComplexMatrix other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BitMatrix bits = BitMatrix.newBitMatrix(rows(), columns());
+    BitMatrix bits = BitMatrix.newMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -335,11 +330,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   @Override
   public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
     return reduce(identity, reduce, UnaryOperator.identity());
-  }
-
-  @Override
-  public ComplexMatrix getRowView(int i) {
-    return new ComplexMatrixView(this, i, 0, 1, columns());
   }
 
   @Override
@@ -358,6 +348,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
       mat.set(i, reduce.apply(getColumnView(i)));
     }
     return mat;
+  }
+
+  @Override
+  public ComplexMatrix asComplexMatrix() {
+    return this;
   }
 
   @Override
@@ -388,11 +383,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   @Override
   public void set(int toRow, int toColumn, ComplexMatrix from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
-  }
-
-  @Override
-  public ComplexMatrix getColumnView(int index) {
-    return new ComplexMatrixView(this, 0, index, rows(), 1);
   }
 
   @Override
@@ -457,8 +447,8 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
-  public ComplexMatrix getDiagonalView() {
-    throw new UnsupportedOperationException();
+  public ComplexMatrix getRowView(int i) {
+    return new ComplexMatrixView(this, i, 0, 1, columns());
   }
 
   protected static class SliceComplexMatrix extends AbstractComplexMatrix {
@@ -708,6 +698,26 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
       return AbstractComplexMatrix.this.size();
     }
   }
+
+
+  @Override
+  public ComplexMatrix getColumnView(int index) {
+    return new ComplexMatrixView(this, 0, index, rows(), 1);
+  }
+
+
+  @Override
+  public ComplexMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
+  }
+
+
+
+
+
+
+
+
 
 
   @Override

@@ -19,12 +19,12 @@ public class EarlyAbandonSlidingDistanceTest {
     DoubleMatrix a2 = DefaultDoubleMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
     DoubleMatrix b = DefaultDoubleMatrix.of(1, 2, 2, 3);
 
-    Shapelet shapelet = NormalizedShapelet.create(1, 2, Convert.toAdapter(a));
+    Shapelet shapelet = new IndexSortedNormalizedShapelet(1, 2, Convert.toAdapter(a));
     // System.out.println(shapelet);
     // System.out.println(b);
 
     System.out.println(shapelet);
-    System.out.println(NormalizedShapelet.create(0, a2.size(), Convert.toAdapter(a2)));
+    System.out.println(new IndexSortedNormalizedShapelet(0, a2.size(), Convert.toAdapter(a2)));
 
 
     Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());

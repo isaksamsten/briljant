@@ -17,7 +17,6 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
 
 /**
  * A z-normalized sub sequence view of another MatrixLike
@@ -31,20 +30,27 @@ public class NormalizedShapelet extends Shapelet {
 
   public NormalizedShapelet(int start, int length, Vector vector) {
     super(start, length, vector);
-    Shapelet shapelet = Shapelet.create(start, length, vector);
-    this.mean = Vectors.mean(shapelet);
+    double ex = 0;
+    double ex2 = 0;
+    int size = start + length;
+    for (int i = start; i < size; i++) {
+      double v = vector.getAsDouble(i);
+      ex += v;
+      ex2 += v * v;
+    }
+    this.mean = ex / length;
     if (length == 1) {
-      this.sigma = 0.0;
+      this.sigma = 0;
     } else {
-      this.sigma = Vectors.std(shapelet, mean);
+      this.sigma = Math.sqrt(ex2 / length - mean * mean);
     }
   }
 
   /**
    * Create normalized shapelet.
    *
-   * @param start the start
-   * @param length the length
+   * @param start      the start
+   * @param length     the length
    * @param vectorLike the vector like
    * @return the normalized shapelet
    */

@@ -3,39 +3,39 @@ package org.briljantframework.matrix;
 import org.briljantframework.Check;
 import org.briljantframework.matrix.storage.Storage;
 
-abstract class AbstractDoubleMatrixWrapper extends AbstractDoubleMatrix {
+abstract class AsDoubleMatrix extends AbstractDoubleMatrix {
 
-  public AbstractDoubleMatrixWrapper(int rows, int columns) {
+  public AsDoubleMatrix(int rows, int columns) {
     super(rows, columns);
   }
 
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new AbstractDoubleMatrixWrapper(rows, columns) {
+    return new AsDoubleMatrix(rows, columns) {
       @Override
       public void set(int row, int column, double value) {
-        AbstractDoubleMatrixWrapper.this.set(row, column, value);
+        AsDoubleMatrix.this.set(row, column, value);
       }
 
       @Override
       public void set(int index, double value) {
-        AbstractDoubleMatrixWrapper.this.set(index, value);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractDoubleMatrixWrapper.this.getStorage();
+        AsDoubleMatrix.this.set(index, value);
       }
 
       @Override
       public double get(int i, int j) {
-        return AbstractDoubleMatrixWrapper.this.get(i, j);
+        return AsDoubleMatrix.this.get(i, j);
       }
 
       @Override
       public double get(int index) {
-        return AbstractDoubleMatrixWrapper.this.get(index);
+        return AsDoubleMatrix.this.get(index);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AsDoubleMatrix.this.getStorage();
       }
 
 

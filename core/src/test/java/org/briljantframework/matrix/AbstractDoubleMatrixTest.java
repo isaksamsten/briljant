@@ -717,6 +717,15 @@ public class AbstractDoubleMatrixTest {
   }
 
   @Test
+  public void testSliceReshape() throws Exception {
+    DoubleMatrix a = Matrices.linspace(0, 1, 9).reshape(3, 3);
+    System.out.println(a);
+    DoubleMatrix b = a.slice(Range.range(2), Range.range(2));
+    System.out.println(b);
+    System.out.println(b.reshape(4, 1));
+  }
+
+  @Test
   public void testHashCode() throws Exception {
 
   }

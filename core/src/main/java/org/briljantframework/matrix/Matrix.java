@@ -177,7 +177,9 @@ public interface Matrix<T extends Matrix> extends Swappable {
   T slice(Range rows, Range columns);
 
   /**
-   * Basic slicing. Returns a view of the underlying matrix.
+   * Basic slicing. Returns a view of the underlying matrix. The view is preserved as long as
+   * possible. However, some operations (e.g. {@link #reshape(int, int)}) is unable to preserve
+   * view.
    *
    * @param range the range
    * @return a view
@@ -195,7 +197,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
   T slice(Range range, Axis axis);
 
   /**
-   * Complex slicing. Returns a copy of the matrix. Subclasses should specialize the return type.
+   * Complex slicing. Returns a copy of the matrix.
    *
    * @param rows    the rows to include
    * @param columns the columns to include
@@ -229,12 +231,12 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
    * then {@code size()} is intuitive. However, if not, size is {@code rows() * columns()} and used
    * when iterating using {@code getAs...(int)}. To avoid cache misses,
-   * {@code for(int i = 0; i < m.size(); i++) m.set(i, o.getAsDouble(i))} should be preferred to
+   * {@code for(int i = 0; i < m.size(); i++) m.set(i, o.get(i))} should be preferred to
    *
    * <pre>
    * for(int i = 0; i < m.rows(); i++)
    *   for(int j = 0; j < m.columns(); j++)
-   *      m.set(i, j, o.getAsDouble(i, j))
+   *      m.set(i, j, o.get(i, j))
    * </pre>
    *
    * Since, {@code set(int, int, ....)} shouldn't be used in conjunction with

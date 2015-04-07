@@ -7,39 +7,39 @@ import org.briljantframework.matrix.storage.Storage;
 /**
  * @author Isak Karlsson
  */
-abstract class AbstractComplexMatrixWrapper extends AbstractComplexMatrix {
+abstract class AsComplexMatrix extends AbstractComplexMatrix {
 
-  public AbstractComplexMatrixWrapper(int rows, int columns) {
+  public AsComplexMatrix(int rows, int columns) {
     super(rows, columns);
   }
 
   @Override
   public ComplexMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new AbstractComplexMatrixWrapper(rows, columns) {
+    return new AsComplexMatrix(rows, columns) {
       @Override
       public void set(int index, Complex value) {
-        AbstractComplexMatrixWrapper.this.set(index, value);
+        AsComplexMatrix.this.set(index, value);
       }
 
       @Override
       public void set(int row, int column, Complex value) {
-        AbstractComplexMatrixWrapper.this.set(row, column, value);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractComplexMatrixWrapper.this.getStorage();
+        AsComplexMatrix.this.set(row, column, value);
       }
 
       @Override
       public Complex get(int i, int j) {
-        return AbstractComplexMatrixWrapper.this.get(i, j);
+        return AsComplexMatrix.this.get(i, j);
       }
 
       @Override
       public Complex get(int index) {
-        return AbstractComplexMatrixWrapper.this.get(index);
+        return AsComplexMatrix.this.get(index);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AsComplexMatrix.this.getStorage();
       }
 
 

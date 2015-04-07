@@ -95,23 +95,13 @@ public class RandomShapeletForestTest {
 
       Transformation znorm = new DataSeriesNormalization();
       DataFrame xTrain =
-          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(0,
-                                                                                    trainingSet
-                                                                                        .removeColumn(
-                                                                                            trainingSet
-                                                                                                .columns()
-                                                                                            - 1))
-                              .build());
+          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(
+              0, trainingSet.removeColumn(trainingSet.columns() - 1)).build());
       Vector yTrain = Convert.toStringVector(trainingSet.getColumn(trainingSet.columns() - 1));
 
       DataFrame xTest =
-          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(0,
-                                                                                    validationSet
-                                                                                        .removeColumn(
-                                                                                            validationSet
-                                                                                                .columns()
-                                                                                            - 1))
-                              .build());
+          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(
+              0, validationSet.removeColumn(validationSet.columns() - 1)).build());
       Vector yTest = Convert.toStringVector(validationSet.getColumn(validationSet.columns() - 1));
 
       long start = System.nanoTime();
@@ -226,7 +216,7 @@ public class RandomShapeletForestTest {
       System.out
           .println(Vectors.mean(xTrain.getRecord(0)) + " " + Vectors.std(xTrain.getRecord(0)));
 
-      IntMatrix sizes = IntMatrix.of(50);
+      IntMatrix sizes = IntMatrix.of(100);
 
       System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
                          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
@@ -235,12 +225,13 @@ public class RandomShapeletForestTest {
             .withSize(500)
             .withInspectedShapelets(sizes.get(i))
             .withLowerLength(0.025)
-            .withUpperLength(0.6)
+            .withUpperLength(0.1)
             .withAssessment(ShapeletTree.Assessment.FSTAT)
             .build();
 
         for (int j = 0; j < 1; j++) {
           Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
+          System.out.println(result);
           System.out.println(sizes.get(i) + ", " + result.getAverage(Ensemble.Correlation.class)
                              + ", " + result.getAverage(Ensemble.Strength.class) + ", "
                              + result.getAverage(Ensemble.Quality.class) + ", "

@@ -62,7 +62,7 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitMatrix oobIndicator = BitMatrix.newBitMatrix(x.rows(), size());
+    BitMatrix oobIndicator = BitMatrix.newMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumnView(i)));
     }

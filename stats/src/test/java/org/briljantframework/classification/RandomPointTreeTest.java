@@ -33,7 +33,7 @@ public class RandomPointTreeTest {
         Vector classes = Vectors.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
-        BitMatrix oobIndicator = BitMatrix.newBitMatrix(x.rows(), size());
+        BitMatrix oobIndicator = BitMatrix.newMatrix(x.rows(), size());
         for (int i = 0; i < size(); i++) {
           fitTasks.add(new FitTask(classSet, x, y, classes, oobIndicator.getColumnView(i)));
         }

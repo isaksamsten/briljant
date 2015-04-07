@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Utils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +40,54 @@ public class AbstractBitMatrixTest {
     assertValuesEquals(BitMatrix.newBitVector(true, false), view.getColumnView(0));
     assertValuesEquals(BitMatrix.newBitVector(true, false), view.getColumnView(1));
   }
+
+  @Test
+  public void testPerformance() throws Exception {
+    BitMatrix da = BitMatrix.newMatrix(1000, 1000);
+    da.assign(() -> Utils.getRandom().nextGaussian() > 0);
+    BitMatrix db = BitMatrix.newMatrix(1000, 1000);
+    db.assign(() -> Utils.getRandom().nextGaussian() > 0);
+
+    BitMatrix sa = BitMatrix.newSparseMatrix(1000, 1000);
+    BitMatrix sb = BitMatrix.newSparseMatrix(1000, 1000);
+    sa.assign(() -> Utils.getRandom().nextGaussian() > 0);
+    sb.assign(() -> Utils.getRandom().nextGaussian() > 0);
+
+    long s = System.nanoTime();
+    for (int j = 0; j < 100; j++) {
+      for (int i = 0; i < da.size(); i++) {
+        da.set(i, !da.get(i));
+      }
+    }
+    System.out.println((System.nanoTime() - s) / 1e6);
+    s = System.nanoTime();
+    for (int j = 0; j < 100; j++) {
+      for (int i = 0; i < sa.size(); i++) {
+        sa.set(i, !sa.get(i));
+      }
+    }
+    System.out.println((System.nanoTime() - s) / 1e6);
+    s = System.nanoTime();
+    for (int i = 0; i < 100; i++) {
+      da.xor(db);
+      da.and(db);
+      da.or(db);
+      da.orNot(db);
+      da.andNot(db);
+    }
+    System.out.println((System.nanoTime() - s) / 1e6);
+    s = System.nanoTime();
+    for (int i = 0; i < 100; i++) {
+      sa.xor(sb);
+      sa.and(sb);
+      sa.or(sb);
+      sa.orNot(sb);
+      sa.andNot(sb);
+    }
+    System.out.println((System.nanoTime() - s) / 1e6);
+  }
+
+
 
   @Test
   public void testSlice() throws Exception {
@@ -130,7 +179,7 @@ public class AbstractBitMatrixTest {
   @Test
   public void testAnd() throws Exception {
     BitMatrix and = a.and(b);
-    boolean[] actual = new boolean[] {true, false, true, false, false, true};
+    boolean[] actual = new boolean[]{true, false, true, false, false, true};
     for (int i = 0; i < and.size(); i++) {
       assertEquals(actual[i], and.get(i));
     }
@@ -138,7 +187,7 @@ public class AbstractBitMatrixTest {
 
   @Test
   public void testOr() throws Exception {
-    boolean[] actual = new boolean[] {true, true, true, false, true, true};
+    boolean[] actual = new boolean[]{true, true, true, false, true, true};
     BitMatrix or = a.or(b);
     for (int i = 0; i < or.size(); i++) {
       assertEquals(actual[i], or.get(i));
@@ -147,7 +196,7 @@ public class AbstractBitMatrixTest {
 
   @Test
   public void testXor() throws Exception {
-    boolean[] actual = new boolean[] {false, true, false, false, true, false};
+    boolean[] actual = new boolean[]{false, true, false, false, true, false};
     BitMatrix xor = a.xor(b);
     for (int i = 0; i < xor.size(); i++) {
       assertEquals(actual[i], xor.get(i));
@@ -156,7 +205,7 @@ public class AbstractBitMatrixTest {
 
   @Test
   public void testOrNot() throws Exception {
-    boolean[] actual = new boolean[] {true, true, true, true, false, true};
+    boolean[] actual = new boolean[]{true, true, true, true, false, true};
     BitMatrix orNot = a.orNot(b);
     for (int i = 0; i < orNot.size(); i++) {
       assertEquals(actual[i], orNot.get(i));
@@ -165,7 +214,7 @@ public class AbstractBitMatrixTest {
 
   @Test
   public void testAndNot() throws Exception {
-    boolean[] actual = new boolean[] {false, true, false, false, false, false};
+    boolean[] actual = new boolean[]{false, true, false, false, false, false};
     BitMatrix andNot = a.andNot(b);
     for (int i = 0; i < andNot.size(); i++) {
       assertEquals(actual[i], andNot.get(i));
@@ -174,7 +223,7 @@ public class AbstractBitMatrixTest {
 
   @Test
   public void testNot() throws Exception {
-    boolean[] actual = new boolean[] {false, false, false, true, true, false};
+    boolean[] actual = new boolean[]{false, false, false, true, true, false};
     BitMatrix not = a.not();
     for (int i = 0; i < a.size(); i++) {
       assertEquals(actual[i], not.get(i));
