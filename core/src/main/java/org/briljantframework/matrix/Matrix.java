@@ -4,6 +4,8 @@ import org.briljantframework.Swappable;
 import org.briljantframework.matrix.storage.Storage;
 
 import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 /**
  * <p>
@@ -101,6 +103,15 @@ public interface Matrix<T extends Matrix> extends Swappable {
   void set(int toRow, int toColumn, T from, int fromRow, int fromColumn);
 
   int compare(int a, int b);
+
+  T map(Axis axis, UnaryOperator<T> mapper);
+
+  void forEach(Axis axis, Consumer<T> consumer);
+
+  void setRow(int i, T row);
+
+  void setColumn(int i, T column);
+
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but

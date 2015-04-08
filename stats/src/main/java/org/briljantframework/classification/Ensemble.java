@@ -16,9 +16,6 @@
 
 package org.briljantframework.classification;
 
-import com.carrotsearch.hppc.ObjectDoubleMap;
-import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
@@ -28,7 +25,6 @@ import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -121,6 +117,7 @@ public abstract class Ensemble implements Classifier {
     public DefaultEnsemblePredictor(Vector classes, List<? extends Predictor> members,
                                     BitMatrix oobIndicator) {
       super(classes);
+      System.out.println(classes);
       this.members = members;
       this.oobIndicator = oobIndicator.frozen();
     }
@@ -296,20 +293,15 @@ public abstract class Ensemble implements Classifier {
 
     @Override
     public DoubleMatrix estimate(Vector row) {
-      List<Value> predictions = members.parallelStream()
-          .map(model -> model.predict(row))
+      List<DoubleMatrix> predictions = members.parallelStream()
+          .map(model -> model.estimate(row))
           .collect(Collectors.toList());
-
-      ObjectDoubleMap<String> votes = new ObjectDoubleOpenHashMap<>();
-      for (Value prediction : predictions) {
-        votes.putOrAdd(prediction.getAsString(), 1, 1);
-      }
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
       DoubleMatrix m = DoubleMatrix.newVector(classes.size());
-      for (int i = 0; i < classes.size(); i++) {
-        m.set(i, votes.getOrDefault(classes.getAsString(i), 0) / estimators);
+      for (DoubleMatrix prediction : predictions) {
+        m.assign(prediction, (t, o) -> t + o / estimators);
       }
       return m;
     }

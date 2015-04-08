@@ -1,5 +1,6 @@
 package org.briljantframework.complex;
 
+import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 
@@ -21,6 +22,28 @@ public class ComplexFormat {
 
   public ComplexFormat() {
     this(NumberFormat.getInstance(), NumberFormat.getInstance());
+  }
+
+  public String format(Complex complex) {
+    FieldPosition pos = new FieldPosition(0);
+    pos.setBeginIndex(0);
+    pos.setEndIndex(0);
+
+    StringBuffer builder = new StringBuffer();
+    double re = complex.real();
+    double im = complex.imag();
+    realFormat.format(re, builder, pos);
+    if (im > 0) {
+      builder.append(" - ");
+      imagFormat.format(im, builder, pos);
+      builder.append("i");
+    } else {
+      builder.append(" + ");
+      imagFormat.format(im, builder, pos);
+      builder.append("i");
+    }
+
+    return builder.toString();
   }
 
   public Complex parse(String source, ParsePosition position) {

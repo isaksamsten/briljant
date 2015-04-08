@@ -1,9 +1,12 @@
 package org.briljantframework.matrix;
 
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractMatrix<T extends Matrix> implements Matrix<T> {
+public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
 
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new matrix must be unchanged. (%d, %d)";
@@ -20,6 +23,35 @@ public abstract class AbstractMatrix<T extends Matrix> implements Matrix<T> {
     this.rows = rows;
     this.cols = cols;
     this.size = Math.multiplyExact(rows, cols);
+  }
+
+  @Override
+  public T map(Axis axis, UnaryOperator<T> mapper) {
+    T matrix = newEmptyMatrix(rows(), columns());
+    if (axis == Axis.ROW) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.setRow(i, mapper.apply(getRowView(i)));
+      }
+    } else {
+      for (int i = 0; i < columns(); i++) {
+        matrix.setColumn(i, mapper.apply(getColumnView(i)));
+      }
+    }
+
+    return matrix;
+  }
+
+  @Override
+  public void forEach(Axis axis, Consumer<T> consumer) {
+    if (axis == Axis.ROW) {
+      for (int i = 0; i < rows(); i++) {
+        consumer.accept(getRowView(i));
+      }
+    } else {
+      for (int i = 0; i < columns(); i++) {
+        consumer.accept(getColumnView(i));
+      }
+    }
   }
 
   @Override

@@ -16,14 +16,14 @@
 
 package org.briljantframework.evaluation.measure;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vectors;
+
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Isak Karlsson
@@ -72,9 +72,17 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
   }
 
   protected static abstract class Builder<T extends Measure> extends AbstractMeasure.Builder<T> {
+
     protected final EnumMap<Sample, Map<String, DoubleVector.Builder>> sampleMetricValues =
         new EnumMap<>(Sample.class);
 
+    /**
+     * Adds values for each value. Callers must ensure that an average value is added using {@link
+     * #add(org.briljantframework.evaluation.result.Sample, double)}
+     *
+     * @param sample the sample
+     * @param values the values
+     */
     public void add(Sample sample, Map<Value, Double> values) {
       Map<String, DoubleVector.Builder> all =
           sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());
@@ -84,7 +92,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
             entry.getValue());
         average += entry.getValue();
       }
-      add(sample, average / values.size());
+//      add(sample, average / values.size());
       sampleMetricValues.put(sample, all);
     }
   }

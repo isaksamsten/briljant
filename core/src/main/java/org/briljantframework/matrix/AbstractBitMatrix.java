@@ -1,15 +1,14 @@
 package org.briljantframework.matrix;
 
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.UnmodifiableIterator;
 
 import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.storage.Storage;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -54,6 +53,22 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public int compare(int a, int b) {
     return Boolean.compare(get(a), get(b));
+  }
+
+  @Override
+  public void setRow(int index, BitMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
+    }
+  }
+
+  @Override
+  public void setColumn(int index, BitMatrix column) {
+    Check.size(rows(), column.size());
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
+    }
   }
 
   @Override
@@ -146,6 +161,34 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
+  public String toString() {
+    StringBuilder a = new StringBuilder();
+    try {
+      MatrixPrinter.print(a, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
+    }
+    return a.toString();
+  }
+
+  @Override
+  public Iterator<Boolean> iterator() {
+    return new UnmodifiableIterator<Boolean>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Boolean next() {
+        return get(current++);
+      }
+    };
+  }
+
+  @Override
   public IntMatrix asIntMatrix() {
     return new AsIntMatrix(rows(), columns()) {
       @Override
@@ -177,37 +220,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public String toString() {
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        builder.put(i, j, String.format("%b", get(i, j)));
-      }
-    }
-    StringBuilder out = new StringBuilder();
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("shape: ").append(getShape()).append(" type: boolean");
-    return out.toString();
-  }
-
-  @Override
-  public Iterator<Boolean> iterator() {
-    return new UnmodifiableIterator<Boolean>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Boolean next() {
-        return get(current++);
-      }
-    };
-  }
-
-  @Override
   public void swap(int a, int b) {
     boolean tmp = get(a);
     set(a, get(b));
@@ -217,37 +229,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix newEmptyVector(int size) {
     return newEmptyMatrix(size, 1);
-  }
-
-  @Override
-  public LongMatrix asLongMatrix() {
-    return new AsLongMatrix(rows(), columns()) {
-      @Override
-      public long get(int i, int j) {
-        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
-      }
-
-      @Override
-      public long get(int index) {
-        return AbstractBitMatrix.this.get(index) ? 1 : 0;
-
-      }
-
-      @Override
-      public void set(int index, long value) {
-        AbstractBitMatrix.this.set(index, value == 1);
-      }
-
-      @Override
-      public void set(int i, int j, long value) {
-        AbstractBitMatrix.this.set(i, j, value == 1);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
-      }
-    };
   }
 
   public static class IncrementalBuilder {
@@ -467,8 +448,34 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public BitMatrix asBitMatrix() {
-    return this;
+  public LongMatrix asLongMatrix() {
+    return new AsLongMatrix(rows(), columns()) {
+      @Override
+      public long get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+      }
+
+      @Override
+      public long get(int index) {
+        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+
+      }
+
+      @Override
+      public void set(int index, long value) {
+        AbstractBitMatrix.this.set(index, value == 1);
+      }
+
+      @Override
+      public void set(int i, int j, long value) {
+        AbstractBitMatrix.this.set(i, j, value == 1);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
   }
 
   private class BitListView extends AbstractList<Boolean> {
@@ -489,6 +496,12 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     public int size() {
       return AbstractBitMatrix.this.size();
     }
+  }
+
+
+  @Override
+  public BitMatrix asBitMatrix() {
+    return this;
   }
 
 
@@ -678,22 +691,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     return listView;
   }
 
-
-  @Override
-  public void setRow(int index, BitMatrix row) {
-    Check.size(columns(), row);
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
-
-  @Override
-  public void setColumn(int index, BitMatrix column) {
-    Check.size(rows(), column.size());
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
-  }
 
   @Override
   public BitMatrix transpose() {

@@ -21,6 +21,10 @@ fun <T : Matrix<T>> T.sort(axis: Axis): T
 fun <T : Matrix<T>> T.sort(axis: Axis = Axis.ROW, cmp: (t: T, i: Int, j: Int) -> Int): T
         = Matrices.sort(this, cmp, axis)
 
+fun DoubleMatrix.mean(axis: Axis) = Matrices.mean(this, axis)
+
+fun DoubleMatrix.mean() = Matrices.mean(this)
+
 private fun Progression<Int>.toSlice() = Range.range(start, end, increment.toInt())
 
 // Shape accessor

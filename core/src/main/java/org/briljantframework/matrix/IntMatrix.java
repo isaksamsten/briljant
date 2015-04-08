@@ -150,7 +150,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
 
   /**
    * Reduces {@code this} into a real value. For example, summing can be implemented as
-   * {@code matrix.reduce(0, (a, b) -> a + b, x -> x)}
+   * {@code matrix.reduce(0, (a, sumSoFar) -> a + sumSoFar, x -> x)}
+   *
+   * <p> The operation {@code reduce} takes two parameters the current value and the accumulated
+   * value (set to {@code identity} at the first iteration)
    *
    * @param identity the initial value
    * @param reduce   takes two values and reduces them to one
@@ -184,12 +187,35 @@ public interface IntMatrix extends Matrix<IntMatrix> {
   IntMatrix reduceRows(ToIntFunction<? super IntMatrix> reduce);
 
   /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value int
+   */
+  int get(int i, int j);
+
+  // GET / SET
+
+  /**
+   * @param index get int
+   * @return int at {@code index}
+   */
+  int get(int index);
+
+  void set(int index, int value);
+
+  void set(int row, int column, int value);
+
+  void setRow(int index, IntMatrix matrix);
+
+  void setColumn(int index, IntMatrix matrix);
+
+  /**
    * {@inheritDoc}
    */
   @Override
   IntMatrix reshape(int rows, int columns);
-
-  // GET / SET
 
   /**
    * {@inheritDoc}
@@ -256,29 +282,6 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    */
   @Override
   IntMatrix copy();
-
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value int
-   */
-  int get(int i, int j);
-
-  /**
-   * @param index get int
-   * @return int at {@code index}
-   */
-  int get(int index);
-
-  void set(int index, int value);
-
-  void set(int row, int column, int value);
-
-  void setRow(int index, IntMatrix matrix);
-
-  void setColumn(int index, IntMatrix matrix);
 
   void addTo(int index, int value);
 

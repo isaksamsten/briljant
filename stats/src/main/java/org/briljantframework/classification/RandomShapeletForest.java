@@ -27,13 +27,16 @@ import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 /**
  * <h1>Publications</h1>
@@ -78,7 +81,14 @@ public class RandomShapeletForest extends Ensemble {
 
       lenSum.update(v -> v / size());
       posSum.update(v -> v / size());
-      return new Predictor(classes, models, lenSum, posSum, oobIndicator);
+
+      Map<Value, Integer> counts = Vectors.count(y);
+      DoubleMatrix apriori = DoubleMatrix.newVector(classes.size());
+      for (int i = 0; i < classes.size(); i++) {
+        apriori.set(i, counts.get(classes.getAsValue(i)) / (double) y.size());
+      }
+
+      return new Predictor(classes, apriori, models, lenSum, posSum, oobIndicator);
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -161,13 +171,16 @@ public class RandomShapeletForest extends Ensemble {
 
     private final DoubleMatrix lengthImportance;
     private final DoubleMatrix positionImportance;
+    private final DoubleMatrix apriori;
 
     public Predictor(
-        Vector classes, List<? extends org.briljantframework.classification.Predictor> members,
+        Vector classes, DoubleMatrix apriori,
+        List<? extends org.briljantframework.classification.Predictor> members,
         DoubleMatrix lengthImportance, DoubleMatrix positionImportance, BitMatrix oobIndicator) {
       super(classes, members, oobIndicator);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
+      this.apriori = apriori;
     }
 
     public DoubleMatrix getLengthImportance() {
@@ -190,6 +203,22 @@ public class RandomShapeletForest extends Ensemble {
       }
       double avg = depth / getPredictors().size();
       ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT, avg);
+    }
+
+    @Override
+    public DoubleMatrix estimate(Vector row) {
+      List<DoubleMatrix> predictions = getPredictors().parallelStream()
+          .map(model -> model.estimate(row))
+          .collect(Collectors.toList());
+
+      int estimators = getPredictors().size();
+      Vector classes = getClasses();
+      DoubleMatrix m = DoubleMatrix.newVector(classes.size());
+      for (DoubleMatrix prediction : predictions) {
+        m.assign(prediction, (t, o) -> t + o / estimators);
+      }
+//      return m.mul(apriori.rsub(1));
+      return m;
     }
   }
 
@@ -217,6 +246,11 @@ public class RandomShapeletForest extends Ensemble {
 
     private final ShapeletTree.Builder shapeletTree = new ShapeletTree.Builder();
     private int size = 100;
+
+    public Builder withMinSplitSize(double minSplitSize) {
+      shapeletTree.withMinSplit(minSplitSize);
+      return this;
+    }
 
     public Builder withLowerLength(double lower) {
       shapeletTree.withLowerLength(lower);

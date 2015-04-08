@@ -1,17 +1,15 @@
 package org.briljantframework.matrix;
 
-import com.google.common.collect.ImmutableTable;
-
 import com.carrotsearch.hppc.LongArrayList;
 
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.matrix.storage.LongStorage;
 import org.briljantframework.matrix.storage.Storage;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -78,6 +76,22 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
+  public void setRow(int index, LongMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
+    }
+  }
+
+  @Override
+  public void setColumn(int index, LongMatrix column) {
+    Check.size(rows(), column);
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
+    }
+  }
+
+  @Override
   public DoubleMatrix asDoubleMatrix() {
     return new AsDoubleMatrix(rows(), columns()) {
       @Override
@@ -138,6 +152,24 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
+  public LongMatrix assign(LongMatrix matrix, LongBinaryOperator combine) {
+    Check.equalShape(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, combine.applyAsLong(get(i), matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
+  public LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function) {
+    Check.size(this, matrix);
+    for (int i = 0; i < size(); i++) {
+      set(i, function.applyAsLong(matrix.get(i)));
+    }
+    return this;
+  }
+
+  @Override
   public IntMatrix asIntMatrix() {
     return new AsIntMatrix(rows(), columns()) {
       @Override
@@ -168,24 +200,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public LongMatrix assign(LongMatrix matrix, LongBinaryOperator combine) {
-    Check.equalShape(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsLong(get(i), matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
-  public LongMatrix assign(ComplexMatrix matrix, ToLongFunction<? super Complex> function) {
-    Check.size(this, matrix);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsLong(matrix.get(i)));
-    }
-    return this;
-  }
-
-  @Override
   public LongMatrix assign(IntMatrix matrix, IntToLongFunction operator) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -199,11 +213,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     for (int i = 0; i < matrix.size(); i++) {
       set(i, function.applyAsLong(matrix.get(i)));
     }
-    return this;
-  }
-
-  @Override
-  public LongMatrix asLongMatrix() {
     return this;
   }
 
@@ -243,33 +252,8 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public BitMatrix asBitMatrix() {
-    return new AsBitMatrix(rows(), columns()) {
-      @Override
-      public void set(int i, int j, boolean value) {
-        AbstractLongMatrix.this.set(i, j, value ? 1 : 0);
-      }
-
-      @Override
-      public void set(int index, boolean value) {
-        AbstractLongMatrix.this.set(index, value ? 1 : 0);
-      }
-
-      @Override
-      public boolean get(int i, int j) {
-        return AbstractLongMatrix.this.get(i, j) == 1;
-      }
-
-      @Override
-      public boolean get(int index) {
-        return AbstractLongMatrix.this.get(index) == 1;
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractLongMatrix.this.getStorage();
-      }
-    };
+  public LongMatrix asLongMatrix() {
+    return this;
   }
 
   @Override
@@ -306,36 +290,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public ComplexMatrix asComplexMatrix() {
-    return new AsComplexMatrix(rows(), columns()) {
-      @Override
-      public void set(int index, Complex value) {
-        AbstractLongMatrix.this.set(index, value.longValue());
-      }
-
-      @Override
-      public void set(int i, int j, Complex value) {
-        AbstractLongMatrix.this.set(i, j, value.longValue());
-      }
-
-      @Override
-      public Complex get(int i, int j) {
-        return Complex.valueOf(AbstractLongMatrix.this.get(i, j));
-      }
-
-      @Override
-      public Complex get(int index) {
-        return Complex.valueOf(AbstractLongMatrix.this.get(index));
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractLongMatrix.this.getStorage();
-      }
-    };
-  }
-
-  @Override
   public long reduce(long identity, LongBinaryOperator reduce, LongUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.applyAsLong(map.applyAsLong(get(i)), identity);
@@ -350,6 +304,36 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       mat.set(i, reduce.applyAsLong(getColumnView(i)));
     }
     return mat;
+  }
+
+  @Override
+  public BitMatrix asBitMatrix() {
+    return new AsBitMatrix(rows(), columns()) {
+      @Override
+      public void set(int i, int j, boolean value) {
+        AbstractLongMatrix.this.set(i, j, value ? 1 : 0);
+      }
+
+      @Override
+      public void set(int index, boolean value) {
+        AbstractLongMatrix.this.set(index, value ? 1 : 0);
+      }
+
+      @Override
+      public boolean get(int i, int j) {
+        return AbstractLongMatrix.this.get(i, j) == 1;
+      }
+
+      @Override
+      public boolean get(int index) {
+        return AbstractLongMatrix.this.get(index) == 1;
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractLongMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
@@ -394,19 +378,33 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public void setRow(int index, LongMatrix row) {
-    Check.size(columns(), row);
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
+  public ComplexMatrix asComplexMatrix() {
+    return new AsComplexMatrix(rows(), columns()) {
+      @Override
+      public void set(int index, Complex value) {
+        AbstractLongMatrix.this.set(index, value.longValue());
+      }
 
-  @Override
-  public void setColumn(int index, LongMatrix column) {
-    Check.size(rows(), column);
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
+      @Override
+      public void set(int i, int j, Complex value) {
+        AbstractLongMatrix.this.set(i, j, value.longValue());
+      }
+
+      @Override
+      public Complex get(int i, int j) {
+        return Complex.valueOf(AbstractLongMatrix.this.get(i, j));
+      }
+
+      @Override
+      public Complex get(int index) {
+        return Complex.valueOf(AbstractLongMatrix.this.get(index));
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractLongMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
@@ -426,11 +424,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     };
     Spliterator.OfLong spliterator = Spliterators.spliterator(ofLong, size(), Spliterator.SIZED);
     return StreamSupport.longStream(spliterator, false);
-  }
-
-  @Override
-  public LongMatrix getRowView(int i) {
-    return new LongMatrixView(this, i, 0, 1, columns());
   }
 
   @Override
@@ -518,10 +511,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     return mul(1, other, 1, axis);
   }
 
-  public LongMatrix getColumnView(int index) {
-    return new LongMatrixView(this, 0, index, rows(), 1);
-  }
-
   @Override
   public LongMatrix mul(long alpha, LongMatrix other, long beta, Axis axis) {
     LongMatrix m = newEmptyMatrix(rows(), columns());
@@ -565,6 +554,11 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
+  public LongMatrix getRowView(int i) {
+    return new LongMatrixView(this, i, 0, 1, columns());
+  }
+
+  @Override
   public LongMatrix add(LongMatrix other, Axis axis) {
     return add(1, other, 1, axis);
   }
@@ -601,11 +595,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   @Override
   public LongMatrix sub(LongMatrix other) {
     return sub(1, other, 1);
-  }
-
-  @Override
-  public LongMatrix getDiagonalView() {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -663,6 +652,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     return rsub(1, other, 1, axis);
   }
 
+  public LongMatrix getColumnView(int index) {
+    return new LongMatrixView(this, 0, index, rows(), 1);
+  }
+
   @Override
   public LongMatrix rsub(long alpha, LongMatrix other, long beta, Axis axis) {
     LongMatrix m = newEmptyMatrix(rows(), columns());
@@ -690,11 +683,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       }
     }
     return matrix;
-  }
-
-  @Override
-  public LongMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new LongMatrixView(this, rowOffset, colOffset, rows, columns);
   }
 
   @Override
@@ -774,8 +762,8 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public LongMatrix slice(Range rows, Range columns) {
-    return new SliceLongMatrix(this, rows, columns);
+  public LongMatrix getDiagonalView() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -812,20 +800,13 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public String toString() {
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        if (get(i, j) < 0) {
-          builder.put(i, j, String.format("%d", get(i, j)));
-        } else {
-          builder.put(i, j, String.format(" %d", get(i, j)));
-        }
-      }
+    StringBuilder builder = new StringBuilder();
+    try {
+      MatrixPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
     }
-    StringBuilder out = new StringBuilder();
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("shape: ").append(getShape()).append(" type: long");
-    return out.toString();
+    return builder.toString();
   }
 
   @Override
@@ -1047,11 +1028,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     }
   }
 
-  @Override
-  public LongMatrix slice(Range range) {
-    return new FlatSliceLongMatrix(this, range);
-  }
-
   private class LongListView extends AbstractList<Long> {
 
     @Override
@@ -1070,6 +1046,23 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     public int size() {
       return AbstractLongMatrix.this.size();
     }
+  }
+
+  @Override
+  public LongMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
+    return new LongMatrixView(this, rowOffset, colOffset, rows, columns);
+  }
+
+
+  @Override
+  public LongMatrix slice(Range rows, Range columns) {
+    return new SliceLongMatrix(this, rows, columns);
+  }
+
+
+  @Override
+  public LongMatrix slice(Range range) {
+    return new FlatSliceLongMatrix(this, range);
   }
 
 
@@ -1104,15 +1097,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     indexes.forEach(index -> builder.add(get(index)));
     return builder.build();
   }
-
-
-
-
-
-
-
-
-
 
 
   @Override

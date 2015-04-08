@@ -322,7 +322,7 @@ public class ShapeletTree implements Classifier {
         sum += dist;
       }
       double stat = assessFstatShapeletQuality(distances, y);
-      if (stat > bestStat) {
+      if (stat > bestStat || bestDistances == null) {
         bestStat = stat;
         bestDistanceMap = distanceMap;
         bestDistances = distances;

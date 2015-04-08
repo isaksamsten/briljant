@@ -7,6 +7,7 @@ import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntIntObjBiFunction;
 import org.briljantframework.matrix.storage.Storage;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,6 +72,22 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public void setRow(int index, IntMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
+    }
+  }
+
+  @Override
+  public void setColumn(int index, IntMatrix column) {
+    Check.size(rows(), column.size());
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
+    }
+  }
+
+  @Override
   public DoubleMatrix asDoubleMatrix() {
     return new AsDoubleMatrix(rows(), columns()) {
       @Override
@@ -131,11 +148,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix asIntMatrix() {
-    return this;
-  }
-
-  @Override
   public IntMatrix assign(IntMatrix matrix, IntBinaryOperator combine) {
     Check.equalShape(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -150,6 +162,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i)));
     }
+    return this;
+  }
+
+  @Override
+  public IntMatrix asIntMatrix() {
     return this;
   }
 
@@ -169,36 +186,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       set(i, operator.applyAsInt(matrix.get(i)));
     }
     return this;
-  }
-
-  @Override
-  public LongMatrix asLongMatrix() {
-    return new AsLongMatrix(rows(), columns()) {
-      @Override
-      public long get(int i, int j) {
-        return AbstractIntMatrix.this.get(i, j);
-      }
-
-      @Override
-      public long get(int index) {
-        return AbstractIntMatrix.this.get(index);
-      }
-
-      @Override
-      public void set(int index, long value) {
-        AbstractIntMatrix.this.set(index, (int) value);
-      }
-
-      @Override
-      public void set(int i, int j, long value) {
-        AbstractIntMatrix.this.set(i, j, (int) value);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractIntMatrix.this.getStorage();
-      }
-    };
   }
 
   @Override
@@ -237,26 +224,26 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public BitMatrix asBitMatrix() {
-    return new AsBitMatrix(rows(), columns()) {
+  public LongMatrix asLongMatrix() {
+    return new AsLongMatrix(rows(), columns()) {
       @Override
-      public void set(int i, int j, boolean value) {
-        AbstractIntMatrix.this.set(i, j, value ? 1 : 0);
+      public long get(int i, int j) {
+        return AbstractIntMatrix.this.get(i, j);
       }
 
       @Override
-      public void set(int index, boolean value) {
-        AbstractIntMatrix.this.set(index, value ? 1 : 0);
+      public long get(int index) {
+        return AbstractIntMatrix.this.get(index);
       }
 
       @Override
-      public boolean get(int i, int j) {
-        return AbstractIntMatrix.this.get(i, j) == 1;
+      public void set(int index, long value) {
+        AbstractIntMatrix.this.set(index, (int) value);
       }
 
       @Override
-      public boolean get(int index) {
-        return AbstractIntMatrix.this.get(index) == 1;
+      public void set(int i, int j, long value) {
+        AbstractIntMatrix.this.set(i, j, (int) value);
       }
 
       @Override
@@ -306,36 +293,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public ComplexMatrix asComplexMatrix() {
-    return new AsComplexMatrix(rows(), columns()) {
-      @Override
-      public void set(int index, Complex value) {
-        AbstractIntMatrix.this.set(index, value.intValue());
-      }
-
-      @Override
-      public void set(int i, int j, Complex value) {
-        AbstractIntMatrix.this.set(i, j, value.intValue());
-      }
-
-      @Override
-      public Complex get(int i, int j) {
-        return Complex.valueOf(AbstractIntMatrix.this.get(i, j));
-      }
-
-      @Override
-      public Complex get(int index) {
-        return Complex.valueOf(AbstractIntMatrix.this.get(index));
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractIntMatrix.this.getStorage();
-      }
-    };
-  }
-
-  @Override
   public BitMatrix satisfies(IntMatrix matrix, IntBiPredicate predicate) {
     Check.equalShape(this, matrix);
     BitMatrix bits = BitMatrix.newMatrix(rows(), columns());
@@ -350,6 +307,36 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     for (int i = 0; i < size(); i++) {
       consumer.accept(get(i));
     }
+  }
+
+  @Override
+  public BitMatrix asBitMatrix() {
+    return new AsBitMatrix(rows(), columns()) {
+      @Override
+      public void set(int i, int j, boolean value) {
+        AbstractIntMatrix.this.set(i, j, value ? 1 : 0);
+      }
+
+      @Override
+      public void set(int index, boolean value) {
+        AbstractIntMatrix.this.set(index, value ? 1 : 0);
+      }
+
+      @Override
+      public boolean get(int i, int j) {
+        return AbstractIntMatrix.this.get(i, j) == 1;
+      }
+
+      @Override
+      public boolean get(int index) {
+        return AbstractIntMatrix.this.get(index) == 1;
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractIntMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
@@ -416,21 +403,44 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
+  public ComplexMatrix asComplexMatrix() {
+    return new AsComplexMatrix(rows(), columns()) {
+      @Override
+      public void set(int index, Complex value) {
+        AbstractIntMatrix.this.set(index, value.intValue());
+      }
+
+      @Override
+      public void set(int i, int j, Complex value) {
+        AbstractIntMatrix.this.set(i, j, value.intValue());
+      }
+
+      @Override
+      public Complex get(int i, int j) {
+        return Complex.valueOf(AbstractIntMatrix.this.get(i, j));
+      }
+
+      @Override
+      public Complex get(int index) {
+        return Complex.valueOf(AbstractIntMatrix.this.get(index));
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractIntMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
   public String toString() {
-//    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-//    for (int i = 0; i < rows(); i++) {
-//      for (int j = 0; j < columns(); j++) {
-//        if (get(i, j) < 0) {
-//          builder.put(i, j, String.format("%d", get(i, j)));
-//        } else {
-//          builder.put(i, j, String.format(" %d", get(i, j)));
-//        }
-//      }
-//    }
-//    StringBuilder out = new StringBuilder();
-//    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-//    out.append("shape: ").append(getShape()).append(" type: int");
-    return "IntMatrix";
+    StringBuilder builder = new StringBuilder();
+    try {
+      MatrixPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
+    }
+    return builder.toString();
   }
 
   @Override
@@ -642,11 +652,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
   }
 
-  @Override
-  public IntMatrix getRowView(int i) {
-    return new IntMatrixView(this, i, 0, 1, columns());
-  }
-
   private class IntListView extends AbstractList<Integer> {
 
     @Override
@@ -685,6 +690,27 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @Override
+  public IntMatrix getRowView(int i) {
+    return new IntMatrixView(this, i, 0, 1, columns());
+  }
+
+
+
+
   @Override
   public IntMatrix copy() {
     IntMatrix matrix = newEmptyMatrix(rows(), columns());
@@ -706,21 +732,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public void setRow(int index, IntMatrix row) {
-    Check.size(columns(), row);
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
-
-  @Override
-  public void setColumn(int index, IntMatrix column) {
-    Check.size(rows(), column.size());
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
-  }
 
   @Override
   public void addTo(int index, int value) {

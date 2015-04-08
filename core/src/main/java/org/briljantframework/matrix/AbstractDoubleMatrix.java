@@ -17,18 +17,17 @@
 package org.briljantframework.matrix;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableTable;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.matrix.storage.DoubleStorage;
 import org.briljantframework.matrix.storage.Storage;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -105,11 +104,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix asDoubleMatrix() {
-    return this;
-  }
-
-  @Override
   public DoubleMatrix assign(DoubleMatrix matrix, DoubleBinaryOperator combine) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
@@ -124,6 +118,11 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(matrix.get(i)));
     }
+    return this;
+  }
+
+  @Override
+  public DoubleMatrix asDoubleMatrix() {
     return this;
   }
 
@@ -143,38 +142,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       set(i, function.applyAsDouble(matrix.get(i)));
     }
     return this;
-  }
-
-  @Override
-  public IntMatrix asIntMatrix() {
-    return new AsIntMatrix(rows(), columns()) {
-      @Override
-      public int get(int i, int j) {
-        return (int) AbstractDoubleMatrix.this.get(i, j);
-      }
-
-      @Override
-      public int get(int index) {
-        return (int) AbstractDoubleMatrix.this.get(index);
-      }
-
-      @Override
-      public void set(int index, int value) {
-        AbstractDoubleMatrix.this.set(index, value);
-      }
-
-      @Override
-      public void set(int row, int column, int value) {
-        AbstractDoubleMatrix.this.set(row, column, value);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return null;
-      }
-
-
-    };
   }
 
   @Override
@@ -213,32 +180,34 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public LongMatrix asLongMatrix() {
-    return new AsLongMatrix(rows(), columns()) {
+  public IntMatrix asIntMatrix() {
+    return new AsIntMatrix(rows(), columns()) {
       @Override
-      public long get(int i, int j) {
-        return (long) AbstractDoubleMatrix.this.get(i, j);
+      public int get(int i, int j) {
+        return (int) AbstractDoubleMatrix.this.get(i, j);
       }
 
       @Override
-      public long get(int index) {
-        return (long) AbstractDoubleMatrix.this.get(index);
+      public int get(int index) {
+        return (int) AbstractDoubleMatrix.this.get(index);
       }
 
       @Override
-      public void set(int index, long value) {
-        AbstractDoubleMatrix.this.set(index, (int) value);
+      public void set(int index, int value) {
+        AbstractDoubleMatrix.this.set(index, value);
       }
 
       @Override
-      public void set(int i, int j, long value) {
-        AbstractDoubleMatrix.this.set(i, j, (int) value);
+      public void set(int row, int column, int value) {
+        AbstractDoubleMatrix.this.set(row, column, value);
       }
 
       @Override
       public Storage getStorage() {
-        return AbstractDoubleMatrix.this.getStorage();
+        return null;
       }
+
+
     };
   }
 
@@ -283,6 +252,89 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
+  public void forEach(DoubleConsumer consumer) {
+    for (int i = 0; i < size(); i++) {
+      consumer.accept(get(i));
+    }
+  }
+
+  @Override
+  public double reduce(double identity, DoubleBinaryOperator reduce) {
+    return reduce(identity, reduce, DoubleUnaryOperator.identity());
+  }
+
+  @Override
+  public LongMatrix asLongMatrix() {
+    return new AsLongMatrix(rows(), columns()) {
+      @Override
+      public long get(int i, int j) {
+        return (long) AbstractDoubleMatrix.this.get(i, j);
+      }
+
+      @Override
+      public long get(int index) {
+        return (long) AbstractDoubleMatrix.this.get(index);
+      }
+
+      @Override
+      public void set(int index, long value) {
+        AbstractDoubleMatrix.this.set(index, (int) value);
+      }
+
+      @Override
+      public void set(int i, int j, long value) {
+        AbstractDoubleMatrix.this.set(i, j, (int) value);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractDoubleMatrix.this.getStorage();
+      }
+    };
+  }
+
+  @Override
+  public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
+    for (int i = 0; i < size(); i++) {
+      identity = reduce.applyAsDouble(map.applyAsDouble(get(i)), identity);
+    }
+    return identity;
+  }
+
+  @Override
+  public DoubleMatrix reduceColumns(ToDoubleFunction<? super DoubleMatrix> reduce) {
+    DoubleMatrix mat = newEmptyMatrix(1, columns());
+    for (int i = 0; i < columns(); i++) {
+      mat.set(i, reduce.applyAsDouble(getColumnView(i)));
+    }
+    return mat;
+  }
+
+  @Override
+  public DoubleMatrix reduceRows(ToDoubleFunction<? super DoubleMatrix> reduce) {
+    DoubleMatrix mat = newEmptyMatrix(rows(), 1);
+    for (int i = 0; i < rows(); i++) {
+      mat.set(i, reduce.applyAsDouble(getRowView(i)));
+    }
+    return mat;
+  }
+
+  @Override
+  public void update(int i, DoubleUnaryOperator update) {
+    set(i, update.applyAsDouble(get(i)));
+  }
+
+  @Override
+  public void update(int i, int j, DoubleUnaryOperator update) {
+    set(i, j, update.applyAsDouble(get(i, j)));
+  }
+
+  @Override
+  public void addTo(int i, double value) {
+    set(i, get(i) + value);
+  }
+
+  @Override
   public BitMatrix asBitMatrix() {
     return new AsBitMatrix(rows(), columns()) {
       @Override
@@ -313,32 +365,39 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public void forEach(DoubleConsumer consumer) {
-    for (int i = 0; i < size(); i++) {
-      consumer.accept(get(i));
+  public void addTo(int i, int j, double value) {
+    set(i, j, get(i, j) + value);
+  }
+
+  @Override
+  public void set(int toIndex, DoubleMatrix from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
+  public void set(int toRow, int toColumn, DoubleMatrix from, int fromRow, int fromColumn) {
+    set(toRow, toColumn, from.get(fromRow, fromColumn));
+  }
+
+  @Override
+  public int compare(int a, int b) {
+    return Double.compare(get(a), get(b));
+  }
+
+  @Override
+  public void setRow(int index, DoubleMatrix row) {
+    Check.size(columns(), row);
+    for (int j = 0; j < columns(); j++) {
+      set(index, j, row.get(j));
     }
   }
 
   @Override
-  public double reduce(double identity, DoubleBinaryOperator reduce) {
-    return reduce(identity, reduce, DoubleUnaryOperator.identity());
-  }
-
-  @Override
-  public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
-    for (int i = 0; i < size(); i++) {
-      identity = reduce.applyAsDouble(map.applyAsDouble(get(i)), identity);
+  public void setColumn(int index, DoubleMatrix column) {
+    Check.size(rows(), column);
+    for (int i = 0; i < rows(); i++) {
+      set(i, index, column.get(i));
     }
-    return identity;
-  }
-
-  @Override
-  public DoubleMatrix reduceColumns(ToDoubleFunction<? super DoubleMatrix> reduce) {
-    DoubleMatrix mat = newEmptyMatrix(1, columns());
-    for (int i = 0; i < columns(); i++) {
-      mat.set(i, reduce.applyAsDouble(getColumnView(i)));
-    }
-    return mat;
   }
 
   @Override
@@ -369,50 +428,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
         return AbstractDoubleMatrix.this.getStorage();
       }
     };
-  }
-
-  @Override
-  public DoubleMatrix reduceRows(ToDoubleFunction<? super DoubleMatrix> reduce) {
-    DoubleMatrix mat = newEmptyMatrix(rows(), 1);
-    for (int i = 0; i < rows(); i++) {
-      mat.set(i, reduce.applyAsDouble(getRowView(i)));
-    }
-    return mat;
-  }
-
-  @Override
-  public void update(int i, DoubleUnaryOperator update) {
-    set(i, update.applyAsDouble(get(i)));
-  }
-
-  @Override
-  public void update(int i, int j, DoubleUnaryOperator update) {
-    set(i, j, update.applyAsDouble(get(i, j)));
-  }
-
-  @Override
-  public void addTo(int i, double value) {
-    set(i, get(i) + value);
-  }
-
-  @Override
-  public void addTo(int i, int j, double value) {
-    set(i, j, get(i, j) + value);
-  }
-
-  @Override
-  public void set(int toIndex, DoubleMatrix from, int fromIndex) {
-    set(toIndex, from.get(fromIndex));
-  }
-
-  @Override
-  public void set(int toRow, int toColumn, DoubleMatrix from, int fromRow, int fromColumn) {
-    set(toRow, toColumn, from.get(fromRow, fromColumn));
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return Double.compare(get(a), get(b));
   }
 
   @Override
@@ -448,26 +463,14 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public DoubleMatrix getRowView(int i) {
-    return new DoubleMatrixView(this, i, 0, 1, columns());
-  }
-
-  @Override
   public String toString() {
-    ImmutableTable.Builder<Integer, Integer, String> builder = ImmutableTable.builder();
-    for (int i = 0; i < rows(); i++) {
-      for (int j = 0; j < columns(); j++) {
-        if (get(i, j) < 0) {
-          builder.put(i, j, String.format("%1.4f", get(i, j)));
-        } else {
-          builder.put(i, j, String.format(" %1.4f", get(i, j)));
-        }
-      }
+    StringBuilder builder = new StringBuilder();
+    try {
+      MatrixPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
     }
-    StringBuilder out = new StringBuilder();
-    Utils.prettyPrintTable(out, builder.build(), 0, 2, false, false);
-    out.append("shape: ").append(getShape()).append(" type: double");
-    return out.toString();
+    return builder.toString();
   }
 
   @Override
@@ -665,6 +668,69 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     }
   }
 
+  private static class DoubleDiagonalView extends AbstractDoubleMatrix {
+
+    private final DoubleMatrix matrix;
+
+    public DoubleDiagonalView(DoubleMatrix matrix) {
+      super(Math.min(matrix.rows(), matrix.columns()), 1);
+      this.matrix = matrix;
+    }
+
+    @Override
+    public DoubleMatrix reshape(int rows, int columns) {
+      Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
+      return copy().reshape(rows, columns);
+    }
+
+    @Override
+    public DoubleMatrix newEmptyMatrix(int rows, int columns) {
+      return matrix.newEmptyMatrix(rows, columns);
+    }
+
+    @Override
+    public boolean isView() {
+      return true;
+    }
+
+    @Override
+    public Storage getStorage() {
+      return matrix.getStorage();
+    }
+
+    @Override
+    public void set(int i, int j, double value) {
+      if (j != 0) {
+        throw new UnsupportedOperationException();
+      } else {
+        set(i, value);
+      }
+    }
+
+    @Override
+    public void set(int index, double value) {
+      matrix.set(index, index, value);
+    }
+
+    @Override
+    public double get(int i, int j) {
+      if (j != 0) {
+        throw new IndexOutOfBoundsException();
+      }
+      return get(i);
+    }
+
+    @Override
+    public double get(int index) {
+      return matrix.get(index, index);
+    }
+
+    @Override
+    public boolean isArrayBased() {
+      return false;
+    }
+  }
+
   protected class FlatSliceDoubleMatrix extends AbstractDoubleMatrix {
 
     private final DoubleMatrix parent;
@@ -763,14 +829,30 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
     }
   }
 
+  @Override
+  public DoubleMatrix getRowView(int i) {
+    return new DoubleMatrixView(this, i, 0, 1, columns());
+  }
+
+
+
+
+
+
+
+
+
+
+
+
   public DoubleMatrix getColumnView(int index) {
     return new DoubleMatrixView(this, 0, index, rows(), 1);
   }
 
 
   @Override
-  public Diagonal getDiagonalView() {
-    throw new UnsupportedOperationException();
+  public DoubleMatrix getDiagonalView() {
+    return new DoubleDiagonalView(this);
   }
 
 
@@ -885,24 +967,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       }
     }
     return matrix;
-  }
-
-
-  @Override
-  public void setRow(int index, DoubleMatrix row) {
-    Check.size(columns(), row);
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
-
-
-  @Override
-  public void setColumn(int index, DoubleMatrix column) {
-    Check.size(rows(), column);
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
   }
 
 
