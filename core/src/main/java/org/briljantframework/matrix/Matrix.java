@@ -346,7 +346,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
   BitMatrix gte(T other);
 
   /**
-   * Get the storage
+   * Get the storage.
    *
    * @return the storage
    */

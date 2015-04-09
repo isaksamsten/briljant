@@ -1,7 +1,9 @@
 package org.briljantframework.linalg;
 
-import static org.junit.Assert.assertEquals;
-
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.MatrixDataFrame;
+import org.briljantframework.dataframe.transform.InvertibleTransformation;
+import org.briljantframework.linalg.analysis.PrincipalComponentAnalyzer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
@@ -9,6 +11,8 @@ import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class LinearAlgebraTest {
 
@@ -82,10 +86,15 @@ public class LinearAlgebraTest {
 
   @Test
   public void testPCA() throws Exception {
-    DefaultDoubleMatrix matrix =
+    DoubleMatrix m =
         DefaultDoubleMatrix.of(4, 4, 0, 2, 0, 1, 2, 2, 3, 2, 4, -3, 0, 1., 6, 1, -6, -5);
-    DoubleMatrix u = LinearAlgebra.pca(matrix).getU();
-    System.out.println(u);
+    DataFrame f = new MatrixDataFrame(m);
+    f.setColumnNames("a", "b", "c", "d");
+
+    PrincipalComponentAnalyzer a = new PrincipalComponentAnalyzer(3);
+    InvertibleTransformation p = a.fit(f);
+
+    System.out.println(p.transform(f).toMatrix());
   }
 
   @Test

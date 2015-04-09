@@ -3,7 +3,7 @@ package org.briljantframework.dataframe;
 import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
@@ -40,7 +40,9 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  DataFrame setColumnNames(List<String> names);
+  default DataFrame setColumnNames(String... names) {
+    return setColumnNames(Arrays.asList(names));
+  }
 
   /**
    * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
@@ -48,9 +50,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param names the names
    * @return receiver modified
    */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
+  DataFrame setColumnNames(List<String> names);
 
   /**
    * Get value at {@code row} and {@code column} as a value
@@ -345,7 +345,7 @@ public interface DataFrame extends Iterable<Record> {
    *
    * @return this data frame as a matrix
    */
-  DoubleMatrix asMatrix();
+  Matrix toMatrix();
 
   default Stream<Record> stream() {
     return StreamSupport.stream(spliterator(), false);

@@ -248,6 +248,11 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
     return storage;
   }
 
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(storage.asDoubleArray());
+  }
+
   /**
    * @return a copy of this matrix
    */
@@ -263,16 +268,11 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[Math.multiplyExact(this.rows(), other.columns())];
-      Matrices.mmul(this, alpha, other, 1.0, tmp);
+      Matrices.mmul(this, alpha, other, 0, tmp);
       return new DefaultDoubleMatrix(new DoubleStorage(tmp), this.rows(), other.columns());
     } else {
       return super.mmul(alpha, other);
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return Arrays.hashCode(storage.asDoubleArray());
   }
 
   @Override
@@ -296,7 +296,7 @@ public class DefaultDoubleMatrix extends AbstractDoubleMatrix {
 
     if (other.isArrayBased()) {
       double[] tmp = new double[thisRows * otherColumns];
-      Matrices.mmul(this, alpha, a, other, 1.0, b, tmp);
+      Matrices.mmul(this, alpha, a, other, 0, b, tmp);
       return new DefaultDoubleMatrix(new DoubleStorage(tmp), thisRows, otherColumns);
     } else {
       return super.mmul(alpha, a, other, b);

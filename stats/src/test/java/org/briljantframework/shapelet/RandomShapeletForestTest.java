@@ -739,7 +739,7 @@ public class RandomShapeletForestTest {
   // // CategoricColumn categoricColumn = targetBuilder.create();
   // //
   // // Matrix x = Matrices.linspace(dataset.columns() - 1, dataset.columns(), 0);
-  // // Chartable.saveSVG("/Users/isak/Desktop/timeSeries.svg", plotRows(x, dataset.asMatrix(),
+  // // Chartable.saveSVG("/Users/isak/Desktop/timeSeries.svg", plotRows(x, dataset.toMatrix(),
   // // categoricColumn));
   // //
   // // RandomShapeletForest.Builder forestBuilder =

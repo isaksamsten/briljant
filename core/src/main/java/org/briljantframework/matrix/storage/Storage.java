@@ -3,13 +3,12 @@ package org.briljantframework.matrix.storage;
 import org.briljantframework.complex.Complex;
 
 /**
- * Represent a mutable storage unit. For example, an {@code Array}, {@link java.util.List} or memory
- * mapped file.
+ * Represent a mutable storage unit. For example, an {@code Array}, {@link java.util.List}, memory
+ * mapped file or any other internal or external resource.
  *
- * Values of different types coerces without exceptions, but precision might be lost.
+ * <p>For external resources, {@link #finalize()} shall be overridden
  *
- * To support large storage containers, indexes are {@code long}. In theory this might impact
- * performance slightly, however, in practice this is rarely a problem.
+ * <p>Values of different types coerces without exceptions, but precision might be lost.
  *
  * @author Isak Karlsson
  */
@@ -79,11 +78,12 @@ public interface Storage {
    * storage returned, any references kept of the unfrozen storage can be modified and those
    * modifications are propagated to the frozen instance. To create an independent and immutable
    * storage, use {@code storage.copy().frozen()}. Since {@code as[Type]Array()} is allowed to
-   * return an underlying (mutable) representation, a frozen {@code Storage} can never be guaranteed
+   * return an underlying (mutable) representation, a frozen {@code Storage} can never be
+   * guaranteed
    * to be immutable. Also, remember that copy is not synchronized, hence, modifications before the
    * call to {@code frozen} can happen in another thread. Hence, {@code synchronize(storage)
    * storage.copy().frozen()} could be preferred.
-   * 
+   *
    * @return a frozen storage instance
    */
   default Storage frozen() {
@@ -165,7 +165,7 @@ public interface Storage {
   /**
    * Set value as complex
    *
-   * @param index the index
+   * @param index   the index
    * @param complex the value
    */
   void setComplex(int index, Complex complex);
@@ -174,7 +174,7 @@ public interface Storage {
    * Returns this storage as a {@code boolean} array, with the i:th element set to
    * {@code getBoolean(i)}.
    *
-   * It this storage uses a boolean array, modifications of the returned array propagates.
+   * If this storage uses a boolean array, modifications of the returned array propagates.
    *
    * @return a boolean array
    */
@@ -183,7 +183,7 @@ public interface Storage {
   /**
    * Returns this storage as a {@code int} array, with the i:th element set to {@code getInt(i)} .
    *
-   * It this storage uses a int array, modifications of the returned array propagates.
+   * If this storage uses a int array, modifications of the returned array propagates.
    *
    * @return a int array
    */
@@ -192,7 +192,7 @@ public interface Storage {
   /**
    * Returns this storage as a {@code long} array, with the i:th element set to {@code getLong(i)}.
    *
-   * It this storage uses a long array, modifications of the returned array propagates.
+   * If this storage uses a long array, modifications of the returned array propagates.
    *
    * @return a long array
    */
@@ -202,7 +202,7 @@ public interface Storage {
    * Returns this storage as a {@code double} array, with the i:th element set to
    * {@code getDouble(i)}.
    *
-   * It this storage uses a double array, modifications of the returned array propagates.
+   * If this storage uses a double array, modifications of the returned array propagates.
    *
    * @return a boolean array
    */
@@ -212,7 +212,7 @@ public interface Storage {
    * Returns this storage as a {@code Complex} array, with the i:th element set to
    * {@code getComplex(i)}.
    *
-   * It this storage uses a complex array, modifications of the returned array propagates.
+   * If this storage uses a complex array, modifications of the returned array propagates.
    *
    * @return a complex array
    */

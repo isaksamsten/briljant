@@ -16,13 +16,13 @@
 
 package org.briljantframework.linalg.decomposition;
 
+import com.github.fommil.netlib.LAPACK;
+
 import org.briljantframework.exceptions.BlasException;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
-
-import com.github.fommil.netlib.LAPACK;
 
 /**
  * Formally, the singular value decomposition of an m×n real or complex matrix M is a factorization
@@ -41,11 +41,11 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
 
   @Override
   public SingularValueDecomposition decompose(DoubleMatrix matrix) {
-    int m = (int) matrix.rows(), n = (int) matrix.columns();
+    int m = matrix.rows(), n = matrix.columns();
     double[] sigma = new double[n];
     double[] u = new double[m * m];
     double[] vt = new double[n * n];
-    DoubleMatrix copy = new DefaultDoubleMatrix(matrix);
+    DoubleMatrix copy = matrix.copy();
 
     int lwork = -1;
     double[] work = new double[1];
@@ -66,8 +66,8 @@ public class SingularValueDecomposer implements Decomposer<SingularValueDecompos
     }
 
     Diagonal sv = Diagonal.of(m, n, sigma);
-    DefaultDoubleMatrix um = DefaultDoubleMatrix.fromColumnOrder(m, m, u);
-    DefaultDoubleMatrix vtm = DefaultDoubleMatrix.fromRowOrder(n, n, vt);
+    DoubleMatrix um = DefaultDoubleMatrix.fromColumnOrder(m, m, u);
+    DoubleMatrix vtm = DefaultDoubleMatrix.fromRowOrder(n, n, vt);
 
     return new SingularValueDecomposition(sv, um, vtm);
   }

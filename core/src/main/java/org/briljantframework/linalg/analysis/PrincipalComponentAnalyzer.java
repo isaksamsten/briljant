@@ -16,12 +16,15 @@
 
 package org.briljantframework.linalg.analysis;
 
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.dataframe.transform.InvertibleTransformer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Transpose;
+import org.briljantframework.vector.Vectors;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal
@@ -30,35 +33,26 @@ import org.briljantframework.matrix.DoubleMatrix;
  * components is less than or equal to the number of original variables. This transformation is
  * defined in such a way that the first principal component has the largest possible variance (that
  * is, accounts for as much of the variability in the data as possible), and each succeeding
- * component in turn has the highest variance possible under the constraint that it is orthogonal to
+ * component in turn has the highest variance possible under the constraint that it is orthogonal
+ * to
  * (i.e., uncorrelated with) the preceding components. Principal components are guaranteed to be
  * independent if the data set is jointly normally distributed. PCA is sensitive to the relative
  * scaling of the original variables.
  * <p>
- * Created by Isak Karlsson on 11/08/14.
+ *
+ * @author Isak Karlsson
  */
-public class PrincipalComponentAnalyzer implements Analyzer<PrincipalComponentAnalysis>,
-    InvertibleTransformer {
+public class PrincipalComponentAnalyzer
+    implements Analyzer<PrincipalComponentAnalysis>, InvertibleTransformer {
 
   private final SingularValueDecomposer decomposer;
   private final int components;
 
-  /**
-   * Instantiates a new Principal component analyzer.
-   *
-   * @param decomposer the decomposer
-   * @param components the components
-   */
   public PrincipalComponentAnalyzer(SingularValueDecomposer decomposer, int components) {
     this.decomposer = decomposer;
     this.components = components;
   }
 
-  /**
-   * Instantiates a new Principal component analyzer.
-   *
-   * @param components the components
-   */
   public PrincipalComponentAnalyzer(int components) {
     this(new SingularValueDecomposer(), components);
   }
@@ -76,25 +70,15 @@ public class PrincipalComponentAnalyzer implements Analyzer<PrincipalComponentAn
     return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
   }
 
-  private SingularValueDecomposition getSingularValueDecomposition(DoubleMatrix array) {
-
-    // Matrix sigma =
-    // Matrices.mmul(array, Transpose.YES, 1.0, array, Transpose.NO, 1.0 / array.rows());
-    // return //decomposer.decompose(sigma);
-    throw new UnsupportedOperationException("must be implemented");
+  private SingularValueDecomposition getSingularValueDecomposition(DoubleMatrix m) {
+    DoubleMatrix sigma = m.mmul(1, Transpose.YES, m, Transpose.NO).update(v -> v / m.rows());
+    return decomposer.decompose(sigma);
   }
-
-  // @Override
-  // public <E extends Frame, F extends Target> InvertibleTransformation<E, F> fit(Container<E, F>
-  // container) {
-  // E matrix = container.getDataset();
-  // SingularValueDecomposition svd = getSingularValueDecomposition(matrix.getMatrix());
-  // return new PrincipalComponentAnalysis<>(svd.getLeftSingularValues(), components);
-  // }
 
   @Override
   public InvertibleTransformation fit(DataFrame x) {
-    SingularValueDecomposition svd = getSingularValueDecomposition(x.asMatrix());
+    Check.all(x.getColumns(), col -> col.getType().equals(Vectors.DOUBLE) && !col.hasNA());
+    SingularValueDecomposition svd = getSingularValueDecomposition(x.toMatrix().asDoubleMatrix());
     return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
   }
 }

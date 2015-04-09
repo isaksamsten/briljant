@@ -126,8 +126,8 @@ public class LinearAlgebra {
   public static void pinvi(DoubleMatrix matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
     Diagonal diagonal = svd.getDiagonal();
-    DefaultDoubleMatrix rightSingularValues = svd.getRightSingularValues();
-    DefaultDoubleMatrix leftSingularValues = svd.getLeftSingularValues();
+    DoubleMatrix rightSingularValues = svd.getRightSingularValues();
+    DoubleMatrix leftSingularValues = svd.getLeftSingularValues();
 
     diagonal.update(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transpose();
@@ -206,8 +206,8 @@ public class LinearAlgebra {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
     Diagonal singular = svd.getDiagonal();
     int rank = 0;
-    for (int i = 0; i < singular.size(); i++) {
-      if (singular.get(i) > 0) {
+    for (int i = 0; i < singular.diagonalSize(); i++) {
+      if (singular.getDiagonal(i) > 0) {
         rank += 1;
       }
     }

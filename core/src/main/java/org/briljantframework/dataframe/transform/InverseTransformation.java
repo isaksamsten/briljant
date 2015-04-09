@@ -16,7 +16,7 @@
 
 package org.briljantframework.dataframe.transform;
 
-import static com.google.common.primitives.Ints.checkedCast;
+import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.BlasException;
@@ -24,7 +24,7 @@ import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
 
-import com.github.fommil.netlib.LAPACK;
+import static com.google.common.primitives.Ints.checkedCast;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -81,7 +81,7 @@ public class InverseTransformation implements Transformation {
     // }
     //
     // E out = copyTo.copyDataset(frame);
-    // invert(out.asMatrix());
+    // invert(out.toMatrix());
     //
     // return out;
     return null;

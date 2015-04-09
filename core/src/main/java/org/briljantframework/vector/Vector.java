@@ -394,7 +394,7 @@ public interface Vector extends Serializable {
    *
    * <pre>
    * Vector a = new DoubleVector(1, 2, 3, 4, 5);
-   * DoubleMatrix mat = a.asMatrix().asDoubleMatrix();
+   * DoubleMatrix mat = a.toMatrix().asDoubleMatrix();
    * double sum = mat.reduce(0, Double::sum);
    *
    * mat.set(0, 100.0); // throws ImmutableModificationException

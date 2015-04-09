@@ -16,8 +16,8 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.Diagonal;
+import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by isak on 23/06/14.
@@ -25,7 +25,8 @@ import org.briljantframework.matrix.Diagonal;
 public class SingularValueDecomposition implements Decomposition {
 
   /**
-   * \Sigma is an m×n rectangular diagonal matrix with nonnegative real numbers on the diagonal. The
+   * \Sigma is an m×n rectangular diagonal matrix with nonnegative real numbers on the diagonal.
+   * The
    * diagonal entries \Sigma_{i,i} of \Sigma are known as the singular values of M
    */
   public final Diagonal s;
@@ -33,12 +34,12 @@ public class SingularValueDecomposition implements Decomposition {
   /**
    * U is a m×m real or complex unitary matrix
    */
-  public final DefaultDoubleMatrix u;
+  public final DoubleMatrix u;
 
   /**
    * V* (or simply the transpose of V if V is real) is an n×n real unitary matrix
    */
-  public final DefaultDoubleMatrix v;
+  public final DoubleMatrix v;
 
   /**
    * Instantiates a new Singular value decomposition.
@@ -47,7 +48,7 @@ public class SingularValueDecomposition implements Decomposition {
    * @param u the u
    * @param v the v
    */
-  public SingularValueDecomposition(Diagonal s, DefaultDoubleMatrix u, DefaultDoubleMatrix v) {
+  public SingularValueDecomposition(Diagonal s, DoubleMatrix u, DoubleMatrix v) {
     this.s = s;
     this.u = u;
     this.v = v;
@@ -67,7 +68,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the left singular values
    */
-  public DefaultDoubleMatrix getLeftSingularValues() {
+  public DoubleMatrix getLeftSingularValues() {
     return u;
   }
 
@@ -76,12 +77,17 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the right singular values
    */
-  public DefaultDoubleMatrix getRightSingularValues() {
+  public DoubleMatrix getRightSingularValues() {
     return v;
   }
 
   @Override
   public String toString() {
-    return "SingularValueDecomposition";
+    StringBuilder builder = new StringBuilder("SingularValueDecomposition\n")
+        .append(u).append("\n")
+        .append(s).append("\n")
+        .append(v).append("\n");
+
+    return builder.toString();
   }
 }

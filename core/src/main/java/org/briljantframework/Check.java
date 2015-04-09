@@ -9,17 +9,28 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author Isak Karlsson
  */
 public final class Check {
-  private Check() {}
+
+  private Check() {
+  }
+
+  public static <T> void all(Iterable<? extends T> it, Predicate<? super T> p) {
+    for (T t : it) {
+      if (!p.test(t)) {
+        throw new IllegalArgumentException(String.format("Test of %s failed.", t));
+      }
+    }
+  }
 
   public static void range(double v, double min, double max) {
     if (v < min || v > max) {
       throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", v, min, v,
-          max));
+                                                       max));
     }
   }
 
@@ -30,7 +41,8 @@ public final class Check {
    * @param a a matrix
    * @param b a matrix
    * @throws org.briljantframework.exceptions.NonConformantException if
-   *         {@code a.rows() != b.rows() && a.columns() != b.columns()}
+   *                                                                 {@code a.rows() != b.rows() &&
+   *                                                                 a.columns() != b.columns()}
    */
   public static void equalShape(Matrix a, Matrix b) throws NonConformantException {
     if (a.rows() != b.rows() && a.columns() != b.columns()) {
@@ -55,9 +67,9 @@ public final class Check {
    * Ensures that the size of {@code a.size() == b.size()}.
    *
    * @param message format string containing 2 {@code %d}, where the first denote the expected (
-   *        {@code a.size()}) and the second the actual ({@code b.size()}).
-   * @param a a matrix
-   * @param b a matrix
+   *                {@code a.size()}) and the second the actual ({@code b.size()}).
+   * @param a       a matrix
+   * @param b       a matrix
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
    */
   public static void equalSize(String message, Matrix a, Matrix b) throws SizeMismatchException {
@@ -70,9 +82,9 @@ public final class Check {
    * Ensures that the size of {@code a.size() == b.size()}.
    *
    * @param message format string containing 2 {@code %d}, where the first denote the expected (
-   *        {@code a.size()}) and the second the actual ({@code size}).
-   * @param a a matrix
-   * @param size a size
+   *                {@code a.size()}) and the second the actual ({@code size}).
+   * @param a       a matrix
+   * @param size    a size
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
    */
   public static void size(String message, int size, Matrix a) throws SizeMismatchException {
@@ -84,7 +96,7 @@ public final class Check {
   /**
    * Ensures that the size of {@code a.size() == b.size()}.
    *
-   * @param a a matrix
+   * @param a    a matrix
    * @param size a size
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
    */
@@ -108,7 +120,7 @@ public final class Check {
       throws TypeConversionException {
     if (!expected.equals(actual)) {
       throw new TypeConversionException(String.format("Require type %s but got %s", expected,
-          actual));
+                                                      actual));
     }
   }
 
@@ -116,7 +128,7 @@ public final class Check {
       throws TypeConversionException {
     if (!expected.contains(actual)) {
       throw new TypeConversionException(String.format("Require type %s but got %s", expected,
-          actual));
+                                                      actual));
     }
   }
 
@@ -133,8 +145,8 @@ public final class Check {
   }
 
   /**
-   * @param x one vector
-   * @param y the other vector
+   * @param x       one vector
+   * @param y       the other vector
    * @param message the message; 2 {@code %d}
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code x.size() != y.size()}
    */

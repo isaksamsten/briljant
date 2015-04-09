@@ -41,12 +41,12 @@ public class SmithWatermanSimilarity implements Similarity {
 //    int i = maxI, j = maxJ;
 //    while (i > 0 && j > 0) {
 //      double current = h.get(i, j);
-//      double diag = h.get(i - 1, j - 1);
+//      double getDiagonal = h.get(i - 1, j - 1);
 //      double up = h.get(i - 1, j);
 //      double left = h.get(i, j - 1);
 //      if (current == 0) {
 //        break;
-//      } else if (current == diag + (a.equals(i - 1, b, j - 1) ? match : miss)) {
+//      } else if (current == getDiagonal + (a.equals(i - 1, b, j - 1) ? match : miss)) {
 //        length++;
 //        if (length > maxAlign) {
 //          maxAlign = length;
@@ -76,13 +76,13 @@ public class SmithWatermanSimilarity implements Similarity {
     // Vector.Builder bl = new StringVector.Builder();
     // while (i > 0 && j > 0) {
     // double current = h.get(i, j);
-    // double diag = h.get(i - 1, j - 1);
+    // double getDiagonal = h.get(i - 1, j - 1);
     // double up = h.get(i, j - 1);
     // double left = h.get(i - 1, j);
     // if (current == 0) {
     // break;
     // }
-    // if (current == diag + (a.equals(i - 1, b, j - 1) ? match : miss)) {
+    // if (current == getDiagonal + (a.equals(i - 1, b, j - 1) ? match : miss)) {
     // al.add(a, i - 1);
     // bl.add(b, j - 1);
     // i--;

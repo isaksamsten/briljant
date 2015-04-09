@@ -6,6 +6,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import org.briljantframework.Check;
 import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -355,7 +356,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new matrix
    */
   @Override
-  public DoubleMatrix asMatrix() {
+  public Matrix toMatrix() {
     DoubleMatrix matrix = new DefaultDoubleMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {

@@ -56,7 +56,7 @@ public class DoubleVector extends AbstractDoubleVector {
    * @param size   the size of values to take
    */
   public DoubleVector(double[] values, int size) {
-    Preconditions.checkArgument(size > 0 && size <= values.length);
+    Preconditions.checkArgument(size <= values.length);
     this.values = Arrays.copyOf(values, size);
   }
 

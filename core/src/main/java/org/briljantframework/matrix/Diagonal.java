@@ -16,15 +16,13 @@
 
 package org.briljantframework.matrix;
 
-import static com.google.common.primitives.Ints.checkedCast;
-
-import java.util.function.DoubleUnaryOperator;
+import com.google.common.base.Preconditions;
 
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.storage.DoubleStorage;
 import org.briljantframework.matrix.storage.Storage;
 
-import com.google.common.base.Preconditions;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Implementation of a sparse diagonal matrix
@@ -33,13 +31,11 @@ import com.google.common.base.Preconditions;
  */
 public class Diagonal extends AbstractDoubleMatrix {
 
-  private final int size;
   private final double[] values;
 
   private Diagonal(double[] values, int rows, int cols) {
     super(rows, cols);
     this.values = values;
-    this.size = values.length;
   }
 
   /**
@@ -56,8 +52,8 @@ public class Diagonal extends AbstractDoubleMatrix {
   /**
    * Of diagonal.
    *
-   * @param rows the rows
-   * @param cols the cols
+   * @param rows   the rows
+   * @param cols   the cols
    * @param values the values
    * @return the diagonal
    */
@@ -72,16 +68,16 @@ public class Diagonal extends AbstractDoubleMatrix {
 
   /**
    * Set value at row i and column j to value
-   * 
-   * @param i row
-   * @param j column
+   *
+   * @param i     row
+   * @param j     column
    * @param value value
    */
   public void set(int i, int j, double value) {
     if (i == j) {
-      set(i, value);
+      values[i] = value;
     } else {
-      throw new IllegalStateException("Illegal to touch non-diagonal entries");
+      throw new IllegalStateException("Can't to touch non-diagonal entries");
     }
   }
 
@@ -93,25 +89,72 @@ public class Diagonal extends AbstractDoubleMatrix {
    * @see DoubleMatrix#get(int)
    */
   public void set(int index, double value) {
-    if (index > size && index < 0) {
-      throw new IllegalArgumentException("index out of bounds");
+    int row = index % rows();
+    int col = index / rows();
+    set(row, col, value);
+  }
+
+  /**
+   * Get double.
+   *
+   * @param i the i
+   * @param j the j
+   * @return double
+   */
+  public double get(int i, int j) {
+    if (i == j) {
+      return values[i];
     } else {
-      values[checkedCast(index)] = value;
+      if (i > rows() || j > columns()) {
+        throw new IndexOutOfBoundsException();
+      }
+      return 0;
     }
   }
 
   /**
-   * Size int.
+   * Get double.
    *
-   * @return the int
+   * @param index the index
+   * @return the double
    */
-  public int size() {
-    return size;
+  public double get(int index) {
+//    if (index > size && index < 0) {
+//      throw new IllegalArgumentException("index > size");
+//    } else {
+//      return index < values.length ? values[index] : 0;
+//    }
+    int col = index / rows();
+    int row = index % rows();
+    return get(row, col);
   }
 
   @Override
-  public boolean isView() {
+  public boolean isArrayBased() {
     return false;
+  }
+
+  /**
+   * Returns the number of diagonal entries. Equal to {@code Math.min(rows(), columns())}.
+   *
+   * @returns the diagonal size
+   */
+  public int diagonalSize() {
+    return values.length;
+  }
+
+  /**
+   * Returns the diagonal element at {@code i, i}
+   *
+   * @param i the index
+   * @return the value
+   */
+  public double getDiagonal(int i) {
+    return get(i, i);
+  }
+
+  public void setDiagonal(int i, double value) {
+    set(i, i, value);
   }
 
   /**
@@ -121,9 +164,9 @@ public class Diagonal extends AbstractDoubleMatrix {
    * @return the diagonal
    */
   public Diagonal map(DoubleUnaryOperator operator) {
-    double[] diagonal = new double[this.size];
+    double[] diagonal = new double[this.values.length];
     for (int i = 0; i < diagonal.length; i++) {
-      diagonal[i] = operator.applyAsDouble(get(i));
+      diagonal[i] = operator.applyAsDouble(getDiagonal(i));
     }
     return new Diagonal(diagonal, this.rows(), this.columns());
   }
@@ -136,6 +179,19 @@ public class Diagonal extends AbstractDoubleMatrix {
   public Diagonal transpose() {
     double[] values = new double[this.values.length];
     return new Diagonal(values, this.columns(), this.rows());
+  }
+  // TODO(isak): Override add etc.
+
+  /**
+   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
+   * affect the original.
+   *
+   * @return the copy
+   */
+  public Diagonal copy() {
+    double[] values = new double[this.values.length];
+    System.arraycopy(this.values, 0, values, 0, this.values.length);
+    return new Diagonal(values, this.rows(), this.columns());
   }
 
   /**
@@ -161,7 +217,7 @@ public class Diagonal extends AbstractDoubleMatrix {
     for (int row = 0; row < rows; row++) {
       if (row < other.rows()) {
         for (int column = 0; column < columns; column++) {
-          mat.set(row, column, other.get(row, column) * this.get(row));
+          mat.set(row, column, other.get(row, column) * this.getDiagonal(row));
         }
       } else {
         break;
@@ -178,8 +234,8 @@ public class Diagonal extends AbstractDoubleMatrix {
    * @return the diagonal
    */
   public Diagonal mul(double scalar) {
-    double[] out = new double[size];
-    for (int i = 0; i < size; i++) {
+    double[] out = new double[values.length];
+    for (int i = 0; i < values.length; i++) {
       out[i] = values[i] * scalar;
     }
 
@@ -189,42 +245,8 @@ public class Diagonal extends AbstractDoubleMatrix {
   @Override
   public Diagonal reshape(int rows, int columns) {
     Preconditions.checkArgument(rows * columns == size(),
-        "Total size of new matrix must be unchanged.");
+                                "Total size of new matrix must be unchanged.");
     return new Diagonal(values, rows, columns);
-  }
-
-  /**
-   * Get double.
-   *
-   * @param i the i
-   * @param j the j
-   * @return double
-   */
-  public double get(int i, int j) {
-    if (i == j) {
-      return get(i);
-    } else {
-      return 0;
-    }
-  }
-
-  /**
-   * Get double.
-   *
-   * @param index the index
-   * @return the double
-   */
-  public double get(int index) {
-    if (index > size && index < 0) {
-      throw new IllegalArgumentException("index > size");
-    } else {
-      return index < values.length ? values[checkedCast(index)] : 0;
-    }
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
   }
 
   @Override
@@ -232,16 +254,9 @@ public class Diagonal extends AbstractDoubleMatrix {
     return new DefaultDoubleMatrix(rows, columns);
   }
 
-  /**
-   * Create a copy of this matrix. This contract stipulates that modifications of the copy does not
-   * affect the original.
-   *
-   * @return the copy
-   */
-  public Diagonal copy() {
-    double[] values = new double[this.values.length];
-    System.arraycopy(this.values, 0, values, 0, this.values.length);
-    return new Diagonal(values, this.rows(), this.columns());
+  @Override
+  public boolean isView() {
+    return false;
   }
 
   @Override

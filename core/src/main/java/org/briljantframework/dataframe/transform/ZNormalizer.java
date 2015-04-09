@@ -33,9 +33,9 @@ public class ZNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix mean = Matrices.mean(frame.asMatrix(), Axis.COLUMN);
+    DoubleMatrix mean = Matrices.mean(frame.toMatrix().asDoubleMatrix(), Axis.COLUMN);
 
-    DoubleMatrix x = frame.asMatrix();
+    DoubleMatrix x = frame.toMatrix().asDoubleMatrix();
     DoubleMatrix xNorm = DoubleMatrix.newMatrix(x.rows(), x.columns());
 
     for (int i = 0; i < xNorm.rows(); i++) {

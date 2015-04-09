@@ -120,7 +120,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public String toString(int row, int column) {
     double value = matrix.get(row, column);
-    return Is.NA(value) ? "NA" : String.valueOf(value);
+    return Is.NA(value) ? "NA" : Double.toString(value);
   }
 
   @Override
