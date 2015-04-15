@@ -1,14 +1,9 @@
 package org.briljantframework.matrix;
 
-import com.carrotsearch.hppc.IntArrayList;
-
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntIntObjBiFunction;
-import org.briljantframework.matrix.storage.IntStorage;
-import org.briljantframework.matrix.storage.SparseIntStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.DoubleToIntFunction;
 import java.util.function.IntBinaryOperator;
@@ -28,28 +23,6 @@ import java.util.stream.IntStream;
  */
 public interface IntMatrix extends Matrix<IntMatrix> {
 
-  static IntMatrix newVector(int n) {
-    return new DefaultIntMatrix(n);
-  }
-
-  static IntMatrix newMatrix(int rows, int columns) {
-    return new DefaultIntMatrix(rows, columns);
-  }
-
-  static IntMatrix of(int... values) {
-    return new DefaultIntMatrix(values);
-  }
-
-  static IntMatrix newSparseVector(int size) {
-    return new DefaultIntMatrix(new SparseIntStorage(size), size);
-  }
-
-  static IntMatrix newSparseMatrix(int rows, int columns) {
-    return new DefaultIntMatrix(
-        new SparseIntStorage(Math.multiplyExact(rows, columns)), rows, columns);
-  }
-  // Assignments
-
   /**
    * Assign {@code value} to {@code this}
    *
@@ -66,15 +39,6 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @return receiver modified
    */
   IntMatrix assign(IntSupplier supplier);
-
-  /**
-   * Assign {@code matrix} to {@code this}. Requires {@code matrix.getShape()} to equal
-   * {@code this.getShape()}.
-   *
-   * @param matrix the matrix
-   * @return receiver modified
-   */
-  IntMatrix assign(IntMatrix matrix);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
@@ -207,82 +171,6 @@ public interface IntMatrix extends Matrix<IntMatrix> {
 
   void set(int row, int column, int value);
 
-  void setRow(int index, IntMatrix matrix);
-
-  void setColumn(int index, IntMatrix matrix);
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  IntMatrix reshape(int rows, int columns);
-
-  /**
-   * {@inheritDoc}
-   */
-  IntMatrix getRowView(int i);
-
-  /**
-   * {@inheritDoc}
-   */
-  IntMatrix getColumnView(int index);
-
-  /**
-   * {@inheritDoc}
-   */
-  IntMatrix getDiagonalView();
-
-  /**
-   * {@inheritDoc}
-   */
-  IntMatrix getView(int rowOffset, int colOffset, int rows, int columns);
-
-  @Override
-  IntMatrix slice(Range rows, Range columns);
-
-  @Override
-  IntMatrix slice(Range range);
-
-  @Override
-  IntMatrix slice(Range range, Axis axis);
-
-  @Override
-  IntMatrix slice(Collection<Integer> rows, Collection<Integer> columns);
-
-  @Override
-  IntMatrix slice(Collection<Integer> indexes);
-
-  @Override
-  IntMatrix slice(Collection<Integer> indexes, Axis axis);
-
-  @Override
-  IntMatrix slice(BitMatrix bits);
-
-  @Override
-  IntMatrix slice(BitMatrix indexes, Axis axis);
-
-  /**
-   * Construct a new empty matrix with {@code this.getClass()}
-   *
-   * @param rows    the number of rows
-   * @param columns the number of colums
-   * @return a new empty matrix (
-   */
-  IntMatrix newEmptyMatrix(int rows, int columns);
-
-  IntMatrix newEmptyVector(int size);
-
-  /**
-   * {@inheritDoc}
-   */
-  IntMatrix transpose();
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  IntMatrix copy();
-
   void addTo(int index, int value);
 
   void addTo(int i, int j, int value);
@@ -363,11 +251,11 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * {@code axis})
    *
    * @param other the vector
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
-   * @see #mul(int, org.briljantframework.matrix.IntMatrix, int, Axis)
+   * @see #mul(int, org.briljantframework.matrix.IntMatrix, int, Dim)
    */
-  IntMatrix mul(IntMatrix other, Axis axis);
+  IntMatrix mul(IntMatrix other, Dim dim);
 
   /**
    * Element wise multiplication, extending {@code other} row or column wise
@@ -380,10 +268,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta  scaling factor for {@code other}
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
    */
-  IntMatrix mul(int alpha, IntMatrix other, int beta, Axis axis);
+  IntMatrix mul(int alpha, IntMatrix other, int beta, Dim dim);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -413,11 +301,11 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * Element wise addition. Same as {@code add(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
-   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Axis)
+   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Dim)
    */
-  IntMatrix add(IntMatrix other, Axis axis);
+  IntMatrix add(IntMatrix other, Dim dim);
 
   /**
    * Element wise add, extending {@code other} row or column wise
@@ -430,10 +318,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta  scaling factor for {@code other}
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
    */
-  IntMatrix add(int alpha, IntMatrix other, int beta, Axis axis);
+  IntMatrix add(int alpha, IntMatrix other, int beta, Dim dim);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -467,11 +355,11 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * Element wise subtraction. Same as {@code sub(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
-   * @see #sub(int, org.briljantframework.matrix.IntMatrix, int, Axis)
+   * @see #sub(int, org.briljantframework.matrix.IntMatrix, int, Dim)
    */
-  IntMatrix sub(IntMatrix other, Axis axis);
+  IntMatrix sub(IntMatrix other, Dim dim);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise
@@ -485,10 +373,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta  scaling factor for {@code other}
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
    */
-  IntMatrix sub(int alpha, IntMatrix other, int beta, Axis axis);
+  IntMatrix sub(int alpha, IntMatrix other, int beta, Dim dim);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -514,11 +402,11 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * Element wise subtraction. Same as {@code rsub(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
-   * @see #sub(int, org.briljantframework.matrix.IntMatrix, int, Axis)
+   * @see #sub(int, org.briljantframework.matrix.IntMatrix, int, Dim)
    */
-  IntMatrix rsub(IntMatrix other, Axis axis);
+  IntMatrix rsub(IntMatrix other, Dim dim);
 
   /**
    * Element wise subtraction, extending {@code other} row or column wise. Inverted, i.e.,
@@ -533,10 +421,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta  scaling factor for {@code other}
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
    */
-  IntMatrix rsub(int alpha, IntMatrix other, int beta, Axis axis);
+  IntMatrix rsub(int alpha, IntMatrix other, int beta, Dim dim);
 
   /**
    * Element wise division. {@code this / other}.
@@ -560,11 +448,11 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * Element wise division. Same as {@code add(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
-   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Axis)
+   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Dim)
    */
-  IntMatrix div(IntMatrix other, Axis axis);
+  IntMatrix div(IntMatrix other, Dim dim);
 
   /**
    * Element wise division, extending {@code other} row or column wise
@@ -578,10 +466,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta  scaling factor for {@code other}
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
    */
-  IntMatrix div(int alpha, IntMatrix other, int beta, Axis axis);
+  IntMatrix div(int alpha, IntMatrix other, int beta, Dim dim);
 
   /**
    * Element wise division. {@code other / this}.
@@ -596,11 +484,11 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * Element wise division. Same as {@code add(1, other, 1, axis)}.
    *
    * @param other the array
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
-   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Axis)
+   * @see #add(int, org.briljantframework.matrix.IntMatrix, int, Dim)
    */
-  IntMatrix rdiv(IntMatrix other, Axis axis);
+  IntMatrix rdiv(IntMatrix other, Dim dim);
 
   /**
    * Element wise division, extending {@code other} row or column wise. Division is
@@ -616,10 +504,10 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param alpha scaling factor for {@code this}
    * @param other the vector
    * @param beta  scaling factor for {@code other}
-   * @param axis  the extending direction
+   * @param dim   the extending direction
    * @return a new matrix
    */
-  IntMatrix rdiv(int alpha, IntMatrix other, int beta, Axis axis);
+  IntMatrix rdiv(int alpha, IntMatrix other, int beta, Dim dim);
 
   /**
    * Returns a new matrix with elements negated.
@@ -627,17 +515,4 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @return a new matrix
    */
   IntMatrix negate();
-
-  class Builder {
-
-    private IntArrayList buffer = new IntArrayList();
-
-    public void add(int value) {
-      buffer.add(value);
-    }
-
-    public IntMatrix build() {
-      return new DefaultIntMatrix(new IntStorage(buffer.toArray()), buffer.size());
-    }
-  }
 }

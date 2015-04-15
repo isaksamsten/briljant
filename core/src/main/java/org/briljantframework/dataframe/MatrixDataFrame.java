@@ -10,7 +10,6 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.vector.Bit;
@@ -152,9 +151,10 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public DataFrame.Builder newCopyBuilder() {
     double[] array = new double[rows() * columns()];
-    System.arraycopy(matrix.asDoubleArray(), 0, array, 0, array.length);
+    for (int i = 0; i < matrix.size(); i++) {
+      array[i] = matrix.get(i);
+    }
     return new ArrayBuilder(columnNames, rowNames, rows(), columns(), array);
-
   }
 
   /**
@@ -195,7 +195,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
   /**
    * Dynamically allocates a new {@code MatrixDataFrame}. <p> Appending and increasing the size is
    * rather costly (due to reallocation) using this builder. It is therefore recommended to
-   * initialize with a size. If linearly adding elements, it's way faster to append backwards, i.e.,
+   * initialize with a size. If linearly adding elements, it's way faster to append backwards,
+   * i.e.,
    * starting with the bottom right and proceed to the top left corner of the matrix <p>
    *
    * <pre>
@@ -204,7 +205,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
    *         builder.set(i, j, ....);
    * </pre>
    * <p> is faster than starting at {@code i = 0} and {@code j = 0}. <p> Alternatively, if the size
-   * is unknown prefer {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}, which is
+   * is unknown prefer {@link org.briljantframework.dataframe.MatrixDataFrame.HashBuilder}, which
+   * is
    * both sparse and fast to incrementally build.
    */
   public static class ArrayBuilder extends AbstractBuilder {
@@ -387,8 +389,10 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame build() {
-      DefaultDoubleMatrix mat = new DefaultDoubleMatrix(buffer, rows, columns);
-      return new MatrixDataFrame(mat, columnNames, rowNames, false);
+      throw new UnsupportedOperationException();
+      // TODO
+//      DefaultDoubleMatrix mat = new DefaultDoubleMatrix(buffer, rows, columns);
+//      return new MatrixDataFrame(mat, columnNames, rowNames, false);
     }
   }
 
@@ -578,9 +582,9 @@ public class MatrixDataFrame extends AbstractDataFrame {
           values[index] = dval;
         }
       }
-
-      DefaultDoubleMatrix matrix = new DefaultDoubleMatrix(values, rows(), columns());
-      return new MatrixDataFrame(matrix, columnNames, rowNames, false);
+      return null; // TODO
+//      DefaultDoubleMatrix matrix = new DefaultDoubleMatrix(values, rows(), columns());
+//      return new MatrixDataFrame(matrix, columnNames, rowNames, false);
     }
   }
 

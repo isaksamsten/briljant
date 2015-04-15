@@ -1,9 +1,11 @@
 package org.briljantframework.matrix.storage;
 
+import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.briljantframework.complex.Complex;
 
 /**
  * Created by isak on 2/2/15.
@@ -57,10 +59,10 @@ public class ListStorage extends AbstractStorage {
     values.set(index, complex);
   }
 
-  @Override
-  public boolean isArrayBased() {
-    return false;
-  }
+//  @Override
+//  public boolean isArrayBased() {
+//    return false;
+//  }
 
   @Override
   public Class<?> getNativeType() {

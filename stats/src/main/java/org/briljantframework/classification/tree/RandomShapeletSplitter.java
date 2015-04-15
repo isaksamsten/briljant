@@ -16,11 +16,12 @@
 
 package org.briljantframework.classification.tree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import com.carrotsearch.hppc.IntDoubleMap;
+import com.carrotsearch.hppc.IntDoubleOpenHashMap;
+import com.carrotsearch.hppc.ObjectDoubleMap;
+import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -28,10 +29,10 @@ import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.Vector;
 
-import com.carrotsearch.hppc.IntDoubleMap;
-import com.carrotsearch.hppc.IntDoubleOpenHashMap;
-import com.carrotsearch.hppc.ObjectDoubleMap;
-import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author Isak Karlsson
@@ -156,8 +157,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
     List<String> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = DoubleMatrix.newVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = DoubleMatrix.newVector(presentTargets.size());
+    DoubleMatrix ltRelativeFrequency = Briljant.doubleVector(presentTargets.size());
+    DoubleMatrix gtRelativeFrequency = Briljant.doubleVector(presentTargets.size());
 
 
 

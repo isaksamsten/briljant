@@ -1,13 +1,16 @@
-package org.briljantframework.matrix.storage;
-
-import java.util.Arrays;
+package org.briljantframework.matrix.base;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
+
+import java.util.Arrays;
 
 /**
  * @author Isak Karlsson
  */
-public class BooleanStorage extends AbstractStorage {
+class BooleanStorage extends AbstractStorage {
+
   private final boolean[] values;
 
   public BooleanStorage(boolean[] values) {
@@ -15,8 +18,9 @@ public class BooleanStorage extends AbstractStorage {
     this.values = values;
   }
 
-  public static BooleanStorage withSize(int size) {
-    return new BooleanStorage(new boolean[size]);
+  public BooleanStorage(int size) {
+    super(size);
+    this.values = new boolean[size];
   }
 
   @Override
@@ -65,18 +69,8 @@ public class BooleanStorage extends AbstractStorage {
   }
 
   @Override
-  public boolean isArrayBased() {
-    return true;
-  }
-
-  @Override
-  public boolean[] asBooleanArray() {
-    return values;
-  }
-
-  @Override
   public Class<?> getNativeType() {
-    return Byte.TYPE;
+    return Boolean.class;
   }
 
   @Override

@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.Utils;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,82 +13,35 @@ import static org.junit.Assert.assertTrue;
 public class AbstractBitMatrixTest {
 
   BitMatrix a, b;
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   @Test
   public void testGetRowView() throws Exception {
     BitMatrix m =
-        BitMatrix.newBitVector(true, false, false, true, false, true, true, false, false)
+        bj.matrix(new boolean[]{true, false, false, true, false, true, true, false, false})
             .reshape(3, 3);
-    assertValuesEquals(BitMatrix.newBitVector(true, true, true), m.getRowView(0));
-    assertValuesEquals(BitMatrix.newBitVector(false, false, false), m.getRowView(1));
+    assertValuesEquals(bj.matrix(new boolean[]{true, true, true}), m.getRowView(0));
+    assertValuesEquals(bj.matrix(new boolean[]{false, false, false}), m.getRowView(1));
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     BitMatrix m =
-        BitMatrix.newBitVector(true, false, false, true, false, true, true, false, false)
+        bj.matrix(new boolean[]{true, false, false, true, false, true, true, false, false})
             .reshape(3, 3);
-    assertValuesEquals(BitMatrix.newBitVector(true, false, false), m.getColumnView(0));
-    assertValuesEquals(BitMatrix.newBitVector(true, false, true), m.getColumnView(1));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false, false}), m.getColumnView(0));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false, true}), m.getColumnView(1));
   }
 
   @Test
   public void testGetView() throws Exception {
     BitMatrix m =
-        BitMatrix.newBitVector(true, false, false, true, false, true, true, false, false)
+        bj.matrix(new boolean[]{true, false, false, true, false, true, true, false, false})
             .reshape(3, 3);
     BitMatrix view = m.getView(0, 0, 2, 2);
-    assertValuesEquals(BitMatrix.newBitVector(true, false), view.getColumnView(0));
-    assertValuesEquals(BitMatrix.newBitVector(true, false), view.getColumnView(1));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false}), view.getColumnView(0));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false}), view.getColumnView(1));
   }
-
-  @Test
-  public void testPerformance() throws Exception {
-    BitMatrix da = BitMatrix.newMatrix(1000, 1000);
-    da.assign(() -> Utils.getRandom().nextGaussian() > 0);
-    BitMatrix db = BitMatrix.newMatrix(1000, 1000);
-    db.assign(() -> Utils.getRandom().nextGaussian() > 0);
-
-    BitMatrix sa = BitMatrix.newSparseMatrix(1000, 1000);
-    BitMatrix sb = BitMatrix.newSparseMatrix(1000, 1000);
-    sa.assign(() -> Utils.getRandom().nextGaussian() > 0);
-    sb.assign(() -> Utils.getRandom().nextGaussian() > 0);
-
-    long s = System.nanoTime();
-    for (int j = 0; j < 100; j++) {
-      for (int i = 0; i < da.size(); i++) {
-        da.set(i, !da.get(i));
-      }
-    }
-    System.out.println((System.nanoTime() - s) / 1e6);
-    s = System.nanoTime();
-    for (int j = 0; j < 100; j++) {
-      for (int i = 0; i < sa.size(); i++) {
-        sa.set(i, !sa.get(i));
-      }
-    }
-    System.out.println((System.nanoTime() - s) / 1e6);
-    s = System.nanoTime();
-    for (int i = 0; i < 100; i++) {
-      da.xor(db);
-      da.and(db);
-      da.or(db);
-      da.orNot(db);
-      da.andNot(db);
-    }
-    System.out.println((System.nanoTime() - s) / 1e6);
-    s = System.nanoTime();
-    for (int i = 0; i < 100; i++) {
-      sa.xor(sb);
-      sa.and(sb);
-      sa.or(sb);
-      sa.orNot(sb);
-      sa.andNot(sb);
-    }
-    System.out.println((System.nanoTime() - s) / 1e6);
-  }
-
-
 
   @Test
   public void testSlice() throws Exception {
@@ -146,18 +100,10 @@ public class AbstractBitMatrixTest {
 
   @Before
   public void setUp() throws Exception {
-    a = BitMatrix.newBitVector(true, true, true, false, false, true).reshape(3, 2);
-    b = BitMatrix.newBitVector(true, false, true, false, true, true).reshape(3, 2);
+    a = bj.matrix(new boolean[]{true, true, true, false, false, true}).reshape(3, 2);
+    b = bj.matrix(new boolean[]{true, false, true, false, true, true}).reshape(3, 2);
   }
 
-  @Test
-  public void testVariableArgConstructor() {
-    BitMatrix a = new DefaultBitMatrix(true, true, true, false, false);
-    assertEquals(5, a.rows());
-    assertEquals(5, a.size());
-    assertEquals(1, a.columns());
-    assertEquals(false, a.get(3));
-  }
 
   @Test
   public void testCopy() throws Exception {

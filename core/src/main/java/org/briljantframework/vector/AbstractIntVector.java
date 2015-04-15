@@ -1,6 +1,6 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.matrix.DefaultIntMatrix;
+import org.briljantframework.Briljant;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
@@ -100,7 +100,7 @@ public abstract class AbstractIntVector extends AbstractVector {
 
   @Override
   public IntMatrix asMatrix() {
-    return new DefaultIntMatrix(new VectorStorage(this));
+    return Briljant.intVector(new VectorStorage(this));
   }
 
   @Override

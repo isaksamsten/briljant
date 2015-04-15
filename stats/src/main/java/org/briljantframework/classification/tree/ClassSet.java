@@ -17,10 +17,18 @@
 package org.briljantframework.classification.tree;
 
 
-import java.util.*;
-
+import org.briljantframework.Briljant;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author Isak Karlsson
@@ -117,7 +125,7 @@ public final class ClassSet implements Iterable<Example> {
     for (Sample c : samples.values()) {
       rel[i++] = c.getWeight() / size;
     }
-    return DoubleMatrix.of(rel);
+    return Briljant.matrix(rel);
   }
 
   public double getTotalWeight() {
@@ -132,7 +140,7 @@ public final class ClassSet implements Iterable<Example> {
   @Override
   public String toString() {
     return String.format("Examples(%.2f, %d, %d)", getTotalWeight(), getTargetCount(),
-        System.identityHashCode(this));
+                         System.identityHashCode(this));
   }
 
   public int getTargetCount() {

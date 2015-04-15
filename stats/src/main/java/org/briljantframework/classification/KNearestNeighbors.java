@@ -16,10 +16,12 @@
 
 package org.briljantframework.classification;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.MinMaxPriorityQueue;
 
-import java.util.EnumSet;
+import com.carrotsearch.hppc.ObjectIntMap;
+import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
@@ -28,9 +30,9 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vectors;
 
-import com.carrotsearch.hppc.ObjectIntMap;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
-import com.google.common.collect.MinMaxPriorityQueue;
+import java.util.EnumSet;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a non-parametric
@@ -187,7 +189,7 @@ public class KNearestNeighbors implements Classifier {
       }
       Vector classes = getClasses();
       int voters = queue.size();
-      DoubleMatrix probas = DoubleMatrix.newVector(classes.size());
+      DoubleMatrix probas = Briljant.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         probas.set(i, votes.getOrDefault(classes.getAsString(i), 0) / voters);
       }

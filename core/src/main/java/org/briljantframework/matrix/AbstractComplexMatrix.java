@@ -7,7 +7,8 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -40,19 +41,17 @@ import static org.briljantframework.matrix.Indexer.rowMajor;
 import static org.briljantframework.matrix.Indexer.sliceIndex;
 
 /**
- * Created by Isak Karlsson on 02/01/15.
+ * @author Isak Karlsson
  */
 public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix>
     implements ComplexMatrix {
 
-  private ComplexListView listView = null;
-
-  protected AbstractComplexMatrix(int size) {
-    super(size);
+  protected AbstractComplexMatrix(MatrixFactory bj, int size) {
+    super(bj, size);
   }
 
-  protected AbstractComplexMatrix(int rows, int cols) {
-    super(rows, cols);
+  protected AbstractComplexMatrix(MatrixFactory bj, int rows, int cols) {
+    super(bj, rows, cols);
   }
 
   @Override
@@ -69,11 +68,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
       set(i, supplier.get());
     }
     return this;
-  }
-
-  @Override
-  public ComplexMatrix assign(ComplexMatrix matrix) {
-    return assign(matrix, UnaryOperator.identity());
   }
 
   @Override
@@ -105,7 +99,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public DoubleMatrix asDoubleMatrix() {
-    return new AsDoubleMatrix(rows(), columns()) {
+    return new AsDoubleMatrix(getMatrixFactory(), rows(), columns()) {
       @Override
       public void set(int i, int j, double value) {
         AbstractComplexMatrix.this.set(i, j, Complex.valueOf(value));
@@ -179,7 +173,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public IntMatrix mapToInt(ToIntFunction<Complex> function) {
-    IntMatrix matrix = IntMatrix.newMatrix(rows(), columns());
+    IntMatrix matrix = bj.intMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsInt(get(i)));
     }
@@ -188,7 +182,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public IntMatrix asIntMatrix() {
-    return new AsIntMatrix(rows(), columns()) {
+    return new AsIntMatrix(getMatrixFactory(), rows(), columns()) {
       @Override
       public int get(int i, int j) {
         return AbstractComplexMatrix.this.get(i, j).intValue();
@@ -218,7 +212,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public LongMatrix mapToLong(ToLongFunction<Complex> function) {
-    LongMatrix matrix = LongMatrix.newMatrix(rows(), columns());
+    LongMatrix matrix = bj.longMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -227,7 +221,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public DoubleMatrix mapToDouble(ToDoubleFunction<Complex> function) {
-    DoubleMatrix matrix = DoubleMatrix.newMatrix(rows(), columns());
+    DoubleMatrix matrix = bj.doubleMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -248,7 +242,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public BitMatrix satisfies(Predicate<Complex> predicate) {
-    BitMatrix bits = BitMatrix.newMatrix(rows(), columns());
+    BitMatrix bits = bj.booleanMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -257,7 +251,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   public BitMatrix satisfies(ComplexMatrix other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BitMatrix bits = BitMatrix.newMatrix(rows(), columns());
+    BitMatrix bits = bj.booleanMatrix(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -271,7 +265,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public LongMatrix asLongMatrix() {
-    return new AsLongMatrix(rows(), columns()) {
+    return new AsLongMatrix(getMatrixFactory(), rows(), columns()) {
       @Override
       public long get(int i, int j) {
         return AbstractComplexMatrix.this.get(i, j).longValue();
@@ -349,7 +343,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public BitMatrix asBitMatrix() {
-    return new AsBitMatrix(rows(), columns()) {
+    return new AsBitMatrix(getMatrixFactory(), rows(), columns()) {
 
       @Override
       public void set(int i, int j, boolean value) {
@@ -445,12 +439,13 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     };
   }
 
-  public static class IncrementalBuilder {
+  public class IncrementalBuilder {
 
     private List<Complex> buffer = new ArrayList<>();
 
     public ComplexMatrix build() {
-      return new DefaultComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
+      return bj.matrix(buffer.toArray(new Complex[buffer.size()]));
+      //new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
     }
 
     public void add(Complex value) {
@@ -463,13 +458,14 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     private final Range row, column;
     private final ComplexMatrix parent;
 
-    public SliceComplexMatrix(ComplexMatrix parent, Range row, Range column) {
-      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    public SliceComplexMatrix(MatrixFactory bj, ComplexMatrix parent, Range row, Range column) {
+      this(bj, parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceComplexMatrix(ComplexMatrix parent, int rows, Range row, int columns,
+    public SliceComplexMatrix(MatrixFactory bj, ComplexMatrix parent, int rows, Range row,
+                              int columns,
                               Range column) {
-      super(rows, columns);
+      super(bj, rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
       this.parent = checkNotNull(parent);
@@ -478,7 +474,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     @Override
     public ComplexMatrix reshape(int rows, int columns) {
       Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-      return new SliceComplexMatrix(parent, rows, row, columns, column);
+      return new SliceComplexMatrix(bj, parent, rows, row, columns, column);
     }
 
     @Override
@@ -523,10 +519,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
       return get(row, col);
     }
 
-    @Override
-    public boolean isArrayBased() {
-      return parent.isArrayBased();
-    }
   }
 
   /**
@@ -541,9 +533,10 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
     private final int rowOffset, colOffset;
 
-    public ComplexMatrixView(ComplexMatrix parent, int rowOffset, int colOffset, int rows,
+    public ComplexMatrixView(MatrixFactory bj, ComplexMatrix parent, int rowOffset, int colOffset,
+                             int rows,
                              int cols) {
-      super(rows, cols);
+      super(bj, rows, cols);
       this.rowOffset = rowOffset;
       this.colOffset = colOffset;
       this.parent = parent;
@@ -571,8 +564,8 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
     @Override
     public ComplexMatrix reshape(int rows, int columns) {
-      return new ComplexMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows,
-                                   columns);
+      return new ComplexMatrixView(
+          getMatrixFactory(), parent.reshape(rows, columns), rowOffset, colOffset, rows, columns);
     }
 
 
@@ -589,7 +582,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
     @Override
     public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-      return new DefaultComplexMatrix(rows, columns);
+      return bj.complexMatrix(rows, columns);
     }
 
     @Override
@@ -600,11 +593,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     @Override
     public Complex get(int index) {
       return parent.get(computeLinearIndex(index));
-    }
-
-    @Override
-    public boolean isArrayBased() {
-      return parent.isArrayBased();
     }
 
     @Override
@@ -625,14 +613,14 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     private final ComplexMatrix parent;
     private final Range range;
 
-    public FlatSliceComplexMatrix(ComplexMatrix parent, int size, Range range) {
-      super(size);
+    public FlatSliceComplexMatrix(MatrixFactory bj, ComplexMatrix parent, int size, Range range) {
+      super(bj, size);
       this.parent = checkNotNull(parent);
       this.range = checkNotNull(range);
     }
 
-    public FlatSliceComplexMatrix(ComplexMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceComplexMatrix(MatrixFactory bj, ComplexMatrix parent, Range range) {
+      this(bj, parent, checkNotNull(range).size(), range);
     }
 
     @Override
@@ -675,10 +663,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
       return parent.get(sliceIndex(range.step(), index, parent.size()));
     }
 
-    @Override
-    public boolean isArrayBased() {
-      return parent.isArrayBased();
-    }
   }
 
   private class ComplexListView extends AbstractList<Complex> {
@@ -706,60 +690,46 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     }
   }
 
-
   @Override
   public ComplexMatrix getRowView(int i) {
-    return new ComplexMatrixView(this, i, 0, 1, columns());
+    return new ComplexMatrixView(getMatrixFactory(), this, i, 0, 1, columns());
   }
-
 
   @Override
   public ComplexMatrix getColumnView(int index) {
-    return new ComplexMatrixView(this, 0, index, rows(), 1);
+    return new ComplexMatrixView(getMatrixFactory(), this, 0, index, rows(), 1);
   }
-
 
   @Override
   public ComplexMatrix getDiagonalView() {
     throw new UnsupportedOperationException();
   }
 
-
-
-
-
-
-
-
-
-
   @Override
   public ComplexMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new ComplexMatrixView(this, rowOffset, colOffset, rows, columns);
+    return new ComplexMatrixView(getMatrixFactory(), this, rowOffset, colOffset, rows, columns);
   }
-
 
   @Override
   public ComplexMatrix slice(Range rows, Range columns) {
-    return new SliceComplexMatrix(this, rows, columns);
+    return new SliceComplexMatrix(getMatrixFactory(), this, rows, columns);
   }
-
 
   @Override
   public ComplexMatrix slice(Range range) {
-    return new FlatSliceComplexMatrix(this, range);
+    return new FlatSliceComplexMatrix(getMatrixFactory(), this, range);
   }
-
 
   @Override
-  public ComplexMatrix slice(Range range, Axis axis) {
-    if (axis == Axis.ROW) {
-      return new SliceComplexMatrix(this, range, Range.range(columns()));
+  public ComplexMatrix slice(Range range, Dim dim) {
+    if (dim == Dim.R) {
+      return new SliceComplexMatrix(getMatrixFactory(), this, range,
+                                    getMatrixFactory().range(columns()));
     } else {
-      return new SliceComplexMatrix(this, Range.range(rows()), range);
+      return new SliceComplexMatrix(getMatrixFactory(), this, getMatrixFactory().range(rows()),
+                                    range);
     }
   }
-
 
   @Override
   public ComplexMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
@@ -775,7 +745,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     return m;
   }
 
-
   @Override
   public ComplexMatrix slice(Collection<Integer> indexes) {
     IncrementalBuilder builder = new IncrementalBuilder();
@@ -783,11 +752,10 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     return builder.build();
   }
 
-
   @Override
-  public ComplexMatrix slice(Collection<Integer> indexes, Axis axis) {
+  public ComplexMatrix slice(Collection<Integer> indexes, Dim dim) {
     ComplexMatrix matrix;
-    if (axis == Axis.ROW) {
+    if (dim == Dim.R) {
       matrix = newEmptyMatrix(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
@@ -803,7 +771,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     return matrix;
   }
 
-
   @Override
   public ComplexMatrix slice(BitMatrix bits) {
     Check.equalShape(this, bits);
@@ -816,12 +783,11 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     return builder.build();
   }
 
-
   @Override
-  public ComplexMatrix slice(BitMatrix indexes, Axis axis) {
+  public ComplexMatrix slice(BitMatrix indexes, Dim dim) {
     int size = Matrices.sum(indexes);
     ComplexMatrix matrix;
-    if (axis == Axis.ROW) {
+    if (dim == Dim.R) {
       Check.size(rows(), indexes);
       matrix = newEmptyMatrix(size, columns());
       int index = 0;
@@ -842,7 +808,6 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     }
     return matrix;
   }
-
 
   @Override
   public ComplexMatrix transpose() {
@@ -883,18 +848,31 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public final List<Complex> asList() {
-    if (listView == null) {
-      listView = new ComplexListView();
-    }
-    return listView;
-  }
+    return new AbstractList<Complex>() {
+      @NotNull
+      @Override
+      public Complex get(int index) {
+        return AbstractComplexMatrix.this.get(index);
+      }
 
+      @Override
+      public Complex set(int index, Complex element) {
+        Complex old = get(index);
+        AbstractComplexMatrix.this.set(index, element);
+        return old;
+      }
+
+      @Override
+      public int size() {
+        return AbstractComplexMatrix.this.size();
+      }
+    };
+  }
 
   @Override
   public ComplexMatrix negate() {
     return map(Complex::negate);
   }
-
 
   @Override
   public double[] asDoubleArray() {
@@ -1054,7 +1032,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   }
 
   @Override
-  public ComplexMatrix rsub(ComplexMatrix matrix, Axis axis) {
+  public ComplexMatrix rsub(ComplexMatrix matrix, Dim dim) {
     return null;
   }
 

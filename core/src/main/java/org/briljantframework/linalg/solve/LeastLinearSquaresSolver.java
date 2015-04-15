@@ -16,14 +16,13 @@
 
 package org.briljantframework.linalg.solve;
 
-import java.util.Arrays;
-
-import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.netlib.util.intW;
-
 import com.github.fommil.netlib.LAPACK;
+
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+
+//import org.briljantframework.matrix.DefaultDoubleMatrix;
 
 /**
  * Solve LLS using complete orthogonal factorization
@@ -33,6 +32,7 @@ import com.github.fommil.netlib.LAPACK;
 public class LeastLinearSquaresSolver extends AbstractSolver {
 
   public static final LAPACK lapack = LAPACK.getInstance();
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   /**
    * Instantiates a new Least linear squares solver.
@@ -45,44 +45,42 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
 
   @Override
   public DoubleMatrix solve(DoubleMatrix b) {
-    int m = matrix.rows(), n = matrix.columns(), nrhs = b.columns();
-    int[] jpvt = new int[n];
-
-
-    DoubleMatrix result = b.copy();
-
-    int lwork = -1;
-    double[] work = new double[1];
-
-    // TODO(isak): make decision based on isArrayBased()
-    DoubleMatrix aCopy = matrix.copy();
-
-
-    intW rank = new intW(0), info = new intW(0);
-    double[] aCopyArray = aCopy.asDoubleArray();
-    double[] resultArray = result.asDoubleArray();
-    lapack.dgelsy(m, n, nrhs, aCopyArray, m, resultArray, m, jpvt, 0.01, rank, work, lwork, info);
-    if (info.val != 0) {
-      throw new BlasException("dgelsy", info.val, "failed to query work");
-    }
-
-    lwork = (int) work[0];
-    work = new double[lwork];
-    final int finalLwork1 = lwork;
-    final double[] finalWork1 = work;
-    lapack.dgelsy(m, n, nrhs, aCopyArray, m, resultArray, m, jpvt, 0.01, rank, finalWork1,
-        finalLwork1, info);
-
-    if (info.val != 0) {
-      throw new BlasException("dgelsy", info.val, "fail");
-    }
-
-    double[] array = Arrays.copyOf(resultArray, n);
-    // ArrayMatrix r = new ArrayMatrix(1, n);
+//    int m = a.rows(), n = a.columns(), nrhs = b.columns();
+//    int[] jpvt = new int[n];
+//
+//    DoubleMatrix result = b.copy();
+//
+//    int lwork = -1;
+//    double[] work = new double[1];
+//
+//    TODO(isak): make decision based on isArrayBased()
+//    DoubleMatrix aCopy = a.copy();
+//
+//    intW rank = new intW(0), info = new intW(0);
+//    double[] aCopyArray = ((DoubleStorage) aCopy.getStorage()).doubleArray();
+//    double[] resultArray = ((DoubleStorage) result.getStorage()).doubleArray();
+//    lapack.dgelsy(m, n, nrhs, aCopyArray, m, resultArray, m, jpvt, 0.01, rank, work, lwork, info);
+//    if (info.val != 0) {
+//      throw new BlasException("dgelsy", info.val, "failed to query work");
+//    }
+//
+//    lwork = (int) work[0];
+//    work = new double[lwork];
+//    final int finalLwork1 = lwork;
+//    final double[] finalWork1 = work;
+//    lapack.dgelsy(m, n, nrhs, aCopyArray, m, resultArray, m, jpvt, 0.01, rank, finalWork1,
+//                  finalLwork1, info);
+//
+//    if (info.val != 0) {
+//      throw new BlasException("dgelsy", info.val, "fail");
+//    }
+//
+//    double[] array = Arrays.copyOf(resultArray, n);
+//    ArrayMatrix r = new ArrayMatrix(1, n);
     // for (int i = 0; i < n; i++) {
     // r.put(i, result.get(i));
     // }
-
-    return DefaultDoubleMatrix.columnVector(array);
+    throw new UnsupportedOperationException();
+//    return bj.matrix(array).reshape(1, array.length); //DefaultDoubleMatrix.columnVector(array);
   }
 }

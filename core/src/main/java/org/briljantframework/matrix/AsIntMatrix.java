@@ -1,21 +1,21 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Check;
-import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
  * @author Isak Karlsson
  */
-abstract class AsIntMatrix extends AbstractIntMatrix {
+public abstract class AsIntMatrix extends AbstractIntMatrix {
 
-  public AsIntMatrix(int rows, int columns) {
-    super(rows, columns);
+  public AsIntMatrix(MatrixFactory bj, int rows, int columns) {
+    super(bj, rows, columns);
   }
 
   @Override
   public IntMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new AsIntMatrix(rows, columns) {
+    return new AsIntMatrix(bj, rows, columns) {
       @Override
       public int get(int i, int j) {
         return AsIntMatrix.this.get(i, j);
@@ -40,14 +40,12 @@ abstract class AsIntMatrix extends AbstractIntMatrix {
       public Storage getStorage() {
         return AsIntMatrix.this.getStorage();
       }
-
-
     };
   }
 
   @Override
   public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return IntMatrix.newMatrix(rows, columns);
+    return bj.intMatrix(rows, columns);
   }
 
   @Override

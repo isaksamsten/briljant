@@ -1,7 +1,6 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Swappable;
-import org.briljantframework.matrix.storage.Storage;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -104,14 +103,21 @@ public interface Matrix<T extends Matrix> extends Swappable {
 
   int compare(int a, int b);
 
-  T map(Axis axis, UnaryOperator<T> mapper);
+  /**
+   * Assign {@code o} to {@code this}. Ensures that the shapes are equal.
+   *
+   * @param o the matrix
+   * @return receiver modified
+   */
+  T assign(T o);
 
-  void forEach(Axis axis, Consumer<T> consumer);
+  T map(Dim dim, UnaryOperator<T> mapper);
+
+  void forEach(Dim dim, Consumer<T> consumer);
 
   void setRow(int i, T row);
 
   void setColumn(int i, T column);
-
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -139,6 +145,10 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @return the column
    */
   T getColumnView(int index);
+
+  void setVectorAlong(Dim dim, int i, T vector);
+
+  T getVectorAlong(Dim dim, int index);
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
@@ -202,10 +212,10 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * {@code axis}.
    *
    * @param range the range
-   * @param axis  the axis
+   * @param dim   the axis
    * @return a view
    */
-  T slice(Range range, Axis axis);
+  T slice(Range range, Dim dim);
 
   /**
    * Complex slicing. Returns a copy of the matrix.
@@ -218,11 +228,11 @@ public interface Matrix<T extends Matrix> extends Swappable {
 
   T slice(Collection<Integer> indexes);
 
-  T slice(Collection<Integer> indexes, Axis axis);
+  T slice(Collection<Integer> indexes, Dim dim);
 
   T slice(BitMatrix bits);
 
-  T slice(BitMatrix indexes, Axis axis);
+  T slice(BitMatrix indexes, Dim dim);
 
   /**
    * The number of rows.
@@ -237,6 +247,8 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @return number of columns
    */
   int columns();
+
+  int size(Dim dim);
 
   /**
    * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
@@ -346,9 +358,14 @@ public interface Matrix<T extends Matrix> extends Swappable {
   BitMatrix gte(T other);
 
   /**
-   * Get the storage.
+   * <p>Return the storage of this matrix. If {@link #isView()}, the storage does not necessarily
+   * represent the actual storage of {@code this}. That is, {@code m.size() !=
+   * m.getStorage().size()}.
+   *
+   * <p>However, {@code m.copy().size() == m.copy().getStorage().size()}
    *
    * @return the storage
    */
   Storage getStorage();
+
 }

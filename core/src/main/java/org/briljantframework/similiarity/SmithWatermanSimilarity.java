@@ -3,6 +3,8 @@ package org.briljantframework.similiarity;
 import com.google.common.primitives.Doubles;
 
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -10,6 +12,7 @@ import org.briljantframework.vector.Vector;
  */
 public class SmithWatermanSimilarity implements Similarity {
 
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
   private final double match, miss, gap;
 
   public SmithWatermanSimilarity(double match, double miss, double gap) {
@@ -20,7 +23,7 @@ public class SmithWatermanSimilarity implements Similarity {
 
   @Override
   public double compute(Vector a, Vector b) {
-    DoubleMatrix h = DoubleMatrix.newMatrix(a.size() + 1, b.size() + 1);
+    DoubleMatrix h = bj.doubleMatrix(a.size() + 1, b.size() + 1);
     double maxScore = Double.NEGATIVE_INFINITY;
     int maxI = 0, maxJ = 0;
     for (int i = 1; i < h.rows(); i++) {
@@ -69,7 +72,6 @@ public class SmithWatermanSimilarity implements Similarity {
 //      // length++;
 //      j--;
 //    }
-
 
     // int i = maxI, j = maxJ;
     // Vector.Builder al = new StringVector.Builder();

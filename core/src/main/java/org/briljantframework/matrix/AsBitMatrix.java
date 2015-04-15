@@ -1,21 +1,21 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Check;
-import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
  * @author Isak Karlsson
  */
 abstract class AsBitMatrix extends AbstractBitMatrix {
 
-  public AsBitMatrix(int rows, int columns) {
-    super(rows, columns);
+  public AsBitMatrix(MatrixFactory bj, int rows, int columns) {
+    super(bj, rows, columns);
   }
 
   @Override
   public BitMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new AsBitMatrix(rows, columns) {
+    return new AsBitMatrix(bj, rows, columns) {
       @Override
       public void set(int row, int column, boolean value) {
         AsBitMatrix.this.set(row, column, value);
@@ -40,14 +40,12 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
       public Storage getStorage() {
         return AsBitMatrix.this.getStorage();
       }
-
-
     };
   }
 
   @Override
   public BitMatrix newEmptyMatrix(int rows, int columns) {
-    return BitMatrix.newMatrix(rows, columns);
+    return bj.booleanMatrix(rows, columns);
   }
 
   @Override

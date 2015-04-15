@@ -16,16 +16,20 @@
 
 package org.briljantframework.classification;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.briljantframework.matrix.Matrices.range;
-import static org.briljantframework.matrix.Matrices.shuffle;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.vector.*;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.vector.Convert;
+import org.briljantframework.vector.StringValue;
+import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.Vectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.briljantframework.matrix.Matrices.shuffle;
 
 /**
  * Logistic regression implemented using Stochastic Gradient Descent.
@@ -33,6 +37,8 @@ import org.briljantframework.vector.*;
  * Created by isak on 01/07/14.
  */
 public class LogisticRegression implements Classifier {
+
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   private final int iterations;
 
@@ -68,18 +74,18 @@ public class LogisticRegression implements Classifier {
   @Override
   public String toString() {
     return String.format("LogisticRegression(%d, %.4f, %.3f)", iterations, learningRate,
-        regularization);
+                         regularization);
   }
 
   @Override
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(),
-        "The number of training instances must equal the number of target");
-    return fit(x, y, range(0, y.size()));
+                  "The number of training instances must equal the number of target");
+    return fit(x, y, bj.range(0, y.size()));
   }
 
   protected Model fit(DataFrame x, Vector y, IntMatrix indexes) {
-    DoubleMatrix theta = new DefaultDoubleMatrix(1, x.columns());
+    DoubleMatrix theta = bj.doubleMatrix(1, x.columns());
     Vector adaptedTheta = Convert.toAdapter(theta);
     Vector classes = Vectors.unique(y);
     for (int j = 0; j < this.iterations; j++) {
@@ -90,8 +96,8 @@ public class LogisticRegression implements Classifier {
         // TODO(isak): fix!
         // theta.add(1, row, update);
         // Matrices.add(row, update, theta, 1, theta.asDoubleArray());
-          theta.update(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
-        });
+        theta.update(v -> v * (1.0 - (learningRate * regularization) / x.rows()));
+      });
     }
 
     return new Model(adaptedTheta, classes);
@@ -132,6 +138,7 @@ public class LogisticRegression implements Classifier {
    * @author Isak Karlsson
    */
   public static class Model extends AbstractPredictor {
+
     private final Vector theta;
 
     public Model(Vector theta, Vector classes) {

@@ -1,18 +1,16 @@
-package org.briljantframework.matrix.storage;
+package org.briljantframework.matrix.base;
 
-import static com.google.common.primitives.Ints.checkedCast;
-
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.util.Arrays;
-
-import com.github.fommil.netlib.BLAS;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
+
+import java.util.Arrays;
 
 /**
  * @author Isak Karlsson
  */
-public class DoubleStorage extends AbstractStorage {
+class DoubleStorage extends AbstractStorage {
+
   private final double[] values;
 
   public DoubleStorage(double[] values) {
@@ -21,16 +19,13 @@ public class DoubleStorage extends AbstractStorage {
   }
 
   public DoubleStorage(int size) {
-    this(new double[size]);
-  }
-
-  public static DoubleStorage withSize(long size) {
-    return new DoubleStorage(new double[checkedCast(size)]);
+    super(size);
+    this.values = new double[size];
   }
 
   @Override
   public int getInt(int index) {
-    return (int) values[((int) index)];
+    return (int) getDouble(index);
   }
 
   @Override
@@ -55,7 +50,7 @@ public class DoubleStorage extends AbstractStorage {
 
   @Override
   public void setDouble(int index, double value) {
-    values[((int) index)] = value;
+    values[index] = value;
   }
 
   @Override
@@ -68,13 +63,7 @@ public class DoubleStorage extends AbstractStorage {
     setDouble(index, complex.doubleValue());
   }
 
-  @Override
-  public boolean isArrayBased() {
-    return true;
-  }
-
-  @Override
-  public double[] asDoubleArray() {
+  public double[] doubleArray() {
     return values;
   }
 

@@ -1,13 +1,15 @@
-package org.briljantframework.matrix.storage;
-
-import java.util.Arrays;
+package org.briljantframework.matrix.base;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
+
+import java.util.Arrays;
 
 /**
  * Created by isak on 1/30/15.
  */
-public class ComplexStorage extends AbstractStorage {
+class ComplexStorage extends AbstractStorage {
 
   private final Complex[] values;
 
@@ -16,8 +18,9 @@ public class ComplexStorage extends AbstractStorage {
     this.values = values;
   }
 
-  public ComplexStorage withSize(int size) {
-    return new ComplexStorage(new Complex[size]);
+  public ComplexStorage(int size) {
+    super(size);
+    this.values = new Complex[size];
   }
 
   @Override
@@ -52,25 +55,15 @@ public class ComplexStorage extends AbstractStorage {
 
   @Override
   public Complex getComplex(int index) {
-    return values[(int) index];
+    return values[index];
   }
 
   @Override
   public void setComplex(int index, Complex complex) {
-    values[(int) index] = complex;
+    values[index] = complex;
   }
 
   @Override
-  public boolean isArrayBased() {
-    return true;
-  }
-
-  @Override
-  public Complex[] asComplexArray() {
-    return values;
-  }
-
-    @Override
   public Class<?> getNativeType() {
     return Complex.class;
   }

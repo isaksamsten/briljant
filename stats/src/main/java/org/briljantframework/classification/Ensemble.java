@@ -16,15 +16,18 @@
 
 package org.briljantframework.classification;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.Axis;
 import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -111,15 +114,15 @@ public abstract class Ensemble implements Classifier {
   public static class DefaultEnsemblePredictor
       extends AbstractPredictor implements EnsemblePredictor {
 
+    private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
     private final List<? extends Predictor> members;
     private final BitMatrix oobIndicator;
 
     public DefaultEnsemblePredictor(Vector classes, List<? extends Predictor> members,
                                     BitMatrix oobIndicator) {
       super(classes);
-      System.out.println(classes);
       this.members = members;
-      this.oobIndicator = oobIndicator.frozen();
+      this.oobIndicator = oobIndicator;
     }
 
     /**
@@ -148,8 +151,8 @@ public abstract class Ensemble implements Classifier {
       Vector y = ctx.getPartition().getTrainingTarget();
 
       // Store the out-of-bag and in-bag probability estimates
-      DoubleMatrix oobEstimates = DoubleMatrix.newMatrix(x.rows(), classes.size());
-      DoubleMatrix inbEstimates = DoubleMatrix.newMatrix(x.rows(), classes.size());
+      DoubleMatrix oobEstimates = bj.doubleMatrix(x.rows(), classes.size());
+      DoubleMatrix inbEstimates = bj.doubleMatrix(x.rows(), classes.size());
 
       // Count the number of times each training sample have been included
       IntMatrix counts = oobIndicator.asIntMatrix().reduceRows(Matrices::sum);
@@ -228,7 +231,7 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         Record record = x.getRecord(i);
-        DoubleMatrix c = DoubleMatrix.newVector(classes.size());
+        DoubleMatrix c = bj.doubleVector(classes.size());
         /* Fill the true-class vector */
         for (int j = 0; j < classes.size(); j++) {
           if (classes.equals(j, y, i)) {
@@ -238,14 +241,14 @@ public abstract class Ensemble implements Classifier {
 
         /* Stores the probability of the m:th member for the j:th class */
         int estimators = members.size();
-        DoubleMatrix memberEstimates = DoubleMatrix.newMatrix(estimators, classes.size());
+        DoubleMatrix memberEstimates = bj.doubleMatrix(estimators, classes.size());
         for (int j = 0; j < estimators; j++) {
           Predictor member = members.get(j);
           memberEstimates.setRow(j, member.estimate(record));
         }
 
         /* Get the mean probability vector for the i:th example */
-        DoubleMatrix meanEstimate = mean(memberEstimates, Axis.COLUMN);
+        DoubleMatrix meanEstimate = mean(memberEstimates, Dim.C);
         double variance = 0, mse = 0, bias = 0, accuracy = 0;
         for (int j = 0; j < memberEstimates.rows(); j++) {
           DoubleMatrix r = memberEstimates.getRowView(j);
@@ -299,7 +302,7 @@ public abstract class Ensemble implements Classifier {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = DoubleMatrix.newVector(classes.size());
+      DoubleMatrix m = Briljant.doubleVector(classes.size());
       for (DoubleMatrix prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }

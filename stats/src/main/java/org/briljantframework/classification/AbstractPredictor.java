@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
@@ -12,7 +14,6 @@ import org.briljantframework.vector.Vector;
 import java.util.EnumSet;
 import java.util.stream.IntStream;
 
-import static org.briljantframework.matrix.DoubleMatrix.newMatrix;
 import static org.briljantframework.matrix.Matrices.argmax;
 
 /**
@@ -24,6 +25,7 @@ import static org.briljantframework.matrix.Matrices.argmax;
  */
 public abstract class AbstractPredictor implements Predictor {
 
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
   private final Vector classes;
 
   protected AbstractPredictor(Vector classes) {
@@ -52,7 +54,7 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public DoubleMatrix estimate(DataFrame x) {
-    DoubleMatrix estimations = newMatrix(x.rows(), getClasses().size());
+    DoubleMatrix estimations = bj.doubleMatrix(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
       estimations.setRow(i, estimate(x.getRecord(i)));
     });

@@ -17,9 +17,11 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.Axis;
+import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
@@ -31,12 +33,14 @@ import org.briljantframework.matrix.Matrices;
  */
 public class ZNormalizer implements Transformer {
 
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix mean = Matrices.mean(frame.toMatrix().asDoubleMatrix(), Axis.COLUMN);
+    DoubleMatrix mean = Matrices.mean(frame.toMatrix().asDoubleMatrix(), Dim.C);
 
     DoubleMatrix x = frame.toMatrix().asDoubleMatrix();
-    DoubleMatrix xNorm = DoubleMatrix.newMatrix(x.rows(), x.columns());
+    DoubleMatrix xNorm = bj.doubleMatrix(x.rows(), x.columns());
 
     for (int i = 0; i < xNorm.rows(); i++) {
       for (int j = 0; j < xNorm.columns(); j++) {
@@ -44,7 +48,7 @@ public class ZNormalizer implements Transformer {
       }
     }
 
-    DoubleMatrix sigma = Matrices.std(xNorm, Axis.COLUMN);
+    DoubleMatrix sigma = Matrices.std(xNorm, Dim.C);
     return new ZNormalization(mean, sigma);
   }
 

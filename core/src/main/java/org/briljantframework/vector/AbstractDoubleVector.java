@@ -1,8 +1,6 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
  * Created by Isak Karlsson on 27/11/14.
@@ -99,7 +97,8 @@ public abstract class AbstractDoubleVector extends AbstractVector {
 
   @Override
   public DoubleMatrix asMatrix() {
-    return new DefaultDoubleMatrix(new VectorStorage(this));
+    throw new UnsupportedOperationException();
+//    return new DefaultDoubleMatrix(new VectorStorage(this));
   }
 
   @Override

@@ -1,10 +1,10 @@
 package org.briljantframework.math.transform;
 
-import static org.briljantframework.matrix.Matrices.zeros;
-
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /*
  * Free FFT and convolution (Java)
@@ -24,11 +24,16 @@ import org.briljantframework.matrix.DoubleMatrix;
  * otherwise, arising from, out of or in connection with the Software or the use or other dealings
  * in the Software.
  */
+
 /**
  * @author Isak Karlsson
  */
 public final class DiscreteFourierTransform {
-  private DiscreteFourierTransform() {}
+
+  private static final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+
+  private DiscreteFourierTransform() {
+  }
 
   private static void fftInplace(ComplexMatrix a) {
     int n = a.size();
@@ -46,7 +51,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexMatrix ifft(ComplexMatrix a) {
-    ComplexMatrix copy = zeros(a.size(), Complex.class).asComplexMatrix();
+    ComplexMatrix copy = bj.complexVector(a.size());
     for (int i = 0; i < a.size(); i++) {
       Complex c = a.get(i);
       copy.set(i, new Complex(c.imag(), c.real()));
@@ -76,16 +81,16 @@ public final class DiscreteFourierTransform {
     int m = Integer.highestOneBit(n * 2 + 1) << 1;
 
     // Trigonometric tables
-    DoubleMatrix cosTable = zeros(n);
-    DoubleMatrix sinTable = zeros(n);
+    DoubleMatrix cosTable = bj.doubleVector(n);
+    DoubleMatrix sinTable = bj.doubleVector(n);
     for (int i = 0; i < n; i++) {
       int j = (int) ((long) i * i % (n * 2));
       cosTable.set(i, Math.cos(Math.PI * j / n));
       sinTable.set(i, Math.sin(Math.PI * j / n));
     }
 
-    ComplexMatrix an = zeros(m, Complex.class).asComplexMatrix();
-    ComplexMatrix bn = zeros(m, Complex.class).asComplexMatrix();
+    ComplexMatrix an = bj.complexVector(m);
+    ComplexMatrix bn = bj.complexVector(m);
 
     bn.set(0, new Complex(cosTable.get(0), sinTable.get(0)));
     for (int i = 0; i < n; i++) {
@@ -153,8 +158,8 @@ public final class DiscreteFourierTransform {
       throw new IllegalArgumentException();
     }
 
-    DoubleMatrix cosTable = zeros(n / 2);
-    DoubleMatrix sinTable = zeros(n / 2);
+    DoubleMatrix cosTable = bj.doubleVector(n / 2);
+    DoubleMatrix sinTable = bj.doubleVector(n / 2);
     final double v = 2 * Math.PI;
     for (int i = 0; i < n / 2; i++) {
       cosTable.set(i, Math.cos(v * i / n));

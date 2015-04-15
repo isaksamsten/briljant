@@ -1,6 +1,8 @@
 package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
 
 import java.util.BitSet;
 
@@ -61,10 +63,10 @@ public class SparseBooleanStorage extends AbstractStorage {
     setBoolean(index, Complex.ONE.equals(complex));
   }
 
-  @Override
-  public boolean isArrayBased() {
-    return false;
-  }
+//  @Override
+//  public boolean isArrayBased() {
+//    return false;
+//  }
 
   @Override
   public Class<?> getNativeType() {

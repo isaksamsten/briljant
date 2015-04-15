@@ -3,10 +3,11 @@ package org.briljantframework.dataframe;
 import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.Check;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -35,6 +36,9 @@ public abstract class AbstractDataFrame implements DataFrame {
    * The row names. Subclasses should preserve the name, e.g., in {@link #newBuilder()}
    */
   protected final NameAttribute rowNames;
+
+  // TODO
+  protected final MatrixFactory bj = Briljant.getMatrixFactory();
 
   protected AbstractDataFrame(NameAttribute columnNames, NameAttribute rowNames) {
     this.columnNames = columnNames;
@@ -357,7 +361,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   @Override
   public Matrix toMatrix() {
-    DoubleMatrix matrix = new DefaultDoubleMatrix(rows(), columns());
+    DoubleMatrix matrix = bj.doubleMatrix(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDouble(i, j));

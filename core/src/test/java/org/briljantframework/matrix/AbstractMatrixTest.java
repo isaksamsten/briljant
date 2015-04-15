@@ -1,43 +1,46 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.junit.Test;
 
-import static org.briljantframework.matrix.Matrices.newComplexMatrix;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 public class AbstractMatrixTest {
 
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+
   @Test
   public void testAsReturnThisOnCorrectType() throws Exception {
-    IntMatrix a = Matrices.range(0, 10);
+    IntMatrix a = bj.range(0, 10);
     assertSame(a.getStorage(), a.asDoubleMatrix().asComplexMatrix().asLongMatrix().asBitMatrix()
         .asIntMatrix().getStorage());
 
-    DoubleMatrix b = Matrices.linspace(0, 2, 10);
+    DoubleMatrix b = bj.linspace(0, 2, 10);
     assertSame(b.getStorage(), b.asIntMatrix().asComplexMatrix().asLongMatrix().asBitMatrix()
         .asDoubleMatrix().getStorage());
 
-    ComplexMatrix c = newComplexMatrix(3, 3);
+    ComplexMatrix c = bj.complexMatrix(3, 3);
     assertSame(c.getStorage(), c.asIntMatrix().asDoubleMatrix().asLongMatrix().asBitMatrix()
         .asComplexMatrix().getStorage());
 
-    LongMatrix d = LongMatrix.newMatrix(3, 3);
+    LongMatrix d = bj.longMatrix(3, 3);
     assertSame(d.getStorage(), d.asComplexMatrix().asIntMatrix().asBitMatrix().asDoubleMatrix()
         .asLongMatrix().getStorage());
 
-    BitMatrix e = BitMatrix.newMatrix(3, 3);
+    BitMatrix e = bj.booleanMatrix(3, 3);
     assertSame(e.getStorage(), e.asIntMatrix().asLongMatrix().asDoubleMatrix().asComplexMatrix()
         .asBitMatrix().getStorage());
   }
 
   @Test
   public void testAsDoubleMatrix() throws Exception {
-    IntMatrix a = IntMatrix.newMatrix(3, 3).assign(10);
-    LongMatrix b = LongMatrix.newMatrix(3, 3).assign(10);
-    ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
-    BitMatrix d = BitMatrix.newMatrix(3, 3).assign(true);
+    IntMatrix a = bj.intMatrix(3, 3).assign(10);
+    LongMatrix b = bj.longMatrix(3, 3).assign(10);
+    ComplexMatrix c = bj.complexMatrix(3, 3).assign(10);
+    BitMatrix d = bj.booleanMatrix(3, 3).assign(true);
 
     assertEquals(10.0, a.asDoubleMatrix().get(0), 0.0001);
     assertEquals(10.0, b.asDoubleMatrix().get(0), 0.0001);
@@ -47,10 +50,10 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsIntMatrix() throws Exception {
-    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
-    LongMatrix b = LongMatrix.newMatrix(3, 3).assign(10);
-    ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
-    BitMatrix d = BitMatrix.newMatrix(3, 3).assign(true);
+    DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
+    LongMatrix b = bj.longMatrix(3, 3).assign(10);
+    ComplexMatrix c = bj.complexMatrix(3, 3).assign(10);
+    BitMatrix d = bj.booleanMatrix(3, 3).assign(true);
 
     assertEquals(10, a.asIntMatrix().get(0));
     assertEquals(10, b.asIntMatrix().get(0));
@@ -60,10 +63,10 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsLongMatrix() throws Exception {
-    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
-    IntMatrix b = IntMatrix.newMatrix(3, 3).assign(10);
-    ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
-    BitMatrix d = BitMatrix.newMatrix(3, 3).assign(true);
+    DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
+    IntMatrix b = bj.intMatrix(3, 3).assign(10);
+    ComplexMatrix c = bj.complexMatrix(3, 3).assign(10);
+    BitMatrix d = bj.booleanMatrix(3, 3).assign(true);
 
     assertEquals(10, a.asLongMatrix().get(0));
     assertEquals(10, b.asLongMatrix().get(0));
@@ -74,10 +77,10 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsBitMatrix() throws Exception {
-    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
-    IntMatrix b = IntMatrix.newMatrix(3, 3).assign(10);
-    ComplexMatrix c = newComplexMatrix(3, 3).assign(10);
-    LongMatrix d = LongMatrix.newMatrix(3, 3).assign(1);
+    DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
+    IntMatrix b = bj.intMatrix(3, 3).assign(10);
+    ComplexMatrix c = bj.complexMatrix(3, 3).assign(10);
+    LongMatrix d = bj.longMatrix(3, 3).assign(1);
 
     assertEquals(false, a.asBitMatrix().get(0));
     assertEquals(false, b.asBitMatrix().get(0));
@@ -87,10 +90,10 @@ public class AbstractMatrixTest {
 
   @Test
   public void testAsComplexMatrix() throws Exception {
-    DoubleMatrix a = DoubleMatrix.newMatrix(3, 3).assign(10);
-    LongMatrix b = LongMatrix.newMatrix(3, 3).assign(10);
-    IntMatrix c = IntMatrix.newMatrix(3, 3).assign(10);
-    BitMatrix d = BitMatrix.newMatrix(3, 3).assign(true);
+    DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
+    LongMatrix b = bj.longMatrix(3, 3).assign(10);
+    IntMatrix c = bj.intMatrix(3, 3).assign(10);
+    BitMatrix d = bj.booleanMatrix(3, 3).assign(true);
 
     assertEquals(Complex.valueOf(10), a.asComplexMatrix().get(0));
     assertEquals(Complex.valueOf(10), b.asComplexMatrix().get(0));

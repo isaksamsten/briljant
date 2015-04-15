@@ -1,4 +1,4 @@
-package org.briljantframework.matrix.storage;
+package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
 
@@ -54,11 +54,6 @@ public interface Storage {
       @Override
       public void setComplex(int index, Complex complex) {
         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isArrayBased() {
-        return storage.isArrayBased();
       }
 
       @Override
@@ -170,58 +165,58 @@ public interface Storage {
    */
   void setComplex(int index, Complex complex);
 
-  /**
-   * Returns this storage as a {@code boolean} array, with the i:th element set to
-   * {@code getBoolean(i)}.
-   *
-   * If this storage uses a boolean array, modifications of the returned array propagates.
-   *
-   * @return a boolean array
-   */
-  boolean[] asBooleanArray();
-
-  /**
-   * Returns this storage as a {@code int} array, with the i:th element set to {@code getInt(i)} .
-   *
-   * If this storage uses a int array, modifications of the returned array propagates.
-   *
-   * @return a int array
-   */
-  int[] asIntArray();
-
-  /**
-   * Returns this storage as a {@code long} array, with the i:th element set to {@code getLong(i)}.
-   *
-   * If this storage uses a long array, modifications of the returned array propagates.
-   *
-   * @return a long array
-   */
-  long[] asLongArray();
-
-  /**
-   * Returns this storage as a {@code double} array, with the i:th element set to
-   * {@code getDouble(i)}.
-   *
-   * If this storage uses a double array, modifications of the returned array propagates.
-   *
-   * @return a boolean array
-   */
-  double[] asDoubleArray();
-
-  /**
-   * Returns this storage as a {@code Complex} array, with the i:th element set to
-   * {@code getComplex(i)}.
-   *
-   * If this storage uses a complex array, modifications of the returned array propagates.
-   *
-   * @return a complex array
-   */
-  Complex[] asComplexArray();
-
-  /**
-   * @return true if {@code as[Type]Array()} returns an underlying array representation
-   */
-  boolean isArrayBased();
+//  /**
+//   * Returns this storage as a {@code boolean} array, with the i:th element set to
+//   * {@code getBoolean(i)}.
+//   *
+//   * If this storage uses a boolean array, modifications of the returned array propagates.
+//   *
+//   * @return a boolean array
+//   */
+//  boolean[] booleanArray();
+//
+//  /**
+//   * Returns this storage as a {@code int} array, with the i:th element set to {@code getInt(i)} .
+//   *
+//   * If this storage uses a int array, modifications of the returned array propagates.
+//   *
+//   * @return a int array
+//   */
+//  int[] intArray();
+//
+//  /**
+//   * Returns this storage as a {@code long} array, with the i:th element set to {@code getLong(i)}.
+//   *
+//   * If this storage uses a long array, modifications of the returned array propagates.
+//   *
+//   * @return a long array
+//   */
+//  long[] longArray();
+//
+//  /**
+//   * Returns this storage as a {@code double} array, with the i:th element set to
+//   * {@code getDouble(i)}.
+//   *
+//   * If this storage uses a double array, modifications of the returned array propagates.
+//   *
+//   * @return a boolean array
+//   */
+//  double[] doubleArray();
+//
+//  /**
+//   * Returns this storage as a {@code Complex} array, with the i:th element set to
+//   * {@code getComplex(i)}.
+//   *
+//   * If this storage uses a complex array, modifications of the returned array propagates.
+//   *
+//   * @return a complex array
+//   */
+//  Complex[] complexArray();
+//
+//  /**
+//   * @return true if {@code as[Type]Array()} returns an underlying array representation
+//   */
+//  boolean isArrayBased();
 
   /**
    * @return the native type covered by this storage.

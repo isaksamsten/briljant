@@ -1,8 +1,12 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.junit.Test;
 
 public class MatrixPrinterTest {
+
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   @Test
   public void testPrint() throws Exception {
@@ -21,7 +25,7 @@ public class MatrixPrinterTest {
 
   @Test
   public void testBroken() throws Exception {
-    DoubleMatrix b = DoubleMatrix.newVector(10).assign(0);
+    DoubleMatrix b = bj.doubleVector(10).assign(0);
     System.out.println(b);
 
   }

@@ -1,15 +1,16 @@
 package org.briljantframework.classification;
 
 
-import static org.briljantframework.matrix.Matrices.randn;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 13/10/14.
  */
 public class TestMain {
+
+  private static MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   public static void main(String[] args) throws Exception {
     // System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -20,8 +21,7 @@ public class TestMain {
     // FileInputStream("erlang/adeb-rr/deps/rr/data/iris.txt"));
     // Dataset dataset = in.read(DenseDataset.getFactory());
 
-
-    DoubleMatrix a = randn(10000, 10000);
+//    DoubleMatrix a = Briljant.randn(10000, 10000);
     // Matrix b = randn(10, 10000);
     // RealVector.Builder builder = new RealVector.Builder();
     // for (int i = 0; i < b.size(); i++) {
@@ -35,9 +35,7 @@ public class TestMain {
     // }
     // System.out.println((System.currentTimeMillis() - s) / (double) 1);
 
-
     // double v = matrix.mapReduce(0, (d, f) -> d + f, x -> x);
-
 
     // Matrix m = Matrices.parseMatrix("1,2,3;4,5,6;7,8,9");
     // for (int i = 0; i < m.size(); i++) {
@@ -68,23 +66,20 @@ public class TestMain {
     // System.out.println(m.getColumnView(i));
     // }
 
-
     // System.out.println(m.getView(1, 1, 2, 2));
 
-
-
-    long s = System.currentTimeMillis();
+//    long s = System.currentTimeMillis();
     // Matrix rowMean = a.reduceRows(x -> x.mapReduce(0, Double::sum, xy -> xy) / x.size());
 
-    DoubleMatrix rowMeans = new DefaultDoubleMatrix(1, a.rows());
-    double div = a.columns();
-    for (int j = 0; j < a.columns(); j++) {
-      double mean = 0;
-      for (int i = 0; i < a.rows(); i++) {
-        mean += a.get(i, j);
-      }
-      rowMeans.set(j, mean / div);
-    }
+//    DoubleMatrix rowMeans = bj.doubleMatrix(1, a.rows());
+//    double div = a.columns();
+//    for (int j = 0; j < a.columns(); j++) {
+//      double mean = 0;
+//      for (int i = 0; i < a.rows(); i++) {
+//        mean += a.get(i, j);
+//      }
+//      rowMeans.set(j, mean / div);
+//    }
     // for (int i = 0; i < a.rows(); i++) {
     // double mean = 0;
     // for (int j = 0; j < a.columns(); j++) {
@@ -93,11 +88,10 @@ public class TestMain {
     // rowMeans.put(i, mean / a.columns());
     // }
 
-    System.out.println(System.currentTimeMillis() - s);
-    System.out.println(rowMeans);
+//    System.out.println(System.currentTimeMillis() - s);
+//    System.out.println(rowMeans);
     //
     // System.out.println(v);
-
 
     // TargetContainer container = TargetContainer.create(dataset, "Class",
     // DenseDataset.FACTORY, DefaultTarget.FACTORY);
@@ -109,7 +103,6 @@ public class TestMain {
     // Ensemble<TargetableContainer> ensemble = Ensemble.withMember(dt)
     // .withSampler(Bootstrap.create())
     // .create();
-
 
     // Result result = Evaluators.crossValidation(ensemble, container, 10);
     // Chartable.saveSVG("/Users/isak/Desktop/test.svg", result.getChart(), 600, 400);
@@ -132,7 +125,6 @@ public class TestMain {
     // frame.setVisible(true);
     // frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-
     // CategoryPlot aucPlot = (CategoryPlot) result.get(AreaUnderCurve.class).getPlot();
     // CategoryPlot errorPlot = (CategoryPlot)
     // result.get(org.adeb.learning.evaluation.result.Error.class).getPlot();
@@ -145,7 +137,6 @@ public class TestMain {
     // combinedDomainCategoryPlot.add(accuracyPlot);
 
     // JFreeChart chart = new JFreeChart(aucPlot);
-
 
     // System.out.println(System.currentTimeMillis() - start);
     //
@@ -214,11 +205,9 @@ public class TestMain {
     // DynamicTimeWarping dwt20 =
     // DynamicTimeWarping.withDistance(Distance.EUCLIDEAN).withConstraint(20).create();
 
-
     // long start = System.currentTimeMillis();
     // Storages.stack(train, test);
     // System.out.println(System.currentTimeMillis() - start);
-
 
     // Configurations<KNearestNeighbors> knn = Tuners.split(
     // KNearestNeighbors.builder().withDistance(dwt4),
@@ -243,7 +232,6 @@ public class TestMain {
     // .withSampler(Bootstrap.create())
     // .withInspectedShapelets(100)
     // .create(), train, test));
-
 
     // ChartPanel panel = new ChartPanel(knn.getChartForParameter("Neighbors", Error.class));
     //

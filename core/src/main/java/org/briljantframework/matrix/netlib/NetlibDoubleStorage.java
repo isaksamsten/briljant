@@ -1,38 +1,39 @@
-package org.briljantframework.matrix.storage;
-
-import java.util.Arrays;
+package org.briljantframework.matrix.netlib;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
 
 /**
- * Created by isak on 1/30/15.
+ * Created by isak on 14/04/15.
  */
-public class LongStorage extends AbstractStorage {
+class NetlibDoubleStorage extends AbstractStorage {
 
-  private final long[] values;
+  private final double[] values;
 
-  public LongStorage(long[] values) {
+  NetlibDoubleStorage(double[] values) {
     super(values.length);
     this.values = values;
   }
 
-  public static LongStorage withSize(int size) {
-    return new LongStorage(new long[size]);
+  NetlibDoubleStorage(int size) {
+    super(size);
+    this.values = new double[size];
   }
 
   @Override
   public int getInt(int index) {
-    return (int) getLong(index);
+    return (int) values[index];
   }
 
   @Override
   public void setInt(int index, int value) {
-    setLong(index, value);
+    values[index] = value;
   }
 
   @Override
   public long getLong(int index) {
-    return values[index];
+    return (long) values[index];
   }
 
   @Override
@@ -42,12 +43,12 @@ public class LongStorage extends AbstractStorage {
 
   @Override
   public double getDouble(int index) {
-    return getLong(index);
+    return values[index];
   }
 
   @Override
   public void setDouble(int index, double value) {
-    setLong(index, (long) value);
+    values[index] = value;
   }
 
   @Override
@@ -57,21 +58,20 @@ public class LongStorage extends AbstractStorage {
 
   @Override
   public void setComplex(int index, Complex complex) {
-    setLong(index, complex.longValue());
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return true;
+    values[index] = complex.doubleValue();
   }
 
   @Override
   public Class<?> getNativeType() {
-    return Long.TYPE;
+    return Double.TYPE;
   }
 
   @Override
   public Storage copy() {
-    return new LongStorage(Arrays.copyOf(values, values.length));
+    return new NetlibDoubleStorage(values.clone());
+  }
+
+  public double[] doubleArray() {
+    return values;
   }
 }

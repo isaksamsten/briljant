@@ -24,10 +24,10 @@ import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Shape;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /**
  * Created by isak on 23/06/14.
@@ -39,15 +39,18 @@ public class LinearAlgebra {
    */
   public final static double MACHINE_EPSILON = Math.ulp(1);
 
+  private static final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+
   /**
    * In statistics and mathematics, linear least squares is an approach fitting a mathematical or
-   * statistical model to data in cases where the idealized value provided by the model for any data
+   * statistical model to data in cases where the idealized value provided by the model for any
+   * data
    * point is expressed linearly in terms of the unknown parameters of the model. The resulting
    * fitted model can be used to summarize the data, to predict unobserved values from the same
    * system, and to understand the mechanisms that may underlie the system.
    * <p>
    * Find the <code>minimum_x || b - Ax ||_2</code>. For example when
-   * 
+   *
    * <pre>
    *     |  -0.09   0.14  -0.46   0.68   1.29 |          |  7.4 |
    *     |  -1.56   0.20   0.29   1.09   0.51 |          |  4.2 |
@@ -59,7 +62,7 @@ public class LinearAlgebra {
    * <p>
    * the solution is,
    * <p>
-   * 
+   *
    * <pre>
    *      0.6344, 0.9699, -1.4402, 3.3678, 3.3992
    * </pre>
@@ -85,7 +88,7 @@ public class LinearAlgebra {
   /**
    * Return the inverse of a matrix a.
    * <p>
-   * 
+   *
    * <pre>
    * Matrix a = ArrayMatrix.of(2, 2, 1, 1, 1, 2);
    * Matrix inverse = Linalg.inverse(a);
@@ -97,7 +100,7 @@ public class LinearAlgebra {
    * @param a the matrix to inverse
    * @return the inverse of a
    * @throws IllegalArgumentException if matrix is not square
-   * @throws RuntimeException if the decomposition fail (i.e. the matrix is singular)
+   * @throws RuntimeException         if the decomposition fail (i.e. the matrix is singular)
    */
   public static DoubleMatrix inv(DoubleMatrix a) {
     return new InverseTransformation().transform(a);
@@ -110,22 +113,22 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return the out
    */
-  public static DefaultDoubleMatrix pinv(DoubleMatrix matrix) {
+  public static DoubleMatrix pinv(DoubleMatrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getDoubleArray();
     pinvi(matrix, array);
-    return new DefaultDoubleMatrix(array, matrix.columns(), matrix.rows());
+    return bj.matrix(array).reshape(matrix.columns(), matrix.rows());
   }
 
   /**
    * Pinvi void.
-   * 
+   *
    * @param matrix the tensor
-   * @param copy the copy
+   * @param copy   the copy
    */
   public static void pinvi(DoubleMatrix matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
-    Diagonal diagonal = svd.getDiagonal();
+    DoubleMatrix diagonal = svd.getDiagonal();
     DoubleMatrix rightSingularValues = svd.getRightSingularValues();
     DoubleMatrix leftSingularValues = svd.getLeftSingularValues();
 
@@ -138,7 +141,8 @@ public class LinearAlgebra {
 
   /**
    * Formally, the singular value decomposition of an m×n real or complex matrix M is a
-   * factorization of the form \mathbf{M} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^* where U is a
+   * factorization of the form \mathbf{M} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^* where U is
+   * a
    * m×m real or complex unitary matrix, \Sigma is an m×n rectangular diagonal matrix with
    * nonnegative real numbers on the diagonal, and V* (the conjugate transpose of V, or simply the
    * transpose of V if V is real) is an n×n real or complex unitary matrix. The diagonal entries
@@ -160,7 +164,8 @@ public class LinearAlgebra {
    * values of linearly uncorrelated variables called principal components. The number of principal
    * components is less than or equal to the number of original variables. This transformation is
    * defined in such a way that the first principal component has the largest possible variance
-   * (that is, accounts for as much of the variability in the data as possible), and each succeeding
+   * (that is, accounts for as much of the variability in the data as possible), and each
+   * succeeding
    * component in turn has the highest variance possible under the constraint that it is orthogonal
    * to (i.e., uncorrelated with) the preceding components. Principal components are guaranteed to
    * be independent if the data set is jointly normally distributed. PCA is sensitive to the
@@ -177,7 +182,8 @@ public class LinearAlgebra {
    * In linear algebra, the determinant is a value associated with a square matrix. It can be
    * computed from the entries of the matrix by a specific arithmetic expression, while other ways
    * to determine its value exist as well. The determinant provides important information about a
-   * matrix of coefficients of a system of linear equations, or about a matrix that corresponds to a
+   * matrix of coefficients of a system of linear equations, or about a matrix that corresponds to
+   * a
    * linear transformation of a vector space.
    *
    * @param x a square mutable array
@@ -204,14 +210,15 @@ public class LinearAlgebra {
    */
   public static double rank(DoubleMatrix x) {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
-    Diagonal singular = svd.getDiagonal();
-    int rank = 0;
-    for (int i = 0; i < singular.diagonalSize(); i++) {
-      if (singular.getDiagonal(i) > 0) {
-        rank += 1;
-      }
-    }
-    return rank;
+    DoubleMatrix singular = svd.getDiagonal();
+//    int rank = 0;
+//    for (int i = 0; i < singular.diagonalSize(); i++) {
+//      if (singular.getDiagonal(i) > 0) {
+//        rank += 1;
+//      }
+//    }
+//    return rank;
+    return Double.NaN;
   }
 
 }

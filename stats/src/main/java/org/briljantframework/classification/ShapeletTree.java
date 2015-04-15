@@ -24,6 +24,7 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.ObjectDoubleCursor;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.classification.tree.ClassSet;
@@ -148,8 +149,8 @@ public class ShapeletTree implements Classifier {
 
     Params params = new Params();
     params.noExamples = classSet.getTotalWeight();
-    params.lengthImportance = DoubleMatrix.newVector(x.columns());
-    params.positionImportance = DoubleMatrix.newVector(x.columns());
+    params.lengthImportance = Briljant.doubleVector(x.columns());
+    params.positionImportance = Briljant.doubleVector(x.columns());
     params.originalData = x;
     int size = Utils.randInt(10, x.columns() - 1);
     TreeNode<ShapeletThreshold> node = build(dataFrame, y, classSet, params);
@@ -386,8 +387,8 @@ public class ShapeletTree implements Classifier {
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
     List<String> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = DoubleMatrix.newVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = DoubleMatrix.newVector(presentTargets.size());
+    DoubleMatrix ltRelativeFrequency = Briljant.doubleVector(presentTargets.size());
+    DoubleMatrix gtRelativeFrequency = Briljant.doubleVector(presentTargets.size());
 
     double ltWeight = 0.0, gtWeight = 0.0;
 

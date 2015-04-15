@@ -1,18 +1,18 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Check;
-import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.matrix.api.MatrixFactory;
 
 abstract class AsLongMatrix extends AbstractLongMatrix {
 
-  public AsLongMatrix(int rows, int columns) {
-    super(rows, columns);
+  public AsLongMatrix(MatrixFactory bj, int rows, int columns) {
+    super(bj, rows, columns);
   }
 
   @Override
   public AbstractLongMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new AsLongMatrix(rows, columns) {
+    return new AsLongMatrix(bj, rows, columns) {
       @Override
       public long get(int i, int j) {
         return AsLongMatrix.this.get(i, j);
@@ -37,8 +37,6 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
       public Storage getStorage() {
         return AsLongMatrix.this.getStorage();
       }
-
-
     };
   }
 
@@ -49,7 +47,7 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
 
   @Override
   public LongMatrix newEmptyMatrix(int rows, int columns) {
-    return LongMatrix.newMatrix(rows, columns);
+    return bj.longMatrix(rows, columns);
   }
 
 

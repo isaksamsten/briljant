@@ -1,6 +1,6 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.matrix.DefaultBitMatrix;
+import org.briljantframework.Briljant;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
@@ -106,7 +106,7 @@ public abstract class AbstractBitVector extends AbstractVector {
 
   @Override
   public Matrix asMatrix() {
-    return new DefaultBitMatrix(new VectorStorage(this));
+    return Briljant.booleanVector(new VectorStorage(this));
   }
 
   @Override

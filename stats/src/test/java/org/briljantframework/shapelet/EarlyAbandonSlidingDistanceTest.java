@@ -1,12 +1,5 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.distance.Distance;
-import org.briljantframework.distance.Euclidean;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
-import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 public class EarlyAbandonSlidingDistanceTest {
@@ -14,29 +7,26 @@ public class EarlyAbandonSlidingDistanceTest {
   @Test
   // TODO - bug!
   public void testDistance() throws Exception {
-    DoubleMatrix a = DefaultDoubleMatrix.of(1, 6, 1, 2, 3, 4, 5, 6);
-    DoubleMatrix a1 = DefaultDoubleMatrix.of(1, 4, 2, 3, 4, 6);
-    DoubleMatrix a2 = DefaultDoubleMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
-    DoubleMatrix b = DefaultDoubleMatrix.of(1, 2, 2, 3);
-
-    Shapelet shapelet = new IndexSortedNormalizedShapelet(1, 2, Convert.toAdapter(a));
+//    DoubleMatrix a = DefaultDoubleMatrix.of(1, 6, 1, 2, 3, 4, 5, 6);
+//    DoubleMatrix a1 = DefaultDoubleMatrix.of(1, 4, 2, 3, 4, 6);
+//    DoubleMatrix a2 = DefaultDoubleMatrix.of(1, 6, 0, 1, 2, 4, 2, 3);
+//    DoubleMatrix b = DefaultDoubleMatrix.of(1, 2, 2, 3);
+//
+//    Shapelet shapelet = new IndexSortedNormalizedShapelet(1, 2, Convert.toAdapter(a));
     // System.out.println(shapelet);
     // System.out.println(b);
 
-    System.out.println(shapelet);
-    System.out.println(new IndexSortedNormalizedShapelet(0, a2.size(), Convert.toAdapter(a2)));
+//    System.out.println(shapelet);
+//    System.out.println(new IndexSortedNormalizedShapelet(0, a2.size(), Convert.toAdapter(a2)));
 
-
-    Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
+//    Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
     // System.out.println(distance.distance(a, shapelet));
     // System.out.println(distance.distance(a1, shapelet));
-    System.out.println(distance.compute(Convert.toAdapter(a2), shapelet));
+//    System.out.println(distance.compute(Convert.toAdapter(a2), shapelet));
 
+//    distance = OnlineReorderEarlyAbandonSlidingDistance.create();
 
-    distance = OnlineReorderEarlyAbandonSlidingDistance.create();
-
-    System.out.println(distance.compute(Convert.toAdapter(a2), shapelet));
-
+//    System.out.println(distance.compute(Convert.toAdapter(a2), shapelet));
 
     // System.out.println(Distance.EUCLIDEAN.distance(b, b));
   }
@@ -48,31 +38,30 @@ public class EarlyAbandonSlidingDistanceTest {
     // Shapelet candidate = NormalizedShapelet.create(5, 10, l);
     //
     //
-    Vector l = Convert.toAdapter(Matrices.randn(1, 3213));
-    Shapelet candidate = new Shapelet(2314, 500, l);
-    //
+//    Vector l = Convert.toAdapter(Matrices.(1, 3213));
+//    Shapelet candidate = new Shapelet(2314, 500, l);
 
     // Matrix l = DenseMatrix.of(1, 6, 1, 2, 3, 4, 5543, 6);
     // Shapelet candidate = NormalizedShapelet.create(2, 4, l);
 
-    Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
-
-    long s = System.currentTimeMillis();
+//    Distance distance = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
+//
+//    long s = System.currentTimeMillis();
     // for (int i = 0; i < 100; i++) {
     // blacbox(distance.distance(l, candidate));
     // }
-    System.out.println(distance.compute(l, candidate));
-    System.out.println(System.currentTimeMillis() - s);
-
-    Distance d = OnlineReorderEarlyAbandonSlidingDistance.create();
-    s = System.currentTimeMillis();
+//    System.out.println(distance.compute(l, candidate));
+//    System.out.println(System.currentTimeMillis() - s);
+//
+//    Distance d = OnlineReorderEarlyAbandonSlidingDistance.create();
+//    s = System.currentTimeMillis();
     // for (int i = 0; i < 100; i++) {
     // blacbox(d.distance(l, candidate));
     // }
 
-    System.out.println(d.compute(l, candidate));
-    System.out.println(System.currentTimeMillis() - s);
-
+//    System.out.println(d.compute(l, candidate));
+//    System.out.println(System.currentTimeMillis() - s);
+//
   }
 
   private void blacbox(double distance) {

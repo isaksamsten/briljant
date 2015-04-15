@@ -5,6 +5,7 @@ import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Vector;
@@ -22,7 +23,7 @@ public class JoinUtils {
    * @return retVal[0] := indexer, retVal[1] := counts
    */
   public static IntMatrix[] groupSortIndexer(IntMatrix index, int maxGroups) {
-    IntMatrix counts = IntMatrix.newVector(maxGroups + 1);
+    IntMatrix counts = Briljant.intVector(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
       int idx = index.get(i) + 1;
@@ -34,7 +35,7 @@ public class JoinUtils {
       where[i] = where[i - 1] + counts.get(i - 1);
     }
 
-    IntMatrix results = IntMatrix.newVector(n);
+    IntMatrix results = Briljant.intVector(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
       results.set(where[label], i);
@@ -135,7 +136,7 @@ public class JoinUtils {
       }
     }
 
-    return new JoinKeys(IntMatrix.of(left), IntMatrix.of(right), pool.size());
+    return new JoinKeys(Briljant.matrix(left), Briljant.matrix(right), pool.size());
   }
 
 }

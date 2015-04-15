@@ -16,10 +16,12 @@
 
 package org.briljantframework.distance;
 
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Vector;
-
 import com.google.common.primitives.Doubles;
+
+import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.vector.Vector;
 
 /**
  * In time series analysis, dynamic time warping (DTW) is an algorithm for measuring similarity
@@ -27,7 +29,8 @@ import com.google.common.primitives.Doubles;
  * <p>
  * In general, DTW is a method that calculates an optimal match between two given sequences (e.g.
  * time series) with certain restrictions. The sequences are "warped" non-linearly in the time
- * dimension to determine a measure of their similarity independent of certain non-linear variations
+ * dimension to determine a measure of their similarity independent of certain non-linear
+ * variations
  * in the time dimension. This sequence alignment method is often used in time series
  * classification. Although DTW measures a distance-like quantity between two given sequences, it
  * doesn't guarantee the triangle inequality to hold.
@@ -41,11 +44,13 @@ public class DynamicTimeWarping implements Distance {
    */
   protected final Distance distance;
   private final int constraint;
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+
 
   /**
    * Instantiates a new Dynamic time warping.
    *
-   * @param distance the local distance function
+   * @param distance   the local distance function
    * @param constraint the local constraint (i.e. width of the band)
    */
   public DynamicTimeWarping(Distance distance, int constraint) {
@@ -69,7 +74,7 @@ public class DynamicTimeWarping implements Distance {
   @Override
   public double compute(Vector a, Vector b) {
     int n = a.size(), m = b.size();
-    DoubleMatrix dwt = DoubleMatrix.newMatrix(n, m).assign(Double.POSITIVE_INFINITY);
+    DoubleMatrix dwt = bj.doubleMatrix(n, m).assign(Double.POSITIVE_INFINITY);
     dwt.set(0, 0, 0);
 
     int width = Math.max(constraint, Math.abs(n - m));
@@ -79,7 +84,7 @@ public class DynamicTimeWarping implements Distance {
       for (int j = start; j < end; j++) {
         double cost = distance.compute(a.getAsDouble(i), b.getAsDouble(j));
         dwt.set(i, j,
-            cost + Doubles.min(dwt.get(i - 1, j), dwt.get(i, j - 1), dwt.get(i - 1, j - 1)));
+                cost + Doubles.min(dwt.get(i - 1, j), dwt.get(i, j - 1), dwt.get(i - 1, j - 1)));
       }
     }
 

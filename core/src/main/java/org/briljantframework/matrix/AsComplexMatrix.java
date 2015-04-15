@@ -2,21 +2,21 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
  * @author Isak Karlsson
  */
 abstract class AsComplexMatrix extends AbstractComplexMatrix {
 
-  public AsComplexMatrix(int rows, int columns) {
-    super(rows, columns);
+  public AsComplexMatrix(MatrixFactory bj, int rows, int columns) {
+    super(bj, rows, columns);
   }
 
   @Override
   public ComplexMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new AsComplexMatrix(rows, columns) {
+    return new AsComplexMatrix(getMatrixFactory(), rows, columns) {
       @Override
       public void set(int index, Complex value) {
         AsComplexMatrix.this.set(index, value);
@@ -41,24 +41,17 @@ abstract class AsComplexMatrix extends AbstractComplexMatrix {
       public Storage getStorage() {
         return AsComplexMatrix.this.getStorage();
       }
-
-
     };
   }
 
   @Override
   public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    return ComplexMatrix.newMatrix(rows, columns);
+    return bj.complexMatrix(rows, columns);
   }
 
   @Override
   public boolean isView() {
     return true;
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
   }
 
 

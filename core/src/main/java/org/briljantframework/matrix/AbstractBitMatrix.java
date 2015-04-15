@@ -6,7 +6,8 @@ import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -26,18 +27,16 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.sliceIndex;
 
 /**
- * Created by Isak Karlsson on 12/01/15.
+ * @author Isak Karlsson
  */
 public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implements BitMatrix {
 
-  private BitListView listView = null;
-
-  protected AbstractBitMatrix(int size) {
-    super(size);
+  protected AbstractBitMatrix(MatrixFactory bj, int size) {
+    super(bj, size);
   }
 
-  protected AbstractBitMatrix(int rows, int cols) {
-    super(rows, cols);
+  protected AbstractBitMatrix(MatrixFactory bj, int rows, int cols) {
+    super(bj, rows, cols);
   }
 
   @Override
@@ -79,50 +78,40 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     return this;
   }
 
-  @Override
-  public DoubleMatrix asDoubleMatrix() {
-    return new AsDoubleMatrix(rows(), columns()) {
-      @Override
-      public void set(int i, int j, double value) {
-        AbstractBitMatrix.this.set(i, j, value == 1);
-      }
-
-      @Override
-      public void set(int index, double value) {
-        AbstractBitMatrix.this.set(index, value == 1);
-      }
-
-      @Override
-      public double get(int i, int j) {
-        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
-      }
-
-      @Override
-      public double get(int index) {
-        return AbstractBitMatrix.this.get(index) ? 1 : 0;
-
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
-      }
-    };
-  }
+//  @Override
+//  public DoubleMatrix asDoubleMatrix() {
+//    return new AsDoubleMatrix(rows(), columns()) {
+//      @Override
+//      public void set(int i, int j, double value) {
+//        AbstractBitMatrix.this.set(i, j, value == 1);
+//      }
+//
+//      @Override
+//      public void set(int index, double value) {
+//        AbstractBitMatrix.this.set(index, value == 1);
+//      }
+//
+//      @Override
+//      public double get(int i, int j) {
+//        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+//      }
+//
+//      @Override
+//      public double get(int index) {
+//        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+//      }
+//
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractBitMatrix.this.getStorage();
+//      }
+//    };
+//  }
 
   @Override
   public BitMatrix assign(boolean value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
-    }
-    return this;
-  }
-
-  @Override
-  public BitMatrix assign(BitMatrix other) {
-    Check.equalShape(this, other);
-    for (int i = 0; i < size(); i++) {
-      set(i, other.get(i));
     }
     return this;
   }
@@ -188,9 +177,99 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     };
   }
 
+//  @Override
+//  public IntMatrix asIntMatrix() {
+//    return new AsIntMatrix(rows(), columns()) {
+//      @Override
+//      public int get(int i, int j) {
+//        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+//      }
+//
+//      @Override
+//      public int get(int index) {
+//        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+//
+//      }
+//
+//      @Override
+//      public void set(int index, int value) {
+//        AbstractBitMatrix.this.set(index, value == 1);
+//      }
+//
+//      @Override
+//      public void set(int i, int j, int value) {
+//        AbstractBitMatrix.this.set(i, j, value == 1);
+//      }
+//
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractBitMatrix.this.getStorage();
+//      }
+//    };
+//  }
+
+  @Override
+  public void swap(int a, int b) {
+    boolean tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
+  }
+
+  @Override
+  public BitMatrix newEmptyVector(int size) {
+    return newEmptyMatrix(size, 1);
+  }
+
+  public class IncrementalBuilder {
+
+    private IntArrayList buffer = new IntArrayList();
+
+    public void add(boolean a) {
+      buffer.add(a ? 1 : 0);
+    }
+
+    public BitMatrix build() {
+      BitMatrix n = newEmptyMatrix(buffer.size(), 1);
+      for (int i = 0; i < buffer.size(); i++) {
+        n.set(i, buffer.get(i) == 1);
+      }
+      return n;
+    }
+  }
+
+  @Override
+  public DoubleMatrix asDoubleMatrix() {
+    return new AsDoubleMatrix(getMatrixFactory(), rows(), columns()) {
+      @Override
+      public void set(int i, int j, double value) {
+        AbstractBitMatrix.this.set(i, j, value == 1);
+      }
+
+      @Override
+      public void set(int index, double value) {
+        AbstractBitMatrix.this.set(index, value == 1);
+      }
+
+      @Override
+      public double get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+      }
+
+      @Override
+      public double get(int index) {
+        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
+  }
+
   @Override
   public IntMatrix asIntMatrix() {
-    return new AsIntMatrix(rows(), columns()) {
+    return new AsIntMatrix(getMatrixFactory(), rows(), columns()) {
       @Override
       public int get(int i, int j) {
         return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
@@ -220,32 +299,64 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   }
 
   @Override
-  public void swap(int a, int b) {
-    boolean tmp = get(a);
-    set(a, get(b));
-    set(b, tmp);
+  public LongMatrix asLongMatrix() {
+    return new AsLongMatrix(getMatrixFactory(), rows(), columns()) {
+      @Override
+      public long get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+      }
+
+      @Override
+      public long get(int index) {
+        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+
+      }
+
+      @Override
+      public void set(int index, long value) {
+        AbstractBitMatrix.this.set(index, value == 1);
+      }
+
+      @Override
+      public void set(int i, int j, long value) {
+        AbstractBitMatrix.this.set(i, j, value == 1);
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
   }
 
   @Override
-  public BitMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
-  }
-
-  public static class IncrementalBuilder {
-
-    private IntArrayList buffer = new IntArrayList();
-
-    public void add(boolean a) {
-      buffer.add(a ? 1 : 0);
-    }
-
-    public BitMatrix build() {
-      BitMatrix n = new DefaultBitMatrix(buffer.size(), 1);
-      for (int i = 0; i < buffer.size(); i++) {
-        n.set(i, buffer.get(i) == 1);
+  public ComplexMatrix asComplexMatrix() {
+    return new AsComplexMatrix(getMatrixFactory(), rows(), columns()) {
+      @Override
+      public void set(int index, Complex value) {
+        AbstractBitMatrix.this.set(index, value.equals(Complex.ONE));
       }
-      return n;
-    }
+
+      @Override
+      public void set(int i, int j, Complex value) {
+        AbstractBitMatrix.this.set(i, j, value.equals(Complex.ONE));
+      }
+
+      @Override
+      public Complex get(int i, int j) {
+        return AbstractBitMatrix.this.get(i, j) ? Complex.ONE : Complex.ZERO;
+      }
+
+      @Override
+      public Complex get(int index) {
+        return AbstractBitMatrix.this.get(index) ? Complex.ONE : Complex.ZERO;
+      }
+
+      @Override
+      public Storage getStorage() {
+        return AbstractBitMatrix.this.getStorage();
+      }
+    };
   }
 
   protected static class SliceBitMatrix extends AbstractBitMatrix {
@@ -253,12 +364,13 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     private final Range row, column;
     private final BitMatrix parent;
 
-    public SliceBitMatrix(BitMatrix parent, Range row, Range column) {
-      this(parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
+    public SliceBitMatrix(MatrixFactory bj, BitMatrix parent, Range row, Range column) {
+      this(bj, parent, checkNotNull(row).size(), row, checkNotNull(column).size(), column);
     }
 
-    public SliceBitMatrix(BitMatrix parent, int rows, Range row, int columns, Range column) {
-      super(rows, columns);
+    public SliceBitMatrix(MatrixFactory bj, BitMatrix parent, int rows, Range row, int columns,
+                          Range column) {
+      super(bj, rows, columns);
       this.row = checkNotNull(row);
       this.column = checkNotNull(column);
       this.parent = checkNotNull(parent);
@@ -280,7 +392,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     @Override
     public BitMatrix reshape(int rows, int columns) {
       Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-      return new SliceBitMatrix(parent, rows, row, columns, column);
+      return new SliceBitMatrix(getMatrixFactory(), parent, rows, row, columns, column);
     }
 
     @Override
@@ -321,8 +433,9 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
     private final int rowOffset, colOffset;
 
-    public BitMatrixView(BitMatrix parent, int rowOffset, int colOffset, int rows, int cols) {
-      super(rows, cols);
+    public BitMatrixView(MatrixFactory bj, BitMatrix parent, int rowOffset, int colOffset, int rows,
+                         int cols) {
+      super(bj, rows, cols);
       this.rowOffset = rowOffset;
       this.colOffset = colOffset;
       this.parent = parent;
@@ -367,11 +480,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
     @Override
     public BitMatrix reshape(int rows, int columns) {
-      throw new UnsupportedOperationException("Unable to reshape view.");
-      // return copy().reshape(rows, columns);
-      // // TODO(isak): this might be strange..
-      // return new DoubleMatrixView(parent.reshape(rows, columns), rowOffset, colOffset, rows,
-      // columns);
+      return copy().reshape(rows, columns);
     }
 
     @Override
@@ -381,7 +490,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
     @Override
     public BitMatrix newEmptyMatrix(int rows, int columns) {
-      return new DefaultBitMatrix(rows, columns);
+      return parent.newEmptyMatrix(rows, columns);
     }
 
 
@@ -396,14 +505,14 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     private final BitMatrix parent;
     private final Range range;
 
-    public FlatSliceBitMatrix(BitMatrix parent, int size, Range range) {
-      super(size);
+    public FlatSliceBitMatrix(MatrixFactory bj, BitMatrix parent, int size, Range range) {
+      super(bj, size);
       this.parent = checkNotNull(parent);
       this.range = checkNotNull(range);
     }
 
-    public FlatSliceBitMatrix(BitMatrix parent, Range range) {
-      this(parent, checkNotNull(range).size(), range);
+    public FlatSliceBitMatrix(MatrixFactory bj, BitMatrix parent, Range range) {
+      this(bj, parent, checkNotNull(range).size(), range);
     }
 
     @Override
@@ -447,36 +556,36 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
   }
 
-  @Override
-  public LongMatrix asLongMatrix() {
-    return new AsLongMatrix(rows(), columns()) {
-      @Override
-      public long get(int i, int j) {
-        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
-      }
-
-      @Override
-      public long get(int index) {
-        return AbstractBitMatrix.this.get(index) ? 1 : 0;
-
-      }
-
-      @Override
-      public void set(int index, long value) {
-        AbstractBitMatrix.this.set(index, value == 1);
-      }
-
-      @Override
-      public void set(int i, int j, long value) {
-        AbstractBitMatrix.this.set(i, j, value == 1);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
-      }
-    };
-  }
+//  @Override
+//  public LongMatrix asLongMatrix() {
+//    return new AsLongMatrix(rows(), columns()) {
+//      @Override
+//      public long get(int i, int j) {
+//        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
+//      }
+//
+//      @Override
+//      public long get(int index) {
+//        return AbstractBitMatrix.this.get(index) ? 1 : 0;
+//
+//      }
+//
+//      @Override
+//      public void set(int index, long value) {
+//        AbstractBitMatrix.this.set(index, value == 1);
+//      }
+//
+//      @Override
+//      public void set(int i, int j, long value) {
+//        AbstractBitMatrix.this.set(i, j, value == 1);
+//      }
+//
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractBitMatrix.this.getStorage();
+//      }
+//    };
+//  }
 
   private class BitListView extends AbstractList<Boolean> {
 
@@ -504,47 +613,47 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     return this;
   }
 
-
-  @Override
-  public ComplexMatrix asComplexMatrix() {
-    return new AsComplexMatrix(rows(), columns()) {
-      @Override
-      public void set(int index, Complex value) {
-        AbstractBitMatrix.this.set(index, value.equals(Complex.ONE));
-      }
-
-      @Override
-      public void set(int i, int j, Complex value) {
-        AbstractBitMatrix.this.set(i, j, value.equals(Complex.ONE));
-      }
-
-      @Override
-      public Complex get(int i, int j) {
-        return AbstractBitMatrix.this.get(i, j) ? Complex.ONE : Complex.ZERO;
-      }
-
-      @Override
-      public Complex get(int index) {
-        return AbstractBitMatrix.this.get(index) ? Complex.ONE : Complex.ZERO;
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
-      }
-    };
-  }
+//
+//  @Override
+//  public ComplexMatrix asComplexMatrix() {
+//    return new AsComplexMatrix(rows(), columns()) {
+//      @Override
+//      public void set(int index, Complex value) {
+//        AbstractBitMatrix.this.set(index, value.equals(Complex.ONE));
+//      }
+//
+//      @Override
+//      public void set(int i, int j, Complex value) {
+//        AbstractBitMatrix.this.set(i, j, value.equals(Complex.ONE));
+//      }
+//
+//      @Override
+//      public Complex get(int i, int j) {
+//        return AbstractBitMatrix.this.get(i, j) ? Complex.ONE : Complex.ZERO;
+//      }
+//
+//      @Override
+//      public Complex get(int index) {
+//        return AbstractBitMatrix.this.get(index) ? Complex.ONE : Complex.ZERO;
+//      }
+//
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractBitMatrix.this.getStorage();
+//      }
+//    };
+//  }
 
 
   @Override
   public BitMatrix getRowView(int i) {
-    return new BitMatrixView(this, i, 0, 1, columns());
+    return new BitMatrixView(getMatrixFactory(), this, i, 0, 1, columns());
   }
 
 
   @Override
   public BitMatrix getColumnView(int index) {
-    return new BitMatrixView(this, 0, index, rows(), 1);
+    return new BitMatrixView(getMatrixFactory(), this, 0, index, rows(), 1);
   }
 
 
@@ -556,29 +665,30 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   @Override
   public BitMatrix getView(int rowOffset, int colOffset, int rows, int columns) {
-    return new BitMatrixView(this, rowOffset, colOffset, rows, columns);
+    return new BitMatrixView(getMatrixFactory(), this, rowOffset, colOffset, rows, columns);
   }
 
 
   @Override
   public BitMatrix slice(Range rows, Range columns) {
-    return new SliceBitMatrix(this, rows, columns);
+    return new SliceBitMatrix(getMatrixFactory(), this, rows, columns);
   }
 
 
   @Override
-  public BitMatrix slice(Range range, Axis axis) {
-    if (axis == Axis.ROW) {
-      return new SliceBitMatrix(this, range, Range.range(columns()));
+  public BitMatrix slice(Range range, Dim dim) {
+    if (dim == Dim.R) {
+      return new SliceBitMatrix(getMatrixFactory(), this, range,
+                                getMatrixFactory().range(columns()));
     } else {
-      return new SliceBitMatrix(this, Range.range(rows()), range);
+      return new SliceBitMatrix(getMatrixFactory(), this, getMatrixFactory().range(rows()), range);
     }
   }
 
 
   @Override
   public BitMatrix slice(Range range) {
-    return new FlatSliceBitMatrix(this, range);
+    return new FlatSliceBitMatrix(getMatrixFactory(), this, range);
   }
 
 
@@ -606,9 +716,9 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
 
   @Override
-  public BitMatrix slice(Collection<Integer> indexes, Axis axis) {
+  public BitMatrix slice(Collection<Integer> indexes, Dim dim) {
     BitMatrix matrix;
-    if (axis == Axis.ROW) {
+    if (dim == Dim.R) {
       matrix = newEmptyMatrix(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
@@ -639,10 +749,10 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
 
   @Override
-  public BitMatrix slice(BitMatrix indexes, Axis axis) {
+  public BitMatrix slice(BitMatrix indexes, Dim dim) {
     int size = Matrices.sum(indexes);
     BitMatrix matrix;
-    if (axis == Axis.ROW) {
+    if (dim == Dim.R) {
       Check.size(rows(), indexes);
       matrix = newEmptyMatrix(size, columns());
       int index = 0;
@@ -685,10 +795,25 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   @Override
   public List<Boolean> asList() {
-    if (listView == null) {
-      listView = new BitListView();
-    }
-    return listView;
+    return new AbstractList<Boolean>() {
+      @NotNull
+      @Override
+      public Boolean get(int index) {
+        return AbstractBitMatrix.this.get(index);
+      }
+
+      @Override
+      public Boolean set(int index, Boolean element) {
+        Boolean old = get(index);
+        AbstractBitMatrix.this.set(index, element);
+        return old;
+      }
+
+      @Override
+      public int size() {
+        return AbstractBitMatrix.this.size();
+      }
+    };
   }
 
 

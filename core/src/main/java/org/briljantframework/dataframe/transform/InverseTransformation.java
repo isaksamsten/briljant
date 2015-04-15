@@ -20,8 +20,9 @@ import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.netlib.util.intW;
 
 import static com.google.common.primitives.Ints.checkedCast;
@@ -33,6 +34,7 @@ public class InverseTransformation implements Transformation {
 
 
   protected static final LAPACK lapack = LAPACK.getInstance();
+  protected static final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   /**
    * Transform dense matrix.
@@ -40,17 +42,16 @@ public class InverseTransformation implements Transformation {
    * @param matrix the matrix
    * @return the dense matrix
    */
-  public DefaultDoubleMatrix transform(DoubleMatrix matrix) {
-    DefaultDoubleMatrix out = new DefaultDoubleMatrix(matrix);
-    return invert(out); // TODO(isak) refactor
+  public DoubleMatrix transform(DoubleMatrix matrix) {
+    return invert(matrix); // TODO(isak) refactor
   }
 
-  private DefaultDoubleMatrix invert(DoubleMatrix in) {
+  private DoubleMatrix invert(DoubleMatrix in) {
     int n = checkedCast(in.rows());
 
     int[] ipiv = new int[n];
     intW error = new intW(0);
-    double[] outArray = in.asDoubleArray();
+    double[] outArray = in.array();
     lapack.dgetrf(n, n, outArray, n, ipiv, error);
     if (error.val != 0) {
       throw new BlasException("dgtref", error.val, "LU decomposition failed.");
@@ -71,7 +72,7 @@ public class InverseTransformation implements Transformation {
       throw new BlasException("dgetri", error.val, "Inverse failed. The matrix is singular.");
     }
 
-    return new DefaultDoubleMatrix(outArray, in.rows(), in.columns());
+    return bj.matrix(outArray).reshape(in.rows(), in.columns());
   }
 
   @Override

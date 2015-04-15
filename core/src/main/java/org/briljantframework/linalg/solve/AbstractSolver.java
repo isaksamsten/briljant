@@ -23,10 +23,10 @@ import org.briljantframework.matrix.DoubleMatrix;
  */
 public abstract class AbstractSolver implements Solver {
 
-  protected final DoubleMatrix matrix;
+  protected final DoubleMatrix a;
 
-  protected AbstractSolver(DoubleMatrix matrix) {
-    this.matrix = matrix;
+  protected AbstractSolver(DoubleMatrix a) {
+    this.a = a;
   }
 
 

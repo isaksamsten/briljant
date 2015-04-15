@@ -5,6 +5,7 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Storage;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -162,5 +163,16 @@ public final class Check {
 
   public static void columnSize(DataFrame expected, DataFrame actual) {
     size(expected.columns(), actual.columns());
+  }
+
+  public static void storage(Matrix<?> matrix, Storage storage) {
+    Check.size(matrix.size(), storage.size());
+  }
+
+  public static void isNotView(Matrix<?> m) {
+    if (m.isView()) {
+      throw new UnsupportedOperationException(
+          String.format("Views are unsupported. Please make a copy."));
+    }
   }
 }

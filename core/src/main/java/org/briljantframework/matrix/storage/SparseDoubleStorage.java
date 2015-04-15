@@ -1,14 +1,17 @@
 package org.briljantframework.matrix.storage;
 
-import org.briljantframework.complex.Complex;
-
 import com.carrotsearch.hppc.IntDoubleMap;
 import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 
+import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
+
 /**
  * <p>
- * A sparse double storage is implemented using rather efficient hash maps. Although the performance
- * is rather fine in many cases, the {@link org.briljantframework.matrix.storage.DoubleStorage} is
+ * A sparse double storage is implemented using rather efficient hash maps. Although the
+ * performance
+ * is rather fine in many cases, the {@link org.briljantframework.matrix.base.DoubleStorage} is
  * several order of magnitudes faster, especially for complex operations such as matrix-matrix
  * multiplication (
  * {@link org.briljantframework.matrix.DoubleMatrix#mmul(org.briljantframework.matrix.DoubleMatrix)}
@@ -18,19 +21,21 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
  *
  * <p>
  * For this reason, most (all) operations defined in {@link org.briljantframework.matrix.Matrices}
- * return a matrix with a {@link org.briljantframework.matrix.storage.DoubleStorage} if it does not
+ * return a matrix with a {@link org.briljantframework.matrix.base.DoubleStorage} if it does not
  * return the type of the receiver.
  * </p>
  *
  * <p>
- * To put the performance differences into perspective, multiplying a {@code 100 x 5000} matrix with
+ * To put the performance differences into perspective, multiplying a {@code 100 x 5000} matrix
+ * with
  * a {@code 5000 x 100} matrix takes {@code 5} ms using {@code ArrayMatrix} and {@code 10202} ms,
  * i.e. the {@code HashMatrix} is almost 2000 times slower.
  * </p>
- * 
+ *
  * @author Isak Karlsson
  */
 public class SparseDoubleStorage extends AbstractStorage {
+
   private final IntDoubleMap values;
   private final double defaultValue;
 
@@ -90,11 +95,6 @@ public class SparseDoubleStorage extends AbstractStorage {
   @Override
   public void setComplex(int index, Complex complex) {
     setDouble(index, complex.doubleValue());
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
   }
 
   @Override

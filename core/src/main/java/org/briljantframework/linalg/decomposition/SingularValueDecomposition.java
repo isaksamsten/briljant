@@ -16,7 +16,6 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 
 /**
@@ -29,7 +28,7 @@ public class SingularValueDecomposition implements Decomposition {
    * The
    * diagonal entries \Sigma_{i,i} of \Sigma are known as the singular values of M
    */
-  public final Diagonal s;
+  public final DoubleMatrix s;
 
   /**
    * U is a m×m real or complex unitary matrix
@@ -43,12 +42,11 @@ public class SingularValueDecomposition implements Decomposition {
 
   /**
    * Instantiates a new Singular value decomposition.
-   *
-   * @param s the s
+   *  @param s the s
    * @param u the u
    * @param v the v
    */
-  public SingularValueDecomposition(Diagonal s, DoubleMatrix u, DoubleMatrix v) {
+  public SingularValueDecomposition(DoubleMatrix s, DoubleMatrix u, DoubleMatrix v) {
     this.s = s;
     this.u = u;
     this.v = v;
@@ -59,7 +57,7 @@ public class SingularValueDecomposition implements Decomposition {
    *
    * @return the diagonal
    */
-  public Diagonal getDiagonal() {
+  public DoubleMatrix getDiagonal() {
     return s;
   }
 

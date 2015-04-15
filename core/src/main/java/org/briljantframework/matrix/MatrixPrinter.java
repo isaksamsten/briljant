@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.complex.ComplexFormat;
 
 import java.io.IOException;
@@ -95,7 +96,7 @@ public final class MatrixPrinter {
    * @throws IOException if an IO error occurs
    */
   public static void print(Appendable out, ToStringMatrix matrix) throws IOException {
-    IntMatrix widths = IntMatrix.newVector(matrix.columns());
+    IntMatrix widths = Briljant.intVector(matrix.columns());
     for (int j = 0; j < matrix.columns(); j++) {
       int m = 0;
       for (int i = 0; i < matrix.rows(); i++) {

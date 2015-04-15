@@ -6,6 +6,8 @@ import com.carrotsearch.hppc.IntIntMap;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
 
 /**
  * Created by isak on 26/03/15.
@@ -64,11 +66,6 @@ public class SparseIntStorage extends AbstractStorage {
   @Override
   public void setComplex(int index, Complex complex) {
     setDouble(index, complex.doubleValue());
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
   }
 
   @Override

@@ -16,29 +16,28 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
+import org.briljantframework.Briljant;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.netlib.util.intW;
-
-import com.github.fommil.netlib.LAPACK;
 
 /**
- * Created by Isak Karlsson on 11/08/14.
+ * @author Isak Karlsson
  */
 public class LuDecomposer implements Decomposer<LuDecomposition> {
+
   @Override
   public LuDecomposition decompose(DoubleMatrix matrix) {
     int m = matrix.rows(), n = matrix.columns();
     int[] pivots = new int[Math.min(m, n)];
 
-    DoubleMatrix lu = new DefaultDoubleMatrix(matrix);
+    DoubleMatrix lu = matrix.copy();
 
-    intW error = new intW(0);
-    LAPACK.getInstance().dgetrf(n, n, lu.asDoubleArray(), n, pivots, error);
-    if (error.val != 0) {
-      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
-    }
+    int e = Briljant.linalg.getrf(lu, pivots);
+//    intW error = new intW(0);
+//    LAPACK.getInstance()
+//        .dgetrf(m, n, ((DoubleStorage) lu.getStorage()).doubleArray(), n, pivots, error);
+//    if (error.val != 0) {
+//      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
+//    }
 
     return new LuDecomposition(lu, pivots);
   }

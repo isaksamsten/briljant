@@ -2,6 +2,8 @@ package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.ImmutableModificationException;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
@@ -56,11 +58,6 @@ public class VectorStorage extends AbstractStorage {
   @Override
   public void setComplex(int index, Complex complex) {
     throw new ImmutableModificationException();
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return false;
   }
 
   @Override

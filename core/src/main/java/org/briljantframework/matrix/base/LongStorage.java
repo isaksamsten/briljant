@@ -1,56 +1,55 @@
-package org.briljantframework.matrix.storage;
-
-import java.util.Arrays;
+package org.briljantframework.matrix.base;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
+import org.briljantframework.matrix.Storage;
+
+import java.util.Arrays;
 
 /**
  * Created by isak on 1/30/15.
  */
-public class IntStorage extends AbstractStorage {
-  private final int[] values;
+class LongStorage extends AbstractStorage {
 
-  public IntStorage(int[] values) {
+  private final long[] values;
+
+  public LongStorage(long[] values) {
     super(values.length);
     this.values = values;
   }
 
-  public IntStorage(int size) {
-    this(new int[size]);
-  }
-
-  public static IntStorage withSize(int size) {
-    return new IntStorage(new int[size]);
+  public static LongStorage withSize(int size) {
+    return new LongStorage(new long[size]);
   }
 
   @Override
   public int getInt(int index) {
-    return values[index];
+    return (int) getLong(index);
   }
 
   @Override
   public void setInt(int index, int value) {
-    values[index] = value;
+    setLong(index, value);
   }
 
   @Override
   public long getLong(int index) {
-    return getInt(index);
+    return values[index];
   }
 
   @Override
   public void setLong(int index, long value) {
-    setInt(index, (int) value);
+    values[index] = value;
   }
 
   @Override
   public double getDouble(int index) {
-    return getInt(index);
+    return getLong(index);
   }
 
   @Override
   public void setDouble(int index, double value) {
-    setInt(index, (int) value);
+    setLong(index, (long) value);
   }
 
   @Override
@@ -60,26 +59,16 @@ public class IntStorage extends AbstractStorage {
 
   @Override
   public void setComplex(int index, Complex complex) {
-    setInt(index, complex.intValue());
-  }
-
-  @Override
-  public boolean isArrayBased() {
-    return true;
-  }
-
-  @Override
-  public int[] asIntArray() {
-    return values;
+    setLong(index, complex.longValue());
   }
 
   @Override
   public Class<?> getNativeType() {
-    return Integer.TYPE;
+    return Long.TYPE;
   }
 
   @Override
   public Storage copy() {
-    return new IntStorage(Arrays.copyOf(values, values.length));
+    return new LongStorage(Arrays.copyOf(values, values.length));
   }
 }

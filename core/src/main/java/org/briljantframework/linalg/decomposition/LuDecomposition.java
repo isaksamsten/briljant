@@ -16,20 +16,23 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import java.util.Optional;
+import com.github.fommil.netlib.LAPACK;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.exceptions.BlasException;
-import org.briljantframework.matrix.DefaultDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.netlib.util.intW;
 
-import com.github.fommil.netlib.LAPACK;
+import java.util.Optional;
 
 /**
  * Created by isak on 02/07/14.
  */
 public class LuDecomposition implements Decomposition {
+
+  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   private final DoubleMatrix lu;
   private final int[] pivots;
@@ -42,7 +45,7 @@ public class LuDecomposition implements Decomposition {
   /**
    * Instantiates a new Lu decomposition.
    *
-   * @param lu the lu
+   * @param lu     the lu
    * @param pivots the pivots
    */
   public LuDecomposition(DoubleMatrix lu, int[] pivots) {
@@ -68,24 +71,26 @@ public class LuDecomposition implements Decomposition {
     if (!lu.isSquare()) {
       throw new IllegalStateException("Matrix must be square.");
     }
-    DoubleMatrix inv = lu.copy();
-    int n = inv.rows();
+//    DoubleMatrix inv = lu.copy();
+    int n = lu.rows();
     int lwork = -1;
     double[] work = new double[1];
     intW err = new intW(0);
-    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
+//    DoubleStorage invs = (DoubleStorage) inv.getStorage();
+    double[] invs = lu.array();
+    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new BlasException("LAPACKE_dgetri", err.val, "Querying failed");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
-    LAPACK.getInstance().dgetri(n, inv.asDoubleArray(), n, pivots, work, lwork, err);
+    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new BlasException("LAPACKE_dgetri", err.val, "Inverse failed.");
     }
 
-    return inv;
+    return Briljant.matrix(invs).reshape(lu.rows(), lu.columns());
   }
 
   /**
@@ -147,7 +152,7 @@ public class LuDecomposition implements Decomposition {
   }
 
   private DoubleMatrix computeUpper() {
-    DefaultDoubleMatrix upperMatrix = new DefaultDoubleMatrix(lu.rows(), lu.columns());
+    DoubleMatrix upperMatrix = bj.doubleMatrix(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         upperMatrix.set(i, j, lu.get(i, j));
@@ -167,7 +172,7 @@ public class LuDecomposition implements Decomposition {
   }
 
   private DoubleMatrix computeLower() {
-    DoubleMatrix lowerMatrix = Matrices.zeros(lu.rows(), lu.columns());
+    DoubleMatrix lowerMatrix = bj.doubleMatrix(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         int ii = lu.rows() - 1 - i;

@@ -1,5 +1,9 @@
 package org.briljantframework.matrix;
 
+import com.google.common.base.Preconditions;
+
+import org.briljantframework.matrix.api.MatrixFactory;
+
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
@@ -13,22 +17,37 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
 
   protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
 
+  protected final MatrixFactory bj;
   private final int rows, cols, size;
 
-  protected AbstractMatrix(int size) {
-    this(size, 1);
+  protected AbstractMatrix(MatrixFactory bj, int size) {
+    this(bj, size, 1);
   }
 
-  protected AbstractMatrix(int rows, int cols) {
+  protected AbstractMatrix(MatrixFactory bj, int rows, int cols) {
+    this.bj = Preconditions.checkNotNull(bj);
     this.rows = rows;
     this.cols = cols;
     this.size = Math.multiplyExact(rows, cols);
   }
 
+  protected MatrixFactory getMatrixFactory() {
+    return bj;
+  }
+
   @Override
-  public T map(Axis axis, UnaryOperator<T> mapper) {
+  public final T assign(T o) {
+    T n = newEmptyMatrix(o.rows(), o.columns());
+    for (int i = 0; i < size(); i++) {
+      this.set(i, o, i);
+    }
+    return n;
+  }
+
+  @Override
+  public T map(Dim dim, UnaryOperator<T> mapper) {
     T matrix = newEmptyMatrix(rows(), columns());
-    if (axis == Axis.ROW) {
+    if (dim == Dim.R) {
       for (int i = 0; i < rows(); i++) {
         matrix.setRow(i, mapper.apply(getRowView(i)));
       }
@@ -42,8 +61,8 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
   }
 
   @Override
-  public void forEach(Axis axis, Consumer<T> consumer) {
-    if (axis == Axis.ROW) {
+  public void forEach(Dim dim, Consumer<T> consumer) {
+    if (dim == Dim.R) {
       for (int i = 0; i < rows(); i++) {
         consumer.accept(getRowView(i));
       }
@@ -55,6 +74,20 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
   }
 
   @Override
+  public void setVectorAlong(Dim dim, int i, T vector) {
+    if (dim == Dim.R) {
+      setRow(i, vector);
+    } else {
+      setColumn(i, vector);
+    }
+  }
+
+  @Override
+  public T getVectorAlong(Dim dim, int index) {
+    return dim == Dim.R ? getRowView(index) : getColumnView(index);
+  }
+
+  @Override
   public final int rows() {
     return rows;
   }
@@ -62,6 +95,11 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
   @Override
   public final int columns() {
     return cols;
+  }
+
+  @Override
+  public int size(Dim dim) {
+    return dim == Dim.R ? rows() : columns();
   }
 
   @Override

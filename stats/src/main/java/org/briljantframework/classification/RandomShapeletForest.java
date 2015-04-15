@@ -16,6 +16,7 @@
 
 package org.briljantframework.classification;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.dataframe.DataFrame;
@@ -65,15 +66,15 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitMatrix oobIndicator = BitMatrix.newMatrix(x.rows(), size());
+    BitMatrix oobIndicator = Briljant.booleanMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumnView(i)));
     }
 
     try {
       List<ShapeletTree.Predictor> models = execute(tasks);
-      DoubleMatrix lenSum = DoubleMatrix.newVector(x.columns());
-      DoubleMatrix posSum = DoubleMatrix.newVector(x.columns());
+      DoubleMatrix lenSum = Briljant.doubleVector(x.columns());
+      DoubleMatrix posSum = Briljant.doubleVector(x.columns());
       for (ShapeletTree.Predictor m : models) {
         lenSum.assign(m.getLengthImportance(), Double::sum);
         posSum.assign(m.getPositionImportance(), Double::sum);
@@ -83,7 +84,7 @@ public class RandomShapeletForest extends Ensemble {
       posSum.update(v -> v / size());
 
       Map<Value, Integer> counts = Vectors.count(y);
-      DoubleMatrix apriori = DoubleMatrix.newVector(classes.size());
+      DoubleMatrix apriori = Briljant.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         apriori.set(i, counts.get(classes.getAsValue(i)) / (double) y.size());
       }
@@ -213,7 +214,7 @@ public class RandomShapeletForest extends Ensemble {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = DoubleMatrix.newVector(classes.size());
+      DoubleMatrix m = Briljant.doubleVector(classes.size());
       for (DoubleMatrix prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }

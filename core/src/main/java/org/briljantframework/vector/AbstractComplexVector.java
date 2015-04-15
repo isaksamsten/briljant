@@ -1,8 +1,8 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.Briljant;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.DefaultComplexMatrix;
 import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
@@ -125,7 +125,7 @@ public abstract class AbstractComplexVector extends AbstractVector {
 
   @Override
   public ComplexMatrix asMatrix() {
-    return new DefaultComplexMatrix(new VectorStorage(this));
+    return Briljant.complexVector(new VectorStorage(this));
   }
 
   /**

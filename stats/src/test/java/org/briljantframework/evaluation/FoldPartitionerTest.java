@@ -1,19 +1,19 @@
 package org.briljantframework.evaluation;
 
-import static org.junit.Assert.assertTrue;
-
+import org.briljantframework.Briljant;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.matrix.Range;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class FoldPartitionerTest {
 
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadConnect4();
-    DataFrame x = dummy.takeColumns(Range.range(0, 2).flat());
+    DataFrame x = dummy.takeColumns(Briljant.range(0, 2).flat());
     Vector y = dummy.getColumn(2);
 
     System.out.println(x);
