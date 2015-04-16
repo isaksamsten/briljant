@@ -1,5 +1,6 @@
 package org.briljantframework.matrix.netlib;
 
+import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -15,8 +16,8 @@ public class NetlibMatrixFactoryTest {
 
   @Test
   public void testCreateNewDoubleMatrix() throws Exception {
-    DoubleMatrix m = bj.matrix(new double[]{1, 2, 3, 4.0}).reshape(2, 2);
-    System.out.println(linalg.gesvd(m).getLeftSingularValues());
+    DoubleMatrix m = bj.matrix(new double[]{1, 2, 3, 4}).reshape(2, 2);
+    System.out.println(LinearAlgebra.svd(m).getLeftSingularValues());
     System.out.println(m);
     System.out.println(blas.prod(m, Dim.C));
   }

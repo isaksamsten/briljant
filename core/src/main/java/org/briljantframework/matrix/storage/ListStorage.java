@@ -2,7 +2,6 @@ package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.matrix.Storage;
 
 import java.util.ArrayList;
 import java.util.List;

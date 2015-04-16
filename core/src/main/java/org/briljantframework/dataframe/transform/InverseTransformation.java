@@ -54,7 +54,7 @@ public class InverseTransformation implements Transformation {
     double[] outArray = in.array();
     lapack.dgetrf(n, n, outArray, n, ipiv, error);
     if (error.val != 0) {
-      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
+      throw new BlasException(error.val, "LU decomposition failed.");
     }
 
     double[] work = new double[1];
@@ -62,14 +62,14 @@ public class InverseTransformation implements Transformation {
     lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
 
     if (error.val != 0) {
-      throw new BlasException("dgetri", error.val, "Query failed");
+      throw new BlasException(error.val, "Query failed");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
     lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
     if (error.val != 0) {
-      throw new BlasException("dgetri", error.val, "Inverse failed. The matrix is singular.");
+      throw new BlasException(error.val, "Inverse failed. The matrix is singular.");
     }
 
     return bj.matrix(outArray).reshape(in.rows(), in.columns());

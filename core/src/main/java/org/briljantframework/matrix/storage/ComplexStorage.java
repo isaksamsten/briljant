@@ -1,80 +1,74 @@
-package org.briljantframework.matrix.base;
+package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.matrix.Storage;
 
 import java.util.Arrays;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 1/30/15.
  */
-class BooleanStorage extends AbstractStorage {
+public class ComplexStorage extends AbstractStorage {
 
-  private final boolean[] values;
+  private final Complex[] values;
 
-  public BooleanStorage(boolean[] values) {
+  public ComplexStorage(Complex[] values) {
     super(values.length);
     this.values = values;
   }
 
-  public BooleanStorage(int size) {
+  public ComplexStorage(int size) {
     super(size);
-    this.values = new boolean[size];
-  }
-
-  @Override
-  public boolean getBoolean(int index) {
-    return values[index];
+    this.values = new Complex[size];
   }
 
   @Override
   public int getInt(int index) {
-    return values[index] ? 1 : 0;
+    return getComplex(index).intValue();
   }
 
   @Override
   public void setInt(int index, int value) {
-    values[index] = value == 1;
+    setDouble(index, value);
   }
 
   @Override
   public long getLong(int index) {
-    return getInt(index);
+    return getComplex(index).longValue();
   }
 
   @Override
   public void setLong(int index, long value) {
-    values[index] = value == 1;
+    setDouble(index, value);
   }
 
   @Override
   public double getDouble(int index) {
-    return getInt(index);
+    return getComplex(index).real();
   }
 
   @Override
   public void setDouble(int index, double value) {
-    setLong(index, (long) value);
+    setComplex(index, Complex.valueOf(value));
   }
 
   @Override
   public Complex getComplex(int index) {
-    return getBoolean(index) ? Complex.ONE : Complex.ZERO;
+    return values[index];
   }
 
   @Override
   public void setComplex(int index, Complex complex) {
-    setLong(index, complex.longValue());
+    values[index] = complex;
   }
 
   @Override
   public Class<?> getNativeType() {
-    return Boolean.class;
+    return Complex.class;
   }
 
   @Override
   public Storage copy() {
-    return new BooleanStorage(Arrays.copyOf(values, values.length));
+    return new ComplexStorage(Arrays.copyOf(values, values.length));
   }
 }

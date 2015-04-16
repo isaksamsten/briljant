@@ -7,7 +7,6 @@ import com.carrotsearch.hppc.IntIntOpenHashMap;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.matrix.Storage;
 
 /**
  * Created by isak on 26/03/15.

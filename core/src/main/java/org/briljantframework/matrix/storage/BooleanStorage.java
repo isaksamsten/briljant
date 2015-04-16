@@ -1,79 +1,79 @@
-package org.briljantframework.matrix.base;
+package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.matrix.Storage;
 
 import java.util.Arrays;
 
 /**
  * @author Isak Karlsson
  */
-class DoubleStorage extends AbstractStorage {
+public class BooleanStorage extends AbstractStorage {
 
-  private final double[] values;
+  private final boolean[] values;
 
-  public DoubleStorage(double[] values) {
+  public BooleanStorage(boolean[] values) {
     super(values.length);
     this.values = values;
   }
 
-  public DoubleStorage(int size) {
+  public BooleanStorage(int size) {
     super(size);
-    this.values = new double[size];
+    this.values = new boolean[size];
   }
 
   @Override
-  public int getInt(int index) {
-    return (int) getDouble(index);
-  }
-
-  @Override
-  public void setInt(int index, int value) {
-    setDouble(index, value);
-  }
-
-  @Override
-  public long getLong(int index) {
-    return (long) getDouble(index);
-  }
-
-  @Override
-  public void setLong(int index, long value) {
-    setDouble(index, value);
-  }
-
-  @Override
-  public double getDouble(int index) {
+  public boolean getBoolean(int index) {
     return values[index];
   }
 
   @Override
+  public int getInt(int index) {
+    return values[index] ? 1 : 0;
+  }
+
+  @Override
+  public void setInt(int index, int value) {
+    values[index] = value == 1;
+  }
+
+  @Override
+  public long getLong(int index) {
+    return getInt(index);
+  }
+
+  @Override
+  public void setLong(int index, long value) {
+    values[index] = value == 1;
+  }
+
+  @Override
+  public double getDouble(int index) {
+    return getInt(index);
+  }
+
+  @Override
   public void setDouble(int index, double value) {
-    values[index] = value;
+    setLong(index, (long) value);
   }
 
   @Override
   public Complex getComplex(int index) {
-    return Complex.valueOf(getDouble(index));
+    return getBoolean(index) ? Complex.ONE : Complex.ZERO;
   }
 
   @Override
   public void setComplex(int index, Complex complex) {
-    setDouble(index, complex.doubleValue());
-  }
-
-  public double[] doubleArray() {
-    return values;
+    setLong(index, complex.longValue());
   }
 
   @Override
   public Class<?> getNativeType() {
-    return Double.TYPE;
+    return Boolean.class;
   }
 
   @Override
   public Storage copy() {
-    return new DoubleStorage(Arrays.copyOf(values, values.length));
+    return new BooleanStorage(Arrays.copyOf(values, values.length));
   }
 }

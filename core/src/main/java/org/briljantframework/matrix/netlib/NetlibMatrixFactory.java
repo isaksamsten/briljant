@@ -2,7 +2,6 @@ package org.briljantframework.matrix.netlib;
 
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.base.BaseMatrixFactory;
@@ -13,7 +12,7 @@ import org.briljantframework.matrix.base.BaseMatrixFactory;
 public class NetlibMatrixFactory extends BaseMatrixFactory {
 
   private final LinearAlgebraRoutines linalg = new NetlibLinearAlgebraRoutines(this);
-  private final MatrixRoutines blas = new NetlibMatrixOperations(this);
+  private final MatrixRoutines blas = new NetlibMatrixRoutines(this);
 
   public NetlibMatrixFactory() {
   }
@@ -31,17 +30,6 @@ public class NetlibMatrixFactory extends BaseMatrixFactory {
   @Override
   public DoubleMatrix doubleVector(int size) {
     return new NetlibDoubleMatrix(this, size);
-  }
-
-  @Override
-  public Matrix copy(Matrix x) {
-    if (!(x instanceof NetlibDoubleMatrix)) {
-      @SuppressWarnings("unchecked")
-      Matrix r = ((Matrix) doubleMatrix(x.rows(), x.columns())).assign(x);
-      return r;
-    } else {
-      return super.copy(x);
-    }
   }
 
   @Override

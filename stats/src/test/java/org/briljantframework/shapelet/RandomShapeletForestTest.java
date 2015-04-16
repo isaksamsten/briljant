@@ -28,6 +28,9 @@ import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.io.SequenceInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.api.MatrixRoutines;
+import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
@@ -38,6 +41,7 @@ import org.junit.Test;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class RandomShapeletForestTest {
 
@@ -137,6 +141,61 @@ public class RandomShapeletForestTest {
   }
 
   @Test
+  public void testCrap() throws Exception {
+    MatrixFactory bj = NetlibMatrixFactory.getInstance();
+    MatrixRoutines bjr = bj.getMatrixRoutines();
+    int m = 270;
+    int n = 200;
+    DoubleMatrix alpha = bj.doubleVector(m);
+    for (int i = 0; i < alpha.size(); i++) {
+      int j = i + 1;
+      alpha.set(i, (m - j + 1));
+    }
+
+//    DoubleMatrix c = alpha.slice(bj.range(3, alpha.size()));
+//    double sum = bjr.sum(c);
+    double sum = 0;
+//    DoubleMatrix
+    for (int i = 3; i <= alpha.size(); i++) {
+      sum += alpha.get(i - 1);
+    }
+
+//    System.out.println(alpha.get(3 - 1));
+
+    double f = (270 + 100) / sum;
+    System.out.println(f);
+    Random rand = new Random(123);
+    double len = 0;
+    long s = 0;
+//    System.out.println("Sum: " + bjr.sum(c)*f);
+    for (int l = 3; l <= m; l++) {
+//      System.out.println(Math.round(alpha.get(l - 1) * f));
+      long r = Math.round(f * alpha.get(l - 1));
+      for (int i = 0; i < r; i++) {
+        s++;
+        int vec = rand.nextInt(n - 1);
+        int start = rand.nextInt(m + 1 - l);
+        len += l;
+//        assert start < m;
+//        System.out.printf("In vector %d => %d:%d\n", vec, start, l);
+      }
+    }
+    System.out.println(len / s);
+    System.out.println(s);
+//    System.out.println(f);
+
+    int upper = 270;
+    int lower = 3;
+    len = 0;
+    for (int i = 0; i < 270; i++) {
+      int length = rand.nextInt(upper) + lower;
+      len += length;
+    }
+    System.out.println(len / 270);
+//
+  }
+
+  @Test
   public void testSequences() throws Exception {
     String ade = "L270";
     DataInputStream in =
@@ -181,25 +240,25 @@ public class RandomShapeletForestTest {
     // DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
     // DataFrame x = synthetic.removeColumn(0);
     // StringVector y = Convert.toStringVector(synthetic.getColumn(0));
-
-    String name = "SonyAIBORobotSurface";
+    String name = "DiatomSizeReduction";
     String trainFile = String.format("/Users/isak-kar/Downloads/dataset2/%s/%s_TRAIN", name, name);
     String testFile = String.format("/Users/isak-kar/Downloads/dataset2/%s/%s_TEST", name, name);
     try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
          DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
-          DataFrames.permuteRows(
-              new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train).read(test)
-                  .build());
-//      DataFrame validationSet =
-//          new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
+//          DataFrames.permuteRows(
+          new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
+              .build();/*);*/
+      DataFrame validationSet =
+          new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
       System.out.println(trainingSet.rows());
 
       DataFrame xTrain = trainingSet.removeColumn(0);
       Vector yTrain = Convert.toStringVector(trainingSet.getColumn(0));
 
-//      DataFrame xTest = validationSet.removeColumn(0);
-//      Vector yTest = Convert.toStringVector(validationSet.getColumn(0));
+      DataFrame xTest = validationSet.removeColumn(0);
+      Vector yTest = Convert.toStringVector(validationSet.getColumn(0));
+
 //
       // RandomShapeletForest.Builder fb =
       // RandomShapeletForest.withSize(100).withInspectedShapelets(100).withLowerLength(0.025)
@@ -220,25 +279,27 @@ public class RandomShapeletForestTest {
 //          .println(Vectors.mean(xTrain.getRecord(0)) + " " + Vectors.std(xTrain.getRecord(0)));
 
       IntMatrix sizes = Briljant.matrix(new int[]{
-          100
+          500
       });
 
       System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
                          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
       for (int i = 0; i < sizes.size(); i++) {
         RandomShapeletForest forest = RandomShapeletForest
-            .withSize(100)
-            .withInspectedShapelets(sizes.get(i))
-            .withLowerLength(0.6)
+            .withSize(500)
+            .withInspectedShapelets(4)
+            .withLowerLength(0.9)
             .withUpperLength(1)
-            .withAssessment(ShapeletTree.Assessment.FSTAT)
+//            .withAggregateFraction(3)
+//            .withSampleMode(ShapeletTree.SampleMode.NEW_SAMPLE)
+            .withAssessment(ShapeletTree.Assessment.IG)
             .build();
-        Result s = Validators.crossValidation(10).test(forest, xTrain, yTrain);
-        System.out.println(s);
+//        Result s = Validators.crossValidation(10).test(forest, xTrain, yTrain);
+//        System.out.println(s);
 
         for (int j = 0; j < 1; j++) {
-//          Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
-//          System.out.println(result);
+          Result result = HoldoutValidator.withHoldout(xTest, yTest).test(forest, xTrain, yTrain);
+          System.out.println(result);
 //          System.out.println(sizes.get(i) + ", " + result.getAverage(Ensemble.Correlation.class)
 //                             + ", " + result.getAverage(Ensemble.Strength.class) + ", "
 //                             + result.getAverage(Ensemble.Quality.class) + ", "

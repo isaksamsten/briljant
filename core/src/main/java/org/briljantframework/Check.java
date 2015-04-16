@@ -5,10 +5,11 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -18,6 +19,11 @@ import java.util.function.Predicate;
 public final class Check {
 
   private Check() {
+  }
+
+  @SafeVarargs
+  public static <T> void all(Predicate<? super T> p, T... arr) {
+    all(Arrays.asList(arr), p);
   }
 
   public static <T> void all(Iterable<? extends T> it, Predicate<? super T> p) {
@@ -34,7 +40,6 @@ public final class Check {
                                                        max));
     }
   }
-
 
   /**
    * Ensures that the shape of {@code a} and {@code b} is the same.

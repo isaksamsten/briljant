@@ -8,16 +8,13 @@ import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.Storage;
 
 /**
  * @author Isak Karlsson
  */
 public interface MatrixFactory {
-
-  Matrix copy(Matrix x);
 
   /**
    * Create an {@code IntMatrix} with the given data

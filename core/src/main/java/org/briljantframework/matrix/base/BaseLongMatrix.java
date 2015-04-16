@@ -4,7 +4,8 @@ import org.briljantframework.Check;
 import org.briljantframework.matrix.AbstractLongMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.LongMatrix;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.LongStorage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;

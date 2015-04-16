@@ -7,9 +7,11 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.AbstractDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.Storage;
 import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.storage.DoubleArrayStorage;
+import org.briljantframework.matrix.storage.DoubleStorage;
+import org.briljantframework.matrix.storage.Storage;
 
 /**
  * @author Isak Karlsson
@@ -18,26 +20,26 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
 
   private static BLAS blas = BLAS.getInstance();
 
-  private final NetlibDoubleStorage values;
+  private final DoubleStorage values;
 
   NetlibDoubleMatrix(MatrixFactory bj, int size) {
     super(bj, size);
-    values = new NetlibDoubleStorage(new double[size]);
+    values = new DoubleStorage(new double[size]);
   }
 
   NetlibDoubleMatrix(MatrixFactory bj, int rows, int columns) {
     super(bj, rows, columns);
-    values = new NetlibDoubleStorage(new double[Math.multiplyExact(rows, columns)]);
+    values = new DoubleStorage(new double[Math.multiplyExact(rows, columns)]);
   }
 
-  NetlibDoubleMatrix(MatrixFactory bj, NetlibDoubleStorage values, int rows, int columns) {
+  NetlibDoubleMatrix(MatrixFactory bj, DoubleStorage values, int rows, int columns) {
     super(bj, rows, columns);
     Check.size(size(), values.size());
     this.values = values;
   }
 
   public NetlibDoubleMatrix(MatrixFactory bj, double[] data) {
-    this(bj, new NetlibDoubleStorage(data), data.length, 1);
+    this(bj, new DoubleStorage(data), data.length, 1);
   }
 
   @Override
@@ -74,9 +76,9 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
   public DoubleMatrix addi(double alpha, DoubleMatrix other) {
     Check.equalShape(this, other);
     Storage o = other.getStorage();
-    if (o.getNativeType().equals(Double.TYPE) && o instanceof NetlibDoubleStorage) {
-      double[] dy = ((NetlibDoubleStorage) o).doubleArray();
-      blas.daxpy(size(), alpha, dy, 1, values.doubleArray(), 1);
+    if (o.getNativeType().equals(Double.TYPE) && o instanceof DoubleArrayStorage) {
+      double[] dy = ((DoubleArrayStorage) o).array();
+      blas.daxpy(size(), alpha, dy, 1, values.array(), 1);
     } else {
       super.addi(alpha, other);
     }
@@ -85,14 +87,12 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, Transpose b) {
-    if (this.columns() != other.rows()) {
-      throw new NonConformantException(this, other);
-    }
-
     String transA = "n";
     int thisRows = rows();
+    int thisColumns = columns();
     if (a.transpose()) {
       thisRows = columns();
+      thisColumns = rows();
       transA = "t";
     }
 
@@ -105,16 +105,20 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
       transB = "t";
     }
 
+    if (thisColumns != otherRows) {
+      throw new NonConformantException(this, other);
+    }
+
     Storage otherStorage = other.getStorage();
-    if (otherStorage instanceof NetlibDoubleStorage) {
-      NetlibDoubleStorage os = (NetlibDoubleStorage) otherStorage;
+    if (otherStorage instanceof DoubleArrayStorage) {
+      DoubleArrayStorage os = (DoubleArrayStorage) otherStorage;
       double[] tmp = new double[Math.multiplyExact(thisRows, otherColumns)];
 
-      blas.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, values.doubleArray(),
-                 this.rows(), os.doubleArray(), other.rows(), 0, tmp,
+      blas.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, values.array(),
+                 this.rows(), os.array(), other.rows(), 0, tmp,
                  thisRows);
 
-      return new NetlibDoubleMatrix(getMatrixFactory(), new NetlibDoubleStorage(tmp), thisRows,
+      return new NetlibDoubleMatrix(getMatrixFactory(), new DoubleStorage(tmp), thisRows,
                                     otherColumns);
     } else {
       return super.mmul(alpha, a, other, b);
@@ -130,7 +134,7 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
   @Override
   public DoubleMatrix copy() {
     return new NetlibDoubleMatrix(
-        getMatrixFactory(), (NetlibDoubleStorage) values.copy(), rows(), columns());
+        getMatrixFactory(), (DoubleStorage) values.copy(), rows(), columns());
   }
 
   @Override

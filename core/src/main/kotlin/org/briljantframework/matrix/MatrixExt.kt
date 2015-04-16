@@ -3,6 +3,7 @@ package org.briljantframework.matrix
 import org.briljantframework.all
 import org.briljantframework.complex.Complex
 import org.briljantframework.matrix.netlib.NetlibMatrixFactory
+import org.briljantframework.matrix.storage.Storage
 
 val bj = NetlibMatrixFactory.getInstance()
 val bjr = bj.getMatrixRoutines()

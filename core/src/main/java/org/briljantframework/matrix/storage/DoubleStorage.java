@@ -1,44 +1,45 @@
-package org.briljantframework.matrix.netlib;
+package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.matrix.Storage;
+
+import java.util.Arrays;
 
 /**
- * Created by isak on 14/04/15.
+ * @author Isak Karlsson
  */
-class NetlibDoubleStorage extends AbstractStorage {
+public class DoubleStorage extends AbstractStorage implements DoubleArrayStorage {
 
   private final double[] values;
 
-  NetlibDoubleStorage(double[] values) {
+  public DoubleStorage(double[] values) {
     super(values.length);
     this.values = values;
   }
 
-  NetlibDoubleStorage(int size) {
+  public DoubleStorage(int size) {
     super(size);
     this.values = new double[size];
   }
 
   @Override
   public int getInt(int index) {
-    return (int) values[index];
+    return (int) getDouble(index);
   }
 
   @Override
   public void setInt(int index, int value) {
-    values[index] = value;
+    setDouble(index, value);
   }
 
   @Override
   public long getLong(int index) {
-    return (long) values[index];
+    return (long) getDouble(index);
   }
 
   @Override
   public void setLong(int index, long value) {
-    values[index] = value;
+    setDouble(index, value);
   }
 
   @Override
@@ -58,7 +59,12 @@ class NetlibDoubleStorage extends AbstractStorage {
 
   @Override
   public void setComplex(int index, Complex complex) {
-    values[index] = complex.doubleValue();
+    setDouble(index, complex.doubleValue());
+  }
+
+  @Override
+  public double[] array() {
+    return values;
   }
 
   @Override
@@ -68,10 +74,6 @@ class NetlibDoubleStorage extends AbstractStorage {
 
   @Override
   public Storage copy() {
-    return new NetlibDoubleStorage(values.clone());
-  }
-
-  public double[] doubleArray() {
-    return values;
+    return new DoubleStorage(Arrays.copyOf(values, values.length));
   }
 }

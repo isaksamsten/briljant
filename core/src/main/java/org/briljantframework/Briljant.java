@@ -11,7 +11,7 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
@@ -225,7 +225,7 @@ public final class Briljant {
   }
 
   public static double asum(DoubleMatrix a, DoubleMatrix b) {
-    return MATRIX_ROUTINES.asum(a, b);
+    return MATRIX_ROUTINES.asum(a);
   }
 
   public static DoubleMatrix var(DoubleMatrix x, Dim dim) {
@@ -252,7 +252,7 @@ public final class Briljant {
   }
 
   public static Complex norm2(ComplexMatrix a, ComplexMatrix b) {
-    return MATRIX_ROUTINES.norm2(a, b);
+    return MATRIX_ROUTINES.norm2(a);
   }
 
   public static double prod(DoubleMatrix x) {
@@ -276,7 +276,7 @@ public final class Briljant {
   }
 
   public static double norm2(DoubleMatrix a, DoubleMatrix b) {
-    return MATRIX_ROUTINES.norm2(a, b);
+    return MATRIX_ROUTINES.nrm2(a);
   }
 
   public static DoubleMatrix sum(DoubleMatrix x, Dim dim) {
@@ -284,7 +284,7 @@ public final class Briljant {
   }
 
   public static double asum(ComplexMatrix a, ComplexMatrix b) {
-    return MATRIX_ROUTINES.asum(a, b);
+    return MATRIX_ROUTINES.asum(a);
   }
 
   public static DoubleMatrix prod(DoubleMatrix x, Dim dim) {
@@ -295,9 +295,10 @@ public final class Briljant {
     return MATRIX_ROUTINES.dotc(a, b);
   }
 
-  public static void gemv(double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
+  public static void gemv(Transpose transA, double alpha, DoubleMatrix a, DoubleMatrix x,
+                          double beta,
                           DoubleMatrix y) {
-    MATRIX_ROUTINES.gemv(alpha, a, x, beta, y);
+    MATRIX_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 
   public static <T extends Matrix<T>> T repeat(T x, int num) {

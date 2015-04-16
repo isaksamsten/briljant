@@ -7,9 +7,10 @@ import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.DoubleStorage;
+import org.briljantframework.matrix.storage.LongStorage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 
@@ -21,13 +22,16 @@ public class BaseMatrixFactory implements MatrixFactory {
   private final MatrixRoutines matrixRoutines = new BaseMatrixRoutines(this);
 
   @Override
-  public Matrix copy(Matrix x) {
-    return x.copy();
-  }
-
-  @Override
   public IntMatrix matrix(int[][] data) {
-    return null;
+    int rows = data.length;
+    int columns = data[0].length;
+    IntMatrix x = intMatrix(rows, columns);
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < columns; j++) {
+        x.set(i, j, data[i][j]);
+      }
+    }
+    return x;
   }
 
   @Override
@@ -47,7 +51,15 @@ public class BaseMatrixFactory implements MatrixFactory {
 
   @Override
   public DoubleMatrix matrix(double[][] data) {
-    return null;
+    int rows = data.length;
+    int cols = data[0].length;
+    DoubleMatrix x = doubleMatrix(rows, cols);
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        x.set(i, j, data[i][j]);
+      }
+    }
+    return x;
   }
 
   @Override

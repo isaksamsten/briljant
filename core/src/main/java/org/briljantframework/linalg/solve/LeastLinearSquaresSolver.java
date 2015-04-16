@@ -19,6 +19,7 @@ package org.briljantframework.linalg.solve;
 import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
@@ -45,42 +46,10 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
 
   @Override
   public DoubleMatrix solve(DoubleMatrix b) {
-//    int m = a.rows(), n = a.columns(), nrhs = b.columns();
-//    int[] jpvt = new int[n];
-//
-//    DoubleMatrix result = b.copy();
-//
-//    int lwork = -1;
-//    double[] work = new double[1];
-//
-//    TODO(isak): make decision based on isArrayBased()
-//    DoubleMatrix aCopy = a.copy();
-//
-//    intW rank = new intW(0), info = new intW(0);
-//    double[] aCopyArray = ((DoubleStorage) aCopy.getStorage()).doubleArray();
-//    double[] resultArray = ((DoubleStorage) result.getStorage()).doubleArray();
-//    lapack.dgelsy(m, n, nrhs, aCopyArray, m, resultArray, m, jpvt, 0.01, rank, work, lwork, info);
-//    if (info.val != 0) {
-//      throw new BlasException("dgelsy", info.val, "failed to query work");
-//    }
-//
-//    lwork = (int) work[0];
-//    work = new double[lwork];
-//    final int finalLwork1 = lwork;
-//    final double[] finalWork1 = work;
-//    lapack.dgelsy(m, n, nrhs, aCopyArray, m, resultArray, m, jpvt, 0.01, rank, finalWork1,
-//                  finalLwork1, info);
-//
-//    if (info.val != 0) {
-//      throw new BlasException("dgelsy", info.val, "fail");
-//    }
-//
-//    double[] array = Arrays.copyOf(resultArray, n);
-//    ArrayMatrix r = new ArrayMatrix(1, n);
-    // for (int i = 0; i < n; i++) {
-    // r.put(i, result.get(i));
-    // }
-    throw new UnsupportedOperationException();
-//    return bj.matrix(array).reshape(1, array.length); //DefaultDoubleMatrix.columnVector(array);
+    DoubleMatrix aCopy = a.copy();
+    DoubleMatrix bCopy = b.copy();
+    IntMatrix jpvt = bj.intVector(a.columns());
+    bj.getLinearAlgebraRoutines().gelsy(aCopy, bCopy, jpvt, 0.01);
+    return bCopy;
   }
 }

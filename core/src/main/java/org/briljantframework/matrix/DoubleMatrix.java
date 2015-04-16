@@ -118,6 +118,8 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix assign(double value);
 
+  DoubleMatrix assign(double[] array);
+
   /**
    * Assign value returned by {@link #size()} successive calls to
    * {@link java.util.function.DoubleSupplier#getAsDouble()}

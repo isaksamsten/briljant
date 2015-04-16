@@ -4,7 +4,8 @@ import org.briljantframework.Check;
 import org.briljantframework.matrix.AbstractIntMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.IntStorage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 /**

@@ -4,8 +4,6 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 import static org.junit.Assert.assertEquals;
 
 public class LuDecompositionTest {
@@ -31,7 +29,7 @@ public class LuDecompositionTest {
 
   @Test
   public void testPivot() throws Exception {
-    System.out.println(Arrays.toString(decomposition.getPivot()));
+    System.out.println(decomposition.getPivot());
 
   }
 

@@ -5,7 +5,8 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractComplexMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.ComplexStorage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 /**

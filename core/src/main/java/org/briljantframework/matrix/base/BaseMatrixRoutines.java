@@ -7,6 +7,7 @@ import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.complex.ComplexBuilder;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.Dim;
@@ -157,7 +158,12 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public double dot(DoubleMatrix a, DoubleMatrix b) {
-    return 0;
+    Check.size(a, b);
+    double s = 0;
+    for (int i = 0; i < a.size(); i++) {
+      s += a.get(i) * b.get(i);
+    }
+    return s;
   }
 
   @Override
@@ -171,23 +177,41 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   }
 
   @Override
-  public double norm2(DoubleMatrix a, DoubleMatrix b) {
-    return 0;
+  public double nrm2(DoubleMatrix a) {
+    double sum = 0;
+    for (int i = 0; i < a.size(); i++) {
+      double v = a.get(i);
+      sum += v * v;
+    }
+
+    return Math.sqrt(sum);
   }
 
   @Override
-  public Complex norm2(ComplexMatrix a, ComplexMatrix b) {
-    return null;
+  public Complex norm2(ComplexMatrix a) {
+    ComplexBuilder c = new ComplexBuilder(a.get(0).pow(2));
+    for (int i = 1; i < a.size(); i++) {
+      c.plus(a.get(i).pow(2));
+    }
+    return c.toComplex().sqrt();
   }
 
   @Override
-  public double asum(DoubleMatrix a, DoubleMatrix b) {
-    return 0;
+  public double asum(DoubleMatrix a) {
+    double sum = 0;
+    for (int i = 0; i < a.size(); i++) {
+      sum += Math.abs(a.get(i));
+    }
+    return sum;
   }
 
   @Override
-  public double asum(ComplexMatrix a, ComplexMatrix b) {
-    return 0;
+  public double asum(ComplexMatrix a) {
+    double s = 0;
+    for (int i = 0; i < a.size(); i++) {
+      s += a.get(i).abs();
+    }
+    return s;
   }
 
   @Override
@@ -196,13 +220,25 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   }
 
   @Override
-  public void gemv(double alpha, DoubleMatrix a, DoubleMatrix x, double beta, DoubleMatrix y) {
+  public void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
+    Check.equalShape(x, y);
+    if (alpha != 0) {
+      int size = x.size();
+      for (int i = 0; i < size; i++) {
+        y.set(i, alpha * x.get(i) + y.get(i));
+      }
+    }
+  }
 
+  @Override
+  public void gemv(Transpose transA, double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
+                   DoubleMatrix y) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a) {
-
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -239,7 +275,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
                            columnMajor(k, col, otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
-        c.set(row, col, alpha * sum);
+        c.set(row, col, alpha * sum + beta * c.get(row, col));
       }
     }
   }
@@ -247,6 +283,18 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   @Override
   public <T extends Matrix<T>> T repeat(T x, int num) {
     return null;
+  }
+
+  @Override
+  public <T extends Matrix<T>> T take(T x, int num) {
+    if (num < 0 || num > x.size()) {
+      throw new IllegalArgumentException();
+    }
+    T c = x.newEmptyVector(num);
+    for (int i = 0; i < num; i++) {
+      c.set(i, x, i);
+    }
+    return c;
   }
 
   @Override

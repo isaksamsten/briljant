@@ -31,6 +31,8 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    */
   IntMatrix assign(int value);
 
+  IntMatrix assign(int[] data);
+
   /**
    * Assign value returned by {@link #size()} successive calls to
    * {@link java.util.function.IntSupplier#getAsInt()}

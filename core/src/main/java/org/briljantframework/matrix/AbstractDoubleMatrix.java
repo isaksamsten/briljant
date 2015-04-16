@@ -25,6 +25,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.storage.Storage;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -75,6 +76,24 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   public DoubleMatrix assign(double value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
+    }
+    return this;
+  }
+
+  @Override
+  public DoubleMatrix assign(double[] array) {
+    Check.size(this.size(), array.length);
+    for (int i = 0; i < array.length; i++) {
+      set(i, array[i]);
+    }
+    return this;
+  }
+
+  @Override
+  public DoubleMatrix assign(DoubleMatrix o) {
+    Check.equalShape(this, o);
+    for (int i = 0; i < size(); i++) {
+      set(i, o.get(i));
     }
     return this;
   }
@@ -803,11 +822,11 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   @Override
   public DoubleMatrix slice(Range range, Dim dim) {
     if (dim == Dim.R) {
-      return new SliceDoubleMatrix(getMatrixFactory(), this, range,
-                                   getMatrixFactory().range(columns()));
+      return new SliceDoubleMatrix(getMatrixFactory(), this,
+                                   getMatrixFactory().range(columns()), range);
     } else {
-      return new SliceDoubleMatrix(getMatrixFactory(), this, getMatrixFactory().range(rows()),
-                                   range);
+      return new SliceDoubleMatrix(getMatrixFactory(), this,
+                                   range, getMatrixFactory().range(rows()));
     }
   }
 

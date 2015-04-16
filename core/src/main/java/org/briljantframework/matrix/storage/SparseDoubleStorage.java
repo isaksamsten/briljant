@@ -5,13 +5,12 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.matrix.Storage;
 
 /**
  * <p>
  * A sparse double storage is implemented using rather efficient hash maps. Although the
  * performance
- * is rather fine in many cases, the {@link org.briljantframework.matrix.base.DoubleStorage} is
+ * is rather fine in many cases, the {@link DoubleStorage} is
  * several order of magnitudes faster, especially for complex operations such as matrix-matrix
  * multiplication (
  * {@link org.briljantframework.matrix.DoubleMatrix#mmul(org.briljantframework.matrix.DoubleMatrix)}
@@ -21,7 +20,7 @@ import org.briljantframework.matrix.Storage;
  *
  * <p>
  * For this reason, most (all) operations defined in {@link org.briljantframework.matrix.Matrices}
- * return a matrix with a {@link org.briljantframework.matrix.base.DoubleStorage} if it does not
+ * return a matrix with a {@link DoubleStorage} if it does not
  * return the type of the receiver.
  * </p>
  *

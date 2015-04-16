@@ -62,22 +62,32 @@ public interface MatrixRoutines {
 
   Complex dotc(ComplexMatrix a, ComplexMatrix b);
 
-  double norm2(DoubleMatrix a, DoubleMatrix b);
+  double nrm2(DoubleMatrix a);
 
-  Complex norm2(ComplexMatrix a, ComplexMatrix b);
+  Complex norm2(ComplexMatrix a);
 
-  double asum(DoubleMatrix a, DoubleMatrix b);
+  double asum(DoubleMatrix a);
 
-  double asum(ComplexMatrix a, ComplexMatrix b);
+  double asum(ComplexMatrix a);
 
   int iamax(DoubleMatrix x);
 
   int iamax(ComplexMatrix x);
 
-  /*
-    Compute y <- alpha*op(a)*x + beta * y (general matrix vector multiplication)
+  void axpy(double alpha, DoubleMatrix x, DoubleMatrix y);
+
+  /**
+   * Compute y <- alpha*op(a)*x + beta * y (general matrix vector multiplication)
+   *
+   * @param transA the operation op(.)
+   * @param alpha  the scalar alpha
+   * @param a      the matrix a
+   * @param x      the vector x
+   * @param beta   the scalar beta
+   * @param y      the vector y
    */
-  void gemv(double alpha, DoubleMatrix a, DoubleMatrix x, double beta, DoubleMatrix y);
+  void gemv(Transpose transA, double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
+            DoubleMatrix y);
 
   /*
     Compute
@@ -85,13 +95,15 @@ public interface MatrixRoutines {
   void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a);
 
   /*
-    Compute c <- alpha*a*b + beta * c
+    Compute c <- alpha * a * b + beta * c
    */
   void gemm(Transpose transA, Transpose transB, double alpha, DoubleMatrix a, DoubleMatrix b,
             double beta, DoubleMatrix c);
 
 
   <T extends Matrix<T>> T repeat(T x, int num);
+
+  <T extends Matrix<T>> T take(T x, int num);
 
   /**
    * Split matrix vertically (i.e. row-wise). A 3-by-3 matrix hsplit into 3 parts

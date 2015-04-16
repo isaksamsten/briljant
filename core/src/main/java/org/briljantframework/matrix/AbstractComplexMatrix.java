@@ -8,6 +8,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.ComplexBuilder;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.storage.Storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -58,6 +59,15 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
   public ComplexMatrix assign(Complex value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
+    }
+    return this;
+  }
+
+  @Override
+  public ComplexMatrix assign(ComplexMatrix o) {
+    Check.equalShape(this, o);
+    for (int i = 0; i < size(); i++) {
+      set(i, o.get(i));
     }
     return this;
   }

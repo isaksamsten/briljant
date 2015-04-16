@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Swappable;
+import org.briljantframework.matrix.storage.Storage;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -202,6 +203,8 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * possible. However, some operations (e.g. {@link #reshape(int, int)}) is unable to preserve
    * view.
    *
+   * <p>The view return is a {@code row-vector}
+   *
    * @param range the range
    * @return a view
    */
@@ -279,13 +282,13 @@ public interface Matrix<T extends Matrix> extends Swappable {
   int size();
 
   /**
-   * Is square.
-   *
    * @return true if rows() == columns()
    */
   default boolean isSquare() {
     return rows() == columns();
   }
+
+  boolean isVector();
 
   /**
    * The shape of the current matrix.

@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import com.google.common.base.Preconditions;
 
+import org.briljantframework.Check;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 import java.util.function.Consumer;
@@ -33,15 +34,6 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
 
   protected MatrixFactory getMatrixFactory() {
     return bj;
-  }
-
-  @Override
-  public final T assign(T o) {
-    T n = newEmptyMatrix(o.rows(), o.columns());
-    for (int i = 0; i < size(); i++) {
-      this.set(i, o, i);
-    }
-    return n;
   }
 
   @Override
@@ -105,6 +97,11 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
   @Override
   public int size() {
     return size;
+  }
+
+  @Override
+  public boolean isVector() {
+    return rows() == 1 || columns() == 1;
   }
 
   @Override

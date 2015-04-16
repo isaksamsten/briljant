@@ -19,7 +19,8 @@ package org.briljantframework.matrix.base;
 import org.briljantframework.Check;
 import org.briljantframework.matrix.AbstractDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Storage;
+import org.briljantframework.matrix.storage.DoubleStorage;
+import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 import static org.briljantframework.matrix.Indexer.columnMajor;

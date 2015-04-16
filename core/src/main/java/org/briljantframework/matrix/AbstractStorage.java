@@ -1,5 +1,7 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.matrix.storage.Storage;
+
 /**
  * @author Isak Karlsson
  */

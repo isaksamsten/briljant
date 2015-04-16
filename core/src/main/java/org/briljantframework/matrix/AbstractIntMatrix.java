@@ -8,6 +8,7 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntIntObjBiFunction;
 import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.storage.Storage;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -49,6 +50,15 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   protected AbstractIntMatrix(MatrixFactory bj, int rows, int cols) {
     super(bj, rows, cols);
+  }
+
+  @Override
+  public IntMatrix assign(IntMatrix o) {
+    Check.equalShape(this, o);
+    for (int i = 0; i < size(); i++) {
+      set(i, o.get(i));
+    }
+    return this;
   }
 
   @Override
@@ -123,6 +133,15 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   public IntMatrix assign(int value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
+    }
+    return this;
+  }
+
+  @Override
+  public IntMatrix assign(int[] data) {
+    Check.size(this.size(), data.length);
+    for (int i = 0; i < data.length; i++) {
+      set(i, data[i]);
     }
     return this;
   }

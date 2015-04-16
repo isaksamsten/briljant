@@ -39,13 +39,13 @@ import org.briljantframework.classification.tree.TreePredictor;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Record;
 import org.briljantframework.dataseries.Aggregator;
 import org.briljantframework.dataseries.Approximations;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.shapelet.DerivetiveShapelet;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
@@ -106,7 +106,7 @@ public class ShapeletTree implements Classifier {
   public ShapeletTree(double low, double high, Builder builder, ClassSet sample, Vector classes) {
     this(builder, sample, classes);
     this.lowerLength = low;
-    this.upperLength = upperLength;
+    this.upperLength = high;
   }
 
   public Random getRandom() {
@@ -199,50 +199,86 @@ public class ShapeletTree implements Classifier {
                                            Params params) {
     int maxShapelets = this.inspectedShapelets;
     List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
-    for (int i = 0; i < maxShapelets; i++) {
-      int index = classSet.getRandomSample().getRandomExample().getIndex();
-      Vector timeSeries = x.getRecord(index);
-      int timeSeriesLength = timeSeries.size();
-      int upper = (int) Math.round(timeSeriesLength * upperLength);
-      int lower = (int) Math.round(timeSeriesLength * lowerLength);
-      if (lower < 2) {
-        lower = 2;
-      }
 
-      if (Math.addExact(upper, lower) > timeSeriesLength) {
-        upper = timeSeriesLength - lower;
+    /*
+    Probabalistic sampling mode
+     */
+    if (sampleMode == SampleMode.NEW_SAMPLE) {
+      int n = x.rows();
+      int m = x.columns();
+      Random rand = Utils.getRandom();
+      double sum = 0;
+      for (int i = 3; i <= m; i++) {
+        sum += m - i + 1;
       }
-      if (lower == upper) {
-        upper -= 2;
+      double f = (aggregateFraction * m) / sum;
+      if (Math.round(f * m) < 1) {
+        throw new IllegalArgumentException("Won't generate any shapelets.");
       }
-      if (upper < 1) {
-        continue;
-      }
-      int length = random.nextInt(upper) + lower;
-      int start = random.nextInt(timeSeriesLength - length);
-      if (sampleMode == SampleMode.DOWN_SAMPLE) {
-        int downStart = (int) Math.round(start * aggregateFraction);
-        int downLength = (int) Math.round(length * aggregateFraction);
-        if (downStart + downLength > timeSeriesLength * aggregateFraction) {
-          downLength -= 1;
+      for (int i = 3; i <= m; i++) {
+        long r = Math.round(f * (m - i + 1));
+        for (int j = 0; j < r; j++) {
+          int vec = rand.nextInt(n - 1);
+          int start = rand.nextInt(m + 1 - i);
+          shapelets.add(new IndexSortedNormalizedShapelet(start, i, x.getRecord(vec)));
         }
-        shapelets.add(new DownsampledShapelet(
-            index, start, length, downStart, downLength, timeSeries));
       }
-      if (sampleMode == SampleMode.RANDOMIZE) {
-        Vector.Builder meanVec = new DoubleVector.Builder();
-        for (int j = 0; j < 10; j++) {
-          Record record = x.getRecord(classSet.getRandomSample().getRandomExample().getIndex());
-          Shapelet shapelet = new Shapelet(start, length, record);
-          for (int k = 0; k < shapelet.size(); k++) {
-            meanVec.set(k, shapelet.getAsDouble(k) / 10);
+      System.out.println(shapelets.size());
+    } else {
+      /*
+      Uniform sampling mode
+       */
+      for (int i = 0; i < maxShapelets; i++) {
+        int index = classSet.getRandomSample().getRandomExample().getIndex();
+        Vector timeSeries = x.getRecord(index);
+        int timeSeriesLength = timeSeries.size();
+        int upper = (int) Math.round(timeSeriesLength * upperLength);
+        int lower = (int) Math.round(timeSeriesLength * lowerLength);
+        if (lower < 2) {
+          lower = 2;
+        }
+
+        if (Math.addExact(upper, lower) > timeSeriesLength) {
+          upper = timeSeriesLength - lower;
+        }
+        if (lower == upper) {
+          upper -= 2;
+        }
+        if (upper < 1) {
+          continue;
+        }
+        int length = random.nextInt(upper) + lower;
+        int start = random.nextInt(timeSeriesLength - length);
+        if (sampleMode == SampleMode.DOWN_SAMPLE) {
+          int downStart = (int) Math.round(start * aggregateFraction);
+          int downLength = (int) Math.round(length * aggregateFraction);
+          if (downStart + downLength > timeSeriesLength * aggregateFraction) {
+            downLength -= 1;
           }
+          shapelets.add(new DownsampledShapelet(
+              index, start, length, downStart, downLength, timeSeries));
         }
-
-        Shapelet s = new IndexSortedNormalizedShapelet(0, meanVec.size(), meanVec.build());
-        shapelets.add(s);
-      } else {
-        shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
+        if (sampleMode == SampleMode.RANDOMIZE) {
+          Vector.Builder meanVec = new DoubleVector.Builder();
+          for (int j = 0; j < 10; j++) {
+            Vector record = x.getRecord(classSet.getRandomSample().getRandomExample().getIndex());
+            Shapelet shapelet = new Shapelet(start, length, record);
+            for (int k = 0; k < shapelet.size(); k++) {
+              meanVec.set(k, shapelet.getAsDouble(k) / 10);
+            }
+          }
+          Shapelet s = new IndexSortedNormalizedShapelet(0, meanVec.size(), meanVec.build());
+          shapelets.add(s);
+        } else if (sampleMode == SampleMode.DERIVATE && Utils.getRandom().nextGaussian() > 0) {
+          DoubleVector.Builder derivative = new DoubleVector.Builder(0, timeSeriesLength);
+          derivative.set(0, 0);
+          for (int j = 1; j < timeSeriesLength; j++) {
+            derivative.set(j, timeSeries.getAsDouble(j) - timeSeries.getAsDouble(j - 1));
+          }
+          shapelets.add(new DerivetiveShapelet(start, length, derivative.build()));
+        } else {
+          shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
+        }
       }
     }
     if (shapelets.isEmpty()) {
@@ -504,7 +540,7 @@ public class ShapeletTree implements Classifier {
   }
 
   public enum SampleMode {
-    DOWN_SAMPLE, NORMAL, RANDOMIZE
+    DOWN_SAMPLE, NORMAL, DERIVATE, NEW_SAMPLE, RANDOMIZE
   }
 
   public enum Assessment {
@@ -637,8 +673,17 @@ public class ShapeletTree implements Classifier {
     @Override
     public DoubleMatrix visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
       Shapelet shapelet = node.getThreshold().getShapelet();
+      Vector cand = example;
+      if (shapelet instanceof DerivetiveShapelet) {
+        DoubleVector.Builder derivative = new DoubleVector.Builder(0, example.size());
+        derivative.set(0, 0);
+        for (int j = 1; j < example.size(); j++) {
+          derivative.set(j, example.getAsDouble(j) - example.getAsDouble(j - 1));
+        }
+        cand = derivative.build();
+      }
       double distance = node.getThreshold().getDistance();
-      if (distanceMeasure.compute(example, shapelet) < distance) {
+      if (distanceMeasure.compute(cand, shapelet) < distance) {
         return visit(node.getLeft(), example);
       } else {
         return visit(node.getRight(), example);
@@ -652,7 +697,7 @@ public class ShapeletTree implements Classifier {
     public double minSplit = 1;
     public Distance metric = EarlyAbandonSlidingDistance.create(Euclidean.getInstance());
     public int inspectedShapelets = 100;
-    public double aggregateFraction = 0.5;
+    public double aggregateFraction = 1;
     public SampleMode sampleMode = SampleMode.NORMAL;
     public double lowerLength = 0.01;
     public double upperLength = 1;

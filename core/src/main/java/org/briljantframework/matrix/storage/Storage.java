@@ -1,6 +1,7 @@
-package org.briljantframework.matrix;
+package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.AbstractStorage;
 
 /**
  * Represent a mutable storage unit. For example, an {@code Array}, {@link java.util.List}, memory

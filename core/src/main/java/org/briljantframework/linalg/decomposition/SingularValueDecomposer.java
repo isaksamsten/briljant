@@ -16,10 +16,9 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import com.github.fommil.netlib.LAPACK;
-
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /**
@@ -35,43 +34,18 @@ import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
  */
 public class SingularValueDecomposer implements Decomposer<SingularValueDecomposition> {
 
-  protected static final LAPACK lapack = LAPACK.getInstance();
-  protected final LinearAlgebraRoutines
-      linalg = NetlibMatrixFactory.getInstance().getLinearAlgebraRoutines();
+  protected final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+  protected final LinearAlgebraRoutines linalg = bj.getLinearAlgebraRoutines();
+
 
   @Override
   public SingularValueDecomposition decompose(DoubleMatrix x) {
-//    int m = matrix.rows(), n = matrix.columns();
-//    double[] sigma = new double[n];
-//    double[] u = new double[m * m];
-//    double[] vt = new double[n * n];
-//    DoubleMatrix copy = matrix.copy();
-//
-//    int lwork = -1;
-//    double[] work = new double[1];
-//
-//    intW info = new intW(0);
-//    lapack.dgesvd("a", "a", m, n, ((DoubleStorage) copy.getStorage()).doubleArray(), m, sigma, u, m,
-//                  vt, n, work, lwork, info);
-//
-//    if (info.val != 0) {
-//      throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
-//    }
-//
-//    lwork = (int) work[0];
-//    work = new double[lwork];
-//    lapack.dgesvd("a", "a", m, n, ((DoubleStorage) copy.getStorage()).doubleArray(), m, sigma, u, m,
-//                  vt, n, work, lwork, info);
-//
-//    if (info.val != 0) {
-//      throw new BlasException("LAPACKE_dgesvd", info.val, "SVD failed to converge.");
-//    }
-//
-//    Diagonal sv = Diagonal.of(m, n, sigma);
-//    DoubleMatrix um = DefaultDoubleMatrix.fromColumnOrder(m, m, u);
-//    DoubleMatrix vtm = DefaultDoubleMatrix.fromRowOrder(n, n, vt);
-//
-//    return new SingularValueDecomposition(sv, um, vtm);
-    return linalg.gesvd(x);
+    int m = x.rows(), n = x.columns();
+    DoubleMatrix s = bj.doubleVector(n);
+    DoubleMatrix u = bj.doubleMatrix(m, m);
+    DoubleMatrix vt = bj.doubleMatrix(n, n);
+    DoubleMatrix a = x.copy();
+    linalg.gesvd('a', 'a', a, s, u, vt);
+    return new SingularValueDecomposition(s, u, vt);
   }
 }

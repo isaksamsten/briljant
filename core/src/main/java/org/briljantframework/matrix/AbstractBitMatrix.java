@@ -7,6 +7,7 @@ import com.carrotsearch.hppc.IntArrayList;
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.storage.Storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -37,6 +38,15 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   protected AbstractBitMatrix(MatrixFactory bj, int rows, int cols) {
     super(bj, rows, cols);
+  }
+
+  @Override
+  public BitMatrix assign(BitMatrix o) {
+    Check.equalShape(this, o);
+    for (int i = 0; i < size(); i++) {
+      set(i, o.get(i));
+    }
+    return this;
   }
 
   @Override
