@@ -25,64 +25,55 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
 
   @Override
   public double dot(DoubleMatrix a, DoubleMatrix b) {
-    Check.size(a, b);
-    Check.all(Matrix::isVector, a, b);
-    Storage sa = a.getStorage();
-    Storage sb = b.getStorage();
-    TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, sa, sb);
-    int n = a.size();
-    double[] aa = ((DoubleArrayStorage) sa).array();
-    double[] ba = ((DoubleArrayStorage) sb).array();
-    return blas.ddot(n, aa, 1, ba, 1);
+    if (!a.isView() && !b.isView()) {
+      Check.size(a, b);
+      Check.all(Matrix::isVector, a, b);
+      int n = a.size();
+      double[] aa = a.getStorage().doubleArray();
+      double[] ba = b.getStorage().doubleArray();
+      return blas.ddot(n, aa, 1, ba, 1);
+    } else {
+      return super.dot(a, b);
+    }
   }
 
   @Override
   public double asum(DoubleMatrix a) {
-    Storage sa = a.getStorage();
-    if (sa instanceof DoubleArrayStorage) {
-      return blas.dasum(a.size(), ((DoubleArrayStorage) sa).array(), 1);
+    if (!a.isView()) {
+      return blas.dasum(a.size(), a.getStorage().doubleArray(), 1);
     } else {
-      throw unsupportedStorage(sa);
+      return super.asum(a);
     }
   }
 
   @Override
   public double nrm2(DoubleMatrix a) {
-    Storage sa = a.getStorage();
-    if (sa instanceof DoubleArrayStorage) {
-      return blas.dnrm2(a.size(), ((DoubleArrayStorage) sa).array(), 1);
+    if (!a.isView()) {
+      return super.nrm2(a);
     } else {
-      throw unsupportedStorage(sa);
+      return blas.dnrm2(a.size(), a.getStorage().doubleArray(), 1);
     }
   }
 
   @Override
   public int iamax(DoubleMatrix x) {
-    Storage s = x.getStorage();
-    if (s instanceof DoubleArrayStorage) {
-      double[] values = ((DoubleArrayStorage) s).array();
-      return blas.idamax(s.size(), values, 1);
+    if (!x.isView()) {
+      double[] values = x.getStorage().doubleArray();
+      return blas.idamax(x.size(), values, 1);
     } else {
-      throw unsupportedStorage(s);
+      return super.iamax(x);
     }
   }
 
   @Override
   public void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
-    Check.equalShape(x, y);
-    if (alpha != 0) {
-      Storage sx = x.getStorage();
-      Storage sy = y.getStorage();
-      TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, sx, sy);
-      int n = x.size();
-
-      double[] xa = ((DoubleArrayStorage) sx).array();
-      double[] ya = ((DoubleArrayStorage) sy).array();
-      blas.daxpy(n, alpha, xa, 1, ya, 1);
-
-      if (y.isView()) {
-        y.assign(ya);
-      }
+    if (alpha != 0 && (!x.isView() && !y.isView())) {
+      Check.equalShape(x, y);
+      double[] xa = x.getStorage().doubleArray();
+      double[] ya = y.getStorage().doubleArray();
+      blas.daxpy(x.size(), alpha, xa, 1, ya, 1);
+    } else if (alpha != 0) {
+      super.axpy(alpha, x, y);
     }
   }
 
@@ -109,9 +100,9 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
     }
 
     int lda = a.rows();
-    double[] aa = ((DoubleArrayStorage) a.getStorage()).array();
-    double[] xa = ((DoubleArrayStorage) x.getStorage()).array();
-    double[] ya = ((DoubleArrayStorage) y.getStorage()).array();
+    double[] aa = a.getStorage().doubleArray();
+    double[] xa = x.getStorage().doubleArray();
+    double[] ya = y.getStorage().doubleArray();
     blas.dgemv(ta, am, an, alpha, aa, lda, xa, 1, beta, ya, 1);
     if (y.isView()) {
       y.assign(ya);
@@ -151,9 +142,9 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
       throw new NonConformantException(am, an, c.rows(), c.columns());
     }
 
-    double[] aa = ((DoubleArrayStorage) a.getStorage()).array();
-    double[] ba = ((DoubleArrayStorage) b.getStorage()).array();
-    double[] ca = ((DoubleArrayStorage) c.getStorage()).array();
+    double[] aa = a.getStorage().doubleArray();
+    double[] ba = b.getStorage().doubleArray();
+    double[] ca = c.getStorage().doubleArray();
     blas.dgemm(
         ta,
         tb,

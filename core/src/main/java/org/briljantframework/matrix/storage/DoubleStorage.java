@@ -63,8 +63,13 @@ public class DoubleStorage extends AbstractStorage implements DoubleArrayStorage
   }
 
   @Override
-  public double[] array() {
+  public double[] doubleArray() {
     return values;
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return true;
   }
 
   @Override

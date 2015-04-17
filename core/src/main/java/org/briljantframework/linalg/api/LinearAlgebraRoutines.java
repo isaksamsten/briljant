@@ -2,6 +2,7 @@ package org.briljantframework.linalg.api;
 
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
@@ -9,13 +10,62 @@ import org.briljantframework.matrix.api.MatrixFactory;
  */
 public interface LinearAlgebraRoutines {
 
+
+  /**
+   * DORMQR overwrites the general real M-by-N matrix C with
+   * <pre>
+   * SIDE = 'L'     SIDE = 'R'
+   * transA = NO:      Q * C          C * Q
+   * transA = YES:      Q**T * C       C * Q**T
+   * </pre>
+   * where Q is a real orthogonal matrix defined as the product of k
+   * elementary reflectors
+   *
+   * Q = H(1) H(2) . . . H(k)
+   *
+   * as returned by DGEQRF. Q is of order M if SIDE = 'L' and of order N
+   * if SIDE = 'R'.
+   *
+   * @param side   'L': apply Q or Q**T from the Left;
+   *               = 'R': apply Q or Q**T from the Right.
+   * @param transA transpose Q
+   * @param a      (input) the i-th column must contain the vector which defines the
+   *               elementary reflector H(i), for i = 1,2,...,k, as returned by
+   *               {@link #geqrf(org.briljantframework.matrix.DoubleMatrix,
+   *               org.briljantframework.matrix.DoubleMatrix)} in the first k columns of its array
+   *               argument A.
+   * @param tau    (input) TAU(i) must contain the scalar factor of the elementary
+   *               reflector H(i), as returned by DGEQRF.
+   * @param c      (input/output) On entry, the M-by-N matrix C.  On exit, C is
+   *               overwritten by Q*C or Q**T*C or C*Q**T or C*Q.
+   */
+  void ormqr(char side,
+             Transpose transA,
+             DoubleMatrix a,
+             DoubleMatrix tau,
+             DoubleMatrix c);
+
+  /**
+   * Computes a QR factorization of a real M-by-N matrix A:
+   * A = Q * R.
+   *
+   * @param a   (input/output) On entry, the M-by-N matrix A.
+   *            On exit, the elements on and above the diagonal of the array
+   *            contain the min(M,N)-by-N upper trapezoidal matrix R (R is
+   *            upper triangular if m >= n); the elements below the diagonal,
+   *            with the array TAU, represent the orthogonal matrix Q as a
+   *            product of min(m,n) elementary reflectors.
+   * @param tau (output) The scalar factors of the elementary reflectors
+   */
+  void geqrf(DoubleMatrix a, DoubleMatrix tau);
+
   /**
    * Computes the eigenvalues and, optionally, the left and/or right eigenvectors for symmetric
    * matrices
    *
    * @param jobz 'N':  Compute eigenvalues only; 'V':  Compute eigenvalues and eigenvectors.
    * @param uplo 'U':  Upper triangle of A is stored; 'L':  Lower triangle of A is stored.
-   * @param a    On entry, the symmetric matrix A.  If UPLO = 'U', the
+   * @param a    (input/output) On entry, the symmetric matrix A.  If UPLO = 'U', the
    *             leading N-by-N upper triangular part of A contains the
    *             upper triangular part of the matrix A.  If UPLO = 'L',
    *             the leading N-by-N lower triangular part of A contains
@@ -25,22 +75,21 @@ public interface LinearAlgebraRoutines {
    *             If JOBZ = 'N', then on exit the lower triangle (if UPLO='L')
    *             or the upper triangle (if UPLO='U') of A, including the
    *             diagonal, is destroyed.
-   * @param w    the eigenvalues in ascending order
+   * @param w    (output) the eigenvalues in ascending order
    */
   void syev(char jobz, char uplo, DoubleMatrix a, DoubleMatrix w);
 
   /**
-   * computes selected eigenvalues and, optionally, eigenvectors
-   * of a real symmetric matrix A.  Eigenvalues and eigenvectors can be
-   * selected by specifying either a range of values or a range of
-   * indices for the desired eigenvalues.
+   * Computes selected eigenvalues and, optionally, eigenvectors of a real symmetric matrix A.
+   * Eigenvalues and eigenvectors can be selected by specifying either a range of values or a range
+   * of indices for the desired eigenvalues.
    *
    * @param jobz   'N':  Compute eigenvalues only; 'V':  Compute eigenvalues and eigenvectors.
    * @param range  'A': all eigenvalues will be found. 'V': all eigenvalues in the half-open
    *               interval (VL,VU] will be found. 'I': the IL-th through IU-th eigenvalues will be
    *               found.
    * @param uplo   U':  Upper triangle of A is stored; 'L':  Lower triangle of A is stored.
-   * @param a      On entry, the symmetric matrix A.  If UPLO = 'U', the
+   * @param a      (input/output) On entry, the symmetric matrix A.  If UPLO = 'U', the
    *               leading N-by-N upper triangular part of A contains the
    *               upper triangular part of the matrix A.  If UPLO = 'L',
    *               the leading N-by-N lower triangular part of A contains
@@ -61,9 +110,9 @@ public interface LinearAlgebraRoutines {
    *               An approximate eigenvalue is accepted as converged
    *               when it is determined to lie in an interval [a,b]
    *               of width less than or equal to
-   * @param w      The first M elements contain the selected eigenvalues in
+   * @param w      (output) The first M elements contain the selected eigenvalues in
    *               ascending order
-   * @param z      If JOBZ = 'V', then if INFO = 0, the first M columns of Z
+   * @param z      (output) If JOBZ = 'V', then if INFO = 0, the first M columns of Z
    *               contain the orthonormal eigenvectors of the matrix A
    *               corresponding to the selected eigenvalues, with the i-th
    *               column of Z holding the eigenvector associated with W(i).
@@ -72,7 +121,7 @@ public interface LinearAlgebraRoutines {
    *               supplied in the array Z; if RANGE = 'V', the exact value of M
    *               is not known in advance and an upper bound must be used.
    *               Supplying N columns is always safe.
-   * @param isuppz The support of the eigenvectors in Z, i.e., the indices
+   * @param isuppz (output) The support of the eigenvectors in Z, i.e., the indices
    *               indicating the nonzero elements in Z. The i-th eigenvector
    *               is nonzero only in elements ISUPPZ( 2*i-1 ) through
    *               ISUPPZ( 2*i )
@@ -89,14 +138,14 @@ public interface LinearAlgebraRoutines {
             IntMatrix isuppz);
 
   /**
-   * GETRF computes an LU factorization of a general M-by-N matrix A
-   * using partial pivoting with row interchanges.
+   * Computes an LU factorization of a general M-by-N matrix A using partial pivoting with row
+   * interchanges.
    *
-   * @param a    A double matrix, dimension (LDA,N)
+   * @param a    (input/output) A double matrix, dimension (LDA,N)
    *             On entry, the M-by-N matrix to be factored.
    *             On exit, the factors L and U from the factorization
    *             A = P*L*U; the unit diagonal elements of L are not stored.
-   * @param ipiv An int matrix, dimension (min(M,N))
+   * @param ipiv (output) An int matrix, dimension (min(M,N))
    *             The pivot indices; for 1 <= i <= min(M,N), row i of the
    *             matrix was interchanged with row IPIV(i).
    * @return 0 if factorization completed correctly and > 0 if some values are zero.
@@ -104,16 +153,16 @@ public interface LinearAlgebraRoutines {
   int getrf(DoubleMatrix a, IntMatrix ipiv);
 
   /**
-   * GELSY computes the minimum-norm solution to a  real  linear
+   * Computes the minimum-norm solution to a  real  linear
    * least squares problem: minimize || A * X - B || using a complete orthogonal factorization of
    * A. A is an  M- by-N matrix which may be rank-deficient.
    *
-   * @param a     On entry, the M-by-N matrix A.   On  exit,  A  has
+   * @param a     (input/output) On entry, the M-by-N matrix A.   On  exit,  A  has
    *              been   overwritten  by  details  of  its  complete
    *              orthogonal factorization.
-   * @param b     On entry, the M-by-NRHS right hand side matrix  B.
+   * @param b     (input/output) On entry, the M-by-NRHS right hand side matrix  B.
    *              On exit, the N-by-NRHS solution matrix X.
-   * @param jpvt  On entry, if JPVT(i) .ne. 0, the i-th column of  A
+   * @param jpvt  (input/output) On entry, if JPVT(i) .ne. 0, the i-th column of  A
    *              is permuted to the front of AP, otherwise column i
    *              is a free column.  On exit, if JPVT(i) =  k,  then
    *              the i-th column of AP was the k-th column of A.
@@ -130,19 +179,42 @@ public interface LinearAlgebraRoutines {
   int gelsy(DoubleMatrix a, DoubleMatrix b, IntMatrix jpvt, double rcond);
 
   /**
-   * DGESVD computes the singular value decomposition (SVD) of a
-   * real M-by-N matrix A, optionally computing the left and/or
-   * right singular vectors. The SVD is written
+   * DGESV computes the solution to a real system of linear equations
+   * A * X = B,
+   * where A is an N-by-N matrix and X and B are N-by-NRHS matrices.
    *
-   * A = U * SIGMA * transpose(V)
+   * The LU decomposition with partial pivoting and row interchanges is
+   * used to factor A as
+   * A = P * L * U,
+   * where P is a permutation matrix, L is unit lower triangular, and U is
+   * upper triangular.  The factored form of A is then used to solve the
+   * system of equations A * X = B.
    *
-   * where SIGMA is an M-by-N matrix which is zero except for its
-   * min(m,n) diagonal elements, U is an M-by-M orthogonal
-   * matrix, and V is an N-by-N orthogonal matrix.  The diagonal
-   * elements of SIGMA are the singular values of A; they are
-   * real and non-negative, and are returned in descending order.
-   * The first min(m,n) columns of U and V are the left and right
-   * singular vectors of A.
+   * @param a    On entry, the N-by-N coefficient matrix A.
+   *             On exit, the factors L and U from the factorization
+   *             A = P*L*U; the unit diagonal elements of L are not stored.
+   * @param ipiv The pivot indices that define the permutation matrix P;
+   *             row i of the matrix was interchanged with row IPIV(i).
+   * @param b    On entry, the N-by-NRHS matrix of right hand side matrix B.
+   * @return i, U(i,i) is exactly zero.  The factorization has been completed, but the factor U is
+   * exactly singular, so the solution could not be computed.
+   */
+  int gesv(DoubleMatrix a, IntMatrix ipiv, DoubleMatrix b);
+
+  /**
+   * Computes the singular value decomposition (SVD) of a real M-by-N matrix A, optionally
+   * computing
+   * the left and/or right singular vectors. The SVD is written {@code A = U * SIGMA *
+   * transpose(V)},
+   *
+   *
+   * <p>where SIGMA is an M-by-N matrix which is zero except for its min(m,n) diagonal elements, U
+   * is an M-by-M orthogonal matrix, and V is an N-by-N orthogonal matrix.  The diagonal elements
+   * of
+   * SIGMA are the singular values of A; they are real and non-negative, and are returned in
+   * descending order. The first min(m,n) columns of U and V are the left and right singular
+   * vectors
+   * of A.
    *
    * Note that the routine returns V**T, not V.
    *

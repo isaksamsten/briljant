@@ -434,6 +434,29 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   }
 
   @Override
+  public <T extends Matrix<T>> T repmat(T x, int n) {
+    return repmat(x, n, n);
+  }
+
+  @Override
+  public <T extends Matrix<T>> T repmat(T x, int r, int c) {
+    final int m = x.rows();
+    final int n = x.columns();
+    T y = x.newEmptyMatrix(m * r, n * c);
+    for (int cc = 0; cc < c; cc++) {
+      for (int j = 0; j < n; j++) {
+        int jj = j + (cc * n);
+        for (int rc = 0; rc < r; rc++) {
+          for (int i = 0; i < m; i++) {
+            y.set(i + (rc * m), jj, x, i, j);
+          }
+        }
+      }
+    }
+    return y;
+  }
+
+  @Override
   public <T extends Matrix<T>> void copy(T from, T to) {
     Check.equalShape(from, to);
     for (int i = 0; i < from.size(); i++) {

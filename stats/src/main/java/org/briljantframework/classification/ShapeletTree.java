@@ -218,7 +218,8 @@ public class ShapeletTree implements Classifier {
       for (int i = 3; i <= m; i++) {
         long r = Math.round(f * (m - i + 1));
         for (int j = 0; j < r; j++) {
-          int vec = rand.nextInt(n - 1);
+//          int vec = rand.nextInt(n - 1);
+          int vec = classSet.getRandomSample().getRandomExample().getIndex();
           int start = rand.nextInt(m + 1 - i);
           shapelets.add(new IndexSortedNormalizedShapelet(start, i, x.getRecord(vec)));
         }

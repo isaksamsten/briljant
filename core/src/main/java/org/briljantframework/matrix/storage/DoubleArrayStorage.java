@@ -5,5 +5,5 @@ package org.briljantframework.matrix.storage;
  */
 public interface DoubleArrayStorage extends Storage {
 
-  double[] array();
+  double[] doubleArray();
 }

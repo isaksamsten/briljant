@@ -1,7 +1,6 @@
 package org.briljantframework.matrix.storage;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.AbstractStorage;
 
 /**
  * Represent a mutable storage unit. For example, an {@code Array}, {@link java.util.List}, memory
@@ -14,77 +13,6 @@ import org.briljantframework.matrix.AbstractStorage;
  * @author Isak Karlsson
  */
 public interface Storage {
-
-  static Storage freeze(Storage storage) {
-    return new AbstractStorage(storage.size()) {
-      @Override
-      public int getInt(int index) {
-        return storage.getInt(index);
-      }
-
-      @Override
-      public void setInt(int index, int value) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public long getLong(int index) {
-        return storage.getLong(index);
-      }
-
-      @Override
-      public void setLong(int index, long value) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public double getDouble(int index) {
-        return storage.getInt(index);
-      }
-
-      @Override
-      public void setDouble(int index, double value) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Complex getComplex(int index) {
-        return storage.getComplex(index);
-      }
-
-      @Override
-      public void setComplex(int index, Complex complex) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Class<?> getNativeType() {
-        return storage.getNativeType();
-      }
-
-      @Override
-      public Storage copy() {
-        return storage.copy().frozen();
-      }
-    };
-  }
-
-  /**
-   * Returns a froze representation of this storage container. While it is impossible to modify the
-   * storage returned, any references kept of the unfrozen storage can be modified and those
-   * modifications are propagated to the frozen instance. To create an independent and immutable
-   * storage, use {@code storage.copy().frozen()}. Since {@code as[Type]Array()} is allowed to
-   * return an underlying (mutable) representation, a frozen {@code Storage} can never be
-   * guaranteed
-   * to be immutable. Also, remember that copy is not synchronized, hence, modifications before the
-   * call to {@code frozen} can happen in another thread. Hence, {@code synchronize(storage)
-   * storage.copy().frozen()} could be preferred.
-   *
-   * @return a frozen storage instance
-   */
-  default Storage frozen() {
-    return freeze(this);
-  }
 
   /**
    * Get value as boolean
@@ -176,14 +104,15 @@ public interface Storage {
 //   */
 //  boolean[] booleanArray();
 //
-//  /**
-//   * Returns this storage as a {@code int} array, with the i:th element set to {@code getInt(i)} .
-//   *
-//   * If this storage uses a int array, modifications of the returned array propagates.
-//   *
-//   * @return a int array
-//   */
-//  int[] intArray();
+
+  /**
+   * Returns this storage as a {@code int} array, with the i:th element set to {@code getInt(i)} .
+   *
+   * If this storage uses a int array, modifications of the returned array propagates.
+   *
+   * @return a int array
+   */
+  int[] intArray();
 //
 //  /**
 //   * Returns this storage as a {@code long} array, with the i:th element set to {@code getLong(i)}.
@@ -194,15 +123,15 @@ public interface Storage {
 //   */
 //  long[] longArray();
 //
-//  /**
-//   * Returns this storage as a {@code double} array, with the i:th element set to
-//   * {@code getDouble(i)}.
-//   *
-//   * If this storage uses a double array, modifications of the returned array propagates.
-//   *
-//   * @return a boolean array
-//   */
-//  double[] doubleArray();
+  /**
+   * Returns this storage as a {@code double} array, with the i:th element set to
+   * {@code getDouble(i)}.
+   *
+   * If this storage uses a double array, modifications of the returned array propagates.
+   *
+   * @return a boolean array
+   */
+  double[] doubleArray();
 //
 //  /**
 //   * Returns this storage as a {@code Complex} array, with the i:th element set to
@@ -214,10 +143,10 @@ public interface Storage {
 //   */
 //  Complex[] complexArray();
 //
-//  /**
-//   * @return true if {@code as[Type]Array()} returns an underlying array representation
-//   */
-//  boolean isArrayBased();
+  /**
+   * @return true if {@code as[Type]Array()} returns an underlying array representation
+   */
+  boolean isArrayBased();
 
   /**
    * @return the native type covered by this storage.

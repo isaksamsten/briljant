@@ -74,6 +74,13 @@ public interface MatrixRoutines {
 
   int iamax(ComplexMatrix x);
 
+  /**
+   * Compute y <- alpha*x+y
+   *
+   * @param alpha the scalar
+   * @param x     the matrix x
+   * @param y     the matrix y
+   */
   void axpy(double alpha, DoubleMatrix x, DoubleMatrix y);
 
   /**
@@ -95,11 +102,33 @@ public interface MatrixRoutines {
   void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a);
 
   /*
-    Compute c <- alpha * a * b + beta * c
+
+   */
+
+  /**
+   * Computes c <- alpha * transA(a) * transB(b) + beta * c
+   *
+   * @param transA transpose of a
+   * @param transB transpose of b
+   * @param alpha  the scalar for a
+   * @param a      the matrix a
+   * @param b      the matrix b
+   * @param beta   the scalar for c
+   * @param c      the result matrix c
    */
   void gemm(Transpose transA, Transpose transB, double alpha, DoubleMatrix a, DoubleMatrix b,
             double beta, DoubleMatrix c);
 
+  /**
+   * Return a matrix containing {@code n} copies of {@code x}.
+   *
+   * @param x the matrix
+   * @param n the repetitions of both rows and columns
+   * @return a new matrix
+   */
+  <T extends Matrix<T>> T repmat(T x, int n);
+
+  <T extends Matrix<T>> T repmat(T x, int r, int c);
 
   <T extends Matrix<T>> T repeat(T x, int num);
 

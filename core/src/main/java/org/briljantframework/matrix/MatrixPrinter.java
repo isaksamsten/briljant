@@ -37,7 +37,7 @@ public final class MatrixPrinter {
   }
 
   public static void print(Appendable out, ComplexMatrix matrix) throws IOException {
-    print(out, new ComplexToStringMatrix(matrix));
+    print(out, new ComplexToStringMatrix(matrix), "[", "]");
   }
 
   public static void print(DoubleMatrix matrix) {
@@ -48,8 +48,16 @@ public final class MatrixPrinter {
     }
   }
 
+  public static void print(DoubleMatrix x, String start, String end) {
+    try {
+      print(System.out, new DoubleToStringMatrix(x), start, end);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void print(Appendable out, DoubleMatrix matrix) throws IOException {
-    print(out, new DoubleToStringMatrix(matrix));
+    print(out, new DoubleToStringMatrix(matrix), "[", "]");
   }
 
   public static void print(BitMatrix matrix) {
@@ -61,7 +69,7 @@ public final class MatrixPrinter {
   }
 
   public static void print(Appendable out, BitMatrix matrix) throws IOException {
-    print(out, new LongToStringMatrix(matrix.asLongMatrix()));
+    print(out, new LongToStringMatrix(matrix.asLongMatrix()), "[", "]");
   }
 
   public static void print(LongMatrix matrix) {
@@ -73,7 +81,7 @@ public final class MatrixPrinter {
   }
 
   public static void print(Appendable out, LongMatrix matrix) throws IOException {
-    print(out, new LongToStringMatrix(matrix));
+    print(out, new LongToStringMatrix(matrix), "[", "]");
   }
 
   public static void print(IntMatrix matrix) {
@@ -85,7 +93,7 @@ public final class MatrixPrinter {
   }
 
   public static void print(Appendable out, IntMatrix matrix) throws IOException {
-    print(out, new LongToStringMatrix(matrix.asLongMatrix()));
+    print(out, new LongToStringMatrix(matrix.asLongMatrix()), "[", "]");
   }
 
   /**
@@ -95,46 +103,89 @@ public final class MatrixPrinter {
    * @param matrix the ToStringMatrix
    * @throws IOException if an IO error occurs
    */
-  public static void print(Appendable out, ToStringMatrix matrix) throws IOException {
-    IntMatrix widths = Briljant.intVector(matrix.columns());
-    for (int j = 0; j < matrix.columns(); j++) {
-      int m = 0;
-      for (int i = 0; i < matrix.rows(); i++) {
-        int length = matrix.get(i, j).length();
-        if (length > m) {
-          m = length;
+  public static void print(Appendable out, ToStringMatrix matrix, String startChar, String endChar)
+      throws IOException {
+
+    IntMatrix widths;
+    if (matrix.size() <= minTruncateSize || matrix.rows() < visibleRows * 2) {
+      widths = Briljant.intVector(matrix.columns());
+      for (int j = 0; j < matrix.columns(); j++) {
+        int m = 0;
+        for (int i = 0; i < matrix.rows(); i++) {
+          int length = matrix.get(i, j).length();
+          if (length > m) {
+            m = length;
+          }
         }
+        widths.set(j, m);
       }
-      widths.set(j, m);
+    } else {
+      widths = Briljant.intVector(visibleColumns * 2);
+      for (int j = 0; j < visibleColumns; j++) {
+        int m = 0;
+        for (int i = 0; i < visibleRows && i < matrix.rows(); i++) {
+          int length = matrix.get(i, j).length();
+          if (length > m) {
+            m = length;
+          }
+        }
+        for (int i = matrix.rows() - visibleRows; i < matrix.rows()&& i > 0; i++) {
+          int length = matrix.get(i, j).length();
+          if (length > m) {
+            m = length;
+          }
+        }
+        widths.set(j, m);
+      }
+
+      for (int j = matrix.columns() - visibleColumns; j < matrix.columns(); j++) {
+        int m = 0;
+        for (int i = 0; i < visibleRows && i < matrix.rows(); i++) {
+          int length = matrix.get(i, j).length();
+          if (length > m) {
+            m = length;
+          }
+        }
+        for (int i = matrix.rows() - visibleRows; i < matrix.rows() && i > 0; i++) {
+          int length = matrix.get(i, j).length();
+          if (length > m) {
+            m = length;
+          }
+        }
+        int index = matrix.columns() - j + visibleColumns - 1;
+        widths.set(index, m);
+      }
+
     }
 
     if (matrix.size() <= minTruncateSize || matrix.rows() < visibleRows * 2) {
-      out.append("[");
-      printRow(out, matrix.getRowView(0), widths, false);
+      out.append(startChar);
+      printRow(out, matrix.getRowView(0), widths, false, startChar, endChar);
       for (int i = 1; i < matrix.rows(); i++) {
         out.append("\n");
         out.append(" ");
-        printRow(out, matrix.getRowView(i), widths, false);
+        printRow(out, matrix.getRowView(i), widths, false, startChar, endChar);
       }
-      out.append("]");
+      out.append(endChar);
     } else {
-      out.append("[");
-      printRow(out, matrix.getRowView(0), widths, true);
-      for (int i = 1; i < visibleRows; i++) {
+      out.append(startChar);
+      printRow(out, matrix.getRowView(0), widths, true, startChar, endChar);
+      for (int i = 1; i < visibleRows  && i < matrix.rows(); i++) {
         out.append("\n");
         out.append(" ");
-        printRow(out, matrix.getRowView(i), widths, true);
+        printRow(out, matrix.getRowView(i), widths, true, startChar, endChar);
       }
       out.append("\n");
       out.append("   ...\n");
       out.append(" ");
-      printRow(out, matrix.getRowView(matrix.rows() - visibleRows), widths, true);
-      for (int i = matrix.rows() - visibleRows + 1; i < matrix.rows(); i++) {
+      printRow(out, matrix.getRowView(matrix.rows() - visibleRows), widths, true, startChar,
+               endChar);
+      for (int i = matrix.rows() - visibleRows + 1; i < matrix.rows()&& i > 0; i++) {
         out.append("\n");
         out.append(" ");
-        printRow(out, matrix.getRowView(i), widths, true);
+        printRow(out, matrix.getRowView(i), widths, true, startChar, endChar);
       }
-      out.append("]");
+      out.append(endChar);
     }
 
   }
@@ -146,20 +197,25 @@ public final class MatrixPrinter {
     out.append(value);
   }
 
-  private static void printRow(Appendable out, ToStringMatrix values, IntMatrix widths,
-                               boolean truncate) throws IOException {
+
+  private static void printRow(Appendable out,
+                               ToStringMatrix values,
+                               IntMatrix widths,
+                               boolean truncate,
+                               String startChar,
+                               String endChar) throws IOException {
     String f = values.get(0);
     if (!truncate || values.size() < visibleColumns * 2) {
-      out.append("[");
+      out.append(startChar);
       printValue(out, f, widths.get(0) - f.length());
       for (int i = 1; i < values.size(); i++) {
         f = values.get(i);
         out.append(", ");
         printValue(out, f, widths.get(i) - f.length());
       }
-      out.append("]");
+      out.append(endChar);
     } else {
-      out.append("[");
+      out.append(startChar);
       printValue(out, f, widths.get(0) - f.length());
       for (int i = 1; i < visibleColumns; i++) {
         f = values.get(i);
@@ -168,13 +224,13 @@ public final class MatrixPrinter {
       }
       out.append(", ..., ");
       f = values.get(values.size() - visibleColumns);
-      printValue(out, f, widths.get(values.size() - visibleColumns) - f.length());
+      printValue(out, f, widths.get(0) - f.length());
       for (int i = values.size() - visibleColumns + 1; i < values.size(); i++) {
         f = values.get(i);
         out.append(", ");
-        printValue(out, f, widths.get(i) - f.length());
+        printValue(out, f, widths.get(values.size() - i + visibleColumns) - f.length());
       }
-      out.append("]");
+      out.append(endChar);
     }
   }
 

@@ -5,5 +5,5 @@ package org.briljantframework.matrix.storage;
  */
 public interface IntArrayStorage extends Storage {
 
-  int[] array();
+  int[] intArray();
 }

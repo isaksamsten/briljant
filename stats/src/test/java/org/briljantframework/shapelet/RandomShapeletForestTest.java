@@ -290,7 +290,7 @@ public class RandomShapeletForestTest {
             .withInspectedShapelets(4)
             .withLowerLength(0.9)
             .withUpperLength(1)
-//            .withAggregateFraction(3)
+//            .withAggregateFraction(1)
 //            .withSampleMode(ShapeletTree.SampleMode.NEW_SAMPLE)
             .withAssessment(ShapeletTree.Assessment.IG)
             .build();

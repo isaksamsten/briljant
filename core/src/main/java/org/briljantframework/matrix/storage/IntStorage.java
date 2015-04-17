@@ -71,12 +71,17 @@ public class IntStorage extends AbstractStorage implements IntArrayStorage {
   }
 
   @Override
+  public boolean isArrayBased() {
+    return true;
+  }
+
+  @Override
   public Storage copy() {
     return new IntStorage(Arrays.copyOf(values, values.length));
   }
 
   @Override
-  public int[] array() {
+  public int[] intArray() {
     return values;
   }
 }

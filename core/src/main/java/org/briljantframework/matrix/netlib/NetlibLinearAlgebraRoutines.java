@@ -6,13 +6,13 @@ import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Check;
 import org.briljantframework.exceptions.BlasException;
+import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.DoubleArrayStorage;
-import org.briljantframework.matrix.storage.IntArrayStorage;
 import org.briljantframework.matrix.storage.Storage;
 import org.netlib.util.intW;
 
@@ -27,10 +27,128 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   private static final char[] SYEVR_JOBZ_CHAR = new char[]{'n', 'v'};
   private static final char[] SYEVR_RANGE_CHAR = new char[]{'a', 'v', 'i'};
   public static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
+  public static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
 
   NetlibLinearAlgebraRoutines(
       MatrixFactory matrixFactory) {
     super(matrixFactory);
+  }
+
+  @Override
+  public void geqrf(DoubleMatrix a, DoubleMatrix tau) {
+    int m = a.rows();
+    int n = a.columns();
+    int lda = Math.max(1, m);
+    Check.vectorOfSize(Math.min(m, n), tau);
+
+    Storage sa = a.getStorage();
+    Storage st = tau.getStorage();
+    double[] aa = sa.doubleArray();
+    double[] ta = st.doubleArray();
+
+    double[] work = new double[1];
+    int lwork = -1;
+
+    intW info = new intW(0);
+    lapack.dgeqrf(
+        m,
+        n,
+        aa,
+        lda,
+        ta,
+        work,
+        lwork,
+        info
+    );
+    ensureInfo(info);
+    lwork = (int) work[0];
+    work = new double[lwork];
+
+    lapack.dgeqrf(
+        m,
+        n,
+        aa,
+        lda,
+        ta,
+        work,
+        lwork,
+        info
+    );
+    ensureInfo(info);
+    reassignIfNeeded(a, sa, aa);
+    reassignIfNeeded(tau, st, ta);
+  }
+
+  @Override
+  public void ormqr(char side, Transpose transA, DoubleMatrix a, DoubleMatrix tau, DoubleMatrix c) {
+    side = Character.toLowerCase(side);
+    if (!Chars.contains(ORMQR_SIDE, side)) {
+      throw invalidCharacter("side", side, ORMQR_SIDE);
+    }
+    int m = c.rows();
+    int n = c.columns();
+    int k = m;
+    if (side == 'r') {
+      k = n;
+    }
+    int lda = Math.max(1, m);
+    if (side == 'r') {
+      lda = Math.max(1, n);
+    }
+    Check.vectorOfSize(k, tau);
+
+    int ldc = c.rows();
+    if (c.columns() != n) {
+      throw new IllegalArgumentException();
+    }
+
+    Storage as = a.getStorage();
+    Storage ts = tau.getStorage();
+    Storage cs = c.getStorage();
+    double[] aa = as.doubleArray();
+    double[] ta = ts.doubleArray();
+    double[] ca = cs.doubleArray();
+
+    double[] work = new double[1];
+    int lwork = -1;
+    intW info = new intW(0);
+    lapack.dormqr(
+        String.valueOf(side),
+        transA.asString(),
+        m,
+        n,
+        k,
+        aa,
+        lda,
+        ta,
+        ca,
+        ldc,
+        work,
+        lwork,
+        info
+    );
+    ensureInfo(info);
+    lwork = (int) work[0];
+    work = new double[lwork];
+    lapack.dormqr(
+        String.valueOf(side),
+        transA.asString(),
+        m,
+        n,
+        k,
+        aa,
+        lda,
+        ta,
+        ca,
+        ldc,
+        work,
+        lwork,
+        info
+    );
+    ensureInfo(info);
+    reassignIfNeeded(a, as, aa);
+    reassignIfNeeded(tau, ts, ta);
+    reassignIfNeeded(c, cs, ca);
   }
 
   @Override
@@ -56,10 +174,8 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     Storage sa = a.getStorage();
     Storage sw = w.getStorage();
 
-    TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, sa, sw);
-
-    double[] aa = ((DoubleArrayStorage) sa).array();
-    double[] wa = ((DoubleArrayStorage) sw).array();
+    double[] aa = sa.doubleArray();
+    double[] wa = sw.doubleArray();
 
     intW info = new intW(0);
     int lwork = -1;
@@ -75,9 +191,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         lwork,
         info
     );
-    if (info.val != 0) {
-      throw new BlasException(info.val, "...");
-    }
+    ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
     lapack.dsyev(
@@ -91,6 +205,10 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         lwork,
         info
     );
+    ensureInfo(info);
+
+    reassignIfNeeded(a, sa, aa);
+    reassignIfNeeded(w, sw, wa);
   }
 
   @Override
@@ -140,13 +258,10 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     Storage zs = z.getStorage();
     Storage is = isuppz.getStorage();
 
-    TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, as, ws, zs);
-    TypeChecks.ensureInstanceOf(IntArrayStorage.class, is);
-
-    double[] aa = ((DoubleArrayStorage) as).array();
-    double[] wa = ((DoubleArrayStorage) ws).array();
-    double[] za = ((DoubleArrayStorage) zs).array();
-    int[] ia = ((IntArrayStorage) is).array();
+    double[] aa = as.doubleArray();
+    double[] wa = ws.doubleArray();
+    double[] za = zs.doubleArray();
+    int[] ia = is.intArray();
 
     intW info = new intW(0);
     intW m = new intW(0);
@@ -179,11 +294,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         liwork,
         info
     );
-
-    if (info.val != 0) {
-      throw new BlasException(info.val, "...");
-    }
-
+    ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
     liwork = iwork[0];
@@ -212,25 +323,11 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         liwork,
         info
     );
-    if (info.val != 0) {
-      throw new BlasException(info.val, "...");
-    }
-
-    if (a.isView()) {
-      a.assign(aa);
-    }
-
-    if (isuppz.isView()) {
-      isuppz.assign(ia);
-    }
-
-    if (w.isView()) {
-      w.assign(wa);
-    }
-
-    if (z.isView()) {
-      z.assign(za);
-    }
+    ensureInfo(info);
+    reassignIfNeeded(a, as, aa);
+    reassignIfNeeded(w, ws, wa);
+    reassignIfNeeded(z, zs, za);
+    reassignIfNeeded(isuppz, is, ia);
 
     return m.val;
   }
@@ -241,32 +338,21 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     Check.size(Math.min(a.rows(), a.columns()), ipiv.size());
     Storage sa = a.getStorage();
     Storage si = ipiv.getStorage();
-    if (sa instanceof DoubleArrayStorage && si instanceof IntArrayStorage) {
-      double[] aa = ((DoubleArrayStorage) sa).array();
-      int[] ia = ((IntArrayStorage) si).array();
-      intW info = new intW(0);
-      LAPACK.getInstance().dgetrf(
-          a.rows(),
-          a.columns(),
-          aa,
-          a.rows(),
-          ia,
-          info
-      );
-      if (info.val < 0) {
-        throw new BlasException(info.val, "LU decomposition failed");
-      }
-
-      if (a.isView()) {
-        a.assign(aa);
-      }
-      if (ipiv.isView()) {
-        ipiv.assign(ia);
-      }
-      return info.val;
-    } else {
-      throw new UnsupportedOperationException();
-    }
+    double[] aa = sa.doubleArray();
+    int[] ia = si.intArray();
+    intW info = new intW(0);
+    LAPACK.getInstance().dgetrf(
+        a.rows(),
+        a.columns(),
+        aa,
+        a.rows(),
+        ia,
+        info
+    );
+    ensureValidParameterInfo(info);
+    reassignIfNeeded(a, sa, aa);
+    reassignIfNeeded(ipiv, si, ia);
+    return info.val;
   }
 
   @Override
@@ -274,9 +360,6 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     Storage sa = a.getStorage();
     Storage sb = b.getStorage();
     Storage sj = jpvt.getStorage();
-
-    TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, sa, sb);
-    TypeChecks.ensureInstanceOf(IntArrayStorage.class, sj);
 
     int m = a.rows();
     int n = a.columns();
@@ -288,34 +371,68 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     double[] work = new double[1];
     intW rank = new intW(0);
     intW info = new intW(0);
-    double[] aa = ((DoubleArrayStorage) sa).array();
-    double[] ba = ((DoubleArrayStorage) sb).array();
-    int[] ja = ((IntArrayStorage) sj).array();
+    double[] aa = sa.doubleArray();
+    double[] ba = sb.doubleArray();
+    int[] ja = sj.intArray();
     lapack.dgelsy(m, n, nrhs, aa, lda, ba, ldb, ja, rcond, rank, work, lwork, info);
-    if (info.val != 0) {
-      throw new BlasException(info.val, "");
-    }
+    ensureInfo(info);
 
     lwork = (int) work[0];
     work = new double[lwork];
     lapack.dgelsy(m, n, nrhs, aa, lda, ba, ldb, ja, rcond, rank, work, lwork, info);
-    if (info.val != 0) {
-      throw new BlasException(info.val, "");
-    }
+    ensureInfo(info);
 
-    if (a.isView()) {
-      a.assign(aa);
-    }
-
-    if (b.isView()) {
-      b.assign(ba);
-    }
-
-    if (jpvt.isView()) {
-      jpvt.assign(ja);
-    }
-
+    reassignIfNeeded(a, sa, aa);
+    reassignIfNeeded(b, sb, ba);
+    reassignIfNeeded(jpvt, sj, ja);
     return rank.val;
+  }
+
+  @Override
+  public int gesv(DoubleMatrix a, IntMatrix ipiv, DoubleMatrix b) {
+    if (!a.isSquare()) {
+      throw new IllegalArgumentException();
+    }
+
+    if (a.rows() != b.rows()) {
+      throw new NonConformantException(a, b);
+    }
+
+    if (!ipiv.isVector() || a.rows() != ipiv.size()) {
+      throw new IllegalArgumentException();
+    }
+
+    int n = a.rows();
+    int nrhs = b.columns();
+    int lda = Math.max(1, n);
+    int ldb = Math.max(1, n);
+
+    Storage as = a.getStorage();
+    Storage bs = b.getStorage();
+    Storage is = ipiv.getStorage();
+
+    double[] aa = as.doubleArray();
+    double[] ba = bs.doubleArray();
+    int[] ia = is.intArray();
+
+    intW info = new intW(0);
+    lapack.dgesv(
+        n,
+        nrhs,
+        aa,
+        lda,
+        ia,
+        ba,
+        ldb,
+        info
+    );
+    ensureValidParameterInfo(info);
+
+    reassignIfNeeded(a, as, aa);
+    reassignIfNeeded(ipiv, is, ia);
+    reassignIfNeeded(b, bs, ba);
+
+    return info.val;
   }
 
   @Override
@@ -360,12 +477,11 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     Storage us = u.getStorage();
     Storage ss = s.getStorage();
     Storage vts = vt.getStorage();
-    TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, as, ss, us, vts);
 
-    double[] aa = ((DoubleArrayStorage) as).array();
-    double[] ua = ((DoubleArrayStorage) us).array();
-    double[] sa = ((DoubleArrayStorage) ss).array();
-    double[] vta = ((DoubleArrayStorage) vts).array();
+    double[] aa = as.doubleArray();
+    double[] ua = us.doubleArray();
+    double[] sa = ss.doubleArray();
+    double[] vta = vts.doubleArray();
 
     int lwork = -1;
     double[] work = new double[1];
@@ -387,11 +503,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         lwork,
         info
     );
-    if (info.val != 0) {
-      throw new BlasException(
-          info.val, "Failed to allocate workspace. (See error code for details)"
-      );
-    }
+    ensureInfo("Failed to allocate workspace. (See error code for details)", info);
 
     lwork = (int) work[0];
     work = new double[lwork];
@@ -411,10 +523,38 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         lwork,
         info
     );
+    ensureInfo("Convergence failure. (See errorCode for details).", info);
+    reassignIfNeeded(a, as, aa);
+    reassignIfNeeded(u, us, ua);
+    reassignIfNeeded(s, ss, sa);
+    reassignIfNeeded(vt, vts, vta);
+  }
+
+  private void ensureInfo(String message, intW info) {
     if (info.val != 0) {
-      throw new BlasException(
-          info.val, "Convergence failure. (See errorCode for details)."
-      );
+      throw new BlasException(info.val, message);
+    }
+  }
+
+  private void ensureInfo(intW info) {
+    ensureInfo("Internal error.", info);
+  }
+
+  private void ensureValidParameterInfo(intW info) {
+    if (info.val < 0) {
+      throw new BlasException(info.val, "Internal error.");
+    }
+  }
+
+  private void reassignIfNeeded(DoubleMatrix a, Storage s, double[] data) {
+    if (!s.getNativeType().equals(Double.TYPE) || !s.isArrayBased()) {
+      a.assign(data);
+    }
+  }
+
+  private void reassignIfNeeded(IntMatrix a, Storage s, int[] data) {
+    if (!s.getNativeType().equals(Integer.TYPE) || !s.isArrayBased()) {
+      a.assign(data);
     }
   }
 

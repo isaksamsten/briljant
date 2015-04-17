@@ -24,6 +24,29 @@ public abstract class AbstractStorage implements Storage {
   }
 
   @Override
+  public int[] intArray() {
+    int[] a = new int[size()];
+    for (int i = 0; i < a.length; i++) {
+      a[i] = getInt(i);
+    }
+    return a;
+  }
+
+  @Override
+  public double[] doubleArray() {
+    double[] a = new double[size()];
+    for (int i = 0; i < a.length; i++) {
+      a[i] = getDouble(i);
+    }
+    return a;
+  }
+
+  @Override
+  public boolean isArrayBased() {
+    return false;
+  }
+
+  @Override
   public int size() {
     return size;
   }

@@ -41,6 +41,12 @@ public final class Check {
     }
   }
 
+  public static void vectorOfSize(int actual, Matrix<?> x) {
+    if (!x.isVector() || x.size() != actual) {
+      throw new IllegalArgumentException();
+    }
+  }
+
   /**
    * Ensures that the shape of {@code a} and {@code b} is the same.
    *

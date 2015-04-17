@@ -217,4 +217,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   public LinearAlgebraRoutines getLinearAlgebraRoutines() {
     throw new UnsupportedOperationException();
   }
+
+
 }

@@ -77,8 +77,8 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
     Check.equalShape(this, other);
     Storage o = other.getStorage();
     if (o.getNativeType().equals(Double.TYPE) && o instanceof DoubleArrayStorage) {
-      double[] dy = ((DoubleArrayStorage) o).array();
-      blas.daxpy(size(), alpha, dy, 1, values.array(), 1);
+      double[] dy = ((DoubleArrayStorage) o).doubleArray();
+      blas.daxpy(size(), alpha, dy, 1, values.doubleArray(), 1);
     } else {
       super.addi(alpha, other);
     }
@@ -114,8 +114,8 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
       DoubleArrayStorage os = (DoubleArrayStorage) otherStorage;
       double[] tmp = new double[Math.multiplyExact(thisRows, otherColumns)];
 
-      blas.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, values.array(),
-                 this.rows(), os.array(), other.rows(), 0, tmp,
+      blas.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, values.doubleArray(),
+                 this.rows(), os.doubleArray(), other.rows(), 0, tmp,
                  thisRows);
 
       return new NetlibDoubleMatrix(getMatrixFactory(), new DoubleStorage(tmp), thisRows,

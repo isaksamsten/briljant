@@ -3,13 +3,17 @@ package org.briljantframework.matrix.netlib;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.MatrixAssert;
-import org.briljantframework.matrix.api.MatrixRoutines;
+import org.briljantframework.matrix.MatrixPrinter;
+import org.briljantframework.matrix.api.MatrixFactory;
 import org.junit.Test;
+
+import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
+import static org.junit.Assert.assertEquals;
 
 public class NetlibLinearAlgebraRoutinesTest {
 
-  NetlibMatrixFactory bj = new NetlibMatrixFactory();
+  MatrixFactory bj = new NetlibMatrixFactory();
+  LinearAlgebraRoutines linalg = bj.getLinearAlgebraRoutines();
 
 
   @Test
@@ -23,7 +27,7 @@ public class NetlibLinearAlgebraRoutinesTest {
 
     IntMatrix ipiv1 = bj.intVector(4);
     bj.getLinearAlgebraRoutines().getrf(d, ipiv1);
-    MatrixAssert.assertMatrixEquals(bj.matrix(new int[]{2, 2, 3, 4}), ipiv1);
+    assertMatrixEquals(bj.matrix(new int[]{2, 2, 3, 4}), ipiv1);
   }
 
   @Test
@@ -38,8 +42,6 @@ public class NetlibLinearAlgebraRoutinesTest {
 
   @Test
   public void testSyev() throws Exception {
-    LinearAlgebraRoutines linalg = bj.getLinearAlgebraRoutines();
-//    MatrixRoutines bjr = bj.getMatrixRoutines();
     DoubleMatrix a = bj.matrix(new double[]{
         0.67, 0.00, 0.00, 0.00, 0.00,
         -0.20, 3.82, 0.00, 0.00, 0.00,
@@ -56,13 +58,17 @@ public class NetlibLinearAlgebraRoutinesTest {
     DoubleMatrix w = bj.doubleVector(n);
     DoubleMatrix z = bj.doubleMatrix(n, 3);
     IntMatrix isuppz = bj.intVector(n);
-
     int m = linalg.syevr('v', 'i', 'u', a, vl, vu, il, ul, abstol, w, z, isuppz);
-    System.out.println(m);
-    System.out.println(w.slice(bj.range(m)));
-    System.out.println(w.transpose().slice(bj.range(m)));
 
-    System.out.println(z);
+    assertEquals(3, m);
+    assertMatrixEquals(bj.matrix(new double[]{0.433, 2.145, 3.368}), w.slice(bj.range(3)), 0.001);
+    assertMatrixEquals(bj.matrix(new double[][]{
+        new double[]{3.292, 0.507, 0.876, 0.176, -0.177},
+        new double[]{0, 0.891, -1.111, 0.082, 0.185},
+        new double[]{0, 0, 4.561, 1.671, -0.424},
+        new double[]{0, 0, 0, 4.877, 1.616},
+        new double[]{0, 0, 0, 0, 3.54}}), a, 0.001);
+
   }
 
   @Test
@@ -82,5 +88,87 @@ public class NetlibLinearAlgebraRoutinesTest {
     bj.getLinearAlgebraRoutines().syev('v', 'u', a, w);
     System.out.println(w);
     System.out.println(a);
+  }
+
+  @Test
+  public void testGesv() throws Exception {
+    DoubleMatrix a = bj.matrix(new double[]{
+        6.80, -2.11, 5.66, 5.97, 8.23,
+        -6.05, -3.30, 5.36, -4.44, 1.08,
+        -0.45, 2.58, -2.70, 0.27, 9.04,
+        8.32, 2.71, 4.35, -7.17, 2.14,
+        -9.67, -5.14, -7.26, 6.08, -6.87
+    }).reshape(5, 5);
+
+    DoubleMatrix b = bj.matrix(new double[]{
+        4.02, 6.19, -8.22, -7.57, -3.03,
+        -1.56, 4.00, -8.67, 1.75, 2.86,
+        9.81, -4.09, -4.57, -8.61, 8.99
+    }).reshape(5, 3);
+
+    IntMatrix ipiv = bj.intVector(5);
+    linalg.gesv(a, ipiv, b);
+
+    assertMatrixEquals(bj.matrix(new int[]{5, 5, 3, 4, 5}), ipiv);
+    assertMatrixEquals(bj.matrix(new double[][]{
+        new double[]{-0.80, -0.39, 0.96},
+        new double[]{-0.70, -0.55, 0.22},
+        new double[]{0.59, 0.84, 1.90},
+        new double[]{1.32, -0.10, 5.36},
+        new double[]{0.57, 0.11, 4.04}
+    }), b, 0.01);
+    assertMatrixEquals(bj.matrix(new double[][]{
+        new double[]{8.23, 1.08, 9.04, 2.14, -6.87},
+        new double[]{0.83, -6.94, -7.92, 6.55, -3.99},
+        new double[]{0.69, -0.67, -14.18, 7.24, -5.19},
+        new double[]{0.73, 0.75, 0.02, -13.82, 14.19},
+        new double[]{-0.26, 0.44, -0.59, -0.34, -3.43}
+    }), a, 0.01);
+  }
+
+  @Test
+  public void testGeqrf() throws Exception {
+    DoubleMatrix a = bj.matrix(new double[]{
+        0.000000, 2.000000,
+        2.000000, -1.000000,
+        2.000000, -1.000000,
+        0.000000, 1.500000,
+        2.000000, -1.000000,
+        2.000000, -1.000000
+    }).reshape(2, 6).transpose();
+    DoubleMatrix tau = bj.doubleVector(2);
+    linalg.geqrf(a, tau);
+    assertMatrixEquals(bj.matrix(new double[]{1, 1.4}), tau, 0.01);
+
+    assertMatrixEquals(bj.matrix(new double[][]{
+        new double[]{-4, 2},
+        new double[]{0.5, 2.5},
+        new double[]{0.5, 0.286},
+        new double[]{0, -0.429},
+        new double[]{0.5, 0.286},
+        new double[]{0.5, 0.286}}), a, 0.01);
+  }
+
+  @Test
+  public void testOrmqr() throws Exception {
+    DoubleMatrix a = bj.matrix(new double[]{
+        -0.5, -1.2, -0.3, 0.2,
+        -1.9, 1.0, -0.3, -2.1,
+        2.3, 0.2, 0.4, -0.3,
+        -1.9, 0.6, -0.6, 0.0,
+        0.1, 0.3, 0.1, -2.1,
+        -0.0, 1.0, -1.4, 0.50
+    }).reshape(4, 6).transpose();
+
+    DoubleMatrix b = bj.matrix(new double[]{
+        -3.1, 2.1,
+        -0.1, -3.6,
+        1.9, 0.5,
+        -2.7, 8.2,
+        0.2, -6.3,
+        4.5, -1.48
+    }).reshape(6, 2).transpose();
+
+
   }
 }
