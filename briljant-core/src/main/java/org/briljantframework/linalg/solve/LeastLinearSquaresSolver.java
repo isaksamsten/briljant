@@ -18,10 +18,9 @@ package org.briljantframework.linalg.solve;
 
 import com.github.fommil.netlib.LAPACK;
 
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 //import org.briljantframework.matrix.DefaultDoubleMatrix;
 
@@ -33,7 +32,6 @@ import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 public class LeastLinearSquaresSolver extends AbstractSolver {
 
   public static final LAPACK lapack = LAPACK.getInstance();
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   /**
    * Instantiates a new Least linear squares solver.
@@ -48,8 +46,8 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
   public DoubleMatrix solve(DoubleMatrix b) {
     DoubleMatrix aCopy = a.copy();
     DoubleMatrix bCopy = b.copy();
-    IntMatrix jpvt = bj.intVector(a.columns());
-    bj.getLinearAlgebraRoutines().gelsy(aCopy, bCopy, jpvt, 0.01);
+    IntMatrix jpvt = Bj.intVector(a.columns());
+    Bj.linalg.gelsy(aCopy, bCopy, jpvt, 0.01);
     return bCopy;
   }
 }

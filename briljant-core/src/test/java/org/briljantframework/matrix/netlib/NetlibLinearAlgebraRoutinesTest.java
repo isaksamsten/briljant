@@ -5,6 +5,7 @@ import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.junit.Test;
 
@@ -15,8 +16,9 @@ import static org.junit.Assert.assertEquals;
 
 public class NetlibLinearAlgebraRoutinesTest {
 
-  MatrixFactory bj = new NetlibMatrixFactory();
-  LinearAlgebraRoutines linalg = bj.getLinearAlgebraRoutines();
+  MatrixBackend b = new NetlibMatrixBackend();
+  MatrixFactory bj = b.getMatrixFactory();
+  LinearAlgebraRoutines linalg = b.getLinearAlgebraRoutines();
 
 
   @Test
@@ -29,7 +31,7 @@ public class NetlibLinearAlgebraRoutinesTest {
     });
 
     IntMatrix ipiv1 = bj.intVector(4);
-    bj.getLinearAlgebraRoutines().getrf(d, ipiv1);
+    linalg.getrf(d, ipiv1);
     assertMatrixEquals(bj.matrix(new int[]{2, 2, 3, 4}), ipiv1);
   }
 
@@ -88,7 +90,7 @@ public class NetlibLinearAlgebraRoutinesTest {
 
     DoubleMatrix w = bj.doubleVector(a.rows());
 
-    bj.getLinearAlgebraRoutines().syev('v', 'u', a, w);
+    linalg.syev('v', 'u', a, w);
     System.out.println(w);
     System.out.println(a);
   }
@@ -183,8 +185,8 @@ public class NetlibLinearAlgebraRoutinesTest {
   @Test
   public void testPinv() throws Exception {
     DoubleMatrix x = bj.matrix(new double[][]{
-        new double[]{1,2,3},
-        new double[]{1,2,3}
+        new double[]{1, 2, 3},
+        new double[]{1, 2, 3}
     });
     DoubleMatrix p = linalg.pinv(x.transpose());
     System.out.println(p);
@@ -194,7 +196,7 @@ public class NetlibLinearAlgebraRoutinesTest {
     for (int i = 0; i < 10; i++) {
       linalg.svd(a);
     }
-    System.out.println((System.nanoTime() - s) / 1e6/10);
+    System.out.println((System.nanoTime() - s) / 1e6 / 10);
   }
 
   @Test

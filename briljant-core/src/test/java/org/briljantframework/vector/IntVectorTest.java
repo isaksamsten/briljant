@@ -36,7 +36,7 @@ public class IntVectorTest {
   public void testEquals() throws Exception {
     IntVector a = new IntVector(1, 2, 3);
     IntVector b = new IntVector(1, 2, 3);
-    assertEquals(a.asMatrix(), b.asMatrix());
+    assertEquals(a.toMatrix(), b.toMatrix());
 
     assertEquals(a, b);
     assertEquals(a.hashCode(), b.hashCode());

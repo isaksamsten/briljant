@@ -94,7 +94,7 @@ public class DataFrameColumnView implements Vector {
   }
 
   @Override
-  public Matrix asMatrix() {
+  public Matrix toMatrix() {
     throw new UnsupportedOperationException();
   }
 

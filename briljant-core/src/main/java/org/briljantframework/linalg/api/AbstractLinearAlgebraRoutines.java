@@ -2,20 +2,21 @@ package org.briljantframework.linalg.api;
 
 import com.google.common.base.Preconditions;
 
-import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.api.MatrixBackend;
+import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRoutines {
 
-  private final MatrixFactory matrixFactory;
+  private final MatrixBackend matrixBackend;
 
-  protected AbstractLinearAlgebraRoutines(MatrixFactory matrixFactory) {
-    this.matrixFactory = Preconditions.checkNotNull(matrixFactory);
+  protected AbstractLinearAlgebraRoutines(MatrixBackend matrixFactory) {
+    this.matrixBackend = Preconditions.checkNotNull(matrixFactory);
   }
 
-  public MatrixFactory getMatrixFactory() {
-    return matrixFactory;
+  protected MatrixBackend getMatrixBackend() {
+    return matrixBackend;
   }
 }

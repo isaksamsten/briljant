@@ -13,6 +13,8 @@ import org.briljantframework.Check;
 import org.briljantframework.IndexComparator;
 import org.briljantframework.QuickSort;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.stat.DescriptiveStatistics;
+import org.briljantframework.stat.RunningStatistics;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -53,19 +55,6 @@ public final class Vectors {
     CATEGORIC.add(STRING);
     CATEGORIC.add(BIT);
 
-    Map<Class<?>, Object> clsToNa = new HashMap<>();
-    clsToNa.put(Integer.class, IntVector.NA);
-    clsToNa.put(Integer.TYPE, IntVector.NA);
-    clsToNa.put(Long.class, Long.MAX_VALUE);
-    clsToNa.put(Long.TYPE, Long.MAX_VALUE);
-    clsToNa.put(Double.class, DoubleVector.NA);
-    clsToNa.put(Double.TYPE, DoubleVector.NA);
-    clsToNa.put(String.class, StringVector.NA);
-    clsToNa.put(Bit.class, BitVector.NA);
-    clsToNa.put(Complex.class, ComplexVector.NA);
-    clsToNa.put(Object.class, null);
-    CLASS_TO_NA = Collections.unmodifiableMap(clsToNa);
-
     CLASS_TO_VECTOR_TYPE = ImmutableMap.<Class<?>, VectorType>builder()
         .put(Integer.class, INT)
         .put(Integer.TYPE, INT)
@@ -78,15 +67,7 @@ public final class Vectors {
         .build();
   }
 
-  private static final Map<Class<?>, Object> CLASS_TO_NA;
-
   private Vectors() {
-  }
-
-  public static <T> T naValue(Class<T> cls) {
-    @SuppressWarnings("unchecked")
-    T t = (T) CLASS_TO_NA.get(checkNotNull(cls));
-    return t;
   }
 
   /**
@@ -305,6 +286,22 @@ public final class Vectors {
         return chunks;
       }
     };
+  }
+
+  /**
+   * Computes the {@code Double} descriptive statistics of {@code vector}
+   *
+   * @param vector a vector (with {@code type = double})
+   * @return the descriptive statistics
+   */
+  public DescriptiveStatistics statistics(Vector vector) {
+    RunningStatistics r = new RunningStatistics();
+    for (int i = 0; i < vector.size(); i++) {
+      if (!vector.isNA(i)) {
+        r.add(vector.getAsDouble(i));
+      }
+    }
+    return r;
   }
 
   /**

@@ -2,7 +2,7 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,7 +10,7 @@ import static org.junit.Assert.assertSame;
 
 public class AbstractMatrixTest {
 
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+  private final MatrixFactory bj = new NetlibMatrixBackend().getMatrixFactory();
 
   @Test
   public void testAsReturnThisOnCorrectType() throws Exception {

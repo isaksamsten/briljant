@@ -25,7 +25,7 @@ public class UniformDistribution extends Distribution {
   }
 
   @Override
-  public double next() {
+  public double sample() {
     return min + (max - min) * random.nextDouble();
   }
 }

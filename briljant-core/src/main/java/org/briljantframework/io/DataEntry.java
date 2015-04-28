@@ -10,6 +10,16 @@ import java.io.IOException;
  */
 public interface DataEntry {
 
+  /**
+   * Reads the next entry and tries to resolve the value as {@code cls}. If this fails, {@code
+   * next}
+   * returns an appropriate {@code NA} value
+   * (as defined in {@link org.briljantframework.vector.Na#valueOf(Class)}).
+   *
+   * @param cls the class
+   * @param <T> the type to return
+   * @return a value of type {@code T}
+   */
   <T> T next(Class<T> cls) throws IOException;
 
   /**

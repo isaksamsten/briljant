@@ -1,6 +1,6 @@
 package org.briljantframework.evaluation;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.vector.Vector;
@@ -13,7 +13,7 @@ public class FoldPartitionerTest {
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadConnect4();
-    DataFrame x = dummy.takeColumns(Briljant.range(0, 2).flat());
+    DataFrame x = dummy.takeColumns(Bj.range(0, 2).flat());
     Vector y = dummy.getColumn(2);
 
     System.out.println(x);

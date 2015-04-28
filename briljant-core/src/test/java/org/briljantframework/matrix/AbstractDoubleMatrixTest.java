@@ -2,7 +2,7 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
 import java.util.DoubleSummaryStatistics;
@@ -18,7 +18,7 @@ public class AbstractDoubleMatrixTest {
 
   private final double epsilon = 0.00001;
 
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+  private final MatrixFactory bj = new NetlibMatrixBackend().getMatrixFactory();
 
 
   @Test

@@ -19,8 +19,8 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
 
   private final static BLAS blas = BLAS.getInstance();
 
-  NetlibMatrixRoutines(MatrixFactory matrixFactory) {
-    super(matrixFactory);
+  NetlibMatrixRoutines(NetlibMatrixBackend backend) {
+    super(backend);
   }
 
   @Override

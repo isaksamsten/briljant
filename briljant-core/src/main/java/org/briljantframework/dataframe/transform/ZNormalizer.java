@@ -16,31 +16,29 @@
 
 package org.briljantframework.dataframe.transform;
 
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
- * by found in Goldin & Kanellakis. It ensures that all elements of the input vector are transformed
+ * by found in Goldin & Kanellakis. It ensures that all elements of the input vector are
+ * transformed
  * into the output vector whose mean is approximately 0 while the standard deviation are in a range
  * close to 1.
- * 
+ *
  * @author Isak Karlsson
  */
 public class ZNormalizer implements Transformer {
-
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   @Override
   public Transformation fit(DataFrame frame) {
     DoubleMatrix mean = Matrices.mean(frame.toMatrix().asDoubleMatrix(), Dim.C);
 
     DoubleMatrix x = frame.toMatrix().asDoubleMatrix();
-    DoubleMatrix xNorm = bj.doubleMatrix(x.rows(), x.columns());
+    DoubleMatrix xNorm = Bj.doubleMatrix(x.rows(), x.columns());
 
     for (int i = 0; i < xNorm.rows(); i++) {
       for (int j = 0; j < xNorm.columns(); j++) {

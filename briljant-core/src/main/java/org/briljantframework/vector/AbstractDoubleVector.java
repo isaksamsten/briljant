@@ -1,5 +1,6 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
 
 /**
@@ -58,7 +59,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     if (cls.isAssignableFrom(Double.class)) {
       return cls.cast(getAsDouble(index));
     } else {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
   }
 
@@ -96,9 +97,12 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   }
 
   @Override
-  public DoubleMatrix asMatrix() {
-    throw new UnsupportedOperationException();
-//    return new DefaultDoubleMatrix(new VectorStorage(this));
+  public DoubleMatrix toMatrix() {
+    DoubleMatrix x = Bj.doubleVector(size());
+    for (int i = 0; i < size(); i++) {
+      x.set(i, getAsDouble(i));
+    }
+    return x;
   }
 
   @Override

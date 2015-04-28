@@ -16,28 +16,20 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 
 /**
  * @author Isak Karlsson
  */
-public class LuDecomposer implements Decomposer<LuDecomposition> {
+public class LuDecomposer {
 
-  @Override
   public LuDecomposition decompose(DoubleMatrix matrix) {
     int m = matrix.rows(), n = matrix.columns();
-    IntMatrix pivots = Briljant.intVector(Math.min(m, n));
+    IntMatrix pivots = Bj.intVector(Math.min(m, n));
     DoubleMatrix lu = matrix.copy();
-    Briljant.linalg.getrf(lu, pivots);
-//    intW error = new intW(0);
-//    LAPACK.getInstance()
-//        .dgetrf(m, n, ((DoubleStorage) lu.getStorage()).doubleArray(), n, pivots, error);
-//    if (error.val != 0) {
-//      throw new BlasException("dgtref", error.val, "LU decomposition failed.");
-//    }
-
+    Bj.linalg.getrf(lu, pivots);
     return new LuDecomposition(lu, pivots);
   }
 }

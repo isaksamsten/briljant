@@ -101,8 +101,8 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Matrix asMatrix() throws TypeConversionException {
-    return parent.asMatrix();
+  public Matrix toMatrix() throws TypeConversionException {
+    return parent.toMatrix();
   }
 
   @Override

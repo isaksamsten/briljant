@@ -1,12 +1,12 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
 public class MatrixPrinterTest {
 
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+  private final MatrixFactory bj = new NetlibMatrixBackend().getMatrixFactory();
 
   @Test
   public void testPrint() throws Exception {

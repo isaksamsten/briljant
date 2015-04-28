@@ -1,18 +1,13 @@
 package org.briljantframework.matrix.netlib;
 
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.base.BaseMatrixFactory;
 
 /**
  * @author Isak Karlsson
  */
-public class NetlibMatrixFactory extends BaseMatrixFactory {
-
-  private final LinearAlgebraRoutines linalg = new NetlibLinearAlgebraRoutines(this);
-  private final MatrixRoutines blas = new NetlibMatrixRoutines(this);
+class NetlibMatrixFactory extends BaseMatrixFactory {
 
   public NetlibMatrixFactory() {
   }
@@ -30,16 +25,6 @@ public class NetlibMatrixFactory extends BaseMatrixFactory {
   @Override
   public DoubleMatrix doubleVector(int size) {
     return new NetlibDoubleMatrix(this, size);
-  }
-
-  @Override
-  public MatrixRoutines getMatrixRoutines() {
-    return blas;
-  }
-
-  @Override
-  public LinearAlgebraRoutines getLinearAlgebraRoutines() {
-    return linalg;
   }
 
   public static MatrixFactory getInstance() {

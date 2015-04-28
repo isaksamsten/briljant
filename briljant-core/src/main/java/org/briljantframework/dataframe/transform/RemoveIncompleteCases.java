@@ -29,6 +29,7 @@ public class RemoveIncompleteCases implements Transformation {
   @Override
   public DataFrame transform(DataFrame x) {
     DataFrame.Builder builder = x.newBuilder();
+    int nonNaRow = 0;
     for (int i = 0; i < x.rows(); i++) {
       boolean hasNA = false;
       for (int j = 0; j < x.columns(); j++) {
@@ -39,8 +40,9 @@ public class RemoveIncompleteCases implements Transformation {
       }
       if (!hasNA) {
         for (int j = 0; j < x.columns(); j++) {
-          builder.set(i, j, x, i, j);
+          builder.set(nonNaRow, j, x, i, j);
         }
+        nonNaRow += 1;
       }
     }
     return builder.build();

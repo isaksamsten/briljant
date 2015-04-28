@@ -5,7 +5,7 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.classification.ShapeletTree.Threshold;
 import org.briljantframework.classification.tree.ClassSet;
@@ -201,8 +201,8 @@ public class RandomPointTree implements Classifier {
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
     List<String> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = Briljant.doubleVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = Briljant.doubleVector(presentTargets.size());
+    DoubleMatrix ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleMatrix gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
 
     double ltWeight = 0.0, gtWeight = 0.0;
 

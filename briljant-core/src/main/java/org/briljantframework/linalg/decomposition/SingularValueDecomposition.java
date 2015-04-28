@@ -21,7 +21,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 /**
  * Created by isak on 23/06/14.
  */
-public class SingularValueDecomposition implements Decomposition {
+public class SingularValueDecomposition {
 
   /**
    * \Sigma is an m×n rectangular diagonal matrix with nonnegative real numbers on the diagonal.

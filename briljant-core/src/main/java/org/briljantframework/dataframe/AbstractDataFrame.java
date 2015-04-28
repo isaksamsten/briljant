@@ -3,7 +3,7 @@ package org.briljantframework.dataframe;
 import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
@@ -38,7 +38,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   protected final NameAttribute rowNames;
 
   // TODO
-  protected final MatrixFactory bj = Briljant.getMatrixFactory();
+  protected final MatrixFactory bj = Bj.getMatrixFactory();
 
   protected AbstractDataFrame(NameAttribute columnNames, NameAttribute rowNames) {
     this.columnNames = columnNames;

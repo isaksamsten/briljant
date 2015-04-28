@@ -23,7 +23,7 @@ public class TriangleDistribution extends Distribution {
   }
 
   @Override
-  public double next() {
+  public double sample() {
     double u = random.nextDouble();
     if (u < (mode - lower) / (upper - lower)) {
       return lower + Math.sqrt(u * (upper - lower) * (mode - lower));

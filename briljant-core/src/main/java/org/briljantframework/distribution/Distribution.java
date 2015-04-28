@@ -17,10 +17,14 @@ public abstract class Distribution {
     this(new Random());
   }
 
+  public Random getRandom() {
+    return random;
+  }
+
   /**
-   * Return a new pseudo-randomly generated number from this distribution.
+   * Return a new pseudo-randomly generated number sampled from this distribution.
    *
    * @return a new random number
    */
-  public abstract double next();
+  public abstract double sample();
 }

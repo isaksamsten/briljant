@@ -45,12 +45,12 @@ public class NormalDistribution extends Distribution {
   private static final double cdf_a4 = -1.821255978;
   private static final double cdf_a5 = 1.330274429;
 
-  private final double mean;
-  private final double std;
+  private final double loc;
+  private final double scale;
 
-  public NormalDistribution(double mean, double std) {
-    this.mean = mean;
-    this.std = std;
+  public NormalDistribution(double loc, double scale) {
+    this.loc = loc;
+    this.scale = scale;
   }
 
   public NormalDistribution() {
@@ -60,9 +60,9 @@ public class NormalDistribution extends Distribution {
   /**
    * Cumulative distribution function. Returns the probability of a random variable being less than
    * or equal to {@code value}
-   * 
+   *
    * @param value the value
-   * @param mean the mean
+   * @param mean  the mean
    * @param scale the variance
    * @return the probability of {@code <= value}
    */
@@ -70,9 +70,12 @@ public class NormalDistribution extends Distribution {
     double x = (value - mean) / scale;
     double L = Math.abs(x);
     double k = 1 / (1 + 0.2316419 * L);
-    double result =
-        1 - ((1 / Math.sqrt(2 * Math.PI)) * Math.exp(-L * L / 2) * ((cdf_a1 * k) + (cdf_a2 * k * k)
-            + (cdf_a3 * k * k * k) + (cdf_a4 * k * k * k * k) + (cdf_a5 * k * k * k * k * k)));
+    double result = 1 - ((1 / Math.sqrt(2 * Math.PI)) * Math.exp(-L * L / 2) *
+                         ((cdf_a1 * k) +
+                          (cdf_a2 * k * k) +
+                          (cdf_a3 * k * k * k) +
+                          (cdf_a4 * k * k * k * k) +
+                          (cdf_a5 * k * k * k * k * k)));
     if (x < 0) {
       result = 1 - result;
     }
@@ -81,7 +84,7 @@ public class NormalDistribution extends Distribution {
 
   /**
    * Cumulative distribution function with 0 mean and unit variance
-   * 
+   *
    * @param value the value
    * @return the probability of {@code <= value}
    */
@@ -91,9 +94,9 @@ public class NormalDistribution extends Distribution {
 
   /**
    * Element wise cumulative distribution function
-   * 
-   * @param in the vector
-   * @param mean the mean
+   *
+   * @param in    the vector
+   * @param mean  the mean
    * @param scale the variance
    * @return a new vector
    * @see #cdf(double, double, double)
@@ -108,7 +111,7 @@ public class NormalDistribution extends Distribution {
 
   /**
    * Element wise cumulative distribution function
-   * 
+   *
    * @param in the vector
    * @return a new vector
    * @see #cdf(double)
@@ -119,9 +122,9 @@ public class NormalDistribution extends Distribution {
 
   /**
    * Element wise quantile function
-   * 
-   * @param in the vector
-   * @param mean the mean
+   *
+   * @param in    the vector
+   * @param mean  the mean
    * @param scale the variance
    * @return a new vector
    * @see #ppf(double, double, double)
@@ -136,7 +139,7 @@ public class NormalDistribution extends Distribution {
 
   /**
    * Element wise quantile function with 0 mean and unit variance
-   * 
+   *
    * @param in the vector
    * @return a new vector
    */
@@ -160,16 +163,16 @@ public class NormalDistribution extends Distribution {
    * <p>
    * Returns the value at which the probability of a random variable will be less than {@code <= p}
    * </p>
-   * 
+   *
    * <p>
    * Algorithm from <a href="http://home.online.no/~pjacklam/notes/invnorm/">here</a>
    * </p>
    *
-   * @param p probability
-   * @param loc mean of the normal distribution
+   * @param p     probability
+   * @param loc   mean of the normal distribution
    * @param scale the variance of the normal distribution
    * @return the probability of being less than or equal to {@code p}. If {@code p > 1 || p < 0},
-   *         returns {@link Double#NaN}
+   * returns {@link Double#NaN}
    */
   public static double ppf(double p, double loc, double scale) {
     if (p > 1 || p < 0) {
@@ -185,17 +188,18 @@ public class NormalDistribution extends Distribution {
     if (0 < p && p < p_low) {
       double q = Math.sqrt(-2 * Math.log(p));
       return loc + scale * (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6)
-          / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+                   / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
     } else if (p_low <= p && p <= p_high) {
       double q = p - 0.5;
       double r = q * q;
       return loc + scale
-          * (((((ppf_a1 * r + ppf_a2) * r + ppf_a3) * r + ppf_a4) * r + ppf_a5) * r + ppf_a6) * q
-          / (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
+                   * (((((ppf_a1 * r + ppf_a2) * r + ppf_a3) * r + ppf_a4) * r + ppf_a5) * r
+                      + ppf_a6) * q
+                   / (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
     } else {
       double q = Math.sqrt(-2 * Math.log(1 - p));
       return loc + scale * -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6)
-          / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+                   / ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
     }
   }
 
@@ -212,8 +216,8 @@ public class NormalDistribution extends Distribution {
   /**
    * The probability density function
    *
-   * @param x the value
-   * @param loc the mean
+   * @param x     the value
+   * @param loc   the mean
    * @param scale the variance
    * @return the
    */
@@ -224,7 +228,7 @@ public class NormalDistribution extends Distribution {
   }
 
   @Override
-  public double next() {
-    return mean + random.nextGaussian() * std;
+  public double sample() {
+    return loc + random.nextGaussian() * scale;
   }
 }

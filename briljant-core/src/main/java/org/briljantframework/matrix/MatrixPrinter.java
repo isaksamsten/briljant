@@ -1,6 +1,6 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.complex.ComplexFormat;
 
 import java.io.IOException;
@@ -108,7 +108,7 @@ public final class MatrixPrinter {
 
     IntMatrix widths;
     if (matrix.size() <= minTruncateSize || matrix.rows() < visibleRows * 2) {
-      widths = Briljant.intVector(matrix.columns());
+      widths = Bj.intVector(matrix.columns());
       for (int j = 0; j < matrix.columns(); j++) {
         int m = 0;
         for (int i = 0; i < matrix.rows(); i++) {
@@ -120,7 +120,7 @@ public final class MatrixPrinter {
         widths.set(j, m);
       }
     } else {
-      widths = Briljant.intVector(visibleColumns * 2);
+      widths = Bj.intVector(visibleColumns * 2);
       for (int j = 0; j < visibleColumns; j++) {
         int m = 0;
         for (int i = 0; i < visibleRows && i < matrix.rows(); i++) {

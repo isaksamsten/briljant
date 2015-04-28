@@ -40,7 +40,7 @@ import org.briljantframework.vector.Vector;
  *     2  2 2
  * </pre>
  *
- * {@code new RemoveIncompleteColumns().transform(m)} returns a new DataFrame
+ * {@code t.transform(m)} returns a new DataFrame
  *
  * <pre>
  *     1 3

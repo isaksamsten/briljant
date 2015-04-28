@@ -12,56 +12,48 @@ import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Range;
 import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
-import org.briljantframework.matrix.storage.Storage;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.ServiceLoader;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Isak Karlsson
  */
-public final class Briljant {
+public final class Bj {
 
   private static MatrixFactory MATRIX_FACTORY;
-  public static LinearAlgebraRoutines linalg;
   private static MatrixRoutines MATRIX_ROUTINES;
 
+  public static LinearAlgebraRoutines linalg;
+
   static {
-    String matrixFactoryClassName = "org.briljantframework.matrix.netlib.NetlibMatrixFactory";
-    try {
-      Class<?> matrixFactoryClass = Class.forName(matrixFactoryClassName);
-      MATRIX_FACTORY = (MatrixFactory) matrixFactoryClass.newInstance();
-      MATRIX_ROUTINES = MATRIX_FACTORY.getMatrixRoutines();
-      linalg = MATRIX_FACTORY.getLinearAlgebraRoutines();
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-      e.printStackTrace();
-    }
+    MatrixBackend backend =
+        StreamSupport.stream(ServiceLoader.load(MatrixBackend.class).spliterator(), false)
+            .filter(MatrixBackend::isAvailable)
+            .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority()))
+            .findFirst()
+            .orElseThrow(() -> new UnsupportedOperationException(String.format(
+                "Unable to load MatrixBackend. No available matrix backend registered.")));
+
+    MATRIX_FACTORY = backend.getMatrixFactory();
+    MATRIX_ROUTINES = backend.getMatrixRoutines();
+    linalg = backend.getLinearAlgebraRoutines();
   }
 
-
-  private Briljant() {
+  private Bj() {
   }
 
-  public static BitMatrix booleanVector(Storage storage) {
-    return MATRIX_FACTORY.booleanVector(storage);
+  public static IntMatrix randi(int size, int l, int u) {
+    return MATRIX_FACTORY.randi(size, l, u);
   }
 
-  public static IntMatrix intVector(Storage storage) {
-    return MATRIX_FACTORY.intVector(storage);
-  }
-
-  public static DoubleMatrix doubleVector(Storage storage) {
-    return MATRIX_FACTORY.doubleVector(storage);
-  }
-
-  public static ComplexMatrix complexVector(Storage storage) {
-    return MATRIX_FACTORY.complexVector(storage);
-  }
-
-  public static LongMatrix longVector(Storage storage) {
-    return MATRIX_FACTORY.longVector(storage);
+  public static ComplexMatrix complexMatrix(double[] data) {
+    return MATRIX_FACTORY.complexMatrix(data);
   }
 
   public static IntMatrix matrix(int[][] data) {
@@ -339,5 +331,45 @@ public final class Briljant {
 
   public static <T extends Matrix<T>> T shuffle(T x) {
     return MATRIX_ROUTINES.shuffle(x);
+  }
+
+  public static void transpose(DoubleMatrix x) {
+    MATRIX_ROUTINES.transpose(x);
+  }
+
+  public static <T extends Matrix<T>> T repmat(T x, int n) {
+    return MATRIX_ROUTINES.repmat(x, n);
+  }
+
+  public static double asum(DoubleMatrix a) {
+    return MATRIX_ROUTINES.asum(a);
+  }
+
+  public static double nrm2(DoubleMatrix a) {
+    return MATRIX_ROUTINES.nrm2(a);
+  }
+
+  public static double asum(ComplexMatrix a) {
+    return MATRIX_ROUTINES.asum(a);
+  }
+
+  public static <T extends Matrix<T>> T take(T x, int num) {
+    return MATRIX_ROUTINES.take(x, num);
+  }
+
+  public static void scal(double alpha, DoubleMatrix x) {
+    MATRIX_ROUTINES.scal(alpha, x);
+  }
+
+  public static void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
+    MATRIX_ROUTINES.axpy(alpha, x, y);
+  }
+
+  public static <T extends Matrix<T>> T repmat(T x, int r, int c) {
+    return MATRIX_ROUTINES.repmat(x, r, c);
+  }
+
+  public static Complex norm2(ComplexMatrix a) {
+    return MATRIX_ROUTINES.norm2(a);
   }
 }

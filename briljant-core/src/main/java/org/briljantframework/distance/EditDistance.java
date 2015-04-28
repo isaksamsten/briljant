@@ -2,9 +2,8 @@ package org.briljantframework.distance;
 
 import com.google.common.primitives.Doubles;
 
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Vector;
 
 import java.util.function.DoubleSupplier;
@@ -13,8 +12,6 @@ import java.util.function.DoubleSupplier;
  * Created by isak on 24/03/15.
  */
 public class EditDistance implements Distance {
-
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   @Override
   public double compute(double a, double b) {
@@ -40,9 +37,9 @@ public class EditDistance implements Distance {
       }
     };
 
-    DoubleMatrix previousRow = bj.doubleVector(b.size() + 1).assign(iter);
+    DoubleMatrix previousRow = Bj.doubleVector(b.size() + 1).assign(iter);
     for (int i = 0; i < a.size(); i++) {
-      DoubleMatrix currentRow = bj.doubleVector(b.size() + 1);
+      DoubleMatrix currentRow = Bj.doubleVector(b.size() + 1);
       currentRow.set(0, i + 1);
       for (int j = 0; j < b.size(); j++) {
         double insert = previousRow.get(j + 1) + 1;

@@ -5,7 +5,6 @@ import com.google.common.primitives.Chars;
 import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Check;
-import org.briljantframework.exceptions.BlasException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
@@ -32,8 +31,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   public static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
   public static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
 
-  NetlibLinearAlgebraRoutines(
-      MatrixFactory matrixFactory) {
+  NetlibLinearAlgebraRoutines(NetlibMatrixBackend matrixFactory) {
     super(matrixFactory);
   }
 
@@ -44,7 +42,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public DoubleMatrix pinv(DoubleMatrix x) {
-    MatrixFactory bj = getMatrixFactory();
+    MatrixFactory bj = getMatrixBackend().getMatrixFactory();
     SingularValueDecomposition svd = svd(x);
     DoubleMatrix d = svd.getDiagonal();
     int r1 = 0;
@@ -74,14 +72,14 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
 
     DoubleMatrix pinv = bj.doubleMatrix(x.columns(), x.rows());
-    bj.getMatrixRoutines()
+    getMatrixBackend().getMatrixRoutines()
         .gemm(Transpose.NO, Transpose.YES, 1, v, u, 1, pinv);
     return pinv;
   }
 
   @Override
   public SingularValueDecomposition svd(DoubleMatrix x) {
-    MatrixFactory bj = getMatrixFactory();
+    MatrixFactory bj = getMatrixBackend().getMatrixFactory();
     int m = x.rows();
     int n = x.columns();
     DoubleMatrix s = bj.doubleVector(n);
@@ -93,7 +91,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     } else {
       gesdd('a', a, s, u, vt);
     }
-    bj.getMatrixRoutines().transpose(vt);
+    getMatrixBackend().getMatrixRoutines().transpose(vt);
     return new SingularValueDecomposition(s, u, vt);
   }
 
@@ -683,7 +681,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   private void ensureInfo(String message, intW info) {
     if (info.val != 0) {
-      throw new BlasException(info.val, message);
+      throw new NetlibLapackException(info.val, message);
     }
   }
 
@@ -693,7 +691,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   private void ensureValidParameterInfo(intW info) {
     if (info.val < 0) {
-      throw new BlasException(info.val, "Internal error.");
+      throw new NetlibLapackException(info.val, "Internal error.");
     }
   }
 

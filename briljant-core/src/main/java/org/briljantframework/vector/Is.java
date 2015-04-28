@@ -79,7 +79,7 @@ public final class Is {
     if (o == null) {
       return true;
     } else {
-      Object na = Vectors.naValue(o.getClass());
+      Object na = Na.valueOf(o.getClass());
       return o.equals(na);
     }
   }

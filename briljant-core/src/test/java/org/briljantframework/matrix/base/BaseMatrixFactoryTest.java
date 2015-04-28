@@ -1,12 +1,11 @@
 package org.briljantframework.matrix.base;
 
-import org.briljantframework.matrix.Diagonal;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Transpose;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -14,7 +13,9 @@ import static org.junit.Assert.assertSame;
 
 public class BaseMatrixFactoryTest {
 
-  private final MatrixFactory bj = new NetlibMatrixFactory();
+  private final NetlibMatrixBackend b = new NetlibMatrixBackend();
+  private final MatrixFactory bj = b.getMatrixFactory();
+  private final MatrixRoutines bjr = b.getMatrixRoutines();
 
   @Test
   public void testCreateIntMatrixFrom2DArray() throws Exception {
@@ -40,19 +41,18 @@ public class BaseMatrixFactoryTest {
     System.out.println(a);
     System.out.println(b);
 
-    MatrixRoutines blas = bj.getMatrixRoutines();
     DoubleMatrix c = bj.doubleMatrix(3, 2).assign(2).getView(0, 0, 3, 2);
-    blas.gemm(Transpose.YES, Transpose.NO, 1, a, b, 2, c);
+    bjr.gemm(Transpose.YES, Transpose.NO, 1, a, b, 2, c);
     System.out.println(c);
 
     System.out.println(x);
     System.out.println(y);
 
-    blas.gemv(Transpose.NO, 1, a, x, 4, y);
+    bjr.gemv(Transpose.NO, 1, a, x, 4, y);
     System.out.println(y);
 
     DoubleMatrix z = bj.matrix(new double[]{1, 2, 3});
-    blas.axpy(1, x.getView(0, 0, 2, 1), z.getView(0, 0, 2, 1));
+    bjr.axpy(1, x.getView(0, 0, 2, 1), z.getView(0, 0, 2, 1));
     System.out.println(z);
 
     assertSame(z.getStorage(), z.getStorage());
@@ -275,5 +275,21 @@ public class BaseMatrixFactoryTest {
   @Test
   public void testMatrix17() throws Exception {
 
+  }
+
+  @Test
+  public void testRand() throws Exception {
+
+  }
+
+  @Test
+  public void testRandi() throws Exception {
+
+  }
+
+  @Test
+  public void testRandi1() throws Exception {
+    IntMatrix r = bj.randi(100, -10, 10);
+    System.out.println(r.reshape(10, 10));
   }
 }

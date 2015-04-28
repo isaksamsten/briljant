@@ -1,8 +1,7 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
  * @author Isak Karlsson
@@ -61,7 +60,7 @@ public abstract class AbstractIntVector extends AbstractVector {
     if (cls.isAssignableFrom(Integer.class)) {
       return cls.cast(getAsInt(index));
     } else {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
   }
 
@@ -99,8 +98,12 @@ public abstract class AbstractIntVector extends AbstractVector {
   }
 
   @Override
-  public IntMatrix asMatrix() {
-    return Briljant.intVector(new VectorStorage(this));
+  public IntMatrix toMatrix() {
+    IntMatrix m = Bj.intVector(size());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, getAsInt(i));
+    }
+    return m;
   }
 
   @Override

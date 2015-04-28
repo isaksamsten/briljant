@@ -21,7 +21,7 @@ import com.google.common.collect.MinMaxPriorityQueue;
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
@@ -189,7 +189,7 @@ public class KNearestNeighbors implements Classifier {
       }
       Vector classes = getClasses();
       int voters = queue.size();
-      DoubleMatrix probas = Briljant.doubleVector(classes.size());
+      DoubleMatrix probas = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         probas.set(i, votes.getOrDefault(classes.getAsString(i), 0) / voters);
       }

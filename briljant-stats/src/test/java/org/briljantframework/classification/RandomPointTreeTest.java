@@ -1,6 +1,6 @@
 package org.briljantframework.classification;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.dataframe.DataFrame;
@@ -34,7 +34,7 @@ public class RandomPointTreeTest {
         Vector classes = Vectors.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
-        BitMatrix oobIndicator = Briljant.booleanMatrix(x.rows(), size());
+        BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
         for (int i = 0; i < size(); i++) {
           fitTasks.add(new FitTask(classSet, x, y, classes, oobIndicator.getColumnView(i)));
         }

@@ -14,7 +14,7 @@ import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Transpose;
-import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.stat.RunningStatistics;
 import org.jetbrains.annotations.NotNull;
@@ -34,15 +34,10 @@ import static org.briljantframework.matrix.Indexer.rowMajor;
  */
 public class BaseMatrixRoutines implements MatrixRoutines {
 
-  private final MatrixFactory matrixFactory;
+  private final MatrixBackend matrixFactory;
 
-  protected BaseMatrixRoutines(MatrixFactory matrixFactory) {
+  protected BaseMatrixRoutines(MatrixBackend matrixFactory) {
     this.matrixFactory = Preconditions.checkNotNull(matrixFactory);
-  }
-
-  @Override
-  public MatrixFactory getMatrixFactory() {
-    return matrixFactory;
   }
 
   @Override

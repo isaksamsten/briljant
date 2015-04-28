@@ -1,12 +1,12 @@
 package org.briljantframework.dataframe.transform;
 
+import com.google.common.base.Preconditions;
+
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
 
-import com.google.common.base.Preconditions;
-
 /**
- *
+ * @author Isak Karlsson
  */
 public class ZNormalization implements Transformation {
 

@@ -18,11 +18,10 @@ package org.briljantframework.dataframe.transform;
 
 import com.github.fommil.netlib.LAPACK;
 
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.exceptions.BlasException;
+import org.briljantframework.matrix.netlib.NetlibLapackException;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.netlib.util.intW;
 
 import static com.google.common.primitives.Ints.checkedCast;
@@ -34,7 +33,6 @@ public class InverseTransformation implements Transformation {
 
 
   protected static final LAPACK lapack = LAPACK.getInstance();
-  protected static final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   /**
    * Transform dense matrix.
@@ -54,7 +52,7 @@ public class InverseTransformation implements Transformation {
     double[] outArray = in.array();
     lapack.dgetrf(n, n, outArray, n, ipiv, error);
     if (error.val != 0) {
-      throw new BlasException(error.val, "LU decomposition failed.");
+      throw new NetlibLapackException(error.val, "LU decomposition failed.");
     }
 
     double[] work = new double[1];
@@ -62,17 +60,17 @@ public class InverseTransformation implements Transformation {
     lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
 
     if (error.val != 0) {
-      throw new BlasException(error.val, "Query failed");
+      throw new NetlibLapackException(error.val, "Query failed");
     }
 
     lwork = (int) work[0];
     work = new double[lwork];
     lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
     if (error.val != 0) {
-      throw new BlasException(error.val, "Inverse failed. The matrix is singular.");
+      throw new NetlibLapackException(error.val, "Inverse failed. The matrix is singular.");
     }
 
-    return bj.matrix(outArray).reshape(in.rows(), in.columns());
+    return Bj.matrix(outArray).reshape(in.rows(), in.columns());
   }
 
   @Override

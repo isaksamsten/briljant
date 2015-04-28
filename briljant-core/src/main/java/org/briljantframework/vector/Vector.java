@@ -375,11 +375,11 @@ public interface Vector extends Serializable {
   }
 
   default IntStream intStream() {
-    return asMatrix().asIntMatrix().stream();
+    return toMatrix().asIntMatrix().stream();
   }
 
   default DoubleStream doubleStream() {
-    return asMatrix().asDoubleMatrix().stream();
+    return toMatrix().asDoubleMatrix().stream();
   }
 
   /**
@@ -409,26 +409,26 @@ public interface Vector extends Serializable {
    * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
    *                                                                  to matrix
    */
-  Matrix asMatrix() throws TypeConversionException;
+  Matrix toMatrix() throws TypeConversionException;
 
   default DoubleMatrix asDoubleMatrix() throws TypeConversionException {
-    return asMatrix().asDoubleMatrix();
+    return toMatrix().asDoubleMatrix();
   }
 
   default ComplexMatrix asComplexMatrix() throws TypeConversionException {
-    return asMatrix().asComplexMatrix();
+    return toMatrix().asComplexMatrix();
   }
 
   default LongMatrix asLongMatrix() throws TypeConversionException {
-    return asMatrix().asLongMatrix();
+    return toMatrix().asLongMatrix();
   }
 
   default BitMatrix asBitMatrix() throws TypeConversionException {
-    return asMatrix().asBitMatrix();
+    return toMatrix().asBitMatrix();
   }
 
   default IntMatrix asIntMatrix() throws TypeConversionException {
-    return asMatrix().asIntMatrix();
+    return toMatrix().asIntMatrix();
   }
 
   /**

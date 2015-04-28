@@ -65,7 +65,7 @@ public abstract class AbstractStringVector extends AbstractVector {
     if (cls.isAssignableFrom(String.class)) {
       return cls.cast(getAsString(index));
     } else {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
   }
 
@@ -110,7 +110,7 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   @Override
-  public Matrix asMatrix() throws TypeConversionException {
+  public Matrix toMatrix() throws TypeConversionException {
     throw new TypeConversionException("Unable to convert StringVector to AnyMatrix");
   }
 

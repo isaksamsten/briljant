@@ -18,9 +18,8 @@ package org.briljantframework.distance;
 
 import com.google.common.primitives.Doubles;
 
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -44,8 +43,6 @@ public class DynamicTimeWarping implements Distance {
    */
   protected final Distance distance;
   private final int constraint;
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
-
 
   /**
    * Instantiates a new Dynamic time warping.
@@ -74,7 +71,7 @@ public class DynamicTimeWarping implements Distance {
   @Override
   public double compute(Vector a, Vector b) {
     int n = a.size(), m = b.size();
-    DoubleMatrix dwt = bj.doubleMatrix(n, m).assign(Double.POSITIVE_INFINITY);
+    DoubleMatrix dwt = Bj.doubleMatrix(n, m).assign(Double.POSITIVE_INFINITY);
     dwt.set(0, 0, 0);
 
     int width = Math.max(constraint, Math.abs(n - m));

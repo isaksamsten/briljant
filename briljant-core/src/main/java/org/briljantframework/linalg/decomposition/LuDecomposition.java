@@ -16,12 +16,10 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.Briljant;
-import org.briljantframework.exceptions.BlasException;
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.matrix.netlib.NetlibLapackException;
 import org.netlib.util.intW;
 
 import java.util.Optional;
@@ -29,9 +27,7 @@ import java.util.Optional;
 /**
  * Created by isak on 02/07/14.
  */
-public class LuDecomposition implements Decomposition {
-
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+public class LuDecomposition {
 
   private final DoubleMatrix lu;
   private final IntMatrix pivots;
@@ -79,7 +75,7 @@ public class LuDecomposition implements Decomposition {
     double[] invs = lu.array();
 //    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
-      throw new BlasException(err.val, "Querying failed");
+      throw new NetlibLapackException(err.val, "Querying failed");
     }
 
     lwork = (int) work[0];
@@ -87,10 +83,10 @@ public class LuDecomposition implements Decomposition {
     // TODO (implement in linalg)
 //    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
-      throw new BlasException(err.val, "Inverse failed.");
+      throw new NetlibLapackException(err.val, "Inverse failed.");
     }
 
-    return Briljant.matrix(invs).reshape(lu.rows(), lu.columns());
+    return Bj.matrix(invs).reshape(lu.rows(), lu.columns());
   }
 
   /**
@@ -152,7 +148,7 @@ public class LuDecomposition implements Decomposition {
   }
 
   private DoubleMatrix computeUpper() {
-    DoubleMatrix upperMatrix = bj.doubleMatrix(lu.rows(), lu.columns());
+    DoubleMatrix upperMatrix = Bj.doubleMatrix(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         upperMatrix.set(i, j, lu.get(i, j));
@@ -172,7 +168,7 @@ public class LuDecomposition implements Decomposition {
   }
 
   private DoubleMatrix computeLower() {
-    DoubleMatrix lowerMatrix = bj.doubleMatrix(lu.rows(), lu.columns());
+    DoubleMatrix lowerMatrix = Bj.doubleMatrix(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         int ii = lu.rows() - 1 - i;

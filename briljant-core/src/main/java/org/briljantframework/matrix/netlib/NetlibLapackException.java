@@ -1,13 +1,13 @@
-package org.briljantframework.exceptions;
+package org.briljantframework.matrix.netlib;
 
 /**
  * @author Isak Karlsson
  */
-public class BlasException extends Error {
+public class NetlibLapackException extends Error {
 
   private final int errorCode;
 
-  public BlasException(int val, String s) {
+  public NetlibLapackException(int val, String s) {
     super(s);
     this.errorCode = val;
   }

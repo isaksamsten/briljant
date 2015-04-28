@@ -16,13 +16,11 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.distribution.Distribution;
-import org.briljantframework.distribution.TriangleDistribution;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
@@ -66,15 +64,15 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitMatrix oobIndicator = Briljant.booleanMatrix(x.rows(), size());
+    BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumnView(i)));
     }
 
     try {
       List<ShapeletTree.Predictor> models = execute(tasks);
-      DoubleMatrix lenSum = Briljant.doubleVector(x.columns());
-      DoubleMatrix posSum = Briljant.doubleVector(x.columns());
+      DoubleMatrix lenSum = Bj.doubleVector(x.columns());
+      DoubleMatrix posSum = Bj.doubleVector(x.columns());
       for (ShapeletTree.Predictor m : models) {
         lenSum.assign(m.getLengthImportance(), Double::sum);
         posSum.assign(m.getPositionImportance(), Double::sum);
@@ -84,7 +82,7 @@ public class RandomShapeletForest extends Ensemble {
       posSum.update(v -> v / size());
 
       Map<Value, Integer> counts = Vectors.count(y);
-      DoubleMatrix apriori = Briljant.doubleVector(classes.size());
+      DoubleMatrix apriori = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         apriori.set(i, counts.get(classes.getAsValue(i)) / (double) y.size());
       }
@@ -214,7 +212,7 @@ public class RandomShapeletForest extends Ensemble {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = Briljant.doubleVector(classes.size());
+      DoubleMatrix m = Bj.doubleVector(classes.size());
       for (DoubleMatrix prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }

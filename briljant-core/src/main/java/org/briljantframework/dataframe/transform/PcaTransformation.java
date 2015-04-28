@@ -14,7 +14,7 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.linalg.analysis;
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
@@ -27,12 +27,12 @@ import org.briljantframework.vector.Vectors;
  *
  * @author Isak Karlsson
  */
-public class PrincipalComponentAnalysis implements InvertibleTransformation {
+public class PcaTransformation implements InvertibleTransformation {
 
   private final DoubleMatrix u;
   private int components;
 
-  public PrincipalComponentAnalysis(DoubleMatrix pca, int components) {
+  public PcaTransformation(DoubleMatrix pca, int components) {
     this.u = pca;
     this.components = components;
   }

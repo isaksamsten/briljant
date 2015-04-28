@@ -1,8 +1,8 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -12,10 +12,6 @@ import java.util.function.DoubleUnaryOperator;
 public final class Matrices {
 
   public static final double LOG_2 = Math.log(2);
-
-  private final static org.briljantframework.matrix.api.MatrixFactory
-      bj = NetlibMatrixFactory.getInstance();
-
 
   private Matrices() {
   }
@@ -169,7 +165,7 @@ public final class Matrices {
    * @return a vector
    */
   public static DoubleMatrix linspace(double start, double stop, int num) {
-    DoubleMatrix values = bj.doubleVector(num);
+    DoubleMatrix values = Bj.doubleVector(num);
     double step = (stop - start) / (num - 1);
     double value = start;
     for (int index = 0; index < num; index++) {
@@ -221,7 +217,7 @@ public final class Matrices {
   }
 
   public static LongMatrix round(DoubleMatrix in) {
-    return bj.longMatrix(in.rows(), in.columns()).assign(in, Math::round);
+    return Bj.longMatrix(in.rows(), in.columns()).assign(in, Math::round);
   }
 
   public static double trace(DoubleMatrix matrix) {

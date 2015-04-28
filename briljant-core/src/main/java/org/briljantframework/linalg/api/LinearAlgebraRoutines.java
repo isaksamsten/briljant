@@ -4,7 +4,6 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Transpose;
-import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
  * Created by isak on 2/10/15.
@@ -312,6 +311,4 @@ public interface LinearAlgebraRoutines {
              DoubleMatrix s,
              DoubleMatrix u,
              DoubleMatrix vt);
-
-  MatrixFactory getMatrixFactory();
 }

@@ -16,8 +16,6 @@ import java.util.List;
  */
 public interface MatrixRoutines {
 
-  MatrixFactory getMatrixFactory();
-
   /**
    * Transposes {@code x} in-place with O(1) storage. Since the dimensions of a matrix cannot
    * change, {@link Matrix#reshape(int, int)} must be subsequently called.

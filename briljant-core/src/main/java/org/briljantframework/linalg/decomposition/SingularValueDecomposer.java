@@ -16,10 +16,8 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /**
  * Formally, the singular value decomposition of an m×n real or complex matrix M is a factorization
@@ -32,20 +30,15 @@ import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
  * <p>
  * Created by Isak Karlsson on 11/08/14.
  */
-public class SingularValueDecomposer implements Decomposer<SingularValueDecomposition> {
+public class SingularValueDecomposer {
 
-  protected final MatrixFactory bj = NetlibMatrixFactory.getInstance();
-  protected final LinearAlgebraRoutines linalg = bj.getLinearAlgebraRoutines();
-
-
-  @Override
   public SingularValueDecomposition decompose(DoubleMatrix x) {
     int m = x.rows(), n = x.columns();
-    DoubleMatrix s = bj.doubleVector(n);
-    DoubleMatrix u = bj.doubleMatrix(m, m);
-    DoubleMatrix vt = bj.doubleMatrix(n, n);
+    DoubleMatrix s = Bj.doubleVector(n);
+    DoubleMatrix u = Bj.doubleMatrix(m, m);
+    DoubleMatrix vt = Bj.doubleMatrix(n, n);
     DoubleMatrix a = x.copy();
-    linalg.gesvd('a', 'a', a, s, u, vt);
+    Bj.linalg.gesvd('a', 'a', a, s, u, vt);
     return new SingularValueDecomposition(s, u, vt);
   }
 }

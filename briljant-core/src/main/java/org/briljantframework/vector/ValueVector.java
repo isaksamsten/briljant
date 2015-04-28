@@ -78,7 +78,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
   }
 
   @Override
-  public Matrix asMatrix() {
+  public Matrix toMatrix() {
     throw new UnsupportedOperationException();
   }
 

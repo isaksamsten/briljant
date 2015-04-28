@@ -113,7 +113,7 @@ public class GenericVectorTest {
 
   @Test(expected = TypeConversionException.class)
   public void testAsMatrix() throws Exception {
-    dateVector.asMatrix();
+    dateVector.toMatrix();
   }
 
   @Test

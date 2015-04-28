@@ -3,17 +3,16 @@ package org.briljantframework.matrix.netlib;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.MatrixPrinter;
 import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
-import org.briljantframework.matrix.base.BaseMatrixFactory;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class NetlibMatrixRoutinesTest {
 
-  private MatrixFactory bj = new NetlibMatrixFactory();
-  private MatrixRoutines bjr = bj.getMatrixRoutines();
+  private MatrixBackend backend = new NetlibMatrixBackend();
+  private MatrixFactory bj = backend.getMatrixFactory();
+  private MatrixRoutines bjr = backend.getMatrixRoutines();
 
   private DoubleMatrix a = bj.doubleVector(10000).assign(10);
   private DoubleMatrix b = bj.doubleVector(10000).assign(10);

@@ -1,6 +1,6 @@
 package org.briljantframework.shapelet;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Ensemble;
@@ -110,8 +110,8 @@ public class RandomShapeletForestTest {
       Vector yTest = Convert.toStringVector(validationSet.getColumn(validationSet.columns() - 1));
 
       long start = System.nanoTime();
-      DoubleMatrix upper = Briljant.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
-      IntMatrix sizes = Briljant.matrix(new int[]{100});
+      DoubleMatrix upper = Bj.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
+      IntMatrix sizes = Bj.matrix(new int[]{100});
       // IntMatrix sizes = IntMatrix.of(500);
       System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
                          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
@@ -270,7 +270,7 @@ public class RandomShapeletForestTest {
       // "with-inspected", RandomShapeletForest.Builder::withInspectedShapelets, 1,3,10,20,50));
       // System.out.println(configs);
       long start = System.nanoTime();
-      DoubleMatrix upper = Briljant.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
+      DoubleMatrix upper = Bj.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
       // IntMatrix sizes = IntMatrix.of(1, 5, 10, 30, 50, 100, 200);
 
 //      System.out.println(Vectors.count(yTrain));
@@ -278,7 +278,7 @@ public class RandomShapeletForestTest {
 //      System.out
 //          .println(Vectors.mean(xTrain.getRecord(0)) + " " + Vectors.std(xTrain.getRecord(0)));
 
-      IntMatrix sizes = Briljant.matrix(new int[]{
+      IntMatrix sizes = Bj.matrix(new int[]{
           500
       });
 

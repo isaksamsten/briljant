@@ -1,8 +1,8 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
+import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
  * @author Isak Karlsson
@@ -60,7 +60,7 @@ public abstract class AbstractBitVector extends AbstractVector {
     if (cls.isAssignableFrom(Bit.class)) {
       return cls.cast(getAsBit(index));
     } else {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
   }
 
@@ -105,8 +105,12 @@ public abstract class AbstractBitVector extends AbstractVector {
   }
 
   @Override
-  public Matrix asMatrix() {
-    return Briljant.booleanVector(new VectorStorage(this));
+  public Matrix toMatrix() {
+    BitMatrix n = Bj.booleanVector(size());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, getAsBit(i) == Bit.TRUE);
+    }
+    return n;
   }
 
   @Override

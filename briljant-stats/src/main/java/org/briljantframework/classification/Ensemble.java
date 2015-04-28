@@ -16,7 +16,7 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
@@ -302,7 +302,7 @@ public abstract class Ensemble implements Classifier {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = Briljant.doubleVector(classes.size());
+      DoubleMatrix m = Bj.doubleVector(classes.size());
       for (DoubleMatrix prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }

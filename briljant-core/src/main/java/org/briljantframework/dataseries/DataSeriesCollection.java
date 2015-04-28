@@ -15,12 +15,12 @@ import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
+import org.briljantframework.vector.Na;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
-import org.briljantframework.vector.Vectors;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * differences between this implementation and the traditional {@code DataFrame}. It is possible for
  * the data series in the collection to be of different length. Therefore, {@link #columns()} return
  * the maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
- * {@code col < coll.getRow(n).size()}. If not (and {@code index < columns()}), NA is returned.
+ * {@code col < col.getRecord(n).size()}. If not (and {@code index < columns()}), NA is returned.
  * </p>
  *
  * @author Isak Karlsson
@@ -82,7 +82,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     if (column >= 0 && column < rvec.size()) {
       return rvec.get(cls, column);
     } else if (column >= 0 && column < columns) {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     } else {
       throw new IndexOutOfBoundsException();
     }

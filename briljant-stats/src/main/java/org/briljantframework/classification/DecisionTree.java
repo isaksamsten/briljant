@@ -75,7 +75,6 @@ public class DecisionTree implements Classifier {
     if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
       return TreeLeaf.fromExamples(classSet);
     }
-    System.out.println(depth);
     TreeSplit<ValueThreshold> maxSplit = splitter.find(classSet, frame, target);
     if (maxSplit == null) {
       return TreeLeaf.fromExamples(classSet);

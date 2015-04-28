@@ -3,14 +3,16 @@ package org.briljantframework.matrix.base;
 import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.MatrixPrinter;
+import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.junit.Test;
 
 public class BaseMatrixRoutinesTest {
 
-  MatrixFactory bj = new BaseMatrixFactory();
-  MatrixRoutines bjr = bj.getMatrixRoutines();
+  MatrixBackend b = new BaseMatrixBackend();
+  MatrixFactory bj = b.getMatrixFactory();
+  MatrixRoutines bjr = b.getMatrixRoutines();
 
   @Test
   public void testMean() throws Exception {
@@ -242,8 +244,8 @@ public class BaseMatrixRoutinesTest {
     }).reshape(3, 2).transpose();
 
     System.out.println(a);
-    bj.getMatrixRoutines().transpose(a);
-    System.out.println(a.reshape(3,2));
+    bjr.transpose(a);
+    System.out.println(a.reshape(3, 2));
 
   }
 }

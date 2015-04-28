@@ -9,8 +9,8 @@ import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
+import org.briljantframework.vector.Na;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Vectors;
 
 import java.io.IOException;
 
@@ -38,11 +38,11 @@ public class StringDataEntry implements DataEntry {
   public <T> T next(Class<T> cls) throws IOException {
     String value = nextString();
     if (value == StringVector.NA) {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     } else {
       Resolver<T> resolver = Resolvers.find(cls);
       if (resolver == null) {
-        return Vectors.naValue(cls);
+        return Na.valueOf(cls);
       } else {
         return resolver.resolve(value);
       }

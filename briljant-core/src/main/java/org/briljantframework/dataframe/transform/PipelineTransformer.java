@@ -16,29 +16,23 @@
 
 package org.briljantframework.dataframe.transform;
 
+import org.briljantframework.dataframe.DataFrame;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.briljantframework.dataframe.DataFrame;
-
 /**
- * Created by Isak Karlsson on 18/08/14.
+ * @author Isak Karlsson
  */
 public class PipelineTransformer implements Transformer {
 
   private final List<Transformer> transformers;
 
-  public PipelineTransformer(List<Transformer> transformers) {
+  private PipelineTransformer(List<Transformer> transformers) {
     this.transformers = transformers;
   }
 
-  /**
-   * Of pipeline transformer.
-   *
-   * @param transformers the transformers
-   * @return the pipeline transformer
-   */
   public static Transformer of(Transformer... transformers) {
     if (transformers.length < 1) {
       throw new IllegalArgumentException(
@@ -56,7 +50,6 @@ public class PipelineTransformer implements Transformer {
       dataFrame = transformation.transform(dataFrame);
       transformations.add(transformation);
     }
-
     return new PipelineTransformation(transformations);
   }
 

@@ -45,7 +45,7 @@ public class GenericVector extends AbstractVector {
   public <T> T get(Class<T> cls, int index) {
     Object obj = values.get(index);
     if (obj == null || !cls.isInstance(obj)) {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
     return cls.cast(obj);
   }
@@ -92,7 +92,7 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public Matrix asMatrix() throws TypeConversionException {
+  public Matrix toMatrix() throws TypeConversionException {
     throw new TypeConversionException(String.format("Can't convert vector(%s) to matrix", cls));
   }
 
@@ -246,14 +246,6 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
-//      Resolver<?> resolver = Resolvers.find(cls);
-//      String value = entry.nextString();
-//      if (resolver == null || value == null) {
-//        setNA(index);
-//      } else {
-//        Object resolve = resolver.resolve(value);
-//        buffer.set(index, resolve);
-//      }
       ensureCapacity(index);
       buffer.set(index, entry.next(cls));
       return this;

@@ -1,7 +1,6 @@
 package org.briljantframework.matrix.base;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -9,17 +8,17 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Range;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.storage.DoubleStorage;
 import org.briljantframework.matrix.storage.LongStorage;
-import org.briljantframework.matrix.storage.Storage;
 
 /**
  * @author Isak Karlsson
  */
 public class BaseMatrixFactory implements MatrixFactory {
 
-  private final MatrixRoutines matrixRoutines = new BaseMatrixRoutines(this);
+  protected BaseMatrixFactory() {
+
+  }
 
   @Override
   public IntMatrix matrix(int[][] data) {
@@ -68,16 +67,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   }
 
   @Override
-  public DoubleMatrix diag(int n) {
-    return new BaseDiagonal(this, new double[n], n, n);
-  }
-
-  @Override
-  public DoubleMatrix diag(int m, int n) {
-    return new BaseDiagonal(this, new double[Math.min(m, n)], m, n);
-  }
-
-  @Override
   public DoubleMatrix diag(double[] data) {
     return new BaseDiagonal(this, new DoubleStorage(data), data.length, 1);
   }
@@ -122,11 +111,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   }
 
   @Override
-  public IntMatrix intVector(Storage storage) {
-    return new BaseIntMatrix(this, storage);
-  }
-
-  @Override
   public LongMatrix longMatrix(int rows, int columns) {
     return new BaseLongMatrix(this, rows, columns);
   }
@@ -134,11 +118,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   @Override
   public LongMatrix longVector(int size) {
     return new BaseLongMatrix(this, size);
-  }
-
-  @Override
-  public LongMatrix longVector(Storage storage) {
-    return new BaseLongMatrix(this, storage);
   }
 
   @Override
@@ -152,11 +131,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   }
 
   @Override
-  public DoubleMatrix doubleVector(Storage storage) {
-    return new BaseDoubleMatrix(this, storage);
-  }
-
-  @Override
   public ComplexMatrix complexMatrix(int rows, int columns) {
     return new BaseComplexMatrix(this, rows, columns);
   }
@@ -167,11 +141,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   }
 
   @Override
-  public ComplexMatrix complexVector(Storage storage) {
-    return new BaseComplexMatrix(this, storage);
-  }
-
-  @Override
   public BitMatrix booleanMatrix(int rows, int columns) {
     return new BaseBitMatrix(this, rows, columns);
   }
@@ -179,11 +148,6 @@ public class BaseMatrixFactory implements MatrixFactory {
   @Override
   public BitMatrix booleanVector(int size) {
     return new BaseBitMatrix(this, size);
-  }
-
-  @Override
-  public BitMatrix booleanVector(Storage storage) {
-    return new BaseBitMatrix(this, storage);
   }
 
   @Override
@@ -218,16 +182,6 @@ public class BaseMatrixFactory implements MatrixFactory {
     DoubleMatrix eye = doubleMatrix(size, size);
     eye.getDiagonalView().assign(1);
     return eye;
-  }
-
-  @Override
-  public MatrixRoutines getMatrixRoutines() {
-    return matrixRoutines;
-  }
-
-  @Override
-  public LinearAlgebraRoutines getLinearAlgebraRoutines() {
-    throw new UnsupportedOperationException();
   }
 
 

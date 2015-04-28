@@ -2,7 +2,9 @@ package org.briljantframework.classification.lazy;
 
 import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.distance.DynamicTimeWarping;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
@@ -14,9 +16,10 @@ public class KNearestNeighborsTest {
   @Test
   public void testClassifier() throws Exception {
     KNearestNeighbors oneNearestNeighbours =
-        KNearestNeighbors.withNeighbors(4).withDistance(Euclidean.getInstance()).build();
+        KNearestNeighbors.withNeighbors(1)
+            .withDistance(new DynamicTimeWarping(Euclidean.getInstance(), 3)).build();
 
-    DataFrame iris = Datasets.loadIris();
+    DataFrame iris = DataFrames.dropIncompleteCases(Datasets.loadIris());
     Vector y = iris.getColumn(4);
     DataFrame x = iris.removeColumn(4);
 
@@ -82,7 +85,6 @@ public class KNearestNeighborsTest {
     // }
     // }
     // System.out.printf("Error: %.5f ", (1 - ((double) correct) / test.rows()));
-
 
   }
 }

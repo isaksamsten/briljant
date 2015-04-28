@@ -14,12 +14,10 @@
  * 02110-1301 USA.
  */
 
-package org.briljantframework.linalg.analysis;
+package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.transform.InvertibleTransformation;
-import org.briljantframework.dataframe.transform.InvertibleTransformer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -42,30 +40,25 @@ import org.briljantframework.vector.Vectors;
  *
  * @author Isak Karlsson
  */
-public class PrincipalComponentAnalyzer implements InvertibleTransformer {
+public class PcaTransformer implements InvertibleTransformer {
 
   private final SingularValueDecomposer decomposer;
   private final int components;
 
-  public PrincipalComponentAnalyzer(SingularValueDecomposer decomposer, int components) {
+  public PcaTransformer(SingularValueDecomposer decomposer, int components) {
     this.decomposer = decomposer;
     this.components = components;
   }
 
-  public PrincipalComponentAnalyzer(int components) {
+  public PcaTransformer(int components) {
     this(new SingularValueDecomposer(), components);
   }
 
   /**
    * Instantiates a new Principal component analyzer.
    */
-  public PrincipalComponentAnalyzer() {
+  public PcaTransformer() {
     this(-1);
-  }
-
-  public PrincipalComponentAnalysis analyze(DoubleMatrix array) {
-    SingularValueDecomposition svd = getSingularValueDecomposition(array);
-    return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
   }
 
   private SingularValueDecomposition getSingularValueDecomposition(DoubleMatrix m) {
@@ -76,7 +69,8 @@ public class PrincipalComponentAnalyzer implements InvertibleTransformer {
   @Override
   public InvertibleTransformation fit(DataFrame x) {
     Check.all(x.getColumns(), col -> col.getType().equals(Vectors.DOUBLE) && !col.hasNA());
+    // TODO: use the lapack bindings and only compute the left singular values
     SingularValueDecomposition svd = getSingularValueDecomposition(x.toMatrix().asDoubleMatrix());
-    return new PrincipalComponentAnalysis(svd.getLeftSingularValues(), components);
+    return new PcaTransformation(svd.getLeftSingularValues(), components);
   }
 }

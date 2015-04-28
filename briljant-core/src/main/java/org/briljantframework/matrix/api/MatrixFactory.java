@@ -2,14 +2,14 @@ package org.briljantframework.matrix.api;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.distribution.Distribution;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.distribution.NormalDistribution;
+import org.briljantframework.distribution.UniformDistribution;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.storage.Storage;
 
 /**
  * @author Isak Karlsson
@@ -24,6 +24,12 @@ public interface MatrixFactory {
    */
   IntMatrix matrix(int[][] data);
 
+  /**
+   * Create a vector with the given data.
+   *
+   * @param data the data array
+   * @return a new matrix
+   */
   IntMatrix matrix(int[] data);
 
   /**
@@ -34,8 +40,13 @@ public interface MatrixFactory {
    */
   LongMatrix matrix(long[][] data);
 
+  /**
+   * Create a vector with the given data.
+   *
+   * @param data the data array
+   * @return a new matrix
+   */
   LongMatrix matrix(long[] data);
-
 
   /**
    * Create a {@code DoubleMatrix} with given data
@@ -45,11 +56,13 @@ public interface MatrixFactory {
    */
   DoubleMatrix matrix(double[][] data);
 
+  /**
+   * Create a vector with the given data.
+   *
+   * @param data the data array
+   * @return a new matrix
+   */
   DoubleMatrix matrix(double[] data);
-
-  DoubleMatrix diag(int n);
-
-  DoubleMatrix diag(int m, int n);
 
   DoubleMatrix diag(double[] data);
 
@@ -92,8 +105,6 @@ public interface MatrixFactory {
    */
   IntMatrix intVector(int size);
 
-  IntMatrix intVector(Storage storage);
-
   /**
    * Create an {@code LongMatrix} with designated shape filled with {@code 0}.
    *
@@ -110,9 +121,6 @@ public interface MatrixFactory {
    * @return a new matrix
    */
   LongMatrix longVector(int size);
-
-
-  LongMatrix longVector(Storage storage);
 
   /**
    * Create an {@code DoubleMatrix} with designated shape filled with {@code 0}.
@@ -131,8 +139,6 @@ public interface MatrixFactory {
    */
   DoubleMatrix doubleVector(int size);
 
-  DoubleMatrix doubleVector(Storage storage);
-
   /**
    * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.
    *
@@ -150,8 +156,6 @@ public interface MatrixFactory {
    */
   ComplexMatrix complexVector(int size);
 
-  ComplexMatrix complexVector(Storage storage);
-
   /**
    * Create an {@code BitMatrix} with designated shape filled with {@code false}.
    *
@@ -168,8 +172,6 @@ public interface MatrixFactory {
    * @return a new matrix
    */
   BitMatrix booleanVector(int size);
-
-  BitMatrix booleanVector(Storage storage);
 
   /**
    * Return a row vector of evenly spaced values
@@ -211,15 +213,19 @@ public interface MatrixFactory {
   DoubleMatrix eye(int size);
 
   default DoubleMatrix rand(int size, Distribution distribution) {
-    DoubleMatrix rnd = doubleVector(size).assign(distribution::next);
-    return rnd;
+    return doubleVector(size).assign(distribution::sample);
+  }
+
+  default DoubleMatrix randn(int size) {
+    return rand(size, new NormalDistribution(0, 1));
   }
 
   default IntMatrix randi(int size, Distribution distribution) {
-    return intVector(size).assign(() -> (int) Math.round(distribution.next()));
+    return intVector(size).assign(() -> (int) Math.round(distribution.sample()));
   }
 
-  MatrixRoutines getMatrixRoutines();
+  default IntMatrix randi(int size, int l, int u) {
+    return randi(size, new UniformDistribution(l, u));
+  }
 
-  LinearAlgebraRoutines getLinearAlgebraRoutines();
 }

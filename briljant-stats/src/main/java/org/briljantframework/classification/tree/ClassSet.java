@@ -17,7 +17,7 @@
 package org.briljantframework.classification.tree;
 
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
@@ -125,7 +125,7 @@ public final class ClassSet implements Iterable<Example> {
     for (Sample c : samples.values()) {
       rel[i++] = c.getWeight() / size;
     }
-    return Briljant.matrix(rel);
+    return Bj.matrix(rel);
   }
 
   public double getTotalWeight() {

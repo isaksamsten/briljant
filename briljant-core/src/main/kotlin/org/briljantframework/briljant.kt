@@ -1,7 +1,6 @@
 package org.briljantframework
 
 import org.briljantframework.complex.Complex
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory
 
 
 public object all : Iterable<Int> {
@@ -10,25 +9,22 @@ public object all : Iterable<Int> {
     }
 }
 
-val bj = NetlibMatrixFactory.getInstance()
-
-
 /*
  * Matrix creation
  */
-fun matrix(vararg t: Int) = bj.matrix(t)
+fun matrix(vararg t: Int) = Bj.matrix(t)
 
-fun matrix(vararg t: Double) = bj.matrix(t)
+fun matrix(vararg t: Double) = Bj.matrix(t)
 
-fun matrix(vararg t: Long) = bj.matrix(t)
+fun matrix(vararg t: Long) = Bj.matrix(t)
 
-fun matrix(vararg t: Complex) = bj.matrix(t)
+fun matrix(vararg t: Complex) = Bj.matrix(t)
 
-fun matrix(vararg t: Boolean) = bj.matrix(t)
+fun matrix(vararg t: Boolean) = Bj.matrix(t)
 
-fun linspace(start: Double, end: Double, size: Int = 100) = bj.linspace(start, end, size)
+fun linspace(start: Double, end: Double, size: Int = 100) = Bj.linspace(start, end, size)
 
-fun range(start: Int, end: Int, step: Int = 1) = bj.range(start, end, step)
+fun range(start: Int, end: Int, step: Int = 1) = Bj.range(start, end, step)
 
 /*
  * DataFrame creation

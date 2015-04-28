@@ -21,7 +21,7 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -157,8 +157,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
 
     List<String> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = Briljant.doubleVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = Briljant.doubleVector(presentTargets.size());
+    DoubleMatrix ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleMatrix gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
 
 
 

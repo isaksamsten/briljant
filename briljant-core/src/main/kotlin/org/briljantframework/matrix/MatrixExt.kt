@@ -1,35 +1,33 @@
 package org.briljantframework.matrix
 
+import org.briljantframework.Bj
 import org.briljantframework.all
 import org.briljantframework.complex.Complex
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory
 import org.briljantframework.matrix.storage.Storage
 
-val bj = NetlibMatrixFactory.getInstance()
-val bjr = bj.getMatrixRoutines()
-val linalg = bj.getLinearAlgebraRoutines()
 
-fun <T : Matrix<T>> T.hstack(other: T): T = bjr.hstack(listOf(this, other))
 
-fun <T : Matrix<T>> hstack(vararg others: T): T = bjr.hstack(listOf(*others))
+fun <T : Matrix<T>> T.hstack(other: T): T = Bj.hstack(listOf(this, other))
 
-fun <T : Matrix<T>> T.vstack(other: T): T = bjr.vstack(listOf(this, other))
+fun <T : Matrix<T>> hstack(vararg others: T): T = Bj.hstack(listOf(*others))
 
-fun <T : Matrix<T>> vstack(vararg others: T): T = bjr.vstack(listOf(*others))
+fun <T : Matrix<T>> T.vstack(other: T): T = Bj.vstack(listOf(this, other))
 
-fun <T : Matrix<T>> T.sort(): T = bjr.sort(this, { mat, a, b -> mat.compare(a, b) })
+fun <T : Matrix<T>> vstack(vararg others: T): T = Bj.vstack(listOf(*others))
+
+fun <T : Matrix<T>> T.sort(): T = Bj.sort(this, { mat, a, b -> mat.compare(a, b) })
 
 fun <T : Matrix<T>> T.sort(axis: Dim): T
-        = bjr.sort(this, { mat, a, b -> mat.compare(a, b) }, axis)
+        = Bj.sort(this, { mat, a, b -> mat.compare(a, b) }, axis)
 
 fun <T : Matrix<T>> T.sort(axis: Dim = Dim.R, cmp: (t: T, i: Int, j: Int) -> Int): T
-        = bjr.sort(this, cmp, axis)
+        = Bj.sort(this, cmp, axis)
 
 fun DoubleMatrix.mean(axis: Dim) = Matrices.mean(this, axis)
 
 fun DoubleMatrix.mean() = Matrices.mean(this)
 
-private fun Progression<Int>.toSlice() = bj.range(start, end, increment.toInt())
+private fun Progression<Int>.toSlice() = Bj.range(start, end, increment.toInt())
 
 // Shape accessor
 fun Shape.component1() = this.rows
@@ -55,21 +53,21 @@ val ComplexMatrix.T: ComplexMatrix get() = this.transpose()
 val BitMatrix.T: BitMatrix get() = this.transpose()
 
 // Primitive matrix creation
-fun Double.toVector(size: Int) = bj.doubleVector(size) assign this
+fun Double.toVector(size: Int) = Bj.doubleVector(size) assign this
 
-fun Double.toMatrix(rows: Int, columns: Int) = bj.doubleMatrix(rows, columns) assign this
+fun Double.toMatrix(rows: Int, columns: Int) = Bj.doubleMatrix(rows, columns) assign this
 
-fun Int.toVector(size: Int) = bj.intVector(size) assign this
+fun Int.toVector(size: Int) = Bj.intVector(size) assign this
 
-fun Int.toMatrix(rows: Int, columns: Int) = bj.intMatrix(rows, columns) assign this
+fun Int.toMatrix(rows: Int, columns: Int) = Bj.intMatrix(rows, columns) assign this
 
-fun Long.toVector(size: Int) = bj.longVector(size) assign this
+fun Long.toVector(size: Int) = Bj.longVector(size) assign this
 
-fun Long.toMatrix(rows: Int, columns: Int) = bj.longMatrix(rows, columns) assign this
+fun Long.toMatrix(rows: Int, columns: Int) = Bj.longMatrix(rows, columns) assign this
 
-fun Complex.toVector(size: Int) = bj.complexVector(size) assign this
+fun Complex.toVector(size: Int) = Bj.complexVector(size) assign this
 
-fun Complex.toMatrix(rows: Int, columns: Int) = bj.complexMatrix(rows, columns) assign this
+fun Complex.toMatrix(rows: Int, columns: Int) = Bj.complexMatrix(rows, columns) assign this
 
 // Slicing
 fun <T : Matrix<T>> T.get(range: Progression<Int>) = slice(range.toSlice())

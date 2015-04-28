@@ -1,6 +1,6 @@
 package org.briljantframework.classification;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.DataFrames;
 import org.briljantframework.dataframe.Datasets;
@@ -16,12 +16,11 @@ public class RandomForestTest {
 
   @Test
   public void testFit() throws Exception {
-    DataFrame iris = DataFrames.permuteRows(Datasets.loadConnect4());
-
+    DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
     DataFrame x = iris.removeColumn(iris.columns() - 1);
     Vector y = Convert.toStringVector(iris.getColumn(iris.columns() - 1));
 
-    IntMatrix f = Briljant.matrix(new int[]{1, 2, 3});
+    IntMatrix f = Bj.matrix(new int[]{1, 2, 3});
     for (int i = 0; i < f.size(); i++) {
       RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(f.get(i)).build();
       Result result = Validators.splitValidation(0.3).test(forest, x, y);

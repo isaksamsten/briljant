@@ -39,7 +39,7 @@ public class GenericValue extends AbstractVector implements Value {
       throw new IndexOutOfBoundsException();
     }
     if (obj == null || !cls.isInstance(obj)) {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
     return cls.cast(obj);
   }
@@ -118,7 +118,7 @@ public class GenericValue extends AbstractVector implements Value {
   }
 
   @Override
-  public Matrix asMatrix() throws TypeConversionException {
+  public Matrix toMatrix() throws TypeConversionException {
     throw new TypeConversionException(
         String.format("Can't convert value(%s) to matrix", obj.getClass()));
   }

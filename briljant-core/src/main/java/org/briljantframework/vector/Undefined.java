@@ -57,7 +57,7 @@ public class Undefined implements Value {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    return Vectors.naValue(cls);
+    return Na.valueOf(cls);
   }
 
   @Override
@@ -121,7 +121,7 @@ public class Undefined implements Value {
   }
 
   @Override
-  public Matrix asMatrix() {
+  public Matrix toMatrix() {
     throw new UnsupportedOperationException();
   }
 

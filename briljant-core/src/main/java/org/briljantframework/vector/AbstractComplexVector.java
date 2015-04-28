@@ -1,9 +1,8 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.Briljant;
+import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.storage.VectorStorage;
 
 /**
  * @author Isak Karlsson
@@ -60,7 +59,7 @@ public abstract class AbstractComplexVector extends AbstractVector {
     if (cls.isAssignableFrom(Complex.class)) {
       return cls.cast(getAsInt(index));
     } else {
-      return Vectors.naValue(cls);
+      return Na.valueOf(cls);
     }
   }
 
@@ -124,8 +123,12 @@ public abstract class AbstractComplexVector extends AbstractVector {
   }
 
   @Override
-  public ComplexMatrix asMatrix() {
-    return Briljant.complexVector(new VectorStorage(this));
+  public ComplexMatrix toMatrix() {
+    ComplexMatrix x = Bj.complexVector(size());
+    for (int i = 0; i < size(); i++) {
+      x.set(i, getAsComplex(i));
+    }
+    return x;
   }
 
   /**

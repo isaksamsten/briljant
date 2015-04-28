@@ -111,7 +111,7 @@ public class RecordView implements Record {
   }
 
   @Override
-  public Matrix asMatrix() {
+  public Matrix toMatrix() {
     throw new UnsupportedOperationException();
   }
 

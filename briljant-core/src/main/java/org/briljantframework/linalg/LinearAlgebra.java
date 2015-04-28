@@ -16,9 +16,8 @@
 
 package org.briljantframework.linalg;
 
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.transform.InverseTransformation;
-import org.briljantframework.linalg.analysis.PrincipalComponentAnalysis;
-import org.briljantframework.linalg.analysis.PrincipalComponentAnalyzer;
 import org.briljantframework.linalg.decomposition.LuDecomposer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
@@ -26,8 +25,6 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Shape;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 
 /**
  * Created by isak on 23/06/14.
@@ -38,8 +35,6 @@ public class LinearAlgebra {
    * The constant MACHINE_EPSILON.
    */
   public final static double MACHINE_EPSILON = Math.ulp(1);
-
-  private static final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   /**
    * In statistics and mathematics, linear least squares is an approach fitting a mathematical or
@@ -113,11 +108,11 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return the out
    */
-  public static DoubleMatrix  pinv(DoubleMatrix matrix) {
+  public static DoubleMatrix pinv(DoubleMatrix matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getDoubleArray();
     pinvi(matrix, array);
-    return bj.matrix(array).reshape(matrix.columns(), matrix.rows());
+    return Bj.matrix(array).reshape(matrix.columns(), matrix.rows());
   }
 
   /**
@@ -156,26 +151,6 @@ public class LinearAlgebra {
    */
   public static SingularValueDecomposition svd(DoubleMatrix matrix) {
     return new SingularValueDecomposer().decompose(matrix);
-  }
-
-  /**
-   * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal
-   * transformation to convert a set of observations of possibly correlated variables into a set of
-   * values of linearly uncorrelated variables called principal components. The number of principal
-   * components is less than or equal to the number of original variables. This transformation is
-   * defined in such a way that the first principal component has the largest possible variance
-   * (that is, accounts for as much of the variability in the data as possible), and each
-   * succeeding
-   * component in turn has the highest variance possible under the constraint that it is orthogonal
-   * to (i.e., uncorrelated with) the preceding components. Principal components are guaranteed to
-   * be independent if the data set is jointly normally distributed. PCA is sensitive to the
-   * relative scaling of the original variables.
-   *
-   * @param x the array
-   * @return the principal components of x
-   */
-  public static PrincipalComponentAnalysis pca(DoubleMatrix x) {
-    return new PrincipalComponentAnalyzer().analyze(x);
   }
 
   /**

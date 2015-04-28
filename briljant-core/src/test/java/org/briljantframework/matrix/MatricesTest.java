@@ -1,7 +1,8 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
+import org.briljantframework.matrix.api.MatrixRoutines;
+import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -12,7 +13,9 @@ import static org.junit.Assert.assertEquals;
 
 public class MatricesTest {
 
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
+  private final NetlibMatrixBackend b = new NetlibMatrixBackend();
+  private final MatrixFactory bj = b.getMatrixFactory();
+  private final MatrixRoutines bjr = b.getMatrixRoutines();
 
 
   @Test
@@ -251,9 +254,9 @@ public class MatricesTest {
     DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
     DoubleMatrix b = bj.doubleMatrix(2, 3).assign(3);
     DoubleMatrix c = bj.doubleMatrix(1, 3).assign(1);
-    DoubleMatrix hstack = bj.getMatrixRoutines().vstack(Arrays.asList(a, b, c));
+    DoubleMatrix hstack = bjr.vstack(Arrays.asList(a, b, c));
     System.out.println(hstack);
-    assertMatrixEquals(a, bj.getMatrixRoutines().vstack(Arrays.asList(a)), 0);
+    assertMatrixEquals(a, bjr.vstack(Arrays.asList(a)), 0);
     assertEquals(3 + 2 + 1, hstack.rows());
     assertEquals(3, hstack.columns());
     assertMatrixEquals(10, hstack.getView(0, 0, 3, 3), 0);
@@ -266,9 +269,9 @@ public class MatricesTest {
     DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
     DoubleMatrix b = bj.doubleMatrix(3, 2).assign(2);
     DoubleMatrix c = bj.doubleMatrix(3, 1).assign(1);
-    DoubleMatrix vstack = bj.getMatrixRoutines().hstack(Arrays.asList(a, b, c));
+    DoubleMatrix vstack = bjr.hstack(Arrays.asList(a, b, c));
 
-    assertMatrixEquals(a, bj.getMatrixRoutines().hstack(Arrays.asList(a)), 0);
+    assertMatrixEquals(a, bjr.hstack(Arrays.asList(a)), 0);
     assertEquals(3 + 2 + 1, vstack.columns());
     assertEquals(3, vstack.rows());
     assertMatrixEquals(10, vstack.getView(0, 0, 3, 3), 0);
@@ -374,7 +377,7 @@ public class MatricesTest {
   @Test
   public void testVsplit() throws Exception {
     DoubleMatrix a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
-    List<DoubleMatrix> m = bj.getMatrixRoutines().vsplit(a, 3);
+    List<DoubleMatrix> m = bjr.vsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getRowView(0), m.get(0), 0);
     assertMatrixEquals(a.getRowView(1), m.get(1), 0);
@@ -386,7 +389,7 @@ public class MatricesTest {
   @Test
   public void testHsplit() throws Exception {
     DoubleMatrix a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
-    List<DoubleMatrix> m = bj.getMatrixRoutines().hsplit(a, 3);
+    List<DoubleMatrix> m = bjr.hsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getColumnView(0), m.get(0), 0);
     assertMatrixEquals(a.getColumnView(1), m.get(1), 0);

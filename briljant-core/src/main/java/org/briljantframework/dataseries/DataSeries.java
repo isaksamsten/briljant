@@ -96,8 +96,8 @@ public class DataSeries implements Record {
   }
 
   @Override
-  public Matrix asMatrix() {
-    return vector.asMatrix();
+  public Matrix toMatrix() {
+    return vector.toMatrix();
   }
 
   @Override
