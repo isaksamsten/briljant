@@ -28,7 +28,7 @@ import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import java.util.EnumSet;
 
@@ -86,7 +86,7 @@ public class KNearestNeighbors implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
         y.size());
-    return new Model(x, y, distance, neighbors, Vectors.unique(y));
+    return new Model(x, y, distance, neighbors, Vec.unique(y));
   }
 
   @Override

@@ -26,6 +26,8 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.google.common.base.Strings;
 import com.google.common.collect.Table;
 
+import org.briljantframework.sort.Swappable;
+
 /**
  * Created by Isak Karlsson on 14/08/14.
  */
@@ -146,7 +148,6 @@ public final class Utils {
     int rowLength = rows.stream().mapToInt(x -> x.toString().length()).max().orElse(1);
     for (R row : rows) {
       for (C column : columns) {
-        Object obj = table.get(row, column);
         String value = table.get(row, column).toString();
         if (value.length() > valueLength.getOrDefault(column, 0)) {
           valueLength.put(column, value.length());
@@ -226,38 +227,4 @@ public final class Utils {
   public static double randDouble(double min, double max) {
     return min + (max - min) * getRandom().nextDouble();
   }
-
-  // /**
-  // * Min double.
-  // *
-  // * @param a the a
-  // * @param b the b
-  // * @return the double
-  // */
-  // public static double min(double a, double b) {
-  // return Math.min(a, b);
-  // }
-  //
-  // /**
-  // * Min double.
-  // *
-  // * @param a the a
-  // * @param b the b
-  // * @param c the c
-  // * @return the double
-  // */
-  // public static double min(double a, double b, double c) {
-  // return Math.min(a, Math.min(b, c));
-  // }
-  //
-  // /**
-  // * Min double.
-  // *
-  // * @param args the args
-  // * @return the double
-  // */
-  // public static double min(double... args) {
-  // Preconditions.checkArgument(args.length > 0);
-  // return DoubleStream.of(args).min().getAsDouble();
-  // }
 }

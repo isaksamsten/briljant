@@ -4,10 +4,11 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.NameAttribute;
+import org.briljantframework.dataframe.Index;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A joiner keeps track of the indexes that will be joined.
@@ -24,88 +25,74 @@ import java.util.Collection;
 public abstract class Joiner {
 
   /**
-   * Combines two dataframes using this joiner.
+   * Combines two data frames using this joiner.
    *
    * @param a the first data frame. Uses the indexes from {@link #getLeftIndex(int)}
    * @param b the second data frame. Uses the indexes from {@link #getRightIndex(int)}
    * @return a new DataFrame
    */
-  public DataFrame.Builder join(DataFrame a, DataFrame b, Collection<String> on) {
+  public DataFrame join(DataFrame a, DataFrame b, Collection<Object> on) {
     int size = this.size();
-    int aCol = a.columns();
-    int bCol = b.columns();
     int indexSize = on.size();
 
     DataFrame.Builder builder = a.newBuilder();
-    NameAttribute aColumnNames = a.getColumnNames();
-    NameAttribute bColumnNames = b.getColumnNames();
-    NameAttribute columnNames = builder.getColumnNames();
-
-    ObjectIntMap<String> indexColumn = new ObjectIntOpenHashMap<>(on.size());
-
-    int m = Math.max(aCol, bCol);
-    int index = 0;
-    for (int i = 0; i < m && index < indexSize; i++) {
-      if (m < aCol && m < bCol) {
-        String aColumnName = aColumnNames.get(i);
-        String bColumnName = bColumnNames.get(i);
-        if ((aColumnName != null && on.contains(aColumnName)) ||
-            (bColumnName != null && on.contains(bColumnName))) {
-          indexColumn.put(aColumnName, index);
-          builder.addColumnBuilder(a.getColumnType(index).newBuilder(size));
-          index += 1;
-        }
-      } else if (m < aCol) {
-        String aColumnName = aColumnNames.get(i);
-        if (aColumnName != null && on.contains(aColumnName)) {
-          indexColumn.put(aColumnName, index);
-          builder.addColumnBuilder(a.getColumnType(index).newBuilder(size));
-          index += 1;
-        }
+    Index.Builder columnIndexer = a.getColumnIndex().newBuilder();
+    ObjectIntMap<Object> indexColumn = new ObjectIntOpenHashMap<>(on.size());
+    Iterator<Index.Entry> aIt = a.getColumnIndex().iterator();
+    Iterator<Index.Entry> bIt = b.getColumnIndex().iterator();
+    int currentColumnIndex = 0;
+    while (currentColumnIndex < indexSize && (aIt.hasNext() || bIt.hasNext())) {
+      Index.Entry entry;
+      if (aIt.hasNext()) {
+        entry = aIt.next();
       } else {
-        String bColumnName = bColumnNames.get(i);
-        if (bColumnName != null && on.contains(bColumnName)) {
-          indexColumn.put(bColumnName, index);
-          builder.addColumnBuilder(a.getColumnType(index).newBuilder(size));
-          index += 1;
-        }
+        entry = bIt.next();
+      }
+
+      Object key = entry.key();
+      if (on.contains(key)) {
+        builder.addColumnBuilder(a.getType(entry.index()).newBuilder(size));
+        indexColumn.put(key, currentColumnIndex);
+        columnIndexer.add(key);
+        currentColumnIndex += 1;
       }
     }
 
-    index = 0;
-    for (int j = 0; j < aCol; j++) {
-      String columnName = aColumnNames.get(j);
-      if (columnName != null) {
-        columnNames.put(j, columnName);
-      }
-
-      Vector sourceColumn = a.getColumn(j);
-      if (columnName != null && on.contains(columnName)) {
-        int targetColumn = indexColumn.get(columnName);
+    int columnIndex = on.size();
+    for (Index.Entry entry : a.getColumnIndex()) {
+      int index = entry.index();
+      Vector sourceColumn = a.getColumn(index);
+      Object key = entry.key();
+      if (on.contains(key)) {
+        int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
-        builder.addColumnBuilder(a.getColumnType(j).newBuilder(size));
-        appendColumnFromLeftIndexIgnoreNA(size, builder, j, sourceColumn);
+        columnIndexer.add(key);
+        builder.addColumnBuilder(a.getType(index).newBuilder(size));
+        appendColumnFromLeftIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
+        columnIndex++;
       }
     }
 
-    int columnIndex = aCol;
-    for (int j = 0; j < bCol; j++) {
-      String columnName = bColumnNames.get(j);
-      Vector sourceColumn = b.getColumn(j);
-      if (columnName != null && on.contains(columnName)) {
-        int targetColumn = indexColumn.get(columnName);
+    for (Index.Entry entry : b.getColumnIndex()) {
+      int index = entry.index();
+      Vector sourceColumn = b.getColumn(index);
+      Object key = entry.key();
+      if (on.contains(key)) {
+        int targetColumn = indexColumn.get(key);
         appendColumnFromRightIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
-        if (columnName != null) {
-          columnNames.put(columnIndex, columnName);
+        Object newKey = key;
+        if (columnIndexer.contains(key)) {
+          newKey = key.toString() + " (right)";
         }
-        builder.addColumnBuilder(b.getColumnType(j).newBuilder(size));
+        columnIndexer.add(newKey);
+        builder.addColumnBuilder(b.getType(index).newBuilder(size));
         appendColumnFromRightIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
-        columnIndex += 1;
+        columnIndex++;
       }
     }
-    return builder;
+    return builder.build().setColumnIndex(columnIndexer.build());
   }
 
   private void appendColumnFromLeftIndex(int size, DataFrame.Builder builder, int targetColumn,

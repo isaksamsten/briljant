@@ -7,7 +7,7 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.AbstractDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.storage.DoubleArrayStorage;
 import org.briljantframework.matrix.storage.DoubleStorage;
@@ -81,12 +81,12 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, Transpose b) {
+  public DoubleMatrix mmul(double alpha, T a, DoubleMatrix other, T b) {
     if (!isView() && !other.isView()) {
       String transA = "n";
       int thisRows = rows();
       int thisColumns = columns();
-      if (a.transpose()) {
+      if (a.isTrue()) {
         thisRows = columns();
         thisColumns = rows();
         transA = "t";
@@ -95,7 +95,7 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
       String transB = "n";
       int otherRows = other.rows();
       int otherColumns = other.columns();
-      if (b.transpose()) {
+      if (b.isTrue()) {
         otherRows = other.columns();
         otherColumns = other.rows();
         transB = "t";

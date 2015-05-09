@@ -5,7 +5,7 @@ import com.google.common.collect.UnmodifiableIterator;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.complex.ComplexBuilder;
+import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.storage.Storage;
@@ -902,26 +902,26 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   @Override
   public ComplexMatrix mmul(Complex alpha, ComplexMatrix other) {
-    return mmul(alpha, Transpose.NO, other, Transpose.NO);
+    return mmul(alpha, T.NO, other, T.NO);
   }
 
   @Override
-  public ComplexMatrix mmul(Transpose a, ComplexMatrix other, Transpose b) {
+  public ComplexMatrix mmul(T a, ComplexMatrix other, T b) {
     return mmul(Complex.ONE, a, other, b);
   }
 
   @Override
-  public ComplexMatrix mmul(Complex alpha, Transpose a, ComplexMatrix other, Transpose b) {
+  public ComplexMatrix mmul(Complex alpha, T a, ComplexMatrix other, T b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a.transpose()) {
+    if (a.isTrue()) {
       thisRows = columns();
       thisCols = rows();
     }
 
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b.transpose()) {
+    if (b.isTrue()) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -933,16 +933,16 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
     ComplexMatrix result = newEmptyMatrix(thisRows, otherColumns);
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
-        ComplexBuilder sumAcc = new ComplexBuilder(0);
+        MutableComplex sumAcc = new MutableComplex(0);
         for (int k = 0; k < thisCols; k++) {
           int thisIndex;
           int otherIndex;
-          if (a.transpose()) {
+          if (a.isTrue()) {
             thisIndex = rowMajor(row, k, thisRows, thisCols);
           } else {
             thisIndex = columnMajor(row, k, thisRows, thisCols);
           }
-          if (b.transpose()) {
+          if (b.isTrue()) {
             otherIndex = rowMajor(k, col, otherRows, otherColumns);
           } else {
             otherIndex = columnMajor(k, col, otherRows, otherColumns);
@@ -950,8 +950,8 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
           Complex thisValue = get(thisIndex);
           Complex otherValue = other.get(otherIndex);
-          thisValue = a == Transpose.CONJ ? thisValue.conjugate() : thisValue;
-          otherValue = b == Transpose.CONJ ? otherValue.conjugate() : otherValue;
+          thisValue = a == T.CONJ ? thisValue.conjugate() : thisValue;
+          otherValue = b == T.CONJ ? otherValue.conjugate() : otherValue;
           sumAcc.plus(thisValue.multiply(otherValue));
         }
         result.set(row, col, sumAcc.multiply(alpha).toComplex());

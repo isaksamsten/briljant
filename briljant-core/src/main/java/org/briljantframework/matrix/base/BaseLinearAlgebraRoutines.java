@@ -4,7 +4,7 @@ import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixBackend;
 
 /**
@@ -32,7 +32,7 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void ormqr(char side, Transpose transA, DoubleMatrix a, DoubleMatrix tau, DoubleMatrix c) {
+  public void ormqr(char side, T transA, DoubleMatrix a, DoubleMatrix tau, DoubleMatrix c) {
     throw new UnsupportedOperationException();
 
   }

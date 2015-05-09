@@ -28,7 +28,7 @@ import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class RandomShapeletForest extends Ensemble {
 
   @Override
   public Predictor fit(DataFrame x, Vector y) {
-    Vector classes = Vectors.unique(y);
+    Vector classes = Vec.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
     BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
@@ -81,7 +81,7 @@ public class RandomShapeletForest extends Ensemble {
       lenSum.update(v -> v / size());
       posSum.update(v -> v / size());
 
-      Map<Value, Integer> counts = Vectors.count(y);
+      Map<Value, Integer> counts = Vec.count(y);
       DoubleMatrix apriori = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         apriori.set(i, counts.get(classes.getAsValue(i)) / (double) y.size());

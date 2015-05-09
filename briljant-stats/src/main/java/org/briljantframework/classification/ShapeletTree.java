@@ -51,7 +51,7 @@ import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,7 +136,7 @@ public class ShapeletTree implements Classifier {
   @Override
   public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
-    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
+    Vector classes = this.classes != null ? this.classes : Vec.unique(y);
     if (classSet == null) {
       classSet = new ClassSet(y, classes);
     }

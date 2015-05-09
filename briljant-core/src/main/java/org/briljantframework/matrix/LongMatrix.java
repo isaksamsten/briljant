@@ -197,7 +197,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * @param b     transpose for {@code other}
    * @return a new matrix
    */
-  LongMatrix mmul(Transpose a, LongMatrix other, Transpose b);
+  LongMatrix mmul(T a, LongMatrix other, T b);
 
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
@@ -209,7 +209,7 @@ public interface LongMatrix extends Matrix<LongMatrix>, Iterable<Long> {
    * @param b     transpose for {@code other}
    * @return a new matrix
    */
-  LongMatrix mmul(long alpha, Transpose a, LongMatrix other, Transpose b);
+  LongMatrix mmul(long alpha, T a, LongMatrix other, T b);
 
   /**
    * Element wise <u>m</u>ultiplication

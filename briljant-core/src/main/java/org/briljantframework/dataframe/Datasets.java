@@ -1,5 +1,13 @@
 package org.briljantframework.dataframe;
 
+import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.EntryReader;
+import org.briljantframework.io.RdsInputStream;
+import org.briljantframework.io.MatlabTextInputStream;
+import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.VectorType;
+
 import java.io.BufferedInputStream;
 import java.io.IOError;
 import java.io.IOException;
@@ -7,19 +15,11 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import org.briljantframework.dataseries.DataSeriesCollection;
-import org.briljantframework.io.DataInputStream;
-import org.briljantframework.io.DelimitedInputStream;
-import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.VectorType;
 
 /**
  * This class provides some classical benchmarking datasets
- * 
+ *
  * Created by Isak Karlsson on 01/12/14.
  */
 public class Datasets {
@@ -33,35 +33,37 @@ public class Datasets {
   private static final String RESOURCE_PATTERN = "/org/briljantframework/datasets/%s.txt";
   private static final Map<String, DataFrame> DATA_CACHE = new HashMap<>();
 
-  private Datasets() {}
+  private Datasets() {
+  }
 
   /**
    * Returns the same dataset as {@link #loadIris()}, but using a particular {@code DataFrame}
    * builder.
-   * 
+   *
    * For example, if using the {@link MixedDataFrame}:
-   * 
+   *
    * <pre>
    * DataFrame dataFrame = loadIris((names, types) -&gt; new MixedDataFrame.Builder(names, types));
    * // or simply
    * DataFrame iris = loadIris(MixedDataFrame.Builder::new);
    * </pre>
-   * 
+   *
    * @param f the supplier
    * @return a new data frame constructed from the supplied builder
    * @see #loadIris()
    */
   public static DataFrame loadIris(
-      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, DelimitedInputStream::new, IRIS);
+      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+    return load(f, RdsInputStream::new, IRIS);
   }
 
   /**
-   * The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by Sir
+   * The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by
+   * Sir
    * Ronald Fisher (1936) as an example of discriminant analysis. It is sometimes called Anderson's
    * Iris data set because Edgar Anderson collected the data to quantify the morphologic variation
    * of Iris flowers of three related species.
-   * 
+   *
    * The data set consists of 50 samples from each of three species of Iris (Iris setosa, Iris
    * virginica and Iris versicolor). Four features were measured from each sample: the length and
    * the width of the sepals and petals, in centimetres. Based on the combination of these four
@@ -90,14 +92,14 @@ public class Datasets {
    * This database contains all legal 8-ply positions in the game of connect-4 in which neither
    * player has won yet, and in which the next move is not forced. x is the first player; o the
    * second.The outcome class is the game theoretical value for the first player.
-   * 
+   *
    * <dl>
    * <dt>Description</dt>
    * <dd><a href="https://archive.ics.uci.edu/ml/datasets/Connect-4">UCI</a></dd>
    * <dt>Source files</dt>
    * <dd><a href="https://archive.ics.uci.edu/ml/datasets/Connect-4">UCI</a></dd>
    * </dl>
-   * 
+   *
    * @return the connect-4 dataset
    */
   public static DataFrame loadConnect4() {
@@ -115,31 +117,32 @@ public class Datasets {
    * @see #loadConnect4()
    */
   public static DataFrame loadConnect4(
-      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, DelimitedInputStream::new, CONNECT_4);
+      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+    return load(f, RdsInputStream::new, CONNECT_4);
   }
 
   /**
-   * 
+   *
    * @return
    */
   public static DataFrame loadSyntheticControl() {
     if (DATA_CACHE.containsKey(SYNTHETIC_CONTROL)) {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
-    DataFrame frame =
-        loadSyntheticControl((a, b) -> new DataSeriesCollection.Builder(DoubleVector.TYPE));
+    DataFrame frame = loadSyntheticControl(
+        types -> new DataSeriesCollection.Builder(DoubleVector.TYPE)
+    );
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;
   }
 
   /**
-   * 
+   *
    * @param f
    * @return
    */
   public static DataFrame loadSyntheticControl(
-      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
+      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
     return load(f, MatlabTextInputStream::new, SYNTHETIC_CONTROL);
   }
 
@@ -162,13 +165,12 @@ public class Datasets {
    * @return
    */
   public static DataFrame loadDummy(
-      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, DelimitedInputStream::new, DUMMY);
+      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+    return load(f, RdsInputStream::new, DUMMY);
   }
 
-  public static DataFrame load(
-      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f,
-      Function<InputStream, DataInputStream> fin, String name) {
+  public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
+                               Function<InputStream, DataInputStream> fin, String name) {
     try (DataInputStream dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return DataFrames.load(f, dfis);
     } catch (IOException e) {

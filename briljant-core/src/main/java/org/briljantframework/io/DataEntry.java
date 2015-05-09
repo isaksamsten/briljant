@@ -3,8 +3,6 @@ package org.briljantframework.io;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.Bit;
 
-import java.io.IOException;
-
 /**
  * Created by Isak Karlsson on 11/12/14.
  */
@@ -20,49 +18,49 @@ public interface DataEntry {
    * @param <T> the type to return
    * @return a value of type {@code T}
    */
-  <T> T next(Class<T> cls) throws IOException;
+  <T> T next(Class<T> cls);
 
   /**
    * Reads the next string in this stream
    *
    * @return the next string
    */
-  String nextString() throws IOException;
+  String nextString();
 
   /**
    * Reads the next int in this stream
    *
    * @return the next int
    */
-  int nextInt() throws IOException;
+  int nextInt();
 
   /**
    * Reads the next {@code double} in this stream
    *
    * @return the next {@code double}
    */
-  double nextDouble() throws IOException;
+  double nextDouble();
 
   /**
    * Reads the next {@code Binary} in this stream.
    *
    * @return the next binary
    */
-  Bit nextBinary() throws IOException;
+  Bit nextBinary();
 
   /**
    * Reads the next {@code Complex} in this stream.
    *
    * @return the next complex
    */
-  Complex nextComplex() throws IOException;
+  Complex nextComplex();
 
   /**
    * Returns {@code true} if there are more values in the stream
    *
    * @return if has next
    */
-  boolean hasNext() throws IOException;
+  boolean hasNext();
 
-  int size() throws IOException;
+  int size();
 }

@@ -20,7 +20,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 /**
  * @author Isak Karlsson
@@ -31,27 +31,15 @@ public class MeanImputer implements Transformer {
   public Transformation fit(DataFrame frame) {
     DoubleMatrix means = Bj.doubleVector(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
-      means.set(j, Vectors.mean(frame.getColumn(j)));
+      means.set(j, Vec.mean(frame.getColumn(j)));
     }
 
-    return new MeanImputation(means);
-  }
-
-  private static class MeanImputation implements Transformation {
-
-    private final DoubleMatrix means;
-
-    private MeanImputation(DoubleMatrix means) {
-      this.means = means;
-    }
-
-    @Override
-    public DataFrame transform(DataFrame x) {
+    return x -> {
       Check.size(x.columns(), means);
       DataFrame.Builder builder = x.newBuilder();
-      builder.getColumnNames().putAll(x.getColumnNames());
+//      builder.getColumnNames().putAll(x.getColumnNames());
       for (int j = 0; j < x.columns(); j++) {
-        Check.requireType(Vectors.DOUBLE, x.getColumnType(j));
+        Check.requireType(Vec.DOUBLE, x.getType(j));
         for (int i = 0; i < x.rows(); i++) {
           if (x.isNA(i, j)) {
             builder.set(i, j, means.get(j));
@@ -61,8 +49,6 @@ public class MeanImputer implements Transformer {
         }
       }
       return builder.build();
-    }
+    };
   }
-
-
 }

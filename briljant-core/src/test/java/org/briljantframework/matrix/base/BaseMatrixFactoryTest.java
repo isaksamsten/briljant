@@ -2,7 +2,7 @@ package org.briljantframework.matrix.base;
 
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
@@ -42,13 +42,13 @@ public class BaseMatrixFactoryTest {
     System.out.println(b);
 
     DoubleMatrix c = bj.doubleMatrix(3, 2).assign(2).getView(0, 0, 3, 2);
-    bjr.gemm(Transpose.YES, Transpose.NO, 1, a, b, 2, c);
+    bjr.gemm(T.YES, T.NO, 1, a, b, 2, c);
     System.out.println(c);
 
     System.out.println(x);
     System.out.println(y);
 
-    bjr.gemv(Transpose.NO, 1, a, x, 4, y);
+    bjr.gemv(T.NO, 1, a, x, 4, y);
     System.out.println(y);
 
     DoubleMatrix z = bj.matrix(new double[]{1, 2, 3});
@@ -80,10 +80,6 @@ public class BaseMatrixFactoryTest {
 
   @Test
   public void testSquareDiag() throws Exception {
-    DoubleMatrix d = bj.diag(4, 2).assign(3);
-    System.out.println(d);
-
-//    System.out.println(f.mmul(d));
 //    System.out.println(d);
   }
 

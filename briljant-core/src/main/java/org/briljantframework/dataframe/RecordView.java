@@ -30,10 +30,10 @@ public class RecordView implements Record {
     this(parent, row, VariableVector.TYPE);
   }
 
-  @Override
-  public String getColumnName(int index) {
-    return parent.getColumnName(index);
-  }
+//  @Override
+//  public String getColumnName(int index) {
+//    return parent.getColumnName(index);
+//  }
 
   @Override
   public VectorType getType() {
@@ -92,7 +92,7 @@ public class RecordView implements Record {
 
   @Override
   public VectorType getType(int index) {
-    return parent.getColumnType(index);
+    return parent.getType(index);
   }
 
   @Override
@@ -131,7 +131,7 @@ public class RecordView implements Record {
     b.put(0, 0, "");
     b.put(1, 0, "[" + row + ",]");
     for (int i = 0; i < size(); i++) {
-      b.put(0, i + 1, getColumnName(i));
+//      b.put(0, i + 1, getColumnName(i));
       b.put(1, i + 1, toString(i));
     }
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);

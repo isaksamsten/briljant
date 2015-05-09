@@ -11,7 +11,7 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.storage.Storage;
 import org.netlib.util.intW;
@@ -19,7 +19,7 @@ import org.netlib.util.intW;
 /**
  * @author Isak Karlsson
  */
-class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
+public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   private static final LAPACK lapack = LAPACK.getInstance();
 
@@ -31,7 +31,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   public static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
   public static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
 
-  NetlibLinearAlgebraRoutines(NetlibMatrixBackend matrixFactory) {
+  protected NetlibLinearAlgebraRoutines(NetlibMatrixBackend matrixFactory) {
     super(matrixFactory);
   }
 
@@ -73,7 +73,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
     DoubleMatrix pinv = bj.doubleMatrix(x.columns(), x.rows());
     getMatrixBackend().getMatrixRoutines()
-        .gemm(Transpose.NO, Transpose.YES, 1, v, u, 1, pinv);
+        .gemm(T.NO, T.YES, 1, v, u, 1, pinv);
     return pinv;
   }
 
@@ -141,7 +141,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void ormqr(char side, Transpose transA, DoubleMatrix a, DoubleMatrix tau, DoubleMatrix c) {
+  public void ormqr(char side, T transA, DoubleMatrix a, DoubleMatrix tau, DoubleMatrix c) {
     side = Character.toLowerCase(side);
     if (!Chars.contains(ORMQR_SIDE, side)) {
       throw invalidCharacter("side", side, ORMQR_SIDE);

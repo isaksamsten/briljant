@@ -151,7 +151,12 @@ public class BaseMatrixRoutinesTest {
 
   @Test
   public void testGer() throws Exception {
-
+    DoubleMatrix a = bj.matrix(new double[]{1, 2, 3, 4});
+    DoubleMatrix b = bj.matrix(new double[]{1, 2, 3});
+    DoubleMatrix c = bj.doubleMatrix(4, 3);
+    bjr.ger(1, a, b, c);
+    System.out.println(c);
+    System.out.println(a.mmul(b.transpose()));
   }
 
   @Test
@@ -246,6 +251,11 @@ public class BaseMatrixRoutinesTest {
     System.out.println(a);
     bjr.transpose(a);
     System.out.println(a.reshape(3, 2));
+
+  }
+
+  @Test
+  public void testScal() throws Exception {
 
   }
 }

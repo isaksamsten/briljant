@@ -335,11 +335,11 @@ public class AbstractComplexMatrixTest {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
     ComplexMatrix y = bj.complexMatrix(new double[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
 
-    ComplexMatrix z = y.mmul(Transpose.YES, x, Transpose.NO);
+    ComplexMatrix z = y.mmul(T.YES, x, T.NO);
     ComplexMatrix za = bj.complexMatrix(new double[]{14, 32, 32, 77}).reshape(2, 2);
     assertMatrixEquals(z, za);
 
-    z = x.mmul(Transpose.NO, y, Transpose.YES);
+    z = x.mmul(T.NO, y, T.YES);
     za = bj.complexMatrix(new double[]{17, 22, 27, 22, 29, 36, 27, 36, 45}).reshape(3, 3);
     assertMatrixEquals(z, za);
   }
@@ -348,11 +348,11 @@ public class AbstractComplexMatrixTest {
   public void testMmul3() throws Exception {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
     ComplexMatrix y = bj.complexMatrix(new double[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
-    ComplexMatrix z = y.mmul(Complex.valueOf(2), Transpose.YES, x, Transpose.NO);
+    ComplexMatrix z = y.mmul(Complex.valueOf(2), T.YES, x, T.NO);
     ComplexMatrix za = bj.complexMatrix(new double[]{28, 64, 64, 154}).reshape(2, 2);
     assertMatrixEquals(z, za);
 
-    z = x.mmul(Complex.valueOf(2), Transpose.NO, y, Transpose.YES);
+    z = x.mmul(Complex.valueOf(2), T.NO, y, T.YES);
     za = bj.complexMatrix(new double[]{34, 44, 54, 44, 58, 72, 54, 72, 90}).reshape(3, 3);
     assertMatrixEquals(z, za);
   }

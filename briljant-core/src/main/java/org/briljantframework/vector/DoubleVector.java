@@ -106,10 +106,6 @@ public class DoubleVector extends AbstractDoubleVector {
     });
   }
 
-  public static Vector zeros(int columns) {
-    return new DoubleVector(new double[columns], false);
-  }
-
   @Override
   public double getAsDouble(int index) {
     return values[index];

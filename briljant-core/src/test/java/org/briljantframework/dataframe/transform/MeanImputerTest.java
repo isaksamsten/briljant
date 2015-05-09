@@ -20,7 +20,7 @@ public class MeanImputerTest {
         DoubleVector.wrap(3, 3, 3, DoubleVector.NA),
         DoubleVector.wrap(DoubleVector.NA, 2, 2, DoubleVector.NA)
     );
-    frame.setColumnNames("first", "second", "third");
+//    frame.setColumnNames("first", "second", "third");
     MeanImputer imputer = new MeanImputer();
     Transformation t = imputer.fit(frame);
     DataFrame imputed = t.transform(frame);

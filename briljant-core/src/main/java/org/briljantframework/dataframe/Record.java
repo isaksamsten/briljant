@@ -15,5 +15,5 @@ public interface Record extends VariableVector {
    * @param index the index
    * @return the column name
    */
-  String getColumnName(int index);
+//  String getColumnName(int index);
 }

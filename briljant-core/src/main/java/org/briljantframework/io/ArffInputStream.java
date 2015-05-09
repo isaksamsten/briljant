@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Undefined;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
-import org.briljantframework.vector.Vectors;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class ArffInputStream extends DataInputStream {
   }
 
   private BufferedReader reader;
-  private List<String> columnNames = null;
+  private List<Object> columnNames = null;
   private List<VectorType> columnTypes = null;
   private String currentLine = null;
 
@@ -75,9 +75,9 @@ public class ArffInputStream extends DataInputStream {
       String typeRepr = attr.group(2).trim().toLowerCase();
       VectorType type = TYPE_MAP.getOrDefault(typeRepr, Undefined.TYPE);
       columnNames.add(name);
-      if (!type.equals(Vectors.UNDEFINED)) {
+      if (!type.equals(Vec.UNDEFINED)) {
         columnTypes.add(type);
-      } else if (type.equals(Vectors.UNDEFINED) && (NOMINAL.matcher(typeRepr)).matches()) {
+      } else if (type.equals(Vec.UNDEFINED) && (NOMINAL.matcher(typeRepr)).matches()) {
         columnTypes.add(StringVector.TYPE);
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));
@@ -108,7 +108,7 @@ public class ArffInputStream extends DataInputStream {
   }
 
   @Override
-  public Collection<String> readColumnNames() throws IOException {
+  public Collection<Object> readColumnIndex() throws IOException {
     initialize();
     return columnNames;
   }

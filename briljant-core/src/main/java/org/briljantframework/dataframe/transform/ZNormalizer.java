@@ -17,10 +17,11 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.stat.DescriptiveStatistics;
+import org.briljantframework.vector.Vec;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
@@ -35,19 +36,33 @@ public class ZNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix mean = Matrices.mean(frame.toMatrix().asDoubleMatrix(), Dim.C);
-
-    DoubleMatrix x = frame.toMatrix().asDoubleMatrix();
-    DoubleMatrix xNorm = Bj.doubleMatrix(x.rows(), x.columns());
-
-    for (int i = 0; i < xNorm.rows(); i++) {
-      for (int j = 0; j < xNorm.columns(); j++) {
-        xNorm.set(i, j, (x.get(i, j) - mean.get(j)));
-      }
+    DoubleMatrix mean = Bj.doubleVector(frame.columns());
+    DoubleMatrix sigma = Bj.doubleVector(frame.columns());
+    for (int i = 0; i < frame.columns(); i++) {
+      DescriptiveStatistics stats = Vec.statistics(frame.getColumn(i));
+      mean.set(i, stats.getMean());
+      sigma.set(i, stats.getStandardDeviation());
     }
 
-    DoubleMatrix sigma = Matrices.std(xNorm, Dim.C);
-    return new ZNormalization(mean, sigma);
+    return x -> {
+      Check.size(mean.size(), x.columns());
+      DataFrame.Builder builder = x.newBuilder();
+      for (int j = 0; j < x.columns(); j++) {
+        Check.requireType(Vec.DOUBLE, x.getType(j));
+        builder.addColumnBuilder(x.getType(j));
+//        builder.getColumnNames().putFromIfPresent(j, x.getColumnNames(), j);
+        double m = mean.get(j);
+        double std = sigma.get(j);
+        for (int i = 0; i < x.rows(); i++) {
+          if (x.isNA(i, j)) {
+            builder.setNA(i, j);
+          } else {
+            builder.set(i, j, (x.getAsDouble(i, j) - m) / std);
+          }
+        }
+      }
+      return builder.build();
+    };
   }
 
 }

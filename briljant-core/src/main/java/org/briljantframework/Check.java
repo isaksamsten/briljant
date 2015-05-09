@@ -36,8 +36,8 @@ public final class Check {
 
   public static void range(double v, double min, double max) {
     if (v < min || v > max) {
-      throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", v, min, v,
-                                                       max));
+      throw new IllegalArgumentException(
+          String.format("%f < %f (min) || %f > %f (max)", v, min, v, max));
     }
   }
 

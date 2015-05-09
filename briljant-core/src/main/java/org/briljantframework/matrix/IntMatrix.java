@@ -214,7 +214,7 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param b     transpose for {@code other}
    * @return a new matrix
    */
-  IntMatrix mmul(Transpose a, IntMatrix other, Transpose b);
+  IntMatrix mmul(T a, IntMatrix other, T b);
 
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
@@ -226,7 +226,7 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @param b     transpose for {@code other}
    * @return a new matrix
    */
-  IntMatrix mmul(int alpha, Transpose a, IntMatrix other, Transpose b);
+  IntMatrix mmul(int alpha, T a, IntMatrix other, T b);
 
   /**
    * Element wise <u>m</u>ultiplication

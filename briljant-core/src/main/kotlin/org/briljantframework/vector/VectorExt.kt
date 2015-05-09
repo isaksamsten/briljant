@@ -3,6 +3,8 @@ package org.briljantframework.vector
 import com.google.common.collect.Sets
 import org.briljantframework.complex.Complex
 
+fun Vector.get(idx: Iterable<Int>) = slice(idx)
+
 fun Double.toValue() = Convert.toValue(this)
 
 fun Int.toValue() = Convert.toValue(this)
@@ -17,22 +19,22 @@ fun Boolean.toValue() = Convert.toValue(this)
 
 fun Vector.contains(value: Value) = this.find(value) != -1
 
-public fun Vector.contains(value: String): Boolean = Vectors.find(this, value) != -1
+public fun Vector.contains(value: String): Boolean = Vec.find(this, value) != -1
 
-public fun Vector.contains(value: Int): Boolean = Vectors.find(this, value) != -1
+public fun Vector.contains(value: Int): Boolean = Vec.find(this, value) != -1
 
-public fun Vector.find(value: Value): Int = Vectors.find(this, value)
+public fun Vector.find(value: Value): Int = Vec.find(this, value)
 
-public fun <T> Vector.find(value: T): Boolean = Vectors.find(this, value) == 1
+public fun <T> Vector.find(value: T): Boolean = Vec.find(this, value) == 1
 
 public inline fun <reified T> Vector.toSet(): Set<T> = Sets.newHashSet(this.asList(javaClass<T>()))
 
 public inline fun <reified T : Any> Vector.toList(): List<T> = this.asList(javaClass<T>())
 
-fun Vector.unique(): Vector = Vectors.unique(this)
+fun Vector.unique(): Vector = Vec.unique(this)
 
 public fun Vector.unique(other: Vector, vararg rest: Vector): Vector
-        = Vectors.unique(this, other, *rest)
+        = Vec.unique(this, other, *rest)
 
 public fun Vector.add(value: Value): Vector = this.newCopyBuilder().add(value).build()
 
@@ -40,14 +42,14 @@ public fun Vector.add(value: Any): Vector = newCopyBuilder().add(value).build()
 
 [suppress("UNCHECKED_CAST")]
 public inline fun <reified T> Vector.count(): Map<T, Int> = when (javaClass<T>()) {
-    javaClass<Value>() -> Vectors.count(this) as Map<T, Int>
-    else -> Vectors.count(javaClass<T>(), this)
+    javaClass<Value>() -> Vec.count(this) as Map<T, Int>
+    else -> Vec.count(javaClass<T>(), this)
 }
 
 public inline fun <reified T> Vector.get(index: Int): T = this.get(javaClass<T>(), index)
 
 public inline fun <reified T> Vector.sort([noinline] cmp: (T, T) -> Int): Vector
-        = Vectors.sort(javaClass<T>(), this, cmp)
+        = Vec.sort(javaClass<T>(), this, cmp)
 
 fun Vector.repeat(times: Int): Vector {
     if (times == 1) {

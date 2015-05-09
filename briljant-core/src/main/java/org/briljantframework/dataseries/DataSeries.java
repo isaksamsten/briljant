@@ -20,10 +20,10 @@ public class DataSeries implements Record {
     this.vector = vector;
   }
 
-  @Override
-  public String getColumnName(int index) {
-    throw new UnsupportedOperationException();
-  }
+//  @Override
+//  public String getColumnName(int index) {
+//    throw new UnsupportedOperationException();
+//  }
 
   @Override
   public VectorType getType() {

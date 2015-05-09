@@ -6,8 +6,7 @@ import org.briljantframework.Check;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.Transpose;
-import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.base.BaseMatrixRoutines;
 import org.briljantframework.matrix.storage.DoubleArrayStorage;
 import org.briljantframework.matrix.storage.Storage;
@@ -18,10 +17,6 @@ import org.briljantframework.matrix.storage.Storage;
 class NetlibMatrixRoutines extends BaseMatrixRoutines {
 
   private final static BLAS blas = BLAS.getInstance();
-
-  NetlibMatrixRoutines(NetlibMatrixBackend backend) {
-    super(backend);
-  }
 
   @Override
   public double dot(DoubleMatrix a, DoubleMatrix b) {
@@ -75,18 +70,44 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
 
   @Override
   public void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
-    if (alpha != 1 && (!x.isView() && !y.isView())) {
+    if (alpha == 0) {
+      return;
+    }
+    if (!x.isView() && !y.isView()) {
       Check.equalShape(x, y);
       double[] xa = x.getStorage().doubleArray();
       double[] ya = y.getStorage().doubleArray();
       blas.daxpy(x.size(), alpha, xa, 1, ya, 1);
-    } else if (alpha != 0) {
+    } else {
       super.axpy(alpha, x, y);
     }
   }
 
   @Override
-  public void gemv(Transpose transA, double alpha, DoubleMatrix a,
+  public void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a) {
+    if (!x.isView() && !y.isView() && !a.isView()) {
+      Check.all(Matrix::isVector, x, y);
+      Check.size(x.size(), a.rows());
+      Check.size(y.size(), a.columns());
+
+      Storage sx = x.getStorage();
+      Storage sy = y.getStorage();
+      Storage sa = a.getStorage();
+
+      int m = a.rows();
+      int n = a.columns();
+
+      double[] ax = sx.doubleArray();
+      double[] ay = sy.doubleArray();
+      double[] aa = sa.doubleArray();
+      blas.dger(m, n, alpha, ax, 1, ay, 1, aa, Math.max(1, m));
+    } else {
+      super.ger(alpha, x, y, a);
+    }
+  }
+
+  @Override
+  public void gemv(T transA, double alpha, DoubleMatrix a,
                    DoubleMatrix x, double beta, DoubleMatrix y) {
     Storage sa = a.getStorage();
     Storage sb = x.getStorage();
@@ -96,7 +117,7 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
     int am = a.rows();
     int an = a.columns();
     String ta = "n";
-    if (transA.transpose()) {
+    if (transA.isTrue()) {
       am = a.columns();
       an = a.rows();
     }
@@ -118,12 +139,12 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
   }
 
   @Override
-  public void gemm(Transpose transA, Transpose transB, double alpha, DoubleMatrix a, DoubleMatrix b,
+  public void gemm(T transA, T transB, double alpha, DoubleMatrix a, DoubleMatrix b,
                    double beta, DoubleMatrix c) {
     String ta = "n";
     int am = a.rows();
     int an = a.columns();
-    if (transA.transpose()) {
+    if (transA.isTrue()) {
       am = a.columns();
       an = a.rows();
       ta = "t";
@@ -132,7 +153,7 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
     String tb = "n";
     int bm = b.rows();
     int bn = b.columns();
-    if (transB.transpose()) {
+    if (transB.isTrue()) {
       bm = b.columns();
       bn = b.rows();
       tb = "t";

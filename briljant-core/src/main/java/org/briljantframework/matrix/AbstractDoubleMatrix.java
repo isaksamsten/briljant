@@ -1001,27 +1001,27 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
 
   @Override
   public DoubleMatrix mmul(double alpha, DoubleMatrix other) {
-    return mmul(alpha, Transpose.NO, other, Transpose.NO);
+    return mmul(alpha, T.NO, other, T.NO);
   }
 
 
   @Override
-  public DoubleMatrix mmul(Transpose a, DoubleMatrix other, Transpose b) {
+  public DoubleMatrix mmul(T a, DoubleMatrix other, T b) {
     return mmul(1, a, other, b);
   }
 
 
   @Override
-  public DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, Transpose b) {
+  public DoubleMatrix mmul(double alpha, T a, DoubleMatrix other, T b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a.transpose()) {
+    if (a.isTrue()) {
       thisRows = columns();
       thisCols = rows();
     }
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b.transpose()) {
+    if (b.isTrue()) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -1035,10 +1035,10 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex = a.transpose() ?
+          int thisIndex = a.isTrue() ?
                           rowMajor(row, k, thisRows, thisCols) :
                           columnMajor(row, k, thisRows, thisCols);
-          int otherIndex = b.transpose() ?
+          int otherIndex = b.isTrue() ?
                            rowMajor(k, col, otherRows, otherColumns) :
                            columnMajor(k, col, otherRows, otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);

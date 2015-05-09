@@ -3,19 +3,18 @@ package org.briljantframework.matrix.base;
 import com.google.common.base.Preconditions;
 
 import org.briljantframework.Check;
-import org.briljantframework.IndexComparator;
-import org.briljantframework.QuickSort;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.complex.ComplexBuilder;
+import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.Transpose;
-import org.briljantframework.matrix.api.MatrixBackend;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixRoutines;
+import org.briljantframework.sort.IndexComparator;
+import org.briljantframework.sort.QuickSort;
 import org.briljantframework.stat.RunningStatistics;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,10 +33,7 @@ import static org.briljantframework.matrix.Indexer.rowMajor;
  */
 public class BaseMatrixRoutines implements MatrixRoutines {
 
-  private final MatrixBackend matrixFactory;
-
-  protected BaseMatrixRoutines(MatrixBackend matrixFactory) {
-    this.matrixFactory = Preconditions.checkNotNull(matrixFactory);
+  protected BaseMatrixRoutines() {
   }
 
   @Override
@@ -211,7 +207,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public Complex norm2(ComplexMatrix a) {
-    ComplexBuilder c = new ComplexBuilder(a.get(0).pow(2));
+    MutableComplex c = new MutableComplex(a.get(0).pow(2));
     for (int i = 1; i < a.size(); i++) {
       c.plus(a.get(i).pow(2));
     }
@@ -255,39 +251,47 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   @Override
   public void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
     Check.equalShape(x, y);
-    if (alpha != 1) {
-      int size = x.size();
-      for (int i = 0; i < size; i++) {
-        y.set(i, alpha * x.get(i) + y.get(i));
-      }
+    if (alpha == 0) {
+      return;
+    }
+    int size = x.size();
+    for (int i = 0; i < size; i++) {
+      y.set(i, alpha * x.get(i) + y.get(i));
     }
   }
 
   @Override
-  public void gemv(Transpose transA, double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
+  public void gemv(T transA, double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
                    DoubleMatrix y) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a) {
-    throw new UnsupportedOperationException();
+    Check.all(Matrix::isVector, x, y);
+    Check.size(x.size(), a.rows());
+    Check.size(y.size(), a.columns());
+    for (int i = 0; i < x.size(); i++) {
+      for (int j = 0; j < y.size(); j++) {
+        a.set(i, j, alpha * x.get(i) * y.get(j));
+      }
+    }
   }
 
   @Override
-  public void gemm(Transpose transA, Transpose transB,
+  public void gemm(T transA, T transB,
                    double alpha, DoubleMatrix a, DoubleMatrix b,
                    double beta, DoubleMatrix c) {
 
     int thisRows = a.rows();
     int thisCols = a.columns();
-    if (transA.transpose()) {
+    if (transA.isTrue()) {
       thisRows = a.columns();
       thisCols = a.rows();
     }
     int otherRows = b.rows();
     int otherColumns = b.columns();
-    if (transB.transpose()) {
+    if (transB.isTrue()) {
       otherRows = b.columns();
       otherColumns = b.rows();
     }
@@ -300,10 +304,10 @@ public class BaseMatrixRoutines implements MatrixRoutines {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex = transA.transpose() ?
+          int thisIndex = transA.isTrue() ?
                           rowMajor(row, k, thisRows, thisCols) :
                           columnMajor(row, k, thisRows, thisCols);
-          int otherIndex = transB.transpose() ?
+          int otherIndex = transB.isTrue() ?
                            rowMajor(k, col, otherRows, otherColumns) :
                            columnMajor(k, col, otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);

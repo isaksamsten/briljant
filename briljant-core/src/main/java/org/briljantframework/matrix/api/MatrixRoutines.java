@@ -1,12 +1,12 @@
 package org.briljantframework.matrix.api;
 
-import org.briljantframework.IndexComparator;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
+import org.briljantframework.sort.IndexComparator;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,11 +23,11 @@ public interface MatrixRoutines {
    * <p>For example,
    *
    * <pre>
-   * DoubleMatrix a = bj.matrix(new double[][]{
+   * DoubleMatrix a = Bj.matrix(new double[][]{
    *    new double[]{1, 2, 3},
    *    new double[]{1, 2, 3}
    * });
-   * bjr.transpose(a)
+   * Bj.transpose(a)
    * a.reshape(3,2)
    * </pre>
    *
@@ -39,37 +39,122 @@ public interface MatrixRoutines {
   void transpose(DoubleMatrix x);
 
   /**
-   * Compute the mean of {@code x}
+   * Computes the mean of {@code x}
    *
    * @param x the matrix
    * @return the mean
    */
   double mean(DoubleMatrix x);
 
+  /**
+   * Computes the mean of {@code x} along {@code dim}
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of means
+   */
   DoubleMatrix mean(DoubleMatrix x, Dim dim);
 
+  /**
+   * Computes the (population) variance of {@code x}.
+   *
+   * @param x the matrix
+   * @return the variance
+   */
   double var(DoubleMatrix x);
 
+  /**
+   * Computes the (population) variance of {@code x} along {@code dim}.
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of variances
+   */
   DoubleMatrix var(DoubleMatrix x, Dim dim);
 
+  /**
+   * Computes the (population) standard deviation of {@code x}.
+   *
+   * @param x the matrix
+   * @return the standard deviation
+   */
   double std(DoubleMatrix x);
 
+  /**
+   * Computes the (population) standard deviation of {@code x} along {@code dim}.
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of standard deviations
+   */
   DoubleMatrix std(DoubleMatrix x, Dim dim);
 
+  /**
+   * Returns the minimum value of {@code x}.
+   *
+   * @param x the matrix
+   * @return the minimum value
+   */
   double min(DoubleMatrix x);
 
+  /**
+   * Returns the minimum value of {@code x} along {@code dim}.
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of minimum values
+   */
   DoubleMatrix min(DoubleMatrix x, Dim dim);
 
+  /**
+   * Returns the maximum value of {@code x}.
+   *
+   * @param x the matrix
+   * @return the maximum value
+   */
   double max(DoubleMatrix x);
 
+  /**
+   * Returns the maximum value of {@code x} along {@code dim}.
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of minimum values
+   */
   DoubleMatrix max(DoubleMatrix x, Dim dim);
 
+  /**
+   * Return the sum of {@code x}.
+   *
+   * @param x the matrix
+   * @return the sum
+   */
   double sum(DoubleMatrix x);
 
+  /**
+   * Returns the sum of {@code x} along {@code dim}.
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of sums
+   */
   DoubleMatrix sum(DoubleMatrix x, Dim dim);
 
+  /**
+   * Returns the product of {@code x}.
+   *
+   * @param x the matrix
+   * @return the product
+   */
   double prod(DoubleMatrix x);
 
+  /**
+   * Returns the products of {@code x} along {@code dim}.
+   *
+   * @param x   the matrix
+   * @param dim the dimension
+   * @return a matrix of products
+   */
   DoubleMatrix prod(DoubleMatrix x, Dim dim);
 
   DoubleMatrix cumsum(DoubleMatrix x);
@@ -115,17 +200,18 @@ public interface MatrixRoutines {
    * @param beta   the scalar beta
    * @param y      the vector y
    */
-  void gemv(Transpose transA, double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
+  void gemv(T transA, double alpha, DoubleMatrix a, DoubleMatrix x, double beta,
             DoubleMatrix y);
 
-  /*
-    Compute
+  /**
+   * Computes a <- alpha*x*y'+a
+   *
+   * @param alpha a scalar
+   * @param x     a {@code m} element vector
+   * @param y     a {@code n} element vector
+   * @param a     a {@code [m, n]} matrix
    */
   void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a);
-
-  /*
-
-   */
 
   /**
    * Computes c <- alpha * transA(a) * transB(b) + beta * c
@@ -138,7 +224,7 @@ public interface MatrixRoutines {
    * @param beta   the scalar for c
    * @param c      the result matrix c
    */
-  void gemm(Transpose transA, Transpose transB, double alpha, DoubleMatrix a, DoubleMatrix b,
+  void gemm(T transA, T transB, double alpha, DoubleMatrix a, DoubleMatrix b,
             double beta, DoubleMatrix c);
 
   /**

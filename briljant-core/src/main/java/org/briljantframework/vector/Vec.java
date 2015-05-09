@@ -10,9 +10,10 @@ import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.primitives.Ints;
 
 import org.briljantframework.Check;
-import org.briljantframework.IndexComparator;
-import org.briljantframework.QuickSort;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.distribution.Distribution;
+import org.briljantframework.sort.IndexComparator;
+import org.briljantframework.sort.QuickSort;
 import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.stat.RunningStatistics;
 
@@ -34,7 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * @author Isak Karlsson
  */
-public final class Vectors {
+public final class Vec {
 
   public static final VectorType STRING = StringVector.TYPE;
   public static final VectorType BIT = BitVector.TYPE;
@@ -67,7 +68,15 @@ public final class Vectors {
         .build();
   }
 
-  private Vectors() {
+  private Vec() {
+  }
+
+  public static DoubleVector rand(int size, Distribution source) {
+    DoubleVector.Builder v = new DoubleVector.Builder(0, size);
+    for (int i = 0; i < size; i++) {
+      v.set(i, source.sample());
+    }
+    return v.build();
   }
 
   /**
@@ -294,7 +303,7 @@ public final class Vectors {
    * @param vector a vector (with {@code type = double})
    * @return the descriptive statistics
    */
-  public DescriptiveStatistics statistics(Vector vector) {
+  public static DescriptiveStatistics statistics(Vector vector) {
     RunningStatistics r = new RunningStatistics();
     for (int i = 0; i < vector.size(); i++) {
       if (!vector.isNA(i)) {
@@ -313,7 +322,7 @@ public final class Vectors {
    * @return the standard deviation
    */
   public static double std(Vector vector) {
-    return std(vector, mean(vector));
+    return statistics(vector).getStandardDeviation();
   }
 
   /**

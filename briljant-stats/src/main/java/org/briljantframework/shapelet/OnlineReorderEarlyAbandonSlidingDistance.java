@@ -3,7 +3,7 @@ package org.briljantframework.shapelet;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 /**
  * TODO(isak): make this work! Created by Isak Karlsson on 27/10/14.
@@ -39,7 +39,7 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
       order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     } else {
       order =
-          Vectors.indexSort(
+          Vec.indexSort(
               candidate,
               (i, j) -> Double.compare(Math.abs(candidate.getAsDouble(j)),
                                        Math.abs(candidate.getAsDouble(i))));

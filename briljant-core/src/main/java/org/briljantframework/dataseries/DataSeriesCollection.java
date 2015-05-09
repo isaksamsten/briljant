@@ -6,10 +6,9 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.NameAttribute;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.ComplexVector;
@@ -35,8 +34,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * <p> A DataSeries collection is collection of data series, i.e., vectors of the same type -
  * usually {@link org.briljantframework.vector.DoubleVector#TYPE}. There are some interesting
- * differences between this implementation and the traditional {@code DataFrame}. It is possible for
- * the data series in the collection to be of different length. Therefore, {@link #columns()} return
+ * differences between this implementation and the traditional {@code DataFrame}. It is possible
+ * for
+ * the data series in the collection to be of different length. Therefore, {@link #columns()}
+ * return
  * the maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
  * {@code col < col.getRecord(n).size()}. If not (and {@code index < columns()}), NA is returned.
  * </p>
@@ -56,9 +57,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     this.columns = series.stream().mapToInt(Vector::size).max().orElse(0);
   }
 
-  protected DataSeriesCollection(NameAttribute columnNames, NameAttribute rowNames,
-                                 List<Vector> series, VectorType type, int columns) {
-    super(columnNames, rowNames);
+  protected DataSeriesCollection(List<Vector> series, VectorType type, int columns) {
     this.type = checkNotNull(type);
     this.series = checkNotNull(series);
     this.columns = columns;
@@ -166,7 +165,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public VectorType getColumnType(int index) {
+  public VectorType getType(int index) {
     return type;
   }
 
@@ -187,15 +186,14 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Builder newCopyBuilder() {
-    return new Builder(columnNames, rowNames, series.stream().map(Vector::newCopyBuilder)
-        .collect(Collectors.toCollection(ArrayList::new)), type);
+    return new Builder(type);
   }
 
   @Override
   public DataFrame removeColumns(Iterable<Integer> indexes) {
     Set<Integer> set = Sets.newHashSet(indexes);
     Builder builder = newBuilder();
-    builder.getColumnNames().putAll(getColumnNames());
+//    builder.getColumnNames().putAll(getColumnNames());
     for (int i = 0; i < rows(); i++) {
       Vector row = getRecord(i);
       Vector.Builder vecBuilder = row.newBuilder();
@@ -203,7 +201,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
         if (!set.contains(j)) {
           vecBuilder.add(row, j);
         } else {
-          builder.getColumnNames().remove(j);
+//          builder.getColumnNames().remove(j);
         }
       }
       builder.addRecord(vecBuilder);
@@ -230,20 +228,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private final VectorType type;
     private final List<Vector.Builder> builders;
 
-    public Builder(NameAttribute columnNames, NameAttribute rowNames, VectorType type) {
-      super(columnNames, rowNames);
-      this.type = type;
-      this.builders = new ArrayList<>();
-    }
-
     public Builder(VectorType type) {
       this.type = type;
       this.builders = new ArrayList<>();
     }
 
-    protected Builder(NameAttribute columnNames, NameAttribute rowNames,
-                      List<Vector.Builder> builders, VectorType type) {
-      super(columnNames, rowNames);
+    protected Builder(List<Vector.Builder> builders, VectorType type) {
       this.type = type;
       this.builders = builders;
     }
@@ -285,7 +275,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public Builder removeColumn(int column) {
       checkElementIndex(column, columns());
-      columnNames.remove(column);
+//      columnNames.remove(column);
       for (int i = 0; i < rows(); i++) {
         Vector.Builder colb = builders.get(i);
         if (column < colb.size()) { // TODO: check?
@@ -310,11 +300,11 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public Builder read(DataInputStream is) throws IOException {
+    public Builder read(EntryReader entryReader) throws IOException {
       int row = rows();
-      while (is.hasNext()) {
+      while (entryReader.hasNext()) {
         ensureCapacity(row);
-        DataEntry entry = is.next();
+        DataEntry entry = entryReader.next();
         for (int i = 0; i < entry.size() && entry.hasNext(); i++) {
           builders.get(row).read(i, entry);
         }
@@ -335,16 +325,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public DataSeriesCollection build() {
-      return new DataSeriesCollection(columnNames, rowNames, builders.stream()
-          .map(Vector.Builder::build).collect(Collectors.toCollection(ArrayList::new)), type,
+      return new DataSeriesCollection(builders.stream()
+                                          .map(Vector.Builder::build)
+                                          .collect(Collectors.toCollection(ArrayList::new)), type,
                                       columns());
-    }
-
-    public Builder removeRow(int index) {
-      checkElementIndex(index, rows());
-      rowNames.remove(index);
-      builders.remove(index);
-      return this;
     }
 
     @Override
@@ -374,7 +358,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataFrame.Builder swapRecords(int a, int b) {
       Collections.swap(builders, a, b);
-      rowNames.swap(a, b);
       return this;
     }
 

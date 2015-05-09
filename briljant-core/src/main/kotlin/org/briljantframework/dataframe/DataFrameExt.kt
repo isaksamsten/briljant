@@ -3,39 +3,39 @@ package org.briljantframework.dataframe
 import org.briljantframework.all
 import org.briljantframework.dataseries.DataSeriesCollection
 import org.briljantframework.io.ArffInputStream
-import org.briljantframework.io.DelimitedInputStream
+import org.briljantframework.io.RdsInputStream
 import org.briljantframework.io.MatlabTextInputStream
 import org.briljantframework.io.SequenceInputStream
-import org.briljantframework.vector.Vectors
+import org.briljantframework.vector.Vec
 import java.io.File
 import java.io.FileInputStream
 
 fun loadCSV(file: File): DataFrame {
-    DelimitedInputStream(FileInputStream(file)).use {
+    RdsInputStream(FileInputStream(file)).use {
         val types = it.readColumnTypes()
-        val names = it.readColumnNames()
-        val builder = MixedDataFrame.Builder(names, types)
-        return builder.read(it).build()
+        val names = it.readColumnIndex()
+        val builder = MixedDataFrame.Builder(types)
+        return builder.read(it).build().setColumnIndex(HashIndex.from(names))
     }
 }
 
 fun loadSequence(file: File): DataFrame {
     SequenceInputStream(FileInputStream(file)).use {
-        return DataSeriesCollection.Builder(Vectors.STRING).read(it).build()
+        return DataSeriesCollection.Builder(Vec.STRING).read(it).build()
     }
 }
 
 fun loadMatlab(file: File): DataFrame {
     MatlabTextInputStream(FileInputStream(file)).use {
-        return DataSeriesCollection.Builder(Vectors.DOUBLE).read(it).build()
+        return DataSeriesCollection.Builder(Vec.DOUBLE).read(it).build()
     }
 }
 
 fun loadArff(file: File): DataFrame {
     ArffInputStream(FileInputStream(file)).use {
         val types = it.readColumnTypes()
-        val names = it.readColumnNames()
-        return MixedDataFrame.Builder(names, types).read(it).build()
+        val names = it.readColumnIndex()
+        return MixedDataFrame.Builder(types).read(it).build().setColumnIndex(HashIndex.from(names))
     }
 }
 
@@ -65,7 +65,19 @@ fun DataFrame.get(rows: Iterable<Int>, columns: Iterable<Int>): DataFrame {
     } else if (columns is all) {
         return getRecords(rows)
     } else {
-        throw UnsupportedOperationException()
+        val b = newBuilder()
+        var col = 0
+        for (j in columns) {
+            b.addColumnBuilder(getType(col))
+            var row = 0
+            for (i in rows) {
+                b.set(row, col, this, i, j)
+                row += 1
+            }
+            col += 1
+        }
+
+        return b.build()
     }
 }
 

@@ -235,9 +235,9 @@ public interface ComplexMatrix extends Matrix<ComplexMatrix>, Iterable<Complex> 
    */
   ComplexMatrix mmul(Complex alpha, ComplexMatrix other);
 
-  ComplexMatrix mmul(Transpose a, ComplexMatrix other, Transpose b);
+  ComplexMatrix mmul(T a, ComplexMatrix other, T b);
 
-  ComplexMatrix mmul(Complex alpha, Transpose a, ComplexMatrix other, Transpose b);
+  ComplexMatrix mmul(Complex alpha, T a, ComplexMatrix other, T b);
 
   /**
    * Element wise <u>m</u>ultiplication

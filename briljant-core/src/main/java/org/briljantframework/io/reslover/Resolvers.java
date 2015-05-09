@@ -6,8 +6,8 @@ import com.google.common.primitives.Ints;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.Bit;
 
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,14 +16,18 @@ import java.util.Map;
  */
 public final class Resolvers {
 
-  private static final Map<Class<?>, Resolver<?>>
-      RESOLVERS = Collections.synchronizedMap(new HashMap<>());
+  private static final Map<Class<?>, Resolver<?>> RESOLVERS = Collections.synchronizedMap(
+      new HashMap<>()
+  );
 
   static {
-    Resolver<Date> dateResolver = new Resolver<>(Date.class);
-    dateResolver.put(String.class, new StringDateConverter());
-    dateResolver.put(Long.class, Date::new);
-    dateResolver.put(Long.TYPE, Date::new);
+//    Resolver<Date> dateResolver = new Resolver<>(Date.class);
+//    dateResolver.put(String.class, new StringDateConverter());
+//    dateResolver.put(Long.class, Date::new);
+//    dateResolver.put(Long.TYPE, Date::new);
+
+    Resolver<LocalDate> localDateResolver = new Resolver<>(LocalDate.class);
+    localDateResolver.put(String.class, new StringDateConverter());
 
     Resolver<Integer> integerResolver = new Resolver<>(Integer.class);
     integerResolver.put(String.class, Ints::tryParse);
@@ -43,7 +47,8 @@ public final class Resolvers {
     bitResolver.put(String.class, (v) -> Bit.valueOf(v.trim().equalsIgnoreCase("true")));
 
     install(Bit.class, bitResolver);
-    install(Date.class, dateResolver);
+//    install(Date.class, dateResolver);
+    install(LocalDate.class, localDateResolver);
     install(String.class, stringResolver);
     install(Double.class, doubleResolver);
     install(Integer.class, integerResolver);

@@ -24,8 +24,8 @@ import java.util.function.Supplier;
 /**
  * Created by Isak Karlsson on 07/01/15.
  */
-public class NameAttribute extends AbstractCollection<String> implements
-                                                              AttributeCollection<String> {
+public class NameAttribute extends AbstractCollection<String>
+    implements AttributeCollection<String> {
 
   private IntObjectMap<String> names;
   private ObjectIntMap<String> reverse;

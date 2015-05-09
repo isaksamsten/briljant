@@ -24,18 +24,16 @@ import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.io.ArffInputStream;
 import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.io.SequenceInputStream;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.api.MatrixRoutines;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -91,11 +89,11 @@ public class RandomShapeletForestTest {
     try (DataInputStream train = new ArffInputStream(new FileInputStream(trainFile));
          DataInputStream test = new ArffInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
-          new MixedDataFrame.Builder(train.readColumnNames(), train.readColumnTypes()).read(train)
+          new MixedDataFrame.Builder(train.readColumnIndex(), train.readColumnTypes()).read(train)
               .build();
 
       DataFrame validationSet =
-          new MixedDataFrame.Builder(test.readColumnNames(), test.readColumnTypes()).read(test)
+          new MixedDataFrame.Builder(test.readColumnIndex(), test.readColumnTypes()).read(test)
               .build();
 
       Transformation znorm = new DataSeriesNormalization();
@@ -142,17 +140,15 @@ public class RandomShapeletForestTest {
 
   @Test
   public void testCrap() throws Exception {
-    MatrixFactory bj = NetlibMatrixFactory.getInstance();
-    MatrixRoutines bjr = bj.getMatrixRoutines();
     int m = 270;
     int n = 200;
-    DoubleMatrix alpha = bj.doubleVector(m);
+    DoubleMatrix alpha = Bj.doubleVector(m);
     for (int i = 0; i < alpha.size(); i++) {
       int j = i + 1;
       alpha.set(i, (m - j + 1));
     }
 
-//    DoubleMatrix c = alpha.slice(bj.range(3, alpha.size()));
+//    DoubleMatrix c = alpha.slice(Bj.range(3, alpha.size()));
 //    double sum = bjr.sum(c);
     double sum = 0;
 //    DoubleMatrix
@@ -198,16 +194,16 @@ public class RandomShapeletForestTest {
   @Test
   public void testSequences() throws Exception {
     String ade = "L270";
-    DataInputStream in =
+    EntryReader in =
         new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
 
-    DataFrame frame = new DataSeriesCollection.Builder(Vectors.STRING).read(in).build();
+    DataFrame frame = new DataSeriesCollection.Builder(Vec.STRING).read(in).build();
     System.out.println(frame.rows() + ", " + frame.columns());
     Utils.setRandomSeed(32);
     frame = DataFrames.permuteRows(frame);
     Vector y = frame.getColumn(0);
     DataFrame x = frame.removeColumn(0);
-    Map<Value, Integer> freq = Vectors.count(y);
+    Map<Value, Integer> freq = Vec.count(y);
     int sum = freq.values().stream().reduce(0, Integer::sum);
     int min = freq.values().stream().min(Integer::min).get();
     System.out.println(freq + " => " + ((double) min / sum));
@@ -240,9 +236,9 @@ public class RandomShapeletForestTest {
     // DataFrame synthetic = DataFrames.permuteRows(Datasets.loadSyntheticControl());
     // DataFrame x = synthetic.removeColumn(0);
     // StringVector y = Convert.toStringVector(synthetic.getColumn(0));
-    String name = "DiatomSizeReduction";
-    String trainFile = String.format("/Users/isak-kar/Downloads/dataset2/%s/%s_TRAIN", name, name);
-    String testFile = String.format("/Users/isak-kar/Downloads/dataset2/%s/%s_TEST", name, name);
+    String name = "Gun_Point";
+    String trainFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TRAIN", name, name);
+    String testFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TEST", name, name);
     try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
          DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
@@ -288,7 +284,7 @@ public class RandomShapeletForestTest {
         RandomShapeletForest forest = RandomShapeletForest
             .withSize(500)
             .withInspectedShapelets(4)
-            .withLowerLength(0.9)
+            .withLowerLength(0.025)
             .withUpperLength(1)
 //            .withAggregateFraction(1)
 //            .withSampleMode(ShapeletTree.SampleMode.NEW_SAMPLE)

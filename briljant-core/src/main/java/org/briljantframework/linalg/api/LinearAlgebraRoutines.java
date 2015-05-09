@@ -3,7 +3,7 @@ package org.briljantframework.linalg.api;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 
 /**
  * Created by isak on 2/10/15.
@@ -46,7 +46,7 @@ public interface LinearAlgebraRoutines {
    *               overwritten by Q*C or Q**T*C or C*Q**T or C*Q.
    */
   void ormqr(char side,
-             Transpose transA,
+             T transA,
              DoubleMatrix a,
              DoubleMatrix tau,
              DoubleMatrix c);

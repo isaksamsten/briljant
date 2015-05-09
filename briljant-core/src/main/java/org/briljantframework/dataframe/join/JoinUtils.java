@@ -45,12 +45,12 @@ public class JoinUtils {
     return new IntMatrix[]{results, counts};
   }
 
-  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<String> columns) {
+  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Object> columns) {
     IntMatrix left = null;
     IntMatrix right = null;
 
     int noGroups = 1;
-    for (String column : columns) {
+    for (Object column : columns) {
       JoinKeys pool = createJoinKeys(a.getColumn(column), b.getColumn(column));
 
       if (noGroups > 1) {

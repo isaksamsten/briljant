@@ -13,7 +13,7 @@ import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class DefaultValidator extends AbstractValidator {
   @Override
   public Result test(Classifier classifier, DataFrame x, Vector y) {
     Iterable<Partition> partitions = getPartitioner().partition(x, y);
-    Vector domain = Vectors.unique(y);
+    Vector domain = Vec.unique(y);
     List<ConfusionMatrix> confusionMatrices = new ArrayList<>();
     EvaluationContext ctx = new EvaluationContext();
     for (Partition partition : partitions) {

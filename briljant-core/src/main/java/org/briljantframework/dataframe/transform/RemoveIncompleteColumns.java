@@ -65,14 +65,14 @@ public class RemoveIncompleteColumns implements Transformation {
   @Override
   public DataFrame transform(DataFrame x) {
     DataFrame.Builder builder = x.newBuilder();
-    NameAttribute columnNames = builder.getColumnNames();
-    NameAttribute xColumnNames = x.getColumnNames();
+//    NameAttribute columnNames = builder.getColumnNames();
+//    NameAttribute xColumnNames = x.getColumnNames();
 
     int j = 0;
     for (int i = 0; i < x.columns(); i++) {
       Vector column = x.getColumn(i);
       if (!column.hasNA()) {
-        columnNames.putFromIfPresent(j++, xColumnNames, i);
+//        columnNames.putFromIfPresent(j++, xColumnNames, i);
         builder.addColumn(column);
       }
     }

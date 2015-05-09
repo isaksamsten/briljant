@@ -3,7 +3,7 @@ package org.briljantframework.complex;
 /**
  * <p>
  * Similar to {@link java.lang.StringBuilder}, the
- * {@link org.briljantframework.complex.ComplexBuilder} performs
+ * {@link MutableComplex} performs
  * {@link org.briljantframework.complex.Complex} operations by mutating the receiver to avoid
  * creating unnecessary copies.
  * </p>
@@ -40,29 +40,29 @@ package org.briljantframework.complex;
  *
  * @author Isak Karlsson
  */
-public class ComplexBuilder {
+public class MutableComplex {
   private double real;
   private double imag;
 
   private boolean isNaN;
   private boolean isInfinite;
 
-  public ComplexBuilder(double real, double imag) {
+  public MutableComplex(double real, double imag) {
     this.real = real;
     this.imag = imag;
     this.isNaN = Double.isNaN(real) || Double.isNaN(imag);
     this.isInfinite = !isNaN && (Double.isInfinite(real) || Double.isInfinite(imag));
   }
 
-  public ComplexBuilder(double real) {
+  public MutableComplex(double real) {
     this(real, 0);
   }
 
-  public ComplexBuilder(Complex complex) {
+  public MutableComplex(Complex complex) {
     this(complex.real(), complex.imag());
   }
 
-  public ComplexBuilder plus(Complex other) {
+  public MutableComplex plus(Complex other) {
     if (isNaN) {
       return this;
     }
@@ -74,7 +74,7 @@ public class ComplexBuilder {
     return this;
   }
 
-  public ComplexBuilder minus(Complex other) {
+  public MutableComplex minus(Complex other) {
     if (isNaN) {
       return this;
     }
@@ -86,7 +86,7 @@ public class ComplexBuilder {
     return this;
   }
 
-  public ComplexBuilder multiply(Complex other) {
+  public MutableComplex multiply(Complex other) {
     if (isNaN) {
       return this;
     }
@@ -100,7 +100,7 @@ public class ComplexBuilder {
     return this;
   }
 
-  public ComplexBuilder div(Complex other) {
+  public MutableComplex div(Complex other) {
     if (isNaN) {
       return this;
     }

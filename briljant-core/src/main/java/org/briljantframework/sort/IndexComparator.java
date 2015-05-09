@@ -1,4 +1,4 @@
-package org.briljantframework;
+package org.briljantframework.sort;
 
 /**
  * Comparator to compare values in containers of unknown values.

@@ -2,11 +2,13 @@ package org.briljantframework.matrix.netlib;
 
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.MatrixPrinter;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.junit.Test;
+
+import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
 
 public class NetlibMatrixRoutinesTest {
 
@@ -21,20 +23,21 @@ public class NetlibMatrixRoutinesTest {
   static {
     MatrixPrinter.setVisibleRows(3);
     MatrixPrinter.setVisibleColumns(3);
+    MatrixPrinter.setMinimumTruncateSize(1000);
   }
 
   @Test
-  public void testDot() throws Exception {
-    long n = System.nanoTime();
-    for (int i = 0; i < 1; i++) {
-      bjr.gemm(Transpose.NO, Transpose.YES, 1, a, b, 1, c);
-    }
-//    c = a.mmul(Transpose.NO, b, Transpose.YES);
-    System.out.println((System.nanoTime() - n) / 1e6);
+  public void testGemv() throws Exception {
+    DoubleMatrix a = bj.matrix(new double[][]{
+        new double[]{1, 2, 3},
+        new double[]{1, 2, 3},
+        new double[]{1, 2, 3}
+    });
 
-    n = System.nanoTime();
-    System.out.println(c);
-    System.out.println((System.nanoTime() - n) / 1e6);
+    DoubleMatrix x = bj.matrix(new double[]{1, 2, 3});
+    DoubleMatrix y = bj.doubleVector(3).assign(3);
 
+    bjr.gemv(T.YES, 1, a, x, 1, y);
+    assertMatrixEquals(bj.doubleVector(3).assign(17), y, 0.0);
   }
 }

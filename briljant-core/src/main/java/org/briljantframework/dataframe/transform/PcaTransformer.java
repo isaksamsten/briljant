@@ -21,8 +21,8 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Transpose;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.matrix.T;
+import org.briljantframework.vector.Vec;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal
@@ -54,23 +54,57 @@ public class PcaTransformer implements InvertibleTransformer {
     this(new SingularValueDecomposer(), components);
   }
 
-  /**
-   * Instantiates a new Principal component analyzer.
-   */
   public PcaTransformer() {
     this(-1);
   }
 
   private SingularValueDecomposition getSingularValueDecomposition(DoubleMatrix m) {
-    DoubleMatrix sigma = m.mmul(1, Transpose.YES, m, Transpose.NO).update(v -> v / m.rows());
+    DoubleMatrix sigma = m.mmul(1, T.YES, m, T.NO).update(v -> v / m.rows());
     return decomposer.decompose(sigma);
   }
 
   @Override
   public InvertibleTransformation fit(DataFrame x) {
-    Check.all(x.getColumns(), col -> col.getType().equals(Vectors.DOUBLE) && !col.hasNA());
-    // TODO: use the lapack bindings and only compute the left singular values
+    Check.all(x.getColumns(), col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA());
     SingularValueDecomposition svd = getSingularValueDecomposition(x.toMatrix().asDoubleMatrix());
-    return new PcaTransformation(svd.getLeftSingularValues(), components);
+    DoubleMatrix u = svd.getLeftSingularValues();
+    return new InvertibleTransformation() {
+      @Override
+      public DataFrame inverseTransform(DataFrame x) {
+        Check.all(x.getColumns(), col -> col.getType() == Vec.DOUBLE && !col.hasNA());
+        DoubleMatrix matrix = x.toMatrix().asDoubleMatrix();
+
+        // Matrix m = frame.toMatrix();
+        // E copy = factory.copyDataset(frame);
+        // Types types = Types.range(NumericType::new, components(m));
+        // Matrix original = Matrices.mmul(DenseMatrix::new, m, Transpose.NO,
+        // u.getColumns(Range.exclusive(0, components(m))), Transpose.YES);
+        //
+        // copy.setMatrix(types, original);
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public DataFrame transform(DataFrame x) {
+        Check.all(x.getColumns(), col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA());
+        DoubleMatrix m = x.toMatrix().asDoubleMatrix();
+        DoubleMatrix pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
+
+        DataFrame.Builder result = x.newBuilder();
+        for (int j = 0; j < pca.columns(); j++) {
+          result.addColumnBuilder(Vec.DOUBLE);
+          // TODO
+//          result.getColumnNames().put(j, String.format("Component %d", j));
+          for (int i = 0; i < pca.rows(); i++) {
+            result.set(i, j, pca.get(i, j));
+          }
+        }
+        return result.build();
+      }
+    };
+  }
+
+  private int components(DoubleMatrix matrix) {
+    return this.components > 0 ? this.components : Math.min(matrix.rows(), matrix.columns());
   }
 }

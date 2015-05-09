@@ -6,7 +6,7 @@ package org.briljantframework.vector;
 public interface VectorType {
 
   static VectorType getInstance(Class<?> cls) {
-    VectorType type = Vectors.CLASS_TO_VECTOR_TYPE.get(cls);
+    VectorType type = Vec.CLASS_TO_VECTOR_TYPE.get(cls);
     if (type == null) {
       return new GenericVectorType(cls);
     }
@@ -17,7 +17,7 @@ public interface VectorType {
     if (object != null) {
       return getInstance(object.getClass());
     } else {
-      return Vectors.VARIABLE;
+      return Vec.VARIABLE;
     }
   }
 

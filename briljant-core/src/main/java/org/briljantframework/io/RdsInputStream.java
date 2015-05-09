@@ -41,7 +41,7 @@ import java.util.Map;
  *
  * @author Isak Karlsson
  */
-public class DelimitedInputStream extends DataInputStream {
+public class RdsInputStream extends DataInputStream {
 
   private static final char DEFAULT_SEPARATOR = ',';
   private static final String DEFAULT_MISSING_VALUE = "?";
@@ -67,7 +67,7 @@ public class DelimitedInputStream extends DataInputStream {
   /**
    * @param in the underlying input stream
    */
-  public DelimitedInputStream(InputStream in, String missingValue, char separator) {
+  public RdsInputStream(InputStream in, String missingValue, char separator) {
     super(in);
     CsvParserSettings settings = new CsvParserSettings();
     settings.setIgnoreLeadingWhitespaces(true);
@@ -87,7 +87,7 @@ public class DelimitedInputStream extends DataInputStream {
   /**
    * @param inputStream
    */
-  public DelimitedInputStream(InputStream inputStream) {
+  public RdsInputStream(InputStream inputStream) {
     this(inputStream, DEFAULT_MISSING_VALUE, DEFAULT_SEPARATOR);
   }
 
@@ -96,7 +96,7 @@ public class DelimitedInputStream extends DataInputStream {
    *
    * @param file the file
    */
-  public DelimitedInputStream(File file) throws FileNotFoundException {
+  public RdsInputStream(File file) throws FileNotFoundException {
     this(new BufferedInputStream(new FileInputStream(file)), DEFAULT_MISSING_VALUE,
          DEFAULT_SEPARATOR);
   }
@@ -105,7 +105,7 @@ public class DelimitedInputStream extends DataInputStream {
   /**
    * @param fileName the file name
    */
-  public DelimitedInputStream(String fileName) throws FileNotFoundException {
+  public RdsInputStream(String fileName) throws FileNotFoundException {
     this(new File(fileName));
   }
 
@@ -131,7 +131,7 @@ public class DelimitedInputStream extends DataInputStream {
   }
 
   @Override
-  public Collection<String> readColumnNames() throws IOException {
+  public Collection<Object> readColumnIndex() throws IOException {
     return processor.columnNames;
   }
 
@@ -153,7 +153,7 @@ public class DelimitedInputStream extends DataInputStream {
 
   private static class RdsRowProcessor implements RowProcessor {
 
-    private Collection<String> columnNames = null;
+    private Collection<Object> columnNames = null;
 
     private Collection<VectorType> columnTypes = null;
 

@@ -9,7 +9,7 @@ import org.briljantframework.distribution.NormalDistribution;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 /**
  * <p>
@@ -95,7 +95,7 @@ public class SymbolicAggregator implements Aggregator {
   private static Vector calculateThresholds(Vector alphabet) {
     double prob = 1.0 / alphabet.size();
     int length = alphabet.size() - 1;
-    return NormalDistribution.ppf(Vectors.linspace(prob, 1.0 - prob, length));
+    return NormalDistribution.ppf(Vec.linspace(prob, 1.0 - prob, length));
   }
 
   /*

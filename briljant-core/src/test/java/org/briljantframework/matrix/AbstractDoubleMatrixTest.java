@@ -327,11 +327,11 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = bj.matrix(new double[]{1.0, 2, 3, 4, 5, 6}).reshape(3, 2);
     DoubleMatrix y = bj.matrix(new double[]{1.0, 2, 3, 4, 5, 6}).reshape(3, 2);
 
-    DoubleMatrix z = y.mmul(Transpose.YES, x, Transpose.NO);
+    DoubleMatrix z = y.mmul(T.YES, x, T.NO);
     DoubleMatrix za = bj.matrix(new double[]{14.0, 32, 32, 77}).reshape(2, 2);
     assertMatrixEquals(za, z, epsilon);
 
-    z = x.mmul(Transpose.NO, y, Transpose.YES);
+    z = x.mmul(T.NO, y, T.YES);
     za = bj.matrix(new double[]{17, 22, 27.0, 22, 29, 36, 27, 36, 45}).reshape(3, 3);
     assertMatrixEquals(za, z, epsilon);
   }
@@ -340,11 +340,11 @@ public class AbstractDoubleMatrixTest {
   public void testMmul3() throws Exception {
     DoubleMatrix x = bj.matrix(new double[]{1, 2.0, 3, 4, 5, 6}).reshape(3, 2);
     DoubleMatrix y = bj.matrix(new double[]{1, 2.0, 3, 4, 5, 6}).reshape(3, 2);
-    DoubleMatrix z = y.mmul(2, Transpose.YES, x, Transpose.NO);
+    DoubleMatrix z = y.mmul(2, T.YES, x, T.NO);
     DoubleMatrix za = bj.matrix(new double[]{28.0, 64, 64, 154}).reshape(2, 2);
     assertMatrixEquals(za, z, epsilon);
 
-    z = x.mmul(2, Transpose.NO, y, Transpose.YES);
+    z = x.mmul(2, T.NO, y, T.YES);
     za = bj.matrix(new double[]{34.0, 44, 54, 44, 58, 72, 54, 72, 90}).reshape(3, 3);
     assertMatrixEquals(za, z, epsilon);
   }

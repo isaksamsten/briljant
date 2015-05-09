@@ -16,17 +16,16 @@
 
 package org.briljantframework.classification;
 
+import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.StringValue;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Matrices.shuffle;
@@ -37,8 +36,6 @@ import static org.briljantframework.matrix.Matrices.shuffle;
  * Created by isak on 01/07/14.
  */
 public class LogisticRegression implements Classifier {
-
-  private final MatrixFactory bj = NetlibMatrixFactory.getInstance();
 
   private final int iterations;
 
@@ -81,17 +78,17 @@ public class LogisticRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(),
                   "The number of training instances must equal the number of target");
-    return fit(x, y, bj.range(0, y.size()));
+    return fit(x, y, Bj.range(0, y.size()));
   }
 
   protected Model fit(DataFrame x, Vector y, IntMatrix indexes) {
-    DoubleMatrix theta = bj.doubleMatrix(1, x.columns());
+    DoubleMatrix theta = Bj.doubleMatrix(1, x.columns());
     Vector adaptedTheta = Convert.toAdapter(theta);
-    Vector classes = Vectors.unique(y);
+    Vector classes = Vec.unique(y);
     for (int j = 0; j < this.iterations; j++) {
       shuffle(indexes).forEach(i -> {
         Record row = x.getRecord(i);
-        double update = learningRate * (y.getAsDouble(i) - Vectors.sigmoid(row, adaptedTheta));
+        double update = learningRate * (y.getAsDouble(i) - Vec.sigmoid(row, adaptedTheta));
         // theta.add(1, row, update);
         // TODO(isak): fix!
         // theta.add(1, row, update);
@@ -148,7 +145,7 @@ public class LogisticRegression implements Classifier {
 
     @Override
     public Value predict(Vector row) {
-      double prob = Vectors.sigmoid(row, theta);
+      double prob = Vec.sigmoid(row, theta);
       return new StringValue("1"); // TODO!
     }
 

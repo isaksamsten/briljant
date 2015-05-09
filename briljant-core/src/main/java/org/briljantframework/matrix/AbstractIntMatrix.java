@@ -805,25 +805,25 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix mmul(int alpha, IntMatrix other) {
-    return mmul(alpha, Transpose.NO, other, Transpose.NO);
+    return mmul(alpha, T.NO, other, T.NO);
   }
 
   @Override
-  public IntMatrix mmul(Transpose a, IntMatrix other, Transpose b) {
+  public IntMatrix mmul(T a, IntMatrix other, T b) {
     return mmul(1, a, other, b);
   }
 
   @Override
-  public IntMatrix mmul(int alpha, Transpose a, IntMatrix other, Transpose b) {
+  public IntMatrix mmul(int alpha, T a, IntMatrix other, T b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a == Transpose.YES) {
+    if (a == T.YES) {
       thisRows = columns();
       thisCols = rows();
     }
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b == Transpose.YES) {
+    if (b == T.YES) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -838,11 +838,11 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
         int sum = 0;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              a == Transpose.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
+              a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
                                                                                       thisRows,
                                                                                       thisCols);
           int otherIndex =
-              b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
+              b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                                                                                            otherRows,
                                                                                            otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);

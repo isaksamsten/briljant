@@ -5,11 +5,10 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 
-import org.briljantframework.ArrayBuffers;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.EntryReader;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.vector.Bit;
@@ -44,12 +43,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   private final DoubleMatrix matrix;
 
   public MatrixDataFrame(DoubleMatrix matrix) {
-    this.matrix = matrix;
-  }
-
-  protected MatrixDataFrame(DoubleMatrix matrix, NameAttribute columnNames, NameAttribute rowNames,
-                            boolean copy) {
-    super(columnNames, rowNames, copy);
     this.matrix = matrix;
   }
 
@@ -128,7 +121,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public VectorType getColumnType(int index) {
+  public VectorType getType(int index) {
     checkArgument(index >= 0 && index < columns());
     return DoubleVector.TYPE;
   }
@@ -145,7 +138,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   @Override
   public DataFrame.Builder newBuilder() {
-    return new HashBuilder(columnNames, rowNames);
+    return new HashBuilder();
   }
 
   @Override
@@ -154,7 +147,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     for (int i = 0; i < matrix.size(); i++) {
       array[i] = matrix.get(i);
     }
-    return new ArrayBuilder(columnNames, rowNames, rows(), columns(), array);
+    return new ArrayBuilder(rows(), columns(), array);
   }
 
   /**
@@ -170,8 +163,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public DataFrame removeColumn(int index) {
     checkElementIndex(index, columns(), "Column-index out of bounds.");
-    NameAttribute columnNames = new NameAttribute(this.columnNames);
-    columnNames.remove(index);
+//    NameAttribute columnNames = new NameAttribute(this.columnNames);
+//    columnNames.remove(index);
 
     DoubleMatrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
     int j = 0;
@@ -184,7 +177,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       }
     }
 
-    return new MatrixDataFrame(newMatrix, columnNames, rowNames, false);
+    return new MatrixDataFrame(newMatrix);
   }
 
   @Override
@@ -234,21 +227,14 @@ public class MatrixDataFrame extends AbstractDataFrame {
       buffer = new double[0];
       int index = 0;
       for (String colName : colNames) {
-        columnNames.put(index++, colName);
+//        columnNames.put(index++, colName);
       }
     }
 
-    protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows,
-                           int columns, double[] buffer) {
-      super(columnNames, rowNames);
+    protected ArrayBuilder(int rows, int columns, double[] buffer) {
       this.rows = rows;
       this.columns = columns;
       this.buffer = buffer;
-    }
-
-    protected ArrayBuilder(NameAttribute columnNames, NameAttribute rowNames, int rows,
-                           int columns) {
-      this(columnNames, rowNames, rows, columns, new double[rows * columns]);
     }
 
     @Override
@@ -270,12 +256,31 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     }
 
+    /**
+     * Reallocates {@code array} to a new array of length {@code minCapacity} if
+     * {@code array.length < minCapacity} otherwise return {@code array}.
+     *
+     * @param array       the array
+     * @param minCapacity the minimum capacity
+     * @return an array of {@code minCapacity}; might return the input array
+     */
+    static double[] reallocate(double[] array, int minCapacity) {
+      int oldCapacity = array.length;
+      double[] newArray;
+      if (oldCapacity < minCapacity) {
+        newArray = new double[minCapacity];
+      } else {
+        newArray = array;
+      }
+      return newArray;
+    }
+
     /*
      * Reinitialize buffer to hold a matrix with rows and columns. Since the indexes must be
      * recalculated, this is rather costly.
      */
     private void reInitializeBuffer(int rows, int columns) {
-      double[] tmp = ArrayBuffers.reallocate(buffer, rows * columns);
+      double[] tmp = reallocate(buffer, rows * columns);
       Arrays.fill(tmp, DoubleVector.NA);
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
@@ -321,7 +326,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame.Builder removeColumn(int column) {
-      double[] tmp = ArrayBuffers.reallocate(buffer, rows * (columns - 1));
+      double[] tmp = reallocate(buffer, rows * (columns - 1));
       int newColumns = this.columns - 1;
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
@@ -331,7 +336,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
           }
         }
       }
-      this.columnNames.remove(column);
+//      this.columnNames.remove(column);
       this.columns = newColumns;
       this.buffer = tmp;
       return this;
@@ -346,7 +351,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         buffer[oldIndex] = buffer[newIndex];
         buffer[newIndex] = tmp;
       }
-      columnNames.swap(a, b);
+//      columnNames.swap(a, b);
       return this;
     }
 
@@ -365,10 +370,10 @@ public class MatrixDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder read(DataInputStream inputStream) throws IOException {
+    public DataFrame.Builder read(EntryReader entryReader) throws IOException {
       int row = 0;
-      while (inputStream.hasNext()) {
-        DataEntry entry = inputStream.next();
+      while (entryReader.hasNext()) {
+        DataEntry entry = entryReader.next();
         for (int i = 0; i < entry.size(); i++) {
           set(row, i, entry.nextDouble());
         }
@@ -420,7 +425,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     public HashBuilder(List<String> columnNames) {
       for (int i = 0; i < columnNames.size(); i++) {
-        this.columnNames.put(i, columnNames.get(i));
+//        this.columnNames.put(i, columnNames.get(i));
       }
     }
 
@@ -428,12 +433,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       this.columns = colNames.size();
       int index = 0;
       for (String colName : colNames) {
-        this.columnNames.put(index++, colName);
+//        this.columnNames.put(index++, colName);
       }
-    }
-
-    protected HashBuilder(NameAttribute columnNames, NameAttribute rowNames) {
-      super(columnNames, rowNames);
     }
 
     public HashBuilder() {
@@ -504,7 +505,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     public DataFrame.Builder removeColumn(int column) {
       checkArgument(column >= 0 && column < columns());
 
-      columnNames.remove(column);
+//      columnNames.remove(column);
       buffer.remove(column);
       columns--;
       return this;
@@ -513,7 +514,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
       Utils.swap(buffer, a, b);
-      columnNames.swap(a, b);
+//      columnNames.swap(a, b);
       return this;
     }
 
@@ -521,32 +522,17 @@ public class MatrixDataFrame extends AbstractDataFrame {
     public DataFrame.Builder swapInColumn(int column, int a, int b) {
       IntDoubleMap col = buffer.get(column);
       if (col != null) {
-        // boolean colContainsA = col.containsKey(a);
-        // boolean colContainsB = col.containsKey(b);
-        // if (colContainsA && colContainsB) {
-        // double tmp = col.get(a);
-        // col.put(a, col.get(b));
-        // col.put(b, tmp);
-        // } else if (colContainsA) {
-        // col.put(b, col.get(a));
-        // col.remove(a);
-        // } else if (colContainsB) {
-        // col.put(a, col.get(b));
-        // col.remove(b);
-        // }
-
         Utils.swap(col, a, b);
-        rowNames.swap(a, b);
       }
       // column only has NA values and no swapping is needed
       return this;
     }
 
     @Override
-    public DataFrame.Builder read(DataInputStream inputStream) throws IOException {
+    public DataFrame.Builder read(EntryReader entryReader) throws IOException {
       int row = 0;
-      while (inputStream.hasNext()) {
-        DataEntry entry = inputStream.next();
+      while (entryReader.hasNext()) {
+        DataEntry entry = entryReader.next();
         for (int i = 0; i < entry.size(); i++) {
           set(row, i, entry.nextDouble());
         }

@@ -69,7 +69,7 @@ public class DataFrameColumnView implements Vector {
 
   @Override
   public VectorType getType() {
-    return parent.getColumnType(column);
+    return parent.getType(column);
   }
 
   @Override

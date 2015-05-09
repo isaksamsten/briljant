@@ -46,10 +46,10 @@ class FoldIterator implements Iterator<Partition> {
 
     current += 1;
     DataFrame.Builder xTrainingBuilder = x.newBuilder();
-    xTrainingBuilder.getColumnNames().putAll(x.getColumnNames());
+//    xTrainingBuilder.getColumnNames().putAll(x.getColumnNames());
     Vector.Builder yTrainingBuilder = y.newBuilder();
     DataFrame.Builder xValidationBuilder = x.newBuilder();
-    xValidationBuilder.getColumnNames().putAll(x.getColumnNames());
+//    xValidationBuilder.getColumnNames().putAll(x.getColumnNames());
     Vector.Builder yValidationBuilder = y.newBuilder();
 
     int index = 0;

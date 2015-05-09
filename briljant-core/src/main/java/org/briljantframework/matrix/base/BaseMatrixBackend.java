@@ -35,7 +35,7 @@ public class BaseMatrixBackend implements MatrixBackend {
   @Override
   public MatrixRoutines getMatrixRoutines() {
     if (matrixRoutines == null) {
-      matrixRoutines = new BaseMatrixRoutines(this);
+      matrixRoutines = new BaseMatrixRoutines();
     }
     return matrixRoutines;
   }

@@ -15,18 +15,18 @@ abstract class AsDoubleMatrix extends AbstractDoubleMatrix {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new AsDoubleMatrix(bj, rows, columns) {
       @Override
-      public void set(int row, int column, double value) {
-        AsDoubleMatrix.this.set(row, column, value);
-      }
-
-      @Override
       public void set(int index, double value) {
         AsDoubleMatrix.this.set(index, value);
       }
 
       @Override
+      public void set(int i, int j, double value) {
+        set(Indexer.columnMajor(i, j, rows(), columns()), value);
+      }
+
+      @Override
       public double get(int i, int j) {
-        return AsDoubleMatrix.this.get(i, j);
+        return get(Indexer.columnMajor(i, j, rows(), columns()));
       }
 
       @Override

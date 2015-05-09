@@ -2,6 +2,7 @@ package org.briljantframework.dataframe;
 
 import junit.framework.TestCase;
 
+import org.briljantframework.vector.IntValue;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.StringVector;
 
@@ -23,14 +24,15 @@ public class InnerJoinTest extends TestCase {
 //    System.out.println(DataFrames.outerJoin(cats, dogs, Arrays.asList("User")));
 //
     DataFrame connect4 = Datasets.loadConnect4();
-    connect4 = connect4.addColumn(0, IntVector.range(connect4.rows()));
-    connect4.setColumnName(0, "index");
-
+    connect4 = connect4.insert(0, "index", IntVector.range(connect4.rows()));
+//    connect4.setColumnName(0, "index");
+//    System.out.println(connect4);
     long s = System.nanoTime();
-    for (int i = 0; i < 50; i++) {
-      DataFrame f = DataFrames.innerJoin(connect4, connect4, Arrays.asList("index"));
+    DataFrame f = null;
+    for (int i = 0; i < 10; i++) {
+      f = DataFrames.innerJoin(connect4, connect4, Arrays.asList("index"));
     }
-    System.out.println((System.nanoTime() - s) / 1e6 / 50);
+    System.out.println((System.nanoTime() - s) / 1e6);
     // System.out.println(DataFrames.leftOuterJoin(dogs, cats, Arrays.asList(0)));
 
   }
@@ -40,7 +42,10 @@ public class InnerJoinTest extends TestCase {
                                        "lval", new IntVector(1, 2));
     DataFrame right = MixedDataFrame.of("key", new StringVector("foo", "foo"),
                                         "rval", new IntVector(3, 5));
-    DataFrame j = DataFrames.outerJoin(left, right);
+
+    System.out.println(left);
+    System.out.println(right);
+    DataFrame j = DataFrames.innerJoin(left, right);
     System.out.println(j);
   }
 

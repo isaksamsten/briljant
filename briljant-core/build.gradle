@@ -7,7 +7,6 @@ sourceSets {
         java {
             srcDir 'src/main/java'
             srcDir 'src/main/kotlin'
-            srcDir 'src/generated/java'
         }
     }
 }

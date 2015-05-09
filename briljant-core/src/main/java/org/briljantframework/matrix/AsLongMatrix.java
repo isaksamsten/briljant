@@ -16,7 +16,7 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
     return new AsLongMatrix(bj, rows, columns) {
       @Override
       public long get(int i, int j) {
-        return AsLongMatrix.this.get(i, j);
+        return get(Indexer.columnMajor(i, j, rows(), columns()));
       }
 
       @Override
@@ -30,8 +30,8 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
       }
 
       @Override
-      public void set(int row, int column, long value) {
-        AsLongMatrix.this.set(row, column, value);
+      public void set(int i, int j, long value) {
+        set(Indexer.columnMajor(i, j, rows(), columns()), value);
       }
 
       @Override

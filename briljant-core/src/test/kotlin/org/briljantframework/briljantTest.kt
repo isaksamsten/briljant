@@ -1,6 +1,5 @@
 package org.briljantframework
 
-import org.briljantframework.matrix.netlib.NetlibMatrixFactory
 import org.briljantframework.matrix.vstack
 import org.junit.Test as test
 
@@ -20,9 +19,8 @@ class briljantTest {
         //
         //        println((e vstack r vstack x hstack y).sort(Dim.C))
 
-        val bj = NetlibMatrixFactory()
-        val e = bj.doubleMatrix(1, 3) assign 3.0
-        val r = bj.doubleMatrix(1, 3) assign 1.9
+        val e = Bj.doubleMatrix(1, 3) assign 3.0
+        val r = Bj.doubleMatrix(1, 3) assign 1.9
         println((e vstack r))
 
     }

@@ -1,28 +1,31 @@
 package org.briljantframework.io.reslover;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Isak Karlsson
  */
-public class StringDateConverter implements Converter<Date, String> {
+public class StringDateConverter implements Converter<LocalDate, String> {
 
-  private final DateFormat format;
+  private final DateTimeFormatter format;
 
-  public StringDateConverter(DateFormat format) {
+  public StringDateConverter(DateTimeFormatter format) {
     this.format = format;
   }
 
+  public StringDateConverter(String pattern) {
+    this(DateTimeFormatter.ofPattern(pattern));
+  }
+
   public StringDateConverter() {
-    this(DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault()));
+    this(DateTimeFormatter.ISO_DATE);
   }
 
   @Override
-  public Date convert(String t) {
+  public LocalDate convert(String t) {
     try {
-      return format.parse(t);
+      return LocalDate.parse(t, format);
     } catch (Exception e) {
       return null;
     }

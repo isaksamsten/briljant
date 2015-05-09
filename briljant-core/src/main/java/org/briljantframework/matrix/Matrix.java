@@ -1,6 +1,6 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.Swappable;
+import org.briljantframework.sort.Swappable;
 import org.briljantframework.matrix.storage.Storage;
 
 import java.util.Collection;

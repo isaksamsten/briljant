@@ -30,7 +30,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 /**
  * @author Isak Karlsson
@@ -57,7 +57,7 @@ public class DecisionTree implements Classifier {
   @Override
   public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
-    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
+    Vector classes = this.classes != null ? this.classes : Vec.unique(y);
     if (classSet == null) {
       classSet = new ClassSet(y, classes);
     }

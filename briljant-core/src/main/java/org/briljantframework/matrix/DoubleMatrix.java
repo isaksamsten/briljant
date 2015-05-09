@@ -325,9 +325,9 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix mmul(double alpha, DoubleMatrix other);
 
-  DoubleMatrix mmul(Transpose a, DoubleMatrix other, Transpose b);
+  DoubleMatrix mmul(T a, DoubleMatrix other, T b);
 
-  DoubleMatrix mmul(double alpha, Transpose a, DoubleMatrix other, Transpose b);
+  DoubleMatrix mmul(double alpha, T a, DoubleMatrix other, T b);
 
   /**
    * Element wise <u>m</u>ultiplication

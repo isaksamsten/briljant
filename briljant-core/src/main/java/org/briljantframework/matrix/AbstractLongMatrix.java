@@ -409,11 +409,11 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix mmul(long alpha, LongMatrix other) {
-    return mmul(alpha, Transpose.NO, other, Transpose.NO);
+    return mmul(alpha, T.NO, other, T.NO);
   }
 
   @Override
-  public LongMatrix mmul(Transpose a, LongMatrix other, Transpose b) {
+  public LongMatrix mmul(T a, LongMatrix other, T b) {
     return mmul(1, a, other, b);
   }
 
@@ -448,16 +448,16 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public LongMatrix mmul(long alpha, Transpose a, LongMatrix other, Transpose b) {
+  public LongMatrix mmul(long alpha, T a, LongMatrix other, T b) {
     int thisRows = rows();
     int thisCols = columns();
-    if (a == Transpose.YES) {
+    if (a == T.YES) {
       thisRows = columns();
       thisCols = rows();
     }
     int otherRows = other.rows();
     int otherColumns = other.columns();
-    if (b == Transpose.YES) {
+    if (b == T.YES) {
       otherRows = other.columns();
       otherColumns = other.rows();
     }
@@ -472,11 +472,11 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
         long sum = 0;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              a == Transpose.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
+              a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
                                                                                       thisRows,
                                                                                       thisCols);
           int otherIndex =
-              b == Transpose.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
+              b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
                                                                                            otherRows,
                                                                                            otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);

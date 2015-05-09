@@ -1,4 +1,4 @@
-package org.briljantframework;
+package org.briljantframework.sort;
 
 import java.util.function.IntBinaryOperator;
 

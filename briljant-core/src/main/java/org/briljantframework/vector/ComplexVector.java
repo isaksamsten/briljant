@@ -150,7 +150,7 @@ public class ComplexVector extends AbstractComplexVector {
       } else if (value instanceof Number) {
         real = ((Number) value).doubleValue();
         imag = 0;
-      } else {
+      } else if (value != null) {
         Resolver<Complex> resolver = Resolvers.find(Complex.class);
         if (resolver != null) {
           Complex obj = resolver.resolve(value);
@@ -248,7 +248,6 @@ public class ComplexVector extends AbstractComplexVector {
         public int size() {
           return ComplexVector.Builder.this.size();
         }
-
 
 
         @Override

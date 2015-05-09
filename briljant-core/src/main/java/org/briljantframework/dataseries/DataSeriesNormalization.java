@@ -3,7 +3,7 @@ package org.briljantframework.dataseries;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.transform.Transformation;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 /**
  * <p>
@@ -38,8 +38,8 @@ public class DataSeriesNormalization implements Transformation {
     DataFrame.Builder builder = x.newCopyBuilder();
     for (int i = 0; i < x.rows(); i++) {
       Vector row = x.getRecord(i);
-      double mean = Vectors.mean(row);
-      double sigma = Vectors.std(row, mean);
+      double mean = Vec.mean(row);
+      double sigma = Vec.std(row, mean);
       for (int j = 0; j < row.size(); j++) {
         double value = row.getAsDouble(j);
         builder.set(i, j, (value - mean) / sigma);

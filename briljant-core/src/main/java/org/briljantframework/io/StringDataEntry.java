@@ -12,8 +12,6 @@ import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Na;
 import org.briljantframework.vector.StringVector;
 
-import java.io.IOException;
-
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
  * failures won't propagate, instead the respective NA value will be returned.
@@ -35,7 +33,7 @@ public class StringDataEntry implements DataEntry {
   }
 
   @Override
-  public <T> T next(Class<T> cls) throws IOException {
+  public <T> T next(Class<T> cls) {
     String value = nextString();
     if (value == StringVector.NA) {
       return Na.valueOf(cls);
@@ -50,13 +48,18 @@ public class StringDataEntry implements DataEntry {
   }
 
   @Override
-  public String nextString() throws IOException {
-    String value = values[current++].trim();
-    return value.equals(missingValue) ? StringVector.NA : value;
+  public String nextString() {
+    String value = values[current++];
+    if (value == null) {
+      return StringVector.NA;
+    } else {
+      value = value.trim();
+      return value.equals(missingValue) ? StringVector.NA : value;
+    }
   }
 
   @Override
-  public int nextInt() throws IOException {
+  public int nextInt() {
     String repr = nextString();
     if (repr == StringVector.NA) {
       return IntVector.NA;
@@ -66,7 +69,7 @@ public class StringDataEntry implements DataEntry {
   }
 
   @Override
-  public double nextDouble() throws IOException {
+  public double nextDouble() {
     String repr = nextString();
     if (repr == StringVector.NA) {
       return DoubleVector.NA;
@@ -77,22 +80,22 @@ public class StringDataEntry implements DataEntry {
   }
 
   @Override
-  public Bit nextBinary() throws IOException {
+  public Bit nextBinary() {
     return Bit.valueOf(nextInt());
   }
 
   @Override
-  public Complex nextComplex() throws IOException {
+  public Complex nextComplex() {
     return next(Complex.class);
   }
 
   @Override
-  public boolean hasNext() throws IOException {
+  public boolean hasNext() {
     return current < size();
   }
 
   @Override
-  public int size() throws IOException {
+  public int size() {
     return values.length;
   }
 }

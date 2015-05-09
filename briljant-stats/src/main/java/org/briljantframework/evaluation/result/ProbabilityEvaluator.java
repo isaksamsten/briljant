@@ -6,7 +6,7 @@ import org.briljantframework.evaluation.measure.Brier;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class ProbabilityEvaluator implements Evaluator {
     double brier = Measures.brier(predicted, probabilities, actual, classes);
     ctx.getOrDefault(AreaUnderCurve.class, AreaUnderCurve.Builder::new).add(Sample.OUT, auc);
 
-    Map<Value, Integer> classDistribution = Vectors.count(actual);
+    Map<Value, Integer> classDistribution = Vec.count(actual);
     double averageAuc = 0;
     for (Map.Entry<Value, Double> aucEntry : auc.entrySet()) {
       if (classDistribution.containsKey(aucEntry.getKey())) {

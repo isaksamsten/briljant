@@ -14,7 +14,7 @@ import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -31,7 +31,7 @@ public class RandomPointTreeTest {
     Classifier forest = new Ensemble(500) {
       @Override
       public Predictor fit(DataFrame x, Vector y) {
-        Vector classes = Vectors.unique(y);
+        Vector classes = Vec.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
         BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());

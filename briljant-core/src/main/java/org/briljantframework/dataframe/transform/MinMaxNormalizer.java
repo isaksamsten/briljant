@@ -17,11 +17,13 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 /**
  * Class to fit a min max normalizer to a data frame. Calculate, for each column {@code j}, the min
@@ -40,8 +42,8 @@ public class MinMaxNormalizer implements Transformer {
     DoubleMatrix min = Bj.doubleVector(frame.columns());
     DoubleMatrix max = Bj.doubleVector(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
-      if (!frame.getColumnType(j).equals(Vectors.DOUBLE)) {
-        throw new TypeMismatchException(Vectors.DOUBLE, frame.getColumnType(j));
+      if (!frame.getType(j).equals(Vec.DOUBLE)) {
+        throw new TypeMismatchException(Vec.DOUBLE, frame.getType(j));
       }
 
       double minTemp = Double.POSITIVE_INFINITY, maxTemp = Double.NEGATIVE_INFINITY;
@@ -63,7 +65,28 @@ public class MinMaxNormalizer implements Transformer {
       max.set(j, maxTemp);
     }
 
-    return new MinMaxNormalization(min, max);
+    return x -> {
+      Check.size(x.columns(), max);
+      DataFrame.Builder builder = x.newBuilder();
+      for (int j = 0; j < x.columns(); j++) {
+        Check.requireType(DoubleVector.TYPE, x.getType(j));
+
+        double mi = min.get(j);
+        double ma = max.get(j);
+        for (int i = 0; i < x.rows(); i++) {
+          if (x.isNA(i, j) || isSane(mi) || isSane(ma)) {
+            builder.setNA(i, j);
+          } else {
+            builder.set(i, j, (x.getAsDouble(i, j) - mi) / (ma - mi));
+          }
+        }
+      }
+      return builder.build();
+    };
+  }
+
+  private static boolean isSane(double value) {
+    return !Is.NA(value) && !Double.isNaN(value) && !Double.isInfinite(value);
   }
 
 }

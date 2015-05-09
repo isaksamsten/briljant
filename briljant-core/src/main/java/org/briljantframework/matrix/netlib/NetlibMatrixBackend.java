@@ -35,7 +35,7 @@ public class NetlibMatrixBackend implements MatrixBackend {
   @Override
   public MatrixRoutines getMatrixRoutines() {
     if (matrixRoutines == null) {
-      matrixRoutines = new NetlibMatrixRoutines(this);
+      matrixRoutines = new NetlibMatrixRoutines();
     }
     return matrixRoutines;
   }

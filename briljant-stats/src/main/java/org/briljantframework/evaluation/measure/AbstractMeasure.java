@@ -19,7 +19,7 @@ package org.briljantframework.evaluation.measure;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vectors;
+import org.briljantframework.vector.Vec;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -132,7 +132,7 @@ public abstract class AbstractMeasure implements Measure {
 
       for (Map.Entry<Sample, DoubleVector.Builder> e : values.entrySet()) {
         double mean = means.getOrDefault(e.getKey(), 0d);
-        std.put(e.getKey(), Vectors.std(e.getValue().getTemporaryVector(), mean));
+        std.put(e.getKey(), Vec.std(e.getValue().getTemporaryVector(), mean));
       }
 
       return std;

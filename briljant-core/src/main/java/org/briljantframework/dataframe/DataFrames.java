@@ -2,6 +2,11 @@ package org.briljantframework.dataframe;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
+
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.join.InnerJoin;
@@ -13,14 +18,21 @@ import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
+import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.EntryReader;
+import org.briljantframework.io.StringDataEntry;
 import org.briljantframework.vector.Scale;
 import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
-import org.briljantframework.vector.Vectors;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,7 +40,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Utility methods for handling {@code DataFrame}s <p> Created by Isak Karlsson on 27/11/14.
@@ -49,6 +61,98 @@ public final class DataFrames {
   private DataFrames() {
   }
 
+  public static DataFrame loadCsv(String file) throws IOException {
+    CsvParserSettings settings = new CsvParserSettings();
+    settings.getFormat().setDelimiter(',');
+//    settings.setLineSeparatorDetectionEnabled(true);
+    CsvParser parser = new CsvParser(settings);
+    parser.beginParsing(new BufferedReader(new FileReader(new File(file))));
+
+    Index.Builder columnIndex = new HashIndex.Builder();
+    for (String s : parser.parseNext()) {
+      columnIndex.add(s);
+    }
+    DataFrame.Builder df = new MixedDataFrame.Builder();
+    DataEntry entry = new StringDataEntry(parser.parseNext());
+    for (int col = 0; col < entry.size() && entry.hasNext(); col++) {
+      String value = entry.nextString();
+      Object val;
+      if ((val = Ints.tryParse(value)) != null) {
+        df.addColumnBuilder(Vec.INT);
+      } else if ((val = Doubles.tryParse(value)) != null) {
+        df.addColumnBuilder(Vec.DOUBLE);
+      } else if ("true".equalsIgnoreCase(value)) {
+        val = true;
+        df.addColumnBuilder(Vec.BIT);
+      } else if ("false".equalsIgnoreCase(value)) {
+        val = false;
+        df.addColumnBuilder(Vec.BIT);
+      } else {
+        val = value;
+        df.addColumnBuilder(VectorType.getInstance(LocalDate.class));
+      }
+      df.set(0, col, val);
+    }
+
+    try {
+      df.read(new EntryReader() {
+        private String[] current = null;
+
+        @Override
+        public DataEntry next() throws IOException {
+          DataEntry de = new StringDataEntry(current);
+          current = null;
+          return de;
+        }
+
+        @Override
+        public boolean hasNext() throws IOException {
+          if (current == null) {
+            current = parser.parseNext();
+          }
+          return current != null;
+        }
+      });
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    parser.stopParsing();
+    return df.build().setColumnIndex(columnIndex.build());
+  }
+
+  public static DataFrame concat(Collection<? extends DataFrame> dataFrames) {
+    if (dataFrames.size() == 1) {
+      return dataFrames.iterator().next();
+    }
+    DataFrame.Builder builder = null;
+    Index.Builder columnIndex = new HashIndex.Builder();
+
+    int toRow = 0;
+    int currentColumn = 0;
+    for (DataFrame df : dataFrames) {
+      if (builder == null) {
+        builder = df.newBuilder();
+      }
+
+      int rows = df.rows();
+      for (Index.Entry col : df.getColumnIndex()) {
+        int toColumn = columnIndex.get(col.key());
+        int fromCol = col.index();
+        if (toColumn < 0) {
+          columnIndex.add(col.key());
+          toColumn = currentColumn;
+          currentColumn += 1;
+        }
+        for (int i = 0; i < rows; i++) {
+          builder.set(toRow + i, toColumn, df, i, fromCol);
+        }
+      }
+      toRow += rows;
+    }
+    assert builder != null;
+    return builder.build().setColumnIndex(columnIndex.build());
+  }
+
   /**
    * Load data frame using {@code in} and construct a new {@link org.briljantframework.dataframe.DataFrame}
    * using the function {@code f} which should return a {@link org.briljantframework.dataframe.DataFrame.Builder}
@@ -64,13 +168,12 @@ public final class DataFrames {
    * @param in the input stream
    * @return a new dataframe
    */
-  public static DataFrame load(
-      BiFunction<Collection<String>, Collection<? extends VectorType>, DataFrame.Builder> f,
-      DataInputStream in) throws IOException {
+  public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
+                               DataInputStream in) throws IOException {
     try {
       Collection<VectorType> types = in.readColumnTypes();
-      Collection<String> names = in.readColumnNames();
-      return f.apply(names, types).read(in).build();
+      Collection<Object> names = in.readColumnIndex();
+      return f.apply(types).read(in).build().setColumnIndex(HashIndex.from(names));
     } finally {
       if (in != null) {
         in.close();
@@ -88,24 +191,26 @@ public final class DataFrames {
    * @return a data frame summarizing {@code df}
    */
   public static DataFrame summary(DataFrame df) {
-    DataFrame.Builder builder =
-        new MixedDataFrame.Builder(Arrays.asList("Mean", "Min", "Max", "Mode"), Arrays.asList(
-            Vectors.DOUBLE, Vectors.DOUBLE, Vectors.DOUBLE, Vectors.STRING));
-
+    DataFrame.Builder builder = new MixedDataFrame.Builder(
+        Arrays.asList(
+            Vec.DOUBLE, Vec.DOUBLE, Vec.DOUBLE, Vec.STRING
+        )
+    );
     for (int j = 0; j < df.columns(); j++) {
       Vector column = df.getColumn(j);
-      builder.getRecordNames().put(j, df.getColumnName(j));
       if (column.getType().getScale() == Scale.NUMERICAL) {
-        double mean = Vectors.mean(column);
-        double min = Vectors.min(column);
-        double max = Vectors.max(column);
+        double mean = Vec.mean(column);
+        double min = Vec.min(column);
+        double max = Vec.max(column);
         builder.set(j, 0, mean).set(j, 1, min).set(j, 2, max);
       } else {
-        Value mode = Vectors.mode(column);
+        Value mode = Vec.mode(column);
         builder.set(j, 3, mode);
       }
     }
-    return builder.build();
+    return builder.build().setColumnIndex(HashIndex.from(
+        Arrays.asList("Mean", "Min", "Max", "Mode")
+    ));
   }
 
   /**
@@ -204,7 +309,7 @@ public final class DataFrames {
    * @param on the key columns to use for joining
    * @return a new data frame of {@code a} and {@code b} joined
    */
-  public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<String> on) {
+  public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<Object> on) {
     return join(INNER, a, b, on);
   }
 
@@ -218,7 +323,7 @@ public final class DataFrames {
    * {@code b.getColumnNames()}
    */
   public static DataFrame innerJoin(DataFrame a, DataFrame b) {
-    Set<String> on = getIntersectingColumnNames(a, b);
+    Set<Object> on = getIntersectingColumnNames(a, b);
     if (on.size() < 1) {
       throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
     }
@@ -226,18 +331,18 @@ public final class DataFrames {
   }
 
   public static DataFrame leftOuterJoin(DataFrame a, DataFrame b) {
-    Set<String> on = getIntersectingColumnNames(a, b);
+    Set<Object> on = getIntersectingColumnNames(a, b);
     if (on.size() < 1) {
       throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
     }
     return leftOuterJoin(a, b, on);
   }
 
-  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<String> on) {
+  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<Object> on) {
     return join(LEFT_OUTER, a, b, on);
   }
 
-  public static DataFrame rightOuterJoin(DataFrame a, DataFrame b, Collection<String> on) {
+  public static DataFrame rightOuterJoin(DataFrame a, DataFrame b, Collection<Object> on) {
     return leftOuterJoin(b, a, on);
   }
 
@@ -245,29 +350,29 @@ public final class DataFrames {
     return leftOuterJoin(b, a);
   }
 
-  public static DataFrame outerJoin(DataFrame a, DataFrame b, Collection<String> on) {
+  public static DataFrame outerJoin(DataFrame a, DataFrame b, Collection<Object> on) {
     return join(OUTER, a, b, on);
   }
 
   public static DataFrame outerJoin(DataFrame a, DataFrame b) {
-    Set<String> on = getIntersectingColumnNames(a, b);
+    Set<Object> on = getIntersectingColumnNames(a, b);
     if (on.size() < 1) {
       throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
     }
     return outerJoin(a, b, on);
   }
 
-  public static DataFrame join(String how, DataFrame a, DataFrame b, Collection<String> on) {
+  public static DataFrame join(String how, DataFrame a, DataFrame b, Collection<Object> on) {
     if (!joinOperations.containsKey(how)) {
       throw new IllegalArgumentException();
     }
     JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
-    return joinOperations.get(how).createJoiner(joinKeys).join(a, b, on).build();
+    return joinOperations.get(how).createJoiner(joinKeys).join(a, b, on);
   }
 
-  private static Set<String> getIntersectingColumnNames(DataFrame a, DataFrame b) {
-    Set<String> on = new HashSet<>(a.getColumnNames());
-    Set<String> bCol = new HashSet<>(b.getColumnNames());
+  private static Set<Object> getIntersectingColumnNames(DataFrame a, DataFrame b) {
+    Set<Object> on = new HashSet<>(a.getColumnIndex().keySet());
+    Set<Object> bCol = new HashSet<>(b.getColumnIndex().keySet());
     on.retainAll(bCol);
     return on;
   }
@@ -298,16 +403,15 @@ public final class DataFrames {
   public static String toTabularString(DataFrame dataFrame, int max) {
     ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
     b.put(0, 0, " ");
-    // b.put(0, 1, " ");
-    for (int i = 0; i < dataFrame.columns(); i++) {
-      String columnName = dataFrame.getColumnName(i);
-      b.put(0, i + 1, columnName == null ? "Undefined" : columnName);
+
+    Index columnIndex = dataFrame.getColumnIndex();
+    for (int j = 0; j < dataFrame.columns(); j++) {
+      b.put(0, j + 1, columnIndex.reverse(j));
     }
 
+    Index recordIndex = dataFrame.getRecordIndex();
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {
-      // b.put(i + 1, 0, String.format("[%d,] ", i));
-      String rowName = dataFrame.getRecordName(i);
-      b.put(i + 1, 0, rowName == null ? " " : rowName + " ");
+      b.put(i + 1, 0, String.format("[%s,] ", recordIndex.reverse(i)));
       for (int j = 0; j < dataFrame.columns(); j++) {
         b.put(i + 1, j + 1, dataFrame.toString(i, j));
       }

@@ -1,6 +1,6 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.Swappable;
+import org.briljantframework.sort.Swappable;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
@@ -17,6 +17,7 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -61,13 +62,13 @@ public interface Vector extends Serializable {
    *
    * <pre>
    *   Vector v = new GenericVector(Date.class, Arrays.asList(new Date(), new Date());
-   *   Date date = v.getAs(Date.class, 0);
+   *   Date date = v.get(Date.class, 0);
    *   if(Is.NA(date)) { // or date == null
    *     // got a NA value
    *   }
    *
    *   Vector v = ...; // for example an IntVector
-   *   int value = v.getAs(Integer.class, 32);
+   *   int value = v.get(Integer.class, 32);
    *   if(Is.NA(value)) { // or value == IntVector.NA (but not value == null)
    *     // got a NA value
    *   }
@@ -190,11 +191,6 @@ public interface Vector extends Serializable {
    */
   String getAsString(int index);
 
-  // Slicing - basic
-//  Vector slice(Range range);
-
-  // Slicing - advanced?
-
   /**
    * Returns a new vector of length {@code indexes.size()} of the elements in index
    *
@@ -202,10 +198,18 @@ public interface Vector extends Serializable {
    * @return a new vector
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
-  default Vector slice(Collection<Integer> indexes) {
+  default Vector slice(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
     for (int index : indexes) {
       builder.add(this, index);
+    }
+    return builder.build();
+  }
+
+  default Vector apply(UnaryOperator<Value> operator) {
+    Builder builder = newBuilder();
+    for (int i = 0; i < size(); i++) {
+      builder.add(operator.apply(getAsValue(i)));
     }
     return builder.build();
   }
@@ -375,11 +379,11 @@ public interface Vector extends Serializable {
   }
 
   default IntStream intStream() {
-    return toMatrix().asIntMatrix().stream();
+    return stream().mapToInt(Value::getAsInt);
   }
 
   default DoubleStream doubleStream() {
-    return toMatrix().asDoubleMatrix().stream();
+    return stream().mapToDouble(Value::getAsDouble);
   }
 
   /**

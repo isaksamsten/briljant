@@ -24,13 +24,13 @@ abstract class AsComplexMatrix extends AbstractComplexMatrix {
       }
 
       @Override
-      public void set(int row, int column, Complex value) {
-        AsComplexMatrix.this.set(row, column, value);
+      public void set(int i, int j, Complex value) {
+        set(Indexer.columnMajor(i, j, rows(), columns()), value);
       }
 
       @Override
       public Complex get(int i, int j) {
-        return AsComplexMatrix.this.get(i, j);
+        return get(Indexer.columnMajor(i, j, rows(), columns()));
       }
 
       @Override

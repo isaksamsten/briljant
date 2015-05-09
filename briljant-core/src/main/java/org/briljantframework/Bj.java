@@ -11,10 +11,11 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
+import org.briljantframework.sort.IndexComparator;
 
 import java.util.Collection;
 import java.util.List;
@@ -220,8 +221,8 @@ public final class Bj {
     return MATRIX_ROUTINES.var(x, dim);
   }
 
-  public static void gemm(Transpose transA,
-                          Transpose transB, double alpha,
+  public static void gemm(T transA,
+                          T transB, double alpha,
                           DoubleMatrix a, DoubleMatrix b, double beta,
                           DoubleMatrix c) {
     MATRIX_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
@@ -283,7 +284,7 @@ public final class Bj {
     return MATRIX_ROUTINES.dotc(a, b);
   }
 
-  public static void gemv(Transpose transA, double alpha, DoubleMatrix a, DoubleMatrix x,
+  public static void gemv(T transA, double alpha, DoubleMatrix a, DoubleMatrix x,
                           double beta,
                           DoubleMatrix y) {
     MATRIX_ROUTINES.gemv(transA, alpha, a, x, beta, y);

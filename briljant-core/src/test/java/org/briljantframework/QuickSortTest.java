@@ -2,6 +2,8 @@ package org.briljantframework;
 
 import com.google.common.collect.Lists;
 
+import org.briljantframework.sort.QuickSort;
+import org.briljantframework.sort.Swappable;
 import org.junit.Test;
 
 import java.util.ArrayList;

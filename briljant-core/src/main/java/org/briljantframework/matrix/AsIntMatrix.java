@@ -19,7 +19,7 @@ public abstract class AsIntMatrix extends AbstractIntMatrix {
     return new AsIntMatrix(bj, rows, columns) {
       @Override
       public int get(int i, int j) {
-        return AsIntMatrix.this.get(i, j);
+        return AsIntMatrix.this.get(Indexer.columnMajor(i, j, rows(), columns()));
       }
 
       @Override
@@ -33,8 +33,8 @@ public abstract class AsIntMatrix extends AbstractIntMatrix {
       }
 
       @Override
-      public void set(int row, int column, int value) {
-        AsIntMatrix.this.set(row, column, value);
+      public void set(int i, int j, int value) {
+        set(Indexer.columnMajor(i, j, rows(), columns()), value);
       }
 
       @Override

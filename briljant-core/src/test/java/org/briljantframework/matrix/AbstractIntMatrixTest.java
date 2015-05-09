@@ -319,11 +319,11 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
     IntMatrix y = bj.matrix(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
 
-    IntMatrix z = y.mmul(Transpose.YES, x, Transpose.NO);
+    IntMatrix z = y.mmul(T.YES, x, T.NO);
     IntMatrix za = bj.matrix(new int[]{14, 32, 32, 77}).reshape(2, 2);
     assertMatrixEquals(za, z);
 
-    z = x.mmul(Transpose.NO, y, Transpose.YES);
+    z = x.mmul(T.NO, y, T.YES);
     za = bj.matrix(new int[]{17, 22, 27, 22, 29, 36, 27, 36, 45}).reshape(3, 3);
     assertMatrixEquals(za, z);
   }
@@ -332,11 +332,11 @@ public class AbstractIntMatrixTest {
   public void testMmul3() throws Exception {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
     IntMatrix y = bj.matrix(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 2);
-    IntMatrix z = y.mmul(2, Transpose.YES, x, Transpose.NO);
+    IntMatrix z = y.mmul(2, T.YES, x, T.NO);
     IntMatrix za = bj.matrix(new int[]{28, 64, 64, 154}).reshape(2, 2);
     assertMatrixEquals(za, z);
 
-    z = x.mmul(2, Transpose.NO, y, Transpose.YES);
+    z = x.mmul(2, T.NO, y, T.YES);
     za = bj.matrix(new int[]{34, 44, 54, 44, 58, 72, 54, 72, 90}).reshape(3, 3);
     assertMatrixEquals(za, z);
   }

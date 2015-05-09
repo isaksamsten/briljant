@@ -18,8 +18,8 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
     return new AsBitMatrix(bj, rows, columns) {
       @Override
-      public void set(int row, int column, boolean value) {
-        AsBitMatrix.this.set(row, column, value);
+      public void set(int i, int j, boolean value) {
+        set(Indexer.columnMajor(i, j, rows(), columns()), value);
       }
 
       @Override
@@ -29,7 +29,7 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
 
       @Override
       public boolean get(int i, int j) {
-        return AsBitMatrix.this.get(i, j);
+        return get(Indexer.columnMajor(i, j, rows(), columns()));
       }
 
       @Override

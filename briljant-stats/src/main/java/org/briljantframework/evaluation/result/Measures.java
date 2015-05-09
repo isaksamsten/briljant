@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.briljantframework.vector.Vectors.find;
+import static org.briljantframework.vector.Vec.find;
 
 /**
  * @author Isak Karlsson

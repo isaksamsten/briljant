@@ -1,65 +1,25 @@
 package org.briljantframework.dataframe;
 
-import org.briljantframework.Swappable;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.io.DataInputStream;
+import org.briljantframework.io.EntryReader;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.sort.Swappable;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * <p> A DataFrame is a heterogeneous or homogeneous storage of data. </p>
- *
- * <p> While {@code DataFrame} is immutable, {@link #setColumnName(int, String)}, {@link
- * #setRecordName(int, String)} are allowed to mutate the receiver. The rationale is simple, chang
- * the names won't affect the validity of {@code DataFrame} usages. </p>
+ * <p> A DataFrame is a heterogeneous storage of data. </p>
  *
  * @author Isak Karlsson
  */
 public interface DataFrame extends Iterable<Record> {
-
-  /**
-   * Get the column name attribute
-   *
-   * @return the column names
-   */
-  NameAttribute getColumnNames();
-
-  /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
-   *
-   * @param names the names
-   * @return receiver modified
-   */
-  default DataFrame setColumnNames(String... names) {
-    return setColumnNames(Arrays.asList(names));
-  }
-
-  /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
-   *
-   * @param names the names
-   * @return receiver modified
-   */
-  DataFrame setColumnNames(List<String> names);
-
-  /**
-   * Get value at {@code row} and {@code column} as a value
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  Value getAsValue(int row, int column);
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
@@ -72,6 +32,15 @@ public interface DataFrame extends Iterable<Record> {
    * @return an instance of {@code T}
    */
   <T> T get(Class<T> cls, int row, int column);
+
+  /**
+   * Get value at {@code row} and {@code column} as a value
+   *
+   * @param row    the row
+   * @param column the column
+   * @return the value
+   */
+  Value getAsValue(int row, int column);
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -136,9 +105,63 @@ public interface DataFrame extends Iterable<Record> {
    */
   boolean isNA(int row, int column);
 
-  DataFrame addColumn(Vector column);
+  default <T> T get(Class<T> cls, Object row, Object col) {
+    return get(cls, getRecordIndex().get(row), getColumnIndex().get(col));
+  }
 
-  DataFrame addColumn(int index, Vector column);
+  default String getAsString(Object row, Object col) {
+    return getAsString(getRecordIndex().get(row), getColumnIndex().get(col));
+  }
+
+  default double getAsDouble(Object row, Object col) {
+    return getAsDouble(getRecordIndex().get(row), getColumnIndex().get(col));
+  }
+
+  default int getAsInt(Object row, Object col) {
+    return getAsInt(getRecordIndex().get(row), getColumnIndex().get(col));
+  }
+
+  default Complex getAsComplex(Object row, Object col) {
+    return getAsComplex(getRecordIndex().get(row), getColumnIndex().get(col));
+  }
+
+  default boolean isNA(Object row, Object col) {
+    return isNA(getRecordIndex().get(row), getColumnIndex().get(col));
+  }
+
+  DataFrame sort();
+
+  DataFrame sort(SortOrder order);
+
+  DataFrame sortBy(int column);
+
+  DataFrame sortBy(int column, SortOrder order);
+
+  default DataFrame sortBy(Object key, SortOrder order) {
+    return sortBy(getColumnIndex().get(key), order);
+  }
+
+  default DataFrame sortBy(Object key) {
+    return sortBy(getColumnIndex().get(key));
+  }
+
+  DataFrame head(int rows);
+
+  default DataFrame head() {
+    return head(10);
+  }
+
+  DataFrame indexOn(int col);
+
+  default DataFrame indexOn(Object key) {
+    return indexOn(getColumnIndex().get(key));
+  }
+
+//  DataFrame reindex(int on);
+
+  DataFrame add(Vector column);
+
+  DataFrame insert(int index, Object key, Vector column);
 
   /**
    * Return a collection of columns
@@ -159,11 +182,11 @@ public interface DataFrame extends Iterable<Record> {
   /**
    * Uses the column name to lookup a specified column.
    *
-   * @param name the column name
+   * @param key the column name
    * @return the column
    * @throws java.lang.IllegalArgumentException if key is not found
    */
-  Vector getColumn(String name);
+  Vector getColumn(Object key);
 
   /**
    * Remove column with {@code index}
@@ -190,74 +213,6 @@ public interface DataFrame extends Iterable<Record> {
   DataFrame takeColumns(Iterable<Integer> indexes);
 
   /**
-   * Get the type of vector at {@code index}
-   *
-   * @param index the index
-   * @return the type
-   */
-  VectorType getColumnType(int index);
-
-  /**
-   * Get the name for the column vector at {@code index}.
-   *
-   * @param index the index
-   * @return the name
-   */
-  String getColumnName(int index);
-
-  /**
-   * Set the name for the column at {@code index}
-   *
-   * @param index      the index
-   * @param columnName the name
-   * @return modified receiver to allow for chaining
-   */
-  DataFrame setColumnName(int index, String columnName);
-
-  /**
-   * Get the name for the row at {@code index}
-   *
-   * @param index the index
-   * @return the name
-   */
-  String getRecordName(int index);
-
-  /**
-   * Set the name for the row at {@code index} to {@code rowName}
-   *
-   * @param index   the index
-   * @param rowName the row name
-   * @return receiver modified
-   */
-  DataFrame setRecordName(int index, String rowName);
-
-  /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.length</sub>
-   *
-   * @param names the names
-   * @return receiver modified
-   */
-  default DataFrame setRecordNames(String... names) {
-    return setRecordNames(Arrays.asList(names));
-  }
-
-  /**
-   * Sets the name of column c<sub>0</sub>...c<sub>names.size()</sub>
-   *
-   * @param names the names
-   * @return receiver modified
-   */
-  DataFrame setRecordNames(List<String> names);
-
-  /**
-   * Get the type of the row at {@code index}
-   *
-   * @param index the index
-   * @return the type
-   */
-  VectorType getRecordType(int index);
-
-  /**
    * Returns a collection of records.
    *
    * @return an (immutable) collection of rows
@@ -265,7 +220,8 @@ public interface DataFrame extends Iterable<Record> {
   Collection<Record> getRecords();
 
   /**
-   * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types, the
+   * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types,
+   * the
    * returned type is a Sequence i.e. a heterogeneous vector of values.
    *
    * @param index the index
@@ -324,6 +280,8 @@ public interface DataFrame extends Iterable<Record> {
    */
   int columns();
 
+  DataFrame copy();
+
   /**
    * Creates a new builder for creating new data frames which produces the concrete implementation
    * of {@code this}
@@ -334,7 +292,7 @@ public interface DataFrame extends Iterable<Record> {
 
   /**
    * Creates a new builder, initialized with a copy of this data frame, i.e. {@code
-   * c.newCopyBuilder().create()} creates a new copy.
+   * c.newCopyBuilder().build()} creates a new copy.
    *
    * @return a new builder
    */
@@ -355,12 +313,44 @@ public interface DataFrame extends Iterable<Record> {
     return StreamSupport.stream(spliterator(), true);
   }
 
-  Collection<VectorType> getColumnTypes();
+  /**
+   * Get the type of vector at {@code index}
+   *
+   * @param index the index
+   * @return the type
+   */
+  VectorType getType(int index);
+
+  Collection<VectorType> getTypes();
+
+  Index getRecordIndex();
+
+  Index getColumnIndex();
+
+  DataFrame setRecordIndex(Index index);
+
+  DataFrame setColumnIndex(Index index);
+
+//  Index getColumnIndex();
+//
+//  DataFrame setColumnIndex(Vector index);
+//
+//  Index getRecordIndex();
+//
+//  DataFrame setRecordIndex(Vector index);
+//
+//  default Indexer ix() {
+//    return new Indexer(this);
+//  }
 
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
    */
   interface Builder extends Swappable {
+
+    Vector getColumn(int col);
+
+    Vector getRecord(int row);
 
     /**
      * Set value at {@code row} in {@code column} to NA. If {@code column >= columns()} adds empty
@@ -392,7 +382,8 @@ public interface DataFrame extends Iterable<Record> {
     Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol);
 
     /**
-     * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}. If {@code
+     * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}. If
+     * {@code
      * toCol >= columns()}, adds empty {@link org.briljantframework.vector.VariableVector} columns
      * from {@code columns() ... column - 1}, inferring the type at {@code toCol} using {@code
      * from.getType(index)}
@@ -426,20 +417,6 @@ public interface DataFrame extends Iterable<Record> {
     }
 
     /**
-     * Returns the column names collection.
-     *
-     * @return the name attribute
-     */
-    NameAttribute getColumnNames();
-
-    /**
-     * Returns the row names collection.
-     *
-     * @return the name attribute
-     */
-    NameAttribute getRecordNames();
-
-    /**
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the
      * added builder is padded with NA.
      *
@@ -466,7 +443,8 @@ public interface DataFrame extends Iterable<Record> {
     Builder addColumn(Vector vector);
 
     /**
-     * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds empty
+     * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds
+     * empty
      * {@link org.briljantframework.vector.VariableVector} columns from {@code columns() ... column
      * - 1}. If {@code index < columns()} each column is shifted to the right.
      *
@@ -635,9 +613,9 @@ public interface DataFrame extends Iterable<Record> {
      */
     default Builder concat(int startCol, DataFrame frame) {
       for (int i = 0; i < frame.columns(); i++) {
-        if (frame.getColumnNames().containsKey(i)) {
-          getColumnNames().put(startCol + i, frame.getColumnName(i));
-        }
+//        if (frame.getColumnNames().containsKey(i)) {
+//          getColumnNames().put(startCol + i, frame.getColumnName(i));
+//        }
       }
       for (int i = 0; i < rows(); i++) {
         concat(i, startCol, frame.getRecord(i));
@@ -694,10 +672,10 @@ public interface DataFrame extends Iterable<Record> {
     /**
      * Read values from the {@code inputStream} and add the values to the correct column.
      *
-     * @param inputStream the input stream
+     * @param entryReader the input stream
      * @return a modified builder
      */
-    public Builder read(DataInputStream inputStream) throws IOException;
+    public Builder read(EntryReader entryReader) throws IOException;
 
     /**
      * Returns the number of columns in the resulting data frame

@@ -20,6 +20,7 @@ import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.netlib.NetlibLapackException;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.netlib.util.intW;
@@ -45,32 +46,35 @@ public class InverseTransformation implements Transformation {
   }
 
   private DoubleMatrix invert(DoubleMatrix in) {
-    int n = checkedCast(in.rows());
+    int n = in.rows();
+    DoubleMatrix out = in.copy();
+    IntMatrix ipiv = Bj.intVector(n);
+    Bj.linalg.getrf(out, ipiv);
+//    Bj.linalg.getri(out, ipiv);
+//    int[] ipiv = new int[n];
+//    intW error = new intW(0);
+//    double[] outArray = in.array();
+//    lapack.dgetrf(n, n, outArray, n, ipiv, error);
+//    if (error.val != 0) {
+//      throw new NetlibLapackException(error.val, "LU decomposition failed.");
+//    }
+//
+//    double[] work = new double[1];
+//    int lwork = -1;
+//    lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
+//
+//    if (error.val != 0) {
+//      throw new NetlibLapackException(error.val, "Query failed");
+//    }
+//
+//    lwork = (int) work[0];
+//    work = new double[lwork];
+//    lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
+//    if (error.val != 0) {
+//      throw new NetlibLapackException(error.val, "Inverse failed. The matrix is singular.");
+//    }
 
-    int[] ipiv = new int[n];
-    intW error = new intW(0);
-    double[] outArray = in.array();
-    lapack.dgetrf(n, n, outArray, n, ipiv, error);
-    if (error.val != 0) {
-      throw new NetlibLapackException(error.val, "LU decomposition failed.");
-    }
-
-    double[] work = new double[1];
-    int lwork = -1;
-    lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
-
-    if (error.val != 0) {
-      throw new NetlibLapackException(error.val, "Query failed");
-    }
-
-    lwork = (int) work[0];
-    work = new double[lwork];
-    lapack.dgetri(n, outArray, n, ipiv, work, lwork, error);
-    if (error.val != 0) {
-      throw new NetlibLapackException(error.val, "Inverse failed. The matrix is singular.");
-    }
-
-    return Bj.matrix(outArray).reshape(in.rows(), in.columns());
+    return out;
   }
 
   @Override

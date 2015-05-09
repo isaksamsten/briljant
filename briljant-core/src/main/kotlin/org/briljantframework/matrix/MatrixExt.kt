@@ -5,7 +5,15 @@ import org.briljantframework.all
 import org.briljantframework.complex.Complex
 import org.briljantframework.matrix.storage.Storage
 
+public fun DoubleMatrix.round(): LongMatrix = this mapToLong { Math.round(it) }
 
+public fun DoubleMatrix.sqrt(): DoubleMatrix = this map { Math.sqrt(it) }
+
+public fun DoubleMatrix.exp(): DoubleMatrix = this map { Math.exp(it) }
+
+public fun DoubleMatrix.min(): Double = Bj.min(this)
+
+public fun DoubleMatrix.max(): Double = Bj.max(this)
 
 fun <T : Matrix<T>> T.hstack(other: T): T = Bj.hstack(listOf(this, other))
 
@@ -94,111 +102,6 @@ fun <T : Matrix<T>> T.get(rows: Collection<Int>, columns: all): T
 fun <T : Matrix<T>> T.get(rows: all, column: Int) = this.getColumnView(column)
 
 fun <T : Matrix<T>> T.get(row: Int, columns: all) = this.getRowView(row)
-
-//fun DoubleMatrix.get(range: Progression<Int>) = slice(range.toSlice())
-//
-//fun DoubleMatrix.get(indexes: Collection<Int>) = slice(indexes)
-//
-//fun DoubleMatrix.get(bits: BitMatrix) = slice(bits)
-//
-//fun DoubleMatrix.get(rows: Progression<Int>, columns: Progression<Int>)
-//        = slice(rows.toSlice(), columns.toSlice())
-//
-//fun DoubleMatrix.get(rows: Collection<Int>, columns: Collection<Int>) = slice(rows, columns)
-//
-//fun DoubleMatrix.get(rows: all, columns: Progression<Int>) = this[0..this.rows, columns]
-//
-//fun DoubleMatrix.get(rows: Progression<Int>, columns: all) = this[rows, 0..this.columns]
-//
-//fun DoubleMatrix.get(rows: all, columns: Collection<Int>) = this[(0..this.rows).toList(), columns]
-//
-//fun DoubleMatrix.get(rows: Collection<Int>, columns: all) = this[rows, (0..this.columns).toList()]
-//
-//fun DoubleMatrix.get(rows: all, column: Int) = this.getColumnView(column)
-//
-//fun DoubleMatrix.get(row: Int, columns: all) = this.getRowView(row)
-//
-//fun IntMatrix.get(range: Progression<Int>) = slice(range.toSlice())
-//
-//fun IntMatrix.get(indexes: Collection<Int>) = slice(indexes)
-//
-//fun IntMatrix.get(bits: BitMatrix) = slice(bits)
-//
-//fun IntMatrix.get(rows: Progression<Int>, columns: Progression<Int>)
-//        = slice(rows.toSlice(), columns.toSlice())
-//
-//fun IntMatrix.get(rows: Collection<Int>, columns: Collection<Int>) = slice(rows, columns)
-//
-//fun IntMatrix.get(rows: all, columns: Progression<Int>) = this[0..this.rows, columns]
-//
-//fun IntMatrix.get(rows: Progression<Int>, columns: all) = this[rows, 0..this.columns]
-//
-//fun IntMatrix.get(rows: all, columns: Collection<Int>) = this[(0..this.rows).toList(), columns]
-//
-//fun IntMatrix.get(rows: Collection<Int>, columns: all) = this[rows, (0..this.columns).toList()]
-//
-//fun IntMatrix.get(rows: all, column: Int) = this.getColumnView(column)
-//
-//fun IntMatrix.get(row: Int, columns: all) = this.getRowView(row)
-//
-//fun LongMatrix.get(range: Progression<Int>) = slice(range.toSlice())
-//
-//fun LongMatrix.get(indexes: Collection<Int>) = slice(indexes)
-//
-//fun LongMatrix.get(bits: BitMatrix) = slice(bits)
-//
-//fun LongMatrix.get(rows: Progression<Int>, columns: Progression<Int>)
-//        = slice(rows.toSlice(), columns.toSlice())
-//
-//fun LongMatrix.get(rows: Collection<Int>, columns: Collection<Int>)
-//        = slice(rows, columns)
-//
-//fun LongMatrix.get(rows: all, columns: Progression<Int>)
-//        = this[0..this.rows, columns]
-//
-//fun LongMatrix.get(rows: Progression<Int>, columns: all)
-//        = this[rows, 0..this.columns]
-//
-//fun LongMatrix.get(rows: all, columns: Collection<Int>)
-//        = this[(0..this.rows).toList(), columns]
-//
-//fun LongMatrix.get(rows: Collection<Int>, columns: all)
-//        = this[rows, (0..this.columns).toList()]
-//
-//fun LongMatrix.get(rows: all, column: Int) = this.getColumnView(column)
-//
-//fun LongMatrix.get(row: Int, columns: all) = this.getRowView(row)
-//
-//fun ComplexMatrix.get(range: Progression<Int>) = slice(range.toSlice())
-//
-//fun ComplexMatrix.get(indexes: Collection<Int>) = slice(indexes)
-//
-//fun ComplexMatrix.get(bits: BitMatrix) = slice(bits)
-//
-//fun ComplexMatrix.get(rows: Progression<Int>, columns: Progression<Int>)
-//        = slice(rows.toSlice(), columns.toSlice())
-//
-//fun ComplexMatrix.get(rows: Collection<Int>, columns: Collection<Int>)
-//        = slice(rows, columns)
-//
-//fun ComplexMatrix.get(rows: all, columns: Progression<Int>)
-//        = this[0..this.rows, columns]
-//
-//fun ComplexMatrix.get(rows: Progression<Int>, columns: all)
-//        = this[rows, 0..this.columns]
-//
-//fun ComplexMatrix.get(rows: all, columns: Collection<Int>)
-//        = this[(0..this.rows).toList(), columns]
-//
-//fun ComplexMatrix.get(rows: Collection<Int>, columns: all)
-//        = this[rows, (0..this.columns).toList()]
-//
-//fun ComplexMatrix.get(rows: all, column: Int)
-//        = this.getColumnView(column)
-//
-//fun ComplexMatrix.get(row: Int, columns: all)
-//        = this.getRowView(row)
-
 
 fun <T : Matrix<T>> T.set(bits: BitMatrix, value: Double)
         = this[bits].asDoubleMatrix().assign(value)
@@ -323,13 +226,17 @@ fun ComplexMatrix.set(rows: Progression<Int>, columns: all, value: Matrix<*>)
 
 // Multiplication operator
 
-fun Matrix<*>.times(other: Double) = asDoubleMatrix().mul(other)
+fun DoubleMatrix.times(other: Number) = mul(other.toDouble())
 
-fun Matrix<*>.times(other: Int) = asIntMatrix().mul(other)
+fun LongMatrix.times(other: Number) = mul(other.toLong())
 
-fun Matrix<*>.times(other: Long) = asLongMatrix().mul(other)
+fun IntMatrix.times(other: Number) = mul(other.toInt())
 
-fun Matrix<*>.times(other: Complex) = asComplexMatrix().mul(other)
+fun ComplexMatrix.times(other: Number) = if (other is Complex) {
+    mul(other)
+} else {
+    mul(Complex.valueOf(other.toDouble()))
+}
 
 fun Double.times(matrix: Matrix<*>) = matrix.asDoubleMatrix().mul(this)
 
@@ -349,13 +256,17 @@ fun LongMatrix.times(other: Matrix<*>) = mul(other.asLongMatrix())
 
 // Addition
 
-fun Matrix<*>.plus(other: Double) = asDoubleMatrix().add(other)
+fun DoubleMatrix.plus(other: Number) = add(other.toDouble())
 
-fun Matrix<*>.plus(other: Int) = asIntMatrix().add(other)
+fun LongMatrix.plus(other: Number) = add(other.toLong())
 
-fun Matrix<*>.plus(other: Long) = asLongMatrix().add(other)
+fun IntMatrix.plus(other: Number) = add(other.toInt())
 
-fun Matrix<*>.plus(other: Complex) = asComplexMatrix().add(other)
+fun ComplexMatrix.plus(other: Number) = if (other is Complex) {
+    add(other)
+} else {
+    add(Complex.valueOf(other.toDouble()))
+}
 
 fun Double.plus(matrix: Matrix<*>) = matrix.asDoubleMatrix().add(this)
 
@@ -375,13 +286,17 @@ fun LongMatrix.plus(other: Matrix<*>) = add(other.asLongMatrix())
 
 // Subtraction
 
-fun Matrix<*>.minus(other: Double) = asDoubleMatrix().sub(other)
+fun DoubleMatrix.minus(other: Number) = sub(other.toDouble())
 
-fun Matrix<*>.minus(other: Int) = asIntMatrix().sub(other)
+fun LongMatrix.minus(other: Number) = sub(other.toLong())
 
-fun Matrix<*>.minus(other: Long) = asLongMatrix().sub(other)
+fun IntMatrix.minus(other: Number) = sub(other.toInt())
 
-fun Matrix<*>.minus(other: Complex) = asComplexMatrix().sub(other)
+fun ComplexMatrix.minus(other: Number) = if (other is Complex) {
+    sub(other)
+} else {
+    sub(Complex.valueOf(other.toDouble()))
+}
 
 fun Double.minus(matrix: Matrix<*>) = matrix.asDoubleMatrix().rsub(this)
 
@@ -401,13 +316,17 @@ fun LongMatrix.minus(other: Matrix<*>) = sub(other.asLongMatrix())
 
 // Division
 
-fun Matrix<*>.div(other: Double) = asDoubleMatrix().div(other)
+fun DoubleMatrix.div(other: Number) = div(other.toDouble())
 
-fun Matrix<*>.div(other: Int) = asIntMatrix().div(other)
+fun LongMatrix.div(other: Number) = div(other.toLong())
 
-fun Matrix<*>.div(other: Long) = asLongMatrix().div(other)
+fun IntMatrix.div(other: Number) = div(other.toInt())
 
-fun Matrix<*>.div(other: Complex) = asComplexMatrix().div(other)
+fun ComplexMatrix.div(other: Number) = if (other is Complex) {
+    div(other)
+} else {
+    div(Complex.valueOf(other.toDouble()))
+}
 
 fun Double.div(matrix: Matrix<*>) = matrix.asDoubleMatrix().rdiv(this)
 

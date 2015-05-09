@@ -16,6 +16,9 @@
 
 package org.briljantframework.io;
 
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.vector.VectorType;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,22 +27,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.VectorType;
-
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
  * <p>
  * There are three steps associated with this
  * <ol>
  * <li>Read the types of the Columns via {@link #readColumnTypes()}</li>
- * <li>Read the names of the Columns via {@link #readColumnNames()}</li>
+ * <li>Read the names of the Columns via {@link #readColumnIndex()}</li>
  * <li>Read values</li>
  * </ol>
  * <p>
  * The simplest is to use the convince methods {@link #readColumnTypes()} and
- * {@link #readColumnNames()} constructing a {@link DataFrame.Builder} and use its
- * {@link org.briljantframework.dataframe.DataFrame.Builder#read(DataInputStream)} method.
+ * {@link #readColumnIndex()} constructing a {@link DataFrame.Builder} and use its
+ * {@link org.briljantframework.dataframe.DataFrame.Builder#read(EntryReader)} method.
  * <p>
  * For example: <code>
  * <pre>
@@ -50,12 +50,12 @@ import org.briljantframework.vector.VectorType;
  *      DataFrame dataFrame = builder.read(dfis).build();
  * </pre>
  * </code>
- * 
+ *
  * Entries returned by {@link #next()} are returned in row-major order and typed according to the
  * {@link org.briljantframework.vector.VectorType}s returned by {@link #readColumnTypes()}.
- * 
+ *
  * For example, given the dataset, where the first and second row are names and types respectively:
- * 
+ *
  * <pre>
  *     a       b       c
  *   double  string   int
@@ -63,16 +63,16 @@ import org.briljantframework.vector.VectorType;
  *    2.0     sx       3
  *    2       dds     100
  * </pre>
- * 
- * {@link #readColumnNames()} should return {@code ["a", "b", "c"]} and {@link #readColumnTypes()}
+ *
+ * {@link #readColumnIndex()} should return {@code ["a", "b", "c"]} and {@link #readColumnTypes()}
  * should return {@code [DoubleVector.TYPE, StringVector.TYPE, IntVector.TYPE]}.
- * 
+ *
  * Then, subsequent calls to {@link #next()} should return a
  * {@link org.briljantframework.io.DataEntry} with {@code [3.2, "hello", 1]}, {@code [2.0 "sx", 3]}
  * and {@code [2, "dds", 100]} in sequence.
- * 
+ *
  * Hence, summing the columns of
- * 
+ *
  * <pre>
  *     a       b       c
  *   double  double   int
@@ -80,9 +80,9 @@ import org.briljantframework.vector.VectorType;
  *    2.0     4        3
  *    2       7       100
  * </pre>
- * 
+ *
  * Is as simple as
- * 
+ *
  * <pre>
  * try (DataFrameInputStream dfis = new CsvInputStream(&quot;file.txt&quot;)) {
  *   Map&lt;Integer, Double&gt; sum = new HashMap&lt;&gt;();
@@ -96,12 +96,12 @@ import org.briljantframework.vector.VectorType;
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
- * 
+ *
  * @author Isak Karlsson
  */
-public abstract class DataInputStream extends FilterInputStream {
+public abstract class DataInputStream extends FilterInputStream implements EntryReader {
 
   protected static final String NAMES_BEFORE_TYPE = "Can't read name before types";
   protected static final String UNEXPECTED_EOF = "Unexpected EOF.";
@@ -122,7 +122,6 @@ public abstract class DataInputStream extends FilterInputStream {
    * more types to read.
    *
    * @return a type or {@code null}
-   * @throws IOException
    */
   protected abstract VectorType readColumnType() throws IOException;
 
@@ -131,7 +130,6 @@ public abstract class DataInputStream extends FilterInputStream {
    * column names.
    *
    * @return a column name or {@code null}
-   * @throws IOException
    */
   protected abstract String readColumnName() throws IOException;
 
@@ -139,7 +137,7 @@ public abstract class DataInputStream extends FilterInputStream {
    * For convenience. This method reads all column types from the input stream.
    * <p>
    * Same as:
-   * 
+   *
    * <pre>
    * Type t = null;
    * while ((t = f.readColumnType()) != null) {
@@ -148,7 +146,6 @@ public abstract class DataInputStream extends FilterInputStream {
    * </pre>
    *
    * @return a collection of types
-   * @throws IOException
    */
   public Collection<VectorType> readColumnTypes() throws IOException {
     List<VectorType> types = new ArrayList<>();
@@ -162,7 +159,7 @@ public abstract class DataInputStream extends FilterInputStream {
    * For convenience. This method read all the column names from the input stream.
    * <p>
    * Same as:
-   * 
+   *
    * <pre>
    * String n = null;
    * while ((n = f.readColumnName()) != null) {
@@ -171,29 +168,13 @@ public abstract class DataInputStream extends FilterInputStream {
    * </pre>
    *
    * @return a collection of column names
-   * @throws IOException
    */
-  public Collection<String> readColumnNames() throws IOException {
-    List<String> names = new ArrayList<>();
+  public Collection<Object> readColumnIndex() throws IOException {
+    List<Object> names = new ArrayList<>();
     for (String type = readColumnName(); type != null; type = readColumnName()) {
       names.add(type);
     }
     return Collections.unmodifiableCollection(names);
   }
 
-  /**
-   * Reads the next entry from this stream
-   * 
-   * @return the next entry
-   * @throws IOException
-   */
-  public abstract DataEntry next() throws IOException;
-
-  /**
-   * Returns {@code true} if there are more values in the stream
-   *
-   * @return if has next
-   * @throws IOException
-   */
-  public abstract boolean hasNext() throws IOException;
 }

@@ -17,9 +17,11 @@
 package org.briljantframework.matrix;
 
 /**
- * Created by Isak Karlsson on 25/06/14.
+ * Represent boolean indicator for (conjugate) transposition.
+ *
+ * @author Isak Karlsson
  */
-public enum Transpose {
+public enum T {
   /**
    * Simple transpose
    */
@@ -38,12 +40,12 @@ public enum Transpose {
   private final String string;
   private final boolean transpose;
 
-  private Transpose(String string, boolean transpose) {
+  private T(String string, boolean transpose) {
     this.string = string;
     this.transpose = transpose;
   }
 
-  public boolean transpose() {
+  public boolean isTrue() {
     return transpose;
   }
 
