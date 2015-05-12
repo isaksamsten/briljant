@@ -156,12 +156,12 @@ public class MatrixDataFrame extends AbstractDataFrame {
    * @param index the index
    */
   @Override
-  public Vector getColumn(int index) {
+  public Vector get(int index) {
     return Convert.toAdapter(matrix.getColumnView(index));
   }
 
   @Override
-  public DataFrame removeColumn(int index) {
+  public DataFrame drop(int index) {
     checkElementIndex(index, columns(), "Column-index out of bounds.");
 //    NameAttribute columnNames = new NameAttribute(this.columnNames);
 //    columnNames.remove(index);

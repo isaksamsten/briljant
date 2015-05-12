@@ -2,6 +2,8 @@ package org.briljantframework.vector;
 
 import com.google.common.base.Preconditions;
 
+import org.briljantframework.complex.Complex;
+
 /**
  * Created by Isak Karlsson on 27/11/14.
  */

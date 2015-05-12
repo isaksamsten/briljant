@@ -1,6 +1,5 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.sort.Swappable;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
@@ -10,6 +9,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.sort.Swappable;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -174,14 +174,7 @@ public interface Vector extends Serializable {
    * @return a {@link org.briljantframework.complex.Complex}
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
-  default Complex getAsComplex(int index) {
-    double value = getAsDouble(index);
-    if (Is.NA(value)) {
-      return ComplexVector.NA;
-    }
-    return new Complex(value, 0);
-  }
-
+  Complex getAsComplex(int index);
   /**
    * Returns value as {@link String}, {@code null} is used to denote missing values.
    *

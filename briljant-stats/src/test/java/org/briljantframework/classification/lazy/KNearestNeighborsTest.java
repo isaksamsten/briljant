@@ -20,8 +20,8 @@ public class KNearestNeighborsTest {
             .withDistance(new DynamicTimeWarping(Euclidean.getInstance(), 3)).build();
 
     DataFrame iris = DataFrames.dropIncompleteCases(Datasets.loadIris());
-    Vector y = iris.getColumn(4);
-    DataFrame x = iris.removeColumn(4);
+    Vector y = iris.get(4);
+    DataFrame x = iris.drop(4);
 
     Result res = Validators.crossValidation(10).test(oneNearestNeighbours, x, y);
     System.out.println(res);

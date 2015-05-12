@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import com.google.common.primitives.Doubles;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
 
@@ -55,6 +56,16 @@ public abstract class AbstractStringVector extends AbstractVector {
   };
 
   @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
+  }
+
+  @Override
   public Value getAsValue(int index) {
     String value = getAsString(index);
     return Is.NA(value) ? Undefined.INSTANCE : new StringValue(value);
@@ -65,7 +76,7 @@ public abstract class AbstractStringVector extends AbstractVector {
     if (cls.isAssignableFrom(String.class)) {
       return cls.cast(getAsString(index));
     } else {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
   }
 

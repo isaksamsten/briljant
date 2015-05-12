@@ -17,8 +17,8 @@ public class RandomForestTest {
   @Test
   public void testFit() throws Exception {
     DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
-    DataFrame x = iris.removeColumn(iris.columns() - 1);
-    Vector y = Convert.toStringVector(iris.getColumn(iris.columns() - 1));
+    DataFrame x = iris.drop(iris.columns() - 1);
+    Vector y = Convert.toStringVector(iris.get(iris.columns() - 1));
 
     IntMatrix f = Bj.matrix(new int[]{1, 2, 3});
     for (int i = 0; i < f.size(); i++) {

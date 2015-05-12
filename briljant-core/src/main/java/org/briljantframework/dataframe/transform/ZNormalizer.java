@@ -39,7 +39,7 @@ public class ZNormalizer implements Transformer {
     DoubleMatrix mean = Bj.doubleVector(frame.columns());
     DoubleMatrix sigma = Bj.doubleVector(frame.columns());
     for (int i = 0; i < frame.columns(); i++) {
-      DescriptiveStatistics stats = Vec.statistics(frame.getColumn(i));
+      DescriptiveStatistics stats = Vec.statistics(frame.get(i));
       mean.set(i, stats.getMean());
       sigma.set(i, stats.getStandardDeviation());
     }

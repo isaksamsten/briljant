@@ -52,9 +52,9 @@ public class RandomShapeletForestTest {
       Transformation znorm = new DataSeriesNormalization();
       DataFrame xTrain =
           znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE)
-                              .stack(0, trainingSet.removeColumn(trainingSet.columns() - 1))
+                              .stack(0, trainingSet.drop(trainingSet.columns() - 1))
                               .build());
-      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(trainingSet.columns() - 1));
+      Vector yTrain = Convert.toStringVector(trainingSet.get(trainingSet.columns() - 1));
 
       RandomShapeletForest f =
           RandomShapeletForest
@@ -99,13 +99,13 @@ public class RandomShapeletForestTest {
       Transformation znorm = new DataSeriesNormalization();
       DataFrame xTrain =
           znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(
-              0, trainingSet.removeColumn(trainingSet.columns() - 1)).build());
-      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(trainingSet.columns() - 1));
+              0, trainingSet.drop(trainingSet.columns() - 1)).build());
+      Vector yTrain = Convert.toStringVector(trainingSet.get(trainingSet.columns() - 1));
 
       DataFrame xTest =
           znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(
-              0, validationSet.removeColumn(validationSet.columns() - 1)).build());
-      Vector yTest = Convert.toStringVector(validationSet.getColumn(validationSet.columns() - 1));
+              0, validationSet.drop(validationSet.columns() - 1)).build());
+      Vector yTest = Convert.toStringVector(validationSet.get(validationSet.columns() - 1));
 
       long start = System.nanoTime();
       DoubleMatrix upper = Bj.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
@@ -201,8 +201,8 @@ public class RandomShapeletForestTest {
     System.out.println(frame.rows() + ", " + frame.columns());
     Utils.setRandomSeed(32);
     frame = DataFrames.permuteRows(frame);
-    Vector y = frame.getColumn(0);
-    DataFrame x = frame.removeColumn(0);
+    Vector y = frame.get(0);
+    DataFrame x = frame.drop(0);
     Map<Value, Integer> freq = Vec.count(y);
     int sum = freq.values().stream().reduce(0, Integer::sum);
     int min = freq.values().stream().min(Integer::min).get();
@@ -249,11 +249,11 @@ public class RandomShapeletForestTest {
           new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
       System.out.println(trainingSet.rows());
 
-      DataFrame xTrain = trainingSet.removeColumn(0);
-      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(0));
+      DataFrame xTrain = trainingSet.drop(0);
+      Vector yTrain = Convert.toStringVector(trainingSet.get(0));
 
-      DataFrame xTest = validationSet.removeColumn(0);
-      Vector yTest = Convert.toStringVector(validationSet.getColumn(0));
+      DataFrame xTest = validationSet.drop(0);
+      Vector yTest = Convert.toStringVector(validationSet.get(0));
 
 //
       // RandomShapeletForest.Builder fb =

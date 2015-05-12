@@ -26,14 +26,19 @@ public class RecordView implements Record {
     this.row = row;
   }
 
+  @Override
+  public Object name() {
+    return parent.getRecordIndex().get(row);
+  }
+
+  @Override
+  public Index index() {
+    return parent.getColumnIndex();
+  }
+
   public RecordView(DataFrame parent, int row) {
     this(parent, row, VariableVector.TYPE);
   }
-
-//  @Override
-//  public String getColumnName(int index) {
-//    return parent.getColumnName(index);
-//  }
 
   @Override
   public VectorType getType() {
@@ -42,7 +47,7 @@ public class RecordView implements Record {
 
   @Override
   public Value getAsValue(int index) {
-    return parent.getColumn(index).getAsValue(row);
+    return parent.get(index).getAsValue(row);
   }
 
   @Override
@@ -52,7 +57,7 @@ public class RecordView implements Record {
 
   @Override
   public String toString(int index) {
-    return parent.getColumn(index).toString(row);
+    return parent.get(index).toString(row);
   }
 
   @Override
@@ -131,7 +136,7 @@ public class RecordView implements Record {
     b.put(0, 0, "");
     b.put(1, 0, "[" + row + ",]");
     for (int i = 0; i < size(); i++) {
-//      b.put(0, i + 1, getColumnName(i));
+      b.put(0, i + 1, index().get(i).toString());
       b.put(1, i + 1, toString(i));
     }
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);

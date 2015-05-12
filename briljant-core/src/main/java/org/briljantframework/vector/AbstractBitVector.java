@@ -1,6 +1,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.Bj;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.Matrix;
 
@@ -60,7 +61,7 @@ public abstract class AbstractBitVector extends AbstractVector {
     if (cls.isAssignableFrom(Bit.class)) {
       return cls.cast(getAsBit(index));
     } else {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
   }
 
@@ -72,6 +73,16 @@ public abstract class AbstractBitVector extends AbstractVector {
   @Override
   public boolean isNA(int index) {
     return getAsInt(index) == IntVector.NA;
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
   }
 
   @Override

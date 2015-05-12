@@ -162,7 +162,17 @@ public class IntVector extends AbstractIntVector {
 
     @Override
     public int compare(int a, int b) {
-      return Integer.compare(buffer.get(a), buffer.get(b));
+      int x = buffer.get(a);
+      int y = buffer.get(b);
+      boolean aIsNa = Is.NA(x);
+      boolean bIsNa = Is.NA(y);
+      if (aIsNa && !bIsNa) {
+        return 1;
+      } else if (!aIsNa && bIsNa) {
+        return -1;
+      } else {
+        return Integer.compare(x, y);
+      }
     }
 
     @Override
@@ -248,7 +258,6 @@ public class IntVector extends AbstractIntVector {
   public int size() {
     return values.length;
   }
-
 
 
   @Override

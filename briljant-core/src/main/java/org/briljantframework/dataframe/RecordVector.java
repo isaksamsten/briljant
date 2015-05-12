@@ -1,6 +1,8 @@
-package org.briljantframework.dataseries;
+package org.briljantframework.dataframe;
 
-import org.briljantframework.dataframe.Record;
+import com.google.common.base.Strings;
+
+import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
@@ -8,22 +10,29 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 /**
- * A data series is a vector of ordered events.
- *
  * @author Isak Karlsson
  */
-public class DataSeries implements Record {
+public class RecordVector implements Record {
 
+  private final Object name;
+  private final Index index;
   private final Vector vector;
 
-  public DataSeries(Vector vector) {
+  public RecordVector(Object name, Index index, Vector vector) {
+    this.name = name;
+    this.index = index;
     this.vector = vector;
   }
 
-//  @Override
-//  public String getColumnName(int index) {
-//    throw new UnsupportedOperationException();
-//  }
+  @Override
+  public Object name() {
+    return name;
+  }
+
+  @Override
+  public Index index() {
+    return index;
+  }
 
   @Override
   public VectorType getType() {
@@ -66,6 +75,11 @@ public class DataSeries implements Record {
   }
 
   @Override
+  public Complex getAsComplex(int index) {
+    return vector.getAsComplex(index);
+  }
+
+  @Override
   public String getAsString(int index) {
     return vector.getAsString(index);
   }
@@ -81,17 +95,17 @@ public class DataSeries implements Record {
   }
 
   @Override
-  public Builder newCopyBuilder() {
+  public Vector.Builder newCopyBuilder() {
     return vector.newCopyBuilder();
   }
 
   @Override
-  public Builder newBuilder() {
+  public Vector.Builder newBuilder() {
     return vector.newBuilder();
   }
 
   @Override
-  public Builder newBuilder(int size) {
+  public Vector.Builder newBuilder(int size) {
     return vector.newBuilder(size);
   }
 
@@ -112,6 +126,24 @@ public class DataSeries implements Record {
 
   @Override
   public String toString() {
-    return vector.toString();
+    StringBuilder builder = new StringBuilder();
+    int longest = index().keySet().stream()
+        .map(Object::toString)
+        .mapToInt(String::length)
+        .max()
+        .orElse(0);
+
+    Index index = index();
+    for (int i = 0; i < size(); i++) {
+      String key = index.get(i).toString();
+      builder.append(key)
+          .append(Strings.repeat(" ", longest - key.length() + 2))
+          .append(toString(i))
+          .append("\n");
+    }
+    return builder
+        .append("Name: ").append(name())
+        .append(" type: ").append(getType())
+        .toString();
   }
 }

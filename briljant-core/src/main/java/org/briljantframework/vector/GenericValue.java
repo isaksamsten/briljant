@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import com.google.common.base.Preconditions;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
 
@@ -39,7 +40,7 @@ public class GenericValue extends AbstractVector implements Value {
       throw new IndexOutOfBoundsException();
     }
     if (obj == null || !cls.isInstance(obj)) {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
     return cls.cast(obj);
   }
@@ -96,6 +97,16 @@ public class GenericValue extends AbstractVector implements Value {
       return (Bit) obj;
     } else {
       return Bit.NA;
+    }
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
     }
   }
 

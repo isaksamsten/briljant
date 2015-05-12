@@ -3,7 +3,6 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.distribution.Distribution;
-import org.briljantframework.distribution.NormalDistribution;
 import org.briljantframework.distribution.TriangleDistribution;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
@@ -21,7 +20,7 @@ public class ZNormalizerTest {
 
     System.out.println(a);
     DataFrame f = new ZNormalizer().fitTransform(a);
-    System.out.println(Vec.std(f.getColumn(0)));
+    System.out.println(Vec.std(f.get(0)));
 
     Distribution gaussian = new TriangleDistribution(10, 100, 50);
     DataFrame x = MixedDataFrame.of(

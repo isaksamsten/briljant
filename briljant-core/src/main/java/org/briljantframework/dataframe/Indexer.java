@@ -17,11 +17,11 @@ public class Indexer {
   }
 
   public String getAsString(Object r, int c) {
-    return df.getAsString(rec.get(r), c);
+    return df.getAsString(rec.index(r), c);
   }
 
   public String getAsString(int r, Object c) {
-    return df.getAsString(r, col.get(c));
+    return df.getAsString(r, col.index(c));
   }
 
   public String getAsString(Object r, Object c) {
@@ -33,11 +33,11 @@ public class Indexer {
   }
 
   public int getAsInt(Object r, int c) {
-    return df.getAsInt(rec.get(r), c);
+    return df.getAsInt(rec.index(r), c);
   }
 
   public int getAsInt(int r, Object c) {
-    return df.getAsInt(r, col.get(c));
+    return df.getAsInt(r, col.index(c));
   }
 
   public int getAsInt(Object r, Object c) {
@@ -49,11 +49,11 @@ public class Indexer {
   }
 
   public double getAsDouble(Object r, int c) {
-    return df.getAsDouble(rec.get(r), c);
+    return df.getAsDouble(rec.index(r), c);
   }
 
   public double getAsDouble(int r, Object c) {
-    return df.getAsDouble(r, col.get(c));
+    return df.getAsDouble(r, col.index(c));
   }
 
   public double getAsDouble(Object r, Object c) {
@@ -65,11 +65,11 @@ public class Indexer {
   }
 
   public Complex getAsComplex(Object r, int c) {
-    return df.getAsComplex(rec.get(r), c);
+    return df.getAsComplex(rec.index(r), c);
   }
 
   public Complex getAsComplex(int r, Object c) {
-    return df.getAsComplex(r, col.get(c));
+    return df.getAsComplex(r, col.index(c));
   }
 
   public Complex getAsComplex(Object r, Object c) {

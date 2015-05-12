@@ -115,11 +115,11 @@ public class RandomPointTreeTest {
       DataFrame validationSet =
           new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
 
-      DataFrame xTrain = trainingSet.removeColumn(0);
-      Vector yTrain = Convert.toStringVector(trainingSet.getColumn(0));
+      DataFrame xTrain = trainingSet.drop(0);
+      Vector yTrain = Convert.toStringVector(trainingSet.get(0));
 
-      DataFrame xTest = validationSet.removeColumn(0);
-      Vector yTest = Convert.toStringVector(validationSet.getColumn(0));
+      DataFrame xTest = validationSet.drop(0);
+      Vector yTest = Convert.toStringVector(validationSet.get(0));
 
       System.out.printf("Running with %s (rows: %d, columns: %d)\n", name, xTrain.rows(),
                         xTrain.columns());

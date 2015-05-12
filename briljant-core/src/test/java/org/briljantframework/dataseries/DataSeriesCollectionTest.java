@@ -20,7 +20,7 @@ public class DataSeriesCollectionTest {
 
     DataSeriesCollection collection = builder.build();
 //    collection.setColumnNames("a", "b", "c");
-    DataFrame drop = collection.removeColumns(Arrays.asList(0, 1));
+    DataFrame drop = collection.drop(Arrays.asList(0, 1));
 
     //TODO(isak): fix failing test.
 //    assertEquals("b", drop.getColumnName(0));

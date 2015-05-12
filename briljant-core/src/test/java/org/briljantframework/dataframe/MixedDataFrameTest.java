@@ -80,7 +80,7 @@ public class MixedDataFrameTest {
   public void testBuilderSet1() throws Exception {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     builder.set(0, 0, dataA.getRecord(0), 0);
-    builder.set(3, 3, dataB.getColumn(1), 2);
+    builder.set(3, 3, dataB.get(1), 2);
     builder.set(1, 1, dataA.getAsValue(0, 1));
 
     DataFrame build = builder.build();
@@ -88,7 +88,7 @@ public class MixedDataFrameTest {
     assertEquals(dataA.getType(0), build.getType(0));
     assertEquals(dataB.getType(1), build.getType(3));
     assertEquals(dataA.getAsValue(0, 0), build.getAsValue(0, 0));
-    assertEquals(dataB.getColumn(1).getAsValue(2), build.getAsValue(3, 3));
+    assertEquals(dataB.get(1).getAsValue(2), build.getAsValue(3, 3));
     assertEquals(dataA.getAsValue(0, 1), build.getAsValue(1, 1));
   }
 
@@ -208,7 +208,7 @@ public class MixedDataFrameTest {
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
     assertEquals(Vec.VARIABLE, build.getType(5));
     assertEquals(VectorType.getInstance(Date.class), build.getType(6));
-    assertEquals(new Date(321321321738L), build.getColumn(6).get(Date.class, 0));
+    assertEquals(new Date(321321321738L), build.get(6).get(Date.class, 0));
     assertEquals(1, (int) build.get(Integer.class, 0, 1));
   }
 
@@ -342,7 +342,7 @@ public class MixedDataFrameTest {
 
     long start = System.nanoTime();
     for (int i = 0; i < 1000; i++) {
-      for (Index.Entry idx : df.getRecordIndex()) {
+      for (Index.Entry idx : df.getRecordIndex().entrySet()) {
         df.getAsDouble(idx.key(), 0);
         df.getAsDouble(idx.key(), 1);
       }

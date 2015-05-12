@@ -3,17 +3,21 @@ package org.briljantframework.dataframe;
 
 import com.google.common.collect.Iterators;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
  * @author Isak Karlsson
  */
-public class IntIndex implements Index {
+public class IntIndex extends AbstractList<Object> implements Index {
 
   private final int size;
 
@@ -26,7 +30,7 @@ public class IntIndex implements Index {
   }
 
   @Override
-  public int get(Object key) {
+  public int index(Object key) {
     if (key instanceof Integer) {
       return (int) key;
     }
@@ -34,7 +38,7 @@ public class IntIndex implements Index {
   }
 
   @Override
-  public Object reverse(int index) {
+  public Object get(int index) {
     if (index >= 0 && index < size) {
       return index;
     }
@@ -75,6 +79,35 @@ public class IntIndex implements Index {
       @Override
       public int size() {
         return size;
+      }
+    };
+  }
+
+  @Override
+  public Set<Entry> entrySet() {
+    return new AbstractSet<Entry>() {
+      @NotNull
+      @Override
+      public Iterator<Entry> iterator() {
+        return new Iterator<Entry>() {
+          private int current = 0;
+
+          @Override
+          public boolean hasNext() {
+            return current < size();
+          }
+
+          @Override
+          public Entry next() {
+            int i = current++;
+            return new Entry(i, i);
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return IntIndex.this.size();
       }
     };
   }
@@ -121,7 +154,7 @@ public class IntIndex implements Index {
 
           @Override
           public Integer next() {
-            return get(keys[current++]);
+            return index(keys[current++]);
           }
         };
       }
@@ -131,6 +164,11 @@ public class IntIndex implements Index {
         return size;
       }
     };
+  }
+
+  @Override
+  public Map<Integer, Object> indexMap() {
+    return null; // TODO: fix
   }
 
   @Override
@@ -161,13 +199,18 @@ public class IntIndex implements Index {
       }
 
       @Override
-      public int get(Object key) {
+      public int index(Object key) {
         if (isMonotonicallyIncreasing(key)) {
           return (int) key;
         } else {
           initializeHashBuilder();
-          return builder.get(key);
+          return builder.index(key);
         }
+      }
+
+      @Override
+      public Object get(int index) {
+        return builder == null && index < buffer ? index : builder.get(index);
       }
 
       @Override
@@ -188,10 +231,11 @@ public class IntIndex implements Index {
       public void set(Object key, int index) {
         if (isMonotonicallyIncreasing(key) && key.equals(index)) {
           if (index < buffer) {
-            throw new IllegalArgumentException("Duplicate key: " + key);
+            initializeHashBuilder();
+            builder.set(key, index);
+          } else {
+            buffer++;
           }
-          buffer++;
-
         } else {
           initializeHashBuilder();
           builder.set(key, index);
@@ -211,6 +255,21 @@ public class IntIndex implements Index {
       public void set(Entry entry) {
         set(entry.key(), entry.index());
       }
+
+      @Override
+      public void putAll(Set<Entry> entries) {
+        entries.forEach(this::set);
+      }
+
+      @Override
+      public void swap(int a, int b) {
+
+      }
+
+      @Override
+      public int size() {
+        return builder == null ? buffer : builder.size();
+      }
     };
   }
 
@@ -222,29 +281,6 @@ public class IntIndex implements Index {
   @Override
   public Index copy() {
     return new IntIndex(size());
-  }
-
-  /**
-   * Returns an iterator over elements of type {@code T}.
-   *
-   * @return an Iterator.
-   */
-  @Override
-  public Iterator<Entry> iterator() {
-    return new Iterator<Entry>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Entry next() {
-        int i = current++;
-        return new Entry(i, i);
-      }
-    };
   }
 
   @Override

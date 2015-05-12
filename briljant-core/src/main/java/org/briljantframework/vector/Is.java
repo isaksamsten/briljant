@@ -11,6 +11,10 @@ public final class Is {
 
   }
 
+  public static boolean nominal(Value value) {
+    return value.getType().getScale() == Scale.NOMINAL;
+  }
+
   /**
    * Check if value is NA
    *
@@ -48,11 +52,8 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(double value) {
-    if (Double.isNaN(value)) {
-      return (Double.doubleToRawLongBits(value) & DoubleVector.NA_MASK) == DoubleVector.NA_RES;
-    } else {
-      return false;
-    }
+    return Double.isNaN(value)
+           && (Double.doubleToRawLongBits(value) & DoubleVector.NA_MASK) == DoubleVector.NA_RES;
   }
 
   /**
@@ -79,7 +80,7 @@ public final class Is {
     if (o == null) {
       return true;
     } else {
-      Object na = Na.valueOf(o.getClass());
+      Object na = Na.of(o.getClass());
       return o.equals(na);
     }
   }

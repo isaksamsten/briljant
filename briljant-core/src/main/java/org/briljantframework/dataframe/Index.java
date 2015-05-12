@@ -1,30 +1,36 @@
 package org.briljantframework.dataframe;
 
+import org.briljantframework.sort.Swappable;
+
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
+ * Immutable index
+ *
  * @author Isak Karlsson
  */
-public interface Index extends Iterable<Index.Entry> {
+public interface Index extends List<Object> {
 
-  int get(Object key);
+  int index(Object key);
 
-  Object reverse(int index);
-
-  boolean contains(Object key);
+  Object get(int index);
 
   Set<Object> keySet();
 
   Collection<Integer> indices();
 
+  Set<Index.Entry> entrySet();
+
   Collection<Integer> indices(Object[] keys);
 
-  default Stream<Entry> stream() {
-    return StreamSupport.stream(spliterator(), false);
-  }
+  Map<Integer, Object> indexMap();
+
+//  default Stream<Entry> stream() {
+//    return StreamSupport.stream(spliterator(), false);
+//  }
 
   Builder newBuilder();
 
@@ -59,7 +65,7 @@ public interface Index extends Iterable<Index.Entry> {
     }
   }
 
-  public interface Builder {
+  public interface Builder extends Swappable {
 
     boolean contains(Object key);
 
@@ -69,7 +75,9 @@ public interface Index extends Iterable<Index.Entry> {
      * @param key the key
      * @return value {@code > 0} if {@code key} exists or {@code -1} otherwise.
      */
-    int get(Object key);
+    int index(Object key);
+
+    Object get(int index);
 
     void add(Object key);
 
@@ -78,5 +86,9 @@ public interface Index extends Iterable<Index.Entry> {
     Index build();
 
     void set(Entry entry);
+
+    void putAll(Set<Entry> entries);
+
+    int size();
   }
 }

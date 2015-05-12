@@ -31,15 +31,15 @@ public abstract class Joiner {
    * @param b the second data frame. Uses the indexes from {@link #getRightIndex(int)}
    * @return a new DataFrame
    */
-  public DataFrame join(DataFrame a, DataFrame b, Collection<Object> on) {
+  public DataFrame join(DataFrame a, DataFrame b, Collection<Integer> on) {
     int size = this.size();
     int indexSize = on.size();
 
     DataFrame.Builder builder = a.newBuilder();
     Index.Builder columnIndexer = a.getColumnIndex().newBuilder();
     ObjectIntMap<Object> indexColumn = new ObjectIntOpenHashMap<>(on.size());
-    Iterator<Index.Entry> aIt = a.getColumnIndex().iterator();
-    Iterator<Index.Entry> bIt = b.getColumnIndex().iterator();
+    Iterator<Index.Entry> aIt = a.getColumnIndex().entrySet().iterator();
+    Iterator<Index.Entry> bIt = b.getColumnIndex().entrySet().iterator();
     int currentColumnIndex = 0;
     while (currentColumnIndex < indexSize && (aIt.hasNext() || bIt.hasNext())) {
       Index.Entry entry;
@@ -50,7 +50,7 @@ public abstract class Joiner {
       }
 
       Object key = entry.key();
-      if (on.contains(key)) {
+      if (on.contains(entry.index())) {
         builder.addColumnBuilder(a.getType(entry.index()).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
@@ -59,11 +59,11 @@ public abstract class Joiner {
     }
 
     int columnIndex = on.size();
-    for (Index.Entry entry : a.getColumnIndex()) {
+    for (Index.Entry entry : a.getColumnIndex().entrySet()) {
       int index = entry.index();
-      Vector sourceColumn = a.getColumn(index);
+      Vector sourceColumn = a.get(index);
       Object key = entry.key();
-      if (on.contains(key)) {
+      if (on.contains(entry.index())) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
@@ -74,11 +74,11 @@ public abstract class Joiner {
       }
     }
 
-    for (Index.Entry entry : b.getColumnIndex()) {
+    for (Index.Entry entry : b.getColumnIndex().entrySet()) {
       int index = entry.index();
-      Vector sourceColumn = b.getColumn(index);
+      Vector sourceColumn = b.get(index);
       Object key = entry.key();
-      if (on.contains(key)) {
+      if (on.contains(entry.index())) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromRightIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
@@ -95,35 +95,11 @@ public abstract class Joiner {
     return builder.build().setColumnIndex(columnIndexer.build());
   }
 
-  private void appendColumnFromLeftIndex(int size, DataFrame.Builder builder, int targetColumn,
-                                         Vector source) {
-    for (int i = 0; i < size; i++) {
-      int row = this.getLeftIndex(i);
-      if (row < 0) {
-        builder.setNA(i, targetColumn);
-      } else {
-        builder.set(i, targetColumn, source, row);
-      }
-    }
-  }
-
   private void appendColumnFromLeftIndexIgnoreNA(int size, DataFrame.Builder builder,
                                                  int targetColumn, Vector source) {
     for (int i = 0; i < size; i++) {
       int row = this.getLeftIndex(i);
       if (row >= 0) {
-        builder.set(i, targetColumn, source, row);
-      }
-    }
-  }
-
-  private void appendColumnFromRightIndex(int size, DataFrame.Builder builder, int targetColumn,
-                                          Vector source) {
-    for (int i = 0; i < size; i++) {
-      int row = this.getRightIndex(i);
-      if (row < 0) {
-        builder.setNA(i, targetColumn);
-      } else {
         builder.set(i, targetColumn, source, row);
       }
     }

@@ -1,6 +1,7 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.Swappable;
@@ -10,12 +11,19 @@ import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
  * <p> A DataFrame is a heterogeneous storage of data. </p>
+ *
+ * <p> TODO: Returns records and Series</p>
  *
  * @author Isak Karlsson
  */
@@ -23,7 +31,7 @@ public interface DataFrame extends Iterable<Record> {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#valueOf(Class)}.
+   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#of(Class)}.
    *
    * @param cls    the class
    * @param row    the row
@@ -106,27 +114,27 @@ public interface DataFrame extends Iterable<Record> {
   boolean isNA(int row, int column);
 
   default <T> T get(Class<T> cls, Object row, Object col) {
-    return get(cls, getRecordIndex().get(row), getColumnIndex().get(col));
+    return get(cls, getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   default String getAsString(Object row, Object col) {
-    return getAsString(getRecordIndex().get(row), getColumnIndex().get(col));
+    return getAsString(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   default double getAsDouble(Object row, Object col) {
-    return getAsDouble(getRecordIndex().get(row), getColumnIndex().get(col));
+    return getAsDouble(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   default int getAsInt(Object row, Object col) {
-    return getAsInt(getRecordIndex().get(row), getColumnIndex().get(col));
+    return getAsInt(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   default Complex getAsComplex(Object row, Object col) {
-    return getAsComplex(getRecordIndex().get(row), getColumnIndex().get(col));
+    return getAsComplex(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   default boolean isNA(Object row, Object col) {
-    return isNA(getRecordIndex().get(row), getColumnIndex().get(col));
+    return isNA(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   DataFrame sort();
@@ -135,14 +143,14 @@ public interface DataFrame extends Iterable<Record> {
 
   DataFrame sortBy(int column);
 
-  DataFrame sortBy(int column, SortOrder order);
+  DataFrame sortBy(SortOrder order, int column);
 
-  default DataFrame sortBy(Object key, SortOrder order) {
-    return sortBy(getColumnIndex().get(key), order);
+  default DataFrame sortBy(SortOrder order, Object key) {
+    return sortBy(order, getColumnIndex().index(key));
   }
 
   default DataFrame sortBy(Object key) {
-    return sortBy(getColumnIndex().get(key));
+    return sortBy(getColumnIndex().index(key));
   }
 
   DataFrame head(int rows);
@@ -154,21 +162,67 @@ public interface DataFrame extends Iterable<Record> {
   DataFrame indexOn(int col);
 
   default DataFrame indexOn(Object key) {
-    return indexOn(getColumnIndex().get(key));
+    return indexOn(getColumnIndex().index(key));
   }
 
-//  DataFrame reindex(int on);
+  DataFrame join(JoinType type, DataFrame other);
+
+  DataFrame join(JoinType type, DataFrame other, Collection<Integer> columns);
+
+  default DataFrame join(DataFrame other) {
+    return join(JoinType.INNER, other);
+  }
+
+  default DataFrame join(DataFrame other, int column) {
+    return join(JoinType.INNER, other, column);
+  }
+
+  default DataFrame join(JoinType type, DataFrame other, int column) {
+    return join(type, other, Arrays.asList(column));
+  }
+
+  default DataFrame join(DataFrame other, Iterable<Integer> columns) {
+    return join(JoinType.INNER, other, columns);
+  }
+
+  default DataFrame join(DataFrame other, Object key) {
+    return join(JoinType.INNER, other, key);
+  }
+
+  default DataFrame join(DataFrame other, Object... keys) {
+    return join(JoinType.INNER, other, keys);
+  }
+
+  default DataFrame join(JoinType type, DataFrame other, Object key) {
+    return join(type, other, getColumnIndex().index(key));
+  }
+
+  default DataFrame join(JoinType type, DataFrame other, Object... keys) {
+    return join(type, other, getColumnIndex().indices(keys));
+  }
+
+  default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, int column) {
+    return apply(cls, op, Arrays.asList(column));
+  }
+
+  default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Object key) {
+    return apply(cls, op, getColumnIndex().index(key));
+  }
+
+  default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Object... keys) {
+    return apply(cls, op, getColumnIndex().indices(keys));
+  }
+
+  <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Collection<Integer> columns);
+
+  <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op);
+
+  <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> operator);
+
 
   DataFrame add(Vector column);
 
   DataFrame insert(int index, Object key, Vector column);
-
-  /**
-   * Return a collection of columns
-   *
-   * @return an (immutable) collection of columns
-   */
-  Collection<Vector> getColumns();
 
   /**
    * Get vector at {@code index}
@@ -177,7 +231,7 @@ public interface DataFrame extends Iterable<Record> {
    * @return the vector
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > columns}
    */
-  Vector getColumn(int index);
+  Vector get(int index);
 
   /**
    * Uses the column name to lookup a specified column.
@@ -186,7 +240,7 @@ public interface DataFrame extends Iterable<Record> {
    * @return the column
    * @throws java.lang.IllegalArgumentException if key is not found
    */
-  Vector getColumn(Object key);
+  Vector get(Object key);
 
   /**
    * Remove column with {@code index}
@@ -194,7 +248,19 @@ public interface DataFrame extends Iterable<Record> {
    * @param index the index
    * @return a new dataframe
    */
-  DataFrame removeColumn(int index);
+  DataFrame drop(int index);
+
+  default DataFrame drop(int... indices) {
+    return drop(Arrays.asList(indices));
+  }
+
+  default DataFrame drop(Object key) {
+    return drop(getColumnIndex().index(key));
+  }
+
+  default DataFrame drop(Object... keys) {
+    return drop(getColumnIndex().indices(keys));
+  }
 
   /**
    * Remove columns with {@code indexes}
@@ -202,7 +268,10 @@ public interface DataFrame extends Iterable<Record> {
    * @param indexes collection of indexes
    * @return a new dataframe
    */
-  DataFrame removeColumns(Iterable<Integer> indexes);
+  DataFrame drop(Iterable<Integer> indexes);
+
+  DataFrame drop(Predicate<? super Vector> predicate);
+
 
   /**
    * Take columns with {@code indexes}
@@ -210,7 +279,29 @@ public interface DataFrame extends Iterable<Record> {
    * @param indexes collection of indexes
    * @return a new dataframe
    */
-  DataFrame takeColumns(Iterable<Integer> indexes);
+  DataFrame retain(Iterable<Integer> indexes);
+
+  /**
+   * Get the type of vector at {@code index}
+   *
+   * @param index the index
+   * @return the type
+   */
+  VectorType getType(int index);
+
+  /**
+   * Get the column types.
+   *
+   * @return an immutable collection of column types
+   */
+  Collection<VectorType> getTypes();
+
+  /**
+   * Return a collection of columns
+   *
+   * @return an (immutable) collection of columns
+   */
+  Collection<Vector> getColumns();
 
   /**
    * Returns a collection of records.
@@ -245,7 +336,7 @@ public interface DataFrame extends Iterable<Record> {
    */
   DataFrame removeRecords(Iterable<Integer> indexes);
 
-  DataFrame insertRecord(int index, Vector record);
+  DataFrame insertRecord(int index, Object key, Vector record);
 
   DataFrame addRecord(Vector record);
 
@@ -280,6 +371,11 @@ public interface DataFrame extends Iterable<Record> {
    */
   int columns();
 
+  /**
+   * Returns a copy of this data frame.
+   *
+   * @return a copy
+   */
   DataFrame copy();
 
   /**
@@ -312,16 +408,6 @@ public interface DataFrame extends Iterable<Record> {
   default Stream<Record> parallelStream() {
     return StreamSupport.stream(spliterator(), true);
   }
-
-  /**
-   * Get the type of vector at {@code index}
-   *
-   * @param index the index
-   * @return the type
-   */
-  VectorType getType(int index);
-
-  Collection<VectorType> getTypes();
 
   Index getRecordIndex();
 
@@ -664,7 +750,7 @@ public interface DataFrame extends Iterable<Record> {
      */
     default Builder stack(int startRow, DataFrame frame) {
       for (int i = 0; i < frame.columns(); i++) {
-        stack(startRow, i, frame.getColumn(i));
+        stack(startRow, i, frame.get(i));
       }
       return this;
     }

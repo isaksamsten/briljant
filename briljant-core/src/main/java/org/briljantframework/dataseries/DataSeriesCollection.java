@@ -7,6 +7,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Record;
+import org.briljantframework.dataframe.RecordVector;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
@@ -81,7 +82,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     if (column >= 0 && column < rvec.size()) {
       return rvec.get(cls, column);
     } else if (column >= 0 && column < columns) {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     } else {
       throw new IndexOutOfBoundsException();
     }
@@ -190,7 +191,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame removeColumns(Iterable<Integer> indexes) {
+  public DataFrame drop(Iterable<Integer> indexes) {
     Set<Integer> set = Sets.newHashSet(indexes);
     Builder builder = newBuilder();
 //    builder.getColumnNames().putAll(getColumnNames());
@@ -210,8 +211,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public DataSeries getRecord(int index) {
-    return new DataSeries(series.get(index));
+  public Record getRecord(int index) {
+    return new RecordVector("", getColumnIndex(), series.get(index));
   }
 
   /**

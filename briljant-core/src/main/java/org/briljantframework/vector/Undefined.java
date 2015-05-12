@@ -1,5 +1,6 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.Matrix;
 
@@ -50,6 +51,12 @@ public class Undefined implements Value {
   };
   protected static final String ILLEGAL = "Can't index undefined.";
 
+
+  @Override
+  public Complex getAsComplex(int index) {
+    return Complex.NaN;
+  }
+
   @Override
   public Value getAsValue(int index) {
     return this;
@@ -57,7 +64,7 @@ public class Undefined implements Value {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    return Na.valueOf(cls);
+    return Na.of(cls);
   }
 
   @Override

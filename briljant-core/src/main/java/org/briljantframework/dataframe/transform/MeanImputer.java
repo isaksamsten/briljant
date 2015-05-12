@@ -31,7 +31,7 @@ public class MeanImputer implements Transformer {
   public Transformation fit(DataFrame frame) {
     DoubleMatrix means = Bj.doubleVector(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
-      means.set(j, Vec.mean(frame.getColumn(j)));
+      means.set(j, Vec.mean(frame.get(j)));
     }
 
     return x -> {

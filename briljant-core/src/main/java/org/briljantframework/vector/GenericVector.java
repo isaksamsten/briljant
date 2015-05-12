@@ -1,5 +1,6 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.reslover.Resolver;
@@ -45,7 +46,7 @@ public class GenericVector extends AbstractVector {
   public <T> T get(Class<T> cls, int index) {
     Object obj = values.get(index);
     if (obj == null || !cls.isInstance(obj)) {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
     return cls.cast(obj);
   }
@@ -54,6 +55,16 @@ public class GenericVector extends AbstractVector {
   public String toString(int index) {
     Object o = values.get(index);
     return Is.NA(o) ? "NA" : o.toString();
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
   }
 
   @Override

@@ -36,11 +36,11 @@ public class StringDataEntry implements DataEntry {
   public <T> T next(Class<T> cls) {
     String value = nextString();
     if (value == StringVector.NA) {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     } else {
       Resolver<T> resolver = Resolvers.find(cls);
       if (resolver == null) {
-        return Na.valueOf(cls);
+        return Na.of(cls);
       } else {
         return resolver.resolve(value);
       }

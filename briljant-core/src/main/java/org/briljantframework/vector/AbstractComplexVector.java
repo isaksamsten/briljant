@@ -59,7 +59,7 @@ public abstract class AbstractComplexVector extends AbstractVector {
     if (cls.isAssignableFrom(Complex.class)) {
       return cls.cast(getAsInt(index));
     } else {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
   }
 

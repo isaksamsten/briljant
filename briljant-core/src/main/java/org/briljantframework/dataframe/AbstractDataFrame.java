@@ -11,9 +11,17 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
+import org.briljantframework.dataframe.join.InnerJoin;
+import org.briljantframework.dataframe.join.JoinOperation;
+import org.briljantframework.dataframe.join.JoinType;
+import org.briljantframework.dataframe.join.JoinUtils;
+import org.briljantframework.dataframe.join.LeftOuterJoin;
+import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.QuickSort;
+import org.briljantframework.vector.Is;
+import org.briljantframework.vector.ValueVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -21,9 +29,14 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 /**
  * Implements some default behaviour for DataFrames
@@ -48,27 +61,27 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame sort() {
-    Index recordIndex = getRecordIndex();
-    // Already sorted.
-    if (recordIndex instanceof IntIndex) {
-      return copy();
-    } else {
-      return newCopyBuilder().build()
-          .setRecordIndex(HashIndex.sorted(getRecordIndex(), (a, b) -> {
-            if (a instanceof Comparable && b instanceof Comparable) {
-              @SuppressWarnings("unchecked")
-              int cmp = ((Comparable<Object>) a).compareTo(b);
-              return cmp;
-            } else {
-              return 0;
-            }
-          }))
-          .setColumnIndex(getColumnIndex().copy());
-    }
+    return sort(SortOrder.ASC);
+//    Index recordIndex = getRecordIndex();
+//    // Already sorted.
+//    if (recordIndex instanceof IntIndex) {
+//      return copy();
+//    } else {
+//      Index.Builder builder = getRecordIndex().newBuilder();
+//      builder.putAll(getRecordIndex().entrySet());
+//      QuickSort.quickSort(0, builder.size(), (a, b) -> {
+//        return
+//      }, builder);
+//
+//      return newCopyBuilder().build()
+//          .setRecordIndex();
+//      .setColumnIndex(getColumnIndex().copy());
+//    }
   }
 
   @Override
   public DataFrame sort(SortOrder order) {
+    Index recordIndex = getRecordIndex();
     if (recordIndex instanceof IntIndex) {
       return copy();
     } else {
@@ -81,11 +94,21 @@ public abstract class AbstractDataFrame implements DataFrame {
           return 0;
         }
       };
+
+      final Comparator<Object> c;
       if (order == SortOrder.DESC) {
-        cmp = cmp.reversed();
+        c = cmp.reversed();
+      } else {
+        c = cmp;
       }
+
+      Index.Builder builder = recordIndex.newBuilder();
+      builder.putAll(recordIndex.entrySet());
+      QuickSort.quickSort(0, recordIndex.size(), (a, b) -> {
+        return c.compare(builder.get(a), builder.get(b));
+      }, builder);
       return newCopyBuilder().build()
-          .setRecordIndex(HashIndex.sorted(getRecordIndex(), cmp))
+          .setRecordIndex(builder.build())
           .setColumnIndex(getColumnIndex().copy());
     }
 
@@ -93,15 +116,15 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame sortBy(int column) {
-    return sortBy(column, SortOrder.ASC);
+    return sortBy(SortOrder.ASC, column);
   }
 
   @Override
-  public DataFrame sortBy(int column, SortOrder order) {
+  public DataFrame sortBy(SortOrder order, int column) {
     DataFrame.Builder builder = newCopyBuilder();
     Vector temporaryVector = builder.getColumn(column);
     IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
-    for (Index.Entry entry : getRecordIndex()) {
+    for (Index.Entry entry : getRecordIndex().entrySet()) {
       map.put(entry.index(), entry.key());
     }
     QuickSort.quickSort(0, rows(), (a, b) -> {
@@ -111,7 +134,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       builder.swap(a, b);
       Utils.swap(map, a, b);
     });
-    Index.Builder recordIndex = getRecordIndex().newBuilder();
+    Index.Builder recordIndex = new HashIndex.Builder();
     for (IntObjectCursor<Object> i : map) {
       recordIndex.set(i.value, i.key);
     }
@@ -132,7 +155,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     boolean first = true;
     for (int column = 0; column < columns(); column++) {
       builder.addColumnBuilder(getType(column).newBuilder(rows));
-      Iterator<Index.Entry> records = getRecordIndex().iterator();
+      Iterator<Index.Entry> records = getRecordIndex().entrySet().iterator();
       for (int i = 0; i < rows && records.hasNext(); i++) {
         Index.Entry entry = records.next();
         if (first) {
@@ -153,15 +176,136 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame.Builder builder = newCopyBuilder();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     builder.removeColumn(col);
-    for (Index.Entry entry : getColumnIndex()) {
+    for (Index.Entry entry : getColumnIndex().entrySet()) {
       if (entry.index() != col) {
         columnIndex.set(entry.key(), entry.index() > col ? entry.index() - 1 : entry.index());
       }
     }
 
     return builder.build()
-        .setRecordIndex(HashIndex.from(getColumn(col)))
+        .setRecordIndex(HashIndex.from(get(col)))
         .setColumnIndex(columnIndex.build());
+  }
+
+  @Override
+  public DataFrame join(JoinType type, DataFrame other) {
+    return join(type, other, intersectingIndicies(getColumnIndex(), other.getColumnIndex()));
+  }
+
+  @Override
+  public DataFrame join(JoinType type, DataFrame other, Collection<Integer> columns) {
+    return doJoin(type, other, columns);
+  }
+
+  @Override
+  public <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op,
+                             Collection<Integer> columns) {
+    DataFrame.Builder builder = newBuilder();
+    for (int j = 0; j < columns(); j++) {
+      Vector column = get(j);
+      builder.addColumnBuilder(column.newBuilder());
+      if (columns.contains(j)) {
+        for (int i = 0; i < column.size(); i++) {
+          T value = column.get(cls, i);
+          T transformed = op.apply(value);
+          if (Is.NA(transformed)) {
+            builder.set(i, j, this, i, j);
+          } else {
+            builder.set(i, j, transformed);
+          }
+        }
+      } else {
+        for (int i = 0; i < column.size(); i++) {
+          builder.set(i, j, column, i);
+        }
+      }
+    }
+    return transferIndices(builder);
+  }
+
+  @Override
+  public <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op) {
+    DataFrame.Builder builder = newBuilder();
+    for (int j = 0; j < columns(); j++) {
+      Vector column = get(j);
+      builder.addColumnBuilder(column.newBuilder());
+      for (int i = 0; i < column.size(); i++) {
+        T value = column.get(cls, i);
+        T transformed = op.apply(value);
+        if (Is.NA(transformed)) {
+          builder.set(i, j, this, i, j);
+        } else {
+          builder.set(i, j, transformed);
+        }
+      }
+    }
+    return transferIndices(builder);
+  }
+
+  @Override
+  public <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> operator) {
+    Set<VectorType> types = getColumns().stream().map(Vector::getType).collect(Collectors.toSet());
+    Vector.Builder builder;
+    if (types.size() == 1) {
+      builder = types.iterator().next().newBuilder();
+    } else {
+      builder = new ValueVector.Builder();
+    }
+    for (int j = 0; j < columns(); j++) {
+      Vector col = get(j);
+      T val = init;
+      for (int i = 0; i < col.size(); i++) {
+        val = operator.apply(col.get(cls, i), val);
+      }
+      builder.set(j, val);
+    }
+    return new RecordVector("0", getColumnIndex(), builder.build());
+  }
+
+  protected DataFrame transferIndices(Builder builder) {
+    return builder.build()
+        .setRecordIndex(getRecordIndex().copy())
+        .setColumnIndex(getColumnIndex().copy());
+  }
+
+  private DataFrame doJoin(JoinType type, DataFrame other, Collection<Integer> columns) {
+    JoinOperation op;
+    DataFrame t = this;
+    switch (type) {
+      case INNER:
+        op = InnerJoin.getInstance();
+        break;
+      case OUTER:
+        op = OuterJoin.getInstance();
+        break;
+      case LEFT:
+        op = LeftOuterJoin.getInstance();
+        break;
+      case RIGHT:
+        op = LeftOuterJoin.getInstance();
+        t = other;
+        other = this;
+        break;
+      default:
+        throw new UnsupportedOperationException(String.valueOf(type));
+    }
+    return op.createJoiner(JoinUtils.createJoinKeys(t, other, columns)).join(t, other, columns);
+  }
+
+  private Collection<Integer> intersectingIndicies(Index a, Index b) {
+    Set<Object> on = new HashSet<>(a.keySet());
+    Set<Object> bCol = new HashSet<>(b.keySet());
+    on.retainAll(bCol);
+
+    List<Integer> indices = new ArrayList<>();
+    for (Object o : on) {
+      if (a.contains(o)) {
+        indices.add(a.index(o));
+      } else if (b.contains(o)) {
+        indices.add(b.index(o));
+      }
+    }
+    return indices;
   }
 
   @Override
@@ -174,7 +318,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame df = newCopyBuilder().insertColumn(index, column).build();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     columnIndex.set(key, index);
-    for (Index.Entry entry : df.getColumnIndex()) {
+    for (Index.Entry entry : df.getColumnIndex().entrySet()) {
       int newIndex;
       int eIdx = entry.index();
       if (eIdx > index) {
@@ -202,7 +346,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
           @Override
           public Vector next() {
-            return getColumn(current++);
+            return get(current++);
           }
         };
       }
@@ -222,13 +366,13 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a view of column {@code index}
    */
   @Override
-  public Vector getColumn(int index) {
-    return new DataFrameColumnView(this, index);
+  public Vector get(int index) {
+    return new SeriesView(this, index);
   }
 
   @Override
-  public Vector getColumn(Object key) {
-    return getColumn(getColumnIndex().get(key));
+  public Vector get(Object key) {
+    return get(getColumnIndex().index(key));
   }
 
   /**
@@ -241,7 +385,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newCopyBuilder()}
    */
   @Override
-  public DataFrame removeColumn(int index) {
+  public DataFrame drop(int index) {
     return newCopyBuilder().removeColumn(index).build();
   }
 
@@ -256,7 +400,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame removeColumns(Iterable<Integer> indexes) {
+  public DataFrame drop(Iterable<Integer> indexes) {
     Set<Integer> hash;
     if (!(indexes instanceof Set)) {
       hash = Sets.newHashSet(indexes);
@@ -264,15 +408,35 @@ public abstract class AbstractDataFrame implements DataFrame {
       hash = (Set<Integer>) indexes;
     }
     Builder builder = newBuilder();
+    Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
       if (!hash.contains(i)) {
-        builder.addColumn(getColumn(i));
-      } else {
-//        builder.getColumnNames().remove(i);
+        columnIndex.add(getColumnIndex().get(i));
+        builder.addColumn(get(i));
       }
     }
 
-    return builder.build();
+    return transferRecordIndex(builder, columnIndex);
+  }
+
+  @Override
+  public DataFrame drop(Predicate<? super Vector> predicate) {
+    Builder builder = newBuilder();
+    Index.Builder columnIndex = getColumnIndex().newBuilder();
+    for (int j = 0; j < columns(); j++) {
+      Vector column = get(j);
+      if (predicate.test(column)) {
+        builder.addColumn(column);
+        columnIndex.add(getColumnIndex().get(j));
+      }
+    }
+    return transferRecordIndex(builder, columnIndex);
+  }
+
+  protected DataFrame transferRecordIndex(Builder builder, Index.Builder columnIndex) {
+    return builder.build()
+        .setColumnIndex(columnIndex.build())
+        .setRecordIndex(getRecordIndex().copy());
   }
 
   /**
@@ -285,7 +449,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame takeColumns(Iterable<Integer> indexes) {
+  public DataFrame retain(Iterable<Integer> indexes) {
     Builder builder = newBuilder();
     for (int j : indexes) {
       for (int i = 0; i < rows(); i++) {
@@ -388,7 +552,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrame insertRecord(int index, Vector record) {
+  public DataFrame insertRecord(int index, Object key, Vector record) {
     return newCopyBuilder().insertRecord(index, record).build();
   }
 

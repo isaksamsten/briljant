@@ -48,7 +48,7 @@ public abstract class AbstractSplitter implements Splitter {
       Value threshold) {
     ClassSet left = new ClassSet(classSet.getDomain());
     ClassSet right = new ClassSet(classSet.getDomain());
-    Vector axisVector = dataset.getColumn(axis);
+    Vector axisVector = dataset.get(axis);
     VectorType axisType = axisVector.getType();
 
     /*

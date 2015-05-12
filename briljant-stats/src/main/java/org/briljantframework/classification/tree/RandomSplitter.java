@@ -68,7 +68,7 @@ public class RandomSplitter extends AbstractSplitter {
     for (int i = 0; i < features.length && i < maxFeatures; i++) {
       int axis = features[i];
 
-      Value threshold = search(dataFrame.getColumn(axis), classSet);
+      Value threshold = search(dataFrame.get(axis), classSet);
       if (threshold.isNA()) {
         continue;
       }

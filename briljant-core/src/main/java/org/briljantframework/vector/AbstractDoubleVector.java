@@ -1,6 +1,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.Bj;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.DoubleMatrix;
 
 /**
@@ -59,7 +60,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     if (cls.isAssignableFrom(Double.class)) {
       return cls.cast(getAsDouble(index));
     } else {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
   }
 
@@ -72,6 +73,16 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   @Override
   public boolean isNA(int index) {
     return Is.NA(getAsDouble(index));
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
   }
 
   @Override

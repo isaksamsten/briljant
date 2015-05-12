@@ -1,6 +1,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.Bj;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.IntMatrix;
 
 /**
@@ -35,7 +36,18 @@ public abstract class AbstractIntVector extends AbstractVector {
 
     @Override
     public int compare(int a, Vector va, int b, Vector ba) {
-      return !va.isNA(a) && !ba.isNA(b) ? va.getAsInt(a) - ba.getAsInt(b) : 0;
+      int x = va.getAsInt(a);
+      int y = ba.getAsInt(b);
+      boolean aIsNa = Is.NA(x);
+      boolean bIsNa = Is.NA(y);
+      if (aIsNa && !bIsNa) {
+        return -1;
+      } else if (!aIsNa && bIsNa) {
+        return 1;
+      } else {
+        return Integer.compare(x, y);
+      }
+//      return !va.isNA(a) && !ba.isNA(b) ? va.getAsInt(a) - ba.getAsInt(b) : 0;
     }
 
     @Override
@@ -56,11 +68,21 @@ public abstract class AbstractIntVector extends AbstractVector {
   }
 
   @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
+  }
+
+  @Override
   public <T> T get(Class<T> cls, int index) {
     if (cls.isAssignableFrom(Integer.class)) {
       return cls.cast(getAsInt(index));
     } else {
-      return Na.valueOf(cls);
+      return Na.of(cls);
     }
   }
 
@@ -108,12 +130,24 @@ public abstract class AbstractIntVector extends AbstractVector {
 
   @Override
   public int compare(int a, int b) {
-    return getAsInt(a) - getAsInt(b);
+    return compare(a, this, b);
   }
 
   @Override
   public int compare(int a, Vector other, int b) {
-    return getAsInt(a) - other.getAsInt(b);
+//    int x = getAsInt(a);
+//    int y = other.getAsInt(b);
+//    boolean aIsNa = Is.NA(x);
+//    boolean bIsNa = Is.NA(y);
+//    if (aIsNa && !bIsNa) {
+//      return -1;
+//    } else if (!aIsNa && bIsNa) {
+//      return 1;
+//    } else {
+//      return Integer.compare(x, y);
+//    }
+    return getType().compare(a, this, b, other);
+//    return getAsInt(a) - other.getAsInt(b);
   }
 
   @Override

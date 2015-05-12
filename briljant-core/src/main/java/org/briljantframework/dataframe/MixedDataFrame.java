@@ -253,7 +253,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     DataFrame df = new MixedDataFrame(newColumns, rows());
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     columnIndex.set(key, index);
-    for (Index.Entry entry : getColumnIndex()) {
+    for (Index.Entry entry : getColumnIndex().entrySet()) {
       int newIndex;
       int eIdx = entry.index();
       if (eIdx >= index) {
@@ -267,50 +267,52 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getColumn(int index) {
+  public Vector get(int index) {
     return columns.get(index);
   }
 
-  @Override
-  public DataFrame removeColumn(int index) {
-    checkArgument(index >= 0 && index < columns());
-    ArrayList<Vector> columns = new ArrayList<>(this.columns);
-    columns.remove(index);
-    return new MixedDataFrame(columns, rows());
-  }
+//  @Override
+//  public DataFrame drop(int index) {
+//    checkArgument(index >= 0 && index < columns());
+//    ArrayList<Vector> columns = new ArrayList<>(this.columns);
+//    columns.remove(index);
+//    Index.
+//
+//    return new MixedDataFrame(columns, rows()).setRecordIndex(getRecordIndex());
+//  }
+
+//  @Override
+//  public DataFrame drop(Iterable<Integer> indexes) {
+//    Set<Integer> set = null;
+//    if (indexes instanceof Set) {
+//      set = (Set<Integer>) indexes;
+//    } else {
+//      set = Sets.newHashSet(indexes);
+//    }
+//
+//    ArrayList<Vector> columns = new ArrayList<>();
+//
+//    int index = 0;
+//    for (int i = 0; i < columns(); i++) {
+//      if (!set.contains(i)) {
+//        columns.add(get(i));
+//        // TODO: reindex
+////        String name = getColumnName(i);
+////        if (name != null) {
+////          columnNames.put(index, name);
+////        }
+//        index += 1;
+//      }
+//    }
+//
+//    return new MixedDataFrame(columns, rows());
+//  }
 
   @Override
-  public DataFrame removeColumns(Iterable<Integer> indexes) {
-    Set<Integer> set = null;
-    if (indexes instanceof Set) {
-      set = (Set<Integer>) indexes;
-    } else {
-      set = Sets.newHashSet(indexes);
-    }
-
-    ArrayList<Vector> columns = new ArrayList<>();
-
-    int index = 0;
-    for (int i = 0; i < columns(); i++) {
-      if (!set.contains(i)) {
-        columns.add(getColumn(i));
-        // TODO: reindex
-//        String name = getColumnName(i);
-//        if (name != null) {
-//          columnNames.put(index, name);
-//        }
-        index += 1;
-      }
-    }
-
-    return new MixedDataFrame(columns, rows());
-  }
-
-  @Override
-  public DataFrame takeColumns(Iterable<Integer> indexes) {
+  public DataFrame retain(Iterable<Integer> indexes) {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     for (int index : indexes) {
-      builder.addColumn(getColumn(index));
+      builder.addColumn(get(index));
       // reindex
 //      if (getColumnNames().containsKey(index)) {
 //        builder.getColumnNames().put(index, getColumnName(index));
@@ -431,7 +433,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       buffers = new ArrayList<>(frame.columns());
 
       for (int i = 0; i < frame.columns(); i++) {
-        Vector vector = frame.getColumn(i);
+        Vector vector = frame.get(i);
         if (copy) {
           buffers.add(vector.newCopyBuilder());
         } else {
@@ -448,7 +450,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     private Builder(MixedDataFrame frame, int rows, int columns) {
       buffers = new ArrayList<>(columns);
       for (int i = 0; i < columns; i++) {
-        buffers.add(frame.getColumn(i).newBuilder(rows));
+        buffers.add(frame.get(i).newBuilder(rows));
       }
     }
 
@@ -468,7 +470,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
       ensureColumnCapacity(toCol - 1, Vec.VARIABLE);
       ensureColumnCapacity(toCol, from.getType(fromCol));
-      buffers.get(toCol).set(toRow, from.getColumn(fromCol), fromRow);
+      buffers.get(toCol).set(toRow, from.get(fromCol), fromRow);
       return this;
     }
 

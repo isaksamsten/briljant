@@ -22,6 +22,7 @@ import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.StringDataEntry;
+import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.vector.Scale;
 import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vec;
@@ -135,8 +136,8 @@ public final class DataFrames {
       }
 
       int rows = df.rows();
-      for (Index.Entry col : df.getColumnIndex()) {
-        int toColumn = columnIndex.get(col.key());
+      for (Index.Entry col : df.getColumnIndex().entrySet()) {
+        int toColumn = columnIndex.index(col.key());
         int fromCol = col.index();
         if (toColumn < 0) {
           columnIndex.add(col.key());
@@ -197,11 +198,12 @@ public final class DataFrames {
         )
     );
     for (int j = 0; j < df.columns(); j++) {
-      Vector column = df.getColumn(j);
+      Vector column = df.get(j);
       if (column.getType().getScale() == Scale.NUMERICAL) {
-        double mean = Vec.mean(column);
-        double min = Vec.min(column);
-        double max = Vec.max(column);
+        DescriptiveStatistics desc = Vec.statistics(column);
+        double mean = desc.getMean();
+        double min = desc.getMin();
+        double max = desc.getMax();
         builder.set(j, 0, mean).set(j, 1, min).set(j, 2, max);
       } else {
         Value mode = Vec.mode(column);
@@ -281,7 +283,7 @@ public final class DataFrames {
   //TODO(isak) - this is quick and dirty. Implement a real group by data frame
   public static Map<Value, DataFrame> groupBy(DataFrame dataframe, String column) {
     Map<Value, DataFrame.Builder> builders = new HashMap<>();
-    Vector keyColumn = dataframe.getColumn(column);
+    Vector keyColumn = dataframe.get(column);
 
     for (int i = 0; i < dataframe.rows(); i++) {
       Value key = keyColumn.getAsValue(i);
@@ -298,83 +300,6 @@ public final class DataFrames {
       frame.put(entry.getKey(), entry.getValue().build());
     }
     return frame;
-  }
-
-  /**
-   * Performs an inner join of {@code a} and {@code b} using the columns described by {@code on}
-   * as the keys.
-   *
-   * @param a  the first data frame
-   * @param b  the second data frame
-   * @param on the key columns to use for joining
-   * @return a new data frame of {@code a} and {@code b} joined
-   */
-  public static DataFrame innerJoin(DataFrame a, DataFrame b, Collection<Object> on) {
-    return join(INNER, a, b, on);
-  }
-
-  /**
-   * Performing an inner join of {@code a} and {@code } b using their columns with intersecting
-   * names
-   *
-   * @param a the left data frame
-   * @param b the right data frame
-   * @return a new data frame joined using the intersection of {@code a.getColumnNames()} and
-   * {@code b.getColumnNames()}
-   */
-  public static DataFrame innerJoin(DataFrame a, DataFrame b) {
-    Set<Object> on = getIntersectingColumnNames(a, b);
-    if (on.size() < 1) {
-      throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
-    }
-    return innerJoin(a, b, on);
-  }
-
-  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b) {
-    Set<Object> on = getIntersectingColumnNames(a, b);
-    if (on.size() < 1) {
-      throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
-    }
-    return leftOuterJoin(a, b, on);
-  }
-
-  public static DataFrame leftOuterJoin(DataFrame a, DataFrame b, Collection<Object> on) {
-    return join(LEFT_OUTER, a, b, on);
-  }
-
-  public static DataFrame rightOuterJoin(DataFrame a, DataFrame b, Collection<Object> on) {
-    return leftOuterJoin(b, a, on);
-  }
-
-  public static DataFrame rightOuterJoin(DataFrame a, DataFrame b) {
-    return leftOuterJoin(b, a);
-  }
-
-  public static DataFrame outerJoin(DataFrame a, DataFrame b, Collection<Object> on) {
-    return join(OUTER, a, b, on);
-  }
-
-  public static DataFrame outerJoin(DataFrame a, DataFrame b) {
-    Set<Object> on = getIntersectingColumnNames(a, b);
-    if (on.size() < 1) {
-      throw new IllegalArgumentException(NO_INTERSECTING_COLUMN_NAMES);
-    }
-    return outerJoin(a, b, on);
-  }
-
-  public static DataFrame join(String how, DataFrame a, DataFrame b, Collection<Object> on) {
-    if (!joinOperations.containsKey(how)) {
-      throw new IllegalArgumentException();
-    }
-    JoinKeys joinKeys = JoinUtils.createJoinKeys(a, b, on);
-    return joinOperations.get(how).createJoiner(joinKeys).join(a, b, on);
-  }
-
-  private static Set<Object> getIntersectingColumnNames(DataFrame a, DataFrame b) {
-    Set<Object> on = new HashSet<>(a.getColumnIndex().keySet());
-    Set<Object> bCol = new HashSet<>(b.getColumnIndex().keySet());
-    on.retainAll(bCol);
-    return on;
   }
 
   /**
@@ -406,12 +331,12 @@ public final class DataFrames {
 
     Index columnIndex = dataFrame.getColumnIndex();
     for (int j = 0; j < dataFrame.columns(); j++) {
-      b.put(0, j + 1, columnIndex.reverse(j));
+      b.put(0, j + 1, columnIndex.get(j));
     }
 
     Index recordIndex = dataFrame.getRecordIndex();
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {
-      b.put(i + 1, 0, String.format("[%s,] ", recordIndex.reverse(i)));
+      b.put(i + 1, 0, String.format("[%s,] ", recordIndex.get(i)));
       for (int j = 0; j < dataFrame.columns(); j++) {
         b.put(i + 1, j + 1, dataFrame.toString(i, j));
       }

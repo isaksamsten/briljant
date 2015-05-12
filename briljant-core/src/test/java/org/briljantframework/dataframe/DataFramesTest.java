@@ -26,7 +26,7 @@ public class DataFramesTest {
     System.out.println(df.rows());
 
     df = df.indexOn("Date").sort(SortOrder.DESC);
-    System.out.println(df.sortBy("Close", SortOrder.DESC));
+    System.out.println(df.sortBy(SortOrder.DESC, "Close"));
 
     System.out.println(df.get(Double.class, 0, 0));
     System.out.println(df.getAsDouble(1, 1));
@@ -42,7 +42,7 @@ public class DataFramesTest {
     );
 
     System.out.println(df);
-    System.out.println(df.sortBy("Open", SortOrder.DESC));
+    System.out.println(df.sortBy(SortOrder.DESC, "Open").drop("Close"));
 
 
   }

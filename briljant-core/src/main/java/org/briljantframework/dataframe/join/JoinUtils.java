@@ -1,7 +1,5 @@
 package org.briljantframework.dataframe.join;
 
-import com.carrotsearch.hppc.IntIntMap;
-import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
@@ -11,6 +9,7 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -45,13 +44,24 @@ public class JoinUtils {
     return new IntMatrix[]{results, counts};
   }
 
-  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Object> columns) {
+  /**
+   * Create {@code JoinKeys} using the index
+   *
+   * @param a the left data frame
+   * @param b the right data frame
+   * @return a new join key
+   */
+  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b) {
+    return createJoinKeys(a.getRecordIndex(), b.getRecordIndex());
+  }
+
+  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> on) {
     IntMatrix left = null;
     IntMatrix right = null;
 
     int noGroups = 1;
-    for (Object column : columns) {
-      JoinKeys pool = createJoinKeys(a.getColumn(column), b.getColumn(column));
+    for (int column : on) {
+      JoinKeys pool = createJoinKeys(a.get(column), b.get(column));
 
       if (noGroups > 1) {
         IntMatrix lt = pool.getLeft();
@@ -72,39 +82,7 @@ public class JoinUtils {
     return new JoinKeys(left, right, noGroups);
   }
 
-  private static int downMap(IntMatrix left, IntMatrix right) {
-    IntIntMap pool = new IntIntOpenHashMap();
-    int j = 0;
-    int lSize = left.size();
-    for (int i = 0; i < lSize; i++) {
-      int value = left.get(i);
-      int ref = pool.getOrDefault(value, -1);
-      if (ref != -1) {
-        left.set(i, ref);
-      } else {
-        left.set(i, j);
-        pool.put(value, j);
-        j += 1;
-      }
-    }
-
-    int rSize = right.size();
-    for (int i = 0; i < rSize; i++) {
-      int value = right.get(i);
-      int ref = pool.getOrDefault(value, -1);
-      if (ref != -1) {
-        right.set(i, ref);
-      } else {
-        right.set(i, j);
-        pool.put(value, j);
-        j += 1;
-      }
-    }
-
-    return pool.size();
-  }
-
-  public static JoinKeys createJoinKeys(Vector a, Vector b) {
+  public static JoinKeys createJoinKeys(List<?> a, List<?> b) {
     int aSize = a.size();
     int bSize = b.size();
     int[] left = new int[aSize];
@@ -113,7 +91,7 @@ public class JoinUtils {
 
     int j = 0;
     for (int i = 0; i < aSize; i++) {
-      Object val = a.get(Object.class, i);
+      Object val = a.get(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
         left[i] = ref;
@@ -125,7 +103,7 @@ public class JoinUtils {
     }
 
     for (int i = 0; i < bSize; i++) {
-      Object val = b.get(Object.class, i);
+      Object val = b.get(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
         right[i] = ref;
@@ -137,6 +115,42 @@ public class JoinUtils {
     }
 
     return new JoinKeys(Bj.matrix(left), Bj.matrix(right), pool.size());
+  }
+
+  public static JoinKeys createJoinKeys(Vector a, Vector b) {
+    return createJoinKeys(a.asList(Object.class), b.asList(Object.class));
+//    int aSize = a.size();
+//    int bSize = b.size();
+//    int[] left = new int[aSize];
+//    int[] right = new int[bSize];
+//    ObjectIntMap<Object> pool = new ObjectIntOpenHashMap<>();
+//
+//    int j = 0;
+//    for (int i = 0; i < aSize; i++) {
+//      Object val = a.get(Object.class, i);
+//      int ref = pool.getOrDefault(val, MISSING);
+//      if (ref != MISSING) {
+//        left[i] = ref;
+//      } else {
+//        left[i] = j;
+//        pool.put(val, j);
+//        j += 1;
+//      }
+//    }
+//
+//    for (int i = 0; i < bSize; i++) {
+//      Object val = b.get(Object.class, i);
+//      int ref = pool.getOrDefault(val, MISSING);
+//      if (ref != MISSING) {
+//        right[i] = ref;
+//      } else {
+//        right[i] = j;
+//        pool.put(val, j);
+//        j += 1;
+//      }
+//    }
+//
+//    return new JoinKeys(Bj.matrix(left), Bj.matrix(right), pool.size());
   }
 
 }

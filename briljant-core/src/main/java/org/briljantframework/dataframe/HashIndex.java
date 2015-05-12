@@ -3,10 +3,14 @@ package org.briljantframework.dataframe;
 import com.google.common.collect.Iterators;
 
 import org.briljantframework.vector.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractCollection;
+import java.util.AbstractList;
+import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,7 +22,7 @@ import java.util.TreeMap;
 /**
  * @author Isak Karlsson
  */
-public class HashIndex implements Index {
+public class HashIndex extends AbstractList<Object> implements Index {
 
   private final Map<Object, Integer> hash;
   private final Map<Integer, Object> reverse;
@@ -46,10 +50,10 @@ public class HashIndex implements Index {
     return new HashIndex(hash, reverse);
   }
 
-  public static HashIndex sorted(Index entries, Comparator<Object> order) {
+  public static HashIndex sorted(Index index, Comparator<Object> order) {
     Map<Object, Integer> hash = new TreeMap<>(order);
     Map<Integer, Object> reverse = new HashMap<>();
-    for (Entry entry : entries) {
+    for (Entry entry : index.entrySet()) {
       hash.put(entry.key(), entry.index());
       reverse.put(entry.index(), entry.key());
     }
@@ -93,7 +97,7 @@ public class HashIndex implements Index {
   }
 
   @Override
-  public int get(Object key) {
+  public int index(Object key) {
     Integer idx = hash.get(key);
     if (idx == null) {
       throw noSuchElement(key);
@@ -102,7 +106,7 @@ public class HashIndex implements Index {
   }
 
   @Override
-  public Object reverse(int index) {
+  public Object get(int index) {
     Object key = reverse.get(index);
     if (key == null) {
       throw noSuchElement(index);
@@ -115,9 +119,44 @@ public class HashIndex implements Index {
     return hash.containsKey(key);
   }
 
+  @NotNull
+  @Override
+  public Iterator<Object> iterator() {
+    return hash.keySet().iterator();
+  }
+
   @Override
   public Collection<Integer> indices() {
     return hash.values();
+  }
+
+  @Override
+  public Set<Entry> entrySet() {
+    return new AbstractSet<Entry>() {
+      @Override
+      public Iterator<Entry> iterator() {
+        return new Iterator<Entry>() {
+
+          Iterator<Map.Entry<Object, Integer>> it = hash.entrySet().iterator();
+
+          @Override
+          public boolean hasNext() {
+            return it.hasNext();
+          }
+
+          @Override
+          public Entry next() {
+            Map.Entry<Object, Integer> next = it.next();
+            return new Entry(next.getKey(), next.getValue());
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return HashIndex.this.size();
+      }
+    };
   }
 
   @Override
@@ -168,29 +207,34 @@ public class HashIndex implements Index {
     };
   }
 
-  /**
-   * Returns an iterator over elements of type {@code T}.
-   *
-   * @return an Iterator.
-   */
   @Override
-  public Iterator<Index.Entry> iterator() {
-    return new Iterator<Entry>() {
-
-      Iterator<Map.Entry<Object, Integer>> it = hash.entrySet().iterator();
-
-      @Override
-      public boolean hasNext() {
-        return it.hasNext();
-      }
-
-      @Override
-      public Entry next() {
-        Map.Entry<Object, Integer> next = it.next();
-        return new Entry(next.getKey(), next.getValue());
-      }
-    };
+  public Map<Integer, Object> indexMap() {
+    return Collections.unmodifiableMap(reverse);
   }
+
+//  /**
+//   * Returns an iterator over elements of type {@code T}.
+//   *
+//   * @return an Iterator.
+//   */
+//  @Override
+//  public Iterator<Index.Entry> iterator() {
+//    return new Iterator<Entry>() {
+//
+//      Iterator<Map.Entry<Object, Integer>> it = hash.entrySet().iterator();
+//
+//      @Override
+//      public boolean hasNext() {
+//        return it.hasNext();
+//      }
+//
+//      @Override
+//      public Entry next() {
+//        Map.Entry<Object, Integer> next = it.next();
+//        return new Entry(next.getKey(), next.getValue());
+//      }
+//    };
+//  }
 
   @Override
   public String toString() {
@@ -221,9 +265,14 @@ public class HashIndex implements Index {
     }
 
     @Override
-    public int get(Object key) {
+    public int index(Object key) {
       Integer val = buffer.get(key);
       return val == null ? -1 : val;
+    }
+
+    @Override
+    public Object get(int index) {
+      return reverse.get(index);
     }
 
     @Override
@@ -247,6 +296,27 @@ public class HashIndex implements Index {
     @Override
     public void set(Entry entry) {
       set(entry.key(), entry.index());
+    }
+
+    @Override
+    public void putAll(Set<Entry> entries) {
+      entries.forEach(this::set);
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      Object keyA = reverse.get(a);
+      Object keyB = reverse.get(b);
+      reverse.put(a, keyB);
+      reverse.put(b, keyA);
+      Integer tmp = buffer.get(keyA);
+      buffer.put(keyA, buffer.get(keyB));
+      buffer.put(keyB, tmp);
+    }
+
+    @Override
+    public int size() {
+      return buffer.size();
     }
   }
 }

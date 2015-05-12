@@ -1,6 +1,7 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Value;
@@ -12,14 +13,19 @@ import org.briljantframework.vector.VectorType;
  *
  * @author Isak Karlsson
  */
-public class DataFrameColumnView implements Vector {
+public class SeriesView implements Series {
 
   private final DataFrame parent;
   private final int column;
 
-  public DataFrameColumnView(DataFrame parent, int column) {
+  public SeriesView(DataFrame parent, int column) {
     this.parent = parent;
     this.column = column;
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    return parent.getAsComplex(index, column);
   }
 
   @Override
@@ -116,5 +122,15 @@ public class DataFrameColumnView implements Vector {
       builder.append(",").append(toString(i));
     }
     return builder.append("]").toString();
+  }
+
+  @Override
+  public Object name() {
+    return parent.getColumnIndex().get(column);
+  }
+
+  @Override
+  public Index index() {
+    return parent.getRecordIndex();
   }
 }

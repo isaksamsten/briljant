@@ -48,7 +48,7 @@ public final class Na {
    * @param <T> the type of {@code cls}
    * @return a {@code NA} value of type {@code T}
    */
-  public static <T> T valueOf(Class<T> cls) {
+  public static <T> T of(Class<T> cls) {
     @SuppressWarnings("unchecked")
     T t = (T) CLASS_TO_NA.get(checkNotNull(cls));
     return t;
