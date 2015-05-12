@@ -8,16 +8,13 @@ import org.briljantframework.io.reslover.StringDateConverter;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.ComplexVector;
-import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.ValueVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -81,15 +78,15 @@ public class MixedDataFrameTest {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     builder.set(0, 0, dataA.getRecord(0), 0);
     builder.set(3, 3, dataB.get(1), 2);
-    builder.set(1, 1, dataA.getAsValue(0, 1));
+//    builder.set(1, 1, dataA.getAsValue(0, 1));
 
     DataFrame build = builder.build();
     System.out.println(build);
     assertEquals(dataA.getType(0), build.getType(0));
     assertEquals(dataB.getType(1), build.getType(3));
-    assertEquals(dataA.getAsValue(0, 0), build.getAsValue(0, 0));
-    assertEquals(dataB.get(1).getAsValue(2), build.getAsValue(3, 3));
-    assertEquals(dataA.getAsValue(0, 1), build.getAsValue(1, 1));
+//    assertEquals(dataA.getAsValue(0, 0), build.getAsValue(0, 0));
+//    assertEquals(dataB.get(1).getAsValue(2), build.getAsValue(3, 3));
+//    assertEquals(dataA.getAsValue(0, 1), build.getAsValue(1, 1));
   }
 
   @Test
@@ -110,7 +107,7 @@ public class MixedDataFrameTest {
     assertEquals(Vec.COMPLEX, build.getType(3));
     assertEquals(Vec.BIT, build.getType(4));
     assertEquals(Vec.VARIABLE, build.getType(5));
-    assertEquals(VectorType.getInstance(Date.class), build.getType(6));
+    assertEquals(Vec.typeOf(Date.class), build.getType(6));
   }
 
   @Test
@@ -121,12 +118,12 @@ public class MixedDataFrameTest {
     builder.addColumn(new DoubleVector(1, 2, 3, 4, 5));
     builder.addColumn(new ComplexVector(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
     builder.addColumn(new BitVector(true, true, false, false, false));
-    builder.addColumn(new ValueVector(Arrays.asList(Convert.toValue(1),
-                                                    Convert.toValue(3.2),
-                                                    Convert.toValue("a"),
-                                                    Convert.toValue(Bit.FALSE),
-                                                    Convert.toValue(new Complex(3)))));
-
+//    builder.addColumn(new ValueVector(Arrays.asList(Convert.toValue(1),
+//                                                    Convert.toValue(3.2),
+//                                                    Convert.toValue("a"),
+//                                                    Convert.toValue(Bit.FALSE),
+//                                                    Convert.toValue(new Complex(3)))));
+//
     DataFrame build = builder.build();
     assertEquals(Vec.STRING, build.getType(0));
     assertEquals(Vec.INT, build.getType(1));
@@ -140,7 +137,7 @@ public class MixedDataFrameTest {
     assertEquals(1, build.getAsDouble(0, 2), 0);
     assertEquals(Complex.I, build.getAsComplex(0, 3));
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
-    assertEquals(Convert.toValue(1), build.getAsValue(0, 5));
+//    assertEquals(Convert.toValue(1), build.getAsValue(0, 5));
   }
 
   @Test
@@ -182,7 +179,7 @@ public class MixedDataFrameTest {
     builder.addColumnBuilder(Vec.COMPLEX.newBuilder());
     builder.addColumnBuilder(Vec.BIT.newBuilder());
     builder.addColumnBuilder(Vec.VARIABLE.newBuilder());
-    builder.addColumnBuilder(VectorType.getInstance(Date.class).newBuilder());
+    builder.addColumnBuilder(Vec.typeOf(Date.class).newBuilder());
 
     builder.set(0, 0, "hello")
         .set(0, 1, 1)
@@ -207,7 +204,7 @@ public class MixedDataFrameTest {
     assertEquals(Vec.BIT, build.getType(4));
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
     assertEquals(Vec.VARIABLE, build.getType(5));
-    assertEquals(VectorType.getInstance(Date.class), build.getType(6));
+    assertEquals(Vec.typeOf(Date.class), build.getType(6));
     assertEquals(new Date(321321321738L), build.get(6).get(Date.class, 0));
     assertEquals(1, (int) build.get(Integer.class, 0, 1));
   }

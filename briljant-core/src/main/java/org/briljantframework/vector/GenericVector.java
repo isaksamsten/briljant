@@ -34,12 +34,7 @@ public class GenericVector extends AbstractVector {
   protected GenericVector(Class<?> cls, List<Object> values, Resolver<?> resolver, boolean copy) {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
-    this.type = VectorType.getInstance(cls);
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return new GenericValue(get(cls, index));
+    this.type = Vec.typeOf(cls);
   }
 
   @Override
@@ -198,15 +193,11 @@ public class GenericVector extends AbstractVector {
       if (value != null && cls.isInstance(value)) {
         buffer.set(index, value);
       } else if (value != null) {
-        if (value instanceof Value) {
-          buffer.set(index, ((Value) value).get(cls));
+        Resolver<?> resolver = this.resolver == null ? Resolvers.find(cls) : this.resolver;
+        if (resolver == null) {
+          buffer.set(index, null);
         } else {
-          Resolver<?> resolver = this.resolver == null ? Resolvers.find(cls) : this.resolver;
-          if (resolver == null) {
-            buffer.set(index, null);
-          } else {
-            buffer.set(index, resolver.resolve(value));
-          }
+          buffer.set(index, resolver.resolve(value));
         }
       } else {
         buffer.set(index, null);

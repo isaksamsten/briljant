@@ -31,9 +31,8 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -88,12 +87,14 @@ public class RandomShapeletForestTest {
         String.format("/Users/isak-kar/Downloads/dataset3/%s/%s_TEST.arff", name, name);
     try (DataInputStream train = new ArffInputStream(new FileInputStream(trainFile));
          DataInputStream test = new ArffInputStream(new FileInputStream(testFile))) {
+      train.readColumnIndex(); // TODO!
       DataFrame trainingSet =
-          new MixedDataFrame.Builder(train.readColumnIndex(), train.readColumnTypes()).read(train)
+          new MixedDataFrame.Builder(train.readColumnTypes()).read(train)
               .build();
 
+      test.readColumnIndex(); // TODO:
       DataFrame validationSet =
-          new MixedDataFrame.Builder(test.readColumnIndex(), test.readColumnTypes()).read(test)
+          new MixedDataFrame.Builder(test.readColumnTypes()).read(test)
               .build();
 
       Transformation znorm = new DataSeriesNormalization();
@@ -203,7 +204,7 @@ public class RandomShapeletForestTest {
     frame = DataFrames.permuteRows(frame);
     Vector y = frame.get(0);
     DataFrame x = frame.drop(0);
-    Map<Value, Integer> freq = Vec.count(y);
+    Map<Object, Integer> freq = Vec.count(y);
     int sum = freq.values().stream().reduce(0, Integer::sum);
     int min = freq.values().stream().min(Integer::min).get();
     System.out.println(freq + " => " + ((double) min / sum));

@@ -5,7 +5,6 @@ import com.google.common.base.Strings;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -37,11 +36,6 @@ public class RecordVector implements Record {
   @Override
   public VectorType getType() {
     return vector.getType();
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return vector.getAsValue(index);
   }
 
   @Override

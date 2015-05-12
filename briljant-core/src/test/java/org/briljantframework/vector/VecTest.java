@@ -26,15 +26,15 @@ public class VecTest {
 
   @Test
   public void testInferType() throws Exception {
-    assertEquals(Vec.DOUBLE, VectorType.getInstance(Double.class));
-    assertEquals(Vec.INT, VectorType.getInstance(Integer.class));
-    assertEquals(Vec.BIT, VectorType.getInstance(Boolean.class));
-    assertEquals(Vec.BIT, VectorType.getInstance(Bit.class));
-    assertEquals(Vec.COMPLEX, VectorType.getInstance(Complex.class));
-    assertEquals(Vec.STRING, VectorType.getInstance(String.class));
-    assertEquals(Vec.DOUBLE, VectorType.getInstance(Double.TYPE));
-    assertEquals(Vec.INT, VectorType.getInstance(Integer.TYPE));
-    assertEquals(Vec.VARIABLE, VectorType.infer(null));
+    assertEquals(Vec.DOUBLE, Vec.typeOf(Double.class));
+    assertEquals(Vec.INT, Vec.typeOf(Integer.class));
+    assertEquals(Vec.BIT, Vec.typeOf(Boolean.class));
+    assertEquals(Vec.BIT, Vec.typeOf(Bit.class));
+    assertEquals(Vec.COMPLEX, Vec.typeOf(Complex.class));
+    assertEquals(Vec.STRING, Vec.typeOf(String.class));
+    assertEquals(Vec.DOUBLE, Vec.typeOf(Double.TYPE));
+    assertEquals(Vec.INT, Vec.typeOf(Integer.TYPE));
+    assertEquals(Vec.VARIABLE, Vec.inferTypeOf(null));
   }
 
   @Test

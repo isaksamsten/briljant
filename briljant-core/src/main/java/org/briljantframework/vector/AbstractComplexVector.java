@@ -49,12 +49,6 @@ public abstract class AbstractComplexVector extends AbstractVector {
   public static final Complex NA = Complex.NaN;
 
   @Override
-  public Value getAsValue(int index) {
-    Complex complex = getAsComplex(index);
-    return complex.isNaN() ? Undefined.INSTANCE : new ComplexValue(complex);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
     if (cls.isAssignableFrom(Complex.class)) {
       return cls.cast(getAsInt(index));

@@ -4,9 +4,8 @@ import org.briljantframework.classification.Predictor;
 import org.briljantframework.evaluation.measure.AreaUnderCurve;
 import org.briljantframework.evaluation.measure.Brier;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import java.util.Map;
 
@@ -27,13 +26,13 @@ public class ProbabilityEvaluator implements Evaluator {
     DoubleMatrix probabilities = ctx.getEstimation(Sample.OUT);
     Vector classes = predictor.getClasses();
 
-    Map<Value, Double> auc = Measures.auc(predicted, probabilities, actual, classes);
+    Map<Object, Double> auc = Measures.auc(predicted, probabilities, actual, classes);
     double brier = Measures.brier(predicted, probabilities, actual, classes);
     ctx.getOrDefault(AreaUnderCurve.class, AreaUnderCurve.Builder::new).add(Sample.OUT, auc);
 
-    Map<Value, Integer> classDistribution = Vec.count(actual);
+    Map<Object, Integer> classDistribution = Vec.count(actual);
     double averageAuc = 0;
-    for (Map.Entry<Value, Double> aucEntry : auc.entrySet()) {
+    for (Map.Entry<Object, Double> aucEntry : auc.entrySet()) {
       if (classDistribution.containsKey(aucEntry.getKey())) {
         int classCount = classDistribution.get(aucEntry.getKey());
         averageAuc += aucEntry.getValue() * (classCount / (double) actual.size());

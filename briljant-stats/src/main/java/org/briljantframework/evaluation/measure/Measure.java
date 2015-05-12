@@ -1,16 +1,15 @@
 package org.briljantframework.evaluation.measure;
 
-import java.util.Map;
-
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Value;
+
+import java.util.Map;
 
 /**
  * <p>
  * Metrics are produced from evaluators to contain the performance of algorithms.
  * </p>
- * 
+ *
  * @author Isak Karlsson
  */
 public interface Measure extends Comparable<Measure> {
@@ -34,7 +33,7 @@ public interface Measure extends Comparable<Measure> {
 
   /**
    * Gets the minimum value of a specified run.
-   * 
+   *
    * @return the min
    */
   default double getMin() {
@@ -70,7 +69,7 @@ public interface Measure extends Comparable<Measure> {
 
   /**
    * @param sample the sample
-   * @param i the index
+   * @param i      the index
    * @return the i:th measurement
    */
   double get(Sample sample, int i);
@@ -119,13 +118,13 @@ public interface Measure extends Comparable<Measure> {
 
     /**
      * Add a performance metric
-     * 
-     * @param sample the sample
+     *
+     * @param sample      the sample
      * @param measurement the measurement
      */
     public void add(Sample sample, double measurement);
 
-    public void add(Sample sample, Map<Value, Double> values);
+    public void add(Sample sample, Map<Object, Double> values);
 
     /**
      * Gets performance metric.

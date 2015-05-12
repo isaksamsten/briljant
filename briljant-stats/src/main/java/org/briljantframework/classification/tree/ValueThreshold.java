@@ -17,21 +17,17 @@
 package org.briljantframework.classification.tree;
 
 
-import org.briljantframework.vector.Value;
-
 /**
- *
- *
  * Created by Isak Karlsson on 23/09/14.
  */
 public class ValueThreshold {
 
   private final int axis;
-  private final Value threshold;
+  private final Object threshold;
 
   // private final ClassDistribution
 
-  private ValueThreshold(int axis, Value threshold) {
+  private ValueThreshold(int axis, Object threshold) {
     this.axis = axis;
     this.threshold = threshold;
   }
@@ -39,11 +35,11 @@ public class ValueThreshold {
   /**
    * Create value threshold.
    *
-   * @param axis the axis
+   * @param axis      the axis
    * @param threshold the threshold
    * @return the value threshold
    */
-  public static ValueThreshold create(int axis, Value threshold) {
+  public static ValueThreshold create(int axis, Object threshold) {
     return new ValueThreshold(axis, threshold);
   }
 
@@ -61,7 +57,7 @@ public class ValueThreshold {
    *
    * @return the threshold
    */
-  public Value getValue() {
+  public Object getValue() {
     return threshold;
   }
 }

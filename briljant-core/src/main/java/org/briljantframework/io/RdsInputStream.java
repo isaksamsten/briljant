@@ -8,6 +8,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
 
 import java.io.BufferedInputStream;
@@ -51,7 +52,7 @@ public class RdsInputStream extends DataInputStream {
     Map<String, VectorType> map = new HashMap<>();
     map.put("complex", ComplexVector.TYPE);
     map.put("numeric", DoubleVector.TYPE);
-    map.put("date", VectorType.getInstance(Date.class));
+    map.put("date", Vec.typeOf(Date.class));
     map.put("regressor", DoubleVector.TYPE);
     map.put("class", StringVector.TYPE);
     map.put("categoric", StringVector.TYPE);

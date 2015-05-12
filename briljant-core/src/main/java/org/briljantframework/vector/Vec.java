@@ -43,7 +43,6 @@ public final class Vec {
   public static final VectorType COMPLEX = ComplexVector.TYPE;
   public static final VectorType DOUBLE = DoubleVector.TYPE;
   public static final VectorType VARIABLE = VariableVector.TYPE;
-  public static final VectorType UNDEFINED = Undefined.TYPE;
   public static final Set<VectorType> NUMERIC = Sets.newHashSet();
   public static final Set<VectorType> CATEGORIC = Sets.newHashSet();
   public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
@@ -71,6 +70,22 @@ public final class Vec {
   private Vec() {
   }
 
+  public static VectorType typeOf(Class<?> cls) {
+    VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
+    if (type == null) {
+      return new GenericVectorType(cls);
+    }
+    return type;
+  }
+
+  public static VectorType inferTypeOf(Object object) {
+    if (object != null) {
+      return typeOf(object.getClass());
+    } else {
+      return VARIABLE;
+    }
+  }
+
   public static DoubleVector rand(int size, Distribution source) {
     DoubleVector.Builder v = new DoubleVector.Builder(0, size);
     for (int i = 0; i < size; i++) {
@@ -80,11 +95,9 @@ public final class Vec {
   }
 
   /**
-   * Finds the index, in {@code vector}, of the value at {@code index} in {@code values}. This
-   * should be preferred over {@link #find(Vector, Value)} when possible. Hence, given {@code
-   * Vector
-   * a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should be preferred over
-   * {@code find(a, b.get(i))}.
+   * Finds the index, in {@code vector}, of the value at {@code index} in {@code values}.  Hence,
+   * given {@code Vector a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should
+   * be preferred over {@code find(a, b.get(i))}.
    *
    * @param haystack     the vector to search
    * @param needleSource the source of the needle
@@ -119,31 +132,31 @@ public final class Vec {
     return -1;
   }
 
-  /**
-   * @see #find(Vector, Vector, int)
-   */
-  public static int find(Vector haystack, Value needle) {
-    for (int i = 0; i < haystack.size(); i++) {
-      if (haystack.compare(i, needle) == 0) {
-        return i;
-      }
-    }
-    return -1;
-  }
+//  /**
+//   * @see #find(Vector, Vector, int)
+//   */
+//  public static int find(Vector haystack, Value needle) {
+//    for (int i = 0; i < haystack.size(); i++) {
+//      if (haystack.compare(i, needle) == 0) {
+//        return i;
+//      }
+//    }
+//    return -1;
+//  }
 
-  /**
-   * @see #find(Vector, Object)
-   */
-  public static int find(Vector haystack, int needle) {
-    return find(haystack, Convert.toValue(needle));
-  }
-
-  /**
-   * @see #find(Vector, Object)
-   */
-  public static int find(Vector haystack, String needle) {
-    return find(haystack, Convert.toValue(needle));
-  }
+//  /**
+//   * @see #find(Vector, Object)
+//   */
+//  public static int find(Vector haystack, int needle) {
+//    return find(haystack, needle);
+//  }
+//
+//  /**
+//   * @see #find(Vector, Object)
+//   */
+//  public static int find(Vector haystack, String needle) {
+//    return find(haystack, Convert.toValue(needle));
+//  }
 
   /**
    * Finds the index of the first value for which {@code predicate} returns true.
@@ -152,9 +165,9 @@ public final class Vec {
    * @param predicate the predicate
    * @return the index or {@code -1} if no value matched the predicate {@code true}
    */
-  public static int find(Vector vector, Predicate<Value> predicate) {
+  public static <T> int find(Class<T> cls, Vector vector, Predicate<T> predicate) {
     for (int i = 0; i < vector.size(); i++) {
-      if (predicate.test(vector.getAsValue(i))) {
+      if (predicate.test(vector.get(cls, i))) {
         return i;
       }
     }
@@ -358,7 +371,7 @@ public final class Vec {
       }
     }
 
-    return nonNA == 0 ? DoubleVector.NA : mean / (double) nonNA;
+    return nonNA == 0 ? Na.of(Double.class) : mean / (double) nonNA;
   }
 
   /**
@@ -381,7 +394,7 @@ public final class Vec {
         nonNA += 1;
       }
     }
-    return nonNA == 0 ? DoubleVector.NA : var / (double) nonNA;
+    return nonNA == 0 ? Na.of(Double.class) : var / (double) nonNA;
   }
 
   /**
@@ -404,11 +417,31 @@ public final class Vec {
    */
   public static double sum(Vector vector) {
     double sum = 0;
+    int nonNas = 0;
     for (int i = 0; i < vector.size(); i++) {
       double d = vector.getAsDouble(i);
-      sum += !Is.NA(d) ? d : 0;
+      boolean nonNa = !Is.NA(d);
+      if (nonNa) {
+        sum += d;
+        nonNas++;
+      }
     }
-    return sum;
+    return nonNas > 0 ? sum : Na.of(Double.class);
+  }
+
+  public static <T extends Number> double sum(Class<T> cls, Vector vector) {
+    return vector.asList(cls).stream()
+        .filter(x -> !Is.NA(x))
+        .mapToDouble(Number::doubleValue)
+        .sum();
+  }
+
+  public static <T extends Comparable<T>> T min(Class<T> cls, Vector vector) {
+    return vector.asList(cls).stream().min(Comparable::compareTo).get();
+  }
+
+  public static <T extends Comparable<T>> T max(Class<T> cls, Vector vector) {
+    return vector.asList(cls).stream().max(Comparable::compareTo).get();
   }
 
   /**
@@ -437,12 +470,12 @@ public final class Vec {
    * @param v the vector
    * @return the most frequent item; or
    */
-  public static Value mode(Vector v) {
-    Multiset<Value> values = HashMultiset.create();
-    v.stream().forEach(values::add);
-    return Ordering.natural().onResultOf(new Function<Multiset.Entry<Value>, Integer>() {
+  public static Object mode(Vector v) {
+    Multiset<Object> values = HashMultiset.create();
+    v.stream(Object.class).forEach(values::add);
+    return Ordering.natural().onResultOf(new Function<Multiset.Entry<Object>, Integer>() {
       @Override
-      public Integer apply(Multiset.Entry<Value> input) {
+      public Integer apply(Multiset.Entry<Object> input) {
         return input.getCount();
       }
     }).max(values.entrySet()).getElement();
@@ -465,10 +498,10 @@ public final class Vec {
     vectors = checkNotNull(vectors);
     checkArgument(vectors.length > 0);
     Vector.Builder builder = vectors[0].newBuilder();
-    Set<Value> taken = new HashSet<>();
+    Set<Object> taken = new HashSet<>();
     for (Vector vector : vectors) {
       for (int i = 0; i < vector.size(); i++) {
-        Value value = vector.getAsValue(i);
+        Object value = vector.get(Object.class, i);
         if (!taken.contains(value)) {
           taken.add(value);
           builder.add(vector, i);
@@ -497,25 +530,22 @@ public final class Vec {
     return Collections.unmodifiableMap(count);
   }
 
+
   /**
-   * <p> Counts the number of occurrences for each value (wrapping the in a {@link Value}) in
+   * <p> Counts the number of occurrences for each value (wrapping the in a {@link Object}) in
    * {@code
    * vector}
-   *
-   * <p> {@code NA} values are stored with {@link org.briljantframework.vector.Undefined#INSTANCE}
-   * as key
    *
    * @param vector the vector
    * @return a map of values to counts
    */
-  public static Map<Value, Integer> count(Vector vector) {
-    Map<Value, Integer> freq = new HashMap<>();
-    for (Value value : vector.asValueList()) {
+  public static Map<Object, Integer> count(Vector vector) {
+    Map<Object, Integer> freq = new HashMap<>();
+    for (Object value : vector.asList(Object.class)) {
       freq.compute(value, (x, i) -> i == null ? 1 : i + 1);
     }
     return Collections.unmodifiableMap(freq);
   }
-
 
   /**
    * @param vector the vector

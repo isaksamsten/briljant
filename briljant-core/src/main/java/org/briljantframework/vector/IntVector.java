@@ -124,9 +124,6 @@ public class IntVector extends AbstractIntVector {
       if (value instanceof Number) {
         ensureCapacity(index);
         buffer.buffer[index] = ((Number) value).intValue();
-      } else if (value instanceof Value) {
-        ensureCapacity(index);
-        buffer.buffer[index] = ((Value) value).getAsInt();
       } else {
         Resolver<Integer> resolver = Resolvers.find(Integer.class);
         if (resolver != null) {

@@ -2,7 +2,6 @@ package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -18,14 +17,15 @@ import static org.briljantframework.vector.Vec.find;
  */
 public final class Measures {
 
-  private Measures() {}
+  private Measures() {
+  }
 
-    /**
+  /**
    * Returns the prediction error, i.e. the fraction of miss-classified values. The same as
    * {@code 1 - accuracy}.
-   * 
+   *
    * @param predicted the predicted values; shape {@code [no sample]}
-   * @param actual the actual values; shape {@code [no samples]}
+   * @param actual    the actual values; shape {@code [no samples]}
    * @return the error rate
    */
   public static double error(Vector predicted, Vector actual) {
@@ -34,9 +34,9 @@ public final class Measures {
 
   /**
    * Returns the prediction accuracy, i.e., the fraction of correctly classified examples.
-   * 
+   *
    * @param predicted the predicted values; shape {@code [no sample]}
-   * @param actual the actual values; shape {@code [no samples]}
+   * @param actual    the actual values; shape {@code [no samples]}
    * @return the accuracy
    */
   public static double accuracy(Vector predicted, Vector actual) {
@@ -54,12 +54,13 @@ public final class Measures {
   /**
    * Computes the brier score. The brier score is defined as the squared difference between the
    * classification probabilities and the optimal probability.
-   * 
+   *
    * @param predicted vector of shape {@code [no samples]}
-   * @param scores matrix of shape {@code [no samples, no classes]}
-   * @param actual vector of shape {@code [no samples]}
-   * @param classes vector of shape {@code [no classes]}; the i:th index gives the score column in
-   *        {@code scores}
+   * @param scores    matrix of shape {@code [no samples, no classes]}
+   * @param actual    vector of shape {@code [no samples]}
+   * @param classes   vector of shape {@code [no classes]}; the i:th index gives the score column
+   *                  in
+   *                  {@code scores}
    * @return the brier score
    */
   public static double brier(Vector predicted, DoubleMatrix scores, Vector actual, Vector classes) {
@@ -69,7 +70,7 @@ public final class Measures {
     int n = predicted.size();
     double brier = 0;
     for (int i = 0; i < n; i++) {
-      double prob = scores.get(i, find(classes, predicted.getAsValue(i)));
+      double prob = scores.get(i, find(classes, predicted.get(Object.class, i)));
       if (predicted.equals(i, actual, i)) {
         brier += Math.pow(1 - prob, 2);
       } else {
@@ -80,28 +81,29 @@ public final class Measures {
   }
 
   /**
-   * @param predicted vector of shape {@code [no samples]}
+   * @param predicted     vector of shape {@code [no samples]}
    * @param probabilities matrix of shape {@code [no samples, domain.size()]}
-   * @param actual vector of shape {@code [no samples]}
-   * @param domain vector of shape {@code [no classes]}
+   * @param actual        vector of shape {@code [no samples]}
+   * @param domain        vector of shape {@code [no classes]}
    * @return a map of values (from {@code domain}) and its associated area under roc-curve
    */
-  public static Map<Value, Double> auc(Vector predicted, DoubleMatrix probabilities, Vector actual,
-      Vector domain) {
-    Map<Value, Double> aucs = new HashMap<>();
+  public static Map<Object, Double> auc(Vector predicted, DoubleMatrix probabilities, Vector actual,
+                                        Vector domain) {
+    Map<Object, Double> aucs = new HashMap<>();
     for (int i = 0; i < domain.size(); i++) {
-      Value value = domain.getAsValue(i);
+      Object value = domain.get(Object.class, i);
       DoubleMatrix p = probabilities.getColumnView(i);
       aucs.put(value, computeAuc(value, predicted, p, actual));
     }
     return aucs;
   }
 
-  private static double computeAuc(Value value, Vector predicted, DoubleMatrix proba, Vector actual) {
+  private static double computeAuc(Object value, Vector predicted, DoubleMatrix proba,
+                                   Vector actual) {
     double truePositives = 0, falsePositives = 0, positives = 0;
     List<PredictionProbability> pairs = new ArrayList<>(predicted.size());
     for (int i = 0; i < actual.size(); i++) {
-      boolean positiveness = actual.equals(i, value, 0);
+      boolean positiveness = actual.get(Object.class, i).equals(value); //.equals(i, value, 0);
       if (positiveness) {
         positives++;
       }
@@ -146,6 +148,7 @@ public final class Measures {
   }
 
   private static final class PredictionProbability implements Comparable<PredictionProbability> {
+
     public final boolean positive;
     public final double probability;
 

@@ -16,49 +16,49 @@ public final class Convert {
   private Convert() {
   }
 
-  public static Value toValue(String s) {
-    return StringValue.valueOf(s);
-  }
-
-  public static Value toValue(int i) {
-    return IntValue.valueOf(i);
-  }
-
-  public static Value toValue(double d) {
-    return DoubleValue.valueOf(d);
-  }
-
-  public static Value toValue(Bit bit) {
-    return BitValue.valueOf(bit);
-  }
-
-  public static Value toValue(boolean bit) {
-    return toValue(Bit.valueOf(bit));
-  }
-
-  public static Value toValue(Complex complex) {
-    return ComplexValue.valueOf(complex);
-  }
-
-  public static Value toValue(Object object) {
-    if (object == null) {
-      return Undefined.INSTANCE;
-    } else if (object instanceof String) {
-      return toValue((String) object);
-    } else if (object instanceof Double) {
-      return toValue((double) object);
-    } else if (object instanceof Integer) {
-      return toValue((int) object);
-    } else if (object instanceof Complex) {
-      return toValue((Complex) object);
-    } else if (object instanceof Bit) {
-      return toValue((Bit) object);
-    } else if (object instanceof Boolean) {
-      return toValue((boolean) object);
-    } else {
-      return new GenericValue(object);
-    }
-  }
+//  public static Value toValue(String s) {
+//    return StringValue.valueOf(s);
+//  }
+//
+//  public static Value toValue(int i) {
+//    return IntValue.valueOf(i);
+//  }
+//
+//  public static Value toValue(double d) {
+//    return DoubleValue.valueOf(d);
+//  }
+//
+//  public static Value toValue(Bit bit) {
+//    return BitValue.valueOf(bit);
+//  }
+//
+//  public static Value toValue(boolean bit) {
+//    return toValue(Bit.valueOf(bit));
+//  }
+//
+//  public static Value toValue(Complex complex) {
+//    return ComplexValue.valueOf(complex);
+//  }
+//
+//  public static Value toValue(Object object) {
+//    if (object == null) {
+//      return Undefined.INSTANCE;
+//    } else if (object instanceof String) {
+//      return toValue((String) object);
+//    } else if (object instanceof Double) {
+//      return toValue((double) object);
+//    } else if (object instanceof Integer) {
+//      return toValue((int) object);
+//    } else if (object instanceof Complex) {
+//      return toValue((Complex) object);
+//    } else if (object instanceof Bit) {
+//      return toValue((Bit) object);
+//    } else if (object instanceof Boolean) {
+//      return toValue((boolean) object);
+//    } else {
+//      return new GenericValue(object);
+//    }
+//  }
 
   /**
    * Adapts the {@code DoubleMatrix} as a {@code DoubleVector}. Modifications to {@code matrix} is

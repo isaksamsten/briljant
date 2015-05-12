@@ -26,9 +26,8 @@ import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +80,10 @@ public class RandomShapeletForest extends Ensemble {
       lenSum.update(v -> v / size());
       posSum.update(v -> v / size());
 
-      Map<Value, Integer> counts = Vec.count(y);
+      Map<Object, Integer> counts = Vec.count(y);
       DoubleMatrix apriori = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
-        apriori.set(i, counts.get(classes.getAsValue(i)) / (double) y.size());
+        apriori.set(i, counts.get(classes.get(Object.class, i)) / (double) y.size());
       }
 
       return new Predictor(classes, apriori, models, lenSum, posSum, oobIndicator);
@@ -205,9 +204,9 @@ public class RandomShapeletForest extends Ensemble {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector row) {
+    public DoubleMatrix estimate(Vector record) {
       List<DoubleMatrix> predictions = getPredictors().parallelStream()
-          .map(model -> model.estimate(row))
+          .map(model -> model.estimate(record))
           .collect(Collectors.toList());
 
       int estimators = getPredictors().size();

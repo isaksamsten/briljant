@@ -10,9 +10,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.join.InnerJoin;
-import org.briljantframework.dataframe.join.JoinKeys;
 import org.briljantframework.dataframe.join.JoinOperation;
-import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
@@ -24,7 +22,6 @@ import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.StringDataEntry;
 import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.vector.Scale;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -37,10 +34,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -90,7 +85,7 @@ public final class DataFrames {
         df.addColumnBuilder(Vec.BIT);
       } else {
         val = value;
-        df.addColumnBuilder(VectorType.getInstance(LocalDate.class));
+        df.addColumnBuilder(Vec.typeOf(LocalDate.class));
       }
       df.set(0, col, val);
     }
@@ -206,7 +201,7 @@ public final class DataFrames {
         double max = desc.getMax();
         builder.set(j, 0, mean).set(j, 1, min).set(j, 2, max);
       } else {
-        Value mode = Vec.mode(column);
+        Object mode = Vec.mode(column);
         builder.set(j, 3, mode);
       }
     }
@@ -281,12 +276,12 @@ public final class DataFrames {
   }
 
   //TODO(isak) - this is quick and dirty. Implement a real group by data frame
-  public static Map<Value, DataFrame> groupBy(DataFrame dataframe, String column) {
-    Map<Value, DataFrame.Builder> builders = new HashMap<>();
+  public static Map<Object, DataFrame> groupBy(DataFrame dataframe, String column) {
+    Map<Object, DataFrame.Builder> builders = new HashMap<>();
     Vector keyColumn = dataframe.get(column);
 
     for (int i = 0; i < dataframe.rows(); i++) {
-      Value key = keyColumn.getAsValue(i);
+      Object key = keyColumn.get(Object.class, i);
       DataFrame.Builder builder = builders.get(key);
       if (builder == null) {
         builder = dataframe.newBuilder();
@@ -295,8 +290,8 @@ public final class DataFrames {
       builder.addRecord(dataframe.getRecord(i));
     }
 
-    Map<Value, DataFrame> frame = new HashMap<>();
-    for (Map.Entry<Value, DataFrame.Builder> entry : builders.entrySet()) {
+    Map<Object, DataFrame> frame = new HashMap<>();
+    for (Map.Entry<Object, DataFrame.Builder> entry : builders.entrySet()) {
       frame.put(entry.getKey(), entry.getValue().build());
     }
     return frame;

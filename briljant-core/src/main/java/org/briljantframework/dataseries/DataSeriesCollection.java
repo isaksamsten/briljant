@@ -17,8 +17,6 @@ import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Na;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -62,18 +60,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
     this.type = checkNotNull(type);
     this.series = checkNotNull(series);
     this.columns = columns;
-  }
-
-  @Override
-  public Value getAsValue(int row, int column) {
-    Vector rvec = series.get(row);
-    if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsValue(column);
-    } else if (column >= 0 && column < columns) {
-      return VariableVector.NA;
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
   }
 
   @Override
@@ -289,14 +275,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public Builder swapColumns(int a, int b) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Builder swapInColumn(int column, int a, int b) {
-      Vector.Builder avec = builders.get(a);
-      Vector.Builder bvec = builders.get(b);
-      // TODO: How can this be supported?
       throw new UnsupportedOperationException();
     }
 

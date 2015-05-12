@@ -6,7 +6,6 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -46,13 +45,8 @@ public class RecordView implements Record {
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return parent.get(index).getAsValue(row);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
-    return get(cls, index);
+    return parent.get(cls, row, index);
   }
 
   @Override
@@ -122,12 +116,12 @@ public class RecordView implements Record {
 
   @Override
   public int compare(int a, int b) {
-    return getAsValue(a).compareTo(getAsValue(b));
+    throw new UnsupportedOperationException("TODO");
   }
 
   @Override
   public int compare(int a, Vector other, int b) {
-    return getAsValue(a).compareTo(other.getAsValue(b));
+    throw new UnsupportedOperationException("TODO");
   }
 
   @Override

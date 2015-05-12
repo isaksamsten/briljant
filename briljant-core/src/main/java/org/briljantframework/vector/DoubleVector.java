@@ -177,8 +177,6 @@ public class DoubleVector extends AbstractDoubleVector {
       double dval = DoubleVector.NA;
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
-      } else if (value instanceof Value) {
-        dval = ((Value) value).getAsDouble();
       } else {
         Resolver<Double> resolver = Resolvers.find(Double.class);
         if (resolver != null) {

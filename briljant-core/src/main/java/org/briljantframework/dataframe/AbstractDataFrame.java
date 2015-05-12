@@ -21,7 +21,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.ValueVector;
+import org.briljantframework.vector.ObjectVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -243,21 +244,30 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> operator) {
+  public <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> op) {
     Set<VectorType> types = getColumns().stream().map(Vector::getType).collect(Collectors.toSet());
     Vector.Builder builder;
     if (types.size() == 1) {
       builder = types.iterator().next().newBuilder();
     } else {
-      builder = new ValueVector.Builder();
+      builder = new ObjectVector.Builder();
     }
     for (int j = 0; j < columns(); j++) {
       Vector col = get(j);
       T val = init;
       for (int i = 0; i < col.size(); i++) {
-        val = operator.apply(col.get(cls, i), val);
+        val = op.apply(col.get(cls, i), val);
       }
       builder.set(j, val);
+    }
+    return new RecordVector("0", getColumnIndex(), builder.build());
+  }
+
+  @Override
+  public Record reduce(Function<Vector, Object> op) {
+    Vector.Builder builder = new ObjectVector.Builder();
+    for (int j = 0; j < columns(); j++) {
+      builder.set(j, op.apply(get(j)));
     }
     return new RecordVector("0", getColumnIndex(), builder.build());
   }
@@ -740,14 +750,6 @@ public abstract class AbstractDataFrame implements DataFrame {
         } else {
           setNA(index, j);
         }
-      }
-      return this;
-    }
-
-    @Override
-    public Builder swapRecords(int a, int b) {
-      for (int i = 0; i < columns(); i++) {
-        swapInColumn(i, a, b);
       }
       return this;
     }

@@ -66,12 +66,6 @@ public abstract class AbstractStringVector extends AbstractVector {
   }
 
   @Override
-  public Value getAsValue(int index) {
-    String value = getAsString(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new StringValue(value);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
     if (cls.isAssignableFrom(String.class)) {
       return cls.cast(getAsString(index));

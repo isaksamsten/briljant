@@ -3,7 +3,6 @@ package org.briljantframework.dataframe;
 import com.google.common.collect.Iterators;
 
 import org.briljantframework.vector.Vector;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractCollection;
 import java.util.AbstractList;
@@ -119,7 +118,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
     return hash.containsKey(key);
   }
 
-  @NotNull
   @Override
   public Iterator<Object> iterator() {
     return hash.keySet().iterator();

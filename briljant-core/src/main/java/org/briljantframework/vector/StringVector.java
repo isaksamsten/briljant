@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * A StringVector contains string values or NA. <p> TODO(isak): It might be wasteful to store equal
- * objects multiple times. Consider having a subclass CompressedObjectVector or similar. TODO(isak):
+ * objects multiple times. Consider having a subclass CompressedObjectVector or similar.
+ * TODO(isak):
  * The CompressedStringVector requires StringVector to be abstract Created by Isak Karlsson on
  * 20/11/14.
  */
@@ -124,17 +125,13 @@ public class StringVector extends AbstractStringVector {
 
       String str = StringVector.NA;
       if (value != null) {
-        if (value instanceof Value) {
-          str = ((Value) value).getAsString();
-        } else {
-          Resolver<String> resolver = Resolvers.find(String.class);
-          if (resolver != null) {
-            str = resolver.resolve(value);
-          }
+        Resolver<String> resolver = Resolvers.find(String.class);
+        if (resolver != null) {
+          str = resolver.resolve(value);
+        }
 
-          if (str == null) {
-            str = value.toString();
-          }
+        if (str == null) {
+          str = value.toString();
         }
       }
       buffer.set(index, str);

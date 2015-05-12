@@ -27,10 +27,9 @@ import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 /**
  * @author Isak Karlsson
@@ -71,7 +70,7 @@ public class DecisionTree implements Classifier {
   }
 
   protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet,
-      int depth) {
+                                           int depth) {
     if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
       return TreeLeaf.fromExamples(classSet);
     }
@@ -97,21 +96,24 @@ public class DecisionTree implements Classifier {
 
     @Override
     public DoubleMatrix visitBranch(TreeBranch<ValueThreshold> node, Vector example) {
-      Value threshold = node.getThreshold().getValue();
+      Object threshold = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
-      VectorType type = threshold.getType();
-
-
       int direction = MISSING;
       if (!example.isNA(axis)) {
-        switch (threshold.getType().getScale()) {
-          case NOMINAL:
-            direction = type.equals(threshold, axis, example) ? LEFT : RIGHT;
-            break;
-          case NUMERICAL:
-            direction = type.compare(threshold, axis, example) <= 0 ? LEFT : RIGHT;
-            break;
+        if (Is.nominal(threshold)) {
+          direction = example.equals(axis, threshold) ? LEFT : RIGHT;
+        } else {
+          direction = example.compare(axis, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
         }
+
+//        switch (threshold.getType().getScale()) {
+//          case NOMINAL:
+//            direction = type.equals(threshold, axis, example) ? LEFT : RIGHT;
+//            break;
+//          case NUMERICAL:
+//            direction = type.compare(threshold, axis, example) <= 0 ? LEFT : RIGHT;
+//            break;
+//        }
       }
 
       switch (direction) {
@@ -129,7 +131,7 @@ public class DecisionTree implements Classifier {
   public static class Predictor extends TreePredictor<ValueThreshold> {
 
     private Predictor(Vector classes, TreeNode<ValueThreshold> node,
-        TreeVisitor<ValueThreshold> predictionVisitor) {
+                      TreeVisitor<ValueThreshold> predictionVisitor) {
       super(classes, node, predictionVisitor);
     }
 

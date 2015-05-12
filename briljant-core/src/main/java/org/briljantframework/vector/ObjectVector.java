@@ -14,62 +14,63 @@ import java.util.List;
 /**
  * @
  */
-public class ValueVector extends AbstractVector implements VariableVector {
+public class ObjectVector extends AbstractVector implements VariableVector {
 
-  private final List<? extends Value> values;
+  private final List<?> values;
 
   /**
    * Constructs a {@code VariableVector}
    *
    * @param values the values
    */
-  public ValueVector(List<? extends Value> values) {
+  public ObjectVector(List<?> values) {
     this.values = values;
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return values.get(index);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
-    return getAsValue(index).get(cls, 0);
+    Object value = values.get(index);
+    if (cls.isInstance(value)) {
+      return cls.cast(value);
+    } else {
+      return Na.of(cls);
+    }
   }
 
   @Override
   public String toString(int index) {
-    return values.get(index).toString(0);
+    Object value = values.get(index);
+    return value == null || Is.NA(value) ? "NA" : value.toString();
   }
 
   @Override
   public boolean isNA(int index) {
-    return values.get(index).isNA(0);
+    return Is.NA(values.get(index));
   }
 
   @Override
   public double getAsDouble(int index) {
-    return values.get(index).getAsDouble(0);
+    return get(Double.class, index);
   }
 
   @Override
   public int getAsInt(int index) {
-    return values.get(index).getAsInt(0);
+    return get(Integer.class, index);
   }
 
   @Override
   public Bit getAsBit(int index) {
-    return values.get(index).getAsBit(0);
+    return Bit.valueOf(getAsInt(index));
   }
 
   @Override
   public Complex getAsComplex(int index) {
-    return values.get(index).getAsComplex(0);
+    return get(Complex.class, index);
   }
 
   @Override
   public String getAsString(int index) {
-    return values.get(index).getAsString(0);
+    return get(String.class, index);
   }
 
   @Override
@@ -84,17 +85,19 @@ public class ValueVector extends AbstractVector implements VariableVector {
 
   @Override
   public int compare(int a, int b) {
-    return getAsValue(a).compareTo(getAsValue(b));
+    throw new UnsupportedOperationException("TODO");
+//    return getAsValue(a).compareTo(getAsValue(b));
   }
 
   @Override
   public int compare(int a, Vector other, int b) {
-    return getAsValue(a).compareTo(other.getAsValue(b));
+    throw new UnsupportedOperationException("TODO");
+//    return getAsValue(a).compareTo(other.getAsValue(b));
   }
 
   @Override
   public VectorType getType(int index) {
-    return values.get(index).getType();
+    return Vec.inferTypeOf(get(Object.class, index));
   }
 
   @Override
@@ -131,10 +134,10 @@ public class ValueVector extends AbstractVector implements VariableVector {
 
   public static class Builder implements Vector.Builder {
 
-    private List<Value> buffer;
+    private List<Object> buffer;
 
 
-    private Builder(List<Value> buffer) {
+    private Builder(List<Object> buffer) {
       this.buffer = buffer;
     }
 
@@ -149,14 +152,14 @@ public class ValueVector extends AbstractVector implements VariableVector {
     public Builder(int size, int capacity) {
       buffer = new ArrayList<>(Math.max(size, capacity));
       for (int i = 0; i < size; i++) {
-        buffer.add(Undefined.INSTANCE);
+        buffer.add(null);
       }
     }
 
     @Override
     public Builder setNA(int index) {
       ensureCapacity(index);
-      buffer.set(index, Undefined.INSTANCE);
+      buffer.set(index, null);
       return this;
     }
 
@@ -177,31 +180,19 @@ public class ValueVector extends AbstractVector implements VariableVector {
         setNA(atIndex);
       } else {
         ensureCapacity(atIndex);
-        buffer.set(atIndex, from.getAsValue(fromIndex));
+//        buffer.set(atIndex, from.getAsValue(fromIndex));
       }
       return this;
     }
 
     @Override
     public Builder set(int index, Object obj) {
-      Value value;
-      if (obj instanceof Value) {
-        value = (Value) obj;
-      } else if (obj instanceof Integer || obj instanceof Byte || obj instanceof Short) {
-        value = new IntValue(((Number) obj).intValue());
-      } else if (obj instanceof Float || obj instanceof Double) {
-        value = new DoubleValue(((Number) obj).doubleValue());
-      } else if (obj instanceof Complex) {
-        value = new ComplexValue((Complex) obj);
-      } else if (obj instanceof Bit) {
-        value = new BitValue((Bit) obj);
-      } else if (obj != null) {
-        value = new StringValue(obj.toString());
+      if (Is.NA(obj)) {
+        setNA(index);
       } else {
-        value = Undefined.INSTANCE;
+        ensureCapacity(index);
+        buffer.set(index, obj);
       }
-      ensureCapacity(index);
-      buffer.set(index, value);
       return this;
     }
 
@@ -214,7 +205,7 @@ public class ValueVector extends AbstractVector implements VariableVector {
     @Override
     public Builder addAll(Vector from) {
       for (int i = 0; i < from.size(); i++) {
-        buffer.add(from.getAsValue(i));
+        buffer.add(from.get(Object.class, i));
       }
       return this;
     }
@@ -227,7 +218,8 @@ public class ValueVector extends AbstractVector implements VariableVector {
 
     @Override
     public int compare(int a, int b) {
-      return TYPE.compare(buffer.get(a), buffer.get(b));
+      throw new UnsupportedOperationException("TODO");
+//      return TYPE.compare(buffer.get(a), buffer.get(b));
     }
 
     @Override
@@ -254,17 +246,17 @@ public class ValueVector extends AbstractVector implements VariableVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new ValueVector(this.buffer);
+      return new ObjectVector(this.buffer);
     }
 
     @Override
-    public ValueVector build() {
-      return new ValueVector(buffer);
+    public ObjectVector build() {
+      return new ObjectVector(buffer);
     }
 
     private void ensureCapacity(int index) {
       while (buffer.size() <= index) {
-        buffer.add(Undefined.INSTANCE);
+        buffer.add(Na.of(Object.class));
       }
     }
   }

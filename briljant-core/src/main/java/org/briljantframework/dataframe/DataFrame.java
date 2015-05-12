@@ -6,7 +6,6 @@ import org.briljantframework.io.EntryReader;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.Swappable;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -41,14 +40,9 @@ public interface DataFrame extends Iterable<Record> {
    */
   <T> T get(Class<T> cls, int row, int column);
 
-  /**
-   * Get value at {@code row} and {@code column} as a value
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  Value getAsValue(int row, int column);
+//  default Object get(int row, int column) {
+//    return get(Object.class, row, column);
+//  }
 
   /**
    * Get value at {@code row} and {@code column} as string.
@@ -213,12 +207,55 @@ public interface DataFrame extends Iterable<Record> {
     return apply(cls, op, getColumnIndex().indices(keys));
   }
 
+  /**
+   * <p> Apply {@code op} to every column in {@code columns}, leaving columns not in {@code
+   * columns} unchanged.
+   *
+   * <p> If {@code op} returns {@code Na.of(T.class)}, the value is ignored and the previous value
+   * at the position is kept.
+   *
+   * @param cls     the type of values to transform
+   * @param op      the operation
+   * @param columns the columns which to apply the transformation
+   * @param <T>     the type
+   * @return a new data frame
+   */
   <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Collection<Integer> columns);
 
+  /**
+   * <p> Apply {@code op} to value. If {@code op} returns {@code NA}, the old value is kept.
+   *
+   * @param cls the type of values to transform
+   * @param op  the operation
+   * @param <T> the type
+   * @return a new data frame
+   */
   <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op);
 
-  <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> operator);
+  /**
+   * <p> Reduce all columns, applying {@code op} with the initial value {@code init}.
+   *
+   * @param cls  the class
+   * @param init the initial value
+   * @param op   the operation
+   * @param <T>  the type
+   * @return a record with the reduced values
+   */
+  <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
 
+  /**
+   * <p> Reduce every column by applying a function.
+   *
+   * <pre>{@code
+   *  df.reduce(Vec::mode);
+   * }</pre>
+   *
+   * <p> Returns a record with the most frequent value of each column
+   *
+   * @param op the operation to apply
+   * @return a new record with the reduced values
+   */
+  Record reduce(Function<Vector, Object> op);
 
   DataFrame add(Vector column);
 
@@ -395,7 +432,7 @@ public interface DataFrame extends Iterable<Record> {
   Builder newCopyBuilder();
 
   /**
-   * Returns this as a real valued matrix.
+   * Returns {@code this} DataFrame as a real valued matrix.
    *
    * @return this data frame as a matrix
    */
@@ -416,18 +453,6 @@ public interface DataFrame extends Iterable<Record> {
   DataFrame setRecordIndex(Index index);
 
   DataFrame setColumnIndex(Index index);
-
-//  Index getColumnIndex();
-//
-//  DataFrame setColumnIndex(Vector index);
-//
-//  Index getRecordIndex();
-//
-//  DataFrame setRecordIndex(Vector index);
-//
-//  default Indexer ix() {
-//    return new Indexer(this);
-//  }
 
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
@@ -494,13 +519,6 @@ public interface DataFrame extends Iterable<Record> {
      * @see org.briljantframework.vector.Vector.Builder#set(int, Object)
      */
     Builder set(int row, int column, Object value);
-
-    default Builder set(int row, int column, Value value) {
-      if (value == null) {
-        return setNA(row, column);
-      }
-      return set(row, column, value, 0);
-    }
 
     /**
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the
@@ -603,17 +621,6 @@ public interface DataFrame extends Iterable<Record> {
      * @return a modified builder
      */
     Builder swapColumns(int a, int b);
-
-    /**
-     * Swap value at index {@code a} with value at index {@code b} in column with index {@code
-     * column}
-     *
-     * @param column the column
-     * @param a      the first index
-     * @param b      the second index
-     * @return a modified builder
-     */
-    Builder swapInColumn(int column, int a, int b);
 
     /**
      * Swap row at index {@code a} with {@code b}. <p> Generally, this is the same as <p> <p>

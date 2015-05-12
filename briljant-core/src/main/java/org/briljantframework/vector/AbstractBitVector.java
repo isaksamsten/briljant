@@ -51,12 +51,6 @@ public abstract class AbstractBitVector extends AbstractVector {
   };
 
   @Override
-  public Value getAsValue(int index) {
-    Bit bit = getAsBit(index);
-    return bit == NA ? Undefined.INSTANCE : new BitValue(bit);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
     if (cls.isAssignableFrom(Bit.class)) {
       return cls.cast(getAsBit(index));

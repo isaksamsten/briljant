@@ -17,11 +17,9 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * <p> A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the
@@ -37,20 +35,6 @@ import java.util.stream.StreamSupport;
  * @author Isak Karlsson
  */
 public interface Vector extends Serializable {
-
-  /**
-   * Returns value as {@link org.briljantframework.vector.Value}. {@link
-   * org.briljantframework.vector.Undefined} denotes missing values.
-   *
-   * While wrapping the return type in a {@code Value} require additional space and impose some
-   * overhead it brings the benefit of knowing the type of a particular value, which in some cases
-   * is very useful.
-   *
-   * @param index the index
-   * @return a {@code Vector}
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  Value getAsValue(int index);
 
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
@@ -175,6 +159,7 @@ public interface Vector extends Serializable {
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   Complex getAsComplex(int index);
+
   /**
    * Returns value as {@link String}, {@code null} is used to denote missing values.
    *
@@ -195,14 +180,6 @@ public interface Vector extends Serializable {
     Builder builder = newBuilder();
     for (int index : indexes) {
       builder.add(this, index);
-    }
-    return builder.build();
-  }
-
-  default Vector apply(UnaryOperator<Value> operator) {
-    Builder builder = newBuilder();
-    for (int i = 0; i < size(); i++) {
-      builder.add(operator.apply(getAsValue(i)));
     }
     return builder.build();
   }
@@ -252,7 +229,6 @@ public interface Vector extends Serializable {
    */
   Builder newCopyBuilder();
 
-
   /**
    * Creates a new builder able to build vectors of this type
    *
@@ -268,10 +244,6 @@ public interface Vector extends Serializable {
    * @return a new builder
    */
   Builder newBuilder(int size);
-
-  default Value[] toArray() {
-    return asValueList().toArray(new Value[size()]);
-  }
 
   @SuppressWarnings("unchecked")
   default <T> T[] toArray(T[] values) {
@@ -311,26 +283,6 @@ public interface Vector extends Serializable {
     return values;
   }
 
-  /**
-   * Returns this Vector as an {@link java.util.List} of {@link org.briljantframework.vector.Value}.
-   * The returned list is unmodifiable
-   *
-   * @return an unmodifiable list
-   */
-  default List<Value> asValueList() {
-    return new AbstractList<Value>() {
-      @Override
-      public Value get(int i) {
-        return Vector.this.getAsValue(i);
-      }
-
-      @Override
-      public int size() {
-        return Vector.this.size();
-      }
-    };
-  }
-
   default <T> List<T> asList(Class<T> cls) {
     return new AbstractList<T>() {
       @Override
@@ -345,24 +297,6 @@ public interface Vector extends Serializable {
     };
   }
 
-  /**
-   * Returns a sequential {@code Stream} of values with this vector as its source.
-   *
-   * @return a sequential {@code Stream} over the elements of this {@code Vector}.
-   */
-  default Stream<Value> stream() {
-    return StreamSupport.stream(asValueList().spliterator(), false);
-  }
-
-  /**
-   * Returns a parallel {@code Stream} of values with this {@code Vector} as its source.
-   *
-   * @return a parallel {@code Stream} over the elements of this {@code Vector}
-   */
-  default Stream<Value> parallelStream() {
-    return StreamSupport.stream(asValueList().spliterator(), true);
-  }
-
   default <T> Stream<T> stream(Class<T> cls) {
     return asList(cls).stream();
   }
@@ -372,11 +306,11 @@ public interface Vector extends Serializable {
   }
 
   default IntStream intStream() {
-    return stream().mapToInt(Value::getAsInt);
+    return stream(Number.class).mapToInt(Number::intValue);
   }
 
   default DoubleStream doubleStream() {
-    return stream().mapToDouble(Value::getAsDouble);
+    return stream(Number.class).mapToDouble(Number::doubleValue);
   }
 
   /**
@@ -441,6 +375,13 @@ public interface Vector extends Serializable {
    */
   int compare(int a, int b);
 
+  @SuppressWarnings("unchecked")
+  default int compare(int a, Comparable<?> other) {
+    return get(Comparable.class, a).compareTo(other);
+  }
+
+//  int compare(int a, Comparable<?> value);
+
   /**
    * Compare value at {@code a} in {@code this} to value at {@code b} in {@code ba}. Equivalent to
    * {@code this.get(a).compareTo(other.get(b))}, but in most circumstances with greater
@@ -469,17 +410,8 @@ public interface Vector extends Serializable {
     return compare(a, other, b) == 0;
   }
 
-  /**
-   * Compare value at position {@code a} in {@code this} to {@code other}. Equivalent to {@code
-   * this.get(a).compareTo(other)} but in most circumstances with greater performance.
-   *
-   * @param a     the index in {@code this}
-   * @param other the value
-   * @return the comparison
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  default int compare(int a, Value other) {
-    return compare(a, other, 0);
+  default boolean equals(int a, Object other) {
+    return get(Object.class, a).equals(other);
   }
 
   /**
@@ -529,15 +461,15 @@ public interface Vector extends Serializable {
      */
     Builder add(Vector from, int fromIndex);
 
-    /**
-     * Same as {@code add(value, 0)} (i.e. a more convenient way of adding 1-length vectors)
-     *
-     * @param value the value
-     * @return a modified builder
-     */
-    default Builder add(Value value) {
-      return add(value, 0);
-    }
+//    /**
+//     * Same as {@code add(value, 0)} (i.e. a more convenient way of adding 1-length vectors)
+//     *
+//     * @param value the value
+//     * @return a modified builder
+//     */
+//    default Builder add(Value value) {
+//      return add(value, 0);
+//    }
 
     /**
      * Add value at {@code fromIndex} in {@code from} to {@code atIndex}. Padding with NA:s between
@@ -550,9 +482,9 @@ public interface Vector extends Serializable {
      */
     Builder set(int atIndex, Vector from, int fromIndex);
 
-    default Builder set(int atIndex, Value from) {
-      return set(atIndex, from, 0);
-    }
+//    default Builder set(int atIndex, Value from) {
+//      return set(atIndex, from, 0);
+//    }
 
     /**
      * Add {@code value} at {@code index}. Padding with NA:s between {@code atIndex} and {@code
@@ -565,8 +497,6 @@ public interface Vector extends Serializable {
      *
      * <ul>
      * <li>{@code null} always result in {@code NA}</li>
-     * <li>An instance of {@link Value} always results in the value carried by the
-     * value</li>
      * <li>If {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a
      * non-null value the returned {@link org.briljantframework.io.reslover.Resolver#resolve(Class,
      * Object)} shall be used to produce the converted value. </li>

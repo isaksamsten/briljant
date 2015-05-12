@@ -177,10 +177,10 @@ public class KNearestNeighbors implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector row) {
+    public DoubleMatrix estimate(Vector record) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
-        double d = distance.compute(row, frame.getRecord(i));
+        double d = distance.compute(record, frame.getRecord(i));
         queue.add(new DistanceIndex(targets.getAsString(i), d));
       }
       ObjectIntMap<String> votes = new ObjectIntOpenHashMap<>();

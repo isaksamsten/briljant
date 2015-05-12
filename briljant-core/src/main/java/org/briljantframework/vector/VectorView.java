@@ -26,11 +26,6 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Value getAsValue(int index) {
-    return parent.getAsValue(offset + index);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
     return parent.get(cls, offset + index);
   }
@@ -113,11 +108,6 @@ public abstract class VectorView extends AbstractVector {
   @Override
   public int compare(int a, Vector other, int b) {
     return parent.compare(a, other, b);
-  }
-
-  @Override
-  public int compare(int a, Value other) {
-    return parent.compare(a, other);
   }
 
   @Override

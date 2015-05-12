@@ -297,9 +297,9 @@ public abstract class Ensemble implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector row) {
+    public DoubleMatrix estimate(Vector record) {
       List<DoubleMatrix> predictions = members.parallelStream()
-          .map(model -> model.estimate(row))
+          .map(model -> model.estimate(record))
           .collect(Collectors.toList());
 
       int estimators = getPredictors().size();

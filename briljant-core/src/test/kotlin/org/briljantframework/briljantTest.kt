@@ -1,6 +1,8 @@
 package org.briljantframework
 
-import org.briljantframework.matrix.vstack
+import org.briljantframework.dataframe.MixedDataFrame
+import org.briljantframework.dataframe.get
+import org.briljantframework.vector.*
 import org.junit.Test as test
 
 class briljantTest {
@@ -19,9 +21,20 @@ class briljantTest {
         //
         //        println((e vstack r vstack x hstack y).sort(Dim.C))
 
-        val e = Bj.doubleMatrix(1, 3) assign 3.0
-        val r = Bj.doubleMatrix(1, 3) assign 1.9
-        println((e vstack r))
+        //        val e = Bj.doubleMatrix(1, 3) assign 3.0
+        //        val r = Bj.doubleMatrix(1, 3) assign 1.9
+        //        println((e vstack r))
+
+        val left = MixedDataFrame.of("key", StringVector("foo", "foo", "ko"),
+                                     "lval", IntVector(1, 2, 4))
+        val right = MixedDataFrame.of("key", StringVector("foo", "bar"),
+                                      "rval", IntVector(3, 5))
+
+        println(left.join(right))
+//        val x: Int = left[0, 1]
+//        println(x)
+//        println(left.get(0).toSet<String>())
+
 
     }
 }

@@ -5,22 +5,6 @@ package org.briljantframework.vector;
  */
 public interface VectorType {
 
-  static VectorType getInstance(Class<?> cls) {
-    VectorType type = Vec.CLASS_TO_VECTOR_TYPE.get(cls);
-    if (type == null) {
-      return new GenericVectorType(cls);
-    }
-    return type;
-  }
-
-  static VectorType infer(Object object) {
-    if (object != null) {
-      return getInstance(object.getClass());
-    } else {
-      return Vec.VARIABLE;
-    }
-  }
-
   /**
    * Creates a new builder able to build vectors of this type
    *
@@ -74,40 +58,6 @@ public interface VectorType {
   int compare(int a, Vector va, int b, Vector ba);
 
   /**
-   * @param a  the index in {@code va}
-   * @param va the vector
-   * @param ba the value
-   * @return the comparison
-   * @see #compare(int, Vector, int, Vector)
-   */
-  default int compare(int a, Vector va, Value ba) {
-    return compare(a, va, 0, ba);
-  }
-
-  /**
-   * @param va the value
-   * @param b  the index in ba
-   * @param ba the vector
-   * @return the comparison
-   * @see #compare(int, Vector, int, Vector)
-   */
-  default int compare(Value va, int b, Vector ba) {
-    return compare(0, va, b, ba);
-  }
-
-  /**
-   * Compares two values.
-   *
-   * @param va the first value
-   * @param ba the second value
-   * @return the comparison
-   * @see #compare(int, Vector, int, Vector)
-   */
-  default int compare(Value va, Value ba) {
-    return compare(0, va, 0, ba);
-  }
-
-  /**
    * Returns the scale of this type. If the scale is {@link Scale#NOMINAL}, the {@link
    * Vector#getAsString(int)} is expected to return a meaningful value. On the other hand, if the
    * value is {@link Scale#NUMERICAL} {@link Vector#getAsDouble(int)} is expected to return a
@@ -131,27 +81,27 @@ public interface VectorType {
     return compare(a, va, b, ba) == 0;
   }
 
-  /**
-   * Check if value {@code va} and {@code ba} are equal.
-   *
-   * @param va the value
-   * @param ba the value
-   * @return true if equal false otherwise
-   */
-  default boolean equals(Value va, Value ba) {
-    return equals(0, va, 0, ba);
-  }
-
-  /**
-   * Check if value {@code va} is equal to {@code ba.getValue(b)}
-   *
-   * @param va the value
-   * @param b  the index in ba
-   * @param ba the vector
-   * @return true if equal false otherwise
-   */
-  default boolean equals(Value va, int b, Vector ba) {
-    return equals(0, va, b, ba);
-  }
+//  /**
+//   * Check if value {@code va} and {@code ba} are equal.
+//   *
+//   * @param va the value
+//   * @param ba the value
+//   * @return true if equal false otherwise
+//   */
+//  default boolean equals(Value va, Value ba) {
+//    return equals(0, va, 0, ba);
+//  }
+//
+//  /**
+//   * Check if value {@code va} is equal to {@code ba.getValue(b)}
+//   *
+//   * @param va the value
+//   * @param b  the index in ba
+//   * @param ba the vector
+//   * @return true if equal false otherwise
+//   */
+//  default boolean equals(Value va, int b, Vector ba) {
+//    return equals(0, va, b, ba);
+//  }
 
 }

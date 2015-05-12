@@ -11,8 +11,8 @@ public final class Is {
 
   }
 
-  public static boolean nominal(Value value) {
-    return value.getType().getScale() == Scale.NOMINAL;
+  public static boolean nominal(Object value) {
+    return !(value instanceof Number);
   }
 
   /**
@@ -73,7 +73,7 @@ public final class Is {
    * @return true if vector is {@code Undefined.INSTANCE}
    */
   public static boolean NA(Vector value) {
-    return value == Undefined.INSTANCE;
+    return value.size() == 0;
   }
 
   public static boolean NA(Object o) {

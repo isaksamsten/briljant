@@ -1,14 +1,12 @@
 package org.briljantframework.dataframe;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
@@ -21,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -151,11 +148,6 @@ public class MixedDataFrame extends AbstractDataFrame {
     } else {
       return frame;
     }
-  }
-
-  @Override
-  public Value getAsValue(int row, int column) {
-    return columns.get(column).getAsValue(row);
   }
 
   @Override
@@ -485,7 +477,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public Builder set(int row, int column, Object value) {
       ensureColumnCapacity(column - 1, Vec.VARIABLE);
-      ensureColumnCapacity(column, VectorType.infer(value));
+      ensureColumnCapacity(column, Vec.inferTypeOf(value));
       buffers.get(column).set(row, value);
       return this;
     }
@@ -499,16 +491,23 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder swapColumns(int a, int b) {
-//      columnNames.swap(a, b);
       Collections.swap(buffers, a, b);
       return this;
     }
 
-    @Override
     public Builder swapInColumn(int column, int a, int b) {
       buffers.get(column).swap(a, b);
       return this;
     }
+
+    @Override
+    public Builder swapRecords(int a, int b) {
+      for (int i = 0; i < columns(); i++) {
+        swapInColumn(i, a, b);
+      }
+      return this;
+    }
+
 
     @Override
     public Builder read(EntryReader entryReader) throws IOException {

@@ -38,7 +38,7 @@ public class TreePredictor<T> extends AbstractPredictor {
   }
 
   @Override
-  public DoubleMatrix estimate(Vector row) {
-    return predictionVisitor.visit(node, row);
+  public DoubleMatrix estimate(Vector record) {
+    return predictionVisitor.visit(node, record);
   }
 }

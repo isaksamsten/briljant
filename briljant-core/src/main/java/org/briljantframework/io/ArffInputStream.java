@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableMap;
 
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Undefined;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
 
 import java.io.BufferedReader;
@@ -21,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by isak on 02/03/15.
+ * @author Isak Karlsson
  */
 public class ArffInputStream extends DataInputStream {
 
@@ -73,11 +71,11 @@ public class ArffInputStream extends DataInputStream {
     while (currentLine != null && (attr = ATTRIBUTE.matcher(currentLine)).matches()) {
       String name = attr.group(1);
       String typeRepr = attr.group(2).trim().toLowerCase();
-      VectorType type = TYPE_MAP.getOrDefault(typeRepr, Undefined.TYPE);
+      VectorType type = TYPE_MAP.get(typeRepr);
       columnNames.add(name);
-      if (!type.equals(Vec.UNDEFINED)) {
+      if (type != null) {
         columnTypes.add(type);
-      } else if (type.equals(Vec.UNDEFINED) && (NOMINAL.matcher(typeRepr)).matches()) {
+      } else if ((NOMINAL.matcher(typeRepr)).matches()) {
         columnTypes.add(StringVector.TYPE);
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));

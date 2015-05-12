@@ -18,7 +18,6 @@ package org.briljantframework.evaluation.measure;
 
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vec;
 
 import java.util.EnumMap;
@@ -105,7 +104,7 @@ public abstract class AbstractMeasure implements Measure {
     }
 
     @Override
-    public void add(Sample sample, Map<Value, Double> values) {
+    public void add(Sample sample, Map<Object, Double> values) {
       add(sample, values.values().stream().mapToDouble(Double::doubleValue).average().orElse(0));
     }
 

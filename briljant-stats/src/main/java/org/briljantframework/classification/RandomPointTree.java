@@ -315,8 +315,8 @@ public class RandomPointTree implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector row) {
-      return splitPointTreeVisitor.visit(treeNode, row);
+    public DoubleMatrix estimate(Vector record) {
+      return splitPointTreeVisitor.visit(treeNode, record);
     }
   }
 

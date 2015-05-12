@@ -22,10 +22,8 @@ import org.briljantframework.dataframe.Record;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.StringValue;
-import org.briljantframework.vector.Value;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.briljantframework.matrix.Matrices.shuffle;
@@ -144,13 +142,13 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public Value predict(Vector row) {
-      double prob = Vec.sigmoid(row, theta);
-      return new StringValue("1"); // TODO!
+    public Object predict(Vector record) {
+      double prob = Vec.sigmoid(record, theta);
+      return prob > 0.5 ? 1 : 0;
     }
 
     @Override
-    public DoubleMatrix estimate(Vector row) {
+    public DoubleMatrix estimate(Vector record) {
       return null;
     }
 

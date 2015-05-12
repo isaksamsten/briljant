@@ -22,8 +22,8 @@ public class RandomForestTest {
 
     IntMatrix f = Bj.matrix(new int[]{1, 2, 3});
     for (int i = 0; i < f.size(); i++) {
-      RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(f.get(i)).build();
-      Result result = Validators.splitValidation(0.3).test(forest, x, y);
+      RandomForest forest = RandomForest.withSize(1000).withMaximumFeatures(f.get(i)).build();
+      Result result = Validators.crossValidation(10).test(forest, x, y);
       System.out.println(
           result.getAverage(Ensemble.Correlation.class) + " "
           + result.getAverage(Ensemble.Strength.class) + " "

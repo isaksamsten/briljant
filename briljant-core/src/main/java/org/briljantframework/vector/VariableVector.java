@@ -7,17 +7,15 @@ package org.briljantframework.vector;
  */
 public interface VariableVector extends Vector {
 
-  public static final Value NA = Undefined.INSTANCE;
-
   public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
-      return new ValueVector.Builder();
+      return new ObjectVector.Builder();
     }
 
     @Override
     public Builder newBuilder(int size) {
-      return new ValueVector.Builder(size);
+      return new ObjectVector.Builder(size);
     }
 
 

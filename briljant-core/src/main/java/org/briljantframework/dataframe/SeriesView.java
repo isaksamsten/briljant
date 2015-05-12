@@ -4,7 +4,6 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -26,11 +25,6 @@ public class SeriesView implements Series {
   @Override
   public Complex getAsComplex(int index) {
     return parent.getAsComplex(index, column);
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return parent.getAsValue(index, column);
   }
 
   @Override

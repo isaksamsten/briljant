@@ -6,14 +6,11 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
-import java.util.function.UnaryOperator;
-
 /**
- * Created by isak on 11/05/15.
+ * @author Isak Karlsson
  */
 public class SeriesVector implements Series {
 
@@ -57,11 +54,6 @@ public class SeriesVector implements Series {
         .append("Name: ").append(name())
         .append(" type: ").append(getType())
         .toString();
-  }
-
-  @Override
-  public Value getAsValue(int index) {
-    return vector.getAsValue(index);
   }
 
   @Override
@@ -117,11 +109,6 @@ public class SeriesVector implements Series {
   @Override
   public Vector slice(Iterable<Integer> indexes) {
     return vector.slice(indexes);
-  }
-
-  @Override
-  public Vector apply(UnaryOperator<Value> operator) {
-    return vector.apply(operator);
   }
 
   @Override

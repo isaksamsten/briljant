@@ -18,9 +18,7 @@ package org.briljantframework.classification.tree;
 
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.DoubleValue;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -56,7 +54,7 @@ public class RandomSplitter extends AbstractSplitter {
 
     int maxFeatures =
         this.maxFeatures > 0 ? this.maxFeatures
-            : (int) Math.round(Math.sqrt(dataFrame.columns())) + 1;
+                             : (int) Math.round(Math.sqrt(dataFrame.columns())) + 1;
 
     // TODO! Fix me!
     synchronized (features) {
@@ -68,8 +66,8 @@ public class RandomSplitter extends AbstractSplitter {
     for (int i = 0; i < features.length && i < maxFeatures; i++) {
       int axis = features[i];
 
-      Value threshold = search(dataFrame.get(axis), classSet);
-      if (threshold.isNA()) {
+      Object threshold = search(dataFrame.get(axis), classSet);
+      if (Is.NA(threshold)) {
         continue;
       }
 
@@ -97,11 +95,11 @@ public class RandomSplitter extends AbstractSplitter {
   /**
    * Search value.
    *
-   * @param axis the dataset
+   * @param axis     the dataset
    * @param classSet the examples
    * @return the value
    */
-  protected Value search(Vector axis, ClassSet classSet) {
+  protected Object search(Vector axis, ClassSet classSet) {
     switch (axis.getType().getScale()) {
       case NOMINAL:
         return sampleCategoricValue(axis, classSet);
@@ -115,11 +113,11 @@ public class RandomSplitter extends AbstractSplitter {
   /**
    * Sample numeric value.
    *
-   * @param vector the dataset
+   * @param vector   the dataset
    * @param classSet the examples
    * @return the value
    */
-  protected Value sampleNumericValue(Vector vector, ClassSet classSet) {
+  protected double sampleNumericValue(Vector vector, ClassSet classSet) {
     Example a = classSet.getRandomSample().getRandomExample();
     Example b = classSet.getRandomSample().getRandomExample();
 
@@ -128,11 +126,11 @@ public class RandomSplitter extends AbstractSplitter {
 
     // TODO - what if both A and B are missing?
     if (Is.NA(valueA)) {
-      return new DoubleValue(valueB);
+      return valueB;
     } else if (Is.NA(valueB)) {
-      return new DoubleValue(valueB);
+      return valueB;
     } else {
-      return new DoubleValue((valueA + valueB) / 2);
+      return (valueA + valueB) / 2;
     }
 
   }
@@ -141,18 +139,19 @@ public class RandomSplitter extends AbstractSplitter {
    * Sample categoric value.
    *
    * @param axisVector the dataset
-   * @param classSet the examples
+   * @param classSet   the examples
    * @return the value
    */
-  protected Value sampleCategoricValue(Vector axisVector, ClassSet classSet) {
+  protected Object sampleCategoricValue(Vector axisVector, ClassSet classSet) {
     Example example = classSet.getRandomSample().getRandomExample();
-    return axisVector.getAsValue(example.getIndex());
+    return axisVector.get(Object.class, example.getIndex());
   }
 
   /**
    * The type Builder.
    */
   public static class Builder {
+
     private int maxFeatures;
     private Gain criterion = Gain.INFO;
 

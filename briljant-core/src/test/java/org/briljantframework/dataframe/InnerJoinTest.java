@@ -7,6 +7,8 @@ import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
 import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 public class InnerJoinTest extends TestCase {
 
@@ -27,12 +29,35 @@ public class InnerJoinTest extends TestCase {
     connect4 = connect4.insert(0, "index", IntVector.range(connect4.rows()));
 //    connect4.setColumnName(0, "index");
 //    System.out.println(connect4);
-    long s = System.nanoTime();
     DataFrame f = null;
     for (int i = 0; i < 10; i++) {
       f = connect4.join(connect4, 0);
     }
+
+    long s = System.nanoTime();
+    boolean bo = false;
+    for (int j = 0; j < f.columns(); j++) {
+      Vector column = f.get(j);
+      for (int i = 0; i < f.rows(); i++) {
+        bo = Is.NA(column.get(Object.class, i));
+      }
+    }
     System.out.println((System.nanoTime() - s) / 1e6);
+
+    s = System.nanoTime();
+
+    Record mode = f.reduce(Vec::mode);
+    System.out.println(mode.get(Object.class, "21"));
+//    for (int j = 0; j < f.columns(); j++) {
+//      Vector column = f.get(j);
+//      for (int i = 0; i < f.rows(); i++) {
+//        bo = column.isNA(i);
+//      }
+//    }
+    System.out.println((System.nanoTime() - s) / 1e6);
+
+
+//    System.out.println(DataFrames.permuteRows(f));
     // System.out.println(DataFrames.leftOuterJoin(dogs, cats, Arrays.asList(0)));
 
   }
@@ -63,19 +88,7 @@ public class InnerJoinTest extends TestCase {
                                         "key2", new StringVector("one", "one", "one", "two"),
                                         "rval", new IntVector(4, 5, 6, 7));
 
-    System.out
-        .println(left.apply(Integer.class, v -> !Is.NA(v) ? v * 2 : Na.of(Integer.class), "lval"));
-
-    Series df = left.join(right)
-        .sortBy("lval")
-        .apply(Integer.class, v -> !Is.NA(v) ? (int) Math.pow(v, 2) : Na.of(Integer.class))
-        .reduce(Integer.class, 0, (a, b) -> a + b);
-    System.out.println(df);
-    Series sums = left.reduce(Integer.class, 0,
-                              (v, acc) -> !Is.NA(v) ? v + acc : Na.of(Integer.class));
-    System.out.println(sums);
-    System.out.println(right);
+    System.out.println(left.reduce(Vec::mode));
     System.out.println(left.join(JoinType.INNER, right));
-
   }
 }

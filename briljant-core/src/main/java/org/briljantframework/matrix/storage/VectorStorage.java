@@ -3,13 +3,13 @@ package org.briljantframework.matrix.storage;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.ImmutableModificationException;
 import org.briljantframework.matrix.AbstractStorage;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 /**
  * Created by isak on 1/31/15.
  */
 public class VectorStorage extends AbstractStorage {
+
   private final Vector vector;
 
   public VectorStorage(Vector vector) {
@@ -61,7 +61,7 @@ public class VectorStorage extends AbstractStorage {
 
   @Override
   public Class<?> getNativeType() {
-    return Value.class;
+    return Object.class;
   }
 
   @Override

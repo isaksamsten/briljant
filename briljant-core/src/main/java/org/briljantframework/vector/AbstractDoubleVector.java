@@ -50,12 +50,6 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   };
 
   @Override
-  public Value getAsValue(int index) {
-    double value = getAsDouble(index);
-    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
-  }
-
-  @Override
   public <T> T get(Class<T> cls, int index) {
     if (cls.isAssignableFrom(Double.class)) {
       return cls.cast(getAsDouble(index));

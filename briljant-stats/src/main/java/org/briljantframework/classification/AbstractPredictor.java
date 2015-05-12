@@ -7,7 +7,6 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 
 import java.util.EnumSet;
@@ -46,8 +45,8 @@ public abstract class AbstractPredictor implements Predictor {
   }
 
   @Override
-  public Value predict(Vector row) {
-    return classes.getAsValue(argmax(estimate(row)));
+  public Object predict(Vector record) {
+    return classes.get(Object.class, argmax(estimate(record)));
   }
 
   @Override

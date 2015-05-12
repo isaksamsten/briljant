@@ -13,12 +13,9 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Convert;
-import org.briljantframework.vector.DoubleValue;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Undefined;
-import org.briljantframework.vector.Value;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -44,20 +41,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   public MatrixDataFrame(DoubleMatrix matrix) {
     this.matrix = matrix;
-  }
-
-  /**
-   * Returns a {@link org.briljantframework.vector.DoubleValue} or {@link
-   * org.briljantframework.vector.Undefined#INSTANCE}
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  @Override
-  public Value getAsValue(int row, int column) {
-    double value = matrix.get(row, column);
-    return Is.NA(value) ? Undefined.INSTANCE : new DoubleValue(value);
   }
 
   @Override
@@ -314,9 +297,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder set(int row, int column, Object value) {
       double dval;
-      if (value instanceof Value) {
-        dval = ((Value) value).getAsDouble();
-      } else if (value instanceof Number) {
+      if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else {
         dval = DoubleVector.NA;
@@ -355,8 +336,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       return this;
     }
 
-    @Override
-    public DataFrame.Builder swapInColumn(int column, int a, int b) {
+    private DataFrame.Builder swapInColumn(int column, int a, int b) {
       checkArgument(column >= 0 && column < columns());
       checkArgument(a >= 0 && a < rows() && b >= 0 && b < rows());
 
@@ -366,6 +346,14 @@ public class MatrixDataFrame extends AbstractDataFrame {
       double tmp = buffer[oldIndex];
       buffer[oldIndex] = buffer[newIndex];
       buffer[newIndex] = tmp;
+      return this;
+    }
+
+    @Override
+    public Builder swapRecords(int a, int b) {
+      for (int i = 0; i < columns(); i++) {
+        swapInColumn(i, a, b);
+      }
       return this;
     }
 
@@ -490,9 +478,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder set(int row, int column, Object value) {
       double dval;
-      if (value instanceof Value) {
-        dval = ((Value) value).getAsDouble();
-      } else if (value instanceof Number) {
+      if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else {
         dval = DoubleVector.NA;
@@ -504,8 +490,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder removeColumn(int column) {
       checkArgument(column >= 0 && column < columns());
-
-//      columnNames.remove(column);
       buffer.remove(column);
       columns--;
       return this;
@@ -514,17 +498,23 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
       Utils.swap(buffer, a, b);
-//      columnNames.swap(a, b);
       return this;
     }
 
-    @Override
-    public DataFrame.Builder swapInColumn(int column, int a, int b) {
+    private DataFrame.Builder swapInColumn(int column, int a, int b) {
       IntDoubleMap col = buffer.get(column);
       if (col != null) {
         Utils.swap(col, a, b);
       }
       // column only has NA values and no swapping is needed
+      return this;
+    }
+
+    @Override
+    public Builder swapRecords(int a, int b) {
+      for (int i = 0; i < columns(); i++) {
+        swapInColumn(i, a, b);
+      }
       return this;
     }
 

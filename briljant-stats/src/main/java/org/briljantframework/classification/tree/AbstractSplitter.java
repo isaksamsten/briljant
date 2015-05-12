@@ -17,7 +17,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Value;
+import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -39,13 +39,13 @@ public abstract class AbstractSplitter implements Splitter {
   /**
    * Basic implementation of the splitting procedure
    *
-   * @param classSet the examples
-   * @param axis the axis
+   * @param classSet  the examples
+   * @param axis      the axis
    * @param threshold the threshold
    * @return the examples . split
    */
   protected TreeSplit<ValueThreshold> split(DataFrame dataset, ClassSet classSet, int axis,
-      Value threshold) {
+                                            Object threshold) {
     ClassSet left = new ClassSet(classSet.getDomain());
     ClassSet right = new ClassSet(classSet.getDomain());
     Vector axisVector = dataset.get(axis);
@@ -64,18 +64,25 @@ public abstract class AbstractSplitter implements Splitter {
       /*
        * STEP 1: Partition the examples according to threshold
        */
+      boolean nominal = Is.nominal(threshold);
       for (Example example : sample) {
-        Value value = axisVector.getAsValue(example.getIndex());
         int direction = MISSING;
-        switch (axisType.getScale()) {
-          case NOMINAL:
-            direction = axisType.equals(threshold, value) ? LEFT : RIGHT;
-            break;
-          case NUMERICAL:
-            direction = axisType.compare(threshold, value) <= 0 ? LEFT : RIGHT;
-            break;
+        int index = example.getIndex();
+        if (!axisVector.isNA(index)) {
+          if (nominal) {
+            direction = axisVector.equals(index, threshold) ? LEFT : RIGHT;
+          } else {
+            direction = axisVector.compare(index, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
+          }
         }
-
+//        switch (axisType.getScale()) {
+//          case NOMINAL:
+//            direction = axisType.equals(threshold, value) ? LEFT : RIGHT;
+//            break;
+//          case NUMERICAL:
+//            direction = axisType.compare(threshold, value) <= 0 ? LEFT : RIGHT;
+//            break;
+//        }
         switch (direction) {
           case LEFT:
             leftSample.add(example);
@@ -87,13 +94,6 @@ public abstract class AbstractSplitter implements Splitter {
           default:
             missingSample.add(example);
         }
-        // if (value.isNA()) {
-        // missingSample.add(example);
-        // } else if (threshold.compareTo(value) <= 0) {
-        // leftSample.add(example);
-        // } else {
-        // rightSample.add(example);
-        // }
       }
 
       /*
@@ -113,22 +113,25 @@ public abstract class AbstractSplitter implements Splitter {
     }
 
     return new TreeSplit<>(left, right, ValueThreshold.create(axis, threshold));
+//
+//    throw new UnsupportedOperationException("TODO");
   }
 
   /**
    * Distribute missing getPosteriorProbabilities (this should be an injected dependency)
    *
-   * @param left the left
-   * @param right the right
+   * @param left    the left
+   * @param right   the right
    * @param missing the missing
    */
   protected void distributeMissing(ClassSet.Sample left, ClassSet.Sample right,
-      ClassSet.Sample missing) {
+                                   ClassSet.Sample missing) {
     for (Example example : missing) {
-      if (random.nextDouble() > 0.5)
+      if (random.nextDouble() > 0.5) {
         left.add(example);
-      else
+      } else {
         right.add(example);
+      }
     }
   }
 
