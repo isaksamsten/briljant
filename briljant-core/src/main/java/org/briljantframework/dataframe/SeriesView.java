@@ -3,6 +3,7 @@ package org.briljantframework.dataframe;
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -12,7 +13,7 @@ import org.briljantframework.vector.VectorType;
  *
  * @author Isak Karlsson
  */
-public class SeriesView implements Series {
+public class SeriesView extends AbstractVector implements Series {
 
   private final DataFrame parent;
   private final int column;

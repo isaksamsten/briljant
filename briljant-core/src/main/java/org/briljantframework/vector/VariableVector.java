@@ -10,12 +10,12 @@ public interface VariableVector extends Vector {
   public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
-      return new ObjectVector.Builder();
+      return new GenericVector.Builder(Object.class);
     }
 
     @Override
     public Builder newBuilder(int size) {
-      return new ObjectVector.Builder(size);
+      return new GenericVector.Builder(Object.class, size);
     }
 
 

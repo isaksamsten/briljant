@@ -12,6 +12,8 @@ import org.briljantframework.vector.VectorType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -135,6 +137,23 @@ public interface DataFrame extends Iterable<Record> {
 
   DataFrame sort(SortOrder order);
 
+  DataFrame sort(Comparator<? super Vector> vector);
+
+  /**
+   * Sort column {@code column}
+   *
+   * @param <T>    the type
+   * @param cls    the class
+   * @param cmp    the comparator; values might be null.
+   * @param column the column index
+   * @return a new data frame sorted according to {@code cmp}
+   */
+  <T> DataFrame sortBy(Class<? extends T> cls, Comparator<? super T> cmp, int column);
+
+  default <T> DataFrame sortBy(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
+    return sortBy(cls, cmp, getColumnIndex().index(key));
+  }
+
   DataFrame sortBy(int column);
 
   DataFrame sortBy(SortOrder order, int column);
@@ -257,6 +276,56 @@ public interface DataFrame extends Iterable<Record> {
    */
   Record reduce(Function<Vector, Object> op);
 
+  /**
+   * <p> Aggregate every column which is an instance of {@code cls} using the supplied aggregator.
+   *
+   * <pre>{@code
+   *  df.aggregate(Double.class, Aggregate.of(
+   *    RunningStatistics::new, RunningStatistics::add, RunningStatistics::getMean))
+   * }</pre>
+   *
+   * <p> Returns a series consisting of the mean of the {@code Double} columns in {@code this}
+   * dataframe.
+   *
+   * <p> Note that {@link org.briljantframework.dataframe.Aggregates} implement several convenient
+   * aggregates, for example {@code df.aggregate(Number.class, Aggregate.median())}.
+   *
+   * @param cls        the class
+   * @param aggregator the aggregator
+   * @param <T>        the type of value to be aggregated
+   * @param <C>        the type of the mutable aggregator
+   * @return a {@linkplain org.briljantframework.dataframe.Series} of the aggregated values
+   */
+  <T, C> Series aggregate(Class<? extends T> cls, Aggregator<? super T, ? extends T, C> aggregator);
+
+  /**
+   * Group DataFrame based on the values of column at {@code index}.
+   *
+   * @param index the column index to group on
+   * @return a group DataFrame
+   */
+  default DataFrameGroupBy groupBy(int index) {
+    return groupBy(v -> v.get(Object.class, index));
+  }
+
+  default DataFrameGroupBy groupBy(Object key) {
+    return groupBy(getColumnIndex().index(key));
+  }
+
+  /**
+   * <p> Group data frame based on the value returned by {@code keyFunction}. Each record in the
+   * data frame is used for grouping.
+   *
+   * <p> The result of {@link #groupBy(int);} can be implemented as {@code groupBy(v ->
+   * v.get(Object.class, index))}
+   *
+   * @param keyFunction the key function
+   * @return a group by data frame
+   */
+  DataFrameGroupBy groupBy(Function<Record, Object> keyFunction);
+
+  DataFrame transform(Function<? super Series, ? extends Vector> transform);
+
   DataFrame add(Vector column);
 
   DataFrame insert(int index, Object key, Vector column);
@@ -268,7 +337,7 @@ public interface DataFrame extends Iterable<Record> {
    * @return the vector
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > columns}
    */
-  Vector get(int index);
+  Series get(int index);
 
   /**
    * Uses the column name to lookup a specified column.
@@ -278,6 +347,8 @@ public interface DataFrame extends Iterable<Record> {
    * @throws java.lang.IllegalArgumentException if key is not found
    */
   Vector get(Object key);
+
+  DataFrame dropna();
 
   /**
    * Remove column with {@code index}
@@ -331,7 +402,7 @@ public interface DataFrame extends Iterable<Record> {
    *
    * @return an immutable collection of column types
    */
-  Collection<VectorType> getTypes();
+  List<VectorType> getTypes();
 
   /**
    * Return a collection of columns
@@ -445,6 +516,8 @@ public interface DataFrame extends Iterable<Record> {
   default Stream<Record> parallelStream() {
     return StreamSupport.stream(spliterator(), true);
   }
+
+  DataFrame resetIndex();
 
   Index getRecordIndex();
 

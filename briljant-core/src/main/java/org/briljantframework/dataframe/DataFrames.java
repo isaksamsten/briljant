@@ -321,15 +321,16 @@ public final class DataFrames {
    * @return a tabular string representation
    */
   public static String toTabularString(DataFrame dataFrame, int max) {
-    ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
-    b.put(0, 0, " ");
-
+    Index recordIndex = dataFrame.getRecordIndex();
     Index columnIndex = dataFrame.getColumnIndex();
+
+    ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
+    b.put(0, 0, " Index");
+
     for (int j = 0; j < dataFrame.columns(); j++) {
       b.put(0, j + 1, columnIndex.get(j));
     }
 
-    Index recordIndex = dataFrame.getRecordIndex();
     for (int i = 0; i < dataFrame.rows() && i < max; i++) {
       b.put(i + 1, 0, String.format("[%s,] ", recordIndex.get(i)));
       for (int j = 0; j < dataFrame.columns(); j++) {

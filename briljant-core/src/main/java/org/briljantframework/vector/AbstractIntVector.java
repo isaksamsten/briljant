@@ -26,7 +26,7 @@ public abstract class AbstractIntVector extends AbstractVector {
 
     @Override
     public Class<?> getDataClass() {
-      return Integer.TYPE;
+      return Integer.class;
     }
 
     @Override

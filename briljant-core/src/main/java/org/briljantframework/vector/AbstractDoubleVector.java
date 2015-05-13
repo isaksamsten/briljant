@@ -22,7 +22,7 @@ public abstract class AbstractDoubleVector extends AbstractVector {
 
     @Override
     public Class<?> getDataClass() {
-      return Double.TYPE;
+      return Double.class;
     }
 
     @Override

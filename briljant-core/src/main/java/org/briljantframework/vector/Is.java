@@ -79,6 +79,10 @@ public final class Is {
   public static boolean NA(Object o) {
     if (o == null) {
       return true;
+    } else if (o instanceof Double) {
+      return Is.NA((double) o);
+    } else if (o instanceof Integer) {
+      return Is.NA((int) o);
     } else {
       Object na = Na.of(o.getClass());
       return o.equals(na);

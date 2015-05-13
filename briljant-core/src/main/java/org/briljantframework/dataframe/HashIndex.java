@@ -108,6 +108,9 @@ public class HashIndex extends AbstractList<Object> implements Index {
   public Object get(int index) {
     Object key = reverse.get(index);
     if (key == null) {
+      if (reverse.containsKey(index)) {
+        return null;
+      }
       throw noSuchElement(index);
     }
     return key;

@@ -63,18 +63,20 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public boolean isNA(int index) {
-    return values.get(index) == null;
-  }
-
-  @Override
   public double getAsDouble(int index) {
-    return get(Double.TYPE, index);
+    Number number = get(Number.class, index);
+    return Is.NA(number) ? Na.of(Double.class) : number.doubleValue();
   }
 
   @Override
   public int getAsInt(int index) {
-    return get(Integer.TYPE, index);
+    Number number = get(Number.class, index);
+    return Is.NA(number) ? Na.of(Integer.class) : number.intValue();
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return values.get(index) == null;
   }
 
   @Override
@@ -105,10 +107,15 @@ public class GenericVector extends AbstractVector {
   @Override
   @SuppressWarnings("unchecked")
   public int compare(int a, int b) {
-    if (Comparable.class.isAssignableFrom(cls)) {
-      return get(Comparable.class, a).compareTo(get(Comparable.class, b));
+    Comparable ca = get(Comparable.class, a);
+    Comparable cb = get(Comparable.class, b);
+    if (Is.NA(ca) && !Is.NA(cb)) {
+      return -1;
+    } else if (!Is.NA(ca) && Is.NA(cb)) {
+      return 1;
+    } else {
+      return ca.compareTo(cb);
     }
-    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableTable;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vector;
@@ -13,7 +14,7 @@ import org.briljantframework.vector.VectorType;
 /**
  * @author Isak Karlsson
  */
-public class RecordView implements Record {
+public class RecordView extends AbstractVector implements Record {
 
   private final DataFrame parent;
   private final int row;

@@ -259,8 +259,8 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Vector get(int index) {
-    return columns.get(index);
+  public Series get(int index) {
+    return new SeriesVector(getColumnIndex().get(index), getRecordIndex(), columns.get(index));
   }
 
 //  @Override

@@ -5,10 +5,11 @@ import junit.framework.TestCase;
 import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Na;
 import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
+
+import java.util.Arrays;
 
 public class InnerJoinTest extends TestCase {
 
@@ -46,8 +47,13 @@ public class InnerJoinTest extends TestCase {
 
     s = System.nanoTime();
 
-    Record mode = f.reduce(Vec::mode);
-    System.out.println(mode.get(Object.class, "21"));
+    DataFrameGroupBy g = f.retain(Arrays.asList(2, 3)).groupBy(0);
+    System.out.println(g.aggregate(Object.class, Aggregates.join(",")));
+
+
+
+//    Record mode = f.reduce(Vec::mode);
+//    System.out.println(mode.get(Object.class, "21"));
 //    for (int j = 0; j < f.columns(); j++) {
 //      Vector column = f.get(j);
 //      for (int i = 0; i < f.rows(); i++) {
@@ -55,7 +61,6 @@ public class InnerJoinTest extends TestCase {
 //      }
 //    }
     System.out.println((System.nanoTime() - s) / 1e6);
-
 
 //    System.out.println(DataFrames.permuteRows(f));
     // System.out.println(DataFrames.leftOuterJoin(dogs, cats, Arrays.asList(0)));
@@ -88,7 +93,30 @@ public class InnerJoinTest extends TestCase {
                                         "key2", new StringVector("one", "one", "one", "two"),
                                         "rval", new IntVector(4, 5, 6, 7));
 
-    System.out.println(left.reduce(Vec::mode));
+    System.out.println(left);
     System.out.println(left.join(JoinType.INNER, right));
+
+    System.out.println("______----____");
+    System.out.println(left.groupBy(0).groups());
+    DataFrame g = left.groupBy(0).aggregate(Vec::mean);
+    System.out.println(g);
+
+    for (Group entry : left
+        .groupBy(a -> Arrays.asList(a.get(Object.class, 0), a.get(Object.class, 1)))) {
+      System.out.println(entry.group());
+      System.out.println(entry.data());
+    }
+
+    System.out.println(
+        left.join(JoinType.OUTER, right).aggregate(Object.class, Aggregates.join(",")));
+    DataFrame gr = left.groupBy(0).aggregate(Object.class, Aggregates.join(","));
+    System.out.println(gr);
+
+    System.out.println(left.transform(
+        v -> IntVector.range(v.size())
+    ).aggregate(Number.class, Aggregates.sum()).getAsDouble(0));
+
+
+
   }
 }

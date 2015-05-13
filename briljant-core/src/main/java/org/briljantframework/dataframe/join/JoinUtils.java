@@ -119,38 +119,6 @@ public class JoinUtils {
 
   public static JoinKeys createJoinKeys(Vector a, Vector b) {
     return createJoinKeys(a.asList(Object.class), b.asList(Object.class));
-//    int aSize = a.size();
-//    int bSize = b.size();
-//    int[] left = new int[aSize];
-//    int[] right = new int[bSize];
-//    ObjectIntMap<Object> pool = new ObjectIntOpenHashMap<>();
-//
-//    int j = 0;
-//    for (int i = 0; i < aSize; i++) {
-//      Object val = a.get(Object.class, i);
-//      int ref = pool.getOrDefault(val, MISSING);
-//      if (ref != MISSING) {
-//        left[i] = ref;
-//      } else {
-//        left[i] = j;
-//        pool.put(val, j);
-//        j += 1;
-//      }
-//    }
-//
-//    for (int i = 0; i < bSize; i++) {
-//      Object val = b.get(Object.class, i);
-//      int ref = pool.getOrDefault(val, MISSING);
-//      if (ref != MISSING) {
-//        right[i] = ref;
-//      } else {
-//        right[i] = j;
-//        pool.put(val, j);
-//        j += 1;
-//      }
-//    }
-//
-//    return new JoinKeys(Bj.matrix(left), Bj.matrix(right), pool.size());
   }
 
 }

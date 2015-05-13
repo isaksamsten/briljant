@@ -1,6 +1,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.dataframe.Aggregator;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.BitMatrix;
@@ -17,6 +18,10 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -35,6 +40,17 @@ import java.util.stream.Stream;
  * @author Isak Karlsson
  */
 public interface Vector extends Serializable {
+
+  <T, O> Vector transform(Class<T> in, Class<O> out, Function<T, O> operator);
+
+  <T> Vector transform(Class<T> cls, UnaryOperator<T> operator);
+
+  <T> Vector filter(Class<T> cls, Predicate<T> predicate);
+
+  <T, R, C> R aggregate(Class<? extends T> in, Aggregator<? super T, ? extends R, C> aggregator);
+
+  <T> Vector combine(Class<? extends T> cls, Vector other,
+                     BinaryOperator<T> combiner);
 
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is

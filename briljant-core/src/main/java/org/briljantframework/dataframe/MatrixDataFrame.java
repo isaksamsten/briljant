@@ -139,8 +139,9 @@ public class MatrixDataFrame extends AbstractDataFrame {
    * @param index the index
    */
   @Override
-  public Vector get(int index) {
-    return Convert.toAdapter(matrix.getColumnView(index));
+  public Series get(int index) {
+    return new SeriesVector(getColumnIndex().get(index), getRecordIndex(),
+                            Convert.toAdapter(matrix.getColumnView(index)));
   }
 
   @Override

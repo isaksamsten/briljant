@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -68,6 +71,21 @@ public final class Vec {
   }
 
   private Vec() {
+  }
+
+  public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(
+      Supplier<V> supplier) {
+    return Collector.of(
+        supplier,
+        Vector.Builder::add,
+        (left, right) -> {
+          left.addAll(right.getTemporaryVector());
+          return left;
+        }, Vector.Builder::build);
+  }
+
+  public static UnaryOperator<Double> clip(double lower, double upper) {
+    return v -> v < lower ? lower : v > upper ? upper : v;
   }
 
   public static VectorType typeOf(Class<?> cls) {
