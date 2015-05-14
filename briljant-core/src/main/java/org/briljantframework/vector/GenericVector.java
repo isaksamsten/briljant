@@ -22,7 +22,7 @@ public class GenericVector extends AbstractVector {
   private final List<Object> values;
 
   @SuppressWarnings("unchecked")
-  public <T> GenericVector(Class<T> cls, List<T> values) {
+  public <T> GenericVector(Class<T> cls, List<? extends T> values) {
     this(cls, (List<Object>) values, null, true);
   }
 
@@ -40,7 +40,10 @@ public class GenericVector extends AbstractVector {
   @Override
   public <T> T get(Class<T> cls, int index) {
     Object obj = values.get(index);
-    if (obj == null || !cls.isInstance(obj)) {
+    if (!cls.isInstance(obj)) {
+      if (cls.equals(String.class)) {
+        return cls.cast(obj.toString());
+      }
       return Na.of(cls);
     }
     return cls.cast(obj);
@@ -84,7 +87,6 @@ public class GenericVector extends AbstractVector {
     return Bit.valueOf(getAsInt(index));
   }
 
-  @Override
   public String getAsString(int index) {
     return toString(index);
   }
@@ -256,7 +258,7 @@ public class GenericVector extends AbstractVector {
     @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
       ensureCapacity(index);
-      buffer.set(index, entry.next(cls));
+      buffer.set(index, entry.next(cls)); // TODO: do resolve here
       return this;
     }
 

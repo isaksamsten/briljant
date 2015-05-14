@@ -249,6 +249,16 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   }
 
   @Override
+  public double trace(DoubleMatrix x) {
+    int min = Math.min(x.rows(), x.columns());
+    double sum = 0;
+    for (int i = 0; i < min; i++) {
+      sum += x.get(i, i);
+    }
+    return sum;
+  }
+
+  @Override
   public void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
     Check.equalShape(x, y);
     if (alpha == 0) {

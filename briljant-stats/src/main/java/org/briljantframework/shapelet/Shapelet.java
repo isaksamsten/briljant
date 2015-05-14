@@ -87,11 +87,6 @@ public class Shapelet extends VectorView {
   }
 
   @Override
-  public String getAsString(int index) {
-    return parent.getAsString(start + index);
-  }
-
-  @Override
   public int size() {
     return length;
   }

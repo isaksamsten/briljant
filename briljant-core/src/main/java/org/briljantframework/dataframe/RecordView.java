@@ -80,7 +80,6 @@ public class RecordView extends AbstractVector implements Record {
     return parent.getAsComplex(row, index);
   }
 
-  @Override
   public String getAsString(int index) {
     return parent.getAsString(row, index);
   }

@@ -27,22 +27,24 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import java.util.EnumSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a non-parametric
+ * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a
+ * non-parametric
  * method used for classification and regression.[1] In both cases, the input consists of the k
  * closest training examples in the feature space. The output depends on whether k-NN is used for
  * classification or regression:
  * <p>
  * In k-NN classification, the output is a class membership. An object is classified by a majority
  * vote of its neighbors, with the object being assigned to the class most common among its k
- * nearest neighbors (k is a positive integer, typically small). If k = 1, then the object is simply
+ * nearest neighbors (k is a positive integer, typically small). If k = 1, then the object is
+ * simply
  * assigned to the class of that single nearest neighbor. In k-NN regression, the output is the
  * property value for the object. This value is the average of the getPosteriorProbabilities of its
  * k nearest neighbors. k-NN is a type of instance-based learning, or lazy learning, where the
@@ -85,7 +87,7 @@ public class KNearestNeighbors implements Classifier {
   @Override
   public Model fit(DataFrame x, Vector y) {
     checkArgument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
-        y.size());
+                  y.size());
     return new Model(x, y, distance, neighbors, Vec.unique(y));
   }
 
@@ -163,9 +165,9 @@ public class KNearestNeighbors implements Classifier {
     /**
      * Instantiates a new K nearest classification.
      *
-     * @param x the storage
+     * @param x        the storage
      * @param distance the distance
-     * @param k the k
+     * @param k        the k
      */
     Model(DataFrame x, Vector y, Distance distance, int k, Vector classes) {
       super(classes);
@@ -181,9 +183,9 @@ public class KNearestNeighbors implements Classifier {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
         double d = distance.compute(record, frame.getRecord(i));
-        queue.add(new DistanceIndex(targets.getAsString(i), d));
+        queue.add(new DistanceIndex(targets.get(Object.class, i), d));
       }
-      ObjectIntMap<String> votes = new ObjectIntOpenHashMap<>();
+      ObjectIntMap<Object> votes = new ObjectIntOpenHashMap<>();
       for (DistanceIndex di : queue) {
         votes.putOrAdd(di.target, 1, 1);
       }
@@ -191,7 +193,7 @@ public class KNearestNeighbors implements Classifier {
       int voters = queue.size();
       DoubleMatrix probas = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
-        probas.set(i, votes.getOrDefault(classes.getAsString(i), 0) / voters);
+        probas.set(i, votes.getOrDefault(classes.get(Object.class, i), 0) / voters);
       }
       return probas;
     }
@@ -203,10 +205,11 @@ public class KNearestNeighbors implements Classifier {
   }
 
   private static class DistanceIndex implements Comparable<DistanceIndex> {
-    private final double distance;
-    private final String target;
 
-    private DistanceIndex(String value, double distance) {
+    private final double distance;
+    private final Object target;
+
+    private DistanceIndex(Object value, double distance) {
       this.distance = distance;
       this.target = value;
     }

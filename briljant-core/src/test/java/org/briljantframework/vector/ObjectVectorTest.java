@@ -39,14 +39,6 @@ public class ObjectVectorTest {
   }
 
   @Test
-  public void testGetAsString() throws Exception {
-    assertEquals("1", sequence.getAsString(0));
-    assertEquals("2", sequence.getAsString(1));
-    assertEquals("hello", sequence.getAsString(2));
-    assertEquals(StringVector.NA, sequence.getAsString(4));
-  }
-
-  @Test
   public void testGetAsComplex() throws Exception {
     assertEquals(new Complex(1, 0), sequence.getAsComplex(0));
     assertEquals(new Complex(2, 0), sequence.getAsComplex(1));

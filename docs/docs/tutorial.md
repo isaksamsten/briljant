@@ -28,43 +28,21 @@ Briljants main abstractions are the [Matrix](#matrix),
 ## An example ##
 
 ```
-import static org.briljantframework.matrix.Doubles.*;
-import java.util.Random;
-import org.briljantframework.matrix.Matrix;
-
-public class Ex1 {
-  public static void main(String[] args) {
-    Random random = new Random(123);
-    DoubleMatrix m = zeros(3, 5);
-    m.assign(random::nextGaussian);
-    /*- =>
-     * -1.4380   0.2775   1.3520   1.0175  -0.4671
-     *  0.6342   0.1843   0.3592   1.3716  -0.6711
-     *  0.2261  -0.3652  -0.2053  -1.8902  -1.6794
-     * Shape: 3x5
-     */
-    m.getShape(); // => 3x5
-    assert m.rows() == 3;
-    assert m.columns() == 5;
-    assert m.size() == 15;
-    
-    mean(m, Axis.ROW);
-    /*- =>
-     * -0.1926   0.0322   0.5020   0.1663  -0.9392  
-     * Shape: 1x5
-     */
-  }
-}
+Random random = new Random(123);
+DoubleMatrix m = (3, 5);
+m.assign(random::nextGaussian);
+Bj.mean(m, Dim.R);
 ```
 
 ## Matrix
 
 There are several ways to create matrices, of which most are
-implemented in the `org.briljantframework.matrix.Doubles` class.
-
-For example, matrices can be created from one dimensional arrays,
-2-dimensional arrays, `Iterable<? extends Number>`, `String`
-representations and function applications.
+implemented in the `org.briljantframework.Bj` class. For example,
+matrices can be created from one and two dimensional arrays. The
+factory methods in `Bj` is delegated to an instance of
+`org.briljantframework.matrix.api.MatrixFactory` and decided based on
+the `MatrixBackend`. For details, please refer to the discussion on
+[MatrixBackends](reference/matrix.md#backend).
 
 !!! warning "Imports"
 
@@ -74,49 +52,49 @@ representations and function applications.
 
 !!! info "Matrix implementations"
 
-    Matrix is a general interface of which several implementations
-    exist. Most operations in `Doubles` either return a matrix of the
-    same type as its input or
-    `org.briljantframework.matrix.ArrayDoubleMatrix`.
+    The choice of matrix implementation returned by `Bj` is decided by
+    the `org.briljantframework.matrix.api.MatrixBackend`. The
+    `MatrixBackend` is responsible for creating matrices and for 
+    computing BLAS and linear algebra routines.
 
 !!! info "Matrix Types"
 
-    A few notes on types
+    Briljant implements five difference matrix types for a wide range
+    of domains including the primitive types: `int`, `double`, `long`
+    and `boolean` and for `Complex` numbers.
 
 ### Creation ###
 
 ```
-public class Ex2 {
-  public static void main(String[] args) {
-    DoubleMatrix a = Ints.range(0, 10).reshape(5, 2).asDoubleMatrix();
-    DoubleMatrix b = matrix(new double[][] {
-      new double[] {0, 5},
-      new double[] {1, 6},
-      new double[] {2, 7},
-      new double[] {3, 8},
-      new double[] {4, 9}
-    });
-    DoubleMatrix c = newMatrix(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).reshape(5, 2);
-    DoubleMatrix d = parseMatrix("0,5;1,6;2,7;3,8;4,9");
-  }
-}
+DoubleMatrix a = Bj.range(0, 10).reshape(5, 2).asDoubleMatrix();
+DoubleMatrix b = Bj.linspace(0, 10, 50).reshape(10, 5);
+DoubleMatrix c = Bj.linspace(0, 2 * Math.PI, 100).map(Math::sqrt);
+DoubleMatrix d = Bj.matrix(new double[][]{
+    new double[]{0, 5},
+    new double[]{1, 6},
+    new double[]{2, 7},
+    new double[]{3, 8},
+    new double[]{4, 9}
+});
+
+DoubleMatrix e = Bj.matrix(new double[]{
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+}).reshape(5, 2);
 ```
 
 In the example above, `a` is created using a range of numbers and
 reshaping it to a matrix with 5 rows and 2 columns; `b` is created,
-rather verbosely, using a multi-dimensional array; `c` is created
-using a flat array and reshaping it to a 5 by 2 matrix. Finally, `d`
-is created by parsing a string representation (similar to the Octave
-equivalent).
+rather verbosely, using a multi-dimensional array. Finally, `c` is
+created using a flat array and reshaping it to a 5 by 2 matrix.
 
-`Ints#range(int, int)` creates a column-vector (i.e. a m-by-1 matrix)
+`Bj#range(int, int)` creates a column-vector (i.e. a m-by-1 matrix)
 with values between `start` and `end` with `1` increments. The 3-arity
-version, `Ints#range(int, int, int)` can be used if another
+version, `Bj#range(int, int, int)` can be used if another
 `step`-size is needed. Since it's not possible to predict the number
-of values in floating point ranges, `Doubles#linspace(double, double,
-double)` should be use instead. `Doubles#linspace` receives an
+of values in floating point ranges, `Bj#linspace(double, double,
+double)` should be use instead. `Bj#linspace` receives an
 additional argument which denotes the number elements returned. For
-example, `Doubles#linspace(0, 10, 50).reshape(10, 5)` creates a
+example, `Bj#linspace(0, 10, 50).reshape(10, 5)` creates a
 10-by-5 matrix.
 
 In many cases, the size of a matrix is known but its contents is
@@ -124,22 +102,24 @@ not. Therefore, Briljant provides several ways of creating empty matrices with
 placeholder values.
 
 ```
-DoubleMatrix a = zeros(10, 10); // 10-by-10 matrix with elements set to 0
-DoubleMatrix b = ones(10, 10);  // 10-by-10 matrix with elements set to 1
-DoubleMatrix c = fill(10, 10, Double.NaN) // 10 by 10 matrix with elements set to NaN
-DoubleMatrix d = linspace(0, 2 * Math.PI, 100).mapi(Math::sin);
+// 10-by-10 matrix with elements set to 0
+DoubleMatrix a = Bj.doubleMatreix(10, 10);
+
+// 10-by-10 matrix with elements set to 1
+DoubleMatrix b = Bj.doubleMatrix(10, 10).assign(1);
+
+// 10 by 10 matrix with elements set to NaN
+DoubleMatrix c = Bj.doubleMatrix(10, 10).assign(Double.NaN);
+DoubleMatrix d = Bj.linspace(0, 2 * Math.PI, 100).map(Math::sin);
 ```
 
 #### See also ####
 
-[Doubles#matrix](examples.md#matrix),
-[Doubles#linspace](examples.md#linspace),
-[Doubles#parseMatrix](examples.md#parseMatrix),
-[Doubles#zeros](examples.md#zeros),
-[Doubles#ones](examples.md#ones),
-[Doubles#fill](examples.md#fill),
-[Doubles#rand](examples.md#rand),
-[Doubles#randn](examples.md#randn)
+[Bj#matrix](examples.md#matrix),
+[Bj#linspace](examples.md#linspace),
+[Bj#doubleMatrix](examples.md#zeros),
+[Bj#rand](examples.md#rand),
+[Bj#randn](examples.md#randn)
 
 ### Manipulation ###
 
@@ -150,40 +130,28 @@ makes it possible to reuse matrices (and hence avoid large memory
 allocations).
 
 ```
-public class Ex3 {
-  public static void main(String[] args) {
-    DoubleMatrix a = zeros(10, 10);
-    DoubleMatrix b = randn(10, 10);
+NormalDistribution sampler = new NormalDistribution(-1, 1);
+DoubleMatrix a = Bj.doubleMatrix(10, 10);
+DoubleMatrix b = Bj.rand(100, sampler).reshape(10, 10);
+a.assign(b);
+a.assign(b, Math::sqrt);
+DoubleMatrix x = a.assign(b, e -> e * e).reshape(5, 20);
+System.out.println(x);
 
-    a.assign(b); // a contains b
-    a.assign(b, Math::sqrt); // assign b and square the elements
-    a.assign(b.mapi(Math::sqrt));
+// Take the first row
+DoubleMatrix firstRow = b.getRowView(0);
 
-    DoubleMatrix x = a.assign(b, e -> e * e).reshape(5, 20);
+// Modifications views share data with the original
+firstRow.assign(Bj.doubleMatrix(10, 10).getRowView(0));
 
-    // Take the first row
-    DoubleMatrix firstRow = b.getRowView(0);
-
-    // Assign zeroes to the first row
-    firstRow.assign(zeros(1, 10));
-
-    // Take the upper 4 elements of b
-    DoubleMatrix up = b.getView(0, 0, 4, 4);
-
-    // Square the upper left 4-by-4 corner
-    b.getView(0, 0, 4, 4).mapi(x -> x * x);
-  }
-}
-    
+// Take the upper 4 elements of b
+DoubleMatrix up = b.getView(0, 0, 4, 4);
+System.out.println(up);
 ```
 
 Note that modification of views propagates to the original data. To
-break a copy free from its original use `AnyMatrix#copy()`.
-
-Matrices are mutable (and hence unsafe to mutate in
-parallel). Mutations are done using operations prepended with **i**,
-`set(int, int, double/int/Complex)` and `set(int,
-double/int/Complex)`.
+break a copy free from its original use `Matrix#copy()`. By default,
+matrices are mutable (and hence unsafe to mutate in parallel).
 
 
 !!! info "Column-major or row-major"
@@ -213,9 +181,8 @@ double/int/Complex)`.
     column-major order, i.e. while varying columns slower.
 
 ```
-Matrix a = zeros(3, 3);
-
-System.out.println(a);k-b
+DoubleMatrix a = Bj.doubleMatrix(3, 3);
+System.out.println(a);
 
 a.put(0, 0, 10);
 a.put(0, 1, 9);
@@ -254,59 +221,72 @@ Shape: 3x3
 
 ### Basic operations ###
 
-Unlike most matrix languages, Java does not support user defined
+Unlike most scientific languages, Java does not support user defined
 operators. Hence, addition, subtraction, multiplication and division
 are performed using named method calls. For brevity, these are
 shortened to `mul` (for multiplication), `mmul` (for
 matrix-multiplication), `add` (for addition) and `sub` (for
-subtraction). The `Matrix` interface provides several overloads to is
-some cases improve performance.
+subtraction).
 
 !!! info "Performance notice"
 
-    Briljant provides two default implementations of `Matrix`:
-    `ArrayMatrix` and `HashMatrix`, where the former is backed by a
-    1-dimensional double array and the latter by an efficient
-    primitive hash map. A `Matrix` implementation should override
-    `Matrix#isArrayBased` to denote the fact that
-    `Matrix#asDoubleArray` returns the backing array. For
-    `ArrayMatrix` `isArrayBased` returns true and for `HashMatrix` it
-    returns false. The `ArrayMatrix` specializes the naive default
-    matrix-matrix multiplication and delegates this operation to a
-    highly optimized Fortran implementations. For this reason,
-    `ArrayMatrix` should be preferred in almost all cases.
+    As stated previously, Briljant provides several matrix
+    implementations. The most common is provided by the
+    `Netlib`-backend, implemented in
+    `org.briljantframework.netlib.NetlibMatrixBackend`.
+
+
+The most common matrix routines (e.g., BLAS level 1, 2 and 3) are
+provided by the `org.briljantframework.matrix.api.MatrixRoutines`
+class and the most common linear algebra routines are provided by the
+`org.briljantframework.linalg.api.LinearAlgebraRoutines`. By default,
+`Bj` delegates to, for the current platform chose,
+implementation. However, the user can freely choose between
+implementation by constructing an instance of a `MatrixBackend`. For
+example:
 
 ```
-public class Ex4 {
-  public static void main(String[] args) {
-    Utils.setRandomSeed(123);
-    Matrix a = fill(3, 3, 2);
-    Matrix b = randn(3, 3);
-    b.add(a);
-    b.sub(a);
-    b.mul(a);
-    b.mmul(a);
-    b.add(1, a, -1); // == b.add(a.mul(-1));
-    b.add(1, a, -1).equalsTo(b.add(a.mul(-1)));
-    /*-
-     * true  true  true  
-     * true  true  true  
-     * true  true  true  
-     * Shape: 3x3
-     */
-  }
-}
+MatrixBackend mb = new NetlibMatrixBackend();
+MatrixFactory bj = mb.getMatrixFactory();
+MatrixRoutines bjr = mb.getMatrixRoutines();
+LinearAlgebraRoutines linalg = mb.getLinearAlgebraRoutines();
+
+DoubleMatrix x = bj.matrix(new double[]{
+    1, 5, 9,
+    2, 6, 10,
+    3, 7, 11,
+    4, 8, 12
+}).reshape(4, 3);
+
+DoubleMatrix c = bj.doubleMatrix(3, 3);
+bjr.gemm(T.YES, T.NO, 1, x, x, 1, c);
+
+double sum = bjr.sum(c);
+// 1526
+```
+
+Note that the usage of the matrix routines closely resembles
+traditional BLAS implementations, e.g., by the use of output
+parameters (`c` in the example above).
+
+
+```
+Utils.setRandomSeed(123);
+DoubleMatrix a = Bj.doubleVector(9).assign(2).reshape(3, 3);
+DoubleMatrix b = Bj.rand(9, new NormalDistribution(-1, 1)).reshape(3, 3);
+b.add(a);
+b.sub(a);
+b.mul(a);
+b.mmul(a);
+b.add(1, a, -1);
+b.add(1, a, -1).satisfies(b.add(a.mul(-1)), (x, y) -> x == y);
 ```
 
 ##### See also #####
 
 [Matrix#mul](examples.md#mul), [Matrix#add](examples.md#add),
 [Matrix#sub](examples.md#sub), [Matrix#div](examples.md#div),
-[Matrix#mmul](examples.md#mmul),[Matrix#muli](examples.md#muli),
-[Matrix#addi](examples.md#addi), [Matrix#subi](examples.md#subi),
-[Matrix#divi](examples.md#divi), [Matrix#lessThan](examples.md#lessThan),
-[Matrix#greaterThan](examples.md#greaterThan),
-[Matrix#equalsTo](examples.md#equalsTo)
+[Matrix#mmul](examples.md#mmul)
 
 ### Element wise operations ###
 
@@ -315,30 +295,19 @@ Briljant reuses a large number of element wise operations found for
 wise functions and produces new matrices as output.
 
 ```
-public class Ex6 {
-  public static void main(String[] args) {
-    Matrix a = linspace(0, 2 * Math.PI, 100);
-
-    a.map(Math::sqrt);
-    a.map(Math::abs);
-    a.map(Math::exp);
-    a.map(Math::acos);
-    a.map(Math::sin);
-    a.map(Math::cos);
-    a.map(value -> Math.pow(value, 10));
-    // ... etc
-
-    signum(a);
-    sqrt(a);
-    pow(a, 10);
-    // ... etc
-  }
-}
+DoubleMatrix a = Bj.linspace(0, 2 * Math.PI, 100);
+a.map(Math::sqrt);
+a.map(Math::abs);
+a.map(Math::exp);
+a.map(Math::acos);
+a.map(Math::sin);
+a.map(Math::cos);
+a.map(value -> Math.pow(value, 10));
 ```
 
 !!! success "In-place element wise operations"
 
-    Remember that `Matrix#mapi` can be used to mutate the matrix.
+    Remember that `Matrix#assign` can be used to mutate the matrix.
 
 !!! warning "Complex matrices"
 
@@ -347,10 +316,10 @@ public class Ex6 {
     Briljant, complex numbers are implemented in the
     `org.briljantframework.complex.Complex` class and matrices of such
     values are implemented in
-    `org.briljantframework.matrix.ComplexMatrix`. Given, `Matrix x =
-    rand(10, 10).muli(-10)` the element wise square root can be
-    calculated (it the complex plane) as `ComplexMatrix z = new
-    ArrayComplexMatrix(10, 10).assign(x, Complex::sqrt)`
+    `org.briljantframework.matrix.ComplexMatrix`. Given, `DoubleMatrix
+    x = rand(10, 10).muli(-10)` the element wise square root can be
+    calculated (it the complex plane) as `ComplexMatrix z =
+    Bj.complexMatrix(10, 10).assign(x, Complex::sqrt)`
 
 
 #### Example ####
@@ -362,66 +331,76 @@ not as fast as its Julia counterpart.
 
 
 ```
-private static Random random = new Random();
-
+private static final Random random = new Random()
 private static double[] randmatstat_Briljant(int t) {
-  int n = 5;
-  Matrix p = zeros(n, n * 4);
-  Matrix q = zeros(n * 2, n * 2);
-  Matrix v = zeros(t, 1);
-  Matrix w = zeros(t, 1);
+    int n = 5;
+    DoubleMatrix p = Bj.doubleMatrix(n, n * 4);
+    DoubleMatrix q = Bj.doubleMatrix(n * 2, n * 2);
+    DoubleMatrix v = Bj.doubleMatrix(t, 1);
+    DoubleMatrix w = Bj.doubleMatrix(t, 1);
 
-  for (int i = 0; i < t; i++) {
-    p.getView(0, 0, n, n).assign(random::nextGaussian);
-    p.getView(0, n, n, n).assign(random::nextGaussian);
-    p.getView(0, n * 2, n, n).assign(random::nextGaussian);
-    p.getView(0, n * 3, n, n).assign(random::nextGaussian);
+    for (int i = 0; i < t; i++) {
+      p.getView(0, 0, n, n).assign(random::nextGaussian);
+      p.getView(0, n, n, n).assign(random::nextGaussian);
+      p.getView(0, n * 2, n, n).assign(random::nextGaussian);
+      p.getView(0, n * 3, n, n).assign(random::nextGaussian);
 
-    q.getView(0, 0, n, n).assign(random::nextGaussian);
-    q.getView(0, n, n, n).assign(random::nextGaussian);
-    q.getView(n, 0, n, n).assign(random::nextGaussian);
-    q.getView(n, n, n, n).assign(random::nextGaussian);
+      q.getView(0, 0, n, n).assign(random::nextGaussian);
+      q.getView(0, n, n, n).assign(random::nextGaussian);
+      q.getView(n, 0, n, n).assign(random::nextGaussian);
+      q.getView(n, n, n, n).assign(random::nextGaussian);
 
-    Matrix x = p.mmul(Transpose.YES, p, Transpose.NO);
-    v.put(i, trace(x.mmul(x).mmul(x)));
+      DoubleMatrix x = p.mmul(T.YES, p, T.NO);
+      v.set(i, Bj.trace(x.mmul(x).mmul(x)));
 
-    x = q.mmul(Transpose.YES, q, Transpose.NO);
-    w.put(i, trace(x.mmul(x).mmul(x)));
+      x = q.mmul(T.YES, q, T.NO);
+      w.set(i, Bj.trace(x.mmul(x).mmul(x)));
+    }
+    DescriptiveStatistics statV = v.collect(
+        RunningStatistics::new, RunningStatistics::add
+    );
+    DescriptiveStatistics statW = w.collect(
+        RunningStatistics::new, RunningStatistics::add
+    );
+    double meanv = statV.getMean();
+    double stdv = statV.getStandardDeviation();
+    double meanw = statW.getMean();
+    double stdw = statW.getStandardDeviation();
+
+    return new double[]{meanv, stdv, meanw, stdw};
   }
-
-  double meanv = mean(v);
-  double stdv = std(v, meanv);
-  double meanw = mean(w);
-  double stdw = std(w, meanw);
-  return new double[] {meanv, stdv, meanw, stdw};
-}
 ```
 
 The `assign`-method is called on several views each occupying a 5-by-5
-matrix in `p` and `q`.
-
-!!! info "Static imports"
-
-    Please note that `Matrices` are statically imported in the
-    example.
+matrix in `p` and `q`. The call to `#collect` above takes two
+functions, one supplying an initial value (usually a mutable
+container) and the second performs a collect call for each value in
+the matrix. Above, an instance of `RunningStatistics`
+(`RunningStatistics::new`) is supplied and updated
+(`RunningStatistics::add`) with every value in the matrix.
 
 ### Compound operations ###
+
+Some other operations?
 
 ## Vector ##
 
 Vectors are Briljants main abstraction and resembles immutable lists
-of homogenoues values. Vectors come in 5 homogeneous flavors, all of
+of homogenoues values. Vectors come in six homogeneous flavors, all of
 which resides in the namespace `org.briljantframework.vector`. The
 flavors are
 
-* `StringVector` for storing string values (`java.lang.String`)
-* `DoubleVector` for storing real number (`double`)
-* `ComplexVector` for storing complex numbers (`org.briljantframework.complex.Complex`)
-* `Intvector` for storing integers (`int`)
-* `BinaryVector` for storing binary values (`org.briljantframework.vector.Binary`)
+* `StringVector` for storing string values (`java.lang.String`).
+* `DoubleVector` for storing real number (`double`).
+* `ComplexVector` for storing complex numbers.
+  (`org.briljantframework.complex.Complex`).
+* `Intvector` for storing integers (`int`).
+* `BitVector` for storing binary values
+  (`org.briljantframework.vector.Bit`)
+* `GenericVector(Class<? extends T>)` for storing values of `T`.
 
-In addition to values, each vector can store a distinct value which
-represent the absence of a value called `NA`.
+In addition to values, each vector can store a distinct value, called
+`NA`, which represents the absence of a value.
 
 ## DataFrame ##
 

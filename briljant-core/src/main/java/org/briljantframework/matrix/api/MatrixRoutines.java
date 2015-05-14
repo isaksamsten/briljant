@@ -181,6 +181,8 @@ public interface MatrixRoutines {
 
   void scal(double alpha, DoubleMatrix x);
 
+  double trace(DoubleMatrix x);
+
   /**
    * Compute y <- alpha*x+y
    *

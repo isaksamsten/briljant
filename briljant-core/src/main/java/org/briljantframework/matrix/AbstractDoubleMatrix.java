@@ -46,6 +46,8 @@ import java.util.function.DoubleToLongFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.LongToDoubleFunction;
+import java.util.function.ObjDoubleConsumer;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
@@ -162,6 +164,15 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       set(i, operator.applyAsDouble(get(i)));
     }
     return this;
+  }
+
+  @Override
+  public <T> T collect(Supplier<T> supplier, ObjDoubleConsumer<T> consumer) {
+    T accumulator = supplier.get();
+    for (int i = 0; i < size(); i++) {
+      consumer.accept(accumulator, get(i));
+    }
+    return accumulator;
   }
 
   @Override

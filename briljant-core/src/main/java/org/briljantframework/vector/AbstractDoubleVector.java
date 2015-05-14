@@ -54,7 +54,15 @@ public abstract class AbstractDoubleVector extends AbstractVector {
     if (cls.isAssignableFrom(Double.class)) {
       return cls.cast(getAsDouble(index));
     } else {
-      return Na.of(cls);
+      if (cls.isAssignableFrom(Integer.class)) {
+        return cls.cast(getAsInt(index));
+      } else if (cls.isAssignableFrom(Complex.class)) {
+        return cls.cast(getAsComplex(index));
+      } else if (cls.isAssignableFrom(Bit.class)) {
+        return cls.cast(getAsBit(index));
+      } else {
+        return Na.of(cls);
+      }
     }
   }
 
@@ -88,12 +96,6 @@ public abstract class AbstractDoubleVector extends AbstractVector {
   @Override
   public Bit getAsBit(int index) {
     return Bit.valueOf(getAsInt(index));
-  }
-
-  @Override
-  public String getAsString(int index) {
-    double value = getAsDouble(index);
-    return Is.NA(value) ? StringVector.NA : Double.toString(value);
   }
 
   @Override

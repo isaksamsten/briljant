@@ -55,7 +55,7 @@ public abstract class AbstractSplitter implements Splitter {
      * Partition every class separately
      */
     for (ClassSet.Sample sample : classSet.samples()) {
-      String target = sample.getTarget();
+      Object target = sample.getTarget();
 
       ClassSet.Sample leftSample = ClassSet.Sample.create(target);
       ClassSet.Sample rightSample = ClassSet.Sample.create(target);

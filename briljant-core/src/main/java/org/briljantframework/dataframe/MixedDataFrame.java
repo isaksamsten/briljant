@@ -156,11 +156,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public String getAsString(int row, int column) {
-    return columns.get(column).getAsString(row);
-  }
-
-  @Override
   public double getAsDouble(int row, int column) {
     return columns.get(column).getAsDouble(row);
   }

@@ -177,15 +177,6 @@ public interface Vector extends Serializable {
   Complex getAsComplex(int index);
 
   /**
-   * Returns value as {@link String}, {@code null} is used to denote missing values.
-   *
-   * @param index the index
-   * @return a {@code String} or {@code null}
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  String getAsString(int index);
-
-  /**
    * Returns a new vector of length {@code indexes.size()} of the elements in index
    *
    * @param indexes a collection of indexes

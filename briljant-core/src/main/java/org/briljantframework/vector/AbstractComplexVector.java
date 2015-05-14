@@ -53,7 +53,15 @@ public abstract class AbstractComplexVector extends AbstractVector {
     if (cls.isAssignableFrom(Complex.class)) {
       return cls.cast(getAsInt(index));
     } else {
-      return Na.of(cls);
+      if (cls.isAssignableFrom(Double.class)) {
+        return cls.cast(getAsDouble(index));
+      } else if (cls.isAssignableFrom(Integer.class)) {
+        return cls.cast(getAsInt(index));
+      } else if (cls.isAssignableFrom(Bit.class)) {
+        return cls.cast(getAsBit(index));
+      } else {
+        return Na.of(cls);
+      }
     }
   }
 
@@ -93,19 +101,6 @@ public abstract class AbstractComplexVector extends AbstractVector {
   @Override
   public Bit getAsBit(int index) {
     return Bit.valueOf(getAsInt(index));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getAsString(int index) {
-    Complex complex = getAsComplex(index);
-    if (complex.isNaN()) {
-      return StringVector.NA;
-    } else {
-      return complex.toString();
-    }
   }
 
   /**

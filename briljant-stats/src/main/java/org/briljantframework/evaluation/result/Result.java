@@ -109,15 +109,15 @@ public class Result {
    * @return the confusion matrix
    */
   public ConfusionMatrix getAverageConfusionMatrix() {
-    Map<String, Map<String, Double>> matrix = new HashMap<>();
-    Set<String> valueSet = new HashSet<>();
+    Map<Object, Map<Object, Double>> matrix = new HashMap<>();
+    Set<Object> valueSet = new HashSet<>();
 
     double sum = 0.0;
     for (ConfusionMatrix cm : confusionMatrices) {
-      Set<String> labels = cm.getLabels();
-      for (String predicted : labels) {
-        for (String actual : labels) {
-          Map<String, Double> actuals = matrix.get(predicted);
+      Set<Object> labels = cm.getLabels();
+      for (Object predicted : labels) {
+        for (Object actual : labels) {
+          Map<Object, Double> actuals = matrix.get(predicted);
           if (actuals == null) {
             actuals = new HashMap<>();
             matrix.put(predicted, actuals);

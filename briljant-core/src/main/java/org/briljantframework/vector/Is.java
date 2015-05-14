@@ -35,15 +35,15 @@ public final class Is {
     return ComplexVector.NA.equals(value);
   }
 
-  /**
-   * Check if value is NA
-   *
-   * @param value the value
-   * @return true if value is NA
-   */
-  public static boolean NA(String value) {
-    return StringVector.TYPE.isNA(value);
-  }
+//  /**
+//   * Check if value is NA
+//   *
+//   * @param value the value
+//   * @return true if value is NA
+//   */
+//  public static boolean NA(String value) {
+//    return StringVector.TYPE.isNA(value);
+//  }
 
   /**
    * Check if value is NA

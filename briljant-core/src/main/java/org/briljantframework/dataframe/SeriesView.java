@@ -58,7 +58,6 @@ public class SeriesView extends AbstractVector implements Series {
     return parent.getAsBit(index, column);
   }
 
-  @Override
   public String getAsString(int index) {
     return parent.getAsString(index, column);
   }

@@ -39,13 +39,6 @@ public class BitVectorTest {
   }
 
   @Test
-  public void testGetAsString() throws Exception {
-    assertEquals("FALSE", vector.getAsString(0));
-    assertEquals("TRUE", vector.getAsString(1));
-    assertEquals(StringVector.NA, vector.getAsString(2));
-  }
-
-  @Test
   public void testIsNA() throws Exception {
     assertEquals(true, vector.isNA(2));
     assertEquals(false, vector.isNA(0));

@@ -9,8 +9,8 @@ import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
+import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
-import org.briljantframework.vector.StringVector;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
@@ -35,7 +35,7 @@ public class StringDataEntry implements DataEntry {
   @Override
   public <T> T next(Class<T> cls) {
     String value = nextString();
-    if (value == StringVector.NA) {
+    if (Is.NA(value)) {
       return Na.of(cls);
     } else {
       Resolver<T> resolver = Resolvers.find(cls);
@@ -51,17 +51,17 @@ public class StringDataEntry implements DataEntry {
   public String nextString() {
     String value = values[current++];
     if (value == null) {
-      return StringVector.NA;
+      return null;
     } else {
       value = value.trim();
-      return value.equals(missingValue) ? StringVector.NA : value;
+      return value.equals(missingValue) ? null : value;
     }
   }
 
   @Override
   public int nextInt() {
     String repr = nextString();
-    if (repr == StringVector.NA) {
+    if (repr == null) {
       return IntVector.NA;
     }
     Integer integer = Ints.tryParse(repr);
@@ -71,7 +71,7 @@ public class StringDataEntry implements DataEntry {
   @Override
   public double nextDouble() {
     String repr = nextString();
-    if (repr == StringVector.NA) {
+    if (repr == null) {
       return DoubleVector.NA;
     } else {
       Double d = Doubles.tryParse(repr);

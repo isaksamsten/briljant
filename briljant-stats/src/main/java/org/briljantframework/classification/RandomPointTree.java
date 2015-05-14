@@ -18,8 +18,8 @@ import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,7 +146,7 @@ public class RandomPointTree implements Classifier {
     ClassSet left = new ClassSet(classSet.getDomain());
     ClassSet right = new ClassSet(classSet.getDomain());
     for (ClassSet.Sample sample : classSet.samples()) {
-      String target = sample.getTarget();
+      Object target = sample.getTarget();
 
       ClassSet.Sample leftSample = ClassSet.Sample.create(target);
       ClassSet.Sample rightSample = ClassSet.Sample.create(target);
@@ -197,10 +197,10 @@ public class RandomPointTree implements Classifier {
   public Threshold findBestThreshold(List<ExampleDistance> distances,
                                      ClassSet classSet, Vector y,
                                      double distanceSum) {
-    ObjectDoubleMap<String> lt = new ObjectDoubleOpenHashMap<>();
-    ObjectDoubleMap<String> gt = new ObjectDoubleOpenHashMap<>();
+    ObjectDoubleMap<Object> lt = new ObjectDoubleOpenHashMap<>();
+    ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
-    List<String> presentTargets = classSet.getTargets();
+    List<Object> presentTargets = classSet.getTargets();
     DoubleMatrix ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
     DoubleMatrix gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
 
@@ -217,7 +217,7 @@ public class RandomPointTree implements Classifier {
 
     // Transfer weights from the initial example
     Example first = distances.get(0).example;
-    String prevTarget = y.getAsString(first.getIndex());
+    Object prevTarget = y.get(Object.class, first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
@@ -229,7 +229,7 @@ public class RandomPointTree implements Classifier {
     double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
     for (int i = 1; i < distances.size(); i++) {
       ExampleDistance ed = distances.get(i);
-      String target = y.getAsString(ed.example.getIndex());
+      Object target = y.get(Object.class, ed.example.getIndex());
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current
       // (except for the first)
@@ -240,7 +240,7 @@ public class RandomPointTree implements Classifier {
 
         // Generate the relative frequency distribution
         for (int j = 0; j < presentTargets.size(); j++) {
-          String presentTarget = presentTargets.get(j);
+          Object presentTarget = presentTargets.get(j);
           ltRelativeFrequency.set(j, ltWeight != 0 ? lt.get(presentTarget) / ltWeight : 0);
           gtRelativeFrequency.set(j, gtWeight != 0 ? gt.get(presentTarget) / gtWeight : 0);
         }

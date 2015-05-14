@@ -21,7 +21,7 @@ public class VecTest {
   @Before
   public void setUp() throws Exception {
     vec6 = DoubleVector.wrap(1, 2, 3, 4, 5, 6);
-    vec8 = new StringVector("a", "sb", "cds", "qdsa", "fdasdsadsa", "dd", "r", "a");
+    vec8 = Vec.of("a", "sb", "cds", "qdsa", "fdasdsadsa", "dd", "r", "a");
   }
 
   @Test
@@ -39,7 +39,7 @@ public class VecTest {
 
   @Test
   public void testMode() throws Exception {
-    Vector v = new StringVector("a", "b", "c", "d", "e", "f", "a");
+    Vector v = Vec.of("a", "b", "c", "d", "e", "f", "a");
     assertEquals("a", Vec.mode(v));
   }
 

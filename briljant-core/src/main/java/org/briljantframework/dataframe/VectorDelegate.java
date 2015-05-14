@@ -81,10 +81,6 @@ public abstract class VectorDelegate implements Vector {
     return vector.getAsComplex(index);
   }
 
-  public String getAsString(int index) {
-    return vector.getAsString(index);
-  }
-
   public int size() {
     return vector.size();
   }

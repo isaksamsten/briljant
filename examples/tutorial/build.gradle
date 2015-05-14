@@ -12,5 +12,5 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.briljantframework', name: 'stats', version: '0.1-SNAPSHOT'
+    compile group: 'org.briljantframework', name: 'briljant-stats', version: '0.1-SNAPSHOT'
 }

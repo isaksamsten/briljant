@@ -37,15 +37,15 @@ public final class ClassSet implements Iterable<Example> {
 
   private static final Random RANDOM = new Random();
 
-  private final Map<String, Sample> samples;
+  private final Map<Object, Sample> samples;
 
-  private final List<String> targets;
+  private final List<Object> targets;
   private final Vector domain;
 
   public ClassSet(Vector column, Vector domain) {
     this(domain);
     for (int i = 0; i < column.size(); i++) {
-      add(column.getAsString(i), i, 1);
+      add(column.get(Object.class, i), i, 1);
     }
   }
 
@@ -55,7 +55,7 @@ public final class ClassSet implements Iterable<Example> {
     this.domain = domain;
   }
 
-  public void add(String target, int index, double weight) {
+  public void add(Object target, int index, double weight) {
     Sample sample = samples.get(target);
     if (sample == null) {
       sample = new Sample(target);
@@ -68,7 +68,7 @@ public final class ClassSet implements Iterable<Example> {
   }
 
   public void add(Sample sample) {
-    String target = sample.getTarget();
+    Object target = sample.getTarget();
     targets.add(target);
     samples.put(target, sample);
   }
@@ -79,16 +79,16 @@ public final class ClassSet implements Iterable<Example> {
 
   public int size() {
     int i = 0;
-    for (Map.Entry<String, Sample> kv : samples.entrySet()) {
+    for (Map.Entry<Object, Sample> kv : samples.entrySet()) {
       i += kv.getValue().size();
     }
     return i;
   }
 
-  public String getMostProbable() {
+  public Object getMostProbable() {
     double max = Double.NEGATIVE_INFINITY;
-    String target = null;
-    for (Map.Entry<String, Sample> kv : samples.entrySet()) {
+    Object target = null;
+    for (Map.Entry<Object, Sample> kv : samples.entrySet()) {
       double weight = kv.getValue().getWeight();
       if (weight > max) {
         target = kv.getKey();
@@ -102,7 +102,7 @@ public final class ClassSet implements Iterable<Example> {
     return domain;
   }
 
-  public Sample get(String target) {
+  public Sample get(Object target) {
     return samples.get(target);
   }
 
@@ -114,7 +114,7 @@ public final class ClassSet implements Iterable<Example> {
     return targets.isEmpty();
   }
 
-  public List<String> getTargets() {
+  public List<Object> getTargets() {
     return Collections.unmodifiableList(targets);
   }
 
@@ -130,7 +130,7 @@ public final class ClassSet implements Iterable<Example> {
 
   public double getTotalWeight() {
     double size = 0;
-    for (Map.Entry<String, Sample> kv : samples.entrySet()) {
+    for (Map.Entry<Object, Sample> kv : samples.entrySet()) {
       size += kv.getValue().getWeight();
     }
 
@@ -176,21 +176,21 @@ public final class ClassSet implements Iterable<Example> {
 
   public static final class Sample implements Iterable<Example> {
 
-    private final String target;
+    private final Object target;
     private final ArrayList<Example> examples;
     private double weight;
 
-    private Sample(String target) {
+    private Sample(Object target) {
       this.target = target;
       this.examples = new ArrayList<>();
       this.weight = 0;
     }
 
-    public static Sample create(String target) {
+    public static Sample create(Object target) {
       return new Sample(target);
     }
 
-    public String getTarget() {
+    public Object getTarget() {
       return target;
     }
 

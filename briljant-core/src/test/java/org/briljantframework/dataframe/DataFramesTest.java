@@ -3,7 +3,6 @@ package org.briljantframework.dataframe;
 import org.briljantframework.io.reslover.Resolver;
 import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.io.reslover.StringDateConverter;
-import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
@@ -59,11 +58,11 @@ public class DataFramesTest {
   @Test
   public void testName() throws Exception {
     DataFrame df = MixedDataFrame.of(
-        "Close", new DoubleVector(1, 1, 2, 3, 3, 4, 4, 4, 2, 3, 4, 6, 7, 9, 10)
+        "Close", Vec.of(1, 1, 2, 3, 3, 4, 4, 4, 2, 3, 4, 6, 7, 9, 10)
     );
 
     Vector vec = df.get("Close");
-    System.out.println(vec.aggregate(Double.class, Aggregates.nunique()));
+    System.out.println(vec.aggregate(Double.class, Aggregates.join(", ", "[", "]")));
 
 //    DoubleVector.Builder db = new DoubleVector.Builder();
 //    List<Double> dl = new ArrayList<>();

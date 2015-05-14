@@ -152,8 +152,14 @@ public final class Aggregates {
     }, (a) -> a.count);
   }
 
-  public static Aggregator<Object, String, ?> join(String delimit) {
-    return of(() -> new StringJoiner(delimit, "", ""),
+  public static Aggregator<Object, String, ?> join(CharSequence delimit) {
+    return join(delimit, "", "");
+  }
+
+  public static Aggregator<Object, String, ?> join(CharSequence delimit,
+                                                         CharSequence prefix,
+                                                         CharSequence suffix) {
+    return of(() -> new StringJoiner(delimit, prefix, suffix),
               (j, s) -> j.add(!Is.NA(s) ? s.toString() : "NA"),
               StringJoiner::toString);
   }

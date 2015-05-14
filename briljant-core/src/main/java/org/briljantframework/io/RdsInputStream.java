@@ -7,7 +7,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
 
@@ -18,10 +17,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ import java.util.Map;
  * <p>The types are simple strings and are mapped to {@code briljant} data types as follows:
  *
  * <ul> <li>{@code numeric} and {@code regressor}: {@link org.briljantframework.vector.DoubleVector}</li>
- * <li>{@code categoric} and {@code class}: {@link org.briljantframework.vector.StringVector}</li>
+ * <li>{@code categoric} and {@code class}: {@link org.briljantframework.vector.GenericVector}</li>
  * <li>{@code date}: {@link org.briljantframework.vector.GenericVector}</li> <li>{@code complex}:
  * {@link org.briljantframework.vector.ComplexVector}</li> </ul>
  *
@@ -52,10 +51,10 @@ public class RdsInputStream extends DataInputStream {
     Map<String, VectorType> map = new HashMap<>();
     map.put("complex", ComplexVector.TYPE);
     map.put("numeric", DoubleVector.TYPE);
-    map.put("date", Vec.typeOf(Date.class));
+    map.put("date", Vec.typeOf(LocalDate.class));
     map.put("regressor", DoubleVector.TYPE);
-    map.put("class", StringVector.TYPE);
-    map.put("categoric", StringVector.TYPE);
+    map.put("class", Vec.typeOf(String.class));
+    map.put("categoric", Vec.typeOf(String.class));
 
     TYPE_MAP = Collections.unmodifiableMap(map);
   }

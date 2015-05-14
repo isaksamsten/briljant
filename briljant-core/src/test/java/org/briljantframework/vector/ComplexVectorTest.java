@@ -55,13 +55,6 @@ public class ComplexVectorTest {
   }
 
   @Test
-  public void testGetAsString() throws Exception {
-    assertEquals("1.0000 + 0.0000i", vector.getAsString(0));
-    assertEquals("2.0000 + 0.0000i", vector.getAsString(1));
-    assertEquals(StringVector.NA, vector.getAsString(2));
-  }
-
-  @Test
   public void testGetAsComplex() throws Exception {
 
   }

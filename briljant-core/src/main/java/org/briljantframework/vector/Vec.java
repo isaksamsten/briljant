@@ -40,7 +40,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Vec {
 
-  public static final VectorType STRING = StringVector.TYPE;
+  public static final VectorType STRING = new GenericVectorType(String.class);
   public static final VectorType BIT = BitVector.TYPE;
   public static final VectorType INT = IntVector.TYPE;
   public static final VectorType COMPLEX = ComplexVector.TYPE;
@@ -104,6 +104,16 @@ public final class Vec {
     }
   }
 
+  @SafeVarargs
+  public static <T> Vector of(T... array) {
+    Class<?> cls = array.getClass().getComponentType();
+    Vector.Builder builder = typeOf(cls).newBuilder();
+    for (T t : array) {
+      builder.add(t);
+    }
+    return builder.build();
+  }
+
   public static DoubleVector rand(int size, Distribution source) {
     DoubleVector.Builder v = new DoubleVector.Builder(0, size);
     for (int i = 0; i < size; i++) {
@@ -149,32 +159,6 @@ public final class Vec {
     }
     return -1;
   }
-
-//  /**
-//   * @see #find(Vector, Vector, int)
-//   */
-//  public static int find(Vector haystack, Value needle) {
-//    for (int i = 0; i < haystack.size(); i++) {
-//      if (haystack.compare(i, needle) == 0) {
-//        return i;
-//      }
-//    }
-//    return -1;
-//  }
-
-//  /**
-//   * @see #find(Vector, Object)
-//   */
-//  public static int find(Vector haystack, int needle) {
-//    return find(haystack, needle);
-//  }
-//
-//  /**
-//   * @see #find(Vector, Object)
-//   */
-//  public static int find(Vector haystack, String needle) {
-//    return find(haystack, Convert.toValue(needle));
-//  }
 
   /**
    * Finds the index of the first value for which {@code predicate} returns true.

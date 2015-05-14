@@ -42,7 +42,7 @@ public class SeriesVector extends VectorDelegate implements Series {
       String key = index.get(i).toString();
       builder.append(key)
           .append(Strings.repeat(" ", longest - key.length() + 2))
-          .append(toString(i));
+          .append(toString(i)).append("\n");
     }
     return builder
         .append("Name: ").append(name())

@@ -20,6 +20,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.function.DoubleBiPredicate;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
@@ -30,6 +31,8 @@ import java.util.function.DoubleToLongFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.LongToDoubleFunction;
+import java.util.function.ObjDoubleConsumer;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
 
@@ -153,6 +156,8 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @return receiver modified
    */
   DoubleMatrix update(DoubleUnaryOperator operator);
+
+  <T> T collect(Supplier<T> supplier, ObjDoubleConsumer<T> consumer);
 
   // Transform
 

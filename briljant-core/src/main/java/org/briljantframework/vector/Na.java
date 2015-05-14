@@ -21,7 +21,6 @@ public final class Na {
     clsToNa.put(Long.TYPE, Long.MAX_VALUE);
     clsToNa.put(Double.class, DoubleVector.NA);
     clsToNa.put(Double.TYPE, DoubleVector.NA);
-    clsToNa.put(String.class, StringVector.NA);
     clsToNa.put(Bit.class, BitVector.NA);
     clsToNa.put(Complex.class, ComplexVector.NA);
     clsToNa.put(Object.class, null);

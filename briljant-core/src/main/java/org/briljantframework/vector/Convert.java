@@ -125,7 +125,8 @@ public final class Convert {
   }
 
   /**
-   * Adapts the {@code ComplexMatrix} as a {@code ComplexVector}. Modifications to {@code matrix} is
+   * Adapts the {@code ComplexMatrix} as a {@code ComplexVector}. Modifications to {@code matrix}
+   * is
    * propagated to the vector.
    *
    * @param matrix the matrix
@@ -193,11 +194,11 @@ public final class Convert {
    * @param vector the vector
    * @return a new StringVector
    */
-  public static StringVector toStringVector(Vector vector) {
-    if (vector instanceof StringVector) {
-      return (StringVector) vector;
+  public static Vector toStringVector(Vector vector) {
+    if (vector instanceof GenericVector && vector.getType().getDataClass().equals(String.class)) {
+      return vector;
     }
-    return new StringVector.Builder().addAll(vector).build();
+    return new GenericVector.Builder(String.class).addAll(vector).build();
   }
 
   public static DoubleVector toDoubleVector(Vector vector) {

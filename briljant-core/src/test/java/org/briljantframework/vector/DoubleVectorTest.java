@@ -92,11 +92,6 @@ public class DoubleVectorTest {
   }
 
   @Test
-  public void testGetAsString() throws Exception {
-    assertEquals("9.0", vector.getAsString(9));
-  }
-
-  @Test
   public void testIsTrue() throws Exception {
     assertEquals(true, vector.isTrue(1));
     assertEquals(false, vector.isTrue(0));

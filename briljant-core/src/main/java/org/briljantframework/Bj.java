@@ -49,6 +49,10 @@ public final class Bj {
   private Bj() {
   }
 
+  public static double trace(DoubleMatrix x) {
+    return MATRIX_ROUTINES.trace(x);
+  }
+
   public static IntMatrix randi(int size, int l, int u) {
     return MATRIX_FACTORY.randi(size, l, u);
   }

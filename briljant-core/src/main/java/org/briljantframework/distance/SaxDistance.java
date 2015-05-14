@@ -1,16 +1,15 @@
 package org.briljantframework.distance;
 
+import org.briljantframework.Check;
+import org.briljantframework.dataseries.SymbolicAggregator;
+import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.briljantframework.Check;
-import org.briljantframework.dataseries.SymbolicAggregator;
-import org.briljantframework.vector.StringVector;
-import org.briljantframework.vector.Vector;
-
 /**
- *
  * @author Isak Karlsson
  */
 public class SaxDistance implements Distance {
@@ -38,15 +37,15 @@ public class SaxDistance implements Distance {
 
   @Override
   public double compute(Vector a, Vector b) {
-    Check.requireType(StringVector.TYPE, a);
+//    Check.requireType(Vec.typeOf(String.class), a);
     Check.size(a, b);
 
     double w = a.size();
     double sum = 0;
 
     for (int i = 0; i < w; i++) {
-      String av = a.getAsString(i);
-      String bv = b.getAsString(i);
+      String av = a.get(String.class, i);
+      String bv = b.get(String.class, i);
       double value = lookup.get(av).get(bv);
       sum += value * value;
     }

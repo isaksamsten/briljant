@@ -16,7 +16,6 @@ import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Na;
-import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -69,18 +68,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
       return rvec.get(cls, column);
     } else if (column >= 0 && column < columns) {
       return Na.of(cls);
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
-  @Override
-  public String getAsString(int row, int column) {
-    Vector rvec = series.get(row);
-    if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsString(column);
-    } else if (column >= 0 && column < columns) {
-      return StringVector.NA;
     } else {
       throw new IndexOutOfBoundsException();
     }

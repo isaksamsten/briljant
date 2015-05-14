@@ -3,7 +3,7 @@ package org.briljantframework.io;
 import com.google.common.collect.ImmutableMap;
 
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
 
 import java.io.BufferedReader;
@@ -76,7 +76,7 @@ public class ArffInputStream extends DataInputStream {
       if (type != null) {
         columnTypes.add(type);
       } else if ((NOMINAL.matcher(typeRepr)).matches()) {
-        columnTypes.add(StringVector.TYPE);
+        columnTypes.add(Vec.typeOf(String.class));
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));
       }

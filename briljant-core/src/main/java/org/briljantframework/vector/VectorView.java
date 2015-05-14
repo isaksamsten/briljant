@@ -71,11 +71,6 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public String getAsString(int index) {
-    return parent.getAsString(offset + index);
-  }
-
-  @Override
   public int size() {
     return length;
   }

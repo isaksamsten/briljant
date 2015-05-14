@@ -1,13 +1,17 @@
 package org.briljantframework.evaluation.result;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.*;
+import com.google.common.base.Strings;
 
 import org.briljantframework.vector.Vector;
 
-import com.google.common.base.Strings;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * In the field of machine learning, a confusion matrix, also known as a contingency table or an
@@ -18,7 +22,7 @@ import com.google.common.base.Strings;
  * (i.e. commonly mislabeling one as another).
  * <p>
  * Example:
- * 
+ *
  * <pre>
  *           acc       unacc       vgood       good
  *   acc     344.0     28.0        3.0         15.0
@@ -26,16 +30,16 @@ import com.google.common.base.Strings;
  *   vgood   5.0       0.0         61.0        9.0
  *   good    6.0       3.0         1.0         45.0
  * </pre>
- * 
+ *
  * Created by isak on 02/10/14.
  */
 public class ConfusionMatrix {
 
-  private final Map<String, Map<String, Double>> matrix;
-  private final Set<String> labels;
+  private final Map<Object, Map<Object, Double>> matrix;
+  private final Set<Object> labels;
   private final double sum;
 
-  public ConfusionMatrix(Map<String, Map<String, Double>> matrix, Set<String> labels, double sum) {
+  public ConfusionMatrix(Map<Object, Map<Object, Double>> matrix, Set<Object> labels, double sum) {
     this.matrix = checkNotNull(matrix, "Matrix cannot be null");
     this.labels = Collections.unmodifiableSet(checkNotNull(labels, "Labels cannot be null"));
 
@@ -44,16 +48,16 @@ public class ConfusionMatrix {
 
   public static ConfusionMatrix compute(Vector predictions, Vector truth, Vector domain) {
     checkArgument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
-        predictions.size(), truth.size());
+                  predictions.size(), truth.size());
 
-    Map<String, Map<String, Double>> matrix = new HashMap<>();
-    Set<String> labels = new HashSet<>();
+    Map<Object, Map<Object, Double>> matrix = new HashMap<>();
+    Set<Object> labels = new HashSet<>();
     double sum = 0;
     for (int i = 0; i < predictions.size(); i++) {
-      String predicted = predictions.getAsString(i);
-      String actual = truth.getAsString(i);
+      Object predicted = predictions.get(Object.class, i);
+      Object actual = truth.get(Object.class, i);
 
-      Map<String, Double> actuals = matrix.get(predicted);
+      Map<Object, Double> actuals = matrix.get(predicted);
       if (actuals == null) {
         actuals = new HashMap<>();
         matrix.put(predicted, actuals);
@@ -79,7 +83,7 @@ public class ConfusionMatrix {
     return labels.stream().mapToDouble(value -> getFMeasure(value, beta)).average().orElse(0);
   }
 
-  public double getFMeasure(String target, double beta) {
+  public double getFMeasure(Object target, double beta) {
     double precision = getPrecision(target);
     double recall = getRecall(target);
     double beta2 = beta * beta;
@@ -90,34 +94,34 @@ public class ConfusionMatrix {
     }
   }
 
-  public double getPrecision(String target) {
+  public double getPrecision(Object target) {
     double tp = get(target, target);
     if (tp == 0) {
       return 0;
     } else {
       double conditional = 0.0;
-      for (String actual : getLabels()) {
+      for (Object actual : getLabels()) {
         conditional += get(target, actual);
       }
       return conditional > 0 ? tp / conditional : 0;
     }
   }
 
-  public double getRecall(String target) {
+  public double getRecall(Object target) {
     double tp = get(target, target);
     if (tp == 0) {
       return 0;
     } else {
       double conditional = 0.0;
-      for (String actual : getLabels()) {
+      for (Object actual : getLabels()) {
         conditional += get(actual, target);
       }
       return conditional > 0 ? tp / conditional : 0;
     }
   }
 
-  public double get(String predicted, String actual) {
-    Map<String, Double> values = matrix.get(predicted);
+  public double get(Object predicted, Object actual) {
+    Map<Object, Double> values = matrix.get(predicted);
     if (values == null) {
       return 0;
     } else {
@@ -125,13 +129,13 @@ public class ConfusionMatrix {
     }
   }
 
-  public Set<String> getLabels() {
+  public Set<Object> getLabels() {
     return labels;
   }
 
   public double getAccuracy() {
     double diagonal = 0.0;
-    for (String value : labels) {
+    for (Object value : labels) {
       diagonal += get(value, value);
     }
     return diagonal / sum;
@@ -143,7 +147,7 @@ public class ConfusionMatrix {
 
   public double getActual(String actual) {
     double sum = 0;
-    for (String predicted : getLabels()) {
+    for (Object predicted : getLabels()) {
       sum += get(predicted, actual);
     }
     return sum;
@@ -152,14 +156,18 @@ public class ConfusionMatrix {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    int longest = labels.stream().mapToInt(String::length).summaryStatistics().getMax();
+    int longest = labels.stream()
+        .map(Object::toString)
+        .mapToInt(String::length)
+        .summaryStatistics()
+        .getMax();
     if (longest < 3) {
       longest = 3;
     }
 
     int longestValue = 0;
-    for (String p : labels) {
-      for (String n : labels) {
+    for (Object p : labels) {
+      for (Object n : labels) {
         int len = Double.toString(get(p, n)).length();
         if (len > longestValue) {
           longestValue = len;
@@ -168,19 +176,19 @@ public class ConfusionMatrix {
     }
 
     builder.append(Strings.repeat(" ", longest + 3));
-    for (String value : labels) {
+    for (Object value : labels) {
       builder.append(value);
       builder.append(Strings.repeat(" ", longestValue + 1));
     }
 
     builder.append("\n");
-    for (String predicted : labels) {
-      builder.append(Strings.padEnd(predicted, longest + 3, ' '));
+    for (Object predicted : labels) {
+      builder.append(Strings.padEnd(predicted.toString(), longest + 3, ' '));
 
-      for (String actual : labels) {
+      for (Object actual : labels) {
         String valueStr = Double.toString(get(predicted, actual));
         builder.append(valueStr);
-        builder.append(Strings.repeat(" ", actual.length() + 1 + longestValue - valueStr.length()));
+        builder.append(Strings.repeat(" ", actual.toString().length() + 1 + longestValue - valueStr.length()));
       }
       builder.append("\n");
     }

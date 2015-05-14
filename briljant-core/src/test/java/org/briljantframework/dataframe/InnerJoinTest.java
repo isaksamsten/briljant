@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
@@ -50,8 +49,6 @@ public class InnerJoinTest extends TestCase {
     DataFrameGroupBy g = f.retain(Arrays.asList(2, 3)).groupBy(0);
     System.out.println(g.aggregate(Object.class, Aggregates.join(",")));
 
-
-
 //    Record mode = f.reduce(Vec::mode);
 //    System.out.println(mode.get(Object.class, "21"));
 //    for (int j = 0; j < f.columns(); j++) {
@@ -68,10 +65,10 @@ public class InnerJoinTest extends TestCase {
   }
 
   public void testSimpleMerge() throws Exception {
-    DataFrame left = MixedDataFrame.of("key", new StringVector("foo", "foo", "ko"),
-                                       "lval", new IntVector(1, 2, 4));
-    DataFrame right = MixedDataFrame.of("key", new StringVector("foo", "bar"),
-                                        "rval", new IntVector(3, 5));
+    DataFrame left = MixedDataFrame.of("key", Vec.of("foo", "foo", "ko"),
+                                       "lval", Vec.of(1, 2, 4));
+    DataFrame right = MixedDataFrame.of("key", Vec.of("foo", "bar"),
+                                        "rval", Vec.of(3, 5));
 
     System.out.println(left);
     System.out.println(right);
@@ -86,12 +83,12 @@ public class InnerJoinTest extends TestCase {
   }
 
   public void testComplexMerge() throws Exception {
-    DataFrame left = MixedDataFrame.of("key1", new StringVector("foo", "foo", "bar"),
-                                       "key2", new StringVector("one", "two", "one"),
-                                       "lval", new IntVector(1, 2, 3));
-    DataFrame right = MixedDataFrame.of("key1", new StringVector("foo", "foo", "bar", "bar"),
-                                        "key2", new StringVector("one", "one", "one", "two"),
-                                        "rval", new IntVector(4, 5, 6, 7));
+    DataFrame left = MixedDataFrame.of("key1", Vec.of("foo", "foo", "bar"),
+                                       "key2", Vec.of("one", "two", "one"),
+                                       "lval", Vec.of(1, 2, 3));
+    DataFrame right = MixedDataFrame.of("key1", Vec.of("foo", "foo", "bar", "bar"),
+                                        "key2", Vec.of("one", "one", "one", "two"),
+                                        "rval", Vec.of(4, 5, 6, 7));
 
     System.out.println(left);
     System.out.println(left.join(JoinType.INNER, right));
@@ -115,7 +112,6 @@ public class InnerJoinTest extends TestCase {
     System.out.println(left.transform(
         v -> IntVector.range(v.size())
     ).aggregate(Number.class, Aggregates.sum()).getAsDouble(0));
-
 
 
   }

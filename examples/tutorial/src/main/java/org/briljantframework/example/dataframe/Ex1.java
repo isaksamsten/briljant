@@ -30,6 +30,6 @@ public class Ex1 {
     System.out.println(engines);
     System.out.println(sizes);
 
-    System.out.println(DataFrames.innerJoin(engines, sizes, Arrays.asList(0)));
+//    System.out.println(DataFrames.innerJoin(engines, sizes, Arrays.asList(0)));
   }
 }

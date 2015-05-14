@@ -1,18 +1,20 @@
 package org.briljantframework.example.matrix;
 
-import static org.briljantframework.matrix.Doubles.*;
-
-import java.util.Random;
-
+import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Transpose;
+import org.briljantframework.matrix.T;
+import org.briljantframework.stat.DescriptiveStatistics;
+import org.briljantframework.stat.RunningStatistics;
+
+import java.util.Random;
 
 /**
  * Created by Isak Karlsson on 05/01/15.
  */
 public class Perf {
-  private static final int NITER = 10;
+
+  private static final int NITER = 100;
 
   public static void main(String[] args) {
     int mandel_sum = 0;
@@ -21,8 +23,9 @@ public class Perf {
       t = System.nanoTime();
       mandel_sum = mandelperf();
       t = System.nanoTime() - t;
-      if (t < tmin)
+      if (t < tmin) {
         tmin = t;
+      }
     }
     assert (mandel_sum == 14720) : "value was " + mandel_sum;
     print_perf("mandel", tmin);
@@ -33,8 +36,9 @@ public class Perf {
       DoubleMatrix C = randmatmul_Briljant(1000);
       assert (0 <= C.get(0));
       t = System.nanoTime() - t;
-      if (t < tmin)
+      if (t < tmin) {
         tmin = t;
+      }
     }
     print_perf("rand_mat_mul", tmin);
 
@@ -44,8 +48,9 @@ public class Perf {
       t = System.nanoTime();
       r = randmatstat_Briljant(1000);
       t = System.nanoTime() - t;
-      if (t < tmin)
+      if (t < tmin) {
         tmin = t;
+      }
     }
     print_perf("rand_mat_stat", tmin);
   }
@@ -53,10 +58,10 @@ public class Perf {
   private static double[] randmatstat_Briljant(int t) {
     Random random = new Random();
     int n = 5;
-    DoubleMatrix p = zeros(n, n * 4);
-    DoubleMatrix q = zeros(n * 2, n * 2);
-    DoubleMatrix v = zeros(t, 1);
-    DoubleMatrix w = zeros(t, 1);
+    DoubleMatrix p = Bj.doubleMatrix(n, n * 4);
+    DoubleMatrix q = Bj.doubleMatrix(n * 2, n * 2);
+    DoubleMatrix v = Bj.doubleMatrix(t, 1);
+    DoubleMatrix w = Bj.doubleMatrix(t, 1);
 
     for (int i = 0; i < t; i++) {
       p.getView(0, 0, n, n).assign(random::nextGaussian);
@@ -69,22 +74,27 @@ public class Perf {
       q.getView(n, 0, n, n).assign(random::nextGaussian);
       q.getView(n, n, n, n).assign(random::nextGaussian);
 
-      DoubleMatrix x = p.mmul(Transpose.YES, p, Transpose.NO);
-      v.set(i, trace(x.mmul(x).mmul(x)));
+      DoubleMatrix x = p.mmul(T.YES, p, T.NO);
+      v.set(i, Bj.trace(x.mmul(x).mmul(x)));
 
-      x = q.mmul(Transpose.YES, q, Transpose.NO);
-      w.set(i, trace(x.mmul(x).mmul(x)));
+      x = q.mmul(T.YES, q, T.NO);
+      w.set(i, Bj.trace(x.mmul(x).mmul(x)));
     }
-    double meanv = mean(v);
-    double stdv = std(v, meanv);
-    double meanw = mean(w);
-    double stdw = std(w, meanw);
-    return new double[] {meanv, stdv, meanw, stdw};
+    DescriptiveStatistics statV = v.collect(RunningStatistics::new, RunningStatistics::add);
+    DescriptiveStatistics statW = w.collect(RunningStatistics::new, RunningStatistics::add);
+    double meanv = statV.getMean();
+    double stdv = statV.getStandardDeviation();
+    double meanw = statW.getMean();
+    double stdw = statW.getStandardDeviation();
+
+    return new double[]{meanv, stdv, meanw, stdw};
   }
 
+  private static final Random random = new Random();
+
   private static DoubleMatrix randmatmul_Briljant(int i) {
-    DoubleMatrix a = randn(i, i);
-    DoubleMatrix b = randn(i, i);
+    DoubleMatrix a = Bj.doubleMatrix(i, i).assign(random::nextGaussian);
+    DoubleMatrix b = Bj.doubleMatrix(i, i).assign(random::nextGaussian);
     return a.mmul(b);
   }
 

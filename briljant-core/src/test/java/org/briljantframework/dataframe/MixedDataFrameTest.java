@@ -12,7 +12,6 @@ import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
@@ -36,11 +35,11 @@ public class MixedDataFrameTest {
   @Before
   public void setUp() throws Exception {
     dataA =
-        new MixedDataFrame(new StringVector("a b c d e f".split(" ")),
-                           new IntVector(1, 2, 3, 4, 5, 6));
+        new MixedDataFrame(Vec.of(("a b c d e f".split(" "))),
+                           Vec.of(1.0, 2, 3, 4, 5, 6));
     dataB =
-        new MixedDataFrame(new StringVector("g h i j k l".split(" ")),
-                           new DoubleVector(7, 8, 9, 10, 11, 12));
+        new MixedDataFrame(Vec.of("g h i j k l".split(" ")),
+                           Vec.of(7.0, 8, 9, 10, 11, 12));
   }
 
   @Test
@@ -113,7 +112,7 @@ public class MixedDataFrameTest {
   @Test
   public void testBuilderAddColumn() throws Exception {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.addColumn(new StringVector("1 2 3 4 5".split(" ")));
+    builder.addColumn(Vec.of("1 2 3 4 5".split(" ")));
     builder.addColumn(new IntVector(1, 2, 3, 4, 5));
     builder.addColumn(new DoubleVector(1, 2, 3, 4, 5));
     builder.addColumn(new ComplexVector(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
@@ -211,7 +210,7 @@ public class MixedDataFrameTest {
 
   @Test
   public void testName() throws Exception {
-    StringVector a = new StringVector.Builder().add("a").add("b").add("c").build();
+    Vector a = new GenericVector.Builder(String.class).add("a").add("b").add("c").build();
     DoubleVector b = new DoubleVector.Builder().add(1).addNA().add(100.23).build();
 
     DataFrame frame = new MixedDataFrame(a, b);
@@ -228,7 +227,8 @@ public class MixedDataFrameTest {
     System.out.println(frame);
     System.out.println(copy.build());
 
-    DataFrame.Builder builder = new MixedDataFrame.Builder(StringVector.TYPE, DoubleVector.TYPE);
+    DataFrame.Builder builder = new MixedDataFrame.Builder(Vec.typeOf(String.class),
+                                                           DoubleVector.TYPE);
     for (int i = 0; i < 10; i++) {
       builder.set(i + 3, 1, 32.2);
       builder.set(i + 3, 0, "hello");
@@ -236,22 +236,24 @@ public class MixedDataFrameTest {
 
     System.out.println(builder.build());
 
-    System.out.println(new MixedDataFrame(new IntVector(1, 2, 3, 4), new StringVector("a", "b",
-                                                                                      "c", "d")));
+    System.out.println(new MixedDataFrame(
+        new IntVector(1, 2, 3, 4),
+        Vec.of("a", "b", "c", "d")));
 
     DataFrame.Builder bu =
-        new MixedDataFrame.Builder(StringVector.newBuilderWithInitialValues("one", "two", "three",
-                                                                            "four", "four"),
-                                   BitVector.newBuilderWithInitialValues(Bit.TRUE, Bit.FALSE,
-                                                                         Bit.TRUE, 1),
-                                   IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
-                                   ComplexVector
-                                       .newBuilderWithInitialValues(Complex.I, new Complex(2, 3),
-                                                                    new Complex(2,
-                                                                                2), null,
-                                                                    Complex.ZERO, 0.0),
-                                   DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3,
-                                                                            4, 4, 5, 6));
+        new MixedDataFrame.Builder(
+            Vec.typeOf(String.class).newBuilder().addAll("one", "two", "three",
+                                                         "four", "four"),
+            BitVector.newBuilderWithInitialValues(Bit.TRUE, Bit.FALSE,
+                                                  Bit.TRUE, 1),
+            IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
+            ComplexVector
+                .newBuilderWithInitialValues(Complex.I, new Complex(2, 3),
+                                             new Complex(2,
+                                                         2), null,
+                                             Complex.ZERO, 0.0),
+            DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3,
+                                                     4, 4, 5, 6));
 
     for (int i = 10; i < 20; i++) {
       for (int j = 0; j < bu.columns(); j++) {
@@ -268,7 +270,7 @@ public class MixedDataFrameTest {
     System.out.println(ff);
 
     DataFrame.Builder simple =
-        new MixedDataFrame.Builder(StringVector.newBuilderWithInitialValues("a", "b", "c"),
+        new MixedDataFrame.Builder(Vec.typeOf(String.class).newBuilder().addAll("a", "b", "c"),
                                    IntVector.newBuilderWithInitialValues(
                                        IntStream.range(0, 1000).toArray()));
     DataFrame s = simple.build();
@@ -299,7 +301,7 @@ public class MixedDataFrameTest {
     dataA.setRecordIndex(HashIndex.from("a", "b", "c", "d", "e", "f"));
     System.out.println(dataA.getAsString("a", 0));
     DataFrame df = new MixedDataFrame.Builder()
-        .addColumn(new StringVector("d d d d".split(" ")))
+        .addColumn(Vec.of("d d d d".split(" ")))
         .addColumn(new IntVector(0, 0, 0, 0))
         .build();
 //    System.out.println(dataA.stack(Arrays.asList(df,dataB, dataB)));
@@ -313,9 +315,9 @@ public class MixedDataFrameTest {
   @Test
   public void testMapConstructor() throws Exception {
     Map<String, Vector> vectors = new HashMap<>();
-    vectors.put("engines", new StringVector("hybrid", "electric", "electric", "steam"));
+    vectors.put("engines", Vec.of("hybrid", "electric", "electric", "steam"));
     vectors.put("bhp", new IntVector(150, 130, 75, IntVector.NA));
-    vectors.put("brand", new StringVector("toyota", "tesla", "tesla", "volvo"));
+    vectors.put("brand", Vec.of("toyota", "tesla", "tesla", "volvo"));
 
     DataFrame frame = new MixedDataFrame(vectors);
     frame.setRecordIndex(HashIndex.sorted(Arrays.asList("a", "b", "c", "d")));
@@ -363,7 +365,7 @@ public class MixedDataFrameTest {
   public void testRemoveColumnUsingBuilder() throws Exception {
     Resolvers.find(LocalDate.class).put(String.class,
                                         new StringDateConverter(DateTimeFormatter.ISO_DATE));
-    StringVector a = new StringVector.Builder().add("a").add("b").add(32).addNA().build();
+    Vector a = new GenericVector.Builder(String.class).add("a").add("b").add(32).addNA().build();
     DoubleVector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).build();
     Vector c = new GenericVector.Builder(LocalDate.class)
         .add("2011-03-23")

@@ -1,19 +1,17 @@
 package org.briljantframework.example.matrix;
 
 
-import static org.briljantframework.matrix.Doubles.mean;
-import static org.briljantframework.matrix.Doubles.zeros;
+import org.briljantframework.Bj;
+import org.briljantframework.matrix.Dim;
+import org.briljantframework.matrix.DoubleMatrix;
 
 import java.util.Random;
-
-import org.briljantframework.matrix.Axis;
-import org.briljantframework.matrix.DoubleMatrix;
 
 public class Ex1 {
 
   public static void main(String[] args) {
     Random random = new Random(123);
-    DoubleMatrix m = zeros(100000, 5);
+    DoubleMatrix m = Bj.doubleMatrix(3, 5);
     m.assign(random::nextGaussian);
     /*- =>
      * -1.4380   0.2775   1.3520   1.0175  -0.4671
@@ -27,7 +25,7 @@ public class Ex1 {
     assert m.columns() == 5;
     assert m.size() == 15;
 
-    mean(m, Axis.ROW);
+    Bj.mean(m, Dim.R);
     /*- =>
      * -0.1926   0.0322   0.5020   0.1663  -0.9392  
      * Shape: 1x5

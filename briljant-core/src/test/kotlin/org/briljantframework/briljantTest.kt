@@ -25,12 +25,13 @@ class briljantTest {
         //        val r = Bj.doubleMatrix(1, 3) assign 1.9
         //        println((e vstack r))
 
-        val left = MixedDataFrame.of("key", StringVector("foo", "foo", "ko"),
-                                     "lval", IntVector(1, 2, 4))
-        val right = MixedDataFrame.of("key", StringVector("foo", "bar"),
-                                      "rval", IntVector(3, 5))
-
-        println(left.join(right))
+//        val left = MixedDataFrame.of("key", GenericVector(javaClass<String>(),
+//                                                          listOf("foo", "foo", "ko")),
+//                                     "lval", IntVector(1, 2, 4))
+//        val right = MixedDataFrame.of("key", StringVector("foo", "bar"),
+//                                      "rval", IntVector(3, 5))
+//
+//        println(left.join(right))
 //        val x: Int = left[0, 1]
 //        println(x)
 //        println(left.get(0).toSet<String>())

@@ -15,7 +15,6 @@ import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.StringVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -47,20 +46,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   public <T> T get(Class<T> cls, int row, int column) {
     return cls.equals(Double.TYPE) || cls.equals(Double.class)
            ? cls.cast(getAsDouble(row, column)) : cls.cast(DoubleVector.NA);
-  }
-
-  /**
-   * Returns the double value as a string. Returns {@code null}, if value is missing
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the string representation (as returned by {@link String#valueOf(double)} or {@code
-   * null}
-   */
-  @Override
-  public String getAsString(int row, int column) {
-    double value = matrix.get(row, column);
-    return Is.NA(value) ? StringVector.NA : String.valueOf(value);
   }
 
   @Override

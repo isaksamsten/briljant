@@ -6,7 +6,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.vector.StringVector;
+import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Vector;
 
 import java.util.EnumSet;
@@ -37,7 +37,7 @@ public abstract class AbstractPredictor implements Predictor {
   @Override
   public Vector predict(DataFrame x) {
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
-    Vector.Builder labels = new StringVector.Builder(x.rows());
+    Vector.Builder labels = new GenericVector.Builder(Object.class, x.rows());
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
       labels.set(i, predict(x.getRecord(i)));
     });

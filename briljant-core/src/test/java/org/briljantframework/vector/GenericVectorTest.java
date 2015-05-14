@@ -97,11 +97,6 @@ public class GenericVectorTest {
   }
 
   @Test
-  public void testGetAsString() throws Exception {
-    assertEquals(firstDate.toString(), dateVector.getAsString(0));
-  }
-
-  @Test
   public void testSize() throws Exception {
     assertEquals(4, dateVector.size());
   }

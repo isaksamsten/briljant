@@ -47,15 +47,6 @@ public interface DataFrame extends Iterable<Record> {
 //  }
 
   /**
-   * Get value at {@code row} and {@code column} as string.
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  String getAsString(int row, int column);
-
-  /**
    * Get value at {@code row} and {@code column} as double.
    *
    * @param row    the row
