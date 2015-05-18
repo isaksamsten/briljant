@@ -7,7 +7,6 @@ import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.VariableVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -508,7 +507,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     public Builder read(EntryReader entryReader) throws IOException {
       while (entryReader.hasNext()) {
         DataEntry entry = entryReader.next();
-        ensureColumnCapacity(entry.size() - 1, VariableVector.TYPE);
+        ensureColumnCapacity(entry.size() - 1, Vec.VARIABLE);
         for (int i = 0; i < entry.size(); i++) {
           buffers.get(i).read(entry);
         }

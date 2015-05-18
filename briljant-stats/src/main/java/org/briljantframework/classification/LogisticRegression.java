@@ -81,7 +81,7 @@ public class LogisticRegression implements Classifier {
 
   protected Model fit(DataFrame x, Vector y, IntMatrix indexes) {
     DoubleMatrix theta = Bj.doubleMatrix(1, x.columns());
-    Vector adaptedTheta = Convert.toAdapter(theta);
+    Vector adaptedTheta = Convert.toVector(theta);
     Vector classes = Vec.unique(y);
     for (int j = 0; j < this.iterations; j++) {
       shuffle(indexes).forEach(i -> {

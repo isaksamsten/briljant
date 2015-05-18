@@ -30,7 +30,7 @@ public class SeriesView extends AbstractVector implements Series {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    return get(cls, index);
+    return parent.get(cls, index, column);
   }
 
   @Override

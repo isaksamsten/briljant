@@ -1,11 +1,11 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.dataframe.Aggregator;
+import org.briljantframework.Check;
+import org.briljantframework.function.Aggregator;
 
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 /**
  * @author Isak Karlsson
@@ -22,8 +22,14 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> Vector transform(Class<T> cls, UnaryOperator<T> operator) {
-    return transform(cls, cls, operator);
+  public <T> Vector transform(Class<T> cls, Function<T, ?> operator) {
+    Object v = operator.apply(get(cls, 0));
+    Vector.Builder builder = Vec.inferTypeOf(v).newBuilder().add(v);
+    for (int i = 1; i < size(); i++) {
+      builder.add(operator.apply(get(cls, i)));
+    }
+
+    return builder.build();
   }
 
   @Override
@@ -50,15 +56,35 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> Vector combine(Class<? extends T> cls, Vector other, BinaryOperator<T> combiner) {
-    Vector.Builder builder = Vec.typeOf(cls).newBuilder();
+  public <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
+                               BiFunction<? super T, ? super T, ? extends R> combiner) {
+    Vector.Builder builder = Vec.typeOf(out).newBuilder();
     int size = Math.max(this.size(), other.size());
     int thisSize = size();
     int otherSize = other.size();
     for (int i = 0; i < size; i++) {
       if (i < thisSize && i < otherSize) {
-        builder.add(combiner.apply(get(cls, i), other.get(cls, i)));
+        builder.add(combiner.apply(get(in, i), other.get(in, i)));
       } else if (i < thisSize) {
+        builder.add(get(in, i));
+      } else {
+        builder.add(other.get(in, i));
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public <T> Vector combine(Class<? extends T> cls, Vector other,
+                            BiFunction<? super T, ? super T, ?> combiner) {
+    Check.size(this, other);
+    Object combined = combiner.apply(get(cls, 0), other.get(cls, 0));
+    Vector.Builder builder = Vec.inferTypeOf(combined).newBuilder().add(combined);
+    int size = Math.max(size(), other.size());
+    for (int i = 1; i < size; i++) {
+      if (i < size() && i < other.size()) {
+        builder.add(combiner.apply(get(cls, i), other.get(cls, i)));
+      } else if (i < this.size()) {
         builder.add(get(cls, i));
       } else {
         builder.add(other.get(cls, i));

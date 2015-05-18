@@ -35,11 +35,11 @@ public class MixedDataFrameTest {
   @Before
   public void setUp() throws Exception {
     dataA =
-        new MixedDataFrame(Vec.of(("a b c d e f".split(" "))),
-                           Vec.of(1.0, 2, 3, 4, 5, 6));
+        new MixedDataFrame(Vector.of(("a b c d e f".split(" "))),
+                           Vector.of(1.0, 2, 3, 4, 5, 6));
     dataB =
-        new MixedDataFrame(Vec.of("g h i j k l".split(" ")),
-                           Vec.of(7.0, 8, 9, 10, 11, 12));
+        new MixedDataFrame(Vector.of("g h i j k l".split(" ")),
+                           Vector.of(7.0, 8, 9, 10, 11, 12));
   }
 
   @Test
@@ -112,7 +112,7 @@ public class MixedDataFrameTest {
   @Test
   public void testBuilderAddColumn() throws Exception {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.addColumn(Vec.of("1 2 3 4 5".split(" ")));
+    builder.addColumn(Vector.of("1 2 3 4 5".split(" ")));
     builder.addColumn(new IntVector(1, 2, 3, 4, 5));
     builder.addColumn(new DoubleVector(1, 2, 3, 4, 5));
     builder.addColumn(new ComplexVector(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
@@ -238,7 +238,7 @@ public class MixedDataFrameTest {
 
     System.out.println(new MixedDataFrame(
         new IntVector(1, 2, 3, 4),
-        Vec.of("a", "b", "c", "d")));
+        Vector.of("a", "b", "c", "d")));
 
     DataFrame.Builder bu =
         new MixedDataFrame.Builder(
@@ -301,7 +301,7 @@ public class MixedDataFrameTest {
     dataA.setRecordIndex(HashIndex.from("a", "b", "c", "d", "e", "f"));
     System.out.println(dataA.getAsString("a", 0));
     DataFrame df = new MixedDataFrame.Builder()
-        .addColumn(Vec.of("d d d d".split(" ")))
+        .addColumn(Vector.of("d d d d".split(" ")))
         .addColumn(new IntVector(0, 0, 0, 0))
         .build();
 //    System.out.println(dataA.stack(Arrays.asList(df,dataB, dataB)));
@@ -315,9 +315,9 @@ public class MixedDataFrameTest {
   @Test
   public void testMapConstructor() throws Exception {
     Map<String, Vector> vectors = new HashMap<>();
-    vectors.put("engines", Vec.of("hybrid", "electric", "electric", "steam"));
+    vectors.put("engines", Vector.of("hybrid", "electric", "electric", "steam"));
     vectors.put("bhp", new IntVector(150, 130, 75, IntVector.NA));
-    vectors.put("brand", Vec.of("toyota", "tesla", "tesla", "volvo"));
+    vectors.put("brand", Vector.of("toyota", "tesla", "tesla", "volvo"));
 
     DataFrame frame = new MixedDataFrame(vectors);
     frame.setRecordIndex(HashIndex.sorted(Arrays.asList("a", "b", "c", "d")));

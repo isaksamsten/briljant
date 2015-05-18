@@ -1,8 +1,11 @@
 package org.briljantframework.dataframe;
 
+import org.briljantframework.function.Aggregates;
+import org.briljantframework.function.Transforms;
 import org.briljantframework.io.reslover.Resolver;
 import org.briljantframework.io.reslover.Resolvers;
 import org.briljantframework.io.reslover.StringDateConverter;
+import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
@@ -58,41 +61,31 @@ public class DataFramesTest {
   @Test
   public void testName() throws Exception {
     DataFrame df = MixedDataFrame.of(
-        "Close", Vec.of(1, 1, 2, 3, 3, 4, 4, 4, 2, 3, 4, 6, 7, 9, 10)
+        "Close", Vector.of(1, 1, 2, 3, 3, 4, 4, 4, 2, 3, 4, 6, 7, 9, 10)
     );
 
     Vector vec = df.get("Close");
-    System.out.println(vec.aggregate(Double.class, Aggregates.join(", ", "[", "]")));
 
-//    DoubleVector.Builder db = new DoubleVector.Builder();
-//    List<Double> dl = new ArrayList<>();
-//    for (int i = 0; i < 1000000; i++) {
-//      db.add(i);
-//      dl.add((double) i);
-//    }
-//    Vector vec = db.build();
-//    long s = System.nanoTime();
-//    Object d = null;
-//    for (int i = 0; i < 100; i++) {
-////      d = vec.aggregate(Double.class, Aggregates.mean());
-////      RunningStatistics rs = new RunningStatistics();
-////      for (int j = 0; j < vec.size(); j++) {
-////        rs.add(vec.get(Double.class, j));
-////      }
-////      d = rs.getMean();
-////      d=dl.stream().map(x -> x * 2).collect(Collectors.toList());
-////      d = vec.transform(Double.class, x -> x * 2);
-////     d= vec.stream(Double.class).map(x -> x * 2).collect(Vec.collector(DoubleVector.Builder::new));
-////      d = vec.doubleStream().map(x -> x * 2).collect(
-////          DoubleVector.Builder::new,
-////          DoubleVector.Builder::add,
-////          (DoubleVector.Builder left, DoubleVector.Builder right) -> left.addAll(right))
-////          .build();
-//
-//    }
-//
-//    System.out.println((System.nanoTime() - s) / 1e6 / 100);
-//    pass(d);
+    double mean = vec.aggregate(Integer.class, Aggregates.mean());
+    System.out.println(mean);
+    Vector largerThanMean = vec.slice(vec.satisfies(Integer.class, x -> x > mean));
+
+    Vector l = vec.slice(vec.satisfies(Integer.class, vec, Object::equals));
+
+    System.out.println(vec.transform(Integer.class, Transforms.lessThan(3)));
+
+    System.out.println(vec.combine(Integer.class, vec, Transforms.equal()));
+    System.out.println(largerThanMean);
+
+    Vector v = Vector.of(321.1, 1.2, 1.33214543542432, 1.4, 1.5);
+    System.out.println(v.get(Bit.class, 0, () -> Bit.FALSE));
+
+    System.out.println(v.aggregate(Double.class, Aggregates.var()));
+
+    System.out.println(v.aggregate(
+        Double.class,
+        Aggregates.maxBy(Double::compareTo)
+    ));
   }
 
   private void pass(Object d) {

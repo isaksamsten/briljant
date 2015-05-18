@@ -17,6 +17,7 @@ import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.QuickSort;

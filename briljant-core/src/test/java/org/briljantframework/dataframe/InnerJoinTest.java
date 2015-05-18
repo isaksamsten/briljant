@@ -3,6 +3,7 @@ package org.briljantframework.dataframe;
 import junit.framework.TestCase;
 
 import org.briljantframework.dataframe.join.JoinType;
+import org.briljantframework.function.Aggregates;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
@@ -65,10 +66,10 @@ public class InnerJoinTest extends TestCase {
   }
 
   public void testSimpleMerge() throws Exception {
-    DataFrame left = MixedDataFrame.of("key", Vec.of("foo", "foo", "ko"),
-                                       "lval", Vec.of(1, 2, 4));
-    DataFrame right = MixedDataFrame.of("key", Vec.of("foo", "bar"),
-                                        "rval", Vec.of(3, 5));
+    DataFrame left = MixedDataFrame.of("key", Vector.of("foo", "foo", "ko"),
+                                       "lval", Vector.of(1, 2, 4));
+    DataFrame right = MixedDataFrame.of("key", Vector.of("foo", "bar"),
+                                        "rval", Vector.of(3, 5));
 
     System.out.println(left);
     System.out.println(right);
@@ -83,12 +84,12 @@ public class InnerJoinTest extends TestCase {
   }
 
   public void testComplexMerge() throws Exception {
-    DataFrame left = MixedDataFrame.of("key1", Vec.of("foo", "foo", "bar"),
-                                       "key2", Vec.of("one", "two", "one"),
-                                       "lval", Vec.of(1, 2, 3));
-    DataFrame right = MixedDataFrame.of("key1", Vec.of("foo", "foo", "bar", "bar"),
-                                        "key2", Vec.of("one", "one", "one", "two"),
-                                        "rval", Vec.of(4, 5, 6, 7));
+    DataFrame left = MixedDataFrame.of("key1", Vector.of("foo", "foo", "bar"),
+                                       "key2", Vector.of("one", "two", "one"),
+                                       "lval", Vector.of(1, 2, 3));
+    DataFrame right = MixedDataFrame.of("key1", Vector.of("foo", "foo", "bar", "bar"),
+                                        "key2", Vector.of("one", "one", "one", "two"),
+                                        "rval", Vector.of(4, 5, 6, 7));
 
     System.out.println(left);
     System.out.println(left.join(JoinType.INNER, right));

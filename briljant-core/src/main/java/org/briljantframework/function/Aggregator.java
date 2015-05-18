@@ -1,4 +1,4 @@
-package org.briljantframework.dataframe;
+package org.briljantframework.function;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;

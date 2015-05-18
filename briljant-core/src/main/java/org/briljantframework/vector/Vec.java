@@ -45,7 +45,7 @@ public final class Vec {
   public static final VectorType INT = IntVector.TYPE;
   public static final VectorType COMPLEX = ComplexVector.TYPE;
   public static final VectorType DOUBLE = DoubleVector.TYPE;
-  public static final VectorType VARIABLE = VariableVector.TYPE;
+  public static final VectorType VARIABLE = new GenericVectorType(Object.class);
   public static final Set<VectorType> NUMERIC = Sets.newHashSet();
   public static final Set<VectorType> CATEGORIC = Sets.newHashSet();
   public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
@@ -67,11 +67,13 @@ public final class Vec {
         .put(Boolean.class, BIT)
         .put(Bit.class, BIT)
         .put(Complex.class, COMPLEX)
+        .put(Object.class, VARIABLE)
         .build();
   }
 
   private Vec() {
   }
+
 
   public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(
       Supplier<V> supplier) {
@@ -102,16 +104,6 @@ public final class Vec {
     } else {
       return VARIABLE;
     }
-  }
-
-  @SafeVarargs
-  public static <T> Vector of(T... array) {
-    Class<?> cls = array.getClass().getComponentType();
-    Vector.Builder builder = typeOf(cls).newBuilder();
-    for (T t : array) {
-      builder.add(t);
-    }
-    return builder.build();
   }
 
   public static DoubleVector rand(int size, Distribution source) {
@@ -225,7 +217,7 @@ public final class Vec {
    * <p> Create a vector of length {@code num} with evenly spaced values between {@code start} and
    * {@code end}. </p>
    *
-   * <p> Returns a vector of {@link org.briljantframework.vector.DoubleVector#TYPE} </p>
+   * <p> Returns a vector of {@link DoubleVector#TYPE} </p>
    *
    * @param start the start value
    * @param stop  the end value

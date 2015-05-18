@@ -160,7 +160,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Builder newCopyBuilder() {
-    return new Builder(type);
+    List<Vector.Builder> collect = series.stream()
+        .map(Vector::newCopyBuilder)
+        .collect(Collectors.toList());
+    return new Builder(collect, type);
   }
 
   @Override

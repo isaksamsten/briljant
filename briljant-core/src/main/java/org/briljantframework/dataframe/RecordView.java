@@ -7,7 +7,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.VariableVector;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -37,7 +37,7 @@ public class RecordView extends AbstractVector implements Record {
   }
 
   public RecordView(DataFrame parent, int row) {
-    this(parent, row, VariableVector.TYPE);
+    this(parent, row, Vec.VARIABLE);
   }
 
   @Override

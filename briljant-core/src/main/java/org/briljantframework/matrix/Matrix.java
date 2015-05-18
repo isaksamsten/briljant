@@ -1,7 +1,7 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.sort.Swappable;
 import org.briljantframework.matrix.storage.Storage;
+import org.briljantframework.sort.Swappable;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -186,6 +186,17 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @return the matrix view
    */
   T getView(int rowOffset, int colOffset, int rows, int columns);
+
+  default T select(int from, int to, Dim dim) {
+    switch (dim) {
+
+      case R:
+        return getView(from, 0, to, columns());
+      case C:
+      default:
+        return getView(0, from, rows(), to);
+    }
+  }
 
   /**
    * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the

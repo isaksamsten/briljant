@@ -4,10 +4,13 @@ import com.google.common.base.Preconditions;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.reslover.Resolver;
 import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.matrix.DoubleMatrix;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +25,7 @@ import java.util.stream.DoubleStream;
  *
  * @author Isak Karlsson
  */
-public class DoubleVector extends AbstractDoubleVector {
+public class DoubleVector extends AbstractVector {
 
   /**
    * The value denoting {@code NA} for a {@code double}. The value lies in
@@ -45,8 +48,48 @@ public class DoubleVector extends AbstractDoubleVector {
    */
   public static final long NA_MASK = 0x000000000000000FL;
   public static final int NA_RES = 9;
+  public static final VectorType TYPE = new VectorType() {
+    @Override
+    public Builder newBuilder() {
+      return new Builder();
+    }
+
+    @Override
+    public Builder newBuilder(int size) {
+      return new Builder(size);
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+      return Double.class;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return Is.NA(value);
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      double dva = va.getAsDouble(a);
+      double dba = ba.getAsDouble(b);
+
+      return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
+    }
+
+    @Override
+    public Scale getScale() {
+      return Scale.NUMERICAL;
+    }
+
+    @Override
+    public String toString() {
+      return "real";
+    }
+  };
 
   private final double[] values;
+  private final int size;
 
   /**
    * Construct a new {@code DoubleVector} of the values in {@code values} using {@code size}
@@ -58,6 +101,7 @@ public class DoubleVector extends AbstractDoubleVector {
   public DoubleVector(double[] values, int size) {
     Preconditions.checkArgument(size <= values.length);
     this.values = Arrays.copyOf(values, size);
+    this.size = this.values.length;
   }
 
   /**
@@ -79,6 +123,12 @@ public class DoubleVector extends AbstractDoubleVector {
     } else {
       this.values = values;
     }
+    this.size = this.values.length;
+  }
+
+  private DoubleVector(double[] buffer, int size, boolean copy) {
+    this.values = buffer;
+    this.size = size;
   }
 
   /**
@@ -114,6 +164,117 @@ public class DoubleVector extends AbstractDoubleVector {
   @Override
   public DoubleVector.Builder newCopyBuilder() {
     return new DoubleVector.Builder(this);
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int index) {
+    if (cls.isAssignableFrom(Double.class)) {
+      return cls.cast(getAsDouble(index));
+    } else {
+      if (cls.isAssignableFrom(Integer.class)) {
+        return cls.cast(getAsInt(index));
+      } else if (cls.isAssignableFrom(Complex.class)) {
+        return cls.cast(getAsComplex(index));
+      } else if (cls.isAssignableFrom(Bit.class)) {
+        return cls.cast(getAsBit(index));
+      } else if (cls.isAssignableFrom(String.class)) {
+        return cls.cast(Double.toString(getAsDouble(index)));
+      } else {
+        return Na.of(cls);
+      }
+    }
+  }
+
+  @Override
+  public String toString(int index) {
+    double value = getAsDouble(index);
+    return Is.NA(value) ? "NA" : Double.toString(value);
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return Is.NA(getAsDouble(index));
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
+  }
+
+  @Override
+  public int getAsInt(int index) {
+    double value = getAsDouble(index);
+    return Is.NA(value) ? IntVector.NA : (int) value;
+  }
+
+  @Override
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
+  }
+
+  @Override
+  public VectorType getType() {
+    return TYPE;
+  }
+
+  @Override
+  public DoubleMatrix toMatrix() {
+    DoubleMatrix x = Bj.doubleVector(size());
+    for (int i = 0; i < size(); i++) {
+      x.set(i, getAsDouble(i));
+    }
+    return x;
+  }
+
+  @Override
+  public int compare(int a, int b) {
+    double va = getAsDouble(a);
+    double vb = getAsDouble(b);
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    double va = getAsDouble(a);
+    double vb = other.getAsDouble(b);
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      long v = Double.doubleToLongBits(getAsDouble(i));
+      code += 31 * (int) (v ^ v >>> 32);
+    }
+    return code;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsDouble(i) != ov.getAsDouble(i)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   public static class Builder implements Vector.Builder {
@@ -237,32 +398,38 @@ public class DoubleVector extends AbstractDoubleVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new AbstractDoubleVector() {
-        @Override
-        public double getAsDouble(int index) {
-          return buffer.get(index);
-        }
-
-        @Override
-        public int size() {
-          return buffer.size();
-        }
-
+      return new DoubleVector(buffer.buffer, buffer.size(), false) {
         @Override
         public Builder newCopyBuilder() {
-          return DoubleVector.Builder.this;
-        }
-
-        @Override
-        public Builder newBuilder() {
-          return getType().newBuilder();
-        }
-
-        @Override
-        public Builder newBuilder(int size) {
-          return getType().newBuilder(size);
+          return Builder.this;
         }
       };
+//      return new AbstractDoubleVector() {
+//        @Override
+//        public double getAsDouble(int index) {
+//          return buffer.get(index);
+//        }
+//
+//        @Override
+//        public int size() {
+//          return buffer.size();
+//        }
+//
+//        @Override
+//        public Builder newCopyBuilder() {
+//          return DoubleVector.Builder.this;
+//        }
+//
+//        @Override
+//        public Builder newBuilder() {
+//          return getType().newBuilder();
+//        }
+//
+//        @Override
+//        public Builder newBuilder(int size) {
+//          return getType().newBuilder(size);
+//        }
+//      };
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
@@ -19,8 +20,45 @@ import static com.google.common.primitives.Ints.checkedCast;
 /**
  * Created by Isak Karlsson on 21/11/14.
  */
-public class ComplexVector extends AbstractComplexVector {
+public class ComplexVector extends AbstractVector {
 
+  public static final VectorType TYPE = new VectorType() {
+    @Override
+    public Builder newBuilder() {
+      return new Builder();
+    }
+
+    @Override
+    public Builder newBuilder(int size) {
+      return new Builder(size);
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+      return Complex.class;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return Is.NA(value);
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      throw new UnsupportedOperationException("Can't compare complex numbers");
+    }
+
+    @Override
+    public Scale getScale() {
+      return Scale.NUMERICAL;
+    }
+
+    @Override
+    public String toString() {
+      return "complex";
+    }
+  };
+  public static final Complex NA = Complex.NaN;
   private final double[] values;
   private final int size;
 
@@ -69,6 +107,11 @@ public class ComplexVector extends AbstractComplexVector {
     }
   }
 
+  private ComplexVector(double[] values, int size, boolean ignore) {
+    this.values = values;
+    this.size = size;
+  }
+
   public static Vector.Builder newBuilderWithInitialValues(Object... values) {
     Builder builder = new Builder(0, values.length);
     builder.addAll(Arrays.asList(values));
@@ -81,6 +124,127 @@ public class ComplexVector extends AbstractComplexVector {
   @Override
   public double getAsDouble(int index) {
     return values[index * 2];
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int index) {
+    if (cls.isAssignableFrom(Complex.class)) {
+      return cls.cast(getAsInt(index));
+    } else {
+      if (cls.isAssignableFrom(Double.class)) {
+        return cls.cast(getAsDouble(index));
+      } else if (cls.isAssignableFrom(Integer.class)) {
+        return cls.cast(getAsInt(index));
+      } else if (cls.isAssignableFrom(Bit.class)) {
+        return cls.cast(getAsBit(index));
+      } else if (cls.isAssignableFrom(String.class)) {
+        return cls.cast(getAsComplex(index).toString());
+      } else {
+        return Na.of(cls);
+      }
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString(int index) {
+    Complex complex = getAsComplex(index);
+    return complex.isNaN() ? "NA" : complex.toString();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isNA(int index) {
+    return Double.isNaN(getAsDouble(index));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getAsInt(int index) {
+    double value = getAsDouble(index);
+    if (Double.isNaN(value)) {
+      return IntVector.NA;
+    } else {
+      return (int) value;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public VectorType getType() {
+    return TYPE;
+  }
+
+  @Override
+  public ComplexMatrix toMatrix() {
+    ComplexMatrix x = Bj.complexVector(size());
+    for (int i = 0; i < size(); i++) {
+      x.set(i, getAsComplex(i));
+    }
+    return x;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compare(int a, int b) {
+    throw new UnsupportedOperationException("Can't compare complex numbers.");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int compare(int a, Vector other, int b) {
+    throw new UnsupportedOperationException("Can't compare complex number.");
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsComplex(i).hashCode();
+    }
+    return code;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsComplex(i).equals(ov.getAsComplex(i))) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   public static final class Builder implements Vector.Builder {
@@ -222,42 +386,10 @@ public class ComplexVector extends AbstractComplexVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new AbstractComplexVector() {
+      return new ComplexVector(buffer.buffer, buffer.size(), false) {
         @Override
         public Builder newCopyBuilder() {
           return ComplexVector.Builder.this;
-        }
-
-        @Override
-        public double getAsDouble(int index) {
-          return buffer.get(index * 2);
-        }
-
-        @Override
-        public Complex getAsComplex(int index) {
-          int pos = index * 2;
-          double real = buffer.get(pos), imag = buffer.get(pos + 1);
-          if (Double.isNaN(real) || Double.isNaN(imag)) {
-            return Complex.NaN;
-          } else {
-            return new Complex(real, imag);
-          }
-        }
-
-        @Override
-        public int size() {
-          return ComplexVector.Builder.this.size();
-        }
-
-
-        @Override
-        public Builder newBuilder() {
-          return getType().newBuilder();
-        }
-
-        @Override
-        public Builder newBuilder(int size) {
-          return getType().newBuilder(size);
         }
       };
     }

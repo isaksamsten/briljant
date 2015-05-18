@@ -1,15 +1,16 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 /**
  * @author Isak Karlsson
@@ -23,12 +24,23 @@ public abstract class VectorDelegate implements Vector {
   }
 
   @Override
+  public <T> Vector satisfies(Class<T> cls, Vector other,
+                              BiPredicate<T, T> predicate) {
+    return vector.satisfies(cls, other, predicate);
+  }
+
+  @Override
+  public <T> Vector satisfies(Class<? extends T> cls, Predicate<? super T> predicate) {
+    return vector.satisfies(cls, predicate);
+  }
+
+  @Override
   public <T, O> Vector transform(Class<T> in, Class<O> out, Function<T, O> operator) {
     return vector.transform(in, out, operator);
   }
 
   @Override
-  public <T> Vector transform(Class<T> cls, UnaryOperator<T> operator) {
+  public <T> Vector transform(Class<T> cls, Function<T, ?> operator) {
     return vector.transform(cls, operator);
   }
 
@@ -44,8 +56,14 @@ public abstract class VectorDelegate implements Vector {
   }
 
   @Override
+  public <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
+                               BiFunction<? super T, ? super T, ? extends R> combiner) {
+    return vector.combine(in, out, other, combiner);
+  }
+
+  @Override
   public <T> Vector combine(Class<? extends T> cls, Vector other,
-                            BinaryOperator<T> combiner) {
+                            BiFunction<? super T, ? super T, ?> combiner) {
     return vector.combine(cls, other, combiner);
   }
 

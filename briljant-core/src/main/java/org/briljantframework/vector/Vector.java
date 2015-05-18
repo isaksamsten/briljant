@@ -1,8 +1,9 @@
 package org.briljantframework.vector;
 
+import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.dataframe.Aggregator;
 import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
@@ -17,11 +18,13 @@ import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -41,16 +44,47 @@ import java.util.stream.Stream;
  */
 public interface Vector extends Serializable {
 
+  @SafeVarargs
+  static <T> Vector of(T... array) {
+    Class<?> cls = array.getClass().getComponentType();
+    Builder builder = Vec.typeOf(cls).newBuilder();
+    for (T t : array) {
+      builder.add(t);
+    }
+    return builder.build();
+  }
+
+  static <T> Vector of(Iterable<T> values) {
+    Iterator<T> it = values.iterator(); // TODO: define a NA-vector of size 0
+    T t = it.next();
+    Builder builder = Vec.inferTypeOf(t).newBuilder().add(t);
+    while (it.hasNext()) {
+      builder.add(it.next());
+    }
+    return builder.build();
+  }
+
+  default <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate) {
+    return combine(cls, Boolean.class, other, predicate::test);
+  }
+
+  default <T> Vector satisfies(Class<? extends T> cls, Predicate<? super T> predicate) {
+    return transform(cls, Boolean.class, predicate::test);
+  }
+
   <T, O> Vector transform(Class<T> in, Class<O> out, Function<T, O> operator);
 
-  <T> Vector transform(Class<T> cls, UnaryOperator<T> operator);
+  <T> Vector transform(Class<T> cls, Function<T, ?> operator);
 
   <T> Vector filter(Class<T> cls, Predicate<T> predicate);
 
   <T, R, C> R aggregate(Class<? extends T> in, Aggregator<? super T, ? extends R, C> aggregator);
 
+  <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
+                        BiFunction<? super T, ? super T, ? extends R> combiner);
+
   <T> Vector combine(Class<? extends T> cls, Vector other,
-                     BinaryOperator<T> combiner);
+                     BiFunction<? super T, ? super T, ?> combiner);
 
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
@@ -84,6 +118,16 @@ public interface Vector extends Serializable {
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   <T> T get(Class<T> cls, int index);
+
+  default <T> T get(Class<T> cls, int index, Supplier<T> defaultValue) {
+    T v = get(cls, index);
+    return Is.NA(v) ? defaultValue.get() : v;
+  }
+
+//  default <T> T get(Class<T> cls, int index, T defaultValue) {
+//    T v = get(cls, index);
+//    return Is.NA(v) ? defaultValue : v;
+//  }
 
   /**
    * Return the string representation of the value at {@code index}
@@ -149,7 +193,7 @@ public interface Vector extends Serializable {
   double getAsDouble(int index);
 
   /**
-   * Returns value as {@code int} if applicable. Otherwise returns {@link IntVector#NA}
+   * Returns value as {@code int} if applicable. Otherwise returns {@link org.briljantframework.vector.IntVector#NA}
    *
    * @param index the index
    * @return an int
@@ -167,7 +211,7 @@ public interface Vector extends Serializable {
   Bit getAsBit(int index);
 
   /**
-   * Returns value as {@link org.briljantframework.complex.Complex} or {@link ComplexVector#NA} if
+   * Returns value as {@link org.briljantframework.complex.Complex} or {@link org.briljantframework.vector.ComplexVector#NA} if
    * missing.
    *
    * @param index the index
@@ -187,6 +231,23 @@ public interface Vector extends Serializable {
     Builder builder = newBuilder();
     for (int index : indexes) {
       builder.add(this, index);
+    }
+    return builder.build();
+  }
+
+  default Vector slice(Vector vector) {
+    return slice(vector.asList(Bit.class));
+  }
+
+  default Vector slice(Collection<Bit> bits) {
+    Check.size(this.size(), bits.size());
+    Builder builder = newBuilder();
+    Iterator<Bit> it = bits.iterator();
+    for (int i = 0; i < size(); i++) {
+      Bit b = it.next();
+      if (b == Bit.TRUE) {
+        builder.add(this, i);
+      }
     }
     return builder.build();
   }

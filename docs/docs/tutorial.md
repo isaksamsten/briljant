@@ -390,7 +390,6 @@ of homogenoues values. Vectors come in six homogeneous flavors, all of
 which resides in the namespace `org.briljantframework.vector`. The
 flavors are
 
-* `StringVector` for storing string values (`java.lang.String`).
 * `DoubleVector` for storing real number (`double`).
 * `ComplexVector` for storing complex numbers.
   (`org.briljantframework.complex.Complex`).
@@ -401,6 +400,119 @@ flavors are
 
 In addition to values, each vector can store a distinct value, called
 `NA`, which represents the absence of a value.
+
+In this introduction we'll start with a quick overview of the `Vector`
+data structure. For most applications in Briljant, `Vector` will be a
+trusty companion. To get started, we import
+
+```
+import org.briljantframework.vector.*;
+import org.briljantframework.[functions].*;
+```
+
+### Creating vectors ###
+
+Since vectors in Briljant are immutable, new vectors are created using
+a `Vector.Builder`-object.
+
+```
+IntVector.Builder vb = new IntVector.Builder();
+for(int i = 0; i < 10; i++)
+    vb.add(i);
+Vector zeroToNine = vb.build();
+//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+In the example above, we create a new `IntVector` with the values from
+0 to 9.
+
+Every vector has a type, accessible from `Vector#getType()`. The
+returned type object contains information about, for example, the
+underlying type and how to copy, compare and identify `NA`-values.
+
+Perhaps the simplest, and most common, way of creating a vector is to
+call `Vector.of(data)`. Here, `data` can be:
+
+* An `Array`; or
+* an `Iterable`
+
+The type of vector is inferred from the argument to `#of`. For
+example,
+
+```
+// i is an IntVector
+Vector i = Vector.of(1,2,3,4,5);
+
+// d is a DoubleVector
+Vector d = Vector.of(1.1, 1.2, 1.3);
+
+// n is a GenericVector(Number.class)
+Vector n = Vector.of(1.1, 1, 2, 3, 4);
+
+// data is a GenericVector(String.class)
+Vector data = Vector.of("Hello", "World");
+```
+
+!!! info "Missing values"
+
+    In Briljant, `NA` denote the absence of a value. The particular
+    value denoting `NA` changes based on vector type. For the
+    reference types (e.g., `GenericVector` and `ComplexVector`), `NA`
+    is the same as `null`. For the primitive types, however, `NA` is
+    represented differently depending on type. For the `IntVector`,
+    `Integer.MAX_VALUE` denote `NA` and for the `DoubleVector` a value
+    in the `NaN`-range (`0x7ff0000000000009L`) denote `NA`. To
+    simplify `NA`-checking, use `Is.NA(...)`.
+
+To create a vector with missing values, `Vector.Builder#addNA` can be
+used. For example:
+
+```
+Vector.Builder vb = new DoubleVector.Builder();
+for (int i = 0; i < 10; i++) {
+    if(i % 2 == 0) {
+        vb.addNA();
+    } else {
+        vb.add(i);
+    }
+}
+Vector v = vb.build();
+// [NA, 1, NA, 3, NA, 5, NA, 7, NA, 9]
+```
+
+A vector acts very similar to a `List<T>` with the difference that it
+natively handles primitive types (using `#getAsInt(int)` and
+`#getAsDouble(int)`).
+
+```
+Vector v = Vector.of(1.1, 1.2, 1.3, 1.4, 1.5);
+double i = v.getAsDouble(0);
+// 1.1
+
+v.slice(Arrays.asList(1, 2, 3));
+// [1.2, 1.3, 1.4]
+
+double mean = vec.aggregate(Double.class, Aggregates.mean());
+v.slice(v.satisfies(Double.class, x -> x > mean);
+// [1.4, 1.5];
+
+List<Double> l = vec.asList(Double.class);
+// [1.1, 1.2, 1.3, 1.4, 1.5]
+
+v instanceof DoubleVector // true
+
+Vector nv = Vector.of("Hello", "World");
+nv instanceof GenericVector // true
+
+double i = nv.getAsDouble(0);
+Is.NA(i); // true
+
+String s = nv.aggregate(String.class, Aggregates.join(" "));
+// "Hello World"
+
+LocalDate d = nv.get(LocalDate.class, 0, LocalDate::now); // now
+
+```
 
 ## DataFrame ##
 

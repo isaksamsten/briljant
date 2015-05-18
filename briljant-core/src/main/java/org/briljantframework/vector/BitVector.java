@@ -4,10 +4,14 @@ import com.google.common.base.Preconditions;
 
 import com.carrotsearch.hppc.IntArrayList;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.reslover.Resolver;
 import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.matrix.Matrix;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,12 +20,53 @@ import java.util.stream.IntStream;
 /**
  * Created by Isak Karlsson on 20/11/14.
  */
-public class BitVector extends AbstractBitVector {
+public class BitVector extends AbstractVector {
 
+  public static final Bit NA = Bit.NA;
+  public static VectorType TYPE = new VectorType() {
+    @Override
+    public Builder newBuilder() {
+      return new Builder();
+    }
+
+    @Override
+    public Builder newBuilder(int size) {
+      return new Builder(size);
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+      return Bit.class;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return value == null ||
+             (value instanceof Bit && value.equals(BitVector.NA)) ||
+             (value instanceof Integer && (int) value == IntVector.NA);
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      return va.getAsInt(a) - ba.getAsInt(b);
+    }
+
+    @Override
+    public Scale getScale() {
+      return Scale.NOMINAL;
+    }
+
+    @Override
+    public String toString() {
+      return "binary";
+    }
+  };
   private int[] values;
+  private final int size;
 
   protected BitVector(IntArrayList values) {
     this.values = values.toArray();
+    this.size = this.values.length;
   }
 
   public BitVector(boolean... values) {
@@ -29,10 +74,17 @@ public class BitVector extends AbstractBitVector {
     for (int i = 0; i < values.length; i++) {
       this.values[i] = values[i] ? 1 : 0;
     }
+    this.size = values.length;
   }
 
   public BitVector(int... values) {
     this.values = Arrays.copyOf(values, values.length);
+    this.size = this.values.length;
+  }
+
+  private BitVector(int[] buffer, int size) {
+    this.values = buffer;
+    this.size = size;
   }
 
   public static Builder newBuilderWithInitialValues(Object... values) {
@@ -57,7 +109,117 @@ public class BitVector extends AbstractBitVector {
 
   @Override
   public int size() {
-    return values.length;
+    return size;
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int index) {
+    if (cls.isAssignableFrom(Bit.class)) {
+      return cls.cast(getAsBit(index));
+    } else {
+      if (cls.isAssignableFrom(Double.class)) {
+        return cls.cast(getAsDouble(index));
+      } else if (cls.isAssignableFrom(Complex.class)) {
+        return cls.cast(getAsComplex(index));
+      } else if (cls.isAssignableFrom(Integer.class)) {
+        return cls.cast(getAsInt(index));
+      } else if (cls.isAssignableFrom(String.class)) {
+        return cls.cast(getAsBit(index).toString());
+      } else {
+        return Na.of(cls);
+      }
+    }
+  }
+
+  @Override
+  public String toString(int index) {
+    return getAsBit(index).name();
+  }
+
+  @Override
+  public boolean isNA(int index) {
+    return getAsInt(index) == IntVector.NA;
+  }
+
+  @Override
+  public Complex getAsComplex(int index) {
+    double v = getAsDouble(index);
+    if (Is.NA(v)) {
+      return Complex.NaN;
+    } else {
+      return Complex.valueOf(v);
+    }
+  }
+
+  @Override
+  public double getAsDouble(int index) {
+    int i = getAsInt(index);
+    if (i == IntVector.NA) {
+      return DoubleVector.NA;
+    } else {
+      return i;
+    }
+  }
+
+  @Override
+  public Bit getAsBit(int index) {
+    return Bit.valueOf(getAsInt(index));
+  }
+
+  @Override
+  public VectorType getType() {
+    return TYPE;
+  }
+
+  @Override
+  public Matrix toMatrix() {
+    BitMatrix n = Bj.booleanVector(size());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, getAsBit(i) == Bit.TRUE);
+    }
+    return n;
+  }
+
+  @Override
+  public int compare(int a, int b) {
+    return getAsInt(a) - getAsInt(b);
+  }
+
+  @Override
+  public int compare(int a, Vector other, int b) {
+    return getAsInt(a) - other.getAsInt(b);
+  }
+
+  @Override
+  public int hashCode() {
+    int code = 1;
+    for (int i = 0; i < size(); i++) {
+      code += 31 * getAsInt(i);
+    }
+    return code;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o instanceof Vector) {
+      Vector ov = (Vector) o;
+      if (size() == ov.size()) {
+        for (int i = 0; i < size(); i++) {
+          if (getAsInt(i) != ov.getAsInt(i)) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   public static class Builder implements Vector.Builder {
@@ -183,37 +345,43 @@ public class BitVector extends AbstractBitVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new AbstractBitVector() {
-        @Override
-        public int getAsInt(int index) {
-          return buffer.get(index);
-        }
-
-        @Override
-        public int size() {
-          return buffer.size();
-        }
-
+      return new BitVector(buffer.buffer, buffer.size()) {
         @Override
         public Builder newCopyBuilder() {
           return BitVector.Builder.this;
         }
-
-        @Override
-        public Builder newBuilder() {
-          return getType().newBuilder();
-        }
-
-        @Override
-        public Builder newBuilder(int size) {
-          return getType().newBuilder(size);
-        }
       };
+//      return new AbstractBitVector() {
+//        @Override
+//        public int getAsInt(int index) {
+//          return buffer.get(index);
+//        }
+//
+//        @Override
+//        public int size() {
+//          return buffer.size();
+//        }
+//
+//        @Override
+//        public Builder newCopyBuilder() {
+//          return BitVector.Builder.this;
+//        }
+//
+//        @Override
+//        public Builder newBuilder() {
+//          return getType().newBuilder();
+//        }
+//
+//        @Override
+//        public Builder newBuilder(int size) {
+//          return getType().newBuilder(size);
+//        }
+//      };
     }
 
     @Override
     public BitVector build() {
-      BitVector vector = new BitVector(buffer);
+      BitVector vector = new BitVector(buffer.buffer);
       buffer = null;
       return vector;
     }

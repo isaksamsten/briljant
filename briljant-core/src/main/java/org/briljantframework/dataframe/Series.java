@@ -33,10 +33,6 @@ public interface Series extends Vector {
     return getAsBit(index().index(key));
   }
 
-  default String getAsString(Object key) {
-    return getAsString(index().index(key));
-  }
-
   default String toString(Object key) {
     return toString(index().index(key));
   }

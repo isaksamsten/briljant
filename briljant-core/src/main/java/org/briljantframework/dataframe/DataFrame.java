@@ -2,6 +2,7 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.join.JoinType;
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.Swappable;
@@ -278,7 +279,7 @@ public interface DataFrame extends Iterable<Record> {
    * <p> Returns a series consisting of the mean of the {@code Double} columns in {@code this}
    * dataframe.
    *
-   * <p> Note that {@link org.briljantframework.dataframe.Aggregates} implement several convenient
+   * <p> Note that {@link org.briljantframework.function.Aggregates} implement several convenient
    * aggregates, for example {@code df.aggregate(Number.class, Aggregate.median())}.
    *
    * @param cls        the class

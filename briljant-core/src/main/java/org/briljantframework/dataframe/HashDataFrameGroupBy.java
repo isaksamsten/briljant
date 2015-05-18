@@ -1,5 +1,6 @@
 package org.briljantframework.dataframe;
 
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.vector.Vector;
 
 import java.util.HashMap;

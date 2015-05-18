@@ -80,28 +80,4 @@ public interface VectorType {
   default boolean equals(int a, Vector va, int b, Vector ba) {
     return compare(a, va, b, ba) == 0;
   }
-
-//  /**
-//   * Check if value {@code va} and {@code ba} are equal.
-//   *
-//   * @param va the value
-//   * @param ba the value
-//   * @return true if equal false otherwise
-//   */
-//  default boolean equals(Value va, Value ba) {
-//    return equals(0, va, 0, ba);
-//  }
-//
-//  /**
-//   * Check if value {@code va} is equal to {@code ba.getValue(b)}
-//   *
-//   * @param va the value
-//   * @param b  the index in ba
-//   * @param ba the vector
-//   * @return true if equal false otherwise
-//   */
-//  default boolean equals(Value va, int b, Vector ba) {
-//    return equals(0, va, b, ba);
-//  }
-
 }

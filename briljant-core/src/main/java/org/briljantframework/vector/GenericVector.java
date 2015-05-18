@@ -23,15 +23,15 @@ public class GenericVector extends AbstractVector {
 
   @SuppressWarnings("unchecked")
   public <T> GenericVector(Class<T> cls, List<? extends T> values) {
-    this(cls, (List<Object>) values, null, true);
+    this(cls, (List<Object>) values, true);
   }
 
   @SuppressWarnings("unchecked")
   public <T> GenericVector(Class<T> cls, List<T> values, Resolver<T> resolver) {
-    this(cls, (List<Object>) values, resolver, true);
+    this(cls, (List<Object>) values, true);
   }
 
-  protected GenericVector(Class<?> cls, List<Object> values, Resolver<?> resolver, boolean copy) {
+  protected GenericVector(Class<?> cls, List<Object> values, boolean copy) {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
     this.type = Vec.typeOf(cls);
@@ -57,11 +57,16 @@ public class GenericVector extends AbstractVector {
 
   @Override
   public Complex getAsComplex(int index) {
-    double v = getAsDouble(index);
-    if (Is.NA(v)) {
-      return Complex.NaN;
+    Complex complex = get(Complex.class, index);
+    if (complex == null) {
+      double v = getAsDouble(index);
+      if (Is.NA(v)) {
+        return Complex.NaN;
+      } else {
+        return Complex.valueOf(v);
+      }
     } else {
-      return Complex.valueOf(v);
+      return complex;
     }
   }
 
@@ -269,12 +274,12 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new GenericVector(cls, buffer, resolver, false);
+      return new GenericVector(cls, buffer, false);
     }
 
     @Override
     public Vector build() {
-      Vector vector = new GenericVector(cls, buffer, resolver, false);
+      Vector vector = new GenericVector(cls, buffer, false);
       buffer = null;
       return vector;
     }

@@ -1,4 +1,4 @@
-package org.briljantframework.dataframe;
+package org.briljantframework.function;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
@@ -10,11 +10,14 @@ import org.briljantframework.vector.Na;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -29,6 +32,31 @@ public final class Aggregates {
   public static <T, R, C> Aggregator<T, R, C> of(Supplier<C> supplier, BiConsumer<C, T> accumulator,
                                                  Function<C, R> finisher) {
     return new AggregatorImpl<>(supplier, accumulator, finisher);
+  }
+
+  public static <T> Aggregator<T, T, ?> reducing(BinaryOperator<T> operator) {
+    class Value implements Consumer<T> {
+
+      private T value;
+
+      @Override
+      public void accept(T t) {
+        if (value == null) {
+          value = t;
+        } else {
+          operator.apply(value, t);
+        }
+      }
+    }
+    return of(Value::new, Value::accept, (acc) -> acc.value);
+  }
+
+  public static <T> Aggregator<T, T, ?> maxBy(Comparator<? super T> comparator) {
+    return reducing(BinaryOperator.maxBy(comparator));
+  }
+
+  public static <T> Aggregator<T, T, ?> minBy(Comparator<? super T> comparator) {
+    return reducing(BinaryOperator.minBy(comparator));
   }
 
   public static <T> Aggregator<T, T, ?> mode() {
@@ -157,8 +185,8 @@ public final class Aggregates {
   }
 
   public static Aggregator<Object, String, ?> join(CharSequence delimit,
-                                                         CharSequence prefix,
-                                                         CharSequence suffix) {
+                                                   CharSequence prefix,
+                                                   CharSequence suffix) {
     return of(() -> new StringJoiner(delimit, prefix, suffix),
               (j, s) -> j.add(!Is.NA(s) ? s.toString() : "NA"),
               StringJoiner::toString);

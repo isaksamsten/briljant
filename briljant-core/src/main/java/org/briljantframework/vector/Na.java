@@ -40,7 +40,7 @@ public final class Na {
    *
    * <ul>
    * <li>{@code double}: {@link org.briljantframework.vector.DoubleVector#NA}</li>
-   * <li>{@code int}: {@link org.briljantframework.vector.IntVector#NA}</li>
+   * <li>{@code int}: {@link IntVector#NA}</li>
    * <li>{@code long}: {@link Long#MAX_VALUE}</li> // TODO: the rest
    * </ul>
    *

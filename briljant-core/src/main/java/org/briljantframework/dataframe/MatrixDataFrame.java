@@ -12,7 +12,6 @@ import org.briljantframework.io.EntryReader;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vector;
@@ -125,8 +124,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
    */
   @Override
   public Series get(int index) {
-    return new SeriesVector(getColumnIndex().get(index), getRecordIndex(),
-                            Convert.toAdapter(matrix.getColumnView(index)));
+    return new SeriesView(this, index);
   }
 
   @Override

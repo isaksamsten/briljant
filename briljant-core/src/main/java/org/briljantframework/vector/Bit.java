@@ -1,18 +1,13 @@
 package org.briljantframework.vector;
 
 /**
- * Created by Isak Karlsson on 20/11/14.
+ * @author Isak Karlsson
  */
 public enum Bit {
   TRUE(1), FALSE(0), NA(IntVector.NA);
 
   private final int value;
 
-  /**
-   * Instantiates a new Binary.
-   *
-   * @param value the value
-   */
   Bit(int value) {
     this.value = value;
   }
