@@ -19,6 +19,10 @@ buildscript {
     }
 }
 
+task createWrapper(type: Wrapper) {
+    gradleVersion = '2.1'
+}
+
 ext.applicationVersion = "0.1"
 
 allprojects {
