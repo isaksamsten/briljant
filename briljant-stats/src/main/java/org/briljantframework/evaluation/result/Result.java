@@ -16,14 +16,26 @@
 
 package org.briljantframework.evaluation.result;
 
-import java.text.DecimalFormat;
-import java.util.*;
-
-import org.briljantframework.Utils;
-import org.briljantframework.evaluation.measure.Measure;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableTable;
+
+import org.briljantframework.Utils;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.HashIndex;
+import org.briljantframework.dataframe.Index;
+import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.vector.IntVector;
+
+import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by Isak Karlsson on 02/10/14.
@@ -43,7 +55,7 @@ public class Result {
   /**
    * Create result.
    *
-   * @param measures the metrics
+   * @param measures          the metrics
    * @param confusionMatrices the confusion matrices
    * @return the result
    */
@@ -63,7 +75,7 @@ public class Result {
     for (Measure measure : measures) {
       if (measure.size() != length) {
         throw new IllegalArgumentException(String.format("Invalid number of metrics for %s",
-            measure.getName()));
+                                                         measure.getName()));
       }
       metricMap.put(measure.getClass(), measure);
     }
@@ -163,7 +175,7 @@ public class Result {
   /**
    * Gets average.
    *
-   * @param key the key
+   * @param key    the key
    * @param sample the sample
    * @return the average
    */
@@ -184,7 +196,7 @@ public class Result {
   /**
    * Gets standard deviation.
    *
-   * @param key the key
+   * @param key    the key
    * @param sample the sample
    * @return the standard deviation
    */
@@ -205,7 +217,7 @@ public class Result {
   /**
    * Gets min.
    *
-   * @param key the key
+   * @param key    the key
    * @param sample the sample
    * @return the min
    */
@@ -226,7 +238,7 @@ public class Result {
   /**
    * Gets max.
    *
-   * @param key the key
+   * @param key    the key
    * @param sample the sample
    * @return the max
    */
@@ -237,7 +249,7 @@ public class Result {
   /**
    * Get double.
    *
-   * @param key the key
+   * @param key   the key
    * @param index the index
    * @return the double
    */
@@ -248,9 +260,9 @@ public class Result {
   /**
    * Get double.
    *
-   * @param key the key
+   * @param key    the key
    * @param sample the sample
-   * @param index the index
+   * @param index  the index
    * @return the double
    */
   public double get(Class<? extends Measure> key, Sample sample, int index) {
@@ -262,8 +274,20 @@ public class Result {
    *
    * @return the performance metrics
    */
-  public Collection<Measure> getMetrics() {
+  public Collection<Measure> getMeasures() {
     return Collections.unmodifiableCollection(metrics.values());
+  }
+
+  public DataFrame toDataFrame() {
+    DataFrame.Builder df = new MixedDataFrame.Builder();
+    Index.Builder index = new HashIndex.Builder();
+    index.add("Fold");
+    df.addColumn(IntVector.range(getConfusionMatrices().size()));
+    for (Measure measure : getMeasures()) {
+      df.addColumn(measure.get(Sample.OUT));
+      index.add(measure.getName());
+    }
+    return df.build().setColumnIndex(index.build());
   }
 
   @Override
@@ -273,7 +297,7 @@ public class Result {
         .append("Metrics\n");
 
     ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
-    getMetrics()
+    getMeasures()
         .stream()
         .sorted((a, b) -> a.getName().compareTo(b.getName()))
         .forEach(
@@ -283,7 +307,7 @@ public class Result {
               }
               table.put("Average", measure.getName(), String.format("%.4f", measure.getMean()));
               table.put("Standard Deviation", measure.getName(),
-                  String.format("%.4f", measure.getStandardDeviation()));
+                        String.format("%.4f", measure.getStandardDeviation()));
             });
     Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
     return builder.toString();

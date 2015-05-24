@@ -17,6 +17,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   private final HashMap<Object, Vector> groups;
   private final DataFrame dataFrame;
+  private final Function<?, ?> transform = a -> a;
 
   HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, ? extends Vector.Builder> groups) {
     this.dataFrame = dataFrame;
@@ -122,7 +123,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   @Override
-  public <T> DataFrame transform(Class<T> cls, UnaryOperator<T> op) {
+  public <T> DataFrameGroupBy transform(Class<T> cls, UnaryOperator<T> op) {
     return null;
   }
 

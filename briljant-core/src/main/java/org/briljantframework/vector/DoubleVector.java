@@ -8,8 +8,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.matrix.DoubleMatrix;
 
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public String toString() {
-      return "real";
+      return "double";
     }
   };
 
@@ -188,7 +188,7 @@ public class DoubleVector extends AbstractVector {
   @Override
   public String toString(int index) {
     double value = getAsDouble(index);
-    return Is.NA(value) ? "NA" : Double.toString(value);
+    return Is.NA(value) ? "NA" : String.format("%.3f", value);
   }
 
   @Override
@@ -223,6 +223,11 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
+  public int size() {
+    return size;
+  }
+
+  @Override
   public DoubleMatrix toMatrix() {
     DoubleMatrix x = Bj.doubleVector(size());
     for (int i = 0; i < size(); i++) {
@@ -253,6 +258,26 @@ public class DoubleVector extends AbstractVector {
       code += 31 * (int) (v ^ v >>> 32);
     }
     return code;
+  }
+
+  @Override
+  public DoubleVector.Builder newBuilder() {
+    return new DoubleVector.Builder();
+  }
+
+  @Override
+  public DoubleVector.Builder newBuilder(int size) {
+    return new DoubleVector.Builder(size);
+  }
+
+  @Override
+  public double[] toDoubleArray() {
+    return Arrays.copyOf(values, size());
+  }
+
+  @Override
+  public DoubleStream doubleStream() {
+    return Arrays.stream(values, 0, size());
   }
 
   @Override
@@ -334,6 +359,9 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public Builder set(int index, Object value) {
+      if (value == null) {
+        return setNA(index);
+      }
       ensureCapacity(index);
       double dval = DoubleVector.NA;
       if (value instanceof Number) {
@@ -341,7 +369,10 @@ public class DoubleVector extends AbstractVector {
       } else {
         Resolver<Double> resolver = Resolvers.find(Double.class);
         if (resolver != null) {
-          dval = resolver.resolve(value);
+          Double resolve = resolver.resolve(value);
+          if (resolve != null) {
+            dval = resolve;
+          }
         }
       }
       buffer.buffer[index] = dval;
@@ -404,37 +435,12 @@ public class DoubleVector extends AbstractVector {
           return Builder.this;
         }
       };
-//      return new AbstractDoubleVector() {
-//        @Override
-//        public double getAsDouble(int index) {
-//          return buffer.get(index);
-//        }
-//
-//        @Override
-//        public int size() {
-//          return buffer.size();
-//        }
-//
-//        @Override
-//        public Builder newCopyBuilder() {
-//          return DoubleVector.Builder.this;
-//        }
-//
-//        @Override
-//        public Builder newBuilder() {
-//          return getType().newBuilder();
-//        }
-//
-//        @Override
-//        public Builder newBuilder(int size) {
-//          return getType().newBuilder(size);
-//        }
-//      };
     }
 
     @Override
     public DoubleVector build() {
       DoubleVector vec = new DoubleVector(buffer.buffer, size());
+      buffer = null;
       return vec;
     }
 
@@ -463,31 +469,6 @@ public class DoubleVector extends AbstractVector {
       }
     }
 
-  }
-
-  @Override
-  public DoubleVector.Builder newBuilder() {
-    return new DoubleVector.Builder();
-  }
-
-  @Override
-  public DoubleVector.Builder newBuilder(int size) {
-    return new DoubleVector.Builder(size);
-  }
-
-  @Override
-  public double[] toDoubleArray() {
-    return values.clone();
-  }
-
-  @Override
-  public DoubleStream doubleStream() {
-    return DoubleStream.of(values);
-  }
-
-  @Override
-  public int size() {
-    return values.length;
   }
 
 

@@ -148,7 +148,7 @@ public class Configurations implements Iterable<Configuration> {
           table.put(index, params.getKey(), params.getValue());
         }
       }
-      for (Measure measure : configuration.getResult().getMetrics()) {
+      for (Measure measure : configuration.getResult().getMeasures()) {
         table.put(index, measure.getName(), String.format("%.4f", measure.getMean()));
       }
       ConfusionMatrix m = configuration.getAverageConfusionMatrix();

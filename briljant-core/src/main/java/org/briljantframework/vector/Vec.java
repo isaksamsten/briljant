@@ -12,11 +12,13 @@ import com.google.common.primitives.Ints;
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.distribution.Distribution;
+import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.stat.RunningStatistics;
 
+import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -86,10 +87,6 @@ public final class Vec {
         }, Vector.Builder::build);
   }
 
-  public static UnaryOperator<Double> clip(double lower, double upper) {
-    return v -> v < lower ? lower : v > upper ? upper : v;
-  }
-
   public static VectorType typeOf(Class<?> cls) {
     VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
     if (type == null) {
@@ -104,6 +101,18 @@ public final class Vec {
     } else {
       return VARIABLE;
     }
+  }
+
+  /**
+   * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to
+   * return based on the first value added value.
+   *
+   * <p> For example, {@code Vec.inferringBuilder().add(1.0).build()} returns a {@code double}
+   * vector. If unable to infer the type, e.g., when the first added value is {@code NA}, an {@code
+   * object} vector is returned.
+   */
+  public static Vector.Builder inferringBuilder() {
+    return new InferringBuilder();
   }
 
   public static DoubleVector rand(int size, Distribution source) {
@@ -599,7 +608,7 @@ public final class Vec {
   }
 
   /**
-   * Compute the sigmoid between a and b, i.e. 1/(1+e^(a'-b))
+   * Compute the sigmoid between a and b, i.e. 1/(1+e^(a'(-b)))
    *
    * @param a a vector
    * @param b a vector
@@ -607,5 +616,119 @@ public final class Vec {
    */
   public static double sigmoid(Vector a, Vector b) {
     return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
+  }
+
+  /**
+   * Builder that infers the type of vector to build based on the first added value.
+   */
+  private static class InferringBuilder implements Vector.Builder {
+
+    private Vector.Builder builder;
+
+    @Override
+    public Vector.Builder setNA(int index) {
+      if (builder == null) {
+        builder = getObjectBuilder();
+      }
+      builder.setNA(index);
+      return this;
+    }
+
+    protected GenericVector.Builder getObjectBuilder() {
+      return new GenericVector.Builder(Object.class);
+    }
+
+    @Override
+    public Vector.Builder addNA() {
+      if (builder == null) {
+        builder = getObjectBuilder();
+      }
+      builder.addNA();
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, int fromIndex) {
+      return add(from.get(Object.class, fromIndex));
+    }
+
+    @Override
+    public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
+      return set(atIndex, from.get(Object.class, fromIndex));
+    }
+
+    @Override
+    public Vector.Builder set(int index, Object value) {
+      if (builder == null) {
+        builder = inferTypeOf(value).newBuilder();
+      }
+      builder.set(index, value);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(Object value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Vector.Builder addAll(Vector from) {
+      if (from.size() > 1) {
+        Object value = from.get(Object.class, 0);
+        if (builder == null) {
+          builder = inferTypeOf(value).newBuilder();
+        }
+        builder.addAll(from);
+      }
+      return this;
+    }
+
+    @Override
+    public Vector.Builder remove(int index) {
+      throw indexOutOfBounds(index);
+    }
+
+    protected IndexOutOfBoundsException indexOutOfBounds(int index) {
+      return new IndexOutOfBoundsException(String.format("%d out of bounds [size = 0]", index));
+    }
+
+    @Override
+    public int compare(int a, int b) {
+      throw indexOutOfBounds(a);
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      throw indexOutOfBounds(a);
+    }
+
+    @Override
+    public Vector.Builder read(DataEntry entry) throws IOException {
+      return getObjectBuilder().read(entry);
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataEntry entry) throws IOException {
+      if (builder == null) {
+        builder = getObjectBuilder();
+      }
+      builder.read(index, entry);
+      return this;
+    }
+
+    @Override
+    public int size() {
+      return builder != null ? builder.size() : 0;
+    }
+
+    @Override
+    public Vector getTemporaryVector() {
+      return builder != null ? builder.getTemporaryVector() : Vector.singleton(null);
+    }
+
+    @Override
+    public Vector build() {
+      return builder != null ? builder.build() : Vector.singleton(null);
+    }
   }
 }

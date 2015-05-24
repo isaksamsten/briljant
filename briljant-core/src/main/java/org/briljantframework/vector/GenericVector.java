@@ -1,16 +1,19 @@
 package org.briljantframework.vector;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.matrix.Matrix;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Isak Karlsson
@@ -20,21 +23,22 @@ public class GenericVector extends AbstractVector {
   private final VectorType type;
   private final Class<?> cls;
   private final List<Object> values;
+  private final int size;
 
   @SuppressWarnings("unchecked")
   public <T> GenericVector(Class<T> cls, List<? extends T> values) {
     this(cls, (List<Object>) values, true);
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> GenericVector(Class<T> cls, List<T> values, Resolver<T> resolver) {
-    this(cls, (List<Object>) values, true);
+  protected GenericVector(Class<?> cls, List<Object> values, boolean copy) {
+    this(cls, values, values.size(), copy);
   }
 
-  protected GenericVector(Class<?> cls, List<Object> values, boolean copy) {
+  private GenericVector(Class<?> cls, List<Object> values, int size, boolean copy) {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
     this.type = Vec.typeOf(cls);
+    this.size = this.values.size();
   }
 
   @Override
@@ -43,6 +47,15 @@ public class GenericVector extends AbstractVector {
     if (!cls.isInstance(obj)) {
       if (cls.equals(String.class)) {
         return cls.cast(obj.toString());
+      } else {
+        if (this.cls.equals(Number.class)) {
+          Number num = Number.class.cast(obj);
+          if (cls.equals(Double.class)) {
+            return cls.cast(num.doubleValue());
+          } else if (cls.equals(Integer.class)) {
+            return cls.cast(num.intValue());
+          }
+        }
       }
       return Na.of(cls);
     }
@@ -108,7 +121,8 @@ public class GenericVector extends AbstractVector {
 
   @Override
   public Matrix toMatrix() throws TypeConversionException {
-    throw new TypeConversionException(String.format("Can't convert vector(%s) to matrix", cls));
+    throw new TypeConversionException(
+        String.format("Can't convert vector of '%s' to matrix", getType()));
   }
 
   @Override
@@ -128,10 +142,19 @@ public class GenericVector extends AbstractVector {
   @Override
   @SuppressWarnings("unchecked")
   public int compare(int a, Vector other, int b) {
-    if (Comparable.class.isAssignableFrom(cls)) {
-      return get(Comparable.class, a).compareTo(other.get(Comparable.class, b));
+    Comparable ac = get(Comparable.class, a);
+    Comparable bc = other.get(Comparable.class, b);
+    boolean acNA = Is.NA(ac);
+    boolean bcNA = Is.NA(bc);
+    if (acNA && bcNA) {
+      return 0;
+    } else if (acNA) {
+      return 1;
+    } else if (bcNA) {
+      return -1;
+    } else {
+      return ac.compareTo(bc);
     }
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -153,18 +176,30 @@ public class GenericVector extends AbstractVector {
 
   public static class Builder implements Vector.Builder {
 
+    private static final Set<Class<?>> INVALID_CLASSES = ImmutableSet.of(
+        Integer.class, Integer.TYPE, Double.TYPE, Double.class, Complex.class, Bit.class
+    );
+
     private final Class<?> cls;
     private List<Object> buffer;
     private Resolver<?> resolver = null;
 
     public <T> Builder(Class<T> cls, Resolver<T> resolver) {
-      this.cls = cls;
+      this.cls = ensureValidClass(cls);
       this.resolver = resolver;
     }
 
     public Builder(Class<?> cls) {
-      this.cls = cls;
+      this.cls = ensureValidClass(cls);
       buffer = new ArrayList<>();
+    }
+
+    private <T> Class<?> ensureValidClass(Class<T> cls) {
+      if (INVALID_CLASSES.contains(cls)) {
+        throw new IllegalArgumentException(
+            String.format("GenericVector should not be used for: %s", cls));
+      }
+      return cls;
     }
 
     public Builder(Class<?> cls, int size) {
@@ -274,7 +309,7 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new GenericVector(cls, buffer, false);
+      return new GenericVector(cls, buffer, buffer.size(), false);
     }
 
     @Override

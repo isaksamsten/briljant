@@ -35,14 +35,14 @@ public abstract class AbstractMeasure implements Measure {
 
   protected AbstractMeasure(Builder<? extends Measure> builder) {
     this.values = new EnumMap<>(Sample.class);
-    for (Map.Entry<Sample, DoubleVector.Builder> entry : builder.values.entrySet()) {
-      values.put(entry.getKey(), entry.getValue().build());
-    }
     this.max = builder.max;
     this.min = builder.min;
     this.mean = builder.computeMean();
     this.std = builder.computeStandardDeviation(mean);
     this.zeroVector = new DoubleVector(size());
+    for (Map.Entry<Sample, DoubleVector.Builder> entry : builder.values.entrySet()) {
+      values.put(entry.getKey(), entry.getValue().build());
+    }
   }
 
   @Override

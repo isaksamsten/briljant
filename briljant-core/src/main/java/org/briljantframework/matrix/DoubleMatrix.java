@@ -17,10 +17,10 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
@@ -156,6 +156,8 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @return receiver modified
    */
   DoubleMatrix update(DoubleUnaryOperator operator);
+
+  <R, C> R aggregte(Aggregator<? super Double, R, C> aggregator);
 
   <T> T collect(Supplier<T> supplier, ObjDoubleConsumer<T> consumer);
 

@@ -2,10 +2,11 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Transforms;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
-import org.briljantframework.io.reslover.StringDateConverter;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
+import org.briljantframework.io.resolver.StringDateConverter;
 import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
@@ -26,9 +27,8 @@ public class DataFramesTest {
         "/Users/isak-kar/Downloads/GOOG-NASDAQ_AAPL.csv"
     );
     System.out.println(
-        df.groupBy(f -> f.get(LocalDate.class, 0).getDayOfMonth())
+        df.groupBy(f -> f.get(LocalDate.class, 0).getMonth())
             .aggregate(Double.class, Aggregates.max())
-            .resetIndex()
             .sortBy(SortOrder.DESC, "Open")
     );
 
@@ -68,24 +68,28 @@ public class DataFramesTest {
 
     double mean = vec.aggregate(Integer.class, Aggregates.mean());
     System.out.println(mean);
-    Vector largerThanMean = vec.slice(vec.satisfies(Integer.class, x -> x > mean));
+    Vector satisfies = vec.satisfies(Integer.class, x -> x > mean);
+    System.out.println(satisfies);
+    Vector largerThanMean = vec.slice(satisfies);
 
     Vector l = vec.slice(vec.satisfies(Integer.class, vec, Object::equals));
 
-    System.out.println(vec.transform(Integer.class, Transforms.lessThan(3)));
+    System.out.println(
+        vec.transform(Integer.class, Boolean.class, Transforms.lessThan(3)));
 
-    System.out.println(vec.combine(Integer.class, vec, Transforms.equal()));
+    System.out.println(vec.combine(Integer.class, Boolean.class, vec, Transforms.equal()));
     System.out.println(largerThanMean);
 
     Vector v = Vector.of(321.1, 1.2, 1.33214543542432, 1.4, 1.5);
     System.out.println(v.get(Bit.class, 0, () -> Bit.FALSE));
 
-    System.out.println(v.aggregate(Double.class, Aggregates.var()));
+    Number aggregate = v.aggregate(Double.class, Aggregates.max());
+    System.out.println(aggregate);
 
-    System.out.println(v.aggregate(
-        Double.class,
-        Aggregates.maxBy(Double::compareTo)
-    ));
+    System.out
+        .println(v.aggregate(Double.class, Aggregates.repeat(DoubleVector.Builder::new, 2)).size());
+
+//    System.out.println(v.collect(Double.class, Collectors.minBy(Double::compareTo)).get());
   }
 
   private void pass(Object d) {

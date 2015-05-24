@@ -1,4 +1,4 @@
-package org.briljantframework.io.reslover;
+package org.briljantframework.io.resolver;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * @author Isak Karlsson
  */
-public class StringDateConverter implements Converter<LocalDate, String> {
+public class StringDateConverter implements Converter<String, LocalDate> {
 
   private final DateTimeFormatter format;
 

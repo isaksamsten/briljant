@@ -13,7 +13,7 @@ import org.briljantframework.vector.VectorType;
  *
  * @author Isak Karlsson
  */
-public class SeriesView extends AbstractVector implements Series {
+class SeriesView extends AbstractVector implements Series {
 
   private final DataFrame parent;
   private final int column;

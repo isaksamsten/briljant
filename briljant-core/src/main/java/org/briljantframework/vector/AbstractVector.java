@@ -1,49 +1,13 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.Check;
 import org.briljantframework.function.Aggregator;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractVector implements Vector {
-
-  @Override
-  public <T, O> Vector transform(Class<T> in, Class<O> out, Function<T, O> operator) {
-    Vector.Builder builder = Vec.typeOf(out).newBuilder();
-    for (int i = 0; i < size(); i++) {
-      builder.set(i, operator.apply(get(in, i)));
-    }
-    return builder.build();
-  }
-
-  @Override
-  public <T> Vector transform(Class<T> cls, Function<T, ?> operator) {
-    Object v = operator.apply(get(cls, 0));
-    Vector.Builder builder = Vec.inferTypeOf(v).newBuilder().add(v);
-    for (int i = 1; i < size(); i++) {
-      builder.add(operator.apply(get(cls, i)));
-    }
-
-    return builder.build();
-  }
-
-  @Override
-  public <T> Vector filter(Class<T> cls, Predicate<T> predicate) {
-    Vector.Builder builder = Vec.typeOf(cls).newBuilder();
-    for (int i = 0; i < size(); i++) {
-      T value = get(cls, i);
-      if (predicate.test(value)) {
-        builder.add(value);
-      }
-    }
-    return builder.build();
-  }
-
 
   @Override
   public <T, R, C> R aggregate(Class<? extends T> in,
@@ -59,38 +23,50 @@ public abstract class AbstractVector implements Vector {
   public <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
                                BiFunction<? super T, ? super T, ? extends R> combiner) {
     Vector.Builder builder = Vec.typeOf(out).newBuilder();
-    int size = Math.max(this.size(), other.size());
-    int thisSize = size();
+    return combineVectors(in, other, combiner, builder);
+  }
+
+  @Override
+  public <T> Vector combine(Class<T> cls, Vector other, BiFunction<T, T, ? extends T> combiner) {
+    return combineVectors(cls, other, combiner, newBuilder());
+  }
+
+  protected <T> Vector combineVectors(Class<? extends T> cls, Vector other,
+                                      BiFunction<? super T, ? super T, ?> combiner,
+                                      Builder builder) {
+    int thisSize = this.size();
     int otherSize = other.size();
+    int size = Math.max(thisSize, otherSize);
     for (int i = 0; i < size; i++) {
       if (i < thisSize && i < otherSize) {
-        builder.add(combiner.apply(get(in, i), other.get(in, i)));
-      } else if (i < thisSize) {
-        builder.add(get(in, i));
+        builder.add(combiner.apply(get(cls, i), other.get(cls, i)));
       } else {
-        builder.add(other.get(in, i));
+        if (i < thisSize) {
+          builder.add(get(cls, i));
+        } else {
+          builder.add(other.get(cls, i));
+        }
       }
     }
     return builder.build();
   }
 
   @Override
-  public <T> Vector combine(Class<? extends T> cls, Vector other,
-                            BiFunction<? super T, ? super T, ?> combiner) {
-    Check.size(this, other);
-    Object combined = combiner.apply(get(cls, 0), other.get(cls, 0));
-    Vector.Builder builder = Vec.inferTypeOf(combined).newBuilder().add(combined);
-    int size = Math.max(size(), other.size());
-    for (int i = 1; i < size; i++) {
-      if (i < size() && i < other.size()) {
-        builder.add(combiner.apply(get(cls, i), other.get(cls, i)));
-      } else if (i < this.size()) {
-        builder.add(get(cls, i));
-      } else {
-        builder.add(other.get(cls, i));
-      }
+  public Vector head(int n) {
+    Vector.Builder b = newBuilder();
+    for (int i = 0; i < n && i < size(); i++) {
+      b.add(this, i);
     }
-    return builder.build();
+    return b.build();
+  }
+
+  @Override
+  public Vector tail(int n) {
+    Vector.Builder b = newBuilder();
+    for (int i = size() - n; i < size(); i++) {
+      b.add(this, i);
+    }
+    return b.build();
   }
 
   @Override
@@ -124,8 +100,7 @@ public abstract class AbstractVector implements Vector {
     for (int i = 1; i < size(); i++) {
       builder.append(", ").append(toString(i));
     }
-    builder.append(" type: ").append(getType().toString());
-    builder.append("]");
+    builder.append("] type: ").append(getType().toString());
     return builder.toString();
   }
 }

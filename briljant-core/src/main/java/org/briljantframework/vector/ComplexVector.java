@@ -8,8 +8,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.matrix.ComplexMatrix;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 import static com.google.common.primitives.Ints.checkedCast;
 
 /**
- * Created by Isak Karlsson on 21/11/14.
+ * @author Isak Karlsson
  */
 public class ComplexVector extends AbstractVector {
 

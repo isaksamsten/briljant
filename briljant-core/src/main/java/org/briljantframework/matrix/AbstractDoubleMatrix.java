@@ -23,6 +23,7 @@ import com.carrotsearch.hppc.DoubleArrayList;
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.storage.Storage;
@@ -164,6 +165,15 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       set(i, operator.applyAsDouble(get(i)));
     }
     return this;
+  }
+
+  @Override
+  public <R, C> R aggregte(Aggregator<? super Double, R, C> aggregator) {
+    C accum = aggregator.supplier().get();
+    for (int i = 0; i < size(); i++) {
+      aggregator.accumulator().accept(accum, get(i));
+    }
+    return aggregator.finisher().apply(accum);
   }
 
   @Override

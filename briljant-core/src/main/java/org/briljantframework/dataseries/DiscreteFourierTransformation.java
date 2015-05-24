@@ -5,7 +5,7 @@ import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
 import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Record;
+import org.briljantframework.dataframe.Series;
 import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -27,7 +27,7 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   @Override
   public DataFrame transform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(ComplexVector.TYPE);
-    for (Record row : x) {
+    for (Series row : x) {
       requireType(DoubleVector.TYPE, row);
       DoubleMatrix timeDomain = row.toMatrix().asDoubleMatrix();
       ComplexMatrix frequencyDomain = fft(timeDomain);
@@ -43,7 +43,7 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   @Override
   public DataFrame inverseTransform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    for (Record row : x) {
+    for (Series row : x) {
       requireType(ComplexVector.TYPE, row);
       ComplexMatrix timeDomain = row.toMatrix().asComplexMatrix();
       DoubleMatrix frequencyDomain = ifft(timeDomain).asDoubleMatrix();

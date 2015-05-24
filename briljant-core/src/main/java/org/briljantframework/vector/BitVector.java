@@ -8,8 +8,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.Matrix;
 
@@ -271,6 +271,9 @@ public class BitVector extends AbstractVector {
 
     @Override
     public Builder set(int index, Object value) {
+      if (value == null) {
+        return setNA(index);
+      }
       ensureCapacity(index);
       int intValue = IntVector.NA;
       if (value instanceof Number) {
@@ -381,7 +384,7 @@ public class BitVector extends AbstractVector {
 
     @Override
     public BitVector build() {
-      BitVector vector = new BitVector(buffer.buffer);
+      BitVector vector = new BitVector(buffer.buffer, buffer.size());
       buffer = null;
       return vector;
     }

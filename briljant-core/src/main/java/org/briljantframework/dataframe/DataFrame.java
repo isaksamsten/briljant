@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
  *
  * @author Isak Karlsson
  */
-public interface DataFrame extends Iterable<Record> {
+public interface DataFrame extends Iterable<Series> {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
@@ -246,13 +246,13 @@ public interface DataFrame extends Iterable<Record> {
   /**
    * <p> Reduce all columns, applying {@code op} with the initial value {@code init}.
    *
+   * @param <T>  the type
    * @param cls  the class
    * @param init the initial value
    * @param op   the operation
-   * @param <T>  the type
    * @return a record with the reduced values
    */
-  <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
+  <T> Series reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
 
   /**
    * <p> Reduce every column by applying a function.
@@ -266,7 +266,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param op the operation to apply
    * @return a new record with the reduced values
    */
-  Record reduce(Function<Vector, Object> op);
+  Series reduce(Function<Vector, Object> op);
 
   /**
    * <p> Aggregate every column which is an instance of {@code cls} using the supplied aggregator.
@@ -314,7 +314,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param keyFunction the key function
    * @return a group by data frame
    */
-  DataFrameGroupBy groupBy(Function<Record, Object> keyFunction);
+  DataFrameGroupBy groupBy(Function<Series, Object> keyFunction);
 
   DataFrame transform(Function<? super Series, ? extends Vector> transform);
 
@@ -339,6 +339,26 @@ public interface DataFrame extends Iterable<Record> {
    * @throws java.lang.IllegalArgumentException if key is not found
    */
   Vector get(Object key);
+
+  default DataFrame get(Collection<Integer> indices) {
+    DataFrame.Builder df = newBuilder();
+    Index.Builder columnIndex = new HashIndex.Builder();
+    int newColumn = 0;
+    for (int index : indices) {
+      columnIndex.add(getColumnIndex().get(index));
+      df.addColumnBuilder(getType(index));
+      for (int i = 0; i < rows(); i++) {
+        df.set(i, newColumn, this, i, index);
+      }
+      newColumn++;
+    }
+
+    return df.build().setColumnIndex(columnIndex.build()).setRecordIndex(getRecordIndex());
+  }
+
+  default DataFrame get(Object... keys) {
+    return get(getColumnIndex().indices(keys));
+  }
 
   DataFrame dropna();
 
@@ -401,14 +421,14 @@ public interface DataFrame extends Iterable<Record> {
    *
    * @return an (immutable) collection of columns
    */
-  Collection<Vector> getColumns();
+  Collection<Series> getColumns();
 
   /**
    * Returns a collection of records.
    *
    * @return an (immutable) collection of rows
    */
-  Collection<Record> getRecords();
+  Collection<Series> getRecords();
 
   /**
    * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types,
@@ -418,7 +438,7 @@ public interface DataFrame extends Iterable<Record> {
    * @param index the index
    * @return the row sequence
    */
-  Record getRecord(int index);
+  Series getRecord(int index);
 
   /**
    * Take the rows in {@code indexes}
@@ -501,11 +521,11 @@ public interface DataFrame extends Iterable<Record> {
    */
   Matrix toMatrix();
 
-  default Stream<Record> stream() {
+  default Stream<Series> stream() {
     return StreamSupport.stream(spliterator(), false);
   }
 
-  default Stream<Record> parallelStream() {
+  default Stream<Series> parallelStream() {
     return StreamSupport.stream(spliterator(), true);
   }
 

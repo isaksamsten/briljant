@@ -6,8 +6,8 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Record;
-import org.briljantframework.dataframe.RecordVector;
+import org.briljantframework.dataframe.Series;
+import org.briljantframework.dataframe.SeriesVector;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
@@ -170,15 +170,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
   public DataFrame drop(Iterable<Integer> indexes) {
     Set<Integer> set = Sets.newHashSet(indexes);
     Builder builder = newBuilder();
-//    builder.getColumnNames().putAll(getColumnNames());
     for (int i = 0; i < rows(); i++) {
       Vector row = getRecord(i);
       Vector.Builder vecBuilder = row.newBuilder();
       for (int j = 0; j < row.size(); j++) {
         if (!set.contains(j)) {
           vecBuilder.add(row, j);
-        } else {
-//          builder.getColumnNames().remove(j);
         }
       }
       builder.addRecord(vecBuilder);
@@ -187,8 +184,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Record getRecord(int index) {
-    return new RecordVector("", getColumnIndex(), series.get(index));
+  public Series getRecord(int index) {
+    return new SeriesVector("", getColumnIndex(), series.get(index));
   }
 
   /**
@@ -228,7 +225,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
       // If the source row does not contain the source column requested
       // silently ignore the value. This is the case since data series
       // can be of unequal lengths.
-      Record row = from.getRecord(fromRow);
+      Series row = from.getRecord(fromRow);
       if (fromCol < row.size()) {
         builders.get(toRow).set(toCol, row, fromCol);
       }

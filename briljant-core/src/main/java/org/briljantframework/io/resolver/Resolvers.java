@@ -1,4 +1,4 @@
-package org.briljantframework.io.reslover;
+package org.briljantframework.io.resolver;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
@@ -6,7 +6,9 @@ import com.google.common.primitives.Ints;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.vector.Bit;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,13 +23,12 @@ public final class Resolvers {
   );
 
   static {
-//    Resolver<Date> dateResolver = new Resolver<>(Date.class);
-//    dateResolver.put(String.class, new StringDateConverter());
-//    dateResolver.put(Long.class, Date::new);
-//    dateResolver.put(Long.TYPE, Date::new);
-
     Resolver<LocalDate> localDateResolver = new Resolver<>(LocalDate.class);
     localDateResolver.put(String.class, new StringDateConverter());
+    Converter<Long, LocalDate> converter = (l) ->
+        Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDate();
+    localDateResolver.put(Long.class, converter);
+    localDateResolver.put(Long.TYPE, converter);
 
     Resolver<Integer> integerResolver = new Resolver<>(Integer.class);
     integerResolver.put(String.class, Ints::tryParse);
@@ -47,7 +48,6 @@ public final class Resolvers {
     bitResolver.put(String.class, (v) -> Bit.valueOf(v.trim().equalsIgnoreCase("true")));
 
     install(Bit.class, bitResolver);
-//    install(Date.class, dateResolver);
     install(LocalDate.class, localDateResolver);
     install(String.class, stringResolver);
     install(Double.class, doubleResolver);

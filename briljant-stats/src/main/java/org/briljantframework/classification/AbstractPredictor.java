@@ -38,23 +38,23 @@ public abstract class AbstractPredictor implements Predictor {
   public Vector predict(DataFrame x) {
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
     Vector.Builder labels = new GenericVector.Builder(Object.class, x.rows());
-    IntStream.range(0, x.rows()).parallel().forEach(i -> {
-      labels.set(i, predict(x.getRecord(i)));
-    });
+    IntStream.range(0, x.rows()).parallel().forEach(
+        i -> labels.set(i, predict(x.getRecord(i)))
+    );
     return labels.build();
   }
 
   @Override
   public Object predict(Vector record) {
-    return classes.get(Object.class, argmax(estimate(record)));
+    return getClasses().get(Object.class, argmax(estimate(record)));
   }
 
   @Override
   public DoubleMatrix estimate(DataFrame x) {
     DoubleMatrix estimations = Bj.doubleMatrix(x.rows(), getClasses().size());
-    IntStream.range(0, x.rows()).parallel().forEach(i -> {
-      estimations.setRow(i, estimate(x.getRecord(i)));
-    });
+    IntStream.range(0, x.rows()).parallel().forEach(
+        i -> estimations.setRow(i, estimate(x.getRecord(i)))
+    );
     return estimations;
   }
 

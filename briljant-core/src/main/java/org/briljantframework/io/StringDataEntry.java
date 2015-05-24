@@ -4,8 +4,8 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;

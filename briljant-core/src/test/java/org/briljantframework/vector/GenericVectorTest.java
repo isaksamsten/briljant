@@ -5,6 +5,7 @@ import org.briljantframework.io.StringDataEntry;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -32,14 +33,14 @@ public class GenericVectorTest {
 
   @Test
   public void testBuilderRead() throws Exception {
-    Vector.Builder builder = new GenericVector.Builder(Date.class);
-    builder.readAll(new StringDataEntry("2001-01-01", "2011-12-1"))
+    Vector.Builder builder = new GenericVector.Builder(LocalDate.class);
+    builder.readAll(new StringDataEntry("2001-01-01", "2011-12-01"))
         .add("2001-01-31")
         .add(System.currentTimeMillis());
 
     long start = System.currentTimeMillis();
     for (int i = 0; i < 1000000; i++) {
-      builder.add((long) i);
+      builder.add(i * 1000000003231L);
     }
     System.out.println(System.currentTimeMillis() - start);
   }

@@ -1,4 +1,4 @@
-package org.briljantframework.io.reslover;
+package org.briljantframework.io.resolver;
 
 import org.briljantframework.vector.Na;
 
@@ -21,7 +21,7 @@ public class Resolver<R> {
    * @param converter the converter to do the conversion
    * @param <T>       the type
    */
-  public <T> void put(Class<T> cls, Converter<R, T> converter) {
+  public <T> void put(Class<T> cls, Converter<T, R> converter) {
     synchronized (converters) {
       for (Holder<R> holder : converters) {
         if (holder.cls.equals(cls)) {
@@ -54,22 +54,22 @@ public class Resolver<R> {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Converter<R, T> get(Class<T> cls) {
-    return (Converter<R, T>) getConverter(cls);
+  private <T> Converter<T, R> get(Class<T> cls) {
+    return (Converter<T, R>) getConverter(cls);
   }
 
   @SuppressWarnings("unchecked")
-  private Converter<R, Object> getConverter(Class<?> cls) {
+  private Converter<Object, R> getConverter(Class<?> cls) {
     for (Holder<R> converter : converters) {
       if (converter.cls.isAssignableFrom(cls)) {
-        return (Converter<R, Object>) converter.converter;
+        return (Converter<Object, R>) converter.converter;
       }
     }
     return null;
   }
 
   private R resolve(Class<?> cls, Object value) {
-    Converter<R, Object> converter = getConverter(cls);
+    Converter<Object, R> converter = getConverter(cls);
     if (converter != null) {
       R convert = converter.convert(value);
       return convert == null ? Na.of(this.cls) : convert;
@@ -81,9 +81,9 @@ public class Resolver<R> {
   private static class Holder<R> {
 
     private final Class<?> cls;
-    private Converter<R, ?> converter;
+    private Converter<?, R> converter;
 
-    private Holder(Class<?> cls, Converter<R, ?> converter) {
+    private Holder(Class<?> cls, Converter<?, R> converter) {
       this.cls = cls;
       this.converter = converter;
     }

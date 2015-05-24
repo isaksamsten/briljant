@@ -2,8 +2,10 @@ package org.briljantframework.dataframe;
 
 import com.google.common.collect.ImmutableTable;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
@@ -14,7 +16,7 @@ import org.briljantframework.vector.VectorType;
 /**
  * @author Isak Karlsson
  */
-public class RecordView extends AbstractVector implements Record {
+class RecordView extends AbstractVector implements Series {
 
   private final DataFrame parent;
   private final int row;
@@ -80,10 +82,6 @@ public class RecordView extends AbstractVector implements Record {
     return parent.getAsComplex(row, index);
   }
 
-  public String getAsString(int index) {
-    return parent.getAsString(row, index);
-  }
-
   @Override
   public int size() {
     return parent.columns();
@@ -111,7 +109,11 @@ public class RecordView extends AbstractVector implements Record {
 
   @Override
   public Matrix toMatrix() {
-    throw new UnsupportedOperationException();
+    DoubleMatrix matrix = Bj.doubleMatrix(1, size());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, getAsDouble(i));
+    }
+    return matrix;
   }
 
   @Override

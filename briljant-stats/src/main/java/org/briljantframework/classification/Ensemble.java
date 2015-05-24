@@ -18,7 +18,7 @@ package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Record;
+import org.briljantframework.dataframe.Series;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.matrix.BitMatrix;
@@ -159,7 +159,7 @@ public abstract class Ensemble implements Classifier {
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         int inbSize = members.size() - counts.get(i);
         int oobSize = counts.get(i);
-        Record record = x.getRecord(i);
+        Series record = x.getRecord(i);
         for (int j = 0; j < members.size(); j++) {
           DoubleMatrix estimate = members.get(j).estimate(record);
           if (oobIndicator.get(i, j)) {
@@ -227,7 +227,7 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder meanBias = new DoubleAdder();
       DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
-        Record record = x.getRecord(i);
+        Series record = x.getRecord(i);
         DoubleMatrix c = createTrueClassVector(y, classes, i);
 
 

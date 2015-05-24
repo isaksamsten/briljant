@@ -1,9 +1,9 @@
 package org.briljantframework.vector;
 
 /**
- * Created by isak on 13/03/15.
+ * @author Isak Karlsson
  */
-public class GenericVectorType implements VectorType {
+class GenericVectorType implements VectorType {
 
   private Class<?> cls;
 
@@ -64,6 +64,6 @@ public class GenericVectorType implements VectorType {
 
   @Override
   public String toString() {
-    return String.format("generic(%s)", cls.getSimpleName());
+    return String.format("%s", cls.getSimpleName().toLowerCase());
   }
 }

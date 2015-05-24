@@ -388,7 +388,7 @@ Some other operations?
 Vectors are Briljants main abstraction and resembles immutable lists
 of homogenoues values. Vectors come in six homogeneous flavors, all of
 which resides in the namespace `org.briljantframework.vector`. The
-flavors are
+flavors are:
 
 * `DoubleVector` for storing real number (`double`).
 * `ComplexVector` for storing complex numbers.
@@ -407,13 +407,57 @@ trusty companion. To get started, we import
 
 ```
 import org.briljantframework.vector.*;
-import org.briljantframework.[functions].*;
+import org.briljantframework.functions.Aggregates;
+private final Random rand = new Random(123);
 ```
+
+
+#### Primitive values vs. boxed references ####
+
+In Java there is a distinction between primitive types and reference
+types, where the former are the basic numerical types such as `int`,
+`double` and `boolean` and the latter any compound type. To support
+functions with `Object` parameters, the primitive values can be
+_boxed_ into a reference type, a rather costly operation. To avoid the
+cost of boxing, Briljant provide specialized `Vector`-classes for some
+of the most commonly used primitive types: `int` and `double`. To
+illustrate the cost of boxing, consider the following two examples of
+computing the mean of 1000 element vector:
+
+```
+// Construct a vector of random numbers. Negative numbers are NA.
+Vector b = Vector.of(rand::nextGaussian, 1000).transform(Double.class, v -> {
+    double sqrt = Math.sqrt(v);
+    return Double.isNaN(sqrt) ? Na.of(Double.class) : sqrt;
+});
+
+// Example 1
+RunningStatistics stats = new RunningStatistics();
+for (int i = 0; i < b.size(); i++) {
+    double v = b.getAsDouble(i);
+    if (!Is.NA(v)) {
+        stats.add(v);
+    }
+}
+double avg = stats.getMean();
+
+// Example 2
+double avg = b.aggregate(Double.class, Aggregates.mean());
+```
+
+Above, Example 1 (which takes 0.1 ms) is roughly 20 times faster on a
+recent machine than Example 2 (which takes 2 ms). Example 2, however,
+is vastly more readable and should be preferred in all but hot inner
+loops. Note that all of the performance overhead of Example 2 does not
+come from boxing, but rather from the use of lambdas. If we change
+`b.getAsDouble(i)`, to `get(Double.class, i)`, the performance
+difference is only a factor of two.
 
 ### Creating vectors ###
 
-Since vectors in Briljant are immutable, new vectors are created using
-a `Vector.Builder`-object.
+Since vectors in Briljant are immutable (which is a great way of
+supporting simple concurrent programming), new vectors are created
+using a `Vector.Builder`-object.
 
 ```
 IntVector.Builder vb = new IntVector.Builder();
@@ -433,11 +477,12 @@ underlying type and how to copy, compare and identify `NA`-values.
 Perhaps the simplest, and most common, way of creating a vector is to
 call `Vector.of(data)`. Here, `data` can be:
 
-* An `Array`; or
-* an `Iterable`
+* A `T[]`
+* a `Supplier<T>`; or
+* an `Iterable<T>`
 
 The type of vector is inferred from the argument to `#of`. For
-example,
+example:
 
 ```
 // i is an IntVector
@@ -478,6 +523,9 @@ for (int i = 0; i < 10; i++) {
 }
 Vector v = vb.build();
 // [NA, 1, NA, 3, NA, 5, NA, 7, NA, 9]
+
+Vector v = Vector.of(1,null, 3, null, 4, null);
+// [1, NA, 3, NA, 4, NA]
 ```
 
 A vector acts very similar to a `List<T>` with the difference that it
@@ -511,8 +559,180 @@ String s = nv.aggregate(String.class, Aggregates.join(" "));
 // "Hello World"
 
 LocalDate d = nv.get(LocalDate.class, 0, LocalDate::now); // now
+```
+
+### Transforming vectors ###
+
+A common operation in statistical languages is the ability to
+transform vectors, for example by performing some element wise
+operations. In Briljant, the simplest way to transform a vector is by
+using the `Vector#transform` method which takes as arguments the type
+of value we are interested in transforming and a lambda that perform
+the operation. For example:
 
 ```
+Vector v = Vector.of(rand::nextGaussian, 100);
+UnaryOperator<Double> op = Math::abs
+Vector absSqrt = v.transform(Double.class, op.andThen(Math::sqrt));
+Vector pow = v.transform(Double.class, v -> Math.pow(v, 3));
+Vector ne = v.transform(Double.class, Transforms.clip(-1, 1));
+```
+
+If performance is a concern, consider performing the operation in a
+`for`-loop:
+
+```
+DoubleVector.Builder builder = new DoubleVector.Builder();
+for(int i = 0; i < v.size(); i++) {
+    builder.add(Math.sqrt(Math.abs(v.getAsDouble(i))));
+}
+Vector absSqrt = builder.build();
+```
+
+### Aggregating vectors ###
+
+We have already seen examples of aggregating operations before, e.g.,
+for computing the mean of a vector. We have, however, not yet seen how
+they work. Imaging that we are interested in transforming a vector of
+`String` into an `ArrayList<String>`, clearly it would be impossible
+to used the `transform` function. So, do we have to rely on the
+tedious and sometimes error-prone `for`-loop?
+
+```
+Vector v = Vector.of("A", "B", "Cat", "Dog", "E", "F");
+ArrayList<String> strings = new ArrayList<>();
+for(int i = 0; i < v.size(); i++) {
+    strings.add(v.get(String.class, i));
+}
+```
+
+What if we want to collect our `String`-vector into a single string
+argument?
+
+```
+StringBuilder builder = new StringBuilder();
+for(int i = 0; i  < v.size(), i++) {
+    builder.append(v.get(String.class, i));
+}
+```
+
+Fortunately not! Instead, Briljant exposes an `Vector#aggregate`
+function which is a very general method for the purposes outlined
+above. For example:
+
+```
+ArrayList<String> strings = vector.aggregate(
+    String.class, ArrayList::new, ArrayList::add
+);
+    
+StringBuilder builder = vector.aggregate(
+    String.class, StringBuilder::new, StringBuilder::append
+);
+
+double mean = vector.aggregate(Double.class, Aggregates.mean());
+```
+
+Aggregates are, however, more general than that! The
+`aggregate`-method of `Vector` (and as we will see later, grouped data
+frames) accepts as arguments a type `E` (in the example above
+`String.class`) and, either a `Supplier<T>` and a `BiConsumer<T, E>`,
+or an instance of `Aggregator<T, R, C>` where each type-argument in
+order denotes the type of value, the return type and the mutable
+container type. The `Aggragator<T, R, C>`, similarly to Java 8
+`Collector`, is a mutable reduction operator that accumulates values
+into a mutable container. The Briljant aggregator is a simplificaton
+of the `Collector` that only support sequential reduction
+operations. Hence, the aggregator is specified by three functions:
+
+* creation of the result container
+* modification of the result container
+* and finalization of the result container
+
+An `Aggregator` is created using `Aggreagtor#of`. For example, the mean
+aggregator above can be implemented as:
+
+```
+Aggregator<Double, Double, ?> meanAggregator = Aggregator.of(
+    RunningStatistics::new, RunningStatistics::add, RunningStatics::getMean
+);
+
+double mean = Vector.of(rand::nextGaussian, 1000).aggregate(
+    Double.mean, meanAggregator
+);
+```
+
+Since aggregators are very general, operations such as `repeat`,
+`each`, `isNA` and `test` can be implemented.
+
+```
+import static org.briljantframework.functions.Aggregates.*;
+Vector v = Vector.of(1,2,3,4, null);
+Vector v2Times = v.aggregate(repeat(IntVector.Builder::new, 2));
+// [1,2,3,4,NA,1,2,3,4,NA] type: int
+
+Vector each2times = v.aggregate(each(IntVector.Builder::new, 2));
+// [1,1,2,2,3,3,4,4,NA,NA] type: int
+
+Vector e = Vector.of(1,2).aggregate(each(2));
+// [1,1,2,2] type: object
+
+Vector nas = v.aggregate(isNA());
+// [FALSE, FALSE, FALSE, FALSE, TRUE] type: bit
+
+Vector largerThan2 = v.aggregate(test(v -> v > 2 && !Is.NA(v)));
+// [FALSE, FALSE, TRUE, TRUE, TRUE] type: bit
+```
+
+Most of the `Aggregators` in `Aggregates` naturally handles missing
+values by either exluding them (in the case of e.g., `mean()`) and
+propagate the (in the case of e.g., `repeat`). When implementing
+aggregators, one should take care to correctly handle missing values.
+
+### Combining vectors ###
+
+Another line of common operations to perform with vectors is to
+combine them into new vectors, e.g., adding, concatenating or
+multiplying them.
+
+Using the straight forward approach we could addition two vector by
+just using a simple `for`-loop:
+
+```
+Vector a = Vector.of(1.1, 1.2, 1.3);
+Vector b = Vector.of(() -> 2.0, 3);
+DoubleVector.Builder result = new DoubleVector.Builder();
+for(int i = 0; i < a.size(); i++) {
+    result.add(a.getAsDouble(i) + b.getAsDouble(i)); 
+}
+Vector c = result.build();
+// [3.1, 3.2, 3.3] type: double
+```
+
+The example above is both rather verbose and in some cases
+error-prone, e.g., what if `a` and `b` are of unequal length? To
+simplify and generalize the use-case outlined above, Briljant provides
+`Vector#combine`. For example, the example could be written as:
+
+```
+Vector c = a.combine(Double.class, b, (x, y) -> x + y);
+// [3.1, 3.2, 3.3] type: double
+```
+
+Now, what if one of the vector contains `NA` values?
+
+```
+Vector a = Vector.of(1,2,3,null);
+Vector b = Vector.of(1,2,null, 3);
+Vector c = a.combine(Integer.class, b, Combine.add());
+// [2, 4, null, null] (or Vector c = a.add(b);)
+
+Vector c = a.combine(Integer.class, b, Combine.add(1));
+// [2, 4, 4, 5]
+```
+
+`Combine#add(Number)` 
+
+### Calculations with missing values ###
 
 ## DataFrame ##
 

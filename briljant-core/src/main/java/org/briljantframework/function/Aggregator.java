@@ -12,10 +12,14 @@ import java.util.function.Supplier;
  */
 public interface Aggregator<T, R, C> {
 
+  static <T, R, C> Aggregator<T, R, C> of(Supplier<C> supplier, BiConsumer<C, T> accumulator,
+                                          Function<C, R> finisher) {
+    return new Aggregates.AggregatorImpl<>(supplier, accumulator, finisher);
+  }
+
   Supplier<C> supplier();
 
   BiConsumer<C, T> accumulator();
 
   Function<C, R> finisher();
-
 }

@@ -8,12 +8,13 @@ import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.reslover.Resolver;
-import org.briljantframework.io.reslover.Resolvers;
+import org.briljantframework.io.resolver.Resolver;
+import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.matrix.IntMatrix;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Created by Isak Karlsson on 20/11/14.
@@ -72,6 +73,7 @@ public class IntVector extends AbstractVector {
     }
   };
   private final int[] values;
+  private final int size;
 
   public IntVector(int... values) {
     this(values, values.length);
@@ -87,6 +89,7 @@ public class IntVector extends AbstractVector {
     } else {
       this.values = values;
     }
+    this.size = size;
   }
 
   public static Builder newBuilderWithInitialValues(int... values) {
@@ -195,19 +198,7 @@ public class IntVector extends AbstractVector {
 
   @Override
   public int compare(int a, Vector other, int b) {
-//    int x = getAsInt(a);
-//    int y = other.getAsInt(b);
-//    boolean aIsNa = Is.NA(x);
-//    boolean bIsNa = Is.NA(y);
-//    if (aIsNa && !bIsNa) {
-//      return -1;
-//    } else if (!aIsNa && bIsNa) {
-//      return 1;
-//    } else {
-//      return Integer.compare(x, y);
-//    }
     return getType().compare(a, this, b, other);
-//    return getAsInt(a) - other.getAsInt(b);
   }
 
   @Override
@@ -239,6 +230,30 @@ public class IntVector extends AbstractVector {
     } else {
       return false;
     }
+  }
+
+  @Override
+  public int size() {
+    return size;
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
+  }
+
+  @Override
+  public Builder newBuilder(int size) {
+    return new Builder(size, size);
+  }
+
+  public int[] toIntArray() {
+    return Arrays.copyOf(values, size());
+  }
+
+  @Override
+  public IntStream intStream() {
+    return Arrays.stream(values, 0, size());
   }
 
   public static final class Builder implements Vector.Builder {
@@ -291,7 +306,7 @@ public class IntVector extends AbstractVector {
     @Override
     public Builder set(int index, Object value) {
       if (value == null) {
-        setNA(index);
+        return setNA(index);
       }
       if (value instanceof Number) {
         ensureCapacity(index);
@@ -401,27 +416,6 @@ public class IntVector extends AbstractVector {
         buffer.elementsCount++;
       }
     }
+
   }
-
-  @Override
-  public int size() {
-    return values.length;
-  }
-
-
-  @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  @Override
-  public Builder newBuilder(int size) {
-    return new Builder(size, size);
-  }
-
-  public int[] toIntArray() {
-    return values.clone();
-  }
-
-
 }

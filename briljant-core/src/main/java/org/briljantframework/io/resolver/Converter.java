@@ -1,9 +1,9 @@
-package org.briljantframework.io.reslover;
+package org.briljantframework.io.resolver;
 
 /**
  * @author Isak Karlsson
  */
-public interface Converter<R, T> {
+public interface Converter<T, R> {
 
   /**
    * Converts from {@code t} (of type {@code T}) to a value of {@code R}.

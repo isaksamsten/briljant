@@ -280,7 +280,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public <T> Record reduce(Class<? extends T> cls, T init, BinaryOperator<T> op) {
+  public <T> Series reduce(Class<? extends T> cls, T init, BinaryOperator<T> op) {
     Set<VectorType> types = getColumns().stream().map(Vector::getType).collect(Collectors.toSet());
     Vector.Builder builder;
     if (types.size() == 1) {
@@ -296,16 +296,16 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
       builder.set(j, val);
     }
-    return new RecordVector("0", getColumnIndex(), builder.build());
+    return new SeriesVector("0", getColumnIndex(), builder.build());
   }
 
   @Override
-  public Record reduce(Function<Vector, Object> op) {
+  public Series reduce(Function<Vector, Object> op) {
     Vector.Builder builder = new GenericVector.Builder(Object.class);
     for (int j = 0; j < columns(); j++) {
       builder.set(j, op.apply(get(j)));
     }
-    return new RecordVector("0", getColumnIndex(), builder.build());
+    return new SeriesVector("0", getColumnIndex(), builder.build());
   }
 
   @Override
@@ -326,14 +326,14 @@ public abstract class AbstractDataFrame implements DataFrame {
         builder.set(column++, aggregator.finisher().apply(accumulator));
       }
     }
-    return new RecordVector("aggregate", columnIndex.build(), builder.build());
+    return new SeriesVector("aggregate", columnIndex.build(), builder.build());
   }
 
   @Override
-  public DataFrameGroupBy groupBy(Function<Record, Object> keyFunction) {
+  public DataFrameGroupBy groupBy(Function<Series, Object> keyFunction) {
     HashMap<Object, IntVector.Builder> groups = new HashMap<>();
     for (int i = 0; i < rows(); i++) {
-      Record record = getRecord(i);
+      Series record = getRecord(i);
       Object key = keyFunction.apply(record);
       groups.computeIfAbsent(key, a -> new IntVector.Builder()).add(i);
     }
@@ -432,11 +432,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public Collection<Vector> getColumns() {
-    return new AbstractCollection<Vector>() {
+  public Collection<Series> getColumns() {
+    return new AbstractCollection<Series>() {
       @Override
-      public Iterator<Vector> iterator() {
-        return new UnmodifiableIterator<Vector>() {
+      public Iterator<Series> iterator() {
+        return new UnmodifiableIterator<Series>() {
           private int current = 0;
 
           @Override
@@ -445,7 +445,7 @@ public abstract class AbstractDataFrame implements DataFrame {
           }
 
           @Override
-          public Vector next() {
+          public Series next() {
             return get(current++);
           }
         };
@@ -579,11 +579,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public Collection<Record> getRecords() {
-    return new AbstractCollection<Record>() {
+  public Collection<Series> getRecords() {
+    return new AbstractCollection<Series>() {
       @Override
-      public Iterator<Record> iterator() {
-        return new UnmodifiableIterator<Record>() {
+      public Iterator<Series> iterator() {
+        return new UnmodifiableIterator<Series>() {
           public int current;
 
           @Override
@@ -592,7 +592,7 @@ public abstract class AbstractDataFrame implements DataFrame {
           }
 
           @Override
-          public Record next() {
+          public Series next() {
             return getRecord(current++);
           }
         };
@@ -613,7 +613,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a view of the row at {@code index}
    */
   @Override
-  public Record getRecord(int index) {
+  public Series getRecord(int index) {
     return new RecordView(this, index);
   }
 
@@ -791,7 +791,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a row iterator
    */
   @Override
-  public Iterator<Record> iterator() {
+  public Iterator<Series> iterator() {
     return getRecords().iterator();
   }
 

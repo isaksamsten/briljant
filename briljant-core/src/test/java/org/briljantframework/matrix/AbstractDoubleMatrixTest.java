@@ -1,6 +1,7 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
+import org.briljantframework.function.Aggregates;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;

@@ -2,7 +2,9 @@ package org.briljantframework.vector;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.matrix.BitMatrix;
@@ -11,6 +13,7 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Matrix;
+import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 
 import java.io.IOException;
@@ -18,32 +21,47 @@ import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * <p> A vector is an homogeneous (i.e. with values of only one type) and immutable (i.e. the
- * contents cannot change) array of values supporting missing entries (i.e. NA). Since NA values
- * are
- * implemented differently depending value type, checking for NA-values are done via the {@link
- * #isNA(int)} method. For the default types, the {@link Is#NA} is available. </p>
+ * <p> A vector is an homogeneous (i.e. with values of only one (sub)type) and immutable (i.e. the
+ * contents cannot change) list (with O(1) access) of values supporting missing entries (i.e. NA).
  *
- * <p> Implementers must ensure that <ul> <li>{@link #hashCode()} and {@link #equals(Object)}</li>
- * work as expected. <li>The vector cannot be changed, i.e. a vector cannot expose it's underlying
- * implementation and be mutated. This simplifies parallel algorithms.</li> </ul> </p>
+ * <p> Since NA value are implemented differently depending value type, checking for NA-values are
+ * done via the {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
+ *
+ * <p> Implementers must ensure that:
+ *
+ * <ul>
+ * <li>{@link #hashCode()} and {@link #equals(Object)} work as expected.</li>
+ * <li>The vector cannot be changed, i.e. a vector cannot expose it's underlying
+ * implementation and be mutated. This simplifies parallel algorithms.</li>
+ * </ul>
  *
  * @author Isak Karlsson
  */
 public interface Vector extends Serializable {
 
+  /**
+   * Construct a vector of values. The type of vector is inferred from the values.
+   *
+   * @param array the values
+   * @param <T>   the type
+   * @return a new vector, inferred from {@code T}
+   */
   @SafeVarargs
   static <T> Vector of(T... array) {
     Class<?> cls = array.getClass().getComponentType();
@@ -55,7 +73,10 @@ public interface Vector extends Serializable {
   }
 
   static <T> Vector of(Iterable<T> values) {
-    Iterator<T> it = values.iterator(); // TODO: define a NA-vector of size 0
+    Iterator<T> it = values.iterator();
+    if (!it.hasNext()) {
+      return singleton(null);
+    }
     T t = it.next();
     Builder builder = Vec.inferTypeOf(t).newBuilder().add(t);
     while (it.hasNext()) {
@@ -63,6 +84,27 @@ public interface Vector extends Serializable {
     }
     return builder.build();
   }
+
+  static <T> Vector of(Supplier<T> supplier, int size) {
+    if (size < 1) {
+      throw new UnsupportedOperationException();
+    }
+    T value = supplier.get();
+    Vector.Builder builder = Vec.inferTypeOf(value).newBuilder().add(value);
+    for (int i = 1; i < size; i++) {
+      builder.add(supplier.get());
+    }
+    return builder.build();
+  }
+
+  static Vector singleton(Object value, int size) {
+    return new SingletonVector(value, size);
+  }
+
+  static Vector singleton(Object value) {
+    return singleton(value, 1);
+  }
+
 
   default <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate) {
     return combine(cls, Boolean.class, other, predicate::test);
@@ -72,19 +114,208 @@ public interface Vector extends Serializable {
     return transform(cls, Boolean.class, predicate::test);
   }
 
-  <T, O> Vector transform(Class<T> in, Class<O> out, Function<T, O> operator);
+  /**
+   * <p> Transform each value (as a value of T) in the vector using {@code operator}, producing a
+   * new
+   * vector with values of type {@code O}.
+   *
+   * <p> Example:
+   *
+   * <pre>{@code
+   *  Random rand = new Random(123);
+   *
+   *  // A vector or random numbers
+   *  > Vector a = Vector.of(rand::nextGaussian, 10);
+   *  [-1.438, 0.634, 0.226, 0.277, 0.184, -0.365, 1.352, 0.359, -0.205, 1.017] type: double
+   *
+   *  > Vector b = a.transform(Double.class, Long.class, Math::round);
+   *  [-1, 1, 0, 0, 0, 0, 1, 0, 0, 1] type: long
+   * }</pre>
+   *
+   * <p> Please note that transformations can be implemented in terms of aggregation operations.
+   * For
+   * example, this method can be implemented as:
+   *
+   * <pre>{@code
+   *  a.aggregate(in, Aggregates.transform(() -> Vec.typeOf(out).newBuilder, operator));
+   * }</pre>
+   *
+   * @param in       the input type (if the vector cannot coerce values to {@code T}, NA is used)
+   * @param out      the output type
+   * @param operator the operator to apply
+   * @param <T>      the input type (i.e. the type of values stored in {@code this})
+   * @param <O>      the output type (i.e. the type of values in the resulting vector)
+   * @return a new vector of type {@code O}
+   */
+  default <T, O> Vector transform(Class<T> in, Class<O> out,
+                                  Function<? super T, ? extends O> operator) {
+    Aggregator<T, Vector, ?> transform = Aggregates.transform(
+        () -> Vec.typeOf(out).newBuilder(), operator
+    );
+    return aggregate(in, transform);
+  }
 
-  <T> Vector transform(Class<T> cls, Function<T, ?> operator);
+  /**
+   * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
+   * a new vector with the type inferred from the first value returned by {@code operator}.
+   *
+   * <p> Example:
+   * <pre>{@code
+   * > Random rand = new Random();
+   * > Vector a = Vector.of(rand::nextGaussian, 10);
+   * [-1.438, 0.634, 0.226, 0.277, 0.184, -0.365, 1.352, 0.359, -0.205, 1.017] type: double
+   *
+   * > Vector b = a.transform(Double.class, Math::round);
+   * [-1.000, 1.000, 0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, 1.000] type: double
+   * }</pre>
+   *
+   * @param cls      the input type
+   * @param operator the operator
+   * @param <T>      the input type
+   * @return a new vector of type inferred by {@code operator}
+   */
+  default <T> Vector transform(Class<T> cls, UnaryOperator<T> operator) {
+    return aggregate(cls, Aggregates.transform(this::newBuilder, operator));
+  }
 
-  <T> Vector filter(Class<T> cls, Predicate<T> predicate);
+  /**
+   * Filter values in this vector, treating each value as {@code cls} (or NA), using the supplied
+   * predicate.
+   *
+   * @param cls       the class
+   * @param predicate the predicate
+   * @param <T>       the type
+   * @return a new vector with only values for which {@code predicate} returns true
+   */
+  default <T> Vector filter(Class<T> cls, Predicate<T> predicate) {
+    return aggregate(cls, Aggregates.filter(this::newBuilder, predicate));
+  }
 
+  /**
+   * Performs a mutable aggregation of the values in this vector, similar to {@linkplain
+   * Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its aggregation
+   * by mutating and adding values to an aggregation container such as {@linkplain
+   * org.briljantframework.stat.RunningStatistics}.
+   *
+   * <p> The result produced is equivalent to:
+   *
+   * <pre>{@code
+   *  T container = aggregator.supplier();
+   *  for(int i = 0; i < size(); i++) {
+   *    aggreagator.accumulator().accept(container, get(in, i));
+   *  }
+   *  return aggragator.finisher().apply(container);
+   * }</pre>
+   *
+   * <p> Example:
+   *
+   * <pre>{@code
+   *  Vector randomNumber = Vector.of(rand::nextGaussian, 1000);
+   *  double mean = randomNumbers.aggregate(Double.class, Aggregates.of(
+   *    RunningStatistics::new, RunningStatistics::add, RunningStatistics::getMean
+   *  ));
+   *  mean = randomNumber.aggregate(Double.class, Aggregates.mean());
+   * }</pre>
+   *
+   * @param in         the input type
+   * @param aggregator the aggregator
+   * @param <T>        the type of the input value to the mutable aggregation
+   * @param <R>        the type of the mutable aggregator
+   * @param <C>        the type of the return type of the aggregation
+   * @return a value of type {@code R} (i.e. the result of the aggregation)
+   */
   <T, R, C> R aggregate(Class<? extends T> in, Aggregator<? super T, ? extends R, C> aggregator);
+
+  /**
+   * Example:
+   *
+   * <pre>{@code
+   *  ArrayList<Double> list = Vector.of(1,2,3).aggregate(Double.class,
+   *    ArrayList::new, ArrayList::add);
+   * }</pre>
+   *
+   * @param in       the input class
+   * @param supplier the mutable container
+   * @param consumer the update function
+   * @param <T>      the input type
+   * @param <R>      the result type
+   * @return a value of type {@code R}
+   */
+  default <T, R> R aggregate(Class<? extends T> in, Supplier<R> supplier,
+                             BiConsumer<R, ? super T> consumer) {
+    return aggregate(in, Aggregator.of(supplier, consumer, Function.identity()));
+  }
+
+  default <R> R aggregate(Aggregator<? super Object, R, ?> aggregator) {
+    return aggregate(getType().getDataClass(), aggregator);
+  }
+
+  default <T, R, C> R collect(Class<? extends T> cls,
+                              Collector<? super T, C, ? extends R> collector) {
+    Aggregator<? super T, ? extends R, C> aggregator = Aggregator.of(
+        collector.supplier(),
+        collector.accumulator(),
+        collector.finisher());
+    return aggregate(cls, aggregator);
+  }
 
   <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
                         BiFunction<? super T, ? super T, ? extends R> combiner);
 
-  <T> Vector combine(Class<? extends T> cls, Vector other,
-                     BiFunction<? super T, ? super T, ?> combiner);
+  <T> Vector combine(Class<T> cls, Vector other, BiFunction<T, T, ? extends T> combiner);
+
+  default Vector add(Vector other) {
+    return combine(Number.class, other, Combine.add());
+  }
+
+  default Vector add(Number other) {
+    return combine(Number.class, singleton(other, size()), Combine.add());
+  }
+
+  default Vector mul(Vector other) {
+    return combine(Number.class, other, Combine.mul());
+  }
+
+  default Vector mul(Number other) {
+    return combine(Number.class, singleton(other, size()), Combine.mul());
+  }
+
+  default Vector div(Vector other) {
+    return combine(Number.class, other, Combine.div());
+  }
+
+  default Vector div(Number other) {
+    return combine(Number.class, singleton(other, size()), Combine.div());
+  }
+
+  default Vector sub(Vector other) {
+    return combine(Number.class, other, Combine.sub());
+  }
+
+  default Vector sub(Number other) {
+    return combine(Number.class, singleton(other, size()), Combine.sub());
+  }
+
+  default Vector sort(SortOrder order) {
+    int o = order == SortOrder.DESC ? -1 : 1;
+    Vector.Builder builder = newCopyBuilder();
+    Vector tmp = builder.getTemporaryVector();
+    QuickSort.quickSort(0, tmp.size(), (a, b) -> o * tmp.compare(a, b), builder);
+    return builder.build();
+  }
+
+  default <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
+    Vector.Builder builder = newCopyBuilder();
+    Vector tmp = builder.getTemporaryVector();
+    QuickSort.quickSort(0, tmp.size(), (a, b) -> cmp.compare(tmp.get(cls, a), tmp.get(cls, b)),
+                        builder);
+    return builder.build();
+  }
+
+
+  Vector head(int n);
+
+  Vector tail(int n);
 
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
@@ -193,7 +424,8 @@ public interface Vector extends Serializable {
   double getAsDouble(int index);
 
   /**
-   * Returns value as {@code int} if applicable. Otherwise returns {@link org.briljantframework.vector.IntVector#NA}
+   * Returns value as {@code int} if applicable. Otherwise returns {@link
+   * org.briljantframework.vector.IntVector#NA}
    *
    * @param index the index
    * @return an int
@@ -211,7 +443,8 @@ public interface Vector extends Serializable {
   Bit getAsBit(int index);
 
   /**
-   * Returns value as {@link org.briljantframework.complex.Complex} or {@link org.briljantframework.vector.ComplexVector#NA} if
+   * Returns value as {@link org.briljantframework.complex.Complex} or {@link
+   * org.briljantframework.vector.ComplexVector#NA} if
    * missing.
    *
    * @param index the index
@@ -565,8 +798,8 @@ public interface Vector extends Serializable {
      *
      * <ul>
      * <li>{@code null} always result in {@code NA}</li>
-     * <li>If {@link org.briljantframework.io.reslover.Resolvers#find(Class)} return a
-     * non-null value the returned {@link org.briljantframework.io.reslover.Resolver#resolve(Class,
+     * <li>If {@link org.briljantframework.io.resolver.Resolvers#find(Class)} return a
+     * non-null value the returned {@link org.briljantframework.io.resolver.Resolver#resolve(Class,
      * Object)} shall be used to produce the converted value. </li>
      * </ul>
      *

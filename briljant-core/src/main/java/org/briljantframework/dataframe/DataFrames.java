@@ -225,7 +225,7 @@ public final class DataFrames {
     for (int i = builder.rows(); i > 1; i--) {
       builder.swapRecords(i - 1, random.nextInt(i));
     }
-    return builder.build();
+    return builder.build().setColumnIndex(in.getColumnIndex());
   }
 
   /**
