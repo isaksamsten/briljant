@@ -98,7 +98,6 @@ class BaseComplexMatrix extends AbstractComplexMatrix {
     storage.setComplex(index, value);
   }
 
-  @Override
   public Storage getStorage() {
     return storage;
   }

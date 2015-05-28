@@ -17,17 +17,22 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.evaluation.measure.LogLoss;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.optimize.DifferentialFunction;
+import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
+import org.briljantframework.optimize.NonlinearOptimizer;
+import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.briljantframework.matrix.Matrices.shuffle;
+import java.util.Objects;
 
 /**
  * Logistic regression implemented using Stochastic Gradient Descent.
@@ -36,119 +41,360 @@ import static org.briljantframework.matrix.Matrices.shuffle;
  */
 public class LogisticRegression implements Classifier {
 
-  private final int iterations;
-  private final double learningRate;
   private final double regularization;
-  private final double costEpsilon;
+  private final NonlinearOptimizer optimizer;
 
   private LogisticRegression(Builder builder) {
-    this.learningRate = builder.learningRate;
-    this.iterations = builder.iterations;
+    Check.argument(!Double.isNaN(builder.regularization) &&
+                   !Double.isInfinite(builder.regularization));
     this.regularization = builder.regularization;
-    this.costEpsilon = builder.costEpsilon;
-  }
-
-  public static Builder builder() {
-    return withIterations(10);
+    this.optimizer = Objects.requireNonNull(builder.optimizer);
   }
 
   public static Builder withIterations(int iterations) {
     return new Builder(iterations);
   }
 
-  public double getLearningRate() {
-    return learningRate;
-  }
-
-  public double getRegularization() {
-    return regularization;
-  }
-
-  public int getIterations() {
-    return iterations;
-  }
-
   @Override
   public String toString() {
-    return String.format("LogisticRegression(%d, %.4f, %.3f)",
-                         iterations, learningRate, regularization);
+    return "LogisticRegression{" +
+           "regularization=" + regularization +
+           ", optimizer=" + optimizer +
+           '}';
   }
 
   @Override
   public Predictor fit(DataFrame df, Vector target) {
-    checkArgument(df.rows() == target.size(),
-                  "The number of training instances must equal the number of target");
+    int n = df.rows();
+    int m = df.columns();
+    Check.argument(n == target.size(),
+                   "The number of training instances must equal the number of target");
     Vector unique = Vec.unique(target);
-    if (unique.size() > 2 || unique.size() < 1) {
-      throw new IllegalArgumentException(
-          "LogisticRegression only support binary classification tasks.");
-    }
+//    DoubleMatrix bias = Bj.ones(df.rows());
+//    DoubleMatrix x = Bj.hstack(Arrays.asList(bias, df.toMatrix().asDoubleMatrix()));
+    DoubleMatrix x = constructInputMatrix(df, n, m);
 
-    DoubleMatrix x = Bj.hstack(Arrays.asList(
-        Bj.doubleVector(df.rows()).assign(1),
-        df.toMatrix().asDoubleMatrix()
-    ));
-    DoubleMatrix y = Bj.doubleVector(target.size());
+    IntMatrix y = Bj.intVector(target.size());
     for (int i = 0; i < y.size(); i++) {
       y.set(i, Vec.find(unique, target, i));
     }
-    DoubleMatrix theta = sdg(x, y, Bj.range(0, y.size()).copy());
-    return new Predictor(theta, unique);
-  }
-
-  protected DoubleMatrix sdg(DoubleMatrix x, DoubleMatrix y, IntMatrix indexes) {
-    DoubleMatrix theta = Bj.doubleMatrix(x.columns(), 1);
-    int rows = x.rows();
-    double prevCost = 0;
-    for (int j = 0; j < this.iterations; j++) {
-      shuffle(indexes).forEach(i -> {
-        DoubleMatrix xi = x.getRowView(i);
-//        double reg = (regularization/(2*rows)) * Bj.dot(theta, theta);
-        double update = (learningRate * (y.get(i) - h(xi, theta)));
-        theta.assign(xi, (v, xij) -> (v + xij * update) /*+ (0.5 * regularization * w2)*/
-                                     /*(1.0 - (learningRate * regularization) / rows)*/);
-//        System.out.println(reg);
-      });
-//      if (costEpsilon > 0) {
-//        double cost = cost(theta, x, y);
-//          System.out.println(cost);
-//        if (Math.abs(cost - prevCost) < costEpsilon) {
-//          break;
-//        }
-//        prevCost = cost;
-//      }
+    DoubleMatrix theta;
+    DifferentialFunction objective;
+    int k = unique.size();
+    if (k == 2) {
+      objective = new BinaryObjectiveFunction(regularization, x, y);
+      theta = Bj.doubleMatrix(x.columns(), 1);
+    } else if (k > 2) {
+      objective = new SoftmaxObjectiveFunction(x, y, regularization, k);
+      theta = Bj.doubleMatrix(x.columns(), k);
+    } else {
+      throw new IllegalArgumentException(String.format("Illegal classes. k >= 2 (%d >= 2)", k));
     }
-//    System.exit(0);
-    return theta;
+    double logLoss = optimizer.optimize(objective, theta);
+    return new Predictor(theta, logLoss, unique);
   }
 
-  private static double cost(DoubleMatrix theta, DoubleMatrix x, DoubleMatrix y) {
-    int m = x.rows();
-    DoubleMatrix z = x.mmul(theta);
-    DoubleMatrix sigmoid = sigmoid(z);
-    return 1.0 / m * Bj.sum(
-        y.mul(-1, sigmoid.map(Math::log), 1).sub(y.rsub(1).mul(sigmoid.rsub(1).map(Math::log)))
-    );
+  protected DoubleMatrix constructInputMatrix(DataFrame df, int n, int m) {
+    DoubleMatrix x = Bj.doubleMatrix(n, m + 1);
+    for (int i = 0; i < n; i++) {
+      x.set(i, 0, 1);
+      for (int j = 0; j < df.columns(); j++) {
+        double v = df.getAsDouble(i, j);
+        if (Is.NA(v)) {
+          throw new IllegalArgumentException(
+              String.format("Illegal input value at (%d, %d)", i, j - 1));
+        }
+        x.set(i, j + 1, v);
+      }
+    }
+    return x;
   }
 
-  private static double h(DoubleMatrix xi, DoubleMatrix t) {
-    return sigmoid(Bj.dot(xi, t));
+  private static class BinaryObjectiveFunction implements DifferentialFunction {
+
+    private final double lambda;
+    private final DoubleMatrix x;
+    private final IntMatrix y;
+
+    private BinaryObjectiveFunction(double lambda, DoubleMatrix x, IntMatrix y) {
+      this.lambda = lambda;
+      this.x = x;
+      this.y = y;
+    }
+
+    @Override
+    public double gradientCost(DoubleMatrix w, DoubleMatrix g) {
+      int p = w.size();
+      int n = x.rows();
+      g.assign(0);
+      double f = 0.0;
+      for (int i = 0; i < n; i++) {
+        double wx = Bj.dot(x.getRow(i), w);
+        f += log1pe(wx) - y.get(i) * wx;
+
+        double yi = y.get(i) - logistic(wx);
+        for (int j = 1; j < p; j++) {
+          g.set(j, g.get(j) - yi * x.get(i, j));
+        }
+        g.set(0, g.get(0) - yi);
+      }
+      if (lambda != 0.0) {
+        double w2 = 0.0;
+        for (int i = 1; i < p; i++) {
+          double v = w.get(i);
+          w2 += v * v;
+        }
+
+        f += 0.5 * lambda * w2;
+        for (int j = 1; j < p; j++) {
+          g.set(j, g.get(j) + lambda * w.get(j));
+        }
+      }
+
+      return f;
+    }
+
+    @Override
+    public double cost(DoubleMatrix w) {
+      int n = x.rows();
+      double f = 0.0;
+      for (int i = 0; i < n; i++) {
+        double wx = Bj.dot(x.getRow(i), w);
+        f += log1pe(wx) - y.get(i) * wx;
+      }
+
+      if (lambda != 0.0) {
+        int p = w.size() - 1;
+        double w2 = 0.0;
+        for (int i = 0; i < p; i++) {
+          double v = w.get(i);
+          w2 += v * v;
+        }
+        f += 0.5 * lambda * w2;
+      }
+      return f;
+    }
   }
 
-  private static double sigmoid(double z) {
-    return 1 / (1 + Math.exp(-z));
+  private static class SoftmaxObjectiveFunction implements DifferentialFunction {
+
+    private final DoubleMatrix x;
+    private final IntMatrix y;
+    private final double lambda;
+    private final int k;
+
+    private SoftmaxObjectiveFunction(DoubleMatrix x, IntMatrix y, double lambda, int k) {
+      this.x = x;
+      this.y = y;
+      this.lambda = lambda;
+      this.k = k;
+    }
+
+    @Override
+    public double gradientCost(DoubleMatrix w, DoubleMatrix g) {
+      double f = 0.0;
+      int n = x.rows();
+      int p = x.columns();
+      w = w.reshape(p, k);
+      g = g.reshape(p, k).assign(0);
+      DoubleMatrix prob = Bj.doubleVector(k);
+      for (int i = 0; i < n; i++) {
+        DoubleMatrix xi = x.getRow(i);
+        for (int j = 0; j < k; j++) {
+          prob.set(j, Bj.dot(xi, w.getColumn(j)));
+        }
+        softmax(prob);
+        f -= log(prob.get(y.get(i)));
+        for (int j = 0; j < k; j++) {
+          double yi = (y.get(i) == j ? 1.0 : 0.0) - prob.get(j);
+          for (int l = 1; l < p; l++) {
+            g.set(l, j, g.get(l, j) - yi * x.get(i, l));
+          }
+          g.update(0, j, v -> v - yi);
+        }
+      }
+
+      if (lambda != 0.0) {
+        double w2 = 0.0;
+        for (int i = 0; i < k; i++) {
+          for (int j = 0; j < p; j++) {
+            double v = w.get(j, i);
+            w2 += v * v;
+          }
+        }
+        f += 0.5 * lambda * w2;
+      }
+
+      return f;
+    }
+
+    @Override
+    public double cost(DoubleMatrix w) {
+      double f = 0.0;
+      int n = x.rows();
+      int p = x.columns();
+      w = w.reshape(p, k);
+      DoubleMatrix prob = Bj.doubleVector(k);
+      for (int i = 0; i < n; i++) {
+        DoubleMatrix xi = x.getRow(i);
+        for (int j = 0; j < k; j++) {
+          prob.set(j, Bj.dot(xi, w.getColumn(j)));
+        }
+
+        softmax(prob);
+        f -= log(prob.get(y.get(i)));
+      }
+      if (lambda != 0.0) {
+        double w2 = 0.0;
+        for (int i = 0; i < k; i++) {
+          for (int j = 0; j < p; j++) {
+            double v = w.get(j, i);
+            w2 += v * v;
+          }
+        }
+
+        f += 0.5 * lambda * w2;
+      }
+
+      return f;
+    }
   }
 
-  private static DoubleMatrix sigmoid(DoubleMatrix z) {
-    return z.map(LogisticRegression::sigmoid);
+  private static void softmax(DoubleMatrix prob) {
+    double max = Bj.max(prob);
+
+    double Z = 0.0;
+    for (int i = 0; i < prob.size(); i++) {
+      double p = Math.exp(prob.get(i) - max);
+      prob.set(i, p);
+      Z += p;
+    }
+    prob.divi(Z);
+  }
+
+  /**
+   * Logistic sigmoid function.
+   */
+  public static double logistic(double x) {
+    double y;
+    if (x < -40) {
+      y = 2.353853e+17;
+    } else if (x > 40) {
+      y = 1.0 + 4.248354e-18;
+    } else {
+      y = 1.0 + Math.exp(-x);
+    }
+
+    return 1.0 / y;
+  }
+
+  private static double log1pe(double x) {
+    double y = 0.0;
+    if (x > 15) {
+      y = x;
+    } else {
+      y += Math.log1p(Math.exp(x));
+    }
+
+    return y;
+  }
+
+  private static double log(double x) {
+    double y;
+    if (x < 1E-300) {
+      y = -690.7755;
+    } else {
+      y = Math.log(x);
+    }
+    return y;
+  }
+
+  /**
+   * @author Isak Karlsson
+   */
+  public static class Predictor extends AbstractPredictor {
+
+    private final DoubleMatrix theta;
+    private final double logLoss;
+
+    private Predictor(DoubleMatrix theta, double logLoss, Vector classes) {
+      super(classes);
+      this.theta = theta;
+      this.logLoss = logLoss;
+    }
+
+    @Override
+    public DoubleMatrix estimate(Vector record) {
+      DoubleMatrix x = Bj.doubleMatrix(1, record.size() + 1);
+      x.set(0, 1);
+      for (int i = 0; i < record.size(); i++) {
+        x.set(i + 1, record.getAsDouble(i));
+      }
+
+      Vector classes = getClasses();
+      int k = classes.size();
+      if (k > 2) {
+        DoubleMatrix probs = Bj.doubleVector(k);
+        double max = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < k; i++) {
+          double prob = Bj.dot(x, theta.getColumn(i));
+          if (prob > max) {
+            max = prob;
+          }
+          probs.set(i, prob);
+        }
+
+        double z = 0;
+        for (int i = 0; i < k; i++) {
+          probs.set(i, Math.exp(probs.get(i) - max));
+          z += probs.get(i);
+        }
+        final double finalZ = z;
+        probs.update(v -> v / finalZ);
+        return probs;
+      } else {
+        double prob = logistic(Bj.dot(x, theta));
+        DoubleMatrix probs = Bj.doubleVector(2);
+        probs.set(0, 1 - prob);
+        probs.set(1, prob);
+        return probs;
+      }
+    }
+
+    public DoubleMatrix getParamaters() {
+      return theta.copy();
+    }
+
+    public double getLogLoss() {
+      return logLoss;
+    }
+
+    @Override
+    public void evaluation(EvaluationContext ctx) {
+      super.evaluation(ctx);
+      ctx.getOrDefault(LogLoss.class, LogLoss.Builder::new).add(Sample.IN, logLoss);
+    }
+
+    @Override
+    public EnumSet<Characteristics> getCharacteristics() {
+      return EnumSet.of(Characteristics.ESTIMATOR);
+    }
+
+    @Override
+    public String toString() {
+      return "LogisticRegression.Predictor{" +
+             "theta=" + theta +
+             ", logLoss=" + logLoss +
+             '}';
+    }
   }
 
   public static class Builder implements Classifier.Builder<LogisticRegression> {
 
     private int iterations = 100;
-    private double learningRate = 0.0001;
     private double regularization = 0.01;
-    private double costEpsilon = 0.001;
+
+    private NonlinearOptimizer optimizer;
 
     private Builder(int iterations) {
       this.iterations = iterations;
@@ -159,66 +405,22 @@ public class LogisticRegression implements Classifier {
       return this;
     }
 
-    public Builder withLearningRate(double lambda) {
-      this.learningRate = lambda;
+    public Builder withRegularization(double lambda) {
+      this.regularization = lambda;
       return this;
     }
 
-    public Builder withRegularization(double alpha) {
-      this.regularization = alpha;
-      return this;
-    }
-
-    public Builder withCostEpsilon(double epsiolon) {
-      this.costEpsilon = epsiolon;
-      return this;
+    public void setOptimizer(NonlinearOptimizer optimizer) {
+      this.optimizer = optimizer;
     }
 
     @Override
     public LogisticRegression build() {
+      if (optimizer == null) {
+        optimizer = new LimitedMemoryBfgsOptimizer(5, iterations, 1E-5);
+      }
       return new LogisticRegression(this);
     }
-  }
 
-  /**
-   * @author Isak Karlsson
-   */
-  public static class Predictor extends AbstractPredictor {
-
-    private final DoubleMatrix theta;
-
-    private Predictor(DoubleMatrix theta, Vector classes) {
-      super(classes);
-      this.theta = theta;
-    }
-
-    @Override
-    public DoubleMatrix estimate(Vector record) {
-      DoubleMatrix row = Bj.doubleMatrix(1, record.size() + 1);
-      row.set(0, 1);
-      for (int i = 0; i < record.size(); i++) {
-        row.set(i + 1, record.getAsDouble(i));
-      }
-
-      double prob = h(row, theta);
-      DoubleMatrix probs = Bj.doubleVector(2);
-      probs.set(0, 1 - prob);
-      probs.set(1, prob);
-      return probs;
-    }
-
-    public DoubleMatrix theta() {
-      return theta;
-    }
-
-    @Override
-    public EnumSet<Characteristics> getCharacteristics() {
-      return EnumSet.of(Characteristics.ESTIMATOR);
-    }
-
-    @Override
-    public String toString() {
-      return String.format("LogisticRegression.Model(%s)", theta());
-    }
   }
 }

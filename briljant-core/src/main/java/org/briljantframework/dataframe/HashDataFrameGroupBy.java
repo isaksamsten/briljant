@@ -42,18 +42,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         Map.Entry<Object, Vector> e = it.next();
         Object key = e.getKey();
         Vector indices = e.getValue();
-        DataFrame.Builder builder = dataFrame.newBuilder();
-        if (indices.size() > 0) {
-          for (int j = 0; j < dataFrame.columns(); j++) {
-            builder.addColumnBuilder(dataFrame.getType(j));
-            for (int i = 0; i < indices.size(); i++) {
-              builder.set(i, j, dataFrame, indices.getAsInt(i), j);
-            }
-          }
-        }
-        return new Group(
-            key, builder.build().setColumnIndex(dataFrame.getColumnIndex().copy())
-        );
+        return new Group(key, createDataFrame(indices));
       }
     };
   }
@@ -61,6 +50,28 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public Set<Map.Entry<Object, Vector>> groups() {
     return groups.entrySet();
+  }
+
+  @Override
+  public DataFrame get(Object key) {
+    Vector indices = groups.get(key);
+    if (indices == null) {
+      throw new IllegalArgumentException(String.format("Missing key: %s", key));
+    }
+    return createDataFrame(indices);
+  }
+
+  protected DataFrame createDataFrame(Vector indices) {
+    DataFrame.Builder builder = dataFrame.newBuilder();
+    if (indices.size() > 0) {
+      for (int j = 0; j < dataFrame.columns(); j++) {
+        builder.addColumnBuilder(dataFrame.getType(j));
+        for (int i = 0; i < indices.size(); i++) {
+          builder.set(i, j, dataFrame, indices.getAsInt(i), j);
+        }
+      }
+    }
+    return builder.build().setColumnIndex(dataFrame.getColumnIndex());
   }
 
   @Override
@@ -91,7 +102,8 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   @Override
-  public <T, C> DataFrame aggregate(Class<? extends T> cls, Aggregator<? super T, ? extends T, C> aggregator) {
+  public <T, C> DataFrame aggregate(Class<? extends T> cls,
+                                    Aggregator<? super T, ? extends T, C> aggregator) {
     DataFrame.Builder builder = dataFrame.newBuilder();
     Index.Builder recordIndex = new HashIndex.Builder();
     Index.Builder columnIndex = new HashIndex.Builder();

@@ -49,6 +49,10 @@ public final class Bj {
   private Bj() {
   }
 
+  public static DoubleMatrix ones(int size) {
+    return doubleVector(size).assign(1);
+  }
+
   public static double trace(DoubleMatrix x) {
     return MATRIX_ROUTINES.trace(x);
   }
@@ -269,7 +273,7 @@ public final class Bj {
   }
 
   public static double norm2(DoubleMatrix a, DoubleMatrix b) {
-    return MATRIX_ROUTINES.nrm2(a);
+    return MATRIX_ROUTINES.norm2(a);
   }
 
   public static DoubleMatrix sum(DoubleMatrix x, Dim dim) {
@@ -350,8 +354,8 @@ public final class Bj {
     return MATRIX_ROUTINES.asum(a);
   }
 
-  public static double nrm2(DoubleMatrix a) {
-    return MATRIX_ROUTINES.nrm2(a);
+  public static double norm2(DoubleMatrix a) {
+    return MATRIX_ROUTINES.norm2(a);
   }
 
   public static double asum(ComplexMatrix a) {

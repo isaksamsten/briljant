@@ -180,7 +180,7 @@ public class BaseMatrixFactory implements MatrixFactory {
   @Override
   public DoubleMatrix eye(int size) {
     DoubleMatrix eye = doubleMatrix(size, size);
-    eye.getDiagonalView().assign(1);
+    eye.getDiagonal().assign(1);
     return eye;
   }
 

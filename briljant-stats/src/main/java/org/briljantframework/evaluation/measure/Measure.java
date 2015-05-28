@@ -1,7 +1,7 @@
 package org.briljantframework.evaluation.measure;
 
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vector;
 
 import java.util.Map;
 
@@ -77,7 +77,7 @@ public interface Measure extends Comparable<Measure> {
   /**
    * @return {@code get(Sample.OUT)}
    */
-  default DoubleVector get() {
+  default Vector get() {
     return get(Sample.OUT);
   }
 
@@ -88,7 +88,7 @@ public interface Measure extends Comparable<Measure> {
    * @param sample the sample
    * @return the measurements
    */
-  DoubleVector get(Sample sample);
+  Vector get(Sample sample);
 
   /**
    * @return the number of measurements

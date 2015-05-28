@@ -75,7 +75,7 @@ public abstract class AbstractValidator implements Validator {
       DoubleMatrix estimate = predictor.estimate(holdoutX);
       ctx.setEstimation(estimate);
       for (int i = 0; i < estimate.rows(); i++) {
-        builder.set(i, classes, argmax(estimate.getRowView(i)));
+        builder.set(i, classes, argmax(estimate.getRow(i)));
       }
       return builder.build();
     } else {

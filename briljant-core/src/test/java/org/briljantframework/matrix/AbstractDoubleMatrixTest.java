@@ -1,7 +1,6 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.function.Aggregates;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
@@ -242,17 +241,17 @@ public class AbstractDoubleMatrixTest {
   @Test
   public void testGetRowView() throws Exception {
     DoubleMatrix x = bj.matrix(new double[]{1.0, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    MatrixAssert.assertMatrixEquals(1, x.getRowView(0), epsilon);
-    MatrixAssert.assertMatrixEquals(2, x.getRowView(1), epsilon);
-    MatrixAssert.assertMatrixEquals(3, x.getRowView(2), epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.getRow(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, x.getRow(1), epsilon);
+    MatrixAssert.assertMatrixEquals(3, x.getRow(2), epsilon);
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     DoubleMatrix x = bj.matrix(new double[]{1.0, 1, 1, 2, 2, 2, 3, 3, 3}).reshape(3, 3);
-    MatrixAssert.assertMatrixEquals(1, x.getColumnView(0), epsilon);
-    MatrixAssert.assertMatrixEquals(2, x.getColumnView(1), epsilon);
-    MatrixAssert.assertMatrixEquals(3, x.getColumnView(2), epsilon);
+    MatrixAssert.assertMatrixEquals(1, x.getColumn(0), epsilon);
+    MatrixAssert.assertMatrixEquals(2, x.getColumn(1), epsilon);
+    MatrixAssert.assertMatrixEquals(3, x.getColumn(2), epsilon);
   }
 
   @Test
@@ -460,8 +459,8 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix x = bj.matrix(new double[]{1.0, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     DoubleMatrix slice = x.slice(bj.range(2), Dim.R);
     assertEquals(2, slice.rows());
-    assertValueEquals(slice.getRowView(0), bj.matrix(new double[]{1.0, 1, 1}), epsilon);
-    assertValueEquals(slice.getRowView(1), bj.matrix(new double[]{2.0, 2, 2}), epsilon);
+    assertValueEquals(slice.getRow(0), bj.matrix(new double[]{1.0, 1, 1}), epsilon);
+    assertValueEquals(slice.getRow(1), bj.matrix(new double[]{2.0, 2, 2}), epsilon);
   }
 
   @Test
@@ -470,8 +469,8 @@ public class AbstractDoubleMatrixTest {
     DoubleMatrix s = x.slice(bj.range(2), bj.range(2));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
-    assertValueEquals(s.getRowView(0), bj.matrix(new double[]{1.0, 1}), epsilon);
-    assertValueEquals(s.getRowView(1), bj.matrix(new double[]{2.0, 2}), epsilon);
+    assertValueEquals(s.getRow(0), bj.matrix(new double[]{1.0, 1}), epsilon);
+    assertValueEquals(s.getRow(1), bj.matrix(new double[]{2.0, 2}), epsilon);
   }
 
   @Test
@@ -485,16 +484,16 @@ public class AbstractDoubleMatrixTest {
   public void testSlice5() throws Exception {
     DoubleMatrix x = bj.matrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3.0}).reshape(3, 3);
     DoubleMatrix s = x.slice(asList(0, 2), Dim.R);
-    assertValueEquals(s.getRowView(0), bj.matrix(new double[]{1, 1, 1.0}), epsilon);
-    assertValueEquals(s.getRowView(1), bj.matrix(new double[]{3, 3, 3.0}), epsilon);
+    assertValueEquals(s.getRow(0), bj.matrix(new double[]{1, 1, 1.0}), epsilon);
+    assertValueEquals(s.getRow(1), bj.matrix(new double[]{3, 3, 3.0}), epsilon);
   }
 
   @Test
   public void testSlice6() throws Exception {
     DoubleMatrix x = bj.matrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3.0}).reshape(3, 3);
     DoubleMatrix s = x.slice(asList(0, 1), asList(0, 1));
-    assertMatrixEquals(1, s.getRowView(0), 1);
-    assertMatrixEquals(2, s.getRowView(1), 2);
+    assertMatrixEquals(1, s.getRow(0), 1);
+    assertMatrixEquals(2, s.getRow(1), 2);
   }
 
   @Test
@@ -511,8 +510,8 @@ public class AbstractDoubleMatrixTest {
   public void testSlice() throws Exception {
     DoubleMatrix x = bj.matrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3.0}).reshape(3, 3);
     DoubleMatrix s = x.slice(bj.matrix(new boolean[]{true, false, true}), Dim.R);
-    assertValueEquals(s.getRowView(0), bj.matrix(new double[]{1, 1, 1.0}), epsilon);
-    assertValueEquals(s.getRowView(1), bj.matrix(new double[]{3, 3, 3.0}), epsilon);
+    assertValueEquals(s.getRow(0), bj.matrix(new double[]{1, 1, 1.0}), epsilon);
+    assertValueEquals(s.getRow(1), bj.matrix(new double[]{3, 3, 3.0}), epsilon);
   }
 
   @Test
@@ -526,14 +525,14 @@ public class AbstractDoubleMatrixTest {
   public void testSetRow() throws Exception {
     DoubleMatrix x = bj.doubleMatrix(3, 3);
     x.setRow(0, bj.matrix(new double[]{1, 2, 3.0}));
-    assertValueEquals(x.getRowView(0), bj.matrix(new double[]{1, 2, 3.0}), epsilon);
+    assertValueEquals(x.getRow(0), bj.matrix(new double[]{1, 2, 3.0}), epsilon);
   }
 
   @Test
   public void testSetColumn() throws Exception {
     DoubleMatrix x = bj.doubleMatrix(3, 3);
     x.setColumn(0, bj.matrix(new double[]{1, 2, 3.0}));
-    assertValueEquals(x.getColumnView(0), bj.matrix(new double[]{1, 2, 3.0}), epsilon);
+    assertValueEquals(x.getColumn(0), bj.matrix(new double[]{1, 2, 3.0}), epsilon);
   }
 
   @Test

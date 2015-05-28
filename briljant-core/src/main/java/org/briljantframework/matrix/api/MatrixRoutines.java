@@ -167,7 +167,7 @@ public interface MatrixRoutines {
 
   Complex dotc(ComplexMatrix a, ComplexMatrix b);
 
-  double nrm2(DoubleMatrix a);
+  double norm2(DoubleMatrix a);
 
   Complex norm2(ComplexMatrix a);
 

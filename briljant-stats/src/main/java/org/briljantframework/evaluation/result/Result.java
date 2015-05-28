@@ -25,24 +25,27 @@ import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.function.Aggregates;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
+import org.briljantframework.vector.Vec;
 
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Created by Isak Karlsson on 02/10/14.
+ * @author Isak Karlsson
  */
 public class Result {
 
-  private static final DecimalFormat FORMATTER = new DecimalFormat("##0.00");
   private final Map<Class<?>, Measure> metrics;
 
   private final List<ConfusionMatrix> confusionMatrices;
@@ -52,13 +55,6 @@ public class Result {
     this.metrics = metrics;
   }
 
-  /**
-   * Create result.
-   *
-   * @param measures          the metrics
-   * @param confusionMatrices the confusion matrices
-   * @return the result
-   */
   public static Result create(List<Measure> measures, List<ConfusionMatrix> confusionMatrices) {
     Preconditions.checkArgument(measures.size() > 0 && confusionMatrices.size() > 0);
     Map<Class<?>, Measure> metricMap = new HashMap<>();
@@ -282,12 +278,36 @@ public class Result {
     DataFrame.Builder df = new MixedDataFrame.Builder();
     Index.Builder index = new HashIndex.Builder();
     index.add("Fold");
-    df.addColumn(IntVector.range(getConfusionMatrices().size()));
-    for (Measure measure : getMeasures()) {
-      df.addColumn(measure.get(Sample.OUT));
+    index.add("Sample");
+    Iterator<Measure> it = getMeasures().iterator();
+
+    if (it.hasNext()) {
+      Measure measure = it.next();
+      df.addColumn(IntVector.range(measure.size()).aggregate(Aggregates.repeat(2)));
+      df.addColumnBuilder(Vec.typeOf(Sample.class));
+      for (int i = 0; i < measure.size() * 2; i++) {
+        if (i < measure.size()) {
+          df.set(i, 1, Sample.OUT);
+        } else {
+          df.set(i, 1, Sample.IN);
+        }
+      }
       index.add(measure.getName());
+      df.addColumnBuilder(new DoubleVector.Builder()
+                              .addAll(measure.get(Sample.OUT))
+                              .addAll(measure.get(Sample.IN)));
+      while (it.hasNext()) {
+        measure = it.next();
+        index.add(measure.getName());
+        DoubleVector.Builder bf = new DoubleVector.Builder();
+        bf.addAll(measure.get(Sample.OUT));
+        bf.addAll(measure.get(Sample.IN));
+        df.addColumnBuilder(bf);
+      }
+      return df.build().setColumnIndex(index.build());
+    } else {
+      return df.build();
     }
-    return df.build().setColumnIndex(index.build());
   }
 
   @Override
@@ -299,7 +319,7 @@ public class Result {
     ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
     getMeasures()
         .stream()
-        .sorted((a, b) -> a.getName().compareTo(b.getName()))
+        .sorted(Comparator.comparing(Measure::getName))
         .forEach(
             measure -> {
               for (int i = 0; i < measure.size(); i++) {

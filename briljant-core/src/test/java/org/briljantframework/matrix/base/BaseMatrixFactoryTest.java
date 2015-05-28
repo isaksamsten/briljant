@@ -9,7 +9,6 @@ import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
 public class BaseMatrixFactoryTest {
 
@@ -55,7 +54,6 @@ public class BaseMatrixFactoryTest {
     bjr.axpy(1, x.getView(0, 0, 2, 1), z.getView(0, 0, 2, 1));
     System.out.println(z);
 
-    assertSame(z.getStorage(), z.getStorage());
   }
 
   @Test

@@ -20,8 +20,8 @@ public class AbstractBitMatrixTest {
     BitMatrix m =
         bj.matrix(new boolean[]{true, false, false, true, false, true, true, false, false})
             .reshape(3, 3);
-    assertValuesEquals(bj.matrix(new boolean[]{true, true, true}), m.getRowView(0));
-    assertValuesEquals(bj.matrix(new boolean[]{false, false, false}), m.getRowView(1));
+    assertValuesEquals(bj.matrix(new boolean[]{true, true, true}), m.getRow(0));
+    assertValuesEquals(bj.matrix(new boolean[]{false, false, false}), m.getRow(1));
   }
 
   @Test
@@ -29,8 +29,8 @@ public class AbstractBitMatrixTest {
     BitMatrix m =
         bj.matrix(new boolean[]{true, false, false, true, false, true, true, false, false})
             .reshape(3, 3);
-    assertValuesEquals(bj.matrix(new boolean[]{true, false, false}), m.getColumnView(0));
-    assertValuesEquals(bj.matrix(new boolean[]{true, false, true}), m.getColumnView(1));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false, false}), m.getColumn(0));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false, true}), m.getColumn(1));
   }
 
   @Test
@@ -39,8 +39,8 @@ public class AbstractBitMatrixTest {
         bj.matrix(new boolean[]{true, false, false, true, false, true, true, false, false})
             .reshape(3, 3);
     BitMatrix view = m.getView(0, 0, 2, 2);
-    assertValuesEquals(bj.matrix(new boolean[]{true, false}), view.getColumnView(0));
-    assertValuesEquals(bj.matrix(new boolean[]{true, false}), view.getColumnView(1));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false}), view.getColumn(0));
+    assertValuesEquals(bj.matrix(new boolean[]{true, false}), view.getColumn(1));
   }
 
   @Test

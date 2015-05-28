@@ -34,10 +34,6 @@ abstract class AsDoubleMatrix extends AbstractDoubleMatrix {
         return AsDoubleMatrix.this.get(index);
       }
 
-      @Override
-      public Storage getStorage() {
-        return AsDoubleMatrix.this.getStorage();
-      }
     };
   }
 

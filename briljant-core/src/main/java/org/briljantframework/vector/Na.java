@@ -50,8 +50,6 @@ public final class Na {
    */
   @SuppressWarnings("unchecked")
   public static <T> T of(Class<T> cls) {
-//      T t = (T) CLASS_TO_NA.get(cls);
-//    return t;
     if (cls == null) {
       return null;
     } else if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {

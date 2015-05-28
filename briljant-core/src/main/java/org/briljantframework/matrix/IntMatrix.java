@@ -517,4 +517,6 @@ public interface IntMatrix extends Matrix<IntMatrix> {
    * @return a new matrix
    */
   IntMatrix negate();
+
+  int[] data();
 }

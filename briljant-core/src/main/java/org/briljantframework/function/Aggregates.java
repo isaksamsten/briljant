@@ -218,7 +218,12 @@ public final class Aggregates {
       if (!Is.NA(v)) {
         a.add(v.doubleValue());
       }
-    }, RunningStatistics::getMean);
+    }, (stat) -> {
+      if (stat.size() == 0) {
+        return Na.of(Double.class);
+      }
+      return stat.getMean();
+    });
   }
 
   public static Aggregator<Number, Double, ?> std() {
@@ -226,7 +231,12 @@ public final class Aggregates {
       if (!Is.NA(v)) {
         a.add(v.doubleValue());
       }
-    }, RunningStatistics::getStandardDeviation);
+    }, (stat) -> {
+      if (stat.size() == 0) {
+        return Na.of(Double.class);
+      }
+      return stat.getStandardDeviation();
+    });
   }
 
   public static Aggregator<Number, Double, ?> var() {
@@ -234,7 +244,12 @@ public final class Aggregates {
       if (!Is.NA(v)) {
         a.add(v.doubleValue());
       }
-    }, RunningStatistics::getVariance);
+    }, (stat) -> {
+      if (stat.size() == 0) {
+        return Na.of(Double.class);
+      }
+      return stat.getVariance();
+    });
   }
 
   /**

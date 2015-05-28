@@ -4,8 +4,6 @@ import org.briljantframework.Check;
 import org.briljantframework.matrix.AbstractIntMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.storage.IntStorage;
-import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
@@ -13,39 +11,34 @@ import org.briljantframework.matrix.api.MatrixFactory;
  */
 class BaseIntMatrix extends AbstractIntMatrix {
 
-  private Storage storage;
+  private final int[] data;
 
   BaseIntMatrix(MatrixFactory bj, int size) {
-    this(bj, new IntStorage(size), size);
+    this(bj, new int[size], size);
   }
 
   BaseIntMatrix(MatrixFactory bj, int rows, int columns) {
-    this(bj, IntStorage.withSize(Math.multiplyExact(rows, columns)), rows, columns);
+    this(bj, new int[Math.multiplyExact(rows, columns)], rows, columns);
   }
 
-  BaseIntMatrix(MatrixFactory bj, Storage storage, int size) {
+  BaseIntMatrix(MatrixFactory bj, int[] data, int size) {
     super(bj, size);
-    this.storage = storage;
+    this.data = data;
   }
 
-  BaseIntMatrix(MatrixFactory bj, Storage storage, int rows, int cols) {
+  BaseIntMatrix(MatrixFactory bj, int[] data, int rows, int cols) {
     super(bj, rows, cols);
-    this.storage = storage;
+    this.data = data;
   }
 
   BaseIntMatrix(MatrixFactory bj, int[] values) {
-    this(bj, new IntStorage(values), values.length);
+    this(bj, values, values.length);
   }
-
-  BaseIntMatrix(MatrixFactory bj, Storage storage) {
-    this(bj, storage, storage.size());
-  }
-
 
   @Override
   public IntMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new BaseIntMatrix(getMatrixFactory(), getStorage(), rows, columns);
+    return new BaseIntMatrix(getMatrixFactory(), data, rows, columns);
   }
 
   @Override
@@ -59,33 +52,32 @@ class BaseIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
-  public Storage getStorage() {
-    return storage;
-  }
-
-  @Override
   public int get(int i, int j) {
-    return storage.getInt(Indexer.columnMajor(i, j, rows(), columns()));
+    return data[Indexer.columnMajor(i, j, rows(), columns())];
   }
 
   @Override
   public int get(int index) {
-    return storage.getInt(index);
+    return data[index];
   }
 
   @Override
   public void set(int index, int value) {
-    storage.setInt(index, value);
+    data[index] = value;
   }
 
   @Override
   public void set(int i, int j, int value) {
-    storage.setInt(Indexer.columnMajor(i, j, rows(), columns()), value);
+    data[Indexer.columnMajor(i, j, rows(), columns())] = value;
   }
 
   @Override
   public IntMatrix copy() {
-    return new BaseIntMatrix(getMatrixFactory(), getStorage().copy(), rows(), columns());
+    return new BaseIntMatrix(getMatrixFactory(), data.clone(), rows(), columns());
   }
 
+  @Override
+  public int[] data() {
+    return data;
+  }
 }

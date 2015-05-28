@@ -7,7 +7,6 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -130,10 +129,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
         return AbstractLongMatrix.this.get(index);
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractLongMatrix.this.getStorage();
-      }
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractLongMatrix.this.getStorage();
+//      }
     };
   }
 
@@ -212,10 +211,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
         AbstractLongMatrix.this.set(i, j, value);
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractLongMatrix.this.getStorage();
-      }
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractLongMatrix.this.getStorage();
+//      }
     };
   }
 
@@ -304,7 +303,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   public LongMatrix reduceColumns(ToLongFunction<? super LongMatrix> reduce) {
     LongMatrix mat = newEmptyMatrix(1, columns());
     for (int i = 0; i < columns(); i++) {
-      mat.set(i, reduce.applyAsLong(getColumnView(i)));
+      mat.set(i, reduce.applyAsLong(getColumn(i)));
     }
     return mat;
   }
@@ -313,7 +312,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   public LongMatrix reduceRows(ToLongFunction<? super LongMatrix> reduce) {
     LongMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
-      mat.set(i, reduce.applyAsLong(getRowView(i)));
+      mat.set(i, reduce.applyAsLong(getRow(i)));
     }
     return mat;
   }
@@ -353,10 +352,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
         return AbstractLongMatrix.this.get(index) == 1;
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractLongMatrix.this.getStorage();
-      }
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractLongMatrix.this.getStorage();
+//      }
     };
   }
 
@@ -440,10 +439,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
         return Complex.valueOf(AbstractLongMatrix.this.get(index));
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractLongMatrix.this.getStorage();
-      }
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractLongMatrix.this.getStorage();
+//      }
     };
   }
 
@@ -601,7 +600,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public LongMatrix getRowView(int i) {
+  public LongMatrix getRow(int i) {
     return new LongMatrixView(getMatrixFactory(), this, i, 0, 1, columns());
   }
 
@@ -724,7 +723,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     return rdiv(1, other, 1, dim);
   }
 
-  public LongMatrix getColumnView(int index) {
+  public LongMatrix getColumn(int index) {
     return new LongMatrixView(getMatrixFactory(), this, 0, index, rows(), 1);
   }
 
@@ -885,10 +884,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       return true;
     }
 
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
+//    @Override
+//    public Storage getStorage() {
+//      return parent.getStorage();
+//    }
 
     @Override
     public LongMatrix newEmptyMatrix(int rows, int columns) {
@@ -938,10 +937,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       return true;
     }
 
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
+//    @Override
+//    public Storage getStorage() {
+//      return parent.getStorage();
+//    }
 
     @Override
     public LongMatrix newEmptyMatrix(int rows, int columns) {
@@ -1004,10 +1003,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       return true;
     }
 
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
+//    @Override
+//    public Storage getStorage() {
+//      return parent.getStorage();
+//    }
 
     @Override
     public LongMatrix newEmptyMatrix(int rows, int columns) {
@@ -1026,7 +1025,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   }
 
   @Override
-  public LongMatrix getDiagonalView() {
+  public LongMatrix getDiagonal() {
     throw new UnsupportedOperationException();
   }
 
@@ -1110,13 +1109,13 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       matrix = newEmptyMatrix(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
-        matrix.setRow(i++, getRowView(index));
+        matrix.setRow(i++, getRow(index));
       }
     } else {
       matrix = newEmptyMatrix(rows(), indexes.size());
       int i = 0;
       for (int index : indexes) {
-        matrix.setColumn(i++, getColumnView(index));
+        matrix.setColumn(i++, getColumn(index));
       }
     }
     return matrix;
@@ -1146,7 +1145,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       int index = 0;
       for (int i = 0; i < rows(); i++) {
         if (indexes.get(i)) {
-          matrix.setRow(index++, getRowView(i));
+          matrix.setRow(index++, getRow(i));
         }
       }
     } else {
@@ -1155,7 +1154,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       int index = 0;
       for (int j = 0; j < columns(); j++) {
         if (indexes.get(j)) {
-          matrix.setColumn(index++, getColumnView(j));
+          matrix.setColumn(index++, getColumn(j));
         }
       }
     }

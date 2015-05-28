@@ -72,7 +72,7 @@ public class LuDecomposition {
     double[] work = new double[1];
     intW err = new intW(0);
 //    DoubleStorage invs = (DoubleStorage) inv.getStorage();
-    double[] invs = lu.array();
+    double[] invs = lu.data();
 //    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new NetlibLapackException(err.val, "Querying failed");

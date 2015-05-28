@@ -43,10 +43,6 @@ fun loadArff(file: File): DataFrame {
 
 fun DataFrame.get(row: Int, all: all) = this.getRecord(row)
 
-public inline fun <reified T> DataFrame.get(row: Int, column: Int): T {
-    return this.get(javaClass<T>(), row, column)
-}
-
 
 fun DataFrame.get(all: all, column: Int) = this.get(column)
 

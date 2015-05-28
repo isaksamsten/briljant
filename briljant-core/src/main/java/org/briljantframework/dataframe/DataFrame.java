@@ -125,11 +125,32 @@ public interface DataFrame extends Iterable<Series> {
     return isNA(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
+  /**
+   * Sorts this DataFrame according to its index.
+   *
+   * @return a new data frame
+   */
   DataFrame sort();
 
+  /**
+   * Sorts this DataFrame according to its index in the sort-order defined by {@code order}.
+   *
+   * @return a new data frame
+   */
   DataFrame sort(SortOrder order);
 
-  DataFrame sort(Comparator<? super Vector> vector);
+  /**
+   * Sorts this DataFrame according to the comparator.
+   *
+   * <pre>{@code
+   *  DataFrame df = MixedDataFrame.of("a", Vec.of(1,2,3,4)
+   *                                   "b", Vec.of("a","d","c","q"))
+   * }</pre>
+   *
+   * @param cmp
+   * @return
+   */
+  DataFrame sort(Comparator<? super Series> cmp);
 
   /**
    * Sort column {@code column}
@@ -288,7 +309,10 @@ public interface DataFrame extends Iterable<Series> {
    * @param <C>        the type of the mutable aggregator
    * @return a {@linkplain org.briljantframework.dataframe.Series} of the aggregated values
    */
-  <T, C> Series aggregate(Class<? extends T> cls, Aggregator<? super T, ? extends T, C> aggregator);
+  <T, C> Series aggregate(Class<T> cls, Aggregator<? super T, ? extends T, C> aggregator);
+
+  <T, R, C> Series aggregate(Class<T> in, Class<R> out,
+                             Aggregator<? super T, ? extends R, C> aggregator);
 
   /**
    * Group DataFrame based on the values of column at {@code index}.

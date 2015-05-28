@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.Check;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 
 /**
  * @author Isak Karlsson
@@ -35,11 +34,6 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
       @Override
       public boolean get(int index) {
         return AsBitMatrix.this.get(index);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AsBitMatrix.this.getStorage();
       }
     };
   }

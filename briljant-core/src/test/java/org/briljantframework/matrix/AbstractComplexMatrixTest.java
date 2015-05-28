@@ -248,17 +248,17 @@ public class AbstractComplexMatrixTest {
   @Test
   public void testGetRowView() throws Exception {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    assertMatrixEquals(1, x.getRowView(0));
-    assertMatrixEquals(2, x.getRowView(1));
-    assertMatrixEquals(3, x.getRowView(2));
+    assertMatrixEquals(1, x.getRow(0));
+    assertMatrixEquals(2, x.getRow(1));
+    assertMatrixEquals(3, x.getRow(2));
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 1, 1, 2, 2, 2, 3, 3, 3}).reshape(3, 3);
-    assertMatrixEquals(1, x.getColumnView(0));
-    assertMatrixEquals(2, x.getColumnView(1));
-    assertMatrixEquals(3, x.getColumnView(2));
+    assertMatrixEquals(1, x.getColumn(0));
+    assertMatrixEquals(2, x.getColumn(1));
+    assertMatrixEquals(3, x.getColumn(2));
   }
 
   @Test
@@ -636,8 +636,8 @@ public class AbstractComplexMatrixTest {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     ComplexMatrix slice = x.slice(bj.range(2), Dim.R);
     assertEquals(2, slice.rows());
-    assertValuesEquals(bj.complexMatrix(new double[]{1, 1, 1}), slice.getRowView(0));
-    assertValuesEquals(bj.complexMatrix(new double[]{2, 2, 2}), slice.getRowView(1));
+    assertValuesEquals(bj.complexMatrix(new double[]{1, 1, 1}), slice.getRow(0));
+    assertValuesEquals(bj.complexMatrix(new double[]{2, 2, 2}), slice.getRow(1));
   }
 
   @Test
@@ -646,8 +646,8 @@ public class AbstractComplexMatrixTest {
     ComplexMatrix s = x.slice(bj.range(2), bj.range(2));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
-    assertValuesEquals(bj.complexMatrix(1, 1), s.getRowView(0));
-    assertValuesEquals(bj.complexMatrix(2, 2), s.getRowView(1));
+    assertValuesEquals(bj.complexMatrix(1, 1), s.getRow(0));
+    assertValuesEquals(bj.complexMatrix(2, 2), s.getRow(1));
   }
 
   @Test
@@ -661,16 +661,16 @@ public class AbstractComplexMatrixTest {
   public void testSlice5() throws Exception {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     ComplexMatrix s = x.slice(asList(0, 2), Dim.R);
-    assertValuesEquals(bj.complexMatrix(new double[]{1, 1, 1}), s.getRowView(0));
-    assertValuesEquals(bj.complexMatrix(new double[]{3, 3, 3}), s.getRowView(1));
+    assertValuesEquals(bj.complexMatrix(new double[]{1, 1, 1}), s.getRow(0));
+    assertValuesEquals(bj.complexMatrix(new double[]{3, 3, 3}), s.getRow(1));
   }
 
   @Test
   public void testSlice6() throws Exception {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     ComplexMatrix s = x.slice(asList(0, 1), asList(0, 1));
-    assertValuesEquals(bj.complexMatrix(1, 1), s.getRowView(0));
-    assertValuesEquals(bj.complexMatrix(2, 2), s.getRowView(1));
+    assertValuesEquals(bj.complexMatrix(1, 1), s.getRow(0));
+    assertValuesEquals(bj.complexMatrix(2, 2), s.getRow(1));
   }
 
   @Test
@@ -687,8 +687,8 @@ public class AbstractComplexMatrixTest {
   public void testSlice() throws Exception {
     ComplexMatrix x = bj.complexMatrix(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     ComplexMatrix s = x.slice(bj.matrix(new boolean[]{true, false, true}), Dim.R);
-    assertValuesEquals(bj.complexMatrix(new double[]{1, 1, 1}), s.getRowView(0));
-    assertValuesEquals(bj.complexMatrix(new double[]{3, 3, 3}), s.getRowView(1));
+    assertValuesEquals(bj.complexMatrix(new double[]{1, 1, 1}), s.getRow(0));
+    assertValuesEquals(bj.complexMatrix(new double[]{3, 3, 3}), s.getRow(1));
   }
 
   @Test
@@ -702,14 +702,14 @@ public class AbstractComplexMatrixTest {
   public void testSetRow() throws Exception {
     ComplexMatrix x = bj.complexMatrix(3, 3);
     x.setRow(0, bj.complexMatrix(new double[]{1, 2, 3}));
-    assertValuesEquals(bj.complexMatrix(new double[]{1, 2, 3}), x.getRowView(0));
+    assertValuesEquals(bj.complexMatrix(new double[]{1, 2, 3}), x.getRow(0));
   }
 
   @Test
   public void testSetColumn() throws Exception {
     ComplexMatrix x = bj.complexMatrix(3, 3);
     x.setColumn(0, bj.complexMatrix(new double[]{1, 2, 3}));
-    assertValuesEquals(bj.complexMatrix(new double[]{1, 2, 3}), x.getColumnView(0));
+    assertValuesEquals(bj.complexMatrix(new double[]{1, 2, 3}), x.getColumn(0));
   }
 
   @Test

@@ -12,8 +12,8 @@ import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;

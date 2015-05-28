@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import com.google.common.base.Preconditions;
 
-import org.briljantframework.Check;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 import java.util.function.Consumer;
@@ -41,11 +40,11 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
     T matrix = newEmptyMatrix(rows(), columns());
     if (dim == Dim.R) {
       for (int i = 0; i < rows(); i++) {
-        matrix.setRow(i, mapper.apply(getRowView(i)));
+        matrix.setRow(i, mapper.apply(getRow(i)));
       }
     } else {
       for (int i = 0; i < columns(); i++) {
-        matrix.setColumn(i, mapper.apply(getColumnView(i)));
+        matrix.setColumn(i, mapper.apply(getColumn(i)));
       }
     }
 
@@ -56,11 +55,11 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
   public void forEach(Dim dim, Consumer<T> consumer) {
     if (dim == Dim.R) {
       for (int i = 0; i < rows(); i++) {
-        consumer.accept(getRowView(i));
+        consumer.accept(getRow(i));
       }
     } else {
       for (int i = 0; i < columns(); i++) {
-        consumer.accept(getColumnView(i));
+        consumer.accept(getColumn(i));
       }
     }
   }
@@ -76,7 +75,7 @@ public abstract class AbstractMatrix<T extends Matrix<T>> implements Matrix<T> {
 
   @Override
   public T getVectorAlong(Dim dim, int index) {
-    return dim == Dim.R ? getRowView(index) : getColumnView(index);
+    return dim == Dim.R ? getRow(index) : getColumn(index);
   }
 
   @Override

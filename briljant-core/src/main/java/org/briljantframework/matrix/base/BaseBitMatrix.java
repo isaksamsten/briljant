@@ -79,7 +79,6 @@ class BaseBitMatrix extends AbstractBitMatrix {
     return false;
   }
 
-  @Override
   public Storage getStorage() {
     return storage;
   }

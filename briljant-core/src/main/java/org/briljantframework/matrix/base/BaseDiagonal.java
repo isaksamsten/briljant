@@ -275,7 +275,6 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
     return false;
   }
 
-  @Override
   public Storage getStorage() {
     return values;
   }

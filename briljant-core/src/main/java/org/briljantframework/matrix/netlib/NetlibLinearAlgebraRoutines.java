@@ -13,7 +13,6 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 import org.netlib.util.intW;
 
 /**
@@ -102,10 +101,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     int lda = Math.max(1, m);
     Check.vectorOfSize(Math.min(m, n), tau);
 
-    Storage sa = a.getStorage();
-    Storage st = tau.getStorage();
-    double[] aa = sa.doubleArray();
-    double[] ta = st.doubleArray();
+    double[] aa = a.data();
+    double[] ta = tau.data();
 
     double[] work = new double[1];
     int lwork = -1;
@@ -136,8 +133,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         info
     );
     ensureInfo(info);
-    reassignIfNeeded(a, sa, aa);
-    reassignIfNeeded(tau, st, ta);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(tau, ta);
   }
 
   @Override
@@ -163,12 +160,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       throw new IllegalArgumentException();
     }
 
-    Storage as = a.getStorage();
-    Storage ts = tau.getStorage();
-    Storage cs = c.getStorage();
-    double[] aa = as.doubleArray();
-    double[] ta = ts.doubleArray();
-    double[] ca = cs.doubleArray();
+    double[] aa = a.data();
+    double[] ta = tau.data();
+    double[] ca = c.data();
 
     double[] work = new double[1];
     int lwork = -1;
@@ -207,9 +201,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         info
     );
     ensureInfo(info);
-    reassignIfNeeded(a, as, aa);
-    reassignIfNeeded(tau, ts, ta);
-    reassignIfNeeded(c, cs, ca);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(tau, ta);
+    reassignIfNeeded(c, ca);
   }
 
   @Override
@@ -232,11 +226,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       throw new IllegalArgumentException();
     }
 
-    Storage sa = a.getStorage();
-    Storage sw = w.getStorage();
-
-    double[] aa = sa.doubleArray();
-    double[] wa = sw.doubleArray();
+    double[] aa = a.data();
+    double[] wa = w.data();
 
     intW info = new intW(0);
     int lwork = -1;
@@ -268,8 +259,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     );
     ensureInfo(info);
 
-    reassignIfNeeded(a, sa, aa);
-    reassignIfNeeded(w, sw, wa);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(w, wa);
   }
 
   @Override
@@ -314,15 +305,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       ldz = Math.max(1, n);
     }
 
-    Storage as = a.getStorage();
-    Storage ws = w.getStorage();
-    Storage zs = z.getStorage();
-    Storage is = isuppz.getStorage();
-
-    double[] aa = as.doubleArray();
-    double[] wa = ws.doubleArray();
-    double[] za = zs.doubleArray();
-    int[] ia = is.intArray();
+    double[] aa = a.data();
+    double[] wa = w.data();
+    double[] za = z.data();
+    int[] ia = isuppz.data();
 
     intW info = new intW(0);
     intW m = new intW(0);
@@ -385,10 +371,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         info
     );
     ensureInfo(info);
-    reassignIfNeeded(a, as, aa);
-    reassignIfNeeded(w, ws, wa);
-    reassignIfNeeded(z, zs, za);
-    reassignIfNeeded(isuppz, is, ia);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(w, wa);
+    reassignIfNeeded(z, za);
+    reassignIfNeeded(isuppz, ia);
 
     return m.val;
   }
@@ -397,10 +383,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   public int getrf(DoubleMatrix a, IntMatrix ipiv) {
     Check.all(Matrix::isVector, ipiv);
     Check.size(Math.min(a.rows(), a.columns()), ipiv.size());
-    Storage sa = a.getStorage();
-    Storage si = ipiv.getStorage();
-    double[] aa = sa.doubleArray();
-    int[] ia = si.intArray();
+    double[] aa = a.data();
+    int[] ia = ipiv.data();
     intW info = new intW(0);
     LAPACK.getInstance().dgetrf(
         a.rows(),
@@ -411,17 +395,13 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         info
     );
     ensureValidParameterInfo(info);
-    reassignIfNeeded(a, sa, aa);
-    reassignIfNeeded(ipiv, si, ia);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(ipiv, ia);
     return info.val;
   }
 
   @Override
   public int gelsy(DoubleMatrix a, DoubleMatrix b, IntMatrix jpvt, double rcond) {
-    Storage sa = a.getStorage();
-    Storage sb = b.getStorage();
-    Storage sj = jpvt.getStorage();
-
     int m = a.rows();
     int n = a.columns();
     int nrhs = b.columns();
@@ -432,9 +412,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     double[] work = new double[1];
     intW rank = new intW(0);
     intW info = new intW(0);
-    double[] aa = sa.doubleArray();
-    double[] ba = sb.doubleArray();
-    int[] ja = sj.intArray();
+    double[] aa = a.data();
+    double[] ba = b.data();
+    int[] ja = jpvt.data();
     lapack.dgelsy(m, n, nrhs, aa, lda, ba, ldb, ja, rcond, rank, work, lwork, info);
     ensureInfo(info);
 
@@ -443,9 +423,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     lapack.dgelsy(m, n, nrhs, aa, lda, ba, ldb, ja, rcond, rank, work, lwork, info);
     ensureInfo(info);
 
-    reassignIfNeeded(a, sa, aa);
-    reassignIfNeeded(b, sb, ba);
-    reassignIfNeeded(jpvt, sj, ja);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(b, ba);
+    reassignIfNeeded(jpvt, ja);
     return rank.val;
   }
 
@@ -468,13 +448,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     int lda = Math.max(1, n);
     int ldb = Math.max(1, n);
 
-    Storage as = a.getStorage();
-    Storage bs = b.getStorage();
-    Storage is = ipiv.getStorage();
-
-    double[] aa = as.doubleArray();
-    double[] ba = bs.doubleArray();
-    int[] ia = is.intArray();
+    double[] aa = a.data();
+    double[] ba = b.data();
+    int[] ia = ipiv.data();
 
     intW info = new intW(0);
     lapack.dgesv(
@@ -489,9 +465,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     );
     ensureValidParameterInfo(info);
 
-    reassignIfNeeded(a, as, aa);
-    reassignIfNeeded(ipiv, is, ia);
-    reassignIfNeeded(b, bs, ba);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(ipiv, ia);
+    reassignIfNeeded(b, ba);
 
     return info.val;
   }
@@ -534,15 +510,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       ldvt = Math.min(m, n);
     }
 
-    Storage as = a.getStorage();
-    Storage us = u.getStorage();
-    Storage ss = s.getStorage();
-    Storage vts = vt.getStorage();
-
-    double[] aa = as.doubleArray();
-    double[] ua = us.doubleArray();
-    double[] sa = ss.doubleArray();
-    double[] vta = vts.doubleArray();
+    double[] aa = a.data();
+    double[] ua = u.data();
+    double[] sa = s.data();
+    double[] vta = vt.data();
 
     int lwork = -1;
     double[] work = new double[1];
@@ -589,10 +560,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     );
     System.out.println((System.nanoTime() - iv) / 1e6 + " => actual computation");
     ensureInfo("Convergence failure. (See errorCode for details).", info);
-    reassignIfNeeded(a, as, aa);
-    reassignIfNeeded(u, us, ua);
-    reassignIfNeeded(s, ss, sa);
-    reassignIfNeeded(vt, vts, vta);
+    reassignIfNeeded(a, aa);
+    reassignIfNeeded(u, ua);
+    reassignIfNeeded(s, sa);
+    reassignIfNeeded(vt, vta);
   }
 
   @Override
@@ -627,15 +598,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       ldvt = Math.min(m, n);
     }
 
-    Storage as = a.getStorage();
-    Storage us = u.getStorage();
-    Storage ss = s.getStorage();
-    Storage vts = vt.getStorage();
-
-    double[] aa = as.doubleArray();
-    double[] ua = us.doubleArray();
-    double[] sa = ss.doubleArray();
-    double[] vta = vts.doubleArray();
+    double[] aa = a.data();
+    double[] ua = u.data();
+    double[] sa = s.data();
+    double[] vta = vt.data();
 
     int lwork = -1;
     double[] work = new double[1];
@@ -695,14 +661,14 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private void reassignIfNeeded(DoubleMatrix a, Storage s, double[] data) {
-    if (!s.getNativeType().equals(Double.TYPE) || !s.isArrayBased()) {
+  private void reassignIfNeeded(DoubleMatrix a, double[] data) {
+    if (a.isView()) {
       a.assign(data);
     }
   }
 
-  private void reassignIfNeeded(IntMatrix a, Storage s, int[] data) {
-    if (!s.getNativeType().equals(Integer.TYPE) || !s.isArrayBased()) {
+  private void reassignIfNeeded(IntMatrix a, int[] data) {
+    if (a.isView()) {
       a.assign(data);
     }
   }

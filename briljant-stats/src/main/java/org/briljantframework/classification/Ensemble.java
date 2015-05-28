@@ -163,12 +163,12 @@ public abstract class Ensemble implements Classifier {
         for (int j = 0; j < members.size(); j++) {
           DoubleMatrix estimate = members.get(j).estimate(record);
           if (oobIndicator.get(i, j)) {
-            oobEstimates.getRowView(i).assign(estimate, (e, v) -> e + v / oobSize);
+            oobEstimates.getRow(i).assign(estimate, (e, v) -> e + v / oobSize);
           } else {
-            inbEstimates.getRowView(i).assign(estimate, (e, v) -> e + v / inbSize);
+            inbEstimates.getRow(i).assign(estimate, (e, v) -> e + v / inbSize);
           }
         }
-        oobAccuracy.add(find(classes, y, i) == argmax(oobEstimates.getRowView(i)) ? 1 : 0);
+        oobAccuracy.add(find(classes, y, i) == argmax(oobEstimates.getRow(i)) ? 1 : 0);
       });
       double avgOobAccuracy = oobAccuracy.sum() / x.rows();
       ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT, avgOobAccuracy);
@@ -176,7 +176,7 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder strengthA = new DoubleAdder();
       DoubleAdder strengthSquareA = new DoubleAdder();
       IntStream.range(0, oobEstimates.rows()).parallel().forEach(i -> {
-        DoubleMatrix estimation = oobEstimates.getRowView(i);
+        DoubleMatrix estimation = oobEstimates.getRow(i);
         int c = find(classes, y, i);
         double ma = estimation.get(c) - maxnot(estimation, c);
         strengthA.add(ma);
@@ -199,7 +199,7 @@ public abstract class Ensemble implements Classifier {
             oobSizeA.getAndIncrement();
             int c = find(classes, y, i);
             DoubleMatrix memberEstimation = member.estimate(x.getRecord(i));
-            DoubleMatrix ibEstimation = inbEstimates.getRowView(i);
+            DoubleMatrix ibEstimation = inbEstimates.getRow(i);
             p1A.add(argmax(memberEstimation) == c ? 1 : 0);
             p2A.add(argmax(memberEstimation) == argmaxnot(ibEstimation, c) ? 1 : 0);
           }
@@ -243,7 +243,7 @@ public abstract class Ensemble implements Classifier {
         DoubleMatrix meanEstimate = mean(memberEstimates, Dim.C);
         double variance = 0, mse = 0, bias = 0, accuracy = 0;
         for (int j = 0; j < memberEstimates.rows(); j++) {
-          DoubleMatrix r = memberEstimates.getRowView(j);
+          DoubleMatrix r = memberEstimates.getRow(j);
           double meanDiff = 0;
           double trueDiff = 0;
           double meanTrueDiff = 0;

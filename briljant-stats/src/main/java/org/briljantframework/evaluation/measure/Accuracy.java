@@ -32,10 +32,6 @@ public class Accuracy extends AbstractMeasure {
 
   public static final class Builder extends AbstractMeasure.Builder<Accuracy> {
 
-    public Builder() {
-      super();
-    }
-
     @Override
     public Accuracy build() {
       return new Accuracy(this);

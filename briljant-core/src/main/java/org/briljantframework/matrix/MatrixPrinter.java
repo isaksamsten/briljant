@@ -314,12 +314,12 @@ public final class MatrixPrinter {
 
     @Override
     public ToStringMatrix getRowView(int i) {
-      return new DoubleToStringMatrix(matrix.getRowView(i));
+      return new DoubleToStringMatrix(matrix.getRow(i));
     }
 
     @Override
     public ToStringMatrix getColumnView(int i) {
-      return new DoubleToStringMatrix(matrix.getRowView(i));
+      return new DoubleToStringMatrix(matrix.getRow(i));
     }
 
     @Override
@@ -360,12 +360,12 @@ public final class MatrixPrinter {
 
     @Override
     public ToStringMatrix getRowView(int i) {
-      return new LongToStringMatrix(matrix.getRowView(i));
+      return new LongToStringMatrix(matrix.getRow(i));
     }
 
     @Override
     public ToStringMatrix getColumnView(int i) {
-      return new LongToStringMatrix(matrix.getColumnView(i));
+      return new LongToStringMatrix(matrix.getColumn(i));
     }
 
     @Override
@@ -406,12 +406,12 @@ public final class MatrixPrinter {
 
     @Override
     public ToStringMatrix getRowView(int i) {
-      return new ComplexToStringMatrix(matrix.getRowView(i));
+      return new ComplexToStringMatrix(matrix.getRow(i));
     }
 
     @Override
     public ToStringMatrix getColumnView(int i) {
-      return new ComplexToStringMatrix(matrix.getColumnView(i));
+      return new ComplexToStringMatrix(matrix.getColumn(i));
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.briljantframework.evaluation.measure;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -29,15 +30,15 @@ import java.util.Map;
  */
 public abstract class AbstractClassMeasure extends AbstractMeasure implements ClassMeasure {
 
-  protected final EnumMap<Sample, Map<Object, DoubleVector>> valueForValue;
+  protected final EnumMap<Sample, Map<Object, Vector>> valueForValue;
 
   protected AbstractClassMeasure(Builder<? extends Measure> producer) {
     super(producer);
     this.valueForValue = new EnumMap<>(Sample.class);
-    for (Map.Entry<Sample, Map<Object, DoubleVector.Builder>> e : producer.sampleMetricValues
+    for (Map.Entry<Sample, Map<Object, Vector.Builder>> e : producer.sampleMetricValues
         .entrySet()) {
-      Map<Object, DoubleVector> values = new HashMap<>();
-      for (Map.Entry<Object, DoubleVector.Builder> ve : e.getValue().entrySet()) {
+      Map<Object, Vector> values = new HashMap<>();
+      for (Map.Entry<Object, Vector.Builder> ve : e.getValue().entrySet()) {
         values.put(ve.getKey(), ve.getValue().build());
       }
       valueForValue.put(e.getKey(), values);
@@ -45,8 +46,8 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
   }
 
   @Override
-  public DoubleVector get(Sample sample, String value) {
-    return valueForValue.get(sample).getOrDefault(value, zeroVector);
+  public Vector get(Sample sample, String value) {
+    return valueForValue.get(sample).getOrDefault(value, naVector);
   }
 
   @Override
@@ -72,7 +73,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
   protected static abstract class Builder<T extends Measure> extends AbstractMeasure.Builder<T> {
 
-    protected final EnumMap<Sample, Map<Object, DoubleVector.Builder>> sampleMetricValues =
+    protected final EnumMap<Sample, Map<Object, Vector.Builder>> sampleMetricValues =
         new EnumMap<>(Sample.class);
 
     /**
@@ -83,7 +84,7 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
      * @param values the values
      */
     public void add(Sample sample, Map<Object, Double> values) {
-      Map<Object, DoubleVector.Builder> all =
+      Map<Object, Vector.Builder> all =
           sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());
       for (Map.Entry<Object, Double> entry : values.entrySet()) {
         all.computeIfAbsent(entry.getKey(), x -> new DoubleVector.Builder()).add(

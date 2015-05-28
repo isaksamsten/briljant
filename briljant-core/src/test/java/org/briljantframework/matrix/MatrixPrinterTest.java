@@ -20,7 +20,7 @@ public class MatrixPrinterTest {
     MatrixPrinter.setVisibleRows(11);
     DoubleMatrix reshape = Matrices.linspace(0, 1, 35).reshape(7, 5);
     System.out.println(reshape);
-    System.out.println(reshape.getDiagonalView());
+    System.out.println(reshape.getDiagonal());
   }
 
   @Test

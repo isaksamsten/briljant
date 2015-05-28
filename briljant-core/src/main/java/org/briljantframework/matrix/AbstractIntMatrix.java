@@ -8,7 +8,6 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntIntObjBiFunction;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -122,10 +121,10 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
         return AbstractIntMatrix.this.get(index);
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractIntMatrix.this.getStorage();
-      }
+//      @Override
+//      public Storage getStorage() {
+//        return AbstractIntMatrix.this.getStorage();
+//      }
     };
   }
 
@@ -262,10 +261,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
         AbstractIntMatrix.this.set(i, j, (int) value);
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractIntMatrix.this.getStorage();
-      }
     };
   }
 
@@ -348,10 +343,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
         return AbstractIntMatrix.this.get(index) == 1;
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractIntMatrix.this.getStorage();
-      }
     };
   }
 
@@ -372,7 +363,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   public IntMatrix reduceColumns(ToIntFunction<? super IntMatrix> reduce) {
     IntMatrix mat = newEmptyMatrix(1, columns());
     for (int i = 0; i < columns(); i++) {
-      mat.set(i, reduce.applyAsInt(getColumnView(i)));
+      mat.set(i, reduce.applyAsInt(getColumn(i)));
     }
     return mat;
   }
@@ -381,7 +372,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   public IntMatrix reduceRows(ToIntFunction<? super IntMatrix> reduce) {
     IntMatrix mat = newEmptyMatrix(rows(), 1);
     for (int i = 0; i < rows(); i++) {
-      mat.set(i, reduce.applyAsInt(getRowView(i)));
+      mat.set(i, reduce.applyAsInt(getRow(i)));
     }
     return mat;
   }
@@ -441,10 +432,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
         return Complex.valueOf(AbstractIntMatrix.this.get(index));
       }
 
-      @Override
-      public Storage getStorage() {
-        return AbstractIntMatrix.this.getStorage();
-      }
     };
   }
 
@@ -513,15 +500,9 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
 
     @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
     public IntMatrix newEmptyMatrix(int rows, int columns) {
       return parent.newEmptyMatrix(rows, columns);
     }
-
 
     @Override
     public int get(int index) {
@@ -529,8 +510,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       int col = index / rows();
       return get(row, col);
     }
-
-
   }
 
   /**
@@ -578,11 +557,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     @Override
     public boolean isView() {
       return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
     }
 
     @Override
@@ -650,11 +624,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
 
     @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
-
-    @Override
     public IntMatrix newEmptyMatrix(int rows, int columns) {
       return parent.newEmptyMatrix(rows, columns);
     }
@@ -708,7 +677,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getRowView(int i) {
+  public IntMatrix getRow(int i) {
     return new IntMatrixView(getMatrixFactory(), this, i, 0, 1, columns());
   }
 
@@ -722,13 +691,13 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix getColumnView(int index) {
+  public IntMatrix getColumn(int index) {
     return new IntMatrixView(getMatrixFactory(), this, 0, index, rows(), 1);
   }
 
 
   @Override
-  public IntMatrix getDiagonalView() {
+  public IntMatrix getDiagonal() {
     throw new UnsupportedOperationException();
   }
 
@@ -839,12 +808,12 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
               a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
-                                                                                      thisRows,
-                                                                                      thisCols);
+                                                                              thisRows,
+                                                                              thisCols);
           int otherIndex =
               b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
-                                                                                           otherRows,
-                                                                                           otherColumns);
+                                                                                   otherRows,
+                                                                                   otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);
@@ -882,13 +851,13 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       matrix = newEmptyMatrix(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
-        matrix.setRow(i++, getRowView(index));
+        matrix.setRow(i++, getRow(index));
       }
     } else {
       matrix = newEmptyMatrix(rows(), indexes.size());
       int i = 0;
       for (int index : indexes) {
-        matrix.setColumn(i++, getColumnView(index));
+        matrix.setColumn(i++, getColumn(index));
       }
     }
     return matrix;
@@ -1149,6 +1118,15 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     return n;
   }
 
+  @Override
+  public int[] data() {
+    int[] array = new int[size()];
+    for (int i = 0; i < size(); i++) {
+      array[i] = get(i);
+    }
+    return array;
+  }
+
 
   @Override
   public IntMatrix slice(Range range, Dim dim) {
@@ -1184,7 +1162,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       int index = 0;
       for (int i = 0; i < rows(); i++) {
         if (indexes.get(i)) {
-          matrix.setRow(index++, getRowView(i));
+          matrix.setRow(index++, getRow(i));
         }
       }
     } else {
@@ -1193,7 +1171,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       int index = 0;
       for (int j = 0; j < columns(); j++) {
         if (indexes.get(j)) {
-          matrix.setColumn(index++, getColumnView(j));
+          matrix.setColumn(index++, getColumn(j));
         }
       }
     }

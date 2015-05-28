@@ -97,7 +97,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public double min(DoubleMatrix x) {
-    return x.reduce(Double.NEGATIVE_INFINITY, Math::min);
+    return x.reduce(Double.POSITIVE_INFINITY, Math::min);
   }
 
   @Override
@@ -107,7 +107,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public double max(DoubleMatrix x) {
-    return x.reduce(Double.POSITIVE_INFINITY, Math::max);
+    return x.reduce(Double.NEGATIVE_INFINITY, Math::max);
   }
 
   @Override
@@ -195,7 +195,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   }
 
   @Override
-  public double nrm2(DoubleMatrix a) {
+  public double norm2(DoubleMatrix a) {
     double sum = 0;
     for (int i = 0; i < a.size(); i++) {
       double v = a.get(i);
@@ -260,7 +260,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
-    Check.equalShape(x, y);
+    Check.size(x, y);
     if (alpha == 0) {
       return;
     }
@@ -505,7 +505,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public <T extends Matrix<T>> void copy(T from, T to) {
-    Check.equalShape(from, to);
+    Check.size(from, to);
     for (int i = 0; i < from.size(); i++) {
       to.set(i, from, i);
     }

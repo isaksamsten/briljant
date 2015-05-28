@@ -17,18 +17,18 @@
 package org.briljantframework.evaluation.measure;
 
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vector;
 
 /**
  * @author Isak Karlsson
  */
 public interface ClassMeasure {
 
-  default DoubleVector get(String value) {
+  default Vector get(String value) {
     return get(Sample.OUT, value);
   }
 
-  DoubleVector get(Sample sample, String value);
+  Vector get(Sample sample, String value);
 
   default double getAverage(String value) {
     return getAverage(Sample.OUT, value);

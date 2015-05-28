@@ -8,8 +8,6 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.base.BaseMatrixRoutines;
-import org.briljantframework.matrix.storage.DoubleArrayStorage;
-import org.briljantframework.matrix.storage.Storage;
 
 /**
  * Created by isak on 13/04/15.
@@ -24,8 +22,8 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
       Check.size(a, b);
       Check.all(Matrix::isVector, a, b);
       int n = a.size();
-      double[] aa = a.getStorage().doubleArray();
-      double[] ba = b.getStorage().doubleArray();
+      double[] aa = a.data();
+      double[] ba = b.data();
       return blas.ddot(n, aa, 1, ba, 1);
     } else {
       return super.dot(a, b);
@@ -35,25 +33,25 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
   @Override
   public double asum(DoubleMatrix a) {
     if (!a.isView()) {
-      return blas.dasum(a.size(), a.getStorage().doubleArray(), 1);
+      return blas.dasum(a.size(), a.data(), 1);
     } else {
       return super.asum(a);
     }
   }
 
   @Override
-  public double nrm2(DoubleMatrix a) {
+  public double norm2(DoubleMatrix a) {
     if (!a.isView()) {
-      return blas.dnrm2(a.size(), a.getStorage().doubleArray(), 1);
+      return blas.dnrm2(a.size(), a.data(), 1);
     } else {
-      return super.nrm2(a);
+      return super.norm2(a);
     }
   }
 
   @Override
   public int iamax(DoubleMatrix x) {
     if (!x.isView()) {
-      return blas.idamax(x.size(), x.getStorage().doubleArray(), 1);
+      return blas.idamax(x.size(), x.data(), 1);
     } else {
       return super.iamax(x);
     }
@@ -62,7 +60,7 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
   @Override
   public void scal(double alpha, DoubleMatrix x) {
     if (alpha != 1 && (!x.isView())) {
-      blas.dscal(x.size(), alpha, x.getStorage().doubleArray(), 1);
+      blas.dscal(x.size(), alpha, x.data(), 1);
     } else {
       super.scal(alpha, x);
     }
@@ -74,9 +72,9 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
       return;
     }
     if (!x.isView() && !y.isView()) {
-      Check.equalShape(x, y);
-      double[] xa = x.getStorage().doubleArray();
-      double[] ya = y.getStorage().doubleArray();
+      Check.size(x, y);
+      double[] xa = x.data();
+      double[] ya = y.data();
       blas.daxpy(x.size(), alpha, xa, 1, ya, 1);
     } else {
       super.axpy(alpha, x, y);
@@ -90,16 +88,12 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
       Check.size(x.size(), a.rows());
       Check.size(y.size(), a.columns());
 
-      Storage sx = x.getStorage();
-      Storage sy = y.getStorage();
-      Storage sa = a.getStorage();
-
       int m = a.rows();
       int n = a.columns();
 
-      double[] ax = sx.doubleArray();
-      double[] ay = sy.doubleArray();
-      double[] aa = sa.doubleArray();
+      double[] ax = x.data();
+      double[] ay = y.data();
+      double[] aa = a.data();
       blas.dger(m, n, alpha, ax, 1, ay, 1, aa, Math.max(1, m));
     } else {
       super.ger(alpha, x, y, a);
@@ -109,11 +103,6 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
   @Override
   public void gemv(T transA, double alpha, DoubleMatrix a,
                    DoubleMatrix x, double beta, DoubleMatrix y) {
-    Storage sa = a.getStorage();
-    Storage sb = x.getStorage();
-    Storage sc = y.getStorage();
-    TypeChecks.ensureInstanceOf(DoubleArrayStorage.class, sa, sb, sc);
-
     int am = a.rows();
     int an = a.columns();
     String ta = "n";
@@ -129,9 +118,9 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
     }
 
     int lda = a.rows();
-    double[] aa = a.getStorage().doubleArray();
-    double[] xa = x.getStorage().doubleArray();
-    double[] ya = y.getStorage().doubleArray();
+    double[] aa = a.data();
+    double[] xa = x.data();
+    double[] ya = y.data();
     blas.dgemv(ta, am, an, alpha, aa, lda, xa, 1, beta, ya, 1);
     if (y.isView()) {
       y.assign(ya);
@@ -166,13 +155,10 @@ class NetlibMatrixRoutines extends BaseMatrixRoutines {
     if (c.rows() != am || c.columns() != bn) {
       throw new NonConformantException(am, an, c.rows(), c.columns());
     }
-    Storage sa = a.getStorage();
-    Storage sb = b.getStorage();
-    Storage sc = c.getStorage();
 
-    double[] aa = sa.doubleArray();
-    double[] ba = sb.doubleArray();
-    double[] ca = sc.doubleArray();
+    double[] aa = a.data();
+    double[] ba = b.data();
+    double[] ca = c.data();
     blas.dgemm(
         ta,
         tb,

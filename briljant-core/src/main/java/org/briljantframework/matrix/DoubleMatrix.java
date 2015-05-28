@@ -446,6 +446,10 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix div(double other);
 
+  default DoubleMatrix divi(double value) {
+    return update(v -> v / value);
+  }
+
   /**
    * Element wise division. {@code other / this}.
    *
@@ -455,6 +459,10 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix rdiv(double other);
 
+  default DoubleMatrix rdivi(double other) {
+    return update(v -> other / v);
+  }
+
   /**
    * Returns a new matrix with elements negated.
    *
@@ -462,5 +470,11 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix negate();
 
-  double[] array();
+  /**
+   * Returns a double array representation of this matrix. If {@linkplain #isView()} is {@code
+   * true}, a copy is returned.
+   *
+   * @return a double array
+   */
+  double[] data();
 }

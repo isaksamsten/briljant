@@ -115,8 +115,9 @@ public class BaseMatrixRoutinesTest {
   }
 
   @Test
-  public void testNrm2() throws Exception {
-
+  public void testNorm21() throws Exception {
+    DoubleMatrix x = bj.matrix(new double[]{1, 2, 3});
+    System.out.println(bjr.norm2(x));
   }
 
   @Test

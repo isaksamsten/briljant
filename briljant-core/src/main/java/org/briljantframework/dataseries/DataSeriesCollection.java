@@ -291,10 +291,13 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public DataSeriesCollection build() {
-      return new DataSeriesCollection(builders.stream()
-                                          .map(Vector.Builder::build)
-                                          .collect(Collectors.toCollection(ArrayList::new)), type,
-                                      columns());
+      int p = columns();
+      return new DataSeriesCollection(
+          builders.stream()
+              .map(Vector.Builder::build)
+              .collect(Collectors.toCollection(ArrayList::new)),
+          type,
+          p);
     }
 
     @Override

@@ -379,9 +379,9 @@ public class MatricesTest {
     DoubleMatrix a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
     List<DoubleMatrix> m = bjr.vsplit(a, 3);
     assertEquals(3, m.size());
-    assertMatrixEquals(a.getRowView(0), m.get(0), 0);
-    assertMatrixEquals(a.getRowView(1), m.get(1), 0);
-    assertMatrixEquals(a.getRowView(2), m.get(2), 0);
+    assertMatrixEquals(a.getRow(0), m.get(0), 0);
+    assertMatrixEquals(a.getRow(1), m.get(1), 0);
+    assertMatrixEquals(a.getRow(2), m.get(2), 0);
 
 
   }
@@ -391,8 +391,8 @@ public class MatricesTest {
     DoubleMatrix a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
     List<DoubleMatrix> m = bjr.hsplit(a, 3);
     assertEquals(3, m.size());
-    assertMatrixEquals(a.getColumnView(0), m.get(0), 0);
-    assertMatrixEquals(a.getColumnView(1), m.get(1), 0);
-    assertMatrixEquals(a.getColumnView(2), m.get(2), 0);
+    assertMatrixEquals(a.getColumn(0), m.get(0), 0);
+    assertMatrixEquals(a.getColumn(1), m.get(1), 0);
+    assertMatrixEquals(a.getColumn(2), m.get(2), 0);
   }
 }

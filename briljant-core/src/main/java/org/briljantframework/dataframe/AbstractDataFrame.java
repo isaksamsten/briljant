@@ -105,7 +105,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrame sort(Comparator<? super Vector> cmp) {
+  public DataFrame sort(Comparator<? super Series> cmp) {
     DataFrame.Builder builder = newCopyBuilder();
     IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
     for (Index.Entry entry : getRecordIndex().entrySet()) {
@@ -309,19 +309,25 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public <T, C> Series aggregate(Class<? extends T> cls,
+  public <T, C> Series aggregate(Class<T> cls,
                                  Aggregator<? super T, ? extends T, C> aggregator) {
-    Vector.Builder builder = Vec.typeOf(cls).newBuilder();
+    return aggregate(cls, cls, aggregator);
+  }
+
+  @Override
+  public <T, R, C> Series aggregate(Class<T> in, Class<R> out,
+                                    Aggregator<? super T, ? extends R, C> aggregator) {
+    Vector.Builder builder = Vec.typeOf(out).newBuilder();
     Index.Builder columnIndex = new HashIndex.Builder();
 
     int column = 0;
     for (int j = 0; j < columns(); j++) {
       Vector vec = get(j);
-      if (cls.isAssignableFrom(vec.getType().getDataClass())) {
+      if (in.isAssignableFrom(vec.getType().getDataClass())) {
         columnIndex.add(getColumnIndex().get(j));
         C accumulator = aggregator.supplier().get();
         for (int i = 0; i < rows(); i++) {
-          aggregator.accumulator().accept(accumulator, vec.get(cls, i));
+          aggregator.accumulator().accept(accumulator, vec.get(in, i));
         }
         builder.set(column++, aggregator.finisher().apply(accumulator));
       }

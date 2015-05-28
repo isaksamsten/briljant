@@ -33,11 +33,6 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
       public void set(int i, int j, long value) {
         set(Indexer.columnMajor(i, j, rows(), columns()), value);
       }
-
-      @Override
-      public Storage getStorage() {
-        return AsLongMatrix.this.getStorage();
-      }
     };
   }
 

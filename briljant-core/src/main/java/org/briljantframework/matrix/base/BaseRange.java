@@ -99,11 +99,6 @@ class BaseRange extends AbstractIntMatrix implements Range {
   }
 
   @Override
-  public Storage getStorage() {
-    return copy().getStorage();
-  }
-
-  @Override
   public IntMatrix newEmptyMatrix(int rows, int columns) {
     return new BaseIntMatrix(getMatrixFactory(), rows, columns);
   }

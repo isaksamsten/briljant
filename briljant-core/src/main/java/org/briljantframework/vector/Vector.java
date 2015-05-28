@@ -288,12 +288,20 @@ public interface Vector extends Serializable {
     return combine(Number.class, singleton(other, size()), Combine.div());
   }
 
+  default Vector rdiv(Number other) {
+    return singleton(other, size()).combine(Number.class, this, Combine.div());
+  }
+
   default Vector sub(Vector other) {
     return combine(Number.class, other, Combine.sub());
   }
 
   default Vector sub(Number other) {
     return combine(Number.class, singleton(other, size()), Combine.sub());
+  }
+
+  default Vector rsub(Number other) {
+    return singleton(other, size()).combine(Number.class, this, Combine.sub());
   }
 
   default Vector sort(SortOrder order) {

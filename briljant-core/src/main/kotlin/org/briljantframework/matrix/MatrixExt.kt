@@ -44,7 +44,7 @@ fun Shape.component2() = this.columns
 
 val Matrix<*>.shape: Shape get() = this.getShape()
 
-val Matrix<*>.data: Storage get() = this.getStorage()
+//val Matrix<*>.data: Storage get() = this.getStorage()
 
 val Matrix<*>.rows: Int get() = this.rows()
 
@@ -99,9 +99,9 @@ fun <T : Matrix<T>> T.get(rows: all, columns: Collection<Int>): T
 fun <T : Matrix<T>> T.get(rows: Collection<Int>, columns: all): T
         = this[rows, (0..this.columns).toList()]
 
-fun <T : Matrix<T>> T.get(rows: all, column: Int) = this.getColumnView(column)
+fun <T : Matrix<T>> T.get(rows: all, column: Int) = this.getColumn(column)
 
-fun <T : Matrix<T>> T.get(row: Int, columns: all) = this.getRowView(row)
+fun <T : Matrix<T>> T.get(row: Int, columns: all) = this.getRow(row)
 
 fun <T : Matrix<T>> T.set(bits: BitMatrix, value: Double)
         = this[bits].asDoubleMatrix().assign(value)

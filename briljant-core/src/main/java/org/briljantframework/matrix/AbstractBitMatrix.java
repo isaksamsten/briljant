@@ -7,7 +7,6 @@ import com.carrotsearch.hppc.IntArrayList;
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -269,11 +268,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       public double get(int index) {
         return AbstractBitMatrix.this.get(index) ? 1 : 0;
       }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
-      }
     };
   }
 
@@ -299,11 +293,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       @Override
       public void set(int i, int j, int value) {
         AbstractBitMatrix.this.set(i, j, value == 1);
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
       }
     };
   }
@@ -331,11 +320,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       public void set(int i, int j, long value) {
         AbstractBitMatrix.this.set(i, j, value == 1);
       }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
-      }
     };
   }
 
@@ -360,11 +344,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       @Override
       public Complex get(int index) {
         return AbstractBitMatrix.this.get(index) ? Complex.ONE : Complex.ZERO;
-      }
-
-      @Override
-      public Storage getStorage() {
-        return AbstractBitMatrix.this.getStorage();
       }
     };
   }
@@ -419,11 +398,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     public boolean get(int i, int j) {
       return parent.get(sliceIndex(row.step(), i, parent.rows()),
                         sliceIndex(column.step(), j, parent.columns()));
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
     }
 
     @Override
@@ -502,12 +476,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     public BitMatrix newEmptyMatrix(int rows, int columns) {
       return parent.newEmptyMatrix(rows, columns);
     }
-
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
-    }
   }
 
   protected class FlatSliceBitMatrix extends AbstractBitMatrix {
@@ -543,11 +511,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     @Override
     public boolean isView() {
       return true;
-    }
-
-    @Override
-    public Storage getStorage() {
-      return parent.getStorage();
     }
 
     @Override
@@ -656,19 +619,19 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
 
   @Override
-  public BitMatrix getRowView(int i) {
+  public BitMatrix getRow(int i) {
     return new BitMatrixView(getMatrixFactory(), this, i, 0, 1, columns());
   }
 
 
   @Override
-  public BitMatrix getColumnView(int index) {
+  public BitMatrix getColumn(int index) {
     return new BitMatrixView(getMatrixFactory(), this, 0, index, rows(), 1);
   }
 
 
   @Override
-  public BitMatrix getDiagonalView() {
+  public BitMatrix getDiagonal() {
     throw new UnsupportedOperationException();
   }
 
@@ -732,13 +695,13 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       matrix = newEmptyMatrix(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
-        matrix.setRow(i++, getRowView(index));
+        matrix.setRow(i++, getRow(index));
       }
     } else {
       matrix = newEmptyMatrix(rows(), indexes.size());
       int i = 0;
       for (int index : indexes) {
-        matrix.setColumn(i++, getColumnView(index));
+        matrix.setColumn(i++, getColumn(index));
       }
     }
     return matrix;
@@ -768,7 +731,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       int index = 0;
       for (int i = 0; i < rows(); i++) {
         if (indexes.get(i)) {
-          matrix.setRow(index++, getRowView(i));
+          matrix.setRow(index++, getRow(i));
         }
       }
     } else {
@@ -777,7 +740,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       int index = 0;
       for (int j = 0; j < columns(); j++) {
         if (indexes.get(j)) {
-          matrix.setColumn(index++, getColumnView(j));
+          matrix.setColumn(index++, getColumn(j));
         }
       }
     }

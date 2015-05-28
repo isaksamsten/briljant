@@ -728,9 +728,14 @@ Vector c = a.combine(Integer.class, b, Combine.add());
 
 Vector c = a.combine(Integer.class, b, Combine.add(1));
 // [2, 4, 4, 5]
+
+Vector c = a.combine(Integer.class, b, Combine.ignoreNA((x, y) -> x + y))
+// [2, 4, null, null]
 ```
 
-`Combine#add(Number)` 
+`Combine#add(Number)` returns a `BiFunction<Number, Number, Number>`
+wrapped in a `Combine#ignoreNA`, which - as the name implies - ignores
+`NA` values by keeping the `NA`-value from either vector.
 
 ### Calculations with missing values ###
 

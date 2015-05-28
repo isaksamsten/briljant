@@ -21,14 +21,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.rsub(x, Dim.R);
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{-2L, -1, 0}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{-2L, -1, 0}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{-2L, -1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{-2L, -1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{-2L, -1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{-2L, -1, 0}));
 
     z = y.rsub(x, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{-2L, -1, 0}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{-2L, -1, 0}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{-2L, -1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{-2L, -1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{-2L, -1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{-2L, -1, 0}));
   }
 
   @Test
@@ -247,17 +247,17 @@ public class AbstractLongMatrixTest {
   @Test
   public void testGetRowView() throws Exception {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    assertMatrixEquals(x.getRowView(0), 1);
-    assertMatrixEquals(x.getRowView(1), 2);
-    assertMatrixEquals(x.getRowView(2), 3);
+    assertMatrixEquals(x.getRow(0), 1);
+    assertMatrixEquals(x.getRow(1), 2);
+    assertMatrixEquals(x.getRow(2), 3);
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     LongMatrix x = bj.matrix(new long[]{1L, 1, 1, 2, 2, 2, 3, 3, 3}).reshape(3, 3);
-    assertMatrixEquals(x.getColumnView(0), 1);
-    assertMatrixEquals(x.getColumnView(1), 2);
-    assertMatrixEquals(x.getColumnView(2), 3);
+    assertMatrixEquals(x.getColumn(0), 1);
+    assertMatrixEquals(x.getColumn(1), 2);
+    assertMatrixEquals(x.getColumn(2), 3);
   }
 
   @Test
@@ -384,14 +384,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.mul(x, Dim.R);
-    assertMatrixEquals(z.getColumnView(0), 3);
-    assertMatrixEquals(z.getColumnView(1), 6);
-    assertMatrixEquals(z.getColumnView(2), 9);
+    assertMatrixEquals(z.getColumn(0), 3);
+    assertMatrixEquals(z.getColumn(1), 6);
+    assertMatrixEquals(z.getColumn(2), 9);
 
     z = y.mul(x, Dim.C);
-    assertMatrixEquals(z.getRowView(0), 3);
-    assertMatrixEquals(z.getRowView(1), 6);
-    assertMatrixEquals(z.getRowView(2), 9);
+    assertMatrixEquals(z.getRow(0), 3);
+    assertMatrixEquals(z.getRow(1), 6);
+    assertMatrixEquals(z.getRow(2), 9);
   }
 
   @Test
@@ -399,14 +399,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.mul(1, x, -1, Dim.R);
-    assertMatrixEquals(z.getColumnView(0), -3);
-    assertMatrixEquals(z.getColumnView(1), -6);
-    assertMatrixEquals(z.getColumnView(2), -9);
+    assertMatrixEquals(z.getColumn(0), -3);
+    assertMatrixEquals(z.getColumn(1), -6);
+    assertMatrixEquals(z.getColumn(2), -9);
 
     z = y.mul(1, x, -1, Dim.C);
-    assertMatrixEquals(z.getRowView(0), -3);
-    assertMatrixEquals(z.getRowView(1), -6);
-    assertMatrixEquals(z.getRowView(2), -9);
+    assertMatrixEquals(z.getRow(0), -3);
+    assertMatrixEquals(z.getRow(1), -6);
+    assertMatrixEquals(z.getRow(2), -9);
 
   }
 
@@ -435,14 +435,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.add(x, Dim.R);
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{4L, 5, 6}));
 
     z = y.add(x, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{4L, 5, 6}));
   }
 
   @Test
@@ -450,14 +450,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.add(1, x, -1, Dim.R);
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{2L, 1, 0}));
 
     z = y.add(1, x, -1, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{2L, 1, 0}));
   }
 
   @Test
@@ -485,14 +485,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.sub(x, Dim.R);
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{2L, 1, 0}));
 
     z = y.sub(x, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{2L, 1, 0}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{2L, 1, 0}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{2L, 1, 0}));
   }
 
   @Test
@@ -500,14 +500,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.sub(1, x, -1, Dim.R);
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{4L, 5, 6}));
 
     z = y.sub(1, x, -1, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{4L, 5, 6}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{4L, 5, 6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{4L, 5, 6}));
   }
 
   @Test
@@ -522,14 +522,14 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3});
     LongMatrix y = bj.longMatrix(3, 3).assign(3);
     LongMatrix z = y.rsub(1, x, -1, Dim.R);
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{-4L, -5, -6}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{-4L, -5, -6}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{-4L, -5, -6}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{-4L, -5, -6}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{-4L, -5, -6}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{-4L, -5, -6}));
 
     z = y.rsub(1, x, -1, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{-4L, -5, -6}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{-4L, -5, -6}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{-4L, -5, -6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{-4L, -5, -6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{-4L, -5, -6}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{-4L, -5, -6}));
   }
 
   @Test
@@ -553,14 +553,14 @@ public class AbstractLongMatrixTest {
     LongMatrix y = bj.longMatrix(3, 3).assign(6);
     LongMatrix z = y.div(x, Dim.R);
 
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{6L, 3, 2}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{6L, 3, 2}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{6L, 3, 2}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{6L, 3, 2}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{6L, 3, 2}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{6L, 3, 2}));
 
     z = y.div(x, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{6L, 3, 2}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{6L, 3, 2}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{6L, 3, 2}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{6L, 3, 2}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{6L, 3, 2}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{6L, 3, 2}));
   }
 
   @Test
@@ -569,14 +569,14 @@ public class AbstractLongMatrixTest {
     LongMatrix y = bj.longMatrix(3, 3).assign(6);
     LongMatrix z = y.div(2, x, 1, Dim.R);
 
-    MatrixAssert.assertValuesEquals(z.getRowView(0), bj.matrix(new long[]{12L, 6, 4}));
-    MatrixAssert.assertValuesEquals(z.getRowView(1), bj.matrix(new long[]{12L, 6, 4}));
-    MatrixAssert.assertValuesEquals(z.getRowView(2), bj.matrix(new long[]{12L, 6, 4}));
+    MatrixAssert.assertValuesEquals(z.getRow(0), bj.matrix(new long[]{12L, 6, 4}));
+    MatrixAssert.assertValuesEquals(z.getRow(1), bj.matrix(new long[]{12L, 6, 4}));
+    MatrixAssert.assertValuesEquals(z.getRow(2), bj.matrix(new long[]{12L, 6, 4}));
 
     z = y.div(2, x, 1, Dim.C);
-    MatrixAssert.assertValuesEquals(z.getColumnView(0), bj.matrix(new long[]{12L, 6, 4}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(1), bj.matrix(new long[]{12L, 6, 4}));
-    MatrixAssert.assertValuesEquals(z.getColumnView(2), bj.matrix(new long[]{12L, 6, 4}));
+    MatrixAssert.assertValuesEquals(z.getColumn(0), bj.matrix(new long[]{12L, 6, 4}));
+    MatrixAssert.assertValuesEquals(z.getColumn(1), bj.matrix(new long[]{12L, 6, 4}));
+    MatrixAssert.assertValuesEquals(z.getColumn(2), bj.matrix(new long[]{12L, 6, 4}));
   }
 
   @Test
@@ -592,14 +592,14 @@ public class AbstractLongMatrixTest {
     LongMatrix y = bj.longMatrix(3, 3).assign(6);
     LongMatrix z = y.rdiv(x, Dim.R);
 
-    assertMatrixEquals(z.getRowView(0), 2);
-    assertMatrixEquals(z.getRowView(1), 2);
-    assertMatrixEquals(z.getRowView(2), 2);
+    assertMatrixEquals(z.getRow(0), 2);
+    assertMatrixEquals(z.getRow(1), 2);
+    assertMatrixEquals(z.getRow(2), 2);
 
     z = y.rdiv(x, Dim.C);
-    assertMatrixEquals(z.getColumnView(0), 2);
-    assertMatrixEquals(z.getColumnView(1), 2);
-    assertMatrixEquals(z.getColumnView(2), 2);
+    assertMatrixEquals(z.getColumn(0), 2);
+    assertMatrixEquals(z.getColumn(1), 2);
+    assertMatrixEquals(z.getColumn(2), 2);
   }
 
   @Test
@@ -608,14 +608,14 @@ public class AbstractLongMatrixTest {
     LongMatrix y = bj.longMatrix(3, 3).assign(6);
     LongMatrix z = y.rdiv(1, x, 2, Dim.R);
 
-    assertMatrixEquals(z.getRowView(0), 2);
-    assertMatrixEquals(z.getRowView(1), 2);
-    assertMatrixEquals(z.getRowView(2), 2);
+    assertMatrixEquals(z.getRow(0), 2);
+    assertMatrixEquals(z.getRow(1), 2);
+    assertMatrixEquals(z.getRow(2), 2);
 
     z = y.rdiv(1, x, 2, Dim.C);
-    assertMatrixEquals(z.getColumnView(0), 2);
-    assertMatrixEquals(z.getColumnView(1), 2);
-    assertMatrixEquals(z.getColumnView(2), 2);
+    assertMatrixEquals(z.getColumn(0), 2);
+    assertMatrixEquals(z.getColumn(1), 2);
+    assertMatrixEquals(z.getColumn(2), 2);
   }
 
   @Test
@@ -636,8 +636,8 @@ public class AbstractLongMatrixTest {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     LongMatrix slice = x.slice(bj.range(2), Dim.R);
     assertEquals(2, slice.rows());
-    MatrixAssert.assertValuesEquals(slice.getRowView(0), bj.matrix(new long[]{1L, 1, 1}));
-    MatrixAssert.assertValuesEquals(slice.getRowView(1), bj.matrix(new long[]{2L, 2, 2}));
+    MatrixAssert.assertValuesEquals(slice.getRow(0), bj.matrix(new long[]{1L, 1, 1}));
+    MatrixAssert.assertValuesEquals(slice.getRow(1), bj.matrix(new long[]{2L, 2, 2}));
   }
 
   @Test
@@ -646,8 +646,8 @@ public class AbstractLongMatrixTest {
     LongMatrix s = x.slice(bj.range(2), bj.range(2));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
-    MatrixAssert.assertValuesEquals(s.getRowView(0), bj.matrix(new long[]{1L, 1}));
-    MatrixAssert.assertValuesEquals(s.getRowView(1), bj.matrix(new long[]{2L, 2}));
+    MatrixAssert.assertValuesEquals(s.getRow(0), bj.matrix(new long[]{1L, 1}));
+    MatrixAssert.assertValuesEquals(s.getRow(1), bj.matrix(new long[]{2L, 2}));
   }
 
   @Test
@@ -661,16 +661,16 @@ public class AbstractLongMatrixTest {
   public void testSlice5() throws Exception {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     LongMatrix s = x.slice(asList(0, 2), Dim.R);
-    MatrixAssert.assertValuesEquals(s.getRowView(0), bj.matrix(new long[]{1L, 1, 1}));
-    MatrixAssert.assertValuesEquals(s.getRowView(1), bj.matrix(new long[]{3L, 3, 3}));
+    MatrixAssert.assertValuesEquals(s.getRow(0), bj.matrix(new long[]{1L, 1, 1}));
+    MatrixAssert.assertValuesEquals(s.getRow(1), bj.matrix(new long[]{3L, 3, 3}));
   }
 
   @Test
   public void testSlice6() throws Exception {
     LongMatrix x = bj.matrix(new long[]{1, 2, 3, 1, 2, 3, 1, 2, 3L}).reshape(3, 3);
     LongMatrix s = x.slice(asList(0, 1), asList(0, 1));
-    MatrixAssert.assertValuesEquals(s.getRowView(0), bj.matrix(new long[]{1L, 1}));
-    MatrixAssert.assertValuesEquals(s.getRowView(1), bj.matrix(new long[]{2L, 2}));
+    MatrixAssert.assertValuesEquals(s.getRow(0), bj.matrix(new long[]{1L, 1}));
+    MatrixAssert.assertValuesEquals(s.getRow(1), bj.matrix(new long[]{2L, 2}));
   }
 
   @Test
@@ -688,8 +688,8 @@ public class AbstractLongMatrixTest {
   public void testSlice() throws Exception {
     LongMatrix x = bj.matrix(new long[]{1L, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     LongMatrix s = x.slice(bj.matrix(new boolean[]{true, false, true}), Dim.R);
-    MatrixAssert.assertValuesEquals(s.getRowView(0), bj.matrix(new long[]{1L, 1, 1}));
-    MatrixAssert.assertValuesEquals(s.getRowView(1), bj.matrix(new long[]{3L, 3, 3}));
+    MatrixAssert.assertValuesEquals(s.getRow(0), bj.matrix(new long[]{1L, 1, 1}));
+    MatrixAssert.assertValuesEquals(s.getRow(1), bj.matrix(new long[]{3L, 3, 3}));
   }
 
   @Test
@@ -703,14 +703,14 @@ public class AbstractLongMatrixTest {
   public void testSetRow() throws Exception {
     LongMatrix x = bj.longMatrix(3, 3);
     x.setRow(0, bj.matrix(new long[]{1L, 2, 3}));
-    MatrixAssert.assertValuesEquals(x.getRowView(0), bj.matrix(new long[]{1L, 2, 3}));
+    MatrixAssert.assertValuesEquals(x.getRow(0), bj.matrix(new long[]{1L, 2, 3}));
   }
 
   @Test
   public void testSetColumn() throws Exception {
     LongMatrix x = bj.longMatrix(3, 3);
     x.setColumn(0, bj.matrix(new long[]{1L, 2, 3}));
-    MatrixAssert.assertValuesEquals(x.getColumnView(0), bj.matrix(new long[]{1L, 2, 3}));
+    MatrixAssert.assertValuesEquals(x.getColumn(0), bj.matrix(new long[]{1L, 2, 3}));
   }
 
   @Test

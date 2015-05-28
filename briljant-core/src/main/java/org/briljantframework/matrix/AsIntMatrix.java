@@ -37,10 +37,6 @@ public abstract class AsIntMatrix extends AbstractIntMatrix {
         set(Indexer.columnMajor(i, j, rows(), columns()), value);
       }
 
-      @Override
-      public Storage getStorage() {
-        return AsIntMatrix.this.getStorage();
-      }
     };
   }
 

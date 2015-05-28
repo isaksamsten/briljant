@@ -92,7 +92,7 @@ public final class Measures {
     Map<Object, Double> aucs = new HashMap<>();
     for (int i = 0; i < domain.size(); i++) {
       Object value = domain.get(Object.class, i);
-      DoubleMatrix p = probabilities.getColumnView(i);
+      DoubleMatrix p = probabilities.getColumn(i);
       aucs.put(value, computeAuc(value, predicted, p, actual));
     }
     return aucs;

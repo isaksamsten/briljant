@@ -232,17 +232,17 @@ public class AbstractIntMatrixTest {
   @Test
   public void testGetRowView() throws Exception {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    assertMatrixEquals(1, x.getRowView(0));
-    assertMatrixEquals(2, x.getRowView(1));
-    assertMatrixEquals(3, x.getRowView(2));
+    assertMatrixEquals(1, x.getRow(0));
+    assertMatrixEquals(2, x.getRow(1));
+    assertMatrixEquals(3, x.getRow(2));
   }
 
   @Test
   public void testGetColumnView() throws Exception {
     IntMatrix x = bj.matrix(new int[]{1, 1, 1, 2, 2, 2, 3, 3, 3}).reshape(3, 3);
-    assertMatrixEquals(1, x.getColumnView(0));
-    assertMatrixEquals(2, x.getColumnView(1));
-    assertMatrixEquals(3, x.getColumnView(2));
+    assertMatrixEquals(1, x.getColumn(0));
+    assertMatrixEquals(2, x.getColumn(1));
+    assertMatrixEquals(3, x.getColumn(2));
   }
 
   @Test
@@ -369,14 +369,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.mul(x, Dim.R);
-    assertMatrixEquals(3, z.getColumnView(0));
-    assertMatrixEquals(6, z.getColumnView(1));
-    assertMatrixEquals(9, z.getColumnView(2));
+    assertMatrixEquals(3, z.getColumn(0));
+    assertMatrixEquals(6, z.getColumn(1));
+    assertMatrixEquals(9, z.getColumn(2));
 
     z = y.mul(x, Dim.C);
-    assertMatrixEquals(3, z.getRowView(0));
-    assertMatrixEquals(6, z.getRowView(1));
-    assertMatrixEquals(9, z.getRowView(2));
+    assertMatrixEquals(3, z.getRow(0));
+    assertMatrixEquals(6, z.getRow(1));
+    assertMatrixEquals(9, z.getRow(2));
   }
 
   @Test
@@ -384,14 +384,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.mul(1, x, -1, Dim.R);
-    assertMatrixEquals(-3, z.getColumnView(0));
-    assertMatrixEquals(-6, z.getColumnView(1));
-    assertMatrixEquals(-9, z.getColumnView(2));
+    assertMatrixEquals(-3, z.getColumn(0));
+    assertMatrixEquals(-6, z.getColumn(1));
+    assertMatrixEquals(-9, z.getColumn(2));
 
     z = y.mul(1, x, -1, Dim.C);
-    assertMatrixEquals(-3, z.getRowView(0));
-    assertMatrixEquals(-6, z.getRowView(1));
-    assertMatrixEquals(-9, z.getRowView(2));
+    assertMatrixEquals(-3, z.getRow(0));
+    assertMatrixEquals(-6, z.getRow(1));
+    assertMatrixEquals(-9, z.getRow(2));
 
   }
 
@@ -420,14 +420,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.add(x, Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRow(2));
 
     z = y.add(x, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumn(2));
   }
 
   @Test
@@ -435,14 +435,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.add(1, x, -1, Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRow(2));
 
     z = y.add(1, x, -1, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumn(2));
   }
 
   @Test
@@ -470,14 +470,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.sub(x, Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getRow(2));
 
     z = y.sub(x, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{2, 1, 0}), z.getColumn(2));
   }
 
   @Test
@@ -485,14 +485,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.sub(1, x, -1, Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getRow(2));
 
     z = y.sub(1, x, -1, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{4, 5, 6}), z.getColumn(2));
   }
 
   @Test
@@ -507,14 +507,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.rsub(1, x, -1, Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getRow(2));
 
     z = y.rsub(1, x, -1, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{-4, -5, -6}), z.getColumn(2));
   }
 
   @Test
@@ -522,14 +522,14 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3});
     IntMatrix y = bj.intMatrix(3, 3).assign(3);
     IntMatrix z = y.rsub(x, Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getRow(2));
 
     z = y.rsub(x, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{-2, -1, 0}), z.getColumn(2));
   }
 
   @Test
@@ -553,14 +553,14 @@ public class AbstractIntMatrixTest {
     IntMatrix y = bj.intMatrix(3, 3).assign(6);
     IntMatrix z = y.div(x, Dim.R);
 
-    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getRow(2));
 
     z = y.div(x, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{6, 3, 2}), z.getColumn(2));
   }
 
   @Test
@@ -569,14 +569,14 @@ public class AbstractIntMatrixTest {
     IntMatrix y = bj.intMatrix(3, 3).assign(6);
     IntMatrix z = y.div(2, x, 1, Dim.R);
 
-    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getRowView(1));
-    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getRowView(2));
+    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getRow(1));
+    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getRow(2));
 
     z = y.div(2, x, 1, Dim.C);
-    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getColumnView(0));
-    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getColumnView(1));
-    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getColumnView(2));
+    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getColumn(0));
+    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getColumn(1));
+    assertValuesEquals(bj.matrix(new int[]{12, 6, 4}), z.getColumn(2));
   }
 
   @Test
@@ -592,14 +592,14 @@ public class AbstractIntMatrixTest {
     IntMatrix y = bj.intMatrix(3, 3).assign(6);
     IntMatrix z = y.rdiv(x, Dim.R);
 
-    assertMatrixEquals(2, z.getRowView(0));
-    assertMatrixEquals(2, z.getRowView(1));
-    assertMatrixEquals(2, z.getRowView(2));
+    assertMatrixEquals(2, z.getRow(0));
+    assertMatrixEquals(2, z.getRow(1));
+    assertMatrixEquals(2, z.getRow(2));
 
     z = y.rdiv(x, Dim.C);
-    assertMatrixEquals(2, z.getColumnView(0));
-    assertMatrixEquals(2, z.getColumnView(1));
-    assertMatrixEquals(2, z.getColumnView(2));
+    assertMatrixEquals(2, z.getColumn(0));
+    assertMatrixEquals(2, z.getColumn(1));
+    assertMatrixEquals(2, z.getColumn(2));
   }
 
   @Test
@@ -608,14 +608,14 @@ public class AbstractIntMatrixTest {
     IntMatrix y = bj.intMatrix(3, 3).assign(6);
     IntMatrix z = y.rdiv(1, x, 2, Dim.R);
 
-    assertMatrixEquals(2, z.getRowView(0));
-    assertMatrixEquals(2, z.getRowView(1));
-    assertMatrixEquals(2, z.getRowView(2));
+    assertMatrixEquals(2, z.getRow(0));
+    assertMatrixEquals(2, z.getRow(1));
+    assertMatrixEquals(2, z.getRow(2));
 
     z = y.rdiv(1, x, 2, Dim.C);
-    assertMatrixEquals(2, z.getColumnView(0));
-    assertMatrixEquals(2, z.getColumnView(1));
-    assertMatrixEquals(2, z.getColumnView(2));
+    assertMatrixEquals(2, z.getColumn(0));
+    assertMatrixEquals(2, z.getColumn(1));
+    assertMatrixEquals(2, z.getColumn(2));
   }
 
   @Test
@@ -636,8 +636,8 @@ public class AbstractIntMatrixTest {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     IntMatrix slice = x.slice(bj.range(2), Dim.R);
     assertEquals(2, slice.rows());
-    assertValuesEquals(bj.matrix(new int[]{1, 1, 1}), slice.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 2, 2}), slice.getRowView(1));
+    assertValuesEquals(bj.matrix(new int[]{1, 1, 1}), slice.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 2, 2}), slice.getRow(1));
   }
 
   @Test
@@ -646,8 +646,8 @@ public class AbstractIntMatrixTest {
     IntMatrix s = x.slice(bj.range(2), bj.range(2));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
-    assertValuesEquals(bj.matrix(new int[]{1, 1}), s.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 2}), s.getRowView(1));
+    assertValuesEquals(bj.matrix(new int[]{1, 1}), s.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 2}), s.getRow(1));
   }
 
   @Test
@@ -661,16 +661,16 @@ public class AbstractIntMatrixTest {
   public void testSlice5() throws Exception {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     IntMatrix s = x.slice(Arrays.asList(0, 2), Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{1, 1, 1}), s.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{3, 3, 3}), s.getRowView(1));
+    assertValuesEquals(bj.matrix(new int[]{1, 1, 1}), s.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{3, 3, 3}), s.getRow(1));
   }
 
   @Test
   public void testSlice6() throws Exception {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     IntMatrix s = x.slice(Arrays.asList(0, 1), Arrays.asList(0, 1));
-    assertValuesEquals(bj.matrix(new int[]{1, 1}), s.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{2, 2}), s.getRowView(1));
+    assertValuesEquals(bj.matrix(new int[]{1, 1}), s.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{2, 2}), s.getRow(1));
   }
 
   @Test
@@ -687,8 +687,8 @@ public class AbstractIntMatrixTest {
   public void testSlice() throws Exception {
     IntMatrix x = bj.matrix(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
     IntMatrix s = x.slice(bj.matrix(new boolean[]{true, false, true}), Dim.R);
-    assertValuesEquals(bj.matrix(new int[]{1, 1, 1}), s.getRowView(0));
-    assertValuesEquals(bj.matrix(new int[]{3, 3, 3}), s.getRowView(1));
+    assertValuesEquals(bj.matrix(new int[]{1, 1, 1}), s.getRow(0));
+    assertValuesEquals(bj.matrix(new int[]{3, 3, 3}), s.getRow(1));
   }
 
   @Test
@@ -702,14 +702,14 @@ public class AbstractIntMatrixTest {
   public void testSetRow() throws Exception {
     IntMatrix x = bj.intMatrix(3, 3);
     x.setRow(0, bj.matrix(new int[]{1, 2, 3}));
-    assertValuesEquals(bj.matrix(new int[]{1, 2, 3}), x.getRowView(0));
+    assertValuesEquals(bj.matrix(new int[]{1, 2, 3}), x.getRow(0));
   }
 
   @Test
   public void testSetColumn() throws Exception {
     IntMatrix x = bj.intMatrix(3, 3);
     x.setColumn(0, bj.matrix(new int[]{1, 2, 3}));
-    assertValuesEquals(bj.matrix(new int[]{1, 2, 3}), x.getColumnView(0));
+    assertValuesEquals(bj.matrix(new int[]{1, 2, 3}), x.getColumn(0));
   }
 
   @Test

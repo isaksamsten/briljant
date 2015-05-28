@@ -78,7 +78,6 @@ class BaseDoubleMatrix extends AbstractDoubleMatrix {
     return false;
   }
 
-  @Override
   public Storage getStorage() {
     return storage;
   }

@@ -186,4 +186,14 @@ public final class Check {
           String.format("Views are unsupported. Please make a copy."));
     }
   }
+
+  public static void argument(boolean check) {
+    argument(check, "Invalid argument");
+  }
+
+  public static void argument(boolean check, String message) {
+    if (!check) {
+      throw new IllegalArgumentException(message);
+    }
+  }
 }

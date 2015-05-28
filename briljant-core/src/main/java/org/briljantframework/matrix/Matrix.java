@@ -1,6 +1,5 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.sort.Swappable;
 
 import java.util.Collection;
@@ -137,7 +136,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param i row
    * @return a vector
    */
-  T getRowView(int i);
+  T getRow(int i);
 
   /**
    * Gets vector at {@code index}. Modifications will change the original matrix.
@@ -145,7 +144,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param index the index
    * @return the column
    */
-  T getColumnView(int index);
+  T getColumn(int index);
 
   void setVectorAlong(Dim dim, int i, T vector);
 
@@ -156,7 +155,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    *
    * @return a diagonal view
    */
-  T getDiagonalView();
+  T getDiagonal();
 
   /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
@@ -200,8 +199,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
 
   /**
    * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the
-   * return
-   * type.
+   * return type.
    *
    * @param rows    the rows to include
    * @param columns the columns to include
@@ -370,16 +368,5 @@ public interface Matrix<T extends Matrix> extends Swappable {
   BitMatrix lte(T other);
 
   BitMatrix gte(T other);
-
-  /**
-   * <p>Return the storage of this matrix. If {@link #isView()}, the storage does not necessarily
-   * represent the actual storage of {@code this}. That is, {@code m.size() !=
-   * m.getStorage().size()}.
-   *
-   * <p>However, {@code m.copy().size() == m.copy().getStorage().size()}
-   *
-   * @return the storage
-   */
-  Storage getStorage();
 
 }

@@ -38,7 +38,7 @@ public class RandomForest extends Ensemble {
     List<FitTask> fitTasks = new ArrayList<>();
     BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
-      fitTasks.add(new FitTask(classSet, x, y, splitter, classes, oobIndicator.getColumnView(i)));
+      fitTasks.add(new FitTask(classSet, x, y, splitter, classes, oobIndicator.getColumn(i)));
     }
     try {
       return new DefaultEnsemblePredictor(classes, execute(fitTasks), oobIndicator);

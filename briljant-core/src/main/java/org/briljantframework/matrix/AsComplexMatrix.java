@@ -37,11 +37,6 @@ abstract class AsComplexMatrix extends AbstractComplexMatrix {
       public Complex get(int index) {
         return AsComplexMatrix.this.get(index);
       }
-
-      @Override
-      public Storage getStorage() {
-        return AsComplexMatrix.this.getStorage();
-      }
     };
   }
 

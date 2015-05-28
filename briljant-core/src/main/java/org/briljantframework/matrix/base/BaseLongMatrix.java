@@ -52,7 +52,6 @@ class BaseLongMatrix extends AbstractLongMatrix {
     return false;
   }
 
-  @Override
   public Storage getStorage() {
     return storage;
   }
