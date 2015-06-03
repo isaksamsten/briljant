@@ -21,18 +21,17 @@ class MatrixExtensionsSpec extends Specification {
 
   def "test slice using getAt"() {
     given:
-    def x = Bj.matrix([1, 2, 3, 4, 5, 6, 7, 8, 9] as double[])
+    def x = Bj.matrix([1, 2, 3, 4, 5, 6, 7, 8, 9] as double[]).reshape(3, 3)
 
     when:
-    def a = x[0..2, Dim.C]
-    def b = x[0..2, Dim.R]
-    def c = x[0..1, 0..1]
-    def d = x[0..3]
+    def a = x[0..1, Dim.C]
+    def b = x[0..1, Dim.R]
+    def c = x[0..2, 0..2]
+    def d = x[0..4]
 
     then:
-    println(a)
     a == Bj.matrix([1, 2, 3] as double[])
-    b == Bj.matrix([1, 4, 7] as double[])
+    b == Bj.matrix([1, 4, 7] as double[]).transpose()
     c == Bj.matrix([1, 2, 4, 5] as double[]).reshape(2, 2)
     d == Bj.matrix([1, 2, 3, 4] as double[])
   }

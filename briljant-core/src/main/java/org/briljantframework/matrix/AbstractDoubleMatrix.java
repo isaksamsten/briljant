@@ -817,9 +817,11 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   @Override
   public DoubleMatrix slice(Range range, Dim dim) {
     if (dim == Dim.R) {
+      Check.argument(range.end() < rows() && range.start() >= 0);
       return new SliceDoubleMatrix(getMatrixFactory(), this,
                                    getMatrixFactory().range(columns()), range);
     } else {
+      Check.argument(range.end() < columns() && range.start() >= 0);
       return new SliceDoubleMatrix(getMatrixFactory(), this,
                                    range, getMatrixFactory().range(rows()));
     }

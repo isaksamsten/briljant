@@ -188,7 +188,8 @@ public class ConfusionMatrix {
       for (Object actual : labels) {
         String valueStr = Double.toString(get(predicted, actual));
         builder.append(valueStr);
-        builder.append(Strings.repeat(" ", actual.toString().length() + 1 + longestValue - valueStr.length()));
+        builder.append(
+            Strings.repeat(" ", actual.toString().length() + 1 + longestValue - valueStr.length()));
       }
       builder.append("\n");
     }
