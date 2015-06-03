@@ -1,7 +1,9 @@
 package org.briljantframework.matrix;
 
 /**
- * Created by isak on 15/04/15.
+ * <p> {@linkplain #copy()} returns a mutable {@code IntMatrix}
+ *
+ * @author Isak Karlsson
  */
 public interface Range extends IntMatrix {
 

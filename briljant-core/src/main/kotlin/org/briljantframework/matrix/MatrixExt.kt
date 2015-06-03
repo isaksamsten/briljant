@@ -3,7 +3,6 @@ package org.briljantframework.matrix
 import org.briljantframework.Bj
 import org.briljantframework.all
 import org.briljantframework.complex.Complex
-import org.briljantframework.matrix.storage.Storage
 
 public fun DoubleMatrix.round(): LongMatrix = this mapToLong { Math.round(it) }
 
@@ -43,8 +42,6 @@ fun Shape.component1() = this.rows
 fun Shape.component2() = this.columns
 
 val Matrix<*>.shape: Shape get() = this.getShape()
-
-//val Matrix<*>.data: Storage get() = this.getStorage()
 
 val Matrix<*>.rows: Int get() = this.rows()
 

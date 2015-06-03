@@ -16,6 +16,7 @@ import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Na;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -205,6 +206,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
     public Builder(VectorType type) {
       this.type = type;
       this.builders = new ArrayList<>();
+    }
+
+    public Builder(Class<?> cls) {
+      this(Vec.typeOf(cls));
     }
 
     protected Builder(List<Vector.Builder> builders, VectorType type) {

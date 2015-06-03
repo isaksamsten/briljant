@@ -8,6 +8,7 @@ import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class BaseMatrixFactoryTest {
@@ -27,8 +28,19 @@ public class BaseMatrixFactoryTest {
 
   @Test
   public void testCreateIntMatrixFromArray() throws Exception {
-    IntMatrix x = bj.matrix(new int[]{1, 2, 3, 4}).reshape(2, 2);
-    assertEquals(1, x.get(0, 0));
+    IntMatrix x = bj.matrix(new int[]{1, 2, 3, 4});
+    assertEquals(4, x.size());
+    assertEquals(4, x.rows());
+    assertEquals(1, x.columns());
+    assertArrayEquals(new int[]{1, 2, 3, 4}, x.data());
+  }
+
+  @Test
+  public void testCreateIntFrom2dArray() throws Exception {
+//    try {
+//
+//    }
+
   }
 
   @Test

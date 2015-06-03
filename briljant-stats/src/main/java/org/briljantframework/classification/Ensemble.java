@@ -43,9 +43,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.briljantframework.evaluation.result.Sample.OUT;
-import static org.briljantframework.matrix.Matrices.argmax;
-import static org.briljantframework.matrix.Matrices.argmaxnot;
-import static org.briljantframework.matrix.Matrices.maxnot;
+import static org.briljantframework.Bj.argmax;
+import static org.briljantframework.Bj.argmaxnot;
+import static org.briljantframework.Bj.maxnot;
 import static org.briljantframework.matrix.Matrices.mean;
 import static org.briljantframework.vector.Vec.find;
 

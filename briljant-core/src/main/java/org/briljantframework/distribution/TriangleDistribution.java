@@ -10,9 +10,7 @@ public class TriangleDistribution extends Distribution {
   private final double lower, upper, mode;
 
   public TriangleDistribution(double lower, double upper, double mode) {
-    this.lower = lower;
-    this.upper = upper;
-    this.mode = mode;
+    this(new Random(), lower, upper, mode);
   }
 
   public TriangleDistribution(Random random, double lower, double upper, double mode) {

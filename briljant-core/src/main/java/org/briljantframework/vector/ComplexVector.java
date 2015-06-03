@@ -128,8 +128,12 @@ public class ComplexVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
+    Complex v = getAsComplex(index);
+    if (Is.NA(v)) {
+      return Na.of(cls);
+    }
     if (cls.isAssignableFrom(Complex.class)) {
-      return cls.cast(getAsInt(index));
+      return cls.cast(getAsComplex(index));
     } else {
       if (cls.isAssignableFrom(Double.class)) {
         return cls.cast(getAsDouble(index));

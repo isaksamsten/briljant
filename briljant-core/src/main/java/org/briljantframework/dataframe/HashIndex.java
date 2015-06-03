@@ -123,7 +123,19 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Iterator<Object> iterator() {
-    return hash.keySet().iterator();
+    return new Iterator<Object>() {
+      public int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Object next() {
+        return get(current++);
+      }
+    };
   }
 
   @Override

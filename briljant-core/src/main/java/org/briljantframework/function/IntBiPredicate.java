@@ -1,9 +1,10 @@
 package org.briljantframework.function;
 
 /**
- * Created by isak on 2/4/15.
+ * @author Isak Karlsson
  */
 @FunctionalInterface
 public interface IntBiPredicate {
+
   boolean test(int a, int b);
 }

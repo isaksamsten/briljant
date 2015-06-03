@@ -2,6 +2,7 @@ package org.briljantframework;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.distribution.Distribution;
+import org.briljantframework.distribution.NormalDistribution;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.ComplexMatrix;
@@ -9,6 +10,7 @@ import org.briljantframework.matrix.Dim;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
+import org.briljantframework.matrix.Matrices;
 import org.briljantframework.matrix.Matrix;
 import org.briljantframework.matrix.Range;
 import org.briljantframework.matrix.T;
@@ -17,9 +19,12 @@ import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.sort.IndexComparator;
 
+import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.StreamSupport;
 
 /**
@@ -27,6 +32,7 @@ import java.util.stream.StreamSupport;
  */
 public final class Bj {
 
+  private static final Distribution normalDistribution = new NormalDistribution(0, 1);
   private static MatrixFactory MATRIX_FACTORY;
   private static MatrixRoutines MATRIX_ROUTINES;
 
@@ -47,6 +53,27 @@ public final class Bj {
   }
 
   private Bj() {
+  }
+
+  public static Matrix<?> matrix(Collection<Number> values) {
+    Check.argument(values.size() >= 0);
+    Iterator<Number> it = values.iterator();
+    Number v = it.next();
+    if (v instanceof Double || v instanceof BigDecimal) {
+      DoubleMatrix m = doubleVector(values.size());
+      int i = 0;
+      for (Number value : values) {
+        m.set(i++, value.doubleValue());
+      }
+      return m;
+    } else {
+      LongMatrix m = longVector(values.size());
+      int i = 0;
+      for (Number value : values) {
+        m.set(i++, value.longValue());
+      }
+      return m;
+    }
   }
 
   public static DoubleMatrix ones(int size) {
@@ -129,6 +156,10 @@ public final class Bj {
   public static DoubleMatrix rand(int size,
                                   Distribution distribution) {
     return MATRIX_FACTORY.rand(size, distribution);
+  }
+
+  public static DoubleMatrix randn(int size) {
+    return rand(size, normalDistribution);
   }
 
   public static ComplexMatrix complexMatrix(int rows, int columns) {
@@ -380,5 +411,184 @@ public final class Bj {
 
   public static Complex norm2(ComplexMatrix a) {
     return MATRIX_ROUTINES.norm2(a);
+  }
+
+  /**
+   * @param matrix the matrix
+   * @return the index of the maximum value
+   */
+  public static int argmax(DoubleMatrix matrix) {
+    int index = 0;
+    double largest = matrix.get(0);
+    for (int i = 1; i < matrix.size(); i++) {
+      double v = matrix.get(i);
+      if (v > largest) {
+        index = i;
+        largest = v;
+      }
+    }
+    return index;
+  }
+
+  /**
+   * @param matrix the matrix
+   * @return the index of the minimum value
+   */
+  public static int argmin(DoubleMatrix matrix) {
+    Check.argument(matrix.size() > 0);
+    int index = 0;
+    double smallest = matrix.get(0);
+    int n = matrix.size();
+    for (int i = 1; i < n; i++) {
+      double v = matrix.get(i);
+      if (v < smallest) {
+        smallest = v;
+        index = i;
+      }
+    }
+    return index;
+  }
+
+  /**
+   * <p>
+   * Take values in {@code a}, using the indexes in {@code indexes}. For example,
+   * </p>
+   *
+   * @param a       the source matrix
+   * @param indexes the indexes of the values to extract
+   * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
+   * {@link org.briljantframework.matrix.Matrix#newEmptyMatrix(int, int)}).
+   */
+  public static <T extends Matrix<T>> T take(T a, IntMatrix indexes) {
+    T taken = a.newEmptyVector(indexes.size());
+    for (int i = 0; i < indexes.size(); i++) {
+      taken.set(i, a, indexes.get(i));
+    }
+    a.slice(indexes.flat());
+    return taken;
+  }
+
+  /**
+   * <p>
+   * Changes the values of a copy of {@code a} according to the values of the {@code mask} and the
+   * values in {@code values}. The value at {@code i} in a copy of {@code a} is set to value at
+   * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
+   * </p>
+   *
+   * @param a      a source array
+   * @param mask   the mask; same shape as {@code a}
+   * @param values the values; same shape as {@code a}
+   * @return a new matrix; the returned matrix has the same type as {@code a}.
+   */
+  public static <T extends Matrix<T>> T mask(T a, BitMatrix mask, T values) {
+    Check.equalShape(a, mask);
+    Check.equalShape(a, values);
+
+    T masked = a.copy();
+    putMask(masked, mask, values);
+    return masked;
+  }
+
+  /**
+   * <p>
+   * Changes the values of {@code a} according to the values of the {@code mask} and the values in
+   * {@code values}.
+   * </p>
+   *
+   * @param a      the target matrix
+   * @param mask   the mask; same shape as {@code a}
+   * @param values the mask; same shape as {@code a}
+   */
+  public static <T extends Matrix<T>> void putMask(T a, BitMatrix mask, T values) {
+    Check.equalShape(a, mask);
+    Check.equalShape(a, values);
+    for (int i = 0; i < a.size(); i++) {
+      if (mask.get(i)) {
+        a.set(i, values, i);
+      }
+    }
+  }
+
+  /**
+   * <p>
+   * Selects the values in {@code a} according to the values in {@code where}, replacing those not
+   * selected with {@code replace}.
+   * </p>
+   *
+   * @param a       the source matrix
+   * @param where   the selection matrix; same shape as {@code a}
+   * @param replace the replacement value
+   * @return a new matrix; the returned matrix has the same type as {@code a}.
+   */
+  public static IntMatrix select(IntMatrix a, BitMatrix where, int replace) {
+    Check.equalShape(a, where);
+    return a.copy().assign(where, (b, i) -> b ? replace : i);
+  }
+
+  public static DoubleMatrix map(DoubleMatrix in, DoubleUnaryOperator operator) {
+    return in.newEmptyMatrix(in.rows(), in.columns()).assign(in, operator);
+  }
+
+  public static DoubleMatrix sqrt(DoubleMatrix matrix) {
+    return map(matrix, Math::sqrt);
+  }
+
+  public static DoubleMatrix log(DoubleMatrix in) {
+    return map(in, Math::log);
+  }
+
+  public static DoubleMatrix log2(DoubleMatrix in) {
+    return map(in, x -> Math.log(x) / Matrices.LOG_2);
+  }
+
+  public static DoubleMatrix pow(DoubleMatrix in, double power) {
+    switch ((int) power) {
+      case 2:
+        return map(in, x -> x * x);
+      case 3:
+        return map(in, x -> x * x * x);
+      case 4:
+        return map(in, x -> x * x * x * x);
+      default:
+        return map(in, x -> Math.pow(x, power));
+    }
+  }
+
+  public static DoubleMatrix log10(DoubleMatrix in) {
+    return map(in, Math::log10);
+  }
+
+  public static DoubleMatrix signum(DoubleMatrix in) {
+    return map(in, Math::signum);
+  }
+
+  public static DoubleMatrix abs(DoubleMatrix in) {
+    return map(in, Math::abs);
+  }
+
+  public static LongMatrix round(DoubleMatrix in) {
+    return longMatrix(in.rows(), in.columns()).assign(in, Math::round);
+  }
+
+  public static int argmaxnot(DoubleMatrix m, int not) {
+    double max = Double.NEGATIVE_INFINITY;
+    int argMax = -1;
+    for (int i = 0; i < m.size(); i++) {
+      if (not != i && m.get(i) > max) {
+        argMax = i;
+        max = m.get(i);
+      }
+    }
+    return argMax;
+  }
+
+  public static double maxnot(DoubleMatrix m, int not) {
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < m.size(); i++) {
+      if (not != i && m.get(i) > max) {
+        max = m.get(i);
+      }
+    }
+    return max;
   }
 }

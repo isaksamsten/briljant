@@ -27,8 +27,6 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.DoubleStorage;
-import org.briljantframework.matrix.storage.Storage;
 
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleSupplier;
@@ -44,15 +42,10 @@ import java.util.function.ToDoubleFunction;
  */
 class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
 
-  private final Storage values;
+  private final double[] values;
 
   public BaseDiagonal(MatrixFactory bj, double[] values, int rows, int cols) {
     super(bj, rows, cols);
-    this.values = new DoubleStorage(values);
-  }
-
-  public BaseDiagonal(MatrixFactory bj, Storage values, int rows, int columns) {
-    super(bj, rows, columns);
     this.values = values;
   }
 
@@ -135,7 +128,7 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
 
   public void set(int i, int j, double value) {
     if (i == j) {
-      values.setDouble(i, value);
+      values[i] = value;
     } else {
       throw new IllegalStateException("Can't to touch non-diagonal entries");
     }
@@ -149,7 +142,7 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
 
   public double get(int i, int j) {
     if (i == j) {
-      return values.getDouble(i);
+      return values[i];
     } else {
       if (i > rows() || j > columns()) {
         throw new IndexOutOfBoundsException();
@@ -171,7 +164,7 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
    */
   @Override
   public int diagonalSize() {
-    return values.size();
+    return values.length;
   }
 
   /**
@@ -189,7 +182,7 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
   }
 
   public BaseDiagonal map(DoubleUnaryOperator operator) {
-    double[] diagonal = new double[this.values.size()];
+    double[] diagonal = new double[this.values.length];
     for (int i = 0; i < diagonal.length; i++) {
       diagonal[i] = operator.applyAsDouble(getDiagonal(i));
     }
@@ -198,14 +191,14 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
 
   public Diagonal transpose() {
     return new BaseDiagonal(getMatrixFactory(),
-                            values.doubleArray().clone(),
+                            values.clone(),
                             this.columns(),
                             this.rows());
   }
 
   public Diagonal copy() {
     return new BaseDiagonal(getMatrixFactory(),
-                            values.doubleArray().clone(),
+                            values.clone(),
                             this.rows(),
                             this.columns());
   }
@@ -251,9 +244,9 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
    */
   @Override
   public BaseDiagonal mul(double scalar) {
-    double[] out = new double[values.size()];
-    for (int i = 0; i < values.size(); i++) {
-      out[i] = values.getDouble(i) * scalar;
+    double[] out = new double[values.length];
+    for (int i = 0; i < values.length; i++) {
+      out[i] = values[i] * scalar;
     }
 
     return new BaseDiagonal(getMatrixFactory(), out, this.rows(), this.columns());
@@ -273,9 +266,5 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
   @Override
   public boolean isView() {
     return false;
-  }
-
-  public Storage getStorage() {
-    return values;
   }
 }

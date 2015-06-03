@@ -5,10 +5,25 @@ import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 /**
- * Created by isak on 27/04/15.
+ * @author Isak Karlsson
  */
 public class NetlibMatrixBackend implements MatrixBackend {
+
+  static {
+    // This should suppress the output from the JNI logger
+    Logger blasLogger = LogManager.getLogManager().getLogger("");
+    if (blasLogger != null) {
+      for (Handler handler : blasLogger.getHandlers()) {
+        handler.close();
+        blasLogger.removeHandler(handler);
+      }
+    }
+  }
 
   private MatrixFactory matrixFactory;
   private MatrixRoutines matrixRoutines;

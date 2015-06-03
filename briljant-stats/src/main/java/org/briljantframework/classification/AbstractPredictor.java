@@ -12,7 +12,7 @@ import org.briljantframework.vector.Vector;
 import java.util.EnumSet;
 import java.util.stream.IntStream;
 
-import static org.briljantframework.matrix.Matrices.argmax;
+import static org.briljantframework.Bj.argmax;
 
 /**
  * Provides sane defaults for a predictor. Sub-classes only have to implement the

@@ -105,7 +105,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrame sort(Comparator<? super Series> cmp) {
+  public DataFrame sort(Comparator<? super Vector> cmp) {
     DataFrame.Builder builder = newCopyBuilder();
     IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
     for (Index.Entry entry : getRecordIndex().entrySet()) {

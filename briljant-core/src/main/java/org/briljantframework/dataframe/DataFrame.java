@@ -150,7 +150,7 @@ public interface DataFrame extends Iterable<Series> {
    * @param cmp
    * @return
    */
-  DataFrame sort(Comparator<? super Series> cmp);
+  DataFrame sort(Comparator<? super Vector> cmp);
 
   /**
    * Sort column {@code column}

@@ -27,6 +27,9 @@ class SingletonVector extends AbstractVector {
   public <T> T get(Class<T> cls, int index) {
     checkElementIndex(index);
     Object obj = value;
+    if (Is.NA(obj)) {
+      return Na.of(cls);
+    }
     if (!cls.isInstance(obj)) {
       if (cls.equals(String.class)) {
         return cls.cast(obj.toString());

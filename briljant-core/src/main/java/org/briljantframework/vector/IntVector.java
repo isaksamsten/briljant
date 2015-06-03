@@ -138,8 +138,12 @@ public class IntVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
+    int v = getAsInt(index);
+    if (Is.NA(v)) {
+      return Na.of(cls);
+    }
     if (cls.isAssignableFrom(Integer.class)) {
-      return cls.cast(getAsInt(index));
+      return cls.cast(v);
     } else {
       if (cls.isAssignableFrom(Double.class)) {
         return cls.cast(getAsDouble(index));
@@ -148,7 +152,7 @@ public class IntVector extends AbstractVector {
       } else if (cls.isAssignableFrom(Bit.class)) {
         return cls.cast(getAsBit(index));
       } else if (cls.isAssignableFrom(String.class)) {
-        return cls.cast(Integer.toString(getAsInt(index)));
+        return cls.cast(Integer.toString(v));
       } else {
         return Na.of(cls);
       }

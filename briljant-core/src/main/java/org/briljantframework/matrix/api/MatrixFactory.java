@@ -66,6 +66,8 @@ public interface MatrixFactory {
 
   DoubleMatrix diag(double[] data);
 
+  DoubleMatrix diag(DoubleMatrix data);
+
   /**
    * Create a {@code ComplexMatrix} with given data
    *

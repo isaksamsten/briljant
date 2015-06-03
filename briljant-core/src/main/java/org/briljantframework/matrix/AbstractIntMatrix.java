@@ -6,7 +6,7 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntIntObjBiFunction;
+import org.briljantframework.function.ToIntObjIntBiFunction;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 import java.io.IOException;
@@ -204,7 +204,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   }
 
   @Override
-  public IntMatrix assign(BitMatrix matrix, ToIntIntObjBiFunction<Boolean> function) {
+  public IntMatrix assign(BitMatrix matrix, ToIntObjIntBiFunction<Boolean> function) {
     Check.equalShape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i), get(i)));

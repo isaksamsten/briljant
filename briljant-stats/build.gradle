@@ -17,8 +17,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-//apply from: "../gradle/application.java.gradle"
-
 dependencies {
     compile project(":briljant-core")
+
+    testCompile "org.codehaus.groovy:groovy-all:2.4.1"
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
 }

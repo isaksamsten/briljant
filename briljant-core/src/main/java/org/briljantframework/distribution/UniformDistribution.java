@@ -16,8 +16,7 @@ public class UniformDistribution extends Distribution {
   }
 
   public UniformDistribution(double min, double max) {
-    this.min = min;
-    this.max = max;
+    this(new Random(), min, max);
   }
 
   public UniformDistribution() {

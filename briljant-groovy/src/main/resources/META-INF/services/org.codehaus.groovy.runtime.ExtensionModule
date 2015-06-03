@@ -1,0 +1,3 @@
+moduleName = briljant-matrix
+moduleVersion = 1.0
+extensionClasses = org.briljantframework.matrix.MatrixExtensions

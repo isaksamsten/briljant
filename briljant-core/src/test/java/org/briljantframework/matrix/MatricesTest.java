@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Bj;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
@@ -21,7 +22,7 @@ public class MatricesTest {
   @Test
   public void testArgMax() throws Exception {
     DoubleMatrix v = bj.matrix(new double[]{1.0, 2, 3, 9, 5, 1, 2});
-    assertEquals(3, Matrices.argmax(v));
+    assertEquals(3, Bj.argmax(v));
   }
 
   @Test

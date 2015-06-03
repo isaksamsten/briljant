@@ -8,8 +8,6 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.LongMatrix;
 import org.briljantframework.matrix.Range;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.DoubleStorage;
-import org.briljantframework.matrix.storage.LongStorage;
 
 /**
  * @author Isak Karlsson
@@ -45,7 +43,7 @@ public class BaseMatrixFactory implements MatrixFactory {
 
   @Override
   public LongMatrix matrix(long[] data) {
-    return new BaseLongMatrix(this, new LongStorage(data));
+    return new BaseLongMatrix(this, data);
   }
 
   @Override
@@ -63,12 +61,17 @@ public class BaseMatrixFactory implements MatrixFactory {
 
   @Override
   public DoubleMatrix matrix(double[] data) {
-    return new BaseDoubleMatrix(this, new DoubleStorage(data));
+    return new BaseDoubleMatrix(this, data);
   }
 
   @Override
   public DoubleMatrix diag(double[] data) {
-    return new BaseDiagonal(this, new DoubleStorage(data), data.length, 1);
+    return new BaseDiagonal(this, data, data.length, 1);
+  }
+
+  @Override
+  public DoubleMatrix diag(DoubleMatrix data) {
+    return new BaseDiagonal(this, data.data(), data.size(), data.size());
   }
 
   @Override

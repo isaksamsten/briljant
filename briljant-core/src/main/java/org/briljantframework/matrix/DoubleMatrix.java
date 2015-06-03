@@ -372,6 +372,10 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix add(DoubleMatrix other);
 
+  default DoubleMatrix addi(DoubleMatrix other) {
+    return assign(other, (a, b) -> a + b);
+  }
+
   /**
    * Element wise addition.
    *
@@ -379,6 +383,10 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @return a new matrix
    */
   DoubleMatrix add(double scalar);
+
+  default DoubleMatrix addi(double scalar) {
+    return update(v -> v + scalar);
+  }
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -436,6 +444,10 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
   DoubleMatrix div(DoubleMatrix other);
+
+  default DoubleMatrix divi(DoubleMatrix other) {
+    return assign(other, (x, y) -> x / y);
+  }
 
   /**
    * Element wise division. {@code this / other}.

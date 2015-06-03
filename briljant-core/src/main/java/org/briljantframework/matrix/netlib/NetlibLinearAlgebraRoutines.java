@@ -519,7 +519,6 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     double[] work = new double[1];
     intW info = new intW(0);
     // Find the optimal work array size
-    long iv = System.nanoTime();
     lapack.dgesvd(
         String.valueOf(jobu),
         String.valueOf(jobvt),
@@ -537,11 +536,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         info
     );
     ensureInfo("Failed to allocate workspace. (See error code for details)", info);
-    System.out.println((System.nanoTime() - iv) / 1e6 + " => workspace");
 
     lwork = (int) work[0];
     work = new double[lwork];
-    iv = System.nanoTime();
     lapack.dgesvd(
         String.valueOf(jobu),
         String.valueOf(jobvt),
@@ -558,7 +555,6 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
         lwork,
         info
     );
-    System.out.println((System.nanoTime() - iv) / 1e6 + " => actual computation");
     ensureInfo("Convergence failure. (See errorCode for details).", info);
     reassignIfNeeded(a, aa);
     reassignIfNeeded(u, ua);

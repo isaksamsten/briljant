@@ -4,8 +4,6 @@ import org.briljantframework.Check;
 import org.briljantframework.matrix.AbstractBitMatrix;
 import org.briljantframework.matrix.BitMatrix;
 import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.storage.BooleanStorage;
-import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
@@ -13,29 +11,24 @@ import org.briljantframework.matrix.api.MatrixFactory;
  */
 class BaseBitMatrix extends AbstractBitMatrix {
 
-  private Storage storage;
+  private boolean[] storage;
 
   BaseBitMatrix(MatrixFactory bj, int rows, int cols) {
     super(bj, rows, cols);
-    this.storage = new BooleanStorage(new boolean[Math.multiplyExact(rows, cols)]);
+    this.storage = new boolean[Math.multiplyExact(rows, cols)];
   }
 
   BaseBitMatrix(MatrixFactory bj, int size) {
-    this(bj, new BooleanStorage(size));
+    this(bj, new boolean[size]);
   }
 
   BaseBitMatrix(MatrixFactory bj, boolean[] values) {
-    this(bj, new BooleanStorage(values), values.length, 1);
+    this(bj, values, values.length, 1);
   }
 
-  BaseBitMatrix(MatrixFactory bj, Storage storage, int rows, int columns) {
+  BaseBitMatrix(MatrixFactory bj, boolean[] storage, int rows, int columns) {
     super(bj, rows, columns);
-    Check.size(storage.size(), Math.multiplyExact(rows, columns));
-    this.storage = storage;
-  }
-
-  BaseBitMatrix(MatrixFactory bj, Storage storage) {
-    super(bj, storage.size());
+    Check.size(storage.length, Math.multiplyExact(rows, columns));
     this.storage = storage;
   }
 
@@ -51,7 +44,7 @@ class BaseBitMatrix extends AbstractBitMatrix {
   }
 
   public BitMatrix copy() {
-    return new BaseBitMatrix(getMatrixFactory(), storage.copy(), rows(), columns());
+    return new BaseBitMatrix(getMatrixFactory(), storage.clone(), rows(), columns());
   }
 
   @Override
@@ -61,7 +54,7 @@ class BaseBitMatrix extends AbstractBitMatrix {
 
   @Override
   public void set(int index, boolean value) {
-    storage.setBoolean(index, value);
+    storage[index] = value;
   }
 
   @Override
@@ -71,15 +64,11 @@ class BaseBitMatrix extends AbstractBitMatrix {
 
   @Override
   public boolean get(int index) {
-    return storage.getBoolean(index);
+    return storage[index];
   }
 
   @Override
   public boolean isView() {
     return false;
-  }
-
-  public Storage getStorage() {
-    return storage;
   }
 }

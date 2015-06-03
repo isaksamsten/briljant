@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Immutable index
+ * Immutable index. {@link #iterator()} is guaranteed to return the keys in the index according
+ * to the order which a similar list would, i.e. from position {@code 1} to position {@code
+ * size()}.
  *
  * @author Isak Karlsson
  */
@@ -27,10 +29,6 @@ public interface Index extends List<Object> {
   Collection<Integer> indices(Object[] keys);
 
   Map<Integer, Object> indexMap();
-
-//  default Stream<Entry> stream() {
-//    return StreamSupport.stream(spliterator(), false);
-//  }
 
   Builder newBuilder();
 

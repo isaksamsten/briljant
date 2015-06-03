@@ -6,7 +6,6 @@ import org.briljantframework.matrix.AbstractIntMatrix;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 /**
@@ -17,46 +16,32 @@ class BaseRange extends AbstractIntMatrix implements Range {
   private final int start, end, step;
 
   BaseRange(MatrixFactory bj, int start, int end, int step) {
-    super(bj, 1, (end - start) / step);
+    super(bj, getSize(start, end, step), 1);
     Preconditions.checkArgument(start < end);
     this.start = start;
     this.end = end;
     this.step = step;
   }
 
-//  /**
-//   * Construct an interval from {@code start} (inclusive) to {@code end} (exclusive) by {@code
-//   * step}
-//   *
-//   * @param start the start
-//   * @param end   the end
-//   * @param step  the step
-//   * @return the range
-//   */
-//  public static Range range(int start, int end, int step) {
-//    return new Range(start, end, step);
-//  }
-//
-//  /**
-//   * Construct an interval from {@code start} (inclusive) to {@code end} (exclusive) by {@code 1}
-//   *
-//   * @param start the start
-//   * @param end   the end
-//   * @return the range
-//   */
-//  public static Range range(int start, int end) {
-//    return new Range(start, end, 1);
-//  }
-//
-//  /**
-//   * Construct an interval from {@code 0} (inclusive) to {@code end} (exclusive) by {@code 1}.
-//   *
-//   * @param end the end
-//   * @return a new range
-//   */
-//  public static Range range(int end) {
-//    return range(0, end);
-//  }
+  private static int getSize(int start, int end, int step) {
+    int i = end - start;
+    if (i % step == 0) {
+      return i / step;
+    } else {
+      return i / step + 1;
+    }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Range) {
+      Range rng = (Range) obj;
+      return start() == rng.start() &&
+             end() == rng.end() &&
+             step() == rng.step();
+    }
+    return super.equals(obj);
+  }
 
   @Override
   public int start() {
@@ -95,7 +80,7 @@ class BaseRange extends AbstractIntMatrix implements Range {
 
   @Override
   public boolean isView() {
-    return false;
+    return true;
   }
 
   @Override

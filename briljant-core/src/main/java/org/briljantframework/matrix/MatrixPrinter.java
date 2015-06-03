@@ -107,7 +107,8 @@ public final class MatrixPrinter {
       throws IOException {
 
     IntMatrix widths;
-    if (matrix.size() <= minTruncateSize || matrix.rows() < visibleRows * 2) {
+    if (matrix.columns() == 1 || matrix.size() <= minTruncateSize
+        || matrix.rows() < visibleRows * 2) {
       widths = Bj.intVector(matrix.columns());
       for (int j = 0; j < matrix.columns(); j++) {
         int m = 0;
@@ -121,7 +122,7 @@ public final class MatrixPrinter {
       }
     } else {
       widths = Bj.intVector(visibleColumns * 2);
-      for (int j = 0; j < visibleColumns; j++) {
+      for (int j = 0; j < visibleColumns && j < matrix.columns(); j++) {
         int m = 0;
         for (int i = 0; i < visibleRows && i < matrix.rows(); i++) {
           int length = matrix.get(i, j).length();
@@ -129,7 +130,7 @@ public final class MatrixPrinter {
             m = length;
           }
         }
-        for (int i = matrix.rows() - visibleRows; i < matrix.rows()&& i > 0; i++) {
+        for (int i = matrix.rows() - visibleRows; i < matrix.rows() && i > 0; i++) {
           int length = matrix.get(i, j).length();
           if (length > m) {
             m = length;
@@ -170,7 +171,7 @@ public final class MatrixPrinter {
     } else {
       out.append(startChar);
       printRow(out, matrix.getRowView(0), widths, true, startChar, endChar);
-      for (int i = 1; i < visibleRows  && i < matrix.rows(); i++) {
+      for (int i = 1; i < visibleRows && i < matrix.rows(); i++) {
         out.append("\n");
         out.append(" ");
         printRow(out, matrix.getRowView(i), widths, true, startChar, endChar);
@@ -180,7 +181,7 @@ public final class MatrixPrinter {
       out.append(" ");
       printRow(out, matrix.getRowView(matrix.rows() - visibleRows), widths, true, startChar,
                endChar);
-      for (int i = matrix.rows() - visibleRows + 1; i < matrix.rows()&& i > 0; i++) {
+      for (int i = matrix.rows() - visibleRows + 1; i < matrix.rows() && i > 0; i++) {
         out.append("\n");
         out.append(" ");
         printRow(out, matrix.getRowView(i), widths, true, startChar, endChar);

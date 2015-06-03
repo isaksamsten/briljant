@@ -27,6 +27,8 @@ import org.briljantframework.matrix.IntMatrix;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
+import org.briljantframework.stat.RunningStatistics;
+import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
@@ -35,9 +37,18 @@ import java.util.EnumSet;
 import java.util.Objects;
 
 /**
- * Logistic regression implemented using Stochastic Gradient Descent.
- * <p>
- * Created by isak on 01/07/14.
+ * Logistic regression implemented using a quasi newton method based on
+ * the limited memory BFGS.
+ *
+ * <p>References:
+ * <ol>
+ * <li>
+ * Murphy, Kevin P. Machine learning: a probabilistic perspective. MIT press, 2012.
+ * </li>
+ *
+ * </ol>
+ *
+ * @author Isak Karlsson
  */
 public class LogisticRegression implements Classifier {
 
@@ -55,6 +66,14 @@ public class LogisticRegression implements Classifier {
     return new Builder(iterations);
   }
 
+  public static LogisticRegression regularized(double lambda) {
+    return withIterations(500).withRegularization(lambda).build();
+  }
+
+  public static LogisticRegression create() {
+    return regularized(0);
+  }
+
   @Override
   public String toString() {
     return "LogisticRegression{" +
@@ -70,10 +89,7 @@ public class LogisticRegression implements Classifier {
     Check.argument(n == target.size(),
                    "The number of training instances must equal the number of target");
     Vector unique = Vec.unique(target);
-//    DoubleMatrix bias = Bj.ones(df.rows());
-//    DoubleMatrix x = Bj.hstack(Arrays.asList(bias, df.toMatrix().asDoubleMatrix()));
     DoubleMatrix x = constructInputMatrix(df, n, m);
-
     IntMatrix y = Bj.intVector(target.size());
     for (int i = 0; i < y.size(); i++) {
       y.set(i, Vec.find(unique, target, i));
@@ -91,7 +107,10 @@ public class LogisticRegression implements Classifier {
       throw new IllegalArgumentException(String.format("Illegal classes. k >= 2 (%d >= 2)", k));
     }
     double logLoss = optimizer.optimize(objective, theta);
-    return new Predictor(theta, logLoss, unique);
+
+    Vector.Builder names = new GenericVector.Builder(Object.class).add("(Intercept)");
+    df.getColumnIndex().forEach(names::add);
+    return new Predictor(names.build(), theta, logLoss, unique);
   }
 
   protected DoubleMatrix constructInputMatrix(DataFrame df, int n, int m) {
@@ -100,7 +119,7 @@ public class LogisticRegression implements Classifier {
       x.set(i, 0, 1);
       for (int j = 0; j < df.columns(); j++) {
         double v = df.getAsDouble(i, j);
-        if (Is.NA(v)) {
+        if (Is.NA(v) || Double.isNaN(v)) {
           throw new IllegalArgumentException(
               String.format("Illegal input value at (%d, %d)", i, j - 1));
         }
@@ -314,12 +333,14 @@ public class LogisticRegression implements Classifier {
    */
   public static class Predictor extends AbstractPredictor {
 
-    private final DoubleMatrix theta;
+    private final Vector names;
+    private final DoubleMatrix coefficients;
     private final double logLoss;
 
-    private Predictor(DoubleMatrix theta, double logLoss, Vector classes) {
+    private Predictor(Vector names, DoubleMatrix coefficients, double logLoss, Vector classes) {
       super(classes);
-      this.theta = theta;
+      this.names = names;
+      this.coefficients = coefficients;
       this.logLoss = logLoss;
     }
 
@@ -337,7 +358,7 @@ public class LogisticRegression implements Classifier {
         DoubleMatrix probs = Bj.doubleVector(k);
         double max = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < k; i++) {
-          double prob = Bj.dot(x, theta.getColumn(i));
+          double prob = Bj.dot(x, coefficients.getColumn(i));
           if (prob > max) {
             max = prob;
           }
@@ -349,11 +370,9 @@ public class LogisticRegression implements Classifier {
           probs.set(i, Math.exp(probs.get(i) - max));
           z += probs.get(i);
         }
-        final double finalZ = z;
-        probs.update(v -> v / finalZ);
-        return probs;
+        return probs.divi(z);
       } else {
-        double prob = logistic(Bj.dot(x, theta));
+        double prob = logistic(Bj.dot(x, coefficients));
         DoubleMatrix probs = Bj.doubleVector(2);
         probs.set(0, 1 - prob);
         probs.set(1, prob);
@@ -362,11 +381,26 @@ public class LogisticRegression implements Classifier {
     }
 
     public DoubleMatrix getParamaters() {
-      return theta.copy();
+      return coefficients.copy();
     }
 
     public double getLogLoss() {
       return logLoss;
+    }
+
+    public double getOddsRatio(Object coefficient) {
+      int i = Vec.find(names, coefficient);
+      if (i < 0) {
+        throw new IllegalArgumentException("Label not found");
+      }
+      int k = getClasses().size();
+      if (k > 2) {
+        return coefficients.getRow(i).map(Math::exp)
+            .collect(RunningStatistics::new, RunningStatistics::add).getMean();
+      } else {
+        return Math.exp(coefficients.get(i));
+      }
+
     }
 
     @Override
@@ -383,7 +417,7 @@ public class LogisticRegression implements Classifier {
     @Override
     public String toString() {
       return "LogisticRegression.Predictor{" +
-             "theta=" + theta +
+             "coefficients=" + coefficients.flat() +
              ", logLoss=" + logLoss +
              '}';
     }
@@ -417,7 +451,8 @@ public class LogisticRegression implements Classifier {
     @Override
     public LogisticRegression build() {
       if (optimizer == null) {
-        optimizer = new LimitedMemoryBfgsOptimizer(5, iterations, 1E-5);
+        // m ~ 20, [1] pp 252.
+        optimizer = new LimitedMemoryBfgsOptimizer(20, iterations, 1E-5);
       }
       return new LogisticRegression(this);
     }

@@ -2,7 +2,7 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntIntObjBiFunction;
+import org.briljantframework.function.ToIntObjIntBiFunction;
 
 import java.util.List;
 import java.util.function.DoubleToIntFunction;
@@ -66,7 +66,7 @@ public interface IntMatrix extends Matrix<IntMatrix> {
 
   IntMatrix assign(LongMatrix matrix, LongToIntFunction operator);
 
-  IntMatrix assign(BitMatrix matrix, ToIntIntObjBiFunction<Boolean> function);
+  IntMatrix assign(BitMatrix matrix, ToIntObjIntBiFunction<Boolean> function);
 
   IntMatrix update(IntUnaryOperator operator);
 

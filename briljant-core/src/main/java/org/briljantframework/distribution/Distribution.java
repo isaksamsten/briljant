@@ -13,14 +13,6 @@ public abstract class Distribution {
     this.random = random;
   }
 
-  protected Distribution() {
-    this(new Random());
-  }
-
-  public Random getRandom() {
-    return random;
-  }
-
   /**
    * Return a new pseudo-randomly generated number sampled from this distribution.
    *

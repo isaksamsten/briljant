@@ -19,8 +19,6 @@ package org.briljantframework.matrix.base;
 import org.briljantframework.Check;
 import org.briljantframework.matrix.AbstractDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.storage.DoubleStorage;
-import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.matrix.api.MatrixFactory;
 
 import static org.briljantframework.matrix.Indexer.columnMajor;
@@ -36,36 +34,32 @@ import static org.briljantframework.matrix.Indexer.columnMajor;
  */
 class BaseDoubleMatrix extends AbstractDoubleMatrix {
 
-  private Storage storage;
+  private double[] values;
 
   BaseDoubleMatrix(MatrixFactory bj, int size) {
     super(bj, size);
-    storage = new DoubleStorage(size);
+    values = new double[size];
   }
 
   BaseDoubleMatrix(MatrixFactory bj, int rows, int columns) {
     this(bj, new double[Math.multiplyExact(rows, columns)], rows, columns);
   }
 
-  BaseDoubleMatrix(MatrixFactory bj, Storage storage) {
-    super(bj, storage.size());
-    this.storage = storage;
-  }
-
-  private BaseDoubleMatrix(MatrixFactory bj, Storage storage, int rows, int columns) {
-    super(bj, rows, columns);
-    Check.size(storage.size(), Math.multiplyExact(rows, columns));
-    this.storage = storage;
+  BaseDoubleMatrix(MatrixFactory bj, double[] values) {
+    super(bj, values.length);
+    this.values = values;
   }
 
   private BaseDoubleMatrix(MatrixFactory bj, double[] values, int rows, int columns) {
-    this(bj, new DoubleStorage(values), rows, columns);
+    super(bj, rows, columns);
+    Check.size(values.length, Math.multiplyExact(rows, columns));
+    this.values = values;
   }
 
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
-    return new BaseDoubleMatrix(getMatrixFactory(), getStorage(), rows, columns);
+    return new BaseDoubleMatrix(getMatrixFactory(), values, rows, columns);
   }
 
   @Override
@@ -78,31 +72,28 @@ class BaseDoubleMatrix extends AbstractDoubleMatrix {
     return false;
   }
 
-  public Storage getStorage() {
-    return storage;
-  }
-
   public DoubleMatrix copy() {
-    return new BaseDoubleMatrix(getMatrixFactory(), storage.copy(), rows(), columns());
+    return new BaseDoubleMatrix(getMatrixFactory(), values.clone(), rows(), columns());
   }
 
   @Override
   public void set(int i, int j, double value) {
-    storage.setDouble(columnMajor(i, j, rows(), columns()), value);
+    values[columnMajor(i, j, rows(), columns())] = value;
   }
 
   @Override
   public void set(int index, double value) {
-    storage.setDouble(index, value);
+    values[index] = value;
   }
 
   @Override
   public double get(int i, int j) {
-    return storage.getDouble(columnMajor(i, j, rows(), columns()));
+    return values[columnMajor(i, j, rows(), columns())];
   }
 
   @Override
   public double get(int index) {
-    return storage.getDouble(index);
+    return values[index];
   }
+
 }

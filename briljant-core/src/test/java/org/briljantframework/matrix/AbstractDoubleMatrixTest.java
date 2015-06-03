@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
@@ -537,7 +538,7 @@ public class AbstractDoubleMatrixTest {
 
   @Test
   public void testSliceReshape() throws Exception {
-    DoubleMatrix a = Matrices.linspace(0, 1, 9).reshape(3, 3);
+    DoubleMatrix a = Bj.linspace(0, 1, 9).reshape(3, 3);
     System.out.println(a);
     DoubleMatrix b = a.slice(bj.range(2), bj.range(2));
     System.out.println(b);

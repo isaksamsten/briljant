@@ -1,6 +1,5 @@
 package org.briljantframework.matrix.netlib;
 
-import org.briljantframework.Utils;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.matrix.DoubleMatrix;
@@ -9,9 +8,8 @@ import org.briljantframework.matrix.api.MatrixBackend;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.junit.Test;
 
-import java.util.Random;
-
 import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class NetlibLinearAlgebraRoutinesTest {
@@ -64,7 +62,7 @@ public class NetlibLinearAlgebraRoutinesTest {
     DoubleMatrix z = bj.doubleMatrix(n, 3);
     IntMatrix isuppz = bj.intVector(n);
     int m = linalg.syevr('v', 'i', 'u', a, vl, vu, il, ul, abstol, w, z, isuppz);
-
+//    System.out.println(w);
     assertEquals(3, m);
     assertMatrixEquals(bj.matrix(new double[]{0.433, 2.145, 3.368}), w.slice(bj.range(3)), 0.001);
     assertMatrixEquals(bj.matrix(new double[][]{
@@ -86,13 +84,13 @@ public class NetlibLinearAlgebraRoutinesTest {
         -0.65, -6.34, 2.67, 1.80, -7.10
     }).reshape(5, 5);
 
-    System.out.println(a);
+//    System.out.println(a);
 
     DoubleMatrix w = bj.doubleVector(a.rows());
 
     linalg.syev('v', 'u', a, w);
-    System.out.println(w);
-    System.out.println(a);
+//    System.out.println(w);
+//    System.out.println(a);
   }
 
   @Test
@@ -189,14 +187,10 @@ public class NetlibLinearAlgebraRoutinesTest {
         new double[]{1, 2, 3}
     });
     DoubleMatrix p = linalg.pinv(x.transpose());
-    System.out.println(p);
-    Random r = Utils.getRandom();
-    DoubleMatrix a = bj.doubleMatrix(1000, 1000).assign(r::nextGaussian);
-    long s = System.nanoTime();
-    for (int i = 0; i < 10; i++) {
-      linalg.svd(a);
-    }
-    System.out.println((System.nanoTime() - s) / 1e6 / 10);
+    assertArrayEquals(
+        new double[]{0.035714285714285705, 0.03571428571428572, 0.07142857142857141,
+                     0.07142857142857144, 0.10714285714285711, 0.10714285714285715},
+        p.data(), 1e-6);
   }
 
   @Test
@@ -207,7 +201,7 @@ public class NetlibLinearAlgebraRoutinesTest {
         new double[]{9, 7, 1}
     });
     SingularValueDecomposition svd = linalg.svd(x);
-    System.out.println(svd);
+//    System.out.println(svd);
 
   }
 }

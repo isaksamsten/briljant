@@ -4,6 +4,8 @@ import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
+import java.util.Random;
+
 /**
  * @author Isak Karlsson
  */
@@ -48,13 +50,22 @@ public class NormalDistribution extends Distribution {
   private final double loc;
   private final double scale;
 
-  public NormalDistribution(double loc, double scale) {
+  public NormalDistribution(Random rng, double loc, double scale) {
+    super(rng);
     this.loc = loc;
     this.scale = scale;
   }
 
+  public NormalDistribution(double loc, double scale) {
+    this(new Random(), loc, scale);
+  }
+
+  public NormalDistribution(Random rng) {
+    this(rng, 0, 1);
+  }
+
   public NormalDistribution() {
-    this(0, 1);
+    this(new Random());
   }
 
   /**

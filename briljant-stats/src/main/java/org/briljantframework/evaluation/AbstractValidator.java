@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.briljantframework.matrix.Matrices.argmax;
+import static org.briljantframework.Bj.argmax;
 
 /**
  * Created by isak on 03/10/14.

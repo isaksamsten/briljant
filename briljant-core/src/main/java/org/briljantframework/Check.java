@@ -5,7 +5,6 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.storage.Storage;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -176,10 +175,6 @@ public final class Check {
     size(expected.columns(), actual.columns());
   }
 
-  public static void storage(Matrix<?> matrix, Storage storage) {
-    Check.size(matrix.size(), storage.size());
-  }
-
   public static void isNotView(Matrix<?> m) {
     if (m.isView()) {
       throw new UnsupportedOperationException(
@@ -191,9 +186,9 @@ public final class Check {
     argument(check, "Invalid argument");
   }
 
-  public static void argument(boolean check, String message) {
+  public static void argument(boolean check, String message, Object... args) {
     if (!check) {
-      throw new IllegalArgumentException(message);
+      throw new IllegalArgumentException(String.format(message, args));
     }
   }
 }

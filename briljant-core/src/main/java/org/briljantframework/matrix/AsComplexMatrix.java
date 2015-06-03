@@ -3,7 +3,6 @@ package org.briljantframework.matrix;
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 
 /**
  * @author Isak Karlsson

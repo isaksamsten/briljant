@@ -26,7 +26,6 @@ import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.storage.Storage;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -255,12 +254,6 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
       public void set(int row, int column, int value) {
         AbstractDoubleMatrix.this.set(row, column, value);
       }
-
-      public Storage getStorage() {
-        return null;
-      }
-
-
     };
   }
 
@@ -816,6 +809,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
 
   @Override
   public DoubleMatrix slice(Range range) {
+    Check.argument(range.end() < size() && range.start() >= 0, "Index out of bounds");
     return new FlatSliceDoubleMatrix(getMatrixFactory(), this, range);
   }
 
