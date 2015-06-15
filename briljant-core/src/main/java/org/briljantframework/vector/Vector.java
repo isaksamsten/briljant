@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.function.Aggregates;
@@ -325,6 +326,34 @@ public interface Vector extends Serializable {
 
   Vector tail(int n);
 
+  Index getIndex();
+
+  void setIndex(Index index);
+
+  default <T> T get(Class<T> cls, Object key) {
+    return get(cls, getIndex().index(key));
+  }
+
+  default int getAsInt(Object key) {
+    return getAsInt(getIndex().index(key));
+  }
+
+  default double getAsDouble(Object key) {
+    return getAsDouble(getIndex().index(key));
+  }
+
+  default Complex getAsComplex(Object key) {
+    return getAsComplex(getIndex().index(key));
+  }
+
+  default Bit getAsBit(Object key) {
+    return getAsBit(getIndex().index(key));
+  }
+
+  default String toString(Object key) {
+    return toString(getIndex().index(key));
+  }
+
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
    * not an instance of {@code cls}, returns an appropriate {@code NA} value. For references types
@@ -623,14 +652,10 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * <p>Returns this vector as an immutable {@code Matrix}. An appropriate
+   * <p>Copies this vector to a {@code Matrix}. An appropriate
    * specialization of the {@link org.briljantframework.matrix.Matrix} interface should be
    * preferred. For example, a {@link org.briljantframework.vector.DoubleVector} should return a
    * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
-   *
-   * <p>Since {@code Vector}s are immutable, mutations of the returned matrix throws {@link
-   * org.briljantframework.exceptions.ImmutableModificationException}. Use {@link
-   * org.briljantframework.matrix.Matrix#copy()} to get a modifiable matrix.
    *
    * <pre>
    * Vector a = new DoubleVector(1, 2, 3, 4, 5);

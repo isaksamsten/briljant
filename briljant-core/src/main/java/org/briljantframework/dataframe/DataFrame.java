@@ -25,11 +25,9 @@ import java.util.stream.StreamSupport;
 /**
  * <p> A DataFrame is a heterogeneous storage of data. </p>
  *
- * <p> TODO: Returns records and Series</p>
- *
  * @author Isak Karlsson
  */
-public interface DataFrame extends Iterable<Series> {
+public interface DataFrame extends Iterable<Vector> {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
@@ -42,10 +40,6 @@ public interface DataFrame extends Iterable<Series> {
    * @return an instance of {@code T}
    */
   <T> T get(Class<T> cls, int row, int column);
-
-//  default Object get(int row, int column) {
-//    return get(Object.class, row, column);
-//  }
 
   /**
    * Get value at {@code row} and {@code column} as double.
@@ -105,10 +99,6 @@ public interface DataFrame extends Iterable<Series> {
     return get(cls, getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
-  default String getAsString(Object row, Object col) {
-    return getAsString(getRecordIndex().index(row), getColumnIndex().index(col));
-  }
-
   default double getAsDouble(Object row, Object col) {
     return getAsDouble(getRecordIndex().index(row), getColumnIndex().index(col));
   }
@@ -126,33 +116,6 @@ public interface DataFrame extends Iterable<Series> {
   }
 
   /**
-   * Sorts this DataFrame according to its index.
-   *
-   * @return a new data frame
-   */
-  DataFrame sort();
-
-  /**
-   * Sorts this DataFrame according to its index in the sort-order defined by {@code order}.
-   *
-   * @return a new data frame
-   */
-  DataFrame sort(SortOrder order);
-
-  /**
-   * Sorts this DataFrame according to the comparator.
-   *
-   * <pre>{@code
-   *  DataFrame df = MixedDataFrame.of("a", Vec.of(1,2,3,4)
-   *                                   "b", Vec.of("a","d","c","q"))
-   * }</pre>
-   *
-   * @param cmp
-   * @return
-   */
-  DataFrame sort(Comparator<? super Vector> cmp);
-
-  /**
    * Sort column {@code column}
    *
    * @param <T>    the type
@@ -161,25 +124,25 @@ public interface DataFrame extends Iterable<Series> {
    * @param column the column index
    * @return a new data frame sorted according to {@code cmp}
    */
-  <T> DataFrame sortBy(Class<? extends T> cls, Comparator<? super T> cmp, int column);
+  <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, int column);
 
-  default <T> DataFrame sortBy(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
-    return sortBy(cls, cmp, getColumnIndex().index(key));
+  default <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
+    return sort(cls, cmp, getColumnIndex().index(key));
   }
 
-  DataFrame sortBy(int column);
+  DataFrame sort(int column);
 
-  DataFrame sortBy(SortOrder order, int column);
+  DataFrame sort(SortOrder order, int column);
 
-  default DataFrame sortBy(SortOrder order, Object key) {
-    return sortBy(order, getColumnIndex().index(key));
+  default DataFrame sort(SortOrder order, Object key) {
+    return sort(order, getColumnIndex().index(key));
   }
 
-  default DataFrame sortBy(Object key) {
-    return sortBy(getColumnIndex().index(key));
+  default DataFrame sort(Object key) {
+    return sort(getColumnIndex().index(key));
   }
 
-  DataFrame head(int rows);
+  DataFrame head(int n);
 
   default DataFrame head() {
     return head(10);
@@ -273,7 +236,7 @@ public interface DataFrame extends Iterable<Series> {
    * @param op   the operation
    * @return a record with the reduced values
    */
-  <T> Series reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
+  <T> Vector reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
 
   /**
    * <p> Reduce every column by applying a function.
@@ -287,7 +250,7 @@ public interface DataFrame extends Iterable<Series> {
    * @param op the operation to apply
    * @return a new record with the reduced values
    */
-  Series reduce(Function<Vector, Object> op);
+  Vector reduce(Function<Vector, Object> op);
 
   /**
    * <p> Aggregate every column which is an instance of {@code cls} using the supplied aggregator.
@@ -303,15 +266,15 @@ public interface DataFrame extends Iterable<Series> {
    * <p> Note that {@link org.briljantframework.function.Aggregates} implement several convenient
    * aggregates, for example {@code df.aggregate(Number.class, Aggregate.median())}.
    *
-   * @param cls        the class
-   * @param aggregator the aggregator
    * @param <T>        the type of value to be aggregated
    * @param <C>        the type of the mutable aggregator
+   * @param cls        the class
+   * @param aggregator the aggregator
    * @return a {@linkplain org.briljantframework.dataframe.Series} of the aggregated values
    */
-  <T, C> Series aggregate(Class<T> cls, Aggregator<? super T, ? extends T, C> aggregator);
+  <T, C> Vector aggregate(Class<T> cls, Aggregator<? super T, ? extends T, C> aggregator);
 
-  <T, R, C> Series aggregate(Class<T> in, Class<R> out,
+  <T, R, C> Vector aggregate(Class<T> in, Class<R> out,
                              Aggregator<? super T, ? extends R, C> aggregator);
 
   /**
@@ -338,9 +301,9 @@ public interface DataFrame extends Iterable<Series> {
    * @param keyFunction the key function
    * @return a group by data frame
    */
-  DataFrameGroupBy groupBy(Function<Series, Object> keyFunction);
+  DataFrameGroupBy groupBy(Function<? super Vector, Object> keyFunction);
 
-  DataFrame transform(Function<? super Series, ? extends Vector> transform);
+  DataFrame transform(Function<? super Vector, ? extends Vector> transform);
 
   DataFrame add(Vector column);
 
@@ -353,7 +316,7 @@ public interface DataFrame extends Iterable<Series> {
    * @return the vector
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > columns}
    */
-  Series get(int index);
+  Vector get(int index);
 
   /**
    * Uses the column name to lookup a specified column.
@@ -377,7 +340,10 @@ public interface DataFrame extends Iterable<Series> {
       newColumn++;
     }
 
-    return df.build().setColumnIndex(columnIndex.build()).setRecordIndex(getRecordIndex());
+    DataFrame bdf = df.build();
+    bdf.setColumnIndex(columnIndex.build());
+    bdf.setRecordIndex(getRecordIndex());
+    return bdf;
   }
 
   default DataFrame get(Object... keys) {
@@ -393,10 +359,6 @@ public interface DataFrame extends Iterable<Series> {
    * @return a new dataframe
    */
   DataFrame drop(int index);
-
-  default DataFrame drop(int... indices) {
-    return drop(Arrays.asList(indices));
-  }
 
   default DataFrame drop(Object key) {
     return drop(getColumnIndex().index(key));
@@ -445,14 +407,14 @@ public interface DataFrame extends Iterable<Series> {
    *
    * @return an (immutable) collection of columns
    */
-  Collection<Series> getColumns();
+  Collection<Vector> getColumns();
 
   /**
    * Returns a collection of records.
    *
    * @return an (immutable) collection of rows
    */
-  Collection<Series> getRecords();
+  Collection<Vector> getRecords();
 
   /**
    * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types,
@@ -462,7 +424,7 @@ public interface DataFrame extends Iterable<Series> {
    * @param index the index
    * @return the row sequence
    */
-  Series getRecord(int index);
+  Vector getRecord(int index);
 
   /**
    * Take the rows in {@code indexes}
@@ -545,11 +507,11 @@ public interface DataFrame extends Iterable<Series> {
    */
   Matrix toMatrix();
 
-  default Stream<Series> stream() {
+  default Stream<Vector> stream() {
     return StreamSupport.stream(spliterator(), false);
   }
 
-  default Stream<Series> parallelStream() {
+  default Stream<Vector> parallelStream() {
     return StreamSupport.stream(spliterator(), true);
   }
 
@@ -559,9 +521,13 @@ public interface DataFrame extends Iterable<Series> {
 
   Index getColumnIndex();
 
-  DataFrame setRecordIndex(Index index);
+  void setRecordIndex(Index index);
 
-  DataFrame setColumnIndex(Index index);
+  void setColumnIndex(Index index);
+
+  default Ix getIx() {
+    return new IxImpl(this);
+  }
 
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
@@ -574,7 +540,7 @@ public interface DataFrame extends Iterable<Series> {
 
     /**
      * Set value at {@code row} in {@code column} to NA. If {@code column >= columns()} adds empty
-     * {@link org.briljantframework.vector.VariableVector} of all {@code NA} from {@code columns()
+     * {@link org.briljantframework.vector.GenericVector} of all {@code NA} from {@code columns()
      * ... column}.
      *
      * @param row    the row
@@ -586,7 +552,7 @@ public interface DataFrame extends Iterable<Series> {
 
     /**
      * Set value at {@code row, toCol} using the value at {@code fromRow, fromCol} in {@code from}.
-     * If {@code toCol >= columns()}, adds empty {@link org.briljantframework.vector.VariableVector}
+     * If {@code toCol >= columns()}, adds empty {@link org.briljantframework.vector.GenericVector}
      * columns from {@code columns() ... column - 1}, inferring the type at {@code toCol} using
      * {@code from.getColumnType(fromCol)}
      *
@@ -604,7 +570,7 @@ public interface DataFrame extends Iterable<Series> {
     /**
      * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}. If
      * {@code
-     * toCol >= columns()}, adds empty {@link org.briljantframework.vector.VariableVector} columns
+     * toCol >= columns()}, adds empty {@link org.briljantframework.vector.GenericVector} columns
      * from {@code columns() ... column - 1}, inferring the type at {@code toCol} using {@code
      * from.getType(index)}
      *
@@ -618,7 +584,7 @@ public interface DataFrame extends Iterable<Series> {
 
     /**
      * Set value at {@code row, column} to {@code value}. If {@code toCol >= columns()}, adds empty
-     * {@link org.briljantframework.vector.VariableVector} columns from {@code columns() ... column
+     * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
      * - 1}, inferring the type at {@code toCol} using {@code Vectors.getInstance(object)}
      *
      * @param row    the row
@@ -658,7 +624,7 @@ public interface DataFrame extends Iterable<Series> {
     /**
      * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds
      * empty
-     * {@link org.briljantframework.vector.VariableVector} columns from {@code columns() ... column
+     * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
      * - 1}. If {@code index < columns()} each column is shifted to the right.
      *
      * @param index   the index {@code index < columns()}
@@ -669,7 +635,7 @@ public interface DataFrame extends Iterable<Series> {
 
     /**
      * Sets the column at {@code index} to {@code vector}. If {@code index >= columns()} adds empty
-     * {@link org.briljantframework.vector.VariableVector} columns from {@code columns() ... column
+     * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
      * - 1}. If {@code index < columns()} each column is shifted to the right.
      *
      * @param index  the index {@code index < columns()}

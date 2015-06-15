@@ -123,8 +123,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
    * @param index the index
    */
   @Override
-  public Series get(int index) {
-    return new SeriesView(this, index);
+  public Vector get(int index) {
+    return new ColumnView(this, index);
   }
 
   @Override
@@ -148,8 +148,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Series getRecord(int index) {
-    return new RecordView(this, index, DoubleVector.TYPE);
+  public Vector getRecord(int index) {
+    return new RowView(this, index, DoubleVector.TYPE);
   }
 
   /**
@@ -528,21 +528,22 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame build() {
-      double[] values = new double[rows() * columns()];
-      for (int j = 0; j < columns(); j++) {
-        IntDoubleMap col = buffer.get(j);
-        for (int i = 0; i < rows(); i++) {
-          int index = Indexer.columnMajor(i, j, rows(), columns());
-          double dval = DoubleVector.NA;
-          if (col != null) {
-            if (col.containsKey(i)) {
-              dval = col.get(i);
-            }
-          }
-          values[index] = dval;
-        }
-      }
-      return null; // TODO
+      throw new UnsupportedOperationException();
+//      double[] values = new double[rows() * columns()];
+//      for (int j = 0; j < columns(); j++) {
+//        IntDoubleMap col = buffer.get(j);
+//        for (int i = 0; i < rows(); i++) {
+//          int index = Indexer.columnMajor(i, j, rows(), columns());
+//          double dval = DoubleVector.NA;
+//          if (col != null) {
+//            if (col.containsKey(i)) {
+//              dval = col.get(i);
+//            }
+//          }
+//          values[index] = dval;
+//        }
+//      }
+//      return null; // TODO
 //      DefaultDoubleMatrix matrix = new DefaultDoubleMatrix(values, rows(), columns());
 //      return new MatrixDataFrame(matrix, columnNames, rowNames, false);
     }

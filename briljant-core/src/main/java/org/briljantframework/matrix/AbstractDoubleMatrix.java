@@ -167,7 +167,7 @@ public abstract class AbstractDoubleMatrix extends AbstractMatrix<DoubleMatrix>
   }
 
   @Override
-  public <R, C> R aggregte(Aggregator<? super Double, R, C> aggregator) {
+  public <R, C> R aggregate(Aggregator<? super Double, R, C> aggregator) {
     C accum = aggregator.supplier().get();
     for (int i = 0; i < size(); i++) {
       aggregator.accumulator().accept(accum, get(i));

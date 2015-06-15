@@ -32,7 +32,10 @@ public class IntIndex extends AbstractList<Object> implements Index {
   @Override
   public int index(Object key) {
     if (key instanceof Integer) {
-      return (int) key;
+      int k = (int) key;
+      if (k < size && k > 0) {
+        return k;
+      }
     }
     throw noSuchElement(key);
   }
@@ -71,6 +74,9 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
           @Override
           public Integer next() {
+            if (current >= size) {
+              throw new NoSuchElementException();
+            }
             return current++;
           }
         };
@@ -127,6 +133,9 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
           @Override
           public Object next() {
+            if (current >= size) {
+              throw new NoSuchElementException();
+            }
             return current++;
           }
         };
@@ -149,7 +158,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
           @Override
           public boolean hasNext() {
-            return current < size();
+            return current < keys.length;
           }
 
           @Override
@@ -176,13 +185,13 @@ public class IntIndex extends AbstractList<Object> implements Index {
     return new Builder() {
 
       private HashIndex.Builder builder;
-      private int buffer = 0;
+      private int currentSize = 0;
 
       @Override
       public boolean contains(Object key) {
         if (isMonotonicallyIncreasing(key)) {
           int k = (int) key;
-          return k >= 0 && k < buffer;
+          return k >= 0 && k < currentSize;
         } else {
           initializeHashBuilder();
           return builder.contains(key);
@@ -192,7 +201,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
       private void initializeHashBuilder() {
         if (builder == null) {
           builder = new HashIndex.Builder();
-          for (int i = 0; i < buffer; i++) {
+          for (int i = 0; i < currentSize; i++) {
             builder.set(i, i);
           }
         }
@@ -210,42 +219,44 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
       @Override
       public Object get(int index) {
-        return builder == null && index < buffer ? index : builder.get(index);
+        if (index > currentSize) {
+          throw noSuchElement(index);
+        }
+        return builder == null ? index : builder.get(index);
       }
 
       @Override
       public void add(Object key) {
-        if (isMonotonicallyIncreasing(key)) {
-          set(key, buffer);
-        } else {
-          initializeHashBuilder();
-          builder.add(key);
-        }
+        set(key, currentSize);
       }
 
       private boolean isMonotonicallyIncreasing(Object key) {
         return key instanceof Integer && builder == null;
       }
 
+      private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
+        return new UnsupportedOperationException(
+            String.format("Creating gap in index. current != index (%d != %d)",
+                          currentSize, index)
+        );
+      }
+
       @Override
       public void set(Object key, int index) {
-        if (isMonotonicallyIncreasing(key) && key.equals(index)) {
-          if (index < buffer) {
-            initializeHashBuilder();
-            builder.set(key, index);
-          } else {
-            buffer++;
-          }
-        } else {
+        if (index > currentSize) {
+          throw nonMonotonicallyIncreasingIndex(index);
+        }
+        if (!isMonotonicallyIncreasing(key) || !key.equals(index)) {
           initializeHashBuilder();
           builder.set(key, index);
         }
+        currentSize++;
       }
 
       @Override
       public Index build() {
         if (builder == null) {
-          return new IntIndex(buffer);
+          return new IntIndex(currentSize);
         } else {
           return builder.build();
         }
@@ -268,7 +279,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
       @Override
       public int size() {
-        return builder == null ? buffer : builder.size();
+        return builder == null ? currentSize : builder.size();
       }
     };
   }
@@ -276,11 +287,6 @@ public class IntIndex extends AbstractList<Object> implements Index {
   @Override
   public int size() {
     return size;
-  }
-
-  @Override
-  public Index copy() {
-    return new IntIndex(size());
   }
 
   @Override

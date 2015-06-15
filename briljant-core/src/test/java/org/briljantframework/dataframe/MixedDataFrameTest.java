@@ -132,7 +132,6 @@ public class MixedDataFrameTest {
     assertEquals(Vec.VARIABLE, build.getType(5));
 
     assertEquals(1, build.getAsInt(0, 1));
-    assertEquals("1", build.getAsString(0, 0));
     assertEquals(1, build.getAsDouble(0, 2), 0);
     assertEquals(Complex.I, build.getAsComplex(0, 3));
     assertEquals(Bit.TRUE, build.getAsBit(0, 4));
@@ -157,7 +156,6 @@ public class MixedDataFrameTest {
 
     DataFrame build = builder.build();
     assertEquals(Vec.STRING, build.getType(0));
-    assertEquals("hello", build.getAsString(0, 0));
     assertEquals(Vec.INT, build.getType(1));
     assertEquals(1, build.getAsInt(0, 1));
     assertEquals(Vec.DOUBLE, build.getType(2));
@@ -193,7 +191,6 @@ public class MixedDataFrameTest {
     DataFrame build = builder.build();
     System.out.println(build);
     assertEquals(Vec.STRING, build.getType(0));
-    assertEquals("hello", build.getAsString(0, 0));
     assertEquals(Vec.INT, build.getType(1));
     assertEquals(1, build.getAsInt(0, 1));
     assertEquals(Vec.DOUBLE, build.getType(2));
@@ -287,7 +284,6 @@ public class MixedDataFrameTest {
     DataFrame.Builder builderA = dataA.newCopyBuilder();
     DataFrame concatAB = builderA.concat(dataB).concat(3, new IntVector(1, 2)).build();
     System.out.println(concatAB);
-    assertEquals("g", concatAB.getAsString(0, 2));
     assertTrue(concatAB.isNA(0, 5));
   }
 
@@ -296,10 +292,8 @@ public class MixedDataFrameTest {
     DataFrame.Builder builderA = dataA.newCopyBuilder();
     DataFrame stackAB = builderA.stack(dataB).stack(1, new IntVector(2, 3, 4)).build();
     System.out.println(stackAB);
-    assertEquals("e", stackAB.getAsString(4, 0));
     assertTrue(stackAB.isNA(12, 0));
     dataA.setRecordIndex(HashIndex.from("a", "b", "c", "d", "e", "f"));
-    System.out.println(dataA.getAsString("a", 0));
     DataFrame df = new MixedDataFrame.Builder()
         .addColumn(Vector.of("d d d d".split(" ")))
         .addColumn(new IntVector(0, 0, 0, 0))
@@ -307,7 +301,7 @@ public class MixedDataFrameTest {
 //    System.out.println(dataA.stack(Arrays.asList(df,dataB, dataB)));
 
     dataB.setColumnIndex(HashIndex.from("String", "Double B"));
-    dataA.setColumnIndex(HashIndex.sorted("String", "Double A"));
+    dataA.setColumnIndex(HashIndex.from("String", "Double A"));
     System.out.println(DataFrames.concat(Arrays.asList(dataA, dataB)));
 
   }
@@ -320,12 +314,11 @@ public class MixedDataFrameTest {
     vectors.put("brand", Vector.of("toyota", "tesla", "tesla", "volvo"));
 
     DataFrame frame = new MixedDataFrame(vectors);
-    frame.setRecordIndex(HashIndex.sorted(Arrays.asList("a", "b", "c", "d")));
-    frame.setColumnIndex(HashIndex.sorted(Arrays.asList("brand", "engines", "bhp")));
+    frame.setRecordIndex(HashIndex.from(Arrays.asList("a", "b", "c", "d")));
+    frame.setColumnIndex(HashIndex.from(Arrays.asList("brand", "engines", "bhp")));
 //    frame.setColumnIndex(HashIndex.from(new StringVector("engines", "bhp", "brand")));
 
     System.out.println(frame);
-    System.out.println(frame.getAsString("a", "brand"));
 
   }
 
@@ -375,9 +368,12 @@ public class MixedDataFrameTest {
         .build();
 
     DataFrame frame = new MixedDataFrame(a, b, c);
-
+//    frame.setColumnIndex(HashIndex.from("a", "b", "c"));
 //    frame.setColumnNames("a", "b");
+    System.out.println(frame);
+
     frame = new RemoveIncompleteColumns().transform(frame);
+    System.out.println(frame);
     assertEquals("The second column should be removed", 2, frame.columns());
 //    assertEquals("The column names should be retained", "b", frame.getColumnName(0));
   }

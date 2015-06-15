@@ -95,11 +95,11 @@ import java.util.function.UnaryOperator;
  *
  * @author Isak Karlsson
  */
-public interface Matrix<T extends Matrix> extends Swappable {
+public interface Matrix<E extends Matrix> extends Swappable {
 
-  void set(int toIndex, T from, int fromIndex);
+  void set(int toIndex, E from, int fromIndex);
 
-  void set(int toRow, int toColumn, T from, int fromRow, int fromColumn);
+  void set(int toRow, int toColumn, E from, int fromRow, int fromColumn);
 
   int compare(int a, int b);
 
@@ -109,15 +109,15 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param o the matrix
    * @return receiver modified
    */
-  T assign(T o);
+  E assign(E o);
 
-  T map(Dim dim, UnaryOperator<T> mapper);
+  E map(Dim dim, UnaryOperator<E> mapper);
 
-  void forEach(Dim dim, Consumer<T> consumer);
+  void forEach(Dim dim, Consumer<E> consumer);
 
-  void setRow(int i, T row);
+  void setRow(int i, E row);
 
-  void setColumn(int i, T column);
+  void setColumn(int i, E column);
 
   /**
    * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
@@ -128,7 +128,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param columns the new columns
    * @return a new matrix
    */
-  T reshape(int rows, int columns);
+  E reshape(int rows, int columns);
 
   /**
    * Get row vector at {@code i}. Modifications will change to original matrix.
@@ -136,7 +136,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param i row
    * @return a vector
    */
-  T getRow(int i);
+  E getRow(int i);
 
   /**
    * Gets vector at {@code index}. Modifications will change the original matrix.
@@ -144,18 +144,18 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param index the index
    * @return the column
    */
-  T getColumn(int index);
+  E getColumn(int index);
 
-  void setVectorAlong(Dim dim, int i, T vector);
+  void setVectorAlong(Dim dim, int i, E vector);
 
-  T getVectorAlong(Dim dim, int index);
+  E getVectorAlong(Dim dim, int index);
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
    *
    * @return a diagonal view
    */
-  T getDiagonal();
+  E getDiagonal();
 
   /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
@@ -184,9 +184,9 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param columns   number of columns after column offset
    * @return the matrix view
    */
-  T getView(int rowOffset, int colOffset, int rows, int columns);
+  E getView(int rowOffset, int colOffset, int rows, int columns);
 
-  default T select(int from, int to, Dim dim) {
+  default E select(int from, int to, Dim dim) {
     switch (dim) {
 
       case R:
@@ -205,7 +205,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param columns the columns to include
    * @return a view
    */
-  T slice(Range rows, Range columns);
+  E slice(Range rows, Range columns);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix. The view is preserved as long as
@@ -217,7 +217,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param range the range
    * @return a view
    */
-  T slice(Range range);
+  E slice(Range range);
 
   /**
    * Basic slicing. Returns a view of the underlying matrix, sliced from the axis defined by
@@ -227,7 +227,7 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param dim   the axis
    * @return a view
    */
-  T slice(Range range, Dim dim);
+  E slice(Range range, Dim dim);
 
   /**
    * Complex slicing. Returns a copy of the matrix.
@@ -236,15 +236,56 @@ public interface Matrix<T extends Matrix> extends Swappable {
    * @param columns the columns to include
    * @return a new matrix with the same size as {@code this}
    */
-  T slice(Collection<Integer> rows, Collection<Integer> columns);
+  E slice(Collection<Integer> rows, Collection<Integer> columns);
 
-  T slice(Collection<Integer> indexes);
+  E slice(Collection<Integer> indexes);
 
-  T slice(Collection<Integer> indexes, Dim dim);
+  E slice(Collection<Integer> indexes, Dim dim);
 
-  T slice(BitMatrix bits);
+  E slice(BitMatrix bits);
 
-  T slice(BitMatrix indexes, Dim dim);
+  E slice(BitMatrix indexes, Dim dim);
+
+  /**
+   * Element wise addition.
+   *
+   * @param o the other matrix
+   * @return a new matrix
+   */
+  E add(E o);
+
+  /**
+   * Element wise subtraction. {@code this - other}.
+   *
+   * @param o the other matrix
+   * @return a new matrix
+   */
+  E sub(E o);
+
+  /**
+   * Element wise <u>m</u>ultiplication
+   *
+   * @param o the matrix
+   * @return a new matrix
+   */
+  E mul(E o);
+
+  /**
+   * Element wise division. {@code this / other}.
+   *
+   * @param o the other
+   * @return a new matrix
+   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
+   */
+  E div(E o);
+
+  /**
+   * <u>m</u>atrix<u>m</u>ultiplication
+   *
+   * @param o the other
+   * @return r r
+   */
+  E mmul(E o);
 
   /**
    * The number of rows.
@@ -316,9 +357,9 @@ public interface Matrix<T extends Matrix> extends Swappable {
     return rows() == other.rows() && columns() == other.columns();
   }
 
-  T newEmptyMatrix(int rows, int columns);
+  E newEmptyMatrix(int rows, int columns);
 
-  T newEmptyVector(int size);
+  E newEmptyVector(int size);
 
   boolean isView();
 
@@ -350,23 +391,23 @@ public interface Matrix<T extends Matrix> extends Swappable {
   /**
    * @return the transpose of {@code this}.
    */
-  T transpose();
+  E transpose();
 
   /**
    * Create a copy of this matrix.
    *
    * @return the copy
    */
-  T copy();
+  E copy();
 
-  BitMatrix lt(T other);
+  BitMatrix lt(E other);
 
-  BitMatrix gt(T other);
+  BitMatrix gt(E other);
 
-  BitMatrix eq(T other);
+  BitMatrix eq(E other);
 
-  BitMatrix lte(T other);
+  BitMatrix lte(E other);
 
-  BitMatrix gte(T other);
+  BitMatrix gte(E other);
 
 }

@@ -1,13 +1,29 @@
 package org.briljantframework.vector;
 
+import com.google.common.base.Strings;
+
+import org.briljantframework.Check;
+import org.briljantframework.dataframe.Index;
+import org.briljantframework.dataframe.IntIndex;
 import org.briljantframework.function.Aggregator;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractVector implements Vector {
+
+  private Index index = null;
+
+  protected AbstractVector(Index index) {
+    this.index = index;
+  }
+
+  protected AbstractVector() {
+    this.index = null;
+  }
 
   @Override
   public <T, R, C> R aggregate(Class<? extends T> in,
@@ -70,6 +86,21 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public final Index getIndex() {
+    if (index == null) {
+      index = new IntIndex(size());
+    }
+    return index;
+  }
+
+  @Override
+  public final void setIndex(Index index) {
+    Objects.requireNonNull(index);
+    Check.size(size(), index.size());
+    this.index = index;
+  }
+
+  @Override
   public VectorType getType(int index) {
     return getType();
   }
@@ -103,4 +134,25 @@ public abstract class AbstractVector implements Vector {
     builder.append("] type: ").append(getType().toString());
     return builder.toString();
   }
+//  @Override
+//  public String toString() {
+//    StringBuilder builder = new StringBuilder();
+//    int longest = getIndex().keySet().stream()
+//        .map(Object::toString)
+//        .mapToInt(String::length)
+//        .max()
+//        .orElse(0);
+//
+//    Index index = getIndex();
+//    for (int i = 0; i < size(); i++) {
+//      String key = index.get(i).toString();
+//      builder.append(key)
+//          .append(Strings.repeat(" ", longest - key.length() + 2))
+//          .append(toString(i)).append("\n");
+//    }
+//    return builder
+//        .append("Name: ").append(name())
+//        .append(" type: ").append(getType())
+//        .toString();
+//  }
 }

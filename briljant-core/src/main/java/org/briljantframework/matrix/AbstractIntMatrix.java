@@ -588,7 +588,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   }
 
-  protected class FlatSliceIntMatrix extends AbstractIntMatrix {
+  protected static class FlatSliceIntMatrix extends AbstractIntMatrix {
 
     private final IntMatrix parent;
     private final Range range;

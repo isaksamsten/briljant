@@ -1,16 +1,16 @@
 package org.briljantframework.dataseries;
 
-import static org.briljantframework.Check.requireType;
-import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
-import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft;
-
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Series;
 import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.matrix.ComplexMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vector;
+
+import static org.briljantframework.Check.requireType;
+import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
+import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft;
 
 /**
  * @author Isak Karlsson
@@ -19,15 +19,15 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
 
   /**
    * Asserts that each row has {@link org.briljantframework.vector.DoubleVector#TYPE}.
-   * 
+   *
    * @param x data frame to transform
    * @return a new data frame; each row has type
-   *         {@link org.briljantframework.vector.ComplexVector#TYPE}
+   * {@link org.briljantframework.vector.ComplexVector#TYPE}
    */
   @Override
   public DataFrame transform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(ComplexVector.TYPE);
-    for (Series row : x) {
+    for (Vector row : x) {
       requireType(DoubleVector.TYPE, row);
       DoubleMatrix timeDomain = row.toMatrix().asDoubleMatrix();
       ComplexMatrix frequencyDomain = fft(timeDomain);
@@ -43,7 +43,7 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   @Override
   public DataFrame inverseTransform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
-    for (Series row : x) {
+    for (Vector row : x) {
       requireType(ComplexVector.TYPE, row);
       ComplexMatrix timeDomain = row.toMatrix().asComplexMatrix();
       DoubleMatrix frequencyDomain = ifft(timeDomain).asDoubleMatrix();

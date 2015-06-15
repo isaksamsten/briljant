@@ -71,7 +71,9 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         }
       }
     }
-    return builder.build().setColumnIndex(dataFrame.getColumnIndex());
+    DataFrame df = builder.build();
+    df.setColumnIndex(dataFrame.getColumnIndex());
+    return df;
   }
 
   @Override
@@ -141,8 +143,9 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   protected DataFrame finalizeDataFrame(DataFrame.Builder builder, Index.Builder recordIndex,
                                         Index.Builder columnIndex) {
-    return builder.build()
-        .setRecordIndex(recordIndex.build())
-        .setColumnIndex(columnIndex.build());
+    DataFrame df = builder.build();
+    df.setRecordIndex(recordIndex.build());
+    df.setColumnIndex(columnIndex.build());
+    return df;
   }
 }

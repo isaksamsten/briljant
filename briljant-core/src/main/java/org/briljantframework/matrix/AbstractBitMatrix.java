@@ -117,6 +117,32 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 //    };
 //  }
 
+
+  @Override
+  public BitMatrix add(BitMatrix o) {
+    return asIntMatrix().add(o.asIntMatrix()).asBitMatrix().copy();
+  }
+
+  @Override
+  public BitMatrix sub(BitMatrix o) {
+    return asIntMatrix().sub(o.asIntMatrix()).asBitMatrix().copy();
+  }
+
+  @Override
+  public BitMatrix mul(BitMatrix o) {
+    return asIntMatrix().mul(o.asIntMatrix()).asBitMatrix().copy();
+  }
+
+  @Override
+  public BitMatrix div(BitMatrix o) {
+    return asIntMatrix().div(o.asIntMatrix()).asBitMatrix().copy();
+  }
+
+  @Override
+  public BitMatrix mmul(BitMatrix o) {
+    return asIntMatrix().mmul(o.asIntMatrix()).asBitMatrix().copy();
+  }
+
   @Override
   public BitMatrix assign(boolean value) {
     for (int i = 0; i < size(); i++) {
@@ -478,7 +504,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
   }
 
-  protected class FlatSliceBitMatrix extends AbstractBitMatrix {
+  protected static class FlatSliceBitMatrix extends AbstractBitMatrix {
 
     private final BitMatrix parent;
     private final Range range;

@@ -76,8 +76,9 @@ public class RemoveIncompleteColumns implements Transformation {
         builder.addColumn(column);
       }
     }
-    return builder.build()
-        .setRecordIndex(x.getRecordIndex().copy())
-        .setColumnIndex(index.build());
+    DataFrame df = builder.build();
+    df.setRecordIndex(x.getRecordIndex());
+    df.setColumnIndex(index.build());
+    return df;
   }
 }

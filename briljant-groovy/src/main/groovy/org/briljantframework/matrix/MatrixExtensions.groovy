@@ -54,7 +54,7 @@ class MatrixExtensions {
     return self.add(v)
   }
 
-  static DoubleMatrix plus(DoubleMatrix self, DoubleMatrix other) {
+  static <T extends Matrix<T>> T plus(T self, T other) {
     return self.add(other)
   }
 
@@ -66,7 +66,7 @@ class MatrixExtensions {
     return self.sub(v)
   }
 
-  static DoubleMatrix minus(DoubleMatrix self, DoubleMatrix other) {
+  static <T extends Matrix<T>> T minus(T self, T other) {
     return self.sub(other)
   }
 
@@ -78,7 +78,7 @@ class MatrixExtensions {
     return self.mul(v)
   }
 
-  static DoubleMatrix multiply(DoubleMatrix self, DoubleMatrix other) {
+  static <T extends Matrix<T>> T multiply(T self, T other) {
     return self.mul(other)
   }
 

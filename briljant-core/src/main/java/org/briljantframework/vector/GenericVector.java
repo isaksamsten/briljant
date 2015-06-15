@@ -2,6 +2,7 @@ package org.briljantframework.vector;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.io.DataEntry;
@@ -38,7 +39,7 @@ public class GenericVector extends AbstractVector {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
     this.type = Vec.typeOf(cls);
-    this.size = this.values.size();
+    this.size = size;
   }
 
   @Override
@@ -105,13 +106,9 @@ public class GenericVector extends AbstractVector {
     return Bit.valueOf(getAsInt(index));
   }
 
-  public String getAsString(int index) {
-    return toString(index);
-  }
-
   @Override
   public int size() {
-    return values.size();
+    return size;
   }
 
   @Override
@@ -121,6 +118,12 @@ public class GenericVector extends AbstractVector {
 
   @Override
   public Matrix toMatrix() throws TypeConversionException {
+    if (Number.class.isAssignableFrom(cls)) {
+      return Bj.doubleVector(size())
+          .assign(asList(Number.class).stream()
+                      .mapToDouble(v -> Is.NA(v) ? Na.of(Double.class) : v.doubleValue())
+                      .iterator()::next);
+    }
     throw new TypeConversionException(
         String.format("Can't convert vector of '%s' to matrix", getType()));
   }

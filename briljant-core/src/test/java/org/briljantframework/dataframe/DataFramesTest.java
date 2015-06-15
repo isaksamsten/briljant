@@ -7,12 +7,15 @@ import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.io.resolver.StringDateConverter;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.time.Month;
+
+import static org.briljantframework.function.Aggregates.count;
 
 public class DataFramesTest {
 
@@ -23,26 +26,23 @@ public class DataFramesTest {
     Resolver<LocalDate> dateResolver = Resolvers.find(LocalDate.class);
     dateResolver.put(String.class, new StringDateConverter("yyyy-MM-dd"));
 
-    DataFrame df = DataFrames.loadCsv(
-        "/Users/isak-kar/Downloads/GOOG-NASDAQ_AAPL.csv"
-    );
-    System.out.println(
-        df.groupBy(f -> f.get(LocalDate.class, 0).getMonth())
-            .aggregate(Double.class, Aggregates.max())
-            .sortBy(SortOrder.DESC, "Open")
-    );
+    DataFrame open = DataFrames.loadCsv("/Users/isak-kar/Downloads/GOOG-NASDAQ_AAPL.csv")
+        .groupBy(f -> f.get(LocalDate.class, 0).getMonth())
+        .aggregate(Double.class, Aggregates.max())
+        .sort(SortOrder.DESC, "Open");
+    System.out.println(open);
 
+    System.out.println(open.getAsDouble(Month.APRIL, "Open"));
   }
 
   @Test
   public void testFizzBuzz() throws Exception {
-    DataFrame.Builder builder = new MixedDataFrame.Builder(
-        Vec.typeOf(Integer.class)
-    );
+    IntVector.Builder b = new IntVector.Builder();
     for (int i = 1; i <= 100; i++) {
-      builder.set(i - 1, 0, i);
+      b.set(i - 1, i);
     }
-    DataFrame df = builder.build().setColumnIndex(HashIndex.from("number"));
+    DataFrame df = MixedDataFrame.of("number", b.build());
+
     System.out.println(
         df.transform(
             v -> v.transform(Integer.class, String.class,
@@ -51,8 +51,8 @@ public class DataFramesTest {
                                   i % 5 == 0 ? "Buzz" :
                                   String.valueOf(i)))
             .groupBy("number")
-            .aggregate(Object.class, Aggregates.count())
-            .sortBy(SortOrder.DESC, "number")
+            .aggregate(Object.class, count())
+            .sort(SortOrder.DESC, "number")
             .head(3)
     );
 
@@ -72,7 +72,7 @@ public class DataFramesTest {
     System.out.println(satisfies);
     Vector largerThanMean = vec.slice(satisfies);
 
-    Vector l = vec.slice(vec.satisfies(Integer.class, vec, Object::equals));
+    Vector l = vec.slice(vec.satisfies(Integer.class, vec, Integer::equals));
 
     System.out.println(
         vec.transform(Integer.class, Boolean.class, Transforms.lessThan(3)));

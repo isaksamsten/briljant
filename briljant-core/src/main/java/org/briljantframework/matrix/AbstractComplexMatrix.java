@@ -586,7 +586,7 @@ public abstract class AbstractComplexMatrix extends AbstractMatrix<ComplexMatrix
 
   }
 
-  protected class FlatSliceComplexMatrix extends AbstractComplexMatrix {
+  protected static class FlatSliceComplexMatrix extends AbstractComplexMatrix {
 
     private final ComplexMatrix parent;
     private final Range range;

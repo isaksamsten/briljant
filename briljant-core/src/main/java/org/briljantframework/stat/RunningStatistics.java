@@ -33,6 +33,28 @@ public class RunningStatistics implements DescriptiveStatistics {
     }
   }
 
+  public void addAll(double[] arr) {
+    for (double v : arr) {
+      add(v);
+    }
+  }
+
+  public void addAll(RunningStatistics o) {
+    if (o.n > 0) {
+      n += o.n;
+      nm += o.nm;
+      ns += o.ns;
+      om += o.om;
+      os += o.os;
+
+      if (o.min < min) {
+        min = o.min;
+      } else if (o.max > max) {
+        max = o.max;
+      }
+    }
+  }
+
   @Override
   public int size() {
     return n;

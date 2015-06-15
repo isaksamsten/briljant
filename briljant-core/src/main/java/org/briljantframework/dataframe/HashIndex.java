@@ -1,5 +1,7 @@
 package org.briljantframework.dataframe;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterators;
 
 import org.briljantframework.vector.Vector;
@@ -10,62 +12,35 @@ import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * @author Isak Karlsson
  */
 public class HashIndex extends AbstractList<Object> implements Index {
 
-  private final Map<Object, Integer> hash;
-  private final Map<Integer, Object> reverse;
+  BiMap<Object, Integer> biMap;
 
-  private HashIndex(Map<Object, Integer> hash, Map<Integer, Object> reverse) {
-    this.hash = hash;
-    this.reverse = reverse;
+  public HashIndex(Collection<?> coll) {
+    biMap = HashBiMap.create(coll.size());
+    Iterator<?> it = coll.iterator();
+    for (int i = 0; it.hasNext(); i++) {
+      Object next = it.next();
+      if (biMap.put(next, i) != null) {
+        throw duplicateKey(next);
+      }
+    }
+  }
+
+  public HashIndex(BiMap<Object, Integer> biMap) {
+    this.biMap = HashBiMap.create(biMap);
   }
 
   public static HashIndex from(Vector vector) {
     return from(vector.asList(Object.class));
-  }
-
-  public static <T extends Comparable<T>> HashIndex sorted(Iterable<? extends T> coll) {
-    Map<Object, Integer> hash = new TreeMap<>();
-    Map<Integer, Object> reverse = new HashMap<>();
-    Iterator<? extends T> it = coll.iterator();
-    for (int i = 0; it.hasNext(); i++) {
-      T next = it.next();
-      if (hash.put(next, i) != null) {
-        throw duplicateKey(next);
-      }
-      reverse.put(i, next);
-    }
-    return new HashIndex(hash, reverse);
-  }
-
-  public static HashIndex sorted(Index index, Comparator<Object> order) {
-    Map<Object, Integer> hash = new TreeMap<>(order);
-    Map<Integer, Object> reverse = new HashMap<>();
-    for (Entry entry : index.entrySet()) {
-      hash.put(entry.key(), entry.index());
-      reverse.put(entry.index(), entry.key());
-    }
-    return new HashIndex(hash, reverse);
-  }
-
-  @SafeVarargs
-  public static <T extends Comparable<T>> HashIndex sorted(T... values) {
-    return sorted(Arrays.asList(values));
-  }
-
-  public static HashIndex sorted(Vector vector) {
-    return sorted(vector.asList(Comparable.class));
   }
 
   @SafeVarargs
@@ -74,17 +49,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
   }
 
   public static <T> HashIndex from(Collection<? extends T> coll) {
-    Map<Object, Integer> hash = new HashMap<>();
-    Map<Integer, Object> reverse = new HashMap<>();
-    Iterator<?> it = coll.iterator();
-    for (int i = 0; it.hasNext(); i++) {
-      Object next = it.next();
-      if (hash.put(next, i) != null) {
-        throw duplicateKey(next);
-      }
-      reverse.put(i, next);
-    }
-    return new HashIndex(hash, reverse);
+    return new HashIndex(coll);
   }
 
   private static UnsupportedOperationException duplicateKey(Object next) {
@@ -97,7 +62,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public int index(Object key) {
-    Integer idx = hash.get(key);
+    Integer idx = biMap.get(key);
     if (idx == null) {
       throw noSuchElement(key);
     }
@@ -106,9 +71,9 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Object get(int index) {
-    Object key = reverse.get(index);
+    Object key = biMap.inverse().get(index);
     if (key == null) {
-      if (reverse.containsKey(index)) {
+      if (biMap.inverse().containsKey(index)) {
         return null;
       }
       throw noSuchElement(index);
@@ -118,7 +83,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public boolean contains(Object key) {
-    return hash.containsKey(key);
+    return biMap.containsKey(key);
   }
 
   @Override
@@ -140,7 +105,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Collection<Integer> indices() {
-    return hash.values();
+    return biMap.values();
   }
 
   @Override
@@ -150,7 +115,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
       public Iterator<Entry> iterator() {
         return new Iterator<Entry>() {
 
-          Iterator<Map.Entry<Object, Integer>> it = hash.entrySet().iterator();
+          Iterator<Map.Entry<Object, Integer>> it = biMap.entrySet().iterator();
 
           @Override
           public boolean hasNext() {
@@ -174,23 +139,17 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Set<Object> keySet() {
-    return hash.keySet();
+    return biMap.keySet();
   }
 
   @Override
   public Builder newBuilder() {
-    return new Builder(hash instanceof TreeMap);
+    return new Builder();
   }
 
   @Override
   public int size() {
-    return hash.size();
-  }
-
-  @Override
-  public Index copy() {
-    return new HashIndex(hash instanceof TreeMap ? new TreeMap<>(hash) : new HashMap<>(hash),
-                         reverse);
+    return biMap.size();
   }
 
   @Override
@@ -208,7 +167,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
           @Override
           public Integer next() {
-            return hash.get(keys[current++]);
+            return biMap.get(keys[current++]);
           }
         };
       }
@@ -222,7 +181,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Map<Integer, Object> indexMap() {
-    return Collections.unmodifiableMap(reverse);
+    return Collections.unmodifiableMap(biMap.inverse());
   }
 
 //  /**
@@ -256,20 +215,11 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   public static class Builder implements Index.Builder {
 
-    private final Map<Object, Integer> buffer;
-    private final Map<Integer, Object> reverse;
-    private int current = 0;
-
-    /**
-     * @param sorted if true creates a sorted index builder
-     */
-    public Builder(boolean sorted) {
-      this.buffer = sorted ? new TreeMap<>() : new HashMap<>();
-      this.reverse = new HashMap<>();
-    }
+    private BiMap<Object, Integer> buffer;
+    private int currentSize = 0;
 
     public Builder() {
-      this(false);
+      this.buffer = HashBiMap.create();
     }
 
     @Override
@@ -285,12 +235,12 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
     @Override
     public Object get(int index) {
-      return reverse.get(index);
+      return buffer.inverse().get(index);
     }
 
     @Override
     public void add(Object key) {
-      set(key, current++);
+      set(key, currentSize);
     }
 
     @Override
@@ -298,12 +248,12 @@ public class HashIndex extends AbstractList<Object> implements Index {
       if (buffer.put(key, index) != null) {
         throw duplicateKey(key);
       }
-      reverse.put(index, key);
+      currentSize++;
     }
 
     @Override
     public Index build() {
-      return new HashIndex(buffer, reverse);
+      return new HashIndex(buffer);
     }
 
     @Override
@@ -318,6 +268,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
     @Override
     public void swap(int a, int b) {
+      BiMap<Integer, Object> reverse = buffer.inverse();
       Object keyA = reverse.get(a);
       Object keyB = reverse.get(b);
       reverse.put(a, keyB);

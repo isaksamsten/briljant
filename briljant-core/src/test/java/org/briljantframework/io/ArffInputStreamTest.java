@@ -21,7 +21,8 @@ public class ArffInputStreamTest {
         new MixedDataFrame.Builder(in.readColumnTypes());
     builder.read(in);
 
-    System.out.println(builder.build().setColumnIndex(HashIndex.from(in.readColumnIndex())));
-
+    DataFrame df = builder.build();
+    df.setColumnIndex(HashIndex.from(in.readColumnIndex()));
+    System.out.println(df);
   }
 }

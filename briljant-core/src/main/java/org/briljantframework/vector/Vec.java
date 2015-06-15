@@ -47,9 +47,9 @@ public final class Vec {
   public static final VectorType COMPLEX = ComplexVector.TYPE;
   public static final VectorType DOUBLE = DoubleVector.TYPE;
   public static final VectorType VARIABLE = new GenericVectorType(Object.class);
+  public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
   public static final Set<VectorType> NUMERIC = Sets.newHashSet();
   public static final Set<VectorType> CATEGORIC = Sets.newHashSet();
-  public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
 
   static {
     NUMERIC.add(DOUBLE);

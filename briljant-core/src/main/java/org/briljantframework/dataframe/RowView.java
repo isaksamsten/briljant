@@ -16,29 +16,20 @@ import org.briljantframework.vector.VectorType;
 /**
  * @author Isak Karlsson
  */
-class RecordView extends AbstractVector implements Series {
+class RowView extends AbstractVector {
 
   private final DataFrame parent;
   private final int row;
   private final VectorType type;
 
-  public RecordView(DataFrame parent, int row, VectorType type) {
+  public RowView(DataFrame parent, int row, VectorType type) {
+    super(parent.getColumnIndex());
     this.parent = parent;
     this.type = type;
     this.row = row;
   }
 
-  @Override
-  public Object name() {
-    return parent.getRecordIndex().get(row);
-  }
-
-  @Override
-  public Index index() {
-    return parent.getColumnIndex();
-  }
-
-  public RecordView(DataFrame parent, int row) {
+  public RowView(DataFrame parent, int row) {
     this(parent, row, Vec.VARIABLE);
   }
 
@@ -132,7 +123,7 @@ class RecordView extends AbstractVector implements Series {
     b.put(0, 0, "");
     b.put(1, 0, "[" + row + ",]");
     for (int i = 0; i < size(); i++) {
-      b.put(0, i + 1, index().get(i).toString());
+      b.put(0, i + 1, getIndex().get(i).toString());
       b.put(1, i + 1, toString(i));
     }
     return Utils.prettyPrintTable(b.build(), 1, 2, false, false);

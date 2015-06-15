@@ -18,6 +18,18 @@ public class RunningStatisticsTest {
   }
 
   @Test
+  public void testAddAll() throws Exception {
+    RunningStatistics gold = new RunningStatistics();
+    gold.addAll(new double[]{10, 20, 30, 40, 50, 60});
+    RunningStatistics x = new RunningStatistics();
+    x.addAll(new double[]{40, 50, 60});
+    s.addAll(x);
+
+    assertEquals(gold.getMean(), s.getMean(), 0);
+
+  }
+
+  @Test
   public void testMean() throws Exception {
     assertEquals(20.0, s.getMean(), 0);
   }

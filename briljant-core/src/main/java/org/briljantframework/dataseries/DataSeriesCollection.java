@@ -6,8 +6,6 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Series;
-import org.briljantframework.dataframe.SeriesVector;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
@@ -185,8 +183,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Series getRecord(int index) {
-    return new SeriesVector("", getColumnIndex(), series.get(index));
+  public Vector getRecord(int index) {
+    return series.get(index); // TODO: the index
   }
 
   /**
@@ -230,7 +228,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
       // If the source row does not contain the source column requested
       // silently ignore the value. This is the case since data series
       // can be of unequal lengths.
-      Series row = from.getRecord(fromRow);
+      Vector row = from.getRecord(fromRow);
       if (fromCol < row.size()) {
         builders.get(toRow).set(toCol, row, fromCol);
       }

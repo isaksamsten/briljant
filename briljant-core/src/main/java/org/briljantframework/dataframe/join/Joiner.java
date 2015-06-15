@@ -92,7 +92,9 @@ public abstract class Joiner {
         columnIndex++;
       }
     }
-    return builder.build().setColumnIndex(columnIndexer.build());
+    DataFrame df = builder.build();
+    df.setColumnIndex(columnIndexer.build());
+    return df;
   }
 
   private void appendColumnFromLeftIndexIgnoreNA(int size, DataFrame.Builder builder,

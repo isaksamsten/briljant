@@ -3,7 +3,7 @@ package org.briljantframework.matrix.netlib;
 /**
  * @author Isak Karlsson
  */
-public class NetlibLapackException extends Error {
+public class NetlibLapackException extends RuntimeException {
 
   private final int errorCode;
 

@@ -34,8 +34,6 @@ public interface Index extends List<Object> {
 
   int size();
 
-  Index copy();
-
   public final class Entry {
 
     private final Object key;

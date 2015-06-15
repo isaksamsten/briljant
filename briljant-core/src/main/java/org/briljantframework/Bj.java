@@ -33,10 +33,10 @@ import java.util.stream.StreamSupport;
 public final class Bj {
 
   private static final Distribution normalDistribution = new NormalDistribution(0, 1);
-  private static MatrixFactory MATRIX_FACTORY;
-  private static MatrixRoutines MATRIX_ROUTINES;
+  private static final MatrixFactory MATRIX_FACTORY;
+  private static final MatrixRoutines MATRIX_ROUTINES;
 
-  public static LinearAlgebraRoutines linalg;
+  public static final LinearAlgebraRoutines linalg;
 
   static {
     MatrixBackend backend =
@@ -55,9 +55,9 @@ public final class Bj {
   private Bj() {
   }
 
-  public static Matrix<?> matrix(Collection<Number> values) {
-    Check.argument(values.size() >= 0);
-    Iterator<Number> it = values.iterator();
+  public static Matrix<?> matrix(Collection<? extends Number> values) {
+    Check.argument(values.size() > 0);
+    Iterator<? extends Number> it = values.iterator();
     Number v = it.next();
     if (v instanceof Double || v instanceof BigDecimal) {
       DoubleMatrix m = doubleVector(values.size());

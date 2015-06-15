@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
 public class BitVector extends AbstractVector {
 
   public static final Bit NA = Bit.NA;
-  public static VectorType TYPE = new VectorType() {
+  public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
       return new Builder();

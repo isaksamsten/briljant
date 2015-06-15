@@ -22,8 +22,8 @@ public class AggregatesTest {
   @Test
   public void testValueCounts() throws Exception {
     Vector vec = Vector.of('a', 'b', 'c', 'd', 'e', 'e');
-    Map<Character, Integer> counts = vec.aggregate(Character.class, valueCounts());
-    assertEquals(2, counts.get('e').intValue());
+    Vector counts = vec.aggregate(Character.class, valueCounts());
+    assertEquals(2, counts.get(Integer.class, 'e').intValue());
 
     System.out.println(
         vec.aggregate(repeat(4)).aggregate(normalizedValueCounts())

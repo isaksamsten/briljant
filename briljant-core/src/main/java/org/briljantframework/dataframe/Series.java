@@ -11,29 +11,29 @@ public interface Series extends Vector {
 
   Object name();
 
-  Index index();
+  Index getIndex();
 
   default <T> T get(Class<T> cls, Object key) {
-    return get(cls, index().index(key));
+    return get(cls, getIndex().index(key));
   }
 
   default int getAsInt(Object key) {
-    return getAsInt(index().index(key));
+    return getAsInt(getIndex().index(key));
   }
 
   default double getAsDouble(Object key) {
-    return getAsDouble(index().index(key));
+    return getAsDouble(getIndex().index(key));
   }
 
   default Complex getAsComplex(Object key) {
-    return getAsComplex(index().index(key));
+    return getAsComplex(getIndex().index(key));
   }
 
   default Bit getAsBit(Object key) {
-    return getAsBit(index().index(key));
+    return getAsBit(getIndex().index(key));
   }
 
   default String toString(Object key) {
-    return toString(index().index(key));
+    return toString(getIndex().index(key));
   }
 }

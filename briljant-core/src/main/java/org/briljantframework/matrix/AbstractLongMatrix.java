@@ -968,7 +968,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     }
   }
 
-  protected class FlatSliceLongMatrix extends AbstractLongMatrix {
+  protected static class FlatSliceLongMatrix extends AbstractLongMatrix {
 
     private final LongMatrix parent;
     private final Range range;

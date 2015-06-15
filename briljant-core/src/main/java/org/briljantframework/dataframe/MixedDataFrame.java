@@ -94,7 +94,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       this.columns.add(vector);
     }
     this.rows = rows;
-    this.columnIndex = HashIndex.from(columnIndex);
+    setColumnIndex(new HashIndex(columnIndex));
   }
 
   /**
@@ -143,7 +143,8 @@ public class MixedDataFrame extends AbstractDataFrame {
     Collection<Object> index = io.readColumnIndex();
     DataFrame frame = new MixedDataFrame.Builder(io.readColumnTypes()).read(io).build();
     if (index != null) {
-      return frame.setColumnIndex(HashIndex.from(index));
+      frame.setColumnIndex(HashIndex.from(index));
+      return frame;
     } else {
       return frame;
     }
@@ -249,57 +250,22 @@ public class MixedDataFrame extends AbstractDataFrame {
       }
       columnIndex.set(entry.key(), newIndex);
     }
-    return df.setColumnIndex(columnIndex.build()).setRecordIndex(getRecordIndex());
+    df.setColumnIndex(columnIndex.build());
+    df.setRecordIndex(getRecordIndex());
+    return df;
   }
 
   @Override
-  public Series get(int index) {
-    return new SeriesVector(getColumnIndex().get(index), getRecordIndex(), columns.get(index));
+  public Vector get(int index) {
+    return columns.get(index); // TODO: the index?!
   }
-
-//  @Override
-//  public DataFrame drop(int index) {
-//    checkArgument(index >= 0 && index < columns());
-//    ArrayList<Vector> columns = new ArrayList<>(this.columns);
-//    columns.remove(index);
-//    Index.
-//
-//    return new MixedDataFrame(columns, rows()).setRecordIndex(getRecordIndex());
-//  }
-
-//  @Override
-//  public DataFrame drop(Iterable<Integer> indexes) {
-//    Set<Integer> set = null;
-//    if (indexes instanceof Set) {
-//      set = (Set<Integer>) indexes;
-//    } else {
-//      set = Sets.newHashSet(indexes);
-//    }
-//
-//    ArrayList<Vector> columns = new ArrayList<>();
-//
-//    int index = 0;
-//    for (int i = 0; i < columns(); i++) {
-//      if (!set.contains(i)) {
-//        columns.add(get(i));
-//        // TODO: reindex
-////        String name = getColumnName(i);
-////        if (name != null) {
-////          columnNames.put(index, name);
-////        }
-//        index += 1;
-//      }
-//    }
-//
-//    return new MixedDataFrame(columns, rows());
-//  }
 
   @Override
   public DataFrame retain(Iterable<Integer> indexes) {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     for (int index : indexes) {
       builder.addColumn(get(index));
-      // reindex
+      // TODO:
 //      if (getColumnNames().containsKey(index)) {
 //        builder.getColumnNames().put(index, getColumnName(index));
 //      }
@@ -350,27 +316,6 @@ public class MixedDataFrame extends AbstractDataFrame {
       buffers = new ArrayList<>(types.size());
       types.forEach(type -> buffers.add(type.newBuilder()));
     }
-
-//    /**
-//     * Construct a builder with {@code types.size()} columns with names from {@code colNames}.
-//     * Asserts that {@code colNames.size() == types.size()}
-//     *
-//     * @param colNames the column names
-//     * @param types    the types
-//     */
-//    public Builder(Collection<? extends VectorType> types) {
-//      checkArgument(colNames.size() > 0 && colNames.size() == types.size(),
-//                    "Column names and types does not match.");
-//      this.buffers = new ArrayList<>(types.size());
-//
-//      Iterator<String> it = colNames.iterator();
-//      int index = 0;
-//      for (VectorType type : types) {
-//        // index by col-names
-////        this.columnNames.put(index++, it.next());
-//        this.buffers.add(type.newBuilder());
-//      }
-//    }
 
     /**
      * <p> Construct a builder using vector builders. Vector builders of different sizes are
@@ -425,11 +370,6 @@ public class MixedDataFrame extends AbstractDataFrame {
         } else {
           buffers.add(vector.newBuilder());
         }
-        // Copy indexes
-//        String name = frame.getColumnName(i);
-//        if (name != null) {
-//          columnNames.put(i, name);
-//        }
       }
     }
 

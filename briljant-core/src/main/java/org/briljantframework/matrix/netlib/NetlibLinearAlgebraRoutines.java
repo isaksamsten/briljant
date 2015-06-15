@@ -15,6 +15,8 @@ import org.briljantframework.matrix.T;
 import org.briljantframework.matrix.api.MatrixFactory;
 import org.netlib.util.intW;
 
+import java.util.Arrays;
+
 /**
  * @author Isak Karlsson
  */
@@ -27,8 +29,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   private static final char[] GESVD_JOB_CHAR = new char[]{'a', 's', 'o', 'n'};
   private static final char[] SYEVR_JOBZ_CHAR = new char[]{'n', 'v'};
   private static final char[] SYEVR_RANGE_CHAR = new char[]{'a', 'v', 'i'};
-  public static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
-  public static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
+  static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
+  static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
 
   protected NetlibLinearAlgebraRoutines(NetlibMatrixBackend matrixFactory) {
     super(matrixFactory);
@@ -670,6 +672,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   private IllegalArgumentException invalidCharacter(String parameter, char c, char[] chars) {
-    return new IllegalArgumentException(String.format("%s %s not in %s.", parameter, c, chars));
+    return new IllegalArgumentException(
+        String.format("%s %s not in %s.", parameter, c, Arrays.toString(chars))
+    );
   }
 }

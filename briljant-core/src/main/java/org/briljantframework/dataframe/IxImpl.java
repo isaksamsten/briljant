@@ -1,82 +1,76 @@
 package org.briljantframework.dataframe;
 
-import org.briljantframework.complex.Complex;
-
 /**
  * @author Isak Karlsson
  */
-public class Indexer {
+class IxImpl implements Ix {
 
   private final Index rec, col;
   private final DataFrame df;
 
-  public Indexer(DataFrame df) {
+  IxImpl(DataFrame df) {
     this.rec = df.getRecordIndex();
     this.col = df.getColumnIndex();
     this.df = df;
   }
 
-  public String getAsString(Object r, int c) {
-    return df.getAsString(rec.index(r), c);
+  @Override
+  public <T> T get(Class<T> cls, Object r, int c) {
+    return df.get(cls, rec.index(r), c);
   }
 
-  public String getAsString(int r, Object c) {
-    return df.getAsString(r, col.index(c));
+  @Override
+  public <T> T get(Class<T> cls, int r, Object c) {
+    return df.get(cls, r, col.index(c));
   }
 
-  public String getAsString(Object r, Object c) {
-    return df.getAsString(r, c);
+  @Override
+  public <T> T get(Class<T> cls, Object r, Object c) {
+    return df.get(cls, r, c);
   }
 
-  public String getAsString(int r, int c) {
-    return df.getAsString(r, c);
+  @Override
+  public <T> T get(Class<T> cls, int r, int c) {
+    return df.get(cls, r, c);
   }
 
+  @Override
   public int getAsInt(Object r, int c) {
     return df.getAsInt(rec.index(r), c);
   }
 
+  @Override
   public int getAsInt(int r, Object c) {
     return df.getAsInt(r, col.index(c));
   }
 
+  @Override
   public int getAsInt(Object r, Object c) {
     return df.getAsInt(r, c);
   }
 
+  @Override
   public int getAsInt(int r, int c) {
     return df.getAsInt(r, c);
   }
 
+  @Override
   public double getAsDouble(Object r, int c) {
     return df.getAsDouble(rec.index(r), c);
   }
 
+  @Override
   public double getAsDouble(int r, Object c) {
     return df.getAsDouble(r, col.index(c));
   }
 
+  @Override
   public double getAsDouble(Object r, Object c) {
     return df.getAsDouble(r, c);
   }
 
+  @Override
   public double getAsDouble(int r, int c) {
     return df.getAsDouble(r, c);
-  }
-
-  public Complex getAsComplex(Object r, int c) {
-    return df.getAsComplex(rec.index(r), c);
-  }
-
-  public Complex getAsComplex(int r, Object c) {
-    return df.getAsComplex(r, col.index(c));
-  }
-
-  public Complex getAsComplex(Object r, Object c) {
-    return df.getAsComplex(r, c);
-  }
-
-  public Complex getAsComplex(int r, int c) {
-    return df.getAsComplex(r, c);
   }
 }

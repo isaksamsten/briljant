@@ -13,12 +13,13 @@ import org.briljantframework.vector.VectorType;
  *
  * @author Isak Karlsson
  */
-class SeriesView extends AbstractVector implements Series {
+class ColumnView extends AbstractVector {
 
   private final DataFrame parent;
   private final int column;
 
-  public SeriesView(DataFrame parent, int column) {
+  public ColumnView(DataFrame parent, int column) {
+    super(parent.getRecordIndex());
     this.parent = parent;
     this.column = column;
   }
@@ -56,10 +57,6 @@ class SeriesView extends AbstractVector implements Series {
   @Override
   public Bit getAsBit(int index) {
     return parent.getAsBit(index, column);
-  }
-
-  public String getAsString(int index) {
-    return parent.getAsString(index, column);
   }
 
   @Override
@@ -116,15 +113,5 @@ class SeriesView extends AbstractVector implements Series {
       builder.append(",").append(toString(i));
     }
     return builder.append("]").toString();
-  }
-
-  @Override
-  public Object name() {
-    return parent.getColumnIndex().get(column);
-  }
-
-  @Override
-  public Index index() {
-    return parent.getRecordIndex();
   }
 }

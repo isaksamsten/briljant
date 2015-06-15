@@ -1,5 +1,6 @@
 package org.briljantframework.matrix.base;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import org.briljantframework.matrix.AbstractIntMatrix;
@@ -41,6 +42,11 @@ class BaseRange extends AbstractIntMatrix implements Range {
              step() == rng.step();
     }
     return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(start, end, step);
   }
 
   @Override

@@ -10,8 +10,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
 
-  private final double TOLERANCE = 4 * Math.ulp(1.0);
-  private final double MAXIMUM_STEP = 100.0;
+  private static final double TOLERANCE = 4 * Math.ulp(1.0);
+  private static final double MAXIMUM_STEP = 100.0;
 
   private final int memory;
   private final int maxIterations;
@@ -49,8 +49,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
     double maxStepSize = MAXIMUM_STEP + Math.max(Math.sqrt(sum), n);
     int iter = 1, k = 0;
     while (iter <= maxIterations) {
-      if (lineSearch.optimize(function, x, f, gradient, direction, currentSolution, maxStepSize)
-          == Double.NaN) {
+      if (Double.isNaN(lineSearch.optimize(
+          function, x, f, gradient, direction, currentSolution, maxStepSize))) {
         break;
       }
       f = function.gradientCost(currentSolution, currentGradient);

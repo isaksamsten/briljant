@@ -17,8 +17,6 @@ public class SequenceInputStream extends DataInputStream {
   private String separator = ",";
   private String missingValue = "?";
   private int columns = -1;
-  private int currentType = 0;
-  private int currentName = 0;
   private String[] values = null;
 
   /**

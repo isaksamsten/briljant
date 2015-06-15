@@ -4,6 +4,8 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 
+import org.briljantframework.dataframe.HashIndex;
+import org.briljantframework.dataframe.Index;
 import org.briljantframework.stat.RunningStatistics;
 import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.Is;
@@ -128,11 +130,21 @@ public final class Aggregates {
     return repeat(Vec::inferringBuilder, copies);
   }
 
-  public static <T> Aggregator<T, Map<T, Integer>, ?> valueCounts() {
+  public static <T> Aggregator<T, Vector, ?> valueCounts() {
     return Aggregator.of(
-        HashMap::new,
+        () -> new HashMap<T, Integer>(),
         (map, t) -> map.compute(t, (v, c) -> c == null ? 1 : c + 1),
-        Function.identity()
+        (map) -> {
+          Vector.Builder b = Vec.inferringBuilder();
+          Index.Builder ib = new HashIndex.Builder();
+          for (Map.Entry<T, Integer> e : map.entrySet()) {
+            b.add(e.getValue());
+            ib.add(e.getKey());
+          }
+          Vector v = b.build();
+          v.setIndex(ib.build());
+          return v;
+        }
     );
   }
 

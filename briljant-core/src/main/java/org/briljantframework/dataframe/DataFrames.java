@@ -113,7 +113,9 @@ public final class DataFrames {
       e.printStackTrace();
     }
     parser.stopParsing();
-    return df.build().setColumnIndex(columnIndex.build());
+    DataFrame bdf = df.build();
+    bdf.setColumnIndex(columnIndex.build());
+    return bdf;
   }
 
   public static DataFrame concat(Collection<? extends DataFrame> dataFrames) {
@@ -146,7 +148,9 @@ public final class DataFrames {
       toRow += rows;
     }
     assert builder != null;
-    return builder.build().setColumnIndex(columnIndex.build());
+    DataFrame df = builder.build();
+    df.setColumnIndex(columnIndex.build());
+    return df;
   }
 
   /**
@@ -169,7 +173,9 @@ public final class DataFrames {
     try {
       Collection<VectorType> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
-      return f.apply(types).read(in).build().setColumnIndex(HashIndex.from(names));
+      DataFrame df = f.apply(types).read(in).build();
+      df.setColumnIndex(HashIndex.from(names));
+      return df;
     } finally {
       if (in != null) {
         in.close();
@@ -205,27 +211,31 @@ public final class DataFrames {
         builder.set(j, 3, mode);
       }
     }
-    return builder.build().setColumnIndex(HashIndex.from(
+    DataFrame bdf = builder.build();
+    bdf.setColumnIndex(HashIndex.from(
         Arrays.asList("Mean", "Min", "Max", "Mode")
     ));
+    return bdf;
   }
 
   /**
-   * Returns a row-permuted copy of {@code in}. This implementations uses the Fisher–Yates shuffle
+   * Returns a row-permuted copy of {@code df}. This implementations uses the Fisher–Yates shuffle
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
-   * Knuth), which is an algorithm for generating a random permutation of a finite set — in plain
+   * Knuth), which is an algorithm for generating a random permutation of a finite set — df plain
    * terms, for randomly shuffling the finite set.
    *
-   * @param in     the input {@code DataFrame}
+   * @param df     the input {@code DataFrame}
    * @param random the random number generator used
-   * @return a permuted copy of {@code in}
+   * @return a permuted copy of {@code df}
    */
-  public static DataFrame permuteRows(DataFrame in, Random random) {
-    DataFrame.Builder builder = in.newCopyBuilder();
+  public static DataFrame permuteRows(DataFrame df, Random random) {
+    DataFrame.Builder builder = df.newCopyBuilder();
     for (int i = builder.rows(); i > 1; i--) {
       builder.swapRecords(i - 1, random.nextInt(i));
     }
-    return builder.build().setColumnIndex(in.getColumnIndex());
+    DataFrame bdf = builder.build();
+    bdf.setColumnIndex(df.getColumnIndex());
+    return bdf;
   }
 
   /**
@@ -273,28 +283,6 @@ public final class DataFrames {
    */
   public static DataFrame dropIncompleteCases(DataFrame x) {
     return removeIncompleteCases.transform(x);
-  }
-
-  //TODO(isak) - this is quick and dirty. Implement a real group by data frame
-  public static Map<Object, DataFrame> groupBy(DataFrame dataframe, String column) {
-    Map<Object, DataFrame.Builder> builders = new HashMap<>();
-    Vector keyColumn = dataframe.get(column);
-
-    for (int i = 0; i < dataframe.rows(); i++) {
-      Object key = keyColumn.get(Object.class, i);
-      DataFrame.Builder builder = builders.get(key);
-      if (builder == null) {
-        builder = dataframe.newBuilder();
-        builders.put(key, builder);
-      }
-      builder.addRecord(dataframe.getRecord(i));
-    }
-
-    Map<Object, DataFrame> frame = new HashMap<>();
-    for (Map.Entry<Object, DataFrame.Builder> entry : builders.entrySet()) {
-      frame.put(entry.getKey(), entry.getValue().build());
-    }
-    return frame;
   }
 
   /**

@@ -101,18 +101,6 @@ import java.util.stream.DoubleStream;
  */
 public interface DoubleMatrix extends Matrix<DoubleMatrix> {
 
-//  static DoubleMatrix of(double... values) {
-//    return new DefaultDoubleMatrix(Briljant.doubleStorage(values));
-//  }
-
-//  static DoubleMatrix newVector(int size) {
-//    return new DefaultDoubleMatrix(size);
-//  }
-//
-//  static DoubleMatrix newMatrix(int rows, int columns) {
-//    return new DefaultDoubleMatrix(rows, columns);
-//  }
-
   /**
    * Assign {@code value} to {@code this}
    *
@@ -157,9 +145,9 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    */
   DoubleMatrix update(DoubleUnaryOperator operator);
 
-  <R, C> R aggregte(Aggregator<? super Double, R, C> aggregator);
+  <R, C> R aggregate(Aggregator<? super Double, R, C> aggregator);
 
-  <T> T collect(Supplier<T> supplier, ObjDoubleConsumer<T> consumer);
+  <E> E collect(Supplier<E> supplier, ObjDoubleConsumer<E> consumer);
 
   // Transform
 
@@ -308,14 +296,6 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
   // Arithmetical operations ///////////
 
   /**
-   * <u>m</u>atrix<u>m</u>ultiplication
-   *
-   * @param other the other
-   * @return r r
-   */
-  DoubleMatrix mmul(DoubleMatrix other);
-
-  /**
    * <u>m</u>atrix diagonal multiplication
    *
    * @param diagonal the diagonal
@@ -337,14 +317,6 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
   DoubleMatrix mmul(double alpha, T a, DoubleMatrix other, T b);
 
   /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param other the matrix
-   * @return a new matrix
-   */
-  DoubleMatrix mul(DoubleMatrix other);
-
-  /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
    * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
    * pass.
@@ -363,14 +335,6 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @return a new matrix
    */
   DoubleMatrix mul(double scalar);
-
-  /**
-   * Element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleMatrix add(DoubleMatrix other);
 
   default DoubleMatrix addi(DoubleMatrix other) {
     return assign(other, (a, b) -> a + b);
@@ -403,14 +367,6 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
   /**
    * Element wise subtraction. {@code this - other}.
    *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleMatrix sub(DoubleMatrix other);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
    * @param scalar the scalar
    * @return r r
    */
@@ -435,15 +391,6 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @return a new matrix
    */
   DoubleMatrix rsub(double scalar);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param other the other
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  DoubleMatrix div(DoubleMatrix other);
 
   default DoubleMatrix divi(DoubleMatrix other) {
     return assign(other, (x, y) -> x / y);
