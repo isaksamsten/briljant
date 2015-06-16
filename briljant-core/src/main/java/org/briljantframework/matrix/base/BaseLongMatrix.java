@@ -51,13 +51,8 @@ class BaseLongMatrix extends AbstractLongMatrix {
   }
 
   @Override
-  public LongMatrix newEmptyMatrix(int rows, int columns) {
-    return new BaseLongMatrix(getMatrixFactory(), rows, columns);
-  }
-
-  @Override
   public long get(int i, int j) {
-    return values[Indexer.columnMajor(i, j, rows(), columns())];
+    return values[Indexer.columnMajor(0, i, j, rows(), columns())];
   }
 
   @Override
@@ -72,6 +67,6 @@ class BaseLongMatrix extends AbstractLongMatrix {
 
   @Override
   public void set(int i, int j, long value) {
-    values[Indexer.columnMajor(i, j, rows(), columns())] = value;
+    values[Indexer.columnMajor(0, i, j, rows(), columns())] = value;
   }
 }

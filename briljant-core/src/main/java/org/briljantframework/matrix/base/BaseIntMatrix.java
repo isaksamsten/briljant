@@ -42,18 +42,13 @@ class BaseIntMatrix extends AbstractIntMatrix {
   }
 
   @Override
-  public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return new BaseIntMatrix(getMatrixFactory(), rows, columns);
-  }
-
-  @Override
   public boolean isView() {
     return false;
   }
 
   @Override
   public int get(int i, int j) {
-    return data[Indexer.columnMajor(i, j, rows(), columns())];
+    return data[Indexer.columnMajor(0, i, j, rows(), columns())];
   }
 
   @Override
@@ -68,7 +63,7 @@ class BaseIntMatrix extends AbstractIntMatrix {
 
   @Override
   public void set(int i, int j, int value) {
-    data[Indexer.columnMajor(i, j, rows(), columns())] = value;
+    data[Indexer.columnMajor(0, i, j, rows(), columns())] = value;
   }
 
   @Override

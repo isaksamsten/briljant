@@ -38,18 +38,13 @@ class BaseBitMatrix extends AbstractBitMatrix {
     return new BaseBitMatrix(getMatrixFactory(), storage, rows, columns);
   }
 
-  @Override
-  public BitMatrix newEmptyMatrix(int rows, int columns) {
-    return new BaseBitMatrix(getMatrixFactory(), rows, columns);
-  }
-
   public BitMatrix copy() {
     return new BaseBitMatrix(getMatrixFactory(), storage.clone(), rows(), columns());
   }
 
   @Override
   public void set(int i, int j, boolean value) {
-    set(Indexer.columnMajor(i, j, rows(), columns()), value);
+    set(Indexer.columnMajor(0, i, j, rows(), columns()), value);
   }
 
   @Override
@@ -59,7 +54,7 @@ class BaseBitMatrix extends AbstractBitMatrix {
 
   @Override
   public boolean get(int i, int j) {
-    return get(Indexer.columnMajor(i, j, rows(), columns()));
+    return get(Indexer.columnMajor(0, i, j, rows(), columns()));
   }
 
   @Override

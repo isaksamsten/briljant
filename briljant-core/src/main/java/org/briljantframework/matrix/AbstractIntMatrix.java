@@ -120,11 +120,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       public double get(int index) {
         return AbstractIntMatrix.this.get(index);
       }
-
-//      @Override
-//      public Storage getStorage() {
-//        return AbstractIntMatrix.this.getStorage();
-//      }
     };
   }
 
@@ -222,7 +217,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix map(IntUnaryOperator operator) {
-    IntMatrix mat = newEmptyMatrix(rows(), columns());
+    IntMatrix mat = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       mat.set(i, operator.applyAsInt(get(i)));
     }
@@ -361,7 +356,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix reduceColumns(ToIntFunction<? super IntMatrix> reduce) {
-    IntMatrix mat = newEmptyMatrix(1, columns());
+    IntMatrix mat = newEmptyArray(1, columns());
     for (int i = 0; i < columns(); i++) {
       mat.set(i, reduce.applyAsInt(getColumn(i)));
     }
@@ -370,7 +365,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix reduceRows(ToIntFunction<? super IntMatrix> reduce) {
-    IntMatrix mat = newEmptyMatrix(rows(), 1);
+    IntMatrix mat = newEmptyArray(rows(), 1);
     for (int i = 0; i < rows(); i++) {
       mat.set(i, reduce.applyAsInt(getRow(i)));
     }
@@ -446,11 +441,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     return builder.toString();
   }
 
-  @Override
-  public IntMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
-  }
-
   protected static class SliceIntMatrix extends AbstractIntMatrix {
 
     private final Range row, column;
@@ -500,11 +490,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
 
     @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
     public int get(int index) {
       int row = index % rows();
       int col = index / rows();
@@ -535,7 +520,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
     @Override
     public IntMatrix copy() {
-      IntMatrix mat = parent.newEmptyMatrix(rows(), columns());
+      IntMatrix mat = parent.newEmptyArray(rows(), columns());
       for (int i = 0; i < size(); i++) {
         mat.set(i, get(i));
       }
@@ -545,7 +530,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     private int computeLinearIndex(int index) {
       int currentColumn = index / rows() + colOffset;
       int currentRow = index % rows() + rowOffset;
-      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+      return columnMajor(0, currentRow, currentColumn, parent.rows(), parent.columns());
     }
 
     @Override
@@ -557,11 +542,6 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     @Override
     public boolean isView() {
       return true;
-    }
-
-    @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
     }
 
     @Override
@@ -605,7 +585,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
     @Override
     public void set(int i, int j, int value) {
-      set(columnMajor(i, j, rows(), columns()), value);
+      set(columnMajor(0, i, j, rows(), columns()), value);
     }
 
     @Override
@@ -624,13 +604,8 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     }
 
     @Override
-    public IntMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
     public int get(int i, int j) {
-      return get(columnMajor(i, j, rows(), columns()));
+      return get(columnMajor(0, i, j, rows(), columns()));
     }
 
     @Override
@@ -683,7 +658,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix copy() {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, get(i));
     }
@@ -760,7 +735,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
-    IntMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    IntMatrix m = newEmptyArray(rows.size(), columns.size());
     int i = 0;
     for (int row : rows) {
       int j = 0;
@@ -801,17 +776,17 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
 
-    IntMatrix result = newEmptyMatrix(thisRows, otherColumns);
+    IntMatrix result = newEmptyArray(thisRows, otherColumns);
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         int sum = 0;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
+              a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
                                                                               thisRows,
                                                                               thisCols);
           int otherIndex =
-              b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
+              b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
                                                                                    otherRows,
                                                                                    otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
@@ -830,7 +805,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public IntMatrix mul(int alpha, IntMatrix other, int beta) {
     Check.size(this, other);
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         m.set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
@@ -848,13 +823,13 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   public IntMatrix slice(Collection<Integer> indexes, Dim dim) {
     IntMatrix matrix;
     if (dim == Dim.R) {
-      matrix = newEmptyMatrix(indexes.size(), columns());
+      matrix = newEmptyArray(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
         matrix.setRow(i++, getRow(index));
       }
     } else {
-      matrix = newEmptyMatrix(rows(), indexes.size());
+      matrix = newEmptyArray(rows(), indexes.size());
       int i = 0;
       for (int index : indexes) {
         matrix.setColumn(i++, getColumn(index));
@@ -865,7 +840,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix mul(int alpha, IntMatrix other, int beta, Dim dim) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -882,7 +857,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix mul(int scalar) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         m.set(i, j, get(i, j) * scalar);
@@ -898,7 +873,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix add(int scalar) {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, get(i, j) + scalar);
@@ -914,7 +889,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix add(int alpha, IntMatrix other, int beta, Dim dim) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -939,7 +914,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public IntMatrix add(int alpha, IntMatrix other, int beta) {
     Check.size(this, other);
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
@@ -965,7 +940,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix sub(int alpha, IntMatrix other, int beta, Dim dim) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -983,7 +958,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public IntMatrix sub(int alpha, IntMatrix other, int beta) {
     Check.size(this, other);
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, alpha * get(i, j) - other.get(i, j) * beta);
@@ -999,7 +974,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix rsub(int scalar) {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, scalar - get(i, j));
@@ -1015,7 +990,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix rsub(int alpha, IntMatrix other, int beta, Dim dim) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -1033,7 +1008,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
   @Override
   public IntMatrix div(IntMatrix other) {
     Check.size(this, other);
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, get(i, j) / other.get(i, j));
@@ -1044,7 +1019,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix div(int other) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i) / other);
     }
@@ -1063,7 +1038,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix div(int alpha, IntMatrix other, int beta, Dim dim) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -1080,7 +1055,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix rdiv(int other) {
-    IntMatrix matrix = newEmptyMatrix(rows(), columns());
+    IntMatrix matrix = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, other / get(i));
     }
@@ -1094,7 +1069,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix rdiv(int alpha, IntMatrix other, int beta, Dim dim) {
-    IntMatrix m = newEmptyMatrix(rows(), columns());
+    IntMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
@@ -1111,7 +1086,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix negate() {
-    IntMatrix n = newEmptyMatrix(rows(), columns());
+    IntMatrix n = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       n.set(i, -get(i));
     }
@@ -1158,7 +1133,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
     IntMatrix matrix;
     if (dim == Dim.R) {
       Check.size(rows(), indexes);
-      matrix = newEmptyMatrix(size, columns());
+      matrix = newEmptyArray(size, columns());
       int index = 0;
       for (int i = 0; i < rows(); i++) {
         if (indexes.get(i)) {
@@ -1167,7 +1142,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
       }
     } else {
       Check.size(columns(), indexes);
-      matrix = newEmptyMatrix(rows(), size);
+      matrix = newEmptyArray(rows(), size);
       int index = 0;
       for (int j = 0; j < columns(); j++) {
         if (indexes.get(j)) {
@@ -1181,7 +1156,7 @@ public abstract class AbstractIntMatrix extends AbstractMatrix<IntMatrix> implem
 
   @Override
   public IntMatrix transpose() {
-    IntMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+    IntMatrix matrix = newEmptyArray(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(j, i, get(i, j));

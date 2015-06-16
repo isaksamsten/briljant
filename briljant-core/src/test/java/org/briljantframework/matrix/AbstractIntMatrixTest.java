@@ -275,12 +275,12 @@ public class AbstractIntMatrixTest {
 
   @Test
   public void testNewEmptyMatrix() throws Exception {
-    assertNotNull(bj.intMatrix(2, 2).newEmptyMatrix(2, 2));
+    assertNotNull(bj.intMatrix(2, 2).newEmptyArray(2, 2));
   }
 
   @Test
   public void testNewEmptyVector() throws Exception {
-    IntMatrix x = bj.intMatrix(2, 2).newEmptyVector(2);
+    IntMatrix x = bj.intMatrix(2, 2).newEmptyArray(2);
     assertNotNull(x);
     assertEquals(2, x.rows());
     assertEquals(1, x.columns());

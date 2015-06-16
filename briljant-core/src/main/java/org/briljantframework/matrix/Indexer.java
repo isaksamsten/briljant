@@ -4,19 +4,29 @@ package org.briljantframework.matrix;
  * @author Isak Karlsson
  */
 public final class Indexer {
-  private Indexer() {}
+
+  private Indexer() {
+  }
+
+  public static int[] reverse(int[] arr) {
+    int[] copy = new int[arr.length];
+    for (int i = 0; i < arr.length; i++) {
+      copy[i] = arr[arr.length - i - 1];
+    }
+    return copy;
+  }
 
   /**
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}
    *
-   * @param row the row
-   * @param col the col
+   * @param row   the row
+   * @param col   the col
    * @param nrows the number or rows
    * @param ncols the number of columns
    * @return the linearized index
    */
-  public static int columnMajor(int row, int col, int nrows, int ncols) {
+  public static int columnMajor(int offset, int row, int col, int nrows, int ncols) {
     if (col >= ncols || col < 0) {
       throw new IllegalArgumentException(String.format(
           "index out of bounds; value %d out of bound %d", col, ncols));
@@ -24,16 +34,50 @@ public final class Indexer {
       throw new IllegalArgumentException(String.format(
           "index out of bounds; value %d out of bound %d", row, nrows));
     } else {
-      return col * nrows + row;
+      return offset + col * nrows + row;
     }
+  }
+
+  public static int[] computeStride(int st, int[] shape) {
+    int[] stride = new int[shape.length];
+    for (int i = 0; i < stride.length; i++) {
+      stride[i] = st;
+      st *= shape[i];
+    }
+    return stride;
+  }
+
+  public static int computeSize(int[] shape) throws ArithmeticException {
+    int size = shape[0];
+    for (int i = 1; i < shape.length; i++) {
+      size = Math.multiplyExact(size, shape[i]);
+    }
+    return size;
+  }
+
+  public static int[] remove(int[] array, int index) {
+    int[] result = new int[array.length - 1];
+    System.arraycopy(array, 0, result, 0, index);
+    if (index < array.length - 1) {
+      System.arraycopy(array, index + 1, result, index, array.length - index - 1);
+    }
+
+    return result;
+  }
+
+  public static int columnMajorStride(int offset, int[] index, int[] stride) {
+    for (int i = 0; i < index.length; i++) {
+      offset += index[i] * stride[i];
+    }
+    return offset;
   }
 
   /**
    * Returns the index of {@code indexe}, if the stride were {@code step}.
    *
-   * @param step the step size
+   * @param step  the step size
    * @param index the index
-   * @param n the end
+   * @param n     the end
    * @return a new index; {@code step * index}, guaranteed to be {@code < n}
    */
   public static int sliceIndex(int step, int index, int n) {
@@ -49,8 +93,8 @@ public final class Indexer {
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}
    *
-   * @param row the row
-   * @param col the col
+   * @param row   the row
+   * @param col   the col
    * @param nrows the number or rows
    * @param ncols the number of columns
    * @return the linearized index
@@ -69,19 +113,19 @@ public final class Indexer {
 
   /**
    * Given an {@code index}, compute the linearized column major index in a parent matrix.
-   * 
-   * @param index the current index
-   * @param rows the rows of the view
-   * @param colOffset the column offset
-   * @param rowOffset the row offset
-   * @param parentRows the number of rows in the parent
+   *
+   * @param index         the current index
+   * @param rows          the rows of the view
+   * @param colOffset     the column offset
+   * @param rowOffset     the row offset
+   * @param parentRows    the number of rows in the parent
    * @param parentColumns the number of columns in the parent
    * @return the position {@code index} in a view, transformed to the position in the parent matrix.
    */
   public static int computeLinearIndex(int index, int rows, int colOffset, int rowOffset,
-      int parentRows, int parentColumns) {
+                                       int parentRows, int parentColumns) {
     int currentColumn = index / rows + colOffset;
     int currentRow = index % rows + rowOffset;
-    return columnMajor(currentRow, currentColumn, parentRows, parentColumns);
+    return columnMajor(0, currentRow, currentColumn, parentRows, parentColumns);
   }
 }

@@ -291,12 +291,12 @@ public class AbstractComplexMatrixTest {
 
   @Test
   public void testNewEmptyMatrix() throws Exception {
-    assertNotNull(bj.complexMatrix(2, 2).newEmptyMatrix(2, 2));
+    assertNotNull(bj.complexMatrix(2, 2).newEmptyArray(2, 2));
   }
 
   @Test
   public void testNewEmptyVector() throws Exception {
-    ComplexMatrix x = bj.complexMatrix(2, 2).newEmptyVector(2);
+    ComplexMatrix x = bj.complexMatrix(2, 2).newEmptyArray(new int[]{2});
     assertNotNull(x);
     assertEquals(2, x.rows());
     assertEquals(1, x.columns());

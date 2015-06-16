@@ -1,5 +1,6 @@
 package org.briljantframework.matrix;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.matrix.api.MatrixFactory;
 
@@ -20,12 +21,12 @@ abstract class AsDoubleMatrix extends AbstractDoubleMatrix {
 
       @Override
       public void set(int i, int j, double value) {
-        set(Indexer.columnMajor(i, j, rows(), columns()), value);
+        set(Indexer.columnMajor(0, i, j, rows(), columns()), value);
       }
 
       @Override
       public double get(int i, int j) {
-        return get(Indexer.columnMajor(i, j, rows(), columns()));
+        return get(Indexer.columnMajor(0, i, j, rows(), columns()));
       }
 
       @Override
@@ -37,8 +38,8 @@ abstract class AsDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return bj.doubleMatrix(rows, columns);
+  public DoubleMatrix newEmptyArray(int... shape) {
+    return Bj.doubleArray(shape);
   }
 
   @Override

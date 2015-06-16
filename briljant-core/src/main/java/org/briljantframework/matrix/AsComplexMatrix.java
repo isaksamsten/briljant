@@ -24,12 +24,12 @@ abstract class AsComplexMatrix extends AbstractComplexMatrix {
 
       @Override
       public void set(int i, int j, Complex value) {
-        set(Indexer.columnMajor(i, j, rows(), columns()), value);
+        set(Indexer.columnMajor(0, i, j, rows(), columns()), value);
       }
 
       @Override
       public Complex get(int i, int j) {
-        return get(Indexer.columnMajor(i, j, rows(), columns()));
+        return get(Indexer.columnMajor(0, i, j, rows(), columns()));
       }
 
       @Override
@@ -37,11 +37,6 @@ abstract class AsComplexMatrix extends AbstractComplexMatrix {
         return AsComplexMatrix.this.get(index);
       }
     };
-  }
-
-  @Override
-  public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    return bj.complexMatrix(rows, columns);
   }
 
   @Override

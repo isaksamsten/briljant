@@ -90,13 +90,8 @@ class BaseRange extends AbstractIntMatrix implements Range {
   }
 
   @Override
-  public IntMatrix newEmptyMatrix(int rows, int columns) {
-    return new BaseIntMatrix(getMatrixFactory(), rows, columns);
-  }
-
-  @Override
   public int get(int i, int j) {
-    return get(Indexer.columnMajor(i, j, rows(), columns()));
+    return get(Indexer.columnMajor(0, i, j, rows(), columns()));
   }
 
   @Override

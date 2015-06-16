@@ -213,7 +213,7 @@ public class AbstractBitMatrixTest {
 
   @Test
   public void testNewEmptyMatrix() throws Exception {
-    BitMatrix newMatrix = a.newEmptyMatrix(2, 20);
+    BitMatrix newMatrix = a.newEmptyArray(2, 20);
     assertEquals(2, newMatrix.rows());
     assertEquals(20, newMatrix.columns());
     assertEquals(false, newMatrix.get(12));

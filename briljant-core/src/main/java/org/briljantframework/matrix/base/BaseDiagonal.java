@@ -259,11 +259,6 @@ class BaseDiagonal extends AbstractDoubleMatrix implements Diagonal {
   }
 
   @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return bj.doubleMatrix(rows, columns);
-  }
-
-  @Override
   public boolean isView() {
     return false;
   }

@@ -211,6 +211,10 @@ public final class Bj {
     return MATRIX_FACTORY.doubleMatrix(rows, columns);
   }
 
+  public static DoubleMatrix doubleArray(int[] shape) {
+    return MATRIX_FACTORY.doubleArray(shape);
+  }
+
   public static MatrixFactory getMatrixFactory() {
     return MATRIX_FACTORY;
   }
@@ -457,10 +461,10 @@ public final class Bj {
    * @param a       the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
-   * {@link org.briljantframework.matrix.Matrix#newEmptyMatrix(int, int)}).
+   * {@link org.briljantframework.matrix.Matrix#newEmptyArray(int, int)}).
    */
   public static <T extends Matrix<T>> T take(T a, IntMatrix indexes) {
-    T taken = a.newEmptyVector(indexes.size());
+    T taken = a.newEmptyArray(new int[]{indexes.size()});
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a, indexes.get(i));
     }
@@ -526,7 +530,7 @@ public final class Bj {
   }
 
   public static DoubleMatrix map(DoubleMatrix in, DoubleUnaryOperator operator) {
-    return in.newEmptyMatrix(in.rows(), in.columns()).assign(in, operator);
+    return in.newEmptyArray(in.rows(), in.columns()).assign(in, operator);
   }
 
   public static DoubleMatrix sqrt(DoubleMatrix matrix) {

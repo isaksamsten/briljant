@@ -254,6 +254,8 @@ public final class MatrixPrinter {
      */
     String get(int i, int j);
 
+    String get(int[] ix);
+
     /**
      * Get row at {@code i} as {@code ToStringMatrix}
      *
@@ -314,6 +316,11 @@ public final class MatrixPrinter {
     }
 
     @Override
+    public String get(int[] ix) {
+      return NUMBER_FORMAT.format(matrix.get(ix));
+    }
+
+    @Override
     public ToStringMatrix getRowView(int i) {
       return new DoubleToStringMatrix(matrix.getRow(i));
     }
@@ -360,6 +367,11 @@ public final class MatrixPrinter {
     }
 
     @Override
+    public String get(int[] ix) {
+      return null;
+    }
+
+    @Override
     public ToStringMatrix getRowView(int i) {
       return new LongToStringMatrix(matrix.getRow(i));
     }
@@ -403,6 +415,11 @@ public final class MatrixPrinter {
     @Override
     public String get(int i, int j) {
       return COMPLEX_FORMAT.format(matrix.get(i, j));
+    }
+
+    @Override
+    public String get(int[] ix) {
+      return null;
     }
 
     @Override

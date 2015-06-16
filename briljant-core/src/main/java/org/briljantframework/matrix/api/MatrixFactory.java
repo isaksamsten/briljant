@@ -141,6 +141,8 @@ public interface MatrixFactory {
    */
   DoubleMatrix doubleVector(int size);
 
+  DoubleMatrix doubleArray(int[] shape);
+
   /**
    * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.
    *

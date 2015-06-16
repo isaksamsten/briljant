@@ -15,7 +15,7 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
     return new AsLongMatrix(bj, rows, columns) {
       @Override
       public long get(int i, int j) {
-        return get(Indexer.columnMajor(i, j, rows(), columns()));
+        return get(Indexer.columnMajor(0, i, j, rows(), columns()));
       }
 
       @Override
@@ -30,7 +30,7 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
 
       @Override
       public void set(int i, int j, long value) {
-        set(Indexer.columnMajor(i, j, rows(), columns()), value);
+        set(Indexer.columnMajor(0, i, j, rows(), columns()), value);
       }
     };
   }
@@ -39,11 +39,4 @@ abstract class AsLongMatrix extends AbstractLongMatrix {
   public boolean isView() {
     return true;
   }
-
-  @Override
-  public LongMatrix newEmptyMatrix(int rows, int columns) {
-    return bj.longMatrix(rows, columns);
-  }
-
-
 }

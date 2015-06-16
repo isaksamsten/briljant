@@ -228,7 +228,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix map(LongUnaryOperator operator) {
-    LongMatrix mat = newEmptyMatrix(rows(), columns());
+    LongMatrix mat = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       mat.set(i, operator.applyAsLong(get(i)));
     }
@@ -301,7 +301,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix reduceColumns(ToLongFunction<? super LongMatrix> reduce) {
-    LongMatrix mat = newEmptyMatrix(1, columns());
+    LongMatrix mat = newEmptyArray(1, columns());
     for (int i = 0; i < columns(); i++) {
       mat.set(i, reduce.applyAsLong(getColumn(i)));
     }
@@ -310,7 +310,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix reduceRows(ToLongFunction<? super LongMatrix> reduce) {
-    LongMatrix mat = newEmptyMatrix(rows(), 1);
+    LongMatrix mat = newEmptyArray(rows(), 1);
     for (int i = 0; i < rows(); i++) {
       mat.set(i, reduce.applyAsLong(getRow(i)));
     }
@@ -465,19 +465,19 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
 
-    LongMatrix result = newEmptyMatrix(thisRows, otherColumns);
+    LongMatrix result = newEmptyArray(thisRows, otherColumns);
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         long sum = 0;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(row, k,
-                                                                                      thisRows,
-                                                                                      thisCols);
+              a == T.YES ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
+                                                                              thisRows,
+                                                                              thisCols);
           int otherIndex =
-              b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(k, col,
-                                                                                           otherRows,
-                                                                                           otherColumns);
+              b == T.YES ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
+                                                                                   otherRows,
+                                                                                   otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);
@@ -494,7 +494,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   @Override
   public LongMatrix mul(long alpha, LongMatrix other, long beta) {
     Check.size(this, other);
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         m.set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
@@ -510,7 +510,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix mul(long alpha, LongMatrix other, long beta, Dim dim) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -527,7 +527,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix mul(long scalar) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i) * scalar);
     }
@@ -541,7 +541,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix add(long scalar) {
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, get(i, j) + scalar);
@@ -557,7 +557,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix add(long alpha, LongMatrix other, long beta, Dim dim) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -575,7 +575,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   @Override
   public LongMatrix add(long alpha, LongMatrix other, long beta) {
     Check.size(this, other);
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
@@ -606,7 +606,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix sub(long alpha, LongMatrix other, long beta, Dim dim) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -624,7 +624,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   @Override
   public LongMatrix sub(long alpha, LongMatrix other, long beta) {
     Check.size(this, other);
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, alpha * get(i, j) - other.get(i, j) * beta);
@@ -635,7 +635,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix rsub(long scalar) {
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, scalar - get(i, j));
@@ -651,7 +651,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix rsub(long alpha, LongMatrix other, long beta, Dim dim) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -669,7 +669,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   @Override
   public LongMatrix div(LongMatrix other) {
     Check.size(this, other);
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, get(i, j) / other.get(i, j));
@@ -680,7 +680,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix div(long other) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i) / other);
     }
@@ -694,7 +694,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix div(long alpha, LongMatrix other, long beta, Dim dim) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows(), ARG_DIFF_SIZE);
       for (int i = 0; i < size(); i++) {
@@ -711,7 +711,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix rdiv(long other) {
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, other / get(i));
     }
@@ -729,7 +729,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix rdiv(long alpha, LongMatrix other, long beta, Dim dim) {
-    LongMatrix m = newEmptyMatrix(rows(), columns());
+    LongMatrix m = newEmptyArray(rows(), columns());
     if (dim == Dim.C) {
       checkArgument(other.size() == rows());
       for (int i = 0; i < size(); i++) {
@@ -746,16 +746,11 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix negate() {
-    LongMatrix n = newEmptyMatrix(rows(), columns());
+    LongMatrix n = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       n.set(i, -get(i));
     }
     return n;
-  }
-
-  @Override
-  public LongMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
   }
 
   @Override
@@ -823,7 +818,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     private LongArrayList buffer = new LongArrayList();
 
     public LongMatrix build() {
-      LongMatrix n = newEmptyVector(buffer.size());
+      LongMatrix n = newEmptyArray(buffer.size());
       for (int i = 0; i < n.size(); i++) {
         n.set(i, buffer.get(i));
       }
@@ -890,12 +885,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 //    }
 
     @Override
-    public LongMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-
-    @Override
     public long get(int index) {
       int row = index % rows();
       int col = index / rows();
@@ -924,7 +913,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     private int computeLinearIndex(int index) {
       int currentColumn = index / rows() + colOffset;
       int currentRow = index % rows() + rowOffset;
-      return columnMajor(currentRow, currentColumn, parent.rows(), parent.columns());
+      return columnMajor(0, currentRow, currentColumn, parent.rows(), parent.columns());
     }
 
     @Override
@@ -941,11 +930,6 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 //    public Storage getStorage() {
 //      return parent.getStorage();
 //    }
-
-    @Override
-    public LongMatrix newEmptyMatrix(int rows, int columns) {
-      return null;
-    }
 
     @Override
     public long get(int i, int j) {
@@ -985,7 +969,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
     @Override
     public void set(int i, int j, long value) {
-      set(columnMajor(i, j, rows(), columns()), value);
+      set(columnMajor(0, i, j, rows(), columns()), value);
     }
 
     @Override
@@ -1009,13 +993,8 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 //    }
 
     @Override
-    public LongMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
     public long get(int i, int j) {
-      return get(columnMajor(i, j, rows(), columns()));
+      return get(columnMajor(0, i, j, rows(), columns()));
     }
 
     @Override
@@ -1081,7 +1060,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
-    LongMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    LongMatrix m = newEmptyArray(rows.size(), columns.size());
     int i = 0;
     for (int row : rows) {
       int j = 0;
@@ -1106,13 +1085,13 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
   public LongMatrix slice(Collection<Integer> indexes, Dim dim) {
     LongMatrix matrix;
     if (dim == Dim.R) {
-      matrix = newEmptyMatrix(indexes.size(), columns());
+      matrix = newEmptyArray(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
         matrix.setRow(i++, getRow(index));
       }
     } else {
-      matrix = newEmptyMatrix(rows(), indexes.size());
+      matrix = newEmptyArray(rows(), indexes.size());
       int i = 0;
       for (int index : indexes) {
         matrix.setColumn(i++, getColumn(index));
@@ -1141,7 +1120,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
     LongMatrix matrix;
     if (dim == Dim.R) {
       Check.size(rows(), indexes);
-      matrix = newEmptyMatrix(size, columns());
+      matrix = newEmptyArray(size, columns());
       int index = 0;
       for (int i = 0; i < rows(); i++) {
         if (indexes.get(i)) {
@@ -1150,7 +1129,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
       }
     } else {
       Check.size(columns(), indexes);
-      matrix = newEmptyMatrix(rows(), size);
+      matrix = newEmptyArray(rows(), size);
       int index = 0;
       for (int j = 0; j < columns(); j++) {
         if (indexes.get(j)) {
@@ -1164,7 +1143,7 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix transpose() {
-    LongMatrix matrix = newEmptyMatrix(this.columns(), this.rows());
+    LongMatrix matrix = newEmptyArray(this.columns(), this.rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(j, i, get(i, j));
@@ -1176,16 +1155,10 @@ public abstract class AbstractLongMatrix extends AbstractMatrix<LongMatrix> impl
 
   @Override
   public LongMatrix copy() {
-    LongMatrix matrix = newEmptyMatrix(rows(), columns());
+    LongMatrix matrix = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, get(i));
     }
     return matrix;
-  }
-
-
-  @Override
-  public LongMatrix newEmptyMatrix(int rows, int columns) {
-    return null;
   }
 }

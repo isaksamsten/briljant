@@ -130,6 +130,8 @@ public interface Matrix<E extends Matrix> extends Swappable {
    */
   E reshape(int rows, int columns);
 
+  E reshape(int... shape);
+
   /**
    * Get row vector at {@code i}. Modifications will change to original matrix.
    *
@@ -146,9 +148,15 @@ public interface Matrix<E extends Matrix> extends Swappable {
    */
   E getColumn(int index);
 
+  E slice(int index);
+
+  E slice(int[] slice);
+
   void setVectorAlong(Dim dim, int i, E vector);
 
   E getVectorAlong(Dim dim, int index);
+
+  E getVectorAlong(int dimension, int index);
 
   /**
    * Gets a view of the diagonal. Modifications will change the original matrix.
@@ -340,6 +348,14 @@ public interface Matrix<E extends Matrix> extends Swappable {
 
   boolean isVector();
 
+  boolean isMatrix();
+
+  int size(int dim);
+
+  int dims();
+
+  int[] shape();
+
   /**
    * The shape of the current matrix.
    *
@@ -347,6 +363,12 @@ public interface Matrix<E extends Matrix> extends Swappable {
    */
   default Shape getShape() {
     return Shape.of(rows(), columns());
+  }
+
+  int[] getStride();
+
+  default int stride(int i) {
+    return getStride()[i];
   }
 
   /**
@@ -357,9 +379,7 @@ public interface Matrix<E extends Matrix> extends Swappable {
     return rows() == other.rows() && columns() == other.columns();
   }
 
-  E newEmptyMatrix(int rows, int columns);
-
-  E newEmptyVector(int size);
+  E newEmptyArray(int... shape);
 
   boolean isView();
 

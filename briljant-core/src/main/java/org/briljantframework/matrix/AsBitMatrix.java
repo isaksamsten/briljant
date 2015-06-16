@@ -18,7 +18,7 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
     return new AsBitMatrix(bj, rows, columns) {
       @Override
       public void set(int i, int j, boolean value) {
-        set(Indexer.columnMajor(i, j, rows(), columns()), value);
+        set(Indexer.columnMajor(0, i, j, rows(), columns()), value);
       }
 
       @Override
@@ -28,7 +28,7 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
 
       @Override
       public boolean get(int i, int j) {
-        return get(Indexer.columnMajor(i, j, rows(), columns()));
+        return get(Indexer.columnMajor(0, i, j, rows(), columns()));
       }
 
       @Override
@@ -36,11 +36,6 @@ abstract class AsBitMatrix extends AbstractBitMatrix {
         return AsBitMatrix.this.get(index);
       }
     };
-  }
-
-  @Override
-  public BitMatrix newEmptyMatrix(int rows, int columns) {
-    return bj.booleanMatrix(rows, columns);
   }
 
   @Override

@@ -141,7 +141,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public DoubleMatrix cumsum(DoubleMatrix x) {
-    DoubleMatrix n = x.newEmptyMatrix(x.rows(), x.columns());
+    DoubleMatrix n = x.newEmptyArray(x.rows(), x.columns());
     double sum = 0;
     for (int i = 0; i < n.size(); i++) {
       sum += x.get(i);
@@ -152,7 +152,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
 
   @Override
   public DoubleMatrix cumsum(DoubleMatrix x, Dim dim) {
-    DoubleMatrix n = x.newEmptyMatrix(x.rows(), x.columns());
+    DoubleMatrix n = x.newEmptyArray(x.rows(), x.columns());
     for (int i = 0; i < x.size(dim); i++) {
       n.setVectorAlong(dim, i, cumsum(n.getVectorAlong(dim, i)));
     }
@@ -316,10 +316,10 @@ public class BaseMatrixRoutines implements MatrixRoutines {
         for (int k = 0; k < thisCols; k++) {
           int thisIndex = transA.isTrue() ?
                           rowMajor(row, k, thisRows, thisCols) :
-                          columnMajor(row, k, thisRows, thisCols);
+                          columnMajor(0, row, k, thisRows, thisCols);
           int otherIndex = transB.isTrue() ?
                            rowMajor(k, col, otherRows, otherColumns) :
-                           columnMajor(k, col, otherRows, otherColumns);
+                           columnMajor(0, k, col, otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
         c.set(row, col, alpha * sum + beta * c.get(row, col));
@@ -337,7 +337,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
     if (num < 0 || num > x.size()) {
       throw new IllegalArgumentException();
     }
-    T c = x.newEmptyVector(num);
+    T c = x.newEmptyArray(num);
     for (int i = 0; i < num; i++) {
       c.set(i, x, i);
     }
@@ -354,7 +354,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
       @Override
       public T get(int index) {
         checkElementIndex(index, size());
-        T part = x.newEmptyMatrix(partRows, x.columns());
+        T part = x.newEmptyArray(partRows, x.columns());
         for (int j = 0; j < part.columns(); j++) {
           for (int i = 0; i < part.rows(); i++) {
             part.set(i, j, x, i + partRows * index, j);
@@ -386,7 +386,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
       rows += matrix.rows();
     }
 
-    T newMatrix = first.newEmptyMatrix(rows, columns);
+    T newMatrix = first.newEmptyArray(rows, columns);
     int pad = 0;
     for (T matrix : matrices) {
       for (int j = 0; j < matrix.columns(); j++) {
@@ -410,7 +410,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
       @Override
       public T get(int index) {
         checkElementIndex(index, size());
-        T part = matrix.newEmptyMatrix(matrix.rows(), partColumns);
+        T part = matrix.newEmptyArray(matrix.rows(), partColumns);
         for (int j = 0; j < part.columns(); j++) {
           for (int i = 0; i < part.rows(); i++) {
             part.set(i, j, matrix, i, j + partColumns * index);
@@ -441,7 +441,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
                                   "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
       columns += matrix.columns();
     }
-    T newMatrix = first.newEmptyMatrix(rows, columns);
+    T newMatrix = first.newEmptyArray(rows, columns);
     int pad = 0;
     for (T matrix : matrices) {
       for (int j = 0; j < matrix.columns(); j++) {
@@ -489,7 +489,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   public <T extends Matrix<T>> T repmat(T x, int r, int c) {
     final int m = x.rows();
     final int n = x.columns();
-    T y = x.newEmptyMatrix(m * r, n * c);
+    T y = x.newEmptyArray(m * r, n * c);
     for (int cc = 0; cc < c; cc++) {
       for (int j = 0; j < n; j++) {
         int jj = j + (cc * n);
@@ -514,7 +514,7 @@ public class BaseMatrixRoutines implements MatrixRoutines {
   @Override
   public <T extends Matrix<T>> void swap(T a, T b) {
     Check.equalShape(a, b);
-    T tmp = a.newEmptyVector(1);
+    T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {
       tmp.set(0, a, i);
       a.set(i, b, i);

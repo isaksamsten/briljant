@@ -242,18 +242,11 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
 
   void addTo(int i, int j, double value);
 
-  void set(int i, int j, double value);
-
   void set(int index, double value);
 
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value double
-   */
-  double get(int i, int j);
+  void set(int i, int j, double value);
+
+  void set(int[] ix, double value);
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
@@ -288,6 +281,17 @@ public interface DoubleMatrix extends Matrix<DoubleMatrix> {
    * @return the value index
    */
   double get(int index);
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value double
+   */
+  double get(int i, int j);
+
+  double get(int[] ix);
 
   DoubleStream stream();
 

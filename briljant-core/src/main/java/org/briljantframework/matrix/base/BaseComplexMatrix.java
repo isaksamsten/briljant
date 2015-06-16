@@ -45,11 +45,6 @@ class BaseComplexMatrix extends AbstractComplexMatrix {
   }
 
   @Override
-  public ComplexMatrix newEmptyMatrix(int rows, int columns) {
-    return new BaseComplexMatrix(getMatrixFactory(), rows, columns);
-  }
-
-  @Override
   public ComplexMatrix copy() {
     return new BaseComplexMatrix(getMatrixFactory(), values.clone(), rows(), columns());
   }
@@ -61,7 +56,7 @@ class BaseComplexMatrix extends AbstractComplexMatrix {
 
   @Override
   public Complex get(int i, int j) {
-    final Complex value = values[Indexer.columnMajor(i, j, rows(), columns())];
+    final Complex value = values[Indexer.columnMajor(0, i, j, rows(), columns())];
     if (value == null) {
       return defaultValue;
     }
@@ -79,7 +74,7 @@ class BaseComplexMatrix extends AbstractComplexMatrix {
 
   @Override
   public void set(int i, int j, Complex value) {
-    set(Indexer.columnMajor(i, j, rows(), columns()), value);
+    set(Indexer.columnMajor(0, i, j, rows(), columns()), value);
   }
 
   @Override

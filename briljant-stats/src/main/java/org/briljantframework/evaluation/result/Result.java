@@ -304,7 +304,9 @@ public class Result {
         bf.addAll(measure.get(Sample.IN));
         df.addColumnBuilder(bf);
       }
-      return df.build().setColumnIndex(index.build());
+      DataFrame bdf = df.build();
+      bdf.setColumnIndex(index.build());
+      return bdf;
     } else {
       return df.build();
     }

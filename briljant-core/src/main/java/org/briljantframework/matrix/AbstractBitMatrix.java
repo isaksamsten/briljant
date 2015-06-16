@@ -250,11 +250,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     set(b, tmp);
   }
 
-  @Override
-  public BitMatrix newEmptyVector(int size) {
-    return newEmptyMatrix(size, 1);
-  }
-
   public class IncrementalBuilder {
 
     private IntArrayList buffer = new IntArrayList();
@@ -264,7 +259,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
 
     public BitMatrix build() {
-      BitMatrix n = newEmptyMatrix(buffer.size(), 1);
+      BitMatrix n = newEmptyArray(buffer.size(), 1);
       for (int i = 0; i < buffer.size(); i++) {
         n.set(i, buffer.get(i) == 1);
       }
@@ -416,11 +411,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
 
     @Override
-    public BitMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
     public boolean get(int i, int j) {
       return parent.get(sliceIndex(row.step(), i, parent.rows()),
                         sliceIndex(column.step(), j, parent.columns()));
@@ -458,7 +448,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
     @Override
     public BitMatrix copy() {
-      BitMatrix mat = parent.newEmptyMatrix(rows(), columns());
+      BitMatrix mat = parent.newEmptyArray(rows(), columns());
       for (int i = 0; i < size(); i++) {
         mat.set(i, get(i));
       }
@@ -498,10 +488,6 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       return true;
     }
 
-    @Override
-    public BitMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
   }
 
   protected static class FlatSliceBitMatrix extends AbstractBitMatrix {
@@ -521,7 +507,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
     @Override
     public void set(int i, int j, boolean value) {
-      set(columnMajor(i, j, rows(), columns()), value);
+      set(columnMajor(0, i, j, rows(), columns()), value);
     }
 
     @Override
@@ -540,13 +526,8 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     }
 
     @Override
-    public BitMatrix newEmptyMatrix(int rows, int columns) {
-      return parent.newEmptyMatrix(rows, columns);
-    }
-
-    @Override
     public boolean get(int i, int j) {
-      return get(columnMajor(i, j, rows(), columns()));
+      return get(columnMajor(0, i, j, rows(), columns()));
     }
 
     @Override
@@ -693,7 +674,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   @Override
   public BitMatrix slice(Collection<Integer> rows, Collection<Integer> columns) {
-    BitMatrix m = newEmptyMatrix(rows.size(), columns.size());
+    BitMatrix m = newEmptyArray(rows.size(), columns.size());
     int i = 0;
     for (int row : rows) {
       int j = 0;
@@ -718,13 +699,13 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   public BitMatrix slice(Collection<Integer> indexes, Dim dim) {
     BitMatrix matrix;
     if (dim == Dim.R) {
-      matrix = newEmptyMatrix(indexes.size(), columns());
+      matrix = newEmptyArray(indexes.size(), columns());
       int i = 0;
       for (int index : indexes) {
         matrix.setRow(i++, getRow(index));
       }
     } else {
-      matrix = newEmptyMatrix(rows(), indexes.size());
+      matrix = newEmptyArray(rows(), indexes.size());
       int i = 0;
       for (int index : indexes) {
         matrix.setColumn(i++, getColumn(index));
@@ -753,7 +734,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
     BitMatrix matrix;
     if (dim == Dim.R) {
       Check.size(rows(), indexes);
-      matrix = newEmptyMatrix(size, columns());
+      matrix = newEmptyArray(size, columns());
       int index = 0;
       for (int i = 0; i < rows(); i++) {
         if (indexes.get(i)) {
@@ -762,7 +743,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
       }
     } else {
       Check.size(columns(), indexes);
-      matrix = newEmptyMatrix(rows(), size);
+      matrix = newEmptyArray(rows(), size);
       int index = 0;
       for (int j = 0; j < columns(); j++) {
         if (indexes.get(j)) {
@@ -818,7 +799,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   @Override
   public BitMatrix transpose() {
-    BitMatrix matrix = newEmptyMatrix(columns(), rows());
+    BitMatrix matrix = newEmptyArray(columns(), rows());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(j, i, get(i, j));
@@ -829,7 +810,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   @Override
   public BitMatrix copy() {
-    BitMatrix n = newEmptyMatrix(rows(), columns());
+    BitMatrix n = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       n.set(i, get(i));
     }
@@ -840,7 +821,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix xor(BitMatrix other) {
     Check.equalShape(this, other);
-    BitMatrix bm = newEmptyMatrix(rows(), columns());
+    BitMatrix bm = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       boolean otherHas = other.get(i);
       boolean thisHas = get(i);
@@ -852,7 +833,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix or(BitMatrix other) {
     Check.equalShape(this, other);
-    BitMatrix bm = newEmptyMatrix(rows(), columns());
+    BitMatrix bm = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || other.get(i));
     }
@@ -862,7 +843,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix orNot(BitMatrix other) {
     Check.equalShape(this, other);
-    BitMatrix bm = newEmptyMatrix(rows(), columns());
+    BitMatrix bm = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || !other.get(i));
     }
@@ -872,7 +853,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix and(BitMatrix other) {
     Check.equalShape(this, other);
-    BitMatrix bm = newEmptyMatrix(rows(), columns());
+    BitMatrix bm = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && other.get(i));
     }
@@ -882,7 +863,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
   @Override
   public BitMatrix andNot(BitMatrix other) {
     Check.equalShape(this, other);
-    BitMatrix bm = newEmptyMatrix(rows(), columns());
+    BitMatrix bm = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && !other.get(i));
     }
@@ -891,7 +872,7 @@ public abstract class AbstractBitMatrix extends AbstractMatrix<BitMatrix> implem
 
   @Override
   public BitMatrix not() {
-    BitMatrix bm = newEmptyMatrix(rows(), columns());
+    BitMatrix bm = newEmptyArray(rows(), columns());
     for (int i = 0; i < size(); i++) {
       bm.set(i, !get(i));
     }

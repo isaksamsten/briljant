@@ -45,7 +45,7 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public void set(int i, int j, double value) {
-    data[Indexer.columnMajor(i, j, rows(), columns())] = value;
+    data[Indexer.columnMajor(0, i, j, rows(), columns())] = value;
   }
 
   @Override
@@ -55,7 +55,7 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
 
   @Override
   public double get(int i, int j) {
-    return data[Indexer.columnMajor(i, j, rows(), columns())];
+    return data[Indexer.columnMajor(0, i, j, rows(), columns())];
   }
 
   @Override
@@ -109,11 +109,6 @@ class NetlibDoubleMatrix extends AbstractDoubleMatrix {
   public DoubleMatrix copy() {
     return new NetlibDoubleMatrix(
         getMatrixFactory(), data.clone(), rows(), columns());
-  }
-
-  @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new NetlibDoubleMatrix(getMatrixFactory(), rows, columns);
   }
 
   @Override

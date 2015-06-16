@@ -21,8 +21,6 @@ import org.briljantframework.matrix.AbstractDoubleMatrix;
 import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.matrix.api.MatrixFactory;
 
-import static org.briljantframework.matrix.Indexer.columnMajor;
-
 /**
  * Implementation of {@link org.briljantframework.matrix.DoubleMatrix} using a single {@code
  * double}
@@ -45,6 +43,11 @@ class BaseDoubleMatrix extends AbstractDoubleMatrix {
     this(bj, new double[Math.multiplyExact(rows, columns)], rows, columns);
   }
 
+  BaseDoubleMatrix(MatrixFactory bj, int[] shape) {
+    super(bj, shape);
+    this.values = new double[size()];
+  }
+
   BaseDoubleMatrix(MatrixFactory bj, double[] values) {
     super(bj, values.length);
     this.values = values;
@@ -56,6 +59,17 @@ class BaseDoubleMatrix extends AbstractDoubleMatrix {
     this.values = values;
   }
 
+  private BaseDoubleMatrix(MatrixFactory bj, int offset, int[] shape, int[] stride,
+                           double[] values) {
+    super(bj, offset, shape, stride);
+    this.values = values;
+  }
+
+  @Override
+  protected DoubleMatrix makeView(int offset, int[] shape, int[] stride) {
+    return new BaseDoubleMatrix(getMatrixFactory(), offset, shape, stride, values);
+  }
+
   @Override
   public DoubleMatrix reshape(int rows, int columns) {
     Check.size(CHANGED_TOTAL_SIZE, Math.multiplyExact(rows, columns), this);
@@ -63,8 +77,8 @@ class BaseDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public DoubleMatrix newEmptyMatrix(int rows, int columns) {
-    return new BaseDoubleMatrix(getMatrixFactory(), rows, columns);
+  public DoubleMatrix newEmptyArray(int... shape) {
+    return new BaseDoubleMatrix(getMatrixFactory(), shape);
   }
 
   @Override
@@ -77,23 +91,12 @@ class BaseDoubleMatrix extends AbstractDoubleMatrix {
   }
 
   @Override
-  public void set(int i, int j, double value) {
-    values[columnMajor(i, j, rows(), columns())] = value;
+  protected double getElement(int i) {
+    return values[i];
   }
 
   @Override
-  public void set(int index, double value) {
-    values[index] = value;
+  protected void setElement(int i, double value) {
+    values[i] = value;
   }
-
-  @Override
-  public double get(int i, int j) {
-    return values[columnMajor(i, j, rows(), columns())];
-  }
-
-  @Override
-  public double get(int index) {
-    return values[index];
-  }
-
 }

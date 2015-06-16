@@ -290,12 +290,12 @@ public class AbstractLongMatrixTest {
 
   @Test
   public void testNewEmptyMatrix() throws Exception {
-    assertNotNull(bj.longMatrix(2, 2).newEmptyMatrix(2, 2));
+    assertNotNull(bj.longMatrix(2, 2).newEmptyArray(2, 2));
   }
 
   @Test
   public void testNewEmptyVector() throws Exception {
-    LongMatrix x = bj.longMatrix(2, 2).newEmptyVector(2);
+    LongMatrix x = bj.longMatrix(2, 2).newEmptyArray(2);
     assertNotNull(x);
     assertEquals(2, x.rows());
     assertEquals(1, x.columns());

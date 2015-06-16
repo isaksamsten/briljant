@@ -8,6 +8,8 @@ import org.briljantframework.matrix.api.MatrixRoutines;
 import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -37,10 +39,103 @@ public class BaseMatrixFactoryTest {
 
   @Test
   public void testCreateIntFrom2dArray() throws Exception {
-//    try {
+    DoubleMatrix arr = bj.doubleArray(new int[]{2, 3, 3});
+    double c = 0;
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 3; j++) {
+        for (int k = 0; k < 3; k++) {
+          arr.set(new int[]{i, j, k}, c++);
+        }
+      }
+    }
+
+//    arr.set(new int[]{0, 1, 1}, 30);
+//    arr.set(new int[]{0, 1, 0}, 10);
+//    arr.set(new int[]{1, 0, 0}, 22);
+//    print(arr);
+//    print(arr.reshape(3, 3, 2));
+//    print(arr.transpose());
+
+    DoubleMatrix d = bj.range(12).asDoubleMatrix().copy().reshape(2, 3, 2);
+//    System.out.println(Arrays.toString(d.transpose().shape()));
+    System.out.println(d);
+    System.out.println(Arrays.toString(d.data()));
+    System.out.println("=======" + d.stride(0));
+//    System.out.println(Arrays.toString(d.getStride()));
+//    System.out.println(d.getVectorAlong(0, 1));
+    DoubleMatrix _3x2 = d.slice(0);
+    testVectorAlongDimension(_3x2, 0);
+    testVectorAlongDimension(_3x2, 1);
+
+    DoubleMatrix _3x1 = _3x2.slice(0);
+    testVectorAlongDimension(_3x1, 0);
+
+    testVectorAlongDimension(d, 0);
+    testVectorAlongDimension(d, 1);
+    testVectorAlongDimension(d, 2);
+
+//    System.out.println(_3x2);
+//    System.out.println(_3x2.getVectorAlong(1, 0));
 //
+//    System.out.println(_3x2.size(0));
+//    for (int i = 0; i < 2; i++) {
+//      System.out.println(_3x2.getVectorAlong(0, i));
 //    }
 
+//
+//    DoubleMatrix _3 = bj.doubleArray(new int[]{4});
+//    _3.set(0, 1);
+//    _3.set(1, 2);
+//    _3.set(2, 3);
+//    _3.set(3, 4);
+//
+//    System.out.println(_3.getVectorAlong(0, 0));
+//
+//    for (int i = 0; i < d.dims(); i++) {
+//      System.out.printf("Size: %d => %d == %d\n", i, d.size() / d.size(i), d.size(i));
+//    }
+//    System.out.println("--------------");
+//    int dim = 0;
+//    for (int i = 0; i < d.size() / d.size(dim); i++) {
+//      System.out.println(d.getVectorAlong(dim, i));
+//    }
+
+//    for (int i = 0; i < 6; i++) {
+//      System.out.println(d.getVectorAlong(1, i));
+//    }
+
+//
+//    print(d.transpose());
+//    print(d.reshape(3, 2, 2));
+
+//    print(arr.transpose());
+//
+//    for (int i = 0; i < arr.size(); i++) {
+//      System.out.println(arr.get(i));
+//    }
+//    DoubleMatrix slice = arr.slice(new int[]{1, 0});
+//
+//    print(slice);
+//    System.out.println();
+//    DoubleMatrix s = arr.slice(0);
+//    for (int i = 0; i < s.size(); i++) {
+//      System.out.println(s.get(i));
+//    }
+//
+//    for (int i = 0; i < s.rows(); i++) {
+//      for (int j = 0; j < s.columns(); j++) {
+//        System.out.print(s.get(i, j) + " ");
+//      }
+//      System.out.println();
+//    }
+  }
+
+  void testVectorAlongDimension(DoubleMatrix d, int dim) {
+    System.out.printf("Testing vector along %d of shape %s \n", dim, Arrays.toString(d.shape()));
+    for (int i = 0; i < d.size() / d.size(dim); i++) {
+      System.out.println(d.getVectorAlong(dim, i));
+    }
+    System.out.println("-------");
   }
 
   @Test

@@ -134,6 +134,11 @@ public class BaseMatrixFactory implements MatrixFactory {
   }
 
   @Override
+  public DoubleMatrix doubleArray(int[] shape) {
+    return new BaseDoubleMatrix(this, shape);
+  }
+
+  @Override
   public ComplexMatrix complexMatrix(int rows, int columns) {
     return new BaseComplexMatrix(this, rows, columns);
   }
