@@ -282,6 +282,32 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
     return bits;
   }
 
+
+  @Override
+  public BitArray lt(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BitArray gt(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BitArray eq(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BitArray lte(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BitArray gte(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
     return reduce(identity, reduce, UnaryOperator.identity());
@@ -400,7 +426,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   public String toString() {
     StringBuilder builder = new StringBuilder();
     try {
-      MatrixPrinter.print(builder, this);
+      ArrayPrinter.print(builder, this);
     } catch (IOException e) {
       return getClass().getSimpleName();
     }

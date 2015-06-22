@@ -39,11 +39,6 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  public boolean isView() {
-    return false;
-  }
-
-  @Override
   public long getElement(int index) {
     return data[index];
   }

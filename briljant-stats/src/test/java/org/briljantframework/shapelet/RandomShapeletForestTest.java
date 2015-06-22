@@ -108,8 +108,8 @@ public class RandomShapeletForestTest {
       Vector yTest = Convert.toStringVector(validationSet.get(validationSet.columns() - 1));
 
       long start = System.nanoTime();
-      DoubleArray upper = Bj.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
-      IntArray sizes = Bj.matrix(new int[]{100});
+      DoubleArray upper = Bj.array(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
+      IntArray sizes = Bj.array(new int[]{100});
       // IntMatrix sizes = IntMatrix.of(500);
       System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
                          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");

@@ -39,13 +39,18 @@ public class BaseArrayFactoryTest {
 
   @Test
   public void testIntRangeReshape() throws Exception {
-    IntArray a = bj.range(1, 65).reshape(4, 4, 2, 2);
-//    System.out.println(a.getVector(0, 0));
+    IntArray a = bj.range(1, 257).reshape(4, 16, 2, 2);
+    System.out.println(a);
 
-    DoubleArray b = a.asDoubleMatrix().reshape(16, 4);
-    System.out.println(b);
-
-    System.out.println(bj.diag(bj.diag(b)));
+    DoubleArray b = a.asDoubleMatrix().reshape(16, 16);
+    System.out.println(b.reduceVectors(0, bjr::sum));
+//
+//    System.out.println(b.getRow(0));
+//
+//    System.out.println(b.getRow(0).lt(b.getRow(2)));
+//
+//
+//    System.out.println(bj.diag(bj.diag(b)));
 
   }
 

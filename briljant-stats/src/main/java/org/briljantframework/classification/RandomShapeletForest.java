@@ -63,15 +63,15 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vec.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitArray oobIndicator = Bj.booleanMatrix(x.rows(), size());
+    BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumn(i)));
     }
 
     try {
       List<ShapeletTree.Predictor> models = execute(tasks);
-      DoubleArray lenSum = Bj.doubleVector(x.columns());
-      DoubleArray posSum = Bj.doubleVector(x.columns());
+      DoubleArray lenSum = Bj.doubleArray(x.columns());
+      DoubleArray posSum = Bj.doubleArray(x.columns());
       for (ShapeletTree.Predictor m : models) {
         lenSum.assign(m.getLengthImportance(), Double::sum);
         posSum.assign(m.getPositionImportance(), Double::sum);
@@ -81,7 +81,7 @@ public class RandomShapeletForest extends Ensemble {
       posSum.update(v -> v / size());
 
       Map<Object, Integer> counts = Vec.count(y);
-      DoubleArray apriori = Bj.doubleVector(classes.size());
+      DoubleArray apriori = Bj.doubleArray(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         apriori.set(i, counts.get(classes.get(Object.class, i)) / (double) y.size());
       }
@@ -211,7 +211,7 @@ public class RandomShapeletForest extends Ensemble {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleArray m = Bj.doubleVector(classes.size());
+      DoubleArray m = Bj.doubleArray(classes.size());
       for (DoubleArray prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }

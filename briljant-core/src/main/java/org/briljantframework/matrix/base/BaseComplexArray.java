@@ -63,9 +63,4 @@ class BaseComplexArray extends AbstractComplexArray {
       return r;
     }
   }
-
-  @Override
-  public boolean isView() {
-    return false;
-  }
 }

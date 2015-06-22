@@ -598,6 +598,61 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   }
 
   @Override
+  public BitArray lt(LongArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) < other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray gt(LongArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) > other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray eq(LongArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) == other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray lte(LongArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) <= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray gte(LongArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) >= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
   public int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
@@ -633,7 +688,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   public String toString() {
     StringBuilder builder = new StringBuilder();
     try {
-      MatrixPrinter.print(builder, this);
+      ArrayPrinter.print(builder, this);
     } catch (IOException e) {
       return getClass().getSimpleName();
     }

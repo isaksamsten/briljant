@@ -39,11 +39,6 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  public boolean isView() {
-    return false;
-  }
-
-  @Override
   public int getElement(int index) {
     return data[index];
   }

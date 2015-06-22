@@ -107,11 +107,6 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public boolean isView() {
-    return false;
-  }
-
-  @Override
   public double[] data() {
     return data;
   }

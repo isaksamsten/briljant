@@ -90,7 +90,7 @@ public class LogisticRegression implements Classifier {
                    "The number of training instances must equal the number of target");
     Vector unique = Vec.unique(target);
     DoubleArray x = constructInputMatrix(df, n, m);
-    IntArray y = Bj.intVector(target.size());
+    IntArray y = Bj.intArray(target.size());
     for (int i = 0; i < y.size(); i++) {
       y.set(i, Vec.find(unique, target, i));
     }
@@ -216,7 +216,7 @@ public class LogisticRegression implements Classifier {
       int p = x.columns();
       w = w.reshape(p, k);
       g = g.reshape(p, k).assign(0);
-      DoubleArray prob = Bj.doubleVector(k);
+      DoubleArray prob = Bj.doubleArray(k);
       for (int i = 0; i < n; i++) {
         DoubleArray xi = x.getRow(i);
         for (int j = 0; j < k; j++) {
@@ -253,7 +253,7 @@ public class LogisticRegression implements Classifier {
       int n = x.rows();
       int p = x.columns();
       w = w.reshape(p, k);
-      DoubleArray prob = Bj.doubleVector(k);
+      DoubleArray prob = Bj.doubleArray(k);
       for (int i = 0; i < n; i++) {
         DoubleArray xi = x.getRow(i);
         for (int j = 0; j < k; j++) {
@@ -355,7 +355,7 @@ public class LogisticRegression implements Classifier {
       Vector classes = getClasses();
       int k = classes.size();
       if (k > 2) {
-        DoubleArray probs = Bj.doubleVector(k);
+        DoubleArray probs = Bj.doubleArray(k);
         double max = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < k; i++) {
           double prob = Bj.dot(x, coefficients.getColumn(i));
@@ -373,7 +373,7 @@ public class LogisticRegression implements Classifier {
         return probs.divi(z);
       } else {
         double prob = logistic(Bj.dot(x, coefficients));
-        DoubleArray probs = Bj.doubleVector(2);
+        DoubleArray probs = Bj.doubleArray(2);
         probs.set(0, 1 - prob);
         probs.set(1, prob);
         return probs;

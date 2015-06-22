@@ -24,7 +24,7 @@ public class RandomForestTest {
     Vector y = Convert.toStringVector(iris.get(iris.columns() - 1));
 
     System.out.println(x);
-    IntArray f = Bj.matrix(new int[]{10, 2, 3});
+    IntArray f = Bj.array(new int[]{10, 2, 3});
     for (int i = 0; i < f.size(); i++) {
       long start = System.nanoTime();
       RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(f.get(i)).build();

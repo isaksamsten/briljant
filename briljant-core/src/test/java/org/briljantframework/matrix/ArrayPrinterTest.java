@@ -11,14 +11,14 @@ public class ArrayPrinterTest {
 
   @Test
   public void testPrint() throws Exception {
-    MatrixPrinter.print(Bj.linspace(-1, 1, 1000).reshape(10, 100).asComplexMatrix());
+    ArrayPrinter.print(Bj.linspace(-1, 1, 1000).reshape(10, 100).asComplexMatrix());
   }
 
   @Test
   public void testSmall() throws Exception {
-    MatrixPrinter.setMinimumTruncateSize(5);
-    MatrixPrinter.setVisibleColumns(3);
-    MatrixPrinter.setVisibleRows(11);
+    ArrayPrinter.setMinimumTruncateSize(5);
+    ArrayPrinter.setVisiblePerSlice(3);
+    ArrayPrinter.setPrintSlices(11);
     DoubleArray reshape = Bj.linspace(0, 1, 35).reshape(7, 5);
     System.out.println(reshape);
     System.out.println(reshape.getDiagonal());

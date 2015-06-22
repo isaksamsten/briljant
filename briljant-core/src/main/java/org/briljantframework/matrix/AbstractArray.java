@@ -23,6 +23,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   protected final ArrayFactory bj;
 
+  private final boolean isView;
   protected final int size;
   protected final int offset;
 
@@ -36,6 +37,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);
     offset = 0;
+    this.isView = false;
   }
 
   protected AbstractArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
@@ -44,6 +46,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     this.stride = stride;
     this.size = Indexer.size(shape);
     this.offset = offset;
+    this.isView = offset > 0 || !Arrays.equals(stride, Indexer.computeStride(0, getShape()));
   }
 
   @Override
@@ -105,13 +108,13 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public E getRow(int i) {
     Check.state(isMatrix(), "Can only get rows from 2d-arrays");
-    return getVector(0, i);
+    return getVector(1, i);
   }
 
   @Override
   public E getColumn(int i) {
     Check.state(isMatrix(), "Can only get columns from 2d-arrays");
-    return getVector(1, i);
+    return getVector(0, i);
   }
 
   @Override
@@ -162,12 +165,14 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public final int rows() {
+    Check.state(isMatrix(), "Can only get number of rows of 2-d array");
     return shape[0];
   }
 
   @Override
   public final int columns() {
-    return shape.length > 1 ? shape[1] : 1;
+    Check.state(isMatrix(), "Can only get number of columns of 2-d array");
+    return shape[1];
   }
 
   @Override
@@ -183,6 +188,11 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public final boolean isMatrix() {
     return dims() == 2;
+  }
+
+  @Override
+  public boolean isView() {
+    return isView;
   }
 
   @Override
@@ -213,30 +223,5 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public final int[] getStride() {
     return stride;
-  }
-
-  @Override
-  public BitArray lt(E other) {
-    return null;
-  }
-
-  @Override
-  public BitArray gt(E other) {
-    return null;
-  }
-
-  @Override
-  public BitArray eq(E other) {
-    return null;
-  }
-
-  @Override
-  public BitArray lte(E other) {
-    return null;
-  }
-
-  @Override
-  public BitArray gte(E other) {
-    return null;
   }
 }

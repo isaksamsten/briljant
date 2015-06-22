@@ -122,36 +122,34 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
     return this;
   }
 
-//  @Override
-//  public DoubleMatrix asDoubleMatrix() {
-//    return new AsDoubleMatrix(rows(), columns()) {
-//      @Override
-//      public void set(int i, int j, double value) {
-//        AbstractBitMatrix.this.set(i, j, value == 1);
-//      }
-//
-//      @Override
-//      public void set(int index, double value) {
-//        AbstractBitMatrix.this.set(index, value == 1);
-//      }
-//
-//      @Override
-//      public double get(int i, int j) {
-//        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
-//      }
-//
-//      @Override
-//      public double get(int index) {
-//        return AbstractBitMatrix.this.get(index) ? 1 : 0;
-//      }
-//
-//      @Override
-//      public Storage getStorage() {
-//        return AbstractBitMatrix.this.getStorage();
-//      }
-//    };
-//  }
+  @Override
+  public BitArray lt(BitArray other) {
+    return eq(other);
+  }
 
+  @Override
+  public BitArray gt(BitArray other) {
+    return eq(other);
+  }
+
+  @Override
+  public BitArray eq(BitArray other) {
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    for (int i = 0; i < size(); i++) {
+      bits.set(i, get(i) == other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray lte(BitArray other) {
+    return eq(other);
+  }
+
+  @Override
+  public BitArray gte(BitArray other) {
+    return eq(other);
+  }
 
   @Override
   public BitArray add(BitArray o) {
@@ -223,7 +221,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   public String toString() {
     StringBuilder a = new StringBuilder();
     try {
-      MatrixPrinter.print(a, this);
+      ArrayPrinter.print(a, this);
     } catch (IOException e) {
       return getClass().getSimpleName();
     }
@@ -246,37 +244,6 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
       }
     };
   }
-
-//  @Override
-//  public IntMatrix asIntMatrix() {
-//    return new AsIntMatrix(rows(), columns()) {
-//      @Override
-//      public int get(int i, int j) {
-//        return AbstractBitMatrix.this.get(i, j) ? 1 : 0;
-//      }
-//
-//      @Override
-//      public int get(int index) {
-//        return AbstractBitMatrix.this.get(index) ? 1 : 0;
-//
-//      }
-//
-//      @Override
-//      public void set(int index, int value) {
-//        AbstractBitMatrix.this.set(index, value == 1);
-//      }
-//
-//      @Override
-//      public void set(int i, int j, int value) {
-//        AbstractBitMatrix.this.set(i, j, value == 1);
-//      }
-//
-//      @Override
-//      public Storage getStorage() {
-//        return AbstractBitMatrix.this.getStorage();
-//      }
-//    };
-//  }
 
   @Override
   public void swap(int a, int b) {

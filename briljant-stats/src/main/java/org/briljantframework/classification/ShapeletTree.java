@@ -149,8 +149,8 @@ public class ShapeletTree implements Classifier {
 
     Params params = new Params();
     params.noExamples = classSet.getTotalWeight();
-    params.lengthImportance = Bj.doubleVector(x.columns());
-    params.positionImportance = Bj.doubleVector(x.columns());
+    params.lengthImportance = Bj.doubleArray(x.columns());
+    params.positionImportance = Bj.doubleArray(x.columns());
     params.originalData = x;
     int size = Utils.randInt(10, x.columns() - 1);
     TreeNode<ShapeletThreshold> node = build(dataFrame, y, classSet, params);
@@ -424,8 +424,8 @@ public class ShapeletTree implements Classifier {
     ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
     List<Object> presentTargets = classSet.getTargets();
-    DoubleArray ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
-    DoubleArray gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleArray ltRelativeFrequency = Bj.doubleArray(presentTargets.size());
+    DoubleArray gtRelativeFrequency = Bj.doubleArray(presentTargets.size());
 
     double ltWeight = 0.0, gtWeight = 0.0;
 

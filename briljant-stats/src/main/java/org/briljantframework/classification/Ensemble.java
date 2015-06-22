@@ -273,7 +273,7 @@ public abstract class Ensemble implements Classifier {
     }
 
     private DoubleArray createTrueClassVector(Vector y, Vector classes, int i) {
-      DoubleArray c = Bj.doubleVector(classes.size());
+      DoubleArray c = Bj.doubleArray(classes.size());
       for (int j = 0; j < classes.size(); j++) {
         if (classes.equals(j, y, i)) {
           c.set(j, 1);
@@ -302,7 +302,7 @@ public abstract class Ensemble implements Classifier {
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleArray m = Bj.doubleVector(classes.size());
+      DoubleArray m = Bj.doubleArray(classes.size());
       for (DoubleArray prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }

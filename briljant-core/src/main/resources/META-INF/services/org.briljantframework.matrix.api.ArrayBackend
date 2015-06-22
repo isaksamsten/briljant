@@ -1,0 +1,2 @@
+org.briljantframework.matrix.base.BaseArrayBackend
+org.briljantframework.matrix.netlib.NetlibArrayBackend

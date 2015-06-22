@@ -9,6 +9,7 @@ import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 import org.briljantframework.matrix.api.ArrayFactory;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,7 +18,6 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.StringJoiner;
 import java.util.function.DoubleToIntFunction;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
@@ -383,6 +383,61 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   }
 
   @Override
+  public BitArray lt(IntArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) < other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray gt(IntArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) > other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray eq(IntArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) == other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray lte(IntArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) <= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray gte(IntArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) >= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
   public int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
@@ -434,31 +489,12 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-//    try {
-//      MatrixPrinter.print(builder, this);
-//    } catch (IOException e) {
-//      return getClass().getSimpleName();
-//    }
-    print(builder, this);
-    return builder.toString();
-  }
-
-  void print(StringBuilder builder, IntArray arr) {
-    if (arr.dims() == 1) {
-      StringJoiner j = new StringJoiner(",", "[", "]");
-      for (int i = 0; i < arr.size(); i++) {
-        j.add(arr.get(i) + "");
-      }
-//      System.out.print(j.toString());
-      builder.append(j.toString());
-    } else {
-      int len = arr.getShape()[0];
-      for (int i = 0; i < len; i++) {
-        print(builder, arr.select(i));
-        builder.append("\n");
-//        System.out.println();
-      }
+    try {
+      ArrayPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
     }
+    return builder.toString();
   }
 
   private class IntListView extends AbstractList<Integer> {

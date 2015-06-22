@@ -7,9 +7,9 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.matrix.Array;
 import org.briljantframework.matrix.ComplexArray;
 import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.Array;
 import org.briljantframework.matrix.Op;
 import org.briljantframework.matrix.api.ArrayRoutines;
 import org.briljantframework.sort.IndexComparator;
@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.ToDoubleFunction;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
@@ -43,7 +42,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray mean(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::mean);
+    return x.reduceVectors(dim, this::mean);
   }
 
   @Override
@@ -55,7 +54,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray var(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::var);
+    return x.reduceVectors(dim, this::var);
   }
 
   @Override
@@ -65,7 +64,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray std(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::std);
+    return x.reduceVectors(dim, this::std);
   }
 
   @Override
@@ -75,7 +74,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray min(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::min);
+    return x.reduceVectors(dim, this::min);
   }
 
   @Override
@@ -85,7 +84,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray max(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::max);
+    return x.reduceVectors(dim, this::max);
   }
 
   @Override
@@ -95,7 +94,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray sum(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::sum);
+    return x.reduceVectors(dim, this::sum);
   }
 
   @Override
@@ -109,7 +108,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray prod(int dim, DoubleArray x) {
-    return x.reduceVectors(dim, (ToDoubleFunction<DoubleArray>) this::prod);
+    return x.reduceVectors(dim, this::prod);
   }
 
   @Override

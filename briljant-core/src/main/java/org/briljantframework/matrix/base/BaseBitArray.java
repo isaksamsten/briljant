@@ -52,9 +52,4 @@ class BaseBitArray extends AbstractBitArray {
   public BitArray newEmptyArray(int... shape) {
     return new BaseBitArray(getMatrixFactory(), shape);
   }
-
-  @Override
-  public boolean isView() {
-    return false;
-  }
 }

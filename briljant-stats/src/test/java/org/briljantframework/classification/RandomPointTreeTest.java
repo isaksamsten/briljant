@@ -34,7 +34,7 @@ public class RandomPointTreeTest {
         Vector classes = Vec.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
-        BitArray oobIndicator = Bj.booleanMatrix(x.rows(), size());
+        BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
         for (int i = 0; i < size(); i++) {
           fitTasks.add(new FitTask(classSet, x, y, classes, oobIndicator.getColumn(i)));
         }

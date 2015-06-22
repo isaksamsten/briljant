@@ -1,7 +1,7 @@
 package org.briljantframework.matrix.base;
 
 import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.MatrixPrinter;
+import org.briljantframework.matrix.ArrayPrinter;
 import org.briljantframework.matrix.api.ArrayBackend;
 import org.briljantframework.matrix.api.ArrayFactory;
 import org.briljantframework.matrix.api.ArrayRoutines;
@@ -210,7 +210,7 @@ public class BaseArrayRoutinesTest {
   }
 
   static {
-    MatrixPrinter.setMinimumTruncateSize(1000);
+    ArrayPrinter.setMinimumTruncateSize(1000);
   }
 
   @Test

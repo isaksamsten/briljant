@@ -154,7 +154,13 @@ public interface Array<E extends Array> extends Swappable {
   E getVector(int dimension, int index);
 
   /**
-   * Gets a view of the diagonal. Modifications will change the original matrix.
+   * <p> Gets a view of the diagonal of a 2-d array
+   *
+   * <pre>{@code
+   *  >>> DoubleArray b = Bj.array(new double[]{1,2,3,4}).reshape(2, 2);
+   *  >>> b.getDiagonal();
+   *  [1,4]
+   * }</pre>
    *
    * @return a diagonal view
    */

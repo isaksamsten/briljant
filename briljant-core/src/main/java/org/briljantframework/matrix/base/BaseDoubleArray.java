@@ -62,11 +62,6 @@ class BaseDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public boolean isView() {
-    return false;
-  }
-
-  @Override
   protected double getElement(int i) {
     return values[i];
   }

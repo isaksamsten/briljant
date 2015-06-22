@@ -191,7 +191,7 @@ public class KNearestNeighbors implements Classifier {
       }
       Vector classes = getClasses();
       int voters = queue.size();
-      DoubleArray probas = Bj.doubleVector(classes.size());
+      DoubleArray probas = Bj.doubleArray(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         probas.set(i, votes.getOrDefault(classes.get(Object.class, i), 0) / voters);
       }

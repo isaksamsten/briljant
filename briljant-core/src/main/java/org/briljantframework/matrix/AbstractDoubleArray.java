@@ -25,6 +25,7 @@ import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.matrix.api.ArrayFactory;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,7 +34,6 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.StringJoiner;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
@@ -417,6 +417,61 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   }
 
   @Override
+  public BitArray lt(DoubleArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) < other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray gt(DoubleArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) > other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray eq(DoubleArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) == other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray lte(DoubleArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) <= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BitArray gte(DoubleArray other) {
+    Check.size(this, other);
+    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) >= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
   public int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
@@ -451,31 +506,12 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-//    try {
-//      MatrixPrinter.print(builder, this);
-//    } catch (IOException e) {
-//      return getClass().getSimpleName();
-//    }
-    print(builder, this);
-    return builder.toString();
-  }
-
-  void print(StringBuilder builder, DoubleArray arr) {
-    if (arr.dims() == 1) {
-      StringJoiner j = new StringJoiner(",", "[", "]");
-      for (int i = 0; i < arr.size(); i++) {
-        j.add(arr.get(i) + "");
-      }
-//      System.out.print(j.toString());
-      builder.append(j.toString());
-    } else {
-      int len = arr.getShape()[0];
-      for (int i = 0; i < len; i++) {
-        print(builder, arr.select(i));
-        builder.append("\n");
-//        System.out.println();
-      }
+    try {
+      ArrayPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
     }
+    return builder.toString();
   }
 
   @Override
@@ -554,16 +590,12 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public DoubleArray slice(Range rows, Range columns) {
     throw new UnsupportedOperationException();
-
-//    return new SliceDoubleMatrix(getMatrixFactory(), this, rows, columns);
   }
-
 
   @Override
   public DoubleArray slice(Range range) {
     Check.argument(range.end() < size() && range.start() >= 0, "Index out of bounds");
     throw new UnsupportedOperationException();
-//    return new FlatSliceDoubleMatrix(getMatrixFactory(), this, range);
   }
 
 
@@ -580,7 +612,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
     }
     return m;
   }
-
 
   @Override
   public DoubleArray slice(Collection<Integer> indexes) {
@@ -614,7 +645,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
     return n;
   }
 
-
   @Override
   public DoubleStream stream() {
     PrimitiveIterator.OfDouble ofDouble = new PrimitiveIterator.OfDouble() {
@@ -630,18 +660,17 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
         return current < size();
       }
     };
+
     Spliterator.OfDouble spliterator = Spliterators.spliterator(
         ofDouble, size(), Spliterator.SIZED
     );
     return StreamSupport.doubleStream(spliterator, false);
   }
 
-
   @Override
   public List<Double> flat() {
     return new DoubleListView();
   }
-
 
   @Override
   public DoubleArray mmul(DoubleArray other) {
@@ -697,12 +726,10 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
     return result;
   }
 
-
   @Override
   public DoubleArray mul(DoubleArray other) {
     return mul(1, other, 1);
   }
-
 
   @Override
   public DoubleArray mul(double alpha, DoubleArray other, double beta) {
