@@ -47,7 +47,7 @@ public final class Indexer {
     return stride;
   }
 
-  public static int computeSize(int[] shape) throws ArithmeticException {
+  public static int size(int[] shape) throws ArithmeticException {
     int size = shape[0];
     for (int i = 1; i < shape.length; i++) {
       size = Math.multiplyExact(size, shape[i]);

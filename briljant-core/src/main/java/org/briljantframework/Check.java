@@ -4,7 +4,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 import org.briljantframework.exceptions.TypeConversionException;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Array;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -40,7 +40,7 @@ public final class Check {
     }
   }
 
-  public static void vectorOfSize(int actual, Matrix<?> x) {
+  public static void vectorOfSize(int actual, Array<?> x) {
     if (!x.isVector() || x.size() != actual) {
       throw new IllegalArgumentException();
     }
@@ -55,7 +55,7 @@ public final class Check {
    *                                                                 {@code a.rows() != b.rows() &&
    *                                                                 a.columns() != b.columns()}
    */
-  public static void equalShape(Matrix a, Matrix b) throws NonConformantException {
+  public static void equalShape(Array a, Array b) throws NonConformantException {
     if (a.rows() != b.rows() && a.columns() != b.columns()) {
       throw new NonConformantException(a, b);
     }
@@ -68,7 +68,7 @@ public final class Check {
    * @param b a matrix
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
    */
-  public static void size(Matrix a, Matrix b) throws SizeMismatchException {
+  public static void size(Array a, Array b) throws SizeMismatchException {
     if (a.size() != b.size()) {
       throw new SizeMismatchException(a.size(), b.size());
     }
@@ -83,9 +83,9 @@ public final class Check {
    * @param b       a matrix
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
    */
-  public static void equalSize(String message, Matrix a, Matrix b) throws SizeMismatchException {
+  public static void equalSize(String message, Array a, Array b) throws SizeMismatchException {
     if (a.size() != b.size()) {
-      throw new SizeMismatchException(message, a.size(), b.size());
+      throw new SizeMismatchException(message);
     }
   }
 
@@ -98,9 +98,9 @@ public final class Check {
    * @param size    a size
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
    */
-  public static void size(String message, int size, Matrix a) throws SizeMismatchException {
+  public static void size(String message, int size, Array a) throws SizeMismatchException {
     if (a.size() != size) {
-      throw new SizeMismatchException(message, a.size(), size);
+      throw new SizeMismatchException(message);
     }
   }
 
@@ -111,15 +111,19 @@ public final class Check {
    * @param size a size
    * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
    */
-  public static void size(int size, Matrix a) throws SizeMismatchException {
+  public static void size(int size, Array a) throws SizeMismatchException {
     if (a.size() != size) {
       throw new SizeMismatchException(a.size(), size);
     }
   }
 
   public static void size(int actual, int expected) throws SizeMismatchException {
+    size(actual, expected, "Size does not match. (%d != %d)", actual, expected);
+  }
+
+  public static void size(int actual, int expected, String msg, Object... args) {
     if (actual != expected) {
-      throw new SizeMismatchException(actual, expected);
+      throw new SizeMismatchException(String.format(msg, args));
     }
   }
 
@@ -163,7 +167,7 @@ public final class Check {
    */
   public static void size(Vector x, Vector y, String message) throws SizeMismatchException {
     if (x.size() != y.size()) {
-      throw new SizeMismatchException(message, x.size(), y.size());
+      throw new SizeMismatchException(message);
     }
   }
 
@@ -175,7 +179,7 @@ public final class Check {
     size(expected.columns(), actual.columns());
   }
 
-  public static void isNotView(Matrix<?> m) {
+  public static void isNotView(Array<?> m) {
     if (m.isView()) {
       throw new UnsupportedOperationException(
           String.format("Views are unsupported. Please make a copy."));
@@ -189,6 +193,17 @@ public final class Check {
   public static void argument(boolean check, String message, Object... args) {
     if (!check) {
       throw new IllegalArgumentException(String.format(message, args));
+    }
+  }
+
+
+  public static void state(boolean test) {
+    state(test, "Illegal state");
+  }
+
+  public static void state(boolean test, String message, Object... args) {
+    if (!test) {
+      throw new IllegalStateException(String.format(message, args));
     }
   }
 }

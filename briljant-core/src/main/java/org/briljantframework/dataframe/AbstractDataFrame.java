@@ -18,8 +18,8 @@ import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.function.Aggregator;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.Array;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
@@ -683,15 +683,15 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleMatrix}. This
+   * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleArray}. This
    * implementation rely on {@link #getAsDouble(int, int)}. Sub-classes are allowed to return any
-   * concrete implementation of {@link org.briljantframework.matrix.DoubleMatrix}.
+   * concrete implementation of {@link org.briljantframework.matrix.DoubleArray}.
    *
    * @return a new matrix
    */
   @Override
-  public Matrix toMatrix() {
-    DoubleMatrix matrix = Bj.doubleMatrix(rows(), columns());
+  public Array toMatrix() {
+    DoubleArray matrix = Bj.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDouble(i, j));

@@ -1,10 +1,6 @@
 package org.briljantframework.matrix;
 
-import org.briljantframework.Bj;
-import org.briljantframework.Check;
 import org.briljantframework.Utils;
-
-import java.util.function.DoubleUnaryOperator;
 
 /**
  * @author Isak Karlsson
@@ -42,19 +38,19 @@ public final class Matrices {
   // return sort(matrix, Matrix::compare);
   // }
 
-  public static long sum(LongMatrix matrix) {
+  public static long sum(LongArray matrix) {
     return matrix.reduce(0, Long::sum);
   }
 
-  public static double sum(DoubleMatrix matrix) {
+  public static double sum(DoubleArray matrix) {
     return matrix.reduce(0, Double::sum);
   }
 
-  public static int sum(IntMatrix matrix) {
+  public static int sum(IntArray matrix) {
     return matrix.reduce(0, Integer::sum);
   }
 
-  public static int sum(BitMatrix matrix) {
+  public static int sum(BitArray matrix) {
     int sum = 0;
     for (int i = 0; i < matrix.size(); i++) {
       sum += matrix.get(i) ? 1 : 0;
@@ -65,22 +61,15 @@ public final class Matrices {
   /**
    * Sum t.
    *
-   * @param m   the m
-   * @param dim the axis
+   * @param matrix the m
+   * @param dim    the axis
    * @return the t
    */
-  public static DoubleMatrix sum(DoubleMatrix m, Dim dim) {
-    switch (dim) {
-      case R:
-        return m.reduceRows(Matrices::sum);
-      case C:
-        return m.reduceColumns(Matrices::sum);
-      default:
-        throw new IllegalArgumentException();
-    }
+  public static DoubleArray sum(int dim, DoubleArray matrix) {
+    return matrix.reduceVectors(dim, Matrices::sum);
   }
 
-  public static <T extends Matrix> T shuffle(T matrix) {
+  public static <T extends Array> T shuffle(T matrix) {
     Utils.permute(matrix.size(), matrix);
     return matrix;
   }
@@ -91,29 +80,25 @@ public final class Matrices {
    * @param matrix the matrix
    * @return the mean
    */
-  public static double mean(DoubleMatrix matrix) {
+  public static double mean(DoubleArray matrix) {
     return matrix.reduce(0, Double::sum) / matrix.size();
   }
 
   /**
-   * @param matrix the matrix
    * @param dim    the axis
+   * @param matrix the matrix
    * @return a mean matrix; if {@code axis == ROW} with shape = {@code [1, columns]}; or
    * {@code axis == COLUMN} with shape {@code [rows, 1]}.
    */
-  public static DoubleMatrix mean(DoubleMatrix matrix, Dim dim) {
-    if (dim == Dim.R) {
-      return matrix.reduceRows(Matrices::mean);
-    } else {
-      return matrix.reduceColumns(Matrices::mean);
-    }
+  public static DoubleArray mean(int dim, DoubleArray matrix) {
+    return matrix.reduceVectors(dim, Matrices::mean);
   }
 
   /**
    * @param vector the vector
    * @return the standard deviation
    */
-  public static double std(DoubleMatrix vector) {
+  public static double std(DoubleArray vector) {
     return std(vector, mean(vector));
   }
 
@@ -122,17 +107,13 @@ public final class Matrices {
    * @param mean   the mean
    * @return the standard deviation
    */
-  public static double std(DoubleMatrix vector, double mean) {
+  public static double std(DoubleArray vector, double mean) {
     double var = var(vector, mean);
     return Math.sqrt(var / (vector.size() - 1));
   }
 
-  public static DoubleMatrix std(DoubleMatrix matrix, Dim dim) {
-    if (dim == Dim.R) {
-      return matrix.reduceRows(Matrices::std);
-    } else {
-      return matrix.reduceColumns(Matrices::std);
-    }
+  public static DoubleArray std(int dim, DoubleArray matrix) {
+    return matrix.reduceVectors(dim, Matrices::std);
   }
 
   /**
@@ -140,7 +121,7 @@ public final class Matrices {
    * @param mean   the mean
    * @return the variance
    */
-  public static double var(DoubleMatrix matrix, double mean) {
+  public static double var(DoubleArray matrix, double mean) {
     return matrix.reduce(0, (v, acc) -> acc + (v - mean) * (v - mean));
   }
 
@@ -148,16 +129,12 @@ public final class Matrices {
    * @param vector the vector
    * @return the variance
    */
-  public static double var(DoubleMatrix vector) {
+  public static double var(DoubleArray vector) {
     return var(vector, mean(vector));
   }
 
-  public static DoubleMatrix var(DoubleMatrix matrix, Dim dim) {
-    if (dim == Dim.R) {
-      return matrix.reduceRows(Matrices::var);
-    } else {
-      return matrix.reduceColumns(Matrices::var);
-    }
+  public static DoubleArray var(int dim, DoubleArray matrix) {
+    return matrix.reduceVectors(dim, Matrices::var);
   }
 
 }

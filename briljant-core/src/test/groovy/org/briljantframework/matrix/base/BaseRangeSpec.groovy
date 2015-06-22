@@ -7,7 +7,7 @@ import spock.lang.Specification
  */
 class BaseRangeSpec extends Specification {
 
-  static bj = new BaseMatrixFactory()
+  static bj = new BaseArrayFactory()
 
   def "create new range"() {
     expect:

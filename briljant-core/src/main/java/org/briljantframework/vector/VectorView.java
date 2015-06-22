@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.TypeConversionException;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Array;
 
 /**
  * Created by isak on 1/21/15.
@@ -91,7 +91,7 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Matrix toMatrix() throws TypeConversionException {
+  public Array toMatrix() throws TypeConversionException {
     return parent.toMatrix();
   }
 

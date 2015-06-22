@@ -15,7 +15,9 @@ fun loadCSV(file: File): DataFrame {
         val types = it.readColumnTypes()
         val names = it.readColumnIndex()
         val builder = MixedDataFrame.Builder(types)
-        return builder.read(it).build().setColumnIndex(HashIndex.from(names))
+        val df = builder.read(it).build()
+        df.setColumnIndex(HashIndex.from(names))
+        return df
     }
 }
 
@@ -35,7 +37,9 @@ fun loadArff(file: File): DataFrame {
     ArffInputStream(FileInputStream(file)).use {
         val types = it.readColumnTypes()
         val names = it.readColumnIndex()
-        return MixedDataFrame.Builder(types).read(it).build().setColumnIndex(HashIndex.from(names))
+        val df = MixedDataFrame.Builder(types).read(it).build()
+        df.setColumnIndex(HashIndex.from(names))
+        return df
     }
 }
 

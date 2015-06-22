@@ -12,15 +12,15 @@ public object all : Iterable<Int> {
 /*
  * Matrix creation
  */
-fun matrix(vararg t: Int) = Bj.matrix(t)
+fun array(vararg t: Int) = Bj.array(t)
 
-fun matrix(vararg t: Double) = Bj.matrix(t)
+fun array(vararg t: Double) = Bj.array(t)
 
-fun matrix(vararg t: Long) = Bj.matrix(t)
+fun array(vararg t: Long) = Bj.array(t)
 
-fun matrix(vararg t: Complex) = Bj.matrix(t)
+fun array(vararg t: Complex) = Bj.array(t)
 
-fun matrix(vararg t: Boolean) = Bj.matrix(t)
+fun array(vararg t: Boolean) = Bj.array(t)
 
 fun linspace(start: Double, end: Double, size: Int = 100) = Bj.linspace(start, end, size)
 

@@ -5,7 +5,7 @@ package org.briljantframework.matrix;
  *
  * @author Isak Karlsson
  */
-public interface Range extends IntMatrix {
+public interface Range extends IntArray {
 
   int start();
 

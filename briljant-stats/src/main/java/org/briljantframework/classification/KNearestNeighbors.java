@@ -26,7 +26,7 @@ import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
@@ -179,7 +179,7 @@ public class KNearestNeighbors implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector record) {
+    public DoubleArray estimate(Vector record) {
       MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
       for (int i = 0; i < frame.rows(); i++) {
         double d = distance.compute(record, frame.getRecord(i));
@@ -191,7 +191,7 @@ public class KNearestNeighbors implements Classifier {
       }
       Vector classes = getClasses();
       int voters = queue.size();
-      DoubleMatrix probas = Bj.doubleVector(classes.size());
+      DoubleArray probas = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         probas.set(i, votes.getOrDefault(classes.get(Object.class, i), 0) / voters);
       }

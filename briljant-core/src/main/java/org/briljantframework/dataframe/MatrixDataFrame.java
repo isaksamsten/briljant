@@ -9,7 +9,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.Indexer;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
@@ -35,9 +35,9 @@ import static com.google.common.primitives.Ints.checkedCast;
  */
 public class MatrixDataFrame extends AbstractDataFrame {
 
-  private final DoubleMatrix matrix;
+  private final DoubleArray matrix;
 
-  public MatrixDataFrame(DoubleMatrix matrix) {
+  public MatrixDataFrame(DoubleArray matrix) {
     this.matrix = matrix;
   }
 
@@ -133,7 +133,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 //    NameAttribute columnNames = new NameAttribute(this.columnNames);
 //    columnNames.remove(index);
 
-    DoubleMatrix newMatrix = matrix.newEmptyArray(rows(), columns() - 1);
+    DoubleArray newMatrix = matrix.newEmptyArray(rows(), columns() - 1);
     int j = 0;
     for (int k = 0; k < matrix.columns(); k++) {
       if (k != index) {

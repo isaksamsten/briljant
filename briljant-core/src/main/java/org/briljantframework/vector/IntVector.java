@@ -10,7 +10,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.IntArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -187,8 +187,8 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
-  public IntMatrix toMatrix() {
-    IntMatrix m = Bj.intVector(size());
+  public IntArray toMatrix() {
+    IntArray m = Bj.intArray(size());
     for (int i = 0; i < size(); i++) {
       m.set(i, getAsInt(i));
     }

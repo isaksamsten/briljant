@@ -28,7 +28,7 @@ public final class MatrixPrinter {
     visibleColumns = cols;
   }
 
-  public static void print(ComplexMatrix matrix) {
+  public static void print(ComplexArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -36,11 +36,11 @@ public final class MatrixPrinter {
     }
   }
 
-  public static void print(Appendable out, ComplexMatrix matrix) throws IOException {
+  public static void print(Appendable out, ComplexArray matrix) throws IOException {
     print(out, new ComplexToStringMatrix(matrix), "[", "]");
   }
 
-  public static void print(DoubleMatrix matrix) {
+  public static void print(DoubleArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -48,7 +48,7 @@ public final class MatrixPrinter {
     }
   }
 
-  public static void print(DoubleMatrix x, String start, String end) {
+  public static void print(DoubleArray x, String start, String end) {
     try {
       print(System.out, new DoubleToStringMatrix(x), start, end);
     } catch (IOException e) {
@@ -56,11 +56,11 @@ public final class MatrixPrinter {
     }
   }
 
-  public static void print(Appendable out, DoubleMatrix matrix) throws IOException {
+  public static void print(Appendable out, DoubleArray matrix) throws IOException {
     print(out, new DoubleToStringMatrix(matrix), "[", "]");
   }
 
-  public static void print(BitMatrix matrix) {
+  public static void print(BitArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -68,11 +68,11 @@ public final class MatrixPrinter {
     }
   }
 
-  public static void print(Appendable out, BitMatrix matrix) throws IOException {
+  public static void print(Appendable out, BitArray matrix) throws IOException {
     print(out, new LongToStringMatrix(matrix.asLongMatrix()), "[", "]");
   }
 
-  public static void print(LongMatrix matrix) {
+  public static void print(LongArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -80,11 +80,11 @@ public final class MatrixPrinter {
     }
   }
 
-  public static void print(Appendable out, LongMatrix matrix) throws IOException {
+  public static void print(Appendable out, LongArray matrix) throws IOException {
     print(out, new LongToStringMatrix(matrix), "[", "]");
   }
 
-  public static void print(IntMatrix matrix) {
+  public static void print(IntArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -92,7 +92,7 @@ public final class MatrixPrinter {
     }
   }
 
-  public static void print(Appendable out, IntMatrix matrix) throws IOException {
+  public static void print(Appendable out, IntArray matrix) throws IOException {
     print(out, new LongToStringMatrix(matrix.asLongMatrix()), "[", "]");
   }
 
@@ -106,10 +106,10 @@ public final class MatrixPrinter {
   public static void print(Appendable out, ToStringMatrix matrix, String startChar, String endChar)
       throws IOException {
 
-    IntMatrix widths;
+    IntArray widths;
     if (matrix.columns() == 1 || matrix.size() <= minTruncateSize
         || matrix.rows() < visibleRows * 2) {
-      widths = Bj.intVector(matrix.columns());
+      widths = Bj.intArray(matrix.columns());
       for (int j = 0; j < matrix.columns(); j++) {
         int m = 0;
         for (int i = 0; i < matrix.rows(); i++) {
@@ -121,7 +121,7 @@ public final class MatrixPrinter {
         widths.set(j, m);
       }
     } else {
-      widths = Bj.intVector(visibleColumns * 2);
+      widths = Bj.intArray(visibleColumns * 2);
       for (int j = 0; j < visibleColumns && j < matrix.columns(); j++) {
         int m = 0;
         for (int i = 0; i < visibleRows && i < matrix.rows(); i++) {
@@ -201,7 +201,7 @@ public final class MatrixPrinter {
 
   private static void printRow(Appendable out,
                                ToStringMatrix values,
-                               IntMatrix widths,
+                               IntArray widths,
                                boolean truncate,
                                String startChar,
                                String endChar) throws IOException {
@@ -299,9 +299,9 @@ public final class MatrixPrinter {
 
     private final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
 
-    private final DoubleMatrix matrix;
+    private final DoubleArray matrix;
 
-    public DoubleToStringMatrix(DoubleMatrix matrix) {
+    public DoubleToStringMatrix(DoubleArray matrix) {
       this.matrix = matrix;
     }
 
@@ -350,9 +350,9 @@ public final class MatrixPrinter {
 
     private final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
 
-    private final LongMatrix matrix;
+    private final LongArray matrix;
 
-    public LongToStringMatrix(LongMatrix matrix) {
+    public LongToStringMatrix(LongArray matrix) {
       this.matrix = matrix;
     }
 
@@ -401,9 +401,9 @@ public final class MatrixPrinter {
 
     private final ComplexFormat COMPLEX_FORMAT = new ComplexFormat();
 
-    private final ComplexMatrix matrix;
+    private final ComplexArray matrix;
 
-    public ComplexToStringMatrix(ComplexMatrix matrix) {
+    public ComplexToStringMatrix(ComplexArray matrix) {
       this.matrix = matrix;
     }
 

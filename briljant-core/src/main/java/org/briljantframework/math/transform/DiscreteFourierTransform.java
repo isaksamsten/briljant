@@ -2,8 +2,8 @@ package org.briljantframework.math.transform;
 
 import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.ComplexArray;
+import org.briljantframework.matrix.DoubleArray;
 
 /*
  * Free FFT and convolution (Java)
@@ -32,7 +32,7 @@ public final class DiscreteFourierTransform {
   private DiscreteFourierTransform() {
   }
 
-  private static void fftInplace(ComplexMatrix a) {
+  private static void fftInplace(ComplexArray a) {
     int n = a.size();
     if ((n & (n - 1)) == 0) { // n is a power of 2?
       transformRadix2(a);
@@ -41,14 +41,14 @@ public final class DiscreteFourierTransform {
     }
   }
 
-  public static ComplexMatrix fft(ComplexMatrix a) {
-    ComplexMatrix copy = a.copy();
+  public static ComplexArray fft(ComplexArray a) {
+    ComplexArray copy = a.copy();
     fftInplace(copy);
     return copy;
   }
 
-  public static ComplexMatrix ifft(ComplexMatrix a) {
-    ComplexMatrix copy = Bj.complexVector(a.size());
+  public static ComplexArray ifft(ComplexArray a) {
+    ComplexArray copy = Bj.complexArray(a.size());
     for (int i = 0; i < a.size(); i++) {
       Complex c = a.get(i);
       copy.set(i, new Complex(c.imag(), c.real()));
@@ -65,11 +65,11 @@ public final class DiscreteFourierTransform {
     return copy;
   }
 
-  public static ComplexMatrix fft(DoubleMatrix a) {
+  public static ComplexArray fft(DoubleArray a) {
     return fft(a.asComplexMatrix());
   }
 
-  private static void transformBluestein(ComplexMatrix a) {
+  private static void transformBluestein(ComplexArray a) {
     // Find a power-of-2 convolution length m such that m >= n * 2 + 1
     int n = a.size();
     if (n >= 0x20000000) { // n >= 536870912
@@ -78,16 +78,16 @@ public final class DiscreteFourierTransform {
     int m = Integer.highestOneBit(n * 2 + 1) << 1;
 
     // Trigonometric tables
-    DoubleMatrix cosTable = Bj.doubleVector(n);
-    DoubleMatrix sinTable = Bj.doubleVector(n);
+    DoubleArray cosTable = Bj.doubleArray(n);
+    DoubleArray sinTable = Bj.doubleArray(n);
     for (int i = 0; i < n; i++) {
       int j = (int) ((long) i * i % (n * 2));
       cosTable.set(i, Math.cos(Math.PI * j / n));
       sinTable.set(i, Math.sin(Math.PI * j / n));
     }
 
-    ComplexMatrix an = Bj.complexVector(m);
-    ComplexMatrix bn = Bj.complexVector(m);
+    ComplexArray an = Bj.complexArray(m);
+    ComplexArray bn = Bj.complexArray(m);
 
     bn.set(0, new Complex(cosTable.get(0), sinTable.get(0)));
     for (int i = 0; i < n; i++) {
@@ -107,7 +107,7 @@ public final class DiscreteFourierTransform {
     }
 
     // Convolution
-    ComplexMatrix cc = convolve(an, bn);
+    ComplexArray cc = convolve(an, bn);
     for (int i = 0; i < n; i++) {
       double cos = cosTable.get(i);
       double sin = sinTable.get(i);
@@ -123,10 +123,10 @@ public final class DiscreteFourierTransform {
    * Computes the circular convolution of the given complex vectors. Each vector's length must be
    * the same.
    */
-  private static ComplexMatrix convolve(ComplexMatrix x, ComplexMatrix y) {
+  private static ComplexArray convolve(ComplexArray x, ComplexArray y) {
     int n = x.size();
-    ComplexMatrix xt = fft(x);
-    ComplexMatrix yt = fft(y);
+    ComplexArray xt = fft(x);
+    ComplexArray yt = fft(y);
 
     for (int i = 0; i < n; i++) {
       xt.set(i, xt.get(i).multiply(yt.get(i)));
@@ -148,15 +148,15 @@ public final class DiscreteFourierTransform {
     return xt;
   }
 
-  private static void transformRadix2(ComplexMatrix a) {
+  private static void transformRadix2(ComplexArray a) {
     final int n = a.size();
     int levels = (int) Math.floor(Math.log(n) / Math.log(2));
     if (1 << levels != n) {
       throw new IllegalArgumentException();
     }
 
-    DoubleMatrix cosTable = Bj.doubleVector(n / 2);
-    DoubleMatrix sinTable = Bj.doubleVector(n / 2);
+    DoubleArray cosTable = Bj.doubleArray(n / 2);
+    DoubleArray sinTable = Bj.doubleArray(n / 2);
     final double v = 2 * Math.PI;
     for (int i = 0; i < n / 2; i++) {
       cosTable.set(i, Math.cos(v * i / n));

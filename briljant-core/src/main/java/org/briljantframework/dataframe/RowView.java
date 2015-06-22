@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableTable;
 import org.briljantframework.Bj;
 import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.Array;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vec;
@@ -99,8 +99,8 @@ class RowView extends AbstractVector {
   }
 
   @Override
-  public Matrix toMatrix() {
-    DoubleMatrix matrix = Bj.doubleMatrix(1, size());
+  public Array toMatrix() {
+    DoubleArray matrix = Bj.doubleArray(size());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, getAsDouble(i));
     }

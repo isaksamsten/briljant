@@ -20,7 +20,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.TypeMismatchException;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
@@ -39,8 +39,8 @@ public class MinMaxNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix min = Bj.doubleVector(frame.columns());
-    DoubleMatrix max = Bj.doubleVector(frame.columns());
+    DoubleArray min = Bj.doubleArray(frame.columns());
+    DoubleArray max = Bj.doubleArray(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
       if (!frame.getType(j).equals(Vec.DOUBLE)) {
         throw new TypeMismatchException(Vec.DOUBLE, frame.getType(j));

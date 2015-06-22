@@ -8,12 +8,12 @@ import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.LongMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.BitArray;
+import org.briljantframework.matrix.ComplexArray;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
+import org.briljantframework.matrix.LongArray;
+import org.briljantframework.matrix.Array;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 
@@ -653,9 +653,9 @@ public interface Vector extends Serializable {
 
   /**
    * <p>Copies this vector to a {@code Matrix}. An appropriate
-   * specialization of the {@link org.briljantframework.matrix.Matrix} interface should be
+   * specialization of the {@link org.briljantframework.matrix.Array} interface should be
    * preferred. For example, a {@link org.briljantframework.vector.DoubleVector} should return a
-   * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
+   * {@link org.briljantframework.matrix.DoubleArray} implementation.
    *
    * <pre>
    * Vector a = new DoubleVector(1, 2, 3, 4, 5);
@@ -674,25 +674,25 @@ public interface Vector extends Serializable {
    * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
    *                                                                  to matrix
    */
-  Matrix toMatrix() throws TypeConversionException;
+  Array toMatrix() throws TypeConversionException;
 
-  default DoubleMatrix asDoubleMatrix() throws TypeConversionException {
+  default DoubleArray asDoubleMatrix() throws TypeConversionException {
     return toMatrix().asDoubleMatrix();
   }
 
-  default ComplexMatrix asComplexMatrix() throws TypeConversionException {
+  default ComplexArray asComplexMatrix() throws TypeConversionException {
     return toMatrix().asComplexMatrix();
   }
 
-  default LongMatrix asLongMatrix() throws TypeConversionException {
+  default LongArray asLongMatrix() throws TypeConversionException {
     return toMatrix().asLongMatrix();
   }
 
-  default BitMatrix asBitMatrix() throws TypeConversionException {
+  default BitArray asBitMatrix() throws TypeConversionException {
     return toMatrix().asBitMatrix();
   }
 
-  default IntMatrix asIntMatrix() throws TypeConversionException {
+  default IntArray asIntMatrix() throws TypeConversionException {
     return toMatrix().asIntMatrix();
   }
 

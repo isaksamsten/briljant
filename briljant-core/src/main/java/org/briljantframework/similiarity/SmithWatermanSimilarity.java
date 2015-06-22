@@ -3,7 +3,7 @@ package org.briljantframework.similiarity;
 import com.google.common.primitives.Doubles;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -21,7 +21,7 @@ public class SmithWatermanSimilarity implements Similarity {
 
   @Override
   public double compute(Vector a, Vector b) {
-    DoubleMatrix h = Bj.doubleMatrix(a.size() + 1, b.size() + 1);
+    DoubleArray h = Bj.doubleArray(a.size() + 1, b.size() + 1);
     double maxScore = Double.NEGATIVE_INFINITY;
     int maxI = 0, maxJ = 0;
     for (int i = 1; i < h.rows(); i++) {

@@ -77,11 +77,11 @@ class MatrixExtensionsSpec extends Specification {
     def d = matrix([1, 2, 3] as double[])
 
     then:
-    (i as DoubleMatrix) instanceof DoubleMatrix
-    (d as IntMatrix) instanceof IntMatrix
+    (i as DoubleArray) instanceof DoubleArray
+    (d as IntArray) instanceof IntArray
 
-    (i as DoubleMatrix).view == true
-    (d as IntMatrix).view == true
+    (i as DoubleArray).view == true
+    (d as IntArray).view == true
   }
 
 }

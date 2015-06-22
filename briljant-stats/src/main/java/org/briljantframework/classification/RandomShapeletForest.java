@@ -24,8 +24,8 @@ import org.briljantframework.distance.Distance;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.BitArray;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
@@ -63,15 +63,15 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vec.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
+    BitArray oobIndicator = Bj.booleanMatrix(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumn(i)));
     }
 
     try {
       List<ShapeletTree.Predictor> models = execute(tasks);
-      DoubleMatrix lenSum = Bj.doubleVector(x.columns());
-      DoubleMatrix posSum = Bj.doubleVector(x.columns());
+      DoubleArray lenSum = Bj.doubleVector(x.columns());
+      DoubleArray posSum = Bj.doubleVector(x.columns());
       for (ShapeletTree.Predictor m : models) {
         lenSum.assign(m.getLengthImportance(), Double::sum);
         posSum.assign(m.getPositionImportance(), Double::sum);
@@ -81,7 +81,7 @@ public class RandomShapeletForest extends Ensemble {
       posSum.update(v -> v / size());
 
       Map<Object, Integer> counts = Vec.count(y);
-      DoubleMatrix apriori = Bj.doubleVector(classes.size());
+      DoubleArray apriori = Bj.doubleVector(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         apriori.set(i, counts.get(classes.get(Object.class, i)) / (double) y.size());
       }
@@ -106,11 +106,11 @@ public class RandomShapeletForest extends Ensemble {
     private final Vector y;
     private final Vector classes;
     private final ShapeletTree.Builder builder;
-    private final BitMatrix oobIndicator;
+    private final BitArray oobIndicator;
 
 
     private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder,
-                    Vector classes, BitMatrix oobIndicator) {
+                    Vector classes, BitArray oobIndicator) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
@@ -167,25 +167,25 @@ public class RandomShapeletForest extends Ensemble {
 
   public static class Predictor extends DefaultEnsemblePredictor {
 
-    private final DoubleMatrix lengthImportance;
-    private final DoubleMatrix positionImportance;
-    private final DoubleMatrix apriori;
+    private final DoubleArray lengthImportance;
+    private final DoubleArray positionImportance;
+    private final DoubleArray apriori;
 
     public Predictor(
-        Vector classes, DoubleMatrix apriori,
+        Vector classes, DoubleArray apriori,
         List<? extends org.briljantframework.classification.Predictor> members,
-        DoubleMatrix lengthImportance, DoubleMatrix positionImportance, BitMatrix oobIndicator) {
+        DoubleArray lengthImportance, DoubleArray positionImportance, BitArray oobIndicator) {
       super(classes, members, oobIndicator);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
       this.apriori = apriori;
     }
 
-    public DoubleMatrix getLengthImportance() {
+    public DoubleArray getLengthImportance() {
       return lengthImportance;
     }
 
-    public DoubleMatrix getPositionImportance() {
+    public DoubleArray getPositionImportance() {
       return positionImportance;
     }
 
@@ -204,15 +204,15 @@ public class RandomShapeletForest extends Ensemble {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector record) {
-      List<DoubleMatrix> predictions = getPredictors().parallelStream()
+    public DoubleArray estimate(Vector record) {
+      List<DoubleArray> predictions = getPredictors().parallelStream()
           .map(model -> model.estimate(record))
           .collect(Collectors.toList());
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = Bj.doubleVector(classes.size());
-      for (DoubleMatrix prediction : predictions) {
+      DoubleArray m = Bj.doubleVector(classes.size());
+      for (DoubleArray prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }
 //      return m.mul(apriori.rsub(1));

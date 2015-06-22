@@ -1,9 +1,9 @@
 package org.briljantframework.matrix;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.api.MatrixRoutines;
-import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
+import org.briljantframework.matrix.api.ArrayFactory;
+import org.briljantframework.matrix.api.ArrayRoutines;
+import org.briljantframework.matrix.netlib.NetlibArrayBackend;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -14,14 +14,14 @@ import static org.junit.Assert.assertEquals;
 
 public class MatricesTest {
 
-  private final NetlibMatrixBackend b = new NetlibMatrixBackend();
-  private final MatrixFactory bj = b.getMatrixFactory();
-  private final MatrixRoutines bjr = b.getMatrixRoutines();
+  private final NetlibArrayBackend b = new NetlibArrayBackend();
+  private final ArrayFactory bj = b.getArrayFactory();
+  private final ArrayRoutines bjr = b.getArrayRoutines();
 
 
   @Test
   public void testArgMax() throws Exception {
-    DoubleMatrix v = bj.matrix(new double[]{1.0, 2, 3, 9, 5, 1, 2});
+    DoubleArray v = bj.array(new double[]{1.0, 2, 3, 9, 5, 1, 2});
     assertEquals(3, Bj.argmax(v));
   }
 
@@ -252,10 +252,10 @@ public class MatricesTest {
 
   @Test
   public void testVstack() throws Exception {
-    DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
-    DoubleMatrix b = bj.doubleMatrix(2, 3).assign(3);
-    DoubleMatrix c = bj.doubleMatrix(1, 3).assign(1);
-    DoubleMatrix hstack = bjr.vstack(Arrays.asList(a, b, c));
+    DoubleArray a = bj.doubleArray(3, 3).assign(10);
+    DoubleArray b = bj.doubleArray(2, 3).assign(3);
+    DoubleArray c = bj.doubleArray(1, 3).assign(1);
+    DoubleArray hstack = bjr.vstack(Arrays.asList(a, b, c));
     System.out.println(hstack);
     assertMatrixEquals(a, bjr.vstack(Arrays.asList(a)), 0);
     assertEquals(3 + 2 + 1, hstack.rows());
@@ -267,10 +267,10 @@ public class MatricesTest {
 
   @Test
   public void testHstack() throws Exception {
-    DoubleMatrix a = bj.doubleMatrix(3, 3).assign(10);
-    DoubleMatrix b = bj.doubleMatrix(3, 2).assign(2);
-    DoubleMatrix c = bj.doubleMatrix(3, 1).assign(1);
-    DoubleMatrix vstack = bjr.hstack(Arrays.asList(a, b, c));
+    DoubleArray a = bj.doubleArray(3, 3).assign(10);
+    DoubleArray b = bj.doubleArray(3, 2).assign(2);
+    DoubleArray c = bj.doubleArray(3, 1).assign(1);
+    DoubleArray vstack = bjr.hstack(Arrays.asList(a, b, c));
 
     assertMatrixEquals(a, bjr.hstack(Arrays.asList(a)), 0);
     assertEquals(3 + 2 + 1, vstack.columns());
@@ -377,8 +377,8 @@ public class MatricesTest {
 
   @Test
   public void testVsplit() throws Exception {
-    DoubleMatrix a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
-    List<DoubleMatrix> m = bjr.vsplit(a, 3);
+    DoubleArray a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
+    List<DoubleArray> m = bjr.vsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getRow(0), m.get(0), 0);
     assertMatrixEquals(a.getRow(1), m.get(1), 0);
@@ -389,8 +389,8 @@ public class MatricesTest {
 
   @Test
   public void testHsplit() throws Exception {
-    DoubleMatrix a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
-    List<DoubleMatrix> m = bjr.hsplit(a, 3);
+    DoubleArray a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
+    List<DoubleArray> m = bjr.hsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getColumn(0), m.get(0), 0);
     assertMatrixEquals(a.getColumn(1), m.get(1), 0);

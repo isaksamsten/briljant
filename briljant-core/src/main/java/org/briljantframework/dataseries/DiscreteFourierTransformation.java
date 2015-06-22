@@ -2,8 +2,8 @@ package org.briljantframework.dataseries;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.transform.InvertibleTransformation;
-import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.ComplexArray;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
@@ -29,8 +29,8 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(ComplexVector.TYPE);
     for (Vector row : x) {
       requireType(DoubleVector.TYPE, row);
-      DoubleMatrix timeDomain = row.toMatrix().asDoubleMatrix();
-      ComplexMatrix frequencyDomain = fft(timeDomain);
+      DoubleArray timeDomain = row.toMatrix().asDoubleMatrix();
+      ComplexArray frequencyDomain = fft(timeDomain);
       ComplexVector.Builder rowBuilder = new ComplexVector.Builder(0, frequencyDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.set(i, frequencyDomain.get(i));
@@ -45,8 +45,8 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
     for (Vector row : x) {
       requireType(ComplexVector.TYPE, row);
-      ComplexMatrix timeDomain = row.toMatrix().asComplexMatrix();
-      DoubleMatrix frequencyDomain = ifft(timeDomain).asDoubleMatrix();
+      ComplexArray timeDomain = row.toMatrix().asComplexMatrix();
+      DoubleArray frequencyDomain = ifft(timeDomain).asDoubleMatrix();
       DoubleVector.Builder rowBuilder = new DoubleVector.Builder(0, frequencyDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.set(i, frequencyDomain.get(i));

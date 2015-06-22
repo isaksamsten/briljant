@@ -3,22 +3,29 @@ package org.briljantframework.matrix.base;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import org.briljantframework.matrix.AbstractIntMatrix;
-import org.briljantframework.matrix.Indexer;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.AbstractIntArray;
+import org.briljantframework.matrix.IntArray;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
  */
-class BaseRange extends AbstractIntMatrix implements Range {
+class BaseRange extends AbstractIntArray implements Range {
 
   private final int start, end, step;
 
-  BaseRange(MatrixFactory bj, int start, int end, int step) {
-    super(bj, getSize(start, end, step), 1);
+  BaseRange(ArrayFactory bj, int start, int end, int step) {
+    super(bj, getSize(start, end, step));
     Preconditions.checkArgument(start < end);
+    this.start = start;
+    this.end = end;
+    this.step = step;
+  }
+
+  public BaseRange(ArrayFactory bj, int offset, int[] shape, int[] stride,
+                   int start, int end, int step) {
+    super(bj, offset, shape, stride);
     this.start = start;
     this.end = end;
     this.step = step;
@@ -70,18 +77,13 @@ class BaseRange extends AbstractIntMatrix implements Range {
   }
 
   @Override
-  public void set(int i, int j, int value) {
-    throw new UnsupportedOperationException();
+  public IntArray newEmptyArray(int... shape) {
+    return new BaseIntArray(getMatrixFactory(), shape);
   }
 
   @Override
-  public void set(int index, int value) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public IntMatrix reshape(int rows, int columns) {
-    return copy().reshape(rows, columns);
+  protected IntArray makeView(int offset, int[] shape, int[] stride) {
+    return new BaseRange(getMatrixFactory(), offset, shape, stride, start(), end(), step());
   }
 
   @Override
@@ -90,16 +92,16 @@ class BaseRange extends AbstractIntMatrix implements Range {
   }
 
   @Override
-  public int get(int i, int j) {
-    return get(Indexer.columnMajor(0, i, j, rows(), columns()));
+  protected void setElement(int index, int value) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public int get(int index) {
-    if (index < size() && index >= 0) {
+  protected int getElement(int index) {
+    if (index < getSize(start(), end(), step()) && index >= 0) {
       return start + index * step;
     } else {
-      throw new IndexOutOfBoundsException();
+      throw new IndexOutOfBoundsException(String.format("0 >= %d > %d", index, size()));
     }
   }
 }

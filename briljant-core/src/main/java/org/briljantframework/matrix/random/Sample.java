@@ -1,7 +1,7 @@
 package org.briljantframework.matrix.random;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.IntArray;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,7 +23,7 @@ public final class Sample {
    * @param samples    the sample size
    * @return an int matrix with values sampled from the population
    */
-  public static IntMatrix withoutReplacement(int population, int samples) {
+  public static IntArray withoutReplacement(int population, int samples) {
     return withoutReplacement(population, samples, ThreadLocalRandom.current());
   }
 
@@ -35,7 +35,7 @@ public final class Sample {
    * @param rng        the random number generator
    * @return an int matrix with values sampled from the population
    */
-  public static IntMatrix withoutReplacement(int population, int samples, Random rng) {
+  public static IntArray withoutReplacement(int population, int samples, Random rng) {
     if (population < 0) {
       throw new IllegalArgumentException("population should be > 0");
     }
@@ -43,7 +43,7 @@ public final class Sample {
       throw new IllegalArgumentException("population should be greater than"
                                          + "or equal to samples");
     }
-    IntMatrix out = Bj.intVector(samples);
+    IntArray out = Bj.intArray(samples);
 
     for (int i = 0; i < samples; i++) {
       out.set(i, i);

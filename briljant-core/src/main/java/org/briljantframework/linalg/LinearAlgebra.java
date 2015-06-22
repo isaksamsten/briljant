@@ -23,7 +23,7 @@ import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.Shape;
 
 /**
@@ -66,7 +66,7 @@ public class LinearAlgebra {
    * @param b the matrix b
    * @return the solution vector <code>x</code>
    */
-  public static DoubleMatrix leastLinearSquares(DoubleMatrix a, DoubleMatrix b) {
+  public static DoubleArray leastLinearSquares(DoubleArray a, DoubleArray b) {
     return new LeastLinearSquaresSolver(a).solve(b);
   }
 
@@ -76,7 +76,7 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return lu decomposition
    */
-  public static LuDecomposition lu(DoubleMatrix matrix) {
+  public static LuDecomposition lu(DoubleArray matrix) {
     return new LuDecomposer().decompose(matrix);
   }
 
@@ -97,7 +97,7 @@ public class LinearAlgebra {
    * @throws IllegalArgumentException if matrix is not square
    * @throws RuntimeException         if the decomposition fail (i.e. the matrix is singular)
    */
-  public static DoubleMatrix inv(DoubleMatrix a) {
+  public static DoubleArray inv(DoubleArray a) {
     return new InverseTransformation().transform(a);
   }
 
@@ -108,11 +108,11 @@ public class LinearAlgebra {
    * @param matrix the matrix
    * @return the out
    */
-  public static DoubleMatrix pinv(DoubleMatrix matrix) {
+  public static DoubleArray pinv(DoubleArray matrix) {
     Shape shape = Shape.of(matrix.columns(), matrix.rows());
     double[] array = shape.getDoubleArray();
     pinvi(matrix, array);
-    return Bj.matrix(array).reshape(matrix.columns(), matrix.rows());
+    return Bj.array(array).reshape(matrix.columns(), matrix.rows());
   }
 
   /**
@@ -121,15 +121,15 @@ public class LinearAlgebra {
    * @param matrix the tensor
    * @param copy   the copy
    */
-  public static void pinvi(DoubleMatrix matrix, double[] copy) {
+  public static void pinvi(DoubleArray matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
-    DoubleMatrix diagonal = svd.getDiagonal();
-    DoubleMatrix rightSingularValues = svd.getRightSingularValues();
-    DoubleMatrix leftSingularValues = svd.getLeftSingularValues();
+    DoubleArray diagonal = svd.getDiagonal();
+    DoubleArray rightSingularValues = svd.getRightSingularValues();
+    DoubleArray leftSingularValues = svd.getLeftSingularValues();
 
     diagonal.update(x -> x < MACHINE_EPSILON ? 0 : 1 / x);
     diagonal.transpose();
-    DoubleMatrix s = rightSingularValues.mmul(diagonal);
+    DoubleArray s = rightSingularValues.mmul(diagonal);
     throw new UnsupportedOperationException("must be implemented");
     // Matrices.mmuli(s, Transpose.NO, leftSingularValues, Transpose.YES, copy);
   }
@@ -149,7 +149,7 @@ public class LinearAlgebra {
    * @return the singular value decomposition
    * @throws IllegalArgumentException if SVD fail to converge
    */
-  public static SingularValueDecomposition svd(DoubleMatrix matrix) {
+  public static SingularValueDecomposition svd(DoubleArray matrix) {
     return new SingularValueDecomposer().decompose(matrix);
   }
 
@@ -164,7 +164,7 @@ public class LinearAlgebra {
    * @param x a square mutable array
    * @return the determinant
    */
-  public static double det(DoubleMatrix x) {
+  public static double det(DoubleArray x) {
     if (x.isSquare()) {
       return new LuDecomposer().decompose(x).getDeterminant();
     } else {
@@ -183,9 +183,9 @@ public class LinearAlgebra {
    * @param x a matrix
    * @return the rank
    */
-  public static double rank(DoubleMatrix x) {
+  public static double rank(DoubleArray x) {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
-    DoubleMatrix singular = svd.getDiagonal();
+    DoubleArray singular = svd.getDiagonal();
 //    int rank = 0;
 //    for (int i = 0; i < singular.diagonalSize(); i++) {
 //      if (singular.getDiagonal(i) > 0) {

@@ -10,7 +10,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -233,8 +233,8 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public DoubleMatrix toMatrix() {
-    DoubleMatrix x = Bj.doubleVector(size());
+  public DoubleArray toMatrix() {
+    DoubleArray x = Bj.doubleArray(size());
     for (int i = 0; i < size(); i++) {
       x.set(i, getAsDouble(i));
     }

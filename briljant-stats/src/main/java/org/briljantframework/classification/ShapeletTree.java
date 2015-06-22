@@ -44,7 +44,7 @@ import org.briljantframework.dataseries.Approximations;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.shapelet.DerivetiveShapelet;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
@@ -424,8 +424,8 @@ public class ShapeletTree implements Classifier {
     ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
     List<Object> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleArray ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleArray gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
 
     double ltWeight = 0.0, gtWeight = 0.0;
 
@@ -611,8 +611,8 @@ public class ShapeletTree implements Classifier {
 
     public double noExamples;
     public DataFrame originalData;
-    private DoubleMatrix lengthImportance;
-    private DoubleMatrix positionImportance;
+    private DoubleArray lengthImportance;
+    private DoubleArray positionImportance;
     private int depth = 0;
   }
 
@@ -620,12 +620,12 @@ public class ShapeletTree implements Classifier {
 
     public final ClassSet classSet;
     private final int depth;
-    private final DoubleMatrix lengthImportance;
-    private final DoubleMatrix positionImportance;
+    private final DoubleArray lengthImportance;
+    private final DoubleArray positionImportance;
 
     protected Predictor(Vector classes, TreeNode<ShapeletThreshold> node,
-                        ShapletTreeVisitor predictionVisitor, DoubleMatrix lengthImportance,
-                        DoubleMatrix positionImportance, int depth, ClassSet classSet) {
+                        ShapletTreeVisitor predictionVisitor, DoubleArray lengthImportance,
+                        DoubleArray positionImportance, int depth, ClassSet classSet) {
       super(classes, node, predictionVisitor);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;
@@ -638,7 +638,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the position importance
      */
-    public DoubleMatrix getPositionImportance() {
+    public DoubleArray getPositionImportance() {
       return positionImportance;
     }
 
@@ -647,7 +647,7 @@ public class ShapeletTree implements Classifier {
      *
      * @return the length importance
      */
-    public DoubleMatrix getLengthImportance() {
+    public DoubleArray getLengthImportance() {
       return lengthImportance;
     }
 
@@ -667,12 +667,12 @@ public class ShapeletTree implements Classifier {
     }
 
     @Override
-    public DoubleMatrix visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
+    public DoubleArray visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
       return leaf.getProbabilities();
     }
 
     @Override
-    public DoubleMatrix visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
+    public DoubleArray visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
       Shapelet shapelet = node.getThreshold().getShapelet();
       Vector cand = example;
       if (shapelet instanceof DerivetiveShapelet) {

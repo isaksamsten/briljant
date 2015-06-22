@@ -17,18 +17,18 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
 
 /**
  * @author Isak Karlsson
  */
 public class LuDecomposer {
 
-  public LuDecomposition decompose(DoubleMatrix matrix) {
+  public LuDecomposition decompose(DoubleArray matrix) {
     int m = matrix.rows(), n = matrix.columns();
-    IntMatrix pivots = Bj.intVector(Math.min(m, n));
-    DoubleMatrix lu = matrix.copy();
+    IntArray pivots = Bj.intArray(Math.min(m, n));
+    DoubleArray lu = matrix.copy();
     Bj.linalg.getrf(lu, pivots);
     return new LuDecomposition(lu, pivots);
   }

@@ -16,16 +16,16 @@
 
 package org.briljantframework.linalg.solve;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 
 /**
  * Created by Isak Karlsson on 08/09/14.
  */
 public abstract class AbstractSolver implements Solver {
 
-  protected final DoubleMatrix a;
+  protected final DoubleArray a;
 
-  protected AbstractSolver(DoubleMatrix a) {
+  protected AbstractSolver(DoubleArray a) {
     this.a = a;
   }
 

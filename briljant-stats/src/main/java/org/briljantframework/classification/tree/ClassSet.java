@@ -18,7 +18,7 @@ package org.briljantframework.classification.tree;
 
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public final class ClassSet implements Iterable<Example> {
     return Collections.unmodifiableList(targets);
   }
 
-  public DoubleMatrix getRelativeFrequencies() {
+  public DoubleArray getRelativeFrequencies() {
     double size = getTotalWeight();
     double[] rel = new double[samples.size()];
     int i = 0;

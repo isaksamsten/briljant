@@ -19,8 +19,8 @@ package org.briljantframework.linalg.solve;
 import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
 
 //import org.briljantframework.matrix.DefaultDoubleMatrix;
 
@@ -38,15 +38,15 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
    *
    * @param matrix the matrix
    */
-  public LeastLinearSquaresSolver(DoubleMatrix matrix) {
+  public LeastLinearSquaresSolver(DoubleArray matrix) {
     super(matrix);
   }
 
   @Override
-  public DoubleMatrix solve(DoubleMatrix b) {
-    DoubleMatrix aCopy = a.copy();
-    DoubleMatrix bCopy = b.copy();
-    IntMatrix jpvt = Bj.intVector(a.columns());
+  public DoubleArray solve(DoubleArray b) {
+    DoubleArray aCopy = a.copy();
+    DoubleArray bCopy = b.copy();
+    IntArray jpvt = Bj.intArray(a.columns());
     Bj.linalg.gelsy(aCopy, bCopy, jpvt, 0.01);
     return bCopy;
   }

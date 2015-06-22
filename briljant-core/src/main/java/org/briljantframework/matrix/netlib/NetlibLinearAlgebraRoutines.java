@@ -8,11 +8,11 @@ import org.briljantframework.Check;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Matrix;
-import org.briljantframework.matrix.T;
-import org.briljantframework.matrix.api.MatrixFactory;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
+import org.briljantframework.matrix.Array;
+import org.briljantframework.matrix.Op;
+import org.briljantframework.matrix.api.ArrayFactory;
 import org.netlib.util.intW;
 
 import java.util.Arrays;
@@ -32,20 +32,20 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
   static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
 
-  protected NetlibLinearAlgebraRoutines(NetlibMatrixBackend matrixFactory) {
+  protected NetlibLinearAlgebraRoutines(NetlibArrayBackend matrixFactory) {
     super(matrixFactory);
   }
 
   @Override
-  public DoubleMatrix inv(DoubleMatrix x) {
+  public DoubleArray inv(DoubleArray x) {
     return null;
   }
 
   @Override
-  public DoubleMatrix pinv(DoubleMatrix x) {
-    MatrixFactory bj = getMatrixBackend().getMatrixFactory();
+  public DoubleArray pinv(DoubleArray x) {
+    ArrayFactory bj = getArrayBackend().getArrayFactory();
     SingularValueDecomposition svd = svd(x);
-    DoubleMatrix d = svd.getDiagonal();
+    DoubleArray d = svd.getDiagonal();
     int r1 = 0;
     for (int i = 0; i < d.size(); i++) {
       if (d.get(i) > MACHINE_EPSILON) {
@@ -54,8 +54,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       }
     }
 
-    DoubleMatrix u = svd.getLeftSingularValues();
-    DoubleMatrix v = svd.getRightSingularValues();
+    DoubleArray u = svd.getLeftSingularValues();
+    DoubleArray v = svd.getRightSingularValues();
     u = u.getView(0, 0, u.rows(), r1);
     v = v.getView(0, 0, v.rows(), r1);
     d = d.slice(bj.range(r1));
@@ -72,32 +72,31 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       }
     }
 
-    DoubleMatrix pinv = bj.doubleMatrix(x.columns(), x.rows());
-    getMatrixBackend().getMatrixRoutines()
-        .gemm(T.NO, T.YES, 1, v, u, 1, pinv);
+    DoubleArray pinv = bj.doubleArray(x.columns(), x.rows());
+    getArrayBackend().getArrayRoutines()
+        .gemm(Op.KEEP, Op.TRANSPOSE, 1, v, u, 1, pinv);
     return pinv;
   }
 
   @Override
-  public SingularValueDecomposition svd(DoubleMatrix x) {
-    MatrixFactory bj = getMatrixBackend().getMatrixFactory();
+  public SingularValueDecomposition svd(DoubleArray x) {
+    ArrayFactory bj = getArrayBackend().getArrayFactory();
     int m = x.rows();
     int n = x.columns();
-    DoubleMatrix s = bj.doubleVector(n);
-    DoubleMatrix u = bj.doubleMatrix(m, m);
-    DoubleMatrix vt = bj.doubleMatrix(n, n);
-    DoubleMatrix a = x.copy();
+    DoubleArray s = bj.doubleArray(n);
+    DoubleArray u = bj.doubleArray(m, m);
+    DoubleArray vt = bj.doubleArray(n, n);
+    DoubleArray a = x.copy();
     if (m > n) {
       gesdd('a', a, s, u, vt);
     } else {
       gesdd('a', a, s, u, vt);
     }
-    getMatrixBackend().getMatrixRoutines().transpose(vt);
-    return new SingularValueDecomposition(s, u, vt);
+    return new SingularValueDecomposition(s, u, vt.transpose());
   }
 
   @Override
-  public void geqrf(DoubleMatrix a, DoubleMatrix tau) {
+  public void geqrf(DoubleArray a, DoubleArray tau) {
     int m = a.rows();
     int n = a.columns();
     int lda = Math.max(1, m);
@@ -140,7 +139,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void ormqr(char side, T transA, DoubleMatrix a, DoubleMatrix tau, DoubleMatrix c) {
+  public void ormqr(char side, Op transA, DoubleArray a, DoubleArray tau, DoubleArray c) {
     side = Character.toLowerCase(side);
     if (!Chars.contains(ORMQR_SIDE, side)) {
       throw invalidCharacter("side", side, ORMQR_SIDE);
@@ -209,7 +208,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void syev(char jobz, char uplo, DoubleMatrix a, DoubleMatrix w) {
+  public void syev(char jobz, char uplo, DoubleArray a, DoubleArray w) {
     jobz = Character.toLowerCase(jobz);
     uplo = Character.toLowerCase(uplo);
     if (!Chars.contains(SYEVR_JOBZ_CHAR, jobz)) {
@@ -266,9 +265,9 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public int syevr(char jobz, char range, char uplo, DoubleMatrix a, double vl, double vu,
-                   int il, int iu, double abstol, DoubleMatrix w, DoubleMatrix z,
-                   IntMatrix isuppz) {
+  public int syevr(char jobz, char range, char uplo, DoubleArray a, double vl, double vu,
+                   int il, int iu, double abstol, DoubleArray w, DoubleArray z,
+                   IntArray isuppz) {
     jobz = Character.toLowerCase(jobz);
     range = Character.toLowerCase(range);
     uplo = Character.toLowerCase(uplo);
@@ -382,8 +381,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public int getrf(DoubleMatrix a, IntMatrix ipiv) {
-    Check.all(Matrix::isVector, ipiv);
+  public int getrf(DoubleArray a, IntArray ipiv) {
+    Check.all(Array::isVector, ipiv);
     Check.size(Math.min(a.rows(), a.columns()), ipiv.size());
     double[] aa = a.data();
     int[] ia = ipiv.data();
@@ -403,7 +402,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public int gelsy(DoubleMatrix a, DoubleMatrix b, IntMatrix jpvt, double rcond) {
+  public int gelsy(DoubleArray a, DoubleArray b, IntArray jpvt, double rcond) {
     int m = a.rows();
     int n = a.columns();
     int nrhs = b.columns();
@@ -432,7 +431,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public int gesv(DoubleMatrix a, IntMatrix ipiv, DoubleMatrix b) {
+  public int gesv(DoubleArray a, IntArray ipiv, DoubleArray b) {
     if (!a.isSquare()) {
       throw new IllegalArgumentException();
     }
@@ -475,8 +474,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void gesvd(char jobu, char jobvt, DoubleMatrix a, DoubleMatrix s, DoubleMatrix u,
-                    DoubleMatrix vt) {
+  public void gesvd(char jobu, char jobvt, DoubleArray a, DoubleArray s, DoubleArray u,
+                    DoubleArray vt) {
     jobu = Character.toLowerCase(jobu);
     jobvt = Character.toLowerCase(jobvt);
     if (!Chars.contains(GESVD_JOB_CHAR, jobu)) {
@@ -565,7 +564,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void gesdd(char jobz, DoubleMatrix a, DoubleMatrix s, DoubleMatrix u, DoubleMatrix vt) {
+  public void gesdd(char jobz, DoubleArray a, DoubleArray s, DoubleArray u, DoubleArray vt) {
     jobz = Character.toLowerCase(jobz);
     if (!Chars.contains(GESVD_JOB_CHAR, jobz)) {
       throw invalidCharacter("jobz", jobz, GESVD_JOB_CHAR);
@@ -659,13 +658,13 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private void reassignIfNeeded(DoubleMatrix a, double[] data) {
+  private void reassignIfNeeded(DoubleArray a, double[] data) {
     if (a.isView()) {
       a.assign(data);
     }
   }
 
-  private void reassignIfNeeded(IntMatrix a, int[] data) {
+  private void reassignIfNeeded(IntArray a, int[] data) {
     if (a.isView()) {
       a.assign(data);
     }

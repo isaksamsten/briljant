@@ -17,7 +17,7 @@ import org.briljantframework.classification.tree.TreeNode;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
@@ -201,8 +201,8 @@ public class RandomPointTree implements Classifier {
     ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
     List<Object> presentTargets = classSet.getTargets();
-    DoubleMatrix ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
-    DoubleMatrix gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleArray ltRelativeFrequency = Bj.doubleVector(presentTargets.size());
+    DoubleArray gtRelativeFrequency = Bj.doubleVector(presentTargets.size());
 
     double ltWeight = 0.0, gtWeight = 0.0;
 
@@ -283,13 +283,13 @@ public class RandomPointTree implements Classifier {
   private static class SplitPointTreeVisitor implements TreeVisitor<SplitPoint> {
 
     @Override
-    public DoubleMatrix visitLeaf(TreeLeaf<SplitPoint> leaf, Vector example) {
-      DoubleMatrix probabilities = leaf.getProbabilities();
+    public DoubleArray visitLeaf(TreeLeaf<SplitPoint> leaf, Vector example) {
+      DoubleArray probabilities = leaf.getProbabilities();
       return probabilities;
     }
 
     @Override
-    public DoubleMatrix visitBranch(TreeBranch<SplitPoint> node, Vector example) {
+    public DoubleArray visitBranch(TreeBranch<SplitPoint> node, Vector example) {
       double threshold = node.getThreshold().threshold;
       int[] index = node.getThreshold().index;
       Vector f = node.getThreshold().vector;
@@ -315,7 +315,7 @@ public class RandomPointTree implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector record) {
+    public DoubleArray estimate(Vector record) {
       return splitPointTreeVisitor.visit(treeNode, record);
     }
   }

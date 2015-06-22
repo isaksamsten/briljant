@@ -1,7 +1,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -10,16 +10,16 @@ import org.briljantframework.vector.Vector;
 public final class TreeLeaf<T> implements TreeNode<T> {
 
   private final Vector domain;
-  private final DoubleMatrix probabilities;
+  private final DoubleArray probabilities;
 
-  public TreeLeaf(Vector domain, DoubleMatrix probabilities) {
+  public TreeLeaf(Vector domain, DoubleArray probabilities) {
     this.domain = domain;
     this.probabilities = probabilities;
   }
 
   public static <T> TreeLeaf<T> fromExamples(ClassSet classSet) {
     Vector domain = classSet.getDomain();
-    DoubleMatrix prob = Bj.doubleVector(domain.size());
+    DoubleArray prob = Bj.doubleVector(domain.size());
     double totalWeight = classSet.getTotalWeight();
     for (int i = 0; i < domain.size(); i++) {
       Object label = domain.get(Object.class, i);
@@ -37,12 +37,12 @@ public final class TreeLeaf<T> implements TreeNode<T> {
     return domain;
   }
 
-  public DoubleMatrix getProbabilities() {
+  public DoubleArray getProbabilities() {
     return probabilities;
   }
 
   @Override
-  public final DoubleMatrix visit(TreeVisitor<T> visitor, Vector example) {
+  public final DoubleArray visit(TreeVisitor<T> visitor, Vector example) {
     return visitor.visitLeaf(this, example);
   }
 }

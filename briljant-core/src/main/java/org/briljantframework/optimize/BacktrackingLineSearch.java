@@ -1,7 +1,7 @@
 package org.briljantframework.optimize;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 
 /**
  * <p> References
@@ -31,8 +31,8 @@ public class BacktrackingLineSearch {
    * @param maxStepSize the
    * @return the new value of {@code function}
    */
-  public double optimize(MultivariateFunction function, DoubleMatrix xold, double fold,
-                         DoubleMatrix g, DoubleMatrix p, DoubleMatrix x, double maxStepSize) {
+  public double optimize(MultivariateFunction function, DoubleArray xold, double fold,
+                         DoubleArray g, DoubleArray p, DoubleArray x, double maxStepSize) {
     int n = xold.size();
     double pnorm = Bj.norm2(p);
     if (pnorm > maxStepSize) {

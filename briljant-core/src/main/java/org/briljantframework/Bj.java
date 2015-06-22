@@ -4,19 +4,18 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.distribution.Distribution;
 import org.briljantframework.distribution.NormalDistribution;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.Dim;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.LongMatrix;
+import org.briljantframework.matrix.Array;
+import org.briljantframework.matrix.BitArray;
+import org.briljantframework.matrix.ComplexArray;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
+import org.briljantframework.matrix.LongArray;
 import org.briljantframework.matrix.Matrices;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Op;
 import org.briljantframework.matrix.Range;
-import org.briljantframework.matrix.T;
-import org.briljantframework.matrix.api.MatrixBackend;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.api.MatrixRoutines;
+import org.briljantframework.matrix.api.ArrayBackend;
+import org.briljantframework.matrix.api.ArrayFactory;
+import org.briljantframework.matrix.api.ArrayRoutines;
 import org.briljantframework.sort.IndexComparator;
 
 import java.math.BigDecimal;
@@ -33,41 +32,41 @@ import java.util.stream.StreamSupport;
 public final class Bj {
 
   private static final Distribution normalDistribution = new NormalDistribution(0, 1);
-  private static final MatrixFactory MATRIX_FACTORY;
-  private static final MatrixRoutines MATRIX_ROUTINES;
+  private static final ArrayFactory MATRIX_FACTORY;
+  private static final ArrayRoutines MATRIX_ROUTINES;
 
   public static final LinearAlgebraRoutines linalg;
 
   static {
-    MatrixBackend backend =
-        StreamSupport.stream(ServiceLoader.load(MatrixBackend.class).spliterator(), false)
-            .filter(MatrixBackend::isAvailable)
+    ArrayBackend backend =
+        StreamSupport.stream(ServiceLoader.load(ArrayBackend.class).spliterator(), false)
+            .filter(ArrayBackend::isAvailable)
             .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority()))
             .findFirst()
             .orElseThrow(() -> new UnsupportedOperationException(String.format(
                 "Unable to load MatrixBackend. No available matrix backend registered.")));
 
-    MATRIX_FACTORY = backend.getMatrixFactory();
-    MATRIX_ROUTINES = backend.getMatrixRoutines();
+    MATRIX_FACTORY = backend.getArrayFactory();
+    MATRIX_ROUTINES = backend.getArrayRoutines();
     linalg = backend.getLinearAlgebraRoutines();
   }
 
   private Bj() {
   }
 
-  public static Matrix<?> matrix(Collection<? extends Number> values) {
+  public static Array<?> matrix(Collection<? extends Number> values) {
     Check.argument(values.size() > 0);
     Iterator<? extends Number> it = values.iterator();
     Number v = it.next();
     if (v instanceof Double || v instanceof BigDecimal) {
-      DoubleMatrix m = doubleVector(values.size());
+      DoubleArray m = doubleArray(values.size());
       int i = 0;
       for (Number value : values) {
         m.set(i++, value.doubleValue());
       }
       return m;
     } else {
-      LongMatrix m = longVector(values.size());
+      LongArray m = longArray(values.size());
       int i = 0;
       for (Number value : values) {
         m.set(i++, value.longValue());
@@ -76,352 +75,302 @@ public final class Bj {
     }
   }
 
-  public static DoubleMatrix ones(int size) {
-    return doubleVector(size).assign(1);
+  public static DoubleArray ones(int... shape) {
+    return MATRIX_FACTORY.ones(shape);
   }
 
-  public static double trace(DoubleMatrix x) {
-    return MATRIX_ROUTINES.trace(x);
+  public static DoubleArray array(double[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static IntMatrix randi(int size, int l, int u) {
-    return MATRIX_FACTORY.randi(size, l, u);
+  public static ComplexArray array(Complex[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static ComplexMatrix complexMatrix(double[] data) {
-    return MATRIX_FACTORY.complexMatrix(data);
+  public static BitArray booleanArray(int... shape) {
+    return MATRIX_FACTORY.booleanArray(shape);
   }
 
-  public static IntMatrix matrix(int[][] data) {
-    return MATRIX_FACTORY.matrix(data);
+  public static IntArray array(int[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static LongMatrix matrix(long[][] data) {
-    return MATRIX_FACTORY.matrix(data);
+  public static LongArray longArray(int... shape) {
+    return MATRIX_FACTORY.longArray(shape);
   }
 
-  public static LongMatrix longMatrix(int rows, int columns) {
-    return MATRIX_FACTORY.longMatrix(rows, columns);
+  public static DoubleArray randn(int size) {
+    return MATRIX_FACTORY.randn(size);
   }
 
-  public static DoubleMatrix matrix(double[] data) {
-    return MATRIX_FACTORY.matrix(data);
+  public static DoubleArray doubleArray(int... shape) {
+    return MATRIX_FACTORY.doubleArray(shape);
   }
 
-  public static Range range(int start, int end) {
-    return MATRIX_FACTORY.range(start, end);
+  public static DoubleArray array(double[] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static DoubleMatrix matrix(double[][] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static LongMatrix matrix(long[] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static BitMatrix matrix(boolean[][] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static IntMatrix intVector(int size) {
-    return MATRIX_FACTORY.intVector(size);
-  }
-
-  public static IntMatrix intMatrix(int rows, int columns) {
-    return MATRIX_FACTORY.intMatrix(rows, columns);
-  }
-
-  public static DoubleMatrix eye(int size) {
-    return MATRIX_FACTORY.eye(size);
-  }
-
-  public static DoubleMatrix doubleVector(int size) {
-    return MATRIX_FACTORY.doubleVector(size);
-  }
-
-  public static DoubleMatrix linspace(double start, double end, int size) {
-    return MATRIX_FACTORY.linspace(start, end, size);
-  }
-
-  public static ComplexMatrix matrix(
-      Complex[][] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static BitMatrix booleanVector(int size) {
-    return MATRIX_FACTORY.booleanVector(size);
-  }
-
-  public static DoubleMatrix rand(int size,
-                                  Distribution distribution) {
-    return MATRIX_FACTORY.rand(size, distribution);
-  }
-
-  public static DoubleMatrix randn(int size) {
-    return rand(size, normalDistribution);
-  }
-
-  public static ComplexMatrix complexMatrix(int rows, int columns) {
-    return MATRIX_FACTORY.complexMatrix(rows, columns);
-  }
-
-  public static LongMatrix longVector(int size) {
-    return MATRIX_FACTORY.longVector(size);
-  }
-
-  public static IntMatrix randi(int size,
-                                Distribution distribution) {
-    return MATRIX_FACTORY.randi(size, distribution);
-  }
-
-  public static ComplexMatrix matrix(Complex[] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static DoubleMatrix diag(double[] data) {
-    return MATRIX_FACTORY.diag(data);
-  }
-
-  public static ComplexMatrix complexVector(int size) {
-    return MATRIX_FACTORY.complexVector(size);
-  }
-
-  public static IntMatrix matrix(int[] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static BitMatrix matrix(boolean[] data) {
-    return MATRIX_FACTORY.matrix(data);
-  }
-
-  public static BitMatrix booleanMatrix(int rows, int columns) {
-    return MATRIX_FACTORY.booleanMatrix(rows, columns);
-  }
-
-  public static Range range(int end) {
-    return MATRIX_FACTORY.range(end);
+  public static IntArray array(int[] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
   public static Range range(int start, int end, int step) {
     return MATRIX_FACTORY.range(start, end, step);
   }
 
-  public static DoubleMatrix doubleMatrix(int rows, int columns) {
-    return MATRIX_FACTORY.doubleMatrix(rows, columns);
+  public static ComplexArray complexArray(int... shape) {
+    return MATRIX_FACTORY.complexArray(shape);
   }
 
-  public static DoubleMatrix doubleArray(int[] shape) {
-    return MATRIX_FACTORY.doubleArray(shape);
+  public static Range range(int end) {
+    return MATRIX_FACTORY.range(end);
   }
 
-  public static MatrixFactory getMatrixFactory() {
-    return MATRIX_FACTORY;
+  public static DoubleArray linspace(double start, double end, int size) {
+    return MATRIX_FACTORY.linspace(start, end, size);
   }
 
-  public static <T extends Matrix<T>> List<T> hsplit(T matrix,
-                                                     int parts) {
-    return MATRIX_ROUTINES.hsplit(matrix, parts);
+  public static ComplexArray array(Complex[] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static DoubleMatrix max(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.max(x, dim);
+  public static IntArray intArray(int... shape) {
+    return MATRIX_FACTORY.intArray(shape);
   }
 
-  public static <T extends Matrix<T>> T hstack(Collection<T> matrices) {
-    return MATRIX_ROUTINES.hstack(matrices);
+  public static DoubleArray rand(int size, Distribution distribution) {
+    return MATRIX_FACTORY.rand(size, distribution);
   }
 
-  public static int iamax(DoubleMatrix x) {
-    return MATRIX_ROUTINES.iamax(x);
+  public static IntArray randi(int size, int l, int u) {
+    return MATRIX_FACTORY.randi(size, l, u);
   }
 
-  public static double sum(DoubleMatrix x) {
-    return MATRIX_ROUTINES.sum(x);
+  public static LongArray array(long[] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static double min(DoubleMatrix x) {
-    return MATRIX_ROUTINES.min(x);
+  public static ComplexArray complexArray(double[] data) {
+    return MATRIX_FACTORY.complexArray(data);
   }
 
-  public static double std(DoubleMatrix x) {
-    return MATRIX_ROUTINES.std(x);
+  public static IntArray randi(int size, Distribution distribution) {
+    return MATRIX_FACTORY.randi(size, distribution);
   }
 
-  public static double var(DoubleMatrix x) {
-    return MATRIX_ROUTINES.var(x);
+  public static DoubleArray diag(DoubleArray data) {
+    return MATRIX_FACTORY.diag(data);
   }
 
-  public static void ger(double alpha, DoubleMatrix x, DoubleMatrix y, DoubleMatrix a) {
-    MATRIX_ROUTINES.ger(alpha, x, y, a);
+  public static BitArray array(boolean[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static double asum(DoubleMatrix a, DoubleMatrix b) {
-    return MATRIX_ROUTINES.asum(a);
+  public static DoubleArray eye(int size) {
+    return MATRIX_FACTORY.eye(size);
   }
 
-  public static DoubleMatrix var(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.var(x, dim);
+  public static LongArray array(long[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static void gemm(T transA,
-                          T transB, double alpha,
-                          DoubleMatrix a, DoubleMatrix b, double beta,
-                          DoubleMatrix c) {
-    MATRIX_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
+  public static DoubleArray zero(int... shape) {
+    return MATRIX_FACTORY.zero(shape);
   }
 
-  public static DoubleMatrix mean(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.mean(x, dim);
+  public static BitArray array(boolean[] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
-  public static <T extends Matrix<T>> List<T> vsplit(T matrix, int parts) {
-    return MATRIX_ROUTINES.vsplit(matrix, parts);
+  public static Range range(int start, int end) {
+    return MATRIX_FACTORY.range(start, end);
   }
 
-  public static double dot(DoubleMatrix a, DoubleMatrix b) {
-    return MATRIX_ROUTINES.dot(a, b);
-  }
-
-  public static Complex norm2(ComplexMatrix a, ComplexMatrix b) {
-    return MATRIX_ROUTINES.norm2(a);
-  }
-
-  public static double prod(DoubleMatrix x) {
-    return MATRIX_ROUTINES.prod(x);
-  }
-
-  public static double max(DoubleMatrix x) {
-    return MATRIX_ROUTINES.max(x);
-  }
-
-  public static DoubleMatrix std(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.std(x, dim);
-  }
-
-  public static DoubleMatrix min(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.min(x, dim);
-  }
-
-  public static double mean(DoubleMatrix x) {
+  public static double mean(DoubleArray x) {
     return MATRIX_ROUTINES.mean(x);
   }
 
-  public static double norm2(DoubleMatrix a, DoubleMatrix b) {
-    return MATRIX_ROUTINES.norm2(a);
+  public static double min(DoubleArray x) {
+    return MATRIX_ROUTINES.min(x);
   }
 
-  public static DoubleMatrix sum(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.sum(x, dim);
+  public static <T extends Array<T>> List<T> vsplit(T matrix, int parts) {
+    return MATRIX_ROUTINES.vsplit(matrix, parts);
   }
 
-  public static double asum(ComplexMatrix a, ComplexMatrix b) {
+  public static double asum(ComplexArray a) {
     return MATRIX_ROUTINES.asum(a);
   }
 
-  public static DoubleMatrix prod(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.prod(x, dim);
+  public static double max(DoubleArray x) {
+    return MATRIX_ROUTINES.max(x);
   }
 
-  public static Complex dotc(ComplexMatrix a, ComplexMatrix b) {
-    return MATRIX_ROUTINES.dotc(a, b);
+  public static Complex norm2(ComplexArray a) {
+    return MATRIX_ROUTINES.norm2(a);
   }
 
-  public static void gemv(T transA, double alpha, DoubleMatrix a, DoubleMatrix x,
-                          double beta,
-                          DoubleMatrix y) {
-    MATRIX_ROUTINES.gemv(transA, alpha, a, x, beta, y);
-  }
-
-  public static <T extends Matrix<T>> T repeat(T x, int num) {
-    return MATRIX_ROUTINES.repeat(x, num);
-  }
-
-  public static DoubleMatrix cumsum(DoubleMatrix x) {
-    return MATRIX_ROUTINES.cumsum(x);
-  }
-
-  public static <T extends Matrix<T>> void copy(T from, T to) {
-    MATRIX_ROUTINES.copy(from, to);
-  }
-
-  public static <T extends Matrix<T>> T vstack(Collection<T> matrices) {
-    return MATRIX_ROUTINES.vstack(matrices);
-  }
-
-  public static Complex dotu(ComplexMatrix a, ComplexMatrix b) {
-    return MATRIX_ROUTINES.dotu(a, b);
-  }
-
-  public static int iamax(ComplexMatrix x) {
+  public static int iamax(ComplexArray x) {
     return MATRIX_ROUTINES.iamax(x);
   }
 
-  public static DoubleMatrix cumsum(DoubleMatrix x, Dim dim) {
-    return MATRIX_ROUTINES.cumsum(x, dim);
+  public static <T extends Array<T>> void copy(T from, T to) {
+    MATRIX_ROUTINES.copy(from, to);
   }
 
-  public static <T extends Matrix<T>> void swap(T a, T b) {
-    MATRIX_ROUTINES.swap(a, b);
+  public static double var(DoubleArray x) {
+    return MATRIX_ROUTINES.var(x);
   }
 
-  public static <T extends Matrix<T>> T sort(T x, IndexComparator<T> cmp) {
-    return MATRIX_ROUTINES.sort(x, cmp);
-  }
-
-  public static <T extends Matrix<T>> T sort(T x, IndexComparator<T> cmp, Dim dim) {
-    return MATRIX_ROUTINES.sort(x, cmp, dim);
-  }
-
-  public static <T extends Matrix<T>> T shuffle(T x) {
-    return MATRIX_ROUTINES.shuffle(x);
-  }
-
-  public static void transpose(DoubleMatrix x) {
-    MATRIX_ROUTINES.transpose(x);
-  }
-
-  public static <T extends Matrix<T>> T repmat(T x, int n) {
-    return MATRIX_ROUTINES.repmat(x, n);
-  }
-
-  public static double asum(DoubleMatrix a) {
-    return MATRIX_ROUTINES.asum(a);
-  }
-
-  public static double norm2(DoubleMatrix a) {
-    return MATRIX_ROUTINES.norm2(a);
-  }
-
-  public static double asum(ComplexMatrix a) {
-    return MATRIX_ROUTINES.asum(a);
-  }
-
-  public static <T extends Matrix<T>> T take(T x, int num) {
+  public static <T extends Array<T>> T take(T x, int num) {
     return MATRIX_ROUTINES.take(x, num);
   }
 
-  public static void scal(double alpha, DoubleMatrix x) {
-    MATRIX_ROUTINES.scal(alpha, x);
-  }
-
-  public static void axpy(double alpha, DoubleMatrix x, DoubleMatrix y) {
-    MATRIX_ROUTINES.axpy(alpha, x, y);
-  }
-
-  public static <T extends Matrix<T>> T repmat(T x, int r, int c) {
+  public static <T extends Array<T>> T repmat(T x, int r, int c) {
     return MATRIX_ROUTINES.repmat(x, r, c);
   }
 
-  public static Complex norm2(ComplexMatrix a) {
+  public static <T extends Array<T>> void swap(T a, T b) {
+    MATRIX_ROUTINES.swap(a, b);
+  }
+
+  public static void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
+                          DoubleArray y) {
+    MATRIX_ROUTINES.gemv(transA, alpha, a, x, beta, y);
+  }
+
+  public static double norm2(DoubleArray a) {
     return MATRIX_ROUTINES.norm2(a);
+  }
+
+  public static double prod(DoubleArray x) {
+    return MATRIX_ROUTINES.prod(x);
+  }
+
+  public static DoubleArray std(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.std(dim, x);
+  }
+
+  public static double sum(DoubleArray x) {
+    return MATRIX_ROUTINES.sum(x);
+  }
+
+  public static double dot(DoubleArray a, DoubleArray b) {
+    return MATRIX_ROUTINES.dot(a, b);
+  }
+
+  public static Complex dotc(ComplexArray a, ComplexArray b) {
+    return MATRIX_ROUTINES.dotc(a, b);
+  }
+
+  public static <T extends Array<T>> T repmat(T x, int n) {
+    return MATRIX_ROUTINES.repmat(x, n);
+  }
+
+  public static DoubleArray sum(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.sum(dim, x);
+  }
+
+  public static <T extends Array<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
+    return MATRIX_ROUTINES.sort(x, cmp, dim);
+  }
+
+  public static DoubleArray min(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.min(dim, x);
+  }
+
+  public static void scal(double alpha, DoubleArray x) {
+    MATRIX_ROUTINES.scal(alpha, x);
+  }
+
+  public static int iamax(DoubleArray x) {
+    return MATRIX_ROUTINES.iamax(x);
+  }
+
+  public static DoubleArray var(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.var(dim, x);
+  }
+
+  public static <T extends Array<T>> T shuffle(T x) {
+    return MATRIX_ROUTINES.shuffle(x);
+  }
+
+  public static <T extends Array<T>> T vstack(Collection<T> matrices) {
+    return MATRIX_ROUTINES.vstack(matrices);
+  }
+
+  public static double std(DoubleArray x) {
+    return MATRIX_ROUTINES.std(x);
+  }
+
+  public static double trace(DoubleArray x) {
+    return MATRIX_ROUTINES.trace(x);
+  }
+
+  public static DoubleArray cumsum(DoubleArray x) {
+    return MATRIX_ROUTINES.cumsum(x);
+  }
+
+  public static void axpy(double alpha, DoubleArray x, DoubleArray y) {
+    MATRIX_ROUTINES.axpy(alpha, x, y);
+  }
+
+  public static Complex dotu(ComplexArray a, ComplexArray b) {
+    return MATRIX_ROUTINES.dotu(a, b);
+  }
+
+  public static DoubleArray mean(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.mean(dim, x);
+  }
+
+  public static <T extends Array<T>> T hstack(Collection<T> matrices) {
+    return MATRIX_ROUTINES.hstack(matrices);
+  }
+
+  public static <T extends Array<T>> T sort(T x, IndexComparator<T> cmp) {
+    return MATRIX_ROUTINES.sort(x, cmp);
+  }
+
+  public static void ger(double alpha, DoubleArray x, DoubleArray y,
+                         DoubleArray a) {
+    MATRIX_ROUTINES.ger(alpha, x, y, a);
+  }
+
+  public static <T extends Array<T>> T repeat(T x, int num) {
+    return MATRIX_ROUTINES.repeat(x, num);
+  }
+
+  public static <T extends Array<T>> List<T> hsplit(T matrix, int parts) {
+    return MATRIX_ROUTINES.hsplit(matrix, parts);
+  }
+
+  public static DoubleArray cumsum(DoubleArray x, int dim) {
+    return MATRIX_ROUTINES.cumsum(x, dim);
+  }
+
+  public static double asum(DoubleArray a) {
+    return MATRIX_ROUTINES.asum(a);
+  }
+
+  public static void gemm(Op transA, Op transB, double alpha, DoubleArray a,
+                          DoubleArray b, double beta, DoubleArray c) {
+    MATRIX_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
+  }
+
+  public static DoubleArray max(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.max(dim, x);
+  }
+
+  public static DoubleArray prod(int dim, DoubleArray x) {
+    return MATRIX_ROUTINES.prod(dim, x);
   }
 
   /**
    * @param matrix the matrix
    * @return the index of the maximum value
    */
-  public static int argmax(DoubleMatrix matrix) {
+  public static int argmax(DoubleArray matrix) {
     int index = 0;
     double largest = matrix.get(0);
     for (int i = 1; i < matrix.size(); i++) {
@@ -438,7 +387,7 @@ public final class Bj {
    * @param matrix the matrix
    * @return the index of the minimum value
    */
-  public static int argmin(DoubleMatrix matrix) {
+  public static int argmin(DoubleArray matrix) {
     Check.argument(matrix.size() > 0);
     int index = 0;
     double smallest = matrix.get(0);
@@ -461,10 +410,9 @@ public final class Bj {
    * @param a       the source matrix
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
-   * {@link org.briljantframework.matrix.Matrix#newEmptyArray(int, int)}).
    */
-  public static <T extends Matrix<T>> T take(T a, IntMatrix indexes) {
-    T taken = a.newEmptyArray(new int[]{indexes.size()});
+  public static <T extends Array<T>> T take(T a, IntArray indexes) {
+    T taken = a.newEmptyArray(indexes.size());
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a, indexes.get(i));
     }
@@ -484,7 +432,7 @@ public final class Bj {
    * @param values the values; same shape as {@code a}
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static <T extends Matrix<T>> T mask(T a, BitMatrix mask, T values) {
+  public static <T extends Array<T>> T mask(T a, BitArray mask, T values) {
     Check.equalShape(a, mask);
     Check.equalShape(a, values);
 
@@ -503,7 +451,7 @@ public final class Bj {
    * @param mask   the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
    */
-  public static <T extends Matrix<T>> void putMask(T a, BitMatrix mask, T values) {
+  public static <T extends Array<T>> void putMask(T a, BitArray mask, T values) {
     Check.equalShape(a, mask);
     Check.equalShape(a, values);
     for (int i = 0; i < a.size(); i++) {
@@ -524,28 +472,28 @@ public final class Bj {
    * @param replace the replacement value
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static IntMatrix select(IntMatrix a, BitMatrix where, int replace) {
+  public static IntArray select(IntArray a, BitArray where, int replace) {
     Check.equalShape(a, where);
     return a.copy().assign(where, (b, i) -> b ? replace : i);
   }
 
-  public static DoubleMatrix map(DoubleMatrix in, DoubleUnaryOperator operator) {
+  public static DoubleArray map(DoubleArray in, DoubleUnaryOperator operator) {
     return in.newEmptyArray(in.rows(), in.columns()).assign(in, operator);
   }
 
-  public static DoubleMatrix sqrt(DoubleMatrix matrix) {
+  public static DoubleArray sqrt(DoubleArray matrix) {
     return map(matrix, Math::sqrt);
   }
 
-  public static DoubleMatrix log(DoubleMatrix in) {
+  public static DoubleArray log(DoubleArray in) {
     return map(in, Math::log);
   }
 
-  public static DoubleMatrix log2(DoubleMatrix in) {
+  public static DoubleArray log2(DoubleArray in) {
     return map(in, x -> Math.log(x) / Matrices.LOG_2);
   }
 
-  public static DoubleMatrix pow(DoubleMatrix in, double power) {
+  public static DoubleArray pow(DoubleArray in, double power) {
     switch ((int) power) {
       case 2:
         return map(in, x -> x * x);
@@ -558,23 +506,23 @@ public final class Bj {
     }
   }
 
-  public static DoubleMatrix log10(DoubleMatrix in) {
+  public static DoubleArray log10(DoubleArray in) {
     return map(in, Math::log10);
   }
 
-  public static DoubleMatrix signum(DoubleMatrix in) {
+  public static DoubleArray signum(DoubleArray in) {
     return map(in, Math::signum);
   }
 
-  public static DoubleMatrix abs(DoubleMatrix in) {
+  public static DoubleArray abs(DoubleArray in) {
     return map(in, Math::abs);
   }
 
-  public static LongMatrix round(DoubleMatrix in) {
-    return longMatrix(in.rows(), in.columns()).assign(in, Math::round);
+  public static LongArray round(DoubleArray in) {
+    return longArray(in.getShape().clone()).assign(in, Math::round);
   }
 
-  public static int argmaxnot(DoubleMatrix m, int not) {
+  public static int argmaxnot(DoubleArray m, int not) {
     double max = Double.NEGATIVE_INFINITY;
     int argMax = -1;
     for (int i = 0; i < m.size(); i++) {
@@ -586,7 +534,7 @@ public final class Bj {
     return argMax;
   }
 
-  public static double maxnot(DoubleMatrix m, int not) {
+  public static double maxnot(DoubleArray m, int not) {
     double max = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < m.size(); i++) {
       if (not != i && m.get(i) > max) {

@@ -27,8 +27,8 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.io.SequenceInputStream;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
@@ -108,8 +108,8 @@ public class RandomShapeletForestTest {
       Vector yTest = Convert.toStringVector(validationSet.get(validationSet.columns() - 1));
 
       long start = System.nanoTime();
-      DoubleMatrix upper = Bj.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
-      IntMatrix sizes = Bj.matrix(new int[]{100});
+      DoubleArray upper = Bj.matrix(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
+      IntArray sizes = Bj.matrix(new int[]{100});
       // IntMatrix sizes = IntMatrix.of(500);
       System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
                          + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");

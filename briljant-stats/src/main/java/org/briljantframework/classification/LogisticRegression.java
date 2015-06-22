@@ -22,8 +22,8 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.LogLoss;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
@@ -89,20 +89,20 @@ public class LogisticRegression implements Classifier {
     Check.argument(n == target.size(),
                    "The number of training instances must equal the number of target");
     Vector unique = Vec.unique(target);
-    DoubleMatrix x = constructInputMatrix(df, n, m);
-    IntMatrix y = Bj.intVector(target.size());
+    DoubleArray x = constructInputMatrix(df, n, m);
+    IntArray y = Bj.intVector(target.size());
     for (int i = 0; i < y.size(); i++) {
       y.set(i, Vec.find(unique, target, i));
     }
-    DoubleMatrix theta;
+    DoubleArray theta;
     DifferentialFunction objective;
     int k = unique.size();
     if (k == 2) {
       objective = new BinaryObjectiveFunction(regularization, x, y);
-      theta = Bj.doubleMatrix(x.columns(), 1);
+      theta = Bj.doubleArray(x.columns());
     } else if (k > 2) {
       objective = new SoftmaxObjectiveFunction(x, y, regularization, k);
-      theta = Bj.doubleMatrix(x.columns(), k);
+      theta = Bj.doubleArray(x.columns(), k);
     } else {
       throw new IllegalArgumentException(String.format("Illegal classes. k >= 2 (%d >= 2)", k));
     }
@@ -113,8 +113,8 @@ public class LogisticRegression implements Classifier {
     return new Predictor(names.build(), theta, logLoss, unique);
   }
 
-  protected DoubleMatrix constructInputMatrix(DataFrame df, int n, int m) {
-    DoubleMatrix x = Bj.doubleMatrix(n, m + 1);
+  protected DoubleArray constructInputMatrix(DataFrame df, int n, int m) {
+    DoubleArray x = Bj.doubleArray(n, m + 1);
     for (int i = 0; i < n; i++) {
       x.set(i, 0, 1);
       for (int j = 0; j < df.columns(); j++) {
@@ -132,17 +132,17 @@ public class LogisticRegression implements Classifier {
   private static class BinaryObjectiveFunction implements DifferentialFunction {
 
     private final double lambda;
-    private final DoubleMatrix x;
-    private final IntMatrix y;
+    private final DoubleArray x;
+    private final IntArray y;
 
-    private BinaryObjectiveFunction(double lambda, DoubleMatrix x, IntMatrix y) {
+    private BinaryObjectiveFunction(double lambda, DoubleArray x, IntArray y) {
       this.lambda = lambda;
       this.x = x;
       this.y = y;
     }
 
     @Override
-    public double gradientCost(DoubleMatrix w, DoubleMatrix g) {
+    public double gradientCost(DoubleArray w, DoubleArray g) {
       int p = w.size();
       int n = x.rows();
       g.assign(0);
@@ -174,7 +174,7 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public double cost(DoubleMatrix w) {
+    public double cost(DoubleArray w) {
       int n = x.rows();
       double f = 0.0;
       for (int i = 0; i < n; i++) {
@@ -197,12 +197,12 @@ public class LogisticRegression implements Classifier {
 
   private static class SoftmaxObjectiveFunction implements DifferentialFunction {
 
-    private final DoubleMatrix x;
-    private final IntMatrix y;
+    private final DoubleArray x;
+    private final IntArray y;
     private final double lambda;
     private final int k;
 
-    private SoftmaxObjectiveFunction(DoubleMatrix x, IntMatrix y, double lambda, int k) {
+    private SoftmaxObjectiveFunction(DoubleArray x, IntArray y, double lambda, int k) {
       this.x = x;
       this.y = y;
       this.lambda = lambda;
@@ -210,15 +210,15 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public double gradientCost(DoubleMatrix w, DoubleMatrix g) {
+    public double gradientCost(DoubleArray w, DoubleArray g) {
       double f = 0.0;
       int n = x.rows();
       int p = x.columns();
       w = w.reshape(p, k);
       g = g.reshape(p, k).assign(0);
-      DoubleMatrix prob = Bj.doubleVector(k);
+      DoubleArray prob = Bj.doubleVector(k);
       for (int i = 0; i < n; i++) {
-        DoubleMatrix xi = x.getRow(i);
+        DoubleArray xi = x.getRow(i);
         for (int j = 0; j < k; j++) {
           prob.set(j, Bj.dot(xi, w.getColumn(j)));
         }
@@ -248,14 +248,14 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public double cost(DoubleMatrix w) {
+    public double cost(DoubleArray w) {
       double f = 0.0;
       int n = x.rows();
       int p = x.columns();
       w = w.reshape(p, k);
-      DoubleMatrix prob = Bj.doubleVector(k);
+      DoubleArray prob = Bj.doubleVector(k);
       for (int i = 0; i < n; i++) {
-        DoubleMatrix xi = x.getRow(i);
+        DoubleArray xi = x.getRow(i);
         for (int j = 0; j < k; j++) {
           prob.set(j, Bj.dot(xi, w.getColumn(j)));
         }
@@ -279,7 +279,7 @@ public class LogisticRegression implements Classifier {
     }
   }
 
-  private static void softmax(DoubleMatrix prob) {
+  private static void softmax(DoubleArray prob) {
     double max = Bj.max(prob);
 
     double Z = 0.0;
@@ -334,10 +334,10 @@ public class LogisticRegression implements Classifier {
   public static class Predictor extends AbstractPredictor {
 
     private final Vector names;
-    private final DoubleMatrix coefficients;
+    private final DoubleArray coefficients;
     private final double logLoss;
 
-    private Predictor(Vector names, DoubleMatrix coefficients, double logLoss, Vector classes) {
+    private Predictor(Vector names, DoubleArray coefficients, double logLoss, Vector classes) {
       super(classes);
       this.names = names;
       this.coefficients = coefficients;
@@ -345,8 +345,8 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector record) {
-      DoubleMatrix x = Bj.doubleMatrix(1, record.size() + 1);
+    public DoubleArray estimate(Vector record) {
+      DoubleArray x = Bj.doubleArray(record.size() + 1);
       x.set(0, 1);
       for (int i = 0; i < record.size(); i++) {
         x.set(i + 1, record.getAsDouble(i));
@@ -355,7 +355,7 @@ public class LogisticRegression implements Classifier {
       Vector classes = getClasses();
       int k = classes.size();
       if (k > 2) {
-        DoubleMatrix probs = Bj.doubleVector(k);
+        DoubleArray probs = Bj.doubleVector(k);
         double max = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < k; i++) {
           double prob = Bj.dot(x, coefficients.getColumn(i));
@@ -373,14 +373,14 @@ public class LogisticRegression implements Classifier {
         return probs.divi(z);
       } else {
         double prob = logistic(Bj.dot(x, coefficients));
-        DoubleMatrix probs = Bj.doubleVector(2);
+        DoubleArray probs = Bj.doubleVector(2);
         probs.set(0, 1 - prob);
         probs.set(1, prob);
         return probs;
       }
     }
 
-    public DoubleMatrix getParamaters() {
+    public DoubleArray getParamaters() {
       return coefficients.copy();
     }
 

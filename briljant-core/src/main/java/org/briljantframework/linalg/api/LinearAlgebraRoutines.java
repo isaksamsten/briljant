@@ -1,20 +1,20 @@
 package org.briljantframework.linalg.api;
 
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.T;
+import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.matrix.IntArray;
+import org.briljantframework.matrix.Op;
 
 /**
  * Created by isak on 2/10/15.
  */
 public interface LinearAlgebraRoutines {
 
-  DoubleMatrix inv(DoubleMatrix x);
+  DoubleArray inv(DoubleArray x);
 
-  DoubleMatrix pinv(DoubleMatrix x);
+  DoubleArray pinv(DoubleArray x);
 
-  SingularValueDecomposition svd(DoubleMatrix x);
+  SingularValueDecomposition svd(DoubleArray x);
 
 
   /**
@@ -37,8 +37,8 @@ public interface LinearAlgebraRoutines {
    * @param transA transpose Q
    * @param a      (input) the i-th column must contain the vector which defines the
    *               elementary reflector H(i), for i = 1,2,...,k, as returned by
-   *               {@link #geqrf(org.briljantframework.matrix.DoubleMatrix,
-   *               org.briljantframework.matrix.DoubleMatrix)} in the first k columns of its array
+   *               {@link #geqrf(org.briljantframework.matrix.DoubleArray,
+   *               org.briljantframework.matrix.DoubleArray)} in the first k columns of its array
    *               argument A.
    * @param tau    (input) TAU(i) must contain the scalar factor of the elementary
    *               reflector H(i), as returned by DGEQRF.
@@ -46,10 +46,10 @@ public interface LinearAlgebraRoutines {
    *               overwritten by Q*C or Q**T*C or C*Q**T or C*Q.
    */
   void ormqr(char side,
-             T transA,
-             DoubleMatrix a,
-             DoubleMatrix tau,
-             DoubleMatrix c);
+             Op transA,
+             DoubleArray a,
+             DoubleArray tau,
+             DoubleArray c);
 
   /**
    * Computes a QR factorization of a real M-by-N matrix A:
@@ -63,7 +63,7 @@ public interface LinearAlgebraRoutines {
    *            product of min(m,n) elementary reflectors.
    * @param tau (output) The scalar factors of the elementary reflectors
    */
-  void geqrf(DoubleMatrix a, DoubleMatrix tau);
+  void geqrf(DoubleArray a, DoubleArray tau);
 
   /**
    * Computes the eigenvalues and, optionally, the left and/or right eigenvectors for symmetric
@@ -83,7 +83,7 @@ public interface LinearAlgebraRoutines {
    *             diagonal, is destroyed.
    * @param w    (output) the eigenvalues in ascending order
    */
-  void syev(char jobz, char uplo, DoubleMatrix a, DoubleMatrix w);
+  void syev(char jobz, char uplo, DoubleArray a, DoubleArray w);
 
   /**
    * Computes selected eigenvalues and, optionally, eigenvectors of a real symmetric matrix A.
@@ -133,15 +133,15 @@ public interface LinearAlgebraRoutines {
    *               ISUPPZ( 2*i )
    */
   int syevr(char jobz, char range, char uplo,
-            DoubleMatrix a,
+            DoubleArray a,
             double vl,
             double vu,
             int il,
             int iu,
             double abstol,
-            DoubleMatrix w,
-            DoubleMatrix z,
-            IntMatrix isuppz);
+            DoubleArray w,
+            DoubleArray z,
+            IntArray isuppz);
 
   /**
    * Computes an LU factorization of a general M-by-N matrix A using partial pivoting with row
@@ -156,7 +156,7 @@ public interface LinearAlgebraRoutines {
    *             matrix was interchanged with row IPIV(i).
    * @return 0 if factorization completed correctly and > 0 if some values are zero.
    */
-  int getrf(DoubleMatrix a, IntMatrix ipiv);
+  int getrf(DoubleArray a, IntArray ipiv);
 
   /**
    * Computes the minimum-norm solution to a  real  linear
@@ -182,7 +182,7 @@ public interface LinearAlgebraRoutines {
    * the submatrix T11 in the complete orthogonal  fac-
    * torization of A.
    */
-  int gelsy(DoubleMatrix a, DoubleMatrix b, IntMatrix jpvt, double rcond);
+  int gelsy(DoubleArray a, DoubleArray b, IntArray jpvt, double rcond);
 
   /**
    * DGESV computes the solution to a real system of linear equations
@@ -205,7 +205,7 @@ public interface LinearAlgebraRoutines {
    * @return i, U(i,i) is exactly zero.  The factorization has been completed, but the factor U is
    * exactly singular, so the solution could not be computed.
    */
-  int gesv(DoubleMatrix a, IntMatrix ipiv, DoubleMatrix b);
+  int gesv(DoubleArray a, IntArray ipiv, DoubleArray b);
 
   /**
    * Computes the singular value decomposition (SVD) of a real M-by-N matrix A, optionally
@@ -264,10 +264,10 @@ public interface LinearAlgebraRoutines {
    */
   public void gesvd(char jobu,
                     char jobvt,
-                    DoubleMatrix a,
-                    DoubleMatrix s,
-                    DoubleMatrix u,
-                    DoubleMatrix vt);
+                    DoubleArray a,
+                    DoubleArray s,
+                    DoubleArray u,
+                    DoubleArray vt);
 
   /**
    * @param jobz Specifies options for computing all or part of the matrix U:
@@ -307,8 +307,8 @@ public interface LinearAlgebraRoutines {
    *             if JOBZ = 'O' and M < N, or JOBZ = 'N', VT is not referenced
    */
   void gesdd(char jobz,
-             DoubleMatrix a,
-             DoubleMatrix s,
-             DoubleMatrix u,
-             DoubleMatrix vt);
+             DoubleArray a,
+             DoubleArray s,
+             DoubleArray u,
+             DoubleArray vt);
 }

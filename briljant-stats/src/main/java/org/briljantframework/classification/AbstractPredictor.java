@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Vector;
 
@@ -50,8 +50,8 @@ public abstract class AbstractPredictor implements Predictor {
   }
 
   @Override
-  public DoubleMatrix estimate(DataFrame x) {
-    DoubleMatrix estimations = Bj.doubleMatrix(x.rows(), getClasses().size());
+  public DoubleArray estimate(DataFrame x) {
+    DoubleArray estimations = Bj.doubleArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(
         i -> estimations.setRow(i, estimate(x.getRecord(i)))
     );

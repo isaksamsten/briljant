@@ -10,8 +10,8 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.BitArray;
+import org.briljantframework.matrix.Array;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -172,8 +172,8 @@ public class BitVector extends AbstractVector {
   }
 
   @Override
-  public Matrix toMatrix() {
-    BitMatrix n = Bj.booleanVector(size());
+  public Array toMatrix() {
+    BitArray n = Bj.booleanArray(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, getAsBit(i) == Bit.TRUE);
     }

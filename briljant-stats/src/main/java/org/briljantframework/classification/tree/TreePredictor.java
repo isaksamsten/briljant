@@ -1,7 +1,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.classification.AbstractPredictor;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -38,7 +38,7 @@ public class TreePredictor<T> extends AbstractPredictor {
   }
 
   @Override
-  public DoubleMatrix estimate(Vector record) {
+  public DoubleArray estimate(Vector record) {
     return predictionVisitor.visit(node, record);
   }
 }

@@ -16,7 +16,7 @@
 
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 
 /**
  * Created by Isak Karlsson on 08/09/14.
@@ -54,7 +54,7 @@ public class Gain {
         right.getRelativeFrequencies());
   }
 
-  public double compute(double leftWeight, DoubleMatrix left, double rightWeight, DoubleMatrix right) {
+  public double compute(double leftWeight, DoubleArray left, double rightWeight, DoubleArray right) {
     double totalWeight = leftWeight + rightWeight;
     if (leftWeight > 0) {
       leftWeight = (leftWeight / totalWeight) * impurity.impurity(left);// * leftWeight;

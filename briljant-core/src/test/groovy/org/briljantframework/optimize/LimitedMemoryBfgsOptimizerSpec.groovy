@@ -1,7 +1,7 @@
 package org.briljantframework.optimize
 
 import org.briljantframework.Bj
-import org.briljantframework.matrix.DoubleMatrix
+import org.briljantframework.matrix.DoubleArray
 import spock.lang.Specification
 
 /**
@@ -29,7 +29,7 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
         DifferentialFunction d = new DifferentialFunction() {
 
             @Override
-            double gradientCost(DoubleMatrix x, DoubleMatrix g) {
+            double gradientCost(DoubleArray x, DoubleArray g) {
                 double f = 0.0;
                 for (int j = 1; j <= x.size(); j += 2) {
                     double t1 = 1.0 - x.get(j - 1);
@@ -42,7 +42,7 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
             }
 
             @Override
-            double cost(DoubleMatrix x) {
+            double cost(DoubleArray x) {
                 double f = 0.0;
                 for (int j = 1; j <= x.size(); j += 2) {
                     double t1 = 1.0 - x.get(j - 1);

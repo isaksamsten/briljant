@@ -16,7 +16,7 @@
 
 package org.briljantframework.exceptions;
 
-import org.briljantframework.matrix.Matrix;
+import org.briljantframework.matrix.Array;
 
 /**
  * Created by isak on 21/06/14.
@@ -31,7 +31,7 @@ public class NonConformantException extends RuntimeException {
    * @param param2 the param 2
    * @param op2 the op 2
    */
-  public NonConformantException(String param1, Matrix op1, String param2, Matrix op2) {
+  public NonConformantException(String param1, Array op1, String param2, Array op2) {
     this(param1, op1.rows(), op1.columns(), param2, op2.rows(), op2.columns());
   }
 
@@ -41,7 +41,7 @@ public class NonConformantException extends RuntimeException {
    * @param op1 the op 1
    * @param op2 the op 2
    */
-  public NonConformantException(Matrix op1, Matrix op2) {
+  public NonConformantException(Array op1, Array op2) {
     this("op1", op1, "op2", op2);
   }
 

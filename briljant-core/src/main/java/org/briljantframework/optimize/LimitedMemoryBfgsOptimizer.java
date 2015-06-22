@@ -1,7 +1,7 @@
 package org.briljantframework.optimize;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.matrix.DoubleArray;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -27,16 +27,16 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   }
 
   @Override
-  public double optimize(DifferentialFunction function, DoubleMatrix x) {
+  public double optimize(DifferentialFunction function, DoubleArray x) {
     int n = x.size();
-    DoubleMatrix currentSolution = Bj.doubleVector(n);
-    DoubleMatrix currentGradient = Bj.doubleVector(n);
-    DoubleMatrix direction = Bj.doubleVector(n);
-    DoubleMatrix solutions = Bj.doubleMatrix(memory, n);
-    DoubleMatrix gradients = Bj.doubleMatrix(memory, n);
-    DoubleMatrix gradient = Bj.doubleVector(n);
-    DoubleMatrix scales = Bj.doubleVector(memory);
-    DoubleMatrix a = Bj.doubleVector(memory);
+    DoubleArray currentSolution = Bj.doubleArray(n);
+    DoubleArray currentGradient = Bj.doubleArray(n);
+    DoubleArray direction = Bj.doubleArray(n);
+    DoubleArray solutions = Bj.doubleArray(memory, n);
+    DoubleArray gradients = Bj.doubleArray(memory, n);
+    DoubleArray gradient = Bj.doubleArray(n);
+    DoubleArray scales = Bj.doubleArray(memory);
+    DoubleArray a = Bj.doubleArray(memory);
 
     double f = function.gradientCost(x, gradient);
     double sum = 0;
@@ -86,7 +86,7 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
         return f;
       }
 
-      DoubleMatrix kGradient = gradients.getRow(k);
+      DoubleArray kGradient = gradients.getRow(k);
       double ys = Bj.dot(kGradient, solutions.getRow(k));
       double yy = Bj.dot(kGradient, kGradient);
       double scalingFactor = ys / yy;
