@@ -35,7 +35,7 @@ public class PseudoInverseTransformer implements Transformer {
   private static class PinvTransformation implements Transformation {
     @Override
     public DataFrame transform(DataFrame x) {
-      DoubleArray matrix = LinearAlgebra.pinv(x.toMatrix().asDoubleMatrix());
+      DoubleArray matrix = LinearAlgebra.pinv(x.toMatrix().asDouble());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
         for (int i = 0; i < x.rows(); i++) {

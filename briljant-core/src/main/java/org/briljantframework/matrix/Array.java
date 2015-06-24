@@ -2,6 +2,7 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.sort.Swappable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -42,13 +43,13 @@ import java.util.function.Consumer;
  *
  * Finally, if receiver is
  * <ul>
- * <li>{@link DoubleArray}, {@link #asDoubleMatrix()} must return
+ * <li>{@link DoubleArray}, {@link #asDouble()} must return
  * {@code this}</li>
- * <li>{@link IntArray}, {@link #asIntMatrix()} must return
+ * <li>{@link IntArray}, {@link #asInt()} must return
  * {@code this}</li>
- * <li>{@link BitArray}, {@link #asBitMatrix()} must return
+ * <li>{@link BitArray}, {@link #asBit()} must return
  * {@code this}</li>
- * <li>{@link ComplexArray}, {@link #asComplexMatrix()} must return
+ * <li>{@link ComplexArray}, {@link #asComplex()} must return
  * {@code this}</li>
  * </ul>
  * </p>
@@ -327,8 +328,20 @@ public interface Array<E extends Array> extends Swappable {
 
   int stride(int i);
 
+  int getOffset();
+
+  /**
+   * Returns a copy of the arrays shape
+   *
+   * @return a copy of the shape
+   */
   int[] getShape();
 
+  /**
+   * Returns a copy of the arrays stride
+   *
+   * @return a copy of the strides
+   */
   int[] getStride();
 
   /**
@@ -347,7 +360,7 @@ public interface Array<E extends Array> extends Swappable {
    * @return the boolean
    */
   default boolean hasEqualShape(Array other) {
-    return rows() == other.rows() && columns() == other.columns();
+    return Arrays.equals(getShape(), other.getShape());
   }
 
   E newEmptyArray(int... shape);
@@ -357,27 +370,27 @@ public interface Array<E extends Array> extends Swappable {
   /**
    * @return this matrix as a {@link DoubleArray}.
    */
-  DoubleArray asDoubleMatrix();
+  DoubleArray asDouble();
 
   /**
    * @return this matrix as an {@link IntArray}.
    */
-  IntArray asIntMatrix();
+  IntArray asInt();
 
   /**
    * @return return this matrix as a {@link LongArray}
    */
-  LongArray asLongMatrix();
+  LongArray asLong();
 
   /**
    * @return this matrix as an {@link BitArray}.
    */
-  BitArray asBitMatrix();
+  BitArray asBit();
 
   /**
    * @return this matrix as a {@link ComplexArray}.
    */
-  ComplexArray asComplexMatrix();
+  ComplexArray asComplex();
 
   /**
    * @return the transpose of {@code this}.

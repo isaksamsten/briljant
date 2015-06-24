@@ -8,7 +8,7 @@ import org.briljantframework.matrix.api.ArrayFactory;
 import java.util.Objects;
 
 /**
- * Created by Isak Karlsson on 07/01/15.
+ * @author Isak Karlsson
  */
 class BaseComplexArray extends AbstractComplexArray {
 
@@ -25,7 +25,7 @@ class BaseComplexArray extends AbstractComplexArray {
     this.data = data;
   }
 
-  BaseComplexArray(ArrayFactory bj, int... shape) {
+  BaseComplexArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
     this.data = new Complex[size()];
   }
@@ -34,8 +34,9 @@ class BaseComplexArray extends AbstractComplexArray {
                    int offset,
                    int[] shape,
                    int[] stride,
+                   int majorStride,
                    Complex[] data) {
-    super(bj, offset, shape, stride);
+    super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
@@ -45,8 +46,13 @@ class BaseComplexArray extends AbstractComplexArray {
   }
 
   @Override
-  protected ComplexArray makeView(int offset, int[] shape, int[] stride) {
-    return new BaseComplexArray(getMatrixFactory(), offset, shape, stride, data);
+  protected ComplexArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseComplexArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+  }
+
+  @Override
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override

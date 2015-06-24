@@ -100,124 +100,124 @@ fun <T : Array<T>> T.get(rows: all, column: Int) = this.getColumn(column)
 fun <T : Array<T>> T.get(row: Int, columns: all) = this.getRow(row)
 
 fun <T : Array<T>> T.set(bits: BitArray, value: Double)
-        = this[bits].asDoubleMatrix().assign(value)
+        = this[bits].asDouble().assign(value)
 
 fun <T : Array<T>> T.set(bits: BitArray, value: Int)
-        = this[bits].asIntMatrix().assign(value)
+        = this[bits].asInt().assign(value)
 
 fun <T : Array<T>> T.set(bits: BitArray, value: Long)
-        = this[bits].asLongMatrix().assign(value)
+        = this[bits].asLong().assign(value)
 
 fun <T : Array<T>> T.set(bits: BitArray, value: Complex)
-        = this[bits].asComplexMatrix().assign(value)
+        = this[bits].asComplex().assign(value)
 
 fun DoubleArray.set(bits: BitArray, value: Array<*>)
-        = this[bits].assign(value.asDoubleMatrix())
+        = this[bits].assign(value.asDouble())
 
 fun IntArray.set(bits: BitArray, value: Array<*>)
-        = this[bits].assign(value.asIntMatrix())
+        = this[bits].assign(value.asInt())
 
 fun LongArray.set(bits: BitArray, value: Array<*>)
-        = this[bits].assign(value.asLongMatrix())
+        = this[bits].assign(value.asLong())
 
 fun ComplexArray.set(bits: BitArray, value: Array<*>)
-        = this[bits].assign(value.asComplexMatrix())
+        = this[bits].assign(value.asComplex())
 
 fun <T : Array<T>> T.set(range: Progression<Int>, value: Double)
-        = this[range].asDoubleMatrix().assign(value)
+        = this[range].asDouble().assign(value)
 
 fun <T : Array<T>> T.set(range: Progression<Int>, value: Int)
-        = this[range].asIntMatrix().assign(value)
+        = this[range].asInt().assign(value)
 
 fun <T : Array<T>> T.set(range: Progression<Int>, value: Long)
-        = this[range].asLongMatrix().assign(value)
+        = this[range].asLong().assign(value)
 
 fun <T : Array<T>> T.set(range: Progression<Int>, value: Complex)
-        = this[range].asComplexMatrix().assign(value)
+        = this[range].asComplex().assign(value)
 
 fun DoubleArray.set(range: Progression<Int>, value: Array<*>)
-        = this[range].assign(value.asDoubleMatrix())
+        = this[range].assign(value.asDouble())
 
 fun IntArray.set(range: Progression<Int>, value: Array<*>)
-        = this[range].assign(value.asIntMatrix())
+        = this[range].assign(value.asInt())
 
 fun LongArray.set(range: Progression<Int>, value: Array<*>)
-        = this[range].assign(value.asLongMatrix())
+        = this[range].assign(value.asLong())
 
 fun ComplexArray.set(range: Progression<Int>, value: Array<*>)
-        = this[range].assign(value.asComplexMatrix())
+        = this[range].assign(value.asComplex())
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: Progression<Int>, value: Double)
-        = this[rows, columns].asDoubleMatrix().assign(value)
+        = this[rows, columns].asDouble().assign(value)
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: Progression<Int>, value: Int)
-        = this[rows, columns].asIntMatrix().assign(value)
+        = this[rows, columns].asInt().assign(value)
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: Progression<Int>, value: Long)
-        = this[rows, columns].asLongMatrix().assign(value)
+        = this[rows, columns].asLong().assign(value)
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: Progression<Int>, value: Complex)
-        = this[rows, columns].asComplexMatrix().assign(value)
+        = this[rows, columns].asComplex().assign(value)
 
 fun DoubleArray.set(rows: Progression<Int>, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asDoubleMatrix())
+        = this[rows, columns].assign(value.asDouble())
 
 fun IntArray.set(rows: Progression<Int>, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asIntMatrix())
+        = this[rows, columns].assign(value.asInt())
 
 fun LongArray.set(rows: Progression<Int>, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asLongMatrix())
+        = this[rows, columns].assign(value.asLong())
 
 fun ComplexArray.set(rows: Progression<Int>, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asComplexMatrix())
+        = this[rows, columns].assign(value.asComplex())
 
 fun <T : Array<T>> T.set(rows: all, columns: Progression<Int>, value: Double)
-        = this[rows, columns].asDoubleMatrix().assign(value)
+        = this[rows, columns].asDouble().assign(value)
 
 fun <T : Array<T>> T.set(rows: all, columns: Progression<Int>, value: Int)
-        = this[rows, columns].asIntMatrix().assign(value)
+        = this[rows, columns].asInt().assign(value)
 
 fun <T : Array<T>> T.set(rows: all, columns: Progression<Int>, value: Long)
-        = this[rows, columns].asLongMatrix().assign(value)
+        = this[rows, columns].asLong().assign(value)
 
 fun <T : Array<T>> T.set(rows: all, columns: Progression<Int>, value: Complex)
-        = this[rows, columns].asComplexMatrix().assign(value)
+        = this[rows, columns].asComplex().assign(value)
 
 fun DoubleArray.set(rows: all, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asDoubleMatrix())
+        = this[rows, columns].assign(value.asDouble())
 
 fun IntArray.set(rows: all, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asIntMatrix())
+        = this[rows, columns].assign(value.asInt())
 
 fun LongArray.set(rows: all, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asLongMatrix())
+        = this[rows, columns].assign(value.asLong())
 
 fun ComplexArray.set(rows: all, columns: Progression<Int>, value: Array<*>)
-        = this[rows, columns].assign(value.asComplexMatrix())
+        = this[rows, columns].assign(value.asComplex())
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: all, value: Double)
-        = this[rows, columns].asDoubleMatrix().assign(value)
+        = this[rows, columns].asDouble().assign(value)
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: all, value: Int)
-        = this[rows, columns].asIntMatrix().assign(value)
+        = this[rows, columns].asInt().assign(value)
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: all, value: Long)
-        = this[rows, columns].asLongMatrix().assign(value)
+        = this[rows, columns].asLong().assign(value)
 
 fun <T : Array<T>> T.set(rows: Progression<Int>, columns: all, value: Complex)
-        = this[rows, columns].asComplexMatrix().assign(value)
+        = this[rows, columns].asComplex().assign(value)
 
 fun DoubleArray.set(rows: Progression<Int>, columns: all, value: Array<*>)
-        = this[rows, columns].assign(value.asDoubleMatrix())
+        = this[rows, columns].assign(value.asDouble())
 
 fun IntArray.set(rows: Progression<Int>, columns: all, value: Array<*>)
-        = this[rows, columns].assign(value.asIntMatrix())
+        = this[rows, columns].assign(value.asInt())
 
 fun LongArray.set(rows: Progression<Int>, columns: all, value: Array<*>)
-        = this[rows, columns].assign(value.asLongMatrix())
+        = this[rows, columns].assign(value.asLong())
 
 fun ComplexArray.set(rows: Progression<Int>, columns: all, value: Array<*>)
-        = this[rows, columns].assign(value.asComplexMatrix())
+        = this[rows, columns].assign(value.asComplex())
 
 
 // Multiplication operator
@@ -234,21 +234,21 @@ fun ComplexArray.times(other: Number) = if (other is Complex) {
     mul(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.times(matrix: Array<*>) = matrix.asDoubleMatrix().mul(this)
+fun Double.times(matrix: Array<*>) = matrix.asDouble().mul(this)
 
-fun Int.times(matrix: Array<*>) = matrix.asIntMatrix().mul(this)
+fun Int.times(matrix: Array<*>) = matrix.asInt().mul(this)
 
-fun Long.times(matrix: Array<*>) = matrix.asLongMatrix().mul(this)
+fun Long.times(matrix: Array<*>) = matrix.asLong().mul(this)
 
-fun Complex.times(matrix: Array<*>) = matrix.asComplexMatrix().mul(this)
+fun Complex.times(matrix: Array<*>) = matrix.asComplex().mul(this)
 
-fun DoubleArray.times(other: Array<*>) = mul(other.asDoubleMatrix())
+fun DoubleArray.times(other: Array<*>) = mul(other.asDouble())
 
-fun IntArray.times(other: Array<*>) = mul(other.asIntMatrix())
+fun IntArray.times(other: Array<*>) = mul(other.asInt())
 
-fun ComplexArray.times(other: Array<*>) = mul(other.asComplexMatrix())
+fun ComplexArray.times(other: Array<*>) = mul(other.asComplex())
 
-fun LongArray.times(other: Array<*>) = mul(other.asLongMatrix())
+fun LongArray.times(other: Array<*>) = mul(other.asLong())
 
 // Addition
 
@@ -264,21 +264,21 @@ fun ComplexArray.plus(other: Number) = if (other is Complex) {
     add(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.plus(matrix: Array<*>) = matrix.asDoubleMatrix().add(this)
+fun Double.plus(matrix: Array<*>) = matrix.asDouble().add(this)
 
-fun Int.plus(matrix: Array<*>) = matrix.asIntMatrix().add(this)
+fun Int.plus(matrix: Array<*>) = matrix.asInt().add(this)
 
-fun Long.plus(matrix: Array<*>) = matrix.asLongMatrix().add(this)
+fun Long.plus(matrix: Array<*>) = matrix.asLong().add(this)
 
-fun Complex.plus(matrix: Array<*>) = matrix.asComplexMatrix().add(this)
+fun Complex.plus(matrix: Array<*>) = matrix.asComplex().add(this)
 
-fun DoubleArray.plus(other: Array<*>) = add(other.asDoubleMatrix())
+fun DoubleArray.plus(other: Array<*>) = add(other.asDouble())
 
-fun IntArray.plus(other: Array<*>) = add(other.asIntMatrix())
+fun IntArray.plus(other: Array<*>) = add(other.asInt())
 
-fun ComplexArray.plus(other: Array<*>) = add(other.asComplexMatrix())
+fun ComplexArray.plus(other: Array<*>) = add(other.asComplex())
 
-fun LongArray.plus(other: Array<*>) = add(other.asLongMatrix())
+fun LongArray.plus(other: Array<*>) = add(other.asLong())
 
 // Subtraction
 
@@ -294,21 +294,21 @@ fun ComplexArray.minus(other: Number) = if (other is Complex) {
     sub(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.minus(matrix: Array<*>) = matrix.asDoubleMatrix().rsub(this)
+fun Double.minus(matrix: Array<*>) = matrix.asDouble().rsub(this)
 
-fun Int.minus(matrix: Array<*>) = matrix.asIntMatrix().rsub(this)
+fun Int.minus(matrix: Array<*>) = matrix.asInt().rsub(this)
 
-fun Long.minus(matrix: Array<*>) = matrix.asLongMatrix().rsub(this)
+fun Long.minus(matrix: Array<*>) = matrix.asLong().rsub(this)
 
-fun Complex.minus(matrix: Array<*>) = matrix.asComplexMatrix().rsub(this)
+fun Complex.minus(matrix: Array<*>) = matrix.asComplex().rsub(this)
 
-fun DoubleArray.minus(other: Array<*>) = sub(other.asDoubleMatrix())
+fun DoubleArray.minus(other: Array<*>) = sub(other.asDouble())
 
-fun IntArray.minus(other: Array<*>) = sub(other.asIntMatrix())
+fun IntArray.minus(other: Array<*>) = sub(other.asInt())
 
-fun ComplexArray.minus(other: Array<*>) = sub(other.asComplexMatrix())
+fun ComplexArray.minus(other: Array<*>) = sub(other.asComplex())
 
-fun LongArray.minus(other: Array<*>) = sub(other.asLongMatrix())
+fun LongArray.minus(other: Array<*>) = sub(other.asLong())
 
 // Division
 
@@ -324,18 +324,18 @@ fun ComplexArray.div(other: Number) = if (other is Complex) {
     div(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.div(matrix: Array<*>) = matrix.asDoubleMatrix().rdiv(this)
+fun Double.div(matrix: Array<*>) = matrix.asDouble().rdiv(this)
 
-fun Int.div(matrix: Array<*>) = matrix.asIntMatrix().rdiv(this)
+fun Int.div(matrix: Array<*>) = matrix.asInt().rdiv(this)
 
-fun Long.div(matrix: Array<*>) = matrix.asLongMatrix().rdiv(this)
+fun Long.div(matrix: Array<*>) = matrix.asLong().rdiv(this)
 
-fun Complex.div(matrix: Array<*>) = matrix.asComplexMatrix().rdiv(this)
+fun Complex.div(matrix: Array<*>) = matrix.asComplex().rdiv(this)
 
-fun DoubleArray.div(other: Array<*>) = div(other.asDoubleMatrix())
+fun DoubleArray.div(other: Array<*>) = div(other.asDouble())
 
-fun IntArray.div(other: Array<*>) = div(other.asIntMatrix())
+fun IntArray.div(other: Array<*>) = div(other.asInt())
 
-fun ComplexArray.div(other: Array<*>) = div(other.asComplexMatrix())
+fun ComplexArray.div(other: Array<*>) = div(other.asComplex())
 
-fun LongArray.div(other: Array<*>) = div(other.asLongMatrix())
+fun LongArray.div(other: Array<*>) = div(other.asLong())

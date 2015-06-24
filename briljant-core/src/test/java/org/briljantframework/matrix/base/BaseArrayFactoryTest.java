@@ -1,21 +1,25 @@
 package org.briljantframework.matrix.base;
 
+import org.briljantframework.Utils;
+import org.briljantframework.matrix.Array;
+import org.briljantframework.matrix.ArrayPrinter;
+import org.briljantframework.matrix.BitArray;
 import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.IntArray;
 import org.briljantframework.matrix.Op;
 import org.briljantframework.matrix.api.ArrayBackend;
 import org.briljantframework.matrix.api.ArrayFactory;
 import org.briljantframework.matrix.api.ArrayRoutines;
+import org.briljantframework.matrix.netlib.NetlibArrayBackend;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class BaseArrayFactoryTest {
 
-  private final ArrayBackend b = new BaseArrayBackend();
+  private final ArrayBackend b = new NetlibArrayBackend();
   private final ArrayFactory bj = b.getArrayFactory();
   private final ArrayRoutines bjr = b.getArrayRoutines();
 
@@ -30,20 +34,79 @@ public class BaseArrayFactoryTest {
 
   @Test
   public void testCreateIntMatrixFromArray() throws Exception {
-    IntArray x = bj.array(new int[]{1, 2, 3, 4});
-    assertEquals(4, x.size());
-    assertEquals(4, x.rows());
-    assertEquals(1, x.columns());
-    assertArrayEquals(new int[]{1, 2, 3, 4}, x.data());
+//    IntArray x = bj.array(new int[]{1, 2, 3, 4});
+//    assertEquals(4, x.size());
+//    assertEquals(4, x.rows());
+//    assertEquals(1, x.columns());
+//    assertArrayEquals(new int[]{1, 2, 3, 4}, x.data());
+    //
+
+    DoubleArray a = bj.array(new double[]{1, 2, 3, 4}).reshape(2, 2);
+    DoubleArray b = bj.array(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
+    printShapeAndStride(a);
+    printShapeAndStride(b);
+
+    DoubleArray x = bj.range(12).reshape(2, 3, 2).asDouble();
+//    System.out.println(x);
+//
+//    DoubleArray f = x.select(1);
+//    for (int i = 0; i < f.size(); i++) {
+//      System.out.println(f.get(i));
+//    }
+//    System.out.println(x.reduceVectors(0, bjr::sum));
+
+//    System.out.println(x);
+    DoubleArray d = x.select(0, 0);
+//    System.out.println(Arrays.toString(d.data()));
+    System.out.println(d + "\n" + d.getOffset() + ": " + Arrays.toString(d.getStride()));
+
+    System.out.println(d.getVector(1, 1));
+
+//    System.out.println(x.get);
+
+//    for (int i = 0; i < 4; i++) {
+//      System.out.println(d.get(i));
+//    }
+//
+//    System.out.println(d);
+//
+//    d = bj.array(new double[]{0, 1, 2, 3}).reshape(2, 2);
+//    System.out.println(d + "\n" + d.getOffset() + ": " + Arrays.toString(d.getStride()));
+
+//    for (int i = 0; i < d.size(); i++) {
+//      System.out.println(d.get(i));
+//    }
+//    System.out.println(d.get(0, 0));
+//    System.out.println(d.get(0, 1));
+//    System.out.println(d.get(1, 0));
+//    System.out.println(d.get(1, 1));
+//    DoubleArray c = bj.zero(2, 2);
+//    bjr.gemm(Op.KEEP, Op.KEEP, 1, d, d, 1, c);
+//    System.out.println(c);
+
+  }
+
+  void printShapeAndStride(Array array) {
+    System.out.println(array.getOffset() + " " +
+                       Arrays.toString(array.getShape()) + " " +
+                       Arrays.toString(array.getStride()));
+
   }
 
   @Test
   public void testIntRangeReshape() throws Exception {
-    IntArray a = bj.range(1, 257).reshape(4, 16, 2, 2);
+    ArrayPrinter.setMinimumTruncateSize(10);
+    IntArray a = bj.range(1, 257).reshape(4, 16, 2, 2).copy();
+    a.set(new int[]{0, 0, 0, 0}, 13223322);
+    a.set(new int[]{0, 13, 0, 0}, 100000);
+    a.select(0).assign(10023);
     System.out.println(a);
-
-    DoubleArray b = a.asDoubleMatrix().reshape(16, 16);
+    DoubleArray b = a.asDouble().reshape(16, 16);
+    System.out.println(b);
     System.out.println(b.reduceVectors(0, bjr::sum));
+
+    System.out.println(a.getVector(a.dims() - 1, 0));
+    System.out.println(b.getVector(b.dims() - 1, 0));
 //
 //    System.out.println(b.getRow(0));
 //
@@ -52,6 +115,17 @@ public class BaseArrayFactoryTest {
 //
 //    System.out.println(bj.diag(bj.diag(b)));
 
+  }
+
+  @Test
+  public void testCreateNewBitArray() throws Exception {
+    BitArray bits = bj.booleanArray(3, 2);
+    Utils.setRandomSeed(102);
+    bits.assign(() -> Utils.getRandom().nextGaussian() > 0);
+
+    System.out.println(bits.asDouble().reduceVectors(0, bjr::sum).transpose());
+    System.out.println(bits.asComplex());
+    System.out.println(bits.asLong());
   }
 
   @Test
@@ -81,16 +155,16 @@ public class BaseArrayFactoryTest {
 //    INDArray x = Nd4j.linspace(1, 24, 24).reshape(4, 3, 2);
 //    System.out.println(x.vectorAlongDimension(1, 2));
 
-    DoubleArray d = bj.range(1, 65).asDoubleMatrix().reshape(4, 4, 2, 2);
+    DoubleArray d = bj.range(1, 65).asDouble().reshape(4, 4, 2, 2);
 
-    System.out.println(d.reduceVectors(3, s -> s.reduce(0.0, Double::sum)));
+//    System.out.println(d.reduceVectors(3, s -> s.reduce(0.0, Double::sum)));
 
 //    System.out.println(d.getVector(2, 1));
     System.out.println("--------");
 
-    DoubleArray d2 = bj.range(1, 5).asDoubleMatrix().copy().reshape(2, 2);
-    System.out.println(d2);
-    System.out.println(d2.reduceVectors(1, s -> s.reduce(0.0, Double::sum)));
+    DoubleArray d2 = bj.range(1, 5).asDouble().copy().reshape(2, 2);
+//    System.out.println(d2);
+//    System.out.println(d2.reduceVectors(1, s -> s.reduce(0.0, Double::sum)));
 //    System.out.println(d2.getVector(0, 1));
     System.out.println();
 //    System.out.println(Arrays.toString(d.getStride()));
@@ -128,17 +202,17 @@ public class BaseArrayFactoryTest {
 //    System.out.println(d+"\n");
 //    System.out.println(d.getVector(1, 3));
 
-    testVectorAlongDimension(d, 3);
-//    testVectorAlongDimension(d, 1);
+    testVectorAlongDimension(d, 0);
+    testVectorAlongDimension(d, 1);
 //    testVectorAlongDimension(d, 2);
 //    testVectorAlongDimension(d, 3);
 
 //    d.transpose().forEach(0, System.out::println);
 
     System.out.println("----- matrix ----");
-    System.out.println(d2.transpose());
-    testVectorAlongDimension(d2.transpose(), 0);
-    testVectorAlongDimension(d2.transpose(), 1);
+    System.out.println(d2);
+    testVectorAlongDimension(d2, 0);
+    testVectorAlongDimension(d2, 1);
 
 //    System.out.println(d.select(0).reduceRows(bjr::sum));
 //    System.out.println(d.select(0));

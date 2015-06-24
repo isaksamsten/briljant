@@ -46,8 +46,8 @@ public class LinearRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     Preconditions.checkArgument(x.rows() == y.size());
 
-    DoubleArray yMatrix = y.toMatrix().asDoubleMatrix();
-    return new Model(LinearAlgebra.leastLinearSquares(x.toMatrix().asDoubleMatrix(), yMatrix));
+    DoubleArray yMatrix = y.toMatrix().asDouble();
+    return new Model(LinearAlgebra.leastLinearSquares(x.toMatrix().asDouble(), yMatrix));
   }
 
   /**

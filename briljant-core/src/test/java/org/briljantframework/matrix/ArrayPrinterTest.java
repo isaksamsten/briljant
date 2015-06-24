@@ -11,7 +11,7 @@ public class ArrayPrinterTest {
 
   @Test
   public void testPrint() throws Exception {
-    ArrayPrinter.print(Bj.linspace(-1, 1, 1000).reshape(10, 100).asComplexMatrix());
+    ArrayPrinter.print(Bj.linspace(-1, 1, 1000).reshape(10, 100).asComplex());
   }
 
   @Test

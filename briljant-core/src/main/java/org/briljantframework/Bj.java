@@ -519,7 +519,7 @@ public final class Bj {
   }
 
   public static LongArray round(DoubleArray in) {
-    return longArray(in.getShape().clone()).assign(in, Math::round);
+    return longArray(in.getShape()).assign(in, Math::round);
   }
 
   public static int argmaxnot(DoubleArray m, int not) {

@@ -150,7 +150,7 @@ public abstract class Ensemble implements Classifier {
       DoubleArray inbEstimates = Bj.doubleArray(x.rows(), classes.size());
 
       // Count the number of times each training sample have been included
-      IntArray counts = oobIndicator.asIntMatrix().reduceRows(Matrices::sum);
+      IntArray counts = oobIndicator.asInt().reduceRows(Matrices::sum);
 
       // Compute the in-bag and out-of-bag estimates for all examples
       DoubleAdder oobAccuracy = new DoubleAdder();

@@ -11,11 +11,11 @@ class MatrixExtensions {
 
   static <T extends Array<T>> T asType(Array<T> self, Class<T> cls) {
     switch (cls) {
-      case DoubleArray: return cls.cast(self.asDoubleMatrix())
-      case IntArray: return cls.cast(self.asIntMatrix())
-      case LongArray: return cls.cast(self.asLongMatrix())
-      case ComplexArray: return cls.cast(self.asLongMatrix())
-      case BitArray: return cls.cast(self.asBitMatrix())
+      case DoubleArray: return cls.cast(self.asDouble())
+      case IntArray: return cls.cast(self.asInt())
+      case LongArray: return cls.cast(self.asLong())
+      case ComplexArray: return cls.cast(self.asLong())
+      case BitArray: return cls.cast(self.asBit())
       default:
         throw new ClassCastException("Can't convert ${self.getClass()} to $cls")
     }

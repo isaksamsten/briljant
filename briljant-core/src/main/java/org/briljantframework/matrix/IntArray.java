@@ -152,15 +152,6 @@ public interface IntArray extends Array<IntArray> {
    */
   IntArray reduceRows(ToIntFunction<? super IntArray> reduce);
 
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value int
-   */
-  int get(int i, int j);
-
   // GET / SET
 
   /**
@@ -171,7 +162,20 @@ public interface IntArray extends Array<IntArray> {
 
   void set(int index, int value);
 
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value int
+   */
+  int get(int i, int j);
+
   void set(int row, int column, int value);
+
+  void set(int[] ix, int value);
+
+  int get(int... ix);
 
   void addTo(int index, int value);
 

@@ -42,10 +42,10 @@ public class AbstractArrayTest {
     ComplexArray c = bj.complexArray(3,3).assign(10);
     BitArray d = bj.booleanArray(3,3).assign(true);
 
-    assertEquals(10.0, a.asDoubleMatrix().get(0), 0.0001);
-    assertEquals(10.0, b.asDoubleMatrix().get(0), 0.0001);
-    assertEquals(10.0, c.asDoubleMatrix().get(0), 0.0001);
-    assertEquals(1.0, d.asDoubleMatrix().get(0), 0.0001);
+    assertEquals(10.0, a.asDouble().get(0), 0.0001);
+    assertEquals(10.0, b.asDouble().get(0), 0.0001);
+    assertEquals(10.0, c.asDouble().get(0), 0.0001);
+    assertEquals(1.0, d.asDouble().get(0), 0.0001);
   }
 
   @Test
@@ -55,10 +55,10 @@ public class AbstractArrayTest {
     ComplexArray c = bj.complexArray(3,3).assign(10);
     BitArray d = bj.booleanArray(3,3).assign(true);
 
-    assertEquals(10, a.asIntMatrix().get(0));
-    assertEquals(10, b.asIntMatrix().get(0));
-    assertEquals(10, c.asIntMatrix().get(0));
-    assertEquals(1, d.asIntMatrix().get(0));
+    assertEquals(10, a.asInt().get(0));
+    assertEquals(10, b.asInt().get(0));
+    assertEquals(10, c.asInt().get(0));
+    assertEquals(1, d.asInt().get(0));
   }
 
   @Test
@@ -68,10 +68,10 @@ public class AbstractArrayTest {
     ComplexArray c = bj.complexArray(3,3).assign(10);
     BitArray d = bj.booleanArray(3,3).assign(true);
 
-    assertEquals(10, a.asLongMatrix().get(0));
-    assertEquals(10, b.asLongMatrix().get(0));
-    assertEquals(10, c.asLongMatrix().get(0));
-    assertEquals(1, d.asLongMatrix().get(0));
+    assertEquals(10, a.asLong().get(0));
+    assertEquals(10, b.asLong().get(0));
+    assertEquals(10, c.asLong().get(0));
+    assertEquals(1, d.asLong().get(0));
 
   }
 
@@ -82,10 +82,10 @@ public class AbstractArrayTest {
     ComplexArray c = bj.complexArray(3,3).assign(10);
     LongArray d = bj.longArray(3,3).assign(1);
 
-    assertEquals(false, a.asBitMatrix().get(0));
-    assertEquals(false, b.asBitMatrix().get(0));
-    assertEquals(false, c.asBitMatrix().get(0));
-    assertEquals(true, d.asBitMatrix().get(0));
+    assertEquals(false, a.asBit().get(0));
+    assertEquals(false, b.asBit().get(0));
+    assertEquals(false, c.asBit().get(0));
+    assertEquals(true, d.asBit().get(0));
   }
 
   @Test
@@ -95,9 +95,9 @@ public class AbstractArrayTest {
     IntArray c = bj.intArray(3,3).assign(10);
     BitArray d = bj.booleanArray(3,3).assign(true);
 
-    assertEquals(Complex.valueOf(10), a.asComplexMatrix().get(0));
-    assertEquals(Complex.valueOf(10), b.asComplexMatrix().get(0));
-    assertEquals(Complex.valueOf(10), c.asComplexMatrix().get(0));
-    assertEquals(Complex.valueOf(1), d.asComplexMatrix().get(0));
+    assertEquals(Complex.valueOf(10), a.asComplex().get(0));
+    assertEquals(Complex.valueOf(10), b.asComplex().get(0));
+    assertEquals(Complex.valueOf(10), c.asComplex().get(0));
+    assertEquals(Complex.valueOf(1), d.asComplex().get(0));
   }
 }

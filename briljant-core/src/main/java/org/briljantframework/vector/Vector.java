@@ -677,23 +677,23 @@ public interface Vector extends Serializable {
   Array toMatrix() throws TypeConversionException;
 
   default DoubleArray asDoubleMatrix() throws TypeConversionException {
-    return toMatrix().asDoubleMatrix();
+    return toMatrix().asDouble();
   }
 
   default ComplexArray asComplexMatrix() throws TypeConversionException {
-    return toMatrix().asComplexMatrix();
+    return toMatrix().asComplex();
   }
 
   default LongArray asLongMatrix() throws TypeConversionException {
-    return toMatrix().asLongMatrix();
+    return toMatrix().asLong();
   }
 
   default BitArray asBitMatrix() throws TypeConversionException {
-    return toMatrix().asBitMatrix();
+    return toMatrix().asBit();
   }
 
   default IntArray asIntMatrix() throws TypeConversionException {
-    return toMatrix().asIntMatrix();
+    return toMatrix().asInt();
   }
 
   /**

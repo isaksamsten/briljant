@@ -8,8 +8,8 @@ import org.briljantframework.matrix.api.ArrayFactory;
  */
 abstract class AsComplexArray extends AbstractComplexArray {
 
-  public AsComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
-    super(bj, offset, shape, stride);
+  public AsComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+    super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -18,8 +18,8 @@ abstract class AsComplexArray extends AbstractComplexArray {
   }
 
   @Override
-  protected ComplexArray makeView(int offset, int[] shape, int[] stride) {
-    return new AsComplexArray(getMatrixFactory(), offset, shape, stride) {
+  protected ComplexArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new AsComplexArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, Complex value) {
         AsComplexArray.this.setElement(i, value);
@@ -28,6 +28,11 @@ abstract class AsComplexArray extends AbstractComplexArray {
       @Override
       protected Complex getElement(int i) {
         return AsComplexArray.this.getElement(i);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AsComplexArray.this.elementSize();
       }
     };
   }

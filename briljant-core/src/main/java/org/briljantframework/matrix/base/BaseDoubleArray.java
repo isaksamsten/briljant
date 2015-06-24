@@ -21,39 +21,39 @@ import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.api.ArrayFactory;
 
 /**
- * Implementation of {@link org.briljantframework.matrix.DoubleArray} using a single {@code
- * double}
- * array. Indexing is
- * calculated in column-major order, hence varying column faster than row is preferred when
- * iterating.
- *
  * @author Isak Karlsson
  */
 class BaseDoubleArray extends AbstractDoubleArray {
 
-  private double[] values;
+  private double[] data;
 
-  BaseDoubleArray(ArrayFactory bj, int... shape) {
+  BaseDoubleArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
-    this.values = new double[size()];
+    this.data = new double[size()];
   }
 
-  BaseDoubleArray(ArrayFactory bj, double[] values) {
-    super(bj, values.length);
-    this.values = values;
+  BaseDoubleArray(ArrayFactory bj, double[] data) {
+    super(bj, new int[]{data.length});
+    this.data = data;
   }
 
   private BaseDoubleArray(ArrayFactory bj, int offset,
                           int[] shape,
                           int[] stride,
-                          double[] values) {
-    super(bj, offset, shape, stride);
-    this.values = values;
+                          int majorStride,
+                          double[] data) {
+    super(bj, offset, shape, stride, majorStride);
+    this.data = data;
   }
 
   @Override
-  protected DoubleArray makeView(int offset, int[] shape, int[] stride) {
-    return new BaseDoubleArray(getMatrixFactory(), offset, shape, stride, values);
+  protected DoubleArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseDoubleArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+  }
+
+  @Override
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override
@@ -63,11 +63,16 @@ class BaseDoubleArray extends AbstractDoubleArray {
 
   @Override
   protected double getElement(int i) {
-    return values[i];
+    return data[i];
   }
 
   @Override
   protected void setElement(int i, double value) {
-    values[i] = value;
+    data[i] = value;
+  }
+
+  @Override
+  public double[] data() {
+    return data;
   }
 }

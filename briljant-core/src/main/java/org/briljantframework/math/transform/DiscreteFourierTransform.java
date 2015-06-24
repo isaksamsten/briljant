@@ -66,7 +66,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexArray fft(DoubleArray a) {
-    return fft(a.asComplexMatrix());
+    return fft(a.asComplex());
   }
 
   private static void transformBluestein(ComplexArray a) {

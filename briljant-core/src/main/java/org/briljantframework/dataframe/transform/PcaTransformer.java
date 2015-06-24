@@ -66,13 +66,13 @@ public class PcaTransformer implements InvertibleTransformer {
   @Override
   public InvertibleTransformation fit(DataFrame x) {
     Check.all(x.getColumns(), col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA());
-    SingularValueDecomposition svd = getSingularValueDecomposition(x.toMatrix().asDoubleMatrix());
+    SingularValueDecomposition svd = getSingularValueDecomposition(x.toMatrix().asDouble());
     DoubleArray u = svd.getLeftSingularValues();
     return new InvertibleTransformation() {
       @Override
       public DataFrame inverseTransform(DataFrame x) {
         Check.all(x.getColumns(), col -> col.getType() == Vec.DOUBLE && !col.hasNA());
-        DoubleArray matrix = x.toMatrix().asDoubleMatrix();
+        DoubleArray matrix = x.toMatrix().asDouble();
 
         // Matrix m = frame.toMatrix();
         // E copy = factory.copyDataset(frame);
@@ -87,7 +87,7 @@ public class PcaTransformer implements InvertibleTransformer {
       @Override
       public DataFrame transform(DataFrame x) {
         Check.all(x.getColumns(), col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA());
-        DoubleArray m = x.toMatrix().asDoubleMatrix();
+        DoubleArray m = x.toMatrix().asDouble();
         DoubleArray pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
 
         DataFrame.Builder result = x.newBuilder();

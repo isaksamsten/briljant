@@ -162,7 +162,7 @@ public interface LongArray extends Array<LongArray>, Iterable<Long> {
 
   void set(int index, long value);
 
-   void set(int[] ix, long value);
+  void set(int[] ix, long value);
 
   long get(int... ix);
 

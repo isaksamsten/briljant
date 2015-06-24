@@ -13,18 +13,19 @@ class BaseLongArray extends AbstractLongArray {
 
   private long[] data;
 
-  BaseLongArray(ArrayFactory bj, int... shape) {
+  BaseLongArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
     this.data = new long[size()];
   }
 
   BaseLongArray(ArrayFactory bj, long[] data) {
-    super(bj, checkNotNull(data).length);
+    super(bj, new int[]{checkNotNull(data).length});
     this.data = data;
   }
 
-  BaseLongArray(ArrayFactory bj, int offset, int[] shape, int[] stride, long[] data) {
-    super(bj, offset, shape, stride);
+  BaseLongArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
+                long[] data) {
+    super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
@@ -34,8 +35,13 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  protected LongArray makeView(int offset, int[] shape, int[] stride) {
-    return new BaseLongArray(getMatrixFactory(), offset, shape, stride, data);
+  protected LongArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseLongArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+  }
+
+  @Override
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override

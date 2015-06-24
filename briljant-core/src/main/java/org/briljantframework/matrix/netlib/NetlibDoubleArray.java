@@ -19,28 +19,28 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   private final double[] data;
 
   NetlibDoubleArray(ArrayFactory bj, int size) {
-    super(bj, size);
+    super(bj, new int[]{size});
     data = new double[size];
   }
 
   NetlibDoubleArray(ArrayFactory bj, double[] data) {
-    super(bj, Objects.requireNonNull(data).length);
+    super(bj, new int[]{Objects.requireNonNull(data).length});
     this.data = data;
   }
 
-  public NetlibDoubleArray(ArrayFactory bj, int... shape) {
+  public NetlibDoubleArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
     this.data = new double[size()];
   }
 
-  public NetlibDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+  public NetlibDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
                            double[] data) {
-    super(bj, offset, shape, stride);
+    super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   public NetlibDoubleArray(ArrayFactory bj, double[] data, int rows, int columns) {
-    super(bj, rows, columns);
+    super(bj, new int[]{rows, columns});
     this.data = data;
   }
 
@@ -60,14 +60,20 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  protected DoubleArray makeView(int offset, int[] shape, int[] stride) {
+  protected DoubleArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
     return new NetlibDoubleArray(
         getMatrixFactory(),
         offset,
         shape,
         stride,
+        majorStride,
         data
     );
+  }
+
+  @Override
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override

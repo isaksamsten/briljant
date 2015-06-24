@@ -27,9 +27,9 @@ public class NonConformantException extends RuntimeException {
    * Instantiates a new Non conformant exception.
    *
    * @param param1 the param 1
-   * @param op1 the op 1
+   * @param op1    the op 1
    * @param param2 the param 2
-   * @param op2 the op 2
+   * @param op2    the op 2
    */
   public NonConformantException(String param1, Array op1, String param2, Array op2) {
     this(param1, op1.rows(), op1.columns(), param2, op2.rows(), op2.columns());
@@ -47,7 +47,7 @@ public class NonConformantException extends RuntimeException {
 
   /**
    * Instantiates a new Non conformant exception.
-   * 
+   *
    * @param am the am
    * @param an the an
    * @param bm the bm
@@ -59,17 +59,20 @@ public class NonConformantException extends RuntimeException {
 
   /**
    * Instantiates a new Non conformant exception.
-   * 
+   *
    * @param op1 the op 1
-   * @param am the am
-   * @param an the an
+   * @param am  the am
+   * @param an  the an
    * @param op2 the op 2
-   * @param bm the bm
-   * @param bn the bn
+   * @param bm  the bm
+   * @param bn  the bn
    */
   public NonConformantException(String op1, long am, long an, String op2, long bm, long bn) {
     super(String.format("nonconformant arguments (%s is %dx%d, %s is %dx%d)", op1, am, an, op2, bm,
-        bn));
+                        bn));
   }
 
+  public NonConformantException(String message) {
+    super(message);
+  }
 }

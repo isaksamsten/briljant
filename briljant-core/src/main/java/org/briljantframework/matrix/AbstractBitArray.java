@@ -27,15 +27,16 @@ import java.util.stream.StreamSupport;
 public abstract class AbstractBitArray extends AbstractArray<BitArray> implements BitArray {
 
   protected AbstractBitArray(ArrayFactory bj, int size) {
-    super(bj, size);
+    super(bj, new int[]{size});
   }
 
-  public AbstractBitArray(ArrayFactory bj, int... shape) {
+  public AbstractBitArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
   }
 
-  public AbstractBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
-    super(bj, offset, shape, stride);
+  public AbstractBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+                          int majorStride) {
+    super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -134,7 +135,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public BitArray eq(BitArray other) {
-    BitArray bits = getMatrixFactory().booleanArray(getShape().clone());
+    BitArray bits = getMatrixFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, get(i) == other.get(i));
     }
@@ -153,27 +154,27 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public BitArray add(BitArray o) {
-    return asIntMatrix().add(o.asIntMatrix()).asBitMatrix().copy();
+    return asInt().add(o.asInt()).asBit().copy();
   }
 
   @Override
   public BitArray sub(BitArray o) {
-    return asIntMatrix().sub(o.asIntMatrix()).asBitMatrix().copy();
+    return asInt().sub(o.asInt()).asBit().copy();
   }
 
   @Override
   public BitArray mul(BitArray o) {
-    return asIntMatrix().mul(o.asIntMatrix()).asBitMatrix().copy();
+    return asInt().mul(o.asInt()).asBit().copy();
   }
 
   @Override
   public BitArray div(BitArray o) {
-    return asIntMatrix().div(o.asIntMatrix()).asBitMatrix().copy();
+    return asInt().div(o.asInt()).asBit().copy();
   }
 
   @Override
   public BitArray mmul(BitArray o) {
-    return asIntMatrix().mmul(o.asIntMatrix()).asBitMatrix().copy();
+    return asInt().mmul(o.asInt()).asBit().copy();
   }
 
   @Override
@@ -186,7 +187,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public int hashCode() {
-    int value = Objects.hash(rows(), columns());
+    int value = Objects.hash(getShape(), getStride());
     for (int i = 0; i < size(); i++) {
       value = value * 31 + Boolean.hashCode(get(i));
     }
@@ -270,9 +271,9 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   }
 
   @Override
-  public DoubleArray asDoubleMatrix() {
+  public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
       @Override
       public void setElement(int index, double value) {
         AbstractBitArray.this.setElement(index, value == 1);
@@ -282,13 +283,18 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
       public double getElement(int index) {
         return AbstractBitArray.this.getElement(index) ? 1 : 0;
       }
+
+      @Override
+      protected int elementSize() {
+        return AbstractBitArray.this.elementSize();
+      }
     };
   }
 
   @Override
-  public IntArray asIntMatrix() {
+  public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
 
       @Override
       public int getElement(int index) {
@@ -300,13 +306,18 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
       public void setElement(int index, int value) {
         AbstractBitArray.this.setElement(index, value == 1);
       }
+
+      @Override
+      protected int elementSize() {
+        return AbstractBitArray.this.elementSize();
+      }
     };
   }
 
   @Override
-  public LongArray asLongMatrix() {
+  public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
 
       @Override
       public long getElement(int index) {
@@ -318,13 +329,18 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
       public void setElement(int index, long value) {
         AbstractBitArray.this.setElement(index, value == 1);
       }
+
+      @Override
+      protected int elementSize() {
+        return AbstractBitArray.this.elementSize();
+      }
     };
   }
 
   @Override
-  public ComplexArray asComplexMatrix() {
+  public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractBitArray.this.setElement(index, value.equals(Complex.ONE));
@@ -333,6 +349,11 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
       @Override
       public Complex getElement(int index) {
         return AbstractBitArray.this.getElement(index) ? Complex.ONE : Complex.ZERO;
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractBitArray.this.elementSize();
       }
     };
   }
@@ -358,7 +379,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   }
 
   @Override
-  public BitArray asBitMatrix() {
+  public BitArray asBit() {
     return this;
   }
 
@@ -447,7 +468,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public BitArray copy() {
-    BitArray n = newEmptyArray(rows(), columns());
+    BitArray n = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       n.set(i, get(i));
     }
@@ -457,7 +478,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public BitArray xor(BitArray other) {
     Check.equalShape(this, other);
-    BitArray bm = newEmptyArray(rows(), columns());
+    BitArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       boolean otherHas = other.get(i);
       boolean thisHas = get(i);
@@ -469,7 +490,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public BitArray or(BitArray other) {
     Check.equalShape(this, other);
-    BitArray bm = newEmptyArray(rows(), columns());
+    BitArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || other.get(i));
     }
@@ -479,7 +500,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public BitArray orNot(BitArray other) {
     Check.equalShape(this, other);
-    BitArray bm = newEmptyArray(rows(), columns());
+    BitArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || !other.get(i));
     }
@@ -489,7 +510,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public BitArray and(BitArray other) {
     Check.equalShape(this, other);
-    BitArray bm = newEmptyArray(rows(), columns());
+    BitArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && other.get(i));
     }
@@ -499,7 +520,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public BitArray andNot(BitArray other) {
     Check.equalShape(this, other);
-    BitArray bm = newEmptyArray(rows(), columns());
+    BitArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && !other.get(i));
     }
@@ -508,7 +529,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public BitArray not() {
-    BitArray bm = newEmptyArray(rows(), columns());
+    BitArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, !get(i));
     }

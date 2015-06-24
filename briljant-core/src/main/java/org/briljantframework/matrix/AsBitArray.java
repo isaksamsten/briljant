@@ -7,8 +7,8 @@ import org.briljantframework.matrix.api.ArrayFactory;
  */
 abstract class AsBitArray extends AbstractBitArray {
 
-  public AsBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
-    super(bj, offset, shape, stride);
+  public AsBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+    super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -17,8 +17,8 @@ abstract class AsBitArray extends AbstractBitArray {
   }
 
   @Override
-  protected BitArray makeView(int offset, int[] shape, int[] stride) {
-    return new AsBitArray(getMatrixFactory(), offset, shape, stride) {
+  protected BitArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new AsBitArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, boolean value) {
         AsBitArray.this.setElement(i, value);
@@ -27,6 +27,11 @@ abstract class AsBitArray extends AbstractBitArray {
       @Override
       protected boolean getElement(int i) {
         return AsBitArray.this.getElement(i);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AsBitArray.this.elementSize();
       }
     };
   }

@@ -377,7 +377,7 @@ public class MatricesTest {
 
   @Test
   public void testVsplit() throws Exception {
-    DoubleArray a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
+    DoubleArray a = bj.range(0, 9).reshape(3, 3).asDouble();
     List<DoubleArray> m = bjr.vsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getRow(0), m.get(0), 0);
@@ -389,7 +389,7 @@ public class MatricesTest {
 
   @Test
   public void testHsplit() throws Exception {
-    DoubleArray a = bj.range(0, 9).reshape(3, 3).asDoubleMatrix();
+    DoubleArray a = bj.range(0, 9).reshape(3, 3).asDouble();
     List<DoubleArray> m = bjr.hsplit(a, 3);
     assertEquals(3, m.size());
     assertMatrixEquals(a.getColumn(0), m.get(0), 0);

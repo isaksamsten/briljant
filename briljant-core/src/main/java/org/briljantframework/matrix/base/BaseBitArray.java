@@ -23,19 +23,25 @@ class BaseBitArray extends AbstractBitArray {
     this.data = data;
   }
 
-  public BaseBitArray(ArrayFactory bj, int... shape) {
+  public BaseBitArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
     this.data = new boolean[size()];
   }
 
-  public BaseBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, boolean[] data) {
-    super(bj, offset, shape, stride);
+  public BaseBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
+                      boolean[] data) {
+    super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @Override
-  protected BitArray makeView(int offset, int[] shape, int[] stride) {
-    return new BaseBitArray(getMatrixFactory(), offset, shape, stride, data);
+  protected BitArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseBitArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+  }
+
+  @Override
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override

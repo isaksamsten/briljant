@@ -8,7 +8,7 @@ public class DiscreteFourierTransformTest {
 
   @Test
   public void testFft() throws Exception {
-    ComplexArray mat = Bj.range(1, 9).asComplexMatrix();
+    ComplexArray mat = Bj.range(1, 9).asComplex();
     System.out.println(mat);
     long n = System.nanoTime();
     ComplexArray fft = DiscreteFourierTransform.fft(mat);

@@ -33,7 +33,6 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.google.common.primitives.Ints.checkedCast;
 import static org.briljantframework.matrix.Indexer.columnMajor;
 import static org.briljantframework.matrix.Indexer.rowMajor;
 
@@ -44,36 +43,37 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
     implements ComplexArray {
 
   protected AbstractComplexArray(ArrayFactory bj, int size) {
-    super(bj, size);
+    super(bj, new int[]{size});
   }
 
-  public AbstractComplexArray(ArrayFactory bj, int... shape) {
+  public AbstractComplexArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
   }
 
-  public AbstractComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
-    super(bj, offset, shape, stride);
+  public AbstractComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+                              int majorStride) {
+    super(bj, offset, shape, stride, majorStride);
   }
 
   public final void set(int[] ix, Complex value) {
-    Check.argument(ix.length == dims());
+    Check.argument(ix.length == dims(), ILLEGAL_INDEX);
     setElement(Indexer.columnMajorStride(getOffset(), ix, getStride()), value);
   }
 
   public final Complex get(int... ix) {
-    Check.argument(ix.length == dims());
+    Check.argument(ix.length == dims(), ILLEGAL_INDEX);
     return getElement(Indexer.columnMajorStride(getOffset(), ix, getStride()));
   }
 
   @Override
   public final void set(int i, int j, Complex value) {
-    Check.argument(isMatrix());
+    Check.argument(isMatrix(), ILLEGAL_INDEX);
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
   public final Complex get(int i, int j) {
-    Check.argument(isMatrix());
+    Check.argument(isMatrix(), ILLEGAL_INDEX);
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
@@ -87,13 +87,21 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
     return getElement(index * stride(0) + getOffset());
   }
 
-  protected void setElement(int i, Complex value) {
-    throw new UnsupportedOperationException();
-  }
+  /**
+   * Sets the element at index {@code i}, ignoring offsets and strides.
+   *
+   * @param i     the index
+   * @param value the value
+   */
+  protected abstract void setElement(int i, Complex value);
 
-  protected Complex getElement(int i) {
-    throw new UnsupportedOperationException();
-  }
+  /**
+   * Gets the element at index {@code i}, ignoring offsets and strides.
+   *
+   * @param i the index
+   * @return the value at {@code i}
+   */
+  protected abstract Complex getElement(int i);
 
   @Override
   public ComplexArray assign(Complex value) {
@@ -184,7 +192,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray map(UnaryOperator<Complex> operator) {
-    ComplexArray m = newEmptyArray(getShape().clone());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, operator.apply(get(i)));
     }
@@ -193,7 +201,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public IntArray mapToInt(ToIntFunction<Complex> function) {
-    IntArray matrix = bj.intArray(getShape().clone());
+    IntArray matrix = bj.intArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsInt(get(i)));
     }
@@ -201,9 +209,9 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
-  public DoubleArray asDoubleMatrix() {
+  public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
 
       @Override
       protected void setElement(int i, double value) {
@@ -214,13 +222,18 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
       protected double getElement(int i) {
         return AbstractComplexArray.this.getElement(i).doubleValue();
       }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
     };
   }
 
   @Override
-  public IntArray asIntMatrix() {
+  public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
 
       @Override
       public int getElement(int index) {
@@ -231,12 +244,17 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
       public void setElement(int index, int value) {
         AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
       }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
     };
   }
 
   @Override
   public LongArray mapToLong(ToLongFunction<Complex> function) {
-    LongArray matrix = bj.longArray(getShape().clone());
+    LongArray matrix = bj.longArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -245,7 +263,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public DoubleArray mapToDouble(ToDoubleFunction<Complex> function) {
-    DoubleArray matrix = bj.doubleArray(getShape().clone());
+    DoubleArray matrix = bj.doubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -266,7 +284,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public BitArray satisfies(Predicate<Complex> predicate) {
-    BitArray bits = bj.booleanArray(getShape().clone());
+    BitArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -275,7 +293,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   public BitArray satisfies(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BitArray bits = bj.booleanArray(getShape().clone());
+    BitArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -314,9 +332,9 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
-  public LongArray asLongMatrix() {
+  public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
       @Override
       public long getElement(int index) {
         return AbstractComplexArray.this.getElement(index).longValue();
@@ -325,6 +343,11 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
       @Override
       public void setElement(int index, long value) {
         AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
       }
     };
   }
@@ -378,9 +401,9 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
-  public BitArray asBitMatrix() {
+  public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape().clone(), getStride().clone()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -390,6 +413,11 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
       @Override
       public boolean getElement(int index) {
         return AbstractComplexArray.this.getElement(index).equals(Complex.ONE);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
       }
     };
   }
@@ -434,7 +462,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
-  public ComplexArray asComplexMatrix() {
+  public ComplexArray asComplex() {
     return this;
   }
 
@@ -539,7 +567,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray copy() {
-    ComplexArray n = newEmptyArray(rows(), columns());
+    ComplexArray n = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       n.set(i, get(i));
     }
@@ -589,17 +617,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public ComplexArray negate() {
     return map(Complex::negate);
-  }
-
-  @Override
-  public double[] asDoubleArray() {
-    double[] array = new double[Math.multiplyExact(checkedCast(size()), 2)];
-    for (int i = 0; i < size(); i++) {
-      Complex complex = get(i);
-      array[i] = complex.real();
-      array[i + 1] = complex.imag();
-    }
-    return array;
   }
 
   @Override
@@ -675,7 +692,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public ComplexArray mul(Complex alpha, ComplexArray other, Complex beta) {
     Check.equalShape(this, other);
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
     }
@@ -684,7 +701,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray mul(Complex scalar) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).multiply(scalar));
     }
@@ -698,7 +715,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray add(Complex scalar) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).plus(scalar));
     }
@@ -708,7 +725,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public ComplexArray add(Complex alpha, ComplexArray other, Complex beta) {
     Check.equalShape(this, other);
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
     }
@@ -722,7 +739,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray sub(Complex scalar) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).minus(scalar));
     }
@@ -732,7 +749,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public ComplexArray sub(Complex alpha, ComplexArray other, Complex beta) {
     Check.size(this, other);
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
     }
@@ -741,7 +758,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray rsub(Complex scalar) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, scalar.minus(get(i)));
     }
@@ -750,7 +767,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray div(ComplexArray other) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).div(other.get(i)));
     }
@@ -759,7 +776,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray div(Complex other) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).div(other));
     }
@@ -768,7 +785,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray rdiv(Complex other) {
-    ComplexArray m = newEmptyArray(rows(), columns());
+    ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, other.div(get(i)));
     }

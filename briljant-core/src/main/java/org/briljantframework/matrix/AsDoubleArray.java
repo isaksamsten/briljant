@@ -4,8 +4,8 @@ import org.briljantframework.matrix.api.ArrayFactory;
 
 abstract class AsDoubleArray extends AbstractDoubleArray {
 
-  public AsDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
-    super(bj, offset, shape, stride);
+  public AsDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+    super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -14,8 +14,8 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  protected DoubleArray makeView(int offset, int[] shape, int[] stride) {
-    return new AsDoubleArray(getMatrixFactory(), offset, shape, stride) {
+  protected DoubleArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new AsDoubleArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, double value) {
         AsDoubleArray.this.setElement(i, value);
@@ -25,7 +25,21 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
       protected double getElement(int i) {
         return AsDoubleArray.this.getElement(i);
       }
+
+      @Override
+      protected int elementSize() {
+        return AsDoubleArray.this.elementSize();
+      }
     };
+  }
+
+  @Override
+  public double[] data() {
+    double[] v = new double[elementSize()];
+    for (int i = 0; i < v.length; i++) {
+      v[i] = getElement(i);
+    }
+    return v;
   }
 
   @Override

@@ -4,8 +4,8 @@ import com.github.fommil.netlib.BLAS;
 
 import org.briljantframework.Check;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.Array;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.Op;
 import org.briljantframework.matrix.base.BaseArrayRoutines;
 
@@ -131,53 +131,51 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   @Override
   public void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b,
                    double beta, DoubleArray c) {
-    String ta = "n";
-    int am = a.rows();
-    int an = a.columns();
-    if (transA.isTrue()) {
-      am = a.columns();
-      an = a.rows();
-      ta = "t";
+    Check.argument(a.dims() == 2, "'a' has %s dims", a.dims());
+    Check.argument(b.dims() == 2, "'b' has %s dims", a.dims());
+    Check.argument(c.dims() == 2, "'c' has %s dims", a.dims());
+
+    if (a.stride(0) == 1 && b.stride(0) == 1 && c.stride(0) == 1 &&
+        a.stride(1) >= a.size(1) && b.stride(1) >= b.size(1) && c.stride(1) >= c.size(1)) {
+
+      int m = a.size(transA == Op.KEEP ? 0 : 1);
+      int n = b.size(transB == Op.KEEP ? 1 : 0);
+      int k = a.size(transA == Op.KEEP ? 1 : 0);
+
+      if (m != c.size(0) || n != c.size(1)) {
+        throw new NonConformantException(String.format(
+            "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)",
+            m, k, k, n, c.size(0), c.size(1)));
+      }
+
+      double[] ca = c.data();
+      blas.dgemm(
+          transA.asString(),
+          transB.asString(),
+          m,
+          n,
+          k,
+          alpha,
+          a.data(),
+          a.getOffset(),
+          Math.max(1, a.stride(1)),
+          b.data(),
+          b.getOffset(),
+          Math.max(1, b.stride(1)),
+          beta,
+          ca,
+          c.getOffset(),
+          Math.max(1, c.stride(1))
+      );
+//
+      if (c.isView()) {
+        c.assign(ca);
+      }
+    } else {
+      super.gemm(transA, transB, alpha, a, b, beta, c);
     }
 
-    String tb = "n";
-    int bm = b.rows();
-    int bn = b.columns();
-    if (transB.isTrue()) {
-      bm = b.columns();
-      bn = b.rows();
-      tb = "t";
-    }
 
-    if (an != bm) {
-      throw new NonConformantException(a, b);
-    }
-
-    if (c.rows() != am || c.columns() != bn) {
-      throw new NonConformantException(am, an, c.rows(), c.columns());
-    }
-
-    double[] aa = a.data();
-    double[] ba = b.data();
-    double[] ca = c.data();
-    blas.dgemm(
-        ta,
-        tb,
-        am,
-        bn,
-        bm,
-        alpha,
-        aa,
-        a.rows(),
-        ba,
-        b.rows(),
-        beta,
-        ca,
-        am);
-
-    if (c.isView()) {
-      c.assign(ca);
-    }
   }
 
   public boolean isMatrixTransposedView(DoubleArray x) {

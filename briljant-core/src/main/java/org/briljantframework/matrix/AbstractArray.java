@@ -20,33 +20,49 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   public static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
+  protected static final String ILLEGAL_INDEX = "Illegal index";
 
   protected final ArrayFactory bj;
 
-  private final boolean isView;
+  protected final int majorStride;
+
+  /**
+   * The size of the array. Equals to shape[0] * shape[1] * ... * shape[shape.length -1]
+   */
   protected final int size;
+
+  /**
+   * The offset of the array, i.e. the position where indexing should start
+   */
   protected final int offset;
 
-  private final int[] stride;
-  private final int[] shape;
+  /**
+   * The i:th position holds the number of elements between elements in the i:th dimension
+   */
+  protected final int[] stride;
+
+  /**
+   * The size of the i:th dimension
+   */
+  protected final int[] shape;
 
 
-  protected AbstractArray(ArrayFactory bj, int... shape) {
+  protected AbstractArray(ArrayFactory bj, int[] shape) {
     this.bj = Preconditions.checkNotNull(bj);
     this.shape = shape;
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);
     offset = 0;
-    this.isView = false;
+    this.majorStride = 0;
   }
 
-  protected AbstractArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
+  protected AbstractArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
     this.bj = bj;
     this.shape = shape;
     this.stride = stride;
     this.size = Indexer.size(shape);
     this.offset = offset;
-    this.isView = offset > 0 || !Arrays.equals(stride, Indexer.computeStride(0, getShape()));
+    this.majorStride = majorStride;
   }
 
   @Override
@@ -54,7 +70,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     Check.argument(dims() > 0, "Can't select in 1-d array");
     int dims = dims();
     return makeView(
-        getOffset() + index * stride(0),
+        getOffset() + index * stride(getMajorStride()),
         Arrays.copyOfRange(getShape(), 1, dims),
         Arrays.copyOfRange(getStride(), 1, dims)
     );
@@ -83,15 +99,20 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     Check.argument(dimension < dims, INVALID_DIMENSION, dimension, dims);
     Check.argument(index < vectors, INVALID_VECTOR, index, vectors);
 
-    int padding = 0;
+    int offset = getOffset();
     int stride = stride(dimension);
-    if (index >= stride) {
-      int shape = size(dimension);
-      padding = (index / stride) * stride * (shape - 1);
+    int shape = size(dimension);
+    int indexMajorStride = index * stride(getMajorStride());
+    if (indexMajorStride >= stride) {
+      if (!isTransposed()) {
+        offset += (indexMajorStride / stride) * stride * (shape - 1);
+      } else {
+        offset += (indexMajorStride % stride) * stride * (shape - 1);
+      }
     }
 
     return makeView(
-        getOffset() + padding + index,
+        offset + indexMajorStride,
         new int[]{size(dimension)},
         new int[]{stride(dimension)}
     );
@@ -101,7 +122,8 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     return bj;
   }
 
-  protected int getOffset() {
+  @Override
+  public int getOffset() {
     return offset;
   }
 
@@ -132,8 +154,15 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     throw new UnsupportedOperationException();
   }
 
+  protected E makeView(int offset, int[] shape, int[] stride) {
+    return makeView(offset, shape, stride, 0);
+  }
 
-  protected abstract E makeView(int offset, int[] shape, int[] stride);
+  protected abstract E makeView(int offset, int[] shape,
+                                int[] stride,
+                                int majorStride);
+
+  protected abstract int elementSize();
 
   @Override
   public void forEach(int dim, Consumer<E> consumer) {
@@ -158,7 +187,8 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
       return makeView(
           getOffset(),
           Indexer.reverse(getShape()),
-          Indexer.reverse(getStride())
+          Indexer.reverse(getStride()),
+          dims() - 1 // change the major stride
       );
     }
   }
@@ -192,7 +222,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public boolean isView() {
-    return isView;
+    return false;
   }
 
   @Override
@@ -217,11 +247,23 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public final int[] getShape() {
-    return shape;
+    return shape.clone();
   }
 
   @Override
   public final int[] getStride() {
-    return stride;
+    return stride.clone();
+  }
+
+  /**
+   * The major stride of the array, for a transposed matrix this equals to
+   * {@code stride[stride.length -1]} and otherwise {@code stride[0]}
+   */
+  public int getMajorStride() {
+    return majorStride;
+  }
+
+  protected boolean isTransposed() {
+    return majorStride != 0;
   }
 }

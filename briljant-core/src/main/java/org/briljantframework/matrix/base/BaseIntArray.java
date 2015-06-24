@@ -4,8 +4,6 @@ import org.briljantframework.matrix.AbstractIntArray;
 import org.briljantframework.matrix.IntArray;
 import org.briljantframework.matrix.api.ArrayFactory;
 
-import java.util.Objects;
-
 /**
  * @author Isak Karlsson
  */
@@ -14,22 +12,18 @@ class BaseIntArray extends AbstractIntArray {
   private final int[] data;
 
   BaseIntArray(ArrayFactory bj, int size) {
-    super(bj, size);
+    super(bj, new int[]{size});
     this.data = new int[size];
   }
 
-  BaseIntArray(ArrayFactory bj, boolean ignore, int[] values) {
-    super(bj, Objects.requireNonNull(values).length);
-    this.data = values;
-  }
-
-  BaseIntArray(ArrayFactory bj, int... shape) {
+  BaseIntArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
     this.data = new int[size()];
   }
 
-  BaseIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int[] data) {
-    super(bj, offset, shape, stride);
+  BaseIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
+               int[] data) {
+    super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
@@ -49,14 +43,20 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  protected IntArray makeView(int offset, int[] shape, int[] stride) {
+  protected IntArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseIntArray(
         getMatrixFactory(),
         offset,
         shape,
         stride,
+        majorStride,
         data
     );
+  }
+
+  @Override
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override

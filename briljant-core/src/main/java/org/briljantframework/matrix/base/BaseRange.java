@@ -1,7 +1,6 @@
 package org.briljantframework.matrix.base;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 import org.briljantframework.matrix.AbstractIntArray;
 import org.briljantframework.matrix.IntArray;
@@ -15,17 +14,16 @@ class BaseRange extends AbstractIntArray implements Range {
 
   private final int start, end, step;
 
-  BaseRange(ArrayFactory bj, int start, int end, int step) {
-    super(bj, getSize(start, end, step));
-    Preconditions.checkArgument(start < end);
+  public BaseRange(ArrayFactory bj, int start, int end, int step) {
+    super(bj, new int[]{getSize(start, end, step)});
     this.start = start;
     this.end = end;
     this.step = step;
   }
 
-  public BaseRange(ArrayFactory bj, int offset, int[] shape, int[] stride,
+  public BaseRange(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
                    int start, int end, int step) {
-    super(bj, offset, shape, stride);
+    super(bj, offset, shape, stride, majorStride);
     this.start = start;
     this.end = end;
     this.step = step;
@@ -82,8 +80,14 @@ class BaseRange extends AbstractIntArray implements Range {
   }
 
   @Override
-  protected IntArray makeView(int offset, int[] shape, int[] stride) {
-    return new BaseRange(getMatrixFactory(), offset, shape, stride, start(), end(), step());
+  protected IntArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseRange(getMatrixFactory(), offset, shape, stride, majorStride,
+                         start(), end(), step());
+  }
+
+  @Override
+  protected int elementSize() {
+    return getSize(start(), end(), step());
   }
 
   @Override
@@ -103,5 +107,15 @@ class BaseRange extends AbstractIntArray implements Range {
     } else {
       throw new IndexOutOfBoundsException(String.format("0 >= %d > %d", index, size()));
     }
+  }
+
+  @Override
+  public int[] data() {
+    int[] data = new int[size()];
+    int j = 0;
+    for (int i = start(); i < end(); i += step()) {
+      data[j++] = i;
+    }
+    return data;
   }
 }

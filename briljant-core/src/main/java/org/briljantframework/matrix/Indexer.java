@@ -72,6 +72,15 @@ public final class Indexer {
     return offset;
   }
 
+  public static int sub2ind(int[] dims, int... i) {
+    int n = i.length - 1;
+    int idx = i[n];
+    for (int j = n - 1; j > 0; j--) {
+      idx = i[j] + dims[j] * idx;
+    }
+    return idx;
+  }
+
   /**
    * Returns the index of {@code indexe}, if the stride were {@code step}.
    *
@@ -127,5 +136,18 @@ public final class Indexer {
     int currentColumn = index / rows + colOffset;
     int currentRow = index % rows + rowOffset;
     return columnMajor(0, currentRow, currentColumn, parentRows, parentColumns);
+  }
+
+  protected static int sub2ind(int index, int offset, int[] stride, int[] shape) {
+    if (stride.length == 1) {
+      return offset + index * stride[0];
+    }
+    for (int i = 0; i < stride.length; i++) {
+      int size = shape[i];
+      int sub2 = index / size;
+      offset += (index - size * sub2) * stride[i];
+      index = sub2;
+    }
+    return offset;
   }
 }

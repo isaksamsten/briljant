@@ -208,10 +208,6 @@ public interface ComplexArray extends Array<ComplexArray>, Iterable<Complex> {
 
   List<Complex> asList();
 
-  double[] asDoubleArray();
-
-  // Arithmetical operations ///////////
-
   /**
    * <u>m</u>atrix<u>m</u>ultiplication
    *

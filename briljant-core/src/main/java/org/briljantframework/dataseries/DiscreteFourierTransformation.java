@@ -29,7 +29,7 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(ComplexVector.TYPE);
     for (Vector row : x) {
       requireType(DoubleVector.TYPE, row);
-      DoubleArray timeDomain = row.toMatrix().asDoubleMatrix();
+      DoubleArray timeDomain = row.toMatrix().asDouble();
       ComplexArray frequencyDomain = fft(timeDomain);
       ComplexVector.Builder rowBuilder = new ComplexVector.Builder(0, frequencyDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
@@ -45,8 +45,8 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
     for (Vector row : x) {
       requireType(ComplexVector.TYPE, row);
-      ComplexArray timeDomain = row.toMatrix().asComplexMatrix();
-      DoubleArray frequencyDomain = ifft(timeDomain).asDoubleMatrix();
+      ComplexArray timeDomain = row.toMatrix().asComplex();
+      DoubleArray frequencyDomain = ifft(timeDomain).asDouble();
       DoubleVector.Builder rowBuilder = new DoubleVector.Builder(0, frequencyDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.set(i, frequencyDomain.get(i));

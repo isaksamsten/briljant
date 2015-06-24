@@ -7,8 +7,8 @@ import org.briljantframework.matrix.api.ArrayFactory;
  */
 abstract class AsIntArray extends AbstractIntArray {
 
-  AsIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride) {
-    super(bj, offset, shape, stride);
+  AsIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+    super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -17,8 +17,8 @@ abstract class AsIntArray extends AbstractIntArray {
   }
 
   @Override
-  protected IntArray makeView(int offset, int[] shape, int[] stride) {
-    return new AsIntArray(getMatrixFactory(), offset, shape, stride) {
+  protected IntArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new AsIntArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, int value) {
         AsIntArray.this.setElement(i, value);
@@ -28,7 +28,21 @@ abstract class AsIntArray extends AbstractIntArray {
       protected int getElement(int i) {
         return AsIntArray.this.getElement(i);
       }
+
+      @Override
+      protected int elementSize() {
+        return AsIntArray.this.elementSize();
+      }
     };
+  }
+
+  @Override
+  public int[] data() {
+    int[] array = new int[size()];
+    for (int i = 0; i < size(); i++) {
+      array[i] = get(i);
+    }
+    return array;
   }
 
   @Override
