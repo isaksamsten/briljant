@@ -16,8 +16,6 @@ class BaseRangeSpec extends Specification {
     range.start() == start
     range.end() == end
     range.size() == (end - start) / step
-    range.rows() == range.size()
-    range.columns() == 1
 
     where:
     start << [0, 1, 2]
@@ -115,12 +113,18 @@ class BaseRangeSpec extends Specification {
   }
 
 
-  def "set(int,int,int) element should throw exception"() {
+  def "set should throw exception"() {
     setup:
     def r = bj.range(10)
 
     when:
     r.set(2, 2, 321)
+
+    then:
+    thrown(IllegalArgumentException)
+
+    when:
+    r.set(0, 2)
 
     then:
     thrown(UnsupportedOperationException)
@@ -141,7 +145,7 @@ class BaseRangeSpec extends Specification {
     c.get(0, 2) == 4
   }
 
-  def "range should have a size"() {
+  def "range should have a size and be flattable"() {
     expect:
     def range = bj.range(a, b, c)
     range.size() == d

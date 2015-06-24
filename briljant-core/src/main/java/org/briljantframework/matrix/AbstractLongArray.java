@@ -57,12 +57,12 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   public final void set(int[] ix, long value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(getOffset(), ix, getStride()), value);
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   public final long get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(getOffset(), ix, getStride()));
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
   }
 
   @Override
@@ -79,12 +79,12 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public final void set(int index, long value) {
-    setElement(index * stride(0) + getOffset(), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final long get(int index) {
-    return getElement(index * stride(0) + getOffset());
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected void setElement(int i, long value) {

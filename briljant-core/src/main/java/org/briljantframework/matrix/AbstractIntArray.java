@@ -67,12 +67,12 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   public final void set(int[] ix, int value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(getOffset(), ix, getStride()), value);
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   public final int get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(getOffset(), ix, getStride()));
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
   }
 
   @Override
@@ -89,12 +89,12 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public final void set(int index, int value) {
-    setElement(index * stride(0) + getOffset(), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final int get(int index) {
-    return getElement(index * stride(0) + getOffset());
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected abstract void setElement(int i, int value);

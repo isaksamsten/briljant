@@ -60,12 +60,12 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   public final void set(int[] ix, boolean value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(getOffset(), ix, getStride()), value);
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   public final boolean get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(getOffset(), ix, getStride()));
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
   }
 
   @Override
@@ -82,12 +82,12 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public void set(int index, boolean value) {
-    setElement(index * stride(0) + getOffset(), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public boolean get(int index) {
-    return getElement(index * stride(0) + getOffset());
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected abstract void setElement(int i, boolean value);

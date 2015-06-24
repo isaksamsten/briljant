@@ -133,17 +133,6 @@ public interface Array<E extends Array> extends Swappable {
    */
   E getRow(int i);
 
-//  /**
-//   * Reshape {@code this}. Returns a new matrix, with {@code this != this.reshape(..., ...)} but
-//   * where modifications of the reshape propagates. I.e. the reshape is a view of the original
-//   * matrix.
-//   *
-//   * @param rows    the new rows
-//   * @param columns the new columns
-//   * @return a new matrix
-//   */
-//  E reshape(int rows, int columns);
-
   E reshape(int... shape);
 
   E select(int index);

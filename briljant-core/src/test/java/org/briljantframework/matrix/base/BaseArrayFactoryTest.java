@@ -61,7 +61,10 @@ public class BaseArrayFactoryTest {
     System.out.println(d + "\n" + d.getOffset() + ": " + Arrays.toString(d.getStride()));
 
     System.out.println(d.getVector(1, 1));
-
+    System.out.println(d);
+    for (int i = 0; i < d.size(); i++) {
+      System.out.println(d.get(i));
+    }
 //    System.out.println(x.get);
 
 //    for (int i = 0; i < 4; i++) {

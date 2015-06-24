@@ -10,7 +10,7 @@ class IndexerSpec extends Specification {
   def "column-major order index"() {
     when:
     def a = Indexer.columnMajor(0, 1, 2, 10, 10)
-    def b = Indexer.columnMajorStride(getOffset(), [1, 2] as int[],
+    def b = Indexer.columnMajorStride([1, 2] as int[], getOffset(),
                                       Indexer.computeStride(1, [10, 10] as int[]))
 
     then:

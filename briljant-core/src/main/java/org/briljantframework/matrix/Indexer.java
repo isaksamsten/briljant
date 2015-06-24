@@ -65,7 +65,7 @@ public final class Indexer {
     return result;
   }
 
-  public static int columnMajorStride(int offset, int[] index, int[] stride) {
+  public static int columnMajorStride(int[] index, int offset, int[] stride) {
     for (int i = 0; i < index.length; i++) {
       offset += index[i] * stride[i];
     }
@@ -138,7 +138,8 @@ public final class Indexer {
     return columnMajor(0, currentRow, currentColumn, parentRows, parentColumns);
   }
 
-  protected static int sub2ind(int index, int offset, int[] stride, int[] shape) {
+
+  protected static int linearized(int index, int offset, int[] stride, int[] shape) {
     if (stride.length == 1) {
       return offset + index * stride[0];
     }

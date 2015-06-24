@@ -57,12 +57,12 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   public final void set(int[] ix, Complex value) {
     Check.argument(ix.length == dims(), ILLEGAL_INDEX);
-    setElement(Indexer.columnMajorStride(getOffset(), ix, getStride()), value);
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   public final Complex get(int... ix) {
     Check.argument(ix.length == dims(), ILLEGAL_INDEX);
-    return getElement(Indexer.columnMajorStride(getOffset(), ix, getStride()));
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
   }
 
   @Override
@@ -79,12 +79,12 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public final void set(int index, Complex value) {
-    setElement(index * stride(0) + getOffset(), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final Complex get(int index) {
-    return getElement(index * stride(0) + getOffset());
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   /**

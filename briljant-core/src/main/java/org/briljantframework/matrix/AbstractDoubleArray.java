@@ -343,13 +343,13 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public final void set(int[] ix, double value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(getOffset(), ix, stride), value);
+    setElement(Indexer.columnMajorStride(ix, getOffset(), stride), value);
   }
 
   @Override
   public final double get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(getOffset(), ix, stride));
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
   }
 
   @Override
@@ -371,14 +371,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public final double get(int index) {
-    int ndims = dims();
-    int offset = getOffset();
-    if (ndims > 1) {
-      offset = Indexer.sub2ind(index, offset, stride, shape);
-      return getElement(offset);
-    } else {
-      return getElement(offset + index * stride(0));
-    }
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected abstract void setElement(int i, double value);
