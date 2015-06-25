@@ -449,7 +449,7 @@ public class AbstractIntArrayTest {
   @Test
   public void testSlice3() throws Exception {
     IntArray x = bj.array(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    IntArray s = x.slice(bj.range(2), bj.range(2));
+    IntArray s = x.slice();
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
     assertValuesEquals(bj.array(new int[]{1, 1}), s.getRow(0));

@@ -27,6 +27,11 @@ class BaseIntArray extends AbstractIntArray {
     this.data = data;
   }
 
+  BaseIntArray(ArrayFactory bj, boolean ignore, int[] data) {
+    super(bj, new int[]{data.length});
+    this.data = data;
+  }
+
   @Override
   public IntArray newEmptyArray(int... shape) {
     return new BaseIntArray(getMatrixFactory(), shape);

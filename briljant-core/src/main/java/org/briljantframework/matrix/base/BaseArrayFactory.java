@@ -33,7 +33,7 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public IntArray array(int[] data) {
-    return new BaseIntArray(this, data);
+    return new BaseIntArray(this, true, data);
   }
 
   @Override

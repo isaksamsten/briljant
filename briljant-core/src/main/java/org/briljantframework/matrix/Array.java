@@ -2,7 +2,6 @@ package org.briljantframework.matrix;
 
 import org.briljantframework.sort.Swappable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -189,23 +188,10 @@ public interface Array<E extends Array> extends Swappable {
    * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the
    * return type.
    *
-   * @param rows    the rows to include
-   * @param columns the columns to include
+   * @param ranges the rows to include
    * @return a view
    */
-  E slice(Range rows, Range columns);
-
-  /**
-   * Basic slicing. Returns a view of the underlying matrix. The view is preserved as long as
-   * possible. However, some operations (e.g. {@link #reshape(int, int)}) is unable to preserve
-   * view.
-   *
-   * <p>The view return is a {@code row-vector}
-   *
-   * @param range the range
-   * @return a view
-   */
-  E slice(Range range);
+  E slice(Range... ranges);
 
   /**
    * Complex slicing. Returns a copy of the matrix.
@@ -343,14 +329,6 @@ public interface Array<E extends Array> extends Swappable {
   boolean isVector();
 
   boolean isMatrix();
-
-  /**
-   * @param other the other
-   * @return the boolean
-   */
-  default boolean hasEqualShape(Array other) {
-    return Arrays.equals(getShape(), other.getShape());
-  }
 
   E newEmptyArray(int... shape);
 

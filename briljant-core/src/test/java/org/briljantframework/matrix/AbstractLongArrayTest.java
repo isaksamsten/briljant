@@ -449,7 +449,7 @@ public class AbstractLongArrayTest {
   @Test
   public void testSlice3() throws Exception {
     LongArray x = bj.array(new long[]{1L, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    LongArray s = x.slice(bj.range(2), bj.range(2));
+    LongArray s = x.slice();
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
     MatrixAssert.assertValuesEquals(s.getRow(0), bj.array(new long[]{1L, 1}));

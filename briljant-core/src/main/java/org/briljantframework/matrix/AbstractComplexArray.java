@@ -13,9 +13,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiPredicate;
@@ -300,6 +302,38 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
     return bits;
   }
 
+  @Override
+  public int hashCode() {
+    int result = 1;
+    for (int i = 0; i < size(); i++) {
+      int bits = get(i).hashCode();
+      result = 31 * result + bits;
+    }
+
+    return Objects.hash(shape, result);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof ComplexArray) {
+      ComplexArray mat = (ComplexArray) obj;
+      if (!Arrays.equals(shape, mat.getShape())) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (!get(i).equals(mat.get(i))) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 
   @Override
   public BitArray lt(ComplexArray other) {
@@ -495,41 +529,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
     public void add(Complex value) {
       buffer.add(value);
     }
-  }
-
-  private class ComplexListView extends AbstractList<Complex> {
-
-    @Override
-    public Complex get(int i) {
-      return AbstractComplexArray.this.get(i);
-    }
-
-    @Override
-    public Complex set(int i, Complex value) {
-      Complex old = AbstractComplexArray.this.get(i);
-      AbstractComplexArray.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public Iterator<Complex> iterator() {
-      return AbstractComplexArray.this.iterator();
-    }
-
-    @Override
-    public int size() {
-      return AbstractComplexArray.this.size();
-    }
-  }
-
-  @Override
-  public ComplexArray slice(Range rows, Range columns) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ComplexArray slice(Range range) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

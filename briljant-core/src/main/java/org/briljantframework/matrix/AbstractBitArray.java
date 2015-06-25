@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -201,20 +202,17 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
     }
     if (obj instanceof BitArray) {
       BitArray o = (BitArray) obj;
-      if (rows() == o.rows() && columns() == o.columns()) {
-        for (int i = 0; i < size(); i++) {
-          if (get(i) != o.get(i)) {
-            return false;
-          }
-        }
-      } else {
+      if (!Arrays.equals(shape, o.getShape())) {
         return false;
       }
-
+      for (int i = 0; i < size(); i++) {
+        if (get(i) != o.get(i)) {
+          return false;
+        }
+      }
     } else {
       return false;
     }
-
     return true;
   }
 
@@ -381,16 +379,6 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public BitArray asBit() {
     return this;
-  }
-
-  @Override
-  public BitArray slice(Range rows, Range columns) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BitArray slice(Range range) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

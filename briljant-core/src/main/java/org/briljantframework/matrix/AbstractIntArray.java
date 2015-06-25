@@ -11,6 +11,7 @@ import org.briljantframework.matrix.api.ArrayFactory;
 
 import java.io.IOException;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -452,8 +453,8 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   public int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
-      long bits = get(i);
-      result = 31 * result + (int) (bits ^ (bits >>> 32));
+      int bits = get(i);
+      result = 31 * result + bits;
     }
 
     return Objects.hash(rows(), columns(), result);
@@ -466,7 +467,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
     }
     if (obj instanceof IntArray) {
       IntArray mat = (IntArray) obj;
-      if (!mat.hasEqualShape(this)) {
+      if (!Arrays.equals(shape, mat.getShape())) {
         return false;
       }
       for (int i = 0; i < size(); i++) {
@@ -759,11 +760,6 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   }
 
   @Override
-  public IntArray slice(Range rows, Range columns) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public IntArray rsub(int scalar) {
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -793,11 +789,6 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
       m.set(i, get(i) / other);
     }
     return m;
-  }
-
-  @Override
-  public IntArray slice(Range range) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

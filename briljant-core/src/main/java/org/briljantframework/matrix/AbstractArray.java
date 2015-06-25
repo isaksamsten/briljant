@@ -21,6 +21,9 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   public static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
   protected static final String ILLEGAL_INDEX = "Illegal index";
+  protected static final String
+      ILLEGAL_DIMENSION_INDEX =
+      "Index %s is out of bounds for dimension %s with size %s";
 
   protected final ArrayFactory bj;
 
@@ -68,9 +71,10 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public E select(int index) {
     Check.argument(dims() > 0, "Can't select in 1-d array");
+    Check.argument(index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
     int dims = dims();
     return makeView(
-        getOffset() + index * stride(getMajorStride()),
+        getOffset() + index * stride(0),
         Arrays.copyOfRange(getShape(), 1, dims),
         Arrays.copyOfRange(getStride(), 1, dims)
     );
@@ -104,11 +108,11 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     int shape = size(dimension);
     int indexMajorStride = index * stride(getMajorStride());
     if (indexMajorStride >= stride) {
-      if (!isTransposed()) {
-        offset += (indexMajorStride / stride) * stride * (shape - 1);
-      } else {
-        offset += (indexMajorStride % stride) * stride * (shape - 1);
-      }
+//      if (!isTransposed()) {
+      offset += (indexMajorStride / stride) * stride * (shape - 1);
+//      } else {
+//        offset += (indexMajorStride % stride) * stride * (shape - 1);
+//      }
     }
 
     return makeView(
@@ -151,7 +155,34 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public E getView(int rowOffset, int colOffset, int rows, int columns) {
-    throw new UnsupportedOperationException();
+    Check.state(isMatrix(), "Can only get view from 2d-arrays");
+    Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
+                   "Selected view is to large");
+    return makeView(
+        getOffset() + rowOffset * stride(0) + colOffset * stride(1),
+        new int[]{rows, columns},
+        getStride()
+    );
+  }
+
+  @Override
+  public E slice(Range... ranges) {
+    Check.argument(ranges.length > 0 & ranges.length <= dims());
+    int[] stride = getStride();
+    int[] shape = getShape();
+    int offset = getOffset();
+    for (int i = 0; i < ranges.length; i++) {
+      Range r = ranges[i];
+      offset += r.start() * stride(i);
+      shape[i] = r.end() - 1;
+      stride[i] = stride[i] * r.step();
+    }
+
+    return makeView(
+        offset,
+        shape,
+        stride
+    );
   }
 
   protected E makeView(int offset, int[] shape, int[] stride) {

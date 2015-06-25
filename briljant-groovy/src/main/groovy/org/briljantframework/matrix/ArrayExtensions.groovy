@@ -7,7 +7,7 @@ import org.briljantframework.Bj
  * Created by isak on 03/06/15.
  */
 @TypeChecked
-class MatrixExtensions {
+class ArrayExtensions {
 
   static <T extends Array<T>> T asType(Array<T> self, Class<T> cls) {
     switch (cls) {
@@ -30,8 +30,8 @@ class MatrixExtensions {
   }
 
   static <T extends Array<T>> T getAt(T self, IntRange rows, IntRange cols) {
-    return self.slice(Bj.range(rows.fromInt, rows.toInt),
-                      Bj.range(cols.fromInt, cols.toInt))
+    return self.slice(Bj.range(rows.fromInt, rows.toInt)
+    )
   }
 
   static DoubleArray power(DoubleArray self, double power) {

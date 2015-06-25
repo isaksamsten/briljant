@@ -634,7 +634,7 @@ public class AbstractComplexArrayTest {
   @Test
   public void testSlice3() throws Exception {
     ComplexArray x = bj.complexArray(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    ComplexArray s = x.slice(bj.range(2), bj.range(2));
+    ComplexArray s = x.slice();
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
     assertValuesEquals(bj.complexArray(), s.getRow(0));

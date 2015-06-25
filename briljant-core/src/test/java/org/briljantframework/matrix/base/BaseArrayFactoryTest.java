@@ -33,6 +33,22 @@ public class BaseArrayFactoryTest {
   }
 
   @Test
+  public void testGetView() throws Exception {
+    DoubleArray arr = bj.range(1, 28).reshape(3, 3, 3).asDouble().copy();
+    System.out.println(arr);
+//    DoubleArray view = arr.getView(1, 1, 2, 2);
+//    System.out.println(view);
+//    for (int i = 0; i < view.size(); i++) {
+//      System.out.println(view.get(i));
+//    }
+
+//    System.out.println(arr.getView(1, 1, 2, 2).slice(bj.range(3)));
+
+    System.out.println(arr.select(0).slice(bj.range(1, 3)));
+
+  }
+
+  @Test
   public void testCreateIntMatrixFromArray() throws Exception {
 //    IntArray x = bj.array(new int[]{1, 2, 3, 4});
 //    assertEquals(4, x.size());
@@ -46,7 +62,11 @@ public class BaseArrayFactoryTest {
     printShapeAndStride(a);
     printShapeAndStride(b);
 
-    DoubleArray x = bj.range(12).reshape(2, 3, 2).asDouble();
+    System.out.println(bj.range(8).reshape(2, 2, 2).select(0).select(0));
+
+    System.out.println(bj.array(new double[]{0, 2, 4, 6}).reshape(2, 2).transpose().select(0));
+    System.out.println(bj.range(8).reshape(2, 2, 2).select(0).transpose().select(0));
+//    DoubleArray x = bj.range(12).reshape(2, 3, 2).asDouble();
 //    System.out.println(x);
 //
 //    DoubleArray f = x.select(1);
@@ -56,15 +76,15 @@ public class BaseArrayFactoryTest {
 //    System.out.println(x.reduceVectors(0, bjr::sum));
 
 //    System.out.println(x);
-    DoubleArray d = x.select(0, 0);
+//    DoubleArray d = x.select(0, 0);
 //    System.out.println(Arrays.toString(d.data()));
-    System.out.println(d + "\n" + d.getOffset() + ": " + Arrays.toString(d.getStride()));
+//    System.out.println(d + "\n" + d.getOffset() + ": " + Arrays.toString(d.getStride()));
 
-    System.out.println(d.getVector(1, 1));
-    System.out.println(d);
-    for (int i = 0; i < d.size(); i++) {
-      System.out.println(d.get(i));
-    }
+//    System.out.println(d.getVector(1, 1));
+//    System.out.println(d);
+//    for (int i = 0; i < d.size(); i++) {
+//      System.out.println(d.get(i));
+//    }
 //    System.out.println(x.get);
 
 //    for (int i = 0; i < 4; i++) {

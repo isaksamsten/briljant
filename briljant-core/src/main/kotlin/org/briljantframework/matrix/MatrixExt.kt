@@ -81,7 +81,7 @@ fun <T : Array<T>> T.get(indexes: Collection<Int>) = slice(indexes)
 fun <T : Array<T>> T.get(bits: BitArray) = slice(bits)
 
 fun <T : Array<T>> T.get(rows: Progression<Int>, columns: Progression<Int>)
-        = slice(rows.toSlice(), columns.toSlice())
+        = slice(rows.toSlice())
 
 fun <T : Array<T>> T.get(rows: Collection<Int>, columns: Collection<Int>) = slice(rows, columns)
 

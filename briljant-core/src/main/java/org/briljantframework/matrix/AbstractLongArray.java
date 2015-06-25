@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -677,7 +678,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
       result = 31 * result + (int) (bits ^ (bits >>> 32));
     }
 
-    return Objects.hash(getShape(), getStride(), result);
+    return Objects.hash(shape, result);
   }
 
   @Override
@@ -687,7 +688,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
     }
     if (obj instanceof LongArray) {
       LongArray mat = (LongArray) obj;
-      if (!mat.hasEqualShape(this)) {
+      if (!Arrays.equals(shape, mat.getShape())) {
         return false;
       }
       for (int i = 0; i < size(); i++) {
@@ -744,16 +745,6 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
     public void add(long value) {
       buffer.add(value);
     }
-  }
-
-  @Override
-  public LongArray slice(Range rows, Range columns) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public LongArray slice(Range range) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

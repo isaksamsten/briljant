@@ -27,6 +27,7 @@ import org.briljantframework.matrix.api.ArrayFactory;
 
 import java.io.IOException;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -504,9 +505,10 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
     }
     if (obj instanceof DoubleArray) {
       DoubleArray mat = (DoubleArray) obj;
-      if (!mat.hasEqualShape(this)) {
+      if (!Arrays.equals(shape, mat.getShape())) {
         return false;
       }
+
       for (int i = 0; i < size(); i++) {
         if (get(i) != mat.get(i)) {
           return false;
@@ -606,18 +608,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
       return AbstractDoubleArray.this.size();
     }
   }
-
-  @Override
-  public DoubleArray slice(Range rows, Range columns) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DoubleArray slice(Range range) {
-    Check.argument(range.end() < size() && range.start() >= 0, "Index out of bounds");
-    throw new UnsupportedOperationException();
-  }
-
 
   @Override
   public DoubleArray slice(Collection<Integer> rows, Collection<Integer> columns) {
