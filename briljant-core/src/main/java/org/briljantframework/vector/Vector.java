@@ -4,7 +4,7 @@ import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
-import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
@@ -671,28 +671,28 @@ public interface Vector extends Serializable {
    * But this is not a requirement.
    *
    * @return this vector as a matrix
-   * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
+   * @throws org.briljantframework.exceptions.IllegalTypeException if unable to convert vector
    *                                                                  to matrix
    */
-  Array toMatrix() throws TypeConversionException;
+  Array toMatrix() throws IllegalTypeException;
 
-  default DoubleArray asDoubleMatrix() throws TypeConversionException {
+  default DoubleArray asDoubleMatrix() throws IllegalTypeException {
     return toMatrix().asDouble();
   }
 
-  default ComplexArray asComplexMatrix() throws TypeConversionException {
+  default ComplexArray asComplexMatrix() throws IllegalTypeException {
     return toMatrix().asComplex();
   }
 
-  default LongArray asLongMatrix() throws TypeConversionException {
+  default LongArray asLongMatrix() throws IllegalTypeException {
     return toMatrix().asLong();
   }
 
-  default BitArray asBitMatrix() throws TypeConversionException {
+  default BitArray asBitMatrix() throws IllegalTypeException {
     return toMatrix().asBit();
   }
 
-  default IntArray asIntMatrix() throws TypeConversionException {
+  default IntArray asIntMatrix() throws IllegalTypeException {
     return toMatrix().asInt();
   }
 

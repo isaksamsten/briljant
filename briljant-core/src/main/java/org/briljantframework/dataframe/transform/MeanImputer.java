@@ -35,11 +35,11 @@ public class MeanImputer implements Transformer {
     }
 
     return x -> {
-      Check.size(x.columns(), means);
+      Check.size(x.columns(), means.size());
       DataFrame.Builder builder = x.newBuilder();
 //      builder.getColumnNames().putAll(x.getColumnNames());
       for (int j = 0; j < x.columns(); j++) {
-        Check.requireType(Vec.DOUBLE, x.getType(j));
+        Check.type(x.getType(j), Vec.DOUBLE);
         for (int i = 0; i < x.rows(); i++) {
           if (x.isNA(i, j)) {
             builder.set(i, j, means.get(j));

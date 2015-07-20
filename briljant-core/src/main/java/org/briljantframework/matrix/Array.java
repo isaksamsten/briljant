@@ -156,6 +156,15 @@ public interface Array<E extends Array> extends Swappable {
   E getDiagonal();
 
   /**
+   * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the
+   * return type.
+   *
+   * @param ranges the rows to include
+   * @return a view
+   */
+  E get(Range... ranges);
+
+  /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
    * starting at {@code colOffset} until {@code colOffset + columns}.
    *
@@ -183,15 +192,6 @@ public interface Array<E extends Array> extends Swappable {
    * @return the matrix view
    */
   E getView(int rowOffset, int colOffset, int rows, int columns);
-
-  /**
-   * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the
-   * return type.
-   *
-   * @param ranges the rows to include
-   * @return a view
-   */
-  E slice(Range... ranges);
 
   /**
    * Complex slicing. Returns a copy of the matrix.
@@ -262,10 +262,10 @@ public interface Array<E extends Array> extends Swappable {
   int columns();
 
   /**
-   * Returns the linearized size of this matrix. If {@code rows()} or {@code columns()} return 1,
-   * then {@code size()} is intuitive. However, if not, size is {@code rows() * columns()} and used
-   * when iterating using {@code getAs...(int)}. To avoid cache misses,
-   * {@code for(int i = 0; i < m.size(); i++) m.set(i, o.get(i))} should be preferred to
+   * Returns the linearized size of this matrix. If {@code dims() == } 1,
+   * then {@code size()} is intuitive. However, if not, size is {@code shape[1] * shape[2] * ... *
+   * shape[dims[]-1]} and used when iterating using {@code get(int)}. For matrices, to avoid cache
+   * misses, {@code for(int i = 0; i < m.size(); i++) m.set(i, o.get(i))} should be preferred to
    *
    * <pre>
    * for(int i = 0; i < m.rows(); i++)
@@ -273,13 +273,13 @@ public interface Array<E extends Array> extends Swappable {
    *      m.set(i, j, o.get(i, j))
    * </pre>
    *
-   * Since, {@code set(int, int, ....)} shouldn't be used in conjunction with
-   * {@code getAs...(int, int)}, the example above should be written as
+   * If the {@code Array}-type is unknown, use:
    *
    * <pre>
    * for (int i = 0; i &lt; m.rows(); i++)
    *   for (int j = 0; j &lt; m.columns(); j++)
    *     m.set(i, j, m, i, j);
+   *
    * // or
    * for (int i = 0; i &lt; m.size(); i++)
    *   m.set(i, o, i);
@@ -318,6 +318,8 @@ public interface Array<E extends Array> extends Swappable {
    * @return a copy of the strides
    */
   int[] getStride();
+
+  int getMajorStride();
 
   /**
    * @return true if rows() == columns()

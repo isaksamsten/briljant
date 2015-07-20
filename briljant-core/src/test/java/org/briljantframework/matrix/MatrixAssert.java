@@ -1,22 +1,26 @@
 package org.briljantframework.matrix;
 
-import static org.junit.Assert.assertEquals;
-
 import org.briljantframework.complex.Complex;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by isak on 2/4/15.
  */
 public final class MatrixAssert {
+
   private static final String ROW_SIZE = "Size of rows does not match.";
   private static final String COL_SIZE = "Size of columns does not match.";
   private static final String VAL_MATCH = "Values does not match.";
 
-  private MatrixAssert() {}
+  private MatrixAssert() {
+  }
 
   public static void assertEqualShape(Array expected, Array actual) {
-    assertEquals(ROW_SIZE, expected.rows(), actual.rows());
-    assertEquals(COL_SIZE, expected.columns(), actual.columns());
+    assertArrayEquals(expected.getShape(), actual.getShape());
+//    assertEquals(ROW_SIZE, expected.rows(), actual.rows());
+//    assertEquals(COL_SIZE, expected.columns(), actual.columns());
   }
 
   public static void assertMatrixEquals(IntArray expect, IntArray actual) {

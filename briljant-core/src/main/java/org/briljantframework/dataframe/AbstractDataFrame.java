@@ -18,8 +18,8 @@ import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.function.Aggregator;
-import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.matrix.Array;
+import org.briljantframework.matrix.DoubleArray;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
@@ -291,7 +291,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (int j = 0; j < columns(); j++) {
       Vector col = get(j);
       Vector transformed = transform.apply(col);
-      Check.size(rows(), transformed);
+      Check.size(rows(), transformed.size());
       builder.addColumnBuilder(transformed.getType());
       for (int i = 0; i < rows(); i++) {
         builder.set(i, j, transformed, i);
@@ -627,7 +627,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame stack(Iterable<DataFrame> dataFrames) {
     DataFrame.Builder builder = newCopyBuilder();
     for (DataFrame dataFrame : dataFrames) {
-      Check.columnSize(this, dataFrame);
+      Check.size(this.columns(), dataFrame.columns());
       builder.stack(dataFrame);
     }
     return builder.build();
@@ -637,7 +637,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame concat(Iterable<DataFrame> dataFrames) {
     DataFrame.Builder builder = newCopyBuilder();
     for (DataFrame dataFrame : dataFrames) {
-      Check.columnSize(this, dataFrame);
+      Check.size(this.columns(), dataFrame.columns());
       builder.concat(dataFrame);
     }
     return builder.build();

@@ -8,6 +8,8 @@ import org.briljantframework.matrix.api.ArrayBackend;
 import org.briljantframework.matrix.api.ArrayFactory;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.briljantframework.matrix.MatrixAssert.assertMatrixEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -51,7 +53,7 @@ public class NetlibLinearAlgebraRoutinesTest {
         0.19, -0.13, 3.27, 0.00, 0.00,
         -1.06, 1.06, 0.11, 5.86, 0.00,
         0.46, -0.48, 1.10, -0.98, 3.54
-    }).reshape(5, 5);
+    }).reshape(5, 5).transpose().copy().transpose();
     double abstol = -1;
     int il = 1;
     int ul = 3;
@@ -62,9 +64,8 @@ public class NetlibLinearAlgebraRoutinesTest {
     DoubleArray z = bj.doubleArray(n, 3);
     IntArray isuppz = bj.intArray(n);
     int m = linalg.syevr('v', 'i', 'u', a, vl, vu, il, ul, abstol, w, z, isuppz);
-//    System.out.println(w);
     assertEquals(3, m);
-    assertMatrixEquals(bj.array(new double[]{0.433, 2.145, 3.368}), w.slice(bj.range(3)), 0.001);
+    assertMatrixEquals(bj.array(new double[]{0.433, 2.145, 3.368}), w.get(bj.range(4)), 0.001);
     assertMatrixEquals(bj.array(new double[][]{
         new double[]{3.292, 0.507, 0.876, 0.176, -0.177},
         new double[]{0, 0.891, -1.111, 0.082, 0.185},

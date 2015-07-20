@@ -103,7 +103,10 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   @Override
   public void gemv(Op transA, double alpha, DoubleArray a,
                    DoubleArray x, double beta, DoubleArray y) {
-    Check.argument(a.isMatrix() && x.isMatrix() && y.isMatrix(), "Illegal array shape.");
+    Check.argument(a.isMatrix());
+    Check.argument(x.isVector());
+    Check.argument(y.isVector());
+
     int am = a.rows();
     int an = a.columns();
     String ta = "n";

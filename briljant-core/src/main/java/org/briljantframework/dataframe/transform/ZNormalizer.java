@@ -48,7 +48,7 @@ public class ZNormalizer implements Transformer {
       Check.size(mean.size(), x.columns());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        Check.requireType(Vec.DOUBLE, x.getType(j));
+        Check.type(x.getType(j), Vec.DOUBLE);
         builder.addColumnBuilder(x.getType(j));
 //        builder.getColumnNames().putFromIfPresent(j, x.getColumnNames(), j);
         double m = mean.get(j);

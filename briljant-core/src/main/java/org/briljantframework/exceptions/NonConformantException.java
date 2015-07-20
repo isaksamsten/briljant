@@ -19,60 +19,37 @@ package org.briljantframework.exceptions;
 import org.briljantframework.matrix.Array;
 
 /**
- * Created by isak on 21/06/14.
+ * @author Isak Karlsson
  */
-public class NonConformantException extends RuntimeException {
+public final class NonConformantException extends RuntimeException {
 
-  /**
-   * Instantiates a new Non conformant exception.
-   *
-   * @param param1 the param 1
-   * @param op1    the op 1
-   * @param param2 the param 2
-   * @param op2    the op 2
-   */
   public NonConformantException(String param1, Array op1, String param2, Array op2) {
-    this(param1, op1.rows(), op1.columns(), param2, op2.rows(), op2.columns());
+    this(param1, op1.getShape(), param2, op2.getShape());
   }
 
-  /**
-   * Instantiates a new Non conformant exception.
-   *
-   * @param op1 the op 1
-   * @param op2 the op 2
-   */
   public NonConformantException(Array op1, Array op2) {
     this("op1", op1, "op2", op2);
   }
 
-  /**
-   * Instantiates a new Non conformant exception.
-   *
-   * @param am the am
-   * @param an the an
-   * @param bm the bm
-   * @param bn the bn
-   */
-  public NonConformantException(long am, long an, long bm, long bn) {
-    this("op1", am, an, "op2", bm, bn);
+  public NonConformantException(int am, int an, int bm, int bn) {
+    this("op1", new int[]{am, an}, "op2", new int[]{bm, bn});
   }
 
-  /**
-   * Instantiates a new Non conformant exception.
-   *
-   * @param op1 the op 1
-   * @param am  the am
-   * @param an  the an
-   * @param op2 the op 2
-   * @param bm  the bm
-   * @param bn  the bn
-   */
-  public NonConformantException(String op1, long am, long an, String op2, long bm, long bn) {
-    super(String.format("nonconformant arguments (%s is %dx%d, %s is %dx%d)", op1, am, an, op2, bm,
-                        bn));
+  public NonConformantException(String op1, int[] shapeOp1, String op2, int[] shapeOp2) {
+    super(String.format("nonconformant arguments (%s is %s, %s is %s)",
+                        op1, formatShape(shapeOp1), op2, formatShape(shapeOp2)));
   }
 
   public NonConformantException(String message) {
     super(message);
+  }
+
+  private static String formatShape(int[] shape) {
+    StringBuilder b = new StringBuilder();
+    b.append(shape[0]);
+    for (int i = 1; i < shape.length; i++) {
+      b.append("x").append(shape[i]);
+    }
+    return b.toString();
   }
 }

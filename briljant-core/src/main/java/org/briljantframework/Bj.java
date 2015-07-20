@@ -433,8 +433,8 @@ public final class Bj {
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
   public static <T extends Array<T>> T mask(T a, BitArray mask, T values) {
-    Check.equalShape(a, mask);
-    Check.equalShape(a, values);
+    Check.shape(a, mask);
+    Check.shape(a, values);
 
     T masked = a.copy();
     putMask(masked, mask, values);
@@ -452,8 +452,8 @@ public final class Bj {
    * @param values the mask; same shape as {@code a}
    */
   public static <T extends Array<T>> void putMask(T a, BitArray mask, T values) {
-    Check.equalShape(a, mask);
-    Check.equalShape(a, values);
+    Check.shape(a, mask);
+    Check.shape(a, values);
     for (int i = 0; i < a.size(); i++) {
       if (mask.get(i)) {
         a.set(i, values, i);
@@ -473,7 +473,7 @@ public final class Bj {
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
   public static IntArray select(IntArray a, BitArray where, int replace) {
-    Check.equalShape(a, where);
+    Check.shape(a, where);
     return a.copy().assign(where, (b, i) -> b ? replace : i);
   }
 

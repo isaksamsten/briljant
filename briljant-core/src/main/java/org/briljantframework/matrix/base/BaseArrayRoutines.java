@@ -485,7 +485,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends Array<T>> void swap(T a, T b) {
-    Check.equalShape(a, b);
+    Check.shape(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {
       tmp.set(0, a, i);

@@ -71,7 +71,9 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public DoubleArray assign(double value) {
-    for (int i = 0; i < size(); i++) {
+    final int size = size();
+    for (int i = 0; i < size; i++) {
+//      setElement(i, value);
       set(i, value);
     }
     return this;
@@ -238,7 +240,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public BitArray satisfies(DoubleArray matrix, DoubleBiPredicate predicate) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     BitArray bits = bj.booleanArray(); //TODO
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
@@ -281,7 +283,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       protected int getElement(int index) {
         return (int) AbstractDoubleArray.this.getElement(index);
@@ -302,7 +304,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public long getElement(int index) {
@@ -367,7 +369,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public final void set(int index, double value) {
-    setElement(index * stride(0) + getOffset(), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -397,7 +399,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       protected void setElement(int index, boolean value) {
@@ -418,7 +420,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public void setRow(int index, DoubleArray row) {
-    Check.size(columns(), row);
     for (int j = 0; j < columns(); j++) {
       set(index, j, row.get(j));
     }
@@ -426,7 +427,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public void setColumn(int index, DoubleArray column) {
-    Check.size(rows(), column);
     for (int i = 0; i < rows(); i++) {
       set(i, index, column.get(i));
     }
@@ -541,7 +541,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractDoubleArray.this.setElement(index, value.intValue());
@@ -636,7 +636,7 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public DoubleArray slice(BitArray bits) {
-    Check.equalShape(this, bits);
+    Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (bits.get(i)) {

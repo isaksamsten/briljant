@@ -1,9 +1,8 @@
 package org.briljantframework;
 
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
-import org.briljantframework.exceptions.TypeConversionException;
 import org.briljantframework.matrix.Array;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -13,197 +12,196 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
+ * Implement argument, state, size and type checking for {@linkplain
+ * org.briljantframework.vector.Vector}, {@linkplain org.briljantframework.dataframe.DataFrame} and
+ * {@link org.briljantframework.matrix.Array}
+ *
  * @author Isak Karlsson
  */
 public final class Check {
 
+  protected static final String NON_CONFORMAT_VALUE =
+      "The value of %s did not conform with the predicate.";
+
   private Check() {
   }
 
+  /**
+   * Throws {@linkplain java.lang.IllegalArgumentException} if {@code predicate} returns false for
+   * any of the values in the supplied list of arguments.
+   * <p>
+   * <pre>{@code
+   * Check.any(x -> x.length() > 3, "a", "b", "c", string);
+   * }</pre>
+   *
+   * @param predicate the predicate to test
+   * @param array     the values to check
+   */
   @SafeVarargs
-  public static <T> void all(Predicate<? super T> p, T... arr) {
-    all(Arrays.asList(arr), p);
-  }
-
-  public static <T> void all(Iterable<? extends T> it, Predicate<? super T> p) {
-    for (T t : it) {
-      if (!p.test(t)) {
-        throw new IllegalArgumentException(String.format("Test of %s failed.", t));
+  public static <T> void all(Predicate<? super T> predicate, T... array) {
+    for (T t : array) {
+      if (!predicate.test(t)) {
+        throw new IllegalArgumentException(String.format(NON_CONFORMAT_VALUE, t));
       }
     }
   }
 
-  public static void range(double v, double min, double max) {
-    if (v < min || v > max) {
-      throw new IllegalArgumentException(
-          String.format("%f < %f (min) || %f > %f (max)", v, min, v, max));
-    }
-  }
-
-  public static void vectorOfSize(int actual, Array<?> x) {
-    if (!x.isVector() || x.size() != actual) {
-      throw new IllegalArgumentException();
+  /**
+   * @see #all(java.util.function.Predicate, Object[])
+   */
+  public static <T> void all(Predicate<? super T> predicate, Iterable<? extends T> iterable) {
+    for (T t : iterable) {
+      if (!predicate.test(t)) {
+        throw new IllegalArgumentException(String.format(NON_CONFORMAT_VALUE, t));
+      }
     }
   }
 
   /**
-   * Ensures that the shape of {@code a} and {@code b} is the same.
+   * Throws {@linkplain java.lang.IllegalArgumentException} if {@code value < min || value > max}
    *
-   * @param a a matrix
-   * @param b a matrix
-   * @throws org.briljantframework.exceptions.NonConformantException if
-   *                                                                 {@code a.rows() != b.rows() &&
-   *                                                                 a.columns() != b.columns()}
+   * @param value the value to check
+   * @param min   the minimum range value
+   * @param max   the maximum range value
    */
-  public static void equalShape(Array a, Array b) throws NonConformantException {
-    if (a.rows() != b.rows() && a.columns() != b.columns()) {
+  public static void inRange(double value, double min, double max) {
+    if (value < min || value > max) {
+      throw new IllegalArgumentException(
+          String.format("%f < %f (min) || %f > %f (max)", value, min, value, max));
+    }
+  }
+
+  /**
+   * Throws {@linkplain org.briljantframework.exceptions.NonConformantException} if the shape of
+   * the arguments differ.
+   *
+   * @param a an array
+   * @param b an array
+   */
+  public static void shape(Array a, Array b) throws NonConformantException {
+    if (!Arrays.equals(a.getShape(), b.getShape())) {
       throw new NonConformantException(a, b);
     }
   }
 
   /**
-   * Ensures that the size of {@code a} and {@code b} is the same.
+   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the (linearized)
+   * size of the arguments differ.
    *
-   * @param a a matrix
-   * @param b a matrix
-   * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
+   * @param a an array
+   * @param b an array
    */
   public static void size(Array a, Array b) throws SizeMismatchException {
-    if (a.size() != b.size()) {
-      throw new SizeMismatchException(a.size(), b.size());
+    size(a.size(), b.size());
+  }
+
+  /**
+   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if {@code
+   * condition}
+   * is {@code false}
+   *
+   * @param condition the condition
+   * @param message   the message
+   * @param args      the arguments to message (formatted as {@link String#format(java.util.Locale,
+   *                  String, Object...)}
+   */
+  public static void size(boolean condition, String message, Object... args) {
+    if (!condition) {
+      throw new SizeMismatchException(String.format(message, args));
     }
   }
 
   /**
-   * Ensures that the size of {@code a.size() == b.size()}.
+   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the arguments
+   * differ.
    *
-   * @param message format string containing 2 {@code %d}, where the first denote the expected (
-   *                {@code a.size()}) and the second the actual ({@code b.size()}).
-   * @param a       a matrix
-   * @param b       a matrix
-   * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != b.size()}.
+   * @param actual   the actual size
+   * @param expected the expected size
+   * @throws SizeMismatchException if {@code actual != expected}
    */
-  public static void equalSize(String message, Array a, Array b) throws SizeMismatchException {
-    if (a.size() != b.size()) {
-      throw new SizeMismatchException(message);
-    }
-  }
-
-  /**
-   * Ensures that the size of {@code a.size() == b.size()}.
-   *
-   * @param message format string containing 2 {@code %d}, where the first denote the expected (
-   *                {@code a.size()}) and the second the actual ({@code size}).
-   * @param a       a matrix
-   * @param size    a size
-   * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
-   */
-  public static void size(String message, int size, Array a) throws SizeMismatchException {
-    if (a.size() != size) {
-      throw new SizeMismatchException(message);
-    }
-  }
-
-  /**
-   * Ensures that the size of {@code a.size() == b.size()}.
-   *
-   * @param a    a matrix
-   * @param size a size
-   * @throws org.briljantframework.exceptions.SizeMismatchException if {@code a.size() != size}.
-   */
-  public static void size(int size, Array a) throws SizeMismatchException {
-    if (a.size() != size) {
-      throw new SizeMismatchException(a.size(), size);
-    }
-  }
-
   public static void size(int actual, int expected) throws SizeMismatchException {
     size(actual, expected, "Size does not match. (%d != %d)", actual, expected);
   }
 
   public static void size(int actual, int expected, String msg, Object... args) {
-    if (actual != expected) {
-      throw new SizeMismatchException(String.format(msg, args));
-    }
+    size(actual != expected, msg, args);
   }
 
-  public static void requireType(VectorType type, Vector vector) throws TypeConversionException {
-    requireType(type, vector.getType());
-  }
-
-  public static void requireType(VectorType expected, VectorType actual)
-      throws TypeConversionException {
-    if (!expected.equals(actual)) {
-      throw new TypeConversionException(String.format("Require type %s but got %s", expected,
-                                                      actual));
-    }
-  }
-
-  public static void requireType(Set<VectorType> expected, VectorType actual)
-      throws TypeConversionException {
-    if (!expected.contains(actual)) {
-      throw new TypeConversionException(String.format("Require type %s but got %s", expected,
-                                                      actual));
-    }
-  }
-
-  public static void size(Vector x, Vector y) {
-    if (x.size() != y.size()) {
-      throw new SizeMismatchException(x.size(), y.size());
-    }
-  }
-
-  public static void size(int actual, Vector x) {
-    if (actual != x.size()) {
-      throw new SizeMismatchException(actual, x.size());
+  /**
+   * Throws {@linkplain java.lang.IllegalArgumentException} if the boolean condition is false.
+   *
+   * @param check the boolean condition
+   */
+  public static void argument(boolean check) {
+    if (!check) {
+      throw new IllegalArgumentException();
     }
   }
 
   /**
-   * @param x       one vector
-   * @param y       the other vector
-   * @param message the message; 2 {@code %d}
-   * @throws org.briljantframework.exceptions.SizeMismatchException if {@code x.size() != y.size()}
+   * Throws {@linkplain java.lang.IllegalArgumentException} if the boolean condition is false with
+   * the message formatted using {@linkplain String#format(String, Object...)}
+   *
+   * @param check   the boolean condition
+   * @param message the message
+   * @param args    the arguments to format
    */
-  public static void size(Vector x, Vector y, String message) throws SizeMismatchException {
-    if (x.size() != y.size()) {
-      throw new SizeMismatchException(message);
-    }
-  }
-
-  public static void size(DataFrame x, Vector y) {
-    size(x.rows(), y.size());
-  }
-
-  public static void columnSize(DataFrame expected, DataFrame actual) {
-    size(expected.columns(), actual.columns());
-  }
-
-  public static void isNotView(Array<?> m) {
-    if (m.isView()) {
-      throw new UnsupportedOperationException(
-          String.format("Views are unsupported. Please make a copy."));
-    }
-  }
-
-  public static void argument(boolean check) {
-    argument(check, "Invalid argument");
-  }
-
   public static void argument(boolean check, String message, Object... args) {
     if (!check) {
       throw new IllegalArgumentException(String.format(message, args));
     }
   }
 
-
+  /**
+   * Throws {@linkplain java.lang.IllegalStateException} if the boolean condition is false.
+   *
+   * @param test the boolean condition
+   */
   public static void state(boolean test) {
-    state(test, "Illegal state");
+    if (!test) {
+      throw new IllegalStateException();
+    }
   }
 
+  /**
+   * Throws {@linkplain java.lang.IllegalStateException} if the boolean condition is false with the
+   * message formatted using {@linkplain String#format(String, Object...)}.
+   *
+   * @param test    the boolean condition
+   * @param message the message
+   * @param args    the format arguments
+   */
   public static void state(boolean test, String message, Object... args) {
     if (!test) {
       throw new IllegalStateException(String.format(message, args));
     }
+  }
+
+  /**
+   * Throws {@linkplain java.lang.IllegalArgumentException} if the boolean condition is false with
+   * the message formatted using {@linkplain String#format(String, Object...)}.
+   *
+   * @param test    the boolean condition
+   * @param message the message
+   * @param args    the format arguments
+   */
+  public static void type(boolean test, String message, Object... args) {
+    if (!test) {
+      throw new IllegalTypeException(String.format(message, args));
+    }
+  }
+
+  public static void type(Vector vector, VectorType type) throws IllegalTypeException {
+    type(vector.getType(), type);
+  }
+
+  public static void type(VectorType actual, VectorType expected)
+      throws IllegalTypeException {
+    type(!actual.equals(expected), "Require type %s but got %s", expected, actual);
+  }
+
+  public static void type(Set<VectorType> expected, VectorType actual)
+      throws IllegalTypeException {
+    type(!actual.equals(expected), "Require any type of %s but got %s", expected, actual);
   }
 }

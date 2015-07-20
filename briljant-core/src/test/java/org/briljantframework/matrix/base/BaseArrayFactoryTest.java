@@ -44,7 +44,7 @@ public class BaseArrayFactoryTest {
 
 //    System.out.println(arr.getView(1, 1, 2, 2).slice(bj.range(3)));
 
-    System.out.println(arr.select(0).slice(bj.range(1, 3)));
+    System.out.println(arr.select(0).get(bj.range(1, 3)));
 
   }
 

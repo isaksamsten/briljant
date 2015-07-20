@@ -52,7 +52,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public IntArray assign(IntArray o) {
-    Check.equalShape(this, o);
+    Check.shape(this, o);
     for (int i = 0; i < size(); i++) {
       set(i, o.get(i));
     }
@@ -119,7 +119,6 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public void setRow(int index, IntArray row) {
-    Check.size(columns(), row);
     for (int j = 0; j < columns(); j++) {
       set(index, j, row.get(j));
     }
@@ -136,7 +135,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return AbstractIntArray.this.getElement(i);
@@ -181,7 +180,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public IntArray assign(IntArray matrix, IntUnaryOperator operator) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
     }
@@ -190,7 +189,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public IntArray assign(IntArray matrix, IntBinaryOperator combine) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsInt(get(i), matrix.get(i)));
     }
@@ -231,7 +230,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public IntArray assign(BitArray matrix, ToIntObjIntBiFunction<Boolean> function) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i), get(i)));
     }
@@ -267,7 +266,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return AbstractIntArray.this.getElement(index);
@@ -326,7 +325,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public BitArray satisfies(IntArray matrix, IntBiPredicate predicate) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     BitArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
@@ -344,7 +343,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -484,7 +483,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractIntArray.this.setElement(index, value.intValue());
@@ -811,7 +810,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public IntArray slice(BitArray bits) {
-    Check.equalShape(this, bits);
+    Check.shape(this, bits);
     Builder builder = new Builder();
     for (int i = 0; i < size(); i++) {
       if (bits.get(i)) {

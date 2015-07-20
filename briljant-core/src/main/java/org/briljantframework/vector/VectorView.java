@@ -3,7 +3,7 @@ package org.briljantframework.vector;
 import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.matrix.Array;
 
 /**
@@ -91,7 +91,7 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() throws TypeConversionException {
+  public Array toMatrix() throws IllegalTypeException {
     return parent.toMatrix();
   }
 

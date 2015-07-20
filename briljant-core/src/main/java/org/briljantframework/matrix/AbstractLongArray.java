@@ -113,7 +113,6 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public void setRow(int index, LongArray row) {
-    Check.size(columns(), row);
     for (int j = 0; j < columns(); j++) {
       set(index, j, row.get(j));
     }
@@ -121,7 +120,6 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public void setColumn(int index, LongArray column) {
-    Check.size(rows(), column);
     for (int i = 0; i < rows(); i++) {
       set(i, index, column.get(i));
     }
@@ -137,7 +135,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public LongArray assign(LongArray o) {
-    Check.equalShape(this, o);
+    Check.shape(this, o);
     for (int i = 0; i < size(); i++) {
       set(i, o.get(i));
     }
@@ -147,7 +145,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return AbstractLongArray.this.getElement(i);
@@ -184,7 +182,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public LongArray assign(LongArray matrix, LongBinaryOperator combine) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsLong(get(i), matrix.get(i)));
     }
@@ -220,7 +218,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public int getElement(int index) {
         return (int) AbstractLongArray.this.getElement(index);
@@ -293,7 +291,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public BitArray satisfies(LongArray matrix, LongBiPredicate predicate) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     BitArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
@@ -352,7 +350,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -431,7 +429,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractLongArray.this.setElement(index, value.longValue());
@@ -772,7 +770,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public LongArray slice(BitArray bits) {
-    Check.equalShape(this, bits);
+    Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (bits.get(i)) {

@@ -95,13 +95,13 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testMapToDouble() throws Exception {
-    DoubleArray i = bj.intArray(3,3).assign(3).mapToDouble(Math::sqrt);
+    DoubleArray i = bj.intArray(3, 3).assign(3).mapToDouble(Math::sqrt);
     assertMatrixEquals(Math.sqrt(3), i, 0.0001);
   }
 
   @Test
   public void testMapToComplex() throws Exception {
-    ComplexArray i = bj.intArray(3,3).assign(-3).mapToComplex(Complex::sqrt);
+    ComplexArray i = bj.intArray(3, 3).assign(-3).mapToComplex(Complex::sqrt);
     assertMatrixEquals(i, Complex.sqrt(-3));
   }
 
@@ -120,29 +120,29 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testSatisfies1() throws Exception {
-    IntArray x = bj.intArray(3,3);
-    IntArray y = bj.intArray(3,3).assign(3);
+    IntArray x = bj.intArray(3, 3);
+    IntArray y = bj.intArray(3, 3).assign(3);
     BitArray z = x.satisfies(y, (a, b) -> a < b);
     assertMatrixEquals(z, true);
   }
 
   @Test
   public void testReduce() throws Exception {
-    IntArray x = bj.intArray(3,3).assign(3);
+    IntArray x = bj.intArray(3, 3).assign(3);
     int sum = x.reduce(0, Integer::sum);
     assertEquals(3 * 9, sum);
   }
 
   @Test
   public void testReduce1() throws Exception {
-    IntArray x = bj.intArray(3,3).assign(3);
+    IntArray x = bj.intArray(3, 3).assign(3);
     int squaredSum = x.reduce(0, Integer::sum, i -> i * 2);
     assertEquals(3 * 2 * 9, squaredSum);
   }
 
   @Test
   public void testReduceColumns() throws Exception {
-    IntArray x = bj.intArray(3,3).assign(3).reduceColumns(y -> y.reduce(0, Integer::sum));
+    IntArray x = bj.intArray(3, 3).assign(3).reduceColumns(y -> y.reduce(0, Integer::sum));
     assertEquals(4, x.columns());
     assertEquals(1, x.rows());
     assertMatrixEquals(3 * 3, x);
@@ -150,7 +150,7 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testReduceRows() throws Exception {
-    IntArray x = bj.intArray(3,3).assign(3).reduceRows(y -> y.reduce(0, Integer::sum));
+    IntArray x = bj.intArray(3, 3).assign(3).reduceRows(y -> y.reduce(0, Integer::sum));
     assertEquals(4, x.rows());
     assertEquals(1, x.columns());
     assertMatrixEquals(3 * 3, x);
@@ -180,7 +180,7 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testSet() throws Exception {
-    IntArray x = bj.intArray(3,3);
+    IntArray x = bj.intArray(3, 3);
     x.set(0, 0, 1);
     x.set(0, 1, 2);
     x.set(1, 1, 3);
@@ -275,12 +275,12 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testNewEmptyMatrix() throws Exception {
-    assertNotNull(bj.intArray(3,3).newEmptyArray(2, 2));
+    assertNotNull(bj.intArray(3, 3).newEmptyArray(2, 2));
   }
 
   @Test
   public void testNewEmptyVector() throws Exception {
-    IntArray x = bj.intArray(3,3).newEmptyArray(2);
+    IntArray x = bj.intArray(3, 3).newEmptyArray(2);
     assertNotNull(x);
     assertEquals(2, x.rows());
     assertEquals(1, x.columns());
@@ -435,21 +435,21 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testNegate() throws Exception {
-    IntArray x = bj.intArray(3,3).assign(3).negate();
+    IntArray x = bj.intArray(3, 3).assign(3).negate();
     assertMatrixEquals(-3, x);
   }
 
   @Test
   public void testSlice1() throws Exception {
     IntArray x = bj.array(new int[]{1, 2, 3, 1, 2, 3}).reshape(3, 2);
-    IntArray slice = x.slice(bj.range(3));
+    IntArray slice = x.get(bj.range(3));
     assertValuesEquals(bj.array(new int[]{1, 2, 3}), slice);
   }
 
   @Test
   public void testSlice3() throws Exception {
     IntArray x = bj.array(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    IntArray s = x.slice();
+    IntArray s = x.get(bj.range(0, 3), bj.range(0, 3));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
     assertValuesEquals(bj.array(new int[]{1, 1}), s.getRow(0));
@@ -490,14 +490,14 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testSetRow() throws Exception {
-    IntArray x = bj.intArray(3,3);
+    IntArray x = bj.intArray(3, 3);
     x.setRow(0, bj.array(new int[]{1, 2, 3}));
     assertValuesEquals(bj.array(new int[]{1, 2, 3}), x.getRow(0));
   }
 
   @Test
   public void testSetColumn() throws Exception {
-    IntArray x = bj.intArray(3,3);
+    IntArray x = bj.intArray(3, 3);
     x.setColumn(0, bj.array(new int[]{1, 2, 3}));
     assertValuesEquals(bj.array(new int[]{1, 2, 3}), x.getColumn(0));
   }
@@ -528,7 +528,7 @@ public class AbstractIntArrayTest {
 
   @Test
   public void testStream() throws Exception {
-    IntArray m = bj.intArray(3,3).assign(3);
+    IntArray m = bj.intArray(3, 3).assign(3);
     IntSummaryStatistics s = m.stream().summaryStatistics();
     assertEquals(3 * 3 * 3, s.getSum());
   }

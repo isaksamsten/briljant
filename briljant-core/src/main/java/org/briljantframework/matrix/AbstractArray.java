@@ -106,7 +106,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     int offset = getOffset();
     int stride = stride(dimension);
     int shape = size(dimension);
-    int indexMajorStride = index * stride(getMajorStride());
+    int indexMajorStride = index * stride(majorStride);
     if (indexMajorStride >= stride) {
 //      if (!isTransposed()) {
       offset += (indexMajorStride / stride) * stride * (shape - 1);
@@ -166,7 +166,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   }
 
   @Override
-  public E slice(Range... ranges) {
+  public E get(Range... ranges) {
     Check.argument(ranges.length > 0 & ranges.length <= dims());
     int[] stride = getStride();
     int[] shape = getShape();
@@ -277,6 +277,11 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   }
 
   @Override
+  public int getMajorStride() {
+    return stride(majorStride);
+  }
+
+  @Override
   public final int[] getShape() {
     return shape.clone();
   }
@@ -288,9 +293,9 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   /**
    * The major stride of the array, for a transposed matrix this equals to
-   * {@code stride[stride.length -1]} and otherwise {@code stride[0]}
+   * {@code stride[stride.length - 1]} and otherwise {@code stride[0]}
    */
-  public int getMajorStride() {
+  protected int getMajorStrideIndex() {
     return majorStride;
   }
 

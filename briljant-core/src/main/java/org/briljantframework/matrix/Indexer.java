@@ -140,9 +140,10 @@ public final class Indexer {
 
 
   protected static int linearized(int index, int offset, int[] stride, int[] shape) {
-    if (stride.length == 1) {
+    if (stride.length == 1 || stride[0] == 1) {
       return offset + index * stride[0];
     }
+
     for (int i = 0; i < stride.length; i++) {
       int size = shape[i];
       int sub2 = index / size;

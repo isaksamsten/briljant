@@ -97,8 +97,8 @@ public class ShapeletTree implements Classifier {
     this.assessment = builder.assessment;
     this.minSplit = builder.minSplit;
 
-    Check.range(upperLength, lowerLength, 1);
-    Check.range(lowerLength, 0, upperLength);
+    Check.inRange(upperLength, lowerLength, 1);
+    Check.inRange(lowerLength, 0, upperLength);
     this.classSet = classSet;
     this.classes = classes;
   }
@@ -143,7 +143,7 @@ public class ShapeletTree implements Classifier {
 
     DataFrame dataFrame = x;
     if (sampleMode == SampleMode.DOWN_SAMPLE) {
-      Check.range(aggregateFraction, 0.1, 1);
+      Check.inRange(aggregateFraction, 0.1, 1);
       dataFrame = Approximations.paa(x, (int) Math.round(x.columns() * aggregateFraction));
     }
 

@@ -1,12 +1,12 @@
 package org.briljantframework.matrix
 
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 import org.briljantframework.Bj
 
 /**
  * Created by isak on 03/06/15.
  */
-@TypeChecked
+@CompileStatic
 class ArrayExtensions {
 
   static <T extends Array<T>> T asType(Array<T> self, Class<T> cls) {
@@ -21,6 +21,10 @@ class ArrayExtensions {
     }
   }
 
+  static double getAt(DoubleArray self, int[] index) {
+    return self.get(index)
+  }
+
   static double getAt(DoubleArray self, int r, int c) {
     return self.get(r, c)
   }
@@ -29,9 +33,8 @@ class ArrayExtensions {
     return self.get(i)
   }
 
-  static <T extends Array<T>> T getAt(T self, IntRange rows, IntRange cols) {
-    return self.slice(Bj.range(rows.fromInt, rows.toInt)
-    )
+  static <T extends Array<T>> T get(T self, IntRange[] ranges) {
+    return self.get(ranges.collect {IntRange it -> Bj.range(it.fromInt, it.toInt)} as Range[])
   }
 
   static DoubleArray power(DoubleArray self, double power) {

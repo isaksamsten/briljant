@@ -311,7 +311,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public Builder addRecord(Vector vector) {
-      Check.requireType(type, vector);
+      Check.type(vector, type);
       return addRecord(vector.newCopyBuilder());
     }
 

@@ -596,7 +596,7 @@ public final class Vec {
    * @return the inner product
    */
   public static double dot(Vector x, double alpha, Vector y, double beta) {
-    Check.size(x, y);
+    Check.size(x.size(), y.size());
     int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {

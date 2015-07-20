@@ -109,59 +109,35 @@ public final class ArrayPrinter {
     boolean truncate = minTruncateSize < arr.size() && arr.dims() != 1;
     IntArray maxWidth = computeMaxWidth(arr, truncate);
     out.append("array(");
-    print(
-        out,
-        arr,
-        startChar,
-        endChar,
-        truncate,
-        arr.dims() + 1 + "array(".length(),
-        maxWidth
-    );
+    if (arr.dims() == 1 && arr.size() == 0) {
+      out.append(startChar).append(arr.get(0)).append(endChar);
+    } else {
+      print(
+          out,
+          arr,
+          startChar,
+          endChar,
+          truncate,
+          arr.dims() + 1 + "array(".length(),
+          maxWidth
+      );
+    }
     out.append(")");
   }
 
   private static IntArray computeMaxWidth(ToStringArray arr, boolean truncate) {
     int lastDim = arr.dims() - 1;
     int vectorSize = arr.size(lastDim);
-    int vectors = arr.vectors(lastDim);
     int maxPerSlice = vectorSize;
-    int maxSlices = vectors;
     if (truncate) {
       maxPerSlice = visiblePerSlice < 0 ? maxPerSlice : visiblePerSlice;
-      maxSlices = printSlices < 0 ? maxSlices : printSlices;
     }
     IntArray maxWidth = Bj.intArray(maxPerSlice);
-//
-//    for (int i = 0; i < vectors; i++) {
-//      ToStringArray vector = arr.getVector(lastDim, i);
-//      for (int j = 0; j < vectorSize; j++) {
-//        int index = j % maxPerSlice;
-//        int currentMax = maxWidth.get(index);
-//        int current = vector.get(j).length();
-//        if (current > currentMax) {
-//          maxWidth.set(index, current);
-//        }
-//        if (j >= maxPerSlice) {
-//          int left = vectorSize - j - 1;
-//          if (left > maxPerSlice) {
-//            j += left - maxPerSlice - 1;
-//          }
-//        }
-//      }
-////      if (i >= maxSlices) {
-////        int left = vectors - i - 1;
-////        if (left > maxSlices) {
-////          i += left - maxSlices - 1;
-////        }
-////      }
-//    }
-    return computeMaxWidthRecursive(arr, truncate, maxWidth, arr.dims(), maxPerSlice, maxSlices);
+    return computeMaxWidthRecursive(arr, truncate, maxWidth, maxPerSlice);
   }
 
   private static IntArray computeMaxWidthRecursive(ToStringArray arr, boolean truncate,
-                                                   IntArray maxWidth, int dims, int maxPerSlice,
-                                                   int maxSlices) {
+                                                   IntArray maxWidth, int maxPerSlice) {
     if (arr.dims() == 1) {
       for (int i = 0; i < arr.size(); i++) {
         int index = i % maxPerSlice;
@@ -180,7 +156,7 @@ public final class ArrayPrinter {
     } else {
       int len = arr.size(0);
       for (int i = 0; i < len; i++) {
-        computeMaxWidthRecursive(arr.select(i), truncate, maxWidth, dims, maxPerSlice, maxSlices);
+        computeMaxWidthRecursive(arr.select(i), truncate, maxWidth, maxPerSlice);
         int max = len;
         if (truncate) {
           max = printSlices < 0 ? len : printSlices;
@@ -212,6 +188,10 @@ public final class ArrayPrinter {
                            int dims,
                            IntArray maxWidth)
       throws IOException {
+    if (arr.size() == 0) {
+      sb.append(startChar).append(arr.get(0)).append(endChar);
+      return;
+    }
     if (arr.dims() == 1) {
       StringJoiner joiner = new StringJoiner(", ", startChar, endChar);
       int max = arr.size();

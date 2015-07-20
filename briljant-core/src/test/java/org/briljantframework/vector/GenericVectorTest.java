@@ -1,6 +1,6 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.StringDataEntry;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,7 +107,7 @@ public class GenericVectorTest {
 
   }
 
-  @Test(expected = TypeConversionException.class)
+  @Test(expected = IllegalTypeException.class)
   public void testAsMatrix() throws Exception {
     dateVector.toMatrix();
   }

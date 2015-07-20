@@ -3,7 +3,7 @@ package org.briljantframework.vector;
 import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.matrix.Array;
 
 /**
@@ -104,8 +104,8 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() throws TypeConversionException {
-    throw new TypeConversionException("not compatible");
+  public Array toMatrix() throws IllegalTypeException {
+    throw new IllegalTypeException("not compatible");
   }
 
   @Override

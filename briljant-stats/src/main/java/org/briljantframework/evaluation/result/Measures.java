@@ -40,7 +40,7 @@ public final class Measures {
    * @return the accuracy
    */
   public static double accuracy(Vector predicted, Vector actual) {
-    Check.size(predicted, actual);
+    Check.size(predicted.size(), actual.size());
     double accuracy = 0;
     int n = predicted.size();
     for (int i = 0; i < n; i++) {

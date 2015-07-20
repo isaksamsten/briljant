@@ -451,14 +451,14 @@ public class AbstractDoubleArrayTest {
   @Test
   public void testSlice1() throws Exception {
     DoubleArray x = bj.array(new double[]{1.0, 2, 3, 1, 2, 3}).reshape(3, 2);
-    DoubleArray slice = x.slice(bj.range(3));
+    DoubleArray slice = x.get(bj.range(3));
     assertValueEquals(slice, bj.array(new double[]{1.0, 2, 3}), epsilon);
   }
 
   @Test
   public void testSlice3() throws Exception {
     DoubleArray x = bj.array(new double[]{1.0, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    DoubleArray s = x.slice();
+    DoubleArray s = x.get(bj.range(0, 3), bj.range(0, 3));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
     assertValueEquals(s.getRow(0), bj.array(new double[]{1.0, 1}), epsilon);
@@ -516,7 +516,7 @@ public class AbstractDoubleArrayTest {
   public void testSliceReshape() throws Exception {
     DoubleArray a = Bj.linspace(0, 1, 9).reshape(3, 3);
     System.out.println(a);
-    DoubleArray b = a.slice();
+    DoubleArray b = a.get(bj.range(0, 3), bj.range(0, 3));
     System.out.println(b);
     System.out.println(b.reshape(4, 1));
   }

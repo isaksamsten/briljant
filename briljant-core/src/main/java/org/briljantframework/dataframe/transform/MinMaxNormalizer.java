@@ -66,10 +66,10 @@ public class MinMaxNormalizer implements Transformer {
     }
 
     return x -> {
-      Check.size(x.columns(), max);
+      Check.size(x.columns(), max.size());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        Check.requireType(DoubleVector.TYPE, x.getType(j));
+        Check.type(x.getType(j), DoubleVector.TYPE);
 
         double mi = min.get(j);
         double ma = max.get(j);

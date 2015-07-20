@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 
 import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -117,14 +117,14 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() throws TypeConversionException {
+  public Array toMatrix() throws IllegalTypeException {
     if (Number.class.isAssignableFrom(cls)) {
       return Bj.doubleArray(size())
           .assign(asList(Number.class).stream()
                       .mapToDouble(v -> Is.NA(v) ? Na.of(Double.class) : v.doubleValue())
                       .iterator()::next);
     }
-    throw new TypeConversionException(
+    throw new IllegalTypeException(
         String.format("Can't convert vector of '%s' to matrix", getType()));
   }
 

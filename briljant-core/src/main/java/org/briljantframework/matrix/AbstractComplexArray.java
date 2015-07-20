@@ -115,7 +115,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray assign(ComplexArray o) {
-    Check.equalShape(this, o);
+    Check.shape(this, o);
     for (int i = 0; i < size(); i++) {
       set(i, o.get(i));
     }
@@ -141,7 +141,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray assign(ComplexArray matrix, BinaryOperator<Complex> combine) {
-    Check.equalShape(this, matrix);
+    Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.apply(get(i), matrix.get(i)));
     }
@@ -213,7 +213,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       protected void setElement(int i, double value) {
@@ -235,7 +235,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public int getElement(int index) {
@@ -368,7 +368,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return AbstractComplexArray.this.getElement(index).longValue();
@@ -437,7 +437,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStride()) {
+        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -463,7 +463,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public void setRow(int index, ComplexArray row) {
-    Check.size(columns(), row);
     for (int j = 0; j < columns(); j++) {
       set(index, j, row.get(j));
     }
@@ -471,7 +470,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public void setColumn(int index, ComplexArray column) {
-    Check.size(rows(), column);
     for (int i = 0; i < rows(); i++) {
       set(i, index, column.get(i));
     }
@@ -554,7 +552,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray slice(BitArray bits) {
-    Check.equalShape(this, bits);
+    Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (bits.get(i)) {
@@ -690,7 +688,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray mul(Complex alpha, ComplexArray other, Complex beta) {
-    Check.equalShape(this, other);
+    Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
@@ -723,7 +721,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public ComplexArray add(Complex alpha, ComplexArray other, Complex beta) {
-    Check.equalShape(this, other);
+    Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
