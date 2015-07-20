@@ -20,8 +20,8 @@ import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.Op;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Op;
 import org.briljantframework.vector.Vec;
 
 /**

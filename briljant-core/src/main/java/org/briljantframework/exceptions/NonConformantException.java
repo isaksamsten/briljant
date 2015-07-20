@@ -16,7 +16,7 @@
 
 package org.briljantframework.exceptions;
 
-import org.briljantframework.matrix.Array;
+import org.briljantframework.array.Array;
 
 /**
  * @author Isak Karlsson

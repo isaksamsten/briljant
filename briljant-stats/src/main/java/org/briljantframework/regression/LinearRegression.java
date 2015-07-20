@@ -22,7 +22,7 @@ import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**

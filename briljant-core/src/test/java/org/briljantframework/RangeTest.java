@@ -1,6 +1,6 @@
 package org.briljantframework;
 
-import org.briljantframework.matrix.Range;
+import org.briljantframework.array.Range;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

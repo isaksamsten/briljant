@@ -17,9 +17,9 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
-import org.briljantframework.matrix.netlib.NetlibLapackException;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.netlib.NetlibLapackException;
 import org.netlib.util.intW;
 
 import java.util.Optional;

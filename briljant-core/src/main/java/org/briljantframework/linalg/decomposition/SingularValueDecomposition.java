@@ -16,7 +16,7 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Created by isak on 23/06/14.

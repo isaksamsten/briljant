@@ -1,6 +1,6 @@
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * @author Isak Karlsson

@@ -5,7 +5,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 

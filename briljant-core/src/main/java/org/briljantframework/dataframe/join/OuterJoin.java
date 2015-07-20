@@ -1,6 +1,6 @@
 package org.briljantframework.dataframe.join;
 
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.IntArray;
 
 /**
  * Created by Isak Karlsson on 11/01/15.

@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.evaluation.Partition;
 import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**

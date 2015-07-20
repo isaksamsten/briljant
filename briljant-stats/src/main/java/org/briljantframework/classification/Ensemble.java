@@ -20,10 +20,10 @@ import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.BitArray;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.Matrices;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import static org.briljantframework.Bj.argmax;
 import static org.briljantframework.Bj.argmaxnot;
 import static org.briljantframework.Bj.maxnot;
 import static org.briljantframework.evaluation.result.Sample.OUT;
-import static org.briljantframework.matrix.Matrices.mean;
+import static org.briljantframework.array.Matrices.mean;
 import static org.briljantframework.vector.Vec.find;
 
 /**

@@ -8,12 +8,12 @@ import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.matrix.BitArray;
-import org.briljantframework.matrix.ComplexArray;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
-import org.briljantframework.matrix.LongArray;
-import org.briljantframework.matrix.Array;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.LongArray;
+import org.briljantframework.array.Array;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 
@@ -653,9 +653,9 @@ public interface Vector extends Serializable {
 
   /**
    * <p>Copies this vector to a {@code Matrix}. An appropriate
-   * specialization of the {@link org.briljantframework.matrix.Array} interface should be
+   * specialization of the {@link org.briljantframework.array.Array} interface should be
    * preferred. For example, a {@link org.briljantframework.vector.DoubleVector} should return a
-   * {@link org.briljantframework.matrix.DoubleArray} implementation.
+   * {@link org.briljantframework.array.DoubleArray} implementation.
    *
    * <pre>
    * Vector a = new DoubleVector(1, 2, 3, 4, 5);

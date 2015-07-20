@@ -3,7 +3,7 @@ package org.briljantframework.distance;
 import com.google.common.primitives.Doubles;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.function.DoubleSupplier;

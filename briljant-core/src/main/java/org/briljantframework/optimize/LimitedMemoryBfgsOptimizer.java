@@ -1,7 +1,7 @@
 package org.briljantframework.optimize;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

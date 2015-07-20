@@ -2,7 +2,7 @@ package org.briljantframework.linalg.api;
 
 import com.google.common.base.Preconditions;
 
-import org.briljantframework.matrix.api.ArrayBackend;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * @author Isak Karlsson

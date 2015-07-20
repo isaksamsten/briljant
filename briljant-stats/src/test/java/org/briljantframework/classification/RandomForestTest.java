@@ -8,7 +8,7 @@ import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.measure.Accuracy;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;

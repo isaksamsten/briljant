@@ -1,9 +1,9 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.matrix.BitArray;
-import org.briljantframework.matrix.ComplexArray;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 
 /**
  * @author Isak Karlsson

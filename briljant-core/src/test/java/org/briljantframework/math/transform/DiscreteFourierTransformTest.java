@@ -1,7 +1,7 @@
 package org.briljantframework.math.transform;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.ComplexArray;
+import org.briljantframework.array.ComplexArray;
 import org.junit.Test;
 
 public class DiscreteFourierTransformTest {

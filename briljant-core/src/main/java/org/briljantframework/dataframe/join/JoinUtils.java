@@ -5,7 +5,7 @@ import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;

@@ -26,7 +26,7 @@ import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;

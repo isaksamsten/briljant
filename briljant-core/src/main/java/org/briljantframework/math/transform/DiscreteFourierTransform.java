@@ -2,8 +2,8 @@ package org.briljantframework.math.transform;
 
 import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.ComplexArray;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
 
 /*
  * Free FFT and convolution (Java)

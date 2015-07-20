@@ -3,7 +3,7 @@ package org.briljantframework;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
-import org.briljantframework.matrix.Array;
+import org.briljantframework.array.Array;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 /**
  * Implement argument, state, size and type checking for {@linkplain
  * org.briljantframework.vector.Vector}, {@linkplain org.briljantframework.dataframe.DataFrame} and
- * {@link org.briljantframework.matrix.Array}
+ * {@link org.briljantframework.array.Array}
  *
  * @author Isak Karlsson
  */

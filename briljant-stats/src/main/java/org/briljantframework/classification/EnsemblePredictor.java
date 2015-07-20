@@ -1,6 +1,6 @@
 package org.briljantframework.classification;
 
-import org.briljantframework.matrix.BitArray;
+import org.briljantframework.array.BitArray;
 
 import java.util.List;
 

@@ -17,8 +17,8 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 
 /**
  * @author Isak Karlsson

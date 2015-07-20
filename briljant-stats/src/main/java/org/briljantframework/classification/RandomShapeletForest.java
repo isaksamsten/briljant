@@ -24,8 +24,8 @@ import org.briljantframework.distance.Distance;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.matrix.BitArray;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 

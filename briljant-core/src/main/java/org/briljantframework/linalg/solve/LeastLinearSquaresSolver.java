@@ -19,8 +19,8 @@ package org.briljantframework.linalg.solve;
 import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 
 //import org.briljantframework.matrix.DefaultDoubleMatrix;
 

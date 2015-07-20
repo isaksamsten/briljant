@@ -4,7 +4,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.matrix.Array;
+import org.briljantframework.array.Array;
 import org.briljantframework.sort.Swappable;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vector;

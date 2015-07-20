@@ -10,8 +10,8 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.BitArray;
-import org.briljantframework.matrix.Array;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.Array;
 
 import java.io.IOException;
 import java.util.Arrays;

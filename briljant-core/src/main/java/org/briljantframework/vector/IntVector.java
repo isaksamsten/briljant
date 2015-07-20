@@ -10,7 +10,7 @@ import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.IntArray;
+import org.briljantframework.array.IntArray;
 
 import java.io.IOException;
 import java.util.Arrays;

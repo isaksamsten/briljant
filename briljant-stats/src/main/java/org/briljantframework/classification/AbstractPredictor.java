@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Vector;
 

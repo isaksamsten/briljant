@@ -23,8 +23,8 @@ import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.Shape;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Shape;
 
 /**
  * Created by isak on 23/06/14.

@@ -19,7 +19,7 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.vector.Vec;
 

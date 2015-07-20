@@ -1,9 +1,9 @@
 package org.briljantframework.linalg.api;
 
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DoubleArray;
-import org.briljantframework.matrix.IntArray;
-import org.briljantframework.matrix.Op;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.Op;
 
 /**
  * Created by isak on 2/10/15.
@@ -37,8 +37,8 @@ public interface LinearAlgebraRoutines {
    * @param transA transpose Q
    * @param a      (input) the i-th column must contain the vector which defines the
    *               elementary reflector H(i), for i = 1,2,...,k, as returned by
-   *               {@link #geqrf(org.briljantframework.matrix.DoubleArray,
-   *               org.briljantframework.matrix.DoubleArray)} in the first k columns of its array
+   *               {@link #geqrf(org.briljantframework.array.DoubleArray,
+   *               org.briljantframework.array.DoubleArray)} in the first k columns of its array
    *               argument A.
    * @param tau    (input) TAU(i) must contain the scalar factor of the elementary
    *               reflector H(i), as returned by DGEQRF.

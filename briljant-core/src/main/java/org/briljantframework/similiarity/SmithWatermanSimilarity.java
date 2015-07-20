@@ -3,7 +3,7 @@ package org.briljantframework.similiarity;
 import com.google.common.primitives.Doubles;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**

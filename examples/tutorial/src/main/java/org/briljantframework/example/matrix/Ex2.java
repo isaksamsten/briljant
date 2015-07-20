@@ -1,7 +1,7 @@
 package org.briljantframework.example.matrix;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleMatrix;
 
 public class Ex2 {
 

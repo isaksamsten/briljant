@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.matrix.Array;
+import org.briljantframework.array.Array;
 
 /**
  * Created by isak on 1/21/15.

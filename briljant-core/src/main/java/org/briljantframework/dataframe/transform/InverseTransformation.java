@@ -20,8 +20,8 @@ import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.IntArray;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Created by Isak Karlsson on 11/08/14.

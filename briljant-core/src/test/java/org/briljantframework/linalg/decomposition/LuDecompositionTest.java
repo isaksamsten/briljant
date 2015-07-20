@@ -1,6 +1,6 @@
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 import org.junit.Before;
 import org.junit.Test;
 

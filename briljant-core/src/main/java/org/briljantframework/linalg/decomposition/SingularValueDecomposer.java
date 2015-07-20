@@ -17,7 +17,7 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Formally, the singular value decomposition of an m×n real or complex matrix M is a factorization

@@ -2,8 +2,8 @@ package org.briljantframework.example.matrix;
 
 import org.briljantframework.Bj;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.T;
+import org.briljantframework.array.DoubleMatrix;
+import org.briljantframework.array.T;
 import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.stat.RunningStatistics;
 

@@ -16,7 +16,7 @@
 
 package org.briljantframework.linalg.solve;
 
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Created by Isak Karlsson on 08/09/14.

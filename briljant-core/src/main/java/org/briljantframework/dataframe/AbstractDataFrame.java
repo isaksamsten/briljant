@@ -18,8 +18,8 @@ import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.function.Aggregator;
-import org.briljantframework.matrix.Array;
-import org.briljantframework.matrix.DoubleArray;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
@@ -683,9 +683,9 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleArray}. This
+   * Converts the DataFrame to an {@link org.briljantframework.array.DoubleArray}. This
    * implementation rely on {@link #getAsDouble(int, int)}. Sub-classes are allowed to return any
-   * concrete implementation of {@link org.briljantframework.matrix.DoubleArray}.
+   * concrete implementation of {@link org.briljantframework.array.DoubleArray}.
    *
    * @return a new matrix
    */

@@ -6,7 +6,7 @@ import org.briljantframework.classification.tree.Example;
 import org.briljantframework.classification.tree.RandomSplitter;
 import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.BitArray;
+import org.briljantframework.array.BitArray;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
 
