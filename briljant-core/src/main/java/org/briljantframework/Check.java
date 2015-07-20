@@ -124,7 +124,7 @@ public final class Check {
   }
 
   public static void size(int actual, int expected, String msg, Object... args) {
-    size(actual != expected, msg, args);
+    size(actual == expected, msg, args);
   }
 
   /**

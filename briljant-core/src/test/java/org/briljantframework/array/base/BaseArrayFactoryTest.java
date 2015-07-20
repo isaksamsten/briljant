@@ -6,6 +6,7 @@ import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.array.Matrices;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
@@ -45,6 +46,16 @@ public class BaseArrayFactoryTest {
 //    System.out.println(arr.getView(1, 1, 2, 2).slice(bj.range(3)));
 
     System.out.println(arr.select(0).get(bj.range(1, 3)));
+
+  }
+
+  @Test
+  public void testName() throws Exception {
+    DoubleArray a = bj.range(6).reshape(2, 3).asDouble();
+    System.out.println(a);
+    System.out.println(a.getVector(0, 2));
+    System.out.println(a.reduceVectors(1, Matrices::sum));
+
 
   }
 

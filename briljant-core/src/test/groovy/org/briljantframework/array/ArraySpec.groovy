@@ -1,15 +1,70 @@
 package org.briljantframework.array
 
-import org.briljantframework.complex.Complex
 import org.briljantframework.array.base.BaseArrayBackend
+import org.briljantframework.complex.Complex
 import spock.lang.Specification
 
 /**
  * Created by isak on 24/06/15.
  */
-class ArrayViewSpec extends Specification {
+class ArraySpec extends Specification {
 
   static bj = new BaseArrayBackend().arrayFactory
+
+  def "A new array has a correctly calculated size"() {
+    expect:
+    size == a.size()
+
+    where:
+    a << getArrays(3 * 3 * 3)
+    size << [27, 27, 27, 27, 27]
+  }
+
+  def "A 2d-array has both rows and columns"() {
+    when:
+    def i = a.reshape(3, 3);
+
+    then:
+    i.rows() == 3
+    i.columns() == 3
+
+    where:
+    a << getArrays(3 * 3)
+  }
+
+  def "For non 2d-arrays rows() throws an exception"() {
+    when:
+    i.reshape(3, 3, 3).rows()
+
+    then:
+    thrown(IllegalStateException)
+
+    where:
+    i << getArrays(3 * 3 * 3)
+  }
+
+  def "For non 2d-arrays columns() throws an expection"() {
+    when:
+    i.reshape(3, 3, 3).columns()
+
+    then:
+    thrown(IllegalStateException)
+
+    where:
+    i << getArrays(3 * 3 * 3)
+  }
+
+  def "For 2d-arrays, size(0) == rows() and size(1) == columns()"() {
+    when:
+    def a = i.reshape(3, 3)
+
+    then:
+    a.size(0) == a.rows()
+    a.size(1) == a.columns()
+
+    where:
+    i << getArrays(3 * 3)
+  }
 
   def "Reshaping an array should change the dimensions"() {
     expect:
@@ -24,7 +79,7 @@ class ArrayViewSpec extends Specification {
     shape << getShapes([2, 3, 4, 5], 5);
   }
 
-  def "When selecting, a view of the current sub-array at index should be returned"() {
+  def "Selecting a view of the current sub-array at index should return a view"() {
     expect:
     array.size(0) == 2
     array.select(0).shape == dims1
@@ -132,12 +187,12 @@ class ArrayViewSpec extends Specification {
 
     where:
     dim | idx | vector
-    0   | 0   | bj.array(0, 2, 4)
-    0   | 1   | bj.array(1, 3, 5)
+    1   | 0   | bj.array(0, 2, 4)
+    1   | 1   | bj.array(1, 3, 5)
 
-    1   | 0   | bj.array(0, 1)
-    1   | 1   | bj.array(2, 3)
-    1   | 2   | bj.array(4, 5)
+    0   | 0   | bj.array(0, 1)
+    0   | 1   | bj.array(2, 3)
+    0   | 2   | bj.array(4, 5)
   }
 
   def "Array#getVector returns the correct vector when the array is transposed"() {
