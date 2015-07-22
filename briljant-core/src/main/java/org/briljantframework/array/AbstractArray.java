@@ -16,21 +16,18 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new array must be unchanged. (%s, %s)";
 
-  protected static final String ARG_DIFF_SIZE = "Arguments imply different size.";
-
   public static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
   protected static final String ILLEGAL_INDEX = "Illegal index";
   protected static final String
-      ILLEGAL_DIMENSION_INDEX =
-      "Index %s is out of bounds for dimension %s with size %s";
+      ILLEGAL_DIMENSION_INDEX = "Index %s is out of bounds for dimension %s with size %s";
 
   protected final ArrayFactory bj;
 
   protected final int majorStride;
 
   /**
-   * The size of the array. Equals to shape[0] * shape[1] * ... * shape[shape.length -1]
+   * The size of the array. Equals to shape[0] * shape[1] * ... * shape[shape.length - 1]
    */
   protected final int size;
 
@@ -216,9 +213,9 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public final E reshape(int... shape) {
-    Check.size(Indexer.size(getShape()), Indexer.size(shape),
-               CHANGED_TOTAL_SIZE, getShape(), shape);
-    return makeView(getOffset(), shape, Indexer.computeStride(1, shape));
+    Check.size(Indexer.size(this.shape), Indexer.size(shape),
+               CHANGED_TOTAL_SIZE, Arrays.toString(this.shape), Arrays.toString(shape));
+    return makeView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
   }
 
   @Override
@@ -228,8 +225,8 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     } else {
       return makeView(
           getOffset(),
-          Indexer.reverse(getShape()),
-          Indexer.reverse(getStride()),
+          Indexer.reverse(shape),
+          Indexer.reverse(stride),
           dims() - 1 // change the major stride
       );
     }

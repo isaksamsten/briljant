@@ -8,6 +8,12 @@ public final class Indexer {
   private Indexer() {
   }
 
+  /**
+   * Returns a reversed copy of the argument.
+   *
+   * @param arr the array
+   * @return a reversed copy of {@code arr}
+   */
   public static int[] reverse(int[] arr) {
     int[] copy = new int[arr.length];
     for (int i = 0; i < arr.length; i++) {
