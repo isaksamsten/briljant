@@ -4,10 +4,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.array.api.ArrayFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -81,12 +81,12 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public final void set(int index, Complex value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
   }
 
   @Override
   public final Complex get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
   }
 
   /**
@@ -435,6 +435,11 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
+  public void set(int[] toIndex, ComplexArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
   public BitArray asBit() {
     return new AsBitArray(
         getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
@@ -459,20 +464,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public int compare(int a, int b) {
     return Double.compare(get(a).abs(), get(b).abs());
-  }
-
-  @Override
-  public void setRow(int index, ComplexArray row) {
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
-
-  @Override
-  public void setColumn(int index, ComplexArray column) {
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
   }
 
   @Override

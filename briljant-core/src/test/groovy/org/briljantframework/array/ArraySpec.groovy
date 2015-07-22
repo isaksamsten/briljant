@@ -43,7 +43,7 @@ class ArraySpec extends Specification {
     i << getArrays(3 * 3 * 3)
   }
 
-  def "For non 2d-arrays columns() throws an expection"() {
+  def "For non 2d-arrays columns() throws an exception"() {
     when:
     i.reshape(3, 3, 3).columns()
 
@@ -64,6 +64,57 @@ class ArraySpec extends Specification {
 
     where:
     i << getArrays(3 * 3)
+  }
+
+  def "For 2d-arrays, getRow(int) returns a row vector"() {
+    given:
+    def x = bj.range(3 * 3).reshape(3, 3)
+
+    when:
+    def a = x.getRow(row)
+
+    then:
+    a.getShape() == [1, 3] as int[]
+    a == bj.array([value] as int[][])
+
+    where:
+    row << [0, 1, 2]
+    value << [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
+  }
+
+  def "For 2d-arrays, getColumn(int) returns a column vector"() {
+    given: "a matrix"
+    def x = bj.range(3 * 3).reshape(3, 3)
+
+    when: "a column is extracted"
+    def a = x.getColumn(column)
+
+    then: "the column has the correct values and shape"
+    a.shape == [3, 1] as int[]
+    a == bj.array([value] as int[][])
+
+    where:
+    column | value
+    0      | [0, 1, 2]
+    1      | [3, 4, 5]
+    2      | [6, 7, 8]
+  }
+
+  def "Using one-dimensional indexing, a transposed view is iterated in column major order"() {
+    given:
+    def x = bj.range(2 * 2 * 3).reshape(2, 2, 3)
+
+    when:
+    def y = x.transpose()
+
+    then:
+    for (int i = 0; i < y.size(); i++) {
+      y.get(i) == value[i]
+    }
+    y.shape == [3, 2, 2] as int[]
+
+    where:
+    value = [0, 4, 8, 2, 6, 10, 1, 5, 9, 3, 7, 11]
   }
 
   def "Reshaping an array should change the dimensions"() {

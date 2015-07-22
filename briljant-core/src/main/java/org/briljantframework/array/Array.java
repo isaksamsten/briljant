@@ -96,39 +96,127 @@ import java.util.function.Consumer;
  */
 public interface Array<E extends Array> extends Swappable {
 
+  /**
+   * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from},
+   * enabling transferring of (primitive) values between arrays without knowing the field type.
+   *
+   * @param toIndex   the index in {@code this}
+   * @param from      the other array
+   * @param fromIndex the index in {@code from}
+   */
   void set(int toIndex, E from, int fromIndex);
 
+  /**
+   *
+   * @param toRow
+   * @param toColumn
+   * @param from
+   * @param fromRow
+   * @param fromColumn
+   */
   void set(int toRow, int toColumn, E from, int fromRow, int fromColumn);
 
+  void set(int[] toIndex, E from, int[] fromIndex);
+
+  /**
+   * Compares the values at index {@code a} and {@code b} in ascending order, i.e. if the value at
+   * index {@code a} is smaller than the value at {@code b}, a value smaller than {@code 0} is
+   * returned, if the values are equal {@code 0} is returned and if {@code b} is larger that {@code
+   * a} a value larger than {@code 0} is returned.
+   *
+   * @param a the index of the first value
+   * @param b the index of the second value
+   * @return an indicator whether the value at {@code a} is smaller, larger or equal to {@code b}
+   */
   int compare(int a, int b);
 
   /**
-   * Assign {@code o} to {@code this}. Ensures that the shapes are equal.
+   * Assign {@code o} to {@code this}.
+   * <p>
+   * <pre>{@code
+   *  > DoubleArray arr = Bj.array(new double[]{1,2,3,4});
+   *  > DoubleArray zero = Bj.doubleArray(4);
+   *  > zero.assign(arr);
+   *  array([1.000, 2.000, 3.000, 4.000])
+   * }</pre>
    *
    * @param o the matrix
    * @return receiver modified
    */
   E assign(E o);
 
+  /**
+   * Iterate over each vector of this array along the specified dimension.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * > DoubleArray a = Bj.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
+   * > a.forEach(0, x -> System.out.println(x))
+   *
+   * array([0.000, 0.091])
+   * array([0.182, 0.273])
+   * array([0.364, 0.455])
+   * array([0.545, 0.636])
+   * array([0.727, 0.818])
+   * array([0.909, 1.000])
+   * }</pre>
+   */
   void forEach(int dim, Consumer<E> consumer);
 
-  void setRow(int i, E row);
-
-  void setColumn(int i, E column);
+  /**
+   * For 2d-arrays, sets the column at position {@code i} to the values supplied.
+   *
+   * <p>
+   * Example
+   * <pre>{@code
+   * > DoubleArray a = Bj.linspace(0, 1, 3 * 3).reshape(3, 3);
+   * > a.setColumn(0, Bj.zero(3));
+   *
+   * array([[0.000, 0.375, 0.750],
+   *        [0.000, 0.500, 0.875],
+   *        [0.000, 0.625, 1.000]])
+   * }</pre>
+   *
+   * @param i   the column index
+   * @param vec the vector of values
+   * @throws java.lang.IllegalStateException if array is not 2d
+   */
+  void setColumn(int i, E vec);
 
   /**
-   * Gets vector at {@code index}. Modifications will change the original matrix.
+   * For 2d-arrays, gets the (column) vector at {@code index}. This method returns a column vector,
+   * i.e. a 2d-array with shape {@code n x 1}.
    *
    * @param index the index
-   * @return the column
+   * @return a vector of shape {@code n x 1}
+   * @throws java.lang.IllegalStateException if array is not 2d
    */
   E getColumn(int index);
 
   /**
-   * Get row vector at {@code i}. Modifications will change to original matrix.
+   * For 2d-arrays, sets the row at position {@code i} to the supplied values.
    *
-   * @param i row
-   * @return a vector
+   * <p>
+   * Example
+   * <pre>{@code
+   *
+   * }</pre>
+   *
+   * @param i   the row index
+   * @param vec a vector of size {@code m}
+   * @throws java.lang.IllegalStateException    if array is not 2d
+   * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
+   */
+  void setRow(int i, E vec);
+
+  /**
+   * For 2d-arrays, gets the (row) vector at {@code i}. This method returns a row-vector, i.e. a
+   * 2d-array with shape {@code 1 x m}.
+   *
+   * @param i the row index
+   * @return a vector of shape {@code 1 x m}
+   * @throws java.lang.IllegalStateException    if array is not 2d
+   * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
   E getRow(int i);
 

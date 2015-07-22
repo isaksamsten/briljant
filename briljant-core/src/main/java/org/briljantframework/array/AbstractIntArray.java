@@ -3,11 +3,11 @@ package org.briljantframework.array;
 import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
-import org.briljantframework.array.api.ArrayFactory;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -90,12 +90,12 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public final void set(int index, int value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
   }
 
   @Override
   public final int get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
   }
 
   protected abstract void setElement(int i, int value);
@@ -113,23 +113,13 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   }
 
   @Override
+  public void set(int[] toIndex, IntArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
   public int compare(int a, int b) {
     return Integer.compare(get(a), get(b));
-  }
-
-  @Override
-  public void setRow(int index, IntArray row) {
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
-
-  @Override
-  public void setColumn(int index, IntArray column) {
-    Check.size(rows(), column.size());
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
   }
 
   @Override
@@ -466,7 +456,14 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
     }
     if (obj instanceof IntArray) {
       IntArray mat = (IntArray) obj;
-      if (!Arrays.equals(shape, mat.getShape())) {
+      boolean equalShape;
+      // This saves one array copy
+      if (mat instanceof AbstractArray) {
+        equalShape = !Arrays.equals(shape, ((AbstractArray) mat).shape);
+      } else {
+        equalShape = !Arrays.equals(shape, mat.getShape());
+      }
+      if (!equalShape) {
         return false;
       }
       for (int i = 0; i < size(); i++) {

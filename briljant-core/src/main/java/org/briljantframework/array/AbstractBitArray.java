@@ -5,8 +5,8 @@ import com.google.common.collect.UnmodifiableIterator;
 import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Check;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.complex.Complex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -59,6 +59,11 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
 
+  @Override
+  public void set(int[] toIndex, BitArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
   public final void set(int[] ix, boolean value) {
     Check.argument(ix.length == dims());
     setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
@@ -83,12 +88,12 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public void set(int index, boolean value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
   }
 
   @Override
   public boolean get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
   }
 
   protected abstract void setElement(int i, boolean value);
@@ -101,17 +106,17 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   }
 
   @Override
-  public void setRow(int index, BitArray row) {
+  public void setRow(int index, BitArray vec) {
     for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
+      set(index, j, vec.get(j));
     }
   }
 
   @Override
-  public void setColumn(int index, BitArray column) {
-    Check.size(rows(), column.size());
+  public void setColumn(int index, BitArray vec) {
+    Check.size(rows(), vec.size());
     for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
+      set(i, index, vec.get(i));
     }
   }
 

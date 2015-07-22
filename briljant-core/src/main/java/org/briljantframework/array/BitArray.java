@@ -13,13 +13,17 @@ public interface BitArray extends Array<BitArray>, Iterable<Boolean> {
 
   BitArray assign(boolean value);
 
+  void set(int index, boolean value);
+
   void set(int i, int j, boolean value);
 
-  void set(int index, boolean value);
+  void set(int[] index, boolean value);
+
+  boolean get(int index);
 
   boolean get(int i, int j);
 
-  boolean get(int index);
+  boolean get(int... index);
 
   BitArray xor(BitArray other);
 

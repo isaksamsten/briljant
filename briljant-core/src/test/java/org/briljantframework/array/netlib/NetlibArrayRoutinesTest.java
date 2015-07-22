@@ -30,12 +30,15 @@ public class NetlibArrayRoutinesTest {
   public void testTestPerformance() throws Exception {
     long start = System.nanoTime();
     DoubleArray c;
+//    double[] d;
     for (int i = 0; i < 10; i++) {
+//      d = new double[10000 * 10000];
+//      for (int j = 0; j < d.length; j++) {
+//        d[i] = 32;
+//      }
       c = bj.doubleArray(10000, 10000).assign(32);
     }
     System.out.println((System.nanoTime() - start) / 1e6 / 10);
-
-
   }
 
   @Test

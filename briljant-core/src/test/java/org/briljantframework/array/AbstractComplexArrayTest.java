@@ -1,8 +1,8 @@
 package org.briljantframework.array;
 
-import org.briljantframework.complex.Complex;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.complex.Complex;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -634,7 +634,7 @@ public class AbstractComplexArrayTest {
   @Test
   public void testSlice3() throws Exception {
     ComplexArray x = bj.complexArray(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    ComplexArray s = x.get();
+    ComplexArray s = x.get(bj.range(2), bj.range(2));
     assertEquals(2, s.rows());
     assertEquals(2, s.columns());
     assertValuesEquals(bj.complexArray(), s.getRow(0));

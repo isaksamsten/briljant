@@ -165,18 +165,11 @@ public interface ComplexArray extends Array<ComplexArray>, Iterable<Complex> {
    */
   ComplexArray conjugateTranspose();
 
-  void set(int index, Complex complex);
-
   void set(int i, int j, Complex complex);
 
-  /**
-   * Get value at row {@code i} and column {@code j}
-   *
-   * @param i row
-   * @param j column
-   * @return value Complex
-   */
-  Complex get(int i, int j);
+  void set(int index, Complex complex);
+
+  void set(int[] index, Complex complex);
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
@@ -203,6 +196,17 @@ public interface ComplexArray extends Array<ComplexArray>, Iterable<Complex> {
    * @return the value index
    */
   Complex get(int index);
+
+  /**
+   * Get value at row {@code i} and column {@code j}
+   *
+   * @param i row
+   * @param j column
+   * @return value Complex
+   */
+  Complex get(int i, int j);
+
+  Complex get(int... index);
 
   Stream<Complex> stream();
 

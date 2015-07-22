@@ -134,13 +134,13 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public E getRow(int i) {
     Check.state(isMatrix(), "Can only get rows from 2d-arrays");
-    return getVector(1, i);
+    return getView(i, 0, 1, columns());
   }
 
   @Override
   public E getColumn(int i) {
     Check.state(isMatrix(), "Can only get columns from 2d-arrays");
-    return getVector(0, i);
+    return getView(0, i, rows(), 1);
   }
 
   @Override
@@ -161,7 +161,8 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     return makeView(
         getOffset() + rowOffset * stride(0) + colOffset * stride(1),
         new int[]{rows, columns},
-        getStride()
+        getStride(),
+        rows == 1 ? 1 : 0 // change the major stride
     );
   }
 
@@ -201,6 +202,16 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     for (int i = 0; i < size; i++) {
       consumer.accept(getVector(dim, i));
     }
+  }
+
+  @Override
+  public void setRow(int i, E vec) {
+    getRow(i).assign(vec);
+  }
+
+  @Override
+  public void setColumn(int i, E vec) {
+    getColumn(i).assign(vec);
   }
 
   @Override

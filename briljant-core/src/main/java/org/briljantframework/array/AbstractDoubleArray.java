@@ -369,12 +369,12 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public final void set(int index, double value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
   }
 
   @Override
   public final double get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
   }
 
   protected abstract void setElement(int i, double value);
@@ -389,6 +389,11 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   @Override
   public void set(int toRow, int toColumn, DoubleArray from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
+  }
+
+  @Override
+  public void set(int[] toIndex, DoubleArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
@@ -416,20 +421,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
         return AbstractDoubleArray.this.elementSize();
       }
     };
-  }
-
-  @Override
-  public void setRow(int index, DoubleArray row) {
-    for (int j = 0; j < columns(); j++) {
-      set(index, j, row.get(j));
-    }
-  }
-
-  @Override
-  public void setColumn(int index, DoubleArray column) {
-    for (int i = 0; i < rows(); i++) {
-      set(i, index, column.get(i));
-    }
   }
 
   @Override
