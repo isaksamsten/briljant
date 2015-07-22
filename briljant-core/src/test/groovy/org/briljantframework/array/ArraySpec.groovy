@@ -123,6 +123,26 @@ class ArraySpec extends Specification {
     value = [0, 4, 8, 2, 6, 10, 1, 5, 9, 3, 7, 11]
   }
 
+  def "Selecting a range of elements from an 1d-array should return a view of the selected elements"() {
+    given:
+    def arr = bj.range(10)
+
+    when:
+    def i = arr.get(range)
+
+    then:
+    i.shape == selected.shape
+    i.size() == range.size()
+    i == selected
+
+    where:
+    range             | selected
+    bj.range(0, 3)    | bj.array(0, 1, 2)
+    bj.range(1, 5)    | bj.array(1, 2, 3, 4)
+    bj.range(2, 7, 2) | bj.array(2, 4, 6)
+
+  }
+
   def "Reshaping an array should change the dimensions"() {
     expect:
     array.dims() == 1

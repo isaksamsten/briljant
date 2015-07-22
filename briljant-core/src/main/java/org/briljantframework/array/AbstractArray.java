@@ -172,7 +172,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     for (int i = 0; i < ranges.length; i++) {
       Range r = ranges[i];
       offset += r.start() * stride(i);
-      shape[i] = r.end() - 1;
+      shape[i] = r.size();
       stride[i] = stride[i] * r.step();
     }
 
