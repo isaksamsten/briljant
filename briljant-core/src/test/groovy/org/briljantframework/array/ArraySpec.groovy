@@ -74,12 +74,14 @@ class ArraySpec extends Specification {
     def a = x.getRow(row)
 
     then:
-    a.getShape() == [1, 3] as int[]
+    a.shape == [1, 3] as int[]
     a == bj.array([value] as int[][])
 
     where:
-    row << [0, 1, 2]
-    value << [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
+    row | value
+    0   | [0, 3, 6]
+    1   | [1, 4, 7]
+    2   | [2, 5, 8]
   }
 
   def "For 2d-arrays, getColumn(int) returns a column vector"() {
@@ -91,7 +93,7 @@ class ArraySpec extends Specification {
 
     then: "the column has the correct values and shape"
     a.shape == [3, 1] as int[]
-    a == bj.array([value] as int[][])
+    a == bj.array([value] as int[][]).transpose()
 
     where:
     column | value

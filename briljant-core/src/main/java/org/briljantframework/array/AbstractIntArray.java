@@ -459,9 +459,9 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
       boolean equalShape;
       // This saves one array copy
       if (mat instanceof AbstractArray) {
-        equalShape = !Arrays.equals(shape, ((AbstractArray) mat).shape);
+        equalShape = Arrays.equals(shape, ((AbstractArray) mat).shape);
       } else {
-        equalShape = !Arrays.equals(shape, mat.getShape());
+        equalShape = Arrays.equals(shape, mat.getShape());
       }
       if (!equalShape) {
         return false;
