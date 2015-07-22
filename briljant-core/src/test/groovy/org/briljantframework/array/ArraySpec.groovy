@@ -72,10 +72,13 @@ class ArraySpec extends Specification {
 
     when:
     def a = x.getRow(row)
+    def b = x.getRow(row).transpose()
 
     then:
     a.shape == [1, 3] as int[]
+    b.shape == [3, 1] as int[]
     a == bj.array([value] as int[][])
+    b == bj.array([value] as int[][]).transpose()
 
     where:
     row | value
@@ -90,10 +93,13 @@ class ArraySpec extends Specification {
 
     when: "a column is extracted"
     def a = x.getColumn(column)
+    def b = x.getColumn(column).transpose()
 
     then: "the column has the correct values and shape"
     a.shape == [3, 1] as int[]
+    b.shape == [1, 3] as int[]
     a == bj.array([value] as int[][]).transpose()
+    b == bj.array([value] as int[][])
 
     where:
     column | value
@@ -110,10 +116,8 @@ class ArraySpec extends Specification {
     def y = x.transpose()
 
     then:
-    for (int i = 0; i < y.size(); i++) {
-      y.get(i) == value[i]
-    }
     y.shape == [3, 2, 2] as int[]
+    y == bj.array(value as int[]).reshape(y.shape)
 
     where:
     value = [0, 4, 8, 2, 6, 10, 1, 5, 9, 3, 7, 11]

@@ -81,12 +81,12 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
 
   @Override
   public final void set(int index, Complex value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final Complex get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   /**

@@ -369,12 +369,12 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
 
   @Override
   public final void set(int index, double value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final double get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected abstract void setElement(int i, double value);

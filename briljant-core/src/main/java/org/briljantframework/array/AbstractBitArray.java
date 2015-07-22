@@ -88,12 +88,12 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public void set(int index, boolean value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public boolean get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected abstract void setElement(int i, boolean value);

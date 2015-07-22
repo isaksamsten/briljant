@@ -90,12 +90,12 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   @Override
   public final void set(int index, int value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final int get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected abstract void setElement(int i, int value);

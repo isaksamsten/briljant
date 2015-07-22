@@ -80,12 +80,12 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
 
   @Override
   public final void set(int index, long value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride), value);
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final long get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape, majorStride));
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   protected void setElement(int i, long value) {
