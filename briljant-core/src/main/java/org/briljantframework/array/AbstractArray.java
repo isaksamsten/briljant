@@ -6,6 +6,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -165,12 +166,18 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public E get(Range... ranges) {
-    Check.argument(ranges.length > 0 & ranges.length <= dims());
+    return get(Arrays.asList(ranges));
+  }
+
+  @Override
+  public E get(List<Range> ranges) {
+    Check.argument(ranges.size() > 0, "Too few ranges to slice");
+    Check.argument(ranges.size() <= dims(), "Too many ranges to slice");
     int[] stride = getStride();
     int[] shape = getShape();
     int offset = getOffset();
-    for (int i = 0; i < ranges.length; i++) {
-      Range r = ranges[i];
+    for (int i = 0; i < ranges.size(); i++) {
+      Range r = ranges.get(i);
       offset += r.start() * stride(i);
       shape[i] = r.size();
       stride[i] = stride[i] * r.step();

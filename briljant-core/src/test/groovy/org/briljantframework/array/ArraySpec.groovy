@@ -123,7 +123,7 @@ class ArraySpec extends Specification {
     value = [0, 4, 8, 2, 6, 10, 1, 5, 9, 3, 7, 11]
   }
 
-  def "Selecting a range of elements from an 1d-array should return a view of the selected elements"() {
+  def "Selecting a range of elements from a 1d-array should return a view of the selected elements"() {
     given:
     def arr = bj.range(10)
 
@@ -140,7 +140,46 @@ class ArraySpec extends Specification {
     bj.range(0, 3)    | bj.array(0, 1, 2)
     bj.range(1, 5)    | bj.array(1, 2, 3, 4)
     bj.range(2, 7, 2) | bj.array(2, 4, 6)
+  }
 
+  def "Selecting a range of elements from a 2d-array should return a view of the selected elements"() {
+    given:
+    def arr = bj.range(3 * 5).reshape(3, 5)
+
+    when:
+    def i = arr.get(ranges)
+
+    then:
+    i.shape == selected.shape
+    i.size() == ranges.collect {it.size()}.inject(1) {p, v -> p * v}
+    i == selected
+    i.transpose() == selected.transpose()
+
+    where:
+    ranges                           | selected
+    [bj.range(2), bj.range(3)]       | bj.array(0, 1, 3, 4, 6, 7).reshape(2, 3)
+    [bj.range(1, 3), bj.range(2)]    | bj.array(1, 2, 4, 5).reshape(2, 2)
+    [bj.range(2), bj.range(0, 5, 2)] | bj.array(0, 1, 6, 7, 12, 13).reshape(2, 3)
+  }
+
+  def "Selecting a range of elements from a nd-array should return a view of the selected elements"() {
+
+  }
+
+  def "When selecting ranges, ranges[i] where i > dims() should be interpreted as all"() {
+    when:
+    def i = arr.get(ranges)
+    def b = arr.get(ranges + ([bj.range(2)] * (Math.abs(ranges.size() - arr.dims()))))
+
+    then:
+    i == b
+    i.transpose() == b.transpose()
+
+    where:
+    arr                                         | ranges
+    bj.range(2 * 2).reshape(2, 2)               | [bj.range(1)]
+    bj.range(2 * 2 * 2).reshape(2, 2, 2)        | [bj.range(2), bj.range(1)]
+    bj.range(2 * 2 * 2 * 2).reshape(2, 2, 2, 2) | [bj.range(2), bj.range(1)]
   }
 
   def "Reshaping an array should change the dimensions"() {

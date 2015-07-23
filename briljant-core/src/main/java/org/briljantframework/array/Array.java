@@ -3,6 +3,7 @@ package org.briljantframework.array;
 import org.briljantframework.sort.Swappable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -234,9 +235,9 @@ public interface Array<E extends Array> extends Swappable {
    * <p> Gets a view of the diagonal of a 2-d array
    *
    * <pre>{@code
-   *  >>> DoubleArray b = Bj.array(new double[]{1,2,3,4}).reshape(2, 2);
-   *  >>> b.getDiagonal();
-   *  [1,4]
+   *  > DoubleArray b = Bj.array(new double[]{1,2,3,4}).reshape(2, 2);
+   *  > b.getDiagonal();
+   *  array([1,4])
    * }</pre>
    *
    * @return a diagonal view
@@ -244,13 +245,89 @@ public interface Array<E extends Array> extends Swappable {
   E getDiagonal();
 
   /**
-   * Basic slicing. Returns a view of the underlying matrix. Subclasses should specialize the
-   * return type.
-   *
-   * @param ranges the rows to include
+   * @param ranges the ranges (one for each dimension) to include in the view
    * @return a view
+   * @see #get(java.util.List)
    */
   E get(Range... ranges);
+
+  /**
+   * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
+   * slicing on a per dimension basis, i.e., the values included in a range (with step > 0) is
+   * selected for each dimension {@code d}. Given an nd-array, a range {@code range(i, j, k)} with
+   * start index  ({@code i}), end index ({@code j}) and step size ({@code k}) selects a series of
+   * {@code m} values (in the d:th dimension) {@code i, i+k,...,i+(m-1)} where {@code m = q/k + r}
+   * and {@code q=j-i} and {@code r = 1(i % k = 0)}. If {@code ranges.size() < dims()}, dimension d
+   * {@code d > ranges.size() && d <= dims()} are assumed to be {@code range(0, size(d), 1)}
+   *
+   * <p>
+   * It is simple to see that the (specialized in each primitive array) function {@code
+   * get(int...)} is a special case returning a single field.
+   * </p>
+   *
+   * <p>
+   * Example
+   * <ul>
+   * <li> 1d-array
+   * <pre>{@code
+   * > IntArray r = Bj.range(10)
+   * array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+   *
+   * > r.get(Bj.range(0, 8, 2))
+   * array([0, 2, 4, 6])
+   * }</pre>
+   * </li>
+   * <li> 2d-array
+   * <pre>{@code
+   * > IntArray r = Bj.range(3 * 3).reshape(3, 3)
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
+   *
+   * > r.get(Bj.range(1, 2))
+   * array([[1, 4, 7]])
+   *
+   * > r.get(Bj.range(0, 3, 2), Bj.range(0, 3, 2))
+   * array([[0, 6],
+   *        [2, 8]])
+   * }</pre>
+   * </li>
+   * <li> nd-array
+   * <pre>{@code
+   * >IntArray r = Bj.range(3*3*3).reshape(3,3,3)
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   *
+   *         [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   *
+   * > r.get(Bj.range(0,3,2))
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   *
+   * > r.get(Bj.range(0,3,2), Bj.range(0,1), Bj.range(0,3,2))
+   * array([[[0, 18]],
+   *
+   *         [[2, 20]]])
+   * }</pre>
+   * </li>
+   * </ul>
+   *
+   * @param ranges a collection of ranges
+   * @return a view
+   */
+  E get(List<Range> ranges);
 
   /**
    * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
