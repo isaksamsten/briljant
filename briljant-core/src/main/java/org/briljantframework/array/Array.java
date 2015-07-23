@@ -29,17 +29,17 @@ import java.util.function.Consumer;
  * </ul>
  * </p>
  *
- * <h1>Adapt {@code Matrix} to another matrix type</h1>
+ * <h1>Adapt {@code Array} to another array type</h1>
  * <p>
- * {@code Matrix} defines four methods for adapting the current implementation to any of the four
+ * {@code Array} defines four methods for adapting the current implementation to any of the four
  * specialized types. However, there are some caveats when adapting matrices and perform mutations.
  *
- * For example, given a {@code DoubleMatrix d} which is adapted to a
- * {@code ComplexMatrix c = d.asComplexMatrix()}, then setting a position to a new {@code Complex}
+ * For example, given a {@code DoubleArray d} which is adapted to a
+ * {@code ComplexArray c = d.asComplex()}, then setting a position to a new {@code Complex}
  * with an imaginary part, e.g., {@code c.set(0, Complex.I)}, would just propagate the real part to
  * the underlying {@code DoubleMatrix}. Likewise, given an {@code IntMatrix} adapted to a
- * {@code DoubleMatrix}, setting a position to a double converts it to an {@code int} (using
- * {@link Math#round(double)}).
+ * {@code DoubleArray}, setting a position to a double converts it to an {@code int} (using
+ * {@code (int) value}).
  *
  * Finally, if receiver is
  * <ul>
@@ -47,6 +47,8 @@ import java.util.function.Consumer;
  * {@code this}</li>
  * <li>{@link IntArray}, {@link #asInt()} must return
  * {@code this}</li>
+ * <li>{@link org.briljantframework.array.LongArray}, {@link #asLong()} must return {@code
+ * this}</li>
  * <li>{@link BitArray}, {@link #asBit()} must return
  * {@code this}</li>
  * <li>{@link ComplexArray}, {@link #asComplex()} must return
@@ -56,7 +58,7 @@ import java.util.function.Consumer;
  * <h1>Implicit conversions</h1>
  * <ul>
  * <li>{@code Complex => double}: {@code value.real()}</li>
- * <li>{@code double => int}: {@code (int) Math.round(value)}</li>
+ * <li>{@code double => int}: {@code (int) value}</li>
  * <li>{@code int => boolean}: {@code value == 1 ? true : false}</li>
  * <li>{@code boolean => int}; {@code value ? 1 : 0}</li>
  * <li>{@code int => double}: {@code value}</li>
@@ -68,31 +70,6 @@ import java.util.function.Consumer;
  * specialized type. For example, {@link DoubleArray#get(int, int)}.
  * </p>
  *
- * <h1>Avoid unboxing/type checking/truncating when transferring values between {@code
- * Matrix}es</h1>
- * <p>
- * Prefer:
- *
- * <pre>
- *   Matrix a = Doubles.randn(10, 1)
- *   Matrix b = Doubles.zeros(10, 1)
- *   a.set(3, b, 0)
- * </pre>
- *
- * to:
- *
- * <pre>
- *   swith(b.getDataType()) {
- *       DataType.COMPLEX: a.set(3, b.getAsComplex(0); break;
- *       ...
- *       ...
- *       ...
- *       default: ...;
- *   }
- * </pre>
- *
- * </p>
- *
  * @author Isak Karlsson
  */
 public interface Array<E extends Array> extends Swappable {
@@ -100,6 +77,17 @@ public interface Array<E extends Array> extends Swappable {
   /**
    * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from},
    * enabling transferring of (primitive) values between arrays without knowing the field type.
+   * <p>
+   * For example, given the following signature {@code <T extends Array<T>> copy(T from, T to)} one
+   * can generically implement swapping without knowing the element type.
+   *
+   * <pre>{@code
+   * <T extends Array<T>> copy(T from, T to) {
+   *  for(int i = 0; i < from.size(); i++) {
+   *    to.set(i, from, i);
+   *  }
+   * }
+   * }</pre>
    *
    * @param toIndex   the index in {@code this}
    * @param from      the other array
@@ -108,15 +96,28 @@ public interface Array<E extends Array> extends Swappable {
   void set(int toIndex, E from, int fromIndex);
 
   /**
+   * For 2d-arrays, perform {@code this.set(toRow, toColumn, from.get(fromRow, fromColumn)} while
+   * avoiding unboxing of primitive values.
    *
-   * @param toRow
-   * @param toColumn
-   * @param from
-   * @param fromRow
-   * @param fromColumn
+   * @param toRow      the row in {@code this}
+   * @param toColumn   the column in {@code this}
+   * @param from       the other array
+   * @param fromRow    the row in {@code from}
+   * @param fromColumn the column in {@code from}
+   * @see #set(int, Array, int) for an example
    */
   void set(int toRow, int toColumn, E from, int fromRow, int fromColumn);
 
+  /**
+   * For nd-arrays, perform {@code this.set(toIndex, from.get(fromIndex)} while avoiding unboxing
+   * of
+   * primitive values.
+   *
+   * @param toIndex   the index in {@code this}
+   * @param from      the other array
+   * @param fromIndex the index in {@code from}
+   * @see #set(int, Array, int) for an example
+   */
   void set(int[] toIndex, E from, int[] fromIndex);
 
   /**
