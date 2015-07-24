@@ -74,12 +74,6 @@ public class AbstractComplexArrayTest {
   }
 
   @Test
-  public void testAssign6() throws Exception {
-    ComplexArray i = bj.complexArray().assign(bj.complexArray().assign(3));
-    assertMatrixEquals(3, i);
-  }
-
-  @Test
   public void testAssign7() throws Exception {
     ComplexArray i =
         bj.complexArray().assign(bj.complexArray().assign(3), x -> x.multiply(2));

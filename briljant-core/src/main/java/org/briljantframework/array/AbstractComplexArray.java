@@ -114,15 +114,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
-  public ComplexArray assign(ComplexArray o) {
-    Check.shape(this, o);
-    for (int i = 0; i < size(); i++) {
-      set(i, o.get(i));
-    }
-    return this;
-  }
-
-  @Override
   public ComplexArray assign(Supplier<Complex> supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.get());

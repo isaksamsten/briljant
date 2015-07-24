@@ -51,15 +51,6 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   }
 
   @Override
-  public IntArray assign(IntArray o) {
-    Check.shape(this, o);
-    for (int i = 0; i < size(); i++) {
-      set(i, o.get(i));
-    }
-    return this;
-  }
-
-  @Override
   public void swap(int a, int b) {
     int tmp = get(a);
     set(a, get(b));

@@ -65,12 +65,6 @@ public class AbstractDoubleArrayTest {
   }
 
   @Test
-  public void testAssign6() throws Exception {
-    DoubleArray i = bj.doubleArray(3, 3).assign(bj.doubleArray(3, 3).assign(3));
-    MatrixAssert.assertMatrixEquals(3, i, epsilon);
-  }
-
-  @Test
   public void testAssign7() throws Exception {
     DoubleArray
         i =

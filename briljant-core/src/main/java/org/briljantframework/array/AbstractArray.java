@@ -67,9 +67,17 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   }
 
   @Override
+  public void assign(E o) {
+    Check.size(this, o);
+    for (int i = 0; i < o.size(); i++) {
+      set(i, o, i);
+    }
+  }
+
+  @Override
   public E select(int index) {
-    Check.argument(dims() > 0, "Can't select in 1-d array");
-    Check.argument(index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
+    Check.argument(dims() > 1, "Can't select in 1-d array");
+    Check.argument(index >= 0 && index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
     int dims = dims();
     return makeView(
         getOffset() + index * stride(0),
@@ -80,7 +88,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public E select(int dimension, int index) {
-    Check.argument(dimension < dims(), "Can't select dimension.");
+    Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
     return makeView(
         getOffset() + index * stride(dimension),
@@ -220,9 +228,26 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
 
   @Override
   public final E reshape(int... shape) {
+    if (shape.length == 1 && shape[0] == -1) {
+      int[] newShape = {size()};
+      if (isContiguous()) {
+        return makeView(getOffset(), newShape, Indexer.computeStride(1, newShape));
+      } else {
+        return copy().reshape(shape);
+      }
+    }
+
     Check.size(Indexer.size(this.shape), Indexer.size(shape),
                CHANGED_TOTAL_SIZE, Arrays.toString(this.shape), Arrays.toString(shape));
-    return makeView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
+    if (isContiguous()) {
+      return makeView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
+    } else {
+      return copy().reshape(shape);
+    }
+  }
+
+  protected boolean isContiguous() {
+    return majorStride == 0;
   }
 
   @Override

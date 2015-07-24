@@ -125,15 +125,6 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   }
 
   @Override
-  public LongArray assign(LongArray o) {
-    Check.shape(this, o);
-    for (int i = 0; i < size(); i++) {
-      set(i, o.get(i));
-    }
-    return this;
-  }
-
-  @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
         getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {

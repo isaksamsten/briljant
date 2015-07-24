@@ -89,15 +89,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray assign(DoubleArray o) {
-    Check.size(this, o);
-    for (int i = 0; i < size(); i++) {
-      set(i, o.get(i));
-    }
-    return this;
-  }
-
-  @Override
   public DoubleArray assign(DoubleSupplier supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.getAsDouble());

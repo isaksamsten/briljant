@@ -60,12 +60,6 @@ public class AbstractIntArrayTest {
   }
 
   @Test
-  public void testAssign6() throws Exception {
-    IntArray i = bj.intArray(3, 3).assign(bj.intArray().assign(3));
-    assertMatrixEquals(3, i);
-  }
-
-  @Test
   public void testAssign7() throws Exception {
     IntArray i = bj.intArray(3, 3).assign(bj.intArray().assign(3), x -> x * 2);
     assertMatrixEquals(6, i);

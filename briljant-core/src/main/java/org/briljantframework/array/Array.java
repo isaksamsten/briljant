@@ -139,13 +139,13 @@ public interface Array<E extends Array> extends Swappable {
    *  > DoubleArray arr = Bj.array(new double[]{1,2,3,4});
    *  > DoubleArray zero = Bj.doubleArray(4);
    *  > zero.assign(arr);
+   *  > zero
    *  array([1.000, 2.000, 3.000, 4.000])
    * }</pre>
    *
    * @param o the matrix
-   * @return receiver modified
    */
-  E assign(E o);
+  void assign(E o);
 
   /**
    * Iterate over each vector of this array along the specified dimension.
@@ -189,6 +189,27 @@ public interface Array<E extends Array> extends Swappable {
    * For 2d-arrays, gets the (column) vector at {@code index}. This method returns a column vector,
    * i.e. a 2d-array with shape {@code n x 1}.
    *
+   * <p> Example
+   * <pre>{@code
+   * > IntArray r = Bj.range(3 * 3).reshape(3, 3).copy()
+   * > r
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
+   *
+   * > r.setColumn(0, Bj.array(new int[]{0, 0, 1}))
+   * > r
+   * array([[0, 3, 6],
+   *        [0, 4, 7],
+   *        [1, 5, 8]])
+   *
+   * > r.get(Bj.range(3), Bj.range(1)).assign(Bj.array(new int[]{0, 1, 0}))
+   * > r
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [0, 5, 8]])
+   * }</pre>
+   *
    * @param index the index
    * @return a vector of shape {@code n x 1}
    * @throws java.lang.IllegalStateException if array is not 2d
@@ -201,7 +222,21 @@ public interface Array<E extends Array> extends Swappable {
    * <p>
    * Example
    * <pre>{@code
+   * > IntArray r = Bj.range(3 * 3).reshape(3, 3).copy()
+   * > r.setRow(0, Bj.array(new int[]{0, 0, 1}))
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
+   * > r
+   * array([[0, 0, 1],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
    *
+   * > r.get(bj.range(1)).assign(Bj.array(new int[]{0, 1, 0}))
+   * > r
+   * array([[0, 1, 0],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
    * }</pre>
    *
    * @param i   the row index
@@ -222,15 +257,215 @@ public interface Array<E extends Array> extends Swappable {
    */
   E getRow(int i);
 
+  /**
+   * Gives a new shape to an array without changing its data.
+   *
+   * <p>
+   * In most cases reshaping can be performed without copying:
+   * <pre>{@code
+   * > IntArray x = Bj.range(3 * 3).copy();
+   * array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+   *
+   * > x.reshape(3, 3)
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
+   * > x.reshape(3, 3).data() == x.data()
+   * true
+   * }</pre>
+   *
+   * however, in some cases (when elements are non-contiguous) a copy is created
+   *
+   * <pre>{@code
+   * > IntArray x = Bj.range(3 * 3).reshape(3, 3).copy().transpose();
+   * array([[0, 1, 2],
+   *        [3, 4, 5],
+   *        [6, 7, 8]])
+   *
+   * > x.reshape(1, 9);
+   * array([[0, 3, 6, 1, 4, 7, 2, 5, 8]])
+   *
+   * > x.reshape(1, 9).data() == x.data()
+   * false
+   * }</pre>
+   *
+   * <p>
+   * Passing {@code -1} is a shortcut for {@code Array x; x.reshape(x.size())}
+   *
+   * <pre>{@code
+   * > IntArray x = Bj.range(3 * 3).reshape(3, 3).transpose()
+   * array([[0, 1, 2],
+   *       [3, 4, 5],
+   *       [6, 7, 8]])
+   *
+   * > x.reshape(-1)
+   * array([0, 3, 6, 1, 4, 7, 2, 5, 8])
+   * }</pre>
+   *
+   * @param shape the new shape must be compatible with the old shape, i.e. {@code shape[0] * ...
+   *              shape[shape.length - 1] == this.size()}
+   * @return if possible, returns a view of the array without changing its data; otherwise returns
+   * a copy with changed shape
+   */
   E reshape(int... shape);
 
+  /**
+   * Select the {@code i:th} slice of the final dimension.
+   *
+   * <p>
+   * Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   *
+   *         [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   *
+   * > x.select(0)
+   * array([[0,  9, 18],
+   *        [3, 12, 21],
+   *        [6, 15, 24]])
+   *
+   * > x.select(0).select(0)
+   * array([0, 9, 18])
+   * }</pre>
+   *
+   * <p> Note that this is the same as {@code select(0, index)}.
+   *
+   * @param index the slice in the final dimension to extract
+   * @return a view of the {@code i:th} slice in the final dimension
+   */
   E select(int index);
 
+  /**
+   * Selects the {@code i:th} slice in the {@code d:th dimension}.
+   *
+   * <p>
+   * Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   *
+   *         [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   *
+   * > x.select(2, 1);
+   * array([[ 9, 12, 15],
+   *        [10, 13, 16],
+   *        [11, 14, 17]])
+   * }</pre>
+   */
   E select(int dimension, int index);
 
-  void setVector(int dim, int index, E other);
-
+  /**
+   * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays, {@linkplain
+   * #getRow(int)} and {@linkplain #getColumn(int)} preserves the 2d-shape of the vectors
+   * resulting in row-vectors and column-vectors respectively. This method results in 1d-vectors.
+   *
+   * <p>Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   *
+   *         [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   *
+   * > x.getVector(0, 0)
+   * array([0, 1, 2])
+   *
+   * > x.getVector(1, 0)
+   * array([0, 3, 6])
+   *
+   * > x.getVector(2, 9)
+   * array([0, 9, 18])
+   *
+   * > IntArray y = x.select(0)
+   * array([[0,  9, 18],
+   *        [3, 12, 21],
+   *        [6, 15, 24]])
+   *
+   * > y.getVector(0, 0)
+   * array([0, 3, 6])
+   *
+   * > y.getColumn(0)
+   * array([[0],
+   *        [3],
+   *        [6]])
+   *
+   * > y.getVector(1, 1)
+   * array([3, 12, 21])
+   *
+   * > y.getRow(1)
+   * array([[3, 12, 21]])
+   * }</pre>
+   *
+   * @param dimension the dimension
+   * @param index     the index of the vector
+   * @return a view of the {@code i:th} vector of the {@code d:th} dimension
+   */
   E getVector(int dimension, int index);
+
+  /**
+   * Sets the elements of the {@code i:th} vector in the {@code d:th} dimension to the values
+   * of {@code other}. The size of {@code other} must equal the size of the {@code d:th} dimension
+   * {@code size(dim)}.
+   *
+   * <p>
+   * Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   *
+   *         [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   * > x.setVector(0, 0, Bj.zero(3).asInt());
+   * > x
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   *
+   *         [[0, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   *
+   *         [[0, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   * }</pre>
+   *
+   * @param dimension the dimension
+   * @param index     the index of the vector
+   * @param other     the new values for the {@code i:th} vector in the {@code d:th} dimension
+   */
+  void setVector(int dimension, int index, E other);
 
   /**
    * <p> Gets a view of the diagonal of a 2-d array
@@ -331,31 +566,26 @@ public interface Array<E extends Array> extends Swappable {
   E get(List<Range> ranges);
 
   /**
-   * Get a view of row starting at {@code rowOffset} until {@code rowOffset + rows} and columns
-   * starting at {@code colOffset} until {@code colOffset + columns}.
+   * For a 2d-array, get a view of row starting at {@code rowOffset} until {@code rowOffset + rows}
+   * and columns starting at {@code colOffset} until {@code colOffset + columns}.
+   * <p>
+   * Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(1, 10).reshape(3, 3).transpose();
+   * array([[1, 2, 3],
+   *        [4, 5, 6]
+   *        [7, 8, 9]])
    *
-   * For example,
-   *
-   * <pre>
-   *   1 2 3
-   *   4 5 6
-   *   7 8 9
-   * </pre>
-   *
-   * and {@code matrix.getView(1, 1, 2, 2)} produces
-   *
-   * <pre>
-   *   5 6
-   *   8 9
-   * </pre>
-   *
-   * Please note that modifications of the view, mutates the original.
+   * > x.getView(1, 1, 2, 2)
+   * array([[5, 6]
+   *        [8, 9]])
+   * }</pre>
    *
    * @param rowOffset the row offset
    * @param colOffset the column offset
    * @param rows      number of rows after row offset
    * @param columns   number of columns after column offset
-   * @return the matrix view
+   * @return a view
    */
   E getView(int rowOffset, int colOffset, int rows, int columns);
 

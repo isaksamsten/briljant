@@ -59,12 +59,6 @@ public class AbstractLongArrayTest {
   }
 
   @Test
-  public void testAssign6() throws Exception {
-    LongArray i = bj.longArray(3, 3).assign(bj.longArray(3, 3).assign(3));
-    assertMatrixEquals(i, 3);
-  }
-
-  @Test
   public void testAssign7() throws Exception {
     LongArray i = bj.longArray(3, 3).assign(bj.longArray(3, 3).assign(3), x -> x * 2);
     assertMatrixEquals(i, 6);

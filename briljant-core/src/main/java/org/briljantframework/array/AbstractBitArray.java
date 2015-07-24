@@ -41,15 +41,6 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   }
 
   @Override
-  public BitArray assign(BitArray o) {
-    Check.shape(this, o);
-    for (int i = 0; i < size(); i++) {
-      set(i, o.get(i));
-    }
-    return this;
-  }
-
-  @Override
   public void set(int toIndex, BitArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
