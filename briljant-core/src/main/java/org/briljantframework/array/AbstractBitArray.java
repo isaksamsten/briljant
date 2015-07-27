@@ -350,26 +350,6 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
     };
   }
 
-  private class BitListView extends AbstractList<Boolean> {
-
-    @Override
-    public Boolean get(int i) {
-      return AbstractBitArray.this.get(i);
-    }
-
-    @Override
-    public Boolean set(int i, Boolean value) {
-      boolean old = AbstractBitArray.this.get(i);
-      AbstractBitArray.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public int size() {
-      return AbstractBitArray.this.size();
-    }
-  }
-
   @Override
   public BitArray asBit() {
     return this;
