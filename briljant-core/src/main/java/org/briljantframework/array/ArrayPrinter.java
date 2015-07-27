@@ -106,14 +106,14 @@ public final class ArrayPrinter {
    */
   public static void print(Appendable out, ToStringArray arr, String startChar, String endChar)
       throws IOException {
-    boolean truncate = minTruncateSize < arr.size() && arr.dims() != 1;
-    IntArray maxWidth = computeMaxWidth(arr, truncate);
     out.append("array(");
     if (arr.size() == 0) {
       out.append(startChar).append(endChar);
-    } else if (/*arr.dims() == 1 && */arr.size() == 1) {
+    } else if (arr.size() == 1) {
       out.append(startChar).append(arr.get(0)).append(endChar);
     } else {
+      boolean truncate = minTruncateSize < arr.size() && arr.dims() != 1;
+      IntArray maxWidth = computeMaxWidth(arr, truncate);
       print(
           out,
           arr,
