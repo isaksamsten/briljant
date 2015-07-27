@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -95,6 +96,80 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
         Indexer.remove(getShape(), dimension),
         Indexer.remove(getStride(), dimension)
     );
+  }
+
+  @Override
+  public E select(List<List<Integer>> indexes) {
+    Check.argument(indexes.size() > 0 && indexes.size() <= dims());
+    E self = makeView(getOffset(), this.shape, this.stride);
+
+    int[] shape = getShape();
+    int commonShape = indexes.get(0).size();
+    for (int i = 0; i < indexes.size(); i++) {
+      List<Integer> index = indexes.get(i);
+      Check.argument(commonShape == index.size(),
+                     "Indexing arrays could not be broadcasted together");
+      shape[i] = index.size();
+    }
+    int[] newShape = new int[shape.length - indexes.size() + 1];
+    System.arraycopy(shape, dims() - newShape.length, newShape, 0, newShape.length);
+    E array = newEmptyArray(newShape);
+    List<Integer> subIndex = indexes.get(0);
+    if (indexes.size() == 1) {
+      if (array.isVector()) {
+        int size = self.size();
+        for (int i = 0; i < subIndex.size(); i++) {
+          Integer fromIndex = subIndex.get(i);
+          Check.boxedIndex(fromIndex, size);
+          array.set(i, self, fromIndex);
+        }
+      } else {
+        for (int j = 0; j < subIndex.size(); j++) {
+          Integer fromIndex = subIndex.get(j);
+          Check.boxedIndex(fromIndex, self.size(0));
+          array.select(j).assign(self.select(fromIndex));
+        }
+      }
+    } else {
+      for (int j = 0; j < subIndex.size(); j++) {
+        Integer fromIndex = subIndex.get(j);
+        Check.boxedIndex(fromIndex, self.size(0));
+        select(indexes, self.select(fromIndex), array, j, 1);
+      }
+    }
+    return array;
+  }
+
+  private void select(List<List<Integer>> indexes, E from, E to, int j, int dim) {
+    Integer fromIndex = indexes.get(dim).get(j);
+    if (indexes.size() - 1 == dim) {
+      if (to.isVector()) {
+        Check.state(from.isVector());
+        Check.boxedIndex(fromIndex, from.size());
+        to.set(j, from, fromIndex);
+      } else {
+        Check.boxedIndex(fromIndex, from.size(dim));
+        to.select(j).assign(from.select(fromIndex));
+      }
+    } else {
+      Check.boxedIndex(fromIndex, from.size(dim));
+      select(indexes, from.select(fromIndex), to, j, dim + 1);
+    }
+  }
+
+  @Override
+  @SafeVarargs
+  public final E select(List<Integer>... indexes) {
+    return select(Arrays.asList(indexes));
+  }
+
+  @Override
+  public E select(int[][] indexes) {
+    List<List<Integer>> boxed = new ArrayList<>();
+    for (int[] index : indexes) {
+      boxed.add(Indexer.asList(index));
+    }
+    return select(boxed);
   }
 
   @Override

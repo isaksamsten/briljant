@@ -1,13 +1,14 @@
 package org.briljantframework;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
-import org.briljantframework.array.Array;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -125,6 +126,25 @@ public final class Check {
 
   public static void size(int actual, int expected, String msg, Object... args) {
     size(actual == expected, msg, args);
+  }
+
+  public static void boxedIndex(Integer index, int size) {
+    int i = Objects.requireNonNull(index, "index is null");
+    index(i, size);
+  }
+
+  public static void boxedIndex(Integer index, int size, String message, Object... args) {
+    index(Objects.requireNonNull(index, "index is null"), size, message, args);
+  }
+
+  public static void index(int index, int size) {
+    index(index, size, "Index %s out of bounds for axis with size %s", index, size);
+  }
+
+  public static void index(int index, int size, String message, Object... args) {
+    if (index < 0 || index >= size) {
+      throw new IndexOutOfBoundsException(String.format(message, args));
+    }
   }
 
   /**

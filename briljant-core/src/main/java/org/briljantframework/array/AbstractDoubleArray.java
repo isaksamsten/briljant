@@ -592,31 +592,6 @@ public abstract class AbstractDoubleArray extends AbstractArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray slice(Collection<Integer> rows, Collection<Integer> columns) {
-    DoubleArray m = newEmptyArray(rows.size(), columns.size());
-    int i = 0;
-    for (int row : rows) {
-      int j = 0;
-      for (int column : columns) {
-        m.set(i, j++, get(row, column));
-      }
-      i++;
-    }
-    return m;
-  }
-
-  @Override
-  public DoubleArray slice(Collection<Integer> indexes) {
-    DoubleArray m = newEmptyArray(indexes.size());
-    int i = 0;
-    for (int index : indexes) {
-      m.set(i++, get(index));
-    }
-    return m;
-  }
-
-
-  @Override
   public DoubleArray slice(BitArray bits) {
     Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();

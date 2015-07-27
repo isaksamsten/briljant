@@ -453,14 +453,14 @@ public class AbstractLongArrayTest {
   @Test
   public void testSlice4() throws Exception {
     LongArray x = bj.array(new long[]{1L, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    LongArray s = x.slice(asList(0, 2, 5, 7));
+    LongArray s = x.select(asList(0, 2, 5, 7));
     MatrixAssert.assertValuesEquals(s, bj.array(new long[]{1L, 3, 3, 2}));
   }
 
   @Test
   public void testSlice6() throws Exception {
     LongArray x = bj.array(new long[]{1, 2, 3, 1, 2, 3, 1, 2, 3L}).reshape(3, 3);
-    LongArray s = x.slice(asList(0, 1), asList(0, 1));
+    LongArray s = x.select(asList(0, 1), asList(0, 1));
     MatrixAssert.assertValuesEquals(s.getRow(0), bj.array(new long[]{1L, 1}));
     MatrixAssert.assertValuesEquals(s.getRow(1), bj.array(new long[]{2L, 2}));
   }

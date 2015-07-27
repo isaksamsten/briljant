@@ -638,14 +638,14 @@ public class AbstractComplexArrayTest {
   @Test
   public void testSlice4() throws Exception {
     ComplexArray x = bj.complexArray(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    ComplexArray s = x.slice(asList(0, 2, 5, 7));
+    ComplexArray s = x.select(asList(0, 2, 5, 7));
     assertValuesEquals(bj.complexArray(new double[]{1, 3, 3, 2}), s);
   }
 
   @Test
   public void testSlice6() throws Exception {
     ComplexArray x = bj.complexArray(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    ComplexArray s = x.slice(asList(0, 1), asList(0, 1));
+    ComplexArray s = x.select(asList(0, 1), asList(0, 1));
     assertValuesEquals(bj.complexArray(), s.getRow(0));
     assertValuesEquals(bj.complexArray(), s.getRow(1));
   }

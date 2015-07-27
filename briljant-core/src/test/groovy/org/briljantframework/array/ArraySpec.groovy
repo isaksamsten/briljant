@@ -166,7 +166,7 @@ class ArraySpec extends Specification {
 
   }
 
-  def "When selecting ranges, ranges[i] where i > dims() should be interpreted as all"() {
+  def "When selecting ranges, ranges[i] where i > ranges.size() and <= dims() should be interpreted as all"() {
     when:
     def i = arr.get(ranges)
     def b = arr.get(ranges + ([bj.range(2)] * (Math.abs(ranges.size() - arr.dims()))))
@@ -181,6 +181,74 @@ class ArraySpec extends Specification {
     bj.range(2 * 2 * 2).reshape(2, 2, 2)        | [bj.range(2), bj.range(1)]
     bj.range(2 * 2 * 2 * 2).reshape(2, 2, 2, 2) | [bj.range(2), bj.range(1)]
   }
+
+  def "When selecting a set of indexes a correct copy should be returned"() {
+    given:
+    def i = bj.range(2 * 3 * 4).reshape(2, 3, 4)
+
+    when:
+    def x = i.select(indexes)
+
+    then:
+    x == result
+
+    where:
+    indexes                  | result
+    [[1, 1]]                 | bj.array(1, 1, 3, 3,
+                                        5, 5, 7, 7,
+                                        9, 9, 11, 11,
+                                        13, 13, 15, 15,
+                                        17, 17, 19, 19,
+                                        21, 21, 23, 23).reshape(2, 3, 4)
+    [[1, 1], [0, 2]]         | bj.array(1, 5, 7, 11,
+                                        13, 17, 19, 23).reshape(2, 4)
+    [[1, 1], [1, 1], [1, 3]] | bj.array(9, 21)
+  }
+
+  def "Selecting a set of indexes should work for vectors"() {
+    given:
+    def i = bj.range(6)
+
+    when:
+    def x = i.select(indexes)
+
+    then:
+    x == result
+
+    where:
+    indexes              | result
+    [[1, 1, 1, 2]]       | bj.array(1, 1, 1, 2)
+    [[0, 1, 2, 4, 5, 5]] | bj.array(0, 1, 2, 4, 5, 5)
+  }
+
+  def "An exception is thrown if a selected index is out of bounds"() {
+    when:
+    i.select(indexes)
+
+    then:
+    thrown(IndexOutOfBoundsException)
+
+    where:
+    indexes              | i
+    [[0, 0], [2, 2]]     | bj.range(2 * 2).reshape(2, 2)
+    [[2, 2]]             | bj.range(2)
+    [[0], [1], [2], [5]] | bj.range(2 * 2 * 3 * 2).reshape(2, 2, 3, 2)
+    [[0, 1, 3]]          | bj.range(3 * 3 * 3).reshape(3, 3, 3)
+  }
+
+  def "A null pointer exception is thrown if a null key is selected"() {
+    when:
+    i.select(indexes)
+
+    then:
+    thrown(NullPointerException)
+
+    where:
+    indexes       | i
+    [[null]]      | bj.range(3)
+    [[0], [null]] | bj.range(2 * 2).reshape(2, 2)
+  }
+
 
   def "Reshaping an array should change the dimensions"() {
     expect:

@@ -76,24 +76,14 @@ val BitArray.T: BitArray get() = this.transpose()
 // Slicing
 fun <T : Array<T>> T.get(range: Progression<Int>) = get(range.toSlice())
 
-fun <T : Array<T>> T.get(indexes: Collection<Int>) = slice(indexes)
-
 fun <T : Array<T>> T.get(bits: BitArray) = slice(bits)
 
 fun <T : Array<T>> T.get(rows: Progression<Int>, columns: Progression<Int>)
         = get(rows.toSlice())
 
-fun <T : Array<T>> T.get(rows: Collection<Int>, columns: Collection<Int>) = slice(rows, columns)
-
 fun <T : Array<T>> T.get(rows: all, columns: Progression<Int>): T = this[0..this.rows, columns]
 
 fun <T : Array<T>> T.get(rows: Progression<Int>, columns: all): T = this[rows, 0..this.columns]
-
-fun <T : Array<T>> T.get(rows: all, columns: Collection<Int>): T
-        = this[(0..this.rows).toList(), columns]
-
-fun <T : Array<T>> T.get(rows: Collection<Int>, columns: all): T
-        = this[rows, (0..this.columns).toList()]
 
 // Multiplication operator
 

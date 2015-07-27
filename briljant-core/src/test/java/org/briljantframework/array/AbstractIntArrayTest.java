@@ -453,14 +453,14 @@ public class AbstractIntArrayTest {
   @Test
   public void testSlice4() throws Exception {
     IntArray x = bj.array(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    IntArray s = x.slice(Arrays.asList(0, 2, 5, 7));
+    IntArray s = x.select(Arrays.asList(0, 2, 5, 7));
     assertValuesEquals(bj.array(new int[]{1, 3, 3, 2}), s);
   }
 
   @Test
   public void testSlice6() throws Exception {
     IntArray x = bj.array(new int[]{1, 2, 3, 1, 2, 3, 1, 2, 3}).reshape(3, 3);
-    IntArray s = x.slice(Arrays.asList(0, 1), Arrays.asList(0, 1));
+    IntArray s = x.select(Arrays.asList(0, 1), Arrays.asList(0, 1));
     assertValuesEquals(bj.array(new int[]{1, 1}), s.getRow(0));
     assertValuesEquals(bj.array(new int[]{2, 2}), s.getRow(1));
   }

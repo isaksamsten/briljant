@@ -512,27 +512,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   }
 
   @Override
-  public ComplexArray slice(Collection<Integer> rows, Collection<Integer> columns) {
-    ComplexArray m = newEmptyArray(rows.size(), columns.size());
-    int i = 0;
-    for (int row : rows) {
-      int j = 0;
-      for (int column : columns) {
-        m.set(i, j++, get(row, column));
-      }
-      i++;
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray slice(Collection<Integer> indexes) {
-    IncrementalBuilder builder = new IncrementalBuilder();
-    indexes.forEach(index -> builder.add(get(index)));
-    return builder.build();
-  }
-
-  @Override
   public ComplexArray slice(BitArray bits) {
     Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();

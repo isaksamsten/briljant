@@ -1,9 +1,5 @@
 package org.briljantframework;
 
-import org.briljantframework.complex.Complex;
-import org.briljantframework.distribution.Distribution;
-import org.briljantframework.distribution.NormalDistribution;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
@@ -16,6 +12,10 @@ import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
+import org.briljantframework.complex.Complex;
+import org.briljantframework.distribution.Distribution;
+import org.briljantframework.distribution.NormalDistribution;
+import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
 import java.math.BigDecimal;
@@ -416,7 +416,6 @@ public final class Bj {
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a, indexes.get(i));
     }
-    a.slice(indexes.flat());
     return taken;
   }
 

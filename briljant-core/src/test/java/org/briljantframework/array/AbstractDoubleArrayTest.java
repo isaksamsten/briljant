@@ -462,7 +462,7 @@ public class AbstractDoubleArrayTest {
   @Test
   public void testSlice4() throws Exception {
     DoubleArray x = bj.array(new double[]{1, 2, 3, 1, 2, 3.0, 1, 2, 3}).reshape(3, 3);
-    DoubleArray s = x.slice(asList(0, 2, 5, 7));
+    DoubleArray s = x.select(asList(0, 2, 5, 7));
     assertValueEquals(s, bj.array(new double[]{1, 3, 3, 2.0}), epsilon);
   }
 
@@ -470,7 +470,7 @@ public class AbstractDoubleArrayTest {
   @Test
   public void testSlice6() throws Exception {
     DoubleArray x = bj.array(new double[]{1, 2, 3, 1, 2, 3, 1, 2, 3.0}).reshape(3, 3);
-    DoubleArray s = x.slice(asList(0, 1), asList(0, 1));
+    DoubleArray s = x.select(asList(0, 1), asList(0, 1));
     assertMatrixEquals(1, s.getRow(0), 1);
     assertMatrixEquals(2, s.getRow(1), 2);
   }

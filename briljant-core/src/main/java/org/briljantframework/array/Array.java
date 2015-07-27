@@ -2,7 +2,6 @@ package org.briljantframework.array;
 
 import org.briljantframework.sort.Swappable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -372,6 +371,70 @@ public interface Array<E extends Array> extends Swappable {
   E select(int dimension, int index);
 
   /**
+   * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
+   * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
+   * include ranges of values, one simple way is to use {@code Bj.range(end).flat()}.
+   *
+   * <p> Examples
+   * <pre>{@code
+   * > IntArray x = Bj.range(2 * 3 * 4).reshape(2, 3, 4);
+   * array([[[0,  9, 18, 27],
+   *         [3, 12, 21, 30],
+   *         [6, 15, 24, 33]],
+   *
+   *         [[1, 10, 19, 28],
+   *         [4, 13, 22, 31],
+   *         [7, 16, 25, 34]],
+   *
+   *         [[2, 11, 20, 29],
+   *         [5, 14, 23, 32],
+   *         [8, 17, 26, 35]]])
+   *
+   * > x.select(Arrays.asList(
+   *      Arrays.asList(0, 1)
+   *   ));
+   * array([[[0,  9, 18, 27],
+   *         [3, 12, 21, 30],
+   *         [6, 15, 24, 33]],
+   *
+   *         [[1, 10, 19, 28],
+   *         [4, 13, 22, 31],
+   *         [7, 16, 25, 34]]])
+   *
+   * > x.select(Arrays.asList(
+   *      Arrays.asList(0, 1), Arrays.asList(1, 2)
+   *   ));
+   * array([[3, 12, 21, 30],
+   *        [7, 16, 25, 34]])
+   *
+   * > x.select(Arrays.asList(
+   *      Arrays.asList(1, 1), Arrays.asList(1, 1), Arrays.asList(1, 1)
+   *   ));
+   * array([13, 13])
+   * }</pre>
+   *
+   * @param indexes a list of indexes to include
+   * @return a new array
+   */
+  E select(List<List<Integer>> indexes);
+
+  /**
+   * @param indexes array of indexes
+   * @return a new array
+   * @see #select(java.util.List)
+   */
+  E select(List<Integer>... indexes);
+
+  /**
+   * @param indexes an array of index arrays
+   * @return a new array
+   * @see #select(java.util.List)
+   */
+  E select(int[][] indexes);
+
+  E slice(BitArray bits);
+
+  /**
    * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays, {@linkplain
    * #getRow(int)} and {@linkplain #getColumn(int)} preserves the 2d-shape of the vectors
    * resulting in row-vectors and column-vectors respectively. This method results in 1d-vectors.
@@ -588,19 +651,6 @@ public interface Array<E extends Array> extends Swappable {
    * @return a view
    */
   E getView(int rowOffset, int colOffset, int rows, int columns);
-
-  /**
-   * Complex slicing. Returns a copy of the matrix.
-   *
-   * @param rows    the rows to include
-   * @param columns the columns to include
-   * @return a new matrix with the same size as {@code this}
-   */
-  E slice(Collection<Integer> rows, Collection<Integer> columns);
-
-  E slice(Collection<Integer> indexes);
-
-  E slice(BitArray bits);
 
   /**
    * Element wise addition.
