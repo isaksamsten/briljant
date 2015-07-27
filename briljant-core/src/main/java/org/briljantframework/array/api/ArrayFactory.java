@@ -1,15 +1,15 @@
 package org.briljantframework.array.api;
 
-import org.briljantframework.complex.Complex;
-import org.briljantframework.distribution.Distribution;
-import org.briljantframework.distribution.NormalDistribution;
-import org.briljantframework.distribution.UniformDistribution;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
+import org.briljantframework.complex.Complex;
+import org.briljantframework.distribution.Distribution;
+import org.briljantframework.distribution.NormalDistribution;
+import org.briljantframework.distribution.UniformDistribution;
 
 /**
  * @author Isak Karlsson
@@ -153,6 +153,8 @@ public interface ArrayFactory {
    */
   Range range(int end);
 
+  Range range();
+
   /**
    * Return a row vector of linearly spaced values
    *
@@ -180,5 +182,4 @@ public interface ArrayFactory {
   default IntArray randi(int size, int l, int u) {
     return randi(size, new UniformDistribution(l, u));
   }
-
 }

@@ -109,7 +109,9 @@ public final class ArrayPrinter {
     boolean truncate = minTruncateSize < arr.size() && arr.dims() != 1;
     IntArray maxWidth = computeMaxWidth(arr, truncate);
     out.append("array(");
-    if (arr.dims() == 1 && arr.size() == 0) {
+    if (arr.size() == 0) {
+      out.append(startChar).append(endChar);
+    } else if (/*arr.dims() == 1 && */arr.size() == 1) {
       out.append(startChar).append(arr.get(0)).append(endChar);
     } else {
       print(
@@ -127,8 +129,7 @@ public final class ArrayPrinter {
 
   private static IntArray computeMaxWidth(ToStringArray arr, boolean truncate) {
     int lastDim = arr.dims() - 1;
-    int vectorSize = arr.size(lastDim);
-    int maxPerSlice = vectorSize;
+    int maxPerSlice = arr.size(lastDim);
     if (truncate) {
       maxPerSlice = visiblePerSlice < 0 ? maxPerSlice : visiblePerSlice;
     }

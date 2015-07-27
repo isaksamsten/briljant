@@ -108,7 +108,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     for (int i = 0; i < indexes.size(); i++) {
       List<Integer> index = indexes.get(i);
       Check.argument(commonShape == index.size(),
-                     "Indexing arrays could not be broadcasted together");
+                     "Indexing arrays could not be used together");
       shape[i] = index.size();
     }
     int[] newShape = new int[shape.length - indexes.size() + 1];
@@ -261,9 +261,16 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     int offset = getOffset();
     for (int i = 0; i < ranges.size(); i++) {
       Range r = ranges.get(i);
-      offset += r.start() * stride(i);
-      shape[i] = r.size();
-      stride[i] = stride[i] * r.step();
+      int start = r.start();
+      int end = r.end() == -1 ? size(i) : r.size();
+      int step = r.step() == -1 ? 1 : r.step();
+
+      Check.argument(step > 0, "Illegal step size in dimension %s", step);
+      Check.argument(start >= 0 && start <= end, ILLEGAL_DIMENSION_INDEX, start, i, size(i));
+      Check.argument(end >= start && end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
+      offset += start * stride[i];
+      shape[i] = end;
+      stride[i] = stride[i] * step;
     }
 
     return makeView(

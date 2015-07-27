@@ -30,11 +30,14 @@ class BaseRange extends AbstractIntArray implements Range {
   }
 
   private static int getSize(int start, int end, int step) {
-    int i = end - start;
+    if ((start < end && step < 0) || (start > end) && step > 0) {
+      throw new IllegalArgumentException();
+    }
+    int i = Math.abs(end - start);
     if (i % step == 0) {
-      return i / step;
+      return i / Math.abs(step);
     } else {
-      return i / step + 1;
+      return i / Math.abs(step) + 1;
     }
   }
 
@@ -112,9 +115,8 @@ class BaseRange extends AbstractIntArray implements Range {
   @Override
   public int[] data() {
     int[] data = new int[size()];
-    int j = 0;
-    for (int i = start(); i < end(); i += step()) {
-      data[j++] = i;
+    for (int i = 0; i < data.length; i++) {
+      data[i] = get(i);
     }
     return data;
   }

@@ -1,6 +1,5 @@
 package org.briljantframework.array.base;
 
-import org.briljantframework.complex.Complex;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -8,6 +7,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.complex.Complex;
 
 /**
  * @author Isak Karlsson
@@ -158,6 +158,11 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
+  public Range range() {
+    return range(0, -1, -1);
+  }
+
+  @Override
   public DoubleArray linspace(double start, double end, int size) {
     DoubleArray values = doubleArray(size);
     double step = (end - start) / (size - 1);
@@ -175,6 +180,4 @@ public class BaseArrayFactory implements ArrayFactory {
     eye.getDiagonal().assign(1);
     return eye;
   }
-
-
 }

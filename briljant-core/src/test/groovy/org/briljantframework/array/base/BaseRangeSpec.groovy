@@ -170,4 +170,14 @@ class BaseRangeSpec extends Specification {
     r.size() == 5
     last == 9
   }
+
+  def "ranges should support negative indicies"() {
+    given:
+    def r = bj.range(0, -10, -1)
+    println(r)
+
+    expect:
+    r.flat().last() == -9
+  }
+
 }

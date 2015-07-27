@@ -127,6 +127,10 @@ public final class Bj {
     return MATRIX_FACTORY.range(end);
   }
 
+  public static Range range() {
+    return MATRIX_FACTORY.range();
+  }
+
   public static DoubleArray linspace(double start, double end, int size) {
     return MATRIX_FACTORY.linspace(start, end, size);
   }
