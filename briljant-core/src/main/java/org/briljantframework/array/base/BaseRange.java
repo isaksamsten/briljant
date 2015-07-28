@@ -83,7 +83,7 @@ class BaseRange extends AbstractIntArray implements Range {
   }
 
   @Override
-  protected IntArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseRange(getMatrixFactory(), offset, shape, stride, majorStride,
                          start(), end(), step());
   }

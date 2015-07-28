@@ -14,7 +14,7 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  protected DoubleArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsDoubleArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, double value) {

@@ -35,7 +35,7 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  protected LongArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseLongArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
   }
 

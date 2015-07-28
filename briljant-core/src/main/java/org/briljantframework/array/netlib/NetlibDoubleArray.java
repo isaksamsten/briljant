@@ -60,7 +60,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  protected DoubleArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new NetlibDoubleArray(
         getMatrixFactory(),
         offset,

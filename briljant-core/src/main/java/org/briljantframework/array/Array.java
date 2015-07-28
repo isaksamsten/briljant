@@ -146,6 +146,20 @@ public interface Array<E extends Array> extends Swappable {
    */
   void assign(E o);
 
+  E asView(int[] shape, int[] stride);
+
+  /**
+   * Create a view of {@code this} array with the specified offset, shape and stride.
+   *
+   * @param offset the offset (where indexing starts)
+   * @param shape  the shape of the view
+   * @param stride the strides of the view
+   * @return a view
+   */
+  E asView(int offset, int[] shape, int[] stride);
+
+  E asView(int offset, int[] shape, int[] stride, int majorStride);
+
   /**
    * Iterate over each vector of this array along the specified dimension.
    * <p>

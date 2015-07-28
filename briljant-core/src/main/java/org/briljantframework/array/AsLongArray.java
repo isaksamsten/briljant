@@ -14,7 +14,7 @@ abstract class AsLongArray extends AbstractLongArray {
   }
 
   @Override
-  protected LongArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsLongArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, long value) {

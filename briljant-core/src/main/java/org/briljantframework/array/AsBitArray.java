@@ -17,7 +17,7 @@ abstract class AsBitArray extends AbstractBitArray {
   }
 
   @Override
-  protected BitArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public BitArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsBitArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, boolean value) {

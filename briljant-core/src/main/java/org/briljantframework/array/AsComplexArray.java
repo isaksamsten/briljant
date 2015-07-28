@@ -18,7 +18,7 @@ abstract class AsComplexArray extends AbstractComplexArray {
   }
 
   @Override
-  protected ComplexArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public ComplexArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsComplexArray(getMatrixFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, Complex value) {

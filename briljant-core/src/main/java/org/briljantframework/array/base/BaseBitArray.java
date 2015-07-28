@@ -35,7 +35,7 @@ class BaseBitArray extends AbstractBitArray {
   }
 
   @Override
-  protected BitArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public BitArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseBitArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
   }
 

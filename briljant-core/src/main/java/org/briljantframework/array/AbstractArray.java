@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
+ * This class provides a skeletal implementation
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
@@ -80,7 +82,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     Check.argument(dims() > 1, "Can't select in 1-d array");
     Check.argument(index >= 0 && index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
     int dims = dims();
-    return makeView(
+    return asView(
         getOffset() + index * stride(0),
         Arrays.copyOfRange(getShape(), 1, dims),
         Arrays.copyOfRange(getStride(), 1, dims)
@@ -91,7 +93,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   public E select(int dimension, int index) {
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
-    return makeView(
+    return asView(
         getOffset() + index * stride(dimension),
         Indexer.remove(getShape(), dimension),
         Indexer.remove(getStride(), dimension)
@@ -101,7 +103,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public E select(List<List<Integer>> indexes) {
     Check.argument(indexes.size() > 0 && indexes.size() <= dims());
-    E self = makeView(getOffset(), this.shape, this.stride);
+    E self = asView(getOffset(), this.shape, this.stride);
 
     int[] shape = getShape();
     int commonShape = indexes.get(0).size();
@@ -189,14 +191,10 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     int shape = size(dimension);
     int indexMajorStride = index * stride(majorStride);
     if (indexMajorStride >= stride) {
-//      if (!isTransposed()) {
       offset += (indexMajorStride / stride) * stride * (shape - 1);
-//      } else {
-//        offset += (indexMajorStride % stride) * stride * (shape - 1);
-//      }
     }
 
-    return makeView(
+    return asView(
         offset + indexMajorStride,
         new int[]{size(dimension)},
         new int[]{stride(dimension)}
@@ -227,7 +225,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public E getDiagonal() {
     Check.state(isMatrix(), "Can only get the diagonal of 2d-arrays");
-    return makeView(
+    return asView(
         getOffset(),
         new int[]{Math.min(rows(), columns())},
         new int[]{rows() + 1}
@@ -239,7 +237,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     Check.state(isMatrix(), "Can only get view from 2d-arrays");
     Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
                    "Selected view is to large");
-    return makeView(
+    return asView(
         getOffset() + rowOffset * stride(0) + colOffset * stride(1),
         new int[]{rows, columns},
         getStride(),
@@ -273,21 +271,28 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
       stride[i] = stride[i] * step;
     }
 
-    return makeView(
+    return asView(
         offset,
         shape,
         stride
     );
   }
 
-  protected E makeView(int offset, int[] shape, int[] stride) {
-    return makeView(offset, shape, stride, 0);
+  @Override
+  public E asView(int[] shape, int[] stride) {
+    return asView(getOffset(), shape, stride);
   }
 
-  protected abstract E makeView(int offset, int[] shape,
-                                int[] stride,
-                                int majorStride);
+  @Override
+  public E asView(int offset, int[] shape, int[] stride) {
+    return asView(offset, shape, stride, 0);
+  }
 
+  /**
+   * Return the number of elements in the data source.
+   *
+   * @return the number of elements in the data source
+   */
   protected abstract int elementSize();
 
   @Override
@@ -313,7 +318,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     if (shape.length == 1 && shape[0] == -1) {
       int[] newShape = {size()};
       if (isContiguous()) {
-        return makeView(getOffset(), newShape, Indexer.computeStride(1, newShape));
+        return asView(getOffset(), newShape, Indexer.computeStride(1, newShape));
       } else {
         return copy().reshape(shape);
       }
@@ -322,7 +327,7 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
     Check.size(Indexer.size(this.shape), Indexer.size(shape),
                CHANGED_TOTAL_SIZE, Arrays.toString(this.shape), Arrays.toString(shape));
     if (isContiguous()) {
-      return makeView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
+      return asView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
     } else {
       return copy().reshape(shape);
     }
@@ -335,9 +340,9 @@ public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
   @Override
   public final E transpose() {
     if (isVector()) {
-      return makeView(getOffset(), getShape(), getStride());
+      return asView(getOffset(), getShape(), getStride());
     } else {
-      return makeView(
+      return asView(
           getOffset(),
           Indexer.reverse(shape),
           Indexer.reverse(stride),

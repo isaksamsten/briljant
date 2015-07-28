@@ -48,7 +48,7 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  protected IntArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseIntArray(
         getMatrixFactory(),
         offset,

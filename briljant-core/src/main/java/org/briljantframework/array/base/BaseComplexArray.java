@@ -46,7 +46,7 @@ class BaseComplexArray extends AbstractComplexArray {
   }
 
   @Override
-  protected ComplexArray makeView(int offset, int[] shape, int[] stride, int majorStride) {
+  public ComplexArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseComplexArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
   }
 
