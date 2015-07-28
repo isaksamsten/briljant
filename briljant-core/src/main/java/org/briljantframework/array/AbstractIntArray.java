@@ -12,8 +12,6 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
@@ -39,7 +37,7 @@ import static org.briljantframework.array.Indexer.rowMajor;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractIntArray extends AbstractArray<IntArray> implements IntArray {
+public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> implements IntArray {
 
   protected AbstractIntArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
@@ -59,12 +57,12 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
 
   public final void set(int[] ix, int value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+    setElement(Indexer.columnMajorStride(ix, getOffset(), stride), value);
   }
 
   public final int get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
   }
 
   @Override
@@ -116,7 +114,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return AbstractIntArray.this.getElement(i);
@@ -247,7 +245,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return AbstractIntArray.this.getElement(index);
@@ -281,6 +279,15 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
       matrix.set(i, function.apply(get(i)));
     }
     return matrix;
+  }
+
+  @Override
+  public <U> Array<U> mapToObj(IntFunction<? extends U> function) {
+    Array<U> array = getArrayFactory().referenceArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, function.apply(get(i)));
+    }
+    return array;
   }
 
   @Override
@@ -324,7 +331,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -377,7 +384,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray lt(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) < other.get(i));
@@ -388,7 +395,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray gt(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) > other.get(i));
@@ -399,7 +406,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray eq(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) == other.get(i));
@@ -410,7 +417,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray lte(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) <= other.get(i));
@@ -421,7 +428,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public BitArray gte(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) >= other.get(i));
@@ -449,8 +456,8 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
       IntArray mat = (IntArray) obj;
       boolean equalShape;
       // This saves one array copy
-      if (mat instanceof AbstractArray) {
-        equalShape = Arrays.equals(shape, ((AbstractArray) mat).shape);
+      if (mat instanceof AbstractBaseArray) {
+        equalShape = Arrays.equals(shape, ((AbstractBaseArray) mat).shape);
       } else {
         equalShape = Arrays.equals(shape, mat.getShape());
       }
@@ -471,7 +478,7 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   @Override
   public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractIntArray.this.setElement(index, value.intValue());
@@ -512,23 +519,6 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
       int old = AbstractIntArray.this.get(i);
       AbstractIntArray.this.set(i, value);
       return old;
-    }
-
-    @Override
-    public Iterator<Integer> iterator() {
-      return new Iterator<Integer>() {
-        private int index = 0;
-
-        @Override
-        public boolean hasNext() {
-          return index < size();
-        }
-
-        @Override
-        public Integer next() {
-          return get(index++);
-        }
-      };
     }
 
     @Override
@@ -588,8 +578,27 @@ public abstract class AbstractIntArray extends AbstractArray<IntArray> implement
   }
 
   @Override
-  public List<Integer> flat() {
+  public List<Integer> list() {
     return new IntListView();
+  }
+
+  public Array<Integer> boxed() {
+    return new AsArray<Integer>(this) {
+      @Override
+      protected Integer getElement(int i) {
+        return AbstractIntArray.this.getElement(i);
+      }
+
+      @Override
+      protected void setElement(int i, Integer value) {
+        AbstractIntArray.this.setElement(i, value);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractIntArray.this.elementSize();
+      }
+    };
   }
 
   @Override

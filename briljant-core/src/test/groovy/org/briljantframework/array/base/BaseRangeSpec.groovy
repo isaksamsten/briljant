@@ -149,7 +149,7 @@ class BaseRangeSpec extends Specification {
     expect:
     def range = bj.range(a, b, c)
     range.size() == d
-    range.flat().last() == l
+    range.list().last() == l
 
     where:
     a << [1, 2, 3, 4]
@@ -164,7 +164,7 @@ class BaseRangeSpec extends Specification {
     def r = bj.range(1, 10, 2)
 
     when:
-    def last = r.flat().last()
+    def last = r.list().last()
 
     then:
     r.size() == 5
@@ -177,7 +177,7 @@ class BaseRangeSpec extends Specification {
     println(r)
 
     expect:
-    r.flat().last() == -9
+    r.list().last() == -9
   }
 
 }

@@ -515,7 +515,7 @@ public class AbstractIntArrayTest {
   public void testIterator() throws Exception {
     IntArray x = bj.array(new int[]{1, 2, 3, 4, 5, 6});
     int i = 0;
-    for (int v : x.flat()) {
+    for (int v : x.list()) {
       assertEquals(x.get(i++), v);
     }
   }

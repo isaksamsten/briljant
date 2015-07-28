@@ -3,8 +3,6 @@ package org.briljantframework.dataframe;
 
 import com.google.common.collect.Iterators;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.AbstractCollection;
 import java.util.AbstractList;
 import java.util.AbstractSet;
@@ -92,7 +90,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
   @Override
   public Set<Entry> entrySet() {
     return new AbstractSet<Entry>() {
-      @NotNull
+
       @Override
       public Iterator<Entry> iterator() {
         return new Iterator<Entry>() {

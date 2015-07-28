@@ -42,12 +42,12 @@ class BaseComplexArray extends AbstractComplexArray {
 
   @Override
   public ComplexArray newEmptyArray(int... shape) {
-    return new BaseComplexArray(getMatrixFactory(), shape);
+    return new BaseComplexArray(getArrayFactory(), shape);
   }
 
   @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseComplexArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+    return new BaseComplexArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override

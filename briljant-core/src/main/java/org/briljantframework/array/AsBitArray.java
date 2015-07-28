@@ -13,12 +13,12 @@ abstract class AsBitArray extends AbstractBitArray {
 
   @Override
   public BitArray newEmptyArray(int... shape) {
-    return getMatrixFactory().booleanArray(shape);
+    return getArrayFactory().booleanArray(shape);
   }
 
   @Override
   public BitArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsBitArray(getMatrixFactory(), offset, shape, stride, majorStride) {
+    return new AsBitArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, boolean value) {
         AsBitArray.this.setElement(i, value);

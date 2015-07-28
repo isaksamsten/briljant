@@ -34,7 +34,7 @@ class BaseIntArray extends AbstractIntArray {
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getMatrixFactory(), shape);
+    return new BaseIntArray(getArrayFactory(), shape);
   }
 
   @Override
@@ -50,7 +50,7 @@ class BaseIntArray extends AbstractIntArray {
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseIntArray(
-        getMatrixFactory(),
+        getArrayFactory(),
         offset,
         shape,
         stride,

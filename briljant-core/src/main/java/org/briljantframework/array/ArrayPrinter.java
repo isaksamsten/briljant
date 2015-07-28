@@ -97,6 +97,10 @@ public final class ArrayPrinter {
     print(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
   }
 
+  public static <T> void print(Appendable out, Array<T> array) throws IOException {
+    print(out, new ArrayToStringArray<>(array), "[", "]");
+  }
+
   /**
    * Format the {@link ArrayPrinter.ToStringArray}
    *
@@ -124,7 +128,7 @@ public final class ArrayPrinter {
           maxWidth
       );
     }
-    out.append(")");
+    out.append(" type: ").append(arr.type()).append(")");
   }
 
   private static IntArray computeMaxWidth(ToStringArray arr, boolean truncate) {
@@ -276,6 +280,8 @@ public final class ArrayPrinter {
     int size(int dim);
 
     int size();
+
+    String type();
   }
 
   private static class DoubleToStringArray implements ToStringArray {
@@ -323,6 +329,11 @@ public final class ArrayPrinter {
     public int size() {
       return array.size();
     }
+
+    @Override
+    public String type() {
+      return "double";
+    }
   }
 
   private static class LongToStringArray implements ToStringArray {
@@ -369,6 +380,11 @@ public final class ArrayPrinter {
     public int size() {
       return array.size();
     }
+
+    @Override
+    public String type() {
+      return "int";
+    }
   }
 
   private static class ComplexToStringArray implements ToStringArray {
@@ -414,6 +430,60 @@ public final class ArrayPrinter {
     @Override
     public int size() {
       return array.size();
+    }
+
+    @Override
+    public String type() {
+      return "complex";
+    }
+  }
+
+  private static class ArrayToStringArray<T> implements ToStringArray {
+
+    private final Array<T> array;
+
+    public ArrayToStringArray(Array<T> array) {
+      this.array = array;
+    }
+
+    @Override
+    public String get(int i) {
+      return array.get(i).toString();
+    }
+
+    @Override
+    public int dims() {
+      return array.dims();
+    }
+
+    @Override
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    @Override
+    public ToStringArray getVector(int dim, int index) {
+      return new ArrayToStringArray<>(array.getVector(dim, index));
+    }
+
+    @Override
+    public ToStringArray select(int dim) {
+      return new ArrayToStringArray<>(array.select(dim));
+    }
+
+    @Override
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+
+    @Override
+    public String type() {
+      return array.get(0).getClass().getSimpleName();
     }
   }
 }

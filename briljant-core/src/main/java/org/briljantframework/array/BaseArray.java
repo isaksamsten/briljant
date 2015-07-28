@@ -71,7 +71,7 @@ import java.util.function.Consumer;
  *
  * @author Isak Karlsson
  */
-public interface BaseArray<E extends BaseArray> extends Swappable {
+public interface BaseArray<S extends BaseArray<S>> extends Swappable {
 
   /**
    * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from},
@@ -92,7 +92,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param from      the other array
    * @param fromIndex the index in {@code from}
    */
-  void set(int toIndex, E from, int fromIndex);
+  void set(int toIndex, S from, int fromIndex);
 
   /**
    * For 2d-arrays, perform {@code this.set(toRow, toColumn, from.get(fromRow, fromColumn)} while
@@ -105,7 +105,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param fromColumn the column in {@code from}
    * @see #set(int, BaseArray, int) for an example
    */
-  void set(int toRow, int toColumn, E from, int fromRow, int fromColumn);
+  void set(int toRow, int toColumn, S from, int fromRow, int fromColumn);
 
   /**
    * For nd-arrays, perform {@code this.set(toIndex, from.get(fromIndex)} while avoiding unboxing
@@ -117,7 +117,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param fromIndex the index in {@code from}
    * @see #set(int, BaseArray, int) for an example
    */
-  void set(int[] toIndex, E from, int[] fromIndex);
+  void set(int[] toIndex, S from, int[] fromIndex);
 
   /**
    * Compares the values at index {@code a} and {@code b} in ascending order, i.e. if the value at
@@ -144,9 +144,9 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    *
    * @param o the matrix
    */
-  void assign(E o);
+  void assign(S o);
 
-  E asView(int[] shape, int[] stride);
+  S asView(int[] shape, int[] stride);
 
   /**
    * Create a view of {@code this} array with the specified offset, shape and stride.
@@ -156,9 +156,9 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param stride the strides of the view
    * @return a view
    */
-  E asView(int offset, int[] shape, int[] stride);
+  S asView(int offset, int[] shape, int[] stride);
 
-  E asView(int offset, int[] shape, int[] stride, int majorStride);
+  S asView(int offset, int[] shape, int[] stride, int majorStride);
 
   /**
    * Iterate over each vector of this array along the specified dimension.
@@ -176,7 +176,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * array([0.909, 1.000])
    * }</pre>
    */
-  void forEach(int dim, Consumer<E> consumer);
+  void forEach(int dim, Consumer<S> consumer);
 
   /**
    * For 2d-arrays, sets the column at position {@code i} to the values supplied.
@@ -196,7 +196,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param vec the vector of values
    * @throws java.lang.IllegalStateException if array is not 2d
    */
-  void setColumn(int i, E vec);
+  void setColumn(int i, S vec);
 
   /**
    * For 2d-arrays, gets the (column) vector at {@code index}. This method returns a column vector,
@@ -227,7 +227,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @return a vector of shape {@code n x 1}
    * @throws java.lang.IllegalStateException if array is not 2d
    */
-  E getColumn(int index);
+  S getColumn(int index);
 
   /**
    * For 2d-arrays, sets the row at position {@code i} to the supplied values.
@@ -257,7 +257,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @throws java.lang.IllegalStateException    if array is not 2d
    * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
-  void setRow(int i, E vec);
+  void setRow(int i, S vec);
 
   /**
    * For 2d-arrays, gets the (row) vector at {@code i}. This method returns a row-vector, i.e. a
@@ -268,7 +268,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @throws java.lang.IllegalStateException    if array is not 2d
    * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
-  E getRow(int i);
+  S getRow(int i);
 
   /**
    * Gives a new shape to an array without changing its data.
@@ -320,7 +320,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @return if possible, returns a view of the array without changing its data; otherwise returns
    * a copy with changed shape
    */
-  E reshape(int... shape);
+  S reshape(int... shape);
 
   /**
    * Select the {@code i:th} slice of the final dimension.
@@ -355,7 +355,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param index the slice in the final dimension to extract
    * @return a view of the {@code i:th} slice in the final dimension
    */
-  E select(int index);
+  S select(int index);
 
   /**
    * Selects the {@code i:th} slice in the {@code d:th dimension}.
@@ -382,7 +382,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    *        [11, 14, 17]])
    * }</pre>
    */
-  E select(int dimension, int index);
+  S select(int dimension, int index);
 
   /**
    * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
@@ -430,23 +430,23 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param indexes a list of indexes to include
    * @return a new array
    */
-  E select(List<List<Integer>> indexes);
+  S select(List<List<Integer>> indexes);
 
   /**
    * @param indexes array of indexes
    * @return a new array
    * @see #select(java.util.List)
    */
-  E select(List<Integer>... indexes);
+  S select(List<Integer>... indexes);
 
   /**
    * @param indexes an array of index arrays
    * @return a new array
    * @see #select(java.util.List)
    */
-  E select(int[][] indexes);
+  S select(int[][] indexes);
 
-  E slice(BitArray bits);
+  S slice(BitArray bits);
 
   /**
    * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays, {@linkplain
@@ -501,7 +501,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param index     the index of the vector
    * @return a view of the {@code i:th} vector of the {@code d:th} dimension
    */
-  E getVector(int dimension, int index);
+  S getVector(int dimension, int index);
 
   /**
    * Sets the elements of the {@code i:th} vector in the {@code d:th} dimension to the values
@@ -542,7 +542,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param index     the index of the vector
    * @param other     the new values for the {@code i:th} vector in the {@code d:th} dimension
    */
-  void setVector(int dimension, int index, E other);
+  void setVector(int dimension, int index, S other);
 
   /**
    * <p> Gets a view of the diagonal of a 2-d array
@@ -555,14 +555,14 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    *
    * @return a diagonal view
    */
-  E getDiagonal();
+  S getDiagonal();
 
   /**
    * @param ranges the ranges (one for each dimension) to include in the view
    * @return a view
    * @see #get(java.util.List)
    */
-  E get(Range... ranges);
+  S get(Range... ranges);
 
   /**
    * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
@@ -640,7 +640,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param ranges a collection of ranges
    * @return a view
    */
-  E get(List<Range> ranges);
+  S get(List<Range> ranges);
 
   /**
    * For a 2d-array, get a view of row starting at {@code rowOffset} until {@code rowOffset + rows}
@@ -664,48 +664,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
    * @param columns   number of columns after column offset
    * @return a view
    */
-  E getView(int rowOffset, int colOffset, int rows, int columns);
-
-  /**
-   * Element wise addition.
-   *
-   * @param o the other matrix
-   * @return a new matrix
-   */
-  E add(E o);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
-   * @param o the other matrix
-   * @return a new matrix
-   */
-  E sub(E o);
-
-  /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param o the matrix
-   * @return a new matrix
-   */
-  E mul(E o);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param o the other
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  E div(E o);
-
-  /**
-   * <u>m</u>atrix<u>m</u>ultiplication
-   *
-   * @param o the other
-   * @return r r
-   */
-  E mmul(E o);
+  S getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
    * The number of rows.
@@ -792,7 +751,7 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
 
   boolean isMatrix();
 
-  E newEmptyArray(int... shape);
+  S newEmptyArray(int... shape);
 
   boolean isView();
 
@@ -824,23 +783,23 @@ public interface BaseArray<E extends BaseArray> extends Swappable {
   /**
    * @return the transpose of {@code this}.
    */
-  E transpose();
+  S transpose();
 
   /**
    * Create a copy of this matrix.
    *
    * @return the copy
    */
-  E copy();
+  S copy();
 
-  BitArray lt(E other);
+  BitArray lt(S other);
 
-  BitArray gt(E other);
+  BitArray gt(S other);
 
-  BitArray eq(E other);
+  BitArray eq(S other);
 
-  BitArray lte(E other);
+  BitArray lte(S other);
 
-  BitArray gte(E other);
+  BitArray gte(S other);
 
 }

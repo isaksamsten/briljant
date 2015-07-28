@@ -6,7 +6,7 @@ import org.briljantframework.Bj
 /**
  * Created by isak on 03/06/15.
  */
-@CompileStatic
+//@CompileStatic
 class ArrayExtensions {
 
   static <T extends BaseArray<T>> T asType(BaseArray<T> self, Class<T> cls) {

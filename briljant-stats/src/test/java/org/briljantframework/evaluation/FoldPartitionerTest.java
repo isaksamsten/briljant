@@ -13,7 +13,7 @@ public class FoldPartitionerTest {
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadConnect4();
-    DataFrame x = dummy.retain(Bj.range(0, 2).flat());
+    DataFrame x = dummy.retain(Bj.range(0, 2).list());
     Vector y = dummy.get(2);
 
     System.out.println(x);

@@ -8,7 +8,6 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -40,7 +39,7 @@ import static org.briljantframework.array.Indexer.rowMajor;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
+public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray>
     implements ComplexArray {
 
   protected AbstractComplexArray(ArrayFactory bj, int size) {
@@ -203,7 +202,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       protected void setElement(int i, double value) {
@@ -225,7 +224,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public int getElement(int index) {
@@ -358,7 +357,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return AbstractComplexArray.this.getElement(index).longValue();
@@ -432,7 +431,7 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -551,7 +550,6 @@ public abstract class AbstractComplexArray extends AbstractArray<ComplexArray>
   @Override
   public final List<Complex> asList() {
     return new AbstractList<Complex>() {
-      @NotNull
       @Override
       public Complex get(int index) {
         return AbstractComplexArray.this.get(index);

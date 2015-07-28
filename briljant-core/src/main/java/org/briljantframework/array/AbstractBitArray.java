@@ -1,13 +1,10 @@
 package org.briljantframework.array;
 
-import com.google.common.collect.UnmodifiableIterator;
-
 import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.complex.Complex;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -24,7 +21,7 @@ import java.util.stream.StreamSupport;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractBitArray extends AbstractArray<BitArray> implements BitArray {
+public abstract class AbstractBitArray extends AbstractBaseArray<BitArray> implements BitArray {
 
   protected AbstractBitArray(ArrayFactory bj, int size) {
     super(bj, new int[]{size});
@@ -130,7 +127,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
 
   @Override
   public BitArray eq(BitArray other) {
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, get(i) == other.get(i));
     }
@@ -222,23 +219,6 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   }
 
   @Override
-  public Iterator<Boolean> iterator() {
-    return new UnmodifiableIterator<Boolean>() {
-      private int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Boolean next() {
-        return get(current++);
-      }
-    };
-  }
-
-  @Override
   public void swap(int a, int b) {
     boolean tmp = get(a);
     set(a, get(b));
@@ -265,7 +245,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, double value) {
         AbstractBitArray.this.setElement(index, value == 1);
@@ -286,7 +266,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public int getElement(int index) {
@@ -309,7 +289,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public LongArray asLong() {
     return new AsLongArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public long getElement(int index) {
@@ -332,7 +312,7 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractBitArray.this.setElement(index, value.equals(Complex.ONE));
@@ -387,7 +367,6 @@ public abstract class AbstractBitArray extends AbstractArray<BitArray> implement
   @Override
   public List<Boolean> asList() {
     return new AbstractList<Boolean>() {
-      @NotNull
       @Override
       public Boolean get(int index) {
         return AbstractBitArray.this.get(index);

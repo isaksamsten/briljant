@@ -13,12 +13,12 @@ abstract class AsIntArray extends AbstractIntArray {
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return getMatrixFactory().intArray(shape);
+    return getArrayFactory().intArray(shape);
   }
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsIntArray(getMatrixFactory(), offset, shape, stride, majorStride) {
+    return new AsIntArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, int value) {
         AsIntArray.this.setElement(i, value);

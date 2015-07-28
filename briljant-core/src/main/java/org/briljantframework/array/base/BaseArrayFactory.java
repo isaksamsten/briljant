@@ -1,5 +1,6 @@
 package org.briljantframework.array.base;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -16,6 +17,16 @@ public class BaseArrayFactory implements ArrayFactory {
 
   protected BaseArrayFactory() {
 
+  }
+
+  @Override
+  public <T> Array<T> array(T[] data) {
+    return new BaseReferenceArray<T>(this, data);
+  }
+
+  @Override
+  public <T> Array<T> array(T[][] data) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -130,6 +141,11 @@ public class BaseArrayFactory implements ArrayFactory {
   @Override
   public BitArray booleanArray(int... shape) {
     return new BaseBitArray(this, shape);
+  }
+
+  @Override
+  public <T> Array<T> referenceArray(int... shape) {
+    return new BaseReferenceArray<T>(this, shape);
   }
 
   @Override

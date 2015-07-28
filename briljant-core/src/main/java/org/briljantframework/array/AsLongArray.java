@@ -10,12 +10,12 @@ abstract class AsLongArray extends AbstractLongArray {
 
   @Override
   public LongArray newEmptyArray(int... shape) {
-    return getMatrixFactory().longArray(shape);
+    return getArrayFactory().longArray(shape);
   }
 
   @Override
   public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsLongArray(getMatrixFactory(), offset, shape, stride, majorStride) {
+    return new AsLongArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, long value) {
         AsLongArray.this.setElement(i, value);

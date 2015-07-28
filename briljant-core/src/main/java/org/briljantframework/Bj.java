@@ -1,5 +1,6 @@
 package org.briljantframework;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
@@ -73,6 +74,18 @@ public final class Bj {
       }
       return m;
     }
+  }
+
+  public static <T> Array<T> referenceArray(int... shape) {
+    return MATRIX_FACTORY.referenceArray(shape);
+  }
+
+  public static <T> Array<T> array(T[] data) {
+    return MATRIX_FACTORY.array(data);
+  }
+
+  public static <T> Array<T> array(T[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
   public static DoubleArray ones(int... shape) {

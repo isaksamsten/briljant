@@ -1,5 +1,6 @@
 package org.briljantframework.array.api;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -19,6 +20,10 @@ public interface ArrayFactory {
   DoubleArray ones(int... shape);
 
   DoubleArray zero(int... shape);
+
+  <T> Array<T> array(T[] data);
+
+  <T> Array<T> array(T[][] data);
 
   /**
    * Create an {@code IntMatrix} with the given data
@@ -125,6 +130,8 @@ public interface ArrayFactory {
    * @return a new matrix
    */
   BitArray booleanArray(int... shape);
+
+  <T> Array<T> referenceArray(int... shape);
 
   /**
    * Return a row vector of evenly spaced values

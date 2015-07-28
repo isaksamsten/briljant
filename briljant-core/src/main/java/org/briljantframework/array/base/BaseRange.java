@@ -79,12 +79,12 @@ class BaseRange extends AbstractIntArray implements Range {
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getMatrixFactory(), shape);
+    return new BaseIntArray(getArrayFactory(), shape);
   }
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseRange(getMatrixFactory(), offset, shape, stride, majorStride,
+    return new BaseRange(getArrayFactory(), offset, shape, stride, majorStride,
                          start(), end(), step());
   }
 

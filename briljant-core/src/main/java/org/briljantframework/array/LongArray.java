@@ -170,7 +170,9 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   LongStream stream();
 
-  List<Long> asList();
+  List<Long> list();
+
+  Array<Long> boxed();
 
   // Arithmetical operations ///////////
 

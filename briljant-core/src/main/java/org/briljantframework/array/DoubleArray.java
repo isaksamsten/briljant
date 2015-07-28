@@ -271,9 +271,13 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   DoubleStream stream();
 
-  List<Double> flat();
+  List<Double> list();
+
+  Array<Double> boxed();
 
   // Arithmetical operations ///////////
+
+  DoubleArray mmul(DoubleArray other);
 
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha}.
@@ -287,6 +291,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray mmul(Op a, DoubleArray other, Op b);
 
   DoubleArray mmul(double alpha, Op a, DoubleArray other, Op b);
+
+  DoubleArray mul(DoubleArray other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -311,6 +317,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   default DoubleArray addi(DoubleArray other) {
     return assign(other, (a, b) -> a + b);
   }
+
+  DoubleArray add(DoubleArray other);
 
   /**
    * Element wise addition.
@@ -344,6 +352,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
    */
   DoubleArray sub(double scalar);
 
+  DoubleArray sub(DoubleArray other);
+
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
    * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one
@@ -376,6 +386,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
    * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
    */
   DoubleArray div(double other);
+
+  DoubleArray div(DoubleArray other);
 
   default DoubleArray divi(double value) {
     return update(v -> v / value);

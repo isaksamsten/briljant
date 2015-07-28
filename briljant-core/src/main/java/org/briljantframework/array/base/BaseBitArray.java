@@ -36,7 +36,7 @@ class BaseBitArray extends AbstractBitArray {
 
   @Override
   public BitArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseBitArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+    return new BaseBitArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
@@ -56,6 +56,6 @@ class BaseBitArray extends AbstractBitArray {
 
   @Override
   public BitArray newEmptyArray(int... shape) {
-    return new BaseBitArray(getMatrixFactory(), shape);
+    return new BaseBitArray(getArrayFactory(), shape);
   }
 }

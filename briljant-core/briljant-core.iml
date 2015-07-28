@@ -7,10 +7,8 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/groovy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/groovy" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/kotlin" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
@@ -18,7 +16,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:0.11.91" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.univocity:univocity-parsers:1.4.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.google.guava:guava:18.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.carrotsearch:hppc:0.6.1" level="project" />
@@ -36,7 +33,6 @@
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:netlib-native_system-linux-armhf:1.1:natives" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:netlib-native_system-win-x86_64:1.1:natives" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:netlib-native_system-win-i686:1.1:natives" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.jetbrains.kotlin:kotlin-runtime:0.11.91" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:native_ref-java:1.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:native_system-java:1.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil:jniloader:1.1" level="project" />

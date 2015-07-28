@@ -102,6 +102,8 @@ public interface IntArray extends BaseArray<IntArray> {
 
   ComplexArray mapToComplex(IntFunction<Complex> function);
 
+  <U> Array<U> mapToObj(IntFunction<? extends U> function);
+
   // Filter
 
   IntArray filter(IntPredicate operator);
@@ -187,7 +189,9 @@ public interface IntArray extends BaseArray<IntArray> {
 
   IntStream stream();
 
-  List<Integer> flat();
+  List<Integer> list();
+
+  Array<Integer> boxed();
 
   // Arithmetical operations ///////////
 

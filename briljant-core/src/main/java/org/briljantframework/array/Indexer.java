@@ -1,6 +1,5 @@
 package org.briljantframework.array;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractList;
 import java.util.List;
@@ -174,7 +173,6 @@ public final class Indexer {
   public static List<Integer> asList(int[] index) {
     Objects.requireNonNull(index);
     return new AbstractList<Integer>() {
-      @NotNull
       @Override
       public Integer get(int i) {
         return index[i];

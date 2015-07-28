@@ -346,20 +346,20 @@ class ArraySpec extends Specification {
 
     where:
     dim | idx | vector
-    0   | 0   | bj.array(*[0.0, 1.0])
-    0   | 1   | bj.array(*[2.0, 3.0])
-    0   | 2   | bj.array(*[4.0, 5.0])
-    0   | 3   | bj.array(*[6.0, 7.0])
+    0   | 0   | bj.array([0.0, 1.0] as double[])
+    0   | 1   | bj.array([2.0, 3.0] as double[])
+    0   | 2   | bj.array([4.0, 5.0] as double[])
+    0   | 3   | bj.array([6.0, 7.0] as double[])
 
-    1   | 0   | bj.array(*[0.0, 2])
-    1   | 1   | bj.array(*[1.0, 3])
-    1   | 2   | bj.array(*[4.0, 6])
-    1   | 3   | bj.array(*[5.0, 7])
+    1   | 0   | bj.array([0.0, 2] as double[])
+    1   | 1   | bj.array([1.0, 3] as double[])
+    1   | 2   | bj.array([4.0, 6] as double[])
+    1   | 3   | bj.array([5.0, 7] as double[])
 
-    2   | 0   | bj.array(*[0.0, 4])
-    2   | 1   | bj.array(*[1.0, 5])
-    2   | 2   | bj.array(*[2.0, 6])
-    2   | 3   | bj.array(*[3.0, 7])
+    2   | 0   | bj.array([0.0, 4] as double[])
+    2   | 1   | bj.array([1.0, 5] as double[])
+    2   | 2   | bj.array([2.0, 6] as double[])
+    2   | 3   | bj.array([3.0, 7] as double[])
   }
 
   def "Array#getVector returns the correct vector when the array is a matrix"() {

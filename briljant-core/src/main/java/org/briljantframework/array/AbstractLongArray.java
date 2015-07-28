@@ -3,16 +3,14 @@ package org.briljantframework.array;
 import com.carrotsearch.hppc.LongArrayList;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
-import org.briljantframework.array.api.ArrayFactory;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +36,7 @@ import static org.briljantframework.array.Indexer.rowMajor;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractLongArray extends AbstractArray<LongArray> implements LongArray {
+public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> implements LongArray {
 
   protected AbstractLongArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
@@ -88,13 +86,9 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
     return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
-  protected void setElement(int i, long value) {
-    throw new UnsupportedOperationException();
-  }
+  protected abstract void setElement(int i, long value);
 
-  protected long getElement(int i) {
-    throw new UnsupportedOperationException();
-  }
+  protected abstract long getElement(int i);
 
   @Override
   public void set(int toIndex, LongArray from, int fromIndex) {
@@ -127,7 +121,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return AbstractLongArray.this.getElement(i);
@@ -200,7 +194,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public IntArray asInt() {
     return new AsIntArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public int getElement(int index) {
         return (int) AbstractLongArray.this.getElement(index);
@@ -332,7 +326,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray asBit() {
     return new AsBitArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -371,9 +365,8 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   }
 
   @Override
-  public List<Long> asList() {
+  public List<Long> list() {
     return new AbstractList<Long>() {
-      @NotNull
       @Override
       public Long get(int index) {
         return AbstractLongArray.this.get(index);
@@ -389,6 +382,26 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
       @Override
       public int size() {
         return 0;
+      }
+    };
+  }
+
+  @Override
+  public Array<Long> boxed() {
+    return new AsArray<Long>(this) {
+      @Override
+      protected Long getElement(int i) {
+        return AbstractLongArray.this.getElement(i);
+      }
+
+      @Override
+      protected void setElement(int i, Long value) {
+        AbstractLongArray.this.set(i, value);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractLongArray.this.elementSize();
       }
     };
   }
@@ -411,7 +424,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public ComplexArray asComplex() {
     return new AsComplexArray(
-        getMatrixFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractLongArray.this.setElement(index, value.longValue());
@@ -598,7 +611,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray lt(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) < other.get(i));
@@ -609,7 +622,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray gt(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) > other.get(i));
@@ -620,7 +633,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray eq(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) == other.get(i));
@@ -631,7 +644,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray lte(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) <= other.get(i));
@@ -642,7 +655,7 @@ public abstract class AbstractLongArray extends AbstractArray<LongArray> impleme
   @Override
   public BitArray gte(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getMatrixFactory().booleanArray(getShape());
+    BitArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) >= other.get(i));

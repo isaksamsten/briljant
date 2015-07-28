@@ -56,13 +56,13 @@ class NetlibDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray newEmptyArray(int... shape) {
-    return new NetlibDoubleArray(getMatrixFactory(), shape);
+    return new NetlibDoubleArray(getArrayFactory(), shape);
   }
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new NetlibDoubleArray(
-        getMatrixFactory(),
+        getArrayFactory(),
         offset,
         shape,
         stride,
@@ -105,7 +105,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
                  this.rows(), other.data(), other.rows(), 0, tmp,
                  thisRows);
 
-      return new NetlibDoubleArray(getMatrixFactory(), tmp, thisRows, otherColumns);
+      return new NetlibDoubleArray(getArrayFactory(), tmp, thisRows, otherColumns);
     } else {
       return super.mmul(alpha, a, other, b);
     }

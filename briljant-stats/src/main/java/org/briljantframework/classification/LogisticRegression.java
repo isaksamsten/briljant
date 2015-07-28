@@ -417,7 +417,7 @@ public class LogisticRegression implements Classifier {
     @Override
     public String toString() {
       return "LogisticRegression.Predictor{" +
-             "coefficients=" + coefficients.flat() +
+             "coefficients=" + coefficients.list() +
              ", logLoss=" + logLoss +
              '}';
     }

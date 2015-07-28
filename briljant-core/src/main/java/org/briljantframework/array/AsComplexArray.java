@@ -14,12 +14,12 @@ abstract class AsComplexArray extends AbstractComplexArray {
 
   @Override
   public ComplexArray newEmptyArray(int... shape) {
-    return getMatrixFactory().complexArray(shape);
+    return getArrayFactory().complexArray(shape);
   }
 
   @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsComplexArray(getMatrixFactory(), offset, shape, stride, majorStride) {
+    return new AsComplexArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, Complex value) {
         AsComplexArray.this.setElement(i, value);

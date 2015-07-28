@@ -4,18 +4,17 @@ import com.google.common.base.Preconditions;
 
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.complex.MutableComplex;
-import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayRoutines;
+import org.briljantframework.complex.Complex;
+import org.briljantframework.complex.MutableComplex;
+import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.stat.RunningStatistics;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractList;
 import java.util.Collection;
@@ -322,7 +321,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
     checkArgument(x.rows() % parts == 0, "Parts does not evenly divide rows.");
     int partRows = x.rows() / parts;
     return new AbstractList<T>() {
-      @NotNull
       @Override
       public T get(int index) {
         checkElementIndex(index, size());
@@ -378,7 +376,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
     int partColumns = matrix.columns() / parts;
     return new AbstractList<T>() {
 
-      @NotNull
       @Override
       public T get(int index) {
         checkElementIndex(index, size());

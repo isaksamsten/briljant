@@ -31,12 +31,12 @@ class BaseLongArray extends AbstractLongArray {
 
   @Override
   public LongArray newEmptyArray(int... shape) {
-    return new BaseLongArray(getMatrixFactory(), shape);
+    return new BaseLongArray(getArrayFactory(), shape);
   }
 
   @Override
   public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseLongArray(getMatrixFactory(), offset, shape, stride, majorStride, data);
+    return new BaseLongArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override

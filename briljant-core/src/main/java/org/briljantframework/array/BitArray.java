@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 /**
  * @author Isak Karlsson
  */
-public interface BitArray extends BaseArray<BitArray>, Iterable<Boolean> {
+public interface BitArray extends BaseArray<BitArray> {
 
   BitArray assign(Supplier<Boolean> supplier);
 
@@ -36,6 +36,16 @@ public interface BitArray extends BaseArray<BitArray>, Iterable<Boolean> {
   BitArray andNot(BitArray other);
 
   BitArray not();
+
+  BitArray add(BitArray o);
+
+  BitArray sub(BitArray o);
+
+  BitArray mul(BitArray o);
+
+  BitArray div(BitArray o);
+
+  BitArray mmul(BitArray o);
 
   Stream<Boolean> stream();
 

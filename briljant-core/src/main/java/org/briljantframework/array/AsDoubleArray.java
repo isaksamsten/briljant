@@ -10,12 +10,12 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray newEmptyArray(int... shape) {
-    return getMatrixFactory().doubleArray(shape);
+    return getArrayFactory().doubleArray(shape);
   }
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsDoubleArray(getMatrixFactory(), offset, shape, stride, majorStride) {
+    return new AsDoubleArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, double value) {
         AsDoubleArray.this.setElement(i, value);

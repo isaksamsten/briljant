@@ -540,7 +540,7 @@ public class AbstractDoubleArrayTest {
   public void testIterator() throws Exception {
     DoubleArray x = bj.array(new double[]{1, 2, 3, 4, 5, 6.0});
     int i = 0;
-    for (double v : x.flat()) {
+    for (double v : x.list()) {
       assertEquals(x.get(i++), v, epsilon);
     }
   }
