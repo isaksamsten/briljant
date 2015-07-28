@@ -9,7 +9,7 @@ import org.briljantframework.Bj
 @CompileStatic
 class ArrayExtensions {
 
-  static <T extends Array<T>> T asType(Array<T> self, Class<T> cls) {
+  static <T extends BaseArray<T>> T asType(BaseArray<T> self, Class<T> cls) {
     switch (cls) {
       case DoubleArray: return cls.cast(self.asDouble())
       case IntArray: return cls.cast(self.asInt())
@@ -33,7 +33,7 @@ class ArrayExtensions {
     return self.get(i)
   }
 
-  static <T extends Array<T>> T get(T self, IntRange[] ranges) {
+  static <T extends BaseArray<T>> T get(T self, IntRange[] ranges) {
     return self.get(ranges.collect {IntRange it -> Bj.range(it.fromInt, it.toInt)} as Range[])
   }
 
@@ -49,7 +49,7 @@ class ArrayExtensions {
     return self.add(v)
   }
 
-  static <T extends Array<T>> T plus(T self, T other) {
+  static <T extends BaseArray<T>> T plus(T self, T other) {
     return self.add(other)
   }
 
@@ -61,7 +61,7 @@ class ArrayExtensions {
     return self.sub(v)
   }
 
-  static <T extends Array<T>> T minus(T self, T other) {
+  static <T extends BaseArray<T>> T minus(T self, T other) {
     return self.sub(other)
   }
 
@@ -73,7 +73,7 @@ class ArrayExtensions {
     return self.mul(v)
   }
 
-  static <T extends Array<T>> T multiply(T self, T other) {
+  static <T extends BaseArray<T>> T multiply(T self, T other) {
     return self.mul(other)
   }
 

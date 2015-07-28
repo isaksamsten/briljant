@@ -19,7 +19,7 @@ import java.util.stream.LongStream;
 /**
  * Created by Isak Karlsson on 09/01/15.
  */
-public interface LongArray extends Array<LongArray>, Iterable<Long> {
+public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   // Assignments
 

@@ -8,7 +8,7 @@ import org.briljantframework.Check;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
@@ -390,7 +390,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public int getrf(DoubleArray a, IntArray ipiv) {
-    Check.all(Array::isVector, ipiv);
+    Check.all(BaseArray::isVector, ipiv);
     Check.size(Math.min(a.rows(), a.columns()), ipiv.size());
     double[] aa = getData(a);
     int[] ia = getData(ipiv);

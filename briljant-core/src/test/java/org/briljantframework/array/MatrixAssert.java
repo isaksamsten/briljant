@@ -17,7 +17,7 @@ public final class MatrixAssert {
   private MatrixAssert() {
   }
 
-  public static void assertEqualShape(Array expected, Array actual) {
+  public static void assertEqualShape(BaseArray expected, BaseArray actual) {
     assertArrayEquals(expected.getShape(), actual.getShape());
 //    assertEquals(ROW_SIZE, expected.rows(), actual.rows());
 //    assertEquals(COL_SIZE, expected.columns(), actual.columns());

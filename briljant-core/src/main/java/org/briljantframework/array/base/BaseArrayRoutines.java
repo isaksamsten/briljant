@@ -7,7 +7,7 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
@@ -250,7 +250,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
-    Check.all(Array::isVector, x, y);
+    Check.all(BaseArray::isVector, x, y);
     Check.size(x.size(), a.rows());
     Check.size(y.size(), a.columns());
     for (int i = 0; i < x.size(); i++) {
@@ -300,12 +300,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> T repeat(T x, int num) {
+  public <T extends BaseArray<T>> T repeat(T x, int num) {
     return null;
   }
 
   @Override
-  public <T extends Array<T>> T take(T x, int num) {
+  public <T extends BaseArray<T>> T take(T x, int num) {
     if (num < 0 || num > x.size()) {
       throw new IllegalArgumentException();
     }
@@ -317,7 +317,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> List<T> vsplit(T x, int parts) {
+  public <T extends BaseArray<T>> List<T> vsplit(T x, int parts) {
     checkNotNull(x);
     checkArgument(x.rows() % parts == 0, "Parts does not evenly divide rows.");
     int partRows = x.rows() / parts;
@@ -343,7 +343,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> T vstack(Collection<T> matrices) {
+  public <T extends BaseArray<T>> T vstack(Collection<T> matrices) {
     checkArgument(matrices.size() > 0);
     int rows = 0;
     int columns = 0;
@@ -372,7 +372,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> List<T> hsplit(T matrix, int parts) {
+  public <T extends BaseArray<T>> List<T> hsplit(T matrix, int parts) {
     checkNotNull(matrix);
     checkArgument(matrix.rows() % parts == 0, "Parts does not evenly dived columns.");
     int partColumns = matrix.columns() / parts;
@@ -399,7 +399,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> T hstack(Collection<T> matrices) {
+  public <T extends BaseArray<T>> T hstack(Collection<T> matrices) {
     checkArgument(matrices.size() > 0);
     int columns = 0;
     int rows = 0;
@@ -427,21 +427,21 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> T shuffle(T x) {
+  public <T extends BaseArray<T>> T shuffle(T x) {
     T out = x.copy();
     Utils.permute(out.size(), out);
     return out;
   }
 
   @Override
-  public <T extends Array<T>> T sort(T x, IndexComparator<T> cmp) {
+  public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
     T out = x.copy();
     QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
     return out;
   }
 
   @Override
-  public <T extends Array<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
+  public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
     T out = x.copy();
     int m = x.vectors(dim);
     for (int i = 0; i < m; i++) {
@@ -453,12 +453,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> T repmat(T x, int n) {
+  public <T extends BaseArray<T>> T repmat(T x, int n) {
     return repmat(x, n, n);
   }
 
   @Override
-  public <T extends Array<T>> T repmat(T x, int r, int c) {
+  public <T extends BaseArray<T>> T repmat(T x, int r, int c) {
     final int m = x.rows();
     final int n = x.columns();
     T y = x.newEmptyArray(m * r, n * c);
@@ -476,7 +476,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> void copy(T from, T to) {
+  public <T extends BaseArray<T>> void copy(T from, T to) {
     Check.size(from, to);
     for (int i = 0; i < from.size(); i++) {
       to.set(i, from, i);
@@ -484,7 +484,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends Array<T>> void swap(T a, T b) {
+  public <T extends BaseArray<T>> void swap(T a, T b) {
     Check.shape(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {

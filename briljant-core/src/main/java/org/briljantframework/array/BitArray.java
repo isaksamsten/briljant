@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 /**
  * @author Isak Karlsson
  */
-public interface BitArray extends Array<BitArray>, Iterable<Boolean> {
+public interface BitArray extends BaseArray<BitArray>, Iterable<Boolean> {
 
   BitArray assign(Supplier<Boolean> supplier);
 

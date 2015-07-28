@@ -69,7 +69,7 @@ public final class Matrices {
     return matrix.reduceVectors(dim, Matrices::sum);
   }
 
-  public static <T extends Array> T shuffle(T matrix) {
+  public static <T extends BaseArray> T shuffle(T matrix) {
     Utils.permute(matrix.size(), matrix);
     return matrix;
   }

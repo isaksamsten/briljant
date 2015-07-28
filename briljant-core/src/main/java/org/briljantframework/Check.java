@@ -1,6 +1,6 @@
 package org.briljantframework;
 
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 /**
  * Implement argument, state, size and type checking for {@linkplain
  * org.briljantframework.vector.Vector}, {@linkplain org.briljantframework.dataframe.DataFrame} and
- * {@link org.briljantframework.array.Array}
+ * {@link org.briljantframework.array.BaseArray}
  *
  * @author Isak Karlsson
  */
@@ -79,7 +79,7 @@ public final class Check {
    * @param a an array
    * @param b an array
    */
-  public static void shape(Array a, Array b) throws NonConformantException {
+  public static void shape(BaseArray a, BaseArray b) throws NonConformantException {
     if (!Arrays.equals(a.getShape(), b.getShape())) {
       throw new NonConformantException(a, b);
     }
@@ -92,7 +92,7 @@ public final class Check {
    * @param a an array
    * @param b an array
    */
-  public static void size(Array a, Array b) throws SizeMismatchException {
+  public static void size(BaseArray a, BaseArray b) throws SizeMismatchException {
     size(a.size(), b.size());
   }
 

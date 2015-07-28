@@ -99,7 +99,7 @@ import java.util.stream.DoubleStream;
  *
  * @author Isak Karlsson
  */
-public interface DoubleArray extends Array<DoubleArray> {
+public interface DoubleArray extends BaseArray<DoubleArray> {
 
   /**
    * Assign {@code value} to {@code this}

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  *
  * @author Isak Karlsson
  */
-public interface ComplexArray extends Array<ComplexArray>, Iterable<Complex> {
+public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex> {
 
   /**
    * Assign {@code value} to {@code this}

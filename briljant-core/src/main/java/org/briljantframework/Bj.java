@@ -1,6 +1,6 @@
 package org.briljantframework;
 
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -54,7 +54,7 @@ public final class Bj {
   private Bj() {
   }
 
-  public static Array<?> matrix(Collection<? extends Number> values) {
+  public static BaseArray<?> matrix(Collection<? extends Number> values) {
     Check.argument(values.size() > 0);
     Iterator<? extends Number> it = values.iterator();
     Number v = it.next();
@@ -199,7 +199,7 @@ public final class Bj {
     return MATRIX_ROUTINES.min(x);
   }
 
-  public static <T extends Array<T>> List<T> vsplit(T matrix, int parts) {
+  public static <T extends BaseArray<T>> List<T> vsplit(T matrix, int parts) {
     return MATRIX_ROUTINES.vsplit(matrix, parts);
   }
 
@@ -219,7 +219,7 @@ public final class Bj {
     return MATRIX_ROUTINES.iamax(x);
   }
 
-  public static <T extends Array<T>> void copy(T from, T to) {
+  public static <T extends BaseArray<T>> void copy(T from, T to) {
     MATRIX_ROUTINES.copy(from, to);
   }
 
@@ -227,15 +227,15 @@ public final class Bj {
     return MATRIX_ROUTINES.var(x);
   }
 
-  public static <T extends Array<T>> T take(T x, int num) {
+  public static <T extends BaseArray<T>> T take(T x, int num) {
     return MATRIX_ROUTINES.take(x, num);
   }
 
-  public static <T extends Array<T>> T repmat(T x, int r, int c) {
+  public static <T extends BaseArray<T>> T repmat(T x, int r, int c) {
     return MATRIX_ROUTINES.repmat(x, r, c);
   }
 
-  public static <T extends Array<T>> void swap(T a, T b) {
+  public static <T extends BaseArray<T>> void swap(T a, T b) {
     MATRIX_ROUTINES.swap(a, b);
   }
 
@@ -268,7 +268,7 @@ public final class Bj {
     return MATRIX_ROUTINES.dotc(a, b);
   }
 
-  public static <T extends Array<T>> T repmat(T x, int n) {
+  public static <T extends BaseArray<T>> T repmat(T x, int n) {
     return MATRIX_ROUTINES.repmat(x, n);
   }
 
@@ -276,7 +276,7 @@ public final class Bj {
     return MATRIX_ROUTINES.sum(dim, x);
   }
 
-  public static <T extends Array<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
+  public static <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
     return MATRIX_ROUTINES.sort(x, cmp, dim);
   }
 
@@ -296,11 +296,11 @@ public final class Bj {
     return MATRIX_ROUTINES.var(dim, x);
   }
 
-  public static <T extends Array<T>> T shuffle(T x) {
+  public static <T extends BaseArray<T>> T shuffle(T x) {
     return MATRIX_ROUTINES.shuffle(x);
   }
 
-  public static <T extends Array<T>> T vstack(Collection<T> matrices) {
+  public static <T extends BaseArray<T>> T vstack(Collection<T> matrices) {
     return MATRIX_ROUTINES.vstack(matrices);
   }
 
@@ -328,11 +328,11 @@ public final class Bj {
     return MATRIX_ROUTINES.mean(dim, x);
   }
 
-  public static <T extends Array<T>> T hstack(Collection<T> matrices) {
+  public static <T extends BaseArray<T>> T hstack(Collection<T> matrices) {
     return MATRIX_ROUTINES.hstack(matrices);
   }
 
-  public static <T extends Array<T>> T sort(T x, IndexComparator<T> cmp) {
+  public static <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
     return MATRIX_ROUTINES.sort(x, cmp);
   }
 
@@ -341,11 +341,11 @@ public final class Bj {
     MATRIX_ROUTINES.ger(alpha, x, y, a);
   }
 
-  public static <T extends Array<T>> T repeat(T x, int num) {
+  public static <T extends BaseArray<T>> T repeat(T x, int num) {
     return MATRIX_ROUTINES.repeat(x, num);
   }
 
-  public static <T extends Array<T>> List<T> hsplit(T matrix, int parts) {
+  public static <T extends BaseArray<T>> List<T> hsplit(T matrix, int parts) {
     return MATRIX_ROUTINES.hsplit(matrix, parts);
   }
 
@@ -415,7 +415,7 @@ public final class Bj {
    * @param indexes the indexes of the values to extract
    * @return a new matrix; the returned matrix has the same type as {@code a} (as returned by
    */
-  public static <T extends Array<T>> T take(T a, IntArray indexes) {
+  public static <T extends BaseArray<T>> T take(T a, IntArray indexes) {
     T taken = a.newEmptyArray(indexes.size());
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, a, indexes.get(i));
@@ -435,7 +435,7 @@ public final class Bj {
    * @param values the values; same shape as {@code a}
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static <T extends Array<T>> T mask(T a, BitArray mask, T values) {
+  public static <T extends BaseArray<T>> T mask(T a, BitArray mask, T values) {
     Check.shape(a, mask);
     Check.shape(a, values);
 
@@ -454,7 +454,7 @@ public final class Bj {
    * @param mask   the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
    */
-  public static <T extends Array<T>> void putMask(T a, BitArray mask, T values) {
+  public static <T extends BaseArray<T>> void putMask(T a, BitArray mask, T values) {
     Check.shape(a, mask);
     Check.shape(a, values);
     for (int i = 0; i < a.size(); i++) {

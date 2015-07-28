@@ -14,20 +14,20 @@ public fun DoubleArray.min(): Double = Bj.min(this)
 
 public fun DoubleArray.max(): Double = Bj.max(this)
 
-fun <T : Array<T>> T.hstack(other: T): T = Bj.hstack(listOf(this, other))
+fun <T : BaseArray<T>> T.hstack(other: T): T = Bj.hstack(listOf(this, other))
 
-fun <T : Array<T>> hstack(vararg others: T): T = Bj.hstack(listOf(*others))
+fun <T : BaseArray<T>> hstack(vararg others: T): T = Bj.hstack(listOf(*others))
 
-fun <T : Array<T>> T.vstack(other: T): T = Bj.vstack(listOf(this, other))
+fun <T : BaseArray<T>> T.vstack(other: T): T = Bj.vstack(listOf(this, other))
 
-fun <T : Array<T>> vstack(vararg others: T): T = Bj.vstack(listOf(*others))
+fun <T : BaseArray<T>> vstack(vararg others: T): T = Bj.vstack(listOf(*others))
 
-fun <T : Array<T>> T.sort(): T = Bj.sort(this, { mat, a, b -> mat.compare(a, b) })
+fun <T : BaseArray<T>> T.sort(): T = Bj.sort(this, { mat, a, b -> mat.compare(a, b) })
 
-fun <T : Array<T>> T.sort(axis: Int): T
+fun <T : BaseArray<T>> T.sort(axis: Int): T
         = Bj.sort(this, { mat, a, b -> mat.compare(a, b) }, axis)
 
-fun <T : Array<T>> T.sort(axis: Int = 0, cmp: (t: T, i: Int, j: Int) -> Int): T
+fun <T : BaseArray<T>> T.sort(axis: Int = 0, cmp: (t: T, i: Int, j: Int) -> Int): T
         = Bj.sort(this, cmp, axis)
 
 fun DoubleArray.mean(axis: Int) = Matrices.mean(axis, this)
@@ -42,9 +42,9 @@ fun Shape.component1() = this.rows
 fun Shape.component2() = this.columns
 
 
-val Array<*>.rows: Int get() = this.rows()
+val BaseArray<*>.rows: Int get() = this.rows()
 
-val Array<*>.columns: Int get() = this.columns()
+val BaseArray<*>.columns: Int get() = this.columns()
 
 val IntArray.T: IntArray get() = this.transpose()
 
@@ -74,16 +74,16 @@ val BitArray.T: BitArray get() = this.transpose()
 //fun Complex.toMatrix(rows: Int, columns: Int) = Bj.complexMatrix(rows, columns) assign this
 
 // Slicing
-fun <T : Array<T>> T.get(range: Progression<Int>) = get(range.toSlice())
+fun <T : BaseArray<T>> T.get(range: Progression<Int>) = get(range.toSlice())
 
-fun <T : Array<T>> T.get(bits: BitArray) = slice(bits)
+fun <T : BaseArray<T>> T.get(bits: BitArray) = slice(bits)
 
-fun <T : Array<T>> T.get(rows: Progression<Int>, columns: Progression<Int>)
+fun <T : BaseArray<T>> T.get(rows: Progression<Int>, columns: Progression<Int>)
         = get(rows.toSlice())
 
-fun <T : Array<T>> T.get(rows: all, columns: Progression<Int>): T = this[0..this.rows, columns]
+fun <T : BaseArray<T>> T.get(rows: all, columns: Progression<Int>): T = this[0..this.rows, columns]
 
-fun <T : Array<T>> T.get(rows: Progression<Int>, columns: all): T = this[rows, 0..this.columns]
+fun <T : BaseArray<T>> T.get(rows: Progression<Int>, columns: all): T = this[rows, 0..this.columns]
 
 // Multiplication operator
 
@@ -99,21 +99,21 @@ fun ComplexArray.times(other: Number) = if (other is Complex) {
     mul(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.times(matrix: Array<*>) = matrix.asDouble().mul(this)
+fun Double.times(matrix: BaseArray<*>) = matrix.asDouble().mul(this)
 
-fun Int.times(matrix: Array<*>) = matrix.asInt().mul(this)
+fun Int.times(matrix: BaseArray<*>) = matrix.asInt().mul(this)
 
-fun Long.times(matrix: Array<*>) = matrix.asLong().mul(this)
+fun Long.times(matrix: BaseArray<*>) = matrix.asLong().mul(this)
 
-fun Complex.times(matrix: Array<*>) = matrix.asComplex().mul(this)
+fun Complex.times(matrix: BaseArray<*>) = matrix.asComplex().mul(this)
 
-fun DoubleArray.times(other: Array<*>) = mul(other.asDouble())
+fun DoubleArray.times(other: BaseArray<*>) = mul(other.asDouble())
 
-fun IntArray.times(other: Array<*>) = mul(other.asInt())
+fun IntArray.times(other: BaseArray<*>) = mul(other.asInt())
 
-fun ComplexArray.times(other: Array<*>) = mul(other.asComplex())
+fun ComplexArray.times(other: BaseArray<*>) = mul(other.asComplex())
 
-fun LongArray.times(other: Array<*>) = mul(other.asLong())
+fun LongArray.times(other: BaseArray<*>) = mul(other.asLong())
 
 // Addition
 
@@ -129,21 +129,21 @@ fun ComplexArray.plus(other: Number) = if (other is Complex) {
     add(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.plus(matrix: Array<*>) = matrix.asDouble().add(this)
+fun Double.plus(matrix: BaseArray<*>) = matrix.asDouble().add(this)
 
-fun Int.plus(matrix: Array<*>) = matrix.asInt().add(this)
+fun Int.plus(matrix: BaseArray<*>) = matrix.asInt().add(this)
 
-fun Long.plus(matrix: Array<*>) = matrix.asLong().add(this)
+fun Long.plus(matrix: BaseArray<*>) = matrix.asLong().add(this)
 
-fun Complex.plus(matrix: Array<*>) = matrix.asComplex().add(this)
+fun Complex.plus(matrix: BaseArray<*>) = matrix.asComplex().add(this)
 
-fun DoubleArray.plus(other: Array<*>) = add(other.asDouble())
+fun DoubleArray.plus(other: BaseArray<*>) = add(other.asDouble())
 
-fun IntArray.plus(other: Array<*>) = add(other.asInt())
+fun IntArray.plus(other: BaseArray<*>) = add(other.asInt())
 
-fun ComplexArray.plus(other: Array<*>) = add(other.asComplex())
+fun ComplexArray.plus(other: BaseArray<*>) = add(other.asComplex())
 
-fun LongArray.plus(other: Array<*>) = add(other.asLong())
+fun LongArray.plus(other: BaseArray<*>) = add(other.asLong())
 
 // Subtraction
 
@@ -159,21 +159,21 @@ fun ComplexArray.minus(other: Number) = if (other is Complex) {
     sub(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.minus(matrix: Array<*>) = matrix.asDouble().rsub(this)
+fun Double.minus(matrix: BaseArray<*>) = matrix.asDouble().rsub(this)
 
-fun Int.minus(matrix: Array<*>) = matrix.asInt().rsub(this)
+fun Int.minus(matrix: BaseArray<*>) = matrix.asInt().rsub(this)
 
-fun Long.minus(matrix: Array<*>) = matrix.asLong().rsub(this)
+fun Long.minus(matrix: BaseArray<*>) = matrix.asLong().rsub(this)
 
-fun Complex.minus(matrix: Array<*>) = matrix.asComplex().rsub(this)
+fun Complex.minus(matrix: BaseArray<*>) = matrix.asComplex().rsub(this)
 
-fun DoubleArray.minus(other: Array<*>) = sub(other.asDouble())
+fun DoubleArray.minus(other: BaseArray<*>) = sub(other.asDouble())
 
-fun IntArray.minus(other: Array<*>) = sub(other.asInt())
+fun IntArray.minus(other: BaseArray<*>) = sub(other.asInt())
 
-fun ComplexArray.minus(other: Array<*>) = sub(other.asComplex())
+fun ComplexArray.minus(other: BaseArray<*>) = sub(other.asComplex())
 
-fun LongArray.minus(other: Array<*>) = sub(other.asLong())
+fun LongArray.minus(other: BaseArray<*>) = sub(other.asLong())
 
 // Division
 
@@ -189,18 +189,18 @@ fun ComplexArray.div(other: Number) = if (other is Complex) {
     div(Complex.valueOf(other.toDouble()))
 }
 
-fun Double.div(matrix: Array<*>) = matrix.asDouble().rdiv(this)
+fun Double.div(matrix: BaseArray<*>) = matrix.asDouble().rdiv(this)
 
-fun Int.div(matrix: Array<*>) = matrix.asInt().rdiv(this)
+fun Int.div(matrix: BaseArray<*>) = matrix.asInt().rdiv(this)
 
-fun Long.div(matrix: Array<*>) = matrix.asLong().rdiv(this)
+fun Long.div(matrix: BaseArray<*>) = matrix.asLong().rdiv(this)
 
-fun Complex.div(matrix: Array<*>) = matrix.asComplex().rdiv(this)
+fun Complex.div(matrix: BaseArray<*>) = matrix.asComplex().rdiv(this)
 
-fun DoubleArray.div(other: Array<*>) = div(other.asDouble())
+fun DoubleArray.div(other: BaseArray<*>) = div(other.asDouble())
 
-fun IntArray.div(other: Array<*>) = div(other.asInt())
+fun IntArray.div(other: BaseArray<*>) = div(other.asInt())
 
-fun ComplexArray.div(other: Array<*>) = div(other.asComplex())
+fun ComplexArray.div(other: BaseArray<*>) = div(other.asComplex())
 
-fun LongArray.div(other: Array<*>) = div(other.asLong())
+fun LongArray.div(other: BaseArray<*>) = div(other.asLong())

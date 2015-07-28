@@ -11,7 +11,7 @@ import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.array.BitArray;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -172,7 +172,7 @@ public class BitVector extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() {
+  public BaseArray toMatrix() {
     BitArray n = Bj.booleanArray(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, getAsBit(i) == Bit.TRUE);

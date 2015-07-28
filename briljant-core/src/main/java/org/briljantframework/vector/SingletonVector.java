@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 
 /**
  * @author Isak Karlsson
@@ -104,7 +104,7 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() throws IllegalTypeException {
+  public BaseArray toMatrix() throws IllegalTypeException {
     throw new IllegalTypeException("not compatible");
   }
 

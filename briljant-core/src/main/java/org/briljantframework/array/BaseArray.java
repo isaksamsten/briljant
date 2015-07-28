@@ -71,7 +71,7 @@ import java.util.function.Consumer;
  *
  * @author Isak Karlsson
  */
-public interface Array<E extends Array> extends Swappable {
+public interface BaseArray<E extends BaseArray> extends Swappable {
 
   /**
    * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from},
@@ -103,7 +103,7 @@ public interface Array<E extends Array> extends Swappable {
    * @param from       the other array
    * @param fromRow    the row in {@code from}
    * @param fromColumn the column in {@code from}
-   * @see #set(int, Array, int) for an example
+   * @see #set(int, BaseArray, int) for an example
    */
   void set(int toRow, int toColumn, E from, int fromRow, int fromColumn);
 
@@ -115,7 +115,7 @@ public interface Array<E extends Array> extends Swappable {
    * @param toIndex   the index in {@code this}
    * @param from      the other array
    * @param fromIndex the index in {@code from}
-   * @see #set(int, Array, int) for an example
+   * @see #set(int, BaseArray, int) for an example
    */
   void set(int[] toIndex, E from, int[] fromIndex);
 

@@ -16,18 +16,18 @@
 
 package org.briljantframework.exceptions;
 
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 
 /**
  * @author Isak Karlsson
  */
 public final class NonConformantException extends RuntimeException {
 
-  public NonConformantException(String param1, Array op1, String param2, Array op2) {
+  public NonConformantException(String param1, BaseArray op1, String param2, BaseArray op2) {
     this(param1, op1.getShape(), param2, op2.getShape());
   }
 
-  public NonConformantException(Array op1, Array op2) {
+  public NonConformantException(BaseArray op1, BaseArray op2) {
     this("op1", op1, "op2", op2);
   }
 

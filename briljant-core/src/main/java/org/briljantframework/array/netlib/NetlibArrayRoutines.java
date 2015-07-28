@@ -4,7 +4,7 @@ import com.github.fommil.netlib.BLAS;
 
 import org.briljantframework.Check;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.base.BaseArrayRoutines;
@@ -20,7 +20,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   public double dot(DoubleArray a, DoubleArray b) {
     if (!a.isView() && !b.isView()) {
       Check.size(a, b);
-      Check.all(Array::isVector, a, b);
+      Check.all(BaseArray::isVector, a, b);
       int n = a.size();
       double[] aa = a.data();
       double[] ba = b.data();
@@ -84,7 +84,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
     if (!x.isView() && !y.isView() && !a.isView()) {
-      Check.all(Array::isVector, x, y);
+      Check.all(BaseArray::isVector, x, y);
       Check.size(x.size(), a.rows());
       Check.size(y.size(), a.columns());
 

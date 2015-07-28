@@ -2,7 +2,7 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vector;
@@ -91,7 +91,7 @@ class ColumnView extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() {
+  public BaseArray toMatrix() {
     throw new UnsupportedOperationException();
   }
 

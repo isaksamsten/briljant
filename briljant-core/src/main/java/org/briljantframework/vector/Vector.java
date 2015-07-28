@@ -13,7 +13,7 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 
@@ -653,7 +653,7 @@ public interface Vector extends Serializable {
 
   /**
    * <p>Copies this vector to a {@code Matrix}. An appropriate
-   * specialization of the {@link org.briljantframework.array.Array} interface should be
+   * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
    * preferred. For example, a {@link org.briljantframework.vector.DoubleVector} should return a
    * {@link org.briljantframework.array.DoubleArray} implementation.
    *
@@ -674,7 +674,7 @@ public interface Vector extends Serializable {
    * @throws org.briljantframework.exceptions.IllegalTypeException if unable to convert vector
    *                                                                  to matrix
    */
-  Array toMatrix() throws IllegalTypeException;
+  BaseArray toMatrix() throws IllegalTypeException;
 
   default DoubleArray asDoubleMatrix() throws IllegalTypeException {
     return toMatrix().asDouble();

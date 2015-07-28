@@ -1,7 +1,7 @@
 package org.briljantframework.array.base;
 
 import org.briljantframework.Utils;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.DoubleArray;
@@ -120,7 +120,7 @@ public class BaseArrayFactoryTest {
 
   }
 
-  void printShapeAndStride(Array array) {
+  void printShapeAndStride(BaseArray array) {
     System.out.println(array.getOffset() + " " +
                        Arrays.toString(array.getShape()) + " " +
                        Arrays.toString(array.getStride()));

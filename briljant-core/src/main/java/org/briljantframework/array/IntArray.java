@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 /**
  * @author Isak Karlsson
  */
-public interface IntArray extends Array<IntArray> {
+public interface IntArray extends BaseArray<IntArray> {
 
   /**
    * Assign {@code value} to {@code this}

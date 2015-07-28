@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 
 /**
  * Created by isak on 1/21/15.
@@ -91,7 +91,7 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public Array toMatrix() throws IllegalTypeException {
+  public BaseArray toMatrix() throws IllegalTypeException {
     return parent.toMatrix();
   }
 

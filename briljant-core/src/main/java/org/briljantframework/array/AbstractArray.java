@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractArray<E extends Array<E>> implements Array<E> {
+public abstract class AbstractArray<E extends BaseArray<E>> implements BaseArray<E> {
 
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new array must be unchanged. (%s, %s)";

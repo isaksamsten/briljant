@@ -3,7 +3,7 @@ package org.briljantframework.array.api;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.sort.IndexComparator;
 
@@ -213,13 +213,13 @@ public interface ArrayRoutines {
    * @param n the repetitions of both rows and columns
    * @return a new matrix
    */
-  <T extends Array<T>> T repmat(T x, int n);
+  <T extends BaseArray<T>> T repmat(T x, int n);
 
-  <T extends Array<T>> T repmat(T x, int r, int c);
+  <T extends BaseArray<T>> T repmat(T x, int r, int c);
 
-  <T extends Array<T>> T repeat(T x, int num);
+  <T extends BaseArray<T>> T repeat(T x, int num);
 
-  <T extends Array<T>> T take(T x, int num);
+  <T extends BaseArray<T>> T take(T x, int num);
 
   /**
    * Split matrix vertically (i.e. row-wise). A 3-by-3 matrix hsplit into 3 parts
@@ -234,7 +234,7 @@ public interface ArrayRoutines {
    * @param <T>    the matrix type
    * @return a (lazy) list of {@code part} elements
    */
-  <T extends Array<T>> List<T> vsplit(T matrix, int parts);
+  <T extends BaseArray<T>> List<T> vsplit(T matrix, int parts);
 
   /**
    * Stacks matrices vertically, i.e. a 2-by-3 matrix vstacked with a 10-by-3 matrix
@@ -244,7 +244,7 @@ public interface ArrayRoutines {
    * @param <T>      the matrix type
    * @return a new matrix; {@code shape = [sum-of-rows, columns]}
    */
-  <T extends Array<T>> T vstack(Collection<T> matrices);
+  <T extends BaseArray<T>> T vstack(Collection<T> matrices);
 
   /**
    * Split matrix horizontally (i.e. column-wise). A 3-by-3 matrix hsplit into 3 parts
@@ -259,7 +259,7 @@ public interface ArrayRoutines {
    * @param <T>    the matrix type
    * @return a (lazy) list of {@code part} elements
    */
-  <T extends Array<T>> List<T> hsplit(T matrix, int parts);
+  <T extends BaseArray<T>> List<T> hsplit(T matrix, int parts);
 
   /**
    * Stacks matrices horizontally, i.e. a 3-by-2 matrix hstacked with a 3-by-10 matrix
@@ -269,9 +269,9 @@ public interface ArrayRoutines {
    * @param <T>      the matrix type
    * @return a new matrix; {@code shape = [rows, sum-of-columns]}
    */
-  <T extends Array<T>> T hstack(Collection<T> matrices);
+  <T extends BaseArray<T>> T hstack(Collection<T> matrices);
 
-  <T extends Array<T>> T shuffle(T x);
+  <T extends BaseArray<T>> T shuffle(T x);
 
   /**
    * <p>
@@ -314,9 +314,9 @@ public interface ArrayRoutines {
    * @param cmp the comparator; first argument is the container, and the next are indexes
    * @return a new sorted matrix; the returned matrix has the same type as {@code a}
    */
-  <T extends Array<T>> T sort(T x, IndexComparator<T> cmp);
+  <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp);
 
-  <T extends Array<T>> T sort(T x, IndexComparator<T> cmp, int dim);
+  <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp, int dim);
 
   /**
    * Copy the contents of {@code from} to {@code to}
@@ -325,7 +325,7 @@ public interface ArrayRoutines {
    * @param to   a matrix
    * @param <T>  the matrix type
    */
-  <T extends Array<T>> void copy(T from, T to);
+  <T extends BaseArray<T>> void copy(T from, T to);
 
   /**
    * Swap the data of {@code a} and {@code b}
@@ -335,5 +335,5 @@ public interface ArrayRoutines {
    * @param <T> the matrix type
    */
 
-  <T extends Array<T>> void swap(T a, T b);
+  <T extends BaseArray<T>> void swap(T a, T b);
 }

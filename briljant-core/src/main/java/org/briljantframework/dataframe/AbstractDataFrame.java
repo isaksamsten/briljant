@@ -18,7 +18,7 @@ import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.function.Aggregator;
-import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
@@ -690,7 +690,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new matrix
    */
   @Override
-  public Array toMatrix() {
+  public BaseArray toMatrix() {
     DoubleArray matrix = Bj.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
