@@ -1,6 +1,12 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.LongArray;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
@@ -8,12 +14,6 @@ import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.array.BitArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.array.LongArray;
-import org.briljantframework.array.BaseArray;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 
@@ -672,28 +672,28 @@ public interface Vector extends Serializable {
    *
    * @return this vector as a matrix
    * @throws org.briljantframework.exceptions.IllegalTypeException if unable to convert vector
-   *                                                                  to matrix
+   *                                                               to matrix
    */
-  BaseArray toMatrix() throws IllegalTypeException;
+  <U> Array<U> asArray(Class<U> cls) throws IllegalTypeException;
 
-  default DoubleArray asDoubleMatrix() throws IllegalTypeException {
-    return toMatrix().asDouble();
+  default DoubleArray asDoubleArray() throws IllegalTypeException {
+    return asArray(Double.class).asDouble();
   }
 
-  default ComplexArray asComplexMatrix() throws IllegalTypeException {
-    return toMatrix().asComplex();
+  default ComplexArray asComplexArray() throws IllegalTypeException {
+    return asArray(Complex.class).asComplex();
   }
 
-  default LongArray asLongMatrix() throws IllegalTypeException {
-    return toMatrix().asLong();
+  default LongArray asLongArray() throws IllegalTypeException {
+    return asArray(Long.class).asLong();
   }
 
-  default BitArray asBitMatrix() throws IllegalTypeException {
-    return toMatrix().asBit();
+  default BitArray asBitArray() throws IllegalTypeException {
+    return asArray(Boolean.class).asBit();
   }
 
-  default IntArray asIntMatrix() throws IllegalTypeException {
-    return toMatrix().asInt();
+  default IntArray asIntArray() throws IllegalTypeException {
+    return asArray(Integer.class).asInt();
   }
 
   /**

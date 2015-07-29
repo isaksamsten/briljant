@@ -7,7 +7,7 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsBitArray extends AbstractBitArray {
 
-  public AsBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  AsBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 

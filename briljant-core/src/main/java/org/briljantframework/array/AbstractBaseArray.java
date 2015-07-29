@@ -371,7 +371,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final boolean isVector() {
-    return dims() == 1;
+    return dims() == 1 ||
+           (dims() == 2 && (rows() == 1 || columns() == 1));
   }
 
   @Override

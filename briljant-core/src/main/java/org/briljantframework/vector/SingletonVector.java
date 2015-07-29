@@ -2,9 +2,9 @@ package org.briljantframework.vector;
 
 import com.google.common.base.Preconditions;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.array.BaseArray;
 
 /**
  * @author Isak Karlsson
@@ -101,11 +101,6 @@ class SingletonVector extends AbstractVector {
   @Override
   public VectorType getType() {
     return type;
-  }
-
-  @Override
-  public BaseArray toMatrix() throws IllegalTypeException {
-    throw new IllegalTypeException("not compatible");
   }
 
   @Override

@@ -1,5 +1,7 @@
 package org.briljantframework.dataframe;
 
+import org.briljantframework.array.Array;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.function.Aggregator;
@@ -505,7 +507,9 @@ public interface DataFrame extends Iterable<Vector> {
    *
    * @return this data frame as a matrix
    */
-  BaseArray toMatrix();
+  Array<Object> toArray();
+
+  DoubleArray toDoubleArray();
 
   default Stream<Vector> stream() {
     return StreamSupport.stream(spliterator(), false);

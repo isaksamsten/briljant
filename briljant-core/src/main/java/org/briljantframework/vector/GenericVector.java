@@ -3,12 +3,12 @@ package org.briljantframework.vector;
 import com.google.common.collect.ImmutableSet;
 
 import org.briljantframework.Bj;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.array.BaseArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -117,8 +117,8 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public BaseArray toMatrix() throws IllegalTypeException {
-    if (Number.class.isAssignableFrom(cls)) {
+  public DoubleArray asDoubleArray() throws IllegalTypeException {
+    if (Number.class.isAssignableFrom(this.cls)) {
       return Bj.doubleArray(size())
           .assign(asList(Number.class).stream()
                       .mapToDouble(v -> Is.NA(v) ? Na.of(Double.class) : v.doubleValue())

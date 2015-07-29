@@ -5,14 +5,14 @@ import org.briljantframework.array.api.ArrayFactory;
 /**
  * @author Isak Karlsson
  */
-public abstract class AsArray<T> extends AbstractArray<T> {
+abstract class AsArray<T> extends AbstractArray<T> {
 
-  protected AsArray(ArrayFactory bj, int offset, int[] shape,
-                    int[] stride, int majorStride) {
+  AsArray(ArrayFactory bj, int offset, int[] shape,
+          int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
-  public AsArray(AbstractBaseArray<?> array) {
+  AsArray(AbstractBaseArray<?> array) {
     super(array.getArrayFactory(), array.getOffset(), array.getShape(), array.getStride(),
           array.getMajorStrideIndex());
   }

@@ -55,27 +55,6 @@ public final class Bj {
   private Bj() {
   }
 
-  public static BaseArray<?> matrix(Collection<? extends Number> values) {
-    Check.argument(values.size() > 0);
-    Iterator<? extends Number> it = values.iterator();
-    Number v = it.next();
-    if (v instanceof Double || v instanceof BigDecimal) {
-      DoubleArray m = doubleArray(values.size());
-      int i = 0;
-      for (Number value : values) {
-        m.set(i++, value.doubleValue());
-      }
-      return m;
-    } else {
-      LongArray m = longArray(values.size());
-      int i = 0;
-      for (Number value : values) {
-        m.set(i++, value.longValue());
-      }
-      return m;
-    }
-  }
-
   public static <T> Array<T> referenceArray(int... shape) {
     return MATRIX_FACTORY.referenceArray(shape);
   }

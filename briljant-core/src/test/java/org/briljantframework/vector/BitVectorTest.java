@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class BitVectorTest {
 
   private BitVector vector;
-  private int[] trueArray = new int[] {0, 1, IntVector.NA, 0};
+  private int[] trueArray = new int[]{0, 1, IntVector.NA, 0};
 
   @Before
   public void setUp() throws Exception {
@@ -83,8 +83,4 @@ public class BitVectorTest {
     assertArrayEquals(trueArray, vector.toIntArray());
   }
 
-  @Test
-  public void testAsIntArray() throws Exception {
-    assertArrayEquals(trueArray, vector.asIntArray());
-  }
 }

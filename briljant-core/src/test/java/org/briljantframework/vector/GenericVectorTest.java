@@ -107,11 +107,6 @@ public class GenericVectorTest {
 
   }
 
-  @Test(expected = IllegalTypeException.class)
-  public void testAsMatrix() throws Exception {
-    dateVector.toMatrix();
-  }
-
   @Test
   public void testCompare() throws Exception {
     assertEquals(-1, dateVector.compare(0, 1));

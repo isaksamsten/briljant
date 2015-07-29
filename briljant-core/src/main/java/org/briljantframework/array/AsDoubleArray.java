@@ -4,7 +4,7 @@ import org.briljantframework.array.api.ArrayFactory;
 
 abstract class AsDoubleArray extends AbstractDoubleArray {
 
-  public AsDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  AsDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 

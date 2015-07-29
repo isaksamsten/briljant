@@ -1,5 +1,6 @@
 package org.briljantframework.array.netlib;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;

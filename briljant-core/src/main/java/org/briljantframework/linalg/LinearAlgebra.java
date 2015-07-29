@@ -17,14 +17,14 @@
 package org.briljantframework.linalg;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.transform.InverseTransformation;
 import org.briljantframework.linalg.decomposition.LuDecomposer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.Shape;
 
 /**
  * Created by isak on 23/06/14.
@@ -109,8 +109,8 @@ public class LinearAlgebra {
    * @return the out
    */
   public static DoubleArray pinv(DoubleArray matrix) {
-    Shape shape = Shape.of(matrix.columns(), matrix.rows());
-    double[] array = shape.getDoubleArray();
+    Check.argument(matrix.isMatrix());
+    double[] array = new double[matrix.size()];
     pinvi(matrix, array);
     return Bj.array(array).reshape(matrix.columns(), matrix.rows());
   }

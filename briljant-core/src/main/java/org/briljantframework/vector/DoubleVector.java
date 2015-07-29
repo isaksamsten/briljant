@@ -6,11 +6,11 @@ import com.carrotsearch.hppc.DoubleArrayList;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.array.DoubleArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -233,7 +233,7 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public DoubleArray toMatrix() {
+  public DoubleArray asDoubleArray() {
     DoubleArray x = Bj.doubleArray(size());
     for (int i = 0; i < size(); i++) {
       x.set(i, getAsDouble(i));

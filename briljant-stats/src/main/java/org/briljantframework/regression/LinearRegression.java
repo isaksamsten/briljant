@@ -18,11 +18,11 @@ package org.briljantframework.regression;
 
 import com.google.common.base.Preconditions;
 
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -46,8 +46,8 @@ public class LinearRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     Preconditions.checkArgument(x.rows() == y.size());
 
-    DoubleArray yMatrix = y.toMatrix().asDouble();
-    return new Model(LinearAlgebra.leastLinearSquares(x.toMatrix().asDouble(), yMatrix));
+    DoubleArray yMatrix = y.asDoubleArray();
+    return new Model(LinearAlgebra.leastLinearSquares(x.toDoubleArray(), yMatrix));
   }
 
   /**

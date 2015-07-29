@@ -11,6 +11,8 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.join.InnerJoin;
 import org.briljantframework.dataframe.join.JoinOperation;
 import org.briljantframework.dataframe.join.JoinType;
@@ -18,8 +20,6 @@ import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.function.Aggregator;
-import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
@@ -690,14 +690,24 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new matrix
    */
   @Override
-  public BaseArray toMatrix() {
+  public Array<Object> toArray() {
+    Array<Object> matrix = Bj.referenceArray(rows(), columns());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(i, j, get(Object.class, i, j));
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public DoubleArray toDoubleArray() {
     DoubleArray matrix = Bj.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDouble(i, j));
       }
     }
-
     return matrix;
   }
 

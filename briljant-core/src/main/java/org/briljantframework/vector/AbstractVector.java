@@ -1,10 +1,11 @@
 package org.briljantframework.vector;
 
-import com.google.common.base.Strings;
-
+import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Array;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.IntIndex;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregator;
 
 import java.util.Objects;
@@ -106,6 +107,15 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public <U> Array<U> asArray(Class<U> cls) throws IllegalTypeException {
+    Array<U> n = Bj.referenceArray(size());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, get(cls, i));
+    }
+    return n;
+  }
+
+  @Override
   public Builder newCopyBuilder() {
     Builder builder = newBuilder(size());
     for (int i = 0; i < size(); i++) {
@@ -134,25 +144,4 @@ public abstract class AbstractVector implements Vector {
     builder.append("] type: ").append(getType().toString());
     return builder.toString();
   }
-//  @Override
-//  public String toString() {
-//    StringBuilder builder = new StringBuilder();
-//    int longest = getIndex().keySet().stream()
-//        .map(Object::toString)
-//        .mapToInt(String::length)
-//        .max()
-//        .orElse(0);
-//
-//    Index index = getIndex();
-//    for (int i = 0; i < size(); i++) {
-//      String key = index.get(i).toString();
-//      builder.append(key)
-//          .append(Strings.repeat(" ", longest - key.length() + 2))
-//          .append(toString(i)).append("\n");
-//    }
-//    return builder
-//        .append("Name: ").append(name())
-//        .append(" type: ").append(getType())
-//        .toString();
-//  }
 }

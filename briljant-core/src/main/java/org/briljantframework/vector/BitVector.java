@@ -6,12 +6,12 @@ import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.array.BitArray;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.array.BitArray;
-import org.briljantframework.array.BaseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -103,10 +103,6 @@ public class BitVector extends AbstractVector {
     return new Builder(toIntArray());
   }
 
-  public int[] asIntArray() {
-    return values;
-  }
-
   @Override
   public int size() {
     return size;
@@ -167,17 +163,17 @@ public class BitVector extends AbstractVector {
   }
 
   @Override
-  public VectorType getType() {
-    return TYPE;
+  public BitArray asBitArray() throws IllegalTypeException {
+    BitArray array = Bj.booleanArray(size());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, getAsBit(i) == Bit.TRUE);
+    }
+    return array;
   }
 
   @Override
-  public BaseArray toMatrix() {
-    BitArray n = Bj.booleanArray(size());
-    for (int i = 0; i < size(); i++) {
-      n.set(i, getAsBit(i) == Bit.TRUE);
-    }
-    return n;
+  public VectorType getType() {
+    return TYPE;
   }
 
   @Override
@@ -354,32 +350,6 @@ public class BitVector extends AbstractVector {
           return BitVector.Builder.this;
         }
       };
-//      return new AbstractBitVector() {
-//        @Override
-//        public int getAsInt(int index) {
-//          return buffer.get(index);
-//        }
-//
-//        @Override
-//        public int size() {
-//          return buffer.size();
-//        }
-//
-//        @Override
-//        public Builder newCopyBuilder() {
-//          return BitVector.Builder.this;
-//        }
-//
-//        @Override
-//        public Builder newBuilder() {
-//          return getType().newBuilder();
-//        }
-//
-//        @Override
-//        public Builder newBuilder(int size) {
-//          return getType().newBuilder(size);
-//        }
-//      };
     }
 
     @Override
@@ -435,11 +405,8 @@ public class BitVector extends AbstractVector {
     return values.clone();
   }
 
-
   @Override
   public IntStream intStream() {
     return IntStream.of(values);
   }
-
-
 }

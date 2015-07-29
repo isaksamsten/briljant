@@ -8,7 +8,7 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsComplexArray extends AbstractComplexArray {
 
-  public AsComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  AsComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 

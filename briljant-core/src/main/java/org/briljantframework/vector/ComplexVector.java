@@ -6,6 +6,7 @@ import com.carrotsearch.hppc.DoubleArrayList;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.array.Array;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
@@ -196,7 +197,7 @@ public class ComplexVector extends AbstractVector {
   }
 
   @Override
-  public ComplexArray toMatrix() {
+  public ComplexArray asComplexArray() {
     ComplexArray x = Bj.complexArray(size());
     for (int i = 0; i < size(); i++) {
       x.set(i, getAsComplex(i));
