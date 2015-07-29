@@ -781,6 +781,35 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   ComplexArray asComplex();
 
   /**
+   * Returns true if the array is contiguous in memory, which means that the array is in the
+   * default order, i.e. fortran ordering in which the first dimension is varying faster.
+   *
+   * <p>
+   * Example
+   * <pre>{@code
+   * > IntArray a = Bj.array(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 3);
+   * array([[1, 3, 5]
+   *        [2, 4, 6]] type: int);
+   *
+   * > a.isContiguous();
+   * true
+   *
+   * > a.reshape(-1).isContiguous()
+   * true
+   *
+   * > a.transpose().isContiguous()
+   * false
+   * }</pre>
+   *
+   * <p>
+   * If a method specifies that it returns a view if possible and a copy otherwise, generally this
+   * means that it returns a view if {@code isContiguous()} returns {@code true}.
+   *
+   * @return true if the array is fortran order contiguous
+   */
+  boolean isContiguous();
+
+  /**
    * @return the transpose of {@code this}.
    */
   S transpose();

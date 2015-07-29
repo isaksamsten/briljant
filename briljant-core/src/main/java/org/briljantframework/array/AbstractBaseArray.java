@@ -334,7 +334,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
   }
 
-  protected boolean isContiguous() {
+  @Override
+  public boolean isContiguous() {
     return majorStride == 0;
   }
 
