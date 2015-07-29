@@ -7,7 +7,7 @@ import spock.lang.Specification
 /**
  * Created by isak on 24/06/15.
  */
-class ArraySpec extends Specification {
+class BaseArraySpec extends Specification {
 
   static bj = new BaseArrayBackend().arrayFactory
 
