@@ -98,7 +98,7 @@ public final class ArrayPrinter {
   }
 
   public static <T> void print(Appendable out, Array<T> array) throws IOException {
-    print(out, new ArrayToStringArray<>(array), "[", "]");
+    print(out, new ReferenceArrayToStringArray<>(array), "[", "]");
   }
 
   /**
@@ -438,11 +438,11 @@ public final class ArrayPrinter {
     }
   }
 
-  private static class ArrayToStringArray<T> implements ToStringArray {
+  private static class ReferenceArrayToStringArray<T> implements ToStringArray {
 
     private final Array<T> array;
 
-    public ArrayToStringArray(Array<T> array) {
+    public ReferenceArrayToStringArray(Array<T> array) {
       this.array = array;
     }
 
@@ -463,12 +463,12 @@ public final class ArrayPrinter {
 
     @Override
     public ToStringArray getVector(int dim, int index) {
-      return new ArrayToStringArray<>(array.getVector(dim, index));
+      return new ReferenceArrayToStringArray<>(array.getVector(dim, index));
     }
 
     @Override
     public ToStringArray select(int dim) {
-      return new ArrayToStringArray<>(array.select(dim));
+      return new ReferenceArrayToStringArray<>(array.select(dim));
     }
 
     @Override
@@ -483,7 +483,7 @@ public final class ArrayPrinter {
 
     @Override
     public String type() {
-      return array.get(0).getClass().getSimpleName();
+      return "object";
     }
   }
 }
