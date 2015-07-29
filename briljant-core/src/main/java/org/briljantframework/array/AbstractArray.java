@@ -387,21 +387,25 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public T get(int i, int j) {
+    Check.state(isMatrix());
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
   @Override
   public void set(int i, int j, T value) {
+    Check.state(isMatrix());
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
   public T get(int... index) {
+    Check.argument(index.length == dims());
     return getElement(Indexer.columnMajorStride(index, getOffset(), stride));
   }
 
   @Override
   public void set(int[] index, T value) {
+    Check.argument(index.length == dims());
     setElement(Indexer.columnMajorStride(index, getOffset(), stride), value);
   }
 
