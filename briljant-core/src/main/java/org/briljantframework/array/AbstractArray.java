@@ -19,11 +19,10 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
-import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 /**
- * Created by isak on 28/07/15.
+ * @author Isak Karlsson
  */
 public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
 
