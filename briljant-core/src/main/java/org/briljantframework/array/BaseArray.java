@@ -146,20 +146,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   void assign(S o);
 
-  S asView(int[] shape, int[] stride);
-
-  /**
-   * Create a view of {@code this} array with the specified offset, shape and stride.
-   *
-   * @param offset the offset (where indexing starts)
-   * @param shape  the shape of the view
-   * @param stride the strides of the view
-   * @return a view
-   */
-  S asView(int offset, int[] shape, int[] stride);
-
-  S asView(int offset, int[] shape, int[] stride, int majorStride);
-
   /**
    * Iterate over each vector of this array along the specified dimension.
    * <p>
@@ -708,6 +694,12 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   int size();
 
+  /**
+   * Get the size of the i:th dimension.
+   *
+   * @param dim the dimension
+   * @return the size of the dimension
+   */
   int size(int dim);
 
   /**
@@ -718,10 +710,26 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   int vectors(int i);
 
+  /**
+   * The number of dimensions of the array.
+   *
+   * @return the dimensions
+   */
   int dims();
 
+  /**
+   * The stride of the i:th dimension
+   *
+   * @param i the index of the dimension
+   * @return the stride of the dimension
+   */
   int stride(int i);
 
+  /**
+   * The offset for the starting element of the array
+   *
+   * @return the offset
+   */
   int getOffset();
 
   /**
@@ -738,6 +746,12 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   int[] getStride();
 
+  /**
+   * The major stride. In most cases this is {@code this.stride(0)} if {@code this.isContiguous()}
+   * returns true.
+   *
+   * @return the major stride
+   */
   int getMajorStride();
 
   /**
@@ -749,9 +763,112 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
     return dims() == 2 && rows() == columns();
   }
 
+  /**
+   * Return {@code true} if this array is a vector. The definition of vector is a 1d-array or a
+   * 2d-array where the first or second dimension is {@code 1}.
+   *
+   * @return {@code true} if this array is a vector
+   */
   boolean isVector();
 
+  /**
+   * Returns {@code true} if this array is a matrix. The definition of a matrix is a 2d-array. For
+   * row and column vectors the definition of vector and matrix overlaps. For some 2d-arrays both
+   * {@code isVector()} and {@code isMatrix()} returns {@code true}.
+   *
+   * @return {@code true} if this array is a matrix
+   */
   boolean isMatrix();
+
+  /**
+   * Creates a view of this array with the specified shape and stride.
+   *
+   * @param shape  the shape of the view
+   * @param stride the stride of the view
+   * @return a view
+   * @see #asView(int, int[], int[], int)
+   */
+  S asView(int[] shape, int[] stride);
+
+  /**
+   * Create a view of {@code this} array with the specified offset, shape and stride.
+   *
+   * @param offset the offset (where indexing starts)
+   * @param shape  the shape of the view
+   * @param stride the strides of the view
+   * @return a view
+   * @see #asView(int, int[], int[], int)
+   */
+  S asView(int offset, int[] shape, int[] stride);
+
+  /**
+   * Create a view of this array with the specified offset, shape, stride and major stride. This is
+   * an advanced technique and in most cases can it be avoided by using {@linkplain
+   * #get(java.util.List)} or {@linkplain #select(java.util.List)}.
+   *
+   * <p>
+   * Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(10).reshape(2,5);
+   * array([[0, 2, 4, 6, 8],
+   *        [1, 3, 5, 7, 9]] type: int)
+   *
+   * > x.asView(new int[]{5}, new int[]{2});
+   * array([0, 2, 4, 6, 8] type: int)
+   * }</pre>
+   *
+   * A more complex example could be that we have a 2d-array and want to extract {@code p x p}
+   * non-overlapping blocks. For example, given a {@code 4 x 4} array
+   * <pre>
+   * array([[1, 5,  9, 13],
+   *        [2, 6, 10, 14],
+   *        [3, 7, 11, 15],
+   *        [4, 8, 12, 16]] type: int)
+   * </pre>
+   *
+   * we want to extract the blocks without copying
+   *
+   * <pre>
+   * array([[[[ 1,  5],
+   *          [ 2,  6]],
+   *
+   *         [[ 3,  7],
+   *          [ 4,  8]]],
+   *
+   *        [[[ 9, 13],
+   *          [10, 14]],
+   *
+   *         [[11, 15],
+   *          [12, 16]]]] type: int)
+   * </pre>
+   *
+   * <pre>{@code
+   * > IntArray x = Bj.range(1, 17).reshape(4, 4)
+   * > int h = x.size(0), w = x.size(1);
+   * > int bh = 2, bw = 2;
+   * > int[] shape = new int[]{h / bw, w / bw, bh, bw};
+   * > int[] strides = new int[]{h * bw, bh, 1, h}
+   * > IntArray y = x.asView(shape, strides)
+   * array([[[[ 1,  5],
+   *          [ 2,  6]],
+   *
+   *         [[ 3,  7],
+   *          [ 4,  8]]],
+   *
+   *        [[[ 9, 13],
+   *          [10, 14]],
+   *
+   *         [[11, 15],
+   *          [12, 16]]]] type: int)
+   * }</pre>
+   *
+   * @param offset      the offset (where indexing starts)
+   * @param shape       the shape of the view
+   * @param stride      the stride of the view
+   * @param majorStride the index of the major stride (usually {@code 0} or {@code shape.length -
+   *                    1})
+   */
+  S asView(int offset, int[] shape, int[] stride, int majorStride);
 
   S newEmptyArray(int... shape);
 
