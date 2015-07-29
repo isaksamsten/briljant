@@ -741,10 +741,12 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   int getMajorStride();
 
   /**
-   * @return true if rows() == columns()
+   * Returns {@code true} if this array is a 2d-array and both dimensions have the same size.
+   *
+   * @return {@code true} if the array is square
    */
   default boolean isSquare() {
-    return rows() == columns();
+    return dims() == 2 && rows() == columns();
   }
 
   boolean isVector();
