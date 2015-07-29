@@ -870,8 +870,18 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   S asView(int offset, int[] shape, int[] stride, int majorStride);
 
+  /**
+   * Create a new array with the given shape.
+   *
+   * @param shape the shape of the new array
+   * @return a new array
+   */
   S newEmptyArray(int... shape);
 
+  /**
+   * Returns {@code true} if th
+   * @return
+   */
   boolean isView();
 
   /**

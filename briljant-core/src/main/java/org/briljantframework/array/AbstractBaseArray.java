@@ -383,7 +383,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public boolean isView() {
-    return false;
+    return majorStride == 0 && offset == 0 &&
+           Arrays.equals(stride, Indexer.computeStride(1, shape));
   }
 
   @Override
