@@ -1,6 +1,7 @@
 package org.briljantframework.array.random;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.array.IntArray;
 
 import java.util.Random;
@@ -36,15 +37,10 @@ public final class Sample {
    * @return an int matrix with values sampled from the population
    */
   public static IntArray withoutReplacement(int population, int samples, Random rng) {
-    if (population < 0) {
-      throw new IllegalArgumentException("population should be > 0");
-    }
-    if (samples > population) {
-      throw new IllegalArgumentException("population should be greater than"
-                                         + "or equal to samples");
-    }
-    IntArray out = Bj.intArray(samples);
+    Check.argument(population > 0, "Population should be larger than 0");
+    Check.argument(samples < population, "The population should be larger than the sample");
 
+    IntArray out = Bj.intArray(samples);
     for (int i = 0; i < samples; i++) {
       out.set(i, i);
     }
