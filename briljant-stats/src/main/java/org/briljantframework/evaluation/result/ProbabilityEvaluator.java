@@ -3,7 +3,7 @@ package org.briljantframework.evaluation.result;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.evaluation.measure.AreaUnderCurve;
 import org.briljantframework.evaluation.measure.Brier;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
@@ -23,7 +23,7 @@ public class ProbabilityEvaluator implements Evaluator {
     Vector predicted = ctx.getPredictions(Sample.OUT);
     Predictor predictor = ctx.getPredictor();
 
-    DoubleMatrix probabilities = ctx.getEstimation(Sample.OUT);
+    DoubleArray probabilities = ctx.getEstimation(Sample.OUT);
     Vector classes = predictor.getClasses();
 
     Map<Object, Double> auc = Measures.auc(predicted, probabilities, actual, classes);

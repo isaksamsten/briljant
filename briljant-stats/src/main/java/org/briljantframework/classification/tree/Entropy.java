@@ -1,6 +1,6 @@
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * @author Isak Karlsson
@@ -18,7 +18,7 @@ public class Entropy implements Impurity {
   }
 
   @Override
-  public double impurity(DoubleMatrix values) {
+  public double impurity(DoubleArray values) {
     double entropy = 0;
     for (int i = 0; i < values.size(); i++) {
       double value = values.get(i);

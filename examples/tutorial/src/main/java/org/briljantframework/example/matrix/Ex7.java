@@ -1,12 +1,12 @@
 package org.briljantframework.example.matrix;
 
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.T;
-import org.briljantframework.matrix.api.MatrixBackend;
-import org.briljantframework.matrix.api.MatrixFactory;
-import org.briljantframework.matrix.api.MatrixRoutines;
-import org.briljantframework.matrix.netlib.NetlibMatrixBackend;
+import org.briljantframework.array.DoubleMatrix;
+import org.briljantframework.array.T;
+import org.briljantframework.array.api.MatrixBackend;
+import org.briljantframework.array.api.MatrixFactory;
+import org.briljantframework.array.api.MatrixRoutines;
+import org.briljantframework.array.netlib.NetlibMatrixBackend;
 
 /**
  * Created by isak on 14/05/15.

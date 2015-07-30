@@ -20,12 +20,8 @@ import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.netlib.NetlibLapackException;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.netlib.util.intW;
-
-import static com.google.common.primitives.Ints.checkedCast;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Created by Isak Karlsson on 11/08/14.
@@ -41,14 +37,14 @@ public class InverseTransformation implements Transformation {
    * @param matrix the matrix
    * @return the dense matrix
    */
-  public DoubleMatrix transform(DoubleMatrix matrix) {
+  public DoubleArray transform(DoubleArray matrix) {
     return invert(matrix); // TODO(isak) refactor
   }
 
-  private DoubleMatrix invert(DoubleMatrix in) {
+  private DoubleArray invert(DoubleArray in) {
     int n = in.rows();
-    DoubleMatrix out = in.copy();
-    IntMatrix ipiv = Bj.intVector(n);
+    DoubleArray out = in.copy();
+    IntArray ipiv = Bj.intArray(n);
     Bj.linalg.getrf(out, ipiv);
 //    Bj.linalg.getri(out, ipiv);
 //    int[] ipiv = new int[n];

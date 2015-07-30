@@ -17,7 +17,7 @@
 package org.briljantframework.linalg.decomposition;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Formally, the singular value decomposition of an m×n real or complex matrix M is a factorization
@@ -32,12 +32,12 @@ import org.briljantframework.matrix.DoubleMatrix;
  */
 public class SingularValueDecomposer {
 
-  public SingularValueDecomposition decompose(DoubleMatrix x) {
+  public SingularValueDecomposition decompose(DoubleArray x) {
     int m = x.rows(), n = x.columns();
-    DoubleMatrix s = Bj.doubleVector(n);
-    DoubleMatrix u = Bj.doubleMatrix(m, m);
-    DoubleMatrix vt = Bj.doubleMatrix(n, n);
-    DoubleMatrix a = x.copy();
+    DoubleArray s = Bj.doubleArray(n);
+    DoubleArray u = Bj.doubleArray(m, m);
+    DoubleArray vt = Bj.doubleArray(n, n);
+    DoubleArray a = x.copy();
     Bj.linalg.gesvd('a', 'a', a, s, u, vt);
     return new SingularValueDecomposition(s, u, vt);
   }

@@ -6,11 +6,12 @@ import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.complex.Complex;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.IntMatrix;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -122,10 +123,6 @@ public class IntVector extends AbstractVector {
     return new Builder(toIntArray());
   }
 
-  public int[] asIntArray() {
-    return values;
-  }
-
   @Override
   public Complex getAsComplex(int index) {
     double v = getAsDouble(index);
@@ -177,6 +174,15 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
+  public IntArray asIntArray() throws IllegalTypeException {
+    IntArray array = Bj.intArray(size());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, getAsInt(i));
+    }
+    return array;
+  }
+
+  @Override
   public Bit getAsBit(int index) {
     return Bit.valueOf(getAsInt(index));
   }
@@ -184,15 +190,6 @@ public class IntVector extends AbstractVector {
   @Override
   public VectorType getType() {
     return TYPE;
-  }
-
-  @Override
-  public IntMatrix toMatrix() {
-    IntMatrix m = Bj.intVector(size());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, getAsInt(i));
-    }
-    return m;
   }
 
   @Override

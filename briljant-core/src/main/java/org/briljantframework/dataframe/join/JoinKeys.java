@@ -1,6 +1,6 @@
 package org.briljantframework.dataframe.join;
 
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.array.IntArray;
 
 /**
  * Represent a set of join-keys for two indexed collections
@@ -9,11 +9,11 @@ import org.briljantframework.matrix.IntMatrix;
  */
 public class JoinKeys {
 
-  private final IntMatrix left;
-  private final IntMatrix right;
+  private final IntArray left;
+  private final IntArray right;
   private final int maxGroups;
 
-  JoinKeys(IntMatrix left, IntMatrix right, int maxGroups) {
+  JoinKeys(IntArray left, IntArray right, int maxGroups) {
     this.left = left;
     this.right = right;
     this.maxGroups = maxGroups;
@@ -24,7 +24,7 @@ public class JoinKeys {
    *
    * @return the left join keys
    */
-  public IntMatrix getLeft() {
+  public IntArray getLeft() {
     return left;
   }
 
@@ -33,7 +33,7 @@ public class JoinKeys {
    *
    * @return the right join keys
    */
-  public IntMatrix getRight() {
+  public IntArray getRight() {
     return right;
   }
 

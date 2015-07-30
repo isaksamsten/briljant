@@ -9,8 +9,8 @@ import org.briljantframework.Utils;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Indexer;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Indexer;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
@@ -35,9 +35,9 @@ import static com.google.common.primitives.Ints.checkedCast;
  */
 public class MatrixDataFrame extends AbstractDataFrame {
 
-  private final DoubleMatrix matrix;
+  private final DoubleArray matrix;
 
-  public MatrixDataFrame(DoubleMatrix matrix) {
+  public MatrixDataFrame(DoubleArray matrix) {
     this.matrix = matrix;
   }
 
@@ -133,7 +133,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 //    NameAttribute columnNames = new NameAttribute(this.columnNames);
 //    columnNames.remove(index);
 
-    DoubleMatrix newMatrix = matrix.newEmptyMatrix(rows(), columns() - 1);
+    DoubleArray newMatrix = matrix.newEmptyArray(rows(), columns() - 1);
     int j = 0;
     for (int k = 0; k < matrix.columns(); k++) {
       if (k != index) {
@@ -219,7 +219,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
         reInitializeBuffer(rows, column + 1);
       }
 
-      return Indexer.columnMajor(row, column, rows, columns);
+      return Indexer.columnMajor(0, row, column, rows, columns);
 
     }
 
@@ -251,8 +251,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       Arrays.fill(tmp, DoubleVector.NA);
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
-          int newIndex = Indexer.columnMajor(i, j, rows, columns);
-          int oldIndex = Indexer.columnMajor(i, j, this.rows, this.columns);
+          int newIndex = Indexer.columnMajor(0, i, j, rows, columns);
+          int oldIndex = Indexer.columnMajor(0, i, j, this.rows, this.columns);
           double oldVal = buffer[oldIndex];
           tmp[newIndex] = oldVal;
         }
@@ -296,8 +296,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
           if (j != column) {
-            tmp[Indexer.columnMajor(i, j, rows, newColumns)] =
-                buffer[Indexer.columnMajor(i, j, rows, columns)];
+            tmp[Indexer.columnMajor(0, i, j, rows, newColumns)] =
+                buffer[Indexer.columnMajor(0, i, j, rows, columns)];
           }
         }
       }
@@ -310,8 +310,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
     @Override
     public DataFrame.Builder swapColumns(int a, int b) {
       for (int i = 0; i < rows(); i++) {
-        int oldIndex = Indexer.columnMajor(i, a, rows(), columns());
-        int newIndex = Indexer.columnMajor(i, b, rows(), columns());
+        int oldIndex = Indexer.columnMajor(0, i, a, rows(), columns());
+        int newIndex = Indexer.columnMajor(0, i, b, rows(), columns());
         double tmp = buffer[oldIndex];
         buffer[oldIndex] = buffer[newIndex];
         buffer[newIndex] = tmp;
@@ -324,8 +324,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
       checkArgument(column >= 0 && column < columns());
       checkArgument(a >= 0 && a < rows() && b >= 0 && b < rows());
 
-      int oldIndex = Indexer.columnMajor(a, column, rows(), columns());
-      int newIndex = Indexer.columnMajor(b, column, rows(), columns());
+      int oldIndex = Indexer.columnMajor(0, a, column, rows(), columns());
+      int newIndex = Indexer.columnMajor(0, b, column, rows(), columns());
 
       double tmp = buffer[oldIndex];
       buffer[oldIndex] = buffer[newIndex];

@@ -3,7 +3,7 @@ package org.briljantframework.distance;
 import com.google.common.primitives.Doubles;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.function.DoubleSupplier;
@@ -37,9 +37,9 @@ public class EditDistance implements Distance {
       }
     };
 
-    DoubleMatrix previousRow = Bj.doubleVector(b.size() + 1).assign(iter);
+    DoubleArray previousRow = Bj.doubleArray(b.size() + 1).assign(iter);
     for (int i = 0; i < a.size(); i++) {
-      DoubleMatrix currentRow = Bj.doubleVector(b.size() + 1);
+      DoubleArray currentRow = Bj.doubleArray(b.size() + 1);
       currentRow.set(0, i + 1);
       for (int j = 0; j < b.size(); j++) {
         double insert = previousRow.get(j + 1) + 1;

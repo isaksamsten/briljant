@@ -1,9 +1,9 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 
 /**
  * @author Isak Karlsson
@@ -17,7 +17,7 @@ public final class Convert {
    * @param matrix the matrix
    * @return a vector representation of {@code matrix}
    */
-  public static DoubleVector toVector(DoubleMatrix matrix) {
+  public static DoubleVector toVector(DoubleArray matrix) {
     DoubleVector.Builder builder = new DoubleVector.Builder(0, matrix.size());
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
@@ -25,7 +25,7 @@ public final class Convert {
     return builder.build();
   }
 
-  public static IntVector toVector(IntMatrix matrix) {
+  public static IntVector toVector(IntArray matrix) {
     IntVector.Builder builder = new IntVector.Builder(0, matrix.size());
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
@@ -33,7 +33,7 @@ public final class Convert {
     return builder.build();
   }
 
-  public static ComplexVector toVector(ComplexMatrix matrix) {
+  public static ComplexVector toVector(ComplexArray matrix) {
     ComplexVector.Builder builder = new ComplexVector.Builder(0, matrix.size());
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));
@@ -41,7 +41,7 @@ public final class Convert {
     return builder.build();
   }
 
-  public static BitVector toVector(BitMatrix matrix) {
+  public static BitVector toVector(BitArray matrix) {
     BitVector.Builder builder = new BitVector.Builder(0, matrix.size());
     for (int i = 0; i < matrix.size(); i++) {
       builder.set(i, matrix.get(i));

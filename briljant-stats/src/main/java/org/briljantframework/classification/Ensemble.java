@@ -18,14 +18,12 @@ package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Series;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.Dim;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.Matrices;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.Matrices;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -42,11 +40,11 @@ import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.briljantframework.evaluation.result.Sample.OUT;
 import static org.briljantframework.Bj.argmax;
 import static org.briljantframework.Bj.argmaxnot;
 import static org.briljantframework.Bj.maxnot;
-import static org.briljantframework.matrix.Matrices.mean;
+import static org.briljantframework.evaluation.result.Sample.OUT;
+import static org.briljantframework.array.Matrices.mean;
 import static org.briljantframework.vector.Vec.find;
 
 /**
@@ -113,10 +111,10 @@ public abstract class Ensemble implements Classifier {
       extends AbstractPredictor implements EnsemblePredictor {
 
     private final List<? extends Predictor> members;
-    private final BitMatrix oobIndicator;
+    private final BitArray oobIndicator;
 
     public DefaultEnsemblePredictor(Vector classes, List<? extends Predictor> members,
-                                    BitMatrix oobIndicator) {
+                                    BitArray oobIndicator) {
       super(classes);
       this.members = members;
       this.oobIndicator = oobIndicator;
@@ -129,7 +127,7 @@ public abstract class Ensemble implements Classifier {
      * @return the out of bag indicator matrix
      */
     @Override
-    public BitMatrix getOobIndicator() {
+    public BitArray getOobIndicator() {
       return oobIndicator;
     }
 
@@ -148,11 +146,11 @@ public abstract class Ensemble implements Classifier {
       Vector y = ctx.getPartition().getTrainingTarget();
 
       // Store the out-of-bag and in-bag probability estimates
-      DoubleMatrix oobEstimates = Bj.doubleMatrix(x.rows(), classes.size());
-      DoubleMatrix inbEstimates = Bj.doubleMatrix(x.rows(), classes.size());
+      DoubleArray oobEstimates = Bj.doubleArray(x.rows(), classes.size());
+      DoubleArray inbEstimates = Bj.doubleArray(x.rows(), classes.size());
 
       // Count the number of times each training sample have been included
-      IntMatrix counts = oobIndicator.asIntMatrix().reduceRows(Matrices::sum);
+      IntArray counts = oobIndicator.asInt().reduceRows(Matrices::sum);
 
       // Compute the in-bag and out-of-bag estimates for all examples
       DoubleAdder oobAccuracy = new DoubleAdder();
@@ -161,7 +159,7 @@ public abstract class Ensemble implements Classifier {
         int oobSize = counts.get(i);
         Vector record = x.getRecord(i);
         for (int j = 0; j < members.size(); j++) {
-          DoubleMatrix estimate = members.get(j).estimate(record);
+          DoubleArray estimate = members.get(j).estimate(record);
           if (oobIndicator.get(i, j)) {
             oobEstimates.getRow(i).assign(estimate, (e, v) -> e + v / oobSize);
           } else {
@@ -176,7 +174,7 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder strengthA = new DoubleAdder();
       DoubleAdder strengthSquareA = new DoubleAdder();
       IntStream.range(0, oobEstimates.rows()).parallel().forEach(i -> {
-        DoubleMatrix estimation = oobEstimates.getRow(i);
+        DoubleArray estimation = oobEstimates.getRow(i);
         int c = find(classes, y, i);
         double ma = estimation.get(c) - maxnot(estimation, c);
         strengthA.add(ma);
@@ -198,8 +196,8 @@ public abstract class Ensemble implements Classifier {
           if (oobIndicator.get(i, memberIndex)) {
             oobSizeA.getAndIncrement();
             int c = find(classes, y, i);
-            DoubleMatrix memberEstimation = member.estimate(x.getRecord(i));
-            DoubleMatrix ibEstimation = inbEstimates.getRow(i);
+            DoubleArray memberEstimation = member.estimate(x.getRecord(i));
+            DoubleArray ibEstimation = inbEstimates.getRow(i);
             p1A.add(argmax(memberEstimation) == c ? 1 : 0);
             p2A.add(argmax(memberEstimation) == argmaxnot(ibEstimation, c) ? 1 : 0);
           }
@@ -228,22 +226,22 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         Vector record = x.getRecord(i);
-        DoubleMatrix c = createTrueClassVector(y, classes, i);
+        DoubleArray c = createTrueClassVector(y, classes, i);
 
 
         /* Stores the probability of the m:th member for the j:th class */
         int estimators = members.size();
-        DoubleMatrix memberEstimates = Bj.doubleMatrix(estimators, classes.size());
+        DoubleArray memberEstimates = Bj.doubleArray(estimators, classes.size());
         for (int j = 0; j < estimators; j++) {
           Predictor member = members.get(j);
           memberEstimates.setRow(j, member.estimate(record));
         }
 
         /* Get the mean probability vector for the i:th example */
-        DoubleMatrix meanEstimate = mean(memberEstimates, Dim.C);
+        DoubleArray meanEstimate = mean(1, memberEstimates); // TODO: check
         double variance = 0, mse = 0, bias = 0, accuracy = 0;
         for (int j = 0; j < memberEstimates.rows(); j++) {
-          DoubleMatrix r = memberEstimates.getRow(j);
+          DoubleArray r = memberEstimates.getRow(j);
           double meanDiff = 0;
           double trueDiff = 0;
           double meanTrueDiff = 0;
@@ -274,8 +272,8 @@ public abstract class Ensemble implements Classifier {
       ctx.getOrDefault(BaseAccuracy.class, BaseAccuracy.Builder::new).add(OUT, avgBaseAccuracy);
     }
 
-    private DoubleMatrix createTrueClassVector(Vector y, Vector classes, int i) {
-      DoubleMatrix c = Bj.doubleVector(classes.size());
+    private DoubleArray createTrueClassVector(Vector y, Vector classes, int i) {
+      DoubleArray c = Bj.doubleArray(classes.size());
       for (int j = 0; j < classes.size(); j++) {
         if (classes.equals(j, y, i)) {
           c.set(j, 1);
@@ -297,15 +295,15 @@ public abstract class Ensemble implements Classifier {
     }
 
     @Override
-    public DoubleMatrix estimate(Vector record) {
-      List<DoubleMatrix> predictions = members.parallelStream()
+    public DoubleArray estimate(Vector record) {
+      List<DoubleArray> predictions = members.parallelStream()
           .map(model -> model.estimate(record))
           .collect(Collectors.toList());
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleMatrix m = Bj.doubleVector(classes.size());
-      for (DoubleMatrix prediction : predictions) {
+      DoubleArray m = Bj.doubleArray(classes.size());
+      for (DoubleArray prediction : predictions) {
         m.assign(prediction, (t, o) -> t + o / estimators);
       }
       return m;

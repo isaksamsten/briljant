@@ -2,8 +2,8 @@ package org.briljantframework.example.matrix;
 
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.Dim;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.Dim;
+import org.briljantframework.array.DoubleMatrix;
 
 import java.util.Random;
 

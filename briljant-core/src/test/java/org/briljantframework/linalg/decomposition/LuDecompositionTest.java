@@ -1,6 +1,6 @@
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class LuDecompositionTest {
 
   @Test
   public void testInverse() throws Exception {
-    DoubleMatrix inverse = decomposition.inverse();
+    DoubleArray inverse = decomposition.inverse();
 
     assertEquals(inverse.get(0, 0), -0.026, 0.01);
   }

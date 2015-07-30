@@ -1,6 +1,6 @@
 package org.briljantframework.dataframe.join;
 
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.array.IntArray;
 
 /**
  * @author Isak Karlsson
@@ -18,11 +18,11 @@ public class LeftOuterJoin implements JoinOperation {
   @Override
   public Joiner createJoiner(JoinKeys keys) {
     int noGroups = keys.getMaxGroups();
-    IntMatrix[] l = JoinUtils.groupSortIndexer(keys.getLeft(), noGroups);
-    IntMatrix[] r = JoinUtils.groupSortIndexer(keys.getRight(), noGroups);
+    IntArray[] l = JoinUtils.groupSortIndexer(keys.getLeft(), noGroups);
+    IntArray[] r = JoinUtils.groupSortIndexer(keys.getRight(), noGroups);
 
-    IntMatrix leftSorter = l[0], leftCount = l[1];
-    IntMatrix rightSorter = r[0], rightCount = r[1];
+    IntArray leftSorter = l[0], leftCount = l[1];
+    IntArray rightSorter = r[0], rightCount = r[1];
 
     int count = 0;
     for (int i = 1; i < noGroups + 1; i++) {

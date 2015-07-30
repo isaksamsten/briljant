@@ -10,7 +10,7 @@ import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.array.BitArray;
 import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
@@ -34,7 +34,7 @@ public class RandomPointTreeTest {
         Vector classes = Vec.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
-        BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
+        BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
         for (int i = 0; i < size(); i++) {
           fitTasks.add(new FitTask(classSet, x, y, classes, oobIndicator.getColumn(i)));
         }
@@ -52,10 +52,10 @@ public class RandomPointTreeTest {
         private final DataFrame x;
         private final Vector y;
         private final Vector classes;
-        private final BitMatrix oobIndicator;
+        private final BitArray oobIndicator;
 
         private FitTask(ClassSet classSet, DataFrame x, Vector y, Vector classes,
-                        BitMatrix oobIndicator) {
+                        BitArray oobIndicator) {
           this.classSet = classSet;
           this.x = x;
           this.y = y;

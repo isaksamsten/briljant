@@ -19,7 +19,7 @@ package org.briljantframework.distance;
 import com.google.common.primitives.Doubles;
 
 import org.briljantframework.Bj;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -71,7 +71,7 @@ public class DynamicTimeWarping implements Distance {
   @Override
   public double compute(Vector a, Vector b) {
     int n = a.size(), m = b.size();
-    DoubleMatrix dwt = Bj.doubleMatrix(n, m).assign(Double.POSITIVE_INFINITY);
+    DoubleArray dwt = Bj.doubleArray(n, m).assign(Double.POSITIVE_INFINITY);
     dwt.set(0, 0, 0);
 
     int width = Math.max(constraint, Math.abs(n - m));

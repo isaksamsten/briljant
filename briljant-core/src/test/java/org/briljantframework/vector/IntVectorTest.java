@@ -33,21 +33,6 @@ public class IntVectorTest {
   }
 
   @Test
-  public void testEquals() throws Exception {
-    IntVector a = new IntVector(1, 2, 3);
-    IntVector b = new IntVector(1, 2, 3);
-    assertEquals(a.toMatrix(), b.toMatrix());
-
-    assertEquals(a, b);
-    assertEquals(a.hashCode(), b.hashCode());
-  }
-
-  @Test
-  public void testAsIntArray() throws Exception {
-    assertArrayEquals(INT_ARRAY, vector.asIntArray());
-  }
-
-  @Test
   public void testToIntArray() throws Exception {
     assertArrayEquals(INT_ARRAY, vector.toIntArray());
   }
@@ -134,9 +119,6 @@ public class IntVectorTest {
     builder.add(hasNA, 0);
     builder.add(vector, 0);
     builder.add(vector, 9);
-
-    assertArrayEquals(new int[]{IntVector.NA, 0, 9}, builder.build().asIntArray());
-
   }
 
   @Test

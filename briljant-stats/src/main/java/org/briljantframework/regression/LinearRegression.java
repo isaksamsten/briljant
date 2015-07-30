@@ -18,11 +18,11 @@ package org.briljantframework.regression;
 
 import com.google.common.base.Preconditions;
 
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.matrix.DoubleMatrix;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -46,8 +46,8 @@ public class LinearRegression implements Classifier {
   public Model fit(DataFrame x, Vector y) {
     Preconditions.checkArgument(x.rows() == y.size());
 
-    DoubleMatrix yMatrix = y.toMatrix().asDoubleMatrix();
-    return new Model(LinearAlgebra.leastLinearSquares(x.toMatrix().asDoubleMatrix(), yMatrix));
+    DoubleArray yMatrix = y.asDoubleArray();
+    return new Model(LinearAlgebra.leastLinearSquares(x.toDoubleArray(), yMatrix));
   }
 
   /**
@@ -55,14 +55,14 @@ public class LinearRegression implements Classifier {
    */
   public static final class Model extends AbstractPredictor {
 
-    private final DoubleMatrix theta;
+    private final DoubleArray theta;
 
     /**
      * Instantiates a new Model.
      *
      * @param theta the theta
      */
-    public Model(DoubleMatrix theta) {
+    public Model(DoubleArray theta) {
       super(null);
       this.theta = theta;
     }
@@ -72,12 +72,12 @@ public class LinearRegression implements Classifier {
      *
      * @return the theta
      */
-    public DoubleMatrix getTheta() {
+    public DoubleArray getTheta() {
       return theta;
     }
 
     @Override
-    public DoubleMatrix estimate(Vector record) {
+    public DoubleArray estimate(Vector record) {
       throw new UnsupportedOperationException();
     }
   }

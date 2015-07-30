@@ -19,7 +19,7 @@ package org.briljantframework.dataframe.transform;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.vector.Vec;
 
@@ -36,8 +36,8 @@ public class ZNormalizer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleMatrix mean = Bj.doubleVector(frame.columns());
-    DoubleMatrix sigma = Bj.doubleVector(frame.columns());
+    DoubleArray mean = Bj.doubleArray(frame.columns());
+    DoubleArray sigma = Bj.doubleArray(frame.columns());
     for (int i = 0; i < frame.columns(); i++) {
       DescriptiveStatistics stats = Vec.statistics(frame.get(i));
       mean.set(i, stats.getMean());
@@ -48,7 +48,7 @@ public class ZNormalizer implements Transformer {
       Check.size(mean.size(), x.columns());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        Check.requireType(Vec.DOUBLE, x.getType(j));
+        Check.type(x.getType(j), Vec.DOUBLE);
         builder.addColumnBuilder(x.getType(j));
 //        builder.getColumnNames().putFromIfPresent(j, x.getColumnNames(), j);
         double m = mean.get(j);

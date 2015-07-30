@@ -1,7 +1,7 @@
 package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public final class Measures {
    * @return the accuracy
    */
   public static double accuracy(Vector predicted, Vector actual) {
-    Check.size(predicted, actual);
+    Check.size(predicted.size(), actual.size());
     double accuracy = 0;
     int n = predicted.size();
     for (int i = 0; i < n; i++) {
@@ -63,7 +63,7 @@ public final class Measures {
    *                  {@code scores}
    * @return the brier score
    */
-  public static double brier(Vector predicted, DoubleMatrix scores, Vector actual, Vector classes) {
+  public static double brier(Vector predicted, DoubleArray scores, Vector actual, Vector classes) {
     Check.size(predicted.size(), actual.size());
     Check.size(actual.size(), scores.rows());
 
@@ -87,18 +87,18 @@ public final class Measures {
    * @param domain        vector of shape {@code [no classes]}
    * @return a map of values (from {@code domain}) and its associated area under roc-curve
    */
-  public static Map<Object, Double> auc(Vector predicted, DoubleMatrix probabilities, Vector actual,
+  public static Map<Object, Double> auc(Vector predicted, DoubleArray probabilities, Vector actual,
                                         Vector domain) {
     Map<Object, Double> aucs = new HashMap<>();
     for (int i = 0; i < domain.size(); i++) {
       Object value = domain.get(Object.class, i);
-      DoubleMatrix p = probabilities.getColumn(i);
+      DoubleArray p = probabilities.getColumn(i);
       aucs.put(value, computeAuc(value, predicted, p, actual));
     }
     return aucs;
   }
 
-  private static double computeAuc(Object value, Vector predicted, DoubleMatrix proba,
+  private static double computeAuc(Object value, Vector predicted, DoubleArray proba,
                                    Vector actual) {
     double truePositives = 0, falsePositives = 0, positives = 0;
     List<PredictionProbability> pairs = new ArrayList<>(predicted.size());

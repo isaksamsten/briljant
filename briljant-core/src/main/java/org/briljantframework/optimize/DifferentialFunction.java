@@ -1,6 +1,6 @@
 package org.briljantframework.optimize;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * @author Isak Karlsson
@@ -21,7 +21,7 @@ public interface DifferentialFunction extends MultivariateFunction {
    * @param gradient the gradient (output) (input = initial guess)
    * @return the value at {@code x}
    */
-  default double gradientCost(DoubleMatrix x, DoubleMatrix gradient) {
+  default double gradientCost(DoubleArray x, DoubleArray gradient) {
     final double FINITE_DIFFERENCE_THRESHOLD = 1.0E-8;
     double f = cost(x);
 

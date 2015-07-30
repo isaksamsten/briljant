@@ -2,7 +2,7 @@ package org.briljantframework.example.matrix;
 
 import org.briljantframework.Bj;
 import org.briljantframework.distribution.NormalDistribution;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleMatrix;
 
 /**
  * Created by Isak Karlsson on 01/01/15.

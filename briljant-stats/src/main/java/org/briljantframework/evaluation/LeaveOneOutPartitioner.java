@@ -19,7 +19,7 @@ public class LeaveOneOutPartitioner implements Partitioner {
 
   @Override
   public Iterable<Partition> partition(DataFrame x, Vector y) {
-    Check.size(x, y);
+    Check.size(x.rows(), y.size());
     return () -> new FoldIterator(x, y, x.rows());
   }
 }

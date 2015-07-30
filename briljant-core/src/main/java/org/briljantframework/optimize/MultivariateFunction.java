@@ -1,6 +1,6 @@
 package org.briljantframework.optimize;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * @author Isak Karlsson
@@ -13,5 +13,5 @@ public interface MultivariateFunction {
    * @param x the value
    * @return the cost
    */
-  double cost(DoubleMatrix x);
+  double cost(DoubleArray x);
 }

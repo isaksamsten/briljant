@@ -5,7 +5,7 @@ import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.IntMatrix;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;
@@ -21,8 +21,8 @@ public class JoinUtils {
   /**
    * @return retVal[0] := indexer, retVal[1] := counts
    */
-  public static IntMatrix[] groupSortIndexer(IntMatrix index, int maxGroups) {
-    IntMatrix counts = Bj.intVector(maxGroups + 1);
+  public static IntArray[] groupSortIndexer(IntArray index, int maxGroups) {
+    IntArray counts = Bj.intArray(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
       int idx = index.get(i) + 1;
@@ -34,14 +34,14 @@ public class JoinUtils {
       where[i] = where[i - 1] + counts.get(i - 1);
     }
 
-    IntMatrix results = Bj.intVector(n);
+    IntArray results = Bj.intArray(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
       results.set(where[label], i);
       where[label] += 1;
     }
 
-    return new IntMatrix[]{results, counts};
+    return new IntArray[]{results, counts};
   }
 
   /**
@@ -56,16 +56,16 @@ public class JoinUtils {
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> on) {
-    IntMatrix left = null;
-    IntMatrix right = null;
+    IntArray left = null;
+    IntArray right = null;
 
     int noGroups = 1;
     for (int column : on) {
       JoinKeys pool = createJoinKeys(a.get(column), b.get(column));
 
       if (noGroups > 1) {
-        IntMatrix lt = pool.getLeft();
-        IntMatrix rt = pool.getRight();
+        IntArray lt = pool.getLeft();
+        IntArray rt = pool.getRight();
         for (int i = 0; i < lt.size(); i++) {
           left.set(i, left.get(i) + lt.get(i) * noGroups);
         }
@@ -114,7 +114,7 @@ public class JoinUtils {
       }
     }
 
-    return new JoinKeys(Bj.matrix(left), Bj.matrix(right), pool.size());
+    return new JoinKeys(Bj.array(left), Bj.array(right), pool.size());
   }
 
   public static JoinKeys createJoinKeys(Vector a, Vector b) {

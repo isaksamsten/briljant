@@ -1,6 +1,6 @@
 package org.briljantframework.distribution;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 
@@ -158,11 +158,11 @@ public class NormalDistribution extends Distribution {
     return ppf(in, 0, 1);
   }
 
-  public static DoubleMatrix ppf(DoubleMatrix in, double mean, double scale) {
+  public static DoubleArray ppf(DoubleArray in, double mean, double scale) {
     return in.map(v -> ppf(v, mean, scale));
   }
 
-  public static DoubleMatrix ppf(DoubleMatrix in) {
+  public static DoubleArray ppf(DoubleArray in) {
     return ppf(in, 0, 1);
   }
 

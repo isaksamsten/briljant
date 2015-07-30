@@ -2,7 +2,6 @@ package org.briljantframework.distance;
 
 import org.briljantframework.Check;
 import org.briljantframework.dataseries.SymbolicAggregator;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
 import java.util.Arrays;
@@ -37,8 +36,7 @@ public class SaxDistance implements Distance {
 
   @Override
   public double compute(Vector a, Vector b) {
-//    Check.requireType(Vec.typeOf(String.class), a);
-    Check.size(a, b);
+    Check.size(a.size(), b.size());
 
     double w = a.size();
     double sum = 0;

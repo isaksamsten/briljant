@@ -2,7 +2,7 @@ package org.briljantframework.classification;
 
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 import java.util.EnumSet;
@@ -44,7 +44,7 @@ public interface Predictor {
    * @return a matrix with probability estimates; shape =
    * {@code [x.rows(), this.getClasses().size()]}.
    */
-  DoubleMatrix estimate(DataFrame x);
+  DoubleArray estimate(DataFrame x);
 
   /**
    * Estimates the posterior probability for the supplied vector.
@@ -52,7 +52,7 @@ public interface Predictor {
    * @param record the vector to estimate the posterior probability for
    * @return a matrix with probability estimates; shape = {@code [1, this.getClasses().size()]}.
    */
-  DoubleMatrix estimate(Vector record);
+  DoubleArray estimate(Vector record);
 
   /**
    * Get a set of characteristics for this particular predictor

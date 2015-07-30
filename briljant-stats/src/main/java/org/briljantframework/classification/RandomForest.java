@@ -6,7 +6,7 @@ import org.briljantframework.classification.tree.Example;
 import org.briljantframework.classification.tree.RandomSplitter;
 import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.matrix.BitMatrix;
+import org.briljantframework.array.BitArray;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
 
@@ -36,7 +36,7 @@ public class RandomForest extends Ensemble {
     Vector classes = Vec.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> fitTasks = new ArrayList<>();
-    BitMatrix oobIndicator = Bj.booleanMatrix(x.rows(), size());
+    BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       fitTasks.add(new FitTask(classSet, x, y, splitter, classes, oobIndicator.getColumn(i)));
     }
@@ -61,10 +61,10 @@ public class RandomForest extends Ensemble {
     private final Vector y;
     private final Splitter splitter;
     private final Vector classes;
-    private final BitMatrix oobIndicator;
+    private final BitArray oobIndicator;
 
     private FitTask(ClassSet classSet, DataFrame x, Vector y, Splitter splitter, Vector classes,
-                    BitMatrix oobIndicator) {
+                    BitArray oobIndicator) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;

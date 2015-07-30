@@ -1,6 +1,6 @@
 package org.briljantframework.optimize;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * Minimize a non-linear multivariate function
@@ -14,5 +14,5 @@ public interface NonlinearOptimizer {
    * @param x        the initial guess
    * @return the final cost
    */
-  double optimize(DifferentialFunction function, DoubleMatrix x);
+  double optimize(DifferentialFunction function, DoubleArray x);
 }

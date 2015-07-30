@@ -13,8 +13,4 @@ public interface Swappable {
    * @param b the second index
    */
   void swap(int a, int b);
-
-  default void swap(Object a, Object b) {
-    throw new UnsupportedOperationException();
-  }
 }

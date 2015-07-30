@@ -10,7 +10,6 @@ import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.function.Aggregates;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
@@ -24,11 +23,11 @@ public class LogisticRegressionTest {
     DataFrame x = iris.drop("Class").apply(Double.class, v -> !Is.NA(v) ? v : 0);
     Vector y = iris.get("Class").satisfies(String.class, v -> v.equals("Iris-setosa"));
     Classifier reg = LogisticRegression.withIterations(500)
-        .withRegularization(10)
+        .withRegularization(100000)
         .build();
     LogisticRegression.Predictor model = (LogisticRegression.Predictor) reg.fit(x, y);
 
-    System.out.println(model.getOddsRatio("Bias"));
+    System.out.println(model.getOddsRatio("(Intercept)"));
     for (Object o : x.getColumnIndex()) {
       System.out.println(model.getOddsRatio(o));
     }
@@ -39,11 +38,7 @@ public class LogisticRegressionTest {
     Result result = Validators.crossValidation(10).test(reg, x, y);
     System.out.println((System.nanoTime() - start) / 1e6);
 //    System.out.println(result.toDataFrame());
-    System.out.println(
-        result.toDataFrame()
-            .groupBy("Sample")
-            .get(Sample.OUT)
-            .aggregate(Double.class, Aggregates.mean()));
+    System.out.println(result.toDataFrame().groupBy("Sample").get(Sample.OUT));
 
   }
 

@@ -1,6 +1,6 @@
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -8,11 +8,11 @@ import org.briljantframework.vector.Vector;
  */
 public interface TreeVisitor<T> {
 
-  default DoubleMatrix visit(TreeNode<T> node, Vector example) {
+  default DoubleArray visit(TreeNode<T> node, Vector example) {
     return node.visit(this, example);
   }
 
-  DoubleMatrix visitLeaf(TreeLeaf<T> leaf, Vector example);
+  DoubleArray visitLeaf(TreeLeaf<T> leaf, Vector example);
 
-  DoubleMatrix visitBranch(TreeBranch<T> node, Vector example);
+  DoubleArray visitBranch(TreeBranch<T> node, Vector example);
 }

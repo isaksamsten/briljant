@@ -1,19 +1,19 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.BitArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.LongArray;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
-import org.briljantframework.exceptions.TypeConversionException;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.matrix.BitMatrix;
-import org.briljantframework.matrix.ComplexMatrix;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.IntMatrix;
-import org.briljantframework.matrix.LongMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 
@@ -653,9 +653,9 @@ public interface Vector extends Serializable {
 
   /**
    * <p>Copies this vector to a {@code Matrix}. An appropriate
-   * specialization of the {@link org.briljantframework.matrix.Matrix} interface should be
+   * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
    * preferred. For example, a {@link org.briljantframework.vector.DoubleVector} should return a
-   * {@link org.briljantframework.matrix.DoubleMatrix} implementation.
+   * {@link org.briljantframework.array.DoubleArray} implementation.
    *
    * <pre>
    * Vector a = new DoubleVector(1, 2, 3, 4, 5);
@@ -671,29 +671,29 @@ public interface Vector extends Serializable {
    * But this is not a requirement.
    *
    * @return this vector as a matrix
-   * @throws org.briljantframework.exceptions.TypeConversionException if unable to convert vector
-   *                                                                  to matrix
+   * @throws org.briljantframework.exceptions.IllegalTypeException if unable to convert vector
+   *                                                               to matrix
    */
-  Matrix toMatrix() throws TypeConversionException;
+  <U> Array<U> asArray(Class<U> cls) throws IllegalTypeException;
 
-  default DoubleMatrix asDoubleMatrix() throws TypeConversionException {
-    return toMatrix().asDoubleMatrix();
+  default DoubleArray asDoubleArray() throws IllegalTypeException {
+    return asArray(Double.class).asDouble();
   }
 
-  default ComplexMatrix asComplexMatrix() throws TypeConversionException {
-    return toMatrix().asComplexMatrix();
+  default ComplexArray asComplexArray() throws IllegalTypeException {
+    return asArray(Complex.class).asComplex();
   }
 
-  default LongMatrix asLongMatrix() throws TypeConversionException {
-    return toMatrix().asLongMatrix();
+  default LongArray asLongArray() throws IllegalTypeException {
+    return asArray(Long.class).asLong();
   }
 
-  default BitMatrix asBitMatrix() throws TypeConversionException {
-    return toMatrix().asBitMatrix();
+  default BitArray asBitArray() throws IllegalTypeException {
+    return asArray(Boolean.class).asBit();
   }
 
-  default IntMatrix asIntMatrix() throws TypeConversionException {
-    return toMatrix().asIntMatrix();
+  default IntArray asIntArray() throws IllegalTypeException {
+    return asArray(Integer.class).asInt();
   }
 
   /**

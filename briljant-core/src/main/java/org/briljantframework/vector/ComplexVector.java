@@ -6,11 +6,12 @@ import com.carrotsearch.hppc.DoubleArrayList;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Utils;
+import org.briljantframework.array.Array;
 import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.matrix.ComplexMatrix;
+import org.briljantframework.array.ComplexArray;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -97,7 +98,7 @@ public class ComplexVector extends AbstractVector {
     this.size = size;
   }
 
-  public ComplexVector(ComplexMatrix freq) {
+  public ComplexVector(ComplexArray freq) {
     this.values = new double[checkedCast(freq.size()) * 2];
     this.size = freq.size();
     for (int i = 0; i < freq.size(); i++) {
@@ -196,8 +197,8 @@ public class ComplexVector extends AbstractVector {
   }
 
   @Override
-  public ComplexMatrix toMatrix() {
-    ComplexMatrix x = Bj.complexVector(size());
+  public ComplexArray asComplexArray() {
+    ComplexArray x = Bj.complexArray(size());
     for (int i = 0; i < size(); i++) {
       x.set(i, getAsComplex(i));
     }

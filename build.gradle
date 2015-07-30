@@ -7,41 +7,39 @@
  * user guide available at http://gradle.org/docs/1.12/userguide/tutorial_java_projects.html
  */
 buildscript {
-    ext.kotlinVersion = "0.11.91"
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
+  repositories {
+    jcenter()
+    mavenCentral()
+  }
 
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
-    }
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
+  }
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '2.1'
+  gradleVersion = '2.1'
 }
 
 ext.applicationVersion = "0.1"
 
 allprojects {
-    group = "org.briljantframework"
-    version = "${applicationVersion}-SNAPSHOT"
+  group = "org.briljantframework"
+  version = "${applicationVersion}-SNAPSHOT"
 }
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven'
-    apply plugin: 'com.github.johnrengelman.shadow'
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'com.github.johnrengelman.shadow'
 
-    sourceCompatibility = 1.8
+  sourceCompatibility = 1.8
 
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-    }
+  dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+  }
 }

@@ -11,6 +11,8 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.join.InnerJoin;
 import org.briljantframework.dataframe.join.JoinOperation;
 import org.briljantframework.dataframe.join.JoinType;
@@ -18,8 +20,6 @@ import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.function.Aggregator;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.Matrix;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
@@ -291,7 +291,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (int j = 0; j < columns(); j++) {
       Vector col = get(j);
       Vector transformed = transform.apply(col);
-      Check.size(rows(), transformed);
+      Check.size(rows(), transformed.size());
       builder.addColumnBuilder(transformed.getType());
       for (int i = 0; i < rows(); i++) {
         builder.set(i, j, transformed, i);
@@ -627,7 +627,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame stack(Iterable<DataFrame> dataFrames) {
     DataFrame.Builder builder = newCopyBuilder();
     for (DataFrame dataFrame : dataFrames) {
-      Check.columnSize(this, dataFrame);
+      Check.size(this.columns(), dataFrame.columns());
       builder.stack(dataFrame);
     }
     return builder.build();
@@ -637,7 +637,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame concat(Iterable<DataFrame> dataFrames) {
     DataFrame.Builder builder = newCopyBuilder();
     for (DataFrame dataFrame : dataFrames) {
-      Check.columnSize(this, dataFrame);
+      Check.size(this.columns(), dataFrame.columns());
       builder.concat(dataFrame);
     }
     return builder.build();
@@ -683,21 +683,31 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Converts the DataFrame to an {@link org.briljantframework.matrix.DoubleMatrix}. This
+   * Converts the DataFrame to an {@link org.briljantframework.array.DoubleArray}. This
    * implementation rely on {@link #getAsDouble(int, int)}. Sub-classes are allowed to return any
-   * concrete implementation of {@link org.briljantframework.matrix.DoubleMatrix}.
+   * concrete implementation of {@link org.briljantframework.array.DoubleArray}.
    *
    * @return a new matrix
    */
   @Override
-  public Matrix toMatrix() {
-    DoubleMatrix matrix = Bj.doubleMatrix(rows(), columns());
+  public Array<Object> toArray() {
+    Array<Object> matrix = Bj.referenceArray(rows(), columns());
+    for (int j = 0; j < columns(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        matrix.set(i, j, get(Object.class, i, j));
+      }
+    }
+    return matrix;
+  }
+
+  @Override
+  public DoubleArray toDoubleArray() {
+    DoubleArray matrix = Bj.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDouble(i, j));
       }
     }
-
     return matrix;
   }
 
@@ -740,6 +750,28 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public Iterator<Vector> iterator() {
     return getRecords().iterator();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj instanceof DataFrame) {
+      DataFrame o = (DataFrame) obj;
+      if (o.rows() == rows()) {
+        for (int i = 0; i < columns(); i++) {
+          Vector a = get(i);
+          Vector b = o.get(i);
+          if (!a.equals(b)) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

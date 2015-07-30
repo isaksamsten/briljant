@@ -20,8 +20,8 @@ import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
-import org.briljantframework.matrix.DoubleMatrix;
-import org.briljantframework.matrix.T;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Op;
 import org.briljantframework.vector.Vec;
 
 /**
@@ -58,21 +58,21 @@ public class PcaTransformer implements InvertibleTransformer {
     this(-1);
   }
 
-  private SingularValueDecomposition getSingularValueDecomposition(DoubleMatrix m) {
-    DoubleMatrix sigma = m.mmul(1, T.YES, m, T.NO).update(v -> v / m.rows());
+  private SingularValueDecomposition getSingularValueDecomposition(DoubleArray m) {
+    DoubleArray sigma = m.mmul(1, Op.TRANSPOSE, m, Op.KEEP).update(v -> v / m.rows());
     return decomposer.decompose(sigma);
   }
 
   @Override
   public InvertibleTransformation fit(DataFrame x) {
-    Check.all(x.getColumns(), col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA());
-    SingularValueDecomposition svd = getSingularValueDecomposition(x.toMatrix().asDoubleMatrix());
-    DoubleMatrix u = svd.getLeftSingularValues();
+    Check.all(col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA(), x.getColumns());
+    SingularValueDecomposition svd = getSingularValueDecomposition(x.toArray().asDouble());
+    DoubleArray u = svd.getLeftSingularValues();
     return new InvertibleTransformation() {
       @Override
       public DataFrame inverseTransform(DataFrame x) {
-        Check.all(x.getColumns(), col -> col.getType() == Vec.DOUBLE && !col.hasNA());
-        DoubleMatrix matrix = x.toMatrix().asDoubleMatrix();
+        Check.all(col -> col.getType() == Vec.DOUBLE && !col.hasNA(), x.getColumns());
+        DoubleArray matrix = x.toArray().asDouble();
 
         // Matrix m = frame.toMatrix();
         // E copy = factory.copyDataset(frame);
@@ -86,9 +86,9 @@ public class PcaTransformer implements InvertibleTransformer {
 
       @Override
       public DataFrame transform(DataFrame x) {
-        Check.all(x.getColumns(), col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA());
-        DoubleMatrix m = x.toMatrix().asDoubleMatrix();
-        DoubleMatrix pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
+        Check.all(col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA(), x.getColumns());
+        DoubleArray m = x.toArray().asDouble();
+        DoubleArray pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
 
         DataFrame.Builder result = x.newBuilder();
         for (int j = 0; j < pca.columns(); j++) {
@@ -104,7 +104,7 @@ public class PcaTransformer implements InvertibleTransformer {
     };
   }
 
-  private int components(DoubleMatrix matrix) {
+  private int components(DoubleArray matrix) {
     return this.components > 0 ? this.components : Math.min(matrix.rows(), matrix.columns());
   }
 }

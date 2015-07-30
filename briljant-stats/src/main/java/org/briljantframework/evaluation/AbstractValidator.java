@@ -5,7 +5,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -72,7 +72,7 @@ public abstract class AbstractValidator implements Validator {
     Vector classes = predictor.getClasses();
     Vector.Builder builder = type.newBuilder();
     if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
-      DoubleMatrix estimate = predictor.estimate(holdoutX);
+      DoubleArray estimate = predictor.estimate(holdoutX);
       ctx.setEstimation(estimate);
       for (int i = 0; i < estimate.rows(); i++) {
         builder.set(i, classes, argmax(estimate.getRow(i)));

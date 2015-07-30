@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.evaluation.Partition;
 import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.matrix.DoubleMatrix;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -22,7 +22,7 @@ public class EvaluationContext {
   private Vector predictions;
   private Predictor predictor;
   private Partition partition;
-  private DoubleMatrix estimation;
+  private DoubleArray estimation;
 
   public EvaluationContext() {}
 
@@ -57,7 +57,7 @@ public class EvaluationContext {
         getPartition().getTrainingData());
   }
 
-  public void setEstimation(DoubleMatrix estimation) {
+  public void setEstimation(DoubleArray estimation) {
     this.estimation = checkNotNull(estimation);
   }
 
@@ -68,7 +68,7 @@ public class EvaluationContext {
    * @param sample the sample
    * @return the probability estimations made by predictor; shape [no samples, domain]
    */
-  public DoubleMatrix getEstimation(Sample sample) {
+  public DoubleArray getEstimation(Sample sample) {
     return sample == Sample.OUT ? estimation : getPredictor().estimate(
         getPartition().getTrainingData());
   }

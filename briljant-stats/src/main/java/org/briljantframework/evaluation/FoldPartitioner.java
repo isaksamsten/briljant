@@ -7,7 +7,7 @@ import org.briljantframework.vector.Vector;
 /**
  * Creates a k-fold partitioner
  * <p>
- * 
+ *
  * @author Isak Karlsson
  */
 public class FoldPartitioner implements Partitioner {
@@ -20,7 +20,7 @@ public class FoldPartitioner implements Partitioner {
 
   @Override
   public Iterable<Partition> partition(DataFrame x, Vector y) {
-    Check.size(x, y);
+    Check.size(x.rows(), y.size());
     return () -> new FoldIterator(x, y, folds);
   }
 }
