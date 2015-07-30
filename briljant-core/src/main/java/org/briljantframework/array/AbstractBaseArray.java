@@ -341,7 +341,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final E transpose() {
-    if (isVector()) {
+    if (dims() == 1) {
       return asView(getOffset(), getShape(), getStride());
     } else {
       return asView(

@@ -8,7 +8,7 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.junit.Test;
 
-import static org.briljantframework.array.MatrixAssert.assertMatrixEquals;
+import static org.briljantframework.array.ArrayAssert.assertMatrixEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 

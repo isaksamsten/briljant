@@ -8,8 +8,12 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Isak Karlsson
  */
 @RunWith(Suite.class)
-@SuiteClasses({AbstractIntArrayTest.class, AbstractLongArrayTest.class,
-    AbstractDoubleArrayTest.class, AbstractComplexArrayTest.class, AbstractBitArrayTest.class})
-public class MatrixTests {
+@SuiteClasses({
+    IndexerSpec.class,
+    BaseArraySpec.class,
+    ReferenceArraySpec.class,
+    NumericArraySpec.class
+})
+public class ArrayTestSuite {
 
 }

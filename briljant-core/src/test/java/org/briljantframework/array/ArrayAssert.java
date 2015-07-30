@@ -8,13 +8,13 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by isak on 2/4/15.
  */
-public final class MatrixAssert {
+public final class ArrayAssert {
 
   private static final String ROW_SIZE = "Size of rows does not match.";
   private static final String COL_SIZE = "Size of columns does not match.";
   private static final String VAL_MATCH = "Values does not match.";
 
-  private MatrixAssert() {
+  private ArrayAssert() {
   }
 
   public static void assertEqualShape(BaseArray expected, BaseArray actual) {

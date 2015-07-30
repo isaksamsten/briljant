@@ -119,6 +119,14 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
+  public void assign(long[] values) {
+    Check.size(this.size(), values.length);
+    for (int i = 0; i < values.length; i++) {
+      set(i, values[i]);
+    }
+  }
+
+  @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {

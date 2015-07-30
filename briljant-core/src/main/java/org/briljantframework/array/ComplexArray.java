@@ -32,6 +32,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    */
   ComplexArray assign(Complex value);
 
+  void assign(Complex[] value);
+
   default ComplexArray assign(double real) {
     return assign(Complex.valueOf(real));
   }

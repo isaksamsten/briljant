@@ -223,7 +223,6 @@ public class BaseArrayRoutinesTest {
     System.out.println(x);
     DoubleArray repmat = bjr.repmat(x, 1, 1000);
     System.out.println(repmat);
-//    System.out.println(bjr.mean(Dim.C, repmat));
   }
 
   @Test

@@ -77,7 +77,7 @@ public class InnerJoinTest extends TestCase {
 //    System.out.println(j);
     DataFrame join = left.join(JoinType.OUTER, right);
     join.setRecordIndex(HashIndex.from("q", "A", "b", "D"));
-    System.out.println(join.sort(SortOrder.DESC));
+    System.out.println(join.sort("key"));
 
   }
 

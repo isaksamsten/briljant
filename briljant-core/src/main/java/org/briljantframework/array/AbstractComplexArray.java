@@ -112,6 +112,14 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
+  public void assign(Complex[] value) {
+    Check.size(size(), value.length);
+    for (int i = 0; i < value.length; i++) {
+      set(i, value[i]);
+    }
+  }
+
+  @Override
   public ComplexArray assign(Supplier<Complex> supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.get());

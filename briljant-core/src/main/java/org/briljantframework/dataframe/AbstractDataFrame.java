@@ -752,6 +752,28 @@ public abstract class AbstractDataFrame implements DataFrame {
     return getRecords().iterator();
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj instanceof DataFrame) {
+      DataFrame o = (DataFrame) obj;
+      if (o.rows() == rows()) {
+        for (int i = 0; i < columns(); i++) {
+          Vector a = get(i);
+          Vector b = o.get(i);
+          if (!a.equals(b)) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Returns a tabular string representation of this DataFrame.
    *

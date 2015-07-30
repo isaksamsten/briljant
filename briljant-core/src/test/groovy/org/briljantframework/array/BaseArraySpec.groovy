@@ -11,7 +11,7 @@ class BaseArraySpec extends Specification {
 
   static bj = new BaseArrayBackend().arrayFactory
 
-  def "A new array has a correctly calculated size"() {
+  def "Constructing a new array"() {
     expect:
     size == a.size()
 

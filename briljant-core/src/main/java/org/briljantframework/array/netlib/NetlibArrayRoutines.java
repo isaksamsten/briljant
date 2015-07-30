@@ -139,7 +139,14 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
     if (a.stride(0) == 1 && b.stride(0) == 1 && c.stride(0) == 1 &&
         a.stride(1) >= a.size(1) && b.stride(1) >= b.size(1) && c.stride(1) >= c.size(1)) {
-
+      if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
+        boolean ta = transA == Op.KEEP;
+        boolean tb = transB == Op.KEEP;
+        throw new NonConformantException(String.format(
+            "a has size (%d, %d), b has size(%d, %d)",
+            a.size(ta ? 0 : 1), a.size(ta ? 1 : 0), b.size(tb ? 0 : 1), b.size(tb ? 1 : 0)
+        ));
+      }
       int m = a.size(transA == Op.KEEP ? 0 : 1);
       int n = b.size(transB == Op.KEEP ? 1 : 0);
       int k = a.size(transA == Op.KEEP ? 1 : 0);

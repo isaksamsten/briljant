@@ -1,6 +1,5 @@
 package org.briljantframework.array.netlib;
 
-import org.briljantframework.array.Array;
 import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
@@ -9,7 +8,7 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.junit.Test;
 
-import static org.briljantframework.array.MatrixAssert.assertMatrixEquals;
+import static org.briljantframework.array.ArrayAssert.assertMatrixEquals;
 
 public class NetlibArrayRoutinesTest {
 
@@ -25,21 +24,6 @@ public class NetlibArrayRoutinesTest {
     ArrayPrinter.setPrintSlices(3);
     ArrayPrinter.setVisiblePerSlice(3);
     ArrayPrinter.setMinimumTruncateSize(1000);
-  }
-
-  @Test
-  public void testTestPerformance() throws Exception {
-    long start = System.nanoTime();
-    DoubleArray c;
-//    double[] d;
-    for (int i = 0; i < 10; i++) {
-//      d = new double[10000 * 10000];
-//      for (int j = 0; j < d.length; j++) {
-//        d[i] = 32;
-//      }
-      c = bj.doubleArray(10000, 10000).assign(32);
-    }
-    System.out.println((System.nanoTime() - start) / 1e6 / 10);
   }
 
   @Test

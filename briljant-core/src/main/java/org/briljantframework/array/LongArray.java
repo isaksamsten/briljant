@@ -31,6 +31,8 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
    */
   LongArray assign(long value);
 
+  void assign(long[] values);
+
   /**
    * Assign value returned by {@link #size()} successive calls to {@link
    * java.util.function.LongSupplier#getAsLong()}

@@ -117,19 +117,13 @@ public class MixedDataFrameTest {
     builder.addColumn(new DoubleVector(1, 2, 3, 4, 5));
     builder.addColumn(new ComplexVector(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
     builder.addColumn(new BitVector(true, true, false, false, false));
-//    builder.addColumn(new ValueVector(Arrays.asList(Convert.toValue(1),
-//                                                    Convert.toValue(3.2),
-//                                                    Convert.toValue("a"),
-//                                                    Convert.toValue(Bit.FALSE),
-//                                                    Convert.toValue(new Complex(3)))));
-//
+
     DataFrame build = builder.build();
     assertEquals(Vec.STRING, build.getType(0));
     assertEquals(Vec.INT, build.getType(1));
     assertEquals(Vec.DOUBLE, build.getType(2));
     assertEquals(Vec.COMPLEX, build.getType(3));
     assertEquals(Vec.BIT, build.getType(4));
-    assertEquals(Vec.VARIABLE, build.getType(5));
 
     assertEquals(1, build.getAsInt(0, 1));
     assertEquals(1, build.getAsDouble(0, 2), 0);
@@ -316,42 +310,7 @@ public class MixedDataFrameTest {
     DataFrame frame = new MixedDataFrame(vectors);
     frame.setRecordIndex(HashIndex.from(Arrays.asList("a", "b", "c", "d")));
     frame.setColumnIndex(HashIndex.from(Arrays.asList("brand", "engines", "bhp")));
-//    frame.setColumnIndex(HashIndex.from(new StringVector("engines", "bhp", "brand")));
-
     System.out.println(frame);
-
-  }
-
-  @Test
-  public void testIndexPerformance() throws Exception {
-    DataFrame.Builder builder = new MixedDataFrame.Builder(Vec.DOUBLE, Vec.DOUBLE);
-    for (int i = 0; i < 10000; i++) {
-      builder.set(i, 0, i);
-      builder.set(i, 1, i * 2);
-    }
-
-    DataFrame df = builder.build();
-
-    long start = System.nanoTime();
-    for (int i = 0; i < 1000; i++) {
-      for (Index.Entry idx : df.getRecordIndex().entrySet()) {
-        df.getAsDouble(idx.key(), 0);
-        df.getAsDouble(idx.key(), 1);
-      }
-    }
-    System.out.println((System.nanoTime() - start) / 1e6 / 1000);
-
-    start = System.nanoTime();
-    int rows = df.rows();
-    for (int i = 0; i < 1000; i++) {
-      for (int j = 0; j < rows; j++) {
-        df.getAsDouble(j, 0);
-        df.getAsDouble(j, 1);
-      }
-    }
-    System.out.println((System.nanoTime() - start) / 1e6 / 1000);
-
-
   }
 
   @Test
