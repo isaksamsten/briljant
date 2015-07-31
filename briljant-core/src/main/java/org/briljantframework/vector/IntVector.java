@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.carrotsearch.hppc.IntArrayList;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.complex.Complex;
@@ -135,6 +136,7 @@ public class IntVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
+    Check.argument(!cls.isPrimitive(), "Use getAs[primitive]");
     int v = getAsInt(index);
     if (Is.NA(v)) {
       return Na.of(cls);

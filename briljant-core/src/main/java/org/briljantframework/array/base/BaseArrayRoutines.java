@@ -4,9 +4,12 @@ import com.google.common.base.Preconditions;
 
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
+import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.Complex;
@@ -18,6 +21,7 @@ import org.briljantframework.stat.RunningStatistics;
 
 import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -72,8 +76,57 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public int min(IntArray x) {
+    return x.reduce(Integer.MAX_VALUE, Math::min);
+  }
+
+  @Override
+  public long min(LongArray x) {
+    return x.reduce(Long.MAX_VALUE, Math::min);
+  }
+
+  @Override
+  public <T extends Comparable<T>> T min(Array<T> x) {
+    return min(x, Comparable::compareTo);
+  }
+
+  @Override
+  public <T> T min(Array<T> x, Comparator<T> cmp) {
+    if (x.size() < 1) {
+      return null;
+    }
+    return x.reduce(x.get(0), (o, n) -> {
+      if (cmp.compare(o, n) < 0) {
+        return o;
+      } else {
+        return n;
+      }
+    });
+  }
+
+  @Override
   public DoubleArray min(int dim, DoubleArray x) {
     return x.reduceVectors(dim, this::min);
+  }
+
+  @Override
+  public IntArray min(int dim, IntArray x) {
+    return x.reduceVectors(dim, this::min);
+  }
+
+  @Override
+  public LongArray min(int dim, LongArray x) {
+    return x.reduceVector(dim, this::min);
+  }
+
+  @Override
+  public <T extends Comparable<T>> Array<T> min(int dim, Array<T> x) {
+    return x.reduceVector(dim, this::min);
+  }
+
+  @Override
+  public <T> Array<T> min(int dim, Array<T> x, Comparator<T> cmp) {
+    return x.reduceVector(dim, v -> this.min(v, cmp));
   }
 
   @Override
@@ -82,8 +135,57 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public int max(IntArray x) {
+    return x.reduce(Integer.MIN_VALUE, Math::max);
+  }
+
+  @Override
+  public long max(LongArray x) {
+    return x.reduce(Long.MIN_VALUE, Math::max);
+  }
+
+  @Override
+  public <T extends Comparable<T>> T max(Array<T> x) {
+    return max(x, Comparable::compareTo);
+  }
+
+  @Override
+  public <T> T max(Array<T> x, Comparator<T> cmp) {
+    if (x.size() < 1) {
+      return null;
+    }
+    return x.reduce(x.get(0), (o, n) -> {
+      if (cmp.compare(o, n) > 0) {
+        return o;
+      } else {
+        return n;
+      }
+    });
+  }
+
+  @Override
   public DoubleArray max(int dim, DoubleArray x) {
     return x.reduceVectors(dim, this::max);
+  }
+
+  @Override
+  public IntArray max(int dim, IntArray x) {
+    return x.reduceVectors(dim, this::max);
+  }
+
+  @Override
+  public LongArray max(int dim, LongArray x) {
+    return x.reduceVector(dim, this::max);
+  }
+
+  @Override
+  public <T extends Comparable<T>> Array<T> max(int dim, Array<T> x) {
+    return x.reduceVector(dim, this::max);
+  }
+
+  @Override
+  public <T> Array<T> max(int dim, Array<T> x, Comparator<T> cmp) {
+    return x.reduceVector(dim, v -> this.max(v, cmp));
   }
 
   @Override
@@ -92,7 +194,17 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public int sum(IntArray x) {
+    return x.reduce(0, Integer::sum);
+  }
+
+  @Override
   public DoubleArray sum(int dim, DoubleArray x) {
+    return x.reduceVectors(dim, this::sum);
+  }
+
+  @Override
+  public IntArray sum(int dim, IntArray x) {
     return x.reduceVectors(dim, this::sum);
   }
 

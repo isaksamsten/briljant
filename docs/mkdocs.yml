@@ -5,8 +5,8 @@ pages:
 - [tutorial.md, Tutorial]
 - [examples.md, Examples]
 - [reference/index.md, 'Reference', 'Introduction']
-- [reference/matrix.md, 'Reference', 'Matrix']
-- [reference/dataframe.md, 'Reference', 'Data Frames']
+- [reference/array.md, 'Reference', 'Array']
+- [reference/dataframe.md, 'Reference', 'Dataframe']
 
 extra_javascript: ["js/highlight.pack.js", "js/extra.js"]
 extra_css: ["css/highlight.css", "css/extra.css"]

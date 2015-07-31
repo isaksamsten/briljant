@@ -14,13 +14,11 @@ a diamond of brilliant cut
 an open source
 framework for efficient and simple scientific computations in Java. It contains among other things:
 
-* a powerful (and efficient) 2-dimensional array abstraction
+* a powerful (and efficient) n-dimensional array abstraction
 * native *BLAS* and *LAPACK* sub-routines
 * a powerful `r`-like `DataFrame` and `Vector` abstraction
 * efficient machine learning procedures for _conformal prediction_,
 _ensemble learning_, and _data series learning_.
-
-(Planned): JRuby bindings
 
 ## Getting started
 
@@ -30,5 +28,3 @@ _ensemble learning_, and _data series learning_.
     * [Tutorial](tutorial.md)
 
 * dsads
-
-

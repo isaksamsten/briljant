@@ -2,25 +2,29 @@ package org.briljantframework.distance;
 
 import com.google.common.collect.Lists;
 
-import junit.framework.TestCase;
-
 import org.briljantframework.similiarity.SmithWatermanSimilarity;
 import org.briljantframework.vector.Vector;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class SmithWatermanSimilarityTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+public class SmithWatermanSimilarityTest {
+
+  @Test
   public void testCompute() throws Exception {
-    String[] aa =
-        Lists.charactersOf("xxxxABCx").stream().map(String::valueOf).toArray(String[]::new);
-    String[] bb =
-        Lists.charactersOf("yABCyyyy").stream().map(String::valueOf).toArray(String[]::new);
-//    Vector a = StringVector.of("A", "G", "C", "A", "C", "A", "C", "A");
-//    Vector b = StringVector.of("A", "C", "A", "C", "A", "C", "T", "A");
+    String[] aa = Lists.charactersOf("xxxxABCx").stream()
+        .map(String::valueOf)
+        .toArray(String[]::new);
+
+    String[] bb = Lists.charactersOf("yABCyyyy").stream()
+        .map(String::valueOf)
+        .toArray(String[]::new);
+
     Vector a = Vector.of(aa);
     Vector b = Vector.of(bb);
     SmithWatermanSimilarity distance = new SmithWatermanSimilarity(1, 0, 0);
     double compute = distance.compute(a, b);
-    Assert.assertEquals(3, compute, 0);
+    assertEquals(3, compute, 0);
   }
 }

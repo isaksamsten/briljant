@@ -28,20 +28,11 @@ public class IntVectorTest {
     IntVector.Builder builder = new IntVector.Builder();
     builder.set(3, 10);
     builder.set(10, 10);
-    System.out.println(builder.size());
-    System.out.println(builder.build().getAsInt(0));
   }
 
   @Test
   public void testToIntArray() throws Exception {
     assertArrayEquals(INT_ARRAY, vector.toIntArray());
-  }
-
-  @Test
-  public void testIterator() throws Exception {
-    // for (Integer integer : vector) {
-    // assertEquals((int) integer, INT_ARRAY[integer]);
-    // }
   }
 
   @Test

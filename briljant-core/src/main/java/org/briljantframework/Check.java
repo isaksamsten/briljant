@@ -217,11 +217,11 @@ public final class Check {
 
   public static void type(VectorType actual, VectorType expected)
       throws IllegalTypeException {
-    type(!actual.equals(expected), "Require type %s but got %s", expected, actual);
+    type(actual.equals(expected), "Require type %s but got %s", expected, actual);
   }
 
   public static void type(Set<VectorType> expected, VectorType actual)
       throws IllegalTypeException {
-    type(!actual.equals(expected), "Require any type of %s but got %s", expected, actual);
+    type(actual.equals(expected), "Require any type of %s but got %s", expected, actual);
   }
 }

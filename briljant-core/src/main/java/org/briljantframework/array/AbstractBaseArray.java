@@ -161,12 +161,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  @SafeVarargs
-  public final E select(List<Integer>... indexes) {
-    return select(Arrays.asList(indexes));
-  }
-
-  @Override
   public E select(int[][] indexes) {
     List<List<Integer>> boxed = new ArrayList<>();
     for (int[] index : indexes) {

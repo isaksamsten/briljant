@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -373,6 +374,26 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
       array.set(i, predicate.test(get(i), other.get(i)));
     }
     return array;
+  }
+
+  @Override
+  public T reduce(T initial, BinaryOperator<T> accumulator) {
+    for (int i = 0; i < size(); i++) {
+      initial = accumulator.apply(initial, get(i));
+    }
+    return initial;
+  }
+
+  @Override
+  public Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator) {
+    Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
+    Array<T> reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    int vectors = vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      T value = accumulator.apply(getVector(dim, i));
+      reduced.set(i, value);
+    }
+    return reduced;
   }
 
   @Override

@@ -1,13 +1,17 @@
 package org.briljantframework.array.api;
 
-import org.briljantframework.complex.Complex;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.BaseArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Op;
+import org.briljantframework.complex.Complex;
 import org.briljantframework.sort.IndexComparator;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -74,6 +78,14 @@ public interface ArrayRoutines {
    */
   double min(DoubleArray x);
 
+  int min(IntArray x);
+
+  long min(LongArray x);
+
+  <T extends Comparable<T>> T min(Array<T> x);
+
+  <T> T min(Array<T> x, Comparator<T> cmp);
+
   /**
    * Returns the minimum value of {@code x} along {@code dim}.
    *
@@ -83,6 +95,15 @@ public interface ArrayRoutines {
    */
   DoubleArray min(int dim, DoubleArray x);
 
+  IntArray min(int dim, IntArray x);
+
+  LongArray min(int dim, LongArray x);
+
+  <T extends Comparable<T>> Array<T> min(int dim, Array<T> x);
+
+  <T> Array<T> min(int dim, Array<T> x, Comparator<T> cmp);
+
+
   /**
    * Returns the maximum value of {@code x}.
    *
@@ -90,6 +111,14 @@ public interface ArrayRoutines {
    * @return the maximum value
    */
   double max(DoubleArray x);
+
+  int max(IntArray x);
+
+  long max(LongArray x);
+
+  <T extends Comparable<T>> T max(Array<T> x);
+
+  <T> T max(Array<T> x, Comparator<T> cmp);
 
   /**
    * Returns the maximum value of {@code x} along {@code dim}.
@@ -100,6 +129,14 @@ public interface ArrayRoutines {
    */
   DoubleArray max(int dim, DoubleArray x);
 
+  IntArray max(int dim, IntArray x);
+
+  LongArray max(int dim, LongArray x);
+
+  <T extends Comparable<T>> Array<T> max(int dim, Array<T> x);
+
+  <T> Array<T> max(int dim, Array<T> x, Comparator<T> cmp);
+
   /**
    * Return the sum of {@code x}.
    *
@@ -107,6 +144,8 @@ public interface ArrayRoutines {
    * @return the sum
    */
   double sum(DoubleArray x);
+
+  int sum(IntArray x);
 
   /**
    * Returns the sum of {@code x} along {@code dim}.
@@ -116,6 +155,8 @@ public interface ArrayRoutines {
    * @return a matrix of sums
    */
   DoubleArray sum(int dim, DoubleArray x);
+
+  IntArray sum(int dim, IntArray x);
 
   /**
    * Returns the product of {@code x}.

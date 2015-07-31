@@ -1,11 +1,11 @@
 package org.briljantframework.array.netlib;
 
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.junit.Test;
 
 import static org.briljantframework.array.ArrayAssert.assertMatrixEquals;
@@ -63,7 +63,7 @@ public class NetlibLinearAlgebraRoutinesTest {
     IntArray isuppz = bj.intArray(n);
     int m = linalg.syevr('v', 'i', 'u', a, vl, vu, il, ul, abstol, w, z, isuppz);
     assertEquals(3, m);
-    assertMatrixEquals(bj.array(new double[]{0.433, 2.145, 3.368}), w.get(bj.range(4)), 0.001);
+    assertMatrixEquals(bj.array(new double[]{0.433, 2.145, 3.368}), w.get(bj.range(3)), 0.001);
     assertMatrixEquals(bj.array(new double[][]{
         new double[]{3.292, 0.507, 0.876, 0.176, -0.177},
         new double[]{0, 0.891, -1.111, 0.082, 0.185},
@@ -82,14 +82,8 @@ public class NetlibLinearAlgebraRoutinesTest {
         -7.20, 1.50, -1.51, 5.70, 0.00,
         -0.65, -6.34, 2.67, 1.80, -7.10
     }).reshape(5, 5);
-
-//    System.out.println(a);
-
     DoubleArray w = bj.doubleArray(a.rows());
-
     linalg.syev('v', 'u', a, w);
-//    System.out.println(w);
-//    System.out.println(a);
   }
 
   @Test
@@ -200,7 +194,5 @@ public class NetlibLinearAlgebraRoutinesTest {
         new double[]{9, 7, 1}
     });
     SingularValueDecomposition svd = linalg.svd(x);
-//    System.out.println(svd);
-
   }
 }

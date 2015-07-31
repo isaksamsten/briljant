@@ -4,6 +4,7 @@ import org.briljantframework.complex.Complex;
 
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -254,6 +255,10 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @return a new array
    */
   BitArray satisfies(Array<T> other, BiPredicate<T, T> predicate);
+
+  T reduce(T initial, BinaryOperator<T> accumulator);
+
+  Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator);
 
   /**
    * Get the i:th element of this array. If {@code dims() != 1}, the array is traversed in

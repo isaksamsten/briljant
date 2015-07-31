@@ -17,13 +17,12 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.evaluation.measure.AbstractMeasure;
-import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.Matrices;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.evaluation.measure.AbstractMeasure;
+import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.vector.Vector;
 
 import java.util.ArrayList;
@@ -43,8 +42,8 @@ import java.util.stream.IntStream;
 import static org.briljantframework.Bj.argmax;
 import static org.briljantframework.Bj.argmaxnot;
 import static org.briljantframework.Bj.maxnot;
-import static org.briljantframework.evaluation.result.Sample.OUT;
 import static org.briljantframework.array.Matrices.mean;
+import static org.briljantframework.evaluation.result.Sample.OUT;
 import static org.briljantframework.vector.Vec.find;
 
 /**
@@ -150,7 +149,8 @@ public abstract class Ensemble implements Classifier {
       DoubleArray inbEstimates = Bj.doubleArray(x.rows(), classes.size());
 
       // Count the number of times each training sample have been included
-      IntArray counts = oobIndicator.asInt().reduceRows(Matrices::sum);
+      IntArray counts = Bj.sum(0, oobIndicator.asInt());
+      // TODO: was reduceRows
 
       // Compute the in-bag and out-of-bag estimates for all examples
       DoubleAdder oobAccuracy = new DoubleAdder();

@@ -1,10 +1,10 @@
 # First taste of Briljant
 ## Introduction
 
-Briljants main abstractions are the [Matrix](#matrix),
+Briljants main abstractions are the [Array](#array),
 [DataFrame](#dataframe) and [Vector](#vector).
 
-* The `DataFrame` is an immutable column wise heterogeneous data
+* `DataFrame` is an immutable column wise heterogeneous data
   container and provides the essential tools for working with
   statistical data in Java. In particular, `DataFrame` provides
 
@@ -14,27 +14,26 @@ Briljants main abstractions are the [Matrix](#matrix),
       in spreadsheets and databases.
     * Different implementations with varying performance
       characteristics.
-  
-* The `Vector` is an immutable homogeneous data container. It supports
+
+* `Vector` is an immutable homogeneous data container. It supports
   `String` (i.e. categorical values), `Double` (i.e. double precision
   floating point numbers), `Binary` (i.e. true/false), `Integer` and
   `Complex` numbers. All providing a unique `NA` representation.
 
-* The `AnyMatrix`, `DoubleMatrix`, `IntMatrix` and `ComplexMatrix` are
-  2-dimensional data containers of double precision floating point
-  numbers, integers or complex numbers, supporting a multitude of
-  linear algebra operations.
+*  `Array<T>`, `DoubleArray`, `IntArray`, `LongArray`, `ComplexArray` and
+  `BitArray` are d-dimensional data containers of, reference and numerical
+  (primitive) elements supporting a multitude of linear algebra operations.
 
 ## An example ##
 
 ```
 Random random = new Random(123);
-DoubleMatrix m = (3, 5);
+DoubleArray m = Bj.doubleArray(3, 5);
 m.assign(random::nextGaussian);
-Bj.mean(m, Dim.R);
+Bj.mean(0, m);
 ```
 
-## Matrix
+## Array
 
 There are several ways to create matrices, of which most are
 implemented in the `org.briljantframework.Bj` class. For example,
@@ -54,7 +53,7 @@ the `MatrixBackend`. For details, please refer to the discussion on
 
     The choice of matrix implementation returned by `Bj` is decided by
     the `org.briljantframework.matrix.api.MatrixBackend`. The
-    `MatrixBackend` is responsible for creating matrices and for 
+    `MatrixBackend` is responsible for creating matrices and for
     computing BLAS and linear algebra routines.
 
 !!! info "Matrix Types"
@@ -624,7 +623,7 @@ above. For example:
 ArrayList<String> strings = vector.aggregate(
     String.class, ArrayList::new, ArrayList::add
 );
-    
+
 StringBuilder builder = vector.aggregate(
     String.class, StringBuilder::new, StringBuilder::append
 );
@@ -702,7 +701,7 @@ Vector a = Vector.of(1.1, 1.2, 1.3);
 Vector b = Vector.of(() -> 2.0, 3);
 DoubleVector.Builder result = new DoubleVector.Builder();
 for(int i = 0; i < a.size(); i++) {
-    result.add(a.getAsDouble(i) + b.getAsDouble(i)); 
+    result.add(a.getAsDouble(i) + b.getAsDouble(i));
 }
 Vector c = result.build();
 // [3.1, 3.2, 3.3] type: double
@@ -741,5 +740,4 @@ wrapped in a `Combine#ignoreNA`, which - as the name implies - ignores
 
 ## DataFrame ##
 
-Data frames are Briljants most 
-
+Data frames are Briljants most

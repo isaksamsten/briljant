@@ -44,51 +44,6 @@ public class VecTest {
   }
 
   @Test
-  public void testCount() throws Exception {
-    Map<Double, Integer> counts = Vec.count(Double.class, vec6);
-    System.out.println(counts);
-
-    System.out.println(Vec.count(vec6));
-
-  }
-
-  @Test
-  public void testSort() throws Exception {
-    DoubleVector.Builder b = new DoubleVector.Builder();
-    for (int i = 0; i < 7; i++) {
-      b.add(Utils.getRandom().nextDouble());
-    }
-    DoubleVector v = b.build();
-    System.out.println(v);
-    Vector v2 = Vec.sortAsc(v);
-    System.out.println(v2);
-
-    System.out.println(Arrays.toString(v.toArray(new Double[v.size()])));
-
-    // System.out.println(v2.getAsDouble(v2.size() - 1));
-
-    Vector space = Vec.linspace(-10, 10, 10000000);
-    System.out.println(Vec.mean(space));
-  }
-
-  @Test
-  public void testSort2() throws Exception {
-    Vector sorted = Vec.sortDesc(vec8);
-    System.out.println(sorted);
-
-  }
-
-  @Test
-  public void testName() throws Exception {
-    Vector paa =
-        Vec.split(vec6, 3).stream().map(Vec::mean).collect(DoubleVector.collector())
-            .build();
-
-    System.out.println(paa);
-
-  }
-
-  @Test
   public void testSplitExact() throws Exception {
     Collection<Vector> chunks = Vec.split(vec6, 3);
     List<Vector> listChunks = new ArrayList<>(chunks);

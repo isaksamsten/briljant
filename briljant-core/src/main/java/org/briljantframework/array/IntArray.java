@@ -130,29 +130,7 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   int reduce(int identity, IntBinaryOperator reduce, IntUnaryOperator map);
 
-  /**
-   * Reduces each column. Column wise summing can be implemented as
-   *
-   * <pre>
-   * matrix.reduceColumns(col -&gt; col.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
-   * </pre>
-   *
-   * @param reduce takes a {@code Matrix} and returns {@code double}
-   * @return a new column vector with the reduced value
-   */
-  IntArray reduceColumns(ToIntFunction<? super IntArray> reduce);
-
-  /**
-   * Reduces each rows. Row wise summing can be implemented as
-   *
-   * <pre>
-   * matrix.reduceRows(row -&gt; row.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
-   * </pre>
-   *
-   * @param reduce takes a {@code Matrix} and returns {@code double}
-   * @return a new column vector with the reduced value
-   */
-  IntArray reduceRows(ToIntFunction<? super IntArray> reduce);
+  IntArray reduceVectors(int dim, ToIntFunction<? super IntArray> accumulator);
 
   // GET / SET
 

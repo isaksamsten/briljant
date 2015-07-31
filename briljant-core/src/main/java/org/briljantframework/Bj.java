@@ -19,9 +19,8 @@ import org.briljantframework.distribution.NormalDistribution;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
-import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.DoubleUnaryOperator;
@@ -268,6 +267,14 @@ public final class Bj {
     return MATRIX_ROUTINES.sum(dim, x);
   }
 
+  public static int sum(IntArray x) {
+    return MATRIX_ROUTINES.sum(x);
+  }
+
+  public static IntArray sum(int dim, IntArray x) {
+    return MATRIX_ROUTINES.sum(dim, x);
+  }
+
   public static <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
     return MATRIX_ROUTINES.sort(x, cmp, dim);
   }
@@ -360,6 +367,70 @@ public final class Bj {
 
   public static DoubleArray prod(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.prod(dim, x);
+  }
+
+  public static <T> T min(Array<T> x, Comparator<T> cmp) {
+    return MATRIX_ROUTINES.min(x, cmp);
+  }
+
+  public static <T extends Comparable<T>> T max(Array<T> x) {
+    return MATRIX_ROUTINES.max(x);
+  }
+
+  public static <T extends Comparable<T>> T min(Array<T> x) {
+    return MATRIX_ROUTINES.min(x);
+  }
+
+  public static int max(IntArray x) {
+    return MATRIX_ROUTINES.max(x);
+  }
+
+  public static <T> T max(Array<T> x, Comparator<T> cmp) {
+    return MATRIX_ROUTINES.max(x, cmp);
+  }
+
+  public static <T extends Comparable<T>> Array<T> max(int dim, Array<T> x) {
+    return MATRIX_ROUTINES.max(dim, x);
+  }
+
+  public static int min(IntArray x) {
+    return MATRIX_ROUTINES.min(x);
+  }
+
+  public static long max(LongArray x) {
+    return MATRIX_ROUTINES.max(x);
+  }
+
+  public static long min(LongArray x) {
+    return MATRIX_ROUTINES.min(x);
+  }
+
+  public static <T extends Comparable<T>> Array<T> min(int dim, Array<T> x) {
+    return MATRIX_ROUTINES.min(dim, x);
+  }
+
+  public static LongArray min(int dim, LongArray x) {
+    return MATRIX_ROUTINES.min(dim, x);
+  }
+
+  public static <T> Array<T> min(int dim, Array<T> x, Comparator<T> cmp) {
+    return MATRIX_ROUTINES.min(dim, x, cmp);
+  }
+
+  public static IntArray max(int dim, IntArray x) {
+    return MATRIX_ROUTINES.max(dim, x);
+  }
+
+  public static LongArray max(int dim, LongArray x) {
+    return MATRIX_ROUTINES.max(dim, x);
+  }
+
+  public static <T> Array<T> max(int dim, Array<T> x, Comparator<T> cmp) {
+    return MATRIX_ROUTINES.max(dim, x, cmp);
+  }
+
+  public static IntArray min(int dim, IntArray x) {
+    return MATRIX_ROUTINES.min(dim, x);
   }
 
   /**

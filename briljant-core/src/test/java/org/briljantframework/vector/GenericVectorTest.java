@@ -1,11 +1,8 @@
 package org.briljantframework.vector;
 
-import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.io.StringDataEntry;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -29,20 +26,6 @@ public class GenericVectorTest {
                                         new Date(), null));
     cmpVector = new GenericVector(Comparable.class, Arrays.asList(1, 2, 3, 3.2));
     charVector = new GenericVector(Character.class, Arrays.asList('a', 'b', 'c'));
-  }
-
-  @Test
-  public void testBuilderRead() throws Exception {
-    Vector.Builder builder = new GenericVector.Builder(LocalDate.class);
-    builder.readAll(new StringDataEntry("2001-01-01", "2011-12-01"))
-        .add("2001-01-31")
-        .add(System.currentTimeMillis());
-
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < 1000000; i++) {
-      builder.add(i * 1000000003231L);
-    }
-    System.out.println(System.currentTimeMillis() - start);
   }
 
   @Test

@@ -18,8 +18,9 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.Index;
 import org.briljantframework.vector.Vec;
 
 /**
@@ -37,10 +38,14 @@ public class MeanImputer implements Transformer {
     return x -> {
       Check.size(x.columns(), means.size());
       DataFrame.Builder builder = x.newBuilder();
-//      builder.getColumnNames().putAll(x.getColumnNames());
+      Index.Builder columnIndex = x.getColumnIndex().newBuilder();
+      Index.Builder recordIndex = x.getRecordIndex().newBuilder();
+
+      x.getColumnIndex().entrySet().forEach(columnIndex::set);
+      x.getRecordIndex().entrySet().forEach(recordIndex::set);
       for (int j = 0; j < x.columns(); j++) {
         Check.type(x.getType(j), Vec.DOUBLE);
-        for (int i = 0; i < x.rows(); i++) {
+        for (int i = 1; i < x.rows(); i++) {
           if (x.isNA(i, j)) {
             builder.set(i, j, means.get(j));
           } else {
@@ -48,7 +53,10 @@ public class MeanImputer implements Transformer {
           }
         }
       }
-      return builder.build();
+      DataFrame df = builder.build();
+      df.setColumnIndex(columnIndex.build());
+      df.setRecordIndex(recordIndex.build());
+      return df;
     };
   }
 }

@@ -79,14 +79,7 @@ class DataFrameSpec extends Specification {
     ]
   }
 
-  def
-
-
-  DataFrame.Builder getBuilder(Class<?>... types) {
-    return new MixedDataFrame.Builder(types.collect {Vec.typeOf(it)} as VectorType[])
-  }
-
-  DataFrame createDataFrame(List<List> values, Class<?>... types) {
+  def createDataFrame(List<List> values, Class<?>... types) {
     DataFrame.Builder builder = getBuilder(types)
     for (int i = 0; i < values.size(); i++) {
       List row = values[i]
@@ -95,5 +88,9 @@ class DataFrameSpec extends Specification {
       }
     }
     return builder.build()
+  }
+
+  def getBuilder(Class<?>... types) {
+    return new MixedDataFrame.Builder(types.collect {Vec.typeOf(it)} as VectorType[])
   }
 }

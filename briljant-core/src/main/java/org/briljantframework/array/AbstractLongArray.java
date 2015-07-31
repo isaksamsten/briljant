@@ -302,21 +302,15 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray reduceColumns(ToLongFunction<? super LongArray> reduce) {
-    LongArray mat = newEmptyArray(1, columns());
-    for (int i = 0; i < columns(); i++) {
-      mat.set(i, reduce.applyAsLong(getColumn(i)));
-    }
-    return mat;
-  }
-
-  @Override
-  public LongArray reduceRows(ToLongFunction<? super LongArray> reduce) {
-    LongArray mat = newEmptyArray(rows(), 1);
-    for (int i = 0; i < rows(); i++) {
-      mat.set(i, reduce.applyAsLong(getRow(i)));
-    }
-    return mat;
+  public LongArray reduceVector(int dim, ToLongFunction<? super LongArray> accumulator) {
+      Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
+      LongArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+      int vectors = vectors(dim);
+      for (int i = 0; i < vectors; i++) {
+        long value = accumulator.applyAsLong(getVector(dim, i));
+        reduced.set(i, value);
+      }
+      return reduced;
   }
 
   @Override

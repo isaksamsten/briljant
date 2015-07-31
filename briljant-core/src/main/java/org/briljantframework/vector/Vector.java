@@ -65,12 +65,13 @@ public interface Vector extends Serializable {
    */
   @SafeVarargs
   static <T> Vector of(T... array) {
-    Class<?> cls = array.getClass().getComponentType();
-    Builder builder = Vec.typeOf(cls).newBuilder();
-    for (T t : array) {
-      builder.add(t);
-    }
-    return builder.build();
+//    Class<?> cls = array.getClass().getComponentType();
+//    Builder builder = Vec.typeOf(cls).newBuilder();
+//    for (T t : array) {
+//      builder.add(t);
+//    }
+//    return builder.build();
+    return of(Arrays.asList(array));
   }
 
   static <T> Vector of(Iterable<T> values) {

@@ -1,11 +1,13 @@
 package org.briljantframework.array.base;
 
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.ArrayPrinter;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class BaseArrayRoutinesTest {
 
@@ -116,7 +118,7 @@ public class BaseArrayRoutinesTest {
   @Test
   public void testNorm21() throws Exception {
     DoubleArray x = bj.array(new double[]{1, 2, 3});
-    System.out.println(bjr.norm2(x));
+//    bjr.norm2(x)
   }
 
   @Test
@@ -155,8 +157,9 @@ public class BaseArrayRoutinesTest {
     DoubleArray b = bj.array(new double[]{1, 2, 3});
     DoubleArray c = bj.doubleArray(4, 3);
     bjr.ger(1, a, b, c);
-    System.out.println(c);
-    System.out.println(a.mmul(b.transpose()));
+    assertEquals(c, bj.array(new double[]{
+        1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12
+    }).reshape(4, 3));
   }
 
   @Test
@@ -220,9 +223,7 @@ public class BaseArrayRoutinesTest {
         new double[]{0, 1, 0},
         new double[]{0, 0, 1}
     });
-    System.out.println(x);
     DoubleArray repmat = bjr.repmat(x, 1, 1000);
-    System.out.println(repmat);
   }
 
   @Test

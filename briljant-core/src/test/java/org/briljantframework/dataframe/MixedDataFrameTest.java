@@ -1,7 +1,6 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.complex.Complex;
-import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.io.resolver.StringDateConverter;
@@ -80,7 +79,6 @@ public class MixedDataFrameTest {
 //    builder.set(1, 1, dataA.getAsValue(0, 1));
 
     DataFrame build = builder.build();
-    System.out.println(build);
     assertEquals(dataA.getType(0), build.getType(0));
     assertEquals(dataB.getType(1), build.getType(3));
 //    assertEquals(dataA.getAsValue(0, 0), build.getAsValue(0, 0));
@@ -183,7 +181,6 @@ public class MixedDataFrameTest {
         .set(2, 6, "2015-03-15");
 
     DataFrame build = builder.build();
-    System.out.println(build);
     assertEquals(Vec.STRING, build.getType(0));
     assertEquals(Vec.INT, build.getType(1));
     assertEquals(1, build.getAsInt(0, 1));
@@ -215,22 +212,12 @@ public class MixedDataFrameTest {
       }
     }
 
-    System.out.println(frame);
-    System.out.println(copy.build());
-
     DataFrame.Builder builder = new MixedDataFrame.Builder(Vec.typeOf(String.class),
                                                            DoubleVector.TYPE);
     for (int i = 0; i < 10; i++) {
       builder.set(i + 3, 1, 32.2);
       builder.set(i + 3, 0, "hello");
     }
-
-    System.out.println(builder.build());
-
-    System.out.println(new MixedDataFrame(
-        new IntVector(1, 2, 3, 4),
-        Vector.of("a", "b", "c", "d")));
-
     DataFrame.Builder bu =
         new MixedDataFrame.Builder(
             Vec.typeOf(String.class).newBuilder().addAll("one", "two", "three",
@@ -254,22 +241,12 @@ public class MixedDataFrameTest {
 
     bu.set(22, 0, "hello");
 
-    System.out.println(bu.rows());
-    System.out.println(bu.columns());
-
     DataFrame ff = bu.build();
-    System.out.println(ff);
-
     DataFrame.Builder simple =
         new MixedDataFrame.Builder(Vec.typeOf(String.class).newBuilder().addAll("a", "b", "c"),
                                    IntVector.newBuilderWithInitialValues(
                                        IntStream.range(0, 1000).toArray()));
     DataFrame s = simple.build();
-//    s.setColumnNames("String", "LongInt");
-    System.out.println(s);
-
-    System.out.println(new RemoveIncompleteCases().transform(ff));
-
     assertEquals(1, 1, 1);
   }
 
@@ -277,7 +254,6 @@ public class MixedDataFrameTest {
   public void testBuilderConcat() throws Exception {
     DataFrame.Builder builderA = dataA.newCopyBuilder();
     DataFrame concatAB = builderA.concat(dataB).concat(3, new IntVector(1, 2)).build();
-    System.out.println(concatAB);
     assertTrue(concatAB.isNA(0, 5));
   }
 
@@ -285,19 +261,14 @@ public class MixedDataFrameTest {
   public void testBuilderStack() throws Exception {
     DataFrame.Builder builderA = dataA.newCopyBuilder();
     DataFrame stackAB = builderA.stack(dataB).stack(1, new IntVector(2, 3, 4)).build();
-    System.out.println(stackAB);
     assertTrue(stackAB.isNA(12, 0));
     dataA.setRecordIndex(HashIndex.from("a", "b", "c", "d", "e", "f"));
     DataFrame df = new MixedDataFrame.Builder()
         .addColumn(Vector.of("d d d d".split(" ")))
         .addColumn(new IntVector(0, 0, 0, 0))
         .build();
-//    System.out.println(dataA.stack(Arrays.asList(df,dataB, dataB)));
-
     dataB.setColumnIndex(HashIndex.from("String", "Double B"));
     dataA.setColumnIndex(HashIndex.from("String", "Double A"));
-    System.out.println(DataFrames.concat(Arrays.asList(dataA, dataB)));
-
   }
 
   @Test
@@ -310,7 +281,6 @@ public class MixedDataFrameTest {
     DataFrame frame = new MixedDataFrame(vectors);
     frame.setRecordIndex(HashIndex.from(Arrays.asList("a", "b", "c", "d")));
     frame.setColumnIndex(HashIndex.from(Arrays.asList("brand", "engines", "bhp")));
-    System.out.println(frame);
   }
 
   @Test
@@ -329,10 +299,7 @@ public class MixedDataFrameTest {
     DataFrame frame = new MixedDataFrame(a, b, c);
 //    frame.setColumnIndex(HashIndex.from("a", "b", "c"));
 //    frame.setColumnNames("a", "b");
-    System.out.println(frame);
-
     frame = new RemoveIncompleteColumns().transform(frame);
-    System.out.println(frame);
     assertEquals("The second column should be removed", 2, frame.columns());
 //    assertEquals("The column names should be retained", "b", frame.getColumnName(0));
   }

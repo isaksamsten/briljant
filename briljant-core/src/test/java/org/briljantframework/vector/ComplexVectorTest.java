@@ -16,24 +16,6 @@ public class ComplexVectorTest {
   }
 
   @Test
-  public void testBuilderAdd() throws Exception {
-    Vector.Builder builder = new ComplexVector.Builder();
-    builder.addAll("1+10i", "1+11i", "3-10i");
-    System.out.println(builder.build());
-
-  }
-
-  @Test
-  public void testAddAtIndex() throws Exception {
-    ComplexVector.Builder builder = new ComplexVector.Builder();
-    builder.set(3, 10);
-    builder.set(10, new Complex(10, 2));
-    System.out.println(builder.size());
-
-    System.out.println(builder.build());
-  }
-
-  @Test
   public void testGetAsDouble() throws Exception {
     assertEquals(1, vector.getAsDouble(0), 0);
     assertEquals(2, vector.getAsDouble(1), 0);

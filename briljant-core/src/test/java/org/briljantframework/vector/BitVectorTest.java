@@ -25,7 +25,6 @@ public class BitVectorTest {
 
   @Test
   public void testGetAsInt() throws Exception {
-    System.out.println(vector);
     assertEquals(0, vector.getAsInt(0));
     assertEquals(1, vector.getAsInt(1));
     assertEquals(IntVector.NA, vector.getAsInt(2));

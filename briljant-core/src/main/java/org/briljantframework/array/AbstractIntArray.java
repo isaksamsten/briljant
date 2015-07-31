@@ -364,21 +364,15 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray reduceColumns(ToIntFunction<? super IntArray> reduce) {
-    IntArray mat = newEmptyArray(1, columns());
-    for (int i = 0; i < columns(); i++) {
-      mat.set(i, reduce.applyAsInt(getColumn(i)));
+  public IntArray reduceVectors(int dim, ToIntFunction<? super IntArray> accumulator) {
+    Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
+    IntArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    int vectors = vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      int value = accumulator.applyAsInt(getVector(dim, i));
+      reduced.set(i, value);
     }
-    return mat;
-  }
-
-  @Override
-  public IntArray reduceRows(ToIntFunction<? super IntArray> reduce) {
-    IntArray mat = newEmptyArray(rows(), 1);
-    for (int i = 0; i < rows(); i++) {
-      mat.set(i, reduce.applyAsInt(getRow(i)));
-    }
-    return mat;
+    return reduced;
   }
 
   @Override

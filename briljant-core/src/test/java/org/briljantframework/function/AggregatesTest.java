@@ -3,8 +3,6 @@ package org.briljantframework.function;
 import org.briljantframework.vector.Vector;
 import org.junit.Test;
 
-import java.util.Map;
-
 import static org.briljantframework.function.Aggregates.normalizedValueCounts;
 import static org.briljantframework.function.Aggregates.repeat;
 import static org.briljantframework.function.Aggregates.valueCounts;
@@ -23,20 +21,6 @@ public class AggregatesTest {
   public void testValueCounts() throws Exception {
     Vector vec = Vector.of('a', 'b', 'c', 'd', 'e', 'e');
     Vector counts = vec.aggregate(Character.class, valueCounts());
-    assertEquals(2, counts.get(Integer.class, 'e').intValue());
-
-    System.out.println(
-        vec.aggregate(repeat(4)).aggregate(normalizedValueCounts())
-    );
-
-//
-//    double[] doubles = {1.00000000001, 2, 199, 4, 5};
-//    Vector s = Vector.of(Doubles.asList(doubles));
-//    System.out.println(s.add(Complex.valueOf(2)).mul(3));
-//    Vector combine = s.combine(Number.class, Vector.singleton(Complex.valueOf(2), s.size()), Combine.add(2));
-//    System.out.println(combine);
-//    System.out.println(combine.sort(SortOrder.ASC));
-//    System.out.println(combine.sort(String.class, Comparator.comparingInt(String::length)));
-//    System.out.println(combine.get(String.class, 0));
+    assertEquals(2, counts.get(Integer.class, (Object) 'e').intValue());
   }
 }

@@ -119,29 +119,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
    */
   long reduce(long identity, LongBinaryOperator reduce, LongUnaryOperator map);
 
-  /**
-   * Reduces each column. Column wise summing can be implemented as
-   *
-   * <pre>
-   * matrix.reduceColumns(col -&gt; col.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
-   * </pre>
-   *
-   * @param reduce takes a {@code Matrix} and returns {@code double}
-   * @return a new column vector with the reduced value
-   */
-  LongArray reduceColumns(ToLongFunction<? super LongArray> reduce);
-
-  /**
-   * Reduces each rows. Row wise summing can be implemented as
-   *
-   * <pre>
-   * matrix.reduceRows(row -&gt; row.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
-   * </pre>
-   *
-   * @param reduce takes a {@code Matrix} and returns {@code double}
-   * @return a new column vector with the reduced value
-   */
-  LongArray reduceRows(ToLongFunction<? super LongArray> reduce);
+  LongArray reduceVector(int dim, ToLongFunction<? super LongArray> accumulator);
 
   // Filter
 

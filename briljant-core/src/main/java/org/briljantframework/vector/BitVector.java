@@ -401,10 +401,6 @@ public class BitVector extends AbstractVector {
     return new Builder(size);
   }
 
-  public int[] toIntArray() {
-    return values.clone();
-  }
-
   @Override
   public IntStream intStream() {
     return IntStream.of(values);

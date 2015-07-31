@@ -419,13 +419,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S select(List<List<Integer>> indexes);
 
   /**
-   * @param indexes array of indexes
-   * @return a new array
-   * @see #select(java.util.List)
-   */
-  S select(List<Integer>... indexes);
-
-  /**
    * @param indexes an array of index arrays
    * @return a new array
    * @see #select(java.util.List)
