@@ -31,6 +31,7 @@ import org.briljantframework.complex.Complex;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -261,9 +262,26 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   public Array<T> copy() {
     Array<T> array = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      set(i, get(i));
+      array.set(i, get(i));
     }
     return array;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Array) {
+      Array<?> o = (Array<?>) obj;
+      if (!Arrays.equals(shape, o.getShape())) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (!get(i).equals(o.get(i))) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
   @Override

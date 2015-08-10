@@ -201,7 +201,7 @@ public interface ArrayRoutines {
 
   DoubleArray cumsum(DoubleArray x);
 
-  DoubleArray cumsum(DoubleArray x, int dim);
+  DoubleArray cumsum(int dim, DoubleArray x);
 
   double dot(DoubleArray a, DoubleArray b);
 
@@ -287,93 +287,73 @@ public interface ArrayRoutines {
   <T extends BaseArray<T>> T take(T x, int num);
 
   /**
-   * Split matrix vertically (i.e. row-wise). A 3-by-3 matrix hsplit into 3 parts
+   * Split array vertically (i.e. row-wise). A 3-by-3 array hsplit into 3 parts
    * return a (lazy) list of 3 1-by-3 matrices.
    *
    * <p>The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is
    * called. To get a computed list, use {@code new ArrayList<>(Matrices.hsplit(m, 3))}.
    * This is useful when {@link List#get(int)} is used multiple times.
    *
-   * @param matrix matrix to be split
-   * @param parts  parts to split matrix (must evenly devide {@code matrix.columns()})
-   * @param <T>    the matrix type
+   * @param array array to be split
+   * @param parts parts to split array (must evenly divide {@code array.columns()})
+   * @param <T>   the array type
    * @return a (lazy) list of {@code part} elements
    */
-  <T extends BaseArray<T>> List<T> vsplit(T matrix, int parts);
+  <T extends BaseArray<T>> List<T> vsplit(T array, int parts);
 
   /**
-   * Stacks matrices vertically, i.e. a 2-by-3 matrix vstacked with a 10-by-3 matrix
+   * Stacks arrays vertically, i.e. a 2-by-3 matrix vstacked with a 10-by-3 matrix
    * resuls in a 12-by-3 matrix.
    *
-   * @param matrices a sequence of matrices; all having the same {@code columns}
-   * @param <T>      the matrix type
+   * @param arrays a sequence of arrays; all having the same {@code columns}
+   * @param <T>    the matrix type
    * @return a new matrix; {@code shape = [sum-of-rows, columns]}
    */
-  <T extends BaseArray<T>> T vstack(Collection<T> matrices);
+  <T extends BaseArray<T>> T vstack(Collection<T> arrays);
 
   /**
-   * Split matrix horizontally (i.e. column-wise). A 3-by-3 matrix hsplit into 3 parts
+   * Split array horizontally (i.e. column-wise). A 3-by-3 array hsplit into 3 parts
    * return a (lazy) list of 3 3-by-1 matrices.
    *
    * <p>The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is
-   * called. To get a computed list, use {@code new ArrayList<>(Matrices.hsplit(m, 3))}.
+   * called. To get a computed list, use {@code new ArrayList<>(Bj.hsplit(m, 3))}.
    * This is useful when {@link List#get(int)} is used multiple times.
    *
-   * @param matrix matrix to be split
-   * @param parts  parts to split matrix (must evenly divide {@code matrix.columns()})
-   * @param <T>    the matrix type
+   * @param array array to be split
+   * @param parts parts to split array (must evenly divide {@code array.columns()})
+   * @param <T>   the array type
    * @return a (lazy) list of {@code part} elements
    */
-  <T extends BaseArray<T>> List<T> hsplit(T matrix, int parts);
+  <T extends BaseArray<T>> List<T> hsplit(T array, int parts);
 
   /**
-   * Stacks matrices horizontally, i.e. a 3-by-2 matrix hstacked with a 3-by-10 matrix
+   * Stacks arrays horizontally, i.e. a 3-by-2 matrix hstacked with a 3-by-10 matrix
    * results in a 3-by-12 matrix.
    *
-   * @param matrices a sequence of matrices; all having the same {@code rows}
-   * @param <T>      the matrix type
+   * @param arrays a sequence of arrays; all having the same {@code rows}
+   * @param <T>    the matrix type
    * @return a new matrix; {@code shape = [rows, sum-of-columns]}
    */
-  <T extends BaseArray<T>> T hstack(Collection<T> matrices);
+  <T extends BaseArray<T>> T hstack(Collection<T> arrays);
 
   <T extends BaseArray<T>> T shuffle(T x);
 
+  default <T extends BaseArray<T>> T sort(T array) {
+    return sort(array, (t, a, b) -> {
+      return t.compare(a, b);
+    });
+  }
+
+  default <T extends BaseArray<T>> T sort(int dim, T array) {
+    return sort(dim, array, (t, a, b) -> {
+      return t.compare(a, b);
+    });
+  }
+
   /**
    * <p>
-   * Sorts the source matrix {@code a} in the order specified by {@code comparator}. For example,
-   * reversed sorted
+   * Sorts the source matrix {@code a} in the order specified by {@code comparator}.
    * </p>
-   *
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    DoubleMatrix a = Matrices.randn(12, 1)
-   *    DoubleMatrix x = Matrices.sort(a, (c, i, j) -> -c.compare(a, b));
-   * </pre>
-   * <p>
-   * {@link org.briljantframework.complex.Complex} and {@link org.briljantframework.array.ComplexArray}
-   * do not have a natural
-   * sort order.
-   * </p>
-   *
-   * <pre>
-   *  > import org.briljantframework.matrix.*;
-   *    ComplexMatrix a = randn(12, 1).asComplexMatrix().map(Complex::sqrt)
-   *    ComplexMatrix x = sort(a, (c, i, j) -> Double.compare(c.get(i).abs(), c.get(j).abs());
-   *
-   *    0.1499 + 0.0000i
-   *    0.5478 + 0.0000i
-   *    0.5725 + 0.0000i
-   *    0.0000 + 0.5916i
-   *    0.0000 + 0.6856i
-   *    0.0000 + 0.8922i
-   *    0.0000 + 0.9139i
-   *    0.0000 + 1.0130i
-   *    0.0000 + 1.1572i
-   *    1.1912 + 0.0000i
-   *    1.2493 + 0.0000i
-   *    1.2746 + 0.0000i
-   *    shape: 12x1 type: complex
-   * </pre>
    *
    * @param x   the source matrix
    * @param cmp the comparator; first argument is the container, and the next are indexes
@@ -381,7 +361,23 @@ public interface ArrayRoutines {
    */
   <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp);
 
-  <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp, int dim);
+  <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp);
+
+  default <T extends Comparable<T>> Array<T> sort(Array<T> array) {
+    return sort(array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
+  }
+
+  default <T extends Comparable<T>> Array<T> sort(int dim, Array<T> array) {
+    return sort(dim, array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
+  }
+
+  default <T extends Comparator<T>> Array<T> sort(Array<T> array, Comparator<T> cmp) {
+    return sort(array, (a, i, j) -> cmp.compare(a.get(i), a.get(j)));
+  }
+
+  default <T extends Comparator<T>> Array<T> sort(int dim, Array<T> array, Comparator<T> cmp) {
+    return sort(dim, array, (a, i, j) -> cmp.compare(a.get(i), a.get(j)));
+  }
 
   /**
    * Copy the contents of {@code from} to {@code to}
@@ -401,4 +397,129 @@ public interface ArrayRoutines {
    */
 
   <T extends BaseArray<T>> void swap(T a, T b);
+
+  /**
+   * @see Math#sin(double)
+   */
+  DoubleArray sin(DoubleArray array);
+
+  /**
+   * @see Math#cos(double)
+   */
+  DoubleArray cos(DoubleArray array);
+
+  /**
+   * @see Math#tan(double)
+   */
+  DoubleArray tan(DoubleArray array);
+
+  /**
+   * @see Math#asin(double)
+   */
+  DoubleArray asin(DoubleArray array);
+
+  /**
+   * @see Math#acos(double)
+   */
+  DoubleArray acos(DoubleArray array);
+
+  /**
+   * @see Math#atan(double)
+   */
+  DoubleArray atan(DoubleArray array);
+
+  /**
+   * @see Math#sinh(double)
+   */
+  DoubleArray sinh(DoubleArray array);
+
+  /**
+   * @see Math#cosh(double)
+   */
+  DoubleArray cosh(DoubleArray array);
+
+  /**
+   * @see Math#tanh(double)
+   */
+  DoubleArray tanh(DoubleArray array);
+
+  /**
+   * @see Math#exp(double)
+   */
+  DoubleArray exp(DoubleArray array);
+
+  /**
+   * @see Math#cbrt(double)
+   */
+  DoubleArray cbrt(DoubleArray array);
+
+  /**
+   * @see Math#ceil(double)
+   */
+  DoubleArray ceil(DoubleArray array);
+
+  /**
+   * @see Math#floor(double)
+   */
+  DoubleArray floor(DoubleArray array);
+
+  /**
+   * @see Math#abs(double)
+   */
+  IntArray abs(IntArray array);
+
+  /**
+   * @see Math#abs(double)
+   */
+  LongArray abs(LongArray array);
+
+  /**
+   * @see Math#abs(double)
+   */
+  DoubleArray abs(DoubleArray array);
+
+  /**
+   * @see Math#cos(double)
+   */
+  DoubleArray cos(ComplexArray array);
+
+  /**
+   * @see Math#scalb(double, int)
+   */
+  DoubleArray scalb(DoubleArray array, int scaleFactor);
+
+  /**
+   * @see Math#sqrt(double)
+   */
+  DoubleArray sqrt(DoubleArray array);
+
+  /**
+   * @see Math#log(double)
+   */
+  DoubleArray log(DoubleArray array);
+
+  /**
+   * @see Math#log(double)
+   */
+  DoubleArray log2(DoubleArray array);
+
+  /**
+   * @see Math#pow(double, double)
+   */
+  DoubleArray pow(DoubleArray in, double power);
+
+  /**
+   * @see Math#log10(double)
+   */
+  DoubleArray log10(DoubleArray in);
+
+  /**
+   * @see Math#signum(double)
+   */
+  DoubleArray signum(DoubleArray in);
+
+  /**
+   * @see Math#round(double)
+   */
+  LongArray round(DoubleArray in);
 }

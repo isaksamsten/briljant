@@ -59,6 +59,8 @@ import static org.briljantframework.array.Indexer.rowMajor;
  */
 public class BaseArrayRoutines implements ArrayRoutines {
 
+  protected static final double LOG_2 = Math.log(2);
+  
   protected BaseArrayRoutines() {
   }
 
@@ -258,9 +260,10 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public DoubleArray cumsum(DoubleArray x, int dim) {
+  public DoubleArray cumsum(int dim, DoubleArray x) {
     DoubleArray n = x.newEmptyArray(x.rows(), x.columns());
-    for (int i = 0; i < x.size(dim); i++) {
+    int vectors = x.vectors(dim);
+    for (int i = 0; i < vectors; i++) {
       n.setVector(dim, i, cumsum(n.getVector(dim, i)));
     }
 
@@ -452,18 +455,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> List<T> vsplit(T x, int parts) {
-    checkNotNull(x);
-    checkArgument(x.rows() % parts == 0, "Parts does not evenly divide rows.");
-    int partRows = x.rows() / parts;
+  public <T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
+    checkNotNull(array);
+    checkArgument(array.rows() % parts == 0, "Parts does not evenly divide rows.");
+    int partRows = array.rows() / parts;
     return new AbstractList<T>() {
       @Override
       public T get(int index) {
         checkElementIndex(index, size());
-        T part = x.newEmptyArray(partRows, x.columns());
+        T part = array.newEmptyArray(partRows, array.columns());
         for (int j = 0; j < part.columns(); j++) {
           for (int i = 0; i < part.rows(); i++) {
-            part.set(i, j, x, i + partRows * index, j);
+            part.set(i, j, array, i + partRows * index, j);
           }
         }
         return part;
@@ -477,12 +480,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> T vstack(Collection<T> matrices) {
-    checkArgument(matrices.size() > 0);
+  public <T extends BaseArray<T>> T vstack(Collection<T> arrays) {
+    checkArgument(arrays.size() > 0);
     int rows = 0;
     int columns = 0;
     T first = null;
-    for (T matrix : matrices) {
+    for (T matrix : arrays) {
       if (first == null) {
         first = matrix;
         columns = first.columns();
@@ -494,7 +497,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
     T newMatrix = first.newEmptyArray(rows, columns);
     int pad = 0;
-    for (T matrix : matrices) {
+    for (T matrix : arrays) {
       for (int j = 0; j < matrix.columns(); j++) {
         for (int i = 0; i < matrix.rows(); i++) {
           newMatrix.set(i + pad, j, matrix, i, j);
@@ -506,19 +509,19 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> List<T> hsplit(T matrix, int parts) {
-    checkNotNull(matrix);
-    checkArgument(matrix.rows() % parts == 0, "Parts does not evenly dived columns.");
-    int partColumns = matrix.columns() / parts;
+  public <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
+    checkNotNull(array);
+    checkArgument(array.rows() % parts == 0, "Parts does not evenly dived columns.");
+    int partColumns = array.columns() / parts;
     return new AbstractList<T>() {
 
       @Override
       public T get(int index) {
         checkElementIndex(index, size());
-        T part = matrix.newEmptyArray(matrix.rows(), partColumns);
+        T part = array.newEmptyArray(array.rows(), partColumns);
         for (int j = 0; j < part.columns(); j++) {
           for (int i = 0; i < part.rows(); i++) {
-            part.set(i, j, matrix, i, j + partColumns * index);
+            part.set(i, j, array, i, j + partColumns * index);
           }
         }
         return part;
@@ -532,12 +535,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> T hstack(Collection<T> matrices) {
-    checkArgument(matrices.size() > 0);
+  public <T extends BaseArray<T>> T hstack(Collection<T> arrays) {
+    checkArgument(arrays.size() > 0);
     int columns = 0;
     int rows = 0;
     T first = null;
-    for (T matrix : matrices) {
+    for (T matrix : arrays) {
       if (first == null) {
         first = matrix;
         rows = first.rows();
@@ -548,7 +551,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
     }
     T newMatrix = first.newEmptyArray(rows, columns);
     int pad = 0;
-    for (T matrix : matrices) {
+    for (T matrix : arrays) {
       for (int j = 0; j < matrix.columns(); j++) {
         for (int i = 0; i < matrix.rows(); i++) {
           newMatrix.set(i, j + pad, matrix, i, j);
@@ -574,7 +577,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp, int dim) {
+  public <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp) {
     T out = x.copy();
     int m = x.vectors(dim);
     for (int i = 0; i < m; i++) {
@@ -625,5 +628,139 @@ public class BaseArrayRoutines implements ArrayRoutines {
       a.set(i, b, i);
       b.set(i, tmp, 0);
     }
+  }
+
+  @Override
+  public DoubleArray sin(DoubleArray array) {
+    return array.map(Math::sin);
+  }
+
+  @Override
+  public DoubleArray cos(DoubleArray array) {
+    return array.map(Math::cos);
+  }
+
+  @Override
+  public DoubleArray tan(DoubleArray array) {
+    return array.map(Math::tan);
+  }
+
+  @Override
+  public DoubleArray asin(DoubleArray array) {
+    return array.map(Math::asin);
+  }
+
+  @Override
+  public DoubleArray acos(DoubleArray array) {
+    return array.map(Math::acos);
+  }
+
+  @Override
+  public DoubleArray atan(DoubleArray array) {
+    return array.map(Math::atan);
+  }
+
+  @Override
+  public DoubleArray sinh(DoubleArray array) {
+    return array.map(Math::sinh);
+  }
+
+  @Override
+  public DoubleArray cosh(DoubleArray array) {
+    return array.map(Math::cosh);
+  }
+
+  @Override
+  public DoubleArray tanh(DoubleArray array) {
+    return array.map(Math::tanh);
+  }
+
+  @Override
+  public DoubleArray exp(DoubleArray array) {
+    return array.map(Math::exp);
+  }
+
+  @Override
+  public DoubleArray cbrt(DoubleArray array) {
+    return array.map(Math::cbrt);
+  }
+
+  @Override
+  public DoubleArray ceil(DoubleArray array) {
+    return array.map(Math::ceil);
+  }
+
+  @Override
+  public DoubleArray floor(DoubleArray array) {
+    return array.map(Math::floor);
+  }
+
+  @Override
+  public IntArray abs(IntArray array) {
+    return array.map(Math::abs);
+  }
+
+  @Override
+  public LongArray abs(LongArray array) {
+    return array.map(Math::abs);
+  }
+
+  @Override
+  public DoubleArray abs(DoubleArray array) {
+    return array.map(Math::abs);
+  }
+
+  @Override
+  public DoubleArray cos(ComplexArray array) {
+    return array.mapToDouble(Complex::abs);
+  }
+
+  @Override
+  public DoubleArray scalb(DoubleArray array, int scaleFactor) {
+    return array.map(v -> Math.scalb(v, scaleFactor));
+  }
+
+  @Override
+  public DoubleArray sqrt(DoubleArray array) {
+    return array.map(Math::sqrt);
+  }
+
+  @Override
+  public DoubleArray log(DoubleArray array) {
+    return array.map(Math::log);
+  }
+
+  @Override
+  public DoubleArray log2(DoubleArray array) {
+    return array.map(x -> Math.log(x) / LOG_2);
+  }
+
+  @Override
+  public DoubleArray pow(DoubleArray in, double power) {
+    switch ((int) power) {
+      case 2:
+        return in.map(x -> x * x);
+      case 3:
+        return in.map(x -> x * x * x);
+      case 4:
+        return in.map(x -> x * x * x * x);
+      default:
+        return in.map(x -> Math.pow(x, power));
+    }
+  }
+
+  @Override
+  public DoubleArray log10(DoubleArray in) {
+    return in.map(Math::log10);
+  }
+
+  @Override
+  public DoubleArray signum(DoubleArray in) {
+    return in.map(Math::signum);
+  }
+
+  @Override
+  public LongArray round(DoubleArray in) {
+    return in.asLong().newEmptyArray(in.getShape()).assign(in, Math::round);
   }
 }

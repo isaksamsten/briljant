@@ -25,6 +25,7 @@
 package org.briljantframework.array.base;
 
 import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -100,10 +101,10 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public DoubleArray diag(DoubleArray data) {
+  public <T extends BaseArray<T>> T diag(T data) {
     if (data.isVector()) {
       int n = data.size();
-      DoubleArray arr = doubleArray(n, n);
+      T arr = data.newEmptyArray(n, n);
       arr.getDiagonal().assign(data);
       return arr;
     } else if (data.isMatrix()) {

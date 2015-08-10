@@ -33,7 +33,7 @@ import org.briljantframework.array.base.BaseArrayRoutines;
 import org.briljantframework.exceptions.NonConformantException;
 
 /**
- * Created by isak on 13/04/15.
+ * @author Isak Karlsson
  */
 class NetlibArrayRoutines extends BaseArrayRoutines {
 
@@ -41,13 +41,13 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double dot(DoubleArray a, DoubleArray b) {
-    if (!a.isView() && !b.isView()) {
+    if (a.isContiguous() && b.isContiguous()) {
       Check.size(a, b);
       Check.argument(a.isVector() && b.isVector());
       int n = a.size();
       double[] aa = a.data();
       double[] ba = b.data();
-      return blas.ddot(n, aa, 1, ba, 1);
+      return blas.ddot(n, aa, a.getOffset(), b.stride(0), ba, b.getOffset(), b.stride(0));
     } else {
       return super.dot(a, b);
     }
@@ -55,8 +55,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double asum(DoubleArray a) {
-    if (!a.isView()) {
-      return blas.dasum(a.size(), a.data(), 1);
+    if (a.isContiguous()) {
+      return blas.dasum(a.size(), a.data(), a.getOffset(), a.stride(0));
     } else {
       return super.asum(a);
     }
@@ -64,26 +64,26 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double norm2(DoubleArray a) {
-    if (!a.isView()) {
-      return blas.dnrm2(a.size(), a.data(), 1);
+    if (a.isContiguous()) {
+      return blas.dnrm2(a.size(), a.data(), a.getOffset(), a.stride(0));
     } else {
       return super.norm2(a);
     }
   }
 
   @Override
-  public int iamax(DoubleArray x) {
-    if (!x.isView()) {
-      return blas.idamax(x.size(), x.data(), 1);
+  public int iamax(DoubleArray a) {
+    if (a.isContiguous()) {
+      return blas.idamax(a.size(), a.data(), a.getOffset(), a.stride(0));
     } else {
-      return super.iamax(x);
+      return super.iamax(a);
     }
   }
 
   @Override
   public void scal(double alpha, DoubleArray x) {
-    if (alpha != 1 && (!x.isView())) {
-      blas.dscal(x.size(), alpha, x.data(), 1);
+    if (alpha != 1 && x.isContiguous()) {
+      blas.dscal(x.size(), alpha, x.data(), x.getOffset(), x.stride(0));
     } else {
       super.scal(alpha, x);
     }
@@ -94,11 +94,11 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     if (alpha == 0) {
       return;
     }
-    if (!x.isView() && !y.isView()) {
+    if (x.isContiguous() && y.isContiguous()) {
+      Check.argument(x.isVector() && y.isVector());
       Check.size(x, y);
-      double[] xa = x.data();
-      double[] ya = y.data();
-      blas.daxpy(x.size(), alpha, xa, 1, ya, 1);
+      blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), x.stride(0),
+                 y.data(), y.getOffset(), y.stride(0));
     } else {
       super.axpy(alpha, x, y);
     }

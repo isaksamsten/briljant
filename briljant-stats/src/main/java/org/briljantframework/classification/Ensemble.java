@@ -48,9 +48,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.briljantframework.Bj.argmax;
-import static org.briljantframework.Bj.argmaxnot;
-import static org.briljantframework.Bj.maxnot;
-import static org.briljantframework.array.Matrices.mean;
 import static org.briljantframework.evaluation.result.Sample.OUT;
 import static org.briljantframework.vector.Vec.find;
 
@@ -112,6 +109,29 @@ public abstract class Ensemble implements Classifier {
    */
   public int size() {
     return size;
+  }
+
+
+  static int argmaxnot(DoubleArray m, int not) {
+    double max = Double.NEGATIVE_INFINITY;
+    int argMax = -1;
+    for (int i = 0; i < m.size(); i++) {
+      if (not != i && m.get(i) > max) {
+        argMax = i;
+        max = m.get(i);
+      }
+    }
+    return argMax;
+  }
+
+  static double maxnot(DoubleArray m, int not) {
+    double max = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < m.size(); i++) {
+      if (not != i && m.get(i) > max) {
+        max = m.get(i);
+      }
+    }
+    return max;
   }
 
   public static class DefaultEnsemblePredictor
@@ -246,7 +266,7 @@ public abstract class Ensemble implements Classifier {
         }
 
         /* Get the mean probability vector for the i:th example */
-        DoubleArray meanEstimate = mean(1, memberEstimates); // TODO: check
+        DoubleArray meanEstimate = Bj.mean(1, memberEstimates); // TODO: check
         double variance = 0, mse = 0, bias = 0, accuracy = 0;
         for (int j = 0; j < memberEstimates.rows(); j++) {
           DoubleArray r = memberEstimates.getRow(j);

@@ -41,6 +41,28 @@ abstract class ArrayRoutinesSpec extends Specification {
   @Shared
   ArrayRoutines bjr
 
+
+  def "dot product"() {
+    expect:
+    bjr.dot(a, b) == c
+
+    where:
+    a << [
+        bj.array([1, 2, 3, 4] as double[]), // simple
+        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)) // slice
+    ]
+
+    b << [
+        bj.array([1, 2, 3, 4] as double[]),
+        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)) // slice
+    ]
+
+    c << [
+        30,
+        165
+    ]
+  }
+
   def "arithmetic mean of an array"() {
     expect:
     bjr.mean(a) == b
@@ -78,6 +100,15 @@ abstract class ArrayRoutinesSpec extends Specification {
     bj.array([0.1, 0.0001, -1, -23] as double[]) | -23.0 | 0.1
     bj.array([1, 2, 3, 4, 5, -2] as int[])       | -2    | 5
     bj.array([1, 2, 3, -22] as long[])           | -22   | 3
+  }
+
+  def "sorting returns a sorted array"() {
+    expect:
+    bjr.sort(array) == sorted
+
+    where:
+    array                        | sorted
+    bj.array("a", "c", "b", "d") | bj.array("a", "b", "c", "d")
   }
 
 

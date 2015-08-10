@@ -25,6 +25,7 @@
 package org.briljantframework.array.api;
 
 import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -32,9 +33,6 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
 import org.briljantframework.complex.Complex;
-import org.briljantframework.distribution.Distribution;
-import org.briljantframework.distribution.NormalDistribution;
-import org.briljantframework.distribution.UniformDistribution;
 
 /**
  * @author Isak Karlsson
@@ -97,7 +95,32 @@ public interface ArrayFactory {
    */
   DoubleArray array(double[] data);
 
-  DoubleArray diag(DoubleArray data);
+  /**
+   * Extract or create a diagonal matrix
+   *
+   * <p>If the argument is a 2d-array (matrix), a view of the diagonal entries will be {@linkplain
+   * org.briljantframework.array.BaseArray#getDiagonal() extracted}. If the argument is a 1d-array
+   * (vector) of size {@code n}, a 2d-array {@code n x n} with the vector as the diagonal will be
+   * returned. Note that a {@code 1 x n} or {@code m x 1} 2d-array will be considered a 1d-array.
+   *
+   * <p> Example
+   * <pre>{@code
+   * > IntArray x = Bj.range(3)
+   * array([0, 1, 2] type: int)
+   *
+   * > IntArray y = Bj.diag(x)
+   * array([[0, 0, 0],
+   *        [0, 1, 0],
+   *        [0, 0, 2]] type: int)
+   *
+   * > Bj.diag(y)
+   * array([0, 1, 2] type: int)
+   * }</pre>
+   *
+   * @param data the data
+   * @return a 2d-array or a 1d-view
+   */
+  <T extends BaseArray<T>> T diag(T data);
 
   /**
    * Create a {@code ComplexMatrix} with given data
@@ -197,20 +220,4 @@ public interface ArrayFactory {
   DoubleArray linspace(double start, double end, int size);
 
   DoubleArray eye(int size);
-
-  default DoubleArray rand(int size, Distribution distribution) {
-    return doubleArray(size).assign(distribution::sample);
-  }
-
-  default DoubleArray randn(int size) {
-    return rand(size, new NormalDistribution(0, 1));
-  }
-
-  default IntArray randi(int size, Distribution distribution) {
-    return intArray(size).assign(() -> (int) Math.round(distribution.sample()));
-  }
-
-  default IntArray randi(int size, int l, int u) {
-    return randi(size, new UniformDistribution(l, u));
-  }
 }

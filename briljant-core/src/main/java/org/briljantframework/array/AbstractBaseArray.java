@@ -366,7 +366,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
           getOffset(),
           Indexer.reverse(shape),
           Indexer.reverse(stride),
-          dims() - 1 // change the major stride
+          majorStride == 0 ? dims() - 1 : 0 // change the major stride
       );
     }
   }
@@ -401,8 +401,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public boolean isView() {
-    return majorStride == 0 && offset == 0 &&
-           Arrays.equals(stride, Indexer.computeStride(1, shape));
+    return !(majorStride == 0 && offset == 0 &&
+             Arrays.equals(stride, Indexer.computeStride(1, shape)));
   }
 
   @Override
