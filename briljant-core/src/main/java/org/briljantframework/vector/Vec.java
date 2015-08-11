@@ -24,18 +24,11 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.google.common.collect.UnmodifiableIterator;
-import com.google.common.primitives.Ints;
-
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.distribution.Distribution;
+import org.briljantframework.array.Array;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
@@ -50,15 +43,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Isak Karlsson
@@ -72,8 +62,8 @@ public final class Vec {
   public static final VectorType DOUBLE = DoubleVector.TYPE;
   public static final VectorType VARIABLE = new GenericVectorType(Object.class);
   public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
-  public static final Set<VectorType> NUMERIC = Sets.newHashSet();
-  public static final Set<VectorType> CATEGORIC = Sets.newHashSet();
+  public static final Set<VectorType> NUMERIC = new HashSet<>();
+  public static final Set<VectorType> CATEGORIC = new HashSet<>(); // TODO: unmodifiable
 
   static {
     NUMERIC.add(DOUBLE);
@@ -83,17 +73,17 @@ public final class Vec {
     CATEGORIC.add(STRING);
     CATEGORIC.add(BIT);
 
-    CLASS_TO_VECTOR_TYPE = ImmutableMap.<Class<?>, VectorType>builder()
-        .put(Integer.class, INT)
-        .put(Integer.TYPE, INT)
-        .put(Double.class, DOUBLE)
-        .put(Double.TYPE, DOUBLE)
-        .put(String.class, STRING)
-        .put(Boolean.class, BIT)
-        .put(Bit.class, BIT)
-        .put(Complex.class, COMPLEX)
-        .put(Object.class, VARIABLE)
-        .build();
+    CLASS_TO_VECTOR_TYPE = new HashMap<>();
+    CLASS_TO_VECTOR_TYPE.put(Integer.class, INT);
+    CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, INT);
+    CLASS_TO_VECTOR_TYPE.put(Double.class, DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(Double.TYPE, DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(String.class, STRING);
+    CLASS_TO_VECTOR_TYPE.put(Boolean.class, BIT);
+    CLASS_TO_VECTOR_TYPE.put(Bit.class, BIT);
+    CLASS_TO_VECTOR_TYPE.put(Complex.class, COMPLEX);
+    CLASS_TO_VECTOR_TYPE.put(Object.class, VARIABLE);
+
   }
 
   private Vec() {
@@ -139,7 +129,7 @@ public final class Vec {
     return new InferringBuilder();
   }
 
-  public static DoubleVector rand(int size, Distribution source) {
+  public static DoubleVector rand(int size, RealDistribution source) {
     DoubleVector.Builder v = new DoubleVector.Builder(0, size);
     for (int i = 0; i < size; i++) {
       v.set(i, source.sample());
@@ -295,7 +285,7 @@ public final class Vec {
    * @return a collection of {@code chunk} chunks
    */
   public static Collection<Vector> split(Vector vector, int chunks) {
-    checkArgument(vector.size() >= chunks, "size must be shorter than chunks");
+    Check.argument(vector.size() >= chunks, "size must be shorter than chunks");
     if (vector.size() == chunks) {
       return Collections.singleton(vector);
     }
@@ -305,7 +295,7 @@ public final class Vec {
     return new AbstractCollection<Vector>() {
       @Override
       public Iterator<Vector> iterator() {
-        return new UnmodifiableIterator<Vector>() {
+        return new Iterator<Vector>() {
           private int current = 0;
           private int remainders = 0;
 
@@ -491,22 +481,6 @@ public final class Vec {
     return v.doubleStream().filter(Is::NA).max().orElse(DoubleVector.NA);
   }
 
-  /**
-   * Return the most frequently occurring item in {@code v}
-   *
-   * @param v the vector
-   * @return the most frequent item; or
-   */
-  public static Object mode(Vector v) {
-    Multiset<Object> values = HashMultiset.create();
-    v.stream(Object.class).forEach(values::add);
-    return Ordering.natural().onResultOf(new Function<Multiset.Entry<Object>, Integer>() {
-      @Override
-      public Integer apply(Multiset.Entry<Object> input) {
-        return input.getCount();
-      }
-    }).max(values.entrySet()).getElement();
-  }
 
   /**
    * <p>Returns a vector consisting of the unique values in {@code vectors}
@@ -522,8 +496,8 @@ public final class Vec {
    * }</pre>
    */
   public static Vector unique(Vector... vectors) {
-    vectors = checkNotNull(vectors);
-    checkArgument(vectors.length > 0);
+    vectors = Objects.requireNonNull(vectors);
+    Check.argument(vectors.length > 0);
     Vector.Builder builder = vectors[0].newBuilder();
     Set<Object> taken = new HashSet<>();
     for (Vector vector : vectors) {
@@ -593,8 +567,7 @@ public final class Vec {
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
     }
-    List<Integer> tempList = Ints.asList(indicies);
-    Collections.sort(tempList, comparator);
+    Bj.sort(Bj.array(indicies).boxed(), comparator);
     return indicies;
   }
 

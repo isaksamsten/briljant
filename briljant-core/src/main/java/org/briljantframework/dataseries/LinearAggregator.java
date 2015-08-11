@@ -24,8 +24,8 @@
 
 package org.briljantframework.dataseries;
 
-import static com.google.common.base.Preconditions.checkArgument;
 
+import org.briljantframework.Check;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -43,7 +43,7 @@ public class LinearAggregator implements Aggregator {
 
   @Override
   public Vector.Builder partialAggregate(Vector in) {
-    checkArgument(in.size() > targetSize, "Can't linearly oversample data series.");
+    Check.argument(in.size() > targetSize, "Can't linearly oversample data series.");
 
     DoubleVector.Builder builder = new DoubleVector.Builder(0, targetSize);
     int bin = in.size() / targetSize;

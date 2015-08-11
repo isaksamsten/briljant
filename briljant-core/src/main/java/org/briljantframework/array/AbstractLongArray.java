@@ -28,7 +28,7 @@ import com.carrotsearch.hppc.LongArrayList;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
 
@@ -453,7 +453,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
-        AbstractLongArray.this.setElement(index, value.longValue());
+        AbstractLongArray.this.setElement(index, (long) value.getReal());
       }
 
       @Override

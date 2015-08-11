@@ -24,11 +24,7 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.base.Preconditions;
-
-import org.briljantframework.array.Array;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.exceptions.IllegalTypeException;
+import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Isak Karlsson
@@ -73,7 +69,9 @@ class SingletonVector extends AbstractVector {
   }
 
   private void checkElementIndex(int index) {
-    Preconditions.checkElementIndex(index, size());
+    if (index < 0 || index > size()) {
+      throw new IndexOutOfBoundsException();
+    }
   }
 
   @Override

@@ -24,8 +24,7 @@
 
 package org.briljantframework.dataseries;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import org.briljantframework.Check;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -33,12 +32,13 @@ import org.briljantframework.vector.VectorType;
 /**
  * The MeanResampler implements the perhaps simplest resampling (approximation) method for data
  * series. Divide the data series into bins, and take the mean of each bin as the new data series.
- * 
+ *
  * This is know under the fancy name Piecewise Aggregate Approximation
- * 
+ *
  * @author Isak Karlsson
  */
 public class MeanAggregator implements Aggregator {
+
   private final int targetSize;
 
   public MeanAggregator(int targetSize) {
@@ -47,7 +47,7 @@ public class MeanAggregator implements Aggregator {
 
   @Override
   public Vector.Builder partialAggregate(Vector in) {
-    checkArgument(in.size() >= targetSize, "Input size must be larger than target size.");
+    Check.argument(in.size() >= targetSize, "Input size must be larger than target size.");
     if (in.size() == targetSize) {
       return in.newCopyBuilder();
     }

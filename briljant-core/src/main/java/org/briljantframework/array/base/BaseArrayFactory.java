@@ -33,7 +33,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Isak Karlsson

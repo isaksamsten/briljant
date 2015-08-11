@@ -24,11 +24,11 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.base.Preconditions;
-
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
+
+import java.util.Objects;
 
 /**
  * Created by isak on 1/21/15.
@@ -44,9 +44,17 @@ public abstract class VectorView extends AbstractVector {
   }
 
   public VectorView(Vector parent, int offset, int length) {
-    this.parent = Preconditions.checkNotNull(parent);
-    this.offset = Preconditions.checkElementIndex(offset, parent.size());
-    this.length = Preconditions.checkPositionIndex(offset + length, parent.size());
+    this.parent = Objects.requireNonNull(parent);
+    if (offset < 0 || offset > parent.size()) {
+      throw new IndexOutOfBoundsException();
+    }
+    int len = offset + length;
+    if (len < 0 || len > parent.size()) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    this.offset = offset;
+    this.length = len;
   }
 
   @Override

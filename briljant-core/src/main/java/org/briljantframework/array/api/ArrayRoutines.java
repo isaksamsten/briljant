@@ -31,7 +31,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Op;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.sort.IndexComparator;
 
 import java.util.Collection;
@@ -371,11 +371,11 @@ public interface ArrayRoutines {
     return sort(dim, array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
   }
 
-  default <T extends Comparator<T>> Array<T> sort(Array<T> array, Comparator<T> cmp) {
+  default <T> Array<T> sort(Array<T> array, Comparator<T> cmp) {
     return sort(array, (a, i, j) -> cmp.compare(a.get(i), a.get(j)));
   }
 
-  default <T extends Comparator<T>> Array<T> sort(int dim, Array<T> array, Comparator<T> cmp) {
+  default <T> Array<T> sort(int dim, Array<T> array, Comparator<T> cmp) {
     return sort(dim, array, (a, i, j) -> cmp.compare(a.get(i), a.get(j)));
   }
 

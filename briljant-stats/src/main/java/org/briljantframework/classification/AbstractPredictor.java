@@ -24,16 +24,15 @@
 
 package org.briljantframework.classification;
 
-import com.google.common.base.Preconditions;
-
 import org.briljantframework.Bj;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Vector;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static org.briljantframework.Bj.argmax;
@@ -50,7 +49,7 @@ public abstract class AbstractPredictor implements Predictor {
   private final Vector classes;
 
   protected AbstractPredictor(Vector classes) {
-    this.classes = Preconditions.checkNotNull(classes);
+    this.classes = Objects.requireNonNull(classes);
   }
 
   @Override

@@ -24,18 +24,15 @@
 
 package org.briljantframework.evaluation.result;
 
-import com.google.common.base.Strings;
-
+import org.briljantframework.Check;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * In the field of machine learning, a confusion matrix, also known as a contingency table or an
@@ -64,15 +61,16 @@ public class ConfusionMatrix {
   private final double sum;
 
   public ConfusionMatrix(Map<Object, Map<Object, Double>> matrix, Set<Object> labels, double sum) {
-    this.matrix = checkNotNull(matrix, "Matrix cannot be null");
-    this.labels = Collections.unmodifiableSet(checkNotNull(labels, "Labels cannot be null"));
+    this.matrix = Objects.requireNonNull(matrix, "Matrix cannot be null");
+    this.labels = Collections.unmodifiableSet(
+        Objects.requireNonNull(labels, "Labels cannot be null"));
 
     this.sum = sum;
   }
 
   public static ConfusionMatrix compute(Vector predictions, Vector truth, Vector domain) {
-    checkArgument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
-                  predictions.size(), truth.size());
+    Check.argument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
+                   predictions.size(), truth.size());
 
     Map<Object, Map<Object, Double>> matrix = new HashMap<>();
     Set<Object> labels = new HashSet<>();
@@ -199,21 +197,21 @@ public class ConfusionMatrix {
       }
     }
 
-    builder.append(Strings.repeat(" ", longest + 3));
+    builder.append(repeat(" ", longest + 3));
     for (Object value : labels) {
       builder.append(value);
-      builder.append(Strings.repeat(" ", longestValue + 1));
+      builder.append(repeat(" ", longestValue + 1));
     }
 
     builder.append("\n");
     for (Object predicted : labels) {
-      builder.append(Strings.padEnd(predicted.toString(), longest + 3, ' '));
+      builder.append(padEnd(predicted.toString(), longest + 3, ' '));
 
       for (Object actual : labels) {
         String valueStr = Double.toString(get(predicted, actual));
         builder.append(valueStr);
         builder.append(
-            Strings.repeat(" ", actual.toString().length() + 1 + longestValue - valueStr.length()));
+            repeat(" ", actual.toString().length() + 1 + longestValue - valueStr.length()));
       }
       builder.append("\n");
     }
@@ -226,6 +224,24 @@ public class ConfusionMatrix {
     builder.append("Avg. precision ").append(String.format("%.2f\n", getAveragePrecision()));
     builder.append("Avg. recall    ").append(String.format("%.2f\n", getAverageRecall()));
 
+    return builder.toString();
+  }
+
+  private String padEnd(String s, int i, char c) {
+    int m = Math.max(s.length(), i);
+    StringBuilder builder = new StringBuilder(s);
+    for (int j = 0; j < m; j++) {
+      builder.append(c);
+    }
+
+    return builder.toString();
+  }
+
+  private String repeat(String p, int len) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < len; i++) {
+      builder.append(p);
+    }
     return builder.toString();
   }
 }

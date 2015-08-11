@@ -34,8 +34,6 @@ import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
 import org.briljantframework.evaluation.result.Result;
 
-import com.google.common.base.Strings;
-
 /**
  * The type Optimization result.
  */
@@ -198,16 +196,16 @@ public class Configuration implements Comparable<Configuration> {
       longestParameter = 9;
     }
 
-    out.append("Settings\n").append("Parameter")
-        .append(Strings.repeat(" ", longestParameter > 12 ? longestParameter - 9 : 4))
-        .append("Value\n");
-    for (Map.Entry<String, Object> kv : entries()) {
-      out.append("").append(kv.getKey())
-          .append(Strings.repeat(" ", (longestParameter - kv.getKey().length()) + 4))
-          .append(kv.getValue()).append("\n");
-    }
-    out.append("\n");
-    out.append(getResult());
+//    out.append("Settings\n").append("Parameter")
+//        .append(Strings.repeat(" ", longestParameter > 12 ? longestParameter - 9 : 4))
+//        .append("Value\n");
+//    for (Map.Entry<String, Object> kv : entries()) {
+//      out.append("").append(kv.getKey())
+//          .append(Strings.repeat(" ", (longestParameter - kv.getKey().length()) + 4))
+//          .append(kv.getValue()).append("\n");
+//    }
+//    out.append("\n");
+//    out.append(getResult());
     return out.toString();
     // return String.format("Configuration(%s, %.2f, %s)", classifier, result.getAverageError(),
     // parameters);

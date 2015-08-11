@@ -24,8 +24,6 @@
 
 package org.briljantframework.distance;
 
-import com.google.common.primitives.Doubles;
-
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
@@ -69,7 +67,7 @@ public class EditDistance implements Distance {
         double insert = previousRow.get(j + 1) + 1;
         double delete = currentRow.get(j) + 1;
         double subs = previousRow.get(j) + (!a.equals(i, b, j) ? 1 : 0);
-        currentRow.set(j + 1, Doubles.min(insert, delete, subs));
+        currentRow.set(j + 1, Math.min(insert, Math.min(delete, subs)));
       }
       previousRow = currentRow;
     }

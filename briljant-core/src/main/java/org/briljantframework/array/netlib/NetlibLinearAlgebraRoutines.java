@@ -24,8 +24,6 @@
 
 package org.briljantframework.array.netlib;
 
-import com.google.common.primitives.Chars;
-
 import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Check;
@@ -40,6 +38,7 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.netlib.util.intW;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class implements the linear algebra routines (commonly LAPACK) using the netlib-java
@@ -59,11 +58,11 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   public final static double MACHINE_EPSILON = Math.ulp(1);
 
-  private static final char[] GESVD_JOB_CHAR = new char[]{'a', 's', 'o', 'n'};
-  private static final char[] SYEVR_JOBZ_CHAR = new char[]{'n', 'v'};
-  private static final char[] SYEVR_RANGE_CHAR = new char[]{'a', 'v', 'i'};
-  static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
-  static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
+  private static final List<Character> GESVD_JOB_CHAR = Arrays.asList('a', 's', 'o', 'n');
+  private static final List<Character> SYEVR_JOBZ_CHAR = Arrays.asList('n', 'v');
+  private static final List<Character> SYEVR_RANGE_CHAR = Arrays.asList('a', 'v', 'i');
+  static final List<Character> SYEVR_UPLO = Arrays.asList('l', 'u');
+  static final List<Character> ORMQR_SIDE = Arrays.asList('l', 'r');
   protected static final String REQUIRE_2D_ARRAY = "require 2d-array";
 
   protected NetlibLinearAlgebraRoutines(NetlibArrayBackend matrixFactory) {
@@ -175,7 +174,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   @Override
   public void ormqr(char side, Op transA, DoubleArray a, DoubleArray tau, DoubleArray c) {
     side = Character.toLowerCase(side);
-    if (!Chars.contains(ORMQR_SIDE, side)) {
+    if (!ORMQR_SIDE.contains(side)) {
       throw invalidCharacter("side", side, ORMQR_SIDE);
     }
     int m = c.rows();
@@ -245,10 +244,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   public void syev(char jobz, char uplo, DoubleArray a, DoubleArray w) {
     jobz = Character.toLowerCase(jobz);
     uplo = Character.toLowerCase(uplo);
-    if (!Chars.contains(SYEVR_JOBZ_CHAR, jobz)) {
+    if (!SYEVR_JOBZ_CHAR.contains(jobz)) {
       throw invalidCharacter("jobz", jobz, SYEVR_JOBZ_CHAR);
     }
-    if (!Chars.contains(SYEVR_UPLO, uplo)) {
+    if (!SYEVR_UPLO.contains(uplo)) {
       throw invalidCharacter("uplo", uplo, SYEVR_UPLO);
     }
 
@@ -310,13 +309,13 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     jobz = Character.toLowerCase(jobz);
     range = Character.toLowerCase(range);
     uplo = Character.toLowerCase(uplo);
-    if (!Chars.contains(SYEVR_JOBZ_CHAR, jobz)) {
+    if (!SYEVR_JOBZ_CHAR.contains(jobz)) {
       throw invalidCharacter("jobz", jobz, SYEVR_JOBZ_CHAR);
     }
-    if (!Chars.contains(SYEVR_RANGE_CHAR, range)) {
+    if (!SYEVR_RANGE_CHAR.contains(range)) {
       throw invalidCharacter("range", range, SYEVR_RANGE_CHAR);
     }
-    if (!Chars.contains(SYEVR_UPLO, uplo)) {
+    if (!SYEVR_UPLO.contains(uplo)) {
       throw invalidCharacter("uplo", uplo, SYEVR_UPLO);
     }
 
@@ -513,11 +512,11 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
                     DoubleArray vt) {
     jobu = Character.toLowerCase(jobu);
     jobvt = Character.toLowerCase(jobvt);
-    if (!Chars.contains(GESVD_JOB_CHAR, jobu)) {
+    if (!GESVD_JOB_CHAR.contains(jobu)) {
       throw invalidCharacter("jobu", jobu, GESVD_JOB_CHAR);
     }
 
-    if (!Chars.contains(GESVD_JOB_CHAR, jobvt)) {
+    if (!GESVD_JOB_CHAR.contains(jobvt)) {
       throw invalidCharacter("jobvt", jobvt, GESVD_JOB_CHAR);
     }
 
@@ -605,7 +604,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   @Override
   public void gesdd(char jobz, DoubleArray a, DoubleArray s, DoubleArray u, DoubleArray vt) {
     jobz = Character.toLowerCase(jobz);
-    if (!Chars.contains(GESVD_JOB_CHAR, jobz)) {
+    if (!GESVD_JOB_CHAR.contains(jobz)) {
       throw invalidCharacter("jobz", jobz, GESVD_JOB_CHAR);
     }
 
@@ -738,9 +737,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private IllegalArgumentException invalidCharacter(String parameter, char c, char[] chars) {
+  private IllegalArgumentException invalidCharacter(String parameter, char c,
+                                                    List<Character> chars) {
     return new IllegalArgumentException(
-        String.format("%s %s not in %s.", parameter, c, Arrays.toString(chars))
+        String.format("%s %s not in %s.", parameter, c, chars)
     );
   }
 }

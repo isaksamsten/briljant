@@ -25,7 +25,7 @@
 package org.briljantframework.array
 
 import org.briljantframework.array.api.ArrayFactory
-import org.briljantframework.complex.Complex
+import org.apache.commons.math3.complex.Complex
 import spock.lang.Shared
 import spock.lang.Specification
 

@@ -26,9 +26,9 @@ package org.briljantframework.array;
 
 import com.carrotsearch.hppc.IntArrayList;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
@@ -499,7 +499,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
-        AbstractIntArray.this.setElement(index, value.intValue());
+        AbstractIntArray.this.setElement(index, (int) value.getReal());
       }
 
       @Override
@@ -615,6 +615,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
       @Override
       protected int elementSize() {
         return AbstractIntArray.this.elementSize();
+      }
+
+      @Override
+      public IntArray asInt() {
+        return AbstractIntArray.this;
       }
     };
   }

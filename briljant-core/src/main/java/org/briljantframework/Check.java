@@ -248,4 +248,11 @@ public final class Check {
       throws IllegalTypeException {
     type(actual.equals(expected), "Require any type of %s but got %s", expected, actual);
   }
+
+  public static int elementIndex(int index, int size) {
+    if (index < 0 || index > size) {
+      throw new IndexOutOfBoundsException(index + " < 0 || " + index + " > " + size);
+    }
+    return index;
+  }
 }

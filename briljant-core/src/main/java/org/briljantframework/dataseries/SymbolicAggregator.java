@@ -24,7 +24,10 @@
 
 package org.briljantframework.dataseries;
 
-import org.briljantframework.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.briljantframework.Bj;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
@@ -75,7 +78,7 @@ import java.util.Map;
 public class SymbolicAggregator implements Aggregator {
 
   private final Vector alphabet;
-  private final Vector thresholds;
+  private final DoubleArray thresholds;
 
   /**
    * Constructs a symbolic aggregator using {@code alphabet}
@@ -120,17 +123,20 @@ public class SymbolicAggregator implements Aggregator {
    * Compute the thresholds for the alphabet using the normal distribution. Given an alphabet A,
    * computes the thresholds as [ppf(1/|A|), ppf(2/|A|), ..., ppf((|A|-1)/|A|)].
    */
-  private static Vector calculateThresholds(Vector alphabet) {
+  private static DoubleArray calculateThresholds(Vector alphabet) {
     double prob = 1.0 / alphabet.size();
     int length = alphabet.size() - 1;
-    return NormalDistribution.ppf(Vec.linspace(prob, 1.0 - prob, length));
+    RealDistribution distribution = new NormalDistribution(0, 1);
+    DoubleArray array = Bj.linspace(prob, 1.0 - prob, length);
+    array.map(distribution::inverseCumulativeProbability);
+    return array;
   }
 
   /*
    * Creates a lookup table for the similarity between two items in alphabet
    */
   private static Map<String, Map<String, Double>> createLookupTable(Vector alphabet,
-                                                                    Vector thresholds) {
+                                                                    DoubleArray thresholds) {
     Map<String, Map<String, Double>> tab = new HashMap<>();
     for (int r = 0; r < alphabet.size(); r++) {
       Map<String, Double> sub = new HashMap<>();
@@ -140,8 +146,7 @@ public class SymbolicAggregator implements Aggregator {
           sub.put(alphabet.get(String.class, c), 0.0);
         } else {
           sub.put(alphabet.get(String.class, c),
-                  thresholds.getAsDouble(Math.max(r, c) - 1) -
-                  thresholds.getAsDouble(Math.min(r, c)));
+                  thresholds.get(Math.max(r, c) - 1) - thresholds.get(Math.min(r, c)));
         }
       }
     }
@@ -163,14 +168,14 @@ public class SymbolicAggregator implements Aggregator {
     GenericVector.Builder sax = new GenericVector.Builder(String.class);
     for (int j = 0; j < in.size(); j++) {
       double value = in.getAsDouble(j);
-      if (value <= thresholds.getAsDouble(0)) {
+      if (value <= thresholds.get(0)) {
         sax.set(j, alphabet.get(String.class, 0));
-      } else if (value >= thresholds.getAsDouble(thresholds.size() - 1)) {
+      } else if (value >= thresholds.get(thresholds.size() - 1)) {
         sax.set(j, alphabet.get(String.class, alphabet.size() - 1));
       } else {
         int index = 0;
         for (int k = 0; k < thresholds.size(); k++) {
-          if (thresholds.getAsDouble(k) <= value) {
+          if (thresholds.get(k) <= value) {
             index = k;
           } else {
             break;

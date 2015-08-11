@@ -1,18 +1,19 @@
 apply plugin: "groovy"
-sourceSets {
-  main {
-    java {
-      srcDir 'src/main/java'
-    }
-  }
-}
+//sourceSets {
+//  main {
+//    java {
+//      srcDir 'src/main/java'
+//    }
+//  }
+//}
 
 
 dependencies {
-  compile(group: 'com.github.fommil.netlib', name: 'all', version: '1.1.2')
+  compile group: 'com.github.fommil.netlib', name: 'all', version: '1.1.2'
+  compile group: 'org.apache.commons', name: 'commons-math3', version: '3.5'
 
   compile group: 'com.univocity', name: 'univocity-parsers', version: '1.4.0'
-  compile group: 'com.google.guava', name: 'guava', version: '18.0'
+//  compile group: 'com.google.guava', name: 'guava', version: '18.0'
   compile group: 'com.carrotsearch', name: 'hppc', version: '0.6.1'
 
   // mandatory dependencies for using Spock

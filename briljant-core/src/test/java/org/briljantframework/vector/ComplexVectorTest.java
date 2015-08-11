@@ -24,7 +24,7 @@
 
 package org.briljantframework.vector;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -24,15 +24,13 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.base.Preconditions;
-
 import com.carrotsearch.hppc.IntArrayList;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
@@ -388,7 +386,7 @@ public class IntVector extends AbstractVector {
 
     @Override
     public void swap(int a, int b) {
-      Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
+      Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
     }
 

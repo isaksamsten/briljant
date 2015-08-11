@@ -28,13 +28,13 @@ import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
-import com.google.common.base.Preconditions;
+import java.util.Objects;
 
 /**
  * Implements the Least Triangle ... ... Data Series resampler found in [cite the thesis].
- * 
+ *
  * The implementation assumes that the values are ordered in increasing order.
- * 
+ *
  * @author Isak Karlsson
  */
 public class LeastTriagleThreeBucketAggregator implements Aggregator {
@@ -47,7 +47,7 @@ public class LeastTriagleThreeBucketAggregator implements Aggregator {
 
   @Override
   public Vector.Builder partialAggregate(Vector in) {
-    Preconditions.checkNotNull(in);
+    Objects.requireNonNull(in);
     if (in.size() < threshold || threshold == 0) {
       return in.newCopyBuilder();
     }

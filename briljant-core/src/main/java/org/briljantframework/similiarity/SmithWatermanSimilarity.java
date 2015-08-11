@@ -24,8 +24,6 @@
 
 package org.briljantframework.similiarity;
 
-import com.google.common.primitives.Doubles;
-
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
@@ -53,7 +51,7 @@ public class SmithWatermanSimilarity implements Similarity {
         double sim = h.get(i - 1, j - 1) + (a.equals(i - 1, b, j - 1) ? match : miss);
         double left = h.get(i, j - 1) + gap;
         double up = h.get(i - 1, j) + gap;
-        double score = Doubles.max(0, sim, up, left);
+        double score = Math.max(0, Math.max(sim, Math.max(up, left)));
         h.set(i, j, score);
         if (score > maxScore) {
           maxScore = score;

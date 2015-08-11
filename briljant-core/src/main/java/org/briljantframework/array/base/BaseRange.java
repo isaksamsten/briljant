@@ -24,12 +24,12 @@
 
 package org.briljantframework.array.base;
 
-import com.google.common.base.Objects;
-
 import org.briljantframework.array.AbstractIntArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayFactory;
+
+import java.util.Arrays;
 
 /**
  * @author Isak Karlsson
@@ -78,7 +78,7 @@ class BaseRange extends AbstractIntArray implements Range {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(start, end, step);
+    return Arrays.hashCode(new int[]{start, end, step});
   }
 
   @Override

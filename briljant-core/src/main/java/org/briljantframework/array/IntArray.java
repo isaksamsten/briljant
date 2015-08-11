@@ -24,7 +24,7 @@
 
 package org.briljantframework.array;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 

@@ -24,10 +24,11 @@
 
 package org.briljantframework.evaluation;
 
-import com.google.common.collect.Iterators;
-
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * The split partitioner simply partitions the input {@code DataFrame} (with {@code m rows}) and
@@ -72,9 +73,24 @@ public class SplitPartitioner implements Partitioner {
         index += 1;
       }
 
-      return Iterators.singletonIterator(
-          new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
-                        yTrainingBuilder.build(), yValidationBuilder.build()));
+      return new Iterator<Partition>() {
+        private boolean has = true;
+
+        @Override
+        public boolean hasNext() {
+          return has;
+        }
+
+        @Override
+        public Partition next() {
+          if (!hasNext()) {
+            throw new NoSuchElementException();
+          }
+          has = false;
+          return new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
+                               yTrainingBuilder.build(), yValidationBuilder.build());
+        }
+      };
     };
   }
 }

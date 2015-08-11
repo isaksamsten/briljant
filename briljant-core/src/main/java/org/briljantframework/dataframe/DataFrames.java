@@ -24,11 +24,6 @@
 
 package org.briljantframework.dataframe;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
-
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
@@ -73,10 +68,15 @@ public final class DataFrames {
   public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
   private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
-  private static final Map<String, JoinOperation> joinOperations =
-      ImmutableMap.of(INNER, InnerJoin.getInstance(),
-                      LEFT_OUTER, LeftOuterJoin.getInstance(),
-                      OUTER, OuterJoin.getInstance());
+  private static final Map<String, JoinOperation> joinOperations;
+
+  static {
+    joinOperations = new HashMap<>();
+    joinOperations.put(INNER, InnerJoin.getInstance());
+    joinOperations.put(LEFT_OUTER, LeftOuterJoin.getInstance());
+    joinOperations.put(OUTER, OuterJoin.getInstance());
+  }
+
 
   private DataFrames() {
   }
@@ -97,9 +97,9 @@ public final class DataFrames {
     for (int col = 0; col < entry.size() && entry.hasNext(); col++) {
       String value = entry.nextString();
       Object val;
-      if ((val = Ints.tryParse(value)) != null) {
+      if ((val = Integer.parseInt(value)) != null) {
         df.addColumnBuilder(Vec.INT);
-      } else if ((val = Doubles.tryParse(value)) != null) {
+      } else if ((val = Double.parseDouble(value)) != null) {
         df.addColumnBuilder(Vec.DOUBLE);
       } else if ("true".equalsIgnoreCase(value)) {
         val = true;
@@ -231,8 +231,9 @@ public final class DataFrames {
         double max = desc.getMax();
         builder.set(j, 0, mean).set(j, 1, min).set(j, 2, max);
       } else {
-        Object mode = Vec.mode(column);
-        builder.set(j, 3, mode);
+        throw new UnsupportedOperationException();
+//        Object mode = Vec.mode(column);
+//        builder.set(j, 3, mode);
       }
     }
     DataFrame bdf = builder.build();
@@ -336,24 +337,24 @@ public final class DataFrames {
     Index recordIndex = dataFrame.getRecordIndex();
     Index columnIndex = dataFrame.getColumnIndex();
 
-    ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
-    b.put(0, 0, " Index");
-
-    for (int j = 0; j < dataFrame.columns(); j++) {
-      b.put(0, j + 1, columnIndex.get(j));
-    }
-
-    for (int i = 0; i < dataFrame.rows() && i < max; i++) {
-      b.put(i + 1, 0, String.format("[%s,] ", recordIndex.get(i)));
-      for (int j = 0; j < dataFrame.columns(); j++) {
-        b.put(i + 1, j + 1, dataFrame.toString(i, j));
-      }
-    }
-
+//    ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
+//    b.put(0, 0, " Index");
+//
+//    for (int j = 0; j < dataFrame.columns(); j++) {
+//      b.put(0, j + 1, columnIndex.get(j));
+//    }
+//
+//    for (int i = 0; i < dataFrame.rows() && i < max; i++) {
+//      b.put(i + 1, 0, String.format("[%s,] ", recordIndex.get(i)));
+//      for (int j = 0; j < dataFrame.columns(); j++) {
+//        b.put(i + 1, j + 1, dataFrame.toString(i, j));
+//      }
+//    }
+//
     StringBuilder builder =
         new StringBuilder(dataFrame.getClass().getSimpleName()).append(" (")
             .append(dataFrame.rows()).append("x").append(dataFrame.columns()).append(")\n");
-    Utils.prettyPrintTable(builder, b.build(), 1, 2, false, false);
+//    Utils.prettyPrintTable(builder, b.build(), 1, 2, false, false);
     return builder.toString();
   }
 

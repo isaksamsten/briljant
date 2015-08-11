@@ -24,8 +24,8 @@
 
 package org.briljantframework.array;
 
+import org.apache.commons.math3.complex.ComplexFormat;
 import org.briljantframework.Bj;
-import org.briljantframework.complex.ComplexFormat;
 
 import java.io.IOException;
 import java.util.StringJoiner;

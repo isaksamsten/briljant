@@ -28,7 +28,7 @@ import org.briljantframework.array.AbstractLongArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayFactory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Objects;
 
 /**
  * @author Isak Karlsson
@@ -43,7 +43,7 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   BaseLongArray(ArrayFactory bj, long[] data) {
-    super(bj, new int[]{checkNotNull(data).length});
+    super(bj, new int[]{Objects.requireNonNull(data).length});
     this.data = data;
   }
 

@@ -24,13 +24,7 @@
 
 package org.briljantframework.dataframe;
 
-import com.google.common.collect.ImmutableTable;
-
-import org.briljantframework.Bj;
-import org.briljantframework.Utils;
-import org.briljantframework.array.Array;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.array.DoubleArray;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vec;
@@ -132,15 +126,15 @@ class RowView extends AbstractVector {
     throw new UnsupportedOperationException("TODO");
   }
 
-  @Override
-  public String toString() {
-    ImmutableTable.Builder<Integer, Integer, String> b = new ImmutableTable.Builder<>();
-    b.put(0, 0, "");
-    b.put(1, 0, "[" + row + ",]");
-    for (int i = 0; i < size(); i++) {
-      b.put(0, i + 1, getIndex().get(i).toString());
-      b.put(1, i + 1, toString(i));
-    }
-    return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
-  }
+//  @Override
+//  public String toString() {
+//    ImmutableTable.Builder<Integer, Integer, String> b = new ImmutableTable.Builder<>();
+//    b.put(0, 0, "");
+//    b.put(1, 0, "[" + row + ",]");
+//    for (int i = 0; i < size(); i++) {
+//      b.put(0, i + 1, getIndex().get(i).toString());
+//      b.put(1, i + 1, toString(i));
+//    }
+//    return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
+//  }
 }

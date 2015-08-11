@@ -29,12 +29,13 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.EntryReader;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Indexer;
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
@@ -45,10 +46,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.primitives.Ints.checkedCast;
 
 /**
  * Initial implementation of the matrix data frame. While the DataFrame interface allows for
@@ -88,7 +85,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   }
 
   /**
-   * Returns a {@link org.briljantframework.complex.Complex} usign the double as the real part.
+   * Returns a {@link org.apache.commons.math3.complex.Complex} using the double as the real part.
    *
    * @param row    the row
    * @param column the column
@@ -113,18 +110,18 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   @Override
   public VectorType getType(int index) {
-    checkArgument(index >= 0 && index < columns());
+    Check.argument(index >= 0 && index < columns());
     return DoubleVector.TYPE;
   }
 
   @Override
   public int rows() {
-    return checkedCast(matrix.rows());
+    return matrix.rows();
   }
 
   @Override
   public int columns() {
-    return checkedCast(matrix.columns());
+    return matrix.columns();
   }
 
   @Override
@@ -153,7 +150,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
   @Override
   public DataFrame drop(int index) {
-    checkElementIndex(index, columns(), "Column-index out of bounds.");
+    Check.elementIndex(index, columns()/*, "Column-index out of bounds."*/);
 //    NameAttribute columnNames = new NameAttribute(this.columnNames);
 //    columnNames.remove(index);
 
@@ -212,7 +209,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
     }
 
     public ArrayBuilder(Collection<String> colNames, Collection<? extends VectorType> colTypes) {
-      checkArgument(colTypes.size() == colNames.size());
+      Check.argument(colTypes.size() == colNames.size());
       this.rows = 0;
       this.columns = colNames.size();
       buffer = new double[0];
@@ -345,8 +342,8 @@ public class MatrixDataFrame extends AbstractDataFrame {
     }
 
     private DataFrame.Builder swapInColumn(int column, int a, int b) {
-      checkArgument(column >= 0 && column < columns());
-      checkArgument(a >= 0 && a < rows() && b >= 0 && b < rows());
+      Check.argument(column >= 0 && column < columns());
+      Check.argument(a >= 0 && a < rows() && b >= 0 && b < rows());
 
       int oldIndex = Indexer.columnMajor(0, a, column, rows(), columns());
       int newIndex = Indexer.columnMajor(0, b, column, rows(), columns());
@@ -497,7 +494,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame.Builder removeColumn(int column) {
-      checkArgument(column >= 0 && column < columns());
+      Check.argument(column >= 0 && column < columns());
       buffer.remove(column);
       columns--;
       return this;

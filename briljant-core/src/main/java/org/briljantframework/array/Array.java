@@ -24,7 +24,7 @@
 
 package org.briljantframework.array;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 
 import java.util.List;
 import java.util.function.BiPredicate;

@@ -24,9 +24,9 @@
 
 package org.briljantframework.linalg.api;
 
-import com.google.common.base.Preconditions;
-
 import org.briljantframework.array.api.ArrayBackend;
+
+import java.util.Objects;
 
 /**
  * @author Isak Karlsson
@@ -36,7 +36,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
   private final ArrayBackend arrayBackend;
 
   protected AbstractLinearAlgebraRoutines(ArrayBackend matrixFactory) {
-    this.arrayBackend = Preconditions.checkNotNull(matrixFactory);
+    this.arrayBackend = Objects.requireNonNull(matrixFactory);
   }
 
   protected ArrayBackend getArrayBackend() {

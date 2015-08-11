@@ -28,7 +28,7 @@ import com.carrotsearch.hppc.DoubleArrayList;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
@@ -533,7 +533,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
-        AbstractDoubleArray.this.setElement(index, value.intValue());
+        AbstractDoubleArray.this.setElement(index, value.getReal());
       }
 
       @Override
@@ -662,6 +662,11 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       @Override
       protected int elementSize() {
         return AbstractDoubleArray.this.elementSize();
+      }
+
+      @Override
+      public DoubleArray asDouble() {
+        return AbstractDoubleArray.this;
       }
     };
   }

@@ -24,10 +24,7 @@
 
 package org.briljantframework.io;
 
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
-
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.vector.Bit;
@@ -88,8 +85,13 @@ public class StringDataEntry implements DataEntry {
     if (repr == null) {
       return IntVector.NA;
     }
-    Integer integer = Ints.tryParse(repr);
-    return integer == null ? IntVector.NA : integer;
+    Integer value;
+    try {
+      value = Integer.parseInt(repr);
+    } catch (NumberFormatException e) {
+      value = null;
+    }
+    return value == null ? IntVector.NA : value;
   }
 
   @Override
@@ -98,8 +100,13 @@ public class StringDataEntry implements DataEntry {
     if (repr == null) {
       return DoubleVector.NA;
     } else {
-      Double d = Doubles.tryParse(repr);
-      return d == null ? DoubleVector.NA : d;
+      Double value;
+      try {
+        value = Double.parseDouble(repr);
+      } catch (NumberFormatException e) {
+        value = null;
+      }
+      return value == null ? DoubleVector.NA : value;
     }
   }
 

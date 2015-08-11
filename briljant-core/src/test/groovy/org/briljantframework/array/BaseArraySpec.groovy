@@ -24,8 +24,8 @@
 
 package org.briljantframework.array
 
+import org.apache.commons.math3.complex.Complex
 import org.briljantframework.array.base.BaseArrayBackend
-import org.briljantframework.complex.Complex
 import spock.lang.Specification
 
 /**

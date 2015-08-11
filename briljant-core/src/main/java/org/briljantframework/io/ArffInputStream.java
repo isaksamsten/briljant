@@ -24,8 +24,6 @@
 
 package org.briljantframework.io;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
@@ -36,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -58,7 +57,9 @@ public class ArffInputStream extends DataInputStream {
                                                    Pattern.CASE_INSENSITIVE);
 
   static {
-    TYPE_MAP = ImmutableMap.of("real", DoubleVector.TYPE, "numeric", DoubleVector.TYPE);
+    TYPE_MAP = new HashMap<>();
+    TYPE_MAP.put("real", DoubleVector.TYPE);
+    TYPE_MAP.put("numeric", DoubleVector.TYPE);
   }
 
   private BufferedReader reader;

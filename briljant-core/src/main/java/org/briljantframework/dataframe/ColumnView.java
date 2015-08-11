@@ -25,7 +25,7 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vector;

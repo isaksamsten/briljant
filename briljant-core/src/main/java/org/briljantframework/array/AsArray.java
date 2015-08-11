@@ -64,6 +64,6 @@ abstract class AsArray<T> extends AbstractArray<T> {
 
   @Override
   public Array<T> newEmptyArray(int... shape) {
-    throw new UnsupportedOperationException();
+    return getArrayFactory().referenceArray(shape);
   }
 }

@@ -24,20 +24,21 @@
 
 package org.briljantframework.classification.tune;
 
-import java.util.*;
-
-import org.briljantframework.Utils;
+import org.briljantframework.Check;
 import org.briljantframework.evaluation.Validator;
-import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.evaluation.result.ConfusionMatrix;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableTable;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The type Configurations.
  */
 public class Configurations implements Iterable<Configuration> {
+
   private final List<Configuration> configurations;
   private final Validator evaluator;
 
@@ -45,7 +46,7 @@ public class Configurations implements Iterable<Configuration> {
    * Instantiates a new Configurations.
    *
    * @param configurations the configurations
-   * @param evaluator the evaluator
+   * @param evaluator      the evaluator
    */
   protected Configurations(List<Configuration> configurations, Validator evaluator) {
     this.configurations = configurations;
@@ -56,12 +57,12 @@ public class Configurations implements Iterable<Configuration> {
    * Create configurations.
    *
    * @param configurations the configurations
-   * @param evaluator the evaluator
+   * @param evaluator      the evaluator
    * @return the configurations
    */
   public static Configurations create(List<Configuration> configurations,
-      Validator evaluator) {
-    Preconditions.checkArgument(configurations.size() > 0);
+                                      Validator evaluator) {
+    Check.argument(configurations.size() > 0);
     return new Configurations(configurations, evaluator);
   }
 
@@ -146,26 +147,26 @@ public class Configurations implements Iterable<Configuration> {
     out.append("\n\n").append("Resampling: ").append(evaluator).append("\n\n")
         .append("Results across tuning parameters:\n\n");
 
-    ImmutableTable.Builder<Integer, String, Object> table = ImmutableTable.builder();
-    int index = 0;
-    for (Configuration configuration : configurations) {
-      for (Map.Entry<String, Object> params : configuration.entries()) {
-        if (params.getValue() instanceof Double) {
-          table.put(index, params.getKey(), String.format("%.4f", (double) params.getValue()));
-        } else {
-          table.put(index, params.getKey(), params.getValue());
-        }
-      }
-      for (Measure measure : configuration.getResult().getMeasures()) {
-        table.put(index, measure.getName(), String.format("%.4f", measure.getMean()));
-      }
-      ConfusionMatrix m = configuration.getAverageConfusionMatrix();
-      table.put(index, "Precision", String.format("%.4f", m.getAveragePrecision()));
-      table.put(index, "Recall", String.format("%.4f", m.getAverageRecall()));
-      table.put(index, "F-Measure", String.format("%.4f", m.getAverageFMeasure(2)));
-      index += 1;
-    }
-    out.append(Utils.prettyPrintTable(table.build(), 3, 2, false, true));
+//    ImmutableTable.Builder<Integer, String, Object> table = ImmutableTable.builder();
+//    int index = 0;
+//    for (Configuration configuration : configurations) {
+//      for (Map.Entry<String, Object> params : configuration.entries()) {
+//        if (params.getValue() instanceof Double) {
+//          table.put(index, params.getKey(), String.format("%.4f", (double) params.getValue()));
+//        } else {
+//          table.put(index, params.getKey(), params.getValue());
+//        }
+//      }
+//      for (Measure measure : configuration.getResult().getMeasures()) {
+//        table.put(index, measure.getName(), String.format("%.4f", measure.getMean()));
+//      }
+//      ConfusionMatrix m = configuration.getAverageConfusionMatrix();
+//      table.put(index, "Precision", String.format("%.4f", m.getAveragePrecision()));
+//      table.put(index, "Recall", String.format("%.4f", m.getAverageRecall()));
+//      table.put(index, "F-Measure", String.format("%.4f", m.getAverageFMeasure(2)));
+//      index += 1;
+//    }
+//    out.append(Utils.prettyPrintTable(table.build(), 3, 2, false, true));
     return out.toString();
   }
 

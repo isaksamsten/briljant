@@ -24,7 +24,7 @@
 
 package org.briljantframework.vector;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 
 import java.util.function.BiFunction;
 
@@ -138,9 +138,9 @@ public final class Combine {
     if (a instanceof Integer && b instanceof Integer ||
         (a instanceof Short && b instanceof Short)) {
       return a.intValue() + b.intValue();
-    } else if (a instanceof Complex && b instanceof Complex) {
+    } /*else if (a instanceof Complex && b instanceof Complex) {
       return ((Complex) a).plus((Complex) b);
-    } else if (a instanceof Long && b instanceof Long) {
+    } */else if (a instanceof Long && b instanceof Long) {
       return a.longValue() + b.longValue();
     } else {
       return a.doubleValue() + b.doubleValue();
@@ -151,9 +151,9 @@ public final class Combine {
     if (a instanceof Integer && b instanceof Integer ||
         (a instanceof Short && b instanceof Short)) {
       return a.intValue() - b.intValue();
-    } else if (a instanceof Complex && b instanceof Complex) {
+    } /*else if (a instanceof Complex && b instanceof Complex) {
       return ((Complex) a).minus((Complex) b);
-    } else if (a instanceof Long && b instanceof Long) {
+    } */else if (a instanceof Long && b instanceof Long) {
       return a.longValue() - b.longValue();
     } else {
       return a.doubleValue() - b.doubleValue();
@@ -163,9 +163,9 @@ public final class Combine {
   private static Number multiplyNumber(Number a, Number b) {
     if (a instanceof Integer && b instanceof Integer) {
       return a.intValue() * b.intValue();
-    } else if (a instanceof Complex && b instanceof Complex) {
+    } /*else if (a instanceof Complex && b instanceof Complex) {
       return ((Complex) a).multiply((Complex) b);
-    } else if (a instanceof Long && b instanceof Long) {
+    } */else if (a instanceof Long && b instanceof Long) {
       return a.longValue() * b.longValue();
     } else {
       return a.doubleValue() * b.doubleValue();
@@ -175,9 +175,9 @@ public final class Combine {
   private static Number divNumber(Number a, Number b) {
     if (a instanceof Integer && b instanceof Integer) {
       return a.intValue() / b.intValue();
-    } else if (a instanceof Complex && b instanceof Complex) {
+    } /*else if (a instanceof Complex && b instanceof Complex) {
       return ((Complex) a).div((Complex) b);
-    } else if (a instanceof Long && b instanceof Long) {
+    } */else if (a instanceof Long && b instanceof Long) {
       return a.longValue() / b.longValue();
     } else {
       return a.doubleValue() / b.doubleValue();

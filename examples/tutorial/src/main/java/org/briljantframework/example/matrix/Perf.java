@@ -1,7 +1,7 @@
 package org.briljantframework.example.matrix;
 
 import org.briljantframework.Bj;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.DoubleMatrix;
 import org.briljantframework.array.T;
 import org.briljantframework.stat.DescriptiveStatistics;

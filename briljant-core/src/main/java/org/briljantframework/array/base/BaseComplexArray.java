@@ -24,7 +24,7 @@
 
 package org.briljantframework.array.base;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.AbstractComplexArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.api.ArrayFactory;

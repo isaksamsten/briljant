@@ -24,10 +24,8 @@
 
 package org.briljantframework.dataseries;
 
-import com.google.common.collect.Sets;
-
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.io.DataEntry;
@@ -44,13 +42,13 @@ import org.briljantframework.vector.VectorType;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * <p> A DataSeries collection is collection of data series, i.e., vectors of the same type -
@@ -79,8 +77,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   protected DataSeriesCollection(List<Vector> series, VectorType type, int columns) {
-    this.type = checkNotNull(type);
-    this.series = checkNotNull(series);
+    this.type = Objects.requireNonNull(type);
+    this.series = Objects.requireNonNull(series);
     this.columns = columns;
   }
 
@@ -190,8 +188,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame drop(Iterable<Integer> indexes) {
-    Set<Integer> set = Sets.newHashSet(indexes);
+  public DataFrame drop(Collection<Integer> indexes) {
+    Set<Integer> set = new HashSet<>(indexes);
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
       Vector row = getRecord(i);
@@ -275,7 +273,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public Builder removeColumn(int column) {
-      checkElementIndex(column, columns());
+      Check.elementIndex(column, columns());
 //      columnNames.remove(column);
       for (int i = 0; i < rows(); i++) {
         Vector.Builder colb = builders.get(i);

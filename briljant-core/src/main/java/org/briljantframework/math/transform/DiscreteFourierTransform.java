@@ -24,8 +24,8 @@
 
 package org.briljantframework.math.transform;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 
@@ -56,7 +56,7 @@ public final class DiscreteFourierTransform {
     ComplexArray copy = Bj.complexArray(a.size());
     for (int i = 0; i < a.size(); i++) {
       Complex c = a.get(i);
-      copy.set(i, new Complex(c.imag(), c.real()));
+      copy.set(i, new Complex(c.getImaginary(), c.getReal()));
     }
     fftInplace(copy);
 
@@ -65,7 +65,7 @@ public final class DiscreteFourierTransform {
     // Reversing and scaling
     for (int i = 0; i < n; i++) {
       Complex c = copy.get(i);
-      copy.set(i, new Complex(c.imag() / n, c.real() / n));
+      copy.set(i, new Complex(c.getImaginary() / n, c.getReal() / n));
     }
     return copy;
   }
@@ -99,8 +99,8 @@ public final class DiscreteFourierTransform {
       double cos = cosTable.get(i);
       double sin = sinTable.get(i);
       Complex complex = a.get(i);
-      double real = complex.real() * cos + complex.imag() * sin;
-      double imag = -complex.real() * sin + complex.imag() * cos;
+      double real = complex.getReal() * cos + complex.getImaginary() * sin;
+      double imag = -complex.getReal() * sin + complex.getImaginary() * cos;
       an.set(i, new Complex(real, imag));
 
       int j = i + 1;
@@ -118,8 +118,8 @@ public final class DiscreteFourierTransform {
       double sin = sinTable.get(i);
 
       Complex cv = cc.get(i);
-      double real = cv.real() * cos + cv.imag() * sin;
-      double imag = -cv.real() * sin + cv.imag() * cos;
+      double real = cv.getReal() * cos + cv.getImaginary() * sin;
+      double imag = -cv.getReal() * sin + cv.getImaginary() * cos;
       a.set(i, new Complex(real, imag));
     }
   }
@@ -140,7 +140,7 @@ public final class DiscreteFourierTransform {
     // TODO: do not 'hand-reverse'
     for (int i = 0; i < n; i++) {
       Complex complex = xt.get(i);
-      xt.set(i, new Complex(complex.imag(), complex.real()));
+      xt.set(i, new Complex(complex.getImaginary(), complex.getReal()));
     }
 
     fftInplace(xt); // inverse transform, since xt is reversed above
@@ -148,7 +148,7 @@ public final class DiscreteFourierTransform {
     // scaling and reversing back
     for (int i = 0; i < n; i++) {
       Complex c = xt.get(i);
-      xt.set(i, Complex.valueOf(c.imag() / n, c.real() / n));
+      xt.set(i, Complex.valueOf(c.getImaginary() / n, c.getReal() / n));
     }
     return xt;
   }
@@ -187,10 +187,10 @@ public final class DiscreteFourierTransform {
           Complex jVal = a.get(j);
           double cos = cosTable.get(k);
           double sin = sinTable.get(k);
-          double tpre = hjVal.real() * cos + hjVal.imag() * sin;
-          double tpim = -hjVal.real() * sin + hjVal.imag() * cos;
-          a.set(j + halfSize, new Complex(jVal.real() - tpre, jVal.imag() - tpim));
-          a.set(j, new Complex(jVal.real() + tpre, jVal.imag() + tpim));
+          double tpre = hjVal.getReal() * cos + hjVal.getImaginary() * sin;
+          double tpim = -hjVal.getReal() * sin + hjVal.getImaginary() * cos;
+          a.set(j + halfSize, new Complex(jVal.getReal() - tpre, jVal.getImaginary() - tpim));
+          a.set(j, new Complex(jVal.getReal() + tpre, jVal.getImaginary() + tpim));
         }
       }
       if (size == n) {

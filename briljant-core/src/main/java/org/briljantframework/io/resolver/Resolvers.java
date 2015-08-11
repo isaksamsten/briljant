@@ -24,10 +24,8 @@
 
 package org.briljantframework.io.resolver;
 
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
-
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexFormat;
 import org.briljantframework.vector.Bit;
 
 import java.time.Instant;
@@ -46,6 +44,8 @@ public final class Resolvers {
       new HashMap<>()
   );
 
+  private static final ComplexFormat COMPLEX_FORMAT = ComplexFormat.getInstance();
+
   static {
     Resolver<LocalDate> localDateResolver = new Resolver<>(LocalDate.class);
     localDateResolver.put(String.class, new StringDateConverter());
@@ -55,18 +55,36 @@ public final class Resolvers {
     localDateResolver.put(Long.TYPE, converter);
 
     Resolver<Integer> integerResolver = new Resolver<>(Integer.class);
-    integerResolver.put(String.class, Ints::tryParse);
+    integerResolver.put(String.class, s -> {
+      try {
+        return Integer.parseInt(s);
+      } catch (Exception e) {
+        return null;
+      }
+    });
     integerResolver.put(Number.class, Number::intValue);
 
     Resolver<Double> doubleResolver = new Resolver<>(Double.class);
-    doubleResolver.put(String.class, Doubles::tryParse);
+    doubleResolver.put(String.class, s -> {
+      try {
+        return Double.parseDouble(s);
+      } catch (Exception e) {
+        return null;
+      }
+    });
     doubleResolver.put(Number.class, Number::doubleValue);
 
     Resolver<String> stringResolver = new Resolver<>(String.class);
     stringResolver.put(Object.class, Object::toString);
 
     Resolver<Complex> complexResolver = new Resolver<>(Complex.class);
-    complexResolver.put(String.class, Complex::tryParse);
+    complexResolver.put(String.class, s -> {
+      try {
+        return COMPLEX_FORMAT.parse(s);
+      } catch (Exception e) {
+        return null;
+      }
+    });
 
     Resolver<Bit> bitResolver = new Resolver<>(Bit.class);
     bitResolver.put(String.class, (v) -> Bit.valueOf(v.trim().equalsIgnoreCase("true")));

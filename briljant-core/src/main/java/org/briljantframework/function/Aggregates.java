@@ -24,10 +24,6 @@
 
 package org.briljantframework.function;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Ordering;
-
 import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.stat.RunningStatistics;
@@ -225,16 +221,17 @@ public final class Aggregates {
   }
 
   public static <T> Aggregator<T, T, ?> mode() {
-    return Aggregator.of(
-        HashMultiset::<T>create,
-        (a, v) -> a.add(v),
-        (HashMultiset<T> accum) -> Ordering.natural().onResultOf(
-            new com.google.common.base.Function<Multiset.Entry<T>, Integer>() {
-              public Integer apply(Multiset.Entry<T> entry) {
-                return entry.getCount();
-              }
-            }).max(accum.entrySet()).getElement()
-    );
+    throw new UnsupportedOperationException();
+//    return Aggregator.of(
+//        HashMultiset::<T>create,
+//        (a, v) -> a.add(v),
+//        (HashMultiset<T> accum) -> Ordering.natural().onResultOf(
+//            new com.google.common.base.Function<Multiset.Entry<T>, Integer>() {
+//              public Integer apply(Multiset.Entry<T> entry) {
+//                return entry.getCount();
+//              }
+//            }).max(accum.entrySet()).getElement()
+//    );
   }
 
   public static <T> Aggregator<T, Integer, ?> nunique() {

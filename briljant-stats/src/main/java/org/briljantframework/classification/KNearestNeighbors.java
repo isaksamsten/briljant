@@ -24,23 +24,16 @@
 
 package org.briljantframework.classification;
 
-import com.google.common.collect.MinMaxPriorityQueue;
-
-import com.carrotsearch.hppc.ObjectIntMap;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
-
-import org.briljantframework.Bj;
+import org.briljantframework.Check;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
 import java.util.EnumSet;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a
@@ -94,8 +87,8 @@ public class KNearestNeighbors implements Classifier {
 
   @Override
   public Model fit(DataFrame x, Vector y) {
-    checkArgument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
-                  y.size());
+    Check.argument(x.rows() == y.size(),
+                   "The size of x and y don't match: %s != %s.", x.rows(), y.size());
     return new Model(x, y, distance, neighbors, Vec.unique(y));
   }
 
@@ -188,22 +181,23 @@ public class KNearestNeighbors implements Classifier {
 
     @Override
     public DoubleArray estimate(Vector record) {
-      MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
-      for (int i = 0; i < frame.rows(); i++) {
-        double d = distance.compute(record, frame.getRecord(i));
-        queue.add(new DistanceIndex(targets.get(Object.class, i), d));
-      }
-      ObjectIntMap<Object> votes = new ObjectIntOpenHashMap<>();
-      for (DistanceIndex di : queue) {
-        votes.putOrAdd(di.target, 1, 1);
-      }
-      Vector classes = getClasses();
-      int voters = queue.size();
-      DoubleArray probas = Bj.doubleArray(classes.size());
-      for (int i = 0; i < classes.size(); i++) {
-        probas.set(i, votes.getOrDefault(classes.get(Object.class, i), 0) / voters);
-      }
-      return probas;
+//      MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
+//      for (int i = 0; i < frame.rows(); i++) {
+//        double d = distance.compute(record, frame.getRecord(i));
+//        queue.add(new DistanceIndex(targets.get(Object.class, i), d));
+//      }
+//      ObjectIntMap<Object> votes = new ObjectIntOpenHashMap<>();
+//      for (DistanceIndex di : queue) {
+//        votes.putOrAdd(di.target, 1, 1);
+//      }
+//      Vector classes = getClasses();
+//      int voters = queue.size();
+//      DoubleArray probas = Bj.doubleArray(classes.size());
+//      for (int i = 0; i < classes.size(); i++) {
+//        probas.set(i, votes.getOrDefault(classes.get(Object.class, i), 0) / voters);
+//      }
+//      return probas;
+      throw new UnsupportedOperationException();
     }
 
     @Override

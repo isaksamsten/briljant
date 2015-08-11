@@ -24,10 +24,10 @@
 
 package org.briljantframework.shapelet;
 
-import com.google.common.base.Preconditions;
-
 import org.briljantframework.distance.Distance;
 import org.briljantframework.vector.Vector;
+
+import java.util.Objects;
 
 /**
  * Created by Isak Karlsson on 23/09/14.
@@ -42,7 +42,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
    * @param distance the distance
    */
   public EarlyAbandonSlidingDistance(Distance distance) {
-    this.distance = Preconditions.checkNotNull(distance, "Requires a distance measure");
+    this.distance = Objects.requireNonNull(distance, "Requires a distance measure");
   }
 
   /**

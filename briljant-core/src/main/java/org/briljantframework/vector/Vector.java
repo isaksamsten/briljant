@@ -31,7 +31,7 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;

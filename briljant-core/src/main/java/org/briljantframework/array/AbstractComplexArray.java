@@ -24,12 +24,9 @@
 
 package org.briljantframework.array;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.UnmodifiableIterator;
-
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 
@@ -171,7 +168,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray assign(DoubleArray matrix) {
-    Preconditions.checkArgument(matrix.size() == size());
+    Check.argument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
       set(i, Complex.valueOf(matrix.get(i)));
     }
@@ -180,7 +177,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray assign(DoubleArray matrix, DoubleFunction<Complex> operator) {
-    Preconditions.checkArgument(matrix.size() == size());
+    Check.argument(matrix.size() == size());
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(matrix.get(i)));
     }
@@ -243,7 +240,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
       @Override
       protected double getElement(int i) {
-        return AbstractComplexArray.this.getElement(i).doubleValue();
+        return AbstractComplexArray.this.getElement(i).getReal();
       }
 
       @Override
@@ -260,7 +257,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
       @Override
       public int getElement(int index) {
-        return AbstractComplexArray.this.getElement(index).intValue();
+        return (int) AbstractComplexArray.this.getElement(index).getReal();
       }
 
       @Override
@@ -392,7 +389,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
-        return AbstractComplexArray.this.getElement(index).longValue();
+        return (long) AbstractComplexArray.this.getElement(index).getReal();
       }
 
       @Override
@@ -512,7 +509,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public Iterator<Complex> iterator() {
-    return new UnmodifiableIterator<Complex>() {
+    return new Iterator<Complex>() {
       private int current = 0;
 
       @Override
@@ -704,7 +701,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray add(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).plus(scalar));
+      m.set(i, get(i).add(scalar));
     }
     return m;
   }
@@ -714,7 +711,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).multiply(alpha).plus(other.get(i).multiply(beta)));
+      m.set(i, get(i).multiply(alpha).add(other.get(i).multiply(beta)));
     }
     return m;
   }
@@ -728,7 +725,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray sub(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).minus(scalar));
+      m.set(i, get(i).subtract(scalar));
     }
     return m;
   }
@@ -738,7 +735,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     Check.size(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, alpha.multiply(get(i)).minus(beta.multiply(other.get(i))));
+      m.set(i, alpha.multiply(get(i)).subtract(beta.multiply(other.get(i))));
     }
     return m;
   }
@@ -747,7 +744,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray rsub(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, scalar.minus(get(i)));
+      m.set(i, scalar.subtract(get(i)));
     }
     return m;
   }
@@ -756,7 +753,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray div(ComplexArray other) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).div(other.get(i)));
+      m.set(i, get(i).divide(other.get(i)));
     }
     return m;
   }
@@ -765,7 +762,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray div(Complex other) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).div(other));
+      m.set(i, get(i).divide(other));
     }
     return m;
   }
@@ -774,7 +771,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray rdiv(Complex other) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, other.div(get(i)));
+      m.set(i, other.divide(get(i)));
     }
     return m;
   }

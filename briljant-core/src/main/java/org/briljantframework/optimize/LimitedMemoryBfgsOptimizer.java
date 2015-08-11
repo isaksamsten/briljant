@@ -25,9 +25,8 @@
 package org.briljantframework.optimize;
 
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author Isak Karlsson
@@ -43,8 +42,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   private final BacktrackingLineSearch lineSearch = new BacktrackingLineSearch();
 
   public LimitedMemoryBfgsOptimizer(int memory, int maxIterations, double gradientTolerance) {
-    checkArgument(memory > 0, "Invalid m: " + memory);
-    checkArgument(maxIterations > 0, "Invalid maxIter: " + maxIterations);
+    Check.argument(memory > 0, "Invalid m: " + memory);
+    Check.argument(maxIterations > 0, "Invalid maxIter: " + maxIterations);
     this.memory = memory;
     this.maxIterations = maxIterations;
     this.gradientTolerance = gradientTolerance;

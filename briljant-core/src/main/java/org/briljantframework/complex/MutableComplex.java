@@ -24,14 +24,16 @@
 
 package org.briljantframework.complex;
 
+import org.apache.commons.math3.complex.Complex;
+
 /**
  * <p>
  * Similar to {@link java.lang.StringBuilder}, the
  * {@link MutableComplex} performs
- * {@link org.briljantframework.complex.Complex} operations by mutating the receiver to avoid
+ * {@link org.apache.commons.math3.complex.Complex} operations by mutating the receiver to avoid
  * creating unnecessary copies.
  * </p>
- * 
+ *
  * <pre>
  *     Complex sum = Complex.ZERO;
  *     List<Complex> complexes = ...;
@@ -43,11 +45,11 @@ package org.briljantframework.complex;
  * In the example above, {@code complexes.size()} garbage instances of temporary sums are created
  * and garbage collected, which negatively impact the performance.
  * </p>
- * 
+ *
  * <p>
  * Instead, the {@code ComplexBuilder} can be used as a drop-in replacement
  * </p>
- * 
+ *
  * <pre>
  *     ComplexBuilder accSum = new ComplexBuilder(0);
  *     List<Complex> complexes = ...;
@@ -56,7 +58,7 @@ package org.briljantframework.complex;
  *     }
  *     Complex sum = accSum.toComplex();
  * </pre>
- * 
+ *
  * <p>
  * {@link #plus(Complex)} above return the receiver mutated, hence {@code accSum.plus(c);} (without
  * reassignment) would be equally fine.
@@ -65,6 +67,7 @@ package org.briljantframework.complex;
  * @author Isak Karlsson
  */
 public class MutableComplex {
+
   private double real;
   private double imag;
 
@@ -83,7 +86,7 @@ public class MutableComplex {
   }
 
   public MutableComplex(Complex complex) {
-    this(complex.real(), complex.imag());
+    this(complex.getReal(), complex.getImaginary());
   }
 
   public MutableComplex plus(Complex other) {
@@ -93,8 +96,8 @@ public class MutableComplex {
     // else if (other.isNaN()) {
     // setNaN();
     // }
-    real += other.real();
-    imag += other.imag();
+    real += other.getReal();
+    imag += other.getImaginary();
     return this;
   }
 
@@ -105,8 +108,8 @@ public class MutableComplex {
     // else if (other.isNaN()) {
     // setNaN();
     // }
-    real += other.real();
-    imag += other.imag();
+    real += other.getReal();
+    imag += other.getImaginary();
     return this;
   }
 
@@ -117,8 +120,8 @@ public class MutableComplex {
     // } else if (other.isNaN()) {
     // setNaN();
     // }
-    double oreal = other.real();
-    double oimag = other.imag();
+    double oreal = other.getReal();
+    double oimag = other.getImaginary();
     real = real * oreal - imag * oimag;
     imag = real * oimag + imag * oreal;
     return this;
@@ -131,8 +134,8 @@ public class MutableComplex {
     // else if (other.isNaN()) {
     // setNaN();
     // }
-    double oreal = other.real();
-    double oimag = other.imag();
+    double oreal = other.getReal();
+    double oimag = other.getImaginary();
     if (Math.abs(oreal) < Math.abs(oimag)) {
       double q = oreal / oimag;
       double denominator = oreal * q + oimag;
@@ -147,11 +150,11 @@ public class MutableComplex {
     return this;
   }
 
-  public double real() {
+  public double getReal() {
     return real;
   }
 
-  public double imag() {
+  public double getImaginary() {
     return imag;
   }
 

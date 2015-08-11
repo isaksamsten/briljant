@@ -24,7 +24,7 @@
 
 package org.briljantframework.dataframe;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.io.resolver.StringDateConverter;

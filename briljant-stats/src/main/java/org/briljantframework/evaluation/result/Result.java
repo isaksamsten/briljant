@@ -24,10 +24,7 @@
 
 package org.briljantframework.evaluation.result;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableTable;
-
-import org.briljantframework.Utils;
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.Index;
@@ -40,7 +37,6 @@ import org.briljantframework.vector.Vec;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,7 +60,7 @@ public class Result {
   }
 
   public static Result create(List<Measure> measures, List<ConfusionMatrix> confusionMatrices) {
-    Preconditions.checkArgument(measures.size() > 0 && confusionMatrices.size() > 0);
+    Check.argument(measures.size() > 0 && confusionMatrices.size() > 0);
     Map<Class<?>, Measure> metricMap = new HashMap<>();
 
     int length = 0;
@@ -326,20 +322,20 @@ public class Result {
     builder.append("Average Confusion Matrix\n").append(getAverageConfusionMatrix()).append("\n\n")
         .append("Metrics\n");
 
-    ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
-    getMeasures()
-        .stream()
-        .sorted(Comparator.comparing(Measure::getName))
-        .forEach(
-            measure -> {
-              for (int i = 0; i < measure.size(); i++) {
-                table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
-              }
-              table.put("Average", measure.getName(), String.format("%.4f", measure.getMean()));
-              table.put("Standard Deviation", measure.getName(),
-                        String.format("%.4f", measure.getStandardDeviation()));
-            });
-    Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
+//    ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
+//    getMeasures()
+//        .stream()
+//        .sorted(Comparator.comparing(Measure::getName))
+//        .forEach(
+//            measure -> {
+//              for (int i = 0; i < measure.size(); i++) {
+//                table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
+//              }
+//              table.put("Average", measure.getName(), String.format("%.4f", measure.getMean()));
+//              table.put("Standard Deviation", measure.getName(),
+//                        String.format("%.4f", measure.getStandardDeviation()));
+//            });
+//    Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
     return builder.toString();
   }
   // @Override

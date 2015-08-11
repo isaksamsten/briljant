@@ -24,7 +24,7 @@
 
 package org.briljantframework.vector;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 
 /**
  * Utility class for checking value types <p> Created by Isak Karlsson on 26/11/14.

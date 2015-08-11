@@ -24,14 +24,13 @@
 
 package org.briljantframework.evaluation;
 
+import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Objects;
 
 /**
  * @author Isak Karlsson
@@ -46,11 +45,11 @@ class FoldIterator implements Iterator<Partition> {
   private int current = 0;
 
   public FoldIterator(DataFrame x, Vector y, int folds) {
-    checkArgument(x.rows() == y.size(), "Data and target must be of equal size.");
-    checkArgument(folds > 1 && folds <= x.rows(), "Invalid fold count.");
+    Check.argument(x.rows() == y.size(), "Data and target must be of equal size.");
+    Check.argument(folds > 1 && folds <= x.rows(), "Invalid fold count.");
 
-    this.x = checkNotNull(x);
-    this.y = checkNotNull(y);
+    this.x = Objects.requireNonNull(x);
+    this.y = Objects.requireNonNull(y);
     this.rows = this.x.rows();
     this.folds = folds;
     this.foldSize = this.rows / folds;

@@ -24,8 +24,9 @@
 
 package org.briljantframework.array
 
+import org.apache.commons.math3.complex.Complex
+import org.apache.commons.math3.complex.ComplexFormat
 import org.briljantframework.array.base.BaseArrayBackend
-import org.briljantframework.complex.Complex
 import spock.lang.Specification
 
 import java.util.function.Supplier
@@ -130,12 +131,12 @@ class ReferenceArraySpec extends Specification {
 
     when:
     def y = x.mapToComplex {
-      Complex.parse(it)
+      ComplexFormat.getInstance().parse(it)
     }
 
     then:
     y.size() == x.size()
-    y.forEach { it == Complex.valueOf(320)}
+    y.forEach {it == Complex.valueOf(320)}
   }
 
   def "mapping an array of value of type T to an array of type U"() {

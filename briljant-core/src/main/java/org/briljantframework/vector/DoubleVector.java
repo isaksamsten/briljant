@@ -24,14 +24,13 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.base.Preconditions;
-
 import com.carrotsearch.hppc.DoubleArrayList;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -123,7 +122,7 @@ public class DoubleVector extends AbstractVector {
    * @param size   the size of values to take
    */
   public DoubleVector(double[] values, int size) {
-    Preconditions.checkArgument(size <= values.length);
+    Check.argument(size <= values.length);
     this.values = Arrays.copyOf(values, size);
     this.size = this.values.length;
   }
@@ -435,7 +434,7 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public void swap(int a, int b) {
-      Preconditions.checkArgument(a >= 0 && a < size() && b >= 0 && b < size());
+      Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
     }
 

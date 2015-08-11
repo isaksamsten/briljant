@@ -24,6 +24,10 @@
 
 package org.briljantframework;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BitArray;
@@ -36,10 +40,6 @@ import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.complex.Complex;
-import org.briljantframework.distribution.Distribution;
-import org.briljantframework.distribution.NormalDistribution;
-import org.briljantframework.distribution.UniformDistribution;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
@@ -54,8 +54,8 @@ import java.util.stream.StreamSupport;
  */
 public final class Bj {
 
-  private static final Distribution normalDistribution = new NormalDistribution(0, 1);
-  private static final Distribution uniformDistribution = new UniformDistribution(-1, 1);
+  private static final RealDistribution normalDistribution = new NormalDistribution(0, 1);
+  private static final RealDistribution uniformDistribution = new UniformRealDistribution(-1, 1);
 
   private static final ArrayFactory MATRIX_FACTORY;
   private static final ArrayRoutines MATRIX_ROUTINES;
@@ -158,7 +158,7 @@ public final class Bj {
    * @param distribution the distribution to sample from
    * @return a new 1d-array
    */
-  public static DoubleArray rand(int size, Distribution distribution) {
+  public static DoubleArray rand(int size, RealDistribution distribution) {
     return doubleArray(size).assign(distribution::sample);
   }
 
@@ -212,14 +212,14 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(org.briljantframework.complex.Complex[])
+   * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[])
    */
   public static ComplexArray array(Complex[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(org.briljantframework.complex.Complex[][])
+   * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[][])
    */
   public static ComplexArray array(Complex[][] data) {
     return MATRIX_FACTORY.array(data);
@@ -275,7 +275,7 @@ public final class Bj {
   }
 
   public static IntArray randi(int size, int l, int u) {
-    Distribution distribution = new UniformDistribution(l, u);
+    RealDistribution distribution = new UniformRealDistribution(l, u);
     return intArray(size).assign(() -> (int) Math.round(distribution.sample()));
   }
 
@@ -715,7 +715,7 @@ public final class Bj {
    * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.Array,
    * java.util.Comparator)
    */
-  public static <T extends Comparator<T>> Array<T> sort(Array<T> array, Comparator<T> cmp) {
+  public static <T> Array<T> sort(Array<T> array, Comparator<T> cmp) {
     return MATRIX_ROUTINES.sort(array, cmp);
   }
 
@@ -723,8 +723,8 @@ public final class Bj {
    * @see org.briljantframework.array.api.ArrayRoutines#sort(int, org.briljantframework.array.Array,
    * java.util.Comparator)
    */
-  public static <T extends Comparator<T>> Array<T> sort(int dim, Array<T> array,
-                                                        Comparator<T> cmp) {
+  public static <T> Array<T> sort(int dim, Array<T> array,
+                                  Comparator<T> cmp) {
     return MATRIX_ROUTINES.sort(dim, array, cmp);
   }
 

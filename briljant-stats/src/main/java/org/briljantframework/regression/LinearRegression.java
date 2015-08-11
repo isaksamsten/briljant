@@ -24,8 +24,8 @@
 
 package org.briljantframework.regression;
 
-import com.google.common.base.Preconditions;
 
+import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
@@ -52,8 +52,7 @@ public class LinearRegression implements Classifier {
 
   @Override
   public Model fit(DataFrame x, Vector y) {
-    Preconditions.checkArgument(x.rows() == y.size());
-
+    Check.argument(x.rows() == y.size());
     DoubleArray yMatrix = y.asDoubleArray();
     return new Model(LinearAlgebra.leastLinearSquares(x.toDoubleArray(), yMatrix));
   }

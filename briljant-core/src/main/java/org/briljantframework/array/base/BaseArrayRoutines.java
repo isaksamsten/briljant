@@ -24,10 +24,8 @@
 
 package org.briljantframework.array.base;
 
-import com.google.common.base.Preconditions;
-import com.google.common.math.DoubleMath;
-import com.google.common.primitives.Doubles;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.Array;
@@ -38,7 +36,6 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.sort.IndexComparator;
@@ -49,10 +46,8 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.briljantframework.array.Indexer.columnMajor;
 import static org.briljantframework.array.Indexer.rowMajor;
 
@@ -62,7 +57,7 @@ import static org.briljantframework.array.Indexer.rowMajor;
 public class BaseArrayRoutines implements ArrayRoutines {
 
   protected static final double LOG_2 = Math.log(2);
-  
+
   protected BaseArrayRoutines() {
   }
 
@@ -458,13 +453,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
-    checkNotNull(array);
-    checkArgument(array.rows() % parts == 0, "Parts does not evenly divide rows.");
+    Objects.requireNonNull(array);
+    Check.argument(array.rows() % parts == 0, "Parts does not evenly divide rows.");
     int partRows = array.rows() / parts;
     return new AbstractList<T>() {
       @Override
       public T get(int index) {
-        checkElementIndex(index, size());
+        Check.elementIndex(index, size());
         T part = array.newEmptyArray(partRows, array.columns());
         for (int j = 0; j < part.columns(); j++) {
           for (int i = 0; i < part.rows(); i++) {
@@ -483,7 +478,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> T vstack(Collection<T> arrays) {
-    checkArgument(arrays.size() > 0);
+    Check.argument(arrays.size() > 0);
     int rows = 0;
     int columns = 0;
     T first = null;
@@ -492,8 +487,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
         first = matrix;
         columns = first.columns();
       }
-      checkArgument(columns == matrix.columns(),
-                    "Can't vstack %s with %s.", matrix.getShape(), first.getShape());
+      Check.argument(columns == matrix.columns(),
+                     "Can't vstack %s with %s.", matrix.getShape(), first.getShape());
       rows += matrix.rows();
     }
 
@@ -512,14 +507,14 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
-    checkNotNull(array);
-    checkArgument(array.rows() % parts == 0, "Parts does not evenly dived columns.");
+    Objects.requireNonNull(array);
+    Check.argument(array.rows() % parts == 0, "Parts does not evenly dived columns.");
     int partColumns = array.columns() / parts;
     return new AbstractList<T>() {
 
       @Override
       public T get(int index) {
-        checkElementIndex(index, size());
+        Check.elementIndex(index, size());
         T part = array.newEmptyArray(array.rows(), partColumns);
         for (int j = 0; j < part.columns(); j++) {
           for (int i = 0; i < part.rows(); i++) {
@@ -538,7 +533,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> T hstack(Collection<T> arrays) {
-    checkArgument(arrays.size() > 0);
+    Check.argument(arrays.size() > 0);
     int columns = 0;
     int rows = 0;
     T first = null;
@@ -547,8 +542,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
         first = matrix;
         rows = first.rows();
       }
-      Preconditions.checkArgument(rows == matrix.rows(),
-                                  "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
+      Check.argument(rows == matrix.rows(),
+                     "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
       columns += matrix.columns();
     }
     T newMatrix = first.newEmptyArray(rows, columns);

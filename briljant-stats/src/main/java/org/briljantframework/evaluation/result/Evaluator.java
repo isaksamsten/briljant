@@ -24,8 +24,9 @@
 
 package org.briljantframework.evaluation.result;
 
-import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntConsumer;
 
@@ -46,7 +47,7 @@ public interface Evaluator {
   }
 
   static List<Evaluator> getDefaultClassificationEvaluators() {
-    return Lists.newArrayList(new ErrorEvaluator(), new ProbabilityEvaluator());
+    return new ArrayList<>(Arrays.asList(new ErrorEvaluator(), new ProbabilityEvaluator()));
   }
 
   /**

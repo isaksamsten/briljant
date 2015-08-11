@@ -24,11 +24,9 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.collect.ImmutableSet;
-
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.complex.Complex;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
@@ -36,7 +34,9 @@ import org.briljantframework.io.resolver.Resolvers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -203,9 +203,13 @@ public class GenericVector extends AbstractVector {
 
   public static class Builder implements Vector.Builder {
 
-    private static final Set<Class<?>> INVALID_CLASSES = ImmutableSet.of(
-        Integer.class, Integer.TYPE, Double.TYPE, Double.class, Complex.class, Bit.class
-    );
+    private static final Set<Class<?>> INVALID_CLASSES = new HashSet<>();
+
+    static {
+      INVALID_CLASSES.addAll(Arrays.asList(
+          Integer.class, Integer.TYPE, Double.TYPE, Double.class, Complex.class, Bit.class
+      ));
+    }
 
     private final Class<?> cls;
     private List<Object> buffer;

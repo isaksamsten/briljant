@@ -25,8 +25,6 @@
 package org.briljantframework.dataframe;
 
 
-import com.google.common.collect.Iterators;
-
 import java.util.AbstractCollection;
 import java.util.AbstractList;
 import java.util.AbstractSet;
@@ -203,6 +201,16 @@ public class IntIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
+  public int size() {
+    return size;
+  }
+
+  @Override
+  public String toString() {
+    return entrySet().toString();
+  }
+
+  @Override
   public Builder newBuilder() {
     return new Builder() {
 
@@ -304,15 +312,5 @@ public class IntIndex extends AbstractList<Object> implements Index {
         return builder == null ? currentSize : builder.size();
       }
     };
-  }
-
-  @Override
-  public int size() {
-    return size;
-  }
-
-  @Override
-  public String toString() {
-    return Iterators.toString(iterator());
   }
 }

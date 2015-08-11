@@ -24,10 +24,6 @@
 
 package org.briljantframework.dataframe;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-import com.google.common.collect.UnmodifiableIterator;
-
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
@@ -60,6 +56,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -401,7 +398,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     return new AbstractCollection<Vector>() {
       @Override
       public Iterator<Vector> iterator() {
-        return new UnmodifiableIterator<Vector>() {
+        return new Iterator<Vector>() {
           private int current = 0;
 
           @Override
@@ -485,10 +482,10 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame drop(Iterable<Integer> indexes) {
+  public DataFrame drop(Collection<Integer> indexes) {
     Set<Integer> hash;
     if (!(indexes instanceof Set)) {
-      hash = Sets.newHashSet(indexes);
+      hash = new HashSet<Integer>(indexes);
     } else {
       hash = (Set<Integer>) indexes;
     }
@@ -550,7 +547,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     return new AbstractCollection<Vector>() {
       @Override
       public Iterator<Vector> iterator() {
-        return new UnmodifiableIterator<Vector>() {
+        return new Iterator<Vector>() {
           public int current;
 
           @Override
@@ -617,10 +614,10 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new DataFrame as created by {@link #newBuilder()}
    */
   @Override
-  public DataFrame removeRecords(Iterable<Integer> indexes) {
+  public DataFrame removeRecords(Collection<Integer> indexes) {
     Set<Integer> set;
     if (!(indexes instanceof Set)) {
-      set = Sets.newHashSet(indexes);
+      set = new HashSet<>(indexes);
     } else {
       set = (Set<Integer>) indexes;
     }
@@ -692,7 +689,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final void setRecordIndex(Index index) {
-    Preconditions.checkNotNull(index);
+    Objects.requireNonNull(index);
     Check.size(rows(), index.size());
     this.recordIndex = index;
     getColumns().forEach(v -> v.setIndex(index));
@@ -700,7 +697,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final void setColumnIndex(Index index) {
-    Preconditions.checkNotNull(index);
+    Objects.requireNonNull(index);
     Check.size(columns(), index.size());
     this.columnIndex = index;
     getRecords().forEach(v -> v.setIndex(index));

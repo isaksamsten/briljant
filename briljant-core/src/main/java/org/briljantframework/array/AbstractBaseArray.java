@@ -24,14 +24,13 @@
 
 package org.briljantframework.array;
 
-import com.google.common.base.Preconditions;
-
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -76,7 +75,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
 
   protected AbstractBaseArray(ArrayFactory bj, int[] shape) {
-    this.bj = Preconditions.checkNotNull(bj);
+    this.bj = Objects.requireNonNull(bj);
     this.shape = shape;
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);

@@ -24,13 +24,12 @@
 
 package org.briljantframework;
 
-import com.google.common.collect.Lists;
-
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,8 +40,8 @@ public class QuickSortTest {
 
   @Test
   public void testTest() throws Exception {
-    ArrayList<String> list =
-        Lists.newArrayList("a", "b", "c", "q", "f", "d", "r", "a");
+    ArrayList<String> list = new ArrayList<>();
+    list.addAll(Arrays.asList("a", "b", "c", "q", "f", "d", "r", "a"));
     Swappable s = new ListSwappable(list);
     QuickSort.quickSort(0, list.size(), (a, b) -> list.get(a).compareTo(list.get(b)), s);
 

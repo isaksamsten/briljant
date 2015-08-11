@@ -24,8 +24,6 @@
 
 package org.briljantframework.distance;
 
-import com.google.common.primitives.Doubles;
-
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Vector;
@@ -88,8 +86,10 @@ public class DynamicTimeWarping implements Distance {
       int start = constraint <= -1 ? 1 : Math.max(1, i - width);
       for (int j = start; j < end; j++) {
         double cost = distance.compute(a.getAsDouble(i), b.getAsDouble(j));
-        dwt.set(i, j,
-                cost + Doubles.min(dwt.get(i - 1, j), dwt.get(i, j - 1), dwt.get(i - 1, j - 1)));
+        dwt.set(i, j, cost +
+                      Math.min(dwt.get(i - 1, j),
+                               Math.min(dwt.get(i, j - 1),
+                                        dwt.get(i - 1, j - 1))));
       }
     }
 

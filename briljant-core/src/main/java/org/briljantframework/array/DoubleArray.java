@@ -24,7 +24,7 @@
 
 package org.briljantframework.array;
 
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 
@@ -281,6 +281,11 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   List<Double> list();
 
+  /**
+   * Provides a lazy view of this {@code double} array as it's boxed counterpart.
+   *
+   * @return a boxed view
+   */
   Array<Double> boxed();
 
   // Arithmetical operations ///////////

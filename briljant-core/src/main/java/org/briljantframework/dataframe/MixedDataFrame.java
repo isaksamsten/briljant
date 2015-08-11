@@ -24,9 +24,8 @@
 
 package org.briljantframework.dataframe;
 
-import com.google.common.collect.ImmutableMap;
-
-import org.briljantframework.complex.Complex;
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
@@ -40,13 +39,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
@@ -73,7 +70,7 @@ public class MixedDataFrame extends AbstractDataFrame {
    * @param vectors the collection of vectors
    */
   public MixedDataFrame(Collection<? extends Vector> vectors) {
-    checkArgument(vectors.size() > 0);
+    Check.argument(vectors.size() > 0);
 
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
@@ -81,7 +78,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       if (rows == 0) {
         rows = vector.size();
       }
-      checkArgument(
+      Check.argument(
           vector.size() == rows,
           "Arguments imply different numbers of rows: %s, %s.",
           rows, vector.size()
@@ -99,7 +96,7 @@ public class MixedDataFrame extends AbstractDataFrame {
    */
   public <T> MixedDataFrame(Map<T, ? extends Vector> vectors) {
 //    super(null, new HashIndex());
-    checkArgument(vectors.size() > 0);
+    Check.argument(vectors.size() > 0);
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
     List<T> columnIndex = new ArrayList<>();
@@ -110,7 +107,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       if (rows == 0) {
         rows = vector.size();
       }
-      checkArgument(
+      Check.argument(
           vector.size() == rows,
           "Arguments imply different numbers of rows: %s, %s.",
           rows, vector.size()
@@ -141,26 +138,46 @@ public class MixedDataFrame extends AbstractDataFrame {
     return builder.build();
   }
 
-  public static DataFrame of(String name, Vector c) {
-    return new MixedDataFrame(ImmutableMap.of(name, c));
+  public static DataFrame of(Object name, Vector c) {
+    HashMap<Object, Vector> map = new HashMap<>();
+    map.put(name, c);
+    return new MixedDataFrame(map);
   }
 
-  public static DataFrame of(String n1, Vector v1, String n2, Vector v2) {
-    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2));
+  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
+    HashMap<Object, Vector> map = new HashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    return new MixedDataFrame(map);
   }
 
-  public static DataFrame of(String n1, Vector v1, String n2, Vector v2, String n3, Vector v3) {
-    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3));
+  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
+    HashMap<Object, Vector> map = new HashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    map.put(n3, v3);
+    return new MixedDataFrame(map);
   }
 
-  public static DataFrame of(String n1, Vector v1, String n2, Vector v2, String n3, Vector v3,
-                             String n4, Vector v4) {
-    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3, n4, v4));
+  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                             Object n4, Vector v4) {
+    HashMap<Object, Vector> map = new HashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    map.put(n3, v3);
+    map.put(n4, v4);
+    return new MixedDataFrame(map);
   }
 
-  public static DataFrame of(String n1, Vector v1, String n2, Vector v2, String n3, Vector v3,
-                             String n4, Vector v4, String n5, Vector v5) {
-    return new MixedDataFrame(ImmutableMap.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5));
+  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                             Object n4, Vector v4, Object n5, Vector v5) {
+    HashMap<Object, Vector> map = new HashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    map.put(n3, v3);
+    map.put(n4, v4);
+    map.put(n5, v5);
+    return new MixedDataFrame(map);
   }
 
   public static DataFrame read(DataInputStream io) throws IOException {
@@ -249,7 +266,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   public DataFrame insert(int index, Object key, Vector column) {
-    checkElementIndex(index, columns());
+    Check.elementIndex(index, columns());
     if (getColumnIndex().contains(key)) {
       throw new IllegalArgumentException(key + " already in index");
     }

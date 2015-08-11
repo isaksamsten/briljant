@@ -24,23 +24,19 @@
 
 package org.briljantframework.vector;
 
-import com.google.common.base.Preconditions;
-
 import com.carrotsearch.hppc.DoubleArrayList;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
+import org.briljantframework.Check;
 import org.briljantframework.Utils;
-import org.briljantframework.array.Array;
-import org.briljantframework.complex.Complex;
+import org.briljantframework.array.ComplexArray;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.array.ComplexArray;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import static com.google.common.primitives.Ints.checkedCast;
 
 /**
  * @author Isak Karlsson
@@ -93,19 +89,19 @@ public class ComplexVector extends AbstractVector {
    * @param values buffer of double values interpreted as complex numbers
    */
   public ComplexVector(double... values) {
-    Preconditions.checkArgument(values.length % 2 == 0);
+    Check.argument(values.length % 2 == 0);
     this.values = Arrays.copyOf(values, values.length);
     this.size = values.length / 2;
   }
 
   public ComplexVector(Complex... values) {
-    Preconditions.checkArgument(values.length > 0);
+    Check.argument(values.length > 0);
     this.values = new double[values.length * 2];
     this.size = values.length;
     for (int i = 0; i < values.length; i += 2) {
       Complex c = values[i];
-      this.values[i] = c.real();
-      this.values[i + 1] = c.imag();
+      this.values[i] = c.getReal();
+      this.values[i + 1] = c.getImaginary();
     }
   }
 
@@ -117,18 +113,18 @@ public class ComplexVector extends AbstractVector {
    * @param buffer buffer of double values interpreted as complex numbers
    */
   public ComplexVector(double[] buffer, int size) {
-    Preconditions.checkArgument(size * 2 <= buffer.length, "Un-even number of doubles.");
+    Check.argument(size * 2 <= buffer.length, "Un-even number of doubles.");
     this.values = Arrays.copyOf(buffer, size * 2);
     this.size = size;
   }
 
   public ComplexVector(ComplexArray freq) {
-    this.values = new double[checkedCast(freq.size()) * 2];
+    this.values = new double[freq.size() * 2];
     this.size = freq.size();
     for (int i = 0; i < freq.size(); i++) {
       Complex c = freq.get(i);
-      this.values[i * 2] = c.real();
-      this.values[i * 2 + 1] = c.imag();
+      this.values[i * 2] = c.getReal();
+      this.values[i * 2 + 1] = c.getImaginary();
     }
   }
 
@@ -327,8 +323,8 @@ public class ComplexVector extends AbstractVector {
       ensureCapacity(pos);
       Complex complex = from.getAsComplex(fromIndex);
 
-      buffer.buffer[pos] = complex.real();
-      buffer.buffer[pos + 1] = complex.imag();
+      buffer.buffer[pos] = complex.getReal();
+      buffer.buffer[pos + 1] = complex.getImaginary();
       return this;
     }
 
@@ -338,8 +334,8 @@ public class ComplexVector extends AbstractVector {
       ensureCapacity(pos);
       double real = Double.NaN, imag = Double.NaN;
       if (value instanceof Complex) {
-        real = ((Complex) value).real();
-        imag = ((Complex) value).imag();
+        real = ((Complex) value).getReal();
+        imag = ((Complex) value).getImaginary();
       } else if (value instanceof Number) {
         real = ((Number) value).doubleValue();
         imag = 0;
@@ -348,8 +344,8 @@ public class ComplexVector extends AbstractVector {
         if (resolver != null) {
           Complex obj = resolver.resolve(value);
           if (obj != null) {
-            real = obj.real();
-            imag = obj.imag();
+            real = obj.getReal();
+            imag = obj.getImaginary();
           }
         }
       }
@@ -385,7 +381,7 @@ public class ComplexVector extends AbstractVector {
 
     @Override
     public void swap(int a, int b) {
-      Preconditions.checkArgument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
+      Check.argument(a >= 0 && a + 1 < size() && b >= 0 && b + 1 < size());
       int i = a * 2;
       int j = b * 2;
       Utils.swap(buffer.buffer, i, j);
