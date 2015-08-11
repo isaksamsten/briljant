@@ -38,16 +38,16 @@ import org.briljantframework.exceptions.NonConformantException;
 class NetlibArrayRoutines extends BaseArrayRoutines {
 
   private final static BLAS blas = BLAS.getInstance();
+  protected static final String VECTOR_REQUIRED = "vector required";
 
   @Override
   public double dot(DoubleArray a, DoubleArray b) {
-    if (a.isContiguous() && b.isContiguous()) {
+    if (a instanceof NetlibDoubleArray && b instanceof NetlibDoubleArray) {
+      Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
       Check.size(a, b);
-      Check.argument(a.isVector() && b.isVector());
       int n = a.size();
-      double[] aa = a.data();
-      double[] ba = b.data();
-      return blas.ddot(n, aa, a.getOffset(), b.stride(0), ba, b.getOffset(), b.stride(0));
+      return blas.ddot(n, a.data(), a.getOffset(), a.getMajorStride(),
+                       b.data(), b.getOffset(), b.getMajorStride());
     } else {
       return super.dot(a, b);
     }
@@ -55,8 +55,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double asum(DoubleArray a) {
-    if (a.isContiguous()) {
-      return blas.dasum(a.size(), a.data(), a.getOffset(), a.stride(0));
+    if (a instanceof NetlibDoubleArray) {
+      Check.argument(a.isVector(), VECTOR_REQUIRED);
+      return blas.dasum(a.size(), a.data(), a.getOffset(), a.getMajorStride());
     } else {
       return super.asum(a);
     }
@@ -64,8 +65,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double norm2(DoubleArray a) {
-    if (a.isContiguous()) {
-      return blas.dnrm2(a.size(), a.data(), a.getOffset(), a.stride(0));
+    if (a instanceof NetlibDoubleArray) {
+      Check.argument(a.isVector(), VECTOR_REQUIRED);
+      return blas.dnrm2(a.size(), a.data(), a.getOffset(), a.getMajorStride());
     } else {
       return super.norm2(a);
     }
@@ -73,19 +75,21 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public int iamax(DoubleArray a) {
-    if (a.isContiguous()) {
-      return blas.idamax(a.size(), a.data(), a.getOffset(), a.stride(0));
+    if (a instanceof NetlibDoubleArray) {
+      Check.argument(a.isVector(), VECTOR_REQUIRED);
+      return blas.idamax(a.size(), a.data(), a.getOffset(), a.getMajorStride());
     } else {
       return super.iamax(a);
     }
   }
 
   @Override
-  public void scal(double alpha, DoubleArray x) {
-    if (alpha != 1 && x.isContiguous()) {
-      blas.dscal(x.size(), alpha, x.data(), x.getOffset(), x.stride(0));
+  public void scal(double alpha, DoubleArray a) {
+    if (a instanceof NetlibDoubleArray && alpha != 1) {
+      Check.argument(a.isVector(), VECTOR_REQUIRED);
+      blas.dscal(a.size(), alpha, a.data(), a.getOffset(), a.getMajorStride());
     } else {
-      super.scal(alpha, x);
+      super.scal(alpha, a);
     }
   }
 
@@ -94,11 +98,11 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     if (alpha == 0) {
       return;
     }
-    if (x.isContiguous() && y.isContiguous()) {
+    if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray) {
       Check.argument(x.isVector() && y.isVector());
       Check.size(x, y);
-      blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), x.stride(0),
-                 y.data(), y.getOffset(), y.stride(0));
+      blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), x.getMajorStride(),
+                 y.data(), y.getOffset(), y.getMajorStride());
     } else {
       super.axpy(alpha, x, y);
     }
@@ -106,18 +110,24 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
-    if (!x.isView() && !y.isView() && !a.isView()) {
-      Check.argument(x.isVector() && y.isVector());
-      Check.size(x.size(), a.rows());
-      Check.size(y.size(), a.columns());
-
-      int m = a.rows();
-      int n = a.columns();
-
-      double[] ax = x.data();
-      double[] ay = y.data();
-      double[] aa = a.data();
-      blas.dger(m, n, alpha, ax, 1, ay, 1, aa, Math.max(1, m));
+    Check.argument(a.isMatrix() && x.isVector() && y.isVector());
+    Check.size(x.size(), a.rows());
+    Check.size(y.size(), a.columns());
+    if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray &&
+        a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1)) {
+      blas.dger(
+          a.rows(),
+          a.columns(),
+          alpha,
+          x.data(),
+          x.getOffset(),
+          x.getMajorStride(),
+          y.data(),
+          y.getOffset(),
+          y.getMajorStride(),
+          a.data(),
+          a.getOffset(),
+          Math.max(1, a.stride(1)));
     } else {
       super.ger(alpha, x, y, a);
     }
@@ -130,27 +140,30 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.argument(x.isVector());
     Check.argument(y.isVector());
 
-    int am = a.rows();
-    int an = a.columns();
-    String ta = "n";
-    if (transA.isTrue()) {
-      am = a.columns();
-      an = a.rows();
-    }
-    if (!x.isVector() || x.size() != am) {
-      throw new NonConformantException(am, an, x.rows(), x.columns());
-    }
-    if (!x.isVector() || !y.isVector() || y.size() != x.size()) {
-      throw new IllegalArgumentException("...");
-    }
+    if (a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1) &&
+        x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray) {
 
-    int lda = a.rows();
-    double[] aa = a.data();
-    double[] xa = x.data();
-    double[] ya = y.data();
-    blas.dgemv(ta, am, an, alpha, aa, lda, xa, 1, beta, ya, 1);
-    if (y.isView()) {
-      y.assign(ya);
+      int m = a.size(transA == Op.KEEP ? 0 : 1);
+      int n = a.size(transA == Op.KEEP ? 1 : 0);
+      // TODO: sanity checks
+
+      blas.dgemv(
+          transA.asString(),
+          m,
+          n,
+          alpha,
+          a.data(),
+          a.getOffset(),
+          Math.max(1, a.stride(1)),
+          x.data(),
+          x.getOffset(),
+          x.getMajorStride(),
+          beta,
+          y.data(),
+          y.getOffset(),
+          y.getMajorStride());
+    } else {
+      super.gemv(transA, alpha, a, x, beta, y);
     }
   }
 
@@ -161,8 +174,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.argument(b.dims() == 2, "'b' has %s dims", a.dims());
     Check.argument(c.dims() == 2, "'c' has %s dims", a.dims());
 
-    if (a.stride(0) == 1 && b.stride(0) == 1 && c.stride(0) == 1 &&
-        a.stride(1) >= a.size(1) && b.stride(1) >= b.size(1) && c.stride(1) >= c.size(1)) {
+    if (a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1) &&
+        b instanceof NetlibDoubleArray && b.stride(0) == 1 && b.stride(1) >= b.size(1) &&
+        c instanceof NetlibDoubleArray && c.stride(0) == 1 && c.stride(1) >= c.size(1)) {
       if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
         boolean ta = transA == Op.KEEP;
         boolean tb = transB == Op.KEEP;
@@ -200,19 +214,10 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
           c.getOffset(),
           Math.max(1, c.stride(1))
       );
-//
-      if (c.isView()) {
-        c.assign(ca);
-      }
     } else {
       super.gemm(transA, transB, alpha, a, b, beta, c);
     }
 
 
   }
-
-  public boolean isMatrixTransposedView(DoubleArray x) {
-    return x.stride(x.dims() - 1) > x.stride(0);
-  }
-
 }

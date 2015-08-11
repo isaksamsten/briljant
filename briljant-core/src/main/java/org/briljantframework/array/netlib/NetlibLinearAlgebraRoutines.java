@@ -29,14 +29,14 @@ import com.google.common.primitives.Chars;
 import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Check;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.netlib.util.intW;
 
 import java.util.Arrays;
@@ -64,6 +64,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   private static final char[] SYEVR_RANGE_CHAR = new char[]{'a', 'v', 'i'};
   static final char[] SYEVR_UPLO = new char[]{'l', 'u'};
   static final char[] ORMQR_SIDE = new char[]{'l', 'r'};
+  protected static final String REQUIRE_2D_ARRAY = "require 2d-array";
 
   protected NetlibLinearAlgebraRoutines(NetlibArrayBackend matrixFactory) {
     super(matrixFactory);
@@ -76,6 +77,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public DoubleArray pinv(DoubleArray x) {
+    Check.argument(x.isMatrix(), REQUIRE_2D_ARRAY);
     ArrayFactory bj = getArrayBackend().getArrayFactory();
     SingularValueDecomposition svd = svd(x);
     DoubleArray d = svd.getDiagonal();
@@ -110,6 +112,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public SingularValueDecomposition svd(DoubleArray x) {
+    Check.argument(x.isMatrix(), REQUIRE_2D_ARRAY);
     ArrayFactory bj = getArrayBackend().getArrayFactory();
     int m = x.rows();
     int n = x.columns();
@@ -127,7 +130,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public void geqrf(DoubleArray a, DoubleArray tau) {
-    Check.argument(a.isMatrix(), "a must be a 2d-array");
+    Check.argument(a.isMatrix(), REQUIRE_2D_ARRAY);
     int m = a.rows();
     int n = a.columns();
     int lda = Math.max(1, m);
@@ -708,7 +711,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
    * <p> The data is assigned to simulate out-parameters
    */
   private void assignIfNeeded(DoubleArray a, double[] data) {
-    if (a.isView() || a.getOffset() > 0 || a.stride(0) != 1) {
+    if (!(a instanceof NetlibDoubleArray) || a.getOffset() > 0 || a.stride(0) != 1) {
       a.assign(data);
     }
   }

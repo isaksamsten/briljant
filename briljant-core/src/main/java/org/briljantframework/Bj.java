@@ -54,8 +54,8 @@ import java.util.stream.StreamSupport;
  */
 public final class Bj {
 
-  private static final Distribution normalDistribution = new NormalDistribution(-1, 1);
-  private static final Distribution uniformDistribution = new UniformDistribution(0, 1);
+  private static final Distribution normalDistribution = new NormalDistribution(0, 1);
+  private static final Distribution uniformDistribution = new UniformDistribution(-1, 1);
 
   private static final ArrayFactory MATRIX_FACTORY;
   private static final ArrayRoutines MATRIX_ROUTINES;
@@ -103,6 +103,13 @@ public final class Bj {
   }
 
   /**
+   * @see org.briljantframework.array.api.ArrayFactory#doubleArray(int...)
+   */
+  public static DoubleArray doubleArray(int... shape) {
+    return MATRIX_FACTORY.doubleArray(shape);
+  }
+
+  /**
    * @see org.briljantframework.array.api.ArrayFactory#ones(int...)
    */
   public static DoubleArray ones(int... shape) {
@@ -110,9 +117,104 @@ public final class Bj {
   }
 
   /**
+   * @see org.briljantframework.array.api.ArrayFactory#zero(int...)
+   */
+  public static DoubleArray zero(int... shape) {
+    return MATRIX_FACTORY.zero(shape);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#eye(int)
+   */
+  public static DoubleArray eye(int size) {
+    return MATRIX_FACTORY.eye(size);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
+   */
+  public static DoubleArray array(double[] data) {
+    return MATRIX_FACTORY.array(data);
+  }
+
+  /**
    * @see org.briljantframework.array.api.ArrayFactory#array(double[][])
    */
   public static DoubleArray array(double[][] data) {
+    return MATRIX_FACTORY.array(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#linspace(double, double, int)
+   */
+  public static DoubleArray linspace(double start, double end, int size) {
+    return MATRIX_FACTORY.linspace(start, end, size);
+  }
+
+  /**
+   * Create a 1d-array with values sampled from the specified distribution.
+   *
+   * @param size         the size of the array
+   * @param distribution the distribution to sample from
+   * @return a new 1d-array
+   */
+  public static DoubleArray rand(int size, Distribution distribution) {
+    return doubleArray(size).assign(distribution::sample);
+  }
+
+  /**
+   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean {@code
+   * 0} and standard deviation {@code 1}.
+   *
+   * <p>Example
+   * <pre>{@code
+   * > Bj.randn(9).reshape(3, 3);
+   * array([[0.168, -0.297, -0.374],
+   *        [1.030, -1.465,  0.636],
+   *        [0.957, -0.990,  0.498]] type: double)
+   * }</pre>
+   *
+   * @param size the size of the array
+   * @return a new 1d-array
+   */
+  public static DoubleArray randn(int size) {
+    return rand(size, normalDistribution);
+  }
+
+  /**
+   * Create a 1d-array with values sampled uniformly from the range {@code [-1, 1]}
+   * <p>Example
+   * <pre>{@code
+   * > Bj.rand(4).reshape(2,2)
+   * array([[0.467, 0.898],
+   *        [0.568, 0.103]] type: double)
+   * }</pre>
+   *
+   * @param size the size of the array
+   * @return a new 1d-array
+   */
+  public static DoubleArray rand(int size) {
+    return rand(size, uniformDistribution);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#complexArray(int...)
+   */
+  public static ComplexArray complexArray(int... shape) {
+    return MATRIX_FACTORY.complexArray(shape);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#complexArray(double[])
+   */
+  public static ComplexArray complexArray(double[] data) {
+    return MATRIX_FACTORY.complexArray(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(org.briljantframework.complex.Complex[])
+   */
+  public static ComplexArray array(Complex[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -124,54 +226,10 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#booleanArray(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#intArray(int...)
    */
-  public static BitArray booleanArray(int... shape) {
-    return MATRIX_FACTORY.booleanArray(shape);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(int[][])
-   */
-  public static IntArray array(int[][] data) {
-    return MATRIX_FACTORY.array(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#longArray(int...)
-   */
-  public static LongArray longArray(int... shape) {
-    return MATRIX_FACTORY.longArray(shape);
-  }
-
-  public static DoubleArray rand(int size, Distribution distribution) {
-    return doubleArray(size).assign(distribution::sample);
-  }
-
-  public static DoubleArray randn(int size) {
-    return rand(size, normalDistribution);
-  }
-
-  public static IntArray randi(int size, Distribution distribution) {
-    return intArray(size).assign(() -> (int) Math.round(distribution.sample()));
-  }
-
-  public static IntArray randi(int size, int l, int u) {
-    return randi(size, new UniformDistribution(l, u));
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#doubleArray(int...)
-   */
-  public static DoubleArray doubleArray(int... shape) {
-    return MATRIX_FACTORY.doubleArray(shape);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
-   */
-  public static DoubleArray array(double[] data) {
-    return MATRIX_FACTORY.array(data);
+  public static IntArray intArray(int... shape) {
+    return MATRIX_FACTORY.intArray(shape);
   }
 
   /**
@@ -182,10 +240,10 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#complexArray(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#array(int[][])
    */
-  public static ComplexArray complexArray(int... shape) {
-    return MATRIX_FACTORY.complexArray(shape);
+  public static IntArray array(int[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
   /**
@@ -216,25 +274,16 @@ public final class Bj {
     return MATRIX_FACTORY.range(start, end, step);
   }
 
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#linspace(double, double, int)
-   */
-  public static DoubleArray linspace(double start, double end, int size) {
-    return MATRIX_FACTORY.linspace(start, end, size);
+  public static IntArray randi(int size, int l, int u) {
+    Distribution distribution = new UniformDistribution(l, u);
+    return intArray(size).assign(() -> (int) Math.round(distribution.sample()));
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(org.briljantframework.complex.Complex[])
+   * @see org.briljantframework.array.api.ArrayFactory#longArray(int...)
    */
-  public static ComplexArray array(Complex[] data) {
-    return MATRIX_FACTORY.array(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#intArray(int...)
-   */
-  public static IntArray intArray(int... shape) {
-    return MATRIX_FACTORY.intArray(shape);
+  public static LongArray longArray(int... shape) {
+    return MATRIX_FACTORY.longArray(shape);
   }
 
   /**
@@ -245,17 +294,24 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#complexArray(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#array(long[][])
    */
-  public static ComplexArray complexArray(double[] data) {
-    return MATRIX_FACTORY.complexArray(data);
+  public static LongArray array(long[][] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#diag(org.briljantframework.array.BaseArray)
+   * @see org.briljantframework.array.api.ArrayFactory#booleanArray(int...)
    */
-  public static <T extends BaseArray<T>> T diag(T data) {
-    return MATRIX_FACTORY.diag(data);
+  public static BitArray booleanArray(int... shape) {
+    return MATRIX_FACTORY.booleanArray(shape);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
+   */
+  public static BitArray array(boolean[] data) {
+    return MATRIX_FACTORY.array(data);
   }
 
   /**
@@ -266,31 +322,10 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#eye(int)
+   * @see org.briljantframework.array.api.ArrayFactory#diag(org.briljantframework.array.BaseArray)
    */
-  public static DoubleArray eye(int size) {
-    return MATRIX_FACTORY.eye(size);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(long[][])
-   */
-  public static LongArray array(long[][] data) {
-    return MATRIX_FACTORY.array(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#zero(int...)
-   */
-  public static DoubleArray zero(int... shape) {
-    return MATRIX_FACTORY.zero(shape);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
-   */
-  public static BitArray array(boolean[] data) {
-    return MATRIX_FACTORY.array(data);
+  public static <T extends BaseArray<T>> T diag(T data) {
+    return MATRIX_FACTORY.diag(data);
   }
 
   /**
@@ -736,6 +771,54 @@ public final class Bj {
    */
   public static double dot(DoubleArray a, DoubleArray b) {
     return MATRIX_ROUTINES.dot(a, b);
+  }
+
+  /**
+   * Compute the inner product of two arrays. If the arguments are {@code vectors}, the result
+   * is equivalent to {@linkplain #dot(org.briljantframework.array.DoubleArray,
+   * org.briljantframework.array.DoubleArray)}. In other cases, the arguments are raveled.
+   * <p>Example
+   * <pre>{@code
+   * > Bj.inner(Bj.linspace(0,3,4), Bj.linspace(0,3,4).reshape(2, 2))
+   * 14.0
+   * }</pre>
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return the inner product
+   */
+  public static double inner(DoubleArray a, DoubleArray b) {
+    a = a.isVector() ? a : a.ravel();
+    b = b.isVector() ? b : b.ravel();
+    return dot(a, b);
+  }
+
+  /**
+   * Computes the outer product of two arrays. If the arguments are {@code vectors}, the result is
+   * equivalent to {@link #ger(double, org.briljantframework.array.DoubleArray,
+   * org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)}. In other
+   * cases, the arguments are raveled.
+   *
+   * <p>Example
+   * <pre>{@code
+   * Bj.outer(Bj.linspace(0, 3, 4), Bj.linspace(0,3,4).reshape(2,2))
+   * array([[0.000, 0.000, 0.000, 0.000],
+   *        [0.000, 1.000, 2.000, 3.000],
+   *        [0.000, 2.000, 4.000, 6.000],
+   *        [0.000, 3.000, 6.000, 9.000]] type: double)
+   * }</pre>
+   *
+   * @param a the first argument of size {@code m}
+   * @param b the second argument of size {@code n}
+   * @return a new 2d-array of size {@code m x n}
+   */
+  public static DoubleArray outer(DoubleArray a, DoubleArray b) {
+    a = a.isVector() ? a : a.ravel();
+    b = b.isVector() ? b : b.ravel();
+
+    DoubleArray out = doubleArray(a.size(), b.size());
+    ger(1, a, b, out);
+    return out;
   }
 
   /**

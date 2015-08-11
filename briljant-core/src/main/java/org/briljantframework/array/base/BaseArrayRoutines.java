@@ -25,6 +25,8 @@
 package org.briljantframework.array.base;
 
 import com.google.common.base.Preconditions;
+import com.google.common.math.DoubleMath;
+import com.google.common.primitives.Doubles;
 
 import org.briljantframework.Check;
 import org.briljantframework.Utils;

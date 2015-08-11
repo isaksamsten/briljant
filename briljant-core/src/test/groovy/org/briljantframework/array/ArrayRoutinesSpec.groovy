@@ -49,17 +49,95 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     a << [
         bj.array([1, 2, 3, 4] as double[]), // simple
-        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)) // slice
+        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)), // slice
+        bj.linspace(0, 15, 16).reshape(4, 4).getColumn(0)
     ]
 
     b << [
         bj.array([1, 2, 3, 4] as double[]),
-        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)) // slice
+        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)), // slice
+        bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
     ]
 
     c << [
         30,
-        165
+        165,
+        54
+    ]
+  }
+
+  def "absolute sum"() {
+    expect:
+    bjr.asum(x) == sum
+
+    where:
+    x << [
+        bj.array([1, 2, 3, -5] as double[]),
+        bj.array([1, 2, -3, -4, 10, 2] as double[]).get(bj.range(1, 6, 2))
+    ]
+
+    sum << [
+        11,
+        8
+    ]
+  }
+
+  def "axpy"() {
+    when:
+    bjr.axpy(alpha, x, y)
+
+    then:
+    y == result
+
+    where:
+    x << [
+        bj.array([1, 2, 3, 4] as double[]),
+        bj.array([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get(bj.range(1, 8, 2)),
+        bj.linspace(0, 4, 10),
+        bj.linspace(0, 9, 10).reshape(2, 5).getRow(0).transpose(),
+        bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
+    ]
+
+    y << [
+        bj.doubleArray(4),
+        bj.array([1, 2, 3, 4] as double[]),
+        bj.linspace(0, 4, 10),
+        bj.linspace(0, 9, 10).reshape(2, 5).getRow(0),
+        bj.linspace(0, 11, 12).reshape(4, 3).getColumn(0)
+    ]
+
+    alpha << [
+        2.0,
+        1.0,
+        0.0,
+        1.0,
+        1
+    ]
+
+    result << [
+        bj.array([2, 4, 6, 8] as double[]),
+        bj.array([1, 3, 5, 7] as double[]),
+        bj.linspace(0, 4, 10),
+        bj.array([0, 4, 8, 12, 16] as double[]).reshape(1, 5),
+        bj.array([2, 6, 10, 14] as double[]).reshape(4, 1)
+    ]
+  }
+
+  def "norm2"() {
+    expect:
+    bjr.norm2(a) == Math.sqrt(sum)
+
+    where:
+    a << [
+        bj.linspace(0, 3, 4),
+        bj.range(10).asDouble(),
+        bj.linspace(0, 9, 10).reshape(2, 5).getRow(1)
+    ]
+
+    sum << [
+        14.0,
+        285.0,
+        165.0
     ]
   }
 

@@ -332,6 +332,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   S reshape(int... shape);
 
+  S ravel();
+
   /**
    * Select the {@code i:th} slice of the final dimension.
    *

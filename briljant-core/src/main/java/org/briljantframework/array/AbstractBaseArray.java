@@ -335,8 +335,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public final E reshape(int... shape) {
     if (shape.length == 1 && shape[0] == -1) {
-      int[] newShape = {size()};
       if (isContiguous()) {
+        int[] newShape = {size()};
         return asView(getOffset(), newShape, Indexer.computeStride(1, newShape));
       } else {
         return copy().reshape(shape);
@@ -350,6 +350,11 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     } else {
       return copy().reshape(shape);
     }
+  }
+
+  @Override
+  public E ravel() {
+    return reshape(-1);
   }
 
   @Override
