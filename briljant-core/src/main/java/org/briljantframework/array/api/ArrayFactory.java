@@ -24,6 +24,7 @@
 
 package org.briljantframework.array.api;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BitArray;
@@ -32,17 +33,12 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
-import org.apache.commons.math3.complex.Complex;
 
 
 /**
  * @author Isak Karlsson
  */
 public interface ArrayFactory {
-
-  DoubleArray ones(int... shape);
-
-  DoubleArray zero(int... shape);
 
   <T> Array<T> array(T[] data);
 
@@ -81,12 +77,17 @@ public interface ArrayFactory {
   LongArray array(long[] data);
 
   /**
-   * Create a {@code DoubleMatrix} with given data
+   * Construct an empty {@code double} are with the given shape. Note that for most implementations
+   * the resulting array is initialized with {@code 0}. This is however no guarantee.
    *
-   * @param data the data
-   * @return a new matrix
+   * @param shape the shape
+   * @return a new array
    */
-  DoubleArray array(double[][] data);
+  DoubleArray doubleArray(int... shape);
+
+  DoubleArray ones(int... shape);
+
+  DoubleArray zero(int... shape);
 
   /**
    * Create a vector with the given data.
@@ -95,6 +96,26 @@ public interface ArrayFactory {
    * @return a new matrix
    */
   DoubleArray array(double[] data);
+
+  /**
+   * Create a matrix with given data in row-major order.
+   *
+   * <p> Example
+   * <pre>{@code
+   * > double[][] data = {
+   *     {1, 2, 3},
+   *     {1, 2 ,3}
+   *   };
+   * > f.array(data);
+   *
+   * array([[1, 2, 3],
+   *        [1, 2, 3]] type: double)
+   * }</pre>
+   *
+   * @param data the data
+   * @return a new matrix
+   */
+  DoubleArray array(double[][] data);
 
   /**
    * Extract or create a diagonal matrix
@@ -120,14 +141,16 @@ public interface ArrayFactory {
    *
    * @param data the data
    * @return a 2d-array or a 1d-view
+   * @throws java.lang.IllegalArgumentException if the array has more than 2 dimensions
    */
   <T extends BaseArray<T>> T diag(T data);
 
   /**
-   * Create a {@code ComplexMatrix} with given data
+   * Create a matrix with given data
    *
    * @param data the data
    * @return a new matrix
+   * @see #array(double[][])
    */
   ComplexArray array(Complex[][] data);
 
@@ -160,8 +183,6 @@ public interface ArrayFactory {
    * @return a new matrix
    */
   LongArray longArray(int... shape);
-
-  DoubleArray doubleArray(int... shape);
 
   /**
    * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.

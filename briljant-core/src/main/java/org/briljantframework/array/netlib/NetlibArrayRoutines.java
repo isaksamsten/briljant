@@ -174,9 +174,13 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.argument(b.dims() == 2, "'b' has %s dims", a.dims());
     Check.argument(c.dims() == 2, "'c' has %s dims", a.dims());
 
-    if (a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1) &&
-        b instanceof NetlibDoubleArray && b.stride(0) == 1 && b.stride(1) >= b.size(1) &&
-        c instanceof NetlibDoubleArray && c.stride(0) == 1 && c.stride(1) >= c.size(1)) {
+    if (a instanceof NetlibDoubleArray && /* a.stride(0) == 1 && a.stride(1) >= a.size(1) &&*/
+        b instanceof NetlibDoubleArray && /*b.stride(0) == 1 && b.stride(1) >= b.size(1) &&*/
+        c instanceof NetlibDoubleArray /*&& c.stride(0) == 1 && c.stride(1) >= c.size(1)*/) {
+      a = a.isContiguous() && a.stride(0) == 1 ? a : a.copy();
+      b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
+      c = c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
+
       if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
         boolean ta = transA == Op.KEEP;
         boolean tb = transB == Op.KEEP;

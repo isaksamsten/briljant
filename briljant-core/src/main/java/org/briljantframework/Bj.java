@@ -912,7 +912,6 @@ public final class Bj {
     gemm(Op.KEEP, Op.KEEP, 1, a, b, 1, c);
   }
 
-
   /**
    * @param array the array
    * @return the index of the maximum value

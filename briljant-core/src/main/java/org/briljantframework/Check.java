@@ -250,8 +250,8 @@ public final class Check {
   }
 
   public static int elementIndex(int index, int size) {
-    if (index < 0 || index > size) {
-      throw new IndexOutOfBoundsException(index + " < 0 || " + index + " > " + size);
+    if (index < 0 || index >= size) {
+      throw new IndexOutOfBoundsException(index + " < 0 || " + index + " >= " + size);
     }
     return index;
   }

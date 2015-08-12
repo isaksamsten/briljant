@@ -132,6 +132,33 @@ class BaseArraySpec extends Specification {
     2      | [6, 7, 8]
   }
 
+  def "For 2d-arrays, getDiagonal() returns a vector of diagonal entries"() {
+    expect:
+    square.getDiagonal() == squareDiagonal
+    moreRows.getDiagonal() == moreRowsDiagonal
+    moreColumns.getDiagonal() == moreColumnsDiagonal
+
+    where:
+    square << getElementArray([3, 3], [0, 1, 2, 3, 4, 5, 6, 7, 8])
+    squareDiagonal << getElementArray(3, [0, 4, 8])
+    moreRows << getElementArray([4, 3], (0..11).toList())
+    moreRowsDiagonal << getElementArray(3, [0, 5, 10])
+    moreColumns << getElementArray([3, 4], (0..11).toList())
+    moreColumnsDiagonal << getElementArray(3, [0, 4, 8])
+  }
+
+  def "ravel flattens arrays"() {
+    expect:
+    def y = x.reshape(2, 2, 2)
+    y.ravel() == result
+    y.transpose().ravel() == resultT
+
+    where:
+    x << getRangeArrays(2 * 2 * 2)
+    result << getRangeArrays(2 * 2 * 2)
+    resultT << getElementArray(2 * 2 * 2, [0, 4, 2, 6, 1, 5, 3, 7])
+  }
+
   def "Using one-dimensional indexing, a transposed view is iterated in column major order"() {
     given:
     def x = bj.range(2 * 2 * 3).reshape(2, 2, 3)
@@ -309,7 +336,7 @@ class BaseArraySpec extends Specification {
     array << getArrays(2, 3, 4);
     dims1 << getShapes([3, 4], 5)
     dims2 << getShapes([4], 5)
-    value << [true, 1.0, 1, 1L, Complex.valueOf(1)]
+    value << [true, 1, 1.0, 1L, Complex.valueOf(1)]
   }
 
   def "Selecting the current sub-array returns the correct sub-array"() {
@@ -329,32 +356,32 @@ class BaseArraySpec extends Specification {
     range << getRangeArrays(8)
     slice0 << [
         bj.array([false, false, false, false] as boolean[]).reshape(2, 2),
-        bj.array([0, 2, 4, 6] as double[]).reshape(2, 2),
         bj.array([0, 2, 4, 6] as int[]).reshape(2, 2),
+        bj.array([0, 2, 4, 6] as double[]).reshape(2, 2),
         bj.array([0, 2, 4, 6] as long[]).reshape(2, 2),
         bj.array([Complex.valueOf(0), Complex.valueOf(2),
                   Complex.valueOf(4), Complex.valueOf(6)] as Complex[]).reshape(2, 2),
     ]
     slice0T << [
         bj.array([false, false, false, false] as boolean[]).reshape(2, 2),
-        bj.array([0, 4, 2, 6] as double[]).reshape(2, 2),
         bj.array([0, 4, 2, 6] as int[]).reshape(2, 2),
+        bj.array([0, 4, 2, 6] as double[]).reshape(2, 2),
         bj.array([0, 4, 2, 6] as long[]).reshape(2, 2),
         bj.array([Complex.valueOf(0), Complex.valueOf(4),
                   Complex.valueOf(2), Complex.valueOf(6)] as Complex[]).reshape(2, 2),
     ]
     slice1 << [
         bj.array([true, false, false, false] as boolean[]).reshape(2, 2),
-        bj.array([1, 3, 5, 7] as double[]).reshape(2, 2),
         bj.array([1, 3, 5, 7] as int[]).reshape(2, 2),
+        bj.array([1, 3, 5, 7] as double[]).reshape(2, 2),
         bj.array([1, 3, 5, 7] as long[]).reshape(2, 2),
         bj.array([Complex.valueOf(1), Complex.valueOf(3),
                   Complex.valueOf(5), Complex.valueOf(7)] as Complex[]).reshape(2, 2),
     ]
     slice1T << [
         bj.array([true, false, false, false] as boolean[]).reshape(2, 2),
-        bj.array([1, 5, 3, 7] as double[]).reshape(2, 2),
         bj.array([1, 5, 3, 7] as int[]).reshape(2, 2),
+        bj.array([1, 5, 3, 7] as double[]).reshape(2, 2),
         bj.array([1, 5, 3, 7] as long[]).reshape(2, 2),
         bj.array([Complex.valueOf(1), Complex.valueOf(5),
                   Complex.valueOf(3), Complex.valueOf(7)] as Complex[]).reshape(2, 2),
@@ -448,8 +475,8 @@ class BaseArraySpec extends Specification {
   def getArrays(int[] shape) {
     return [
         bj.booleanArray(shape),
-        bj.doubleArray(shape),
         bj.intArray(shape),
+        bj.doubleArray(shape),
         bj.longArray(shape),
         bj.complexArray(shape)
     ]
@@ -458,10 +485,34 @@ class BaseArraySpec extends Specification {
   def getRangeArrays(int length) {
     return [
         bj.range(length).asBit().copy(),
-        bj.range(length).asDouble().copy(),
         bj.range(length).asInt().copy(),
+        bj.range(length).asDouble().copy(),
         bj.range(length).asLong().copy(),
         bj.range(length).asComplex().copy(),
     ]
+  }
+
+  def getElementArray(shape, value) {
+    if (!(shape instanceof List)) {
+      shape = [shape]
+    }
+    shape = shape as int[]
+    if (value instanceof List) {
+      return [
+          bj.array(value.collect {it == 1} as boolean[]).reshape(shape),
+          bj.array(value as int[]).reshape(shape),
+          bj.array(value as double[]).reshape(shape),
+          bj.array(value as long[]).reshape(shape),
+          bj.array(value.collect {Complex.valueOf(it)} as Complex[]).reshape(shape)
+      ]
+    } else {
+      return [
+          bj.booleanArray(shape).assign(value as int == 1),
+          bj.intArray(shape).assign(value as int),
+          bj.doubleArray(shape).assign(value as double),
+          bj.longArray(shape).assign(value as long),
+          bj.complexArray(shape).assign(value as double)
+      ]
+    }
   }
 }

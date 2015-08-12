@@ -178,6 +178,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         to.select(j).assign(from.select(fromIndex));
       }
     } else {
+      Check.elementIndex(dim, from.dims());
       Check.boxedIndex(fromIndex, from.size(dim));
       select(indexes, from.select(fromIndex), to, j, dim + 1);
     }
@@ -394,8 +395,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final boolean isVector() {
-    return dims() == 1 ||
-           (dims() == 2 && (rows() == 1 || columns() == 1));
+    return dims() == 1 || (dims() == 2 && (rows() == 1 || columns() == 1));
   }
 
   @Override
@@ -411,6 +411,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final int size(int dim) {
+    Check.argument(dim >= 0 && dim < dims(), "dimension out of bounds");
     return shape[dim];
   }
 
@@ -444,15 +445,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     return stride.clone();
   }
 
-  /**
-   * The major stride of the array, for a transposed matrix this equals to
-   * {@code stride[stride.length - 1]} and otherwise {@code stride[0]}
-   */
   protected int getMajorStrideIndex() {
     return majorStride;
-  }
-
-  protected boolean isTransposed() {
-    return majorStride != 0;
   }
 }

@@ -34,13 +34,12 @@ import org.apache.commons.math3.complex.Complex;
  * creating unnecessary copies.
  * </p>
  *
- * <pre>
- *     Complex sum = Complex.ZERO;
- *     List<Complex> complexes = ...;
- *     for(Complex c : complexes) {
- *         sum = sum.plus(c);
- *     }
- * </pre>
+ * <pre>{@code
+ * Complex sum = Complex.ZERO;
+ * List<Complex> complexes = ...;
+ * for(Complex c : complexes) {
+ *   sum = sum.plus(c);
+ * }}</pre>
  * <p>
  * In the example above, {@code complexes.size()} garbage instances of temporary sums are created
  * and garbage collected, which negatively impact the performance.
@@ -50,14 +49,13 @@ import org.apache.commons.math3.complex.Complex;
  * Instead, the {@code ComplexBuilder} can be used as a drop-in replacement
  * </p>
  *
- * <pre>
- *     ComplexBuilder accSum = new ComplexBuilder(0);
- *     List<Complex> complexes = ...;
- *     for(Complex c : complexes) {
- *         accSum = accSum.plus(c);
- *     }
- *     Complex sum = accSum.toComplex();
- * </pre>
+ * <pre>{@code
+ * ComplexBuilder accSum = new ComplexBuilder(0);
+ * List<Complex> complexes = ...;
+ * for(Complex c : complexes) {
+ *   accSum = accSum.plus(c);
+ * }
+ * Complex sum = accSum.toComplex();}</pre>
  *
  * <p>
  * {@link #plus(Complex)} above return the receiver mutated, hence {@code accSum.plus(c);} (without

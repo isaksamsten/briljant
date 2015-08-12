@@ -102,81 +102,58 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public DoubleArray mmul(double alpha, Op transA, DoubleArray b, Op transB) {
-    Check.argument(b.isMatrix());
+  public DoubleArray mmul(double alpha, Op transA, DoubleArray other, Op transB) {
+    Check.argument(other.isMatrix());
     Check.state(isMatrix());
-    if (stride(0) == 1 && b.stride(0) == 1 && stride(1) >= size(1) && b.stride(1) >= b.size(1)) {
-      int m = size(transA == Op.KEEP ? 0 : 1);
-      int bm = b.size(transB == Op.KEEP ? 0 : 1);
-      int n = b.size(transB == Op.KEEP ? 1 : 0);
-      int k = size(transA == Op.KEEP ? 1 : 0);
-      if (b.size(transB == Op.KEEP ? 0 : 1) != size(transA == Op.KEEP ? 1 : 0)) {
-        throw new NonConformantException(this, b);
-      }
-      if (m == 0 || k == 0 || n == 0 || bm == 0) {
-        return new NetlibDoubleArray(getArrayFactory(), new double[0], 0, 0);
-      }
 
-//      if (m != c.size(0) || n != c.size(1)) {
-//        throw new NonConformantException(String.format(
-//            "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)",
-//            m, k, k, n, c.size(0), c.size(1)));
-//      }
-
-      double[] ca = new double[m * n];
-      blas.dgemm(
-          transA.asString(),
-          transB.asString(),
-          m,
-          n,
-          k,
-          alpha,
-          data(),
-          getOffset(),
-          Math.max(1, stride(1)),
-          b.data(),
-          b.getOffset(),
-          Math.max(1, b.stride(1)),
-          1.0,
-          ca,
-          0,
-          Math.max(1, n)
-      );
-      return new NetlibDoubleArray(getArrayFactory(), ca, m, n);
+    DoubleArray self;
+    if (stride(0) == 1) {
+      self = this;
+    } else {
+      self = this.copy();
+    }
+    DoubleArray b;
+    if (other.stride(0) == 1) {
+      b = other;
+    } else {
+      b = other.copy();
     }
 
-//    if (!isView() && !b.isView()) {
-//      String transA = "n";
-//      int thisRows = rows();
-//      int thisColumns = columns();
-//      if (transA.isTrue()) {
-//        thisRows = columns();
-//        thisColumns = rows();
-//        transA = "t";
-//      }
-//
-//      String transB = "n";
-//      int otherRows = b.rows();
-//      int otherColumns = b.columns();
-//      if (transB.isTrue()) {
-//        otherRows = b.columns();
-//        otherColumns = b.rows();
-//        transB = "t";
-//      }
-//
-//      if (thisColumns != otherRows) {
-//        throw new NonConformantException(this, b);
-//      }
-//      double[] tmp = new double[Math.multiplyExact(thisRows, otherColumns)];
-//      blas.dgemm(transA, transB, thisRows, otherColumns, otherRows, alpha, data,
-//                 this.rows(), b.data(), b.rows(), 0, tmp,
-//                 thisRows);
-//
-//      return new NetlibDoubleArray(getArrayFactory(), tmp, thisRows, otherColumns);
-    else {
-      return super.mmul(alpha, transA, b, transB);
+//    if (self.stride(0) == 1 && b.stride(0) == 1){
+    int m = self.size(transA == Op.KEEP ? 0 : 1);
+    int bm = b.size(transB == Op.KEEP ? 0 : 1);
+    int n = b.size(transB == Op.KEEP ? 1 : 0);
+    int k = self.size(transA == Op.KEEP ? 1 : 0);
+    if (b.size(transB == Op.KEEP ? 0 : 1) != self.size(transA == Op.KEEP ? 1 : 0)) {
+      throw new NonConformantException(this, b);
+    }
+    if (m == 0 || k == 0 || n == 0 || bm == 0) {
+      return new NetlibDoubleArray(getArrayFactory(), new double[0], 0, 0);
     }
 
+    double[] ca = new double[m * n];
+    blas.dgemm(
+        transA.asString(),
+        transB.asString(),
+        m,
+        n,
+        k,
+        alpha,
+        self.data(),
+        self.getOffset(),
+        Math.max(1, self.stride(1)),
+        b.data(),
+        b.getOffset(),
+        Math.max(1, b.stride(1)),
+        1.0,
+        ca,
+        0,
+        Math.max(1, n)
+    );
+    return new NetlibDoubleArray(getArrayFactory(), ca, m, n);
+//    } else {
+//      return super.mmul(alpha, transA, b, transB);
+//    }
   }
 
   @Override
