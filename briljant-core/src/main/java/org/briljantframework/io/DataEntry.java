@@ -36,7 +36,7 @@ public interface DataEntry {
    * Reads the next entry and tries to resolve the value as {@code cls}. If this fails, {@code
    * next}
    * returns an appropriate {@code NA} value
-   * (as defined in {@link org.briljantframework.vector.Na#of(Class)}).
+   * (as defined in {@link org.briljantframework.vector.Na#from(Class)}).
    *
    * @param cls the class
    * @param <T> the type to return

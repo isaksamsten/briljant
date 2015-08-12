@@ -60,28 +60,28 @@ class DataFrameSpec extends Specification {
     given:
     def c = createDataFrame(
         [["hello", 1, 32.2],
-         ["aa", 2, Na.of(double)]],
+         ["aa", 2, Na.from(double)]],
         String, int, double)
 
     expect:
-    c.getAsDouble(0, 0) == Na.of(double)
+    c.getAsDouble(0, 0) == Na.from(double)
     c.getAsDouble(1, 1) == 2.0
     c.getAsDouble(0, 2) == 32.2
-    c.getAsDouble(1, 2) == Na.of(double)
+    c.getAsDouble(1, 2) == Na.from(double)
   }
 
   def "getAsInt returns an int value"() {
     given:
     def c = createDataFrame(
         [["hello", 1, 32.2],
-         ["aa", 2, Na.of(double)]],
+         ["aa", 2, Na.from(double)]],
         String, int, double)
 
     expect:
-    c.getAsInt(0, 0) == Na.of(int)
+    c.getAsInt(0, 0) == Na.from(int)
     c.getAsInt(1, 1) == 2
     c.getAsInt(0, 2) == 32
-    c.getAsInt(1, 2) == Na.of(int)
+    c.getAsInt(1, 2) == Na.from(int)
   }
 
   @Unroll

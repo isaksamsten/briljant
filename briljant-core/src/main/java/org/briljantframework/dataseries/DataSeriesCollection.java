@@ -88,7 +88,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     if (column >= 0 && column < rvec.size()) {
       return rvec.get(cls, column);
     } else if (column >= 0 && column < columns) {
-      return Na.of(cls);
+      return Na.from(cls);
     } else {
       throw new IndexOutOfBoundsException();
     }

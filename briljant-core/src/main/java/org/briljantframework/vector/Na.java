@@ -24,6 +24,8 @@
 
 package org.briljantframework.vector;
 
+import org.apache.commons.math3.complex.Complex;
+
 /**
  * @author Isak Karlsson
  */
@@ -37,13 +39,16 @@ public final class Na {
   }
 
   /**
-   * Returns the {@code NA} value for the class {@code T}. For reference types {@code NA} is
-   * represented as {@code null}, but for primitive types a special convention is used.
+   * Returns the {@code NA} value for the class {@code T}. For reference types (excluding {@link
+   * Complex} and {@link Bit}) {@code NA} is represented as {@code null}, but for primitive types a
+   * special convention is used.
    *
    * <ul>
    * <li>{@code double}: {@link org.briljantframework.vector.DoubleVector#NA}</li>
    * <li>{@code int}: {@link IntVector#NA}</li>
-   * <li>{@code long}: {@link Long#MAX_VALUE}</li> // TODO: the rest
+   * <li>{@code long}: {@link Long#MAX_VALUE}</li>
+   * <li>{@link Bit}: {@link Bit#NA}</li>
+   * <li>{@link Complex}: {@link ComplexVector#NA}</li>
    * </ul>
    *
    * @param cls the class
@@ -51,7 +56,7 @@ public final class Na {
    * @return a {@code NA} value of type {@code T}
    */
   @SuppressWarnings("unchecked")
-  public static <T> T of(Class<T> cls) {
+  public static <T> T from(Class<T> cls) {
     if (cls == null) {
       return null;
     } else if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {
@@ -62,6 +67,8 @@ public final class Na {
       return (T) BOXED_LONG_NA;
     } else if (Bit.class.equals(cls)) {
       return (T) Bit.NA;
+    } else if (Complex.class.equals(cls)) {
+      return (T) ComplexVector.NA;
     } else {
       return null;
     }

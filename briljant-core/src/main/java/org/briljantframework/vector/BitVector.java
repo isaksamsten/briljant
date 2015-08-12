@@ -145,7 +145,7 @@ public class BitVector extends AbstractVector {
       } else if (cls.isAssignableFrom(String.class)) {
         return cls.cast(getAsBit(index).toString());
       } else {
-        return Na.of(cls);
+        return Na.from(cls);
       }
     }
   }

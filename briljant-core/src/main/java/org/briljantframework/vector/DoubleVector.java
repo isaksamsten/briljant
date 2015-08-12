@@ -193,7 +193,7 @@ public class DoubleVector extends AbstractVector {
   public <T> T get(Class<T> cls, int index) {
     double v = getAsDouble(index);
     if (Is.NA(v)) {
-      return Na.of(cls);
+      return Na.from(cls);
     }
 
     if (cls.isAssignableFrom(Double.class)) {
@@ -208,7 +208,7 @@ public class DoubleVector extends AbstractVector {
       } else if (cls.isAssignableFrom(String.class)) {
         return cls.cast(Double.toString(v));
       } else {
-        return Na.of(cls);
+        return Na.from(cls);
       }
     }
   }

@@ -27,7 +27,9 @@ package org.briljantframework.vector;
 import org.apache.commons.math3.complex.Complex;
 
 /**
- * Utility class for checking value types <p> Created by Isak Karlsson on 26/11/14.
+ * Utility class for checking value types
+ *
+ * @author Isak Karlsson
  */
 public final class Is {
 
@@ -56,18 +58,8 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(Complex value) {
-    return ComplexVector.NA.equals(value);
+    return value != null && Is.NA(value.getReal()) && Is.NA(value.getImaginary());
   }
-
-//  /**
-//   * Check if value is NA
-//   *
-//   * @param value the value
-//   * @return true if value is NA
-//   */
-//  public static boolean NA(String value) {
-//    return StringVector.TYPE.isNA(value);
-//  }
 
   /**
    * Check if value is NA
@@ -107,8 +99,10 @@ public final class Is {
       return Is.NA((double) o);
     } else if (o instanceof Integer) {
       return Is.NA((int) o);
+    } else if (o instanceof Complex) {
+      return Is.NA((Complex) o);
     } else {
-      Object na = Na.of(o.getClass());
+      Object na = Na.from(o.getClass());
       return o.equals(na);
     }
   }

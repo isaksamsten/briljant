@@ -26,14 +26,13 @@ package org.briljantframework.vector;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.array.Array;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
-import org.briljantframework.stat.DescriptiveStatistics;
-import org.briljantframework.stat.RunningStatistics;
+import org.briljantframework.stat.FastStatistics;
 
 import java.io.IOException;
 import java.util.AbstractCollection;
@@ -333,14 +332,14 @@ public final class Vec {
    * @param vector a vector (with {@code type = double})
    * @return the descriptive statistics
    */
-  public static DescriptiveStatistics statistics(Vector vector) {
-    RunningStatistics r = new RunningStatistics();
+  public static StatisticalSummary statistics(Vector vector) {
+    FastStatistics r = new FastStatistics();
     for (int i = 0; i < vector.size(); i++) {
       if (!vector.isNA(i)) {
-        r.add(vector.getAsDouble(i));
+        r.addValue(vector.getAsDouble(i));
       }
     }
-    return r;
+    return r.getSummary();
   }
 
   /**
@@ -388,7 +387,7 @@ public final class Vec {
       }
     }
 
-    return nonNA == 0 ? Na.of(Double.class) : mean / (double) nonNA;
+    return nonNA == 0 ? Na.from(Double.class) : mean / (double) nonNA;
   }
 
   /**
@@ -411,7 +410,7 @@ public final class Vec {
         nonNA += 1;
       }
     }
-    return nonNA == 0 ? Na.of(Double.class) : var / (double) nonNA;
+    return nonNA == 0 ? Na.from(Double.class) : var / (double) nonNA;
   }
 
   /**
@@ -443,7 +442,7 @@ public final class Vec {
         nonNas++;
       }
     }
-    return nonNas > 0 ? sum : Na.of(Double.class);
+    return nonNas > 0 ? sum : Na.from(Double.class);
   }
 
   public static <T extends Number> double sum(Class<T> cls, Vector vector) {

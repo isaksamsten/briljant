@@ -82,7 +82,7 @@ public class GenericVector extends AbstractVector {
           }
         }
       }
-      return Na.of(cls);
+      return Na.from(cls);
     }
     return cls.cast(obj);
   }
@@ -96,10 +96,10 @@ public class GenericVector extends AbstractVector {
   @Override
   public Complex getAsComplex(int index) {
     Complex complex = get(Complex.class, index);
-    if (complex == null) {
+    if (Is.NA(complex)) {
       double v = getAsDouble(index);
       if (Is.NA(v)) {
-        return Complex.NaN;
+        return Na.from(Complex.class);
       } else {
         return Complex.valueOf(v);
       }
@@ -111,13 +111,13 @@ public class GenericVector extends AbstractVector {
   @Override
   public double getAsDouble(int index) {
     Number number = get(Number.class, index);
-    return Is.NA(number) ? Na.of(Double.class) : number.doubleValue();
+    return Is.NA(number) ? Na.from(Double.class) : number.doubleValue();
   }
 
   @Override
   public int getAsInt(int index) {
     Number number = get(Number.class, index);
-    return Is.NA(number) ? Na.of(Integer.class) : number.intValue();
+    return Is.NA(number) ? Na.from(Integer.class) : number.intValue();
   }
 
   @Override
@@ -145,7 +145,7 @@ public class GenericVector extends AbstractVector {
     if (Number.class.isAssignableFrom(this.cls)) {
       return Bj.doubleArray(size())
           .assign(asList(Number.class).stream()
-                      .mapToDouble(v -> Is.NA(v) ? Na.of(Double.class) : v.doubleValue())
+                      .mapToDouble(v -> Is.NA(v) ? Na.from(Double.class) : v.doubleValue())
                       .iterator()::next);
     }
     throw new IllegalTypeException(

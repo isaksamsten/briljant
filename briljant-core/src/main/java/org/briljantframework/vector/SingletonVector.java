@@ -25,6 +25,7 @@
 package org.briljantframework.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
 
 /**
  * @author Isak Karlsson
@@ -45,10 +46,10 @@ class SingletonVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     Object obj = value;
     if (Is.NA(obj)) {
-      return Na.of(cls);
+      return Na.from(cls);
     }
     if (!cls.isInstance(obj)) {
       if (cls.equals(String.class)) {
@@ -63,44 +64,38 @@ class SingletonVector extends AbstractVector {
           }
         }
       }
-      return Na.of(cls);
+      return Na.from(cls);
     }
     return cls.cast(obj);
   }
 
-  private void checkElementIndex(int index) {
-    if (index < 0 || index > size()) {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
   @Override
   public String toString(int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     return value != null ? value.toString() : "NA";
   }
 
   @Override
   public boolean isNA(int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     return value == null;
   }
 
   @Override
   public double getAsDouble(int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     return value instanceof Number ? ((Number) value).doubleValue() : DoubleVector.NA;
   }
 
   @Override
   public int getAsInt(int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     return value instanceof Number ? ((Number) value).intValue() : IntVector.NA;
   }
 
   @Override
   public Bit getAsBit(int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     return value instanceof Number ? Bit.valueOf(((Number) value).intValue())
                                    : value instanceof Bit ? (Bit) value :
                                      value instanceof Boolean ? Bit.valueOf((boolean) value) :
@@ -109,10 +104,10 @@ class SingletonVector extends AbstractVector {
 
   @Override
   public Complex getAsComplex(int index) {
-    checkElementIndex(index);
+    Check.elementIndex(index, size());
     return value instanceof Complex ? (Complex) value :
            value instanceof Number ? Complex.valueOf(((Number) value).doubleValue())
-                                   : Na.of(Complex.class);
+                                   : Na.from(Complex.class);
   }
 
   @Override

@@ -56,7 +56,7 @@ public interface DataFrame extends Iterable<Vector> {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#of(Class)}.
+   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#from(Class)}.
    *
    * @param cls    the class
    * @param row    the row

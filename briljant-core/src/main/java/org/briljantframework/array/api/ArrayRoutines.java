@@ -24,6 +24,7 @@
 
 package org.briljantframework.array.api;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
@@ -31,7 +32,6 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Op;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.sort.IndexComparator;
 
 import java.util.Collection;
@@ -404,9 +404,19 @@ public interface ArrayRoutines {
   DoubleArray sin(DoubleArray array);
 
   /**
+   * @see Complex#sin()
+   */
+  ComplexArray sin(ComplexArray array);
+
+  /**
    * @see Math#cos(double)
    */
   DoubleArray cos(DoubleArray array);
+
+  /**
+   * @see Complex#cos()
+   */
+  ComplexArray cos(ComplexArray array);
 
   /**
    * @see Math#tan(double)
@@ -414,9 +424,19 @@ public interface ArrayRoutines {
   DoubleArray tan(DoubleArray array);
 
   /**
+   * @see Complex#tan()
+   */
+  ComplexArray tan(ComplexArray array);
+
+  /**
    * @see Math#asin(double)
    */
   DoubleArray asin(DoubleArray array);
+
+  /**
+   * @see Complex#asin()
+   */
+  ComplexArray asin(ComplexArray array);
 
   /**
    * @see Math#acos(double)
@@ -424,9 +444,19 @@ public interface ArrayRoutines {
   DoubleArray acos(DoubleArray array);
 
   /**
+   * @see Complex#acos()
+   */
+  ComplexArray acos(ComplexArray array);
+
+  /**
    * @see Math#atan(double)
    */
   DoubleArray atan(DoubleArray array);
+
+  /**
+   * @see Complex#atan()
+   */
+  ComplexArray atan(ComplexArray array);
 
   /**
    * @see Math#sinh(double)
@@ -434,9 +464,19 @@ public interface ArrayRoutines {
   DoubleArray sinh(DoubleArray array);
 
   /**
+   * @see Complex#sinh()
+   */
+  ComplexArray sinh(ComplexArray array);
+
+  /**
    * @see Math#cosh(double)
    */
   DoubleArray cosh(DoubleArray array);
+
+  /**
+   * @see Complex#cosh()
+   */
+  ComplexArray cosh(ComplexArray array);
 
   /**
    * @see Math#tanh(double)
@@ -444,9 +484,19 @@ public interface ArrayRoutines {
   DoubleArray tanh(DoubleArray array);
 
   /**
+   * @see Complex#tanh()
+   */
+  ComplexArray tanh(ComplexArray array);
+
+  /**
    * @see Math#exp(double)
    */
   DoubleArray exp(DoubleArray array);
+
+  /**
+   * @see Complex#exp()
+   */
+  ComplexArray exp(ComplexArray array);
 
   /**
    * @see Math#cbrt(double)
@@ -459,9 +509,30 @@ public interface ArrayRoutines {
   DoubleArray ceil(DoubleArray array);
 
   /**
+   * Rounds the number to the next largest integer,  rounding is applied separately to the real and
+   * the imaginary parts.
+   *
+   * @param array the array to ceil
+   * @return a new array
+   * @see Math#ceil(double)
+   */
+  ComplexArray ceil(ComplexArray array);
+
+  /**
    * @see Math#floor(double)
    */
   DoubleArray floor(DoubleArray array);
+
+  /**
+   * /**
+   * Rounds the number to the next smallest integer,  rounding is applied separately to the real
+   * and the imaginary parts.
+   *
+   * @param array the array to ceil
+   * @return a new array
+   * @see Math#floor(double)
+   */
+  ComplexArray floor(ComplexArray array);
 
   /**
    * @see Math#abs(double)
@@ -481,7 +552,7 @@ public interface ArrayRoutines {
   /**
    * @see Math#cos(double)
    */
-  DoubleArray cos(ComplexArray array);
+  DoubleArray abs(ComplexArray array);
 
   /**
    * @see Math#scalb(double, int)
@@ -493,10 +564,14 @@ public interface ArrayRoutines {
    */
   DoubleArray sqrt(DoubleArray array);
 
+  ComplexArray sqrt(ComplexArray array);
+
   /**
    * @see Math#log(double)
    */
   DoubleArray log(DoubleArray array);
+
+  ComplexArray log(ComplexArray array);
 
   /**
    * @see Math#log(double)

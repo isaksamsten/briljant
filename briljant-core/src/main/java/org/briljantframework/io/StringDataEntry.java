@@ -57,11 +57,11 @@ public class StringDataEntry implements DataEntry {
   public <T> T next(Class<T> cls) {
     String value = nextString();
     if (Is.NA(value)) {
-      return Na.of(cls);
+      return Na.from(cls);
     } else {
       Resolver<T> resolver = Resolvers.find(cls);
       if (resolver == null) {
-        return Na.of(cls);
+        return Na.from(cls);
       } else {
         return resolver.resolve(value);
       }

@@ -24,6 +24,7 @@
 
 package org.briljantframework.vector;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BitArray;
@@ -31,7 +32,6 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
@@ -221,7 +221,7 @@ public interface Vector extends Serializable {
    * Performs a mutable aggregation of the values in this vector, similar to {@linkplain
    * Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its aggregation
    * by mutating and adding values to an aggregation container such as {@linkplain
-   * org.briljantframework.stat.RunningStatistics}.
+   * org.briljantframework.stat.FastStatistics}.
    *
    * <p> The result produced is equivalent to:
    *
@@ -384,22 +384,20 @@ public interface Vector extends Serializable {
    * not an instance of {@code cls}, returns an appropriate {@code NA} value. For references types
    * (apart from {@code Complex} and {@code Bit}) this means {@code null} and for {@code primitive}
    * types their respective {@code NA} value. Hence, checking for {@code null} does not always
-   * work,
-   * instead {@link Is#NA(Object)} (and comrades) should be used.
+   * work. Instead {@link Is#NA(Object)} should be used.
    *
-   * <pre>
-   *   Vector v = new GenericVector(Date.class, Arrays.asList(new Date(), new Date());
-   *   Date date = v.get(Date.class, 0);
-   *   if(Is.NA(date)) { // or date == null
-   *     // got a NA value
-   *   }
+   * <pre>{@code
+   * Vector v = new GenericVector(Date.class, Arrays.asList(new Date(), new Date());
+   * Date date = v.get(Date.class, 0);
+   * if(Is.NA(date)) { // or date == null
+   *   // got a NA value
+   * }
    *
-   *   Vector v = ...; // for example an IntVector
-   *   int value = v.get(Integer.class, 32);
-   *   if(Is.NA(value)) { // or value == IntVector.NA (but not value == null)
-   *     // got a NA value
-   *   }
-   * </pre>
+   * Vector v = ...; // for example an IntVector
+   * int value = v.get(Integer.class, 32);
+   * if(Is.NA(value)) { // or value == IntVector.NA (but not value == null)
+   *   // got a NA value
+   * }}</pre>
    *
    * <p> {@link java.lang.ClassCastException} should not be thrown, instead {@code NA} should be
    * returned
@@ -505,12 +503,11 @@ public interface Vector extends Serializable {
   Bit getAsBit(int index);
 
   /**
-   * Returns value as {@link org.briljantframework.complex.Complex} or {@link
-   * org.briljantframework.vector.ComplexVector#NA} if
+   * Returns value as {@link Complex} or {@link org.briljantframework.vector.ComplexVector#NA} if
    * missing.
    *
    * @param index the index
-   * @return a {@link org.briljantframework.complex.Complex}
+   * @return a {@link Complex}
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   Complex getAsComplex(int index);
@@ -820,16 +817,6 @@ public interface Vector extends Serializable {
      */
     Builder add(Vector from, int fromIndex);
 
-//    /**
-//     * Same as {@code add(value, 0)} (i.e. a more convenient way of adding 1-length vectors)
-//     *
-//     * @param value the value
-//     * @return a modified builder
-//     */
-//    default Builder add(Value value) {
-//      return add(value, 0);
-//    }
-
     /**
      * Add value at {@code fromIndex} in {@code from} to {@code atIndex}. Padding with NA:s between
      * {@code atIndex} and {@code size()} if {@code atIndex > size()}.
@@ -840,10 +827,6 @@ public interface Vector extends Serializable {
      * @return a modified build
      */
     Builder set(int atIndex, Vector from, int fromIndex);
-
-//    default Builder set(int atIndex, Value from) {
-//      return set(atIndex, from, 0);
-//    }
 
     /**
      * Add {@code value} at {@code index}. Padding with NA:s between {@code atIndex} and {@code

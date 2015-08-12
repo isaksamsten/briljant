@@ -35,7 +35,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
-import org.briljantframework.stat.RunningStatistics;
+import org.briljantframework.stat.FastStatistics;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
@@ -404,7 +404,7 @@ public class LogisticRegression implements Classifier {
       int k = getClasses().size();
       if (k > 2) {
         return coefficients.getRow(i).map(Math::exp)
-            .collect(RunningStatistics::new, RunningStatistics::add).getMean();
+            .collect(FastStatistics::new, FastStatistics::addValue).getMean();
       } else {
         return Math.exp(coefficients.get(i));
       }

@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -139,20 +140,20 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   public static DataFrame of(Object name, Vector c) {
-    HashMap<Object, Vector> map = new HashMap<>();
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(name, c);
     return new MixedDataFrame(map);
   }
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
-    HashMap<Object, Vector> map = new HashMap<>();
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     return new MixedDataFrame(map);
   }
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
-    HashMap<Object, Vector> map = new HashMap<>();
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -161,7 +162,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
                              Object n4, Vector v4) {
-    HashMap<Object, Vector> map = new HashMap<>();
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -171,7 +172,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
                              Object n4, Vector v4, Object n5, Vector v5) {
-    HashMap<Object, Vector> map = new HashMap<>();
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);

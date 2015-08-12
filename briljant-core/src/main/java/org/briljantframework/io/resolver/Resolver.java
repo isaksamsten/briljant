@@ -59,7 +59,7 @@ public class Resolver<R> {
 
   /**
    * Resolves the value of {@code value} to an instance of {@code R}. If it fails, returns the value
-   * denoting {@code NA} (for the type {@code R}) as returned by {@link org.briljantframework.vector.Na#of(Class)}.
+   * denoting {@code NA} (for the type {@code R}) as returned by {@link org.briljantframework.vector.Na#from(Class)}.
    *
    * <p>Use {@link org.briljantframework.vector.Is#NA(java.lang.Object)} to check for {@code NA}
    * values.
@@ -96,9 +96,9 @@ public class Resolver<R> {
     Converter<Object, R> converter = getConverter(cls);
     if (converter != null) {
       R convert = converter.convert(value);
-      return convert == null ? Na.of(this.cls) : convert;
+      return convert == null ? Na.from(this.cls) : convert;
     } else {
-      return Na.of(this.cls);
+      return Na.from(this.cls);
     }
   }
 

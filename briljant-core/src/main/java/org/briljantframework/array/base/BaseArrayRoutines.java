@@ -26,6 +26,8 @@ package org.briljantframework.array.base;
 
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.Array;
@@ -40,7 +42,7 @@ import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
-import org.briljantframework.stat.RunningStatistics;
+import org.briljantframework.stat.FastStatistics;
 
 import java.util.AbstractList;
 import java.util.Collection;
@@ -57,6 +59,7 @@ import static org.briljantframework.array.Indexer.rowMajor;
 public class BaseArrayRoutines implements ArrayRoutines {
 
   protected static final double LOG_2 = Math.log(2);
+  protected static final double EPS = 1e-10;
 
   protected BaseArrayRoutines() {
   }
@@ -73,8 +76,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double var(DoubleArray x) {
-    RunningStatistics s = new RunningStatistics();
-    x.forEach(s::add);
+    FastStatistics s = new FastStatistics();
+    x.forEach(s::addValue);
     return s.getVariance();
   }
 
@@ -633,8 +636,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray sin(ComplexArray array) {
+    return array.map(Complex::sin);
+  }
+
+  @Override
   public DoubleArray cos(DoubleArray array) {
     return array.map(Math::cos);
+  }
+
+  @Override
+  public ComplexArray cos(ComplexArray array) {
+    return array.map(Complex::cos);
   }
 
   @Override
@@ -643,8 +656,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray tan(ComplexArray array) {
+    return array.map(Complex::tan);
+  }
+
+  @Override
   public DoubleArray asin(DoubleArray array) {
     return array.map(Math::asin);
+  }
+
+  @Override
+  public ComplexArray asin(ComplexArray array) {
+    return array.map(Complex::asin);
   }
 
   @Override
@@ -653,8 +676,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray acos(ComplexArray array) {
+    return array.map(Complex::acos);
+  }
+
+  @Override
   public DoubleArray atan(DoubleArray array) {
     return array.map(Math::atan);
+  }
+
+  @Override
+  public ComplexArray atan(ComplexArray array) {
+    return array.map(Complex::atan);
   }
 
   @Override
@@ -663,8 +696,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray sinh(ComplexArray array) {
+    return array.map(Complex::sinh);
+  }
+
+  @Override
   public DoubleArray cosh(DoubleArray array) {
     return array.map(Math::cosh);
+  }
+
+  @Override
+  public ComplexArray cosh(ComplexArray array) {
+    return array.map(Complex::cosh);
   }
 
   @Override
@@ -673,8 +716,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray tanh(ComplexArray array) {
+    return array.map(Complex::tanh);
+  }
+
+  @Override
   public DoubleArray exp(DoubleArray array) {
     return array.map(Math::exp);
+  }
+
+  @Override
+  public ComplexArray exp(ComplexArray array) {
+    return array.map(Complex::exp);
   }
 
   @Override
@@ -688,8 +741,18 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray ceil(ComplexArray array) {
+    return array.map(v -> new Complex(Math.ceil(v.getReal()), Math.ceil(v.getImaginary())));
+  }
+
+  @Override
   public DoubleArray floor(DoubleArray array) {
     return array.map(Math::floor);
+  }
+
+  @Override
+  public ComplexArray floor(ComplexArray array) {
+    return array.map(v -> new Complex(Math.floor(v.getReal()), Math.floor(v.getImaginary())));
   }
 
   @Override
@@ -708,8 +771,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public DoubleArray cos(ComplexArray array) {
+  public DoubleArray abs(ComplexArray array) {
     return array.mapToDouble(Complex::abs);
+  }
+
+  @Override
+  public LongArray round(DoubleArray in) {
+    return in.asLong().newEmptyArray(in.getShape()).assign(in, Math::round);
   }
 
   @Override
@@ -723,9 +791,20 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public ComplexArray sqrt(ComplexArray array) {
+    return array.map(Complex::sqrt);
+  }
+
+  @Override
   public DoubleArray log(DoubleArray array) {
     return array.map(Math::log);
   }
+
+  @Override
+  public ComplexArray log(ComplexArray array) {
+    return array.map(Complex::log);
+  }
+
 
   @Override
   public DoubleArray log2(DoubleArray array) {
@@ -734,15 +813,14 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray pow(DoubleArray in, double power) {
-    switch ((int) power) {
-      case 2:
-        return in.map(x -> x * x);
-      case 3:
-        return in.map(x -> x * x * x);
-      case 4:
-        return in.map(x -> x * x * x * x);
-      default:
-        return in.map(x -> Math.pow(x, power));
+    if (Precision.equals(power, 2, EPS)) {
+      return in.map(x -> x * x);
+    } else if (Precision.equals(power, 3, EPS)) {
+      return in.map(x -> x * x * x);
+    } else if (Precision.equals(power, 4, EPS)) {
+      return in.map(x -> x * x * x * x);
+    } else {
+      return in.map(x -> FastMath.pow(x, power));
     }
   }
 
@@ -754,10 +832,5 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public DoubleArray signum(DoubleArray in) {
     return in.map(Math::signum);
-  }
-
-  @Override
-  public LongArray round(DoubleArray in) {
-    return in.asLong().newEmptyArray(in.getShape()).assign(in, Math::round);
   }
 }

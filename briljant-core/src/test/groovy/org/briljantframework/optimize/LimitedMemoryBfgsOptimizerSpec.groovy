@@ -24,6 +24,7 @@
 
 package org.briljantframework.optimize
 
+import org.apache.commons.math3.optim.nonlinear.scalar.LineSearch
 import org.briljantframework.Bj
 import org.briljantframework.array.DoubleArray
 import spock.lang.Specification

@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ObjectVectorTest {
 
@@ -36,9 +37,13 @@ public class ObjectVectorTest {
 
   @Before
   public void setUp() throws Exception {
-    sequence =
-        new GenericVector.Builder(Object.class).add(1).add(2).add("hello").add("next").addNA()
-            .build();
+    sequence = new GenericVector.Builder(Object.class)
+        .add(1)
+        .add(2)
+        .add("hello")
+        .add("next")
+        .addNA()
+        .build();
   }
 
   @Test
@@ -66,8 +71,8 @@ public class ObjectVectorTest {
   public void testGetAsComplex() throws Exception {
     assertEquals(new Complex(1, 0), sequence.getAsComplex(0));
     assertEquals(new Complex(2, 0), sequence.getAsComplex(1));
-    assertEquals(ComplexVector.NA, sequence.getAsComplex(2));
-    assertEquals(ComplexVector.NA, sequence.getAsComplex(3));
+    assertTrue(Is.NA(sequence.getAsComplex(2)));
+    assertTrue(Is.NA(sequence.getAsComplex(3)));
   }
 
   @Test

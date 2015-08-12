@@ -1027,7 +1027,7 @@ public final class Bj {
   }
 
   public static DoubleArray cos(ComplexArray array) {
-    return MATRIX_ROUTINES.cos(array);
+    return MATRIX_ROUTINES.abs(array);
   }
 
   public static DoubleArray sqrt(DoubleArray array) {

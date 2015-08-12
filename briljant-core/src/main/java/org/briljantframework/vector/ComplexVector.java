@@ -79,7 +79,7 @@ public class ComplexVector extends AbstractVector {
       return "complex";
     }
   };
-  public static final Complex NA = Complex.NaN;
+  public static final Complex NA = new Complex(DoubleVector.NA, DoubleVector.NA);
   private final double[] values;
   private final int size;
 
@@ -151,7 +151,7 @@ public class ComplexVector extends AbstractVector {
   public <T> T get(Class<T> cls, int index) {
     Complex v = getAsComplex(index);
     if (Is.NA(v)) {
-      return Na.of(cls);
+      return Na.from(cls);
     }
     if (cls.isAssignableFrom(Complex.class)) {
       return cls.cast(getAsComplex(index));
@@ -165,7 +165,7 @@ public class ComplexVector extends AbstractVector {
       } else if (cls.isAssignableFrom(String.class)) {
         return cls.cast(getAsComplex(index).toString());
       } else {
-        return Na.of(cls);
+        return Na.from(cls);
       }
     }
   }

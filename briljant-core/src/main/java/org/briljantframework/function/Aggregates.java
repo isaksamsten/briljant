@@ -26,7 +26,7 @@ package org.briljantframework.function;
 
 import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.Index;
-import org.briljantframework.stat.RunningStatistics;
+import org.briljantframework.stat.FastStatistics;
 import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
@@ -247,39 +247,39 @@ public final class Aggregates {
   }
 
   public static Aggregator<Number, Double, ?> mean() {
-    return Aggregator.of(RunningStatistics::new, (a, v) -> {
+    return Aggregator.of(FastStatistics::new, (a, v) -> {
       if (!Is.NA(v)) {
-        a.add(v.doubleValue());
+        a.addValue(v.doubleValue());
       }
     }, (stat) -> {
-      if (stat.size() == 0) {
-        return Na.of(Double.class);
+      if (stat.getN() == 0) {
+        return Na.from(Double.class);
       }
       return stat.getMean();
     });
   }
 
   public static Aggregator<Number, Double, ?> std() {
-    return Aggregator.of(RunningStatistics::new, (a, v) -> {
+    return Aggregator.of(FastStatistics::new, (a, v) -> {
       if (!Is.NA(v)) {
-        a.add(v.doubleValue());
+        a.addValue(v.doubleValue());
       }
     }, (stat) -> {
-      if (stat.size() == 0) {
-        return Na.of(Double.class);
+      if (stat.getN() == 0) {
+        return Na.from(Double.class);
       }
       return stat.getStandardDeviation();
     });
   }
 
   public static Aggregator<Number, Double, ?> var() {
-    return Aggregator.of(RunningStatistics::new, (a, v) -> {
+    return Aggregator.of(FastStatistics::new, (a, v) -> {
       if (!Is.NA(v)) {
-        a.add(v.doubleValue());
+        a.addValue(v.doubleValue());
       }
     }, (stat) -> {
-      if (stat.size() == 0) {
-        return Na.of(Double.class);
+      if (stat.getN() == 0) {
+        return Na.from(Double.class);
       }
       return stat.getVariance();
     });
@@ -294,7 +294,7 @@ public final class Aggregates {
         ArrayList::add, (list) -> {
           int size = list.size();
           if (size == 0) {
-            return Na.of(Double.class);
+            return Na.from(Double.class);
           } else if (size == 1) {
             return list.get(0).doubleValue();
           } else if (size == 2) {
@@ -314,13 +314,13 @@ public final class Aggregates {
   }
 
   public static Aggregator<Double, Double, ?> max() {
-    return Aggregator.of(RunningStatistics::new, (a, v) -> {
+    return Aggregator.of(FastStatistics::new, (a, v) -> {
       if (!Is.NA(v)) {
-        a.add(v);
+        a.addValue(v);
       }
     }, (r) -> {
-      if (r.size() == 0) {
-        return Na.of(Double.class);
+      if (r.getN() == 0) {
+        return Na.from(Double.class);
       } else {
         return r.getMax();
       }
@@ -328,13 +328,13 @@ public final class Aggregates {
   }
 
   public static Aggregator<Number, Number, ?> min() {
-    return Aggregator.of(RunningStatistics::new, (a, v) -> {
+    return Aggregator.of(FastStatistics::new, (a, v) -> {
       if (!Is.NA(v)) {
-        a.add(v.doubleValue());
+        a.addValue(v.doubleValue());
       }
     }, (r) -> {
-      if (r.size() == 0) {
-        return Na.of(Double.class);
+      if (r.getN() == 0) {
+        return Na.from(Double.class);
       } else {
         return r.getMin();
       }

@@ -82,11 +82,6 @@ public interface VectorType {
   int compare(int a, Vector va, int b, Vector ba);
 
   /**
-   * Returns the scale of this type. If the scale is {@link Scale#NOMINAL}, the {@link
-   * Vector#getAsString(int)} is expected to return a meaningful value. On the other hand, if the
-   * value is {@link Scale#NUMERICAL} {@link Vector#getAsDouble(int)} is expected to return a
-   * meaning ful value (or NA).
-   *
    * @return the scale
    */
   Scale getScale();

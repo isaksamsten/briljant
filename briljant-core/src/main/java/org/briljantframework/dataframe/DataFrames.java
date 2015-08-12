@@ -27,6 +27,7 @@ package org.briljantframework.dataframe;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Utils;
 import org.briljantframework.dataframe.join.InnerJoin;
 import org.briljantframework.dataframe.join.JoinOperation;
@@ -39,7 +40,6 @@ import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.StringDataEntry;
-import org.briljantframework.stat.DescriptiveStatistics;
 import org.briljantframework.vector.Scale;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
@@ -225,7 +225,7 @@ public final class DataFrames {
     for (int j = 0; j < df.columns(); j++) {
       Vector column = df.get(j);
       if (column.getType().getScale() == Scale.NUMERICAL) {
-        DescriptiveStatistics desc = Vec.statistics(column);
+        StatisticalSummary desc = Vec.statistics(column);
         double mean = desc.getMean();
         double min = desc.getMin();
         double max = desc.getMax();

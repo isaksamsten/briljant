@@ -24,11 +24,11 @@
 
 package org.briljantframework.dataframe.transform;
 
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.stat.DescriptiveStatistics;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vec;
 
 /**
@@ -47,7 +47,7 @@ public class ZNormalizer implements Transformer {
     DoubleArray mean = Bj.doubleArray(frame.columns());
     DoubleArray sigma = Bj.doubleArray(frame.columns());
     for (int i = 0; i < frame.columns(); i++) {
-      DescriptiveStatistics stats = Vec.statistics(frame.get(i));
+      StatisticalSummary stats = Vec.statistics(frame.get(i));
       mean.set(i, stats.getMean());
       sigma.set(i, stats.getStandardDeviation());
     }

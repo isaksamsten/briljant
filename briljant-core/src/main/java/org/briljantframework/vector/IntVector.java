@@ -161,7 +161,7 @@ public class IntVector extends AbstractVector {
     Check.argument(!cls.isPrimitive(), "Use getAs[primitive]");
     int v = getAsInt(index);
     if (Is.NA(v)) {
-      return Na.of(cls);
+      return Na.from(cls);
     }
     if (cls.isAssignableFrom(Integer.class)) {
       return cls.cast(v);
@@ -175,7 +175,7 @@ public class IntVector extends AbstractVector {
       } else if (cls.isAssignableFrom(String.class)) {
         return cls.cast(Integer.toString(v));
       } else {
-        return Na.of(cls);
+        return Na.from(cls);
       }
     }
   }

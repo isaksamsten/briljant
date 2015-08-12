@@ -31,14 +31,14 @@ import static org.junit.Assert.assertEquals;
 
 public class RunningStatisticsTest {
 
-  private RunningStatistics s;
+  private FastStatistics s;
 
   @Before
   public void setUp() throws Exception {
-    s = new RunningStatistics();
-    s.add(10);
-    s.add(20);
-    s.add(30);
+    s = new FastStatistics();
+    s.addValue(10);
+    s.addValue(20);
+    s.addValue(30);
   }
 
   @Test

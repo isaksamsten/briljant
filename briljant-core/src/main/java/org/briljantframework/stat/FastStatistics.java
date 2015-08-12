@@ -24,18 +24,22 @@
 
 package org.briljantframework.stat;
 
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
+
 /**
- * A safe and
+ * A fast implementation of the {@link StatisticalSummary} interface.
  *
  * @author Isak Karlsson
  */
-public class RunningStatistics implements DescriptiveStatistics {
+public class FastStatistics implements StatisticalSummary {
 
   private int n = 0;
+  private double sum = 0;
   private double om, nm, os, ns;
   private double min = Double.NEGATIVE_INFINITY, max = Double.POSITIVE_INFINITY;
 
-  public void add(double x) {
+  public void addValue(double x) {
     n += 1;
     if (n == 1) {
       om = x;
@@ -43,12 +47,13 @@ public class RunningStatistics implements DescriptiveStatistics {
       os = 0;
       min = x;
       max = x;
+      sum = x;
     } else {
       nm = om + (x - om) / n;
       ns = os + (x - om) * (x - nm);
       om = nm;
       os = ns;
-
+      sum += x;
       if (x < min) {
         min = x;
       } else if (x > max) {
@@ -59,12 +64,17 @@ public class RunningStatistics implements DescriptiveStatistics {
 
   public void addAll(double[] arr) {
     for (double v : arr) {
-      add(v);
+      addValue(v);
     }
   }
 
   @Override
-  public int size() {
+  public double getSum() {
+    return sum;
+  }
+
+  @Override
+  public long getN() {
     return n;
   }
 
@@ -91,5 +101,10 @@ public class RunningStatistics implements DescriptiveStatistics {
   @Override
   public double getStandardDeviation() {
     return Math.sqrt(getVariance());
+  }
+
+  public StatisticalSummary getSummary() {
+    return new StatisticalSummaryValues(getMean(), getVariance(), getN(), getMax(), getMin(),
+                                        getSum());
   }
 }

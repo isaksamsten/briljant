@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public abstract class AbstractMeasure implements Measure {
 
-  public static final double NA = Na.of(Double.class);
+  public static final double NA = Na.from(Double.class);
   protected final Vector naVector;
 
   private final EnumMap<Sample, Vector> values;
@@ -53,7 +53,7 @@ public abstract class AbstractMeasure implements Measure {
     this.mean = builder.computeMean();
     this.std = builder.computeStandardDeviation(mean);
     this.size = builder.size;
-    this.naVector = Vector.singleton(Na.of(Double.class), size());
+    this.naVector = Vector.singleton(Na.from(Double.class), size());
     for (Map.Entry<Sample, DoubleVector.Builder> entry : builder.values.entrySet()) {
       values.put(entry.getKey(), entry.getValue().build());
     }
@@ -121,8 +121,8 @@ public abstract class AbstractMeasure implements Measure {
     }
 
     protected EnumMap<Sample, Double> computeMean() {
-      double inSum = sum.getOrDefault(Sample.IN, Na.of(Double.class));
-      double outSum = sum.getOrDefault(Sample.OUT, Na.of(Double.class));
+      double inSum = sum.getOrDefault(Sample.IN, Na.from(Double.class));
+      double outSum = sum.getOrDefault(Sample.OUT, Na.from(Double.class));
       DoubleVector.Builder inValues = values.get(Sample.IN);
       DoubleVector.Builder outValues = values.get(Sample.OUT);
 
@@ -142,7 +142,7 @@ public abstract class AbstractMeasure implements Measure {
       EnumMap<Sample, Double> std = new EnumMap<>(Sample.class);
 
       for (Map.Entry<Sample, DoubleVector.Builder> e : values.entrySet()) {
-        double mean = means.getOrDefault(e.getKey(), Na.of(Double.class));
+        double mean = means.getOrDefault(e.getKey(), Na.from(Double.class));
         if (Is.NA(mean)) {
           std.put(e.getKey(), mean);
         }
