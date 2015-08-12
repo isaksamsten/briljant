@@ -36,8 +36,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class Sample {
 
-  private final Random rng = new Random();
-
   private Sample() {
   }
 
@@ -49,18 +47,18 @@ public final class Sample {
    * @return an int matrix with values sampled from the population
    */
   public static IntArray withoutReplacement(int population, int samples) {
-    return withoutReplacement(population, samples, ThreadLocalRandom.current());
+    return withoutReplacement(ThreadLocalRandom.current(), population, samples);
   }
 
   /**
    * Sample {@code sample} elements from the set {@code [0, population)}.
    *
+   * @param rng        the random number generator
    * @param population the population size
    * @param samples    the sample size
-   * @param rng        the random number generator
    * @return an int matrix with values sampled from the population
    */
-  public static IntArray withoutReplacement(int population, int samples, Random rng) {
+  public static IntArray withoutReplacement(Random rng, int population, int samples) {
     Check.argument(population > 0, "Population should be larger than 0");
     Check.argument(samples < population, "The population should be larger than the sample");
 
