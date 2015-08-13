@@ -102,33 +102,24 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public DoubleArray mmul(double alpha, Op transA, DoubleArray other, Op transB) {
-    Check.argument(other.isMatrix());
-    Check.state(isMatrix());
+  public DoubleArray mmul(double alpha, Op transA, DoubleArray b, Op transB) {
+    Check.argument(b.isMatrix(), "require 2d-array argument");
+    Check.state(isMatrix(), "require 2d-array");
 
-    DoubleArray self;
-    if (stride(0) == 1) {
-      self = this;
-    } else {
-      self = this.copy();
-    }
-    DoubleArray b;
-    if (other.stride(0) == 1) {
-      b = other;
-    } else {
-      b = other.copy();
-    }
+    // Copy this or the argument if needed
+    DoubleArray self = isContiguous() && stride(0) == 1 ? this : this.copy();
+    b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
 
-//    if (self.stride(0) == 1 && b.stride(0) == 1){
     int m = self.size(transA == Op.KEEP ? 0 : 1);
     int bm = b.size(transB == Op.KEEP ? 0 : 1);
     int n = b.size(transB == Op.KEEP ? 1 : 0);
     int k = self.size(transA == Op.KEEP ? 1 : 0);
+
+    if (m == 0 || k == 0 || n == 0 || bm == 0) {
+      throw new IllegalArgumentException("empty result");
+    }
     if (b.size(transB == Op.KEEP ? 0 : 1) != self.size(transA == Op.KEEP ? 1 : 0)) {
       throw new NonConformantException(this, b);
-    }
-    if (m == 0 || k == 0 || n == 0 || bm == 0) {
-      return new NetlibDoubleArray(getArrayFactory(), new double[0], 0, 0);
     }
 
     double[] ca = new double[m * n];
@@ -151,9 +142,6 @@ class NetlibDoubleArray extends AbstractDoubleArray {
         Math.max(1, n)
     );
     return new NetlibDoubleArray(getArrayFactory(), ca, m, n);
-//    } else {
-//      return super.mmul(alpha, transA, b, transB);
-//    }
   }
 
   @Override
