@@ -40,6 +40,9 @@ import java.util.function.BiFunction;
  */
 public abstract class AbstractVector implements Vector {
 
+  private static final int SUPPRESS_OUTPUT_AFTER = 4;
+  private static final int PER_OUTPUT = 8;
+  
   private Index index = null;
 
   protected AbstractVector(Index index) {
@@ -160,12 +163,36 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder("[");
-    builder.append(toString(0));
-    for (int i = 1; i < size(); i++) {
-      builder.append(", ").append(toString(i));
+    StringBuilder builder = new StringBuilder();
+    Index index = getIndex();
+    int longestKey = String.valueOf(index.size()).length();
+    if (!(index instanceof IntIndex)) {
+      longestKey = index.keySet().stream()
+          .mapToInt(key -> Is.NA(key) ? 2 : key.toString().length())
+          .max()
+          .orElse(0);
     }
-    builder.append("] type: ").append(getType().toString());
+
+    int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
+    for (int i = 0; i < size(); i++) {
+      String value = toString(i);
+      Object o = index.get(i);
+      String key = Is.NA(o) ? "NA" : o.toString();
+      int keyPad = longestKey - key.length();
+      builder.append(key).append("  ");
+      for (int j = 0; j < keyPad; j++) {
+        builder.append(" ");
+      }
+      builder.append(value).append("\n");
+      if (i >= max) {
+        int left = size() - i - 1;
+        if (left > max) {
+          i += left - max - 1;
+          builder.append("...\n");
+        }
+      }
+    }
+    builder.append("type: ").append(getType().toString());
     return builder.toString();
   }
 }
