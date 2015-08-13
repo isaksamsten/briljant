@@ -64,7 +64,14 @@ public final class ArrayAssert {
   public static void assertMatrixEquals(DoubleArray expect, DoubleArray actual, double epsilon) {
     assertEqualShape(expect, actual);
     for (int i = 0; i < expect.size(); i++) {
-      assertEquals(VAL_MATCH, expect.get(i), actual.get(i), epsilon);
+      try {
+        assertEquals(VAL_MATCH, expect.get(i), actual.get(i), epsilon);
+      } catch (AssertionError e) {
+        throw new AssertionError(String.format(
+            "Value mismatch at position %d in \n(expected)\n%s\n(actual)\n%s",
+            i, expect.toString(), actual.toString()
+        ), e);
+      }
     }
   }
 

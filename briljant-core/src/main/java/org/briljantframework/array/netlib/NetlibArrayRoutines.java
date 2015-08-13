@@ -179,7 +179,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
         c instanceof NetlibDoubleArray /*&& c.stride(0) == 1 && c.stride(1) >= c.size(1)*/) {
       a = a.isContiguous() && a.stride(0) == 1 ? a : a.copy();
       b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
-      c = c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
+      DoubleArray maybeC = c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
 
       if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
         boolean ta = transA == Op.KEEP;
@@ -193,13 +193,13 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       int n = b.size(transB == Op.KEEP ? 1 : 0);
       int k = a.size(transA == Op.KEEP ? 1 : 0);
 
-      if (m != c.size(0) || n != c.size(1)) {
+      if (m != maybeC.size(0) || n != maybeC.size(1)) {
         throw new NonConformantException(String.format(
             "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)",
-            m, k, k, n, c.size(0), c.size(1)));
+            m, k, k, n, maybeC.size(0), maybeC.size(1)));
       }
 
-      double[] ca = c.data();
+      double[] ca = maybeC.data();
       blas.dgemm(
           transA.asString(),
           transB.asString(),
@@ -215,9 +215,17 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
           Math.max(1, b.stride(1)),
           beta,
           ca,
-          c.getOffset(),
-          Math.max(1, c.stride(1))
+          maybeC.getOffset(),
+          Math.max(1, maybeC.stride(1))
       );
+
+      /*
+       If c was copied, maybeC and c won't be the same instance.
+       To simulate an out parameter, c is assigned the new data if this is the case.
+      */
+      if (maybeC != c) {
+        c.assign(ca);
+      }
     } else {
       super.gemm(transA, transB, alpha, a, b, beta, c);
     }

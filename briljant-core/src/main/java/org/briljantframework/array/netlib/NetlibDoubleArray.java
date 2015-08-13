@@ -101,6 +101,10 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     return data.length;
   }
 
+  /**
+   * Performs the operation {@code alpha*transA(this)*transB(b)}. Copies are made if either
+   * arrays are {@linkplain #isContiguous() non-contiguous} or have {@code stride(0) != 1}.
+   */
   @Override
   public DoubleArray mmul(double alpha, Op transA, DoubleArray b, Op transB) {
     Check.argument(b.isMatrix(), "require 2d-array argument");
