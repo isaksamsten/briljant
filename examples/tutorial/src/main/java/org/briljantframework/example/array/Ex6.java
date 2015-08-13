@@ -22,31 +22,27 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
-
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
+package org.briljantframework.example.array;
 
 /**
- * Created by isak on 04/06/15.
+ * Created by Isak Karlsson on 02/01/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex6 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
-
-    then:
-    df[0, 0] == 1
+  public static void main(String[] args) {
+//    DoubleMatrix a = Bj.linspace(0, 2 * Math.PI, 100);
+//
+//    a.map(Math::sqrt);
+//    a.map(Math::abs);
+//    a.map(Math::exp);
+//    a.map(Math::acos);
+//    a.map(Math::sin);
+//    a.map(Math::cos);
+//    a.map(value -> Math.pow(value, 10));
+//
+//    a = Bj.linspace(-2, 2, 100);
+//    ComplexMatrix m = Bj.complexVector(100).assign(a, Complex::log);
+//    System.out.println(m);
+    // ... etc
   }
 }

@@ -22,31 +22,30 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
-
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
+package org.briljantframework.example.array;
 
 /**
- * Created by isak on 04/06/15.
+ * Created by Isak Karlsson on 01/01/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex3 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
-
-    then:
-    df[0, 0] == 1
+  public static void main(String[] args) {
+//    NormalDistribution sampler = new NormalDistribution(-1, 1);
+//    DoubleMatrix a = Bj.doubleMatrix(10, 10);
+//    DoubleMatrix b = Bj.rand(100, sampler).reshape(10, 10);
+//    a.assign(b);
+//    a.assign(b, Math::sqrt);
+//    DoubleMatrix x = a.assign(b, e -> e * e).reshape(5, 20);
+//    System.out.println(x);
+//
+//    // Take the first row
+//    DoubleMatrix firstRow = b.getRowView(0);
+//
+//    // Modifications views share data with the original
+//    firstRow.assign(Bj.doubleMatrix(10, 10).getRowView(0));
+//
+//    // Take the upper 4 elements of b
+//    DoubleMatrix up = b.getView(0, 0, 4, 4);
+//    System.out.println(up);
   }
 }

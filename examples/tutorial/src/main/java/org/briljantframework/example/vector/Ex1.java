@@ -22,31 +22,21 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
+package org.briljantframework.example.vector;
 
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
+import org.briljantframework.function.Aggregates;
+import org.briljantframework.vector.Vector;
 
 /**
- * Created by isak on 04/06/15.
+ * Created by isak on 13/08/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex1 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
-
-    then:
-    df[0, 0] == 1
+  public static void main(String[] args) {
+    Vector names = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
+    Vector counts = names.aggregate(String.class, Aggregates.valueCounts());
+    System.out.println(counts);
+    System.out.println(counts.getAsInt("Mary"));
   }
+
 }

@@ -22,31 +22,31 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
+package org.briljantframework.example.array;
 
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
 
-/**
- * Created by isak on 04/06/15.
- */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex1 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
-
-    then:
-    df[0, 0] == 1
+  public static void main(String[] args) {
+//    Random random = new Random(123);
+//    DoubleMatrix m = Bj.doubleMatrix(3, 5);
+//    m.assign(random::nextGaussian);
+//    /*- =>
+//     * -1.4380   0.2775   1.3520   1.0175  -0.4671
+//     *  0.6342   0.1843   0.3592   1.3716  -0.6711
+//     *  0.2261  -0.3652  -0.2053  -1.8902  -1.6794
+//     * Shape: 3x5
+//     */
+//
+//    m.getShape(); // => 3x5
+//    assert m.rows() == 3;
+//    assert m.columns() == 5;
+//    assert m.size() == 15;
+//
+//    Bj.mean(m, Dim.R);
+//    /*- =>
+//     * -0.1926   0.0322   0.5020   0.1663  -0.9392
+//     * Shape: 1x5
+//     */
   }
 }
