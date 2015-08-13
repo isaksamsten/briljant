@@ -11,6 +11,6 @@ pages:
 extra_javascript: ["js/highlight.pack.js", "js/extra.js"]
 extra_css: ["css/highlight.css", "css/extra.css"]
 
-theme: bootstrap
+theme: readthedocs
 
 markdown_extensions: [fenced_code, admonition]

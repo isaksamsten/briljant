@@ -22,31 +22,37 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
+package org.briljantframework.example.array;
 
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Op;
+import org.briljantframework.array.api.ArrayBackend;
+import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayRoutines;
+import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 
 /**
- * Created by isak on 04/06/15.
+ * Created by isak on 14/05/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex7 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
+  public static void main(String[] args) {
+    ArrayBackend mb = new NetlibArrayBackend();
+    ArrayFactory bj = mb.getArrayFactory();
+    ArrayRoutines bjr = mb.getArrayRoutines();
+    LinearAlgebraRoutines linalg = mb.getLinearAlgebraRoutines();
 
-    then:
-    df[0, 0] == 1
+    DoubleArray x = bj.array(new double[]{
+        1, 5, 9,
+        2, 6, 10,
+        3, 7, 11,
+        4, 8, 12
+    }).reshape(4, 3);
+
+    DoubleArray c = bj.doubleArray(3, 3);
+    bjr.gemm(Op.TRANSPOSE, Op.KEEP, 1, x, x, 1, c);
+    double sum = bjr.sum(c);
+    System.out.println(sum);
   }
 }

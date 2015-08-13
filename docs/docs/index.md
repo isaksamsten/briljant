@@ -1,7 +1,8 @@
 # Briljant Framework User Guide
 
-This is the user documentation for
-[briljant](http://www.briljantframework.org) (Swedish spelling of *brilliant*),
+This is the user documentation for [briljant](http://www.briljantframework.org)
+(Swedish spelling of *brilliant*), an open source framework for efficient and
+simple scientific computations in Java.
 
 ```
 brilliant |ˈbrɪlj(ə)nt| adjective
@@ -11,14 +12,17 @@ brilliant |ˈbrɪlj(ə)nt| adjective
 noun
 a diamond of brilliant cut
 ```
-an open source
-framework for efficient and simple scientific computations in Java. It contains among other things:
+
+It contains among other things:
 
 * a powerful (and efficient) n-dimensional array abstraction
+
 * native *BLAS* and *LAPACK* sub-routines
+
 * a powerful `r`-like `DataFrame` and `Vector` abstraction
-* efficient machine learning procedures for _conformal prediction_,
-_ensemble learning_, and _data series learning_.
+
+* efficient machine learning procedures for _conformal prediction_, _ensemble learning_, and
+_data series learning_.
 
 ## Getting started
 
@@ -26,5 +30,3 @@ _ensemble learning_, and _data series learning_.
 * Installation
 * Getting started
     * [Tutorial](tutorial.md)
-
-* dsads

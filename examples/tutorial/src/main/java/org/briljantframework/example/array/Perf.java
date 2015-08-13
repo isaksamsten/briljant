@@ -1,11 +1,35 @@
-package org.briljantframework.example.matrix;
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Isak Karlsson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-import org.briljantframework.Bj;
+package org.briljantframework.example.array;
+
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.array.DoubleMatrix;
-import org.briljantframework.array.T;
-import org.briljantframework.stat.DescriptiveStatistics;
-import org.briljantframework.stat.RunningStatistics;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.briljantframework.Bj;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Op;
+import org.briljantframework.stat.FastStatistics;
 
 import java.util.Random;
 
@@ -33,7 +57,7 @@ public class Perf {
     tmin = Long.MAX_VALUE;
     for (int i = 0; i < NITER; ++i) {
       t = System.nanoTime();
-      DoubleMatrix C = randmatmul_Briljant(1000);
+      DoubleArray C = randmatmul_Briljant(1000);
       assert (0 <= C.get(0));
       t = System.nanoTime() - t;
       if (t < tmin) {
@@ -58,10 +82,10 @@ public class Perf {
   private static double[] randmatstat_Briljant(int t) {
     Random random = new Random();
     int n = 5;
-    DoubleMatrix p = Bj.doubleMatrix(n, n * 4);
-    DoubleMatrix q = Bj.doubleMatrix(n * 2, n * 2);
-    DoubleMatrix v = Bj.doubleMatrix(t, 1);
-    DoubleMatrix w = Bj.doubleMatrix(t, 1);
+    DoubleArray p = Bj.doubleArray(n, n * 4);
+    DoubleArray q = Bj.doubleArray(n * 2, n * 2);
+    DoubleArray v = Bj.doubleArray(t, 1);
+    DoubleArray w = Bj.doubleArray(t, 1);
 
     for (int i = 0; i < t; i++) {
       p.getView(0, 0, n, n).assign(random::nextGaussian);
@@ -74,14 +98,14 @@ public class Perf {
       q.getView(n, 0, n, n).assign(random::nextGaussian);
       q.getView(n, n, n, n).assign(random::nextGaussian);
 
-      DoubleMatrix x = p.mmul(T.YES, p, T.NO);
+      DoubleArray x = p.mmul(Op.TRANSPOSE, p, Op.KEEP);
       v.set(i, Bj.trace(x.mmul(x).mmul(x)));
 
-      x = q.mmul(T.YES, q, T.NO);
+      x = q.mmul(Op.TRANSPOSE, q, Op.KEEP);
       w.set(i, Bj.trace(x.mmul(x).mmul(x)));
     }
-    DescriptiveStatistics statV = v.collect(RunningStatistics::new, RunningStatistics::add);
-    DescriptiveStatistics statW = w.collect(RunningStatistics::new, RunningStatistics::add);
+    StatisticalSummary statV = v.collect(FastStatistics::new, FastStatistics::addValue);
+    StatisticalSummary statW = w.collect(FastStatistics::new, FastStatistics::addValue);
     double meanv = statV.getMean();
     double stdv = statV.getStandardDeviation();
     double meanw = statW.getMean();
@@ -92,9 +116,9 @@ public class Perf {
 
   private static final Random random = new Random();
 
-  private static DoubleMatrix randmatmul_Briljant(int i) {
-    DoubleMatrix a = Bj.doubleMatrix(i, i).assign(random::nextGaussian);
-    DoubleMatrix b = Bj.doubleMatrix(i, i).assign(random::nextGaussian);
+  private static DoubleArray randmatmul_Briljant(int i) {
+    DoubleArray a = Bj.doubleArray(i * i).assign(random::nextGaussian).reshape(i, i);
+    DoubleArray b = Bj.doubleArray(i * i).assign(random::nextGaussian).reshape(i, i);
     return a.mmul(b);
   }
 
@@ -124,7 +148,7 @@ public class Perf {
       }
 
       // z = z*z + c
-      z = z.multiply(z).plus(c);
+      z = z.multiply(z).add(c);
     }
     return n + 1;
   }

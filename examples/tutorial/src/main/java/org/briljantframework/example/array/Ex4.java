@@ -22,31 +22,28 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
-
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
+package org.briljantframework.example.array;
 
 /**
- * Created by isak on 04/06/15.
+ * Created by Isak Karlsson on 02/01/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex4 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
-
-    then:
-    df[0, 0] == 1
+  public static void main(String[] args) {
+//    Utils.setRandomSeed(123);
+//    DoubleMatrix a = Bj.doubleVector(9).assign(2).reshape(3, 3);
+//    DoubleMatrix b = Bj.rand(9, new NormalDistribution(-1, 1)).reshape(3, 3);
+//    b.add(a);
+//    b.sub(a);
+//    b.mul(a);
+//    b.mmul(a);
+//    b.add(1, a, -1); // == b.add(a.mul(-1));
+//    b.add(1, a, -1).satisfies(b.add(a.mul(-1)), (x, y) -> x == y);
+    /*-
+     * true  true  true  
+     * true  true  true  
+     * true  true  true  
+     * Shape: 3x3
+     */
   }
 }
