@@ -141,6 +141,73 @@ abstract class ArrayRoutinesSpec extends Specification {
     ]
   }
 
+  def "gemm"() {
+    when:
+    bjr.gemm(transA, transB, alpha, a, b, beta, c)
+
+    then:
+    c == result
+
+    where:
+    [transA, transB, alpha, a, b, beta, c] << [
+        [Op.KEEP, Op.KEEP, 1.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 2, 3],
+                   [1, 2, 3]] as double[][]),
+         0.0,
+         bj.doubleArray(3, 3)
+        ],
+        [Op.TRANSPOSE, Op.KEEP, 1.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         0.0,
+         bj.doubleArray(2, 2)
+        ],
+        [Op.KEEP, Op.TRANSPOSE, 1.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         0.0,
+         bj.intArray(3, 3).asDouble() // test a non-native view as output
+        ],
+        [Op.KEEP, Op.KEEP, 2.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 2, 3],
+                   [1, 2, 3]] as double[][]),
+         3.0,
+         bj.ones(3, 3)
+        ]
+    ]
+
+    result << [
+        bj.array([[2, 4, 6],
+                  [4, 8, 12],
+                  [6, 12, 18]] as double[][]),
+
+        bj.array([[14, 14],
+                  [14, 14]] as double[][]),
+
+        bj.array([[2, 4, 6],
+                  [4, 8, 12],
+                  [6, 12, 18]] as double[][]),
+
+        bj.array([[7, 11, 15],
+                  [11, 19, 27],
+                  [15, 27, 39]] as double[][])
+    ]
+  }
+
   def "arithmetic mean of an array"() {
     expect:
     bjr.mean(a) == b

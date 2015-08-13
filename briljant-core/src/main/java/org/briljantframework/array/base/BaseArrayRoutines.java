@@ -419,6 +419,14 @@ public class BaseArrayRoutines implements ArrayRoutines {
     if (thisCols != otherRows) {
       throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
+    int m = a.size(transA == Op.KEEP ? 0 : 1);
+    int n = b.size(transB == Op.KEEP ? 1 : 0);
+    int dk = a.size(transA == Op.KEEP ? 1 : 0);
+    if (m != c.size(0) || n != c.size(1)) {
+      throw new NonConformantException(String.format(
+          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)",
+          m, dk, dk, n, c.size(0), c.size(1)));
+    }
 
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
