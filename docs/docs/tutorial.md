@@ -50,7 +50,7 @@ and want to count the frequency of each name.
 6  Anna
 type: string
 
-> Vector counts = employees.aggregate(String.class, Aggregates.valueCounts());
+> Vector counts = employees.collect(Aggregates.valueCounts());
 Bob   1
 John  1
 Anna  1
@@ -59,12 +59,16 @@ Mary  2
 type: int
 ```
 
-The first statement constructs a vector of names (with the type
+In the first statement we constructs a vector of names (with the type
 `string`). If we don't explicitly index the vector it will receive a
 numerical index from `[0, ..., vector.size()]` which means that we,
 for example, can call `employees.get(String.class, 0)` to get the
 first element of the vector.  The second statement performs an
-[aggregation](reference/vector#aggregation) operation, essentially
+[aggregation](reference/vector#aggregation) operation which in this
+case take all elements of the `employees` vector and count their
+occurence. As you probably notice in the output, the index of the
+`counts` vector is non-numerical, hence, we can call
+`counts.getAsInt("Mary")` to find the frequency of the name `Mary`.
 
 
 
