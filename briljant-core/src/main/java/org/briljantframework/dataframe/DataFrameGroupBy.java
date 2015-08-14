@@ -24,13 +24,13 @@
 
 package org.briljantframework.dataframe;
 
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.vector.Vector;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
 /**
  * @author Isak Karlsson
@@ -56,7 +56,7 @@ public interface DataFrameGroupBy extends Iterable<Group> {
    * <p> Perform an aggregation of each column of each group.
    *
    * <p> Please note that the performance of this aggregation is usually worse than for {@linkplain
-   * #aggregate(Class, org.briljantframework.function.Aggregator)}
+   * #collect(Class, java.util.stream.Collector)}
    *
    * @param function the function to perform on each column
    * @return a data frame
@@ -66,14 +66,14 @@ public interface DataFrameGroupBy extends Iterable<Group> {
   /**
    * Select and aggregate on all columns of type {@code cls}
    *
-   * @param cls        the class
-   * @param aggregator the aggregator
-   * @param <T>        the input type
-   * @param <C>        the mutable container
+   * @param <T>       the input type
+   * @param <C>       the mutable container
+   * @param cls       the class
+   * @param collector the collector
    * @return a new data frame
    */
-  <T, C> DataFrame aggregate(Class<? extends T> cls,
-                             Aggregator<? super T, ? extends T, C> aggregator);
+  <T, C> DataFrame collect(Class<? extends T> cls,
+                           Collector<? super T, C, ? extends T> collector);
 
   <T> DataFrameGroupBy transform(Class<T> cls, UnaryOperator<T> op);
 

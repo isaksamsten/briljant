@@ -26,12 +26,13 @@ package org.briljantframework.dataframe
 
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import org.briljantframework.function.Aggregator
 import org.briljantframework.vector.Vector
 
 import java.util.function.BiConsumer
+import java.util.function.BinaryOperator
 import java.util.function.Function
 import java.util.function.Supplier
+import java.util.stream.Collector
 
 import static org.briljantframework.function.Aggregates.*
 
@@ -58,21 +59,32 @@ class DataFrameExtensions {
   }
 
   @CompileStatic(TypeCheckingMode.SKIP)
-  static Vector agg(DataFrame self, Aggregator aggregator) {
-    def safeAggregator = new Aggregator() {
+  static Vector collect(DataFrame self, Collector collector) {
+    def safeCollector = new Collector() {
 
       @Override
       Supplier supplier() {
-        return aggregator.supplier()
+        return collector.supplier()
       }
 
       @Override
       BiConsumer accumulator() {
         return {a, b ->
           try {
-            aggregator.accumulator().accept(a, b)
+            collector.accumulator().accept(a, b)
           } catch (ClassCastException ignored) {
-            aggregator.accumulator().accept(a, null)
+            collector.accumulator().accept(a, null)
+          }
+        }
+      }
+
+      @Override
+      BinaryOperator combiner() {
+        return {left, right ->
+          try {
+            collector.combiner().apply(left, right);
+          } catch (ClassCastException ignored) {
+
           }
         }
       }
@@ -81,25 +93,30 @@ class DataFrameExtensions {
       Function finisher() {
         return {v ->
           try {
-            return aggregator.finisher().apply(v)
+            return collector.finisher().apply(v)
           } catch (ClassCastException e) {
             return null
           }
         }
       }
+
+      @Override
+      Set<Collector.Characteristics> characteristics() {
+        return collector.characteristics()
+      }
     }
-    return self.aggregate(Object, Object, safeAggregator)
+    return self.collect(Object, Object, safeCollector)
   }
 
   static Vector getMean(DataFrame self) {
-    return self.aggregate(Number, Double, mean())
+    return self.collect(Number, Double, mean())
   }
 
   static Vector getMedian(DataFrame self) {
-    return self.aggregate(Number, Number, median())
+    return self.collect(Number, Number, median())
   }
 
   static Vector getValueCounts(DataFrame self) {
-    return self.aggregate(Object, valueCounts())
+    return self.collector(Object, valueCounts())
   }
 }

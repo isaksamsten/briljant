@@ -287,7 +287,7 @@ public class Result {
 
     if (it.hasNext()) {
       Measure measure = it.next();
-      df.addColumn(IntVector.range(measure.size()).aggregate(Aggregates.repeat(2)));
+      df.addColumn(IntVector.range(measure.size()).collect(Aggregates.repeat(2)));
       df.addColumnBuilder(Vec.typeOf(Sample.class));
       for (int i = 0; i < measure.size() * 2; i++) {
         if (i < measure.size()) {

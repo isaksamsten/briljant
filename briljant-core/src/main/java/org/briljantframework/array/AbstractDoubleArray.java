@@ -26,11 +26,10 @@ package org.briljantframework.array;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 
 import java.io.IOException;
@@ -55,6 +54,7 @@ import java.util.function.LongToDoubleFunction;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
@@ -162,12 +162,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public <R, C> R aggregate(Aggregator<? super Double, R, C> aggregator) {
-    C accum = aggregator.supplier().get();
+  public <R, C> R collect(Collector<? super Double, C, R> collector) {
+    C accum = collector.supplier().get();
     for (int i = 0; i < size(); i++) {
-      aggregator.accumulator().accept(accum, get(i));
+      collector.accumulator().accept(accum, get(i));
     }
-    return aggregator.finisher().apply(accum);
+    return collector.finisher().apply(accum);
   }
 
   @Override

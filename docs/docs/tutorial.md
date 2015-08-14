@@ -615,77 +615,64 @@ for(int i = 0; i  < v.size(), i++) {
 }
 ```
 
-Fortunately not! Instead, Briljant exposes an `Vector#aggregate`
+Fortunately not! Instead, Briljant exposes an `Vector#collector`
 function which is a very general method for the purposes outlined
 above. For example:
 
 ```
-ArrayList<String> strings = vector.aggregate(
+ArrayList<String> strings = vector.collect(
     String.class, ArrayList::new, ArrayList::add
 );
 
-StringBuilder builder = vector.aggregate(
+StringBuilder builder = vector.collect(
     String.class, StringBuilder::new, StringBuilder::append
 );
 
 double mean = vector.aggregate(Double.class, Aggregates.mean());
 ```
 
-Aggregates are, however, more general than that! The
-`aggregate`-method of `Vector` (and as we will see later, grouped data
-frames) accepts as arguments a type `E` (in the example above
-`String.class`) and, either a `Supplier<T>` and a `BiConsumer<T, E>`,
-or an instance of `Aggregator<T, R, C>` where each type-argument in
-order denotes the type of value, the return type and the mutable
-container type. The `Aggragator<T, R, C>`, similarly to Java 8
-`Collector`, is a mutable reduction operator that accumulates values
-into a mutable container. The Briljant aggregator is a simplificaton
-of the `Collector` that only support sequential reduction
-operations. Hence, the aggregator is specified by three functions:
+Aggregates are, however, more general than that! The `collect`-method
+of `Vector` (and as we will see later, grouped data frames) accepts as
+arguments a type `E` (in the example above `String.class`) and, either
+a `Supplier<T>` and a `BiConsumer<T, E>`, or an instance of
+`Collector<T, R, C>` where each type-argument in order denotes the
+type of value, the return type and the mutable container type. The
+`Collector<T, R, C>`, is a mutable reduction operator that accumulates
+values into a mutable container. We can specify an `Collector` by
+four functions:
 
 * creation of the result container
 * modification of the result container
+* merging of result containers
 * and finalization of the result container
 
-An `Aggregator` is created using `Aggreagtor#of`. For example, the mean
-aggregator above can be implemented as:
-
-```
-Aggregator<Double, Double, ?> meanAggregator = Aggregator.of(
-    RunningStatistics::new, RunningStatistics::add, RunningStatics::getMean
-);
-
-double mean = Vector.of(rand::nextGaussian, 1000).aggregate(
-    Double.mean, meanAggregator
-);
-```
-
-Since aggregators are very general, operations such as `repeat`,
+Since `Collectors` are very general, operations such as `repeat`,
 `each`, `isNA` and `test` can be implemented.
 
 ```
 import static org.briljantframework.functions.Aggregates.*;
 Vector v = Vector.of(1,2,3,4, null);
 Vector v2Times = v.aggregate(repeat(IntVector.Builder::new, 2));
-// [1,2,3,4,NA,1,2,3,4,NA] type: int
+// [1,2,3,4,NA,1,2,3,4,NA]
 
 Vector each2times = v.aggregate(each(IntVector.Builder::new, 2));
-// [1,1,2,2,3,3,4,4,NA,NA] type: int
+// [1,1,2,2,3,3,4,4,NA,NA]
 
 Vector e = Vector.of(1,2).aggregate(each(2));
-// [1,1,2,2] type: object
+// [1,1,2,2]
 
 Vector nas = v.aggregate(isNA());
-// [FALSE, FALSE, FALSE, FALSE, TRUE] type: bit
+// [FALSE, FALSE, FALSE, FALSE, TRUE]
 
 Vector largerThan2 = v.aggregate(test(v -> v > 2 && !Is.NA(v)));
-// [FALSE, FALSE, TRUE, TRUE, TRUE] type: bit
+// [FALSE, FALSE, TRUE, TRUE, TRUE]
 ```
 
-Most of the `Aggregators` in `Aggregates` naturally handles missing
+Most of the `Collector`s in `Aggregates` naturally handles missing
 values by either exluding them (in the case of e.g., `mean()`) and
-propagate the (in the case of e.g., `repeat`). When implementing
-aggregators, one should take care to correctly handle missing values.
+propagate them (in the case of e.g., `repeat`). When implementing
+collectors, one should take care to correctly (and consistently)
+handle missing values.
 
 ### Combining vectors ###
 
@@ -720,8 +707,8 @@ Vector c = a.combine(Double.class, b, (x, y) -> x + y);
 Now, what if one of the vector contains `NA` values?
 
 ```
-Vector a = Vector.of(1,2,3,null);
-Vector b = Vector.of(1,2,null, 3);
+Vector a = Vector.of(1, 2, 3, null);
+Vector b = Vector.of(1, 2, null, 3);
 Vector c = a.combine(Integer.class, b, Combine.add());
 // [2, 4, null, null] (or Vector c = a.add(b);)
 

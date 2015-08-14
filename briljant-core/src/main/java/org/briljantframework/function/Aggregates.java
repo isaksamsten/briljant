@@ -24,9 +24,11 @@
 
 package org.briljantframework.function;
 
+import org.apache.commons.math3.stat.descriptive.AggregateSummaryStatistics;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.Index;
-import org.briljantframework.stat.FastStatistics;
 import org.briljantframework.vector.BitVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
@@ -38,16 +40,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.StringJoiner;
-import java.util.function.BiConsumer;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BinaryOperator;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @author Isak Karlsson
@@ -67,9 +68,18 @@ public final class Aggregates {
    * @param <O>      the output type
    * @return a transformation aggregator
    */
-  public static <T, O> Aggregator<T, Vector, ?> transform(Supplier<Vector.Builder> supplier,
-                                                          Function<? super T, ? extends O> function) {
-    return Aggregator.of(supplier, (acc, v) -> acc.add(function.apply(v)), Vector.Builder::build);
+  public static <T, O> Collector<T, ?, Vector> transform(
+      Supplier<Vector.Builder> supplier,
+      Function<? super T, ? extends O> function) {
+    return Collector.of(
+        supplier,
+        (acc, v) -> acc.add(function.apply(v)),
+        (Vector.Builder left, Vector.Builder right) -> {
+          left.addAll(right);
+          return left;
+        },
+        Vector.Builder::build
+    );
   }
 
   /**
@@ -80,13 +90,20 @@ public final class Aggregates {
    * @param <T>       the input type
    * @return a filtering aggregator
    */
-  public static <T> Aggregator<T, Vector, ?> filter(Supplier<Vector.Builder> supplier,
-                                                    Predicate<T> predicate) {
-    return Aggregator.of(supplier, (acc, v) -> {
-      if (predicate.test(v)) {
-        acc.add(v);
-      }
-    }, Vector.Builder::build);
+  public static <T> Collector<T, ?, Vector> filter(Supplier<Vector.Builder> supplier,
+                                                   Predicate<T> predicate) {
+    return Collector.of(
+        supplier,
+        (acc, v) -> {
+          if (predicate.test(v)) {
+            acc.add(v);
+          }
+        },
+        (Vector.Builder left, Vector.Builder right) -> {
+          left.addAll(right);
+          return left;
+        },
+        Vector.Builder::build);
   }
 
   /**
@@ -97,7 +114,7 @@ public final class Aggregates {
    * @param <T>       the input type
    * @return a filter aggregator
    */
-  public static <T> Aggregator<T, Vector, ?> test(Predicate<T> predicate) {
+  public static <T> Collector<T, ?, Vector> test(Predicate<T> predicate) {
     return transform(BitVector.Builder::new, predicate::test);
   }
 
@@ -105,7 +122,7 @@ public final class Aggregates {
    * @return an aggregator for testing, and aggregating a bit-vector, for values that are {@code
    * NA}.
    */
-  public static Aggregator<Object, Vector, ?> isNA() {
+  public static Collector<Object, ?, Vector> isNA() {
     return test(Is::NA);
   }
 
@@ -113,7 +130,7 @@ public final class Aggregates {
    * @return an aggregator for testing, and aggregating a bit-vector, for values that are not {@code
    * NA}.
    */
-  public static Aggregator<Object, Vector, ?> notNA() {
+  public static Collector<Object, ?, Vector> notNA() {
     return test(v -> !Is.NA(v));
   }
 
@@ -121,39 +138,63 @@ public final class Aggregates {
    * @param copies the number of copies of each element
    * @return an aggregator that repeats each value {@code copies} times.
    */
-  public static <T> Aggregator<T, Vector, ?> each(Supplier<Vector.Builder> vb, int copies) {
-    return Aggregator.of(vb, (acc, v) -> {
-      for (int i = 0; i < copies; i++) {
-        acc.add(v);
-      }
-    }, Vector.Builder::build);
+  public static <T> Collector<T, ?, Vector> each(Supplier<Vector.Builder> vb, int copies) {
+    return Collector.of(
+        vb,
+        (acc, v) -> {
+          for (int i = 0; i < copies; i++) {
+            acc.add(v);
+          }
+        },
+        (Vector.Builder left, Vector.Builder right) -> {
+          left.addAll(right);
+          return left;
+        },
+        Vector.Builder::build);
   }
 
-  public static <T> Aggregator<T, Vector, ?> each(int copies) {
+  public static <T> Collector<T, ?, Vector> each(int copies) {
     return each(Vec::inferringBuilder, copies);
   }
 
-  public static <T> Aggregator<T, Vector, ?> repeat(Supplier<Vector.Builder> vb, int copies) {
-    return Aggregator.of(vb, Vector.Builder::add, (v) -> {
-      Vector temp = v.getTemporaryVector();
-      int size = temp.size();
-      for (int i = 1; i < copies; i++) {
-        for (int j = 0; j < size; j++) {
-          v.add(temp, j);
-        }
-      }
-      return v.build();
-    });
+  public static <T> Collector<T, ?, Vector> repeat(Supplier<Vector.Builder> vb, int copies) {
+    return Collector.of(
+        vb,
+        Vector.Builder::add,
+        (Vector.Builder left, Vector.Builder right) -> {
+          left.addAll(right);
+          return left;
+        },
+        (v) -> {
+          Vector temp = v.getTemporaryVector();
+          int size = temp.size();
+          for (int i = 1; i < copies; i++) {
+            for (int j = 0; j < size; j++) {
+              v.add(temp, j);
+            }
+          }
+          return v.build();
+        });
   }
 
-  public static <T> Aggregator<T, Vector, ?> repeat(int copies) {
+  public static <T> Collector<T, ?, Vector> repeat(int copies) {
     return repeat(Vec::inferringBuilder, copies);
   }
 
-  public static <T> Aggregator<T, Vector, ?> valueCounts() {
-    return Aggregator.of(
+  public static <T> Collector<T, ?, Vector> valueCounts() {
+    return Collector.of(
         () -> new HashMap<T, Integer>(),
         (map, t) -> map.compute(t, (v, c) -> c == null ? 1 : c + 1),
+        new BinaryOperator<HashMap<T, Integer>>() {
+          @Override
+          public HashMap<T, Integer> apply(HashMap<T, Integer> left,
+                                           HashMap<T, Integer> right) {
+            right.forEach((k, v) -> left.merge(
+                              k, v, (Integer o, Integer n) -> o == null ? n : o + n)
+            );
+            return left;
+          }
+        },
         (map) -> {
           Vector.Builder b = Vec.inferringBuilder();
           Index.Builder ib = new HashIndex.Builder();
@@ -164,63 +205,32 @@ public final class Aggregates {
           Vector v = b.build();
           v.setIndex(ib.build());
           return v;
-        }
+        },
+        Collector.Characteristics.UNORDERED
     );
   }
 
-  public static <T> Aggregator<T, Map<T, Double>, ?> normalizedValueCounts() {
-    class MapCounter {
-
-      private HashMap<T, Integer> map = new HashMap<>();
-      private int count = 0;
-    }
-    return Aggregator.of(MapCounter::new, new BiConsumer<MapCounter, T>() {
-      @Override
-      public void accept(MapCounter mapCounter, T t) {
-        mapCounter.count++;
-        mapCounter.map.compute(t, (v, c) -> c == null ? 1 : c + 1);
-      }
-    }, mapCounter -> {
-      Map<T, Double> map = new HashMap<>();
-      mapCounter.map.entrySet().forEach(
-          e -> map.put(e.getKey(), e.getValue() / (double) mapCounter.count)
-      );
-      return map;
-    });
-  }
-
-  public static <T> Aggregator<T, T, ?> reducing(BinaryOperator<T> operator) {
-    class Value implements Consumer<T> {
-
-      private T value;
-
-      @Override
-      public void accept(T t) {
-        if (value == null) {
-          value = t;
-        } else {
-          operator.apply(value, t);
-        }
-      }
-    }
-    return Aggregator.of(Value::new, Value::accept, (acc) -> acc.value);
-  }
-
-  public static <T> Aggregator<T, Vector, ?> unique() {
-    return Aggregator.of(
-        HashSet::new, HashSet::add, (set) -> Vec.inferringBuilder().addAll(set).build()
+  public static <T> Collector<T, ?, Vector> unique() {
+    return Collector.of(
+        HashSet::new,
+        HashSet::add,
+        (ts, ts2) -> {
+          ts.addAll(ts2);
+          return ts;
+        },
+        ts -> Vec.inferringBuilder().addAll(ts).build()
     );
   }
 
-  public static <T> Aggregator<T, T, ?> maxBy(Comparator<? super T> comparator) {
-    return reducing(BinaryOperator.maxBy(comparator));
+  public static <T> Collector<T, ?, Optional<T>> maxBy(Comparator<? super T> comparator) {
+    return Collectors.reducing(BinaryOperator.maxBy(comparator));
   }
 
-  public static <T> Aggregator<T, T, ?> minBy(Comparator<? super T> comparator) {
-    return reducing(BinaryOperator.minBy(comparator));
+  public static <T> Collector<T, ?, Optional<T>> minBy(Comparator<? super T> comparator) {
+    return Collectors.reducing(BinaryOperator.minBy(comparator));
   }
 
-  public static <T> Aggregator<T, T, ?> mode() {
+  public static <T> Collector<T, ?, T> mode() {
     throw new UnsupportedOperationException();
 //    return Aggregator.of(
 //        HashMultiset::<T>create,
@@ -234,64 +244,110 @@ public final class Aggregates {
 //    );
   }
 
-  public static <T> Aggregator<T, Integer, ?> nunique() {
-    return Aggregator.of(HashSet::new, HashSet::add, HashSet::size);
+  public static <T> Collector<T, ?, Integer> nunique() {
+    return Collector.of(HashSet::new, HashSet::add, (left, right) -> {
+      left.addAll(right);
+      return left;
+    }, HashSet::size);
   }
 
-  public static Aggregator<Number, Double, ?> sum() {
-    return Aggregator.of(() -> new double[0], (s, v) -> {
-      if (!Is.NA(v)) {
-        s[0] += v.doubleValue();
-      }
-    }, s -> s[0]);
+  public static Collector<Number, ?, Double> sum() {
+    return Collector.of(
+        () -> new double[0],
+        (s, v) -> {
+          if (!Is.NA(v)) {
+            s[0] += v.doubleValue();
+          }
+        },
+        (left, right) -> {
+          left[0] = left[0] + right[0];
+          return left;
+        },
+        s -> s[0]);
   }
 
-  public static Aggregator<Number, Double, ?> mean() {
-    return Aggregator.of(FastStatistics::new, (a, v) -> {
-      if (!Is.NA(v)) {
-        a.addValue(v.doubleValue());
-      }
-    }, (stat) -> {
-      if (stat.getN() == 0) {
-        return Na.from(Double.class);
-      }
-      return stat.getMean();
+  public static Collector<Number, ?, Vector> summary() {
+    return withFinisher(statisticalSummary(), v -> {
+      Vector summary = Vector.of(
+          v.getMean(),
+          v.getSum(),
+          v.getStandardDeviation(),
+          v.getVariance(),
+          v.getMin(),
+          v.getMax(),
+          v.getN()
+      );
+      summary.setIndex(HashIndex.from(
+          "mean",
+          "sum",
+          "std",
+          "var",
+          "min",
+          "max",
+          "n"
+      ));
+      return summary;
     });
   }
 
-  public static Aggregator<Number, Double, ?> std() {
-    return Aggregator.of(FastStatistics::new, (a, v) -> {
-      if (!Is.NA(v)) {
-        a.addValue(v.doubleValue());
-      }
-    }, (stat) -> {
-      if (stat.getN() == 0) {
-        return Na.from(Double.class);
-      }
-      return stat.getStandardDeviation();
-    });
+  public static Collector<Number, ?, StatisticalSummary> statisticalSummary() {
+    AggregateSummaryStatistics statistics = new AggregateSummaryStatistics();
+    return Collector.of(
+        statistics::createContributingStatistics,
+        (SummaryStatistics a, Number v) -> {
+          if (!Is.NA(v)) {
+            a.addValue(v.doubleValue());
+          }
+        },
+        (left, right) -> {
+          return left;
+        },
+        (stat) -> {
+          return statistics.getSummary();
+        }
+    );
   }
 
-  public static Aggregator<Number, Double, ?> var() {
-    return Aggregator.of(FastStatistics::new, (a, v) -> {
-      if (!Is.NA(v)) {
-        a.addValue(v.doubleValue());
-      }
-    }, (stat) -> {
-      if (stat.getN() == 0) {
-        return Na.from(Double.class);
-      }
-      return stat.getVariance();
-    });
+  public static <T, A, R, F> Collector<T, ?, F> withFinisher(
+      Collector<T, A, R> collector,
+      Function<R, F> finisher) {
+    Function<A, R> f = collector.finisher();
+
+    Set<Collector.Characteristics> characteristics = collector.characteristics();
+    Collector.Characteristics[] empty = new Collector.Characteristics[characteristics.size()];
+    return Collector.of(
+        collector.supplier(),
+        collector.accumulator(),
+        collector.combiner(),
+        f.andThen(finisher),
+        characteristics.toArray(empty)
+    );
+  }
+
+  public static Collector<Number, ?, Double> mean() {
+    return withFinisher(statisticalSummary(), StatisticalSummary::getMean);
+  }
+
+  public static Collector<Number, ?, Double> std() {
+    return withFinisher(statisticalSummary(), StatisticalSummary::getStandardDeviation);
+  }
+
+  public static Collector<Number, ?, Double> var() {
+    return withFinisher(statisticalSummary(), StatisticalSummary::getVariance);
   }
 
   /**
    * @return an aggregator that computes the median.
    */
-  public static Aggregator<Number, Double, ?> median() {
-    Aggregator<Number, Double, ? extends List<Number>> of = Aggregator.of(
+  public static Collector<Number, ?, Double> median() {
+    return Collector.of(
         ArrayList::new,
-        ArrayList::add, (list) -> {
+        ArrayList::add,
+        (left, right) -> {
+          left.addAll(right);
+          return left;
+        },
+        (ArrayList<Number> list) -> {
           int size = list.size();
           if (size == 0) {
             return Na.from(Double.class);
@@ -310,83 +366,53 @@ public final class Aggregates {
           }
         }
     );
-    return of;
   }
 
-  public static Aggregator<Double, Double, ?> max() {
-    return Aggregator.of(FastStatistics::new, (a, v) -> {
-      if (!Is.NA(v)) {
-        a.addValue(v);
-      }
-    }, (r) -> {
-      if (r.getN() == 0) {
-        return Na.from(Double.class);
-      } else {
-        return r.getMax();
-      }
-    });
+  public static Collector<Number, ?, Number> max() {
+    return Collector.of(
+        () -> new double[]{Double.NEGATIVE_INFINITY},
+        (a, v) -> {
+          if (!Is.NA(v)) {
+            a[0] = Math.max(a[0], v.doubleValue());
+          }
+        },
+        (left, right) -> {
+          left[0] = Math.max(left[0], right[0]);
+          return left;
+        },
+        (r) -> r[0]
+    );
   }
 
-  public static Aggregator<Number, Number, ?> min() {
-    return Aggregator.of(FastStatistics::new, (a, v) -> {
-      if (!Is.NA(v)) {
-        a.addValue(v.doubleValue());
-      }
-    }, (r) -> {
-      if (r.getN() == 0) {
-        return Na.from(Double.class);
-      } else {
-        return r.getMin();
-      }
-    });
+  public static Collector<Number, ?, Number> min() {
+    return Collector.of(
+        () -> new double[]{Double.NEGATIVE_INFINITY},
+        (a, v) -> {
+          if (!Is.NA(v)) {
+            a[0] = Math.min(a[0], v.doubleValue());
+          }
+        },
+        (left, right) -> {
+          left[0] = Math.min(left[0], right[0]);
+          return left;
+        },
+        (r) -> r[0]
+    );
   }
 
-  public static <T> Aggregator<T, Integer, ?> count() {
-    return Aggregator.of(() -> new int[1], (int[] a, T b) -> {
-      if (!Is.NA(b)) {
-        a[0] += 1;
-      }
-    }, (int[] a) -> a[0]);
-  }
-
-  public static Aggregator<Object, String, ?> join(CharSequence delimit) {
-    return join(delimit, "", "");
-  }
-
-  public static Aggregator<Object, String, ?> join(CharSequence delimit,
-                                                   CharSequence prefix,
-                                                   CharSequence suffix) {
-    return Aggregator.of(() -> new StringJoiner(delimit, prefix, suffix),
-                         (j, s) -> j.add(!Is.NA(s) ? s.toString() : "NA"),
-                         StringJoiner::toString);
-  }
-
-
-  static class AggregatorImpl<T, R, C> implements Aggregator<T, R, C> {
-
-    private final Supplier<C> supplier;
-    private final BiConsumer<C, T> accumulator;
-    private final Function<C, R> finisher;
-
-    AggregatorImpl(Supplier<C> supplier, BiConsumer<C, T> accumulator, Function<C, R> finisher) {
-      this.supplier = Objects.requireNonNull(supplier);
-      this.accumulator = Objects.requireNonNull(accumulator);
-      this.finisher = Objects.requireNonNull(finisher);
-    }
-
-    @Override
-    public Supplier<C> supplier() {
-      return supplier;
-    }
-
-    @Override
-    public BiConsumer<C, T> accumulator() {
-      return accumulator;
-    }
-
-    @Override
-    public Function<C, R> finisher() {
-      return finisher;
-    }
+  public static <T> Collector<T, ?, Integer> count() {
+    return Collector.of(
+        () -> new int[1],
+        (int[] a, T b) -> {
+          if (!Is.NA(b)) {
+            a[0] += 1;
+          }
+        },
+        (int[] left, int[] right) -> {
+          left[0] += right[0];
+          return left;
+        },
+        (int[] a) -> a[0]
+    );
   }
 }

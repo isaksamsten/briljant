@@ -36,7 +36,6 @@ import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.sort.Swappable;
@@ -131,6 +130,9 @@ public interface Vector extends Serializable {
     return singleton(value, 1);
   }
 
+  static Vector empty() {
+    return SingletonVector.empty();
+  }
 
   default <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate) {
     return combine(cls, Boolean.class, other, predicate::test);
@@ -175,10 +177,10 @@ public interface Vector extends Serializable {
    */
   default <T, O> Vector transform(Class<T> in, Class<O> out,
                                   Function<? super T, ? extends O> operator) {
-    Aggregator<T, Vector, ?> transform = Aggregates.transform(
+    Collector<T, ?, Vector> transform = Aggregates.transform(
         () -> Vec.typeOf(out).newBuilder(), operator
     );
-    return aggregate(in, transform);
+    return collect(in, transform);
   }
 
   /**
@@ -201,7 +203,7 @@ public interface Vector extends Serializable {
    * @return a new vector of type inferred by {@code operator}
    */
   default <T> Vector transform(Class<T> cls, UnaryOperator<T> operator) {
-    return aggregate(cls, Aggregates.transform(this::newBuilder, operator));
+    return collect(cls, Aggregates.transform(this::newBuilder, operator));
   }
 
   /**
@@ -214,43 +216,90 @@ public interface Vector extends Serializable {
    * @return a new vector with only values for which {@code predicate} returns true
    */
   default <T> Vector filter(Class<T> cls, Predicate<T> predicate) {
-    return aggregate(cls, Aggregates.filter(this::newBuilder, predicate));
+    return collect(cls, Aggregates.filter(this::newBuilder, predicate));
   }
 
   /**
    * Performs a mutable aggregation of the values in this vector, similar to {@linkplain
    * Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its aggregation
-   * by mutating and adding values to an aggregation container such as {@linkplain
-   * org.briljantframework.stat.FastStatistics}.
+   * by mutating and adding values to an aggregation container such as a {@linkplain List list}.
    *
    * <p> The result produced is equivalent to:
    *
    * <pre>{@code
-   *  T container = aggregator.supplier();
-   *  for(int i = 0; i < size(); i++) {
-   *    aggreagator.accumulator().accept(container, get(in, i));
-   *  }
-   *  return aggragator.finisher().apply(container);
+   * T container = collector.supplier();
+   * for(int i = 0; i < size(); i++) {
+   *  collector.accumulator().accept(container, get(in, i));
+   * }
+   * return collector.finisher().apply(container);
    * }</pre>
    *
    * <p> Example:
    *
    * <pre>{@code
-   *  Vector randomNumber = Vector.of(rand::nextGaussian, 1000);
-   *  double mean = randomNumbers.aggregate(Double.class, Aggregates.of(
-   *    RunningStatistics::new, RunningStatistics::add, RunningStatistics::getMean
-   *  ));
-   *  mean = randomNumber.aggregate(Double.class, Aggregates.mean());
+   * > RealDistribution normal = new NormalDistribution()
+   * > Vector vector = Vector.of(normal::sample, 1000)
+   * 0     -0.862
+   * 1     0.653
+   * 2     0.836
+   * 3     0.196
+   * 4     0.554
+   * 5     1.388
+   * 6     -0.992
+   * 7     -0.453
+   * 8     0.283
+   * ...
+   * 991   -0.778
+   * 992   -0.043
+   * 993   -0.288
+   * 994   0.184
+   * 995   -0.524
+   * 996   -0.391
+   * 997   0.553
+   * 998   -0.856
+   * 999   -0.055
+   * type: double
+   *
+   * > double mean = vector.collect(Double.class, Aggregates.mean());
+   * > Vector summary = vector.collect(Double.class, Aggregate.summary());
+   * type: double
+   * mean  0.029
+   * sum   28.714
+   * std   1.008
+   * var   1.016
+   * min   -3.056
+   * max   3.589
+   * n     1000.000
+   * type: double
    * }</pre>
    *
-   * @param in         the input type
-   * @param aggregator the aggregator
-   * @param <T>        the type of the input value to the mutable aggregation
-   * @param <R>        the type of the mutable aggregator
-   * @param <C>        the type of the return type of the aggregation
+   * <pre>{@code
+   * > Vector names = Vector.of("Mary", "Bob", "Lisa");
+   * 0  Mary
+   * 1  Bob
+   * 2  Lisa
+   * type: string
+   *
+   * > names.repeat(Collectors.repeat(2));
+   * 0  Mary
+   * 1  Bob
+   * 2  Lisa
+   * 3  Mary
+   * 4  Bob
+   * 5  Lisa
+   * type: string
+   * }</pre>
+   *
+   * @param <T>       the type of the input value to the mutable aggregation
+   * @param <R>       the type of the mutable collector
+   * @param <C>       the type of the return type of the aggregation
+   * @param in        the input type
+   * @param collector the collector
    * @return a value of type {@code R} (i.e. the result of the aggregation)
+   * @see java.util.stream.Collector
+   * @see java.util.stream.Stream#collect(java.util.stream.Collector)
    */
-  <T, R, C> R aggregate(Class<? extends T> in, Aggregator<? super T, ? extends R, C> aggregator);
+  <T, R, C> R collect(Class<? extends T> in, Collector<? super T, C, ? extends R> collector);
 
   /**
    * Example:
@@ -267,22 +316,21 @@ public interface Vector extends Serializable {
    * @param <R>      the result type
    * @return a value of type {@code R}
    */
-  default <T, R> R aggregate(Class<? extends T> in, Supplier<R> supplier,
-                             BiConsumer<R, ? super T> consumer) {
-    return aggregate(in, Aggregator.of(supplier, consumer, Function.identity()));
+  default <T, R> R collect(Class<? extends T> in,
+                           Supplier<R> supplier, BiConsumer<R, ? super T> consumer) {
+    return collect(in, Collector.of(
+        supplier,
+        consumer,
+        (left, right) -> {
+          throw new UnsupportedOperationException();
+        },
+        Function.identity(),
+        Collector.Characteristics.IDENTITY_FINISH
+    ));
   }
 
-  default <R> R aggregate(Aggregator<? super Object, R, ?> aggregator) {
-    return aggregate(getType().getDataClass(), aggregator);
-  }
-
-  default <T, R, C> R collect(Class<? extends T> cls,
-                              Collector<? super T, C, ? extends R> collector) {
-    Aggregator<? super T, ? extends R, C> aggregator = Aggregator.of(
-        collector.supplier(),
-        collector.accumulator(),
-        collector.finisher());
-    return aggregate(cls, aggregator);
+  default <R> R collect(Collector<? super Object, ?, R> collector) {
+    return collect(getType().getDataClass(), collector);
   }
 
   <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
@@ -858,11 +906,6 @@ public interface Vector extends Serializable {
      */
     Builder add(Object value);
 
-    default Builder addAll(Collection<Object> collection) {
-      collection.forEach(this::add);
-      return this;
-    }
-
     default Builder addAll(Object... objects) {
       return addAll(Arrays.asList(objects));
     }
@@ -874,6 +917,10 @@ public interface Vector extends Serializable {
      * @return a modified builder
      */
     Builder addAll(Vector from);
+
+    default Builder addAll(Vector.Builder builder) {
+      return addAll(builder.getTemporaryVector());
+    }
 
     /**
      * Add all values in iterable

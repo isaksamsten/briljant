@@ -24,7 +24,6 @@
 
 package org.briljantframework.dataframe;
 
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.vector.Vector;
 
 import java.util.HashMap;
@@ -33,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
 /**
  * @author Isak Karlsson
@@ -128,8 +128,8 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   @Override
-  public <T, C> DataFrame aggregate(Class<? extends T> cls,
-                                    Aggregator<? super T, ? extends T, C> aggregator) {
+  public <T, C> DataFrame collect(Class<? extends T> cls,
+                                  Collector<? super T, C, ? extends T> collector) {
     DataFrame.Builder builder = dataFrame.newBuilder();
     Index.Builder recordIndex = new HashIndex.Builder();
     Index.Builder columnIndex = new HashIndex.Builder();
@@ -147,11 +147,11 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         if (cls.isAssignableFrom(dataFrame.getType(j).getDataClass())) {
           Vector groupIndex = e.getValue();
           Vector col = dataFrame.get(j);
-          C c = aggregator.supplier().get();
+          C c = collector.supplier().get();
           for (int i = 0; i < groupIndex.size(); i++) {
-            aggregator.accumulator().accept(c, col.get(cls, groupIndex.getAsInt(i)));
+            collector.accumulator().accept(c, col.get(cls, groupIndex.getAsInt(i)));
           }
-          T t = aggregator.finisher().apply(c);
+          T t = collector.finisher().apply(c);
           builder.set(row, colIndex++, t);
         }
       }

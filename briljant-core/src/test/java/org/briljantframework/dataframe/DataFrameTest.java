@@ -47,7 +47,7 @@ public class DataFrameTest {
                                   i % 5 == 0 ? "Buzz" :
                                   String.valueOf(i)))
             .groupBy("number")
-            .aggregate(Object.class, count())
+            .collect(Object.class, count())
             .sort(SortOrder.DESC, "number")
             .head(3);
 

@@ -32,6 +32,8 @@ import org.briljantframework.Check;
  */
 class SingletonVector extends AbstractVector {
 
+  private static final Vector EMPTY = new SingletonVector(null, 0);
+
   private final Class<?> cls;
   private final Object value;
   private final VectorType type;
@@ -42,6 +44,10 @@ class SingletonVector extends AbstractVector {
     this.value = value;
     this.size = size;
     type = Vec.typeOf(cls);
+  }
+
+  public static final Vector empty() {
+    return EMPTY;
   }
 
   @Override

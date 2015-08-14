@@ -39,7 +39,6 @@ import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.dataframe.join.JoinUtils;
 import org.briljantframework.dataframe.join.LeftOuterJoin;
 import org.briljantframework.dataframe.join.OuterJoin;
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
@@ -62,6 +61,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -267,14 +267,14 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public <T, C> Vector aggregate(Class<T> cls,
-                                 Aggregator<? super T, ? extends T, C> aggregator) {
-    return aggregate(cls, cls, aggregator);
+  public <T, C> Vector collector(Class<T> cls,
+                                 Collector<? super T, C, ? extends T> collector) {
+    return collect(cls, cls, collector);
   }
 
   @Override
-  public <T, R, C> Vector aggregate(Class<T> in, Class<R> out,
-                                    Aggregator<? super T, ? extends R, C> aggregator) {
+  public <T, R, C> Vector collect(Class<T> in, Class<R> out,
+                                  Collector<? super T, C, ? extends R> collector) {
     Vector.Builder builder = Vec.typeOf(out).newBuilder();
     Index.Builder columnIndex = new HashIndex.Builder();
 
@@ -283,11 +283,11 @@ public abstract class AbstractDataFrame implements DataFrame {
       Vector vec = get(j);
       if (in.isAssignableFrom(vec.getType().getDataClass())) {
         columnIndex.add(getColumnIndex().get(j));
-        C accumulator = aggregator.supplier().get();
+        C accumulator = collector.supplier().get();
         for (int i = 0; i < rows(); i++) {
-          aggregator.accumulator().accept(accumulator, vec.get(in, i));
+          collector.accumulator().accept(accumulator, vec.get(in, i));
         }
-        builder.set(column++, aggregator.finisher().apply(accumulator));
+        builder.set(column++, collector.finisher().apply(accumulator));
       }
     }
     Vector v = builder.build();

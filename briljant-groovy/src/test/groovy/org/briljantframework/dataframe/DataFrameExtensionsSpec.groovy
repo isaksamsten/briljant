@@ -53,6 +53,6 @@ class DataFrameExtensionsSpec extends Specification {
 //    df[0].index as ArrayList == ["a", "b"]
     println(df.median)
     println(df.valueCounts["a"][0])
-    println(df.agg(Aggregates.mean()))
+    println(df.collect(Aggregates.mean()))
   }
 }

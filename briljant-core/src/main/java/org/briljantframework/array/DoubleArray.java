@@ -25,7 +25,6 @@
 package org.briljantframework.array;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.function.DoubleBiPredicate;
 
 import java.util.List;
@@ -42,6 +41,7 @@ import java.util.function.LongToDoubleFunction;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
 /**
@@ -153,7 +153,7 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
    */
   DoubleArray update(DoubleUnaryOperator operator);
 
-  <R, C> R aggregate(Aggregator<? super Double, R, C> aggregator);
+  <R, C> R collect(Collector<? super Double, C, R> collector);
 
   <E> E collect(Supplier<E> supplier, ObjDoubleConsumer<E> consumer);
 

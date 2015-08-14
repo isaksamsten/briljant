@@ -669,7 +669,7 @@ public final class Vec {
 
     @Override
     public Vector.Builder addAll(Vector from) {
-      if (from.size() > 1) {
+      if (from.size() > 0) {
         Object value = from.get(Object.class, 0);
         if (builder == null) {
           builder = inferTypeOf(value).newBuilder();
@@ -719,12 +719,12 @@ public final class Vec {
 
     @Override
     public Vector getTemporaryVector() {
-      return builder != null ? builder.getTemporaryVector() : Vector.singleton(null);
+      return builder != null ? builder.getTemporaryVector() : Vector.empty();
     }
 
     @Override
     public Vector build() {
-      return builder != null ? builder.build() : Vector.singleton(null);
+      return builder != null ? builder.build() : Vector.empty();
     }
   }
 }

@@ -30,10 +30,10 @@ import org.briljantframework.array.Array;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.IntIndex;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.function.Aggregator;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Collector;
 
 /**
  * @author Isak Karlsson
@@ -54,13 +54,13 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T, R, C> R aggregate(Class<? extends T> in,
-                               Aggregator<? super T, ? extends R, C> aggregator) {
-    C accumulator = aggregator.supplier().get();
+  public <T, R, C> R collect(Class<? extends T> in,
+                             Collector<? super T, C, ? extends R> collector) {
+    C accumulator = collector.supplier().get();
     for (int i = 0; i < size(); i++) {
-      aggregator.accumulator().accept(accumulator, get(in, i));
+      collector.accumulator().accept(accumulator, get(in, i));
     }
-    return aggregator.finisher().apply(accumulator);
+    return collector.finisher().apply(accumulator);
   }
 
   @Override

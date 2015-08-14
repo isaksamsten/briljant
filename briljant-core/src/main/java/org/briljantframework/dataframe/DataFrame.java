@@ -24,11 +24,10 @@
 
 package org.briljantframework.dataframe;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.dataframe.join.JoinType;
-import org.briljantframework.function.Aggregator;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.sort.Swappable;
 import org.briljantframework.vector.Bit;
@@ -44,6 +43,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -278,7 +278,7 @@ public interface DataFrame extends Iterable<Vector> {
   Vector reduce(Function<Vector, Object> op);
 
   /**
-   * <p> Aggregate every column which is an instance of {@code cls} using the supplied aggregator.
+   * <p> Aggregate every column which is an instance of {@code cls} using the supplied collector.
    *
    * <pre>{@code
    *  df.aggregate(Double.class, Aggregate.of(
@@ -291,16 +291,16 @@ public interface DataFrame extends Iterable<Vector> {
    * <p> Note that {@link org.briljantframework.function.Aggregates} implement several convenient
    * aggregates, for example {@code df.aggregate(Number.class, Aggregate.median())}.
    *
-   * @param <T>        the type of value to be aggregated
-   * @param <C>        the type of the mutable aggregator
-   * @param cls        the class
-   * @param aggregator the aggregator
+   * @param <T>       the type of value to be aggregated
+   * @param <C>       the type of the mutable collector
+   * @param cls       the class
+   * @param collector the collector
    * @return a {@linkplain org.briljantframework.dataframe.Series} of the aggregated values
    */
-  <T, C> Vector aggregate(Class<T> cls, Aggregator<? super T, ? extends T, C> aggregator);
+  <T, C> Vector collector(Class<T> cls, Collector<? super T, C, ? extends T> collector);
 
-  <T, R, C> Vector aggregate(Class<T> in, Class<R> out,
-                             Aggregator<? super T, ? extends R, C> aggregator);
+  <T, R, C> Vector collect(Class<T> in, Class<R> out,
+                           Collector<? super T, C, ? extends R> collector);
 
   /**
    * Group DataFrame based on the values of column at {@code index}.
