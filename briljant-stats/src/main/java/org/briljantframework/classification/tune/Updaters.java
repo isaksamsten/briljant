@@ -24,26 +24,27 @@
 
 package org.briljantframework.classification.tune;
 
-import com.google.common.base.Preconditions;
+import org.briljantframework.Check;
 
 /**
  * Created by Isak Karlsson on 24/09/14.
  */
 public final class Updaters {
 
-  private Updaters() {}
+  private Updaters() {
+  }
 
   /**
    * Range updater.
    *
    * @param consumer the consumer
-   * @param start the start
-   * @param end the end
-   * @param step the step
+   * @param start    the start
+   * @param end      the end
+   * @param step     the step
    * @return the updater
    */
   public static <T> Updater<T> range(String name, Updater.Update<? super T, Integer> consumer,
-      int start, int end, int step) {
+                                     int start, int end, int step) {
     return new Updater<T>() {
       private int current = start;
 
@@ -79,13 +80,13 @@ public final class Updaters {
    * Range updater.
    *
    * @param consumer the consumer
-   * @param start the start
-   * @param end the end
-   * @param step the step
+   * @param start    the start
+   * @param end      the end
+   * @param step     the step
    * @return the updater
    */
   public static <T> Updater<T> range(String name, Updater.Update<? super T, Double> consumer,
-      double start, double end, double step) {
+                                     double start, double end, double step) {
     return new Updater<T>() {
       private double current = start;
 
@@ -120,15 +121,15 @@ public final class Updaters {
   /**
    * Options updater.
    *
-   * @param <T> the type parameter
-   * @param updater the option
+   * @param <T>         the type parameter
+   * @param updater     the option
    * @param enumeration the options
    * @return the updater
    */
   @SafeVarargs
   public static <T, V> Updater<T> enumeration(String name, Updater.Update<T, V> updater,
-      V... enumeration) {
-    Preconditions.checkArgument(enumeration.length > 0, "must enumerate value");
+                                              V... enumeration) {
+    Check.argument(enumeration.length > 0, "must enumerate value");
     return new Updater<T>() {
       private int current = 0;
 

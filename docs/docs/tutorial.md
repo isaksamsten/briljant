@@ -1,12 +1,12 @@
 # First taste of Briljant
 ## Introduction
 
-Briljants main abstractions are the [Array](#array),
+Briljants main abstractions are the (nd)-[array](#array),
 [DataFrame](#dataframe) and [Vector](#vector).
 
-* `DataFrame` is an immutable column wise heterogeneous data
-  container and provides the essential tools for working with
-  statistical data in Java. In particular, `DataFrame` provides
+* `DataFrame` is an immutable column wise heterogeneous data container
+  and provides the essential tools for working with statistical data
+  in Java. In particular, `DataFrame` provides
 
     * `NA`, i.e. missing (or non-existing) values, distinct from e.g.,
       `NaN`.
@@ -20,18 +20,57 @@ Briljants main abstractions are the [Array](#array),
   floating point numbers), `Binary` (i.e. true/false), `Integer` and
   `Complex` numbers. All providing a unique `NA` representation.
 
-*  `Array<T>`, `DoubleArray`, `IntArray`, `LongArray`, `ComplexArray` and
-  `BitArray` are d-dimensional data containers of, reference and numerical
-  (primitive) elements supporting a multitude of linear algebra operations.
+* `Array<T>`, `DoubleArray`, `IntArray`, `LongArray`, `ComplexArray`
+  and `BitArray` are d-dimensional data containers of, reference and
+  numerical (primitive) elements supporting a multitude of linear
+  algebra operations.
 
-## An example ##
+## A First Taste of Briljant ##
+
+To get a first taste of the Briljant framework, we'll start by
+exploring a few of its main primitives. The first primitive we
+introduce is the `Vector` which, as explained above, is a homogeneous
+`NA` supporting container type.  Homogeneous mean that a vector only
+contain values of one specific type and `NA` supporting that it is
+aware of missing values. Suppose that we are given a list of employees
+and want to count the frequency of each name.
+
+!!! warning "Notation"
+
+    We'll pretend that Java has a REPL and begin statements with `>`
 
 ```
-Random random = new Random(123);
-DoubleArray m = Bj.doubleArray(3, 5);
-m.assign(random::nextGaussian);
-Bj.mean(0, m);
+> Vector employees = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
+0  Bob
+1  Mary
+2  Lisa
+3  John
+4  Lisa
+5  Mary
+6  Anna
+type: string
+
+> Vector counts = employees.collect(Aggregates.valueCounts());
+Bob   1
+John  1
+Anna  1
+Lisa  2
+Mary  2
+type: int
 ```
+
+In the first statement we constructs a vector of names (with the type
+`string`). If we don't explicitly index the vector it will receive a
+numerical index from `[0, ..., vector.size()]` which means that we,
+for example, can call `employees.get(String.class, 0)` to get the
+first element of the vector.  The second statement performs an
+[aggregation](reference/vector#aggregation) operation which in this
+case take all elements of the `employees` vector and count their
+occurence. As you probably notice in the output, the index of the
+`counts` vector is non-numerical, hence, we can call
+`counts.getAsInt("Mary")` to find the frequency of the name `Mary`.
+
+
 
 ## Array
 

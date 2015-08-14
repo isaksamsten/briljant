@@ -178,7 +178,7 @@ public abstract class Ensemble implements Classifier {
 
       // Count the number of times each training sample have been included
       IntArray counts = Bj.sum(0, oobIndicator.asInt());
-      // TODO: was reduceRows
+      // TODO: was reduceRows (should be 1)
 
       // Compute the in-bag and out-of-bag estimates for all examples
       DoubleAdder oobAccuracy = new DoubleAdder();

@@ -22,31 +22,22 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
-
-import org.briljantframework.function.Aggregates
-import org.briljantframework.vector.Vector
-import spock.lang.Specification
+package org.briljantframework.example.array;
 
 /**
- * Created by isak on 04/06/15.
+ * Created by Isak Karlsson on 02/01/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+public class Ex5 {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-    def df = new MixedDataFrame([
-        a: Vector.of([1, 1, 1, 2]),
-        b: Vector.of([1, 2, 3, 4]),
-        c: Vector.of(["1", "3", "10", "g"])
-    ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
-
-    then:
-    df[0, 0] == 1
+  public static void main(String[] args) {
+//    DoubleMatrix a = Bj.doubleMatrix(3, 3);
+//    System.out.println(a);
+//
+//    a.set(0, 0, 10);
+//    a.set(0, 1, 9);
+//    a.set(0, 2, 8);
+//    for (int i = 0; i < a.size(); i++) {
+//      System.out.println(a.get(i));
+//    }
   }
 }
