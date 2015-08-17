@@ -33,6 +33,7 @@ import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -99,6 +100,14 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   @Override
   protected int elementSize() {
     return data.length;
+  }
+
+  @Override
+  public DoubleArray copy() {
+    if (dims() == 1 && stride(0) == 1 && getOffset() == 0) {
+      return new NetlibDoubleArray(getArrayFactory(), Arrays.copyOf(data, size()));
+    }
+    return super.copy();
   }
 
   /**

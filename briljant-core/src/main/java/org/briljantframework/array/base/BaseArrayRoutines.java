@@ -45,6 +45,7 @@ import org.briljantframework.sort.QuickSort;
 import org.briljantframework.stat.FastStatistics;
 
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -580,7 +581,11 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
     T out = x.copy();
-    QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
+    if (x instanceof DoubleArray) {
+      Arrays.sort(((DoubleArray) out).data());
+    } else {
+      QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
+    }
     return out;
   }
 
