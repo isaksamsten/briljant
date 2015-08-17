@@ -212,109 +212,120 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Builder newBuilder() {
-    return new Builder() {
+    return new IntBuilder(0);
+  }
 
-      private HashIndex.Builder builder;
-      private int currentSize = 0;
+  @Override
+  public Builder newCopyBuilder() {
+    return new IntBuilder(size());
+  }
 
-      @Override
-      public boolean contains(Object key) {
-        if (isMonotonicallyIncreasing(key)) {
-          int k = (int) key;
-          return k >= 0 && k < currentSize;
-        } else {
-          initializeHashBuilder();
-          return builder.contains(key);
+  private class IntBuilder implements Builder {
+
+    private HashIndex.Builder builder;
+    private int currentSize;
+
+    public IntBuilder(int i) {
+      this.currentSize = i;
+    }
+
+    @Override
+    public boolean contains(Object key) {
+      if (isMonotonicallyIncreasing(key)) {
+        int k = (int) key;
+        return k >= 0 && k < currentSize;
+      } else {
+        initializeHashBuilder();
+        return builder.contains(key);
+      }
+    }
+
+    private void initializeHashBuilder() {
+      if (builder == null) {
+        builder = new HashIndex.Builder();
+        for (int i = 0; i < currentSize; i++) {
+          builder.set(i, i);
         }
       }
+    }
 
-      private void initializeHashBuilder() {
-        if (builder == null) {
-          builder = new HashIndex.Builder();
-          for (int i = 0; i < currentSize; i++) {
-            builder.set(i, i);
-          }
-        }
+    @Override
+    public int index(Object key) {
+      if (isMonotonicallyIncreasing(key)) {
+        return (int) key;
+      } else {
+        initializeHashBuilder();
+        return builder.index(key);
       }
+    }
 
-      @Override
-      public int index(Object key) {
-        if (isMonotonicallyIncreasing(key)) {
-          return (int) key;
-        } else {
-          initializeHashBuilder();
-          return builder.index(key);
-        }
+    @Override
+    public Object get(int index) {
+      if (index > currentSize) {
+        throw noSuchElement(index);
       }
+      return builder == null ? index : builder.get(index);
+    }
 
-      @Override
-      public Object get(int index) {
-        if (index > currentSize) {
-          throw noSuchElement(index);
-        }
-        return builder == null ? index : builder.get(index);
+    @Override
+    public void add(Object key) {
+      set(key, currentSize);
+    }
+
+    private boolean isMonotonicallyIncreasing(Object key) {
+      return key instanceof Integer && builder == null;
+    }
+
+    private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
+      return new UnsupportedOperationException(
+          String.format("Creating gap in index. current != index (%d != %d)",
+                        currentSize, index)
+      );
+    }
+
+    @Override
+    public void set(Object key, int index) {
+      if (index > currentSize) {
+        throw nonMonotonicallyIncreasingIndex(index);
       }
-
-      @Override
-      public void add(Object key) {
-        set(key, currentSize);
+      if (!isMonotonicallyIncreasing(key) || !key.equals(index)) {
+        initializeHashBuilder();
+        builder.set(key, index);
       }
+      currentSize++;
+    }
 
-      private boolean isMonotonicallyIncreasing(Object key) {
-        return key instanceof Integer && builder == null;
+    @Override
+    public Index build() {
+      if (builder == null) {
+        return new IntIndex(currentSize);
+      } else {
+        return builder.build();
       }
+    }
 
-      private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
-        return new UnsupportedOperationException(
-            String.format("Creating gap in index. current != index (%d != %d)",
-                          currentSize, index)
-        );
-      }
+    @Override
+    public void set(Entry entry) {
+      set(entry.key(), entry.index());
+    }
 
-      @Override
-      public void set(Object key, int index) {
-        if (index > currentSize) {
-          throw nonMonotonicallyIncreasingIndex(index);
-        }
-        if (!isMonotonicallyIncreasing(key) || !key.equals(index)) {
-          initializeHashBuilder();
-          builder.set(key, index);
-        }
-        currentSize++;
-      }
+    @Override
+    public void putAll(Set<Entry> entries) {
+      entries.forEach(this::set);
+    }
 
-      @Override
-      public Index build() {
-        if (builder == null) {
-          return new IntIndex(currentSize);
-        } else {
-          return builder.build();
-        }
-      }
+    @Override
+    public void swap(int a, int b) {
+      Object keyA = get(a);
+      Object keyB = get(b);
 
-      @Override
-      public void set(Entry entry) {
-        set(entry.key(), entry.index());
-      }
+      set(keyA, b);
+      set(keyB, a);
+    }
 
-      @Override
-      public void putAll(Set<Entry> entries) {
-        entries.forEach(this::set);
-      }
-
-      @Override
-      public void swap(int a, int b) {
-        Object keyA = get(a);
-        Object keyB = get(b);
-
-        set(keyA, b);
-        set(keyB, a);
-      }
-
-      @Override
-      public int size() {
-        return builder == null ? currentSize : builder.size();
-      }
-    };
+    @Override
+    public int size() {
+      return builder == null ? currentSize : builder.size();
+    }
   }
 }

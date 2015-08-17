@@ -56,6 +56,8 @@ public interface Index extends List<Object> {
 
   Builder newBuilder();
 
+  Builder newCopyBuilder();
+
   int size();
 
   public final class Entry {

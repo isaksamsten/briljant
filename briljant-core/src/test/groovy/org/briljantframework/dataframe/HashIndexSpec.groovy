@@ -43,5 +43,6 @@ class HashIndexSpec extends Specification {
     i.indices() as ArrayList == [0, 1, 2]
     i.get(2) == "c"
     i.size() == 3
+    i.newCopyBuilder().build().index("a") == 0
   }
 }

@@ -43,19 +43,10 @@ import java.util.Set;
  */
 public class HashIndex extends AbstractList<Object> implements Index {
 
-  //  BiMap<Object, Integer> biMap;
   Map<Object, Integer> keys = new HashMap<>();
   Map<Integer, Object> indexes = new HashMap<>();
 
   public HashIndex(Collection<?> coll) {
-//    biMap = HashBiMap.create(coll.size());
-//    Iterator<?> it = coll.iterator();
-//    for (int i = 0; it.hasNext(); i++) {
-//      Object next = it.next();
-//      if (biMap.put(next, i) != null) {
-//        throw duplicateKey(next);
-//      }
-//    }
     Iterator<?> it = coll.iterator();
     for (int i = 0; it.hasNext(); i++) {
       Object next = it.next();
@@ -65,10 +56,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
       indexes.put(i, next);
     }
   }
-
-//  private HashIndex(BiMap<Object, Integer> biMap) {
-//    this.biMap = HashBiMap.create(biMap);
-//  }
 
   private HashIndex(Map<Object, Integer> keys, Map<Integer, Object> indexes) {
     this.keys = keys;
@@ -98,7 +85,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public int index(Object key) {
-//    Integer idx = biMap.get(key);
     Integer idx = keys.get(key);
     if (idx == null) {
       throw noSuchElement(key);
@@ -108,15 +94,11 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Object get(int index) {
-//    Object key = biMap.inverse().get(index);
     Object key = indexes.get(index);
     if (key == null) {
       if (indexes.containsKey(index)) {
         return null;
       }
-//      if (biMap.inverse().containsKey(index)) {
-//        return null;
-//      }
       throw noSuchElement(index);
     }
     return key;
@@ -125,7 +107,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
   @Override
   public boolean contains(Object key) {
     return keys.containsKey(key);
-//    return biMap.containsKey(key);
   }
 
   @Override
@@ -148,7 +129,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
   @Override
   public Collection<Integer> indices() {
     return keys.values();
-//    return biMap.values();
   }
 
   @Override
@@ -159,7 +139,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
         return new Iterator<Entry>() {
 
           Iterator<Map.Entry<Object, Integer>> it = keys.entrySet().iterator();
-           /*biMap.entrySet().iterator();*/
 
           @Override
           public boolean hasNext() {
@@ -184,7 +163,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
   @Override
   public Set<Object> keySet() {
     return keys.keySet();
-//    return biMap.keySet();
   }
 
   @Override
@@ -193,9 +171,13 @@ public class HashIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
+  public Index.Builder newCopyBuilder() {
+    return new Builder(keys, indexes);
+  }
+
+  @Override
   public int size() {
     return keys.size();
-//    return biMap.size();
   }
 
   @Override
@@ -227,51 +209,30 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
   @Override
   public Map<Integer, Object> indexMap() {
-    return Collections.unmodifiableMap(indexes/*biMap.inverse()*/);
+    return Collections.unmodifiableMap(indexes);
   }
-
-//  /**
-//   * Returns an iterator over elements of type {@code T}.
-//   *
-//   * @return an Iterator.
-//   */
-//  @Override
-//  public Iterator<Index.Entry> iterator() {
-//    return new Iterator<Entry>() {
-//
-//      Iterator<Map.Entry<Object, Integer>> it = hash.entrySet().iterator();
-//
-//      @Override
-//      public boolean hasNext() {
-//        return it.hasNext();
-//      }
-//
-//      @Override
-//      public Entry next() {
-//        Map.Entry<Object, Integer> next = it.next();
-//        return new Entry(next.getKey(), next.getValue());
-//      }
-//    };
-//  }
 
   @Override
   public String toString() {
-    return keys.toString();//Iterators.toString(iterator());
+    return keys.toString();
   }
 
   public static class Builder implements Index.Builder {
 
-    //    private BiMap<Object, Integer> buffer;
     private Map<Object, Integer> keys;
     private Map<Integer, Object> indexes;
+    private int currentSize = 0;
+
 
     public Builder() {
       this.keys = new HashMap<>();
       this.indexes = new HashMap<>();
-//      this.buffer = HashBiMap.create();
     }
 
-    private int currentSize = 0;
+    private Builder(Map<Object, Integer> keys, Map<Integer, Object> indexes) {
+      this.keys = new HashMap<>(keys);
+      this.indexes = new HashMap<>(indexes);
+    }
 
     @Override
     public boolean contains(Object key) {
@@ -280,7 +241,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
     @Override
     public int index(Object key) {
-//      Integer val = buffer.get(key);
       Integer val = keys.get(key);
       return val == null ? -1 : val;
     }
@@ -288,7 +248,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
     @Override
     public Object get(int index) {
       return indexes.get(index);
-//      return buffer.inverse().get(index);
     }
 
     @Override
@@ -325,14 +284,6 @@ public class HashIndex extends AbstractList<Object> implements Index {
 
     @Override
     public void swap(int a, int b) {
-//      BiMap<Integer, Object> reverse = buffer.inverse();
-//      Object keyA = reverse.get(a);
-//      Object keyB = reverse.get(b);
-//      reverse.put(a, keyB);
-//      reverse.put(b, keyA);
-//      Integer tmp = buffer.get(keyA);
-//      buffer.put(keyA, buffer.get(keyB));
-//      buffer.put(keyB, tmp);
       Object keyA = indexes.get(a);
       Object keyB = indexes.get(b);
       indexes.put(a, keyB);

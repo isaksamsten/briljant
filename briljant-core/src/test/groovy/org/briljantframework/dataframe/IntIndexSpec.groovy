@@ -84,6 +84,20 @@ class IntIndexSpec extends Specification {
     build as ArrayList == [0, 1, 2, 3, 4, 5]
   }
 
+  def "copy builder"() {
+    given:
+    def b = new IntIndex(10).newCopyBuilder()
+
+    when:
+    b.add("key")
+
+    then:
+    def index = b.build()
+    index instanceof HashIndex
+    index as ArrayList == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "key"]
+  }
+
+
   def "builder falls back to HashIndex when non monotonically increasing keys are used"() {
     given:
     def b = new IntIndex(10).newBuilder()
