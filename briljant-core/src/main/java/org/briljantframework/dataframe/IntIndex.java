@@ -304,7 +304,11 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
       @Override
       public void swap(int a, int b) {
+        Object keyA = get(a);
+        Object keyB = get(b);
 
+        set(keyA, b);
+        set(keyB, a);
       }
 
       @Override
