@@ -31,6 +31,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.dataframe.Index;
+import org.briljantframework.dataframe.IntIndex;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
@@ -45,10 +47,6 @@ import java.util.stream.IntStream;
  */
 public class IntVector extends AbstractVector {
 
-  /**
-   * The constant NA.
-   */
-  public static final int NA = Integer.MIN_VALUE;
   public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
@@ -67,7 +65,7 @@ public class IntVector extends AbstractVector {
 
     @Override
     public boolean isNA(Object value) {
-      return value == null || (value instanceof Integer && (int) value == IntVector.NA);
+      return value == null || (value instanceof Integer && (int) value == Na.INT);
     }
 
     @Override
@@ -116,6 +114,12 @@ public class IntVector extends AbstractVector {
     this.size = size;
   }
 
+  private IntVector(int[] buffer, int size, Index index) {
+    super(index);
+    this.values = buffer;
+    this.size = size;
+  }
+
   public static Builder newBuilderWithInitialValues(int... values) {
     Builder builder = new Builder(0, values.length);
     for (int value : values) {
@@ -141,12 +145,6 @@ public class IntVector extends AbstractVector {
     return values[index];
   }
 
-  @Override
-  public Builder newCopyBuilder() {
-    return new Builder(Arrays.copyOf(values, size()));
-  }
-
-  @Override
   public Complex getAsComplex(int index) {
     double v = getAsDouble(index);
     if (Is.NA(v)) {
@@ -158,43 +156,44 @@ public class IntVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    Check.argument(!cls.isPrimitive(), "Use getAs[primitive]");
+    Check.argument(!cls.isPrimitive(), "can't get primitive values");
     int v = getAsInt(index);
-    if (Is.NA(v)) {
-      return Na.from(cls);
-    }
-    if (cls.isAssignableFrom(Integer.class)) {
-      return cls.cast(v);
-    } else {
-      if (cls.isAssignableFrom(Double.class)) {
-        return cls.cast(getAsDouble(index));
-      } else if (cls.isAssignableFrom(Complex.class)) {
-        return cls.cast(getAsComplex(index));
-      } else if (cls.isAssignableFrom(Bit.class)) {
-        return cls.cast(getAsBit(index));
-      } else if (cls.isAssignableFrom(String.class)) {
-        return cls.cast(Integer.toString(v));
-      } else {
-        return Na.from(cls);
-      }
-    }
+    return Convert.to(cls, v);
+//    if (Is.NA(v)) {
+//      return Na.from(cls);
+//    }
+//    if (cls.isAssignableFrom(Integer.class)) {
+//      return cls.cast(v);
+//    } else {
+//      if (cls.isAssignableFrom(Double.class)) {
+//        return cls.cast(getAsDouble(index));
+//      } else if (cls.isAssignableFrom(Complex.class)) {
+//        return cls.cast(getAsComplex(index));
+//      } else if (cls.isAssignableFrom(Logical.class)) {
+//        return cls.cast(getAsBit(index));
+//      } else if (cls.isAssignableFrom(String.class)) {
+//        return cls.cast(Integer.toString(v));
+//      } else {
+//        return Na.from(cls);
+//      }
+//    }
   }
 
   @Override
   public String toString(int index) {
     int value = getAsInt(index);
-    return value == NA ? "NA" : String.valueOf(value);
+    return value == Na.INT ? "NA" : String.valueOf(value);
   }
 
   @Override
   public boolean isNA(int index) {
-    return getAsInt(index) == NA;
+    return getAsInt(index) == Na.INT;
   }
 
   @Override
   public double getAsDouble(int index) {
     int value = getAsInt(index);
-    return value == NA ? DoubleVector.NA : value;
+    return value == Na.INT ? Na.DOUBLE : value;
   }
 
   @Override
@@ -202,9 +201,8 @@ public class IntVector extends AbstractVector {
     return Bj.array(Arrays.copyOf(values, size()));
   }
 
-  @Override
-  public Bit getAsBit(int index) {
-    return Bit.valueOf(getAsInt(index));
+  public Logical getAsBit(int index) {
+    return Logical.valueOf(getAsInt(index));
   }
 
   @Override
@@ -269,11 +267,16 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
+  public Builder newCopyBuilder() {
+    return new Builder(Arrays.copyOf(values, size()), getIndex().newCopyBuilder());
+  }
+
+  @Override
   public IntStream intStream() {
     return Arrays.stream(values, 0, size());
   }
 
-  public static final class Builder implements Vector.Builder {
+  public static final class Builder extends AbstractBuilder {
 
     private IntArrayList buffer;
 
@@ -286,64 +289,70 @@ public class IntVector extends AbstractVector {
     }
 
     public Builder(int size, int capacity) {
+      super(new IntIndex.Builder(size));
       buffer = new IntArrayList(Math.max(size, capacity));
       for (int i = 0; i < size; i++) {
-        buffer.add(NA);
+        buffer.add(Na.INT);
       }
     }
 
-    Builder(int[] values) {
+    private Builder(int[] values) {
+      super(new IntIndex.Builder(values.length));
       buffer = IntArrayList.from(values);
+    }
+
+    private Builder(int[] buffer, Index.Builder index) {
+      super(index);
+      this.buffer = IntArrayList.from(buffer);
     }
 
     @Override
     public Builder setNA(int index) {
       ensureCapacity(index);
-      buffer.buffer[index] = IntVector.NA;
+      buffer.buffer[index] = Na.INT;
+      this.indexer.set(index, index);
       return this;
     }
 
     @Override
-    public Builder addNA() {
-      return setNA(size());
-    }
-
-    @Override
-    public Builder add(Vector from, int fromIndex) {
-      return set(size(), from, fromIndex);
-    }
-
-    @Override
-    public Builder set(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.buffer[atIndex] = from.getAsInt(fromIndex);
+    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+      setAt(atIndex, from.getAsInt(fromKey));
       return this;
     }
 
     @Override
-    public Builder set(int index, Object value) {
-      if (value == null) {
-        return setNA(index);
-      }
+    void setAt(int index, Object value) {
+      ensureCapacity(index);
+      int dval = Na.INT;
       if (value instanceof Number) {
-        ensureCapacity(index);
-        buffer.buffer[index] = ((Number) value).intValue();
-      } else {
+        dval = ((Number) value).intValue();
+      } else if (value != null) {
         Resolver<Integer> resolver = Resolvers.find(Integer.class);
         if (resolver != null) {
-          ensureCapacity(index);
-          buffer.buffer[index] = resolver.resolve(value);
-        } else {
-          setNA(index);
+          Integer resolve = resolver.resolve(value);
+          if (resolve != null) {
+            dval = resolve;
+          }
         }
       }
-
-      return this;
+      buffer.buffer[index] = dval;
     }
 
     @Override
-    public Builder add(Object value) {
+    void setAt(int atIndex, Vector from, int fromIndex) {
+      ensureCapacity(atIndex);
+      buffer.buffer[atIndex] = from.getAsInt(fromIndex);
+    }
+
+    public Builder add(int value) {
       return set(size(), value);
+    }
+
+    public Builder set(int index, int value) {
+      ensureCapacity(index);
+      buffer.buffer[index] = value;
+      this.indexer.set(index, index);
+      return this;
     }
 
     @Override
@@ -351,13 +360,13 @@ public class IntVector extends AbstractVector {
       for (int i = 0; i < from.size(); i++) {
         add(from.getAsInt(i));
       }
-
       return this;
     }
 
     @Override
     public Vector.Builder remove(int index) {
       buffer.remove(index);
+      this.indexer.remove(index);
       return this;
     }
 
@@ -379,12 +388,8 @@ public class IntVector extends AbstractVector {
     @Override
     public void swap(int a, int b) {
       Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
+      this.indexer.swap(a, b);
       Utils.swap(buffer.buffer, a, b);
-    }
-
-    @Override
-    public Vector.Builder read(DataEntry entry) throws IOException {
-      return read(size(), entry);
     }
 
     @Override
@@ -410,29 +415,22 @@ public class IntVector extends AbstractVector {
 
     @Override
     public IntVector build() {
-      IntVector vector = new IntVector(buffer.buffer, buffer.size());
+      IntVector vector = new IntVector(buffer.buffer, buffer.size(), indexer.build());
       buffer = null;
+      indexer = null;
       return vector;
-    }
-
-    public Builder add(int value) {
-      return set(size(), value);
-    }
-
-    public Builder set(int index, int value) {
-      ensureCapacity(index);
-      buffer.buffer[index] = value;
-      return this;
     }
 
     private void ensureCapacity(int index) {
       buffer.ensureCapacity(index + 1);
       int i = buffer.size();
       while (i <= index) {
-        buffer.buffer[i++] = NA;
+        if (i < index) {
+          this.indexer.set(i, i);
+        }
+        buffer.buffer[i++] = Na.INT;
         buffer.elementsCount++;
       }
     }
-
   }
 }

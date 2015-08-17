@@ -29,7 +29,7 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.Index;
-import org.briljantframework.vector.BitVector;
+import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
 import org.briljantframework.vector.Vec;
@@ -115,7 +115,7 @@ public final class Aggregates {
    * @return a filter aggregator
    */
   public static <T> Collector<T, ?, Vector> test(Predicate<T> predicate) {
-    return transform(BitVector.Builder::new, predicate::test);
+    return transform(() -> Vec.typeOf(Logical.class).newBuilder(), predicate::test);
   }
 
   /**

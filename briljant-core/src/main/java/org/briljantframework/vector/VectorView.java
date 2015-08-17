@@ -24,7 +24,6 @@
 
 package org.briljantframework.vector;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
 import org.briljantframework.exceptions.IllegalTypeException;
 
@@ -90,16 +89,6 @@ public abstract class VectorView extends AbstractVector {
   @Override
   public int getAsInt(int index) {
     return parent.getAsInt(offset + index);
-  }
-
-  @Override
-  public Bit getAsBit(int index) {
-    return parent.getAsBit(offset + index);
-  }
-
-  @Override
-  public Complex getAsComplex(int index) {
-    return parent.getAsComplex(offset + index);
   }
 
   @Override

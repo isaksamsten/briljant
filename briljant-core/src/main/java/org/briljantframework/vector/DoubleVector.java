@@ -31,6 +31,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.dataframe.Index;
+import org.briljantframework.dataframe.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -50,27 +52,6 @@ import java.util.stream.DoubleStream;
  */
 public class DoubleVector extends AbstractVector {
 
-  /**
-   * The value denoting {@code NA} for a {@code double}. The value lies in
-   * a valid IEEE 754 floating point range for {@code NaN} values. Since no floating point
-   * operations can distinguish between values in the {@code NaN} range (see {@link
-   * Double#longBitsToDouble(long)}, a mask {@link #NA_MASK} in conjunction with an expected
-   * return value {@link #NA_RES} can be used to find if a particular {@code NaN} value is also
-   * {@code NA}. The most straight forward way is
-   * <pre>{@code
-   *  Double.isNaN(value) && Double.doubleToRawLongBits(value) & NA_MASK == NA_RES
-   * }</pre>
-   *
-   * <p>This implementation is provided by {@link Is#NA(double)}.
-   */
-  public static final double NA = Double.longBitsToDouble(0x7ff0000000000009L);
-
-  /**
-   * The mask used in conjunction with {@link #NA} and and {@link #NA_RES} to recognize
-   * a {@code NA} value from {@link Double#NaN}.
-   */
-  public static final long NA_MASK = 0x000000000000000FL;
-  public static final int NA_RES = 9;
   public static final VectorType TYPE = new VectorType() {
     @Override
     public Builder newBuilder() {
@@ -154,6 +135,12 @@ public class DoubleVector extends AbstractVector {
     this.size = size;
   }
 
+  public DoubleVector(double[] values, int size, Index index) {
+    super(index);
+    this.values = values;
+    this.size = size;
+  }
+
   /**
    * Construct a new {@code Vector} using the supplied values.
    *
@@ -174,7 +161,7 @@ public class DoubleVector extends AbstractVector {
 
   public static Collector<Double, ?, Builder> collector() {
     return Collector.of(Builder::new, Builder::add, (builder, builder2) -> {
-      builder.addAll(builder2);
+      builder.addAll(builder2.build());
       return builder;
     });
   }
@@ -191,26 +178,8 @@ public class DoubleVector extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    double v = getAsDouble(index);
-    if (Is.NA(v)) {
-      return Na.from(cls);
-    }
-
-    if (cls.isAssignableFrom(Double.class)) {
-      return cls.cast(v);
-    } else {
-      if (cls.isAssignableFrom(Integer.class)) {
-        return cls.cast(getAsInt(index));
-      } else if (cls.isAssignableFrom(Complex.class)) {
-        return cls.cast(getAsComplex(index));
-      } else if (cls.isAssignableFrom(Bit.class)) {
-        return cls.cast(getAsBit(index));
-      } else if (cls.isAssignableFrom(String.class)) {
-        return cls.cast(Double.toString(v));
-      } else {
-        return Na.from(cls);
-      }
-    }
+    Check.argument(!cls.isPrimitive(), "can't get primitive values");
+    return Convert.to(cls, getAsDouble(index));
   }
 
   @Override
@@ -224,7 +193,6 @@ public class DoubleVector extends AbstractVector {
     return Is.NA(getAsDouble(index));
   }
 
-  @Override
   public Complex getAsComplex(int index) {
     double v = getAsDouble(index);
     if (Is.NA(v)) {
@@ -237,12 +205,11 @@ public class DoubleVector extends AbstractVector {
   @Override
   public int getAsInt(int index) {
     double value = getAsDouble(index);
-    return Is.NA(value) ? IntVector.NA : (int) value;
+    return Is.NA(value) ? Na.INT : (int) value;
   }
 
-  @Override
-  public Bit getAsBit(int index) {
-    return Bit.valueOf(getAsInt(index));
+  public Logical getAsBit(int index) {
+    return Logical.valueOf(getAsInt(index));
   }
 
   @Override
@@ -321,7 +288,7 @@ public class DoubleVector extends AbstractVector {
     }
   }
 
-  public static class Builder implements Vector.Builder {
+  public static class Builder extends AbstractBuilder {
 
     private DoubleArrayList buffer;
 
@@ -334,13 +301,15 @@ public class DoubleVector extends AbstractVector {
     }
 
     public Builder(int size, int capacity) {
+      super(new IntIndex.Builder(size));
       this.buffer = new DoubleArrayList(Math.max(size, capacity));
       for (int i = 0; i < size; i++) {
-        buffer.add(NA);
+        buffer.add(Na.DOUBLE);
       }
     }
 
     public Builder(DoubleVector vector) {
+      super(vector.getIndex().newCopyBuilder());
       this.buffer = new DoubleArrayList(vector.size());
       for (int i = 0; i < vector.size(); i++) {
         this.buffer.add(vector.getAsDouble(i));
@@ -350,42 +319,37 @@ public class DoubleVector extends AbstractVector {
     @Override
     public Builder setNA(int index) {
       ensureCapacity(index);
-      buffer.buffer[index] = DoubleVector.NA;
-      return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Builder addNA() {
-      setNA(size());
+      buffer.buffer[index] = Na.DOUBLE;
+      this.indexer.set(index, index);
       return this;
     }
 
     @Override
-    public Builder add(Vector from, int fromIndex) {
-      set(size(), from, fromIndex);
+    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+      setAt(atIndex, from.getAsDouble(fromKey));
       return this;
     }
 
     @Override
-    public Builder set(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.buffer[atIndex] = from.getAsDouble(fromIndex);
-      return this;
+    public Builder add(double value) {
+      return set(size(), value);
     }
 
     @Override
-    public Builder set(int index, Object value) {
-      if (value == null) {
-        return setNA(index);
-      }
+    public Builder set(int index, double value) {
       ensureCapacity(index);
-      double dval = DoubleVector.NA;
+      buffer.buffer[index] = value;
+      this.indexer.set(index, index);
+      return this;
+    }
+
+    @Override
+    void setAt(int index, Object value) {
+      ensureCapacity(index);
+      double dval = Na.DOUBLE;
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
-      } else {
+      } else if (value != null) {
         Resolver<Double> resolver = Resolvers.find(Double.class);
         if (resolver != null) {
           Double resolve = resolver.resolve(value);
@@ -395,13 +359,12 @@ public class DoubleVector extends AbstractVector {
         }
       }
       buffer.buffer[index] = dval;
-      return this;
     }
 
     @Override
-    public Builder add(Object value) {
-      set(size(), value);
-      return this;
+    void setAt(int atIndex, Vector from, int fromIndex) {
+      ensureCapacity(atIndex);
+      buffer.buffer[atIndex] = from.getAsDouble(fromIndex);
     }
 
     @Override
@@ -430,11 +393,6 @@ public class DoubleVector extends AbstractVector {
     }
 
     @Override
-    public Vector.Builder read(DataEntry entry) throws IOException {
-      return read(size(), entry);
-    }
-
-    @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
       double value = entry.nextDouble();
       set(index, value);
@@ -458,37 +416,21 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public DoubleVector build() {
-      DoubleVector vec = new DoubleVector(buffer.buffer, size());
+      DoubleVector vec = new DoubleVector(buffer.buffer, size(), indexer.build());
       buffer = null;
       return vec;
-    }
-
-    public void addAll(Builder builder) {
-      for (int i = 0; i < builder.buffer.size(); i++) {
-        add(builder.buffer.get(i));
-      }
-    }
-
-    public Builder add(double value) {
-      return set(size(), value);
-    }
-
-    public Builder set(int index, double value) {
-      ensureCapacity(index);
-      buffer.buffer[index] = value;
-      return this;
     }
 
     private void ensureCapacity(int index) {
       buffer.ensureCapacity(index + 1);
       int i = buffer.size();
       while (i <= index) {
-        buffer.buffer[i++] = NA;
+        if (i < index) {
+          this.indexer.set(i, i);
+        }
+        buffer.buffer[i++] = Na.DOUBLE;
         buffer.elementsCount++;
       }
     }
-
   }
-
-
 }

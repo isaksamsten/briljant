@@ -25,9 +25,7 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.vector.AbstractVector;
-import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -45,11 +43,6 @@ class ColumnView extends AbstractVector {
     super(parent.getRecordIndex());
     this.parent = parent;
     this.column = column;
-  }
-
-  @Override
-  public Complex getAsComplex(int index) {
-    return parent.getAsComplex(index, column);
   }
 
   @Override
@@ -75,11 +68,6 @@ class ColumnView extends AbstractVector {
   @Override
   public int getAsInt(int index) {
     return parent.getAsInt(index, column);
-  }
-
-  @Override
-  public Bit getAsBit(int index) {
-    return parent.getAsBit(index, column);
   }
 
   @Override

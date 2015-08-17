@@ -24,10 +24,7 @@
 
 package org.briljantframework.vector;
 
-import org.briljantframework.array.BitArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
+import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Isak Karlsson
@@ -37,40 +34,37 @@ public final class Convert {
   private Convert() {
   }
 
-  /**
-   * @param matrix the matrix
-   * @return a vector representation of {@code matrix}
-   */
-  public static DoubleVector toVector(DoubleArray matrix) {
-    DoubleVector.Builder builder = new DoubleVector.Builder(0, matrix.size());
-    for (int i = 0; i < matrix.size(); i++) {
-      builder.set(i, matrix.get(i));
+  public static <T> T to(Class<T> cls, Object value) {
+    if (!cls.isInstance(value)) {
+      if (Is.NA(value)) {
+        return Na.from(cls);
+      } else if (cls.equals(String.class)) {
+        return cls.cast(value.toString());
+      } else if (value instanceof Number) {
+        Number num = (Number) value;
+        if (cls.equals(Double.class)) {
+          return cls.cast(num.doubleValue());
+        } else if (cls.equals(Integer.class)) {
+          return cls.cast(num.intValue());
+        } else if (Complex.class.equals(cls)) {
+          return cls.cast(Complex.valueOf(num.doubleValue()));
+        } else if (Logical.class.equals(cls)) {
+          return cls.cast(num.intValue() == 1 ? Logical.TRUE : Logical.FALSE);
+        }
+      } else if (value instanceof Logical) {
+        Logical log = (Logical) value;
+        if (cls.equals(Double.class)) {
+          return cls.cast(log == Logical.TRUE ? 1.0 : 0.0);
+        } else if (cls.equals(Integer.class)) {
+          return cls.cast(log == Logical.TRUE ? 1 : 0);
+        } else if (Complex.class.equals(cls)) {
+          return cls.cast(log == Logical.TRUE ? Complex.ONE : Complex.ZERO);
+        }
+      } else {
+        return Na.from(cls);
+      }
     }
-    return builder.build();
-  }
-
-  public static IntVector toVector(IntArray matrix) {
-    IntVector.Builder builder = new IntVector.Builder(0, matrix.size());
-    for (int i = 0; i < matrix.size(); i++) {
-      builder.set(i, matrix.get(i));
-    }
-    return builder.build();
-  }
-
-  public static ComplexVector toVector(ComplexArray matrix) {
-    ComplexVector.Builder builder = new ComplexVector.Builder(0, matrix.size());
-    for (int i = 0; i < matrix.size(); i++) {
-      builder.set(i, matrix.get(i));
-    }
-    return builder.build();
-  }
-
-  public static BitVector toVector(BitArray matrix) {
-    BitVector.Builder builder = new BitVector.Builder(0, matrix.size());
-    for (int i = 0; i < matrix.size(); i++) {
-      builder.set(i, matrix.get(i));
-    }
-    return builder.build();
+    return cls.cast(value);
   }
 
   /**
@@ -85,33 +79,4 @@ public final class Convert {
     }
     return new GenericVector.Builder(String.class).addAll(vector).build();
   }
-
-  public static DoubleVector toDoubleVector(Vector vector) {
-    if (vector instanceof DoubleVector) {
-      return (DoubleVector) vector;
-    }
-    return new DoubleVector.Builder().addAll(vector).build();
-  }
-
-  public static IntVector toIntVector(Vector vector) {
-    if (vector instanceof IntVector) {
-      return (IntVector) vector;
-    }
-    return new IntVector.Builder().addAll(vector).build();
-  }
-
-  public static BitVector toBitVector(Vector vector) {
-    if (vector instanceof BitVector) {
-      return (BitVector) vector;
-    }
-    return new BitVector.Builder().addAll(vector).build();
-  }
-
-  public static ComplexVector toComplexVector(Vector vector) {
-    if (vector instanceof ComplexVector) {
-      return (ComplexVector) vector;
-    }
-    return new ComplexVector.Builder().addAll(vector).build();
-  }
-
 }

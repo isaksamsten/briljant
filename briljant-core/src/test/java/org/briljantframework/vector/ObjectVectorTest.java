@@ -50,29 +50,29 @@ public class ObjectVectorTest {
   public void testGetAsDouble() throws Exception {
     assertEquals(1, sequence.getAsDouble(0), 0);
     assertEquals(2, sequence.getAsDouble(1), 0);
-    assertEquals(DoubleVector.NA, sequence.getAsDouble(3), 0);
+    assertEquals(Na.DOUBLE, sequence.getAsDouble(3), 0);
   }
 
   @Test
   public void testGetAsInt() throws Exception {
     assertEquals(1, sequence.getAsInt(0));
     assertEquals(2, sequence.getAsInt(1));
-    assertEquals(IntVector.NA, sequence.getAsInt(3));
+    assertEquals(Na.INT, sequence.getAsInt(3));
   }
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Bit.TRUE, sequence.getAsBit(0));
-    assertEquals(Bit.NA, sequence.getAsBit(1));
-    assertEquals(BitVector.NA, sequence.getAsBit(3));
+    assertEquals(Logical.TRUE, sequence.get(Logical.class, 0));
+    assertEquals(Logical.FALSE, sequence.get(Logical.class, 1));
+    assertEquals(Logical.NA, sequence.get(Logical.class, 3));
   }
 
   @Test
   public void testGetAsComplex() throws Exception {
-    assertEquals(new Complex(1, 0), sequence.getAsComplex(0));
-    assertEquals(new Complex(2, 0), sequence.getAsComplex(1));
-    assertTrue(Is.NA(sequence.getAsComplex(2)));
-    assertTrue(Is.NA(sequence.getAsComplex(3)));
+    assertEquals(new Complex(1, 0), sequence.get(Complex.class, 0));
+    assertEquals(new Complex(2, 0), sequence.get(Complex.class, 1));
+    assertTrue(Is.NA(sequence.get(Complex.class, 2)));
+    assertTrue(Is.NA(sequence.get(Complex.class, 3)));
   }
 
   @Test

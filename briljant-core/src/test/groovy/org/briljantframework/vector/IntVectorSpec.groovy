@@ -79,9 +79,9 @@ class IntVectorSpec extends Specification {
 
     then:
     a.getAsDouble(0) == 1.0
-    a.getAsBit(0) == Bit.TRUE
-    a.getAsBit(2) == Bit.NA
-    a.get(Bit, 0) == a.getAsBit(0)
+    a.getAsBit(0) == Logical.TRUE
+    a.getAsBit(2) == Logical.NA
+    a.get(Logical, 0) == a.getAsBit(0)
     a.get(Double, 1) == a.getAsDouble(1)
     a.get(Complex, 1) == a.getAsComplex(1)
     a.get(String, 3) == null

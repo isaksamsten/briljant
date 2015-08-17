@@ -22,32 +22,15 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
-
-import org.briljantframework.vector.Vector;
+package org.briljantframework.vector;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 17/08/15.
  */
-public interface Series extends Vector {
+public class GenericVectorBuilderTest extends VectorBuilderTest {
 
-  Object name();
-
-  Index getIndex();
-
-  default <T> T get(Class<T> cls, Object key) {
-    return get(cls, getIndex().index(key));
-  }
-
-  default int getAsInt(Object key) {
-    return getAsInt(getIndex().index(key));
-  }
-
-  default double getAsDouble(Object key) {
-    return getAsDouble(getIndex().index(key));
-  }
-
-  default String toString(Object key) {
-    return toString(getIndex().index(key));
+  @Override
+  Vector.Builder getBuilder() {
+    return Vec.typeOf(Object.class).newBuilder();
   }
 }

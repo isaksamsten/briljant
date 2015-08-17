@@ -25,7 +25,7 @@
 package org.briljantframework.io;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.Logical;
 
 /**
  * Created by Isak Karlsson on 11/12/14.
@@ -70,7 +70,7 @@ public interface DataEntry {
    *
    * @return the next binary
    */
-  Bit nextBinary();
+  Logical nextBinary();
 
   /**
    * Reads the next {@code Complex} in this stream.

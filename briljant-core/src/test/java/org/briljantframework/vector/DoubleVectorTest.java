@@ -34,7 +34,7 @@ public class DoubleVectorTest {
 
   public static final double[] DOUBLE_ARRAY = new double[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private DoubleVector vector;
-  private DoubleVector hasNA = new DoubleVector.Builder().addNA().addNA().add(1).add(2).build();
+  private Vector hasNA = new DoubleVector.Builder().addNA().addNA().add(1).add(2).build();
 
 
   @Before
@@ -92,7 +92,7 @@ public class DoubleVectorTest {
 
   @Test
   public void testNewCopyBuilder() throws Exception {
-    DoubleVector copy = vector.newCopyBuilder().add(10).build();
+    Vector copy = vector.newCopyBuilder().add(10).build();
     assertEquals(11, copy.size());
     assertEquals(copy.getAsInt(2), vector.getAsInt(2));
   }
@@ -104,9 +104,9 @@ public class DoubleVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Bit.TRUE, vector.getAsBit(1));
-    assertEquals(Bit.FALSE, vector.getAsBit(0));
-    assertEquals(Bit.NA, hasNA.getAsBit(0));
+    assertEquals(Logical.TRUE, vector.getAsBit(1));
+    assertEquals(Logical.FALSE, vector.getAsBit(0));
+    assertEquals(Logical.NA, hasNA.get(Logical.class, 0));
   }
 
   @Test

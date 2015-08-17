@@ -24,17 +24,11 @@
 
 package org.briljantframework.dataseries;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.BitVector;
-import org.briljantframework.vector.ComplexVector;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Na;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
@@ -100,7 +94,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     if (column >= 0 && column < rvec.size()) {
       return rvec.getAsDouble(column);
     } else if (column >= 0 && column < columns) {
-      return DoubleVector.NA;
+      return Na.DOUBLE;
     } else {
       throw new IndexOutOfBoundsException();
     }
@@ -112,31 +106,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     if (column >= 0 && column < rvec.size()) {
       return rvec.getAsInt(column);
     } else if (column >= 0 && column < columns) {
-      return IntVector.NA;
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
-  @Override
-  public Bit getAsBit(int row, int column) {
-    Vector rvec = series.get(row);
-    if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsBit(column);
-    } else if (column >= 0 && column < columns) {
-      return BitVector.NA;
-    } else {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
-  @Override
-  public Complex getAsComplex(int row, int column) {
-    Vector rvec = series.get(row);
-    if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsComplex(column);
-    } else if (column >= 0 && column < columns) {
-      return ComplexVector.NA;
+      return Na.INT;
     } else {
       throw new IndexOutOfBoundsException();
     }

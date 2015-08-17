@@ -27,7 +27,6 @@ package org.briljantframework.vector;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -35,8 +34,7 @@ public class IntVectorTest {
 
   public static final int[] INT_ARRAY = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private IntVector vector;
-  private IntVector hasNA = new IntVector.Builder().addNA().addNA().add(1).add(2).build();
-
+  private Vector hasNA = new IntVector.Builder().addNA().addNA().add(1).add(2).build();
 
   @Before
   public void setUp() throws Exception {
@@ -105,9 +103,9 @@ public class IntVectorTest {
 
   @Test
   public void testGetAsBinary() throws Exception {
-    assertEquals(Bit.TRUE, vector.getAsBit(1));
-    assertEquals(Bit.FALSE, vector.getAsBit(0));
-    assertEquals(Bit.NA, hasNA.getAsBit(0));
+    assertEquals(Logical.TRUE, vector.getAsBit(1));
+    assertEquals(Logical.FALSE, vector.getAsBit(0));
+    assertEquals(Logical.NA, hasNA.get(Logical.class, 0));
   }
 
   @Test
@@ -134,5 +132,14 @@ public class IntVectorTest {
   @Test
   public void testNewBuilder1() throws Exception {
 
+  }
+
+  @Test
+  public void testIntVectorBuilderWithIndex() throws Exception {
+    IntVector.Builder builder = new IntVector.Builder();
+    builder.add(10);
+//    builder.set(10, 100);
+//    builder.swap(0, 10);
+    System.out.println(builder.build());
   }
 }

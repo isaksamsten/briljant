@@ -475,7 +475,7 @@ public interface Vector extends Serializable {
   <T> T get(Class<T> cls, int index, Supplier<T> defaultValue);
 
   /**
-   * Returns value as {@code double} if applicable. Otherwise returns {@link DoubleVector#NA}.
+   * Returns value as {@code double} if applicable. Otherwise returns {@link Na#DOUBLE}.
    *
    * @param index the index
    * @return a double
@@ -492,7 +492,7 @@ public interface Vector extends Serializable {
 
   /**
    * Returns value as {@code int} if applicable. Otherwise returns {@link
-   * org.briljantframework.vector.IntVector#NA}
+   * Na#INT}
    *
    * @param index the index
    * @return an int
@@ -506,39 +506,6 @@ public interface Vector extends Serializable {
    * @see #get(Class, int)
    */
   int getAsInt(Object key);
-
-  /**
-   * Returns value as {@link Bit}.
-   *
-   * @param index the index
-   * @return a {@link Bit}
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  Bit getAsBit(int index);
-
-  /**
-   * Same as {@code get(cls, getIndex().index(key))}
-   *
-   * @see #getAsBit(int)
-   */
-  Bit getAsBit(Object key);
-
-  /**
-   * Returns value as {@link Complex} or {@link org.briljantframework.vector.ComplexVector#NA} if
-   * missing.
-   *
-   * @param index the index
-   * @return a {@link Complex}
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  Complex getAsComplex(int index);
-
-  /**
-   * Same as {@code get(cls, getIndex().index(key))}
-   *
-   * @see #getAsComplex(int)
-   */
-  Complex getAsComplex(Object key);
 
   /**
    * Return the string representation of the value at {@code index}
@@ -807,6 +774,8 @@ public interface Vector extends Serializable {
      */
     Builder setNA(int index);
 
+    Builder setNA(Object key);
+
     /**
      * Same as {@code addNA(size())}
      *
@@ -824,6 +793,8 @@ public interface Vector extends Serializable {
      */
     Builder add(Vector from, int fromIndex);
 
+    Builder add(Vector from, Object key);
+
     /**
      * Add value at {@code fromIndex} in {@code from} to {@code atIndex}. Padding with NA:s between
      * {@code atIndex} and {@code size()} if {@code atIndex > size()}.
@@ -834,6 +805,12 @@ public interface Vector extends Serializable {
      * @return a modified build
      */
     Builder set(int atIndex, Vector from, int fromIndex);
+
+    Builder set(int atIndex, Vector from, Object fromKey);
+
+    Builder set(Object atKey, Vector from, int fromIndex);
+
+    Builder set(Object atKey, Vector from, Object fromIndex);
 
     /**
      * Add {@code value} at {@code index}. Padding with NA:s between {@code atIndex} and {@code
@@ -857,6 +834,12 @@ public interface Vector extends Serializable {
      */
     Builder set(int index, Object value);
 
+    Builder set(int index, double value);
+
+    Builder set(int index, int value);
+
+    Builder set(Object key, Object value);
+
     /**
      * Same as {@code add(size(), value)}
      *
@@ -864,6 +847,10 @@ public interface Vector extends Serializable {
      * @return a modified builder
      */
     Builder add(Object value);
+
+    Builder add(double value);
+
+    Builder add(int value);
 
     default Builder addAll(Object... objects) {
       return addAll(Arrays.asList(objects));
@@ -898,6 +885,8 @@ public interface Vector extends Serializable {
      * @return a modified builder with element at {@code index} removed
      */
     Builder remove(int index);
+
+    Builder remove(Object key);
 
     /**
      * Compares value at {@code a} and {@code b}.

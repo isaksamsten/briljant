@@ -27,9 +27,7 @@ package org.briljantframework.io;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.IntVector;
+import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
 
@@ -83,7 +81,7 @@ public class StringDataEntry implements DataEntry {
   public int nextInt() {
     String repr = nextString();
     if (repr == null) {
-      return IntVector.NA;
+      return Na.INT;
     }
     Integer value;
     try {
@@ -91,14 +89,14 @@ public class StringDataEntry implements DataEntry {
     } catch (NumberFormatException e) {
       value = null;
     }
-    return value == null ? IntVector.NA : value;
+    return value == null ? Na.INT : value;
   }
 
   @Override
   public double nextDouble() {
     String repr = nextString();
     if (repr == null) {
-      return DoubleVector.NA;
+      return Na.DOUBLE;
     } else {
       Double value;
       try {
@@ -106,13 +104,13 @@ public class StringDataEntry implements DataEntry {
       } catch (NumberFormatException e) {
         value = null;
       }
-      return value == null ? DoubleVector.NA : value;
+      return value == null ? Na.DOUBLE : value;
     }
   }
 
   @Override
-  public Bit nextBinary() {
-    return Bit.valueOf(nextInt());
+  public Logical nextBinary() {
+    return Logical.valueOf(nextInt());
   }
 
   @Override

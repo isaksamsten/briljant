@@ -24,13 +24,14 @@
 
 package org.briljantframework.dataseries;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.ComplexVector;
+import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.dataframe.transform.InvertibleTransformation;
 import org.briljantframework.vector.DoubleVector;
+import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 
 import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
@@ -46,16 +47,15 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
    *
    * @param x data frame to transform
    * @return a new data frame; each row has type
-   * {@link org.briljantframework.vector.ComplexVector#TYPE}
    */
   @Override
   public DataFrame transform(DataFrame x) {
-    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(ComplexVector.TYPE);
+    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(Complex.class);
     for (Vector row : x) {
       Check.type(row, DoubleVector.TYPE);
       DoubleArray timeDomain = row.toDoubleArray();
       ComplexArray frequencyDomain = fft(timeDomain);
-      ComplexVector.Builder rowBuilder = new ComplexVector.Builder(0, frequencyDomain.size());
+      Vector.Builder rowBuilder = Vec.typeOf(Complex.class).newBuilder(timeDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.set(i, frequencyDomain.get(i));
       }
@@ -68,7 +68,7 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   public DataFrame inverseTransform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
     for (Vector row : x) {
-      Check.type(row, ComplexVector.TYPE);
+      Check.type(row, Vec.typeOf(Complex.class));
       ComplexArray timeDomain = row.toComplexArray();
       DoubleArray frequencyDomain = ifft(timeDomain).asDouble();
       DoubleVector.Builder rowBuilder = new DoubleVector.Builder(0, frequencyDomain.size());

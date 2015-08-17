@@ -95,25 +95,23 @@ class SingletonVector extends AbstractVector {
   @Override
   public double getAsDouble(int index) {
     Check.elementIndex(index, size());
-    return value instanceof Number ? ((Number) value).doubleValue() : DoubleVector.NA;
+    return value instanceof Number ? ((Number) value).doubleValue() : Na.DOUBLE;
   }
 
   @Override
   public int getAsInt(int index) {
     Check.elementIndex(index, size());
-    return value instanceof Number ? ((Number) value).intValue() : IntVector.NA;
+    return value instanceof Number ? ((Number) value).intValue() : Na.INT;
   }
 
-  @Override
-  public Bit getAsBit(int index) {
+  public Logical getAsBit(int index) {
     Check.elementIndex(index, size());
-    return value instanceof Number ? Bit.valueOf(((Number) value).intValue())
-                                   : value instanceof Bit ? (Bit) value :
-                                     value instanceof Boolean ? Bit.valueOf((boolean) value) :
-                                     Bit.NA;
+    return value instanceof Number ? Logical.valueOf(((Number) value).intValue())
+                                   : value instanceof Logical ? (Logical) value :
+                                     value instanceof Boolean ? Logical.valueOf((boolean) value) :
+                                     Logical.NA;
   }
 
-  @Override
   public Complex getAsComplex(int index) {
     Check.elementIndex(index, size());
     return value instanceof Complex ? (Complex) value :

@@ -265,6 +265,11 @@ public class HashIndex extends AbstractList<Object> implements Index {
     }
 
     @Override
+    public void set(int key, int index) {
+      set((Object) key, index);
+    }
+
+    @Override
     public Index build() {
       Index index = new HashIndex(keys, indexes);
       this.keys = null;
@@ -297,6 +302,12 @@ public class HashIndex extends AbstractList<Object> implements Index {
     @Override
     public int size() {
       return keys.size();
+    }
+
+    @Override
+    public void remove(int index) {
+      keys.remove(indexes.get(index));
+      indexes.remove(index);
     }
   }
 }

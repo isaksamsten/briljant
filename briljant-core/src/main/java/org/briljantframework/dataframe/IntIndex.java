@@ -45,7 +45,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
     this.size = size;
   }
 
-  private NoSuchElementException noSuchElement(Object key) {
+  private static NoSuchElementException noSuchElement(Object key) {
     return new NoSuchElementException(String.format("name '%s' not in index", key));
   }
 
@@ -53,7 +53,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
   public int index(Object key) {
     if (key instanceof Integer) {
       int k = (int) key;
-      if (k < size && k > 0) {
+      if (k < size && k >= 0) {
         return k;
       }
     }
@@ -211,21 +211,21 @@ public class IntIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public Builder newBuilder() {
-    return new IntBuilder(0);
+  public Index.Builder newBuilder() {
+    return new Builder(0);
   }
 
   @Override
-  public Builder newCopyBuilder() {
-    return new IntBuilder(size());
+  public Index.Builder newCopyBuilder() {
+    return new Builder(size());
   }
 
-  private class IntBuilder implements Builder {
+  public static class Builder implements Index.Builder {
 
     private HashIndex.Builder builder;
     private int currentSize;
 
-    public IntBuilder(int i) {
+    public Builder(int i) {
       this.currentSize = i;
     }
 
@@ -276,6 +276,10 @@ public class IntIndex extends AbstractList<Object> implements Index {
       return key instanceof Integer && builder == null;
     }
 
+    private boolean isMonotonicallyIncreasing(int key) {
+      return builder == null;
+    }
+
     private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
       return new UnsupportedOperationException(
           String.format("Creating gap in index. current != index (%d != %d)",
@@ -289,6 +293,18 @@ public class IntIndex extends AbstractList<Object> implements Index {
         throw nonMonotonicallyIncreasingIndex(index);
       }
       if (!isMonotonicallyIncreasing(key) || !key.equals(index)) {
+        initializeHashBuilder();
+        builder.set(key, index);
+      }
+      currentSize++;
+    }
+
+    @Override
+    public void set(int key, int index) {
+      if (index > currentSize) {
+        throw nonMonotonicallyIncreasingIndex(index);
+      }
+      if (!isMonotonicallyIncreasing(key) || key != index) {
         initializeHashBuilder();
         builder.set(key, index);
       }
@@ -316,16 +332,21 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
     @Override
     public void swap(int a, int b) {
-      Object keyA = get(a);
-      Object keyB = get(b);
-
-      set(keyA, b);
-      set(keyB, a);
+      if (a != b) {
+        initializeHashBuilder();
+        builder.swap(a, b);
+      }
     }
 
     @Override
     public int size() {
       return builder == null ? currentSize : builder.size();
+    }
+
+    @Override
+    public void remove(int index) {
+      // TODO: implement
+      throw new UnsupportedOperationException("not implemented yet");
     }
   }
 }

@@ -24,7 +24,6 @@
 
 package org.briljantframework.vector;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
@@ -33,11 +32,14 @@ import org.briljantframework.dataframe.IntIndex;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
+import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.QuickSort;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -246,23 +248,13 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public Bit getAsBit(Object key) {
-    return getAsBit(getIndex().index(key));
-  }
-
-  @Override
-  public Complex getAsComplex(Object key) {
-    return getAsComplex(getIndex().index(key));
-  }
-
-  @Override
   public String toString(Object key) {
     return toString(getIndex().index(key));
   }
 
   @Override
   public boolean isTrue(int index) {
-    return getAsBit(index) == Bit.TRUE;
+    return get(Logical.class, index) == Logical.TRUE;
   }
 
   @Override
@@ -295,8 +287,8 @@ public abstract class AbstractVector implements Vector {
     Builder builder = newBuilder();
     if (getIndex() instanceof IntIndex) {
       for (int i = 0; i < size(); i++) {
-        Bit b = bits.getAsBit(i);
-        if (b == Bit.TRUE) {
+        Logical b = bits.get(Logical.class, i);
+        if (b == Logical.TRUE) {
           builder.add(this, i);
         }
       }
@@ -305,7 +297,7 @@ public abstract class AbstractVector implements Vector {
       Index index = getIndex();
       Index.Builder indexBuilder = index.newBuilder();
       for (Index.Entry entry : index.entrySet()) {
-        if (bits.getAsBit(entry.key()) == Bit.TRUE) {
+        if (bits.get(Logical.class, entry.key()) == Logical.TRUE) {
           indexBuilder.add(entry.key());
           builder.add(this, entry.index());
         }
@@ -437,5 +429,132 @@ public abstract class AbstractVector implements Vector {
     }
     builder.append("type: ").append(getType().toString());
     return builder.toString();
+  }
+
+  protected static abstract class AbstractBuilder implements Vector.Builder {
+
+    protected Index.Builder indexer;
+
+    protected AbstractBuilder(Index.Builder indexer) {
+      this.indexer = indexer;
+    }
+
+    @Override
+    public final Builder setNA(Object key) {
+      int index = getOrCreateIndex(key);
+      setAt(index, null);
+      return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final Builder addNA() {
+      setNA(size());
+      return this;
+    }
+
+    @Override
+    public final Builder add(Vector from, int fromIndex) {
+      set(size(), from, fromIndex);
+      return this;
+    }
+
+    @Override
+    public final Builder set(int atIndex, Vector from, int fromIndex) {
+      setAt(atIndex, from, fromIndex);
+      indexer.set(atIndex, atIndex);
+      return this;
+    }
+
+    @Override
+    public final Builder set(int index, Object value) {
+      setAt(index, value);
+      indexer.set(index, index);
+      return this;
+    }
+
+    @Override
+    public Builder set(int index, int value) {
+      set(index, (Integer) value);
+      return this;
+    }
+
+    @Override
+    public Builder set(int index, double value) {
+      set(index, (Double) value);
+      return this;
+    }
+
+    @Override
+    public Builder set(Object key, Object value) {
+      int index = getOrCreateIndex(key);
+      setAt(index, value);
+      return this;
+    }
+
+    @Override
+    public final Vector.Builder add(Object value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Builder add(int value) {
+      return add((Integer) value);
+    }
+
+    @Override
+    public Builder add(double value) {
+      return add((Double) value);
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return set(size(), from, key);
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
+      int index = getOrCreateIndex(atKey);
+      setAt(index, from, fromIndex);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, Object fromIndex) {
+      int index = getOrCreateIndex(atKey);
+      return set(index, from, fromIndex);
+    }
+
+
+    @Override
+    public Builder remove(Object key) {
+      if (this.indexer.contains(key)) {
+        remove(this.indexer.index(key));
+      } else {
+        throw new NoSuchElementException(key.toString());
+      }
+      return this;
+    }
+
+    @Override
+    public final Vector.Builder read(DataEntry entry) throws IOException {
+      return read(size(), entry);
+    }
+
+    protected int getOrCreateIndex(Object key) {
+      int index = size();
+      if (indexer.contains(key)) {
+        index = indexer.index(key);
+      } else {
+        indexer.add(key);
+      }
+      return index;
+    }
+
+    abstract void setAt(int index, Object value);
+
+    abstract void setAt(int atIndex, Vector from, int fromIndex);
   }
 }

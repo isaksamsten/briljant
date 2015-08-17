@@ -32,7 +32,7 @@ public class IsTest {
 
   @Test
   public void testNA() throws Exception {
-    Double v = DoubleVector.NA;
+    Double v = Na.DOUBLE;
     Double o = Double.NaN;
 
     assertTrue(Is.NA(v));

@@ -24,9 +24,10 @@
 
 package org.briljantframework.vector;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.dataframe.Index;
+import org.briljantframework.dataframe.IntIndex;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
@@ -66,46 +67,23 @@ public class GenericVector extends AbstractVector {
     this.size = size;
   }
 
+  public GenericVector(Class<?> cls, List<Object> values, int size, Index index) {
+    super(index);
+    this.cls = cls;
+    this.type = Vec.typeOf(cls);
+    this.values = values;
+    this.size = size;
+  }
+
   @Override
   public <T> T get(Class<T> cls, int index) {
-    Object obj = values.get(index);
-    if (!cls.isInstance(obj)) {
-      if (cls.equals(String.class)) {
-        return cls.cast(obj.toString());
-      } else {
-        if (this.cls.equals(Number.class)) {
-          Number num = Number.class.cast(obj);
-          if (cls.equals(Double.class)) {
-            return cls.cast(num.doubleValue());
-          } else if (cls.equals(Integer.class)) {
-            return cls.cast(num.intValue());
-          }
-        }
-      }
-      return Na.from(cls);
-    }
-    return cls.cast(obj);
+    return Convert.to(cls, values.get(index));
   }
 
   @Override
   public String toString(int index) {
     Object o = values.get(index);
     return Is.NA(o) ? "NA" : o.toString();
-  }
-
-  @Override
-  public Complex getAsComplex(int index) {
-    Complex complex = get(Complex.class, index);
-    if (Is.NA(complex)) {
-      double v = getAsDouble(index);
-      if (Is.NA(v)) {
-        return Na.from(Complex.class);
-      } else {
-        return Complex.valueOf(v);
-      }
-    } else {
-      return complex;
-    }
   }
 
   @Override
@@ -122,12 +100,7 @@ public class GenericVector extends AbstractVector {
 
   @Override
   public boolean isNA(int index) {
-    return values.get(index) == null;
-  }
-
-  @Override
-  public Bit getAsBit(int index) {
-    return Bit.valueOf(getAsInt(index));
+    return Is.NA(values.get(index));
   }
 
   @Override
@@ -201,13 +174,13 @@ public class GenericVector extends AbstractVector {
     return super.equals(obj);
   }
 
-  public static class Builder implements Vector.Builder {
+  public static class Builder extends AbstractBuilder {
 
     private static final Set<Class<?>> INVALID_CLASSES = new HashSet<>();
 
     static {
       INVALID_CLASSES.addAll(Arrays.asList(
-          Integer.class, Integer.TYPE, Double.TYPE, Double.class, Complex.class, Bit.class
+          Integer.class, Integer.TYPE, Double.TYPE, Double.class
       ));
     }
 
@@ -216,11 +189,14 @@ public class GenericVector extends AbstractVector {
     private Resolver<?> resolver = null;
 
     public <T> Builder(Class<T> cls, Resolver<T> resolver) {
+      super(new IntIndex.Builder(0));
       this.cls = ensureValidClass(cls);
       this.resolver = resolver;
+      this.buffer = new ArrayList<>();
     }
 
     public Builder(Class<?> cls) {
+      super(new IntIndex.Builder(0));
       this.cls = ensureValidClass(cls);
       buffer = new ArrayList<>();
     }
@@ -234,6 +210,7 @@ public class GenericVector extends AbstractVector {
     }
 
     public Builder(Class<?> cls, int size) {
+      super(new IntIndex.Builder(size));
       this.cls = cls;
       buffer = new ArrayList<>();
       for (int i = 0; i < size; i++) {
@@ -245,30 +222,18 @@ public class GenericVector extends AbstractVector {
     public Vector.Builder setNA(int index) {
       ensureCapacity(index);
       buffer.set(index, null);
+      indexer.set(index, index);
       return this;
     }
 
     @Override
-    public Vector.Builder addNA() {
-      buffer.add(null);
+    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+      setAt(atIndex, from.get(cls, fromKey));
       return this;
     }
 
     @Override
-    public Vector.Builder add(Vector from, int fromIndex) {
-      buffer.add(from.get(cls, fromIndex));
-      return this;
-    }
-
-    @Override
-    public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.set(atIndex, from.get(cls, fromIndex));
-      return this;
-    }
-
-    @Override
-    public Vector.Builder set(int index, Object value) {
+    void setAt(int index, Object value) {
       ensureCapacity(index);
       if (value != null && cls.isInstance(value)) {
         buffer.set(index, value);
@@ -282,12 +247,12 @@ public class GenericVector extends AbstractVector {
       } else {
         buffer.set(index, null);
       }
-      return this;
     }
 
     @Override
-    public Vector.Builder add(Object value) {
-      return set(size(), value);
+    void setAt(int atIndex, Vector from, int fromIndex) {
+      ensureCapacity(atIndex);
+      buffer.set(atIndex, from.get(cls, fromIndex));
     }
 
     @Override
@@ -301,6 +266,7 @@ public class GenericVector extends AbstractVector {
     @Override
     public Vector.Builder remove(int index) {
       buffer.remove(index);
+      this.indexer.remove(index);
       return this;
     }
 
@@ -318,12 +284,8 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public void swap(int a, int b) {
+      indexer.swap(a, b);
       Collections.swap(buffer, a, b);
-    }
-
-    @Override
-    public Vector.Builder read(DataEntry entry) throws IOException {
-      return read(size(), entry);
     }
 
     @Override
@@ -345,14 +307,19 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector build() {
-      Vector vector = new GenericVector(cls, buffer, false);
+      Vector vector = new GenericVector(cls, buffer, buffer.size(), indexer.build());
       buffer = null;
       return vector;
     }
 
     private void ensureCapacity(int index) {
-      while (index >= buffer.size()) {
+      int i = buffer.size();
+      while (i <= index) {
+        if (i < index) {
+          this.indexer.set(i, i);
+        }
         buffer.add(null);
+        i++;
       }
     }
   }

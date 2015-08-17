@@ -28,8 +28,7 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.HashIndex;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.vector.DoubleVector;
-import org.junit.Assert;
-import org.junit.Before;
+import org.briljantframework.vector.Na;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -39,9 +38,9 @@ public class MeanImputerTest {
   @Test
   public void testFit() throws Exception {
     DataFrame frame = new MixedDataFrame(
-        DoubleVector.wrap(1, 2, 3, DoubleVector.NA),
-        DoubleVector.wrap(3, 3, 3, DoubleVector.NA),
-        DoubleVector.wrap(DoubleVector.NA, 2, 2, DoubleVector.NA)
+        DoubleVector.wrap(1, 2, 3, Na.DOUBLE),
+        DoubleVector.wrap(3, 3, 3, Na.DOUBLE),
+        DoubleVector.wrap(Na.DOUBLE, 2, 2, Na.DOUBLE)
     );
     HashIndex columnIndex = HashIndex.from("first", "second", "third");
     HashIndex recordIndex = HashIndex.from("a", "b", "c","d");

@@ -48,7 +48,7 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(int value) {
-    return value == IntVector.NA;
+    return value == Na.INT;
   }
 
   /**
@@ -58,7 +58,13 @@ public final class Is {
    * @return true if value is NA
    */
   public static boolean NA(Complex value) {
-    return value != null && Is.NA(value.getReal()) && Is.NA(value.getImaginary());
+    if (value == null) {
+      return true;
+    } else {
+      boolean imagNA = Is.NA(value.getImaginary());
+      boolean realNA = Is.NA(value.getReal());
+      return imagNA && realNA;
+    }
   }
 
   /**
@@ -69,7 +75,7 @@ public final class Is {
    */
   public static boolean NA(double value) {
     return Double.isNaN(value)
-           && (Double.doubleToRawLongBits(value) & DoubleVector.NA_MASK) == DoubleVector.NA_RES;
+           && (Double.doubleToRawLongBits(value) & Na.DOUBLE_NA_MASK) == Na.DOUBLE_NA_RES;
   }
 
   /**
@@ -78,8 +84,8 @@ public final class Is {
    * @param value the value
    * @return true if value is NA
    */
-  public static boolean NA(Bit value) {
-    return BitVector.TYPE.isNA(value);
+  public static boolean NA(Logical value) {
+    return value == null || value == Logical.NA;
   }
 
   /**

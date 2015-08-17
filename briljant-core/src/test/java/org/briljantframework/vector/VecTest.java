@@ -50,7 +50,7 @@ public class VecTest {
     assertEquals(Vec.DOUBLE, Vec.typeOf(Double.class));
     assertEquals(Vec.INT, Vec.typeOf(Integer.class));
     assertEquals(Vec.BIT, Vec.typeOf(Boolean.class));
-    assertEquals(Vec.BIT, Vec.typeOf(Bit.class));
+    assertEquals(Vec.BIT, Vec.typeOf(Logical.class));
     assertEquals(Vec.COMPLEX, Vec.typeOf(Complex.class));
     assertEquals(Vec.STRING, Vec.typeOf(String.class));
     assertEquals(Vec.DOUBLE, Vec.typeOf(Double.TYPE));

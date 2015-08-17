@@ -24,12 +24,10 @@
 
 package org.briljantframework.dataframe;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -205,16 +203,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   public int getAsInt(int row, int column) {
     return columns.get(column).getAsInt(row);
-  }
-
-  @Override
-  public Bit getAsBit(int row, int column) {
-    return columns.get(column).getAsBit(row);
-  }
-
-  @Override
-  public Complex getAsComplex(int row, int column) {
-    return columns.get(column).getAsComplex(row);
   }
 
   @Override

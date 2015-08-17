@@ -22,32 +22,36 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
-
-import org.briljantframework.vector.Vector;
+package org.briljantframework.vector;
 
 /**
  * @author Isak Karlsson
  */
-public interface Series extends Vector {
+public enum Logical {
+  TRUE(1), FALSE(0), NA(Na.INT);
 
-  Object name();
+  private final int value;
 
-  Index getIndex();
-
-  default <T> T get(Class<T> cls, Object key) {
-    return get(cls, getIndex().index(key));
+  Logical(int value) {
+    this.value = value;
   }
 
-  default int getAsInt(Object key) {
-    return getAsInt(getIndex().index(key));
+  public static Logical valueOf(boolean value) {
+    return value ? TRUE : FALSE;
   }
 
-  default double getAsDouble(Object key) {
-    return getAsDouble(getIndex().index(key));
+  public static Logical valueOf(int value) {
+    switch (value) {
+      case 1:
+        return TRUE;
+      case 0:
+        return FALSE;
+      default:
+        return NA;
+    }
   }
 
-  default String toString(Object key) {
-    return toString(getIndex().index(key));
+  public int asInt() {
+    return value;
   }
 }

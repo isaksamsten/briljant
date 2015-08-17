@@ -44,10 +44,9 @@ public class GenericVectorTest {
   @Before
   public void setUp() throws Exception {
     firstDate = new Date();
-    dateVector =
-        new GenericVector(Date.class,
-                          Arrays.asList(firstDate, new Date(System.currentTimeMillis() + 199999),
-                                        new Date(), null));
+    dateVector = new GenericVector(Date.class, Arrays.asList(
+        firstDate, new Date(System.currentTimeMillis() + 199999), new Date(), null
+    ));
     cmpVector = new GenericVector(Comparable.class, Arrays.asList(1, 2, 3, 3.2));
     charVector = new GenericVector(Character.class, Arrays.asList('a', 'b', 'c'));
   }
@@ -88,20 +87,19 @@ public class GenericVectorTest {
 
   @Test
   public void testGetAsDouble() throws Exception {
-    assertEquals(DoubleVector.NA, dateVector.getAsDouble(0), 0);
+    assertEquals(Na.DOUBLE, dateVector.getAsDouble(0), 0);
 
   }
 
   @Test
   public void testGetAsInt() throws Exception {
-    assertEquals(IntVector.NA, dateVector.getAsInt(0));
+    assertEquals(Na.INT, dateVector.getAsInt(0));
 
   }
 
   @Test
   public void testGetAsBit() throws Exception {
-    assertEquals(BitVector.NA, dateVector.getAsBit(0));
-
+    assertEquals(Logical.NA, dateVector.get(Logical.class, 0));
   }
 
   @Test

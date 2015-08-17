@@ -105,6 +105,8 @@ public interface Index extends List<Object> {
 
     void set(Object key, int index);
 
+    void set(int key, int index);
+
     Index build();
 
     void set(Entry entry);
@@ -112,5 +114,7 @@ public interface Index extends List<Object> {
     void putAll(Set<Entry> entries);
 
     int size();
+
+    void remove(int index);
   }
 }

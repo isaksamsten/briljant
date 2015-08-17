@@ -26,7 +26,7 @@ package org.briljantframework.io.resolver;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
-import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.Logical;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -86,10 +86,12 @@ public final class Resolvers {
       }
     });
 
-    Resolver<Bit> bitResolver = new Resolver<>(Bit.class);
-    bitResolver.put(String.class, (v) -> Bit.valueOf(v.trim().equalsIgnoreCase("true")));
+    Resolver<Logical> logicalResolver = new Resolver<>(Logical.class);
+    logicalResolver.put(String.class, v -> Logical.valueOf(v.trim().equalsIgnoreCase("true")));
+    logicalResolver.put(Boolean.class, v -> v ? Logical.TRUE : Logical.FALSE);
+    logicalResolver.put(Number.class, v -> v.intValue() == 1 ? Logical.TRUE : Logical.FALSE);
 
-    install(Bit.class, bitResolver);
+    install(Logical.class, logicalResolver);
     install(LocalDate.class, localDateResolver);
     install(String.class, stringResolver);
     install(Double.class, doubleResolver);

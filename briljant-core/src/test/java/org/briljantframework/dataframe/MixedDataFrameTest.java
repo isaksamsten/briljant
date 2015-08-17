@@ -28,13 +28,12 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.io.resolver.Resolvers;
 import org.briljantframework.io.resolver.StringDateConverter;
-import org.briljantframework.vector.Bit;
-import org.briljantframework.vector.BitVector;
-import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
+import org.briljantframework.vector.Logical;
+import org.briljantframework.vector.Na;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
@@ -137,8 +136,8 @@ public class MixedDataFrameTest {
     builder.addColumn(Vector.of("1 2 3 4 5".split(" ")));
     builder.addColumn(new IntVector(1, 2, 3, 4, 5));
     builder.addColumn(new DoubleVector(1, 2, 3, 4, 5));
-    builder.addColumn(new ComplexVector(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
-    builder.addColumn(new BitVector(true, true, false, false, false));
+    builder.addColumn(Vector.of(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
+    builder.addColumn(Vector.of(true, true, false, false, false));
 
     DataFrame build = builder.build();
     assertEquals(Vec.STRING, build.getType(0));
@@ -149,8 +148,8 @@ public class MixedDataFrameTest {
 
     assertEquals(1, build.getAsInt(0, 1));
     assertEquals(1, build.getAsDouble(0, 2), 0);
-    assertEquals(Complex.I, build.getAsComplex(0, 3));
-    assertEquals(Bit.TRUE, build.getAsBit(0, 4));
+    assertEquals(Complex.I, build.get(Complex.class, 0, 3));
+    assertEquals(Logical.TRUE, build.get(Logical.class, 0, 4));
 //    assertEquals(Convert.toValue(1), build.getAsValue(0, 5));
   }
 
@@ -177,9 +176,9 @@ public class MixedDataFrameTest {
     assertEquals(Vec.DOUBLE, build.getType(2));
     assertEquals(2, build.getAsDouble(0, 2), 0);
     assertEquals(Vec.COMPLEX, build.getType(3));
-    assertEquals(Complex.I, build.getAsComplex(0, 3));
+    assertEquals(Complex.I, build.get(Complex.class, 0, 3));
     assertEquals(Vec.BIT, build.getType(4));
-    assertEquals(Bit.TRUE, build.getAsBit(0, 4));
+    assertEquals(Logical.TRUE, build.get(Logical.class, 0, 4));
     assertEquals(Vec.VARIABLE, build.getType(5));
   }
 
@@ -211,9 +210,9 @@ public class MixedDataFrameTest {
     assertEquals(Vec.DOUBLE, build.getType(2));
     assertEquals(2, build.getAsDouble(0, 2), 0);
     assertEquals(Vec.COMPLEX, build.getType(3));
-    assertEquals(Complex.I, build.getAsComplex(0, 3));
+    assertEquals(Complex.I, build.get(Complex.class, 0, 3));
     assertEquals(Vec.BIT, build.getType(4));
-    assertEquals(Bit.TRUE, build.getAsBit(0, 4));
+    assertEquals(Logical.TRUE, build.get(Logical.class, 0, 4));
     assertEquals(Vec.VARIABLE, build.getType(5));
     assertEquals(Vec.typeOf(Date.class), build.getType(6));
     assertEquals(new Date(321321321738L), build.get(6).get(Date.class, 0));
@@ -223,7 +222,7 @@ public class MixedDataFrameTest {
   @Test
   public void testName() throws Exception {
     Vector a = new GenericVector.Builder(String.class).add("a").add("b").add("c").build();
-    DoubleVector b = new DoubleVector.Builder().add(1).addNA().add(100.23).build();
+    Vector b = new DoubleVector.Builder().add(1).addNA().add(100.23).build();
 
     DataFrame frame = new MixedDataFrame(a, b);
 //    frame.setColumnName(0, "isak").setColumnName(1, "lisa");
@@ -246,14 +245,13 @@ public class MixedDataFrameTest {
         new MixedDataFrame.Builder(
             Vec.typeOf(String.class).newBuilder().addAll("one", "two", "three",
                                                          "four", "four"),
-            BitVector.newBuilderWithInitialValues(Bit.TRUE, Bit.FALSE,
-                                                  Bit.TRUE, 1),
+            Vec.typeOf(Logical.class).newBuilder().addAll(Logical.TRUE, Logical.FALSE,
+                                                          Logical.TRUE, 1),
             IntVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 5, 6),
-            ComplexVector
-                .newBuilderWithInitialValues(Complex.I, new Complex(2, 3),
-                                             new Complex(2,
-                                                         2), null,
-                                             Complex.ZERO, 0.0),
+            Vec.typeOf(Complex.class).newBuilder().addAll(Complex.I, new Complex(2, 3),
+                                                          new Complex(2,
+                                                                      2), null,
+                                                          Complex.ZERO, 0.0),
             DoubleVector.newBuilderWithInitialValues(0, 1, 2, 3,
                                                      4, 4, 5, 6));
 
@@ -299,7 +297,7 @@ public class MixedDataFrameTest {
   public void testMapConstructor() throws Exception {
     Map<String, Vector> vectors = new HashMap<>();
     vectors.put("engines", Vector.of("hybrid", "electric", "electric", "steam"));
-    vectors.put("bhp", new IntVector(150, 130, 75, IntVector.NA));
+    vectors.put("bhp", new IntVector(150, 130, 75, Na.INT));
     vectors.put("brand", Vector.of("toyota", "tesla", "tesla", "volvo"));
 
     DataFrame frame = new MixedDataFrame(vectors);
@@ -312,10 +310,10 @@ public class MixedDataFrameTest {
     Resolvers.find(LocalDate.class).put(String.class,
                                         new StringDateConverter(DateTimeFormatter.ISO_DATE));
     Vector a = new GenericVector.Builder(String.class).add("a").add("b").add(32).addNA().build();
-    DoubleVector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).build();
+    Vector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).build();
     Vector c = new GenericVector.Builder(LocalDate.class)
         .add("2011-03-23")
-        .add(1000L)
+        .add(LocalDate.now())
         .add(LocalDate.now())
         .add(LocalDate.now())
         .build();

@@ -29,7 +29,6 @@ import com.univocity.parsers.common.processor.RowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
-import org.briljantframework.vector.ComplexVector;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
@@ -56,10 +55,11 @@ import java.util.Map;
  *
  * <p>The types are simple strings and are mapped to {@code briljant} data types as follows:
  *
- * <ul> <li>{@code numeric} and {@code regressor}: {@link org.briljantframework.vector.DoubleVector}</li>
+ * <ul>
+ * <li>{@code numeric} and {@code regressor}: {@link org.briljantframework.vector.DoubleVector}</li>
  * <li>{@code categoric} and {@code class}: {@link org.briljantframework.vector.GenericVector}</li>
- * <li>{@code date}: {@link org.briljantframework.vector.GenericVector}</li> <li>{@code complex}:
- * {@link org.briljantframework.vector.ComplexVector}</li> </ul>
+ * <li>{@code date}: {@link org.briljantframework.vector.GenericVector}</li>
+ * </ul>
  *
  * By convention, missing values are represented as {@code ?}.
  *
@@ -73,7 +73,6 @@ public class RdsInputStream extends DataInputStream {
 
   static {
     Map<String, VectorType> map = new HashMap<>();
-    map.put("complex", ComplexVector.TYPE);
     map.put("numeric", DoubleVector.TYPE);
     map.put("date", Vec.typeOf(LocalDate.class));
     map.put("regressor", DoubleVector.TYPE);

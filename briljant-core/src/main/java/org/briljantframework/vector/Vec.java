@@ -55,9 +55,9 @@ import java.util.stream.Collector;
 public final class Vec {
 
   public static final VectorType STRING = new GenericVectorType(String.class);
-  public static final VectorType BIT = BitVector.TYPE;
+  public static final VectorType BIT = new GenericVectorType(Logical.class);
   public static final VectorType INT = IntVector.TYPE;
-  public static final VectorType COMPLEX = ComplexVector.TYPE;
+  public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
   public static final VectorType DOUBLE = DoubleVector.TYPE;
   public static final VectorType VARIABLE = new GenericVectorType(Object.class);
   public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
@@ -79,7 +79,7 @@ public final class Vec {
     CLASS_TO_VECTOR_TYPE.put(Double.TYPE, DOUBLE);
     CLASS_TO_VECTOR_TYPE.put(String.class, STRING);
     CLASS_TO_VECTOR_TYPE.put(Boolean.class, BIT);
-    CLASS_TO_VECTOR_TYPE.put(Bit.class, BIT);
+    CLASS_TO_VECTOR_TYPE.put(Logical.class, BIT);
     CLASS_TO_VECTOR_TYPE.put(Complex.class, COMPLEX);
     CLASS_TO_VECTOR_TYPE.put(Object.class, VARIABLE);
 
@@ -366,7 +366,7 @@ public final class Vec {
    */
   public static double std(Vector vector, double mean) {
     double var = var(vector, mean);
-    return Is.NA(var) ? DoubleVector.NA : Math.sqrt(var);
+    return Is.NA(var) ? Na.DOUBLE : Math.sqrt(var);
   }
 
   /**
@@ -467,7 +467,7 @@ public final class Vec {
    * @return the minimum value or {@code NA} if all values are {@code NA}
    */
   public static double min(Vector v) {
-    return v.doubleStream().filter(Is::NA).min().orElse(DoubleVector.NA);
+    return v.doubleStream().filter(Is::NA).min().orElse(Na.DOUBLE);
   }
 
   /**
@@ -477,7 +477,7 @@ public final class Vec {
    * @return the maximum value or {@code NA} if all values are {@code NA}
    */
   public static double max(Vector v) {
-    return v.doubleStream().filter(Is::NA).max().orElse(DoubleVector.NA);
+    return v.doubleStream().filter(Is::NA).max().orElse(Na.DOUBLE);
   }
 
 
@@ -630,6 +630,11 @@ public final class Vec {
       return this;
     }
 
+    @Override
+    public Vector.Builder setNA(Object key) {
+      return null;
+    }
+
     protected GenericVector.Builder getObjectBuilder() {
       return new GenericVector.Builder(Object.class);
     }
@@ -649,8 +654,28 @@ public final class Vec {
     }
 
     @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return null;
+    }
+
+    @Override
     public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
       return set(atIndex, from.get(Object.class, fromIndex));
+    }
+
+    @Override
+    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, Object fromIndex) {
+      return null;
     }
 
     @Override
@@ -663,7 +688,40 @@ public final class Vec {
     }
 
     @Override
+    public Vector.Builder set(int index, double value) {
+      if (builder == null) {
+        builder = Vec.typeOf(Double.class).newBuilder();
+      }
+      builder.set(index, value);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder set(int index, int value) {
+      if (builder == null) {
+        builder = Vec.typeOf(Integer.class).newBuilder();
+      }
+      builder.set(index, value);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder set(Object key, Object value) {
+      return null;
+    }
+
+    @Override
     public Vector.Builder add(Object value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Vector.Builder add(double value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Vector.Builder add(int value) {
       return set(size(), value);
     }
 
@@ -682,6 +740,11 @@ public final class Vec {
     @Override
     public Vector.Builder remove(int index) {
       throw indexOutOfBounds(index);
+    }
+
+    @Override
+    public Vector.Builder remove(Object key) {
+      return null;
     }
 
     protected IndexOutOfBoundsException indexOutOfBounds(int index) {

@@ -29,16 +29,15 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Indexer;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.vector.Bit;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
+import org.briljantframework.vector.Na;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -65,7 +64,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public <T> T get(Class<T> cls, int row, int column) {
     return cls.equals(Double.TYPE) || cls.equals(Double.class)
-           ? cls.cast(getAsDouble(row, column)) : cls.cast(DoubleVector.NA);
+           ? cls.cast(getAsDouble(row, column)) : cls.cast(Na.DOUBLE);
   }
 
   @Override
@@ -76,25 +75,6 @@ public class MatrixDataFrame extends AbstractDataFrame {
   @Override
   public int getAsInt(int row, int column) {
     return (int) matrix.get(row, column);
-  }
-
-  @Override
-  public Bit getAsBit(int row, int column) {
-    double value = matrix.get(row, column);
-    return Is.NA(value) ? Bit.NA : value == 1 ? Bit.TRUE : Bit.FALSE;
-  }
-
-  /**
-   * Returns a {@link org.apache.commons.math3.complex.Complex} using the double as the real part.
-   *
-   * @param row    the row
-   * @param column the column
-   * @return a complex
-   */
-  @Override
-  public Complex getAsComplex(int row, int column) {
-    double value = matrix.get(row, column);
-    return Is.NA(value) ? Complex.NaN : new Complex(value);
   }
 
   @Override
@@ -201,7 +181,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       this.columns = columns;
 
       buffer = new double[rows * columns];
-      Arrays.fill(buffer, DoubleVector.NA);
+      Arrays.fill(buffer, Na.DOUBLE);
     }
 
     public ArrayBuilder() {
@@ -227,7 +207,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame.Builder setNA(int row, int column) {
-      set(row, column, DoubleVector.NA);
+      set(row, column, Na.DOUBLE);
       return this;
     }
 
@@ -269,7 +249,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
      */
     private void reInitializeBuffer(int rows, int columns) {
       double[] tmp = reallocate(buffer, rows * columns);
-      Arrays.fill(tmp, DoubleVector.NA);
+      Arrays.fill(tmp, Na.DOUBLE);
       for (int j = 0; j < this.columns; j++) {
         for (int i = 0; i < this.rows; i++) {
           int newIndex = Indexer.columnMajor(0, i, j, rows, columns);
@@ -305,7 +285,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else {
-        dval = DoubleVector.NA;
+        dval = Na.DOUBLE;
       }
       return set(row, column, dval);
     }
@@ -467,7 +447,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
 
     @Override
     public DataFrame.Builder setNA(int row, int column) {
-      return set(row, column, DoubleVector.NA);
+      return set(row, column, Na.DOUBLE);
     }
 
     @Override
@@ -486,7 +466,7 @@ public class MatrixDataFrame extends AbstractDataFrame {
       if (value instanceof Number) {
         dval = ((Number) value).doubleValue();
       } else {
-        dval = DoubleVector.NA;
+        dval = Na.DOUBLE;
       }
       return set(row, column, dval);
     }

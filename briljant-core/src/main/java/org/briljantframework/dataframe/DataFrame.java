@@ -30,7 +30,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.sort.Swappable;
-import org.briljantframework.vector.Bit;
+import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -85,24 +85,6 @@ public interface DataFrame extends Iterable<Vector> {
   int getAsInt(int row, int column);
 
   /**
-   * Get value at {@code row} and {@code column} as binary.
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  Bit getAsBit(int row, int column);
-
-  /**
-   * Get value at {@code row} and {@code column} as complex.
-   *
-   * @param row    the row
-   * @param column the column
-   * @return the value
-   */
-  Complex getAsComplex(int row, int column);
-
-  /**
    * Returns string representation of value at {@code row, column}
    *
    * @param row    the row
@@ -130,10 +112,6 @@ public interface DataFrame extends Iterable<Vector> {
 
   default int getAsInt(Object row, Object col) {
     return getAsInt(getRecordIndex().index(row), getColumnIndex().index(col));
-  }
-
-  default Complex getAsComplex(Object row, Object col) {
-    return getAsComplex(getRecordIndex().index(row), getColumnIndex().index(col));
   }
 
   default boolean isNA(Object row, Object col) {
