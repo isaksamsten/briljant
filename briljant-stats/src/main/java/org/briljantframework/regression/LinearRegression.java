@@ -53,7 +53,7 @@ public class LinearRegression implements Classifier {
   @Override
   public Model fit(DataFrame x, Vector y) {
     Check.argument(x.rows() == y.size());
-    DoubleArray yMatrix = y.asDoubleArray();
+    DoubleArray yMatrix = y.toDoubleArray();
     return new Model(LinearAlgebra.leastLinearSquares(x.toDoubleArray(), yMatrix));
   }
 

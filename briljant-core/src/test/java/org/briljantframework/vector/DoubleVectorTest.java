@@ -27,7 +27,6 @@ package org.briljantframework.vector;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -55,11 +54,6 @@ public class DoubleVectorTest {
     builder.set(10, 10);
     Vector vec = builder.build();
     assertFalse(vec.isNA(4));
-  }
-
-  @Test
-  public void testToIntArray() throws Exception {
-    assertArrayEquals(DOUBLE_ARRAY, vector.toDoubleArray(), 0);
   }
 
   @Test

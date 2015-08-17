@@ -84,7 +84,12 @@ class SingletonVector extends AbstractVector {
   @Override
   public boolean isNA(int index) {
     Check.elementIndex(index, size());
-    return value == null;
+    return Is.NA(value);
+  }
+
+  @Override
+  public boolean hasNA() {
+    return Is.NA(value);
   }
 
   @Override

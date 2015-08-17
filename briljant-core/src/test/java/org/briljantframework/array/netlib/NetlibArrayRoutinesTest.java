@@ -59,13 +59,9 @@ public class NetlibArrayRoutinesTest {
     });
 
     DoubleArray b = a.getRow(0);
-
-
     DoubleArray x = bj.array(new double[]{1, 2, 3});
     DoubleArray y = bj.doubleArray(4).assign(3).asView(1, new int[]{3}, new int[]{1});
-
     bjr.gemv(Op.TRANSPOSE, 1, a, x, 1, y);
-    System.out.println(y.asView(0, new int[]{4}, new int[]{1}));
     assertMatrixEquals(bj.array(new double[]{9,15,21}), y, 0.0);
   }
 }

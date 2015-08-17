@@ -80,14 +80,11 @@ class GenericVectorType implements VectorType {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof GenericVectorType) {
-      return ((GenericVectorType) obj).cls.equals(cls);
-    }
-    return false;
+    return obj instanceof GenericVectorType && ((GenericVectorType) obj).cls.equals(cls);
   }
 
   @Override
   public String toString() {
-    return String.format("%s", cls.getSimpleName().toLowerCase());
+    return String.format("%s", cls.getSimpleName());
   }
 }

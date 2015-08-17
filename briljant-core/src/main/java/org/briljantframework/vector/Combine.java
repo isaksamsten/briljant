@@ -98,7 +98,7 @@ public final class Combine {
   /**
    * @return an adder that ignores {@code NA}
    */
-  public static BiFunction<Number, Number, Number> add() {
+  public static BiFunction<Object, Object, Object> add() {
     return ignoreNA(Combine::plusNumber);
   }
 
@@ -106,81 +106,87 @@ public final class Combine {
    * @return an adder that ignores {@code NA} and defaults to {@code fillValue}
    * @see #ignoreNA(java.util.function.BiFunction, Object)
    */
-  public static BiFunction<Number, Number, Number> add(Number fillValue) {
+  public static BiFunction<Object, Object, Object> add(Number fillValue) {
     return ignoreNA(Combine::plusNumber, fillValue);
   }
 
-  public static BiFunction<Number, Number, Number> mul() {
+  public static BiFunction<Object, Object, Object> mul() {
     return ignoreNA(Combine::multiplyNumber);
   }
 
-  public static BiFunction<Number, Number, Number> multiply(Number fillValue) {
+  public static BiFunction<Object, Object, Object> multiply(Number fillValue) {
     return ignoreNA(Combine::multiplyNumber, fillValue);
   }
 
-  public static BiFunction<Number, Number, Number> div() {
+  public static BiFunction<Object, Object, Object> div() {
     return ignoreNA(Combine::divNumber);
   }
 
-  public static BiFunction<Number, Number, Number> div(Number fillValue) {
+  public static BiFunction<Object, Object, Object> div(Object fillValue) {
     return ignoreNA(Combine::divNumber, fillValue);
   }
 
-  public static BiFunction<Number, Number, Number> sub() {
+  public static BiFunction<Object, Object, Object> sub() {
     return ignoreNA(Combine::minusNumber);
   }
 
-  public static BiFunction<Number, Number, Number> sub(Number fillValue) {
+  public static BiFunction<Object, Object, Object> sub(Object fillValue) {
     return ignoreNA(Combine::minusNumber, fillValue);
   }
 
-  private static Number plusNumber(Number a, Number b) {
-    if (a instanceof Integer && b instanceof Integer ||
-        (a instanceof Short && b instanceof Short)) {
-      return a.intValue() + b.intValue();
-    } /*else if (a instanceof Complex && b instanceof Complex) {
-      return ((Complex) a).plus((Complex) b);
-    } */else if (a instanceof Long && b instanceof Long) {
-      return a.longValue() + b.longValue();
+  private static Object plusNumber(Object a, Object b) {
+    if (a instanceof Integer && b instanceof Integer || a instanceof Short && b instanceof Short) {
+      return ((Number) a).intValue() + ((Number) a).intValue();
+    } else if (a instanceof Complex && b instanceof Complex) {
+      return ((Complex) a).add((Complex) b);
+    } else if (a instanceof Long && b instanceof Long) {
+      return ((Number) a).longValue() + ((Number) b).longValue();
+    } else if (a instanceof Number) {
+      return ((Number) a).doubleValue() + ((Number) b).doubleValue();
     } else {
-      return a.doubleValue() + b.doubleValue();
+      return null; // NA
     }
   }
 
-  private static Number minusNumber(Number a, Number b) {
-    if (a instanceof Integer && b instanceof Integer ||
-        (a instanceof Short && b instanceof Short)) {
-      return a.intValue() - b.intValue();
-    } /*else if (a instanceof Complex && b instanceof Complex) {
-      return ((Complex) a).minus((Complex) b);
-    } */else if (a instanceof Long && b instanceof Long) {
-      return a.longValue() - b.longValue();
+  private static Object minusNumber(Object a, Object b) {
+    if (a instanceof Integer && b instanceof Integer || a instanceof Short && b instanceof Short) {
+      return ((Number) a).intValue() - ((Number) a).intValue();
+    } else if (a instanceof Complex && b instanceof Complex) {
+      return ((Complex) a).subtract((Complex) b);
+    } else if (a instanceof Long && b instanceof Long) {
+      return ((Number) a).longValue() - ((Number) b).longValue();
+    } else if (a instanceof Number) {
+      return ((Number) a).doubleValue() - ((Number) b).doubleValue();
     } else {
-      return a.doubleValue() - b.doubleValue();
+      return null; // NA
     }
   }
 
-  private static Number multiplyNumber(Number a, Number b) {
-    if (a instanceof Integer && b instanceof Integer) {
-      return a.intValue() * b.intValue();
-    } /*else if (a instanceof Complex && b instanceof Complex) {
+  private static Object multiplyNumber(Object a, Object b) {
+    if (a instanceof Integer && b instanceof Integer || a instanceof Short && b instanceof Short) {
+      return ((Number) a).intValue() * ((Number) a).intValue();
+    } else if (a instanceof Complex && b instanceof Complex) {
       return ((Complex) a).multiply((Complex) b);
-    } */else if (a instanceof Long && b instanceof Long) {
-      return a.longValue() * b.longValue();
+    } else if (a instanceof Long && b instanceof Long) {
+      return ((Number) a).longValue() * ((Number) b).longValue();
+    } else if (a instanceof Number) {
+      return ((Number) a).doubleValue() * ((Number) b).doubleValue();
     } else {
-      return a.doubleValue() * b.doubleValue();
+      return null; // NA
     }
   }
 
-  private static Number divNumber(Number a, Number b) {
-    if (a instanceof Integer && b instanceof Integer) {
-      return a.intValue() / b.intValue();
-    } /*else if (a instanceof Complex && b instanceof Complex) {
-      return ((Complex) a).div((Complex) b);
-    } */else if (a instanceof Long && b instanceof Long) {
-      return a.longValue() / b.longValue();
+  private static Object divNumber(Object a, Object b) {
+    if (a instanceof Integer && b instanceof Integer || a instanceof Short && b instanceof Short) {
+      return ((Number) a).intValue() / ((Number) a).intValue();
+    } else if (a instanceof Complex && b instanceof Complex) {
+      return ((Complex) a).divide((Complex) b);
+    } else if (a instanceof Long && b instanceof Long) {
+      return ((Number) a).longValue() / ((Number) b).longValue();
+    } else if (a instanceof Number) {
+      return ((Number) a).doubleValue() / ((Number) b).doubleValue();
     } else {
-      return a.doubleValue() / b.doubleValue();
+      return null; // NA
     }
   }
 }

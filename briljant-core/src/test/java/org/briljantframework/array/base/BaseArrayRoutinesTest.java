@@ -24,10 +24,8 @@
 
 package org.briljantframework.array.base;
 
-import org.briljantframework.Bj;
 import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
@@ -62,18 +60,7 @@ public class BaseArrayRoutinesTest {
 
   @Test
   public void testVar1() throws Exception {
-    DoubleArray a = Bj.range(100 * 8)
-        .reshape(100, 8).asDouble().copy()
-        .get(bj.range(1, 20, 2), bj.range(1, 5));
-    System.out.println(a);
-    long start = System.nanoTime();
-    DoubleArray ca = a.transpose().mmul(a);
-    DoubleArray c = Bj.doubleArray(4, 4);
-    Bj.gemm(Op.KEEP, Op.KEEP, 1, a.transpose(), a, 1, c);
-    System.out.println((System.nanoTime() - start) / 1e6);
-    System.out.println(c);
-    System.out.println(ca);
-    System.out.println(c.equals(ca));
+
   }
 
   @Test

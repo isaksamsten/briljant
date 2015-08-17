@@ -35,9 +35,9 @@ contain values of one specific type and `NA` supporting that it is
 aware of missing values. Suppose that we are given a list of employees
 and want to count the frequency of each name.
 
-!!! warning "Notation"
+!!! warning "Code examples"
 
-    We'll pretend that Java has a REPL and begin statements with `>`
+    We'll pretend that Java has a REPL
 
 ```
 > Vector employees = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
@@ -67,7 +67,7 @@ first element of the vector.  The second statement performs an
 [aggregation](reference/vector#aggregation) operation which in this
 case take all elements of the `employees` vector and count their
 occurence. As you probably notice in the output, the index of the
-`counts` vector is non-numerical, hence, we can call
+`counts` vector is non-numerical, we can, for example, call
 `counts.getAsInt("Mary")` to find the frequency of the name `Mary`.
 
 

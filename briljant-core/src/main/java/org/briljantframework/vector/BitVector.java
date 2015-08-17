@@ -123,7 +123,7 @@ public class BitVector extends AbstractVector {
 
   @Override
   public Builder newCopyBuilder() {
-    return new Builder(toIntArray());
+    return new Builder(Arrays.copyOf(values, size()));
   }
 
   @Override
@@ -186,7 +186,7 @@ public class BitVector extends AbstractVector {
   }
 
   @Override
-  public BitArray asBitArray() throws IllegalTypeException {
+  public BitArray toBitArray() throws IllegalTypeException {
     BitArray array = Bj.booleanArray(size());
     for (int i = 0; i < size(); i++) {
       array.set(i, getAsBit(i) == Bit.TRUE);

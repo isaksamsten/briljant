@@ -24,6 +24,7 @@
 
 package org.briljantframework.classification;
 
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.classification.tree.TreeBranch;
@@ -34,7 +35,6 @@ import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
@@ -111,17 +111,12 @@ public class DecisionTree implements Classifier {
         if (Is.nominal(threshold)) {
           direction = example.equals(axis, threshold) ? LEFT : RIGHT;
         } else {
-          direction = example.compare(axis, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
+          // note: Is.nominal return true for any non-number and Number is always comparable
+          @SuppressWarnings("unchecked")
+          Comparable<Object> leftComparable = example.get(Comparable.class, axis);
+          direction = leftComparable.compareTo(threshold) <= 0 ? LEFT : RIGHT;
+//          direction = example.compare(axis, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
         }
-
-//        switch (threshold.getType().getScale()) {
-//          case NOMINAL:
-//            direction = type.equals(threshold, axis, example) ? LEFT : RIGHT;
-//            break;
-//          case NUMERICAL:
-//            direction = type.compare(threshold, axis, example) <= 0 ? LEFT : RIGHT;
-//            break;
-//        }
       }
 
       switch (direction) {
@@ -142,28 +137,5 @@ public class DecisionTree implements Classifier {
                       TreeVisitor<ValueThreshold> predictionVisitor) {
       super(classes, node, predictionVisitor);
     }
-
-    // @Override
-    // public DoubleMatrix predictProba(DataFrame x) {
-    // DoubleMatrix probas = Matrices.newMatrix(x.rows(), getClasses().size());
-    // for (int i = 0; i < x.rows(); i++) {
-    // probas.setRow(i, predictProba(x.getRecord(i)));
-    // }
-    // return probas;
-    // }
-    //
-    // @Override
-    // public DoubleMatrix predictProba(Vector row) {
-    // Vector prediction = predict(row);
-    // Vector classes = getClasses();
-    // DoubleMatrix probas = Matrices.of(classes.size());
-    // for (int i = 0; i < classes.size(); i++) {
-    // if (prediction.compare(0, i, classes) == 0) {
-    // probas.set(i, 1);
-    // break;
-    // }
-    // }
-    // return probas;
-    // }
   }
 }

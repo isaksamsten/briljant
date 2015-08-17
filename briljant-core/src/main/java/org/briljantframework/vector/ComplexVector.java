@@ -121,7 +121,7 @@ public class ComplexVector extends AbstractVector {
   public ComplexVector(ComplexArray freq) {
     this.values = new double[freq.size() * 2];
     this.size = freq.size();
-    for (int i = 0; i < freq.size(); i++) {
+    for (int i = 0; i < freq.size(); i += 2) {
       Complex c = freq.get(i);
       this.values[i * 2] = c.getReal();
       this.values[i * 2 + 1] = c.getImaginary();
@@ -217,7 +217,7 @@ public class ComplexVector extends AbstractVector {
   }
 
   @Override
-  public ComplexArray asComplexArray() {
+  public ComplexArray toComplexArray() {
     ComplexArray x = Bj.complexArray(size());
     for (int i = 0; i < size(); i++) {
       x.set(i, getAsComplex(i));
@@ -294,7 +294,14 @@ public class ComplexVector extends AbstractVector {
     }
 
     public Builder(ComplexVector copy) {
-      this.buffer = DoubleArrayList.from(copy.toDoubleArray());
+      double[] temp = new double[copy.size() * 2];
+      int inc = 0;
+      for (int i = 0; i < copy.size(); i += 2) {
+        Complex complex = copy.getAsComplex(inc++);
+        temp[i] = complex.getReal();
+        temp[i + 1] = complex.getImaginary();
+      }
+      this.buffer = DoubleArrayList.from(temp);
     }
 
 
@@ -480,14 +487,6 @@ public class ComplexVector extends AbstractVector {
   @Override
   public Builder newBuilder(int size) {
     return new Builder(size);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public double[] toDoubleArray() {
-    return values.clone();
   }
 
 

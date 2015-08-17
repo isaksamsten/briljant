@@ -39,7 +39,6 @@ public class AggregatesTest {
   public void testRepeat() throws Exception {
     Vector vec = Vector.of(1.0, 2.0, 3.0, 4.0, 5.0);
     Vector vecX2 = vec.collect(repeat(2));
-    System.out.println(vecX2);
     assertEquals(vec.size() * 2, vecX2.size());
   }
 

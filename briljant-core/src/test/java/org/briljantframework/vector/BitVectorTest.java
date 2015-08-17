@@ -27,7 +27,6 @@ package org.briljantframework.vector;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class BitVectorTest {
@@ -100,10 +99,4 @@ public class BitVectorTest {
   public void testNewBuilder1() throws Exception {
 
   }
-
-  @Test
-  public void testToIntArray() throws Exception {
-    assertArrayEquals(trueArray, vector.toIntArray());
-  }
-
 }

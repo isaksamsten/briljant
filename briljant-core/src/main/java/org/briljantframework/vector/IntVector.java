@@ -143,7 +143,7 @@ public class IntVector extends AbstractVector {
 
   @Override
   public Builder newCopyBuilder() {
-    return new Builder(toIntArray());
+    return new Builder(Arrays.copyOf(values, size()));
   }
 
   @Override
@@ -198,12 +198,8 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
-  public IntArray asIntArray() throws IllegalTypeException {
-    IntArray array = Bj.intArray(size());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, getAsInt(i));
-    }
-    return array;
+  public IntArray toIntArray() throws IllegalTypeException {
+    return Bj.array(Arrays.copyOf(values, size()));
   }
 
   @Override
@@ -270,10 +266,6 @@ public class IntVector extends AbstractVector {
   @Override
   public Builder newBuilder(int size) {
     return new Builder(size, size);
-  }
-
-  public int[] toIntArray() {
-    return Arrays.copyOf(values, size());
   }
 
   @Override

@@ -55,11 +55,6 @@ public class IntVectorTest {
   }
 
   @Test
-  public void testToIntArray() throws Exception {
-    assertArrayEquals(INT_ARRAY, vector.toIntArray());
-  }
-
-  @Test
   public void testGet() throws Exception {
     Object i = vector.get(Number.class, 0);
     assertNotNull(i);

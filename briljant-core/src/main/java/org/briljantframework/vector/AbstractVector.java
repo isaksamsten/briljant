@@ -24,16 +24,33 @@
 
 package org.briljantframework.vector;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.IntIndex;
+import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
+import org.briljantframework.function.Aggregates;
+import org.briljantframework.sort.QuickSort;
 
+import java.util.AbstractList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  * @author Isak Karlsson
@@ -42,7 +59,7 @@ public abstract class AbstractVector implements Vector {
 
   private static final int SUPPRESS_OUTPUT_AFTER = 4;
   private static final int PER_OUTPUT = 8;
-  
+
   private Index index = null;
 
   protected AbstractVector(Index index) {
@@ -51,6 +68,35 @@ public abstract class AbstractVector implements Vector {
 
   protected AbstractVector() {
     this.index = null;
+  }
+
+  @Override
+  public <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate) {
+    return combine(cls, Boolean.class, other, predicate::test);
+  }
+
+  @Override
+  public <T> Vector satisfies(Class<? extends T> cls, Predicate<? super T> predicate) {
+    return collect(cls, Aggregates.test(predicate));
+  }
+
+  @Override
+  public <T> Vector filter(Class<T> cls, Predicate<T> predicate) {
+    return collect(cls, Aggregates.filter(this::newBuilder, predicate));
+  }
+
+  @Override
+  public <T, O> Vector transform(Class<T> in, Class<O> out,
+                                 Function<? super T, ? extends O> operator) {
+    Collector<T, ?, Vector> transform = Aggregates.transform(
+        () -> Vec.typeOf(out).newBuilder(), operator
+    );
+    return collect(in, transform);
+  }
+
+  @Override
+  public <T> Vector transform(Class<T> cls, UnaryOperator<T> operator) {
+    return collect(cls, Aggregates.transform(this::newBuilder, operator));
   }
 
   @Override
@@ -64,6 +110,25 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public <T, R> R collect(Class<? extends T> in, Supplier<R> supplier,
+                          BiConsumer<R, ? super T> consumer) {
+    return collect(in, Collector.of(
+        supplier,
+        consumer,
+        (left, right) -> {
+          throw new UnsupportedOperationException();
+        },
+        Function.identity(),
+        Collector.Characteristics.IDENTITY_FINISH
+    ));
+  }
+
+  @Override
+  public <R> R collect(Collector<? super Object, ?, R> collector) {
+    return collect(getType().getDataClass(), collector);
+  }
+
+  @Override
   public <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
                                BiFunction<? super T, ? super T, ? extends R> combiner) {
     Vector.Builder builder = Vec.typeOf(out).newBuilder();
@@ -71,8 +136,39 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> Vector combine(Class<T> cls, Vector other, BiFunction<T, T, ? extends T> combiner) {
+  public <T> Vector combine(Class<T> cls, Vector other,
+                            BiFunction<? super T, ? super T, ? extends T> combiner) {
     return combineVectors(cls, other, combiner, newBuilder());
+  }
+
+  @Override
+  public Vector sort(SortOrder order) {
+    int o = order == SortOrder.DESC ? -1 : 1;
+    Vector.Builder builder = newCopyBuilder();
+    Vector tmp = builder.getTemporaryVector();
+    QuickSort.quickSort(0, tmp.size(), (a, b) -> o * tmp.compare(a, b), builder);
+    return builder.build();
+  }
+
+  @Override
+  public <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
+    Vector.Builder builder = newCopyBuilder();
+    Vector tmp = builder.getTemporaryVector();
+    QuickSort.quickSort(
+        0,
+        tmp.size(),
+        (a, b) -> cmp.compare(tmp.get(cls, a), tmp.get(cls, b)),
+        builder
+    );
+    return builder.build();
+  }
+
+  @Override
+  public <T extends Comparable<T>> Vector sort(Class<T> cls) {
+    Vector.Builder builder = newCopyBuilder();
+    Vector t = builder.getTemporaryVector();
+    QuickSort.quickSort(0, t.size(), (a, b) -> t.get(cls, a).compareTo(t.get(cls, b)), builder);
+    return builder.build();
   }
 
   protected <T> Vector combineVectors(Class<? extends T> cls, Vector other,
@@ -129,17 +225,124 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public <T> T get(Class<T> cls, Object key) {
+    return get(cls, getIndex().index(key));
+  }
+
+  @Override
+  public <T> T get(Class<T> cls, int index, Supplier<T> defaultValue) {
+    T v = get(cls, index);
+    return Is.NA(v) ? defaultValue.get() : v;
+  }
+
+  @Override
+  public double getAsDouble(Object key) {
+    return getAsDouble(getIndex().index(key));
+  }
+
+  @Override
+  public int getAsInt(Object key) {
+    return getAsInt(getIndex().index(key));
+  }
+
+  @Override
+  public Bit getAsBit(Object key) {
+    return getAsBit(getIndex().index(key));
+  }
+
+  @Override
+  public Complex getAsComplex(Object key) {
+    return getAsComplex(getIndex().index(key));
+  }
+
+  @Override
+  public String toString(Object key) {
+    return toString(getIndex().index(key));
+  }
+
+  @Override
+  public boolean isTrue(int index) {
+    return getAsBit(index) == Bit.TRUE;
+  }
+
+  @Override
+  public boolean hasNA() {
+    for (int i = 0; i < size(); i++) {
+      if (isNA(i)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Vector select(List<Integer> indexes) {
+    Builder builder = newBuilder();
+    Index index = getIndex();
+    Index.Builder indexBuilder = index.newBuilder();
+    for (int idx : indexes) {
+      builder.add(this, idx);
+      indexBuilder.add(index.get(idx));
+    }
+    Vector vector = builder.build();
+    vector.setIndex(indexBuilder.build());
+    return vector;
+  }
+
+  @Override
+  public Vector select(Vector bits) {
+    Check.size(this.size(), bits.size());
+    Builder builder = newBuilder();
+    if (getIndex() instanceof IntIndex) {
+      for (int i = 0; i < size(); i++) {
+        Bit b = bits.getAsBit(i);
+        if (b == Bit.TRUE) {
+          builder.add(this, i);
+        }
+      }
+      return builder.build();
+    } else {
+      Index index = getIndex();
+      Index.Builder indexBuilder = index.newBuilder();
+      for (Index.Entry entry : index.entrySet()) {
+        if (bits.getAsBit(entry.key()) == Bit.TRUE) {
+          indexBuilder.add(entry.key());
+          builder.add(this, entry.index());
+        }
+      }
+      Vector vector = builder.build();
+      vector.setIndex(indexBuilder.build());
+      return vector;
+    }
+  }
+
+  @Override
   public VectorType getType(int index) {
     return getType();
   }
 
   @Override
-  public <U> Array<U> asArray(Class<U> cls) throws IllegalTypeException {
+  public Scale getScale() {
+    return getType().getScale();
+  }
+
+  @Override
+  public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
     Array<U> n = Bj.referenceArray(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, get(cls, i));
     }
     return n;
+  }
+
+  @Override
+  public boolean equals(int a, Vector other, int b) {
+    return compare(a, other, b) == 0;
+  }
+
+  @Override
+  public boolean equals(int a, Object other) {
+    return get(Object.class, a).equals(other);
   }
 
   @Override
@@ -159,6 +362,46 @@ public abstract class AbstractVector implements Vector {
   @Override
   public Builder newBuilder(int size) {
     return getType().newBuilder(size);
+  }
+
+  @Override
+  public <T> List<T> asList(Class<T> cls) {
+    return new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        return AbstractVector.this.get(cls, index);
+      }
+
+      @Override
+      public int size() {
+        return AbstractVector.this.size();
+      }
+    };
+  }
+
+  @Override
+  public <T> Stream<T> stream(Class<T> cls) {
+    return asList(cls).stream();
+  }
+
+  @Override
+  public <T> Stream<T> parallelStream(Class<T> cls) {
+    return asList(cls).parallelStream();
+  }
+
+  @Override
+  public IntStream intStream() {
+    return stream(Number.class).mapToInt(Number::intValue);
+  }
+
+  @Override
+  public DoubleStream doubleStream() {
+    return stream(Number.class).mapToDouble(Number::doubleValue);
+  }
+
+  @Override
+  public LongStream longStream() {
+    return stream(Number.class).mapToLong(Number::longValue);
   }
 
   @Override

@@ -256,12 +256,8 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
-    DoubleArray x = Bj.doubleArray(size());
-    for (int i = 0; i < size(); i++) {
-      x.set(i, getAsDouble(i));
-    }
-    return x;
+  public DoubleArray toDoubleArray() {
+    return Bj.array(Arrays.copyOf(values, size()));
   }
 
   @Override
@@ -296,11 +292,6 @@ public class DoubleVector extends AbstractVector {
   @Override
   public DoubleVector.Builder newBuilder(int size) {
     return new DoubleVector.Builder(size);
-  }
-
-  @Override
-  public double[] toDoubleArray() {
-    return Arrays.copyOf(values, size());
   }
 
   @Override

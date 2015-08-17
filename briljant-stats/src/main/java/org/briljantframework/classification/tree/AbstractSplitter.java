@@ -80,7 +80,10 @@ public abstract class AbstractSplitter implements Splitter {
           if (nominal) {
             direction = axisVector.equals(index, threshold) ? LEFT : RIGHT;
           } else {
-            direction = axisVector.compare(index, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
+            @SuppressWarnings("unchecked")
+            Comparable<Object> leftComparable = axisVector.get(Comparable.class, index);
+            direction = leftComparable.compareTo(threshold) <= 0 ? LEFT : RIGHT;
+//            direction = axisVector.compare(index, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
           }
         }
 //        switch (axisType.getScale()) {

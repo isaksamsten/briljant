@@ -141,7 +141,7 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public DoubleArray asDoubleArray() throws IllegalTypeException {
+  public DoubleArray toDoubleArray() throws IllegalTypeException {
     if (Number.class.isAssignableFrom(this.cls)) {
       return Bj.doubleArray(size())
           .assign(asList(Number.class).stream()
