@@ -33,7 +33,7 @@ import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.function.Aggregates;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.IntVector;
-import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.VectorType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -288,7 +288,7 @@ public class Result {
     if (it.hasNext()) {
       Measure measure = it.next();
       df.addColumn(IntVector.range(measure.size()).collect(Aggregates.repeat(2)));
-      df.addColumnBuilder(Vec.typeOf(Sample.class));
+      df.addColumnBuilder(VectorType.from(Sample.class));
       for (int i = 0; i < measure.size() * 2; i++) {
         if (i < measure.size()) {
           df.set(i, 1, Sample.OUT);
@@ -297,16 +297,16 @@ public class Result {
         }
       }
       index.add(measure.getName());
-      df.addColumnBuilder(new DoubleVector.Builder()
-                              .addAll(measure.get(Sample.OUT))
-                              .addAll(measure.get(Sample.IN)));
+      df.addColumn(new DoubleVector.Builder()
+                       .addAll(measure.get(Sample.OUT))
+                       .addAll(measure.get(Sample.IN)));
       while (it.hasNext()) {
         measure = it.next();
         index.add(measure.getName());
         DoubleVector.Builder bf = new DoubleVector.Builder();
         bf.addAll(measure.get(Sample.OUT));
         bf.addAll(measure.get(Sample.IN));
-        df.addColumnBuilder(bf);
+        df.addColumn(bf);
       }
       DataFrame bdf = df.build();
       bdf.setColumnIndex(index.build());

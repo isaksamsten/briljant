@@ -25,7 +25,6 @@
 package org.briljantframework.dataframe
 
 import org.briljantframework.vector.Na
-import org.briljantframework.vector.Vec
 import org.briljantframework.vector.VectorType
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -115,6 +114,6 @@ class DataFrameSpec extends Specification {
   }
 
   def getBuilder(Class<?>... types) {
-    return new MixedDataFrame.Builder(types.collect {Vec.typeOf(it)} as VectorType[])
+    return new MixedDataFrame.Builder(types.collect {VectorType.from(it)} as VectorType[])
   }
 }

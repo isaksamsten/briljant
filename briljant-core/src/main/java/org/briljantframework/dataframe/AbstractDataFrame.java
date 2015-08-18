@@ -43,7 +43,6 @@ import org.briljantframework.sort.QuickSort;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -81,7 +80,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, int column) {
     DataFrame.Builder builder = newCopyBuilder();
-    Vector tmp = builder.getColumn(column);
+    Vector tmp = builder.getTemporaryDataFrame().get(column);
     IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
     for (Index.Entry entry : getRecordIndex().entrySet()) {
       map.put(entry.index(), entry.key());
@@ -112,7 +111,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame sort(SortOrder order, int column) {
     DataFrame.Builder builder = newCopyBuilder();
-    Vector temporaryVector = builder.getColumn(column);
+    Vector temporaryVector = builder.getTemporaryDataFrame().get(column);
     IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
     for (Index.Entry entry : getRecordIndex().entrySet()) {
       map.put(entry.index(), entry.key());
@@ -145,7 +144,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     boolean first = true;
     for (int column = 0; column < columns(); column++) {
-      builder.addColumnBuilder(getType(column).newBuilder(n));
+      builder.addColumn(getType(column).newBuilder(n));
       for (int i = 0; i < n; i++) {
         if (first) {
           recordIndex.add(getRecordIndex().get(i));
@@ -166,11 +165,9 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame.Builder builder = newCopyBuilder();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     builder.removeColumn(col);
-    for (Index.Entry entry : getColumnIndex().entrySet()) {
-      if (entry.index() != col) {
-        columnIndex.set(entry.key(), entry.index() > col ? entry.index() - 1 : entry.index());
-      }
-    }
+    getColumnIndex().entrySet().stream().filter(entry -> entry.index() != col).forEach(entry -> {
+      columnIndex.set(entry.key(), entry.index() > col ? entry.index() - 1 : entry.index());
+    });
 
     DataFrame df = builder.build();
     df.setRecordIndex(HashIndex.from(get(col)));
@@ -194,7 +191,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame.Builder builder = newBuilder();
     for (int j = 0; j < columns(); j++) {
       Vector column = get(j);
-      builder.addColumnBuilder(column.newBuilder());
+      builder.addColumn(column.newBuilder());
       if (columns.contains(j)) {
         for (int i = 0; i < column.size(); i++) {
           T value = column.get(cls, i);
@@ -219,7 +216,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame.Builder builder = newBuilder();
     for (int j = 0; j < columns(); j++) {
       Vector column = get(j);
-      builder.addColumnBuilder(column.newBuilder());
+      builder.addColumn(column.newBuilder());
       for (int i = 0; i < column.size(); i++) {
         T value = column.get(cls, i);
         T transformed = op.apply(value);
@@ -275,7 +272,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public <T, R, C> Vector collect(Class<T> in, Class<R> out,
                                   Collector<? super T, C, ? extends R> collector) {
-    Vector.Builder builder = Vec.typeOf(out).newBuilder();
+    Vector.Builder builder = VectorType.from(out).newBuilder();
     Index.Builder columnIndex = new HashIndex.Builder();
 
     int column = 0;
@@ -375,7 +372,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame insert(int index, Object key, Vector column) {
-    DataFrame df = newCopyBuilder().insertColumn(index, column).build();
+    DataFrame df = newCopyBuilder().addColumn(index, column).build();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     columnIndex.set(key, index);
     for (Index.Entry entry : df.getColumnIndex().entrySet()) {
@@ -570,18 +567,6 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Returns the row at {@code index}. This implementation supplies a view into the underlying data
-   * frame.
-   *
-   * @param index the index
-   * @return a view of the row at {@code index}
-   */
-  @Override
-  public Vector getRecord(int index) {
-    return new RowView(this, index);
-  }
-
-  /**
    * Constructs a new DataFrame by including the rows in {@code indexes}
    *
    * This implementation rely on {@link #newBuilder()} and {@link Builder#set(int, int, DataFrame,
@@ -636,7 +621,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame insertRecord(int index, Object key, Vector record) {
-    return newCopyBuilder().insertRecord(index, record).build();
+    return newCopyBuilder().addRecord(index, record).build();
   }
 
   @Override
@@ -734,7 +719,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame resetIndex() {
-    DataFrame.Builder builder = newBuilder().addColumnBuilder(Vec.typeOf(Object.class));
+    DataFrame.Builder builder = newBuilder().addColumnBuilder(VectorType.from(Object.class));
     Index.Builder columnIndex = new HashIndex.Builder();
     columnIndex.add("index");
     for (int i = 0; i < rows(); i++) {
@@ -811,43 +796,34 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Vector getColumn(int col) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Vector getRecord(int row) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DataFrame.Builder addColumnBuilder(Vector.Builder builder) {
+    public DataFrame.Builder addColumn(Vector.Builder builder) {
       Vector vector = builder.build();
       return addColumn(vector);
     }
 
     @Override
     public Builder addColumnBuilder(VectorType type) {
-      return addColumnBuilder(type.newBuilder());
+      return addColumn(type.newBuilder());
     }
 
     @Override
     public Builder addColumn(Vector vector) {
-      return insertColumn(columns(), vector);
+      return addColumn(columns(), vector);
     }
 
     @Override
-    public Builder insertColumn(int index, Vector.Builder builder) {
-      return insertColumn(index, builder.build());
+    public Builder addColumn(int index, Vector.Builder builder) {
+      return addColumn(index, builder.build());
     }
 
     @Override
-    public Builder insertColumn(int index, Vector vector) {
+    public Builder addColumn(int index, Vector vector) {
       final int size = vector.size();
       for (int i = 0; i < size; i++) {
         set(i, index, vector, i);
       }
-      for (int i = size; i < rows(); i++) {
+      final int rows = rows();
+      for (int i = size; i < rows; i++) {
         setNA(i, index);
       }
       return this;
@@ -860,16 +836,16 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder addRecord(Vector vector) {
-      return insertRecord(rows(), vector);
+      return addRecord(rows(), vector);
     }
 
     @Override
-    public Builder insertRecord(int index, Vector.Builder builder) {
-      return insertRecord(index, builder.build());
+    public Builder addRecord(int index, Vector.Builder builder) {
+      return addRecord(index, builder.build());
     }
 
     @Override
-    public Builder insertRecord(int index, Vector vector) {
+    public Builder addRecord(int index, Vector vector) {
       final int columns = columns();
       final int size = vector.size();
       for (int j = 0; j < Math.max(size, columns); j++) {

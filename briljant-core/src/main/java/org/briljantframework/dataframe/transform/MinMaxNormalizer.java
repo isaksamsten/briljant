@@ -31,7 +31,7 @@ import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Class to fit a min max normalizer to a data frame. Calculate, for each column {@code j}, the min
@@ -50,8 +50,8 @@ public class MinMaxNormalizer implements Transformer {
     DoubleArray min = Bj.doubleArray(frame.columns());
     DoubleArray max = Bj.doubleArray(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
-      if (!frame.getType(j).equals(Vec.DOUBLE)) {
-        throw new TypeMismatchException(Vec.DOUBLE, frame.getType(j));
+      if (!frame.getType(j).equals(VectorType.DOUBLE)) {
+        throw new TypeMismatchException(VectorType.DOUBLE, frame.getType(j));
       }
 
       double minTemp = Double.POSITIVE_INFINITY, maxTemp = Double.NEGATIVE_INFINITY;

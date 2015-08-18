@@ -31,6 +31,6 @@ public class IntVectorBuilderTest extends VectorBuilderTest {
 
   @Override
   Vector.Builder getBuilder() {
-    return Vec.typeOf(Integer.class).newBuilder();
+    return VectorType.from(Integer.class).newBuilder();
   }
 }

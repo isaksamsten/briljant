@@ -26,13 +26,14 @@ package org.briljantframework.shapelet;
 
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.Vector;
 
 /**
  * TODO(isak): make this work! Created by Isak Karlsson on 27/10/14.
  */
 public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidingDistance {
+
   /**
    * Instantiates a new Online reorder early abandon sliding distance.
    *
@@ -62,11 +63,11 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
     if (candidate instanceof IndexSortedNormalizedShapelet) {
       order = ((IndexSortedNormalizedShapelet) candidate).getSortOrder();
     } else {
-      order =
-          Vec.indexSort(
-              candidate,
-              (i, j) -> Double.compare(Math.abs(candidate.getAsDouble(j)),
-                                       Math.abs(candidate.getAsDouble(i))));
+      order = Vec.indexSort(
+          candidate,
+          (i, j) -> Double.compare(Math.abs(candidate.getAsDouble(j)),
+                                   Math.abs(candidate.getAsDouble(i)))
+      );
     }
 
     Vector vector = a.size() >= b.size() ? a : b;
@@ -110,8 +111,6 @@ public class OnlineReorderEarlyAbandonSlidingDistance extends EarlyAbandonSlidin
       }
 
     }
-    // System.out.println(loc);
-
     return best;
   }
 }

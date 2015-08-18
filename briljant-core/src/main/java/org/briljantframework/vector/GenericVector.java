@@ -63,14 +63,14 @@ public class GenericVector extends AbstractVector {
   private GenericVector(Class<?> cls, List<Object> values, int size, boolean copy) {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
-    this.type = Vec.typeOf(cls);
+    this.type = VectorType.from(cls);
     this.size = size;
   }
 
   public GenericVector(Class<?> cls, List<Object> values, int size, Index index) {
     super(index);
     this.cls = cls;
-    this.type = Vec.typeOf(cls);
+    this.type = VectorType.from(cls);
     this.values = values;
     this.size = size;
   }
@@ -140,21 +140,8 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public int compare(int a, Vector other, int b) {
-    Comparable ac = get(Comparable.class, a);
-    Comparable bc = other.get(Comparable.class, b);
-    boolean acNA = Is.NA(ac);
-    boolean bcNA = Is.NA(bc);
-    if (acNA && bcNA) {
-      return 0;
-    } else if (acNA) {
-      return 1;
-    } else if (bcNA) {
-      return -1;
-    } else {
-      return ac.compareTo(bc);
-    }
+    return getType().compare(a, this, b, other);
   }
 
   @Override
@@ -272,14 +259,15 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public int compare(int a, int b) {
-      if (Comparable.class.isAssignableFrom(cls)) {
-        Comparable va = (Comparable) buffer.get(a);
-        Comparable vb = (Comparable) buffer.get(b);
+      Object va = buffer.get(a);
+      Object vb = buffer.get(b);
+      if (!Is.NA(va) && !Is.NA(vb) && va instanceof Comparable && va.getClass().isInstance(vb)) {
         @SuppressWarnings("unchecked")
-        int cmp = va.compareTo(vb);
+        int cmp = ((Comparable) va).compareTo(vb);
         return cmp;
+      } else {
+        return !Is.NA(vb) && !Is.NA(va) && va.equals(vb) ? 1 : -1;
       }
-      throw new UnsupportedOperationException();
     }
 
     @Override

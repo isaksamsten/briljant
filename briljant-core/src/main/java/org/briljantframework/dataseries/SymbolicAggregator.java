@@ -29,7 +29,6 @@ import org.apache.commons.math3.distribution.RealDistribution;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.GenericVector;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -189,6 +188,6 @@ public class SymbolicAggregator implements Aggregator {
 
   @Override
   public VectorType getAggregatedType() {
-    return Vec.typeOf(String.class);
+    return VectorType.from(String.class);
   }
 }

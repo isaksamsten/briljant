@@ -24,17 +24,88 @@
 
 package org.briljantframework.vector;
 
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.io.DataEntry;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Provides information of a particular vectors type.
  */
-public interface VectorType {
+public abstract class VectorType {
+
+  public static final VectorType STRING = new GenericVectorType(String.class);
+  public static final VectorType LOGICAL = new GenericVectorType(Logical.class);
+  public static final VectorType INT = IntVector.TYPE;
+  public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
+  public static final VectorType DOUBLE = DoubleVector.TYPE;
+  public static final VectorType OBJECT = new GenericVectorType(Object.class);
+  public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
+  public static final Set<VectorType> NUMERIC = new HashSet<>();
+  public static final Set<VectorType> CATEGORIC = new HashSet<>(); // TODO: unmodifiable
+
+  static {
+    NUMERIC.add(VectorType.DOUBLE);
+    NUMERIC.add(VectorType.INT);
+    NUMERIC.add(VectorType.COMPLEX);
+
+    CATEGORIC.add(VectorType.STRING);
+    CATEGORIC.add(VectorType.LOGICAL);
+
+    CLASS_TO_VECTOR_TYPE = new HashMap<>();
+    CLASS_TO_VECTOR_TYPE.put(Integer.class, VectorType.INT);
+    CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, VectorType.INT);
+    CLASS_TO_VECTOR_TYPE.put(Double.class, VectorType.DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(Double.TYPE, VectorType.DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(String.class, VectorType.STRING);
+    CLASS_TO_VECTOR_TYPE.put(Boolean.class, VectorType.LOGICAL);
+    CLASS_TO_VECTOR_TYPE.put(Logical.class, VectorType.LOGICAL);
+    CLASS_TO_VECTOR_TYPE.put(Complex.class, VectorType.COMPLEX);
+    CLASS_TO_VECTOR_TYPE.put(Object.class, VectorType.OBJECT);
+  }
+
+  public static VectorType from(Class<?> cls) {
+    if (cls == null) {
+      return OBJECT;
+    } else {
+      VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
+      if (type == null) {
+        return new GenericVectorType(cls);
+      }
+      return type;
+    }
+  }
+
+  public static VectorType from(Object object) {
+    if (object != null) {
+      return from(object.getClass());
+    } else {
+      return OBJECT;
+    }
+  }
+
+  /**
+   * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to
+   * return based on the first value added value.
+   *
+   * <p> For example, {@code Vec.inferringBuilder().add(1.0).build()} returns a {@code double}
+   * vector. If unable to infer the type, e.g., when the first added value is {@code NA}, an {@code
+   * object} vector is returned.
+   */
+  public static Vector.Builder inferringBuilder() {
+    return new InferringBuilder();
+  }
 
   /**
    * Creates a new builder able to build vectors of this type
    *
    * @return a new builder
    */
-  Vector.Builder newBuilder();
+  public abstract Vector.Builder newBuilder();
 
   /**
    * Creates a new builder able to build vectors of this type
@@ -42,7 +113,7 @@ public interface VectorType {
    * @param size initial size (the vector is padded with NA)
    * @return a new builder
    */
-  Vector.Builder newBuilder(int size);
+  public abstract Vector.Builder newBuilder(int size);
 
   /**
    * Copy (and perhaps convert) {@code vector} to this type
@@ -50,7 +121,7 @@ public interface VectorType {
    * @param vector the vector to copy
    * @return a new vector
    */
-  default Vector copy(Vector vector) {
+  public Vector copy(Vector vector) {
     return newBuilder(vector.size()).addAll(vector).build();
   }
 
@@ -59,7 +130,7 @@ public interface VectorType {
    *
    * @return the class
    */
-  Class<?> getDataClass();
+  public abstract Class<?> getDataClass();
 
   /**
    * Returns true if this object is NA for this value type
@@ -67,7 +138,7 @@ public interface VectorType {
    * @param value the value
    * @return true if value is NA
    */
-  boolean isNA(Object value);
+  public abstract boolean isNA(Object value);
 
   /**
    * Compare value at position {@code a} from {@code va} to value at position {@code b} from {@code
@@ -79,12 +150,12 @@ public interface VectorType {
    * @param ba the vector
    * @return the comparison
    */
-  int compare(int a, Vector va, int b, Vector ba);
+  public abstract int compare(int a, Vector va, int b, Vector ba);
 
   /**
    * @return the scale
    */
-  Scale getScale();
+  public abstract Scale getScale();
 
   /**
    * Check if value at position {@code a} from {@code va} and value at position {@code b} from
@@ -96,7 +167,184 @@ public interface VectorType {
    * @param ba the vector
    * @return true if equal false otherwise
    */
-  default boolean equals(int a, Vector va, int b, Vector ba) {
+  public boolean equals(int a, Vector va, int b, Vector ba) {
     return compare(a, va, b, ba) == 0;
+  }
+
+  /**
+   * Builder that infers the type of vector to build based on the first added value.
+   */
+  private static class InferringBuilder implements Vector.Builder {
+
+    private Vector.Builder builder;
+
+    @Override
+    public Vector.Builder setNA(int index) {
+      if (builder == null) {
+        builder = getObjectBuilder();
+      }
+      builder.setNA(index);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder setNA(Object key) {
+      return null;
+    }
+
+    protected GenericVector.Builder getObjectBuilder() {
+      return new GenericVector.Builder(Object.class);
+    }
+
+    @Override
+    public Vector.Builder addNA() {
+      if (builder == null) {
+        builder = getObjectBuilder();
+      }
+      builder.addNA();
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, int fromIndex) {
+      return add(from.get(Object.class, fromIndex));
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
+      return set(atIndex, from.get(Object.class, fromIndex));
+    }
+
+    @Override
+    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, Object fromIndex) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder set(int index, Object value) {
+      if (builder == null) {
+        builder = from(value).newBuilder();
+      }
+      builder.set(index, value);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder set(int index, double value) {
+      if (builder == null) {
+        builder = from(Double.class).newBuilder();
+      }
+      builder.set(index, value);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder set(int index, int value) {
+      if (builder == null) {
+        builder = from(Integer.class).newBuilder();
+      }
+      builder.set(index, value);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder set(Object key, Object value) {
+      return null;
+    }
+
+    @Override
+    public Vector.Builder add(Object value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Vector.Builder add(double value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Vector.Builder add(int value) {
+      return set(size(), value);
+    }
+
+    @Override
+    public Vector.Builder addAll(Vector from) {
+      if (from.size() > 0) {
+        Object value = from.get(Object.class, 0);
+        if (builder == null) {
+          builder = from(value).newBuilder();
+        }
+        builder.addAll(from);
+      }
+      return this;
+    }
+
+    @Override
+    public Vector.Builder remove(int index) {
+      throw indexOutOfBounds(index);
+    }
+
+    @Override
+    public Vector.Builder remove(Object key) {
+      return null;
+    }
+
+    protected IndexOutOfBoundsException indexOutOfBounds(int index) {
+      return new IndexOutOfBoundsException(String.format("%d out of bounds [size = 0]", index));
+    }
+
+    @Override
+    public int compare(int a, int b) {
+      throw indexOutOfBounds(a);
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      throw indexOutOfBounds(a);
+    }
+
+    @Override
+    public Vector.Builder read(DataEntry entry) throws IOException {
+      return getObjectBuilder().read(entry);
+    }
+
+    @Override
+    public Vector.Builder read(int index, DataEntry entry) throws IOException {
+      if (builder == null) {
+        builder = getObjectBuilder();
+      }
+      builder.read(index, entry);
+      return this;
+    }
+
+    @Override
+    public int size() {
+      return builder != null ? builder.size() : 0;
+    }
+
+    @Override
+    public Vector getTemporaryVector() {
+      return builder != null ? builder.getTemporaryVector() : Vector.empty();
+    }
+
+    @Override
+    public Vector build() {
+      return builder != null ? builder.build() : Vector.empty();
+    }
   }
 }

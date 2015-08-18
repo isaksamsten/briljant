@@ -27,7 +27,7 @@ package org.briljantframework.vector;
 /**
  * @author Isak Karlsson
  */
-class GenericVectorType implements VectorType {
+class GenericVectorType extends VectorType {
 
   private Class<?> cls;
 
@@ -57,15 +57,15 @@ class GenericVectorType implements VectorType {
 
   @Override
   public int compare(int a, Vector va, int b, Vector ba) {
-    if (Comparable.class.isAssignableFrom(cls)) {
-      Comparable oa = va.get(Comparable.class, a);
-      Comparable ob = va.get(Comparable.class, b);
-
+    Object oa = va.get(Object.class, a);
+    Object ob = ba.get(Object.class, b);
+    if (!Is.NA(oa) && !Is.NA(ob) && oa instanceof Comparable && oa.getClass().isInstance(ob)) {
       @SuppressWarnings("unchecked")
-      int cmp = oa.compareTo(ob);
+      int cmp = ((Comparable) oa).compareTo(ob);
       return cmp;
+    } else {
+      return !Is.NA(ob) && !Is.NA(oa) && oa.equals(ob) ? 1 : -1;
     }
-    throw new UnsupportedOperationException("Can't compare");
   }
 
   @Override

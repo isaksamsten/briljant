@@ -98,18 +98,18 @@ public final class DataFrames {
       String value = entry.nextString();
       Object val;
       if ((val = Integer.parseInt(value)) != null) {
-        df.addColumnBuilder(Vec.INT);
+        df.addColumnBuilder(VectorType.INT);
       } else if ((val = Double.parseDouble(value)) != null) {
-        df.addColumnBuilder(Vec.DOUBLE);
+        df.addColumnBuilder(VectorType.DOUBLE);
       } else if ("true".equalsIgnoreCase(value)) {
         val = true;
-        df.addColumnBuilder(Vec.BIT);
+        df.addColumnBuilder(VectorType.LOGICAL);
       } else if ("false".equalsIgnoreCase(value)) {
         val = false;
-        df.addColumnBuilder(Vec.BIT);
+        df.addColumnBuilder(VectorType.LOGICAL);
       } else {
         val = value;
-        df.addColumnBuilder(Vec.typeOf(LocalDate.class));
+        df.addColumnBuilder(VectorType.from(LocalDate.class));
       }
       df.set(0, col, val);
     }
@@ -219,7 +219,7 @@ public final class DataFrames {
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder = new MixedDataFrame.Builder(
         Arrays.asList(
-            Vec.DOUBLE, Vec.DOUBLE, Vec.DOUBLE, Vec.STRING
+            VectorType.DOUBLE, VectorType.DOUBLE, VectorType.DOUBLE, VectorType.STRING
         )
     );
     for (int j = 0; j < df.columns(); j++) {

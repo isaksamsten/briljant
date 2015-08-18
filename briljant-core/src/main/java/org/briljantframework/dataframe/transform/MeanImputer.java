@@ -30,6 +30,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Index;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.VectorType;
 
 /**
  * @author Isak Karlsson
@@ -52,7 +53,7 @@ public class MeanImputer implements Transformer {
       x.getColumnIndex().entrySet().forEach(columnIndex::set);
       x.getRecordIndex().entrySet().forEach(recordIndex::set);
       for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.getType(j), Vec.DOUBLE);
+        Check.type(x.getType(j), VectorType.DOUBLE);
         for (int i = 1; i < x.rows(); i++) {
           if (x.isNA(i, j)) {
             builder.set(i, j, means.get(j));

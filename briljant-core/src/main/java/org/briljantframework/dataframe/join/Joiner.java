@@ -75,7 +75,7 @@ public abstract class Joiner {
 
       Object key = entry.key();
       if (on.contains(entry.index())) {
-        builder.addColumnBuilder(a.getType(entry.index()).newBuilder(size));
+        builder.addColumn(a.getType(entry.index()).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
         currentColumnIndex += 1;
@@ -92,7 +92,7 @@ public abstract class Joiner {
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
         columnIndexer.add(key);
-        builder.addColumnBuilder(a.getType(index).newBuilder(size));
+        builder.addColumn(a.getType(index).newBuilder(size));
         appendColumnFromLeftIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
@@ -111,7 +111,7 @@ public abstract class Joiner {
           newKey = key.toString() + " (right)";
         }
         columnIndexer.add(newKey);
-        builder.addColumnBuilder(b.getType(index).newBuilder(size));
+        builder.addColumn(b.getType(index).newBuilder(size));
         appendColumnFromRightIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }

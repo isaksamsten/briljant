@@ -24,13 +24,11 @@
 
 package org.briljantframework.dataframe;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.join.JoinType;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.sort.Swappable;
-import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -56,7 +54,9 @@ public interface DataFrame extends Iterable<Vector> {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#from(Class)}.
+   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#from(Class)}. The
+   * conversion is performed according to the convention found in {@link
+   * org.briljantframework.vector.Convert#to(Class, Object)}
    *
    * @param cls    the class
    * @param row    the row
@@ -67,7 +67,7 @@ public interface DataFrame extends Iterable<Vector> {
   <T> T get(Class<T> cls, int row, int column);
 
   /**
-   * Get value at {@code row} and {@code column} as double.
+   * Get value at {@code row} and {@code column} as {@code double}.
    *
    * @param row    the row
    * @param column the column
@@ -76,7 +76,7 @@ public interface DataFrame extends Iterable<Vector> {
   double getAsDouble(int row, int column);
 
   /**
-   * Get value at {@code row} and {@code column} as int.
+   * Get value at {@code row} and {@code column} as {@code int}.
    *
    * @param row    the row
    * @param column the column
@@ -85,7 +85,9 @@ public interface DataFrame extends Iterable<Vector> {
   int getAsInt(int row, int column);
 
   /**
-   * Returns string representation of value at {@code row, column}
+   * Returns string representation of value at {@code row, column}. In most cases this is
+   * equivalent to {@code get(Object.class, row, column).toString()}, but it handles {@code NA}
+   * values, i.e. the returned {@linkplain String string} is never {@code null}.
    *
    * @param row    the row
    * @param column the column
@@ -539,10 +541,6 @@ public interface DataFrame extends Iterable<Vector> {
    */
   interface Builder extends Swappable {
 
-    Vector getColumn(int col);
-
-    Vector getRecord(int row);
-
     /**
      * Set value at {@code row} in {@code column} to NA. If {@code column >= columns()} adds empty
      * {@link org.briljantframework.vector.GenericVector} of all {@code NA} from {@code columns()
@@ -607,7 +605,7 @@ public interface DataFrame extends Iterable<Vector> {
      * @param builder builder to add
      * @return a modified builder
      */
-    Builder addColumnBuilder(Vector.Builder builder);
+    Builder addColumn(Vector.Builder builder);
 
     /**
      * Adds a new vector builder as an additional column using {@link org.briljantframework.vector.VectorType#newBuilder()}
@@ -636,7 +634,7 @@ public interface DataFrame extends Iterable<Vector> {
      * @param builder the builder
      * @return receiver modified
      */
-    Builder insertColumn(int index, Vector.Builder builder);
+    Builder addColumn(int index, Vector.Builder builder);
 
     /**
      * Sets the column at {@code index} to {@code vector}. If {@code index >= columns()} adds empty
@@ -647,7 +645,7 @@ public interface DataFrame extends Iterable<Vector> {
      * @param vector the vector
      * @return receiver modified
      */
-    Builder insertColumn(int index, Vector vector);
+    Builder addColumn(int index, Vector vector);
 
     /**
      * Adds a new record. If {@code builder.size() < columns()}, left-over columns are padded with
@@ -674,7 +672,7 @@ public interface DataFrame extends Iterable<Vector> {
      * @param builder the builder
      * @return receiver modified
      */
-    Builder insertRecord(int index, Vector.Builder builder);
+    Builder addRecord(int index, Vector.Builder builder);
 
     /**
      * Sets the {@code vector} at {@code index}.
@@ -683,7 +681,7 @@ public interface DataFrame extends Iterable<Vector> {
      * @param vector the vector
      * @return receiver modified
      */
-    Builder insertRecord(int index, Vector vector);
+    Builder addRecord(int index, Vector vector);
 
     /**
      * Removes vector builder at {@code column}.
@@ -703,12 +701,7 @@ public interface DataFrame extends Iterable<Vector> {
     Builder swapColumns(int a, int b);
 
     /**
-     * Swap row at index {@code a} with {@code b}. <p> Generally, this is the same as <p> <p>
-     *
-     * <pre>
-     * for (int i = 0; i &lt; builder.columns(); i++)
-     *   builder.swapInColumn(i, a, b);
-     * </pre>
+     * Swap row at index {@code a} with {@code b}.
      *
      * @param a the first row
      * @param b the second row
@@ -736,7 +729,7 @@ public interface DataFrame extends Iterable<Vector> {
 
       for (int i = 0; i < vector.size(); i++) {
         if (startCol == columns()) {
-          addColumnBuilder(vector.getType(i).newBuilder());
+          addColumn(vector.getType(i).newBuilder());
         }
 
         set(toRow, startCol++, vector, i);
@@ -863,6 +856,8 @@ public interface DataFrame extends Iterable<Vector> {
      * @return the number of rows
      */
     int rows();
+
+    DataFrame getTemporaryDataFrame();
 
     /**
      * Create a new DataFrame.

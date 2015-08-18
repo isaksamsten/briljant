@@ -28,7 +28,6 @@ import org.briljantframework.Check;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -130,11 +129,11 @@ public class MixedDataFrame extends AbstractDataFrame {
     this.rows = rows;
   }
 
-  private static Vector padVectorWithNA(Vector.Builder builder, int maximumRows) {
+  private static Vector.Builder padVectorWithNA(Vector.Builder builder, int maximumRows) {
     if (builder.size() < maximumRows) {
       builder.setNA(maximumRows - 1);
     }
-    return builder.build();
+    return builder;
   }
 
   public static DataFrame of(Object name, Vector c) {
@@ -246,7 +245,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     if (column.size() == rows()) {
       newColumns.add(column);
     } else if (column.size() < rows()) {
-      newColumns.add(padVectorWithNA(column.newCopyBuilder(), rows()));
+      newColumns.add(padVectorWithNA(column.newCopyBuilder(), rows()).build());
     } else {
       throw new IllegalArgumentException();
     }
@@ -263,7 +262,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     if (column.size() == rows()) {
       newColumns.add(index, column);
     } else if (column.size() < rows()) {
-      newColumns.add(index, padVectorWithNA(column.newCopyBuilder(), rows()));
+      newColumns.add(index, padVectorWithNA(column.newCopyBuilder(), rows()).build());
     } else {
       throw new IllegalArgumentException();
     }
@@ -288,6 +287,11 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   public Vector get(int index) {
     return columns.get(index); // TODO: the index?!
+  }
+
+  @Override
+  public Vector getRecord(int index) {
+    return new RowView(this, index);
   }
 
   @Override
@@ -316,7 +320,7 @@ public class MixedDataFrame extends AbstractDataFrame {
    * construct DataFrames with a fixed number of columns due to the fact that each column can be of
    * different types. </p>
    *
-   * <p> To overcome this limitation, {@link #addColumnBuilder(org.briljantframework.vector.Vector.Builder)}
+   * <p> To overcome this limitation, {@link #addColumn(org.briljantframework.vector.Vector.Builder)}
    * and {@link #removeColumn(int)} can be used. </p>
    */
   public static class Builder extends AbstractBuilder {
@@ -411,20 +415,15 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public Vector getColumn(int col) {
-      return buffers.get(col).getTemporaryVector();
-    }
-
-    @Override
     public Builder setNA(int row, int column) {
-      ensureColumnCapacity(column, Vec.VARIABLE);
+      ensureColumnCapacity(column, VectorType.OBJECT);
       buffers.get(column).setNA(row);
       return this;
     }
 
     @Override
     public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
-      ensureColumnCapacity(toCol - 1, Vec.VARIABLE);
+      ensureColumnCapacity(toCol - 1, VectorType.OBJECT);
       ensureColumnCapacity(toCol, from.getType(fromCol));
       buffers.get(toCol).set(toRow, from.get(fromCol), fromRow);
       return this;
@@ -432,7 +431,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder set(int row, int column, Vector from, int index) {
-      ensureColumnCapacity(column - 1, Vec.VARIABLE);
+      ensureColumnCapacity(column - 1, VectorType.OBJECT);
       ensureColumnCapacity(column, from.getType(index));
       buffers.get(column).set(row, from, index);
       return this;
@@ -440,8 +439,8 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public Builder set(int row, int column, Object value) {
-      ensureColumnCapacity(column - 1, Vec.VARIABLE);
-      ensureColumnCapacity(column, Vec.inferTypeOf(value));
+      ensureColumnCapacity(column - 1, VectorType.OBJECT);
+      ensureColumnCapacity(column, VectorType.from(value));
       buffers.get(column).set(row, value);
       return this;
     }
@@ -477,7 +476,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     public Builder read(EntryReader entryReader) throws IOException {
       while (entryReader.hasNext()) {
         DataEntry entry = entryReader.next();
-        ensureColumnCapacity(entry.size() - 1, Vec.VARIABLE);
+        ensureColumnCapacity(entry.size() - 1, VectorType.OBJECT);
         for (int i = 0; i < entry.size(); i++) {
           buffers.get(i).read(entry);
         }
@@ -501,6 +500,15 @@ public class MixedDataFrame extends AbstractDataFrame {
       return buffers.stream().mapToInt(Vector.Builder::size).reduce(0, Integer::max);
     }
 
+    @Override
+    public DataFrame getTemporaryDataFrame() {
+      int rows = rows();
+      List<Vector> vectors = buffers.stream()
+          .map((builder) -> padVectorWithNA(builder, rows).getTemporaryVector())
+          .collect(Collectors.toCollection(ArrayList::new));
+      return new MixedDataFrame(vectors, rows);
+    }
+
     /**
      * Constructs a new MixedDataFrame
      *
@@ -509,9 +517,9 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public MixedDataFrame build() {
       int rows = rows();
-      List<Vector> vectors =
-          buffers.stream().map(x -> padVectorWithNA(x, rows))
-              .collect(Collectors.toCollection(ArrayList::new));
+      List<Vector> vectors = buffers.stream()
+          .map(x -> padVectorWithNA(x, rows).build())
+          .collect(Collectors.toCollection(ArrayList::new));
       buffers = null;
       return new MixedDataFrame(vectors, rows);
     }
@@ -523,7 +531,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public Builder addColumnBuilder(Vector.Builder builder) {
+    public Builder addColumn(Vector.Builder builder) {
       buffers.add(builder);
       return this;
     }
@@ -535,7 +543,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder insertColumn(int index, Vector.Builder builder) {
+    public DataFrame.Builder addColumn(int index, Vector.Builder builder) {
       if (index == buffers.size()) {
         this.buffers.add(builder);
       } else {
@@ -545,8 +553,8 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public DataFrame.Builder insertColumn(int index, Vector vector) {
-      return insertColumn(index, vector.newCopyBuilder());
+    public DataFrame.Builder addColumn(int index, Vector vector) {
+      return addColumn(index, vector.newCopyBuilder());
     }
   }
 }

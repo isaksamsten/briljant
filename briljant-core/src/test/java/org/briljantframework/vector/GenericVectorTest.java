@@ -118,8 +118,4 @@ public class GenericVectorTest {
     assertEquals(-1, cmpVector.compare(0, 1));
   }
 
-  @Test(expected = ClassCastException.class)
-  public void testCompare1() throws Exception {
-    dateVector.compare(0, cmpVector, 1);
-  }
 }

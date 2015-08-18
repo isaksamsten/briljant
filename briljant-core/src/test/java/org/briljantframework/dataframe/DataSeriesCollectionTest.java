@@ -22,15 +22,18 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.vector;
+package org.briljantframework.dataframe;
+
+import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Created by isak on 17/08/15.
  */
-public class GenericVectorBuilderTest extends VectorBuilderTest {
+public class DataSeriesCollectionTest extends DataFrameTest {
 
   @Override
-  Vector.Builder getBuilder() {
-    return VectorType.from(Object.class).newBuilder();
+  DataFrame.Builder getBuilder() {
+    return new DataSeriesCollection.Builder(VectorType.OBJECT);
   }
 }

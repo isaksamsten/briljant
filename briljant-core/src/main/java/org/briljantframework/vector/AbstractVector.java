@@ -91,7 +91,7 @@ public abstract class AbstractVector implements Vector {
   public <T, O> Vector transform(Class<T> in, Class<O> out,
                                  Function<? super T, ? extends O> operator) {
     Collector<T, ?, Vector> transform = Aggregates.transform(
-        () -> Vec.typeOf(out).newBuilder(), operator
+        () -> VectorType.from(out).newBuilder(), operator
     );
     return collect(in, transform);
   }
@@ -133,7 +133,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
                                BiFunction<? super T, ? super T, ? extends R> combiner) {
-    Vector.Builder builder = Vec.typeOf(out).newBuilder();
+    Vector.Builder builder = VectorType.from(out).newBuilder();
     return combineVectors(in, other, combiner, builder);
   }
 

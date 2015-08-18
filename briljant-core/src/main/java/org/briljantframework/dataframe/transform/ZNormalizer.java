@@ -30,6 +30,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
@@ -56,7 +57,7 @@ public class ZNormalizer implements Transformer {
       Check.size(mean.size(), x.columns());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.getType(j), Vec.DOUBLE);
+        Check.type(x.getType(j), VectorType.DOUBLE);
         builder.addColumnBuilder(x.getType(j));
 //        builder.getColumnNames().putFromIfPresent(j, x.getColumnNames(), j);
         double m = mean.get(j);

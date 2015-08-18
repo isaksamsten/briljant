@@ -30,7 +30,7 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
-import org.briljantframework.vector.Vec;
+import org.briljantframework.vector.VectorType;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal
@@ -73,13 +73,13 @@ public class PcaTransformer implements InvertibleTransformer {
 
   @Override
   public InvertibleTransformation fit(DataFrame x) {
-    Check.all(col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA(), x.getColumns());
+    Check.all(col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA(), x.getColumns());
     SingularValueDecomposition svd = getSingularValueDecomposition(x.toArray().asDouble());
     DoubleArray u = svd.getLeftSingularValues();
     return new InvertibleTransformation() {
       @Override
       public DataFrame inverseTransform(DataFrame x) {
-        Check.all(col -> col.getType() == Vec.DOUBLE && !col.hasNA(), x.getColumns());
+        Check.all(col -> col.getType() == VectorType.DOUBLE && !col.hasNA(), x.getColumns());
         DoubleArray matrix = x.toArray().asDouble();
 
         // Matrix m = frame.toMatrix();
@@ -94,13 +94,13 @@ public class PcaTransformer implements InvertibleTransformer {
 
       @Override
       public DataFrame transform(DataFrame x) {
-        Check.all(col -> col.getType().equals(Vec.DOUBLE) && !col.hasNA(), x.getColumns());
+        Check.all(col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA(), x.getColumns());
         DoubleArray m = x.toArray().asDouble();
         DoubleArray pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
 
         DataFrame.Builder result = x.newBuilder();
         for (int j = 0; j < pca.columns(); j++) {
-          result.addColumnBuilder(Vec.DOUBLE);
+          result.addColumnBuilder(VectorType.DOUBLE);
           // TODO
 //          result.getColumnNames().put(j, String.format("Component %d", j));
           for (int i = 0; i < pca.rows(); i++) {

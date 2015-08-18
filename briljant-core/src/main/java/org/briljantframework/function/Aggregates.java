@@ -32,8 +32,8 @@ import org.briljantframework.dataframe.Index;
 import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,7 +115,7 @@ public final class Aggregates {
    * @return a filter aggregator
    */
   public static <T> Collector<T, ?, Vector> test(Predicate<T> predicate) {
-    return transform(() -> Vec.typeOf(Logical.class).newBuilder(), predicate::test);
+    return transform(() -> VectorType.from(Logical.class).newBuilder(), predicate::test);
   }
 
   /**
@@ -154,7 +154,7 @@ public final class Aggregates {
   }
 
   public static <T> Collector<T, ?, Vector> each(int copies) {
-    return each(Vec::inferringBuilder, copies);
+    return each(VectorType::inferringBuilder, copies);
   }
 
   public static <T> Collector<T, ?, Vector> repeat(Supplier<Vector.Builder> vb, int copies) {
@@ -178,7 +178,7 @@ public final class Aggregates {
   }
 
   public static <T> Collector<T, ?, Vector> repeat(int copies) {
-    return repeat(Vec::inferringBuilder, copies);
+    return repeat(VectorType::inferringBuilder, copies);
   }
 
   public static <T> Collector<T, ?, Vector> valueCounts() {
@@ -196,7 +196,7 @@ public final class Aggregates {
           }
         },
         (map) -> {
-          Vector.Builder b = Vec.inferringBuilder();
+          Vector.Builder b = VectorType.inferringBuilder();
           Index.Builder ib = new HashIndex.Builder();
           for (Map.Entry<T, Integer> e : map.entrySet()) {
             b.add(e.getValue());
@@ -218,7 +218,7 @@ public final class Aggregates {
           ts.addAll(ts2);
           return ts;
         },
-        ts -> Vec.inferringBuilder().addAll(ts).build()
+        ts -> VectorType.inferringBuilder().addAll(ts).build()
     );
   }
 

@@ -30,7 +30,6 @@ import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Na;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -199,7 +198,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     public Builder(Class<?> cls) {
-      this(Vec.typeOf(cls));
+      this(VectorType.from(cls));
     }
 
     protected Builder(List<Vector.Builder> builders, VectorType type) {
@@ -285,14 +284,26 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
+    public DataFrame getTemporaryDataFrame() {
+      int columns = columns();
+      return new DataSeriesCollection(
+          builders.stream()
+              .map(Vector.Builder::getTemporaryVector)
+              .collect(Collectors.toCollection(ArrayList::new)),
+          type,
+          columns
+      );
+    }
+
+    @Override
     public DataSeriesCollection build() {
-      int p = columns();
+      int columns = columns();
       return new DataSeriesCollection(
           builders.stream()
               .map(Vector.Builder::build)
               .collect(Collectors.toCollection(ArrayList::new)),
           type,
-          p);
+          columns);
     }
 
     @Override
@@ -308,15 +319,15 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    public Builder insertRecord(int index, Vector.Builder builder) {
+    public Builder addRecord(int index, Vector.Builder builder) {
       ensureCapacity(index);
       builders.set(index, builder);
       return this;
     }
 
     @Override
-    public DataFrame.Builder insertRecord(int index, Vector vector) {
-      return insertRecord(index, vector.newCopyBuilder());
+    public DataFrame.Builder addRecord(int index, Vector vector) {
+      return addRecord(index, vector.newCopyBuilder());
     }
 
     @Override

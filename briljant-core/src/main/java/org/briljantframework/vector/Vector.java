@@ -93,7 +93,7 @@ public interface Vector extends Serializable {
       return singleton(null);
     }
     T t = it.next();
-    Builder builder = Vec.inferTypeOf(t).newBuilder().add(t);
+    Builder builder = VectorType.from(t).newBuilder().add(t);
     while (it.hasNext()) {
       builder.add(it.next());
     }
@@ -105,7 +105,7 @@ public interface Vector extends Serializable {
       throw new UnsupportedOperationException();
     }
     T value = supplier.get();
-    Vector.Builder builder = Vec.inferTypeOf(value).newBuilder().add(value);
+    Vector.Builder builder = VectorType.from(value).newBuilder().add(value);
     for (int i = 1; i < size; i++) {
       builder.add(supplier.get());
     }

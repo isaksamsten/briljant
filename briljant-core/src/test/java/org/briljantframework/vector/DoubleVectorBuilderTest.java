@@ -31,6 +31,6 @@ public class DoubleVectorBuilderTest extends VectorBuilderTest {
 
   @Override
   Vector.Builder getBuilder() {
-    return Vec.typeOf(Double.class).newBuilder();
+    return VectorType.from(Double.class).newBuilder();
   }
 }

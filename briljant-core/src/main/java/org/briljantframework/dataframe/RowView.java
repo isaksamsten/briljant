@@ -24,10 +24,7 @@
 
 package org.briljantframework.dataframe;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.vector.AbstractVector;
-import org.briljantframework.vector.Logical;
-import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -48,7 +45,7 @@ class RowView extends AbstractVector {
   }
 
   public RowView(DataFrame parent, int row) {
-    this(parent, row, Vec.VARIABLE);
+    this(parent, row, VectorType.OBJECT);
   }
 
   @Override

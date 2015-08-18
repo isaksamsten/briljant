@@ -131,6 +131,6 @@ public class ObjectVectorTest {
 
   @Test
   public void testGetType() throws Exception {
-    assertEquals(Vec.typeOf(Object.class), sequence.getType());
+    assertEquals(VectorType.from(Object.class), sequence.getType());
   }
 }

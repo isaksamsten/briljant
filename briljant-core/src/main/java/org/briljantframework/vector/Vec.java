@@ -24,17 +24,12 @@
 
 package org.briljantframework.vector;
 
-import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.stat.FastStatistics;
 
-import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +39,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -54,40 +50,8 @@ import java.util.stream.Collector;
  */
 public final class Vec {
 
-  public static final VectorType STRING = new GenericVectorType(String.class);
-  public static final VectorType BIT = new GenericVectorType(Logical.class);
-  public static final VectorType INT = IntVector.TYPE;
-  public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
-  public static final VectorType DOUBLE = DoubleVector.TYPE;
-  public static final VectorType VARIABLE = new GenericVectorType(Object.class);
-  public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
-  public static final Set<VectorType> NUMERIC = new HashSet<>();
-  public static final Set<VectorType> CATEGORIC = new HashSet<>(); // TODO: unmodifiable
-
-  static {
-    NUMERIC.add(DOUBLE);
-    NUMERIC.add(INT);
-    NUMERIC.add(COMPLEX);
-
-    CATEGORIC.add(STRING);
-    CATEGORIC.add(BIT);
-
-    CLASS_TO_VECTOR_TYPE = new HashMap<>();
-    CLASS_TO_VECTOR_TYPE.put(Integer.class, INT);
-    CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, INT);
-    CLASS_TO_VECTOR_TYPE.put(Double.class, DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(Double.TYPE, DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(String.class, STRING);
-    CLASS_TO_VECTOR_TYPE.put(Boolean.class, BIT);
-    CLASS_TO_VECTOR_TYPE.put(Logical.class, BIT);
-    CLASS_TO_VECTOR_TYPE.put(Complex.class, COMPLEX);
-    CLASS_TO_VECTOR_TYPE.put(Object.class, VARIABLE);
-
-  }
-
   private Vec() {
   }
-
 
   public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(
       Supplier<V> supplier) {
@@ -98,34 +62,6 @@ public final class Vec {
           left.addAll(right.getTemporaryVector());
           return left;
         }, Vector.Builder::build);
-  }
-
-  public static VectorType typeOf(Class<?> cls) {
-    VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
-    if (type == null) {
-      return new GenericVectorType(cls);
-    }
-    return type;
-  }
-
-  public static VectorType inferTypeOf(Object object) {
-    if (object != null) {
-      return typeOf(object.getClass());
-    } else {
-      return VARIABLE;
-    }
-  }
-
-  /**
-   * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to
-   * return based on the first value added value.
-   *
-   * <p> For example, {@code Vec.inferringBuilder().add(1.0).build()} returns a {@code double}
-   * vector. If unable to infer the type, e.g., when the first added value is {@code NA}, an {@code
-   * object} vector is returned.
-   */
-  public static Vector.Builder inferringBuilder() {
-    return new InferringBuilder();
   }
 
   public static DoubleVector rand(int size, RealDistribution source) {
@@ -188,51 +124,6 @@ public final class Vec {
       }
     }
     return -1;
-  }
-
-  /**
-   * @param in the vector
-   * @return a new vector sorted in ascending order
-   */
-  public static Vector sortAsc(Vector in) {
-    Vector.Builder builder = in.newCopyBuilder();
-    QuickSort.quickSort(0, in.size(), builder::compare, builder);
-    return builder.build();
-  }
-
-  /**
-   * @param in the vector
-   * @return a new vector sorted in ascending order
-   */
-  public static Vector sortDesc(Vector in) {
-    Vector.Builder builder = in.newCopyBuilder();
-    QuickSort.quickSort(0, in.size(), (a, b) -> builder.compare(b, a), builder);
-    return builder.build();
-  }
-
-  public static Vector sort(Vector in, IndexComparator<? super Vector> cmp) {
-    Vector.Builder builder = in.newCopyBuilder();
-    Vector tmp = builder.getTemporaryVector();
-    QuickSort.quickSort(0, in.size(), (a, b) -> cmp.compare(tmp, a, b), builder);
-    return builder.build();
-  }
-
-  /**
-   * Sorts the vector according to {@code comparator} treating the values as {@code cls}
-   *
-   * @param cls        the value to sort
-   * @param in         the vector
-   * @param comparator the comparator
-   * @param <T>        the typ
-   * @return a new vector; sorted according to comparator
-   */
-  public static <T> Vector sort(Class<T> cls, Vector in, Comparator<T> comparator) {
-    Vector.Builder builder = in.newCopyBuilder();
-    Vector tmp = builder.getTemporaryVector();
-    QuickSort.quickSort(0, in.size(),
-                        (a, b) -> comparator.compare(tmp.get(cls, a), tmp.get(cls, b)),
-                        builder);
-    return builder.build();
   }
 
   /**
@@ -452,12 +343,12 @@ public final class Vec {
         .sum();
   }
 
-  public static <T extends Comparable<T>> T min(Class<T> cls, Vector vector) {
-    return vector.asList(cls).stream().min(Comparable::compareTo).get();
+  public static <T extends Comparable<T>> Optional<T> min(Class<T> cls, Vector vector) {
+    return vector.asList(cls).stream().min(Comparable::compareTo);
   }
 
-  public static <T extends Comparable<T>> T max(Class<T> cls, Vector vector) {
-    return vector.asList(cls).stream().max(Comparable::compareTo).get();
+  public static <T extends Comparable<T>> Optional<T> max(Class<T> cls, Vector vector) {
+    return vector.asList(cls).stream().max(Comparable::compareTo);
   }
 
   /**
@@ -566,38 +457,30 @@ public final class Vec {
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
     }
-    Bj.sort(Bj.array(indicies).boxed(), comparator);
+    QuickSort.quickSort(0, indicies.length, comparator::compare, (a, b) -> {
+      int tmp = indicies[a];
+      indicies[a] = indicies[b];
+      indicies[b] = tmp;
+    });
     return indicies;
   }
 
   /**
-   * Inner product, i.e. the dot product x * y. Handles {@code NA} values.
+   * Inner product, i.e. the dot product x * y. Handles {@code NA} values by ignoring them.
    *
    * @param x a vector
    * @param y a vector
    * @return the dot product
    */
   public static double dot(Vector x, Vector y) {
-    return dot(x, 1, y, 1);
-  }
-
-  /**
-   * Take the inner product of two vectors (m x 1) and (1 x m) scaling them by alpha and beta
-   * respectively
-   *
-   * @param x     a row vector
-   * @param alpha scaling factor for a
-   * @param y     a column vector
-   * @param beta  scaling factor for y
-   * @return the inner product
-   */
-  public static double dot(Vector x, double alpha, Vector y, double beta) {
     Check.size(x.size(), y.size());
-    int size = y.size();
+    final int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {
-      if (!x.isNA(i) && !y.isNA(i)) {
-        dot += (alpha * x.getAsDouble(i)) * (beta * y.getAsDouble(i));
+      double yv = y.getAsDouble(i);
+      double xv = x.getAsDouble(i);
+      if (!Is.NA(yv) && !Is.NA(xv)) {
+        dot += xv * yv;
       }
     }
     return dot;
@@ -611,183 +494,7 @@ public final class Vec {
    * @return the sigmoid
    */
   public static double sigmoid(Vector a, Vector b) {
-    return 1.0 / (1 + Math.exp(dot(a, 1, b, -1)));
+    return 1.0 / (1 + Math.exp(dot(a, b)));
   }
 
-  /**
-   * Builder that infers the type of vector to build based on the first added value.
-   */
-  private static class InferringBuilder implements Vector.Builder {
-
-    private Vector.Builder builder;
-
-    @Override
-    public Vector.Builder setNA(int index) {
-      if (builder == null) {
-        builder = getObjectBuilder();
-      }
-      builder.setNA(index);
-      return this;
-    }
-
-    @Override
-    public Vector.Builder setNA(Object key) {
-      return null;
-    }
-
-    protected GenericVector.Builder getObjectBuilder() {
-      return new GenericVector.Builder(Object.class);
-    }
-
-    @Override
-    public Vector.Builder addNA() {
-      if (builder == null) {
-        builder = getObjectBuilder();
-      }
-      builder.addNA();
-      return this;
-    }
-
-    @Override
-    public Vector.Builder add(Vector from, int fromIndex) {
-      return add(from.get(Object.class, fromIndex));
-    }
-
-    @Override
-    public Vector.Builder add(Vector from, Object key) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
-      return set(atIndex, from.get(Object.class, fromIndex));
-    }
-
-    @Override
-    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(Object atKey, Vector from, Object fromIndex) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(int index, Object value) {
-      if (builder == null) {
-        builder = inferTypeOf(value).newBuilder();
-      }
-      builder.set(index, value);
-      return this;
-    }
-
-    @Override
-    public Vector.Builder set(int index, double value) {
-      if (builder == null) {
-        builder = Vec.typeOf(Double.class).newBuilder();
-      }
-      builder.set(index, value);
-      return this;
-    }
-
-    @Override
-    public Vector.Builder set(int index, int value) {
-      if (builder == null) {
-        builder = Vec.typeOf(Integer.class).newBuilder();
-      }
-      builder.set(index, value);
-      return this;
-    }
-
-    @Override
-    public Vector.Builder set(Object key, Object value) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder add(Object value) {
-      return set(size(), value);
-    }
-
-    @Override
-    public Vector.Builder add(double value) {
-      return set(size(), value);
-    }
-
-    @Override
-    public Vector.Builder add(int value) {
-      return set(size(), value);
-    }
-
-    @Override
-    public Vector.Builder addAll(Vector from) {
-      if (from.size() > 0) {
-        Object value = from.get(Object.class, 0);
-        if (builder == null) {
-          builder = inferTypeOf(value).newBuilder();
-        }
-        builder.addAll(from);
-      }
-      return this;
-    }
-
-    @Override
-    public Vector.Builder remove(int index) {
-      throw indexOutOfBounds(index);
-    }
-
-    @Override
-    public Vector.Builder remove(Object key) {
-      return null;
-    }
-
-    protected IndexOutOfBoundsException indexOutOfBounds(int index) {
-      return new IndexOutOfBoundsException(String.format("%d out of bounds [size = 0]", index));
-    }
-
-    @Override
-    public int compare(int a, int b) {
-      throw indexOutOfBounds(a);
-    }
-
-    @Override
-    public void swap(int a, int b) {
-      throw indexOutOfBounds(a);
-    }
-
-    @Override
-    public Vector.Builder read(DataEntry entry) throws IOException {
-      return getObjectBuilder().read(entry);
-    }
-
-    @Override
-    public Vector.Builder read(int index, DataEntry entry) throws IOException {
-      if (builder == null) {
-        builder = getObjectBuilder();
-      }
-      builder.read(index, entry);
-      return this;
-    }
-
-    @Override
-    public int size() {
-      return builder != null ? builder.size() : 0;
-    }
-
-    @Override
-    public Vector getTemporaryVector() {
-      return builder != null ? builder.getTemporaryVector() : Vector.empty();
-    }
-
-    @Override
-    public Vector build() {
-      return builder != null ? builder.build() : Vector.empty();
-    }
-  }
 }

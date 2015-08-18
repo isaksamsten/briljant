@@ -43,7 +43,7 @@ class SingletonVector extends AbstractVector {
     this.cls = value != null ? value.getClass() : Object.class;
     this.value = value;
     this.size = size;
-    type = Vec.typeOf(cls);
+    type = VectorType.from(cls);
   }
 
   public static final Vector empty() {

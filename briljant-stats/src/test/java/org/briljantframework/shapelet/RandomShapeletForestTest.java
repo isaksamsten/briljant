@@ -57,6 +57,7 @@ import org.briljantframework.vector.Convert;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.Vector;
+import org.briljantframework.vector.VectorType;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -168,7 +169,7 @@ public class RandomShapeletForestTest {
     EntryReader in =
         new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
 
-    DataFrame frame = new DataSeriesCollection.Builder(Vec.STRING).read(in).build();
+    DataFrame frame = new DataSeriesCollection.Builder(VectorType.STRING).read(in).build();
     System.out.println(frame.rows() + ", " + frame.columns());
     Utils.setRandomSeed(32);
     frame = DataFrames.permuteRows(frame);
