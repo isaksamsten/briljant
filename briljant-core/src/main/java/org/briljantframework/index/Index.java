@@ -22,41 +22,59 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
+package org.briljantframework.index;
 
 import org.briljantframework.sort.Swappable;
 
+import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Immutable index. {@link #iterator()} is guaranteed to return the keys in the index according
- * to the order which a similar list would, i.e. from position {@code 1} to position {@code
- * size()}.
+ * Immutable index.
  *
  * @author Isak Karlsson
  */
-public interface Index extends List<Object> {
+public interface Index extends Iterable<Index.Entry> {
 
-  int index(Object key);
+  int getLocation(Object key);
 
   Object get(int index);
 
+  boolean contains(Object key);
+
   Set<Object> keySet();
 
-  Collection<Integer> indices();
+  Collection<Integer> locations();
 
   Set<Index.Entry> entrySet();
 
-  Collection<Integer> indices(Object[] keys);
-
-  Map<Integer, Object> indexMap();
+  int[] indices(Object[] keys);
 
   Builder newBuilder();
 
   Builder newCopyBuilder();
+
+  @Override
+  default Iterator<Entry> iterator() {
+    return entrySet().iterator();
+  }
+
+  default List<Object> asList() {
+    return new AbstractList<Object>() {
+      @Override
+      public Object get(int index) {
+        return Index.this.get(index);
+      }
+
+      @Override
+      public int size() {
+        return Index.this.size();
+      }
+    };
+  }
 
   int size();
 
@@ -65,7 +83,7 @@ public interface Index extends List<Object> {
     private final Object key;
     private final int index;
 
-    protected Entry(Object key, int index) {
+    public Entry(Object key, int index) {
       this.key = key;
       this.index = index;
     }
@@ -106,6 +124,8 @@ public interface Index extends List<Object> {
     void set(Object key, int index);
 
     void set(int key, int index);
+
+    void extend(int size);
 
     Index build();
 

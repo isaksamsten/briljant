@@ -61,12 +61,12 @@ public class DataSeriesNormalization implements Transformation {
   public DataFrame transform(DataFrame x) {
     DataFrame.Builder builder = x.newCopyBuilder();
     for (int i = 0; i < x.rows(); i++) {
-      Vector row = x.getRecord(i);
+      Vector row = x.loc().getRecord(i);
       double mean = Vec.mean(row);
       double sigma = Vec.std(row, mean);
       for (int j = 0; j < row.size(); j++) {
         double value = row.getAsDouble(j);
-        builder.set(i, j, (value - mean) / sigma);
+        builder.loc().set(i, j, (value - mean) / sigma);
       }
     }
 

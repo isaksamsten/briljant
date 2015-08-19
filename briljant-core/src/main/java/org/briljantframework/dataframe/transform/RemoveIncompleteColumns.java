@@ -26,7 +26,7 @@ package org.briljantframework.dataframe.transform;
 
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Index;
+import org.briljantframework.index.Index;
 import org.briljantframework.vector.Vector;
 
 /**
@@ -78,10 +78,10 @@ public class RemoveIncompleteColumns implements Transformation {
 
     int j = 0;
     for (int i = 0; i < x.columns(); i++) {
-      Vector column = x.get(i);
+      Vector column = x.loc().get(i);
       if (!column.hasNA()) {
         index.add(columnIndex.get(i));
-        builder.addColumn(column);
+        builder.add(column);
       }
     }
     DataFrame df = builder.build();

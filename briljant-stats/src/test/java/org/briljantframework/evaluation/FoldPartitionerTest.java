@@ -24,7 +24,6 @@
 
 package org.briljantframework.evaluation;
 
-import org.briljantframework.Bj;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.Datasets;
 import org.briljantframework.vector.Vector;
@@ -37,7 +36,7 @@ public class FoldPartitionerTest {
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadConnect4();
-    DataFrame x = dummy.retain(Bj.range(0, 2).list());
+    DataFrame x = dummy.loc().get(0, 2);
     Vector y = dummy.get(2);
 
     System.out.println(x);
@@ -50,7 +49,6 @@ public class FoldPartitionerTest {
       System.out.println(partition.getTrainingData().rows());
       System.out.println(partition.getValidationData().rows());
     }
-
 
     // DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
     // DataFrame irisX = iris.takeColumns(IntRange.range(0, 4));

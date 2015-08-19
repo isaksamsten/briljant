@@ -57,7 +57,7 @@ public class SplitPartitioner implements Partitioner {
       Vector.Builder yTrainingBuilder = y.newBuilder();
       for (int i = 0; i < trainingSize; i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xTrainingBuilder.set(i, j, x, i, j);
+          xTrainingBuilder.loc().set(i, j, x, i, j);
         }
         yTrainingBuilder.add(y, i);
       }
@@ -67,7 +67,7 @@ public class SplitPartitioner implements Partitioner {
       int index = 0;
       for (int i = trainingSize; i < x.rows(); i++) {
         for (int j = 0; j < x.columns(); j++) {
-          xValidationBuilder.set(index, j, x, i, j);
+          xValidationBuilder.loc().set(index, j, x, i, j);
         }
         yValidationBuilder.add(y, i);
         index += 1;

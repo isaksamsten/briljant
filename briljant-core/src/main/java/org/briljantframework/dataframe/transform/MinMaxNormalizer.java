@@ -26,9 +26,9 @@ package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.exceptions.TypeMismatchException;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.VectorType;
@@ -50,13 +50,13 @@ public class MinMaxNormalizer implements Transformer {
     DoubleArray min = Bj.doubleArray(frame.columns());
     DoubleArray max = Bj.doubleArray(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
-      if (!frame.getType(j).equals(VectorType.DOUBLE)) {
-        throw new TypeMismatchException(VectorType.DOUBLE, frame.getType(j));
+      if (!frame.loc().get(j).getType().equals(VectorType.DOUBLE)) {
+        throw new TypeMismatchException(VectorType.DOUBLE, frame.loc().get(j).getType());
       }
 
       double minTemp = Double.POSITIVE_INFINITY, maxTemp = Double.NEGATIVE_INFINITY;
       for (int i = 0; i < frame.rows(); i++) {
-        double value = frame.getAsDouble(i, j);
+        double value = frame.loc().getAsDouble(i, j);
         if (Is.NA(value)) {
           continue;
         }
@@ -77,15 +77,15 @@ public class MinMaxNormalizer implements Transformer {
       Check.size(x.columns(), max.size());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.getType(j), DoubleVector.TYPE);
+        Check.type(x.loc().get(j).getType(), DoubleVector.TYPE);
 
         double mi = min.get(j);
         double ma = max.get(j);
         for (int i = 0; i < x.rows(); i++) {
-          if (x.isNA(i, j) || isSane(mi) || isSane(ma)) {
-            builder.setNA(i, j);
+          if (x.loc().isNA(i, j) || isSane(mi) || isSane(ma)) {
+            builder.loc().setNA(i, j);
           } else {
-            builder.set(i, j, (x.getAsDouble(i, j) - mi) / (ma - mi));
+            builder.loc().set(i, j, (x.loc().getAsDouble(i, j) - mi) / (ma - mi));
           }
         }
       }

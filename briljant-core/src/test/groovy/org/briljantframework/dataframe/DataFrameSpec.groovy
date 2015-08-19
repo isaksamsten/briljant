@@ -37,9 +37,9 @@ class DataFrameSpec extends Specification {
   def "a data frame has rows and columns"() {
     given:
     def c = getBuilder(String, int, Integer)
-        .set(0, 0, "hello world")
-        .set(2, 1, 3)
-        .set(1, 2, 10)
+        .setAt(0, 0, "hello world")
+        .setAt(2, 1, 3)
+        .setAt(1, 2, 10)
         .build()
 
     def result = createDataFrame(
@@ -63,10 +63,10 @@ class DataFrameSpec extends Specification {
         String, int, double)
 
     expect:
-    c.getAsDouble(0, 0) == Na.from(double)
-    c.getAsDouble(1, 1) == 2.0
-    c.getAsDouble(0, 2) == 32.2
-    c.getAsDouble(1, 2) == Na.from(double)
+    c.getAsDoubleAt(0, 0) == Na.from(double)
+    c.getAsDoubleAt(1, 1) == 2.0
+    c.getAsDoubleAt(0, 2) == 32.2
+    c.getAsDoubleAt(1, 2) == Na.from(double)
   }
 
   def "getAsInt returns an int value"() {
@@ -77,10 +77,10 @@ class DataFrameSpec extends Specification {
         String, int, double)
 
     expect:
-    c.getAsInt(0, 0) == Na.from(int)
-    c.getAsInt(1, 1) == 2
-    c.getAsInt(0, 2) == 32
-    c.getAsInt(1, 2) == Na.from(int)
+    c.getAsIntAt(0, 0) == Na.from(int)
+    c.getAsIntAt(1, 1) == 2
+    c.getAsIntAt(0, 2) == 32
+    c.getAsIntAt(1, 2) == Na.from(int)
   }
 
   @Unroll
@@ -107,7 +107,7 @@ class DataFrameSpec extends Specification {
     for (int i = 0; i < values.size(); i++) {
       List row = values[i]
       for (int j = 0; j < row.size(); j++) {
-        builder.set(i, j, row[j])
+        builder.setAt(i, j, row[j])
       }
     }
     return builder.build()

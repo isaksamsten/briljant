@@ -126,7 +126,7 @@ public class LogisticRegression implements Classifier {
     for (int i = 0; i < n; i++) {
       x.set(i, 0, 1);
       for (int j = 0; j < df.columns(); j++) {
-        double v = df.getAsDouble(i, j);
+        double v = df.loc().getAsDouble(i, j);
         if (Is.NA(v) || Double.isNaN(v)) {
           throw new IllegalArgumentException(
               String.format("Illegal input value at (%d, %d)", i, j - 1));

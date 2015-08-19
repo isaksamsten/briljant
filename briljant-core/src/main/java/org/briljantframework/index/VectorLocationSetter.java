@@ -22,32 +22,14 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
-
-import org.briljantframework.vector.Vector;
+package org.briljantframework.index;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 19/08/15.
  */
-public interface Series extends Vector {
+public interface VectorLocationSetter {
 
-  Object name();
+  void set(int i, Object value);
 
-  Index getIndex();
-
-  default <T> T get(Class<T> cls, Object key) {
-    return get(cls, getIndex().index(key));
-  }
-
-  default int getAsInt(Object key) {
-    return getAsInt(getIndex().index(key));
-  }
-
-  default double getAsDouble(Object key) {
-    return getAsDouble(getIndex().index(key));
-  }
-
-  default String toString(Object key) {
-    return toString(getIndex().index(key));
-  }
+  void set(int t, VectorLocationGetter from, int f);
 }

@@ -31,9 +31,11 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.briljantframework.dataframe.Index;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
+import org.briljantframework.index.Index;
+import org.briljantframework.index.VectorLocationGetter;
+import org.briljantframework.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.Swappable;
 
@@ -745,6 +747,10 @@ public interface Vector extends Serializable {
 
   boolean equals(int a, Object other);
 
+  default VectorLocationGetter loc() {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
   /**
    * <p> Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if
    * a builder is initialized with size {@code 8}, {@link #add(Object)} (et. al.) adds a value at
@@ -811,6 +817,10 @@ public interface Vector extends Serializable {
     Builder set(Object atKey, Vector from, int fromIndex);
 
     Builder set(Object atKey, Vector from, Object fromIndex);
+
+    default VectorLocationSetter loc() {
+      throw new UnsupportedOperationException("Not implemented yet");
+    }
 
     /**
      * Add {@code value} at {@code index}. Padding with NA:s between {@code atIndex} and {@code

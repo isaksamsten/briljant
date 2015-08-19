@@ -26,8 +26,8 @@ package org.briljantframework.vector;
 
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.dataframe.Index;
-import org.briljantframework.dataframe.IntIndex;
+import org.briljantframework.index.Index;
+import org.briljantframework.index.IntIndex;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;

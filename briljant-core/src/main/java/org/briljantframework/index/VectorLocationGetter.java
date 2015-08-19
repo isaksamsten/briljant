@@ -22,34 +22,16 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
+package org.briljantframework.index;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 18/08/15.
  */
-public interface Ix {
+public interface VectorLocationGetter {
 
-  <T> T get(Class<T> cls, Object r, int c);
+  double getAsDouble(int i);
 
-  <T> T get(Class<T> cls, int r, Object c);
+  int getAsInt(int i);
 
-  <T> T get(Class<T> cls, Object r, Object c);
-
-  <T> T get(Class<T> cls, int r, int c);
-
-  int getAsInt(Object r, int c);
-
-  int getAsInt(int r, Object c);
-
-  int getAsInt(Object r, Object c);
-
-  int getAsInt(int r, int c);
-
-  double getAsDouble(Object r, int c);
-
-  double getAsDouble(int r, Object c);
-
-  double getAsDouble(Object r, Object c);
-
-  double getAsDouble(int r, int c);
+  <T> T get(Class<T> cls, int i);
 }

@@ -185,7 +185,7 @@ public abstract class Ensemble implements Classifier {
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
         int inbSize = members.size() - counts.get(i);
         int oobSize = counts.get(i);
-        Vector record = x.getRecord(i);
+        Vector record = x.loc().getRecord(i);
         for (int j = 0; j < members.size(); j++) {
           DoubleArray estimate = members.get(j).estimate(record);
           if (oobIndicator.get(i, j)) {
@@ -224,7 +224,7 @@ public abstract class Ensemble implements Classifier {
           if (oobIndicator.get(i, memberIndex)) {
             oobSizeA.getAndIncrement();
             int c = find(classes, y, i);
-            DoubleArray memberEstimation = member.estimate(x.getRecord(i));
+            DoubleArray memberEstimation = member.estimate(x.loc().getRecord(i));
             DoubleArray ibEstimation = inbEstimates.getRow(i);
             p1A.add(argmax(memberEstimation) == c ? 1 : 0);
             p2A.add(argmax(memberEstimation) == argmaxnot(ibEstimation, c) ? 1 : 0);
@@ -253,7 +253,7 @@ public abstract class Ensemble implements Classifier {
       DoubleAdder meanBias = new DoubleAdder();
       DoubleAdder baseAccuracy = new DoubleAdder();
       IntStream.range(0, x.rows()).parallel().forEach(i -> {
-        Vector record = x.getRecord(i);
+        Vector record = x.loc().getRecord(i);
         DoubleArray c = createTrueClassVector(y, classes, i);
 
 

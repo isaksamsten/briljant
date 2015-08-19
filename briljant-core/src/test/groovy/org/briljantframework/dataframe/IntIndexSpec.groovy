@@ -24,6 +24,7 @@
 
 package org.briljantframework.dataframe
 
+import org.briljantframework.index.IntIndex
 import spock.lang.Specification
 
 /**
@@ -36,9 +37,9 @@ class IntIndexSpec extends Specification {
     def i = new IntIndex(10)
 
     then:
-    i.index(3) == 3
+    i.getLocation(3) == 3
     i.get(2) == 2
-    new ArrayList<>(i.indices()) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    new ArrayList<>(i.locations()) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     new ArrayList<>(i.indices([1, 2, 3] as Object[])) == [1, 2, 3]
     i.size() == 10
 
@@ -49,7 +50,7 @@ class IntIndexSpec extends Specification {
     def i = new IntIndex(10)
 
     when:
-    i.index(11)
+    i.getLocation(11)
 
     then:
     thrown(NoSuchElementException)
@@ -60,7 +61,7 @@ class IntIndexSpec extends Specification {
     def i = new IntIndex(10)
 
     when:
-    i.index(-1)
+    i.getLocation(-1)
 
     then:
     thrown(NoSuchElementException)

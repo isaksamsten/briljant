@@ -190,7 +190,7 @@ public class PatternTree implements Classifier {
     double sum = 0.0;
     List<ExampleValue> distances = new ArrayList<>();
     for (Example example : classSet) {
-      Vector second = x.getRecord(example.getIndex());
+      Vector second = x.loc().getRecord(example.getIndex());
       double featureValue = feature.compute(second, index, take);
       featureValues.put(example.getIndex(), featureValue);
       distances.add(new ExampleValue(featureValue, feature, example));

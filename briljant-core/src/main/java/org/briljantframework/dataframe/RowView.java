@@ -55,27 +55,27 @@ class RowView extends AbstractVector {
 
   @Override
   public <T> T get(Class<T> cls, int index) {
-    return parent.get(cls, row, index);
+    return parent.loc().get(cls, row, index);
   }
 
   @Override
   public String toString(int index) {
-    return parent.get(index).toString(row);
+    return parent.loc().get(index).toString(row);
   }
 
   @Override
   public boolean isNA(int index) {
-    return parent.isNA(row, index);
+    return parent.loc().isNA(row, index);
   }
 
   @Override
   public double getAsDouble(int index) {
-    return parent.getAsDouble(row, index);
+    return parent.loc().getAsDouble(row, index);
   }
 
   @Override
   public int getAsInt(int index) {
-    return parent.getAsInt(row, index);
+    return parent.loc().getAsInt(row, index);
   }
 
   @Override
@@ -85,7 +85,7 @@ class RowView extends AbstractVector {
 
   @Override
   public VectorType getType(int index) {
-    return parent.getType(index);
+    throw new UnsupportedOperationException();
   }
 
   @Override

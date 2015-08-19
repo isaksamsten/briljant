@@ -28,7 +28,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Index;
+import org.briljantframework.index.Index;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
 
@@ -41,7 +41,7 @@ public class MeanImputer implements Transformer {
   public Transformation fit(DataFrame frame) {
     DoubleArray means = Bj.doubleArray(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {
-      means.set(j, Vec.mean(frame.get(j)));
+      means.set(j, Vec.mean(frame.loc().get(j)));
     }
 
     return x -> {
@@ -53,12 +53,12 @@ public class MeanImputer implements Transformer {
       x.getColumnIndex().entrySet().forEach(columnIndex::set);
       x.getRecordIndex().entrySet().forEach(recordIndex::set);
       for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.getType(j), VectorType.DOUBLE);
+        Check.type(x.loc().get(j).getType(), VectorType.DOUBLE);
         for (int i = 1; i < x.rows(); i++) {
-          if (x.isNA(i, j)) {
-            builder.set(i, j, means.get(j));
+          if (x.loc().isNA(i, j)) {
+            builder.loc().set(i, j, means.get(j));
           } else {
-            builder.set(i, j, x, i, j);
+            builder.loc().set(i, j, x, i, j);
           }
         }
       }

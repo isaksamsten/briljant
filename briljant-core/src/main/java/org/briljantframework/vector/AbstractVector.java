@@ -27,8 +27,8 @@ package org.briljantframework.vector;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
-import org.briljantframework.dataframe.Index;
-import org.briljantframework.dataframe.IntIndex;
+import org.briljantframework.index.Index;
+import org.briljantframework.index.IntIndex;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.function.Aggregates;
@@ -228,7 +228,7 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public <T> T get(Class<T> cls, Object key) {
-    return get(cls, getIndex().index(key));
+    return get(cls, getIndex().getLocation(key));
   }
 
   @Override
@@ -239,17 +239,17 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public double getAsDouble(Object key) {
-    return getAsDouble(getIndex().index(key));
+    return getAsDouble(getIndex().getLocation(key));
   }
 
   @Override
   public int getAsInt(Object key) {
-    return getAsInt(getIndex().index(key));
+    return getAsInt(getIndex().getLocation(key));
   }
 
   @Override
   public String toString(Object key) {
-    return toString(getIndex().index(key));
+    return toString(getIndex().getLocation(key));
   }
 
   @Override
@@ -325,6 +325,37 @@ public abstract class AbstractVector implements Vector {
       n.set(i, get(cls, i));
     }
     return n;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) {
+      return true;
+    }
+    if (object == null || getClass() != object.getClass()) {
+      return false;
+    }
+
+    Vector that = (Vector) object;
+    if (size() != that.size()) {
+      return false;
+    }
+    // TODO: index-based comparision not location based
+    for (int i = 0; i < size(); i++) {
+      Object a = get(Object.class, i);
+      Object b = get(Object.class, i);
+
+      if (!Is.NA(a) && !Is.NA(b) && !a.equals(b)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return index != null ? index.hashCode() : 0;
   }
 
   @Override

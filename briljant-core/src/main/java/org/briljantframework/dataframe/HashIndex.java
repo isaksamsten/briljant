@@ -24,14 +24,12 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.index.Index;
 import org.briljantframework.vector.Vector;
 
-import java.util.AbstractCollection;
-import java.util.AbstractList;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,7 +39,7 @@ import java.util.Set;
 /**
  * @author Isak Karlsson
  */
-public class HashIndex extends AbstractList<Object> implements Index {
+public class HashIndex implements Index {
 
   Map<Object, Integer> keys = new HashMap<>();
   Map<Integer, Object> indexes = new HashMap<>();
@@ -84,7 +82,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public int index(Object key) {
+  public int getLocation(Object key) {
     Integer idx = keys.get(key);
     if (idx == null) {
       throw noSuchElement(key);
@@ -110,24 +108,7 @@ public class HashIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public Iterator<Object> iterator() {
-    return new Iterator<Object>() {
-      public int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Object next() {
-        return get(current++);
-      }
-    };
-  }
-
-  @Override
-  public Collection<Integer> indices() {
+  public Collection<Integer> locations() {
     return keys.values();
   }
 
@@ -181,35 +162,12 @@ public class HashIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public Collection<Integer> indices(Object[] keys) {
-    return new AbstractCollection<Integer>() {
-      @Override
-      public Iterator<Integer> iterator() {
-        return new Iterator<Integer>() {
-          private int current = 0;
-
-          @Override
-          public boolean hasNext() {
-            return current < size();
-          }
-
-          @Override
-          public Integer next() {
-            return /*biMap*/HashIndex.this.keys.get(keys[current++]);
-          }
-        };
-      }
-
-      @Override
-      public int size() {
-        return keys.length;
-      }
-    };
-  }
-
-  @Override
-  public Map<Integer, Object> indexMap() {
-    return Collections.unmodifiableMap(indexes);
+  public int[] indices(Object[] keys) {
+    int[] indicies = new int[keys.length];
+    for (int i = 0; i < keys.length; i++) {
+      indicies[i] = this.keys.get(keys[i]);
+    }
+    return indicies;
   }
 
   @Override
@@ -267,6 +225,16 @@ public class HashIndex extends AbstractList<Object> implements Index {
     @Override
     public void set(int key, int index) {
       set((Object) key, index);
+    }
+
+    @Override
+    public void extend(int size) {
+      if (size > currentSize) {
+        for (int i = currentSize; i < size; i++) {
+          set(i, i);
+        }
+        currentSize = size;
+      }
     }
 
     @Override

@@ -241,6 +241,18 @@ public abstract class VectorBuilderTest {
   }
 
   @Test
+  public void testOvewriteObject() throws Exception {
+    Vector.Builder builder = getBuilder();
+    builder.set(0, 1);
+    builder.set(3, 10);
+    builder.set(3, 100);
+
+    Vector expected = Vector.of(1, null, null, 100);
+    Vector actual = builder.build();
+    assertEquals(expected.asList(Integer.class), actual.asList(Integer.class));
+  }
+
+  @Test
   public void testAddAll() throws Exception {
 
   }

@@ -27,7 +27,7 @@ package org.briljantframework.evaluation.result;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.dataframe.HashIndex;
-import org.briljantframework.dataframe.Index;
+import org.briljantframework.index.Index;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.function.Aggregates;
@@ -287,26 +287,26 @@ public class Result {
 
     if (it.hasNext()) {
       Measure measure = it.next();
-      df.addColumn(IntVector.range(measure.size()).collect(Aggregates.repeat(2)));
-      df.addColumnBuilder(VectorType.from(Sample.class));
+      df.add(IntVector.range(measure.size()).collect(Aggregates.repeat(2)));
+      df.add(VectorType.from(Sample.class));
       for (int i = 0; i < measure.size() * 2; i++) {
         if (i < measure.size()) {
-          df.set(i, 1, Sample.OUT);
+          df.loc().set(i, 1, Sample.OUT);
         } else {
-          df.set(i, 1, Sample.IN);
+          df.loc().set(i, 1, Sample.IN);
         }
       }
       index.add(measure.getName());
-      df.addColumn(new DoubleVector.Builder()
-                       .addAll(measure.get(Sample.OUT))
-                       .addAll(measure.get(Sample.IN)));
+      df.add(new DoubleVector.Builder()
+                 .addAll(measure.get(Sample.OUT))
+                 .addAll(measure.get(Sample.IN)));
       while (it.hasNext()) {
         measure = it.next();
         index.add(measure.getName());
         DoubleVector.Builder bf = new DoubleVector.Builder();
         bf.addAll(measure.get(Sample.OUT));
         bf.addAll(measure.get(Sample.IN));
-        df.addColumn(bf);
+        df.add(bf);
       }
       DataFrame bdf = df.build();
       bdf.setColumnIndex(index.build());

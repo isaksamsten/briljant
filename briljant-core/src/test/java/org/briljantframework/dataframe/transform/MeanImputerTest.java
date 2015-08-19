@@ -53,6 +53,6 @@ public class MeanImputerTest {
 
     assertEquals(columnIndex, imputed.getColumnIndex());
     assertEquals(recordIndex, imputed.getRecordIndex());
-    assertEquals(2, imputed.getAsDouble(3, 0), 0.0);
+    assertEquals(2, imputed.loc().getAsDouble(3, 0), 0.0);
   }
 }

@@ -91,7 +91,7 @@ class FoldIterator implements Iterator<Partition> {
     int trainingEnd = foldEnd - pad;
     for (int i = 0; i < trainingEnd; i++) {
       for (int j = 0; j < x.columns(); j++) {
-        xTrainingBuilder.set(i, j, x, index, j);
+        xTrainingBuilder.loc().set(i, j, x, index, j);
       }
       yTrainingBuilder.add(y, index);
       index += 1;
@@ -103,7 +103,7 @@ class FoldIterator implements Iterator<Partition> {
     int validationEnd = foldEnd + foldSize;
     for (int i = trainingEnd; i < validationEnd; i++) {
       for (int j = 0; j < x.columns(); j++) {
-        xValidationBuilder.set(newIndex, j, x, index, j);
+        xValidationBuilder.loc().set(newIndex, j, x, index, j);
       }
       yValidationBuilder.add(y, index);
       index += 1;
@@ -114,7 +114,7 @@ class FoldIterator implements Iterator<Partition> {
     newIndex = trainingEnd;
     for (int i = validationEnd; i < rows; i++) {
       for (int j = 0; j < x.columns(); j++) {
-        xTrainingBuilder.set(newIndex, j, x, index, j);
+        xTrainingBuilder.loc().set(newIndex, j, x, index, j);
       }
       yTrainingBuilder.add(y, index);
       index += 1;

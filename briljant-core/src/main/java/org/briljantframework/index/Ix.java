@@ -22,35 +22,34 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe.transform;
-
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.array.DoubleArray;
+package org.briljantframework.index;
 
 /**
- * Transforms a frame to it's inverse
- * <p>
- * Created by Isak Karlsson on 11/08/14.
+ * @author Isak Karlsson
  */
-public class PseudoInverseTransformer implements Transformer {
+public interface Ix {
 
-  @Override
-  public Transformation fit(DataFrame container) {
-    return new PinvTransformation();
-  }
+  <T> T get(Class<T> cls, Object r, int c);
 
-  private static class PinvTransformation implements Transformation {
-    @Override
-    public DataFrame transform(DataFrame x) {
-      DoubleArray matrix = LinearAlgebra.pinv(x.toArray().asDouble());
-      DataFrame.Builder builder = x.newBuilder();
-      for (int j = 0; j < x.columns(); j++) {
-        for (int i = 0; i < x.rows(); i++) {
-          builder.loc().set(i, j, matrix.get(i, j));
-        }
-      }
-      return builder.build();
-    }
-  }
+  <T> T get(Class<T> cls, int r, Object c);
+
+  <T> T get(Class<T> cls, Object r, Object c);
+
+  <T> T get(Class<T> cls, int r, int c);
+
+  int getAsInt(Object r, int c);
+
+  int getAsInt(int r, Object c);
+
+  int getAsInt(Object r, Object c);
+
+  int getAsInt(int r, int c);
+
+  double getAsDouble(Object r, int c);
+
+  double getAsDouble(int r, Object c);
+
+  double getAsDouble(Object r, Object c);
+
+  double getAsDouble(int r, int c);
 }

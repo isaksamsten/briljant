@@ -37,12 +37,12 @@ class HashIndexSpec extends Specification {
 
     then:
     i as ArrayList == ["a", "b", "c"]
-    i.index("a") == 0
-    i.index("b") == 1
+    i.getLocation("a") == 0
+    i.getLocation("b") == 1
     i.indices(["a", "b"] as Object[]) as ArrayList == [0, 1]
-    i.indices() as ArrayList == [0, 1, 2]
+    i.locations() as ArrayList == [0, 1, 2]
     i.get(2) == "c"
     i.size() == 3
-    i.newCopyBuilder().build().index("a") == 0
+    i.newCopyBuilder().build().getLocation("a") == 0
   }
 }

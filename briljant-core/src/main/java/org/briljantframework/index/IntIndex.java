@@ -22,22 +22,22 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
+package org.briljantframework.index;
 
+
+import org.briljantframework.dataframe.HashIndex;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
  * @author Isak Karlsson
  */
-public class IntIndex extends AbstractList<Object> implements Index {
+public final class IntIndex implements Index {
 
   private final int size;
 
@@ -50,7 +50,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public int index(Object key) {
+  public int getLocation(Object key) {
     if (key instanceof Integer) {
       int k = (int) key;
       if (k < size && k >= 0) {
@@ -80,7 +80,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public Collection<Integer> indices() {
+  public Collection<Integer> locations() {
     return new AbstractCollection<Integer>() {
       @Override
       public Iterator<Integer> iterator() {
@@ -169,35 +169,12 @@ public class IntIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public Collection<Integer> indices(Object[] keys) {
-    return new AbstractCollection<Integer>() {
-      @Override
-      public Iterator<Integer> iterator() {
-        return new Iterator<Integer>() {
-          private int current = 0;
-
-          @Override
-          public boolean hasNext() {
-            return current < keys.length;
-          }
-
-          @Override
-          public Integer next() {
-            return index(keys[current++]);
-          }
-        };
-      }
-
-      @Override
-      public int size() {
-        return size;
-      }
-    };
-  }
-
-  @Override
-  public Map<Integer, Object> indexMap() {
-    return null; // TODO: fix
+  public int[] indices(Object[] keys) {
+    int[] indicies = new int[keys.length];
+    for (int i = 0; i < keys.length; i++) {
+      indicies[i] = getLocation(keys[i]);
+    }
+    return indicies;
   }
 
   @Override
@@ -231,7 +208,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
     @Override
     public boolean contains(Object key) {
-      if (isMonotonicallyIncreasing(key)) {
+      if (isIntegerKey(key)) {
         int k = (int) key;
         return k >= 0 && k < currentSize;
       } else {
@@ -251,7 +228,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
 
     @Override
     public int index(Object key) {
-      if (isMonotonicallyIncreasing(key)) {
+      if (isIntegerKey(key)) {
         return (int) key;
       } else {
         initializeHashBuilder();
@@ -272,7 +249,7 @@ public class IntIndex extends AbstractList<Object> implements Index {
       set(key, currentSize);
     }
 
-    private boolean isMonotonicallyIncreasing(Object key) {
+    private boolean isIntegerKey(Object key) {
       return key instanceof Integer && builder == null;
     }
 
@@ -292,11 +269,13 @@ public class IntIndex extends AbstractList<Object> implements Index {
       if (index > currentSize) {
         throw nonMonotonicallyIncreasingIndex(index);
       }
-      if (!isMonotonicallyIncreasing(key) || !key.equals(index)) {
+      if (!isIntegerKey(key) || !key.equals(index)) {
         initializeHashBuilder();
         builder.set(key, index);
       }
-      currentSize++;
+      if (index == currentSize) {
+        currentSize++;
+      }
     }
 
     @Override
@@ -308,7 +287,21 @@ public class IntIndex extends AbstractList<Object> implements Index {
         initializeHashBuilder();
         builder.set(key, index);
       }
-      currentSize++;
+      if (index == currentSize) {
+        currentSize++;
+      }
+    }
+
+    @Override
+    public void extend(int size) {
+      if (builder != null) {
+        initializeHashBuilder();
+        builder.extend(size);
+      } else {
+        if (size > currentSize) {
+          currentSize = size;
+        }
+      }
     }
 
     @Override

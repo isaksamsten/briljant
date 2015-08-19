@@ -62,7 +62,7 @@ public abstract class AbstractPredictor implements Predictor {
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
     Vector.Builder labels = new GenericVector.Builder(Object.class, x.rows());
     IntStream.range(0, x.rows()).parallel().forEach(
-        i -> labels.set(i, predict(x.getRecord(i)))
+        i -> labels.set(i, predict(x.loc().getRecord(i)))
     );
     return labels.build();
   }
@@ -76,7 +76,7 @@ public abstract class AbstractPredictor implements Predictor {
   public DoubleArray estimate(DataFrame x) {
     DoubleArray estimations = Bj.doubleArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(
-        i -> estimations.setRow(i, estimate(x.getRecord(i)))
+        i -> estimations.setRow(i, estimate(x.loc().getRecord(i)))
     );
     return estimations;
   }

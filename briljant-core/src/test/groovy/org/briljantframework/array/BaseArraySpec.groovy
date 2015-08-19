@@ -329,7 +329,7 @@ class BaseArraySpec extends Specification {
     array.select(0).assign(value)
     def f = array.select(0)
     for (int i = 0; i < f.size(); i++) {
-      f.get(i) == value
+      f.getAt(i) == value
     }
 
     where:

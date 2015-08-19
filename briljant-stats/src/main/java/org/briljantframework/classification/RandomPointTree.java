@@ -145,7 +145,7 @@ public class RandomPointTree implements Classifier {
       int take = Utils.randInt(2, 20);
       Utils.permute(index);
       ClassSet.Sample a = classSet.getRandomSample();
-      Vector pivot = x.getRecord(a.getRandomExample().getIndex());
+      Vector pivot = x.loc().getRecord(a.getRandomExample().getIndex());
 
       IntDoubleMap distanceMap = new IntDoubleOpenHashMap();
       Threshold threshold = bestDistanceThresholdInSample(classSet, x, y, take, pivot, distanceMap);
@@ -207,7 +207,7 @@ public class RandomPointTree implements Classifier {
     double sum = 0.0;
     List<ExampleDistance> distances = new ArrayList<>();
     for (Example example : classSet) {
-      Vector second = x.getRecord(example.getIndex());
+      Vector second = x.loc().getRecord(example.getIndex());
       double distance = computeDistance(index, take, pivot, second);
       memoizedDistances.put(example.getIndex(), distance);
       distances.add(new ExampleDistance(distance, example));

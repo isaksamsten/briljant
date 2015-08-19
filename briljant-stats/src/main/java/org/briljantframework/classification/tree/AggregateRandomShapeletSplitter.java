@@ -67,7 +67,7 @@ public class AggregateRandomShapeletSplitter extends RandomShapeletSplitter {
     List<Shapelet> shapelets = new ArrayList<>();
     for (int i = 0; i < getInspectedShapelets(); i++) {
       int index = classSet.getRandomSample().getRandomExample().getIndex();
-      Vector t = paaX.getRecord(index);
+      Vector t = paaX.loc().getRecord(index);
       int length = random.nextInt(upper) + lower;
       int start = random.nextInt(timeSeriesLength - length);
       shapelets.add(new DownsampledShapelet(index, aggregateFraction, start, length, t));
@@ -77,7 +77,7 @@ public class AggregateRandomShapeletSplitter extends RandomShapeletSplitter {
     DownsampledShapelet best = (DownsampledShapelet) threshold.getThreshold().getShapelet();
 
     IndexSortedNormalizedShapelet s =
-        new IndexSortedNormalizedShapelet(best.start, best.length, x.getRecord(best.index));
+        new IndexSortedNormalizedShapelet(best.start, best.length, x.loc().getRecord(best.index));
 
     return super.findBestSplit(classSet, x, y, Arrays.asList(s));
   }
