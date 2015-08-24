@@ -303,7 +303,7 @@ public abstract class Ensemble implements Classifier {
     private DoubleArray createTrueClassVector(Vector y, Vector classes, int i) {
       DoubleArray c = Bj.doubleArray(classes.size());
       for (int j = 0; j < classes.size(); j++) {
-        if (classes.equals(j, y, i)) {
+        if (classes.loc().equals(j, y, i)) {
           c.set(j, 1);
         }
       }

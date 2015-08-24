@@ -22,50 +22,31 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
+package org.briljantframework.index;
 
-import spock.lang.Specification
+import java.util.Comparator;
 
 /**
- * Created by isak on 07/06/15.
+ * @author Isak Karlsson
  */
-class HashIndexSpec extends Specification {
+public final class HeterogeneousObjectComparator implements Comparator<Object> {
 
-  def "create HashIndex from list"() {
-    when:
-    def i = ObjectIndex.from(["a", "b", "c"])
-
-    then:
-    i.keySet() as ArrayList == ["a", "b", "c"]
-    i.getLocation("a") == 0
-    i.getLocation("b") == 1
-    i.indices(["a", "b"] as Object[]) as ArrayList == [0, 1]
-    i.locations() as ArrayList == [0, 1, 2]
-    i.getKey(2) == "c"
-    i.size() == 3
-    i.newCopyBuilder().build().getLocation("a") == 0
+  @Override
+  @SuppressWarnings("unchecked")
+  public int compare(Object o1, Object o2) {
+    if (o1 == null && o2 == null) {
+      return 0;
+    } else if (o1 == null) {
+      return -1;
+    } else if (o2 == null) {
+      return 1;
+    } else {
+      if (o1.getClass().equals(o2.getClass()) && o1 instanceof Comparable
+          && o2 instanceof Comparable) {
+        return ((Comparable) o1).compareTo(o2);
+      } else {
+        return o1.getClass().getName().compareTo(o2.getClass().getName());
+      }
+    }
   }
-
-  def "remove element from hash index"() {
-    given:
-    def b = new ObjectIndex.Builder()
-
-    when:
-    b.add(0)
-    b.add(1)
-    b.add(2)
-    b.add(3)
-
-    and:
-    b.remove(1)
-
-    and:
-    def i = b.build()
-
-    then:
-    i.getLocation(0) == 0
-    i.getLocation(2) == 1
-    i.getLocation(3) == 2
-  }
-
 }

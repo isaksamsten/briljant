@@ -37,7 +37,6 @@ import org.briljantframework.index.Index;
 import org.briljantframework.index.VectorLocationGetter;
 import org.briljantframework.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.sort.Swappable;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -425,134 +424,20 @@ public interface Vector extends Serializable {
    */
   void setIndex(Index index);
 
-  /**
-   * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
-   * not an instance of {@code cls}, returns an appropriate {@code NA} value. For references types
-   * (apart from {@code Complex} and {@code Bit}) this means {@code null} and for {@code primitive}
-   * types their respective {@code NA} value. Hence, checking for {@code null} does not always
-   * work. Instead {@link Is#NA(Object)} should be used.
-   *
-   * <pre>{@code
-   * Vector v = new GenericVector(Date.class, Arrays.asList(new Date(), new Date());
-   * Date date = v.get(Date.class, 0);
-   * if(Is.NA(date)) { // or date == null
-   *   // got a NA value
-   * }
-   *
-   * Vector v = ...; // for example an IntVector
-   * int value = v.get(Integer.class, 32);
-   * if(Is.NA(value)) { // or value == IntVector.NA (but not value == null)
-   *   // got a NA value
-   * }}</pre>
-   *
-   * <p> {@link java.lang.ClassCastException} should not be thrown, instead {@code NA} should be
-   * returned
-   *
-   * @param cls   the class
-   * @param index the index
-   * @param <T>   the type
-   * @return a value of type; returns {@code NA} if value is not an instance of {@code cls}
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  <T> T get(Class<T> cls, int index);
+//  <T> T get(Class<T> cls, int index);
 
   /**
-   * Same as {@code get(cls, getIndex().index(key))}
+   * Same as {@code loc().get(cls, getIndex().getLocation(key))}
    *
-   * @see #get(Class, int)
+   * @see org.briljantframework.index.VectorLocationGetter#get(Class, int)
    */
   <T> T get(Class<T> cls, Object key);
 
-  /**
-   * Get the value at the specified index. If the value is {@code NA}, the supplied default value
-   * is
-   * returned.
-   *
-   * @param cls          the class
-   * @param index        the index
-   * @param defaultValue the default value supplier
-   * @param <T>          the type
-   * @return the value at the specified index or the default value
-   */
-  <T> T get(Class<T> cls, int index, Supplier<T> defaultValue);
-
-  /**
-   * Returns value as {@code double} if applicable. Otherwise returns {@link Na#DOUBLE}.
-   *
-   * @param index the index
-   * @return a double
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  double getAsDouble(int index);
-
-  /**
-   * Same as {@code get(cls, getIndex().index(key))}
-   *
-   * @see #getAsDouble(int)
-   */
   double getAsDouble(Object key);
 
-  /**
-   * Returns value as {@code int} if applicable. Otherwise returns {@link
-   * Na#INT}
-   *
-   * @param index the index
-   * @return an int
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  int getAsInt(int index);
-
-  /**
-   * Same as {@code get(cls, getIndex().index(key))}
-   *
-   * @see #get(Class, int)
-   */
   int getAsInt(Object key);
 
-  /**
-   * Return the string representation of the value at {@code index}
-   *
-   * @param index the index
-   * @return the string representation. Returns "NA" if value is missing.
-   */
-  String toString(int index);
-
-  /**
-   * Same as {@code toString(cls, getIndex().index(key))}
-   *
-   * @see #toString(int)
-   */
   String toString(Object key);
-
-  /**
-   * Returns {@code true} if value at {@code index} is considered to be true. <p> The following
-   * conventions apply:
-   *
-   * <ul>
-   * <li>{@code 1.0+-0i == TRUE}</li>
-   * <li>{@code 1.0 == TRUE}</li>
-   * <li>{@code 1 == TRUE}</li>
-   * <li>{@code &quot;true&quot; == TRUE}</li>
-   * <li>{@code Binary.TRUE == TRUE}</li>
-   * </ul>
-   *
-   * <p> All other values are considered to be FALSE
-   *
-   * @param index the index
-   * @return true or false
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  /**/
-  boolean isTrue(int index);
-
-  /**
-   * Returns true if value at {@code index} is NA
-   *
-   * @param index the index
-   * @return true or false
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  boolean isNA(int index);
 
   /**
    * Returns true there ara any NA values
@@ -561,15 +446,9 @@ public interface Vector extends Serializable {
    */
   boolean hasNA();
 
-  /**
-   * Returns a new vector of length {@code indexes.size()} of the elements in index
-   *
-   * @param indexes a collection of indexes
-   * @return a new vector
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   * @throws java.lang.NullPointerException      if any index is null
-   */
-  Vector select(List<Integer> indexes);
+  boolean isNA(Object key);
+
+  boolean isTrue(Object key);
 
   Vector select(Vector bits);
 
@@ -705,51 +584,7 @@ public interface Vector extends Serializable {
     return toArray(Integer.class).asInt();
   }
 
-  /**
-   * Follows the conventions from {@link Comparable#compareTo(Object)}.
-   *
-   * <p> Returns value {@code < 0} if value at index {@code a} is less than {@code b}. value {@code
-   * > 0} if value at index {@code b} is larger than {@code a} and 0 if they are equal.
-   *
-   * @param a the index a
-   * @param b the index b
-   * @return comparing int
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   * @see Comparable#compareTo(Object)
-   */
-  int compare(int a, int b);
-
-  /**
-   * Compare value at {@code a} in {@code this} to value at {@code b} in {@code ba}. Equivalent to
-   * {@code this.get(a).compareTo(other.get(b))}, but in most circumstances with greater
-   * performance.
-   *
-   * @param a     the index in {@code this}
-   * @param other the other vector
-   * @param b     the index in {@code other}
-   * @return the comparison
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   * @see java.lang.Comparable#compareTo(Object)
-   */
-  int compare(int a, Vector other, int b);
-
-  /**
-   * Returns true if element at {@code a} in {@code this} equals element at {@code b} in {@code
-   * other}.
-   *
-   * @param a     the index in this
-   * @param other the other vector
-   * @param b     the index in other
-   * @return true if values are equal
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  boolean equals(int a, Vector other, int b);
-
-  boolean equals(int a, Object other);
-
-  default VectorLocationGetter loc() {
-    throw new UnsupportedOperationException("Not implemented yet");
-  }
+  VectorLocationGetter loc();
 
   /**
    * <p> Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if
@@ -757,36 +592,26 @@ public interface Vector extends Serializable {
    * index {@code 8} and indexes {@code 0-7} have the value {@code NA}. If the value at index
    * {@code 11} is set, values {@code 9, 10} are set to {@code NA}. </p>
    *
-   * <p> When transferring values between vectors, prefer {@link #set(int, Vector, int)} to {@link
-   * #set(int, Object)}. For example, {@code Vector.Builder a; Vector b; a.set(0, b, 10)} sets the
+   * <p> When transferring values between vectors, prefer {@link #set(Object, Vector, int)} to
+   * {@link
+   * #set(Object, Object)}. For example, {@code Vector.Builder a; Vector b; a.set(0, b, 10)} sets
+   * the
    * value of {@code a} at index {@code 0} to the value at index {@code 10} in {@code b}. This
    * avoids unboxing values from one vector to another. For the numerical vectors, values are
    * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or {@code
    * Bit.TRUE} in a bit-vector. </p>
    */
-  public static interface Builder extends Swappable {
+  public static interface Builder {
 
     /**
      * Recommended initial capacity
      */
     int INITIAL_CAPACITY = 50;
 
-    /**
-     * Add NA at {@code index}. If {@code index > size()} the resulting vector should be padded
-     * with NA:s between {@code size} and {@code index} and {@code index} set to NA.
-     *
-     * @param index the index
-     * @return a modified builder
-     */
-    Builder setNA(int index);
-
     Builder setNA(Object key);
 
     /**
-     * Same as {@code addNA(size())}
-     *
      * @return a modified builder
-     * @see #setNA(int)
      */
     Builder addNA();
 
@@ -801,52 +626,9 @@ public interface Vector extends Serializable {
 
     Builder add(Vector from, Object key);
 
-    /**
-     * Add value at {@code fromIndex} in {@code from} to {@code atIndex}. Padding with NA:s between
-     * {@code atIndex} and {@code size()} if {@code atIndex > size()}.
-     *
-     * @param atIndex   the index
-     * @param from      the vector to take the value from
-     * @param fromIndex the index
-     * @return a modified build
-     */
-    Builder set(int atIndex, Vector from, int fromIndex);
-
-    Builder set(int atIndex, Vector from, Object fromKey);
-
     Builder set(Object atKey, Vector from, int fromIndex);
 
     Builder set(Object atKey, Vector from, Object fromIndex);
-
-    default VectorLocationSetter loc() {
-      throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    /**
-     * Add {@code value} at {@code index}. Padding with NA:s between {@code atIndex} and {@code
-     * size()} if {@code atIndex > size()}. <p> If value {@code value} cannot be added to this
-     * vector type, a NA value is added instead.
-     *
-     * <p>How values are resolved depend on the implementation.
-     *
-     * <p>This must hold:
-     *
-     * <ul>
-     * <li>{@code null} always result in {@code NA}</li>
-     * <li>If {@link org.briljantframework.io.resolver.Resolvers#find(Class)} return a
-     * non-null value the returned {@link org.briljantframework.io.resolver.Resolver#resolve(Class,
-     * Object)} shall be used to produce the converted value. </li>
-     * </ul>
-     *
-     * @param index the index
-     * @param value the value
-     * @return a modified builder
-     */
-    Builder set(int index, Object value);
-
-    Builder set(int index, double value);
-
-    Builder set(int index, int value);
 
     Builder set(Object key, Object value);
 
@@ -862,10 +644,6 @@ public interface Vector extends Serializable {
 
     Builder add(int value);
 
-    default Builder addAll(Object... objects) {
-      return addAll(Arrays.asList(objects));
-    }
-
     /**
      * Add all values in {@code from} to this builder.
      *
@@ -873,6 +651,10 @@ public interface Vector extends Serializable {
      * @return a modified builder
      */
     Builder addAll(Vector from);
+
+    default Builder addAll(Object... objects) {
+      return addAll(Arrays.asList(objects));
+    }
 
     default Builder addAll(Vector.Builder builder) {
       return addAll(builder.getTemporaryVector());
@@ -888,33 +670,7 @@ public interface Vector extends Serializable {
       return this;
     }
 
-    /**
-     * Removes value at {@code index} and shifts element to the left.
-     *
-     * @param index the index
-     * @return a modified builder with element at {@code index} removed
-     */
-    Builder remove(int index);
-
     Builder remove(Object key);
-
-    /**
-     * Compares value at {@code a} and {@code b}.
-     *
-     * @param a first index
-     * @param b second index
-     * @return cmp < 0 if value at {@code a} is less than {@code b}, cmp > 0 if value at a is
-     * greater than b and 0 otherwise
-     */
-    int compare(int a, int b);
-
-    /**
-     * Swaps value at {@code a} with value at {@code b}
-     *
-     * @param a the first index
-     * @param b the seconds index
-     */
-    void swap(int a, int b);
 
     default Builder readAll(DataEntry entry) throws IOException {
       while (entry.hasNext()) {
@@ -922,6 +678,8 @@ public interface Vector extends Serializable {
       }
       return this;
     }
+
+    VectorLocationSetter loc();
 
     /**
      * Reads a value from the input stream and appends it to the builder (after the last value).
@@ -950,9 +708,8 @@ public interface Vector extends Serializable {
     int size();
 
     /**
-     * Returns a temporary vector. Modifications to the builder (such as, e.g., {@link
-     * #swap(int, int)}) is propagated to the temporary vector, allowing changes to be tracked
-     * withing the builder.
+     * Returns a temporary vector. Modifications to the builder is propagated to the temporary
+     * vector, allowing changes to be tracked within the builder.
      *
      * @return the temporary vector.
      */

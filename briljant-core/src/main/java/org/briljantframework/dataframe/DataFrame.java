@@ -430,6 +430,10 @@ public interface DataFrame extends Iterable<Vector> {
       return addRecord(recordType.newBuilder());
     }
 
+    Builder remove(Object key);
+
+    Builder removeRecord(Object key);
+
     /**
      * Concatenates the row at {@code toRow} with {@code vector} starting at {@code startCol}. If
      * {@code startCol < columns()}, values will be overwritten.

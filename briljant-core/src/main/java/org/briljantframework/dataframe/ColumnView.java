@@ -48,28 +48,28 @@ class ColumnView extends AbstractVector {
   }
 
   @Override
-  public <T> T get(Class<T> cls, int index) {
+  public <T> T getAt(Class<T> cls, int index) {
     return parent.loc().get(cls, index, column);
   }
 
   @Override
-  public String toString(int index) {
+  public String toStringAt(int index) {
     return parent.loc().toString(index, column);
   }
 
   @Override
-  public boolean isNA(int index) {
+  public boolean isNaAt(int index) {
     return parent.loc().isNA(index, column);
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return parent.loc().getAsDouble(index, column);
+  public double getAsDoubleAt(int i) {
+    return parent.loc().getAsDouble(i, column);
   }
 
   @Override
-  public int getAsInt(int index) {
-    return parent.loc().getAsInt(index, column);
+  public int getAsIntAt(int i) {
+    return parent.loc().getAsInt(i, column);
   }
 
   @Override
@@ -109,21 +109,16 @@ class ColumnView extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b) {
-    return getType().compare(a, this, b, this);
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
+  public int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
   }
 
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder("[");
-    builder.append(toString(0));
+    builder.append(toStringAt(0));
     for (int i = 1; i < size(); i++) {
-      builder.append(",").append(toString(i));
+      builder.append(",").append(toStringAt(i));
     }
     return builder.append("]").toString();
   }

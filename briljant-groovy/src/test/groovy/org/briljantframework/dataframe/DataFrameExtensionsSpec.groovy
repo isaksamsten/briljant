@@ -24,7 +24,6 @@
 
 package org.briljantframework.dataframe
 
-import org.briljantframework.function.Aggregates
 import org.briljantframework.vector.Vector
 import spock.lang.Specification
 
@@ -44,7 +43,7 @@ class DataFrameExtensionsSpec extends Specification {
         b: Vector.of([1, 2, 3, 4]),
         c: Vector.of(["1", "3", "10", "g"])
     ])
-    df.recordIndex = ["a", "b", "c", "d"] as HashIndex
+    df.recordIndex = ["a", "b", "c", "d"] as ObjectIndex
 
     then:
     df[0, 0] == 1

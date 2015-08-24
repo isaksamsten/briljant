@@ -43,10 +43,10 @@ public class DataSeriesCollectionTest {
     DataSeriesCollection collection = builder.build();
     DataFrame drop = collection.loc().drop(0, 1);
     for (Vector row : drop) {
-      assertEquals(3, row.getAsDouble(0), 0.0001);
-      assertEquals(4, row.getAsDouble(1), 0.0001);
-      assertEquals(5, row.getAsDouble(2), 0.0001);
-      assertEquals(6, row.getAsDouble(3), 0.0001);
+      assertEquals(3, row.loc().getAsDouble(0), 0.0001);
+      assertEquals(4, row.loc().getAsDouble(1), 0.0001);
+      assertEquals(5, row.loc().getAsDouble(2), 0.0001);
+      assertEquals(6, row.loc().getAsDouble(3), 0.0001);
     }
   }
 }

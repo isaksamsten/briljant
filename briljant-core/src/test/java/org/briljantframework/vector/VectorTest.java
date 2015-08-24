@@ -22,50 +22,36 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
+package org.briljantframework.vector;
 
-import spock.lang.Specification
+import org.briljantframework.dataframe.SortOrder;
+import org.junit.Test;
 
-/**
- * Created by isak on 07/06/15.
- */
-class HashIndexSpec extends Specification {
+public class VectorTest {
 
-  def "create HashIndex from list"() {
-    when:
-    def i = ObjectIndex.from(["a", "b", "c"])
+  @Test
+  public void testHead() throws Exception {
+    Vector a = VectorType.inferringBuilder()
+        .set("a", 10)
+        .set("b", 100)
+        .set("c", 1)
+        .set("d", 11)
+        .build();
 
-    then:
-    i.keySet() as ArrayList == ["a", "b", "c"]
-    i.getLocation("a") == 0
-    i.getLocation("b") == 1
-    i.indices(["a", "b"] as Object[]) as ArrayList == [0, 1]
-    i.locations() as ArrayList == [0, 1, 2]
-    i.getKey(2) == "c"
-    i.size() == 3
-    i.newCopyBuilder().build().getLocation("a") == 0
+    Vector head = a.head(2);
+    System.out.println(head);
   }
 
-  def "remove element from hash index"() {
-    given:
-    def b = new ObjectIndex.Builder()
+  @Test
+  public void testTestSort() throws Exception {
+    Vector a = VectorType.inferringBuilder()
+        .set(40, 1)
+        .set(30, 2)
+        .set(20, 3)
+        .set(10, 4)
+        .build();
 
-    when:
-    b.add(0)
-    b.add(1)
-    b.add(2)
-    b.add(3)
-
-    and:
-    b.remove(1)
-
-    and:
-    def i = b.build()
-
-    then:
-    i.getLocation(0) == 0
-    i.getLocation(2) == 1
-    i.getLocation(3) == 2
+    Vector v = a.sort(SortOrder.ASC);
+    System.out.println(v);
   }
-
 }

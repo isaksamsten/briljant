@@ -59,7 +59,7 @@ public class Euclidean implements Distance {
 
     double residual = 0.0;
     for (int i = 0; i < size; i++) {
-      residual += compute(a.getAsDouble(i), b.getAsDouble(i));
+      residual += compute(a.loc().getAsDouble(i), b.loc().getAsDouble(i));
     }
 
     return Math.sqrt(residual);

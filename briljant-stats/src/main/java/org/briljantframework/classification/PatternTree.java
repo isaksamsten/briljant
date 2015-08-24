@@ -224,7 +224,7 @@ public class PatternTree implements Classifier {
 
     // Transfer weights from the initial example
     Example first = distances.get(0).example;
-    Object prevTarget = y.get(Object.class, first.getIndex());
+    Object prevTarget = y.loc().get(Object.class, first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
@@ -235,7 +235,7 @@ public class PatternTree implements Classifier {
     double threshold = distances.get(0).distance / 2;
     for (int i = 1; i < distances.size(); i++) {
       ExampleValue ed = distances.get(i);
-      Object target = y.get(Object.class, ed.example.getIndex());
+      Object target = y.loc().get(Object.class, ed.example.getIndex());
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current
       // (except for the first)
@@ -367,7 +367,7 @@ public class PatternTree implements Classifier {
       double mean = 0;
       for (int i = 0; i < size; i++) {
         int idx = indexes[i];
-        mean += vector.getAsDouble(idx);
+        mean += vector.loc().getAsDouble(idx);
       }
       return mean / size;
     }
@@ -381,7 +381,7 @@ public class PatternTree implements Classifier {
       double max = Double.NEGATIVE_INFINITY;
       for (int i = 0; i < size; i++) {
         int idx = indexes[i];
-        double v = vector.getAsDouble(idx);
+        double v = vector.loc().getAsDouble(idx);
         if (v > max) {
           max = v;
         }
@@ -398,7 +398,7 @@ public class PatternTree implements Classifier {
       double min = Double.POSITIVE_INFINITY;
       for (int i = 0; i < size; i++) {
         int idx = indexes[i];
-        double v = vector.getAsDouble(idx);
+        double v = vector.loc().getAsDouble(idx);
         if (v < min) {
           min = v;
         }
@@ -414,7 +414,7 @@ public class PatternTree implements Classifier {
       double sum = 0, sumS = 0;
       for (int i = 0; i < size; i++) {
         int idx = indexes[i];
-        double v = vector.getAsDouble(idx);
+        double v = vector.loc().getAsDouble(idx);
         sum += v;
         sumS += v * v;
       }
@@ -434,8 +434,8 @@ public class PatternTree implements Classifier {
       for (int i = 0; i < size - k; i++) {
         int idx1 = indexes[i];
         int idx2 = indexes[i + k];
-        double v1 = vector.getAsDouble(idx1);
-        double v2 = vector.getAsDouble(idx2);
+        double v1 = vector.loc().getAsDouble(idx1);
+        double v2 = vector.loc().getAsDouble(idx2);
         auto += (v1 - u) * (v2 - u);
       }
       return auto / ((size - k) * s);
@@ -449,14 +449,14 @@ public class PatternTree implements Classifier {
       double mean = 0;
       for (int i = 0; i < n; i++) {
         int idx = indexes[i];
-        mean += vector.getAsDouble(idx);
+        mean += vector.loc().getAsDouble(idx);
       }
       mean /= n;
 
       double k = 0, m4 = 0, m2 = 0;
       for (int i = 0; i < n; i++) {
         int idx = indexes[i];
-        double v = vector.getAsDouble(idx) - mean;
+        double v = vector.loc().getAsDouble(idx) - mean;
         m4 += Math.pow(v, 4);
         m2 += v * v;
       }

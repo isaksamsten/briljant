@@ -24,10 +24,14 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.EntryReader;
+import org.briljantframework.io.StringDataEntry;
 import org.briljantframework.vector.Vector;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +65,7 @@ public abstract class DataFrameTest {
         .add(first)
         .add(second)
         .build();
-    df.setColumnIndex(HashIndex.from("123", "abc"));
+    df.setColumnIndex(ObjectIndex.from("123", "abc"));
 
     int n = 3;
     DataFrame head = df.head(n);
@@ -71,8 +75,8 @@ public abstract class DataFrameTest {
       Vector a = head.get("123");
       Vector b = head.get("abc");
 
-      assertEquals(first.getAsInt(i), a.getAsInt(i));
-      assertEquals(second.getAsInt(i), b.getAsInt(i));
+      assertEquals(first.loc().getAsInt(i), a.loc().getAsInt(i));
+      assertEquals(second.loc().getAsInt(i), b.loc().getAsInt(i));
     }
   }
 
@@ -84,7 +88,7 @@ public abstract class DataFrameTest {
         .add(a)
         .add(b)
         .build();
-    df.setColumnIndex(HashIndex.from("a", "b"));
+    df.setColumnIndex(ObjectIndex.from("a", "b"));
 
     DataFrame.Builder builder = df.newBuilder();
     for (int i = 0; i < df.rows(); i++) {
@@ -267,6 +271,49 @@ public abstract class DataFrameTest {
 
     assertEquals(Vector.of(4, 37), df.get("id"));
     assertEquals(Vector.of(32, 44), df.get("age"));
+  }
+
+  @Test
+  public void testBuildNewDataFrameFromEntryReader() throws Exception {
+    EntryReader entryReader = new EntryReader() {
+      private final DataEntry[] entries = new DataEntry[]{
+          new StringDataEntry("1", "2", "3"),
+          new StringDataEntry("3", "2", "1")
+      };
+      private int current = 0;
+
+      @Override
+      public DataEntry next() throws IOException {
+        return entries[current++];
+      }
+
+      @Override
+      public boolean hasNext() throws IOException {
+        return current < entries.length;
+      }
+    };
+
+    DataFrame df = getBuilder().read(entryReader).build();
+
+    assertEquals(2, df.rows());
+    assertEquals(3, df.columns());
+
+    assertEquals(Arrays.asList("1", "2", "3"), df.getRecord(0).asList(String.class));
+    assertEquals(Arrays.asList("3", "2", "1"), df.getRecord(1).asList(String.class));
+  }
+
+  @Test
+  public void testRemoveColumnUsingLocationIndex() throws Exception {
+    DataFrame.Builder builder = getBuilder()
+        .set("a", Vector.of(1, 2, 3, 4))
+        .set("b", Vector.of(1, 2, 3, 4))
+        .set("c", Vector.of(1, 2, 3, 4));
+
+//    builder.loc().remove(0);
+//    DataFrame df = builder.build();
+//    assertEquals(2, df.columns());
+//    assertEquals(4, df.rows());
+
   }
 
   //  @Test

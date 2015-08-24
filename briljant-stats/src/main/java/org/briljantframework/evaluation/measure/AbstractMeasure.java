@@ -76,7 +76,7 @@ public abstract class AbstractMeasure implements Measure {
 
   @Override
   public double get(Sample sample, int i) {
-    return values.getOrDefault(sample, naVector).getAsDouble(i);
+    return values.getOrDefault(sample, naVector).loc().getAsDouble(i);
   }
 
   @Override

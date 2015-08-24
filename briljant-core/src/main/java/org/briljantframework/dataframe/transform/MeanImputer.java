@@ -50,22 +50,23 @@ public class MeanImputer implements Transformer {
       Index.Builder columnIndex = x.getColumnIndex().newBuilder();
       Index.Builder recordIndex = x.getRecordIndex().newBuilder();
 
-      x.getColumnIndex().entrySet().forEach(columnIndex::set);
-      x.getRecordIndex().entrySet().forEach(recordIndex::set);
-      for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.loc().get(j).getType(), VectorType.DOUBLE);
-        for (int i = 1; i < x.rows(); i++) {
-          if (x.loc().isNA(i, j)) {
-            builder.loc().set(i, j, means.get(j));
-          } else {
-            builder.loc().set(i, j, x, i, j);
-          }
-        }
-      }
-      DataFrame df = builder.build();
-      df.setColumnIndex(columnIndex.build());
-      df.setRecordIndex(recordIndex.build());
-      return df;
+      throw new UnsupportedOperationException();
+//      x.getColumnIndex().entrySet().forEach(columnIndex::set);
+//      x.getRecordIndex().entrySet().forEach(recordIndex::set);
+//      for (int j = 0; j < x.columns(); j++) {
+//        Check.type(x.loc().get(j).getType(), VectorType.DOUBLE);
+//        for (int i = 1; i < x.rows(); i++) {
+//          if (x.loc().isNA(i, j)) {
+//            builder.loc().set(i, j, means.get(j));
+//          } else {
+//            builder.loc().set(i, j, x, i, j);
+//          }
+//        }
+//      }
+//      DataFrame df = builder.build();
+//      df.setColumnIndex(columnIndex.build());
+//      df.setRecordIndex(recordIndex.build());
+//      return df;
     };
   }
 }

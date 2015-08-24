@@ -65,7 +65,7 @@ public class MeanAggregator implements Aggregator {
       double sum = 0;
       int binInc = bin + inc;
       for (int j = 0; j < binInc; j++) {
-        sum += in.getAsDouble(currentIndex++);
+        sum += in.loc().getAsDouble(currentIndex++);
       }
       out.add(sum / binInc);
     }

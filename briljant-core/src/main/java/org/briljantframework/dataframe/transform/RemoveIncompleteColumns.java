@@ -80,7 +80,7 @@ public class RemoveIncompleteColumns implements Transformation {
     for (int i = 0; i < x.columns(); i++) {
       Vector column = x.loc().get(i);
       if (!column.hasNA()) {
-        index.add(columnIndex.get(i));
+        index.add(columnIndex.getKey(i));
         builder.add(column);
       }
     }

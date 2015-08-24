@@ -51,7 +51,7 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public <T> T get(Class<T> cls, int index) {
+  public <T> T getAt(Class<T> cls, int index) {
     Check.elementIndex(index, size());
     Object obj = value;
     if (Is.NA(obj)) {
@@ -76,13 +76,13 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public String toString(int index) {
+  public String toStringAt(int index) {
     Check.elementIndex(index, size());
     return value != null ? value.toString() : "NA";
   }
 
   @Override
-  public boolean isNA(int index) {
+  public boolean isNaAt(int index) {
     Check.elementIndex(index, size());
     return Is.NA(value);
   }
@@ -93,14 +93,14 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public double getAsDouble(int index) {
-    Check.elementIndex(index, size());
+  public double getAsDoubleAt(int i) {
+    Check.elementIndex(i, size());
     return value instanceof Number ? ((Number) value).doubleValue() : Na.DOUBLE;
   }
 
   @Override
-  public int getAsInt(int index) {
-    Check.elementIndex(index, size());
+  public int getAsIntAt(int i) {
+    Check.elementIndex(i, size());
     return value instanceof Number ? ((Number) value).intValue() : Na.INT;
   }
 
@@ -130,12 +130,7 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b) {
-    return getType().compare(a, this, b, this);
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
+  public int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
   }
 }

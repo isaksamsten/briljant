@@ -28,6 +28,7 @@ import org.briljantframework.sort.Swappable;
 
 import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +42,7 @@ public interface Index extends Iterable<Index.Entry> {
 
   int getLocation(Object key);
 
-  Object get(int index);
+  Object getKey(int index);
 
   boolean contains(Object key);
 
@@ -66,7 +67,7 @@ public interface Index extends Iterable<Index.Entry> {
     return new AbstractList<Object>() {
       @Override
       public Object get(int index) {
-        return Index.this.get(index);
+        return getKey(index);
       }
 
       @Override
@@ -115,23 +116,21 @@ public interface Index extends Iterable<Index.Entry> {
      * @param key the key
      * @return value {@code > 0} if {@code key} exists or {@code -1} otherwise.
      */
-    int index(Object key);
+    int getLocation(Object key);
 
-    Object get(int index);
+    Object getKey(int index);
 
     void add(Object key);
 
-    void set(Object key, int index);
+    void add(int key);
 
-    void set(int key, int index);
+    void sort(Comparator<Object> cmp);
+
+    void sort();
 
     void extend(int size);
 
     Index build();
-
-    void set(Entry entry);
-
-    void putAll(Set<Entry> entries);
 
     int size();
 

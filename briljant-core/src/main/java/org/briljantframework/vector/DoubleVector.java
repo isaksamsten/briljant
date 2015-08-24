@@ -39,7 +39,6 @@ import org.briljantframework.io.resolver.Resolvers;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
 /**
@@ -75,8 +74,8 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public int compare(int a, Vector va, int b, Vector ba) {
-      double dva = va.getAsDouble(a);
-      double dba = ba.getAsDouble(b);
+      double dva = va.loc().getAsDouble(a);
+      double dba = ba.loc().getAsDouble(b);
 
       return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
     }
@@ -159,16 +158,9 @@ public class DoubleVector extends AbstractVector {
     return builder;
   }
 
-  public static Collector<Double, ?, Builder> collector() {
-    return Collector.of(Builder::new, Builder::add, (builder, builder2) -> {
-      builder.addAll(builder2.build());
-      return builder;
-    });
-  }
-
   @Override
-  public double getAsDouble(int index) {
-    return values[index];
+  public double getAsDoubleAt(int i) {
+    return values[i];
   }
 
   @Override
@@ -177,24 +169,24 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public <T> T get(Class<T> cls, int index) {
+  public <T> T getAt(Class<T> cls, int index) {
     Check.argument(!cls.isPrimitive(), "can't get primitive values");
-    return Convert.to(cls, getAsDouble(index));
+    return Convert.to(cls, getAsDoubleAt(index));
   }
 
   @Override
-  public String toString(int index) {
-    double value = getAsDouble(index);
+  public String toStringAt(int index) {
+    double value = getAsDoubleAt(index);
     return Is.NA(value) ? "NA" : String.format("%.3f", value);
   }
 
   @Override
-  public boolean isNA(int index) {
-    return Is.NA(getAsDouble(index));
+  public boolean isNaAt(int index) {
+    return Is.NA(getAsDoubleAt(index));
   }
 
   public Complex getAsComplex(int index) {
-    double v = getAsDouble(index);
+    double v = getAsDoubleAt(index);
     if (Is.NA(v)) {
       return Complex.NaN;
     } else {
@@ -203,13 +195,13 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public int getAsInt(int index) {
-    double value = getAsDouble(index);
+  public int getAsIntAt(int i) {
+    double value = getAsDoubleAt(i);
     return Is.NA(value) ? Na.INT : (int) value;
   }
 
   public Logical getAsBit(int index) {
-    return Logical.valueOf(getAsInt(index));
+    return Logical.valueOf(getAsIntAt(index));
   }
 
   @Override
@@ -228,16 +220,9 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b) {
-    double va = getAsDouble(a);
-    double vb = getAsDouble(b);
-    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    double va = getAsDouble(a);
-    double vb = other.getAsDouble(b);
+  public int compareAt(int a, Vector other, int b) {
+    double va = getAsDoubleAt(a);
+    double vb = other.loc().getAsDouble(b);
     return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
   }
 
@@ -245,7 +230,7 @@ public class DoubleVector extends AbstractVector {
   public int hashCode() {
     int code = 1;
     for (int i = 0; i < size(); i++) {
-      long v = Double.doubleToLongBits(getAsDouble(i));
+      long v = Double.doubleToLongBits(getAsDoubleAt(i));
       code += 31 * (int) (v ^ v >>> 32);
     }
     return code;
@@ -275,7 +260,7 @@ public class DoubleVector extends AbstractVector {
       Vector ov = (Vector) o;
       if (size() == ov.size()) {
         for (int i = 0; i < size(); i++) {
-          if (getAsDouble(i) != ov.getAsDouble(i)) {
+          if (getAsDoubleAt(i) != ov.loc().getAsDouble(i)) {
             return false;
           }
         }
@@ -312,39 +297,29 @@ public class DoubleVector extends AbstractVector {
       super(vector.getIndex().newCopyBuilder());
       this.buffer = new DoubleArrayList(vector.size());
       for (int i = 0; i < vector.size(); i++) {
-        this.buffer.add(vector.getAsDouble(i));
+        this.buffer.add(vector.getAsDoubleAt(i));
       }
     }
 
     @Override
-    public Builder setNA(int index) {
+    protected void setNaAt(int index) {
       ensureCapacity(index);
       buffer.buffer[index] = Na.DOUBLE;
-      this.indexer.set(index, index);
-      return this;
     }
 
     @Override
-    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+    protected void setAt(int atIndex, Vector from, Object fromKey) {
       setAt(atIndex, from.getAsDouble(fromKey));
-      return this;
     }
 
     @Override
-    public Builder add(double value) {
-      return set(size(), value);
-    }
-
-    @Override
-    public Builder set(int index, double value) {
+    protected void setAt(int index, double value) {
       ensureCapacity(index);
       buffer.buffer[index] = value;
-      this.indexer.set(index, index);
-      return this;
     }
 
     @Override
-    void setAt(int index, Object value) {
+    protected void setAt(int index, Object value) {
       ensureCapacity(index);
       double dval = Na.DOUBLE;
       if (value instanceof Number) {
@@ -362,32 +337,18 @@ public class DoubleVector extends AbstractVector {
     }
 
     @Override
-    void setAt(int atIndex, Vector from, int fromIndex) {
+    protected void setAt(int atIndex, Vector from, int fromIndex) {
       ensureCapacity(atIndex);
-      buffer.buffer[atIndex] = from.getAsDouble(fromIndex);
+      buffer.buffer[atIndex] = from.loc().getAsDouble(fromIndex);
     }
 
     @Override
-    public Builder addAll(Vector from) {
-      for (int i = 0; i < from.size(); i++) {
-        add(from.getAsDouble(i));
-      }
-      return this;
-    }
-
-    @Override
-    public Vector.Builder remove(int index) {
+    protected void removeAt(int index) {
       buffer.remove(index);
-      return this;
     }
 
     @Override
-    public int compare(int a, int b) {
-      return Double.compare(buffer.get(a), buffer.get(b));
-    }
-
-    @Override
-    public void swap(int a, int b) {
+    public void swapAt(int a, int b) {
       Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
       Utils.swap(buffer.buffer, a, b);
     }
@@ -395,7 +356,7 @@ public class DoubleVector extends AbstractVector {
     @Override
     public Vector.Builder read(int index, DataEntry entry) throws IOException {
       double value = entry.nextDouble();
-      set(index, value);
+      setAt(index, value);
       return this;
     }
 
@@ -416,7 +377,7 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public DoubleVector build() {
-      DoubleVector vec = new DoubleVector(buffer.buffer, size(), indexer.build());
+      DoubleVector vec = new DoubleVector(buffer.buffer, size(), getIndex());
       buffer = null;
       return vec;
     }
@@ -425,9 +386,6 @@ public class DoubleVector extends AbstractVector {
       buffer.ensureCapacity(index + 1);
       int i = buffer.size();
       while (i <= index) {
-        if (i < index) {
-          this.indexer.set(i, i);
-        }
         buffer.buffer[i++] = Na.DOUBLE;
         buffer.elementsCount++;
       }

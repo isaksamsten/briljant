@@ -185,7 +185,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     // Transfer weights from the initial example
     Example first = distances.get(0).example;
-    Object prevTarget = y.get(Object.class, first.getIndex());
+    Object prevTarget = y.loc().get(Object.class, first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
@@ -198,7 +198,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
     for (int i = 1; i < distances.size(); i++) {
       ExampleDistance ed = distances.get(i);
-      Object target = y.get(Object.class, ed.example.getIndex());
+      Object target = y.loc().get(Object.class, ed.example.getIndex());
 
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current

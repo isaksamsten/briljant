@@ -27,7 +27,7 @@ package org.briljantframework.function;
 import org.apache.commons.math3.stat.descriptive.AggregateSummaryStatistics;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.briljantframework.dataframe.HashIndex;
+import org.briljantframework.dataframe.ObjectIndex;
 import org.briljantframework.index.Index;
 import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Is;
@@ -197,7 +197,7 @@ public final class Aggregates {
         },
         (map) -> {
           Vector.Builder b = VectorType.inferringBuilder();
-          Index.Builder ib = new HashIndex.Builder();
+          Index.Builder ib = new ObjectIndex.Builder();
           for (Map.Entry<T, Integer> e : map.entrySet()) {
             b.add(e.getValue());
             ib.add(e.getKey());
@@ -277,7 +277,7 @@ public final class Aggregates {
           v.getMax(),
           v.getN()
       );
-      summary.setIndex(HashIndex.from(
+      summary.setIndex(ObjectIndex.from(
           "mean",
           "sum",
           "std",

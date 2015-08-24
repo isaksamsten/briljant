@@ -357,7 +357,7 @@ public class LogisticRegression implements Classifier {
       DoubleArray x = Bj.doubleArray(record.size() + 1);
       x.set(0, 1);
       for (int i = 0; i < record.size(); i++) {
-        x.set(i + 1, record.getAsDouble(i));
+        x.set(i + 1, record.loc().getAsDouble(i));
       }
 
       Vector classes = getClasses();

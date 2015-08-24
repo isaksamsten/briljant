@@ -26,7 +26,7 @@ package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.HashIndex;
+import org.briljantframework.dataframe.ObjectIndex;
 import org.briljantframework.index.Index;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.measure.Measure;
@@ -280,7 +280,7 @@ public class Result {
 
   public DataFrame toDataFrame() {
     DataFrame.Builder df = new MixedDataFrame.Builder();
-    Index.Builder index = new HashIndex.Builder();
+    Index.Builder index = new ObjectIndex.Builder();
     index.add("Fold");
     index.add("Sample");
     Iterator<Measure> it = getMeasures().iterator();

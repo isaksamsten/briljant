@@ -89,7 +89,7 @@ public final class DataFrames {
     CsvParser parser = new CsvParser(settings);
     parser.beginParsing(new BufferedReader(new FileReader(new File(file))));
 
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
     for (String s : parser.parseNext()) {
       columnIndex.add(s);
     }
@@ -148,7 +148,7 @@ public final class DataFrames {
       return dataFrames.iterator().next();
     }
     DataFrame.Builder builder = null;
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
 
     int toRow = 0;
     int currentColumn = 0;
@@ -159,7 +159,7 @@ public final class DataFrames {
 
       int rows = df.rows();
       for (Index.Entry col : df.getColumnIndex().entrySet()) {
-        int toColumn = columnIndex.index(col.key());
+        int toColumn = columnIndex.getLocation(col.key());
         int fromCol = col.index();
         if (toColumn < 0) {
           columnIndex.add(col.key());
@@ -199,7 +199,7 @@ public final class DataFrames {
       Collection<VectorType> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
       DataFrame df = f.apply(types).read(in).build();
-      df.setColumnIndex(HashIndex.from(names));
+      df.setColumnIndex(ObjectIndex.from(names));
       return df;
     } finally {
       if (in != null) {
@@ -240,7 +240,7 @@ public final class DataFrames {
       }
     }
     DataFrame bdf = builder.build();
-    bdf.setColumnIndex(HashIndex.from(
+    bdf.setColumnIndex(ObjectIndex.from(
         Arrays.asList("Mean", "Min", "Max", "Mode")
     ));
     return bdf;

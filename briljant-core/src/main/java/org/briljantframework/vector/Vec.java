@@ -67,7 +67,7 @@ public final class Vec {
   public static DoubleVector rand(int size, RealDistribution source) {
     DoubleVector.Builder v = new DoubleVector.Builder(0, size);
     for (int i = 0; i < size; i++) {
-      v.set(i, source.sample());
+      v.setAt(i, source.sample());
     }
     return v.build();
   }
@@ -84,7 +84,7 @@ public final class Vec {
    */
   public static int find(Vector haystack, Vector needleSource, int needle) {
     for (int i = 0; i < haystack.size(); i++) {
-      if (haystack.compare(i, needleSource, needle) == 0) {
+      if (haystack.loc().compare(i, needleSource, needle) == 0) {
         return i;
       }
     }
@@ -103,7 +103,7 @@ public final class Vec {
   public static <T> int find(Vector haystack, T needle) {
     Class<?> cls = needle.getClass();
     for (int i = 0; i < haystack.size(); i++) {
-      if (haystack.get(cls, i).equals(needle)) {
+      if (haystack.loc().get(cls, i).equals(needle)) {
         return i;
       }
     }
@@ -119,7 +119,7 @@ public final class Vec {
    */
   public static <T> int find(Class<T> cls, Vector vector, Predicate<T> predicate) {
     for (int i = 0; i < vector.size(); i++) {
-      if (predicate.test(vector.get(cls, i))) {
+      if (predicate.test(vector.loc().get(cls, i))) {
         return i;
       }
     }
@@ -142,7 +142,7 @@ public final class Vec {
     double step = (stop - start) / (num - 1);
     double value = start;
     for (int index = 0; index < num; index++) {
-      builder.set(index, value);
+      builder.setAt(index, value);
       value += step;
     }
 
@@ -226,8 +226,8 @@ public final class Vec {
   public static StatisticalSummary statistics(Vector vector) {
     FastStatistics r = new FastStatistics();
     for (int i = 0; i < vector.size(); i++) {
-      if (!vector.isNA(i)) {
-        r.addValue(vector.getAsDouble(i));
+      if (!vector.loc().isNA(i)) {
+        r.addValue(vector.loc().getAsDouble(i));
       }
     }
     return r.getSummary();
@@ -272,8 +272,8 @@ public final class Vec {
     double mean = 0;
     int nonNA = 0;
     for (int i = 0; i < vector.size(); i++) {
-      if (!vector.isNA(i)) {
-        mean += vector.getAsDouble(i);
+      if (!vector.loc().isNA(i)) {
+        mean += vector.loc().getAsDouble(i);
         nonNA += 1;
       }
     }
@@ -295,8 +295,8 @@ public final class Vec {
     double var = 0;
     int nonNA = 0;
     for (int i = 0; i < vector.size(); i++) {
-      if (!vector.isNA(i)) {
-        double residual = vector.getAsDouble(i) - mean;
+      if (!vector.loc().isNA(i)) {
+        double residual = vector.loc().getAsDouble(i) - mean;
         var += residual * residual;
         nonNA += 1;
       }
@@ -326,7 +326,7 @@ public final class Vec {
     double sum = 0;
     int nonNas = 0;
     for (int i = 0; i < vector.size(); i++) {
-      double d = vector.getAsDouble(i);
+      double d = vector.loc().getAsDouble(i);
       boolean nonNa = !Is.NA(d);
       if (nonNa) {
         sum += d;
@@ -392,7 +392,7 @@ public final class Vec {
     Set<Object> taken = new HashSet<>();
     for (Vector vector : vectors) {
       for (int i = 0; i < vector.size(); i++) {
-        Object value = vector.get(Object.class, i);
+        Object value = vector.loc().get(Object.class, i);
         if (!taken.contains(value)) {
           taken.add(value);
           builder.add(vector, i);
@@ -443,8 +443,8 @@ public final class Vec {
    * @return the indexes of {@code vector} sorted in increasing order by value
    */
   public static int[] indexSort(Vector vector) {
-    return indexSort(vector, (o1, o2) -> Double.compare(vector.getAsDouble(o1),
-                                                        vector.getAsDouble(o2)));
+    return indexSort(vector, (o1, o2) -> Double.compare(vector.loc().getAsDouble(o1),
+                                                        vector.loc().getAsDouble(o2)));
   }
 
   /**
@@ -477,8 +477,8 @@ public final class Vec {
     final int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {
-      double yv = y.getAsDouble(i);
-      double xv = x.getAsDouble(i);
+      double yv = y.loc().getAsDouble(i);
+      double xv = x.loc().getAsDouble(i);
       if (!Is.NA(yv) && !Is.NA(xv)) {
         dot += xv * yv;
       }

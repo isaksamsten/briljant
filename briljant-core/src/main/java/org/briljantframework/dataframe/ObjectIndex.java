@@ -24,60 +24,66 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.index.HeterogeneousObjectComparator;
 import org.briljantframework.index.Index;
 import org.briljantframework.vector.Vector;
 
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @author Isak Karlsson
  */
-public class HashIndex implements Index {
+public final class ObjectIndex implements Index {
 
-  Map<Object, Integer> keys = new HashMap<>();
-  Map<Integer, Object> indexes = new HashMap<>();
+  private Map<Object, Integer> keys = new LinkedHashMap<>();
+  private List<Object> indexes = new ArrayList<>();
 
-  public HashIndex(Collection<?> coll) {
+  public ObjectIndex(Collection<?> coll) {
     Iterator<?> it = coll.iterator();
     for (int i = 0; it.hasNext(); i++) {
       Object next = it.next();
       if (keys.put(next, i) != null) {
         throw duplicateKey(next);
       }
-      indexes.put(i, next);
+      indexes.add(next);
     }
   }
 
-  private HashIndex(Map<Object, Integer> keys, Map<Integer, Object> indexes) {
+  private ObjectIndex(Map<Object, Integer> keys, List<Object> indexes) {
     this.keys = keys;
     this.indexes = indexes;
   }
 
-  public static HashIndex from(Vector vector) {
+  public static ObjectIndex from(Vector vector) {
     return from(vector.asList(Object.class));
   }
 
   @SafeVarargs
-  public static <T> HashIndex from(T... args) {
+  public static <T> ObjectIndex from(T... args) {
     return from(Arrays.asList(args));
   }
 
-  public static <T> HashIndex from(Collection<? extends T> coll) {
-    return new HashIndex(coll);
+  public static <T> ObjectIndex from(Collection<? extends T> coll) {
+    return new ObjectIndex(coll);
   }
 
   private static UnsupportedOperationException duplicateKey(Object next) {
     return new UnsupportedOperationException(String.format("Duplicate key: %s", next));
   }
 
-  private NoSuchElementException noSuchElement(Object key) {
+  private static NoSuchElementException noSuchElement(Object key) {
     return new NoSuchElementException(String.format("name '%s' not in index", key));
   }
 
@@ -91,15 +97,8 @@ public class HashIndex implements Index {
   }
 
   @Override
-  public Object get(int index) {
-    Object key = indexes.get(index);
-    if (key == null) {
-      if (indexes.containsKey(index)) {
-        return null;
-      }
-      throw noSuchElement(index);
-    }
-    return key;
+  public Object getKey(int index) {
+    return indexes.get(index);
   }
 
   @Override
@@ -136,7 +135,7 @@ public class HashIndex implements Index {
 
       @Override
       public int size() {
-        return HashIndex.this.size();
+        return ObjectIndex.this.size();
       }
     };
   }
@@ -175,36 +174,36 @@ public class HashIndex implements Index {
     return keys.toString();
   }
 
-  public static class Builder implements Index.Builder {
+  public static final class Builder implements Index.Builder {
 
+    private final Comparator<Object> objectComparator = new HeterogeneousObjectComparator();
     private Map<Object, Integer> keys;
-    private Map<Integer, Object> indexes;
+    private List<Object> indexes;
     private int currentSize = 0;
 
 
     public Builder() {
-      this.keys = new HashMap<>();
-      this.indexes = new HashMap<>();
+      this.keys = new LinkedHashMap<>();
+      this.indexes = new ArrayList<>();
     }
 
-    private Builder(Map<Object, Integer> keys, Map<Integer, Object> indexes) {
-      this.keys = new HashMap<>(keys);
-      this.indexes = new HashMap<>(indexes);
+    private Builder(Map<Object, Integer> keys, List<Object> indexes) {
+      this.keys = new LinkedHashMap<>(keys);
+      this.indexes = new ArrayList<>(indexes);
     }
 
     @Override
     public boolean contains(Object key) {
-      return keys.containsKey(key);//buffer.containsKey(key);
+      return keys.containsKey(key);
     }
 
     @Override
-    public int index(Object key) {
-      Integer val = keys.get(key);
-      return val == null ? -1 : val;
+    public int getLocation(Object key) {
+      return keys.get(key); // Non-null
     }
 
     @Override
-    public Object get(int index) {
+    public Object getKey(int index) {
       return indexes.get(index);
     }
 
@@ -214,16 +213,31 @@ public class HashIndex implements Index {
     }
 
     @Override
-    public void set(Object key, int index) {
-      if (keys.put(key, index) != null) {
-        throw duplicateKey(key);
-      }
-      indexes.put(index, key);
-      currentSize++;
+    public void add(int key) {
+      set(key, currentSize);
     }
 
     @Override
-    public void set(int key, int index) {
+    public void sort(Comparator<Object> cmp) {
+      Map<Object, Integer> treeMap = new TreeMap<>(cmp);
+      treeMap.putAll(keys);
+      this.keys = treeMap;
+    }
+
+    @Override
+    public void sort() {
+      sort(objectComparator);
+    }
+
+    private void set(Object key, int index) {
+      if (keys.put(key, index) != null) {
+        throw duplicateKey(key);
+      }
+      indexes.add(key);
+      currentSize++;
+    }
+
+    private void set(int key, int index) {
       set((Object) key, index);
     }
 
@@ -239,28 +253,21 @@ public class HashIndex implements Index {
 
     @Override
     public Index build() {
-      Index index = new HashIndex(keys, indexes);
+      Index index = new ObjectIndex(
+          Collections.unmodifiableMap(keys),
+          Collections.unmodifiableList(indexes)
+      );
       this.keys = null;
       this.indexes = null;
       return index;
     }
 
     @Override
-    public void set(Entry entry) {
-      set(entry.key(), entry.index());
-    }
-
-    @Override
-    public void putAll(Set<Entry> entries) {
-      entries.forEach(this::set);
-    }
-
-    @Override
     public void swap(int a, int b) {
       Object keyA = indexes.get(a);
       Object keyB = indexes.get(b);
-      indexes.put(a, keyB);
-      indexes.put(b, keyA);
+      indexes.set(a, keyB);
+      indexes.set(b, keyA);
 
       Integer tmp = keys.get(keyA);
       keys.put(keyA, keys.get(keyB));
@@ -274,8 +281,13 @@ public class HashIndex implements Index {
 
     @Override
     public void remove(int index) {
-      keys.remove(indexes.get(index));
-      indexes.remove(index);
+      keys.remove(indexes.remove(index));
+      for (int i = index; i < size(); i++) {
+        Object key = indexes.get(i);
+        keys.compute(key, (k, v) -> v - 1); // change index back one
+      }
     }
+
   }
+
 }

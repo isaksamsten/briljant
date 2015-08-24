@@ -24,13 +24,8 @@
 
 package org.briljantframework.dataframe;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.IntObjectOpenHashMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
-
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.join.InnerJoin;
@@ -43,13 +38,15 @@ import org.briljantframework.index.DataFrameLocationGetter;
 import org.briljantframework.index.DataFrameLocationSetter;
 import org.briljantframework.index.Index;
 import org.briljantframework.index.IntIndex;
-import org.briljantframework.sort.QuickSort;
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.IntVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
+import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,28 +82,29 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   protected <T> DataFrame sortAt(Class<? extends T> cls, Comparator<? super T> cmp, int column) {
-    DataFrame.Builder builder = newCopyBuilder();
-    Vector tmp = builder.getTemporaryDataFrame().loc().get(column);
-    IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
-    for (Index.Entry entry : getRecordIndex().entrySet()) {
-      map.put(entry.index(), entry.key());
-    }
-    QuickSort.quickSort(
-        0, rows(),
-        (a, b) -> cmp.compare(tmp.get(cls, a), tmp.get(cls, b)),
-        (a, b) -> {
-          builder.loc().swapRecords(a, b);
-          Utils.swap(map, a, b);
-        });
-
-    Index.Builder recordIndex = new HashIndex.Builder();
-    for (IntObjectCursor<Object> i : map) {
-      recordIndex.set(i.value, i.key);
-    }
-    DataFrame df = builder.build();
-    df.setRecordIndex(recordIndex.build());
-    df.setColumnIndex(getColumnIndex());
-    return df;
+//    DataFrame.Builder builder = newCopyBuilder();
+//    Vector tmp = builder.getTemporaryDataFrame().loc().get(column);
+//    IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
+//    for (Index.Entry entry : getRecordIndex().entrySet()) {
+//      map.put(entry.index(), entry.key());
+//    }
+//    QuickSort.quickSort(
+//        0, rows(),
+//        (a, b) -> cmp.compare(tmp.get(cls, a), tmp.get(cls, b)),
+//        (a, b) -> {
+//          builder.loc().swapRecords(a, b);
+//          Utils.swap(map, a, b);
+//        });
+//
+//    Index.Builder recordIndex = new HashIndex.Builder();
+//    for (IntObjectCursor<Object> i : map) {
+//      recordIndex.set(i.value, i.key);
+//    }
+//    DataFrame df = builder.build();
+//    df.setRecordIndex(recordIndex.build());
+//    df.setColumnIndex(getColumnIndex());
+//    return df;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -125,28 +123,29 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   protected DataFrame sortAt(SortOrder order, int column) {
-    DataFrame.Builder builder = newCopyBuilder();
-    Vector temporaryVector = builder.getTemporaryDataFrame().loc().get(column);
-    IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
-    for (Index.Entry entry : getRecordIndex()) {
-      map.put(entry.index(), entry.key());
-    }
-    QuickSort.quickSort(0, rows(), (a, b) -> {
-      int compare = temporaryVector.compare(a, b);
-      return order == SortOrder.ASC ? compare : -compare;
-    }, (a, b) -> {
-      builder.loc().swapRecords(a, b);
-      Utils.swap(map, a, b);
-    });
-    Index.Builder recordIndex = new HashIndex.Builder();
-    for (IntObjectCursor<Object> i : map) {
-      recordIndex.set(i.value, i.key);
-    }
-
-    DataFrame df = builder.build();
-    df.setRecordIndex(recordIndex.build());
-    df.setColumnIndex(getColumnIndex());
-    return df;
+//    DataFrame.Builder builder = newCopyBuilder();
+//    Vector temporaryVector = builder.getTemporaryDataFrame().loc().get(column);
+//    IntObjectMap<Object> map = new IntObjectOpenHashMap<>();
+//    for (Index.Entry entry : getRecordIndex()) {
+//      map.put(entry.index(), entry.key());
+//    }
+//    QuickSort.quickSort(0, rows(), (a, b) -> {
+//      int compare = temporaryVector.compare(a, b);
+//      return order == SortOrder.ASC ? compare : -compare;
+//    }, (a, b) -> {
+//      builder.loc().swapRecords(a, b);
+//      Utils.swap(map, a, b);
+//    });
+//    Index.Builder recordIndex = new HashIndex.Builder();
+//    for (IntObjectCursor<Object> i : map) {
+//      recordIndex.set(i.value, i.key);
+//    }
+//
+//    DataFrame df = builder.build();
+//    df.setRecordIndex(recordIndex.build());
+//    df.setColumnIndex(getColumnIndex());
+//    return df;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -175,17 +174,18 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   protected DataFrame indexOnAt(int col) {
-    DataFrame.Builder builder = newCopyBuilder();
-    Index.Builder columnIndex = getColumnIndex().newBuilder();
-    builder.loc().remove(col);
-    getColumnIndex().entrySet().stream().filter(entry -> entry.index() != col).forEach(entry -> {
-      columnIndex.set(entry.key(), entry.index() > col ? entry.index() - 1 : entry.index());
-    });
-
-    DataFrame df = builder.build();
-    df.setRecordIndex(HashIndex.from(getAt(col)));
-    df.setColumnIndex(columnIndex.build());
-    return df;
+//    DataFrame.Builder builder = newCopyBuilder();
+//    Index.Builder columnIndex = getColumnIndex().newBuilder();
+//    builder.loc().remove(col);
+//    getColumnIndex().entrySet().stream().filter(entry -> entry.index() != col).forEach(entry -> {
+//      columnIndex.set(entry.key(), entry.index() > col ? entry.index() - 1 : entry.index());
+//    });
+//
+//    DataFrame df = builder.build();
+//    df.setRecordIndex(HashIndex.from(getAt(col)));
+//    df.setColumnIndex(columnIndex.build());
+//    return df;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -204,7 +204,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       Vector column = getAt(j);
       builder.add(column.newBuilder());
       for (int i = 0; i < column.size(); i++) {
-        T value = column.get(cls, i);
+        T value = column.loc().get(cls, i);
         T transformed = op.apply(value);
         if (Is.NA(transformed)) {
           builder.loc().set(i, j, this, i, j);
@@ -229,9 +229,9 @@ public abstract class AbstractDataFrame implements DataFrame {
       Vector col = getAt(j);
       T val = init;
       for (int i = 0; i < col.size(); i++) {
-        val = op.apply(col.get(cls, i), val);
+        val = op.apply(col.loc().get(cls, i), val);
       }
-      builder.set(j, val);
+      builder.loc().set(j, val);
     }
     Vector build = builder.build();
     build.setIndex(getColumnIndex());
@@ -259,18 +259,18 @@ public abstract class AbstractDataFrame implements DataFrame {
   public <T, R, C> Vector collect(Class<T> in, Class<R> out,
                                   Collector<? super T, C, ? extends R> collector) {
     Vector.Builder builder = VectorType.from(out).newBuilder();
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
 
     int column = 0;
     for (int j = 0; j < columns(); j++) {
       Vector vec = getAt(j);
       if (in.isAssignableFrom(vec.getType().getDataClass())) {
-        columnIndex.add(getColumnIndex().get(j));
+        columnIndex.add(getColumnIndex().getKey(j));
         C accumulator = collector.supplier().get();
         for (int i = 0; i < rows(); i++) {
-          collector.accumulator().accept(accumulator, vec.get(in, i));
+          collector.accumulator().accept(accumulator, vec.loc().get(in, i));
         }
-        builder.set(column++, collector.finisher().apply(accumulator));
+        builder.loc().set(column++, collector.finisher().apply(accumulator));
       }
     }
     Vector v = builder.build();
@@ -396,10 +396,10 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   protected DataFrame getAt(int... indices) {
     DataFrame.Builder df = newBuilder();
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
     int newColumn = 0;
     for (int index : indices) {
-      columnIndex.add(getColumnIndex().get(index));
+      columnIndex.add(getColumnIndex().getKey(index));
       df.add(getTypeAt(index));
       for (int i = 0; i < rows(); i++) {
         df.loc().set(i, newColumn, this, i, index);
@@ -429,25 +429,26 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newCopyBuilder()}
    */
   protected DataFrame dropAt(int index) {
-    Index.Builder columnIndex = new HashIndex.Builder();
-    for (int i = 0; i < columns(); i++) {
-      if (index == i) {
-        continue;
-      }
-      if (i > index) {
-        columnIndex.set(getColumnIndex().get(i), i - 1);
-      } else {
-        columnIndex.set(getColumnIndex().get(i), i);
-      }
-    }
-
-    Builder builder = newCopyBuilder();
-    builder.loc().remove(index);
-
-    DataFrame df = builder.build();
-    df.setRecordIndex(getRecordIndex());
-    df.setColumnIndex(columnIndex.build());
-    return df;
+//    Index.Builder columnIndex = new HashIndex.Builder();
+//    for (int i = 0; i < columns(); i++) {
+//      if (index == i) {
+//        continue;
+//      }
+//      if (i > index) {
+//        columnIndex.set(getColumnIndex().getKey(i), i - 1);
+//      } else {
+//        columnIndex.set(getColumnIndex().getKey(i), i);
+//      }
+//    }
+//
+//    Builder builder = newCopyBuilder();
+//    builder.loc().remove(index);
+//
+//    DataFrame df = builder.build();
+//    df.setRecordIndex(getRecordIndex());
+//    df.setColumnIndex(columnIndex.build());
+//    return df;
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -467,7 +468,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
       if (Arrays.binarySearch(indexes, i) < 0) {
-        columnIndex.add(getColumnIndex().get(i));
+        columnIndex.add(getColumnIndex().getKey(i));
         builder.add(getAt(i));
       }
     }
@@ -498,7 +499,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       Vector column = getAt(j);
       if (predicate.test(column)) {
         builder.add(column);
-        columnIndex.add(getColumnIndex().get(j));
+        columnIndex.add(getColumnIndex().getKey(j));
       }
     }
     return transferRecordIndex(builder, columnIndex);
@@ -691,14 +692,14 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame resetIndex() {
     DataFrame.Builder builder = newBuilder().add(VectorType.from(Object.class));
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
     columnIndex.add("index");
     for (int i = 0; i < rows(); i++) {
-      builder.loc().set(i, 0, getRecordIndex().get(i));
+      builder.loc().set(i, 0, getRecordIndex().getKey(i));
     }
     int column = 1;
     for (int j = 0; j < columns(); j++) {
-      columnIndex.add(getColumnIndex().get(j));
+      columnIndex.add(getColumnIndex().getKey(j));
       for (int i = 0; i < rows(); i++) {
         builder.loc().set(i, column, this, i, j);
       }
@@ -807,29 +808,81 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   protected abstract boolean isNaAt(int row, int column);
 
+  /**
+   * This class provides a skeletal implementation of the {@link org.briljantframework.dataframe.DataFrame.Builder}
+   * interface to minimize the effort required to implement this interface, including the handling
+   * of key and index-based setters.
+   *
+   * <p> To implement this builder, the programmer needs to implement the following abstract
+   * methods (the documentation for each method provides information on how to implement them):
+   * <ul>
+   * <li>{@link #setNaAt(int, int)}</li>
+   * <li>{@link #setAt(int, int, Object)}</li>
+   * <li>{@link #setAt(int, org.briljantframework.vector.Vector.Builder)}</li>
+   * <li>{@link #setRecordAt(int, org.briljantframework.vector.Vector.Builder)}</li>
+   * <li>{@link #setAt(int, int, org.briljantframework.vector.Vector, int)}</li>
+   * <li>{@link #readEntry(org.briljantframework.io.DataEntry)}</li>
+   * </ul>
+   *
+   * and the following methods from the {@link org.briljantframework.dataframe.DataFrame.Builder}
+   * interface
+   * <ul>
+   * <li>{@link #rows()}</li>
+   * <li>{@link #columns()}</li>
+   * <li>{@link #build()}</li>
+   * <li>{@link #getTemporaryDataFrame()}</li>
+   * </ul>
+   *
+   * <h3>Notes for object keys</h3>
+   * <p> For object keys, the position can be retrieved using {@link #getOrCreateColumnIndex(Object)}
+   * and {@link #getOrCreateRecordIndex(Object)}
+   *
+   * <h3>Notes for the abstract methods</h3>
+   * <p> If the indexes are larger than {@link #rows()} and {@link #columns()} respectively
+   * additional rows and columns, filled with {@code NA}, are inserted between the specified
+   * indexes and the current size.
+   */
   protected static abstract class AbstractBuilder implements Builder {
 
     private final DataFrameLocationSetter loc = new DataFrameLocationSetterImpl();
 
+    /**
+     * The column index. When getting the index of a key, prefer {@link
+     * #getOrCreateColumnIndex(Object)}.
+     */
     protected Index.Builder columnIndex;
+
+    /**
+     * The record index. When getting the index of a key, prefer {@link
+     * #getOrCreateRecordIndex(Object)}.
+     */
     protected Index.Builder recordIndex;
 
+    /**
+     * Provide initial indexes
+     *
+     * @param columnIndex the column index
+     * @param recordIndex the record index
+     */
     protected AbstractBuilder(Index.Builder columnIndex, Index.Builder recordIndex) {
       this.columnIndex = columnIndex;
       this.recordIndex = recordIndex;
     }
 
+    /**
+     * Implicit default constructor for constructing default {@code int}-based indexes
+     */
     protected AbstractBuilder() {
       this(new IntIndex.Builder(0), new IntIndex.Builder(0));
     }
 
     @Override
-    public DataFrameLocationSetter loc() {
+    public final DataFrameLocationSetter loc() {
       return loc;
     }
 
     @Override
-    public Builder set(Object row, Object column, Object value) {
+    public final Builder set(Object row, Object column, Object value) {
       int r = getOrCreateRecordIndex(row);
       int c = getOrCreateColumnIndex(column);
       setAt(r, c, value);
@@ -864,10 +917,38 @@ public abstract class AbstractDataFrame implements DataFrame {
       return this;
     }
 
+    @Override
+    public Builder remove(Object key) {
+      int index = columnIndex.getLocation(key);
+      loc().remove(index);
+      return this;
+    }
+
+    @Override
+    public Builder removeRecord(Object key) {
+      int index = recordIndex.getLocation(key);
+      loc().removeRecord(index);
+      return this;
+    }
+
+    @Override
+    public final Builder read(EntryReader entryReader) throws IOException {
+      int entries = 0;
+      while (entryReader.hasNext()) {
+        DataEntry entry = entryReader.next();
+        columnIndex.extend(entry.size());
+        entries++;
+        readEntry(entry);
+      }
+      recordIndex.extend(entries);
+
+      return this;
+    }
+
     protected final int getOrCreateColumnIndex(Object key) {
       int index = columns();
       if (columnIndex.contains(key)) {
-        index = columnIndex.index(key);
+        index = columnIndex.getLocation(key);
       } else {
         columnIndex.add(key);
       }
@@ -877,22 +958,35 @@ public abstract class AbstractDataFrame implements DataFrame {
     protected final int getOrCreateRecordIndex(Object key) {
       int index = rows();
       if (recordIndex.contains(key)) {
-        index = recordIndex.index(key);
+        index = recordIndex.getLocation(key);
       } else {
         recordIndex.add(key);
       }
       return index;
     }
 
+    /**
+     * Set the element at the specified position to {@code NA}.
+     *
+     * @param r the row position
+     * @param c the column position
+     */
     protected abstract void setNaAt(int r, int c);
 
+    /**
+     * Set the element at the specified position to the specified value as defined by {@link
+     * org.briljantframework.vector.Convert#to(Class, Object)}
+     *
+     * @param r the row location
+     * @param c the column location
+     */
     protected abstract void setAt(int r, int c, Object value);
 
     protected abstract void setAt(int c, Vector.Builder builder);
 
-    protected abstract void setAt(int r, int c, Vector from, int i);
-
     protected abstract void setRecordAt(int index, Vector.Builder builder);
+
+    protected abstract void setAt(int r, int c, Vector from, int i);
 
     protected void setAt(int fr, int fc, DataFrame from, int tr, int tc) {
       setAt(fr, tc, from.loc().get(tc), tr);
@@ -900,38 +994,43 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     protected abstract void removeAt(int c);
 
+    protected abstract void removeRecordAt(int r);
+
     protected abstract void swapAt(int a, int b);
 
     protected abstract void swapRecordsAt(int a, int b);
+
+    protected abstract void readEntry(DataEntry entry) throws IOException;
 
     private class DataFrameLocationSetterImpl implements DataFrameLocationSetter {
 
       @Override
       public void setNA(int r, int c) {
-        extendIndex(r, c);
+        extendIndex(r + 1, c + 1);
         setNaAt(r, c);
       }
 
       @Override
       public void set(int r, int c, Object value) {
-        extendIndex(r, c);
+        extendIndex(r + 1, c + 1);
         setAt(r, c, value);
       }
 
       @Override
       public void set(int tr, int tc, DataFrame df, int fr, int fc) {
-        extendIndex(tr, tc);
+        extendIndex(tr + 1, tc + 1);
         setAt(fr, tc, df, fr, fc);
       }
 
       @Override
       public void set(int tr, int tc, Vector v, int i) {
-        throw new UnsupportedOperationException();
+        extendIndex(tr + 1, tc + 1);
+        setAt(tr, tc, v, i);
       }
 
       @Override
       public void set(int c, Vector.Builder columnBuilder) {
-        extendColumnIndex(c);
+        extendColumnIndex(c + 1);
         recordIndex.extend(columnBuilder.size());
         setAt(c, columnBuilder);
       }
@@ -950,7 +1049,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
       @Override
       public void setRecord(int r, Vector.Builder recordBuilder) {
-        extendRecordIndex(r);
+        extendRecordIndex(r + 1);
         columnIndex.extend(recordBuilder.size());
         setRecordAt(r, recordBuilder);
       }
@@ -967,19 +1066,30 @@ public abstract class AbstractDataFrame implements DataFrame {
         swapRecordsAt(a, b);
       }
 
+      /**
+       * Extend both column and record index with the specified number of entries.
+       */
       private void extendIndex(int record, int columns) {
         extendRecordIndex(record);
         extendColumnIndex(columns);
       }
 
+      /**
+       * Extend the column index with the specified number of entries. For example, if the index
+       * contains {@code 3} items and the argument is {@code 5}, index {@code 4} and {@code 5} will
+       * be added.
+       */
       private void extendColumnIndex(int c) {
         columnIndex.extend(c);
-        columnIndex.set(c, c);
+//        columnIndex.add(c);
       }
 
+      /**
+       * See explanation of {@link #extendColumnIndex(int)}
+       */
       private void extendRecordIndex(int r) {
         recordIndex.extend(r);
-        recordIndex.set(r, r);
+//        recordIndex.add(r);
       }
     }
   }

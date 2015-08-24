@@ -26,9 +26,9 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
 import org.briljantframework.index.Index;
+import org.briljantframework.index.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
-import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -49,7 +49,7 @@ import java.util.stream.Stream;
  *
  * @author Isak Karlsson
  */
-public class MixedDataFrame extends AbstractDataFrame {
+public final class MixedDataFrame extends AbstractDataFrame {
 
   private final List<Vector> columns;
   private final int rows;
@@ -115,7 +115,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       this.columns.add(vector);
     }
     this.rows = rows;
-    setColumnIndex(new HashIndex(columnIndex));
+    setColumnIndex(new ObjectIndex(columnIndex));
   }
 
   /**
@@ -142,7 +142,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   private static Vector.Builder padVectorWithNA(Vector.Builder builder, int maximumRows) {
     if (builder.size() < maximumRows) {
-      builder.setNA(maximumRows - 1);
+      builder.loc().setNA(maximumRows - 1);
     }
     return builder;
   }
@@ -193,7 +193,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     Collection<Object> index = io.readColumnIndex();
     DataFrame frame = new MixedDataFrame.Builder(io.readColumnTypes()).read(io).build();
     if (index != null) {
-      frame.setColumnIndex(HashIndex.from(index));
+      frame.setColumnIndex(ObjectIndex.from(index));
       return frame;
     } else {
       return frame;
@@ -202,27 +202,27 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   public <T> T getAt(Class<T> cls, int row, int column) {
-    return columns.get(column).get(cls, row);
+    return columns.get(column).loc().get(cls, row);
   }
 
   @Override
   public double getAsDoubleAt(int row, int column) {
-    return columns.get(column).getAsDouble(row);
+    return columns.get(column).loc().getAsDouble(row);
   }
 
   @Override
   public int getAsIntAt(int row, int column) {
-    return columns.get(column).getAsInt(row);
+    return columns.get(column).loc().getAsInt(row);
   }
 
   @Override
   public String toStringAt(int row, int column) {
-    return columns.get(column).toString(row);
+    return columns.get(column).loc().toString(row);
   }
 
   @Override
   public boolean isNaAt(int row, int column) {
-    return columns.get(column).isNA(row);
+    return columns.get(column).loc().isNA(row);
   }
 
   @Override
@@ -273,7 +273,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     return DataFrames.toTabularString(this);
   }
 
-  public static class Builder extends AbstractBuilder {
+  public static final class Builder extends AbstractBuilder {
 
     private List<Vector.Builder> buffers = null;
 
@@ -325,15 +325,16 @@ public class MixedDataFrame extends AbstractDataFrame {
      * @param builders the vector builders
      */
     public Builder(Vector.Builder... builders) {
+      super(new IntIndex.Builder(builders.length), new IntIndex.Builder(0));
       int rows = Stream.of(builders).mapToInt(Vector.Builder::size).max().getAsInt();
       this.buffers = new ArrayList<>();
       for (Vector.Builder builder : builders) {
         if (builder.size() < rows) {
-          builder.setNA(rows - 1);
+          builder.loc().setNA(rows - 1);
         }
-
         buffers.add(builder);
       }
+      recordIndex.extend(rows);
     }
 
     /**
@@ -352,14 +353,23 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     protected void setNaAt(int row, int column) {
       ensureColumnCapacity(column);
-      buffers.get(column).setNA(row);
+      buffers.get(column).loc().setNA(row);
     }
 
     @Override
-    public void setAt(int r, int c, Vector from, int i) {
+    public void setAt(int r, int c, Object value) {
       ensureColumnCapacity(c - 1);
-      ensureColumnCapacity(c, from.getType());
-      buffers.get(c).set(r, from, i);
+      ensureColumnCapacity(c, VectorType.from(value));
+      buffers.get(c).loc().set(r, value);
+    }
+
+    @Override
+    public void setAt(int c, Vector.Builder builder) {
+      if (c == buffers.size()) {
+        this.buffers.add(builder);
+      } else {
+        this.buffers.set(c, builder);
+      }
     }
 
     @Override
@@ -378,10 +388,10 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public void setAt(int r, int c, Object value) {
+    public void setAt(int r, int c, Vector from, int i) {
       ensureColumnCapacity(c - 1);
-      ensureColumnCapacity(c, VectorType.from(value));
-      buffers.get(c).set(r, value);
+      ensureColumnCapacity(c, from.getType());
+      buffers.get(c).loc().set(r, from, i);
     }
 
     @Override
@@ -390,12 +400,20 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
+    protected void removeRecordAt(int r) {
+      for (int i = 0, buffersSize = buffers.size(); i < buffersSize; i++) {
+        Vector.Builder buffer = buffers.get(i);
+        buffer.loc().remove(r);
+      }
+    }
+
+    @Override
     public void swapAt(int a, int b) {
       Collections.swap(buffers, a, b);
     }
 
     public Builder swapInColumn(int column, int a, int b) {
-      buffers.get(column).swap(a, b);
+      buffers.get(column).loc().swap(a, b);
       return this;
     }
 
@@ -406,18 +424,12 @@ public class MixedDataFrame extends AbstractDataFrame {
       }
     }
 
-
     @Override
-    public Builder read(EntryReader entryReader) throws IOException {
-      while (entryReader.hasNext()) {
-        DataEntry entry = entryReader.next();
-        ensureColumnCapacity(entry.size() - 1);
-        for (int i = 0; i < entry.size(); i++) {
-          buffers.get(i).read(entry);
-        }
+    protected void readEntry(DataEntry entry) throws IOException {
+      ensureColumnCapacity(entry.size() - 1);
+      for (int i = 0; i < entry.size(); i++) {
+        buffers.get(i).read(entry);
       }
-
-      return this;
     }
 
     @Override
@@ -444,11 +456,6 @@ public class MixedDataFrame extends AbstractDataFrame {
       return new MixedDataFrame(vectors, rows);
     }
 
-    /**
-     * Constructs a new MixedDataFrame
-     *
-     * @return a new MixedDataFrame
-     */
     @Override
     public MixedDataFrame build() {
       int rows = rows();
@@ -474,20 +481,5 @@ public class MixedDataFrame extends AbstractDataFrame {
         i++;
       }
     }
-
-    @Override
-    public void setAt(int c, Vector.Builder builder) {
-      if (c == buffers.size()) {
-        this.buffers.add(builder);
-      } else {
-        this.buffers.set(c, builder);
-      }
-//      return this;
-    }
-//
-//    @Override
-//    public DataFrame.Builder addColumn(int index, Vector vector) {
-//      return addColumn(index, vector.newCopyBuilder());
-//    }
   }
 }

@@ -175,7 +175,7 @@ public class MixedDataFrameTest extends DataFrameTest {
     assertEquals(Logical.TRUE, build.loc().get(Logical.class, 0, 4));
 //    assertEquals(VectorType.OBJECT, build.getTypeAt(5));
 //    assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
-    assertEquals(new Date(321321321738L), build.loc().get(6).get(Date.class, 0));
+    assertEquals(new Date(321321321738L), build.loc().get(6).loc().get(Date.class, 0));
     assertEquals(1, (int) build.loc().get(Integer.class, 0, 1));
   }
 

@@ -25,11 +25,12 @@
 package org.briljantframework.index;
 
 
-import org.briljantframework.dataframe.HashIndex;
+import org.briljantframework.dataframe.ObjectIndex;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -61,7 +62,7 @@ public final class IntIndex implements Index {
   }
 
   @Override
-  public Object get(int index) {
+  public Object getKey(int index) {
     if (index >= 0 && index < size) {
       return index;
     }
@@ -178,6 +179,33 @@ public final class IntIndex implements Index {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj instanceof IntIndex) {
+      IntIndex other = (IntIndex) obj;
+      return size() == other.size();
+    } else if (obj instanceof Index) {
+      Index other = (Index) obj;
+      for (int i = 0; i < size(); i++) {
+        if (!other.contains(i)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return size;
+  }
+
+  @Override
   public int size() {
     return size;
   }
@@ -199,7 +227,7 @@ public final class IntIndex implements Index {
 
   public static class Builder implements Index.Builder {
 
-    private HashIndex.Builder builder;
+    private ObjectIndex.Builder builder;
     private int currentSize;
 
     public Builder(int i) {
@@ -219,34 +247,53 @@ public final class IntIndex implements Index {
 
     private void initializeHashBuilder() {
       if (builder == null) {
-        builder = new HashIndex.Builder();
+        builder = new ObjectIndex.Builder();
         for (int i = 0; i < currentSize; i++) {
-          builder.set(i, i);
+          builder.add(i);
         }
       }
     }
 
     @Override
-    public int index(Object key) {
+    public int getLocation(Object key) {
       if (isIntegerKey(key)) {
         return (int) key;
       } else {
         initializeHashBuilder();
-        return builder.index(key);
+        return builder.getLocation(key);
       }
     }
 
     @Override
-    public Object get(int index) {
+    public Object getKey(int index) {
       if (index > currentSize) {
         throw noSuchElement(index);
       }
-      return builder == null ? index : builder.get(index);
+      return builder == null ? index : builder.getKey(index);
     }
 
     @Override
     public void add(Object key) {
       set(key, currentSize);
+    }
+
+    @Override
+    public void add(int key) {
+      set(key, currentSize);
+    }
+
+    @Override
+    public void sort(Comparator<Object> cmp) {
+      initializeHashBuilder();
+      builder.sort(cmp);
+    }
+
+    @Override
+    public void sort() {
+      if (builder != null) {
+        builder.sort();
+      }
+      // Nothing. already sorted
     }
 
     private boolean isIntegerKey(Object key) {
@@ -264,28 +311,26 @@ public final class IntIndex implements Index {
       );
     }
 
-    @Override
-    public void set(Object key, int index) {
+    private void set(Object key, int index) {
       if (index > currentSize) {
         throw nonMonotonicallyIncreasingIndex(index);
       }
       if (!isIntegerKey(key) || !key.equals(index)) {
         initializeHashBuilder();
-        builder.set(key, index);
+        builder.add(key);
       }
       if (index == currentSize) {
         currentSize++;
       }
     }
 
-    @Override
-    public void set(int key, int index) {
+    private void set(int key, int index) {
       if (index > currentSize) {
         throw nonMonotonicallyIncreasingIndex(index);
       }
       if (!isMonotonicallyIncreasing(key) || key != index) {
         initializeHashBuilder();
-        builder.set(key, index);
+        builder.add(key);
       }
       if (index == currentSize) {
         currentSize++;
@@ -311,16 +356,6 @@ public final class IntIndex implements Index {
       } else {
         return builder.build();
       }
-    }
-
-    @Override
-    public void set(Entry entry) {
-      set(entry.key(), entry.index());
-    }
-
-    @Override
-    public void putAll(Set<Entry> entries) {
-      entries.forEach(this::set);
     }
 
     @Override
