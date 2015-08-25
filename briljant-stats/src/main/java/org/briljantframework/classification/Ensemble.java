@@ -64,7 +64,7 @@ public abstract class Ensemble implements Classifier {
     if (CORES <= 1) {
       THREAD_POOL = null;
     } else {
-      THREAD_POOL = (ThreadPoolExecutor) Executors.newFixedThreadPool(CORES, r -> {
+      THREAD_POOL = (ThreadPoolExecutor) Executors.newFixedThreadPool(1, r -> {
         Thread thread = new Thread(r);
         thread.setDaemon(true);
         return thread;

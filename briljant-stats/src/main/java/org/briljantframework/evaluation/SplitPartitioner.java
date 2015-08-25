@@ -87,8 +87,13 @@ public class SplitPartitioner implements Partitioner {
             throw new NoSuchElementException();
           }
           has = false;
-          return new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
-                               yTrainingBuilder.build(), yValidationBuilder.build());
+          DataFrame trainingSet = xTrainingBuilder.build();
+          trainingSet.setColumnIndex(x.getColumnIndex());
+          DataFrame validationSet = xValidationBuilder.build();
+          validationSet.setColumnIndex(x.getColumnIndex());
+          return new Partition(
+              trainingSet, validationSet, yTrainingBuilder.build(), yValidationBuilder.build()
+          );
         }
       };
     };

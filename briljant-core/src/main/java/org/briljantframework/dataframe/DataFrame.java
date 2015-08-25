@@ -362,6 +362,8 @@ public interface DataFrame extends Iterable<Vector> {
 
     DataFrameLocationSetter loc();
 
+    Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc);
+
     Builder set(Object row, Object column, Vector from, Object key);
 
     Builder set(Object row, Object column, Object value);

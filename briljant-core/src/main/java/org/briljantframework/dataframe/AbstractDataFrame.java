@@ -904,6 +904,15 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
+    public final Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc) {
+      int r = getOrCreateRecordIndex(tr);
+      int c = getOrCreateColumnIndex(tc);
+      setAt(r, c, from, from.getRecordIndex().getLocation(fr),
+            from.getColumnIndex().getLocation(fc));
+      return this;
+    }
+
+    @Override
     public final Builder set(Object row, Object column, Vector from, Object key) {
       int r = getOrCreateRecordIndex(row);
       int c = getOrCreateColumnIndex(column);

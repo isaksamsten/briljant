@@ -35,9 +35,9 @@ public class FoldPartitionerTest {
 
   @Test
   public void testPartition() throws Exception {
-    DataFrame dummy = Datasets.loadConnect4();
+    DataFrame dummy = Datasets.loadIris();
     DataFrame x = dummy.loc().get(0, 2);
-    Vector y = dummy.get(2);
+    Vector y = dummy.loc().get(2);
 
     System.out.println(x);
 

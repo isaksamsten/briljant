@@ -35,7 +35,6 @@ import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
-import org.briljantframework.stat.FastStatistics;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Vec;
@@ -96,17 +95,17 @@ public class LogisticRegression implements Classifier {
     int m = df.columns();
     Check.argument(n == target.size(),
                    "The number of training instances must equal the number of target");
-    Vector unique = Vec.unique(target);
+    Vector classes = Vec.unique(target);
     DoubleArray x = constructInputMatrix(df, n, m);
     IntArray y = Bj.intArray(target.size());
     for (int i = 0; i < y.size(); i++) {
-      y.set(i, Vec.find(unique, target, i));
+      y.set(i, Vec.find(classes, target, i));
     }
     DoubleArray theta;
     DifferentialFunction objective;
-    int k = unique.size();
+    int k = classes.size();
     if (k == 2) {
-      objective = new BinaryObjectiveFunction(regularization, x, y);
+      objective = new BinaryObjectiveFunction(x, y, regularization);
       theta = Bj.doubleArray(x.columns());
     } else if (k > 2) {
       objective = new SoftmaxObjectiveFunction(x, y, regularization, k);
@@ -118,7 +117,7 @@ public class LogisticRegression implements Classifier {
 
     Vector.Builder names = new GenericVector.Builder(Object.class).add("(Intercept)");
     df.getColumnIndex().keySet().forEach(names::add);
-    return new Predictor(names.build(), theta, logLoss, unique);
+    return new Predictor(names.build(), theta, logLoss, classes);
   }
 
   protected DoubleArray constructInputMatrix(DataFrame df, int n, int m) {
@@ -143,7 +142,7 @@ public class LogisticRegression implements Classifier {
     private final DoubleArray x;
     private final IntArray y;
 
-    private BinaryObjectiveFunction(double lambda, DoubleArray x, IntArray y) {
+    private BinaryObjectiveFunction(DoubleArray x, IntArray y, double lambda) {
       this.lambda = lambda;
       this.x = x;
       this.y = y;
@@ -237,7 +236,7 @@ public class LogisticRegression implements Classifier {
           for (int l = 1; l < p; l++) {
             g.set(l, j, g.get(l, j) - yi * x.get(i, l));
           }
-          g.update(0, j, v -> v - yi);
+          g.set(0, j, g.get(0, j) - yi);
         }
       }
 
@@ -342,6 +341,14 @@ public class LogisticRegression implements Classifier {
   public static class Predictor extends AbstractPredictor {
 
     private final Vector names;
+
+    /**
+     * If {@code getClasses().size()} is larger than {@code 2}, coefficients is a a 2d-array
+     * where each column is the coefficients for the the j:th class and the i:th feature.
+     *
+     * On the other hand, if {@code getClasses().size() <= 2}, coefficients is a 1d-array
+     * where each element is the coefficient for the i:th feature.
+     */
     private final DoubleArray coefficients;
     private final double logLoss;
 
@@ -388,7 +395,7 @@ public class LogisticRegression implements Classifier {
       }
     }
 
-    public DoubleArray getParamaters() {
+    public DoubleArray getParameters() {
       return coefficients.copy();
     }
 
@@ -403,8 +410,7 @@ public class LogisticRegression implements Classifier {
       }
       int k = getClasses().size();
       if (k > 2) {
-        return coefficients.getRow(i).map(Math::exp)
-            .collect(FastStatistics::new, FastStatistics::addValue).getMean();
+        return Bj.mean(Bj.exp(coefficients.getRow(i)));
       } else {
         return Math.exp(coefficients.get(i));
       }
@@ -431,7 +437,7 @@ public class LogisticRegression implements Classifier {
     }
   }
 
-  public static class Builder implements Classifier.Builder<LogisticRegression> {
+  public static final class Builder implements Classifier.Builder<LogisticRegression> {
 
     private int iterations = 100;
     private double regularization = 0.01;

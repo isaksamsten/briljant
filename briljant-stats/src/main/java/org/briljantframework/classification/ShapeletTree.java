@@ -194,7 +194,7 @@ public class ShapeletTree implements Classifier {
       int start = shapelet.start();
       int end = start + length;
       for (int i = start; i < end; i++) {
-        params.positionImportance.update(i, v -> v + (weight / length));
+        params.positionImportance.set(i, params.positionImportance.get(i) + (weight / length));
       }
 
       TreeNode<ShapeletThreshold> leftNode = build(x, y, maxSplit.getLeft(), params);

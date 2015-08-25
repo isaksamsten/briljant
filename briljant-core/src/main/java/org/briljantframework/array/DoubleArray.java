@@ -216,10 +216,6 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   DoubleArray reduceVectors(int dim, ToDoubleFunction<? super DoubleArray> reduce);
 
-  void update(int i, DoubleUnaryOperator update);
-
-  void update(int i, int j, DoubleUnaryOperator update);
-
   // GET SET
 
   void addTo(int i, double value);

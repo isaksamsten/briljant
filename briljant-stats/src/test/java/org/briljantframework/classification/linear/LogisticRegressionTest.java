@@ -44,11 +44,9 @@ public class LogisticRegressionTest {
     Utils.setRandomSeed(102);
     DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
     DataFrame x = iris.drop("Class").apply(Double.class, v -> !Is.NA(v) ? v : 0);
-    Vector y = iris.get("Class").satisfies(String.class, v -> v.equals("Iris-setosa"));
-    Classifier reg = LogisticRegression.withIterations(500)
-        .withRegularization(10)
-        .build();
-    LogisticRegression.Predictor model = (LogisticRegression.Predictor) reg.fit(x, y);
+    Vector y = iris.get("Class");//.satisfies(String.class, v -> v.equals("Iris-setosa"));
+    Classifier classifier = LogisticRegression.withIterations(500).withRegularization(10).build();
+    LogisticRegression.Predictor model = (LogisticRegression.Predictor) classifier.fit(x, y);
 
     System.out.println(model.getOddsRatio("(Intercept)"));
     for (Object o : x.getColumnIndex().keySet()) {
@@ -56,9 +54,9 @@ public class LogisticRegressionTest {
     }
 
 //    reg = RandomForest.withSize(100).withMaximumFeatures(1).build();
-    System.out.println(reg);
+    System.out.println(classifier);
     long start = System.nanoTime();
-    Result result = Validators.crossValidation(10).test(reg, x, y);
+    Result result = Validators.crossValidation(10).test(classifier, x, y);
     System.out.println((System.nanoTime() - start) / 1e6);
     System.out.println(result);
   }

@@ -44,7 +44,7 @@ class FoldIterator implements Iterator<Partition> {
 
   private int current = 0;
 
-  public FoldIterator(DataFrame x, Vector y, int folds) {
+  FoldIterator(DataFrame x, Vector y, int folds) {
     Check.argument(x.rows() == y.size(), "Data and target must be of equal size.");
     Check.argument(folds > 1 && folds <= x.rows(), "Invalid fold count.");
 
@@ -69,10 +69,9 @@ class FoldIterator implements Iterator<Partition> {
 
     current += 1;
     DataFrame.Builder xTrainingBuilder = x.newBuilder();
-//    xTrainingBuilder.getColumnNames().putAll(x.getColumnNames());
     Vector.Builder yTrainingBuilder = y.newBuilder();
+
     DataFrame.Builder xValidationBuilder = x.newBuilder();
-//    xValidationBuilder.getColumnNames().putAll(x.getColumnNames());
     Vector.Builder yValidationBuilder = y.newBuilder();
 
     int index = 0;
@@ -121,8 +120,12 @@ class FoldIterator implements Iterator<Partition> {
       newIndex += 1;
     }
 
-    assert index == rows;
-    return new Partition(xTrainingBuilder.build(), xValidationBuilder.build(),
-                         yTrainingBuilder.build(), yValidationBuilder.build());
+    DataFrame trainingSet = xTrainingBuilder.build();
+    trainingSet.setColumnIndex(x.getColumnIndex());
+    DataFrame validationSet = xValidationBuilder.build();
+    validationSet.setColumnIndex(x.getColumnIndex());
+    return new Partition(
+        trainingSet, validationSet, yTrainingBuilder.build(), yValidationBuilder.build()
+    );
   }
 }

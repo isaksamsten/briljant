@@ -31,6 +31,9 @@ import org.briljantframework.vector.Vector;
  * The partitioner represents a strategy of how to partition a {@code DataFrame} and {@code Vector}
  * into training and validation partitions.
  *
+ * <p> The partitioner guarantees that the column-index of the {@code DataFrame} partitions
+ * are the same as the input-{@code DataFrame}. The record-indexing might, however, be lost.
+ *
  * @author Isak Karlsson
  */
 public interface Partitioner {
