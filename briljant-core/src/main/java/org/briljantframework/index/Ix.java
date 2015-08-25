@@ -22,50 +22,34 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe
-
-import spock.lang.Specification
+package org.briljantframework.index;
 
 /**
- * Created by isak on 07/06/15.
+ * @author Isak Karlsson
  */
-class HashIndexSpec extends Specification {
+public interface Ix {
 
-  def "create HashIndex from list"() {
-    when:
-    def i = ObjectIndex.from(["a", "b", "c"])
+  <T> T get(Class<T> cls, Object r, int c);
 
-    then:
-    i.keySet() as ArrayList == ["a", "b", "c"]
-    i.getLocation("a") == 0
-    i.getLocation("b") == 1
-    i.indices(["a", "b"] as Object[]) as ArrayList == [0, 1]
-    i.locations() as ArrayList == [0, 1, 2]
-    i.getKey(2) == "c"
-    i.size() == 3
-    i.newCopyBuilder().build().getLocation("a") == 0
-  }
+  <T> T get(Class<T> cls, int r, Object c);
 
-  def "remove element from hash index"() {
-    given:
-    def b = new ObjectIndex.Builder()
+  <T> T get(Class<T> cls, Object r, Object c);
 
-    when:
-    b.add(0)
-    b.add(1)
-    b.add(2)
-    b.add(3)
+  <T> T get(Class<T> cls, int r, int c);
 
-    and:
-    b.remove(1)
+  int getAsInt(Object r, int c);
 
-    and:
-    def i = b.build()
+  int getAsInt(int r, Object c);
 
-    then:
-    i.getLocation(0) == 0
-    i.getLocation(2) == 1
-    i.getLocation(3) == 2
-  }
+  int getAsInt(Object r, Object c);
 
+  int getAsInt(int r, int c);
+
+  double getAsDouble(Object r, int c);
+
+  double getAsDouble(int r, Object c);
+
+  double getAsDouble(Object r, Object c);
+
+  double getAsDouble(int r, int c);
 }

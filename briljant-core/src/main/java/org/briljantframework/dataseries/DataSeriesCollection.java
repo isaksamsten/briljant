@@ -27,20 +27,17 @@ package org.briljantframework.dataseries;
 import org.briljantframework.Check;
 import org.briljantframework.dataframe.AbstractDataFrame;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.index.Index;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.EntryReader;
 import org.briljantframework.vector.Na;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -63,23 +60,25 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   private final int columns;
 
-  public DataSeriesCollection(List<Vector> series, VectorType type) {
-    this.series = new ArrayList<>(series);
+  private DataSeriesCollection(
+      ArrayList<Vector> series,
+      VectorType type,
+      int columns,
+      Index columnIndex,
+      Index recordIndex) {
+    super(columnIndex, recordIndex);
+    Check.argument(series.size() == recordIndex.size());
+    Check.argument(columnIndex.size() == columns);
+    this.series = series;
     this.type = type;
-    this.columns = series.stream().mapToInt(Vector::size).max().orElse(0);
-  }
-
-  protected DataSeriesCollection(List<Vector> series, VectorType type, int columns) {
-    this.type = Objects.requireNonNull(type);
-    this.series = Objects.requireNonNull(series);
     this.columns = columns;
   }
 
   @Override
-  public <T> T get(Class<T> cls, int row, int column) {
+  public <T> T getAt(Class<T> cls, int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.get(cls, column);
+      return rvec.loc().get(cls, column);
     } else if (column >= 0 && column < columns) {
       return Na.from(cls);
     } else {
@@ -88,10 +87,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public double getAsDouble(int row, int column) {
+  public double getAsDoubleAt(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsDouble(column);
+      return rvec.loc().getAsDouble(column);
     } else if (column >= 0 && column < columns) {
       return Na.DOUBLE;
     } else {
@@ -100,10 +99,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public int getAsInt(int row, int column) {
+  public int getAsIntAt(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.getAsInt(column);
+      return rvec.loc().getAsInt(column);
     } else if (column >= 0 && column < columns) {
       return Na.INT;
     } else {
@@ -112,10 +111,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public String toString(int row, int column) {
+  public String toStringAt(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.toString(column);
+      return rvec.loc().toString(column);
     } else if (column >= 0 && column < columns) {
       return "NA";
     } else {
@@ -124,12 +123,12 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public boolean isNA(int row, int column) {
-    return series.get(row).isNA(column);
+  public boolean isNaAt(int row, int column) {
+    return series.get(row).loc().isNA(column);
   }
 
   @Override
-  public VectorType getType(int index) {
+  public VectorType getTypeAt(int index) {
     return type;
   }
 
@@ -150,21 +149,18 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Builder newCopyBuilder() {
-    List<Vector.Builder> collect = series.stream()
-        .map(Vector::newCopyBuilder)
-        .collect(Collectors.toList());
-    return new Builder(collect, type);
+    return new Builder(this, type);
   }
 
   @Override
-  public DataFrame drop(Collection<Integer> indexes) {
-    Set<Integer> set = new HashSet<>(indexes);
+  protected DataFrame dropAt(int[] indexes) {
+    Arrays.sort(indexes);
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
-      Vector row = getRecord(i);
+      Vector row = getRecordAt(i);
       Vector.Builder vecBuilder = row.newBuilder();
       for (int j = 0; j < row.size(); j++) {
-        if (!set.contains(j)) {
+        if (Arrays.binarySearch(indexes, j) < 0) {
           vecBuilder.add(row, j);
         }
       }
@@ -174,7 +170,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getRecord(int index) {
+  public Vector getRecordAt(int index) {
     return series.get(index); // TODO: the index
   }
 
@@ -190,7 +186,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   public static class Builder extends AbstractBuilder {
 
     private final VectorType type;
-    private final List<Vector.Builder> builders;
+    private List<Vector.Builder> builders;
 
     public Builder(VectorType type) {
       this.type = type;
@@ -201,76 +197,97 @@ public class DataSeriesCollection extends AbstractDataFrame {
       this(VectorType.from(cls));
     }
 
-    protected Builder(List<Vector.Builder> builders, VectorType type) {
+    private Builder(DataSeriesCollection df, VectorType type) {
+      super(df);
       this.type = type;
-      this.builders = builders;
+      this.builders = df.series.stream()
+          .map(Vector::newCopyBuilder)
+          .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
-    public Builder setNA(int row, int column) {
+    protected void setNaAt(int row, int column) {
       ensureCapacity(row);
-      builders.get(row).setNA(column);
-      return this;
+      builders.get(row).loc().setNA(column);
     }
 
     @Override
-    public Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol) {
-      ensureCapacity(toRow);
+    public void setAt(int fr, int fc, DataFrame from, int tr, int tc) {
+      ensureCapacity(fr);
       // If the source row does not contain the source column requested
       // silently ignore the value. This is the case since data series
       // can be of unequal lengths.
-      Vector row = from.getRecord(fromRow);
-      if (fromCol < row.size()) {
-        builders.get(toRow).set(toCol, row, fromCol);
+      Vector row = from.loc().getRecord(tr);
+      if (tc < row.size()) {
+        builders.get(fr).loc().set(fc, row, tc);
       }
-      return this;
     }
 
     @Override
-    public Builder set(int row, int column, Vector from, int index) {
+    protected void setAt(int r, int c, Vector from, int i) {
+      ensureCapacity(r);
+      builders.get(r).loc().set(c, from, i);
+    }
+
+    @Override
+    public void setAt(int row, int column, Object value) {
       ensureCapacity(row);
-      builders.get(row).set(column, from, index);
-      return this;
+      builders.get(row).loc().set(column, value);
     }
 
     @Override
-    public Builder set(int row, int column, Object value) {
-      ensureCapacity(row);
-      builders.get(row).set(column, value);
-      return this;
+    protected void setAt(int c, Vector.Builder builder) {
+      final int size = builder.size();
+      final Vector temporaryVector = builder.getTemporaryVector();
+      for (int i = 0; i < size; i++) {
+        setAt(i, c, temporaryVector, i);
+      }
+
+      final int rows = rows();
+      for (int i = size; i < rows; i++) {
+        setNaAt(i, c);
+      }
     }
 
     @Override
-    public Builder removeColumn(int column) {
+    public void removeAt(int column) {
       Check.elementIndex(column, columns());
-//      columnNames.remove(column);
       for (int i = 0; i < rows(); i++) {
         Vector.Builder colb = builders.get(i);
         if (column < colb.size()) { // TODO: check?
-          colb.remove(column);
+          colb.loc().remove(column);
         }
       }
-
-      return this;
     }
 
     @Override
-    public Builder swapColumns(int a, int b) {
+    protected void setRecordAt(int index, Vector.Builder builder) {
+      ensureCapacity(index);
+      builders.set(index, builder);
+    }
+
+    @Override
+    protected void removeRecordAt(int r) {
+      builders.remove(r);
+    }
+
+    @Override
+    public void swapAt(int a, int b) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Builder read(EntryReader entryReader) throws IOException {
+    public void swapRecordsAt(int a, int b) {
+      Collections.swap(builders, a, b);
+    }
+
+    @Override
+    protected void readEntry(DataEntry entry) throws IOException {
       int row = rows();
-      while (entryReader.hasNext()) {
-        ensureCapacity(row);
-        DataEntry entry = entryReader.next();
-        for (int i = 0; i < entry.size() && entry.hasNext(); i++) {
-          builders.get(row).read(i, entry);
-        }
-        row++;
+      ensureCapacity(row);
+      for (int i = 0; i < entry.size() && entry.hasNext(); i++) {
+        builders.get(row).read(i, entry);
       }
-      return this;
     }
 
     @Override
@@ -291,49 +308,26 @@ public class DataSeriesCollection extends AbstractDataFrame {
               .map(Vector.Builder::getTemporaryVector)
               .collect(Collectors.toCollection(ArrayList::new)),
           type,
-          columns
+          columns,
+          getColumnIndex(columns),
+          getRecordIndex(rows())
       );
     }
 
     @Override
     public DataSeriesCollection build() {
       int columns = columns();
-      return new DataSeriesCollection(
+      DataSeriesCollection collection = new DataSeriesCollection(
           builders.stream()
               .map(Vector.Builder::build)
               .collect(Collectors.toCollection(ArrayList::new)),
           type,
-          columns);
-    }
-
-    @Override
-    public Builder addRecord(Vector.Builder row) {
-      builders.add(row);
-      return this;
-    }
-
-    @Override
-    public Builder addRecord(Vector vector) {
-      Check.type(vector, type);
-      return addRecord(vector.newCopyBuilder());
-    }
-
-    @Override
-    public Builder addRecord(int index, Vector.Builder builder) {
-      ensureCapacity(index);
-      builders.set(index, builder);
-      return this;
-    }
-
-    @Override
-    public DataFrame.Builder addRecord(int index, Vector vector) {
-      return addRecord(index, vector.newCopyBuilder());
-    }
-
-    @Override
-    public DataFrame.Builder swapRecords(int a, int b) {
-      Collections.swap(builders, a, b);
-      return this;
+          columns,
+          getColumnIndex(columns),
+          getRecordIndex(rows())
+      );
+      builders = null;
+      return collection;
     }
 
     private void ensureCapacity(int row) {

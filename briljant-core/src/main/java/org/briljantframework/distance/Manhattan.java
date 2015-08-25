@@ -53,7 +53,7 @@ public class Manhattan implements Distance {
     int size = Math.min(a.size(), b.size());
     double distance = 0.0;
     for (int i = 0; i < size; i++) {
-      distance += Math.abs(a.getAsDouble(i) - b.getAsDouble(i));
+      distance += Math.abs(a.loc().getAsDouble(i) - b.loc().getAsDouble(i));
     }
     return distance;
   }

@@ -25,6 +25,7 @@
 package org.briljantframework.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
 
 import java.io.IOException;
@@ -177,115 +178,101 @@ public abstract class VectorType {
   private static class InferringBuilder implements Vector.Builder {
 
     private Vector.Builder builder;
+    private VectorLocationSetter locationSetter = new InferringVectorLocationSetter();
 
-    @Override
-    public Vector.Builder setNA(int index) {
-      if (builder == null) {
-        builder = getObjectBuilder();
-      }
-      builder.setNA(index);
-      return this;
-    }
+//    @Override
+//    public Vector.Builder setNA(int index) {
+//      if (builder == null) {
+//        builder = getObjectBuilder();
+//      }
+//      builder.setNA(index);
+//      return this;
+//    }
 
     @Override
     public Vector.Builder setNA(Object key) {
       return null;
     }
 
-    protected GenericVector.Builder getObjectBuilder() {
-      return new GenericVector.Builder(Object.class);
+    protected Vector.Builder getObjectBuilder() {
+      if (builder == null) {
+        this.builder = new GenericVector.Builder(Object.class);
+      }
+      return builder;
     }
 
     @Override
     public Vector.Builder addNA() {
-      if (builder == null) {
-        builder = getObjectBuilder();
-      }
-      builder.addNA();
+      getObjectBuilder().addNA();
       return this;
     }
 
     @Override
     public Vector.Builder add(Vector from, int fromIndex) {
-      return add(from.get(Object.class, fromIndex));
+      return add(from.loc().get(Object.class, fromIndex));
     }
 
     @Override
     public Vector.Builder add(Vector from, Object key) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(int atIndex, Vector from, int fromIndex) {
-      return set(atIndex, from.get(Object.class, fromIndex));
-    }
-
-    @Override
-    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
-      return null;
+      Object value = from.get(Object.class, key);
+      if (builder == null) {
+        builder = from(value).newBuilder();
+      }
+      builder.loc().set(size(), value);
+      return this;
     }
 
     @Override
     public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(Object atKey, Vector from, Object fromIndex) {
-      return null;
-    }
-
-    @Override
-    public Vector.Builder set(int index, Object value) {
       if (builder == null) {
+        Object value = from.loc().get(Object.class, fromIndex);
         builder = from(value).newBuilder();
       }
-      builder.set(index, value);
+      builder.set(atKey, from, fromIndex);
       return this;
     }
 
     @Override
-    public Vector.Builder set(int index, double value) {
+    public Vector.Builder set(Object atKey, Vector from, Object fromKey) {
       if (builder == null) {
-        builder = from(Double.class).newBuilder();
+        Object value = from.get(Object.class, fromKey);
+        builder = from(value).newBuilder();
       }
-      builder.set(index, value);
-      return this;
-    }
-
-    @Override
-    public Vector.Builder set(int index, int value) {
-      if (builder == null) {
-        builder = from(Integer.class).newBuilder();
-      }
-      builder.set(index, value);
+      builder.set(atKey, from, fromKey);
       return this;
     }
 
     @Override
     public Vector.Builder set(Object key, Object value) {
-      return null;
+      if (builder == null) {
+        builder = from(value).newBuilder();
+      }
+      builder.set(key, value);
+      return this;
     }
 
     @Override
     public Vector.Builder add(Object value) {
-      return set(size(), value);
+      loc().set(size(), value);
+      return this;
     }
 
     @Override
     public Vector.Builder add(double value) {
-      return set(size(), value);
+      loc().set(size(), value);
+      return this;
     }
 
     @Override
     public Vector.Builder add(int value) {
-      return set(size(), value);
+      loc().set(size(), value);
+      return this;
     }
 
     @Override
     public Vector.Builder addAll(Vector from) {
       if (from.size() > 0) {
-        Object value = from.get(Object.class, 0);
+        Object value = from.loc().get(Object.class, 0);
         if (builder == null) {
           builder = from(value).newBuilder();
         }
@@ -295,32 +282,15 @@ public abstract class VectorType {
     }
 
     @Override
-    public Vector.Builder remove(int index) {
-      throw indexOutOfBounds(index);
-    }
-
-    @Override
     public Vector.Builder remove(Object key) {
-      return null;
-    }
-
-    protected IndexOutOfBoundsException indexOutOfBounds(int index) {
-      return new IndexOutOfBoundsException(String.format("%d out of bounds [size = 0]", index));
-    }
-
-    @Override
-    public int compare(int a, int b) {
-      throw indexOutOfBounds(a);
-    }
-
-    @Override
-    public void swap(int a, int b) {
-      throw indexOutOfBounds(a);
+      getObjectBuilder().remove(key);
+      return this;
     }
 
     @Override
     public Vector.Builder read(DataEntry entry) throws IOException {
-      return getObjectBuilder().read(entry);
+      getObjectBuilder().read(entry);
+      return this;
     }
 
     @Override
@@ -330,6 +300,11 @@ public abstract class VectorType {
       }
       builder.read(index, entry);
       return this;
+    }
+
+    @Override
+    public VectorLocationSetter loc() {
+      return locationSetter;
     }
 
     @Override
@@ -345,6 +320,66 @@ public abstract class VectorType {
     @Override
     public Vector build() {
       return builder != null ? builder.build() : Vector.empty();
+    }
+
+    private class InferringVectorLocationSetter implements VectorLocationSetter {
+
+      @Override
+      public void setNA(int i) {
+        getObjectBuilder().loc().setNA(i);
+      }
+
+      @Override
+      public void set(int i, Object value) {
+        if (builder == null) {
+          builder = from(value).newBuilder();
+        }
+        builder.loc().set(i, value);
+      }
+
+      @Override
+      public void set(int t, Vector from, int f) {
+        if (builder == null) {
+          Object value = from.loc().get(Object.class, f);
+          builder = from(value).newBuilder();
+        }
+        builder.loc().set(t, from, f);
+      }
+
+      @Override
+      public void set(int atIndex, Vector from, Object fromKey) {
+        if (builder == null) {
+          Object value = from.get(Object.class, fromKey);
+          builder = from(value).newBuilder();
+        }
+        builder.loc().set(atIndex, from, fromKey);
+      }
+
+      @Override
+      public void remove(int i) {
+        getObjectBuilder().loc().remove(i);
+      }
+
+      @Override
+      public void swap(int a, int b) {
+        getObjectBuilder().loc().swap(a, b);
+      }
+
+      @Override
+      public void set(int i, double value) {
+        if (builder == null) {
+          builder = from(Double.class).newBuilder();
+        }
+        builder.loc().set(i, value);
+      }
+
+      @Override
+      public void set(int i, int value) {
+        if (builder == null) {
+          builder = from(Integer.class).newBuilder();
+        }
+        builder.loc().set(i, value);
+      }
     }
   }
 }

@@ -111,7 +111,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     }
     List<Shapelet> shapelets = new ArrayList<>(maxShapelets);
     for (int i = 0; i < maxShapelets; i++) {
-      Vector timeSeries = x.getRecord(classSet.getRandomSample().getRandomExample().getIndex());
+      Vector timeSeries = x.loc().getRecord(classSet.getRandomSample().getRandomExample().getIndex());
       int length = random.nextInt(upper) + lower;
       int start = random.nextInt(timeSeriesLength - length);
       shapelets.add(new IndexSortedNormalizedShapelet(start, length, timeSeries));
@@ -149,7 +149,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     List<ExampleDistance> distances = new ArrayList<>();
     Distance distanceMetric = getDistanceMetric();
     for (Example example : classSet) {
-      double distance = distanceMetric.compute(x.getRecord(example.getIndex()), shapelet);
+      double distance = distanceMetric.compute(x.loc().getRecord(example.getIndex()), shapelet);
       memoizedDistances.put(example.getIndex(), distance);
       distances.add(new ExampleDistance(distance, example));
       sum += distance;
@@ -185,7 +185,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
 
     // Transfer weights from the initial example
     Example first = distances.get(0).example;
-    Object prevTarget = y.get(Object.class, first.getIndex());
+    Object prevTarget = y.loc().get(Object.class, first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
@@ -198,7 +198,7 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
     for (int i = 1; i < distances.size(); i++) {
       ExampleDistance ed = distances.get(i);
-      Object target = y.get(Object.class, ed.example.getIndex());
+      Object target = y.loc().get(Object.class, ed.example.getIndex());
 
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current

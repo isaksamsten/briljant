@@ -139,12 +139,12 @@ public class SymbolicAggregator implements Aggregator {
     Map<String, Map<String, Double>> tab = new HashMap<>();
     for (int r = 0; r < alphabet.size(); r++) {
       Map<String, Double> sub = new HashMap<>();
-      tab.put(alphabet.get(String.class, r), sub);
+      tab.put(alphabet.loc().get(String.class, r), sub);
       for (int c = 0; c < alphabet.size(); c++) {
         if (Math.abs(r - c) <= 1) {
-          sub.put(alphabet.get(String.class, c), 0.0);
+          sub.put(alphabet.loc().get(String.class, c), 0.0);
         } else {
-          sub.put(alphabet.get(String.class, c),
+          sub.put(alphabet.loc().get(String.class, c),
                   thresholds.get(Math.max(r, c) - 1) - thresholds.get(Math.min(r, c)));
         }
       }
@@ -166,11 +166,11 @@ public class SymbolicAggregator implements Aggregator {
   public Vector.Builder partialAggregate(Vector in) {
     GenericVector.Builder sax = new GenericVector.Builder(String.class);
     for (int j = 0; j < in.size(); j++) {
-      double value = in.getAsDouble(j);
+      double value = in.loc().getAsDouble(j);
       if (value <= thresholds.get(0)) {
-        sax.set(j, alphabet.get(String.class, 0));
+        sax.loc().set(j, alphabet.loc().get(String.class, 0));
       } else if (value >= thresholds.get(thresholds.size() - 1)) {
-        sax.set(j, alphabet.get(String.class, alphabet.size() - 1));
+        sax.loc().set(j, alphabet.loc().get(String.class, alphabet.size() - 1));
       } else {
         int index = 0;
         for (int k = 0; k < thresholds.size(); k++) {
@@ -180,7 +180,7 @@ public class SymbolicAggregator implements Aggregator {
             break;
           }
         }
-        sax.set(j, alphabet.get(String.class, index + 1));
+        sax.loc().set(j, alphabet.loc().get(String.class, index + 1));
       }
     }
     return sax;

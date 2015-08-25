@@ -107,13 +107,13 @@ public class DecisionTree implements Classifier {
       Object threshold = node.getThreshold().getValue();
       int axis = node.getThreshold().getAxis();
       int direction = MISSING;
-      if (!example.isNA(axis)) {
+      if (!example.loc().isNA(axis)) {
         if (Is.nominal(threshold)) {
-          direction = example.equals(axis, threshold) ? LEFT : RIGHT;
+          direction = example.loc().get(Object.class, axis).equals(threshold) ? LEFT : RIGHT;
         } else {
           // note: Is.nominal return true for any non-number and Number is always comparable
           @SuppressWarnings("unchecked")
-          Comparable<Object> leftComparable = example.get(Comparable.class, axis);
+          Comparable<Object> leftComparable = example.loc().get(Comparable.class, axis);
           direction = leftComparable.compareTo(threshold) <= 0 ? LEFT : RIGHT;
 //          direction = example.compare(axis, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
         }

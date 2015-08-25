@@ -74,7 +74,7 @@ public class RandomSplitter extends AbstractSplitter {
     for (int i = 0; i < features.length && i < maxFeatures; i++) {
       int axis = features[i];
 
-      Object threshold = search(dataFrame.get(axis), classSet);
+      Object threshold = search(dataFrame.loc().get(axis), classSet);
       if (Is.NA(threshold)) {
         continue;
       }
@@ -129,8 +129,8 @@ public class RandomSplitter extends AbstractSplitter {
     Example a = classSet.getRandomSample().getRandomExample();
     Example b = classSet.getRandomSample().getRandomExample();
 
-    double valueA = vector.getAsDouble(a.getIndex());
-    double valueB = vector.getAsDouble(b.getIndex());
+    double valueA = vector.loc().getAsDouble(a.getIndex());
+    double valueB = vector.loc().getAsDouble(b.getIndex());
 
     // TODO - what if both A and B are missing?
     if (Is.NA(valueA)) {

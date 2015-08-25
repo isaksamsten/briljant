@@ -47,7 +47,7 @@ public class PseudoInverseTransformer implements Transformer {
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
         for (int i = 0; i < x.rows(); i++) {
-          builder.set(i, j, matrix.get(i, j));
+          builder.loc().set(i, j, matrix.get(i, j));
         }
       }
       return builder.build();

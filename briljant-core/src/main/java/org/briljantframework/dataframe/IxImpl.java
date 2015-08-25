@@ -24,6 +24,9 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.index.Index;
+import org.briljantframework.index.Ix;
+
 /**
  * @author Isak Karlsson
  */
@@ -40,61 +43,61 @@ class IxImpl implements Ix {
 
   @Override
   public <T> T get(Class<T> cls, Object r, int c) {
-    return df.get(cls, rec.index(r), c);
+    return df.loc().get(cls, rec.getLocation(r), c);
   }
 
   @Override
   public <T> T get(Class<T> cls, int r, Object c) {
-    return df.get(cls, r, col.index(c));
+    return df.loc().get(cls, r, col.getLocation(c));
   }
 
   @Override
   public <T> T get(Class<T> cls, Object r, Object c) {
-    return df.get(cls, r, c);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public <T> T get(Class<T> cls, int r, int c) {
-    return df.get(cls, r, c);
+    return df.loc().get(cls, r, c);
   }
 
   @Override
   public int getAsInt(Object r, int c) {
-    return df.getAsInt(rec.index(r), c);
+    return df.loc().getAsInt(rec.getLocation(r), c);
   }
 
   @Override
   public int getAsInt(int r, Object c) {
-    return df.getAsInt(r, col.index(c));
+    return df.loc().getAsInt(r, col.getLocation(c));
   }
 
   @Override
   public int getAsInt(Object r, Object c) {
-    return df.getAsInt(r, c);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int getAsInt(int r, int c) {
-    return df.getAsInt(r, c);
+    return df.loc().getAsInt(r, c);
   }
 
   @Override
   public double getAsDouble(Object r, int c) {
-    return df.getAsDouble(rec.index(r), c);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public double getAsDouble(int r, Object c) {
-    return df.getAsDouble(r, col.index(c));
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public double getAsDouble(Object r, Object c) {
-    return df.getAsDouble(r, c);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public double getAsDouble(int r, int c) {
-    return df.getAsDouble(r, c);
+    return df.loc().getAsDouble(r, c);
   }
 }

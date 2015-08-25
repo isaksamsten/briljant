@@ -35,6 +35,7 @@ import com.carrotsearch.hppc.cursors.ObjectDoubleCursor;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.classification.tree.Gain;
@@ -52,7 +53,6 @@ import org.briljantframework.dataseries.Approximations;
 import org.briljantframework.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.shapelet.DerivetiveShapelet;
 import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
@@ -194,7 +194,7 @@ public class ShapeletTree implements Classifier {
       int start = shapelet.start();
       int end = start + length;
       for (int i = start; i < end; i++) {
-        params.positionImportance.update(i, v -> v + (weight / length));
+        params.positionImportance.set(i, params.positionImportance.get(i) + (weight / length));
       }
 
       TreeNode<ShapeletThreshold> leftNode = build(x, y, maxSplit.getLeft(), params);
@@ -229,7 +229,7 @@ public class ShapeletTree implements Classifier {
 //          int vec = rand.nextInt(n - 1);
           int vec = classSet.getRandomSample().getRandomExample().getIndex();
           int start = rand.nextInt(m + 1 - i);
-          shapelets.add(new IndexSortedNormalizedShapelet(start, i, x.getRecord(vec)));
+          shapelets.add(new IndexSortedNormalizedShapelet(start, i, x.loc().getRecord(vec)));
         }
       }
       System.out.println(shapelets.size());
@@ -239,7 +239,7 @@ public class ShapeletTree implements Classifier {
        */
       for (int i = 0; i < maxShapelets; i++) {
         int index = classSet.getRandomSample().getRandomExample().getIndex();
-        Vector timeSeries = x.getRecord(index);
+        Vector timeSeries = x.loc().getRecord(index);
         int timeSeriesLength = timeSeries.size();
         int upper = (int) Math.round(timeSeriesLength * upperLength);
         int lower = (int) Math.round(timeSeriesLength * lowerLength);
@@ -270,19 +270,21 @@ public class ShapeletTree implements Classifier {
         if (sampleMode == SampleMode.RANDOMIZE) {
           Vector.Builder meanVec = new DoubleVector.Builder();
           for (int j = 0; j < 10; j++) {
-            Vector record = x.getRecord(classSet.getRandomSample().getRandomExample().getIndex());
+            Vector record = x.loc().getRecord(
+                classSet.getRandomSample().getRandomExample().getIndex());
             Shapelet shapelet = new Shapelet(start, length, record);
             for (int k = 0; k < shapelet.size(); k++) {
-              meanVec.set(k, shapelet.getAsDouble(k) / 10);
+              meanVec.set(k, shapelet.loc().getAsDouble(k) / 10);
             }
           }
           Shapelet s = new IndexSortedNormalizedShapelet(0, meanVec.size(), meanVec.build());
           shapelets.add(s);
         } else if (sampleMode == SampleMode.DERIVATE && Utils.getRandom().nextGaussian() > 0) {
           DoubleVector.Builder derivative = new DoubleVector.Builder(0, timeSeriesLength);
-          derivative.set(0, 0);
+          derivative.loc().set(0, 0);
           for (int j = 1; j < timeSeriesLength; j++) {
-            derivative.set(j, timeSeries.getAsDouble(j) - timeSeries.getAsDouble(j - 1));
+            derivative.loc().set(j, timeSeries.loc().getAsDouble(j) -
+                                    timeSeries.loc().getAsDouble(j - 1));
           }
           shapelets.add(new DerivetiveShapelet(start, length, derivative.build()));
         } else {
@@ -302,7 +304,7 @@ public class ShapeletTree implements Classifier {
     if (sampleMode == SampleMode.DOWN_SAMPLE) {
       DownsampledShapelet best = (DownsampledShapelet) bestSplit.getThreshold().getShapelet();
       Shapelet shapelet = new IndexSortedNormalizedShapelet(
-          best.start, best.length, params.originalData.getRecord(best.index));
+          best.start, best.length, params.originalData.loc().getRecord(best.index));
       return findBestSplit(classSet, params.originalData, y, Arrays.asList(shapelet));
     } else {
       return bestSplit;
@@ -338,7 +340,7 @@ public class ShapeletTree implements Classifier {
     List<ExampleDistance> distances = new ArrayList<>();
     Distance distanceMetric = getDistanceMetric();
     for (Example example : classSet) {
-      double distance = distanceMetric.compute(x.getRecord(example.getIndex()), shapelet);
+      double distance = distanceMetric.compute(x.loc().getRecord(example.getIndex()), shapelet);
       memoizedDistances.put(example.getIndex(), distance);
       distances.add(new ExampleDistance(distance, example));
       sum += distance;
@@ -362,7 +364,7 @@ public class ShapeletTree implements Classifier {
       IntDoubleMap distanceMap = new IntDoubleOpenHashMap();
       double sum = 0;
       for (Example example : classSet) {
-        double dist = metric.compute(x.getRecord(example.getIndex()), shapelet);
+        double dist = metric.compute(x.loc().getRecord(example.getIndex()), shapelet);
         distanceMap.put(example.getIndex(), dist);
         distances.add(new ExampleDistance(dist, example));
         sum += dist;
@@ -392,7 +394,7 @@ public class ShapeletTree implements Classifier {
 
     int numInstances = distances.size();
     for (ExampleDistance distance : distances) {
-      Object c = y.get(Object.class, distance.example.getIndex()); // getClassVal
+      Object c = y.loc().get(Object.class, distance.example.getIndex()); // getClassVal
       double thisDist = distance.distance; // getDistance
       sizes.addTo(c, 1);
       sums.addTo(c, thisDist); // sums[c] += thisDist
@@ -448,7 +450,7 @@ public class ShapeletTree implements Classifier {
 
     // Transfer weights from the initial example
     Example first = distances.get(0).example;
-    Object prevTarget = y.get(Object.class, first.getIndex());
+    Object prevTarget = y.loc().get(Object.class, first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
@@ -461,7 +463,7 @@ public class ShapeletTree implements Classifier {
     double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
     for (int i = 1; i < distances.size(); i++) {
       ExampleDistance ed = distances.get(i);
-      Object target = y.get(Object.class, ed.example.getIndex());
+      Object target = y.loc().get(Object.class, ed.example.getIndex());
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current
       // (except for the first)
@@ -685,9 +687,9 @@ public class ShapeletTree implements Classifier {
       Vector cand = example;
       if (shapelet instanceof DerivetiveShapelet) {
         DoubleVector.Builder derivative = new DoubleVector.Builder(0, example.size());
-        derivative.set(0, 0);
+        derivative.loc().set(0, 0);
         for (int j = 1; j < example.size(); j++) {
-          derivative.set(j, example.getAsDouble(j) - example.getAsDouble(j - 1));
+          derivative.loc().set(j, example.loc().getAsDouble(j) - example.loc().getAsDouble(j - 1));
         }
         cand = derivative.build();
       }

@@ -322,16 +322,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void update(int i, DoubleUnaryOperator update) {
-    set(i, update.applyAsDouble(get(i)));
-  }
-
-  @Override
-  public void update(int i, int j, DoubleUnaryOperator update) {
-    set(i, j, update.applyAsDouble(get(i, j)));
-  }
-
-  @Override
   public void addTo(int i, double value) {
     set(i, get(i) + value);
   }

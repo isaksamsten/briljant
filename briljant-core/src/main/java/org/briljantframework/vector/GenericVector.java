@@ -24,11 +24,7 @@
 
 package org.briljantframework.vector;
 
-import org.briljantframework.Bj;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.dataframe.Index;
-import org.briljantframework.dataframe.IntIndex;
-import org.briljantframework.exceptions.IllegalTypeException;
+import org.briljantframework.index.Index;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -76,30 +72,30 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public <T> T get(Class<T> cls, int index) {
+  public <T> T getAt(Class<T> cls, int index) {
     return Convert.to(cls, values.get(index));
   }
 
   @Override
-  public String toString(int index) {
+  public String toStringAt(int index) {
     Object o = values.get(index);
     return Is.NA(o) ? "NA" : o.toString();
   }
 
   @Override
-  public double getAsDouble(int index) {
-    Number number = get(Number.class, index);
+  public double getAsDoubleAt(int i) {
+    Number number = loc().get(Number.class, i);
     return Is.NA(number) ? Na.from(Double.class) : number.doubleValue();
   }
 
   @Override
-  public int getAsInt(int index) {
-    Number number = get(Number.class, index);
+  public int getAsIntAt(int i) {
+    Number number = loc().get(Number.class, i);
     return Is.NA(number) ? Na.from(Integer.class) : number.intValue();
   }
 
   @Override
-  public boolean isNA(int index) {
+  public boolean isNaAt(int index) {
     return Is.NA(values.get(index));
   }
 
@@ -114,39 +110,8 @@ public class GenericVector extends AbstractVector {
   }
 
   @Override
-  public DoubleArray toDoubleArray() throws IllegalTypeException {
-    if (Number.class.isAssignableFrom(this.cls)) {
-      return Bj.doubleArray(size())
-          .assign(asList(Number.class).stream()
-                      .mapToDouble(v -> Is.NA(v) ? Na.from(Double.class) : v.doubleValue())
-                      .iterator()::next);
-    }
-    throw new IllegalTypeException(
-        String.format("Can't convert vector of '%s' to matrix", getType()));
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public int compare(int a, int b) {
-    Comparable ca = get(Comparable.class, a);
-    Comparable cb = get(Comparable.class, b);
-    if (Is.NA(ca) && !Is.NA(cb)) {
-      return -1;
-    } else if (!Is.NA(ca) && Is.NA(cb)) {
-      return 1;
-    } else {
-      return ca.compareTo(cb);
-    }
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
+  public int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
-  }
-
-  @Override
-  public int hashCode() {
-    return cls.hashCode() + values.hashCode();
   }
 
   @Override
@@ -161,7 +126,12 @@ public class GenericVector extends AbstractVector {
     return super.equals(obj);
   }
 
-  public static class Builder extends AbstractBuilder {
+  @Override
+  public int hashCode() {
+    return cls.hashCode() + values.hashCode();
+  }
+
+  public static final class Builder extends AbstractBuilder {
 
     private static final Set<Class<?>> INVALID_CLASSES = new HashSet<>();
 
@@ -176,16 +146,22 @@ public class GenericVector extends AbstractVector {
     private Resolver<?> resolver = null;
 
     public <T> Builder(Class<T> cls, Resolver<T> resolver) {
-      super(new IntIndex.Builder(0));
       this.cls = ensureValidClass(cls);
       this.resolver = resolver;
       this.buffer = new ArrayList<>();
     }
 
     public Builder(Class<?> cls) {
-      super(new IntIndex.Builder(0));
       this.cls = ensureValidClass(cls);
       buffer = new ArrayList<>();
+    }
+
+    public Builder(Class<?> cls, int size) {
+      this.cls = cls;
+      buffer = new ArrayList<>();
+      for (int i = 0; i < size; i++) {
+        buffer.add(null);
+      }
     }
 
     private <T> Class<?> ensureValidClass(Class<T> cls) {
@@ -196,31 +172,19 @@ public class GenericVector extends AbstractVector {
       return cls;
     }
 
-    public Builder(Class<?> cls, int size) {
-      super(new IntIndex.Builder(size));
-      this.cls = cls;
-      buffer = new ArrayList<>();
-      for (int i = 0; i < size; i++) {
-        buffer.add(null);
-      }
-    }
-
     @Override
-    public Vector.Builder setNA(int index) {
+    protected void setNaAt(int index) {
       ensureCapacity(index);
       buffer.set(index, null);
-      indexer.set(index, index);
-      return this;
     }
 
     @Override
-    public Vector.Builder set(int atIndex, Vector from, Object fromKey) {
+    protected void setAt(int atIndex, Vector from, Object fromKey) {
       setAt(atIndex, from.get(cls, fromKey));
-      return this;
     }
 
     @Override
-    void setAt(int index, Object value) {
+    protected void setAt(int index, Object value) {
       ensureCapacity(index);
       if (value != null && cls.isInstance(value)) {
         buffer.set(index, value);
@@ -237,42 +201,18 @@ public class GenericVector extends AbstractVector {
     }
 
     @Override
-    void setAt(int atIndex, Vector from, int fromIndex) {
+    protected void setAt(int atIndex, Vector from, int fromIndex) {
       ensureCapacity(atIndex);
-      buffer.set(atIndex, from.get(cls, fromIndex));
+      buffer.set(atIndex, from.loc().get(cls, fromIndex));
     }
 
     @Override
-    public Vector.Builder addAll(Vector from) {
-      for (int i = 0; i < from.size(); i++) {
-        add(from.get(cls, i));
-      }
-      return this;
-    }
-
-    @Override
-    public Vector.Builder remove(int index) {
+    protected void removeAt(int index) {
       buffer.remove(index);
-      this.indexer.remove(index);
-      return this;
     }
 
     @Override
-    public int compare(int a, int b) {
-      Object va = buffer.get(a);
-      Object vb = buffer.get(b);
-      if (!Is.NA(va) && !Is.NA(vb) && va instanceof Comparable && va.getClass().isInstance(vb)) {
-        @SuppressWarnings("unchecked")
-        int cmp = ((Comparable) va).compareTo(vb);
-        return cmp;
-      } else {
-        return !Is.NA(vb) && !Is.NA(va) && va.equals(vb) ? 1 : -1;
-      }
-    }
-
-    @Override
-    public void swap(int a, int b) {
-      indexer.swap(a, b);
+    public void swapAt(int a, int b) {
       Collections.swap(buffer, a, b);
     }
 
@@ -295,7 +235,7 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector build() {
-      Vector vector = new GenericVector(cls, buffer, buffer.size(), indexer.build());
+      Vector vector = new GenericVector(cls, buffer, buffer.size(), getIndex());
       buffer = null;
       return vector;
     }
@@ -303,9 +243,6 @@ public class GenericVector extends AbstractVector {
     private void ensureCapacity(int index) {
       int i = buffer.size();
       while (i <= index) {
-        if (i < index) {
-          this.indexer.set(i, i);
-        }
         buffer.add(null);
         i++;
       }

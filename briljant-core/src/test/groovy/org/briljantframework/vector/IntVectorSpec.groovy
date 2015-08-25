@@ -66,11 +66,11 @@ class IntVectorSpec extends Specification {
     def a = ib.add(1).add(2).add(3).addNA().add(5).build()
 
     then:
-    a.getAsInt(0) == 1
-    a.get(Integer, 1) == 2
-    a.getAsInt(2) == 3
-    a.isNA(3)
-    a.get(Number, 4) == 5
+    a.loc().getAsInt(0) == 1
+    a.loc().get(Integer, 1) == 2
+    a.loc().getAsInt(2) == 3
+    a.loc().isNA(3)
+    a.loc().get(Number, 4) == 5
   }
 
   def "IntVector converts to correct values"() {
@@ -78,14 +78,12 @@ class IntVectorSpec extends Specification {
     def a = Vector.of([1, 2, 3, null, 5])
 
     then:
-    a.getAsDouble(0) == 1.0
-    a.getAsBit(0) == Logical.TRUE
-    a.getAsBit(2) == Logical.NA
-    a.get(Logical, 0) == a.getAsBit(0)
-    a.get(Double, 1) == a.getAsDouble(1)
-    a.get(Complex, 1) == a.getAsComplex(1)
-    a.get(String, 3) == null
-    a.get(Integer, 1) == a.getAsInt(1)
+    a.loc().getAsDouble(0) == 1.0
+    a.get(Logical, 0) == Logical.TRUE
+    a.get(Logical, 2) == Logical.FALSE
+    a.loc().get(Double, 1) == a.loc().getAsDouble(1)
+    a.loc().get(String, 3) == null
+    a.loc().get(Integer, 1) == a.loc().getAsInt(1)
   }
 
 }

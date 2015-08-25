@@ -24,11 +24,16 @@
 
 package org.briljantframework.vector;
 
+import org.briljantframework.index.HeterogeneousObjectComparator;
+
+import java.util.Comparator;
+
 /**
  * @author Isak Karlsson
  */
 class GenericVectorType extends VectorType {
 
+  private final static Comparator<Object> CMP = new HeterogeneousObjectComparator();
   private Class<?> cls;
 
   public GenericVectorType(Class<?> cls) {
@@ -57,15 +62,9 @@ class GenericVectorType extends VectorType {
 
   @Override
   public int compare(int a, Vector va, int b, Vector ba) {
-    Object oa = va.get(Object.class, a);
-    Object ob = ba.get(Object.class, b);
-    if (!Is.NA(oa) && !Is.NA(ob) && oa instanceof Comparable && oa.getClass().isInstance(ob)) {
-      @SuppressWarnings("unchecked")
-      int cmp = ((Comparable) oa).compareTo(ob);
-      return cmp;
-    } else {
-      return !Is.NA(ob) && !Is.NA(oa) && oa.equals(ob) ? 1 : -1;
-    }
+    Object ca = va.loc().get(Object.class, a);
+    Object cb = ba.loc().get(Object.class, b);
+    return CMP.compare(ca, cb);
   }
 
   @Override

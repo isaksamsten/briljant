@@ -22,41 +22,71 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
+package org.briljantframework.index;
 
 import org.briljantframework.sort.Swappable;
 
+import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Immutable index. {@link #iterator()} is guaranteed to return the keys in the index according
- * to the order which a similar list would, i.e. from position {@code 1} to position {@code
- * size()}.
+ * Immutable index.
  *
  * @author Isak Karlsson
  */
-public interface Index extends List<Object> {
+public interface Index {
 
-  int index(Object key);
+  /**
+   * Get the index location of the supplied key.
+   *
+   * @param key the key
+   * @return the location
+   * @throws java.util.NoSuchElementException if key does not exist
+   */
+  int getLocation(Object key);
 
-  Object get(int index);
+  /**
+   * Get the key at the supplied location
+   *
+   * @param location the location
+   * @return the key
+   * @throws java.lang.IndexOutOfBoundsException if {@code location >= size() || location < 0}
+   */
+  Object getKey(int location);
+
+  /**
+   * Returns {@code true} if
+   */
+  boolean contains(Object key);
 
   Set<Object> keySet();
 
-  Collection<Integer> indices();
+  Collection<Integer> locations();
 
   Set<Index.Entry> entrySet();
 
-  Collection<Integer> indices(Object[] keys);
-
-  Map<Integer, Object> indexMap();
+  int[] indices(Object[] keys);
 
   Builder newBuilder();
 
   Builder newCopyBuilder();
+
+  default List<Object> asList() {
+    return new AbstractList<Object>() {
+      @Override
+      public Object get(int index) {
+        return getKey(index);
+      }
+
+      @Override
+      public int size() {
+        return Index.this.size();
+      }
+    };
+  }
 
   int size();
 
@@ -65,7 +95,7 @@ public interface Index extends List<Object> {
     private final Object key;
     private final int index;
 
-    protected Entry(Object key, int index) {
+    public Entry(Object key, int index) {
       this.key = key;
       this.index = index;
     }
@@ -97,21 +127,21 @@ public interface Index extends List<Object> {
      * @param key the key
      * @return value {@code > 0} if {@code key} exists or {@code -1} otherwise.
      */
-    int index(Object key);
+    int getLocation(Object key);
 
-    Object get(int index);
+    Object getKey(int index);
 
     void add(Object key);
 
-    void set(Object key, int index);
+    void add(int key);
 
-    void set(int key, int index);
+    void sort(Comparator<Object> cmp);
+
+    void sort();
+
+    void extend(int size);
 
     Index build();
-
-    void set(Entry entry);
-
-    void putAll(Set<Entry> entries);
 
     int size();
 

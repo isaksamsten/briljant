@@ -66,8 +66,8 @@ public class SaxDistance implements Distance {
     double sum = 0;
 
     for (int i = 0; i < w; i++) {
-      String av = a.get(String.class, i);
-      String bv = b.get(String.class, i);
+      String av = a.loc().get(String.class, i);
+      String bv = b.loc().get(String.class, i);
       double value = lookup.get(av).get(bv);
       sum += value * value;
     }

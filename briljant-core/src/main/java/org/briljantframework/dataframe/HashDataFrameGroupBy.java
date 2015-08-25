@@ -24,6 +24,7 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.index.Index;
 import org.briljantframework.vector.Vector;
 
 import java.util.HashMap;
@@ -89,9 +90,9 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     DataFrame.Builder builder = dataFrame.newBuilder();
     if (indices.size() > 0) {
       for (int j = 0; j < dataFrame.columns(); j++) {
-        builder.addColumnBuilder(dataFrame.getType(j));
+        builder.add(dataFrame.loc().get(j).getType());
         for (int i = 0; i < indices.size(); i++) {
-          builder.set(i, j, dataFrame, indices.getAsInt(i), j);
+          builder.loc().set(i, j, dataFrame, indices.loc().getAsInt(i), j);
         }
       }
     }
@@ -103,10 +104,10 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public DataFrame aggregate(Function<Vector, Object> function) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    Index.Builder recordIndex = new HashIndex.Builder();
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder recordIndex = new ObjectIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
     for (int j = 0; j < dataFrame.columns(); j++) {
-      columnIndex.add(dataFrame.getColumnIndex().get(j));
+      columnIndex.add(dataFrame.getColumnIndex().getKey(j));
     }
     int row = 0;
     for (Map.Entry<Object, Vector> e : groups()) {
@@ -114,12 +115,12 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       Vector groupIndex = e.getValue();
       int column = 0;
       for (int j = 0; j < dataFrame.columns(); j++) {
-        Vector col = dataFrame.get(j);
+        Vector col = dataFrame.loc().get(j);
         Vector.Builder reduce = col.newBuilder(groupIndex.size());
         for (int i = 0; i < groupIndex.size(); i++) {
-          reduce.set(i, col, groupIndex.getAsInt(i));
+          reduce.loc().set(i, col, groupIndex.loc().getAsInt(i));
         }
-        builder.set(row, column++, function.apply(reduce.build()));
+        builder.loc().set(row, column++, function.apply(reduce.build()));
       }
       row += 1;
     }
@@ -131,11 +132,11 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   public <T, C> DataFrame collect(Class<? extends T> cls,
                                   Collector<? super T, C, ? extends T> collector) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    Index.Builder recordIndex = new HashIndex.Builder();
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder recordIndex = new ObjectIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
     for (int j = 0; j < dataFrame.columns(); j++) {
-      if (cls.isAssignableFrom(dataFrame.getType(j).getDataClass())) {
-        columnIndex.add(dataFrame.getColumnIndex().get(j));
+      if (cls.isAssignableFrom(dataFrame.loc().get(j).getType().getDataClass())) {
+        columnIndex.add(dataFrame.getColumnIndex().getKey(j));
       }
     }
 
@@ -144,15 +145,15 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       recordIndex.add(e.getKey());
       int colIndex = 0;
       for (int j = 0; j < dataFrame.columns(); j++) {
-        if (cls.isAssignableFrom(dataFrame.getType(j).getDataClass())) {
+        Vector col = dataFrame.loc().get(j);
+        if (cls.isAssignableFrom(col.getType().getDataClass())) {
           Vector groupIndex = e.getValue();
-          Vector col = dataFrame.get(j);
           C c = collector.supplier().get();
           for (int i = 0; i < groupIndex.size(); i++) {
-            collector.accumulator().accept(c, col.get(cls, groupIndex.getAsInt(i)));
+            collector.accumulator().accept(c, col.loc().get(cls, groupIndex.loc().getAsInt(i)));
           }
           T t = collector.finisher().apply(c);
-          builder.set(row, colIndex++, t);
+          builder.loc().set(row, colIndex++, t);
         }
       }
       row++;

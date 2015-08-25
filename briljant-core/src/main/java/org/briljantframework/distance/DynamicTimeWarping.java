@@ -85,7 +85,7 @@ public class DynamicTimeWarping implements Distance {
       int end = constraint <= -1 ? m : Math.min(m, i + width);
       int start = constraint <= -1 ? 1 : Math.max(1, i - width);
       for (int j = start; j < end; j++) {
-        double cost = distance.compute(a.getAsDouble(i), b.getAsDouble(j));
+        double cost = distance.compute(a.loc().getAsDouble(i), b.loc().getAsDouble(j));
         dwt.set(i, j, cost +
                       Math.min(dwt.get(i - 1, j),
                                Math.min(dwt.get(i, j - 1),

@@ -28,6 +28,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.index.VectorLocationSetter;
 import org.briljantframework.vector.GenericVector;
 import org.briljantframework.vector.Vector;
 
@@ -61,22 +62,23 @@ public abstract class AbstractPredictor implements Predictor {
   public Vector predict(DataFrame x) {
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
     Vector.Builder labels = new GenericVector.Builder(Object.class, x.rows());
+    VectorLocationSetter loc = labels.loc();
     IntStream.range(0, x.rows()).parallel().forEach(
-        i -> labels.set(i, predict(x.getRecord(i)))
+        i -> loc.set(i, predict(x.loc().getRecord(i)))
     );
     return labels.build();
   }
 
   @Override
   public Object predict(Vector record) {
-    return getClasses().get(Object.class, argmax(estimate(record)));
+    return getClasses().loc().get(Object.class, argmax(estimate(record)));
   }
 
   @Override
   public DoubleArray estimate(DataFrame x) {
     DoubleArray estimations = Bj.doubleArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(
-        i -> estimations.setRow(i, estimate(x.getRecord(i)))
+        i -> estimations.setRow(i, estimate(x.loc().getRecord(i)))
     );
     return estimations;
   }

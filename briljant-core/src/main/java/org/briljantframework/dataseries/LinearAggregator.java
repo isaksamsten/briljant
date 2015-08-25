@@ -63,7 +63,7 @@ public class LinearAggregator implements Aggregator {
       int start = currentIndex;
       int end = currentIndex + binInc - 1;
       double w = (double) 1 / 5;
-      builder.add(lerp(in.getAsDouble(start), in.getAsDouble(end), w));
+      builder.add(lerp(in.loc().getAsDouble(start), in.loc().getAsDouble(end), w));
       currentIndex += binInc;
     }
     return builder;

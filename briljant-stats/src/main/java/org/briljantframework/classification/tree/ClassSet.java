@@ -53,7 +53,7 @@ public final class ClassSet implements Iterable<Example> {
   public ClassSet(Vector column, Vector domain) {
     this(domain);
     for (int i = 0; i < column.size(); i++) {
-      add(column.get(Object.class, i), i, 1);
+      add(column.loc().get(Object.class, i), i, 1);
     }
   }
 

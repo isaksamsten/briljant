@@ -76,8 +76,8 @@ public class ConfusionMatrix {
     Set<Object> labels = new HashSet<>();
     double sum = 0;
     for (int i = 0; i < predictions.size(); i++) {
-      Object predicted = predictions.get(Object.class, i);
-      Object actual = truth.get(Object.class, i);
+      Object predicted = predictions.loc().get(Object.class, i);
+      Object actual = truth.loc().get(Object.class, i);
 
       Map<Object, Double> actuals = matrix.get(predicted);
       if (actuals == null) {

@@ -28,8 +28,8 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.Bj;
-import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;
@@ -76,7 +76,7 @@ public class JoinUtils {
    * @return a new join key
    */
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b) {
-    return createJoinKeys(a.getRecordIndex(), b.getRecordIndex());
+    return createJoinKeys(a.getRecordIndex().asList(), b.getRecordIndex().asList());
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> on) {
@@ -85,7 +85,7 @@ public class JoinUtils {
 
     int noGroups = 1;
     for (int column : on) {
-      JoinKeys pool = createJoinKeys(a.get(column), b.get(column));
+      JoinKeys pool = createJoinKeys(a.loc().get(column), b.loc().get(column));
 
       if (noGroups > 1) {
         IntArray lt = pool.getLeft();

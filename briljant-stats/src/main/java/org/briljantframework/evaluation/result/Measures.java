@@ -68,7 +68,7 @@ public final class Measures {
     double accuracy = 0;
     int n = predicted.size();
     for (int i = 0; i < n; i++) {
-      if (predicted.equals(i, actual, i)) {
+      if (predicted.loc().equals(i, actual, i)) {
         accuracy += 1;
       }
     }
@@ -94,8 +94,8 @@ public final class Measures {
     int n = predicted.size();
     double brier = 0;
     for (int i = 0; i < n; i++) {
-      double prob = scores.get(i, find(classes, predicted.get(Object.class, i)));
-      if (predicted.equals(i, actual, i)) {
+      double prob = scores.get(i, find(classes, predicted.loc().get(Object.class, i)));
+      if (predicted.loc().equals(i, actual, i)) {
         brier += Math.pow(1 - prob, 2);
       } else {
         brier += prob * prob;
@@ -115,7 +115,7 @@ public final class Measures {
                                         Vector domain) {
     Map<Object, Double> aucs = new HashMap<>();
     for (int i = 0; i < domain.size(); i++) {
-      Object value = domain.get(Object.class, i);
+      Object value = domain.loc().get(Object.class, i);
       DoubleArray p = probabilities.getColumn(i);
       aucs.put(value, computeAuc(value, predicted, p, actual));
     }
@@ -127,7 +127,7 @@ public final class Measures {
     double truePositives = 0, falsePositives = 0, positives = 0;
     List<PredictionProbability> pairs = new ArrayList<>(predicted.size());
     for (int i = 0; i < actual.size(); i++) {
-      boolean positiveness = actual.get(Object.class, i).equals(value); //.equals(i, value, 0);
+      boolean positiveness = actual.loc().get(Object.class, i).equals(value); //.equals(i, value, 0);
       if (positiveness) {
         positives++;
       }

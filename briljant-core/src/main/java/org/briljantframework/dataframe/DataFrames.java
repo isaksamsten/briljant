@@ -36,6 +36,7 @@ import org.briljantframework.dataframe.join.OuterJoin;
 import org.briljantframework.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.dataframe.transform.Transformation;
+import org.briljantframework.index.Index;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
@@ -88,7 +89,7 @@ public final class DataFrames {
     CsvParser parser = new CsvParser(settings);
     parser.beginParsing(new BufferedReader(new FileReader(new File(file))));
 
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
     for (String s : parser.parseNext()) {
       columnIndex.add(s);
     }
@@ -98,20 +99,20 @@ public final class DataFrames {
       String value = entry.nextString();
       Object val;
       if ((val = Integer.parseInt(value)) != null) {
-        df.addColumnBuilder(VectorType.INT);
+        df.add(VectorType.INT);
       } else if ((val = Double.parseDouble(value)) != null) {
-        df.addColumnBuilder(VectorType.DOUBLE);
+        df.add(VectorType.DOUBLE);
       } else if ("true".equalsIgnoreCase(value)) {
         val = true;
-        df.addColumnBuilder(VectorType.LOGICAL);
+        df.add(VectorType.LOGICAL);
       } else if ("false".equalsIgnoreCase(value)) {
         val = false;
-        df.addColumnBuilder(VectorType.LOGICAL);
+        df.add(VectorType.LOGICAL);
       } else {
         val = value;
-        df.addColumnBuilder(VectorType.from(LocalDate.class));
+        df.add(VectorType.from(LocalDate.class));
       }
-      df.set(0, col, val);
+      df.loc().set(0, col, val);
     }
 
     try {
@@ -147,7 +148,7 @@ public final class DataFrames {
       return dataFrames.iterator().next();
     }
     DataFrame.Builder builder = null;
-    Index.Builder columnIndex = new HashIndex.Builder();
+    Index.Builder columnIndex = new ObjectIndex.Builder();
 
     int toRow = 0;
     int currentColumn = 0;
@@ -158,7 +159,7 @@ public final class DataFrames {
 
       int rows = df.rows();
       for (Index.Entry col : df.getColumnIndex().entrySet()) {
-        int toColumn = columnIndex.index(col.key());
+        int toColumn = columnIndex.getLocation(col.key());
         int fromCol = col.index();
         if (toColumn < 0) {
           columnIndex.add(col.key());
@@ -166,7 +167,7 @@ public final class DataFrames {
           currentColumn += 1;
         }
         for (int i = 0; i < rows; i++) {
-          builder.set(toRow + i, toColumn, df, i, fromCol);
+          builder.loc().set(toRow + i, toColumn, df, i, fromCol);
         }
       }
       toRow += rows;
@@ -198,7 +199,7 @@ public final class DataFrames {
       Collection<VectorType> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
       DataFrame df = f.apply(types).read(in).build();
-      df.setColumnIndex(HashIndex.from(names));
+      df.setColumnIndex(ObjectIndex.from(names));
       return df;
     } finally {
       if (in != null) {
@@ -223,13 +224,15 @@ public final class DataFrames {
         )
     );
     for (int j = 0; j < df.columns(); j++) {
-      Vector column = df.get(j);
+      Vector column = df.loc().get(j);
       if (column.getType().getScale() == Scale.NUMERICAL) {
         StatisticalSummary desc = Vec.statistics(column);
         double mean = desc.getMean();
         double min = desc.getMin();
         double max = desc.getMax();
-        builder.set(j, 0, mean).set(j, 1, min).set(j, 2, max);
+        builder.loc().set(j, 0, mean);
+        builder.loc().set(j, 1, min);
+        builder.loc().set(j, 2, max);
       } else {
         throw new UnsupportedOperationException();
 //        Object mode = Vec.mode(column);
@@ -237,7 +240,7 @@ public final class DataFrames {
       }
     }
     DataFrame bdf = builder.build();
-    bdf.setColumnIndex(HashIndex.from(
+    bdf.setColumnIndex(ObjectIndex.from(
         Arrays.asList("Mean", "Min", "Max", "Mode")
     ));
     return bdf;
@@ -256,7 +259,7 @@ public final class DataFrames {
   public static DataFrame permuteRows(DataFrame df, Random random) {
     DataFrame.Builder builder = df.newCopyBuilder();
     for (int i = builder.rows(); i > 1; i--) {
-      builder.swapRecords(i - 1, random.nextInt(i));
+      builder.loc().swapRecords(i - 1, random.nextInt(i));
     }
     DataFrame bdf = builder.build();
     bdf.setColumnIndex(df.getColumnIndex());
@@ -285,7 +288,7 @@ public final class DataFrames {
     DataFrame.Builder builder = in.newCopyBuilder();
     Random random = Utils.getRandom();
     for (int i = builder.columns(); i > 1; i--) {
-      builder.swapColumns(i - 1, random.nextInt(i));
+      builder.loc().swap(i - 1, random.nextInt(i));
     }
     return builder.build();
   }

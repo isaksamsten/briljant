@@ -41,7 +41,7 @@ class VectorExtensions {
   }
 
   static <T> T getAt(Vector self, int i) {
-    return self.get(T, i)
+    return self.loc().get(T, i)
   }
 
   static <T> T getAt(Vector self, Object k) {

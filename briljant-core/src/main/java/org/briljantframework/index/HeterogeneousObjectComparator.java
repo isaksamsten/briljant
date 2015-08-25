@@ -22,32 +22,31 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
+package org.briljantframework.index;
 
-import org.briljantframework.vector.Vector;
+import java.util.Comparator;
 
 /**
  * @author Isak Karlsson
  */
-public interface Series extends Vector {
+public final class HeterogeneousObjectComparator implements Comparator<Object> {
 
-  Object name();
-
-  Index getIndex();
-
-  default <T> T get(Class<T> cls, Object key) {
-    return get(cls, getIndex().index(key));
-  }
-
-  default int getAsInt(Object key) {
-    return getAsInt(getIndex().index(key));
-  }
-
-  default double getAsDouble(Object key) {
-    return getAsDouble(getIndex().index(key));
-  }
-
-  default String toString(Object key) {
-    return toString(getIndex().index(key));
+  @Override
+  @SuppressWarnings("unchecked")
+  public int compare(Object o1, Object o2) {
+    if (o1 == null && o2 == null) {
+      return 0;
+    } else if (o1 == null) {
+      return -1;
+    } else if (o2 == null) {
+      return 1;
+    } else {
+      if (o1.getClass().equals(o2.getClass()) && o1 instanceof Comparable
+          && o2 instanceof Comparable) {
+        return ((Comparable) o1).compareTo(o2);
+      } else {
+        return o1.getClass().getName().compareTo(o2.getClass().getName());
+      }
+    }
   }
 }

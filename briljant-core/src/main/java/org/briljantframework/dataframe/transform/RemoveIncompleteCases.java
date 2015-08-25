@@ -26,6 +26,7 @@ package org.briljantframework.dataframe.transform;
 
 
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.index.DataFrameLocationGetter;
 
 /**
  * Removes incomplete cases, i.e. rows with missing values.
@@ -37,18 +38,19 @@ public class RemoveIncompleteCases implements Transformation {
   @Override
   public DataFrame transform(DataFrame x) {
     DataFrame.Builder builder = x.newBuilder();
+    DataFrameLocationGetter loc = x.loc();
     int nonNaRow = 0;
     for (int i = 0; i < x.rows(); i++) {
       boolean hasNA = false;
       for (int j = 0; j < x.columns(); j++) {
-        if (x.isNA(i, j)) {
+        if (loc.isNA(i, j)) {
           hasNA = true;
           break;
         }
       }
       if (!hasNA) {
         for (int j = 0; j < x.columns(); j++) {
-          builder.set(nonNaRow, j, x, i, j);
+          builder.loc().set(nonNaRow, j, x, i, j);
         }
         nonNaRow += 1;
       }

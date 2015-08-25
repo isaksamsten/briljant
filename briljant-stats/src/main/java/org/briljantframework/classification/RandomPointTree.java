@@ -71,8 +71,8 @@ public class RandomPointTree implements Classifier {
     double sumF = 0, sumSquareF = 0;
     double sumS = 0, sumSquareS = 0;
     for (int i = 0; i < take; i++) {
-      double f = x.getAsDouble(index[i]);
-      double s = y.getAsDouble(index[i]);
+      double f = x.loc().getAsDouble(index[i]);
+      double s = y.loc().getAsDouble(index[i]);
       sumF += f;
       sumSquareF += f * f;
       sumS += s;
@@ -85,8 +85,8 @@ public class RandomPointTree implements Classifier {
     double meanS = sumS / take;
     for (int j = 0; j < take; j++) {
       int idx = index[j];
-      double f = (x.getAsDouble(idx) - meanF) / stdF;
-      double s = (y.getAsDouble(idx) - meanS) / stdS;
+      double f = (x.loc().getAsDouble(idx) - meanF) / stdF;
+      double s = (y.loc().getAsDouble(idx) - meanS) / stdS;
       distance += (f - s) * (f - s);
     }
     return Math.sqrt(distance / take);
@@ -145,7 +145,7 @@ public class RandomPointTree implements Classifier {
       int take = Utils.randInt(2, 20);
       Utils.permute(index);
       ClassSet.Sample a = classSet.getRandomSample();
-      Vector pivot = x.getRecord(a.getRandomExample().getIndex());
+      Vector pivot = x.loc().getRecord(a.getRandomExample().getIndex());
 
       IntDoubleMap distanceMap = new IntDoubleOpenHashMap();
       Threshold threshold = bestDistanceThresholdInSample(classSet, x, y, take, pivot, distanceMap);
@@ -207,7 +207,7 @@ public class RandomPointTree implements Classifier {
     double sum = 0.0;
     List<ExampleDistance> distances = new ArrayList<>();
     for (Example example : classSet) {
-      Vector second = x.getRecord(example.getIndex());
+      Vector second = x.loc().getRecord(example.getIndex());
       double distance = computeDistance(index, take, pivot, second);
       memoizedDistances.put(example.getIndex(), distance);
       distances.add(new ExampleDistance(distance, example));
@@ -241,7 +241,7 @@ public class RandomPointTree implements Classifier {
 
     // Transfer weights from the initial example
     Example first = distances.get(0).example;
-    Object prevTarget = y.get(Object.class, first.getIndex());
+    Object prevTarget = y.loc().get(Object.class, first.getIndex());
     gt.addTo(prevTarget, -first.getWeight());
     lt.addTo(prevTarget, first.getWeight());
     gtWeight -= first.getWeight();
@@ -253,7 +253,7 @@ public class RandomPointTree implements Classifier {
     double ltGap = 0.0, gtGap = distanceSum, largestGap = Double.NEGATIVE_INFINITY;
     for (int i = 1; i < distances.size(); i++) {
       ExampleDistance ed = distances.get(i);
-      Object target = y.get(Object.class, ed.example.getIndex());
+      Object target = y.loc().get(Object.class, ed.example.getIndex());
 
       // IF previous target NOT EQUALS current target and the previous distance equals the current
       // (except for the first)

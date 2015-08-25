@@ -22,34 +22,40 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.dataframe;
+package org.briljantframework.vector;
 
-/**
- * @author Isak Karlsson
- */
-public interface Ix {
+import org.briljantframework.dataframe.SortOrder;
+import org.junit.Assert;
+import org.junit.Test;
 
-  <T> T get(Class<T> cls, Object r, int c);
+public class VectorTest {
 
-  <T> T get(Class<T> cls, int r, Object c);
+  @Test
+  public void testHead() throws Exception {
+    Vector a = VectorType.inferringBuilder()
+        .set("a", 10)
+        .set("b", 100)
+        .set("c", 1)
+        .set("d", 11)
+        .build();
 
-  <T> T get(Class<T> cls, Object r, Object c);
+    Vector head = a.head(2);
+    System.out.println(head);
+  }
 
-  <T> T get(Class<T> cls, int r, int c);
+  @Test
+  public void testTestSort() throws Exception {
+    Vector a = VectorType.inferringBuilder()
+        .set(40, 3)
+        .set(30, 2)
+        .set(20, 4)
+        .set(10, 1)
+        .build();
 
-  int getAsInt(Object r, int c);
-
-  int getAsInt(int r, Object c);
-
-  int getAsInt(Object r, Object c);
-
-  int getAsInt(int r, int c);
-
-  double getAsDouble(Object r, int c);
-
-  double getAsDouble(int r, Object c);
-
-  double getAsDouble(Object r, Object c);
-
-  double getAsDouble(int r, int c);
+    Vector v = a.sort(SortOrder.ASC);
+    System.out.println(v);
+    for (int i = 0; i < v.size(); i++) {
+      Assert.assertEquals(i + 1, v.loc().getAsInt(i));
+    }
+  }
 }

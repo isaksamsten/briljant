@@ -56,7 +56,7 @@ public abstract class AbstractSplitter implements Splitter {
                                             Object threshold) {
     ClassSet left = new ClassSet(classSet.getDomain());
     ClassSet right = new ClassSet(classSet.getDomain());
-    Vector axisVector = dataset.get(axis);
+    Vector axisVector = dataset.loc().get(axis);
     VectorType axisType = axisVector.getType();
 
     /*
@@ -76,12 +76,12 @@ public abstract class AbstractSplitter implements Splitter {
       for (Example example : sample) {
         int direction = MISSING;
         int index = example.getIndex();
-        if (!axisVector.isNA(index)) {
+        if (!axisVector.loc().isNA(index)) {
           if (nominal) {
-            direction = axisVector.equals(index, threshold) ? LEFT : RIGHT;
+            direction = axisVector.loc().get(Object.class, index).equals(threshold) ? LEFT : RIGHT;
           } else {
             @SuppressWarnings("unchecked")
-            Comparable<Object> leftComparable = axisVector.get(Comparable.class, index);
+            Comparable<Object> leftComparable = axisVector.loc().get(Comparable.class, index);
             direction = leftComparable.compareTo(threshold) <= 0 ? LEFT : RIGHT;
 //            direction = axisVector.compare(index, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
           }

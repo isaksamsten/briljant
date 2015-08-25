@@ -54,28 +54,28 @@ class RowView extends AbstractVector {
   }
 
   @Override
-  public <T> T get(Class<T> cls, int index) {
-    return parent.get(cls, row, index);
+  public <T> T getAt(Class<T> cls, int index) {
+    return parent.loc().get(cls, row, index);
   }
 
   @Override
-  public String toString(int index) {
-    return parent.get(index).toString(row);
+  public String toStringAt(int index) {
+    return parent.loc().get(index).loc().toString(row);
   }
 
   @Override
-  public boolean isNA(int index) {
-    return parent.isNA(row, index);
+  public boolean isNaAt(int index) {
+    return parent.loc().isNA(row, index);
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return parent.getAsDouble(row, index);
+  public double getAsDoubleAt(int i) {
+    return parent.loc().getAsDouble(row, i);
   }
 
   @Override
-  public int getAsInt(int index) {
-    return parent.getAsInt(row, index);
+  public int getAsIntAt(int i) {
+    return parent.loc().getAsInt(row, i);
   }
 
   @Override
@@ -85,7 +85,7 @@ class RowView extends AbstractVector {
 
   @Override
   public VectorType getType(int index) {
-    return parent.getType(index);
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -104,24 +104,7 @@ class RowView extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b) {
+  public int compareAt(int a, Vector other, int b) {
     throw new UnsupportedOperationException("TODO");
   }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    throw new UnsupportedOperationException("TODO");
-  }
-
-//  @Override
-//  public String toString() {
-//    ImmutableTable.Builder<Integer, Integer, String> b = new ImmutableTable.Builder<>();
-//    b.put(0, 0, "");
-//    b.put(1, 0, "[" + row + ",]");
-//    for (int i = 0; i < size(); i++) {
-//      b.put(0, i + 1, getIndex().get(i).toString());
-//      b.put(1, i + 1, toString(i));
-//    }
-//    return Utils.prettyPrintTable(b.build(), 1, 2, false, false);
-//  }
 }

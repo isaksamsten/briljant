@@ -91,12 +91,16 @@ public final class Resolvers {
     logicalResolver.put(Boolean.class, v -> v ? Logical.TRUE : Logical.FALSE);
     logicalResolver.put(Number.class, v -> v.intValue() == 1 ? Logical.TRUE : Logical.FALSE);
 
+    Resolver<Object> objectResolver = new Resolver<>(Object.class);
+    objectResolver.put(Object.class, v -> v);
+
     install(Logical.class, logicalResolver);
     install(LocalDate.class, localDateResolver);
     install(String.class, stringResolver);
     install(Double.class, doubleResolver);
     install(Integer.class, integerResolver);
     install(Complex.class, complexResolver);
+    install(Object.class, objectResolver);
   }
 
   private Resolvers() {

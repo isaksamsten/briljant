@@ -25,7 +25,7 @@
 package org.briljantframework.dataframe.transform;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.HashIndex;
+import org.briljantframework.dataframe.ObjectIndex;
 import org.briljantframework.dataframe.MixedDataFrame;
 import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Na;
@@ -42,8 +42,8 @@ public class MeanImputerTest {
         DoubleVector.wrap(3, 3, 3, Na.DOUBLE),
         DoubleVector.wrap(Na.DOUBLE, 2, 2, Na.DOUBLE)
     );
-    HashIndex columnIndex = HashIndex.from("first", "second", "third");
-    HashIndex recordIndex = HashIndex.from("a", "b", "c","d");
+    ObjectIndex columnIndex = ObjectIndex.from("first", "second", "third");
+    ObjectIndex recordIndex = ObjectIndex.from("a", "b", "c", "d");
     frame.setColumnIndex(columnIndex);
     frame.setRecordIndex(recordIndex);
 
@@ -53,6 +53,6 @@ public class MeanImputerTest {
 
     assertEquals(columnIndex, imputed.getColumnIndex());
     assertEquals(recordIndex, imputed.getRecordIndex());
-    assertEquals(2, imputed.getAsDouble(3, 0), 0.0);
+    assertEquals(2, imputed.loc().getAsDouble(3, 0), 0.0);
   }
 }

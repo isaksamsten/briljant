@@ -85,7 +85,7 @@ public interface Predictor {
    */
   EnumSet<Characteristics> getCharacteristics();
 
-  /**
+  /** // TODO: rename evaluate
    * Perform an evaluation of the predictor and appending those evaluations to the
    * {@code EvaluationContext}.
    *

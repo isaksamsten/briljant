@@ -70,22 +70,29 @@ public class DefaultValidator extends AbstractValidator {
     for (Partition partition : partitions) {
       DataFrame trainingData = partition.getTrainingData();
       Vector trainingTarget = partition.getTrainingTarget();
+
+      // Step 1: Fit the classifier using the training data
       long start = System.nanoTime();
       Predictor predictor = classifier.fit(trainingData, trainingTarget);
       double fitTime = (System.nanoTime() - start) / 1e6;
 
+      DataFrame validationData = partition.getValidationData();
+      Vector validationTarget = partition.getValidationTarget();
+
+      // Step 2: Classify the validation data
       start = System.nanoTime();
-      Vector predictions = computeClassLabels(
-          partition.getValidationData(), predictor, y.getType(), ctx);
+      Vector predictions = computeClassLabels(validationData, predictor, y.getType(), ctx);
       double predictTime = (System.nanoTime() - start) / 1e6;
 
+      // Step 3: Update the evaluation context
       ctx.setPredictor(predictor);
       ctx.setPartition(partition);
       ctx.setPredictions(predictions);
 
-      Vector evalData = partition.getValidationTarget();
-      ConfusionMatrix matrix = ConfusionMatrix.compute(predictions, evalData, domain);
+      // Step 3: compute the confusion matrix
+      ConfusionMatrix matrix = ConfusionMatrix.compute(predictions, validationTarget, domain);
       confusionMatrices.add(matrix);
+
       for (Evaluator evaluator : getEvaluators()) {
         evaluator.accept(ctx);
       }
@@ -94,7 +101,7 @@ public class DefaultValidator extends AbstractValidator {
       ctx.getOrDefault(TrainingSetSize.class, TrainingSetSize.Builder::new)
           .add(Sample.OUT, trainingData.rows());
       ctx.getOrDefault(ValidationSetSize.class, ValidationSetSize.Builder::new)
-          .add(Sample.OUT, partition.getValidationData().rows());
+          .add(Sample.OUT, validationData.rows());
       ctx.getOrDefault(FitTime.class, FitTime.Builder::new).add(Sample.OUT, fitTime);
       ctx.getOrDefault(PredictTime.class, PredictTime.Builder::new).add(Sample.OUT, predictTime);
     }

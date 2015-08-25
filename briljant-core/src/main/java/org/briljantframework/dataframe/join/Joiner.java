@@ -28,7 +28,7 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Index;
+import org.briljantframework.index.Index;
 import org.briljantframework.vector.Vector;
 
 import java.util.Collection;
@@ -75,7 +75,7 @@ public abstract class Joiner {
 
       Object key = entry.key();
       if (on.contains(entry.index())) {
-        builder.addColumn(a.getType(entry.index()).newBuilder(size));
+        builder.add(a.loc().get(entry.index()).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
         currentColumnIndex += 1;
@@ -85,14 +85,14 @@ public abstract class Joiner {
     int columnIndex = on.size();
     for (Index.Entry entry : a.getColumnIndex().entrySet()) {
       int index = entry.index();
-      Vector sourceColumn = a.get(index);
+      Vector sourceColumn = a.loc().get(index);
       Object key = entry.key();
       if (on.contains(entry.index())) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
         columnIndexer.add(key);
-        builder.addColumn(a.getType(index).newBuilder(size));
+        builder.add(a.loc().get(index).newBuilder(size));
         appendColumnFromLeftIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
@@ -100,7 +100,7 @@ public abstract class Joiner {
 
     for (Index.Entry entry : b.getColumnIndex().entrySet()) {
       int index = entry.index();
-      Vector sourceColumn = b.get(index);
+      Vector sourceColumn = b.loc().get(index);
       Object key = entry.key();
       if (on.contains(entry.index())) {
         int targetColumn = indexColumn.get(key);
@@ -111,7 +111,7 @@ public abstract class Joiner {
           newKey = key.toString() + " (right)";
         }
         columnIndexer.add(newKey);
-        builder.addColumn(b.getType(index).newBuilder(size));
+        builder.add(b.loc().get(index).newBuilder(size));
         appendColumnFromRightIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
@@ -126,7 +126,7 @@ public abstract class Joiner {
     for (int i = 0; i < size; i++) {
       int row = this.getLeftIndex(i);
       if (row >= 0) {
-        builder.set(i, targetColumn, source, row);
+        builder.loc().set(i, targetColumn, source, row);
       }
     }
   }
@@ -136,7 +136,7 @@ public abstract class Joiner {
     for (int i = 0; i < size; i++) {
       int row = this.getRightIndex(i);
       if (row >= 0) {
-        builder.set(i, targetColumn, source, row);
+        builder.loc().set(i, targetColumn, source, row);
       }
     }
   }

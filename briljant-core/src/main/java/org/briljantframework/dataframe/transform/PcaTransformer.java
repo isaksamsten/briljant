@@ -100,11 +100,11 @@ public class PcaTransformer implements InvertibleTransformer {
 
         DataFrame.Builder result = x.newBuilder();
         for (int j = 0; j < pca.columns(); j++) {
-          result.addColumnBuilder(VectorType.DOUBLE);
+          result.add(VectorType.DOUBLE);
           // TODO
 //          result.getColumnNames().put(j, String.format("Component %d", j));
           for (int i = 0; i < pca.rows(); i++) {
-            result.set(i, j, pca.get(i, j));
+            result.loc().set(i, j, pca.get(i, j));
           }
         }
         return result.build();

@@ -92,7 +92,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
     double ex = 0;
     double ex2 = 0;
     for (int i = 0; i < seriesSize; i++) {
-      double d = vector.getAsDouble(i);
+      double d = vector.loc().getAsDouble(i);
       ex += d;
       ex2 += d * d;
       t[i % m] = d;
@@ -131,7 +131,7 @@ public class EarlyAbandonSlidingDistance implements Distance {
       if (order != null) {
         i = order[i];
       }
-      double x = ((t[i + j] - mean) / std) - c.getAsDouble(i);
+      double x = ((t[i + j] - mean) / std) - c.loc().getAsDouble(i);
       sum += x * x;
     }
     return sum;

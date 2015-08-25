@@ -57,23 +57,23 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public <T> T get(Class<T> cls, int index) {
-    return parent.get(cls, offset + index);
+  public <T> T getAt(Class<T> cls, int index) {
+    return parent.loc().get(cls, offset + index);
   }
 
   @Override
-  public String toString(int index) {
-    return parent.toString(offset + index);
+  public String toStringAt(int index) {
+    return parent.loc().toString(offset + index);
   }
 
   @Override
-  public boolean isTrue(int index) {
-    return parent.isTrue(offset + index);
+  public boolean isTrueAt(int index) {
+    return parent.loc().isTrue(offset + index);
   }
 
   @Override
-  public boolean isNA(int index) {
-    return parent.isNA(offset + index);
+  public boolean isNaAt(int index) {
+    return parent.loc().isNA(offset + index);
   }
 
   @Override
@@ -82,13 +82,13 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public double getAsDouble(int index) {
-    return parent.getAsDouble(offset + index);
+  public double getAsDoubleAt(int i) {
+    return parent.loc().getAsDouble(offset + i);
   }
 
   @Override
-  public int getAsInt(int index) {
-    return parent.getAsInt(offset + index);
+  public int getAsIntAt(int i) {
+    return parent.loc().getAsInt(offset + i);
   }
 
   @Override
@@ -107,13 +107,8 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public int compare(int a, int b) {
-    return parent.compare(a, b);
-  }
-
-  @Override
-  public int compare(int a, Vector other, int b) {
-    return parent.compare(a, other, b);
+  public int compareAt(int a, Vector other, int b) {
+    return parent.loc().compare(a, other, b);
   }
 
   @Override

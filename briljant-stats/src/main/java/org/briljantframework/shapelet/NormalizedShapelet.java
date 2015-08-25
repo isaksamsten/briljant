@@ -42,7 +42,7 @@ public class NormalizedShapelet extends Shapelet {
     double ex2 = 0;
     int size = start + length;
     for (int i = start; i < size; i++) {
-      double v = vector.getAsDouble(i);
+      double v = vector.loc().getAsDouble(i);
       ex += v;
       ex2 += v * v;
     }
@@ -67,11 +67,11 @@ public class NormalizedShapelet extends Shapelet {
   }
 
   @Override
-  public double getAsDouble(int index) {
+  public double getAsDoubleAt(int i) {
     if (sigma == 0) {
       return 0;
     } else {
-      return (super.getAsDouble(index) - mean) / sigma;
+      return (super.loc().getAsDouble(i) - mean) / sigma;
     }
   }
 }

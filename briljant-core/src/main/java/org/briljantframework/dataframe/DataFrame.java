@@ -27,16 +27,17 @@ package org.briljantframework.dataframe;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.join.JoinType;
+import org.briljantframework.index.DataFrameLocationGetter;
+import org.briljantframework.index.DataFrameLocationSetter;
+import org.briljantframework.index.Index;
+import org.briljantframework.index.Ix;
 import org.briljantframework.io.EntryReader;
-import org.briljantframework.sort.Swappable;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -53,130 +54,61 @@ import java.util.stream.StreamSupport;
 public interface DataFrame extends Iterable<Vector> {
 
   /**
-   * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#from(Class)}. The
-   * conversion is performed according to the convention found in {@link
-   * org.briljantframework.vector.Convert#to(Class, Object)}
+   * Sort the data frame according to the comparator and the vector at the specified position.
    *
-   * @param cls    the class
-   * @param row    the row
-   * @param column the column
-   * @param <T>    the type of the returned value
-   * @return an instance of {@code T}
+   * @param cls the type of values to sort on
+   * @param cmp the comparator
+   * @param key the column
+   * @param <T> the type
+   * @return a new data frame sorted according to the specified comparator
    */
-  <T> T get(Class<T> cls, int row, int column);
+  <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key);
 
   /**
-   * Get value at {@code row} and {@code column} as {@code double}.
+   * Sort the data frame in the order specified by {@code order} using the specified column.
    *
-   * @param row    the row
-   * @param column the column
-   * @return the value
+   * @param order the order
+   * @param key   the column
+   * @return a new sorted data frame
    */
-  double getAsDouble(int row, int column);
+  DataFrame sort(SortOrder order, Object key);
 
   /**
-   * Get value at {@code row} and {@code column} as {@code int}.
+   * Equivalent to {@code sort(SortOrder.ASC, key)}
    *
-   * @param row    the row
-   * @param column the column
-   * @return the value
+   * @see #sort(SortOrder, Object)
    */
-  int getAsInt(int row, int column);
+  DataFrame sort(Object key);
 
   /**
-   * Returns string representation of value at {@code row, column}. In most cases this is
-   * equivalent to {@code get(Object.class, row, column).toString()}, but it handles {@code NA}
-   * values, i.e. the returned {@linkplain String string} is never {@code null}.
+   * Return a new data frame with the first {@code n} rows
    *
-   * @param row    the row
-   * @param column the column
-   * @return the representation
+   * @param n the number of rows
+   * @return a new data frame
    */
-  String toString(int row, int column);
-
-  /**
-   * Returns true if value at {@code row, column} is {@code NA}.
-   *
-   * @param row    the row
-   * @param column the column
-   * @return true or false
-   */
-  boolean isNA(int row, int column);
-
-  default <T> T get(Class<T> cls, Object row, Object col) {
-    return get(cls, getRecordIndex().index(row), getColumnIndex().index(col));
-  }
-
-  default double getAsDouble(Object row, Object col) {
-    return getAsDouble(getRecordIndex().index(row), getColumnIndex().index(col));
-  }
-
-  default int getAsInt(Object row, Object col) {
-    return getAsInt(getRecordIndex().index(row), getColumnIndex().index(col));
-  }
-
-  default boolean isNA(Object row, Object col) {
-    return isNA(getRecordIndex().index(row), getColumnIndex().index(col));
-  }
-
-  /**
-   * Sort column {@code column}
-   *
-   * @param <T>    the type
-   * @param cls    the class
-   * @param cmp    the comparator; values might be null.
-   * @param column the column index
-   * @return a new data frame sorted according to {@code cmp}
-   */
-  <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, int column);
-
-  default <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
-    return sort(cls, cmp, getColumnIndex().index(key));
-  }
-
-  DataFrame sort(int column);
-
-  DataFrame sort(SortOrder order, int column);
-
-  default DataFrame sort(SortOrder order, Object key) {
-    return sort(order, getColumnIndex().index(key));
-  }
-
-  default DataFrame sort(Object key) {
-    return sort(getColumnIndex().index(key));
-  }
-
   DataFrame head(int n);
 
+  /**
+   * Equivalent to {@code head(10)}
+   */
   default DataFrame head() {
     return head(10);
   }
 
-  DataFrame indexOn(int col);
-
-  default DataFrame indexOn(Object key) {
-    return indexOn(getColumnIndex().index(key));
-  }
+  /**
+   * Return a new data frame indexed on the values of the column specified by {@code key}.
+   * <p>
+   * An exception is raised if the specified column contains duplicates.
+   *
+   * @param key the column
+   * @return a new data frame index on the specified column
+   */
+  DataFrame indexOn(Object key);
 
   DataFrame join(JoinType type, DataFrame other);
 
-  DataFrame join(JoinType type, DataFrame other, Collection<Integer> columns);
-
   default DataFrame join(DataFrame other) {
     return join(JoinType.INNER, other);
-  }
-
-  default DataFrame join(DataFrame other, int column) {
-    return join(JoinType.INNER, other, column);
-  }
-
-  default DataFrame join(JoinType type, DataFrame other, int column) {
-    return join(type, other, Arrays.asList(column));
-  }
-
-  default DataFrame join(DataFrame other, Iterable<Integer> columns) {
-    return join(JoinType.INNER, other, columns);
   }
 
   default DataFrame join(DataFrame other, Object key) {
@@ -188,39 +120,20 @@ public interface DataFrame extends Iterable<Vector> {
   }
 
   default DataFrame join(JoinType type, DataFrame other, Object key) {
-    return join(type, other, getColumnIndex().index(key));
+    return join(type, other, getColumnIndex().getLocation(key));
   }
 
   default DataFrame join(JoinType type, DataFrame other, Object... keys) {
     return join(type, other, getColumnIndex().indices(keys));
   }
 
-  default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, int column) {
-    return apply(cls, op, Arrays.asList(column));
-  }
-
   default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Object key) {
-    return apply(cls, op, getColumnIndex().index(key));
+    return apply(cls, op, getColumnIndex().getLocation(key));
   }
 
   default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Object... keys) {
     return apply(cls, op, getColumnIndex().indices(keys));
   }
-
-  /**
-   * <p> Apply {@code op} to every column in {@code columns}, leaving columns not in {@code
-   * columns} unchanged.
-   *
-   * <p> If {@code op} returns {@code Na.of(T.class)}, the value is ignored and the previous value
-   * at the position is kept.
-   *
-   * @param cls     the type of values to transform
-   * @param op      the operation
-   * @param columns the columns which to apply the transformation
-   * @param <T>     the type
-   * @return a new data frame
-   */
-  <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Collection<Integer> columns);
 
   /**
    * <p> Apply {@code op} to value. If {@code op} returns {@code NA}, the old value is kept.
@@ -275,32 +188,22 @@ public interface DataFrame extends Iterable<Vector> {
    * @param <C>       the type of the mutable collector
    * @param cls       the class
    * @param collector the collector
-   * @return a {@linkplain org.briljantframework.dataframe.Series} of the aggregated values
+   * @return a vector of aggregated values
    */
   <T, C> Vector collector(Class<T> cls, Collector<? super T, C, ? extends T> collector);
 
   <T, R, C> Vector collect(Class<T> in, Class<R> out,
                            Collector<? super T, C, ? extends R> collector);
 
-  /**
-   * Group DataFrame based on the values of column at {@code index}.
-   *
-   * @param index the column index to group on
-   * @return a group DataFrame
-   */
-  default DataFrameGroupBy groupBy(int index) {
-    return groupBy(v -> v.get(Object.class, index));
-  }
-
   default DataFrameGroupBy groupBy(Object key) {
-    return groupBy(getColumnIndex().index(key));
+    return groupBy(getColumnIndex().getLocation(key));
   }
 
   /**
    * <p> Group data frame based on the value returned by {@code keyFunction}. Each record in the
    * data frame is used for grouping.
    *
-   * <p> The result of {@link #groupBy(int);} can be implemented as {@code groupBy(v ->
+   * <p> The result of {@link #groupBy(Object);} can be implemented as {@code groupBy(v ->
    * v.get(Object.class, index))}
    *
    * @param keyFunction the key function
@@ -312,17 +215,6 @@ public interface DataFrame extends Iterable<Vector> {
 
   DataFrame add(Vector column);
 
-  DataFrame insert(int index, Object key, Vector column);
-
-  /**
-   * Get vector at {@code index}
-   *
-   * @param index the index
-   * @return the vector
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > columns}
-   */
-  Vector get(int index);
-
   /**
    * Uses the column name to lookup a specified column.
    *
@@ -332,80 +224,17 @@ public interface DataFrame extends Iterable<Vector> {
    */
   Vector get(Object key);
 
-  default DataFrame get(Collection<Integer> indices) {
-    DataFrame.Builder df = newBuilder();
-    Index.Builder columnIndex = new HashIndex.Builder();
-    int newColumn = 0;
-    for (int index : indices) {
-      columnIndex.add(getColumnIndex().get(index));
-      df.addColumnBuilder(getType(index));
-      for (int i = 0; i < rows(); i++) {
-        df.set(i, newColumn, this, i, index);
-      }
-      newColumn++;
-    }
-
-    DataFrame bdf = df.build();
-    bdf.setColumnIndex(columnIndex.build());
-    bdf.setRecordIndex(getRecordIndex());
-    return bdf;
-  }
-
-  default DataFrame get(Object... keys) {
-    return get(getColumnIndex().indices(keys));
-  }
+  DataFrame get(Object... keys);
 
   DataFrame dropna();
 
-  /**
-   * Remove column with {@code index}
-   *
-   * @param index the index
-   * @return a new dataframe
-   */
-  DataFrame drop(int index);
+  DataFrame drop(Object key);
 
-  default DataFrame drop(Object key) {
-    return drop(getColumnIndex().index(key));
-  }
-
-  default DataFrame drop(Object... keys) {
-    return drop(getColumnIndex().indices(keys));
-  }
-
-  /**
-   * Remove columns with {@code indexes}
-   *
-   * @param indexes collection of indexes
-   * @return a new dataframe
-   */
-  DataFrame drop(Collection<Integer> indexes);
+  DataFrame drop(Object... keys);
 
   DataFrame drop(Predicate<? super Vector> predicate);
 
-
-  /**
-   * Take columns with {@code indexes}
-   *
-   * @param indexes collection of indexes
-   * @return a new dataframe
-   */
-  DataFrame retain(Iterable<Integer> indexes);
-
-  /**
-   * Get the type of vector at {@code index}
-   *
-   * @param index the index
-   * @return the type
-   */
-  VectorType getType(int index);
-
-  /**
-   * Get the column types.
-   *
-   * @return an immutable collection of column types
-   */
-  List<VectorType> getTypes();
+  Vector getRecord(Object key);
 
   /**
    * Return a collection of columns
@@ -421,23 +250,13 @@ public interface DataFrame extends Iterable<Vector> {
    */
   Collection<Vector> getRecords();
 
-  /**
-   * Get the row at {@code index}. Since a {@code DataFrame} can have columns of multiple types,
-   * the
-   * returned type is a Sequence i.e. a heterogeneous vector of values.
-   *
-   * @param index the index
-   * @return the row sequence
-   */
-  Vector getRecord(int index);
+  <T> T get(Class<T> cls, Object row, Object col);
 
-  /**
-   * Take the rows in {@code indexes}
-   *
-   * @param indexes the indexes to take
-   * @return a new data frame
-   */
-  DataFrame getRecords(Iterable<Integer> indexes);
+  double getAsDouble(Object row, Object col);
+
+  int getAsInt(Object row, Object col);
+
+  boolean isNA(Object row, Object col);
 
   /**
    * Drop rows in {@code indexes} and return a new DataFrame
@@ -446,8 +265,6 @@ public interface DataFrame extends Iterable<Vector> {
    * @return a new data frame
    */
   DataFrame removeRecords(Collection<Integer> indexes);
-
-  DataFrame insertRecord(int index, Object key, Vector record);
 
   DataFrame addRecord(Vector record);
 
@@ -536,116 +353,70 @@ public interface DataFrame extends Iterable<Vector> {
     return new IxImpl(this);
   }
 
+  DataFrameLocationGetter loc();
+
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
    */
-  interface Builder extends Swappable {
+  interface Builder {
 
-    /**
-     * Set value at {@code row} in {@code column} to NA. If {@code column >= columns()} adds empty
-     * {@link org.briljantframework.vector.GenericVector} of all {@code NA} from {@code columns()
-     * ... column}.
-     *
-     * @param row    the row
-     * @param column the column
-     * @return a modified builder
-     * @see org.briljantframework.vector.Vector.Builder#setNA(int)
-     */
-    Builder setNA(int row, int column);
+    DataFrameLocationSetter loc();
 
-    /**
-     * Set value at {@code row, toCol} using the value at {@code fromRow, fromCol} in {@code from}.
-     * If {@code toCol >= columns()}, adds empty {@link org.briljantframework.vector.GenericVector}
-     * columns from {@code columns() ... column - 1}, inferring the type at {@code toCol} using
-     * {@code from.getColumnType(fromCol)}
-     *
-     * @param toRow   the row
-     * @param toCol   the column
-     * @param from    the vector
-     * @param fromRow the row
-     * @param fromCol the column
-     * @return a modified builder
-     * @see org.briljantframework.vector.Vector.Builder#set(int, org.briljantframework.vector.Vector,
-     * int)
-     */
-    Builder set(int toRow, int toCol, DataFrame from, int fromRow, int fromCol);
+    Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc);
 
-    /**
-     * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}. If
-     * {@code
-     * toCol >= columns()}, adds empty {@link org.briljantframework.vector.GenericVector} columns
-     * from {@code columns() ... column - 1}, inferring the type at {@code toCol} using {@code
-     * from.getType(index)}
-     *
-     * @param row    the row in this
-     * @param column the column in this
-     * @param from   the vector
-     * @param index  the row in {@code from}
-     * @return a modified builder
-     */
-    Builder set(int row, int column, Vector from, int index);
+    Builder set(Object row, Object column, Vector from, Object key);
 
-    /**
-     * Set value at {@code row, column} to {@code value}. If {@code toCol >= columns()}, adds empty
-     * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
-     * - 1}, inferring the type at {@code toCol} using {@code Vectors.getInstance(object)}
-     *
-     * @param row    the row
-     * @param column the column
-     * @param value  the value
-     * @return a modified builder
-     * @see org.briljantframework.vector.Vector.Builder#set(int, Object)
-     */
-    Builder set(int row, int column, Object value);
+    Builder set(Object row, Object column, Object value);
+
+    Builder set(Object key, Vector.Builder columnBuilder);
+
+    default Builder set(Object key, Vector column) {
+      return set(key, column.newCopyBuilder());
+    }
+
+    default Builder set(Object key, VectorType columnType) {
+      return set(key, columnType.newBuilder());
+    }
 
     /**
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the
      * added builder is padded with NA.
      *
-     * @param builder builder to add
+     * @param columnBuilder builder to add
      * @return a modified builder
      */
-    Builder addColumn(Vector.Builder builder);
-
-    /**
-     * Adds a new vector builder as an additional column using {@link org.briljantframework.vector.VectorType#newBuilder()}
-     *
-     * @param type the type
-     * @return receiver modified
-     */
-    Builder addColumnBuilder(VectorType type);
+    Builder add(Vector.Builder columnBuilder);
 
     /**
      * Add a new vector. If the {@code vector.size() < rows()}, the resulting vector is padded with
      * NA.
      *
-     * @param vector the vector
+     * @param column the vector
      * @return a modified builder
      */
-    Builder addColumn(Vector vector);
+    default Builder add(Vector column) {
+      return add(column.newCopyBuilder());
+    }
 
     /**
-     * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds
-     * empty
-     * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
-     * - 1}. If {@code index < columns()} each column is shifted to the right.
+     * Adds a new vector builder as an additional column using {@link org.briljantframework.vector.VectorType#newBuilder()}
      *
-     * @param index   the index {@code index < columns()}
-     * @param builder the builder
+     * @param columnType the type
      * @return receiver modified
      */
-    Builder addColumn(int index, Vector.Builder builder);
+    default Builder add(VectorType columnType) {
+      return add(columnType.newBuilder());
+    }
 
-    /**
-     * Sets the column at {@code index} to {@code vector}. If {@code index >= columns()} adds empty
-     * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
-     * - 1}. If {@code index < columns()} each column is shifted to the right.
-     *
-     * @param index  the index {@code index < columns()}
-     * @param vector the vector
-     * @return receiver modified
-     */
-    Builder addColumn(int index, Vector vector);
+    Builder setRecord(Object key, Vector.Builder recordBuilder);
+
+    default Builder setRecord(Object key, Vector record) {
+      return setRecord(key, record.newCopyBuilder());
+    }
+
+    default Builder setRecord(Object key, VectorType recordType) {
+      return setRecord(key, recordType.newBuilder());
+    }
 
     /**
      * Adds a new record. If {@code builder.size() < columns()}, left-over columns are padded with
@@ -663,55 +434,17 @@ public interface DataFrame extends Iterable<Vector> {
      * @param vector the vector
      * @return receiver modified
      */
-    Builder addRecord(Vector vector);
-
-    /**
-     * Sets the {@code builder} at {@code index}.
-     *
-     * @param index   the index
-     * @param builder the builder
-     * @return receiver modified
-     */
-    Builder addRecord(int index, Vector.Builder builder);
-
-    /**
-     * Sets the {@code vector} at {@code index}.
-     *
-     * @param index  the index
-     * @param vector the vector
-     * @return receiver modified
-     */
-    Builder addRecord(int index, Vector vector);
-
-    /**
-     * Removes vector builder at {@code column}.
-     *
-     * @param column the index
-     * @return a modified builder
-     */
-    Builder removeColumn(int column);
-
-    /**
-     * Swaps column vector {@code a} and {@code b}.
-     *
-     * @param a an index
-     * @param b an index
-     * @return a modified builder
-     */
-    Builder swapColumns(int a, int b);
-
-    /**
-     * Swap row at index {@code a} with {@code b}.
-     *
-     * @param a the first row
-     * @param b the second row
-     * @return a modified builder
-     */
-    Builder swapRecords(int a, int b);
-
-    default void swap(int a, int b) {
-      swapRecords(a, b);
+    default Builder addRecord(Vector vector) {
+      return addRecord(vector.newCopyBuilder());
     }
+
+    default Builder addRecord(VectorType recordType) {
+      return addRecord(recordType.newBuilder());
+    }
+
+    Builder remove(Object key);
+
+    Builder removeRecord(Object key);
 
     /**
      * Concatenates the row at {@code toRow} with {@code vector} starting at {@code startCol}. If
@@ -729,10 +462,10 @@ public interface DataFrame extends Iterable<Vector> {
 
       for (int i = 0; i < vector.size(); i++) {
         if (startCol == columns()) {
-          addColumn(vector.getType(i).newBuilder());
+          add(vector.getType(i).newBuilder());
         }
 
-        set(toRow, startCol++, vector, i);
+        loc().set(toRow, startCol++, vector, i);
       }
       return this;
     }
@@ -752,25 +485,25 @@ public interface DataFrame extends Iterable<Vector> {
      * Concatenates {@code this} builder with {@code frame}. If {@code startCol < columns()} values
      * will be overwritten. <p> For example, a builder representing:
      * <pre>
-     *   a   b
-     *   2   2
-     *   3   5
-     *   3   5
+     * a   b
+     * 2   2
+     * 3   5
+     * 3   5</pre>
      *
-     *   concatenated with
+     * concatenated with
+     * <pre>
+     * c   d
+     * a   b
+     * c   d</pre>
      *
-     *   c   d
-     *   a   b
-     *   c   d
+     * results in
+     * <pre>
+     * a   b   c   d
+     * 2   2   a   b
+     * 3   5   c   d
+     * 3   5   NA  NA</pre>
      *
-     *   results in
-     *
-     *   a   b   c   d
-     *   2   2   a   b
-     *   3   5   c   d
-     *   3   5   NA  NA
-     *
-     *   (assuming that startCol = columns())
+     * (assuming that startCol = columns())
      * </pre>
      *
      * @param startCol the starting column
@@ -784,7 +517,7 @@ public interface DataFrame extends Iterable<Vector> {
 //        }
       }
       for (int i = 0; i < rows(); i++) {
-        concat(i, startCol, frame.getRecord(i));
+        concat(i, startCol, frame.loc().getRecord(i));
       }
       return this;
     }
@@ -812,7 +545,7 @@ public interface DataFrame extends Iterable<Vector> {
      */
     default Builder stack(int startRow, int toCol, Vector vector) {
       for (int i = 0; i < vector.size(); i++) {
-        set(startRow++, toCol, vector, i);
+        loc().set(startRow++, toCol, vector, i);
       }
       return this;
     }
@@ -830,7 +563,7 @@ public interface DataFrame extends Iterable<Vector> {
      */
     default Builder stack(int startRow, DataFrame frame) {
       for (int i = 0; i < frame.columns(); i++) {
-        stack(startRow, i, frame.get(i));
+        stack(startRow, i, frame.loc().get(i));
       }
       return this;
     }

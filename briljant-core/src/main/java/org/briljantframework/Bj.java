@@ -1124,4 +1124,60 @@ public final class Bj {
   public static DoubleArray atan(DoubleArray array) {
     return MATRIX_ROUTINES.atan(array);
   }
+
+  public static ComplexArray sinh(ComplexArray array) {
+    return MATRIX_ROUTINES.sinh(array);
+  }
+
+  public static ComplexArray exp(ComplexArray array) {
+    return MATRIX_ROUTINES.exp(array);
+  }
+
+  public static ComplexArray acos(ComplexArray array) {
+    return MATRIX_ROUTINES.acos(array);
+  }
+
+  public static ComplexArray sin(ComplexArray array) {
+    return MATRIX_ROUTINES.sin(array);
+  }
+
+  public static DoubleArray abs(ComplexArray array) {
+    return MATRIX_ROUTINES.abs(array);
+  }
+
+  public static ComplexArray sqrt(ComplexArray array) {
+    return MATRIX_ROUTINES.sqrt(array);
+  }
+
+  public static ComplexArray log(ComplexArray array) {
+    return MATRIX_ROUTINES.log(array);
+  }
+
+  public static ComplexArray floor(ComplexArray array) {
+    return MATRIX_ROUTINES.floor(array);
+  }
+
+  public static ComplexArray tan(ComplexArray array) {
+    return MATRIX_ROUTINES.tan(array);
+  }
+
+  public static ComplexArray tanh(ComplexArray array) {
+    return MATRIX_ROUTINES.tanh(array);
+  }
+
+  public static ComplexArray asin(ComplexArray array) {
+    return MATRIX_ROUTINES.asin(array);
+  }
+
+  public static ComplexArray cosh(ComplexArray array) {
+    return MATRIX_ROUTINES.cosh(array);
+  }
+
+  public static ComplexArray atan(ComplexArray array) {
+    return MATRIX_ROUTINES.atan(array);
+  }
+
+  public static ComplexArray ceil(ComplexArray array) {
+    return MATRIX_ROUTINES.ceil(array);
+  }
 }

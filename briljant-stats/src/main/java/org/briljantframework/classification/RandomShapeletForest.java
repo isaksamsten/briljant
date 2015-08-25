@@ -91,7 +91,7 @@ public class RandomShapeletForest extends Ensemble {
       Map<Object, Integer> counts = Vec.count(y);
       DoubleArray apriori = Bj.doubleArray(classes.size());
       for (int i = 0; i < classes.size(); i++) {
-        apriori.set(i, counts.get(classes.get(Object.class, i)) / (double) y.size());
+        apriori.set(i, counts.get(classes.loc().get(Object.class, i)) / (double) y.size());
       }
 
       return new Predictor(classes, apriori, models, lenSum, posSum, oobIndicator);

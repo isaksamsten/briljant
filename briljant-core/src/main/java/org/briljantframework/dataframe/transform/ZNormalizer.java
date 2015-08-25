@@ -29,6 +29,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.index.DataFrameLocationGetter;
 import org.briljantframework.vector.Vec;
 import org.briljantframework.vector.VectorType;
 
@@ -48,7 +49,7 @@ public class ZNormalizer implements Transformer {
     DoubleArray mean = Bj.doubleArray(frame.columns());
     DoubleArray sigma = Bj.doubleArray(frame.columns());
     for (int i = 0; i < frame.columns(); i++) {
-      StatisticalSummary stats = Vec.statistics(frame.get(i));
+      StatisticalSummary stats = Vec.statistics(frame.loc().get(i));
       mean.set(i, stats.getMean());
       sigma.set(i, stats.getStandardDeviation());
     }
@@ -56,17 +57,19 @@ public class ZNormalizer implements Transformer {
     return x -> {
       Check.size(mean.size(), x.columns());
       DataFrame.Builder builder = x.newBuilder();
+      DataFrameLocationGetter loc = x.loc();
       for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.getType(j), VectorType.DOUBLE);
-        builder.addColumnBuilder(x.getType(j));
+        VectorType type = loc.get(j).getType();
+        Check.type(type, VectorType.DOUBLE);
+        builder.add(type);
 //        builder.getColumnNames().putFromIfPresent(j, x.getColumnNames(), j);
         double m = mean.get(j);
         double std = sigma.get(j);
         for (int i = 0; i < x.rows(); i++) {
-          if (x.isNA(i, j)) {
-            builder.setNA(i, j);
+          if (loc.isNA(i, j)) {
+            builder.loc().setNA(i, j);
           } else {
-            builder.set(i, j, (x.getAsDouble(i, j) - m) / std);
+            builder.loc().set(i, j, (loc.getAsDouble(i, j) - m) / std);
           }
         }
       }
