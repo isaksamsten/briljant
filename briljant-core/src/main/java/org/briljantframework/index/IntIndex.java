@@ -62,11 +62,11 @@ public final class IntIndex implements Index {
   }
 
   @Override
-  public Object getKey(int index) {
-    if (index >= 0 && index < size) {
-      return index;
+  public Object getKey(int location) {
+    if (location >= 0 && location < size) {
+      return location;
     }
-    throw noSuchElement(index);
+    throw noSuchElement(location);
   }
 
   @Override

@@ -32,7 +32,6 @@ import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.index.Index;
-import org.briljantframework.index.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -274,16 +273,10 @@ public class IntVector extends AbstractVector {
     }
 
     public Builder(int size, int capacity) {
-      super(new IntIndex.Builder(size));
       buffer = new IntArrayList(Math.max(size, capacity));
       for (int i = 0; i < size; i++) {
         buffer.add(Na.INT);
       }
-    }
-
-    private Builder(int[] values) {
-      super(new IntIndex.Builder(values.length));
-      buffer = IntArrayList.from(values);
     }
 
     private Builder(int[] buffer, Index.Builder index) {

@@ -24,13 +24,11 @@
 
 package org.briljantframework.dataframe.transform;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.index.Index;
+import org.briljantframework.vector.DoubleVector;
 import org.briljantframework.vector.Vec;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.vector.Vector;
 
 /**
  * @author Isak Karlsson
@@ -39,20 +37,26 @@ public class MeanImputer implements Transformer {
 
   @Override
   public Transformation fit(DataFrame frame) {
-    DoubleArray means = Bj.doubleArray(frame.columns());
-    for (int j = 0; j < frame.columns(); j++) {
-      means.set(j, Vec.mean(frame.loc().get(j)));
+//    DoubleArray means = Bj.doubleArray(frame.columns());
+    Vector.Builder builder = new DoubleVector.Builder();
+    for (Object key : frame.getColumnIndex().keySet()) {
+      builder.set(key, Vec.mean(frame.get(key)));
     }
-
+    Vector means = builder.build();
     return x -> {
       Check.size(x.columns(), means.size());
-      DataFrame.Builder builder = x.newBuilder();
-      Index.Builder columnIndex = x.getColumnIndex().newBuilder();
-      Index.Builder recordIndex = x.getRecordIndex().newBuilder();
-
-      throw new UnsupportedOperationException();
-//      x.getColumnIndex().entrySet().forEach(columnIndex::set);
-//      x.getRecordIndex().entrySet().forEach(recordIndex::set);
+      DataFrame.Builder df = x.newBuilder();
+      for (Object colKey : x.getColumnIndex().keySet()) {
+        Vector column = frame.get(colKey);
+        for (Object rowKey : x.getRecordIndex().keySet()) {
+          if (column.isNA(rowKey)) {
+            df.set(rowKey, colKey, means, colKey);
+          } else {
+            df.set(rowKey, colKey, column, rowKey);
+          }
+        }
+      }
+      return df.build();
 //      for (int j = 0; j < x.columns(); j++) {
 //        Check.type(x.loc().get(j).getType(), VectorType.DOUBLE);
 //        for (int i = 1; i < x.rows(); i++) {

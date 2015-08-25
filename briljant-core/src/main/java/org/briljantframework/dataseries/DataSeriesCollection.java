@@ -198,7 +198,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     private Builder(DataSeriesCollection df, VectorType type) {
-      super(df.getColumnIndex().newCopyBuilder(), df.getRecordIndex().newCopyBuilder());
+      super(df);
       this.type = type;
       this.builders = df.series.stream()
           .map(Vector::newCopyBuilder)
@@ -309,8 +309,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
               .collect(Collectors.toCollection(ArrayList::new)),
           type,
           columns,
-          columnIndex.build(),
-          recordIndex.build()
+          getColumnIndex(columns),
+          getRecordIndex(rows())
       );
     }
 
@@ -323,11 +323,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
               .collect(Collectors.toCollection(ArrayList::new)),
           type,
           columns,
-          columnIndex.build(),
-          recordIndex.build()
+          getColumnIndex(columns),
+          getRecordIndex(rows())
       );
-      columnIndex = null;
-      recordIndex = null;
       builders = null;
       return collection;
     }

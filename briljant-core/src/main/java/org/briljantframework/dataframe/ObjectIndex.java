@@ -97,8 +97,8 @@ public final class ObjectIndex implements Index {
   }
 
   @Override
-  public Object getKey(int index) {
-    return indexes.get(index);
+  public Object getKey(int location) {
+    return indexes.get(location);
   }
 
   @Override
@@ -138,6 +138,26 @@ public final class ObjectIndex implements Index {
         return ObjectIndex.this.size();
       }
     };
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) {
+      return true;
+    }
+    if (object == null || getClass() != object.getClass()) {
+      return false;
+    }
+
+    ObjectIndex entries = (ObjectIndex) object;
+    return indexes.equals(entries.indexes) && keys.equals(entries.keys);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = keys.hashCode();
+    result = 31 * result + indexes.hashCode();
+    return result;
   }
 
   @Override

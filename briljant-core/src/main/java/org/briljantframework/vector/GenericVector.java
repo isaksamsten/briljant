@@ -25,7 +25,6 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.index.Index;
-import org.briljantframework.index.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -147,20 +146,17 @@ public class GenericVector extends AbstractVector {
     private Resolver<?> resolver = null;
 
     public <T> Builder(Class<T> cls, Resolver<T> resolver) {
-      super(new IntIndex.Builder(0));
       this.cls = ensureValidClass(cls);
       this.resolver = resolver;
       this.buffer = new ArrayList<>();
     }
 
     public Builder(Class<?> cls) {
-      super(new IntIndex.Builder(0));
       this.cls = ensureValidClass(cls);
       buffer = new ArrayList<>();
     }
 
     public Builder(Class<?> cls, int size) {
-      super(new IntIndex.Builder(size));
       this.cls = cls;
       buffer = new ArrayList<>();
       for (int i = 0; i < size; i++) {

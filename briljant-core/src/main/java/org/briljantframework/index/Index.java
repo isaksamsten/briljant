@@ -29,7 +29,6 @@ import org.briljantframework.sort.Swappable;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -38,12 +37,29 @@ import java.util.Set;
  *
  * @author Isak Karlsson
  */
-public interface Index extends Iterable<Index.Entry> {
+public interface Index {
 
+  /**
+   * Get the index location of the supplied key.
+   *
+   * @param key the key
+   * @return the location
+   * @throws java.util.NoSuchElementException if key does not exist
+   */
   int getLocation(Object key);
 
-  Object getKey(int index);
+  /**
+   * Get the key at the supplied location
+   *
+   * @param location the location
+   * @return the key
+   * @throws java.lang.IndexOutOfBoundsException if {@code location >= size() || location < 0}
+   */
+  Object getKey(int location);
 
+  /**
+   * Returns {@code true} if
+   */
   boolean contains(Object key);
 
   Set<Object> keySet();
@@ -57,11 +73,6 @@ public interface Index extends Iterable<Index.Entry> {
   Builder newBuilder();
 
   Builder newCopyBuilder();
-
-  @Override
-  default Iterator<Entry> iterator() {
-    return entrySet().iterator();
-  }
 
   default List<Object> asList() {
     return new AbstractList<Object>() {

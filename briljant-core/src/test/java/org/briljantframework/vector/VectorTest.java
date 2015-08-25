@@ -25,6 +25,7 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.dataframe.SortOrder;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class VectorTest {
@@ -45,13 +46,16 @@ public class VectorTest {
   @Test
   public void testTestSort() throws Exception {
     Vector a = VectorType.inferringBuilder()
-        .set(40, 1)
+        .set(40, 3)
         .set(30, 2)
-        .set(20, 3)
-        .set(10, 4)
+        .set(20, 4)
+        .set(10, 1)
         .build();
 
     Vector v = a.sort(SortOrder.ASC);
     System.out.println(v);
+    for (int i = 0; i < v.size(); i++) {
+      Assert.assertEquals(i + 1, v.loc().getAsInt(i));
+    }
   }
 }

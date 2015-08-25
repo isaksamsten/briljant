@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -454,10 +453,13 @@ public abstract class AbstractVector implements Vector {
       this.indexer = indexer;
     }
 
+    protected AbstractBuilder() {
+      this.indexer = null; // NO indexer. Lazy initialization if needed
+    }
+
     @Override
     public final Builder setNA(Object key) {
       int index = getOrCreateIndex(key);
-      this.indexer.extend(index);
       setAt(index, null);
       return this;
     }
@@ -537,13 +539,10 @@ public abstract class AbstractVector implements Vector {
 
     @Override
     public final Builder remove(Object key) {
-      if (indexer.contains(key)) {
-        int location = indexer.getLocation(key);
-        loc().remove(location);
-        indexer.remove(location);
-      } else {
-        throw new NoSuchElementException(key.toString());
-      }
+      initializeIndexer();
+      int location = indexer.getLocation(key);
+      loc().remove(location);
+      indexer.remove(location);
       return this;
     }
 
@@ -553,6 +552,7 @@ public abstract class AbstractVector implements Vector {
     }
 
     protected final int getOrCreateIndex(Object key) {
+      initializeIndexer();
       int index = size();
       if (indexer.contains(key)) {
         index = indexer.getLocation(key);
@@ -560,6 +560,12 @@ public abstract class AbstractVector implements Vector {
         indexer.add(key);
       }
       return index;
+    }
+
+    private void initializeIndexer() {
+      if (indexer == null) {
+        indexer = new IntIndex.Builder(size());
+      }
     }
 
     protected abstract void setNaAt(int index);
@@ -583,9 +589,13 @@ public abstract class AbstractVector implements Vector {
     protected abstract void swapAt(int a, int b);
 
     protected Index getIndex() {
-      Index index = indexer.build();
-      indexer = null;
-      return index;
+      if (indexer != null) {
+        Index index = indexer.build();
+        indexer = null;
+        return index;
+      } else {
+        return new IntIndex(size());
+      }
     }
 
     private class VectorLocationSetterImpl implements VectorLocationSetter {
@@ -593,49 +603,67 @@ public abstract class AbstractVector implements Vector {
       @Override
       public void setNA(int i) {
         setNaAt(i);
-        indexer.extend(i + 1);
+        extendIndex(i);
       }
 
       @Override
       public void set(int i, Object value) {
         setAt(i, value);
-        indexer.extend(i + 1);
+        extendIndex(i);
       }
 
       @Override
       public void set(int i, double value) {
         setAt(i, value);
-        indexer.extend(i + 1);
+        extendIndex(i);
       }
 
       @Override
       public void set(int i, int value) {
         setAt(i, value);
-        indexer.extend(i + 1);
+        extendIndex(i);
       }
 
       @Override
       public void set(int t, Vector from, int f) {
         setAt(t, from, f);
-        indexer.extend(t + 1);
+        extendIndex(t);
       }
 
       @Override
       public void set(int t, Vector from, Object f) {
         setAt(t, from, f);
-        indexer.extend(t + 1);
+        extendIndex(t);
       }
 
       @Override
       public void remove(int i) {
         removeAt(i);
-        indexer.remove(i);
+        removeIndex(i);
       }
 
       @Override
       public void swap(int a, int b) {
         swapAt(a, b);
+        swapIndex(a, b);
+      }
+    }
+
+    protected void swapIndex(int a, int b) {
+      if (indexer != null) {
         indexer.swap(a, b);
+      }
+    }
+
+    protected void removeIndex(int i) {
+      if (indexer != null) {
+        indexer.remove(i);
+      }
+    }
+
+    protected void extendIndex(int i) {
+      if (indexer != null) {
+        indexer.extend(i + 1);
       }
     }
   }

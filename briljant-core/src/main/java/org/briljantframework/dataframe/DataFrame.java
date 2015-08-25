@@ -250,6 +250,14 @@ public interface DataFrame extends Iterable<Vector> {
    */
   Collection<Vector> getRecords();
 
+  <T> T get(Class<T> cls, Object row, Object col);
+
+  double getAsDouble(Object row, Object col);
+
+  int getAsInt(Object row, Object col);
+
+  boolean isNA(Object row, Object col);
+
   /**
    * Drop rows in {@code indexes} and return a new DataFrame
    *
@@ -353,6 +361,8 @@ public interface DataFrame extends Iterable<Vector> {
   interface Builder {
 
     DataFrameLocationSetter loc();
+
+    Builder set(Object row, Object column, Vector from, Object key);
 
     Builder set(Object row, Object column, Object value);
 

@@ -103,7 +103,8 @@ public final class Vec {
   public static <T> int find(Vector haystack, T needle) {
     Class<?> cls = needle.getClass();
     for (int i = 0; i < haystack.size(); i++) {
-      if (haystack.loc().get(cls, i).equals(needle)) {
+      Object v = haystack.loc().get(cls, i);
+      if (!Is.NA(v) && v.equals(needle)) {
         return i;
       }
     }

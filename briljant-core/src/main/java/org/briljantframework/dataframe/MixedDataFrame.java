@@ -26,7 +26,6 @@ package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
 import org.briljantframework.index.Index;
-import org.briljantframework.index.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.vector.Vector;
@@ -325,7 +324,6 @@ public final class MixedDataFrame extends AbstractDataFrame {
      * @param builders the vector builders
      */
     public Builder(Vector.Builder... builders) {
-      super(new IntIndex.Builder(builders.length), new IntIndex.Builder(0));
       int rows = Stream.of(builders).mapToInt(Vector.Builder::size).max().getAsInt();
       this.buffers = new ArrayList<>();
       for (Vector.Builder builder : builders) {
@@ -334,7 +332,6 @@ public final class MixedDataFrame extends AbstractDataFrame {
         }
         buffers.add(builder);
       }
-      recordIndex.extend(rows);
     }
 
     /**
@@ -344,7 +341,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
      * @param frame the DataFrame to clone
      */
     public Builder(MixedDataFrame frame) {
-      super(frame.getColumnIndex().newCopyBuilder(), frame.getRecordIndex().newCopyBuilder());
+      super(frame);
       buffers = frame.columns.stream()
           .map(Vector::newCopyBuilder)
           .collect(Collectors.toCollection(ArrayList::new));
@@ -453,7 +450,12 @@ public final class MixedDataFrame extends AbstractDataFrame {
       List<Vector> vectors = buffers.stream()
           .map((builder) -> padVectorWithNA(builder, rows).getTemporaryVector())
           .collect(Collectors.toCollection(ArrayList::new));
-      return new MixedDataFrame(vectors, rows);
+      return new MixedDataFrame(
+          vectors,
+          rows,
+          getColumnIndex(columns()),
+          getRecordIndex(rows)
+      );
     }
 
     @Override
@@ -462,8 +464,14 @@ public final class MixedDataFrame extends AbstractDataFrame {
       List<Vector> vectors = buffers.stream()
           .map(x -> padVectorWithNA(x, rows).build())
           .collect(Collectors.toCollection(ArrayList::new));
+      MixedDataFrame df = new MixedDataFrame(
+          vectors,
+          rows,
+          getColumnIndex(columns()),
+          getRecordIndex(rows)
+      );
       buffers = null;
-      return new MixedDataFrame(vectors, rows, columnIndex.build(), recordIndex.build());
+      return df;
     }
 
     private void ensureColumnCapacity(int index, VectorType type) {

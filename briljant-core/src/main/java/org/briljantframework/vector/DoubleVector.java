@@ -32,7 +32,6 @@ import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.index.Index;
-import org.briljantframework.index.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -286,7 +285,6 @@ public class DoubleVector extends AbstractVector {
     }
 
     public Builder(int size, int capacity) {
-      super(new IntIndex.Builder(size));
       this.buffer = new DoubleArrayList(Math.max(size, capacity));
       for (int i = 0; i < size; i++) {
         buffer.add(Na.DOUBLE);

@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BinaryOperator;
@@ -422,6 +423,26 @@ public abstract class AbstractDataFrame implements DataFrame {
     return getAt(getColumnIndex().indices(keys));
   }
 
+  @Override
+  public final <T> T get(Class<T> cls, Object row, Object col) {
+    return getAt(cls, getRecordIndex().getLocation(row), getColumnIndex().getLocation(col));
+  }
+
+  @Override
+  public final double getAsDouble(Object row, Object col) {
+    return getAsDoubleAt(getRecordIndex().getLocation(row), getColumnIndex().getLocation(col));
+  }
+
+  @Override
+  public final int getAsInt(Object row, Object col) {
+    return getAsIntAt(getRecordIndex().getLocation(row), getColumnIndex().getLocation(col));
+  }
+
+  @Override
+  public final boolean isNA(Object row, Object col) {
+    return isNaAt(getRecordIndex().getLocation(row), getColumnIndex().getLocation(col));
+  }
+
   /**
    * Constructs a new DataFrame by dropping {@code index}.
    *
@@ -483,7 +504,10 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame drop(Object key) {
-    return dropAt(getColumnIndex().getLocation(key));
+    if (getColumnIndex().contains(key)) {
+      return newCopyBuilder().remove(key).build();
+    }
+    throw new NoSuchElementException(key.toString());
   }
 
   @Override
@@ -850,35 +874,41 @@ public abstract class AbstractDataFrame implements DataFrame {
      * The column index. When getting the index of a key, prefer {@link
      * #getOrCreateColumnIndex(Object)}.
      */
-    protected Index.Builder columnIndex;
+    private Index.Builder columnIndex;
 
     /**
      * The record index. When getting the index of a key, prefer {@link
      * #getOrCreateRecordIndex(Object)}.
      */
-    protected Index.Builder recordIndex;
+    private Index.Builder recordIndex;
 
     /**
      * Provide initial indexes
      *
-     * @param columnIndex the column index
-     * @param recordIndex the record index
+     * @param from the dataframe to copy
      */
-    protected AbstractBuilder(Index.Builder columnIndex, Index.Builder recordIndex) {
-      this.columnIndex = columnIndex;
-      this.recordIndex = recordIndex;
+    protected AbstractBuilder(DataFrame from) {
+      this.columnIndex = from.getColumnIndex().newCopyBuilder();
+      this.recordIndex = from.getRecordIndex().newCopyBuilder();
     }
 
     /**
      * Implicit default constructor for constructing default {@code int}-based indexes
      */
     protected AbstractBuilder() {
-      this(new IntIndex.Builder(0), new IntIndex.Builder(0));
     }
 
     @Override
     public final DataFrameLocationSetter loc() {
       return loc;
+    }
+
+    @Override
+    public final Builder set(Object row, Object column, Vector from, Object key) {
+      int r = getOrCreateRecordIndex(row);
+      int c = getOrCreateColumnIndex(column);
+      setAt(r, c, from, from.getIndex().getLocation(key));
+      return this;
     }
 
     @Override
@@ -892,7 +922,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public final Builder set(Object key, Vector.Builder columnBuilder) {
       int columnIndex = getOrCreateColumnIndex(key);
-      recordIndex.extend(columnBuilder.size());
+      extendRecordIndex(columnBuilder.size());
       setAt(columnIndex, columnBuilder);
       return this;
     }
@@ -906,7 +936,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public final Builder setRecord(Object key, Vector.Builder recordBuilder) {
       int recordIndex = getOrCreateRecordIndex(key);
-      columnIndex.extend(recordBuilder.size());
+      extendColumnIndex(recordBuilder.size());
       setRecordAt(recordIndex, recordBuilder);
       return this;
     }
@@ -919,6 +949,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder remove(Object key) {
+      initializeColumnIndexer();
       int index = columnIndex.getLocation(key);
       loc().remove(index);
       return this;
@@ -926,6 +957,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder removeRecord(Object key) {
+      initializeRecordIndexer();
       int index = recordIndex.getLocation(key);
       loc().removeRecord(index);
       return this;
@@ -936,16 +968,57 @@ public abstract class AbstractDataFrame implements DataFrame {
       int entries = 0;
       while (entryReader.hasNext()) {
         DataEntry entry = entryReader.next();
-        columnIndex.extend(entry.size());
+        extendColumnIndex(entry.size());
         entries++;
         readEntry(entry);
       }
-      recordIndex.extend(entries);
+      extendRecordIndex(entries);
 
       return this;
     }
 
-    protected final int getOrCreateColumnIndex(Object key) {
+    private void initializeRecordIndexer() {
+      if (recordIndex == null) {
+        recordIndex = new IntIndex.Builder(rows());
+      }
+    }
+
+    private void initializeColumnIndexer() {
+      if (columnIndex == null) {
+        columnIndex = new IntIndex.Builder(columns());
+      }
+    }
+
+    /**
+     * Extend both column and record index with the specified number of entries.
+     */
+    private void extendIndex(int record, int columns) {
+      extendRecordIndex(record);
+      extendColumnIndex(columns);
+    }
+
+    /**
+     * Extend the column index with the specified number of entries. For example, if the index
+     * contains {@code 3} items and the argument is {@code 5}, index {@code 4} and {@code 5} will
+     * be added.
+     */
+    private void extendColumnIndex(int c) {
+      if (columnIndex != null) {
+        columnIndex.extend(c);
+      }
+    }
+
+    /**
+     * See explanation of {@link #extendColumnIndex(int)}
+     */
+    private void extendRecordIndex(int r) {
+      if (recordIndex != null) {
+        recordIndex.extend(r);
+      }
+    }
+
+    private int getOrCreateColumnIndex(Object key) {
+      initializeColumnIndexer();
       int index = columns();
       if (columnIndex.contains(key)) {
         index = columnIndex.getLocation(key);
@@ -955,7 +1028,8 @@ public abstract class AbstractDataFrame implements DataFrame {
       return index;
     }
 
-    protected final int getOrCreateRecordIndex(Object key) {
+    private final int getOrCreateRecordIndex(Object key) {
+      initializeRecordIndexer();
       int index = rows();
       if (recordIndex.contains(key)) {
         index = recordIndex.getLocation(key);
@@ -963,6 +1037,22 @@ public abstract class AbstractDataFrame implements DataFrame {
         recordIndex.add(key);
       }
       return index;
+    }
+
+    protected final Index getRecordIndex(int rows) {
+      if (recordIndex == null) {
+        return new IntIndex(rows);
+      } else {
+        return recordIndex.build();
+      }
+    }
+
+    protected Index getColumnIndex(int columns) {
+      if (columnIndex == null) {
+        return new IntIndex(columns);
+      } else {
+        return columnIndex.build();
+      }
     }
 
     /**
@@ -988,8 +1078,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     protected abstract void setAt(int r, int c, Vector from, int i);
 
-    protected void setAt(int fr, int fc, DataFrame from, int tr, int tc) {
-      setAt(fr, tc, from.loc().get(tc), tr);
+    protected void setAt(int tr, int tc, DataFrame from, int fr, int fc) {
+      setAt(tr, tc, from.loc().get(fc), fr);
     }
 
     protected abstract void removeAt(int c);
@@ -1019,7 +1109,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       @Override
       public void set(int tr, int tc, DataFrame df, int fr, int fc) {
         extendIndex(tr + 1, tc + 1);
-        setAt(fr, tc, df, fr, fc);
+        setAt(tr, tc, df, fr, fc);
       }
 
       @Override
@@ -1031,65 +1121,47 @@ public abstract class AbstractDataFrame implements DataFrame {
       @Override
       public void set(int c, Vector.Builder columnBuilder) {
         extendColumnIndex(c + 1);
-        recordIndex.extend(columnBuilder.size());
+        extendRecordIndex(columnBuilder.size());
         setAt(c, columnBuilder);
       }
 
       @Override
       public void remove(int c) {
-        columnIndex.remove(c);
+        if (columnIndex != null) {
+          columnIndex.remove(c);
+        }
         removeAt(c);
       }
 
       @Override
       public void swap(int a, int b) {
-        columnIndex.swap(a, b);
+        if (columnIndex != null) {
+          columnIndex.swap(a, b);
+        }
         swapAt(a, b);
       }
 
       @Override
       public void setRecord(int r, Vector.Builder recordBuilder) {
         extendRecordIndex(r + 1);
-        columnIndex.extend(recordBuilder.size());
+        extendColumnIndex(recordBuilder.size());
         setRecordAt(r, recordBuilder);
       }
 
       @Override
       public void removeRecord(int r) {
-        recordIndex.remove(r);
+        if (recordIndex != null) {
+          recordIndex.remove(r);
+        }
         throw new UnsupportedOperationException();
       }
 
       @Override
       public void swapRecords(int a, int b) {
-        recordIndex.swap(a, b);
+        if (recordIndex != null) {
+          recordIndex.swap(a, b);
+        }
         swapRecordsAt(a, b);
-      }
-
-      /**
-       * Extend both column and record index with the specified number of entries.
-       */
-      private void extendIndex(int record, int columns) {
-        extendRecordIndex(record);
-        extendColumnIndex(columns);
-      }
-
-      /**
-       * Extend the column index with the specified number of entries. For example, if the index
-       * contains {@code 3} items and the argument is {@code 5}, index {@code 4} and {@code 5} will
-       * be added.
-       */
-      private void extendColumnIndex(int c) {
-        columnIndex.extend(c);
-//        columnIndex.add(c);
-      }
-
-      /**
-       * See explanation of {@link #extendColumnIndex(int)}
-       */
-      private void extendRecordIndex(int r) {
-        recordIndex.extend(r);
-//        recordIndex.add(r);
       }
     }
   }

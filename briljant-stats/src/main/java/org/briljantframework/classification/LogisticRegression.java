@@ -26,12 +26,12 @@ package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.LogLoss;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
@@ -117,7 +117,7 @@ public class LogisticRegression implements Classifier {
     double logLoss = optimizer.optimize(objective, theta);
 
     Vector.Builder names = new GenericVector.Builder(Object.class).add("(Intercept)");
-    df.getColumnIndex().forEach(names::add);
+    df.getColumnIndex().keySet().forEach(names::add);
     return new Predictor(names.build(), theta, logLoss, unique);
   }
 
@@ -425,7 +425,7 @@ public class LogisticRegression implements Classifier {
     @Override
     public String toString() {
       return "LogisticRegression.Predictor{" +
-             "coefficients=" + coefficients.list() +
+             "coefficients=" + coefficients +
              ", logLoss=" + logLoss +
              '}';
     }
