@@ -25,6 +25,7 @@
 package org.briljantframework.array;
 
 import org.apache.commons.math3.complex.Complex;
+import org.junit.Assert;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -42,26 +43,26 @@ public final class ArrayAssert {
   }
 
   public static void assertEqualShape(BaseArray expected, BaseArray actual) {
-    assertArrayEquals(expected.getShape(), actual.getShape());
+    Assert.assertArrayEquals(expected.getShape(), actual.getShape());
 //    assertEquals(ROW_SIZE, expected.rows(), actual.rows());
 //    assertEquals(COL_SIZE, expected.columns(), actual.columns());
   }
 
-  public static void assertMatrixEquals(IntArray expect, IntArray actual) {
+  public static void assertArrayEquals(IntArray expect, IntArray actual) {
     assertEqualShape(expect, actual);
     for (int i = 0; i < expect.size(); i++) {
       assertEquals(VAL_MATCH, expect.get(i), actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(LongArray expect, LongArray actual) {
+  public static void assertArrayEquals(LongArray expect, LongArray actual) {
     assertEqualShape(expect, actual);
     for (int i = 0; i < expect.size(); i++) {
       assertEquals(VAL_MATCH, expect.get(i), actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(DoubleArray expect, DoubleArray actual, double epsilon) {
+  public static void assertArrayEquals(DoubleArray expect, DoubleArray actual, double epsilon) {
     assertEqualShape(expect, actual);
     for (int i = 0; i < expect.size(); i++) {
       try {
@@ -82,19 +83,19 @@ public final class ArrayAssert {
     }
   }
 
-  public static void assertMatrixEquals(int expected, IntArray actual) {
+  public static void assertArrayEquals(int expected, IntArray actual) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected, actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(LongArray actual, long value) {
+  public static void assertArrayEquals(LongArray actual, long value) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(value, actual.get(i));
     }
   }
 
-  public static void assertMatrixEquals(double expected, DoubleArray actual, double e) {
+  public static void assertArrayEquals(double expected, DoubleArray actual, double e) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected, actual.get(i), e);
     }
@@ -107,7 +108,7 @@ public final class ArrayAssert {
     }
   }
 
-  public static void assertMatrixEquals(ComplexArray actual, Complex value) {
+  public static void assertArrayEquals(ComplexArray actual, Complex value) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(value, actual.get(i));
     }
@@ -120,7 +121,7 @@ public final class ArrayAssert {
     }
   }
 
-  public static void assertMatrixEquals(BitArray actual, boolean expected) {
+  public static void assertArrayEquals(BitArray actual, boolean expected) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected, actual.get(i));
     }
@@ -140,7 +141,7 @@ public final class ArrayAssert {
     }
   }
 
-  public static void assertMatrixEquals(ComplexArray expected, ComplexArray actual) {
+  public static void assertArrayEquals(ComplexArray expected, ComplexArray actual) {
     assertEqualShape(expected, actual);
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected.get(i).getReal(), actual.get(i).getReal(), 1e-4);
@@ -148,7 +149,7 @@ public final class ArrayAssert {
     }
   }
 
-  public static void assertMatrixEquals(double expected, ComplexArray actual) {
-    assertMatrixEquals(actual, Complex.valueOf(expected));
+  public static void assertArrayEquals(double expected, ComplexArray actual) {
+    assertArrayEquals(actual, Complex.valueOf(expected));
   }
 }

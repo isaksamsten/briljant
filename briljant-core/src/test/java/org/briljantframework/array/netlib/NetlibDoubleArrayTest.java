@@ -24,12 +24,11 @@
 
 package org.briljantframework.array.netlib;
 
+import org.briljantframework.array.ArrayAssert;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayFactory;
 import org.junit.Test;
-
-import static org.briljantframework.array.ArrayAssert.assertMatrixEquals;
 
 public class NetlibDoubleArrayTest {
 
@@ -55,10 +54,10 @@ public class NetlibDoubleArrayTest {
         {6, 12, 18}
     });
 
-    assertMatrixEquals(expected, b.mmul(a), EPSILON);
-    assertMatrixEquals(expected.mul(2), b.mmul(2, a), EPSILON);
-    assertMatrixEquals(expected, a.mmul(Op.TRANSPOSE, a, Op.KEEP), EPSILON);
-    assertMatrixEquals(expected.mul(2), a.mmul(2, Op.TRANSPOSE, a, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected, b.mmul(a), EPSILON);
+    ArrayAssert.assertArrayEquals(expected.mul(2), b.mmul(2, a), EPSILON);
+    ArrayAssert.assertArrayEquals(expected, a.mmul(Op.TRANSPOSE, a, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected.mul(2), a.mmul(2, Op.TRANSPOSE, a, Op.KEEP), EPSILON);
   }
 
   @Test
@@ -73,8 +72,8 @@ public class NetlibDoubleArrayTest {
         {6, 12, 18}
     });
 
-    assertMatrixEquals(expected, a.transpose().mmul(a), EPSILON);
-    assertMatrixEquals(expected, a.mmul(Op.TRANSPOSE, a, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected, a.transpose().mmul(a), EPSILON);
+    ArrayAssert.assertArrayEquals(expected, a.mmul(Op.TRANSPOSE, a, Op.KEEP), EPSILON);
   }
 
   @Test
@@ -108,7 +107,7 @@ public class NetlibDoubleArrayTest {
     for (int i = 0; i < expected.length; i++) {
       DoubleArray r = a.getRow(i);
       DoubleArray c = a.getColumn(i);
-      assertMatrixEquals(expected[i], c.mmul(r), EPSILON);
+      ArrayAssert.assertArrayEquals(expected[i], c.mmul(r), EPSILON);
     }
   }
 
@@ -184,35 +183,35 @@ public class NetlibDoubleArrayTest {
     DoubleArray a1 = a.select(1);
 
     // a[0].T * a[0]
-    assertMatrixEquals(expected[0], a0.transpose().mmul(a0), EPSILON);
-    assertMatrixEquals(expected[0], a0.mmul(Op.TRANSPOSE, a0, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[0], a0.transpose().mmul(a0), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[0], a0.mmul(Op.TRANSPOSE, a0, Op.KEEP), EPSILON);
 
     // a[0].T * a[1]
-    assertMatrixEquals(expected[1], a0.transpose().mmul(a1), EPSILON);
-    assertMatrixEquals(expected[1], a0.mmul(Op.TRANSPOSE, a1, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[1], a0.transpose().mmul(a1), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[1], a0.mmul(Op.TRANSPOSE, a1, Op.KEEP), EPSILON);
 
     // a[1].T * a[0]
-    assertMatrixEquals(expected[2], a1.transpose().mmul(a0), EPSILON);
-    assertMatrixEquals(expected[2], a1.mmul(Op.TRANSPOSE, a0, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[2], a1.transpose().mmul(a0), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[2], a1.mmul(Op.TRANSPOSE, a0, Op.KEEP), EPSILON);
 
     // a[1].T * a[1]
-    assertMatrixEquals(expected[3], a1.transpose().mmul(a1), EPSILON);
-    assertMatrixEquals(expected[3], a1.mmul(Op.TRANSPOSE, a1, Op.KEEP), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[3], a1.transpose().mmul(a1), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[3], a1.mmul(Op.TRANSPOSE, a1, Op.KEEP), EPSILON);
 
     // a[0] * a[0].T
-    assertMatrixEquals(expected[4], a0.mmul(a0.transpose()), EPSILON);
-    assertMatrixEquals(expected[4], a0.mmul(Op.KEEP, a0, Op.TRANSPOSE), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[4], a0.mmul(a0.transpose()), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[4], a0.mmul(Op.KEEP, a0, Op.TRANSPOSE), EPSILON);
 
     // a[0] * a[1].T
-    assertMatrixEquals(expected[5], a0.mmul(a1.transpose()), EPSILON);
-    assertMatrixEquals(expected[5], a0.mmul(Op.KEEP, a1, Op.TRANSPOSE), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[5], a0.mmul(a1.transpose()), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[5], a0.mmul(Op.KEEP, a1, Op.TRANSPOSE), EPSILON);
 
     // a[1] * a[0].T
-    assertMatrixEquals(expected[6], a1.mmul(a0.transpose()), EPSILON);
-    assertMatrixEquals(expected[6], a1.mmul(Op.KEEP, a0, Op.TRANSPOSE), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[6], a1.mmul(a0.transpose()), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[6], a1.mmul(Op.KEEP, a0, Op.TRANSPOSE), EPSILON);
 
     // a[1] * a[1].T
-    assertMatrixEquals(expected[7], a1.mmul(a1.transpose()), EPSILON);
-    assertMatrixEquals(expected[7], a1.mmul(Op.KEEP, a1, Op.TRANSPOSE), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[7], a1.mmul(a1.transpose()), EPSILON);
+    ArrayAssert.assertArrayEquals(expected[7], a1.mmul(Op.KEEP, a1, Op.TRANSPOSE), EPSILON);
   }
 }

@@ -25,6 +25,7 @@
 package org.briljantframework.array.netlib;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.array.ArrayAssert;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
@@ -34,7 +35,6 @@ import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.junit.Test;
 
-import static org.briljantframework.array.ArrayAssert.assertMatrixEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -56,7 +56,7 @@ public class NetlibLinearAlgebraRoutinesTest {
 
     IntArray ipiv1 = bj.intArray(4);
     linalg.getrf(d, ipiv1);
-    assertMatrixEquals(bj.array(new int[]{2, 2, 3, 4}), ipiv1);
+    ArrayAssert.assertArrayEquals(bj.array(new int[]{2, 2, 3, 4}), ipiv1);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class NetlibLinearAlgebraRoutinesTest {
     DoubleArray vr = bj.doubleArray(n, n);
     linalg.geev('v', 'v', a, wr, wi, vl, vr);
 
-    assertMatrixEquals(
+    ArrayAssert.assertArrayEquals(
         bj.array(new Complex[]{
             Complex.valueOf(2.858132878, 10.7627498307),
             Complex.valueOf(2.858132878, -10.7627498307),
@@ -126,8 +126,9 @@ public class NetlibLinearAlgebraRoutinesTest {
     IntArray isuppz = bj.intArray(n);
     int m = linalg.syevr('v', 'i', 'u', a, vl, vu, il, ul, abstol, w, z, isuppz);
     assertEquals(3, m);
-    assertMatrixEquals(bj.array(new double[]{0.433, 2.145, 3.368}), w.get(bj.range(3)), 0.001);
-    assertMatrixEquals(bj.array(new double[][]{
+    ArrayAssert
+        .assertArrayEquals(bj.array(new double[]{0.433, 2.145, 3.368}), w.get(bj.range(3)), 0.001);
+    ArrayAssert.assertArrayEquals(bj.array(new double[][]{
         new double[]{3.292, 0.507, 0.876, 0.176, -0.177},
         new double[]{0, 0.891, -1.111, 0.082, 0.185},
         new double[]{0, 0, 4.561, 1.671, -0.424},
@@ -168,15 +169,15 @@ public class NetlibLinearAlgebraRoutinesTest {
     IntArray ipiv = bj.intArray(5);
     linalg.gesv(a, ipiv, b);
 
-    assertMatrixEquals(bj.array(new int[]{5, 5, 3, 4, 5}), ipiv);
-    assertMatrixEquals(bj.array(new double[][]{
+    ArrayAssert.assertArrayEquals(bj.array(new int[]{5, 5, 3, 4, 5}), ipiv);
+    ArrayAssert.assertArrayEquals(bj.array(new double[][]{
         new double[]{-0.80, -0.39, 0.96},
         new double[]{-0.70, -0.55, 0.22},
         new double[]{0.59, 0.84, 1.90},
         new double[]{1.32, -0.10, 5.36},
         new double[]{0.57, 0.11, 4.04}
     }), b, 0.01);
-    assertMatrixEquals(bj.array(new double[][]{
+    ArrayAssert.assertArrayEquals(bj.array(new double[][]{
         new double[]{8.23, 1.08, 9.04, 2.14, -6.87},
         new double[]{0.83, -6.94, -7.92, 6.55, -3.99},
         new double[]{0.69, -0.67, -14.18, 7.24, -5.19},
@@ -197,9 +198,9 @@ public class NetlibLinearAlgebraRoutinesTest {
     }).reshape(2, 6).transpose();
     DoubleArray tau = bj.doubleArray(2);
     linalg.geqrf(a, tau);
-    assertMatrixEquals(bj.array(new double[]{1, 1.4}), tau, 0.01);
+    ArrayAssert.assertArrayEquals(bj.array(new double[]{1, 1.4}), tau, 0.01);
 
-    assertMatrixEquals(bj.array(new double[][]{
+    ArrayAssert.assertArrayEquals(bj.array(new double[][]{
         new double[]{-4, 2},
         new double[]{0.5, 2.5},
         new double[]{0.5, 0.286},

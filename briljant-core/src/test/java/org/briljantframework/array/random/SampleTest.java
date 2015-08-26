@@ -36,6 +36,6 @@ public class SampleTest {
   @Test
   public void testSampleWithoutReplacement() throws Exception {
     IntArray sample = Sample.withoutReplacement(new Random(123), 10, 5);
-    ArrayAssert.assertMatrixEquals(sample, Bj.array(new int[]{0, 1, 5, 3, 4}));
+    ArrayAssert.assertArrayEquals(sample, Bj.array(new int[]{0, 1, 5, 3, 4}));
   }
 }
