@@ -143,7 +143,8 @@ public final class ArrayAssert {
   public static void assertMatrixEquals(ComplexArray expected, ComplexArray actual) {
     assertEqualShape(expected, actual);
     for (int i = 0; i < actual.size(); i++) {
-      assertEquals(expected.get(i), actual.get(i));
+      assertEquals(expected.get(i).getReal(), actual.get(i).getReal(), 1e-4);
+      assertEquals(expected.get(i).getImaginary(), actual.get(i).getImaginary(), 1e-4);
     }
   }
 

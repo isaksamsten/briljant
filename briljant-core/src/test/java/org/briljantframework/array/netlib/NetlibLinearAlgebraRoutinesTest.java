@@ -24,6 +24,8 @@
 
 package org.briljantframework.array.netlib;
 
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
@@ -56,6 +58,43 @@ public class NetlibLinearAlgebraRoutinesTest {
     linalg.getrf(d, ipiv1);
     assertMatrixEquals(bj.array(new int[]{2, 2, 3, 4}), ipiv1);
   }
+
+  @Test
+  public void testGeev() throws Exception {
+    final int n = 5;
+    DoubleArray a = bj.array(new double[]{
+        -1.01, 3.98, 3.30, 4.43, 7.31,
+        0.86, 0.53, 8.26, 4.96, -6.43,
+        -4.60, -7.04, -3.89, -7.66, -6.16,
+        3.31, 5.29, 8.20, -7.33, 2.47,
+        -4.81, 3.55, -1.51, 6.18, 5.58
+    }).reshape(n, n);
+    DoubleArray wr = bj.doubleArray(n);
+    DoubleArray wi = bj.doubleArray(n);
+    DoubleArray vl = bj.doubleArray(n, n);
+    DoubleArray vr = bj.doubleArray(n, n);
+    linalg.geev('v', 'v', a, wr, wi, vl, vr);
+
+    assertMatrixEquals(
+        bj.array(new Complex[]{
+            Complex.valueOf(2.858132878, 10.7627498307),
+            Complex.valueOf(2.858132878, -10.7627498307),
+            Complex.valueOf(-0.6866745133, 4.7042613406),
+            Complex.valueOf(-0.6866745133, -4.7042613406),
+            Complex.valueOf(-10.4629167295)
+        }),
+        toComplex(wr, wi)
+    );
+  }
+
+  ComplexArray toComplex(DoubleArray r, DoubleArray i) {
+    ComplexArray c = bj.complexArray(r.getShape());
+    for (int j = 0; j < r.size(); j++) {
+      c.set(j, Complex.valueOf(r.get(j), i.get(j)));
+    }
+    return c;
+  }
+
 
   @Test
   public void testGelsy() throws Exception {

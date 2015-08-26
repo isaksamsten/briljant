@@ -24,12 +24,12 @@
 
 package org.briljantframework.array.base;
 
-import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayBackend;
+import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
  * Created by isak on 27/04/15.
@@ -52,6 +52,12 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public SingularValueDecomposition svd(DoubleArray x) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void geev(char jobvl, char jobvr, DoubleArray a, DoubleArray wr, DoubleArray wi,
+                   DoubleArray vl, DoubleArray vr) {
     throw new UnsupportedOperationException();
   }
 

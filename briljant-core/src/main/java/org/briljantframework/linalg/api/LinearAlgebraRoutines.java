@@ -24,10 +24,10 @@
 
 package org.briljantframework.linalg.api;
 
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
  * Created by isak on 2/10/15.
@@ -40,6 +40,57 @@ public interface LinearAlgebraRoutines {
 
   SingularValueDecomposition svd(DoubleArray x);
 
+
+  /**
+   * DGEEV computes for an N-by-N real nonsymmetric matrix A, the
+   * eigenvalues and, optionally, the left and/or right eigenvectors.
+   *
+   * The right eigenvector v(j) of A satisfies
+   * A * v(j) = lambda(j) * v(j)
+   * where lambda(j) is its eigenvalue.
+   * The left eigenvector u(j) of A satisfies
+   * u(j)**H * A = lambda(j) * u(j)**H
+   * where u(j)**H denotes the conjugate-transpose of u(j).
+   *
+   * The computed eigenvectors are normalized to have Euclidean norm
+   * equal to 1 and largest component real.
+   *
+   * @param jobvl = 'N': left eigenvectors of A are not computed;
+   *              = 'V': left eigenvectors of A are computed.
+   * @param jobvr = 'N': right eigenvectors of A are not computed;
+   *              = 'V': right eigenvectors of A are computed.
+   * @param a     (input/output) On entry, the N-by-N matrix A.
+   *              On exit, A has been overwritten.
+   * @param wr    (output) dimension n
+   * @param wi    (output) wr and wi contain the real and imaginary parts,
+   *              respectively, of the computed eigenvalues.  Complex
+   *              conjugate pairs of eigenvalues appear consecutively
+   *              with the eigenvalue having the positive imaginary part
+   *              first.
+   * @param vl    If JOBVL = 'V', the left eigenvectors u(j) are stored one
+   *              after another in the columns of VL, in the same order
+   *              as their eigenvalues.
+   *              If JOBVL = 'N', VL is not referenced.
+   *              If the j-th eigenvalue is real, then u(j) = VL(:,j),
+   *              the j-th column of VL.
+   *              If the j-th and (j+1)-st eigenvalues form a complex
+   *              conjugate pair, then u(j) = VL(:,j) + i*VL(:,j+1) and
+   *              u(j+1) = VL(:,j) - i*VL(:,j+1).
+   * @param vr    If JOBVR = 'V', the right eigenvectors v(j) are stored one
+   *              after another in the columns of VR, in the same order
+   *              as their eigenvalues.
+   *              If JOBVR = 'N', VR is not referenced.
+   *              If the j-th eigenvalue is real, then v(j) = VR(:,j),
+   *              the j-th column of VR.
+   *              If the j-th and (j+1)-st eigenvalues form a complex
+   */
+  void geev(char jobvl,
+            char jobvr,
+            DoubleArray a,
+            DoubleArray wr,
+            DoubleArray wi,
+            DoubleArray vl,
+            DoubleArray vr);
 
   /**
    * DORMQR overwrites the general real M-by-N matrix C with

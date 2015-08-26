@@ -56,6 +56,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    */
   ComplexArray assign(Complex value);
 
+  void assign(double[] value);
+
   void assign(Complex[] value);
 
   default ComplexArray assign(double real) {
@@ -386,4 +388,6 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @return a new matrix
    */
   ComplexArray negate();
+
+  double[] data();
 }

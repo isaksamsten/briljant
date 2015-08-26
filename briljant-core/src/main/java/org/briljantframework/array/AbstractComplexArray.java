@@ -133,6 +133,16 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
+  public void assign(double[] value) {
+    Check.argument(value.length == size() * 2);
+    int j = 0;
+    for (int i = 0; i < size(); i++) {
+      Complex c = Complex.valueOf(value[j], value[j + 1]);
+      j += 2;
+    }
+  }
+
+  @Override
   public void assign(Complex[] value) {
     Check.size(size(), value.length);
     for (int i = 0; i < value.length; i++) {
@@ -601,6 +611,19 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   @Override
   public ComplexArray negate() {
     return map(Complex::negate);
+  }
+
+  @Override
+  public double[] data() {
+    double[] data = new double[size() * 2];
+    int j = 0;
+    for (int i = 0; i < size(); i++) {
+      Complex c = get(i);
+      data[j] = c.getReal();
+      data[j + 1] = c.getImaginary();
+      j += 2;
+    }
+    return data;
   }
 
   @Override

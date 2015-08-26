@@ -28,6 +28,7 @@ import com.github.fommil.netlib.LAPACK;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.BaseArray;
+import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
@@ -125,6 +126,82 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       gesdd('a', a, s, u, vt);
     }
     return new SingularValueDecomposition(s, u, vt.transpose());
+  }
+
+  @Override
+  public void geev(char jobvl, char jobvr, DoubleArray a, DoubleArray wr, DoubleArray wi,
+                   DoubleArray vl, DoubleArray vr) {
+    Check.argument(a.isMatrix(), REQUIRE_2D_ARRAY);
+    Check.argument(a.rows() == a.columns(), "Require square 2d-array");
+    int n = a.size(1);
+
+    Check.argument(wr.isVector() && wr.size() == n);
+    Check.argument(wi.isVector() && wi.size() == n);
+
+    int ldvl = 1;
+    if (jobvl == 'v') {
+      ldvl = n;
+      Check.argument(vl.isMatrix() && vl.rows() == vl.columns() && vl.rows() == ldvl);
+    }
+
+    int ldvr = 1;
+    if (jobvr == 'v') {
+      ldvr = n;
+      Check.argument(vr.isMatrix() && vr.rows() == vr.columns() && vr.rows() == ldvr,
+                     "Illegal 'vr' 2d-array");
+    }
+
+    double[] aa = getData(a);
+    double[] wra = getData(wr);
+    double[] wia = getData(wi);
+    double[] vla = getData(vl);
+    double[] vra = getData(vr);
+
+    double[] work = new double[1];
+    int lwork = -1;
+    intW info = new intW(0);
+    lapack.dgeev(
+        String.valueOf(jobvl),
+        String.valueOf(jobvr),
+        n,
+        aa,
+        Math.max(1, n),
+        wra,
+        wia,
+        vla,
+        ldvl,
+        vra,
+        ldvr,
+        work,
+        lwork,
+        info
+    );
+    ensureInfo(info);
+    lwork = (int) work[0];
+
+    lapack.dgeev(
+        String.valueOf(jobvl),
+        String.valueOf(jobvr),
+        n,
+        aa,
+        Math.max(1, a.stride(1)),
+        wra,
+        wia,
+        vla,
+        Math.max(1, a.stride(1)),
+        vra,
+        Math.max(1, a.stride(1)),
+        work,
+        lwork,
+        info
+    );
+
+    ensureInfo(info);
+    assignIfNeeded(a, aa);
+    assignIfNeeded(wr, wra);
+    assignIfNeeded(wi, wia);
+    assignIfNeeded(vl, vla);
+    assignIfNeeded(vr, vra);
   }
 
   @Override
@@ -688,11 +765,18 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
    * Returns the data of the double array. If a is a view (as defined above), a copy is returned.
    */
   private double[] getData(DoubleArray a) {
-    if (a.getOffset() > 0 || a.stride(0) != 1) {
+    if (!(a instanceof NetlibDoubleArray) ||
+        !a.isContiguous() ||
+        a.getOffset() > 0 ||
+        a.stride(0) != 1) {
       return a.copy().data();
     } else {
       return a.data();
     }
+  }
+
+  private double[] getData(ComplexArray array) {
+    return array.data();
   }
 
   private int[] getData(IntArray ipiv) {
@@ -713,6 +797,10 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     if (!(a instanceof NetlibDoubleArray) || a.getOffset() > 0 || a.stride(0) != 1) {
       a.assign(data);
     }
+  }
+
+  private void assignIfNeeded(ComplexArray a, double[] data) {
+    a.assign(data);
   }
 
   private void reassignIfNeeded(IntArray a, int[] data) {
