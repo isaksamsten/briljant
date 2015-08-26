@@ -24,6 +24,7 @@
 
 package org.briljantframework.vector;
 
+import org.briljantframework.Bj;
 import org.briljantframework.array.Array;
 import org.briljantframework.exceptions.IllegalTypeException;
 
@@ -57,38 +58,43 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public <T> T getAt(Class<T> cls, int index) {
+  protected  <T> T getAt(Class<T> cls, int index) {
     return parent.loc().get(cls, offset + index);
   }
 
   @Override
-  public String toStringAt(int index) {
+  protected String toStringAt(int index) {
     return parent.loc().toString(offset + index);
   }
 
   @Override
-  public boolean isTrueAt(int index) {
+  protected boolean isTrueAt(int index) {
     return parent.loc().isTrue(offset + index);
   }
 
   @Override
-  public boolean isNaAt(int index) {
+  protected boolean isNaAt(int index) {
     return parent.loc().isNA(offset + index);
+  }
+
+  @Override
+  protected double getAsDoubleAt(int i) {
+    return parent.loc().getAsDouble(offset + i);
+  }
+
+  @Override
+  protected int getAsIntAt(int i) {
+    return parent.loc().getAsInt(offset + i);
+  }
+
+  @Override
+  protected int compareAt(int a, Vector other, int b) {
+    return parent.loc().compare(a, other, b);
   }
 
   @Override
   public boolean hasNA() {
     return parent.hasNA();
-  }
-
-  @Override
-  public double getAsDoubleAt(int i) {
-    return parent.loc().getAsDouble(offset + i);
-  }
-
-  @Override
-  public int getAsIntAt(int i) {
-    return parent.loc().getAsInt(offset + i);
   }
 
   @Override
@@ -103,12 +109,7 @@ public abstract class VectorView extends AbstractVector {
 
   @Override
   public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
-    return parent.toArray(cls);
-  }
-
-  @Override
-  public int compareAt(int a, Vector other, int b) {
-    return parent.loc().compare(a, other, b);
+    return parent.toArray(cls).get(Bj.range(offset, size())); // TODO: check
   }
 
   @Override

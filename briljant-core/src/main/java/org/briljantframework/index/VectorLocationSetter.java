@@ -24,7 +24,10 @@
 
 package org.briljantframework.index;
 
+import org.briljantframework.io.DataEntry;
 import org.briljantframework.vector.Vector;
+
+import java.io.IOException;
 
 /**
  * @author Isak Karlsson
@@ -75,6 +78,16 @@ public interface VectorLocationSetter {
   void set(int t, Vector from, int f);
 
   void set(int atIndex, Vector from, Object fromKey);
+
+  /**
+   * Reads a value from the input stream and set {@code index} to the next value in the stream.
+   *
+   * @param index the index
+   * @param entry the input stream
+   * @return receiver modified
+   * @throws java.io.IOException if {@code inputStream} fail
+   */
+  void read(int index, DataEntry entry) throws IOException;
 
   /**
    * Removes value at {@code index} and shifts element to the left.

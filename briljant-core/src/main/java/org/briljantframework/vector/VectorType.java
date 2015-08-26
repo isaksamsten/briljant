@@ -180,15 +180,6 @@ public abstract class VectorType {
     private Vector.Builder builder;
     private VectorLocationSetter locationSetter = new InferringVectorLocationSetter();
 
-//    @Override
-//    public Vector.Builder setNA(int index) {
-//      if (builder == null) {
-//        builder = getObjectBuilder();
-//      }
-//      builder.setNA(index);
-//      return this;
-//    }
-
     @Override
     public Vector.Builder setNA(Object key) {
       return null;
@@ -294,11 +285,8 @@ public abstract class VectorType {
     }
 
     @Override
-    public Vector.Builder read(int index, DataEntry entry) throws IOException {
-      if (builder == null) {
-        builder = getObjectBuilder();
-      }
-      builder.read(index, entry);
+    public Vector.Builder readAll(DataEntry entry) throws IOException {
+      getObjectBuilder().readAll(entry);
       return this;
     }
 
@@ -353,6 +341,11 @@ public abstract class VectorType {
           builder = from(value).newBuilder();
         }
         builder.loc().set(atIndex, from, fromKey);
+      }
+
+      @Override
+      public void read(int index, DataEntry entry) throws IOException {
+        getObjectBuilder().loc().read(index, entry);
       }
 
       @Override

@@ -24,9 +24,6 @@
 
 package org.briljantframework.io;
 
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.vector.Logical;
-
 /**
  * Created by Isak Karlsson on 11/12/14.
  */
@@ -36,7 +33,7 @@ public interface DataEntry {
    * Reads the next entry and tries to resolve the value as {@code cls}. If this fails, {@code
    * next}
    * returns an appropriate {@code NA} value
-   * (as defined in {@link org.briljantframework.vector.Na#from(Class)}).
+   * (as defined by {@link org.briljantframework.vector.Na#from(Class)}).
    *
    * @param cls the class
    * @param <T> the type to return
@@ -66,25 +63,16 @@ public interface DataEntry {
   double nextDouble();
 
   /**
-   * Reads the next {@code Binary} in this stream.
-   *
-   * @return the next binary
-   */
-  Logical nextBinary();
-
-  /**
-   * Reads the next {@code Complex} in this stream.
-   *
-   * @return the next complex
-   */
-  Complex nextComplex();
-
-  /**
    * Returns {@code true} if there are more values in the stream
    *
    * @return if has next
    */
   boolean hasNext();
 
+  /**
+   * Returns the size of the entry (if known).
+   *
+   * @return the size
+   */
   int size();
 }

@@ -225,7 +225,7 @@ public final class IntIndex implements Index {
     return new Builder(size());
   }
 
-  public static class Builder implements Index.Builder {
+  public static final class Builder implements Index.Builder {
 
     private ObjectIndex.Builder builder;
     private int currentSize;
@@ -279,7 +279,16 @@ public final class IntIndex implements Index {
 
     @Override
     public void add(int key) {
-      set(key, currentSize);
+      if (key > currentSize) {
+        throw nonMonotonicallyIncreasingIndex(key);
+      }
+
+      if (!isMonotonicallyIncreasing(key)) {
+        initializeHashBuilder();
+        builder.add(key);
+      }
+      currentSize++;
+//      set(key, currentSize);
     }
 
     @Override
@@ -306,9 +315,12 @@ public final class IntIndex implements Index {
 
     private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
       return new UnsupportedOperationException(
-          String.format("Creating gap in index. current != index (%d != %d)",
-                        currentSize, index)
+          getMessage(index)
       );
+    }
+
+    private String getMessage(int index) {
+      return "Creating gap in index. current != index " + currentSize + " != " + index;
     }
 
     private void set(Object key, int index) {
@@ -316,19 +328,6 @@ public final class IntIndex implements Index {
         throw nonMonotonicallyIncreasingIndex(index);
       }
       if (!isIntegerKey(key) || !key.equals(index)) {
-        initializeHashBuilder();
-        builder.add(key);
-      }
-      if (index == currentSize) {
-        currentSize++;
-      }
-    }
-
-    private void set(int key, int index) {
-      if (index > currentSize) {
-        throw nonMonotonicallyIncreasingIndex(index);
-      }
-      if (!isMonotonicallyIncreasing(key) || key != index) {
         initializeHashBuilder();
         builder.add(key);
       }

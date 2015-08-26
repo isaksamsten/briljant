@@ -159,10 +159,10 @@ public final class DataFrames {
 
       int rows = df.rows();
       for (Index.Entry col : df.getColumnIndex().entrySet()) {
-        int toColumn = columnIndex.getLocation(col.key());
-        int fromCol = col.index();
+        int toColumn = columnIndex.getLocation(col.getKey());
+        int fromCol = col.getValue();
         if (toColumn < 0) {
-          columnIndex.add(col.key());
+          columnIndex.add(col.getKey());
           toColumn = currentColumn;
           currentColumn += 1;
         }

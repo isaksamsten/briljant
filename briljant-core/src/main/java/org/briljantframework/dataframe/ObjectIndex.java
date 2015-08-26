@@ -43,6 +43,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
+ * The {@code ObjectIndex} contains any key and associates it with a location.
+ *
+ * <p> Keys of this index is iterated in insertion order
+ *
  * @author Isak Karlsson
  */
 public final class ObjectIndex implements Index {
@@ -150,14 +154,12 @@ public final class ObjectIndex implements Index {
     }
 
     ObjectIndex entries = (ObjectIndex) object;
-    return indexes.equals(entries.indexes) && keys.equals(entries.keys);
+    return keys.equals(entries.keys);
   }
 
   @Override
   public int hashCode() {
-    int result = keys.hashCode();
-    result = 31 * result + indexes.hashCode();
-    return result;
+    return keys.hashCode();
   }
 
   @Override
@@ -198,18 +200,18 @@ public final class ObjectIndex implements Index {
 
     private final Comparator<Object> objectComparator = new HeterogeneousObjectComparator();
     private Map<Object, Integer> keys;
-    private List<Object> indexes;
+    private List<Object> locations;
     private int currentSize = 0;
 
 
     public Builder() {
       this.keys = new LinkedHashMap<>();
-      this.indexes = new ArrayList<>();
+      this.locations = new ArrayList<>();
     }
 
-    private Builder(Map<Object, Integer> keys, List<Object> indexes) {
+    private Builder(Map<Object, Integer> keys, List<Object> locations) {
       this.keys = new LinkedHashMap<>(keys);
-      this.indexes = new ArrayList<>(indexes);
+      this.locations = new ArrayList<>(locations);
     }
 
     @Override
@@ -224,7 +226,7 @@ public final class ObjectIndex implements Index {
 
     @Override
     public Object getKey(int index) {
-      return indexes.get(index);
+      return locations.get(index);
     }
 
     @Override
@@ -253,7 +255,7 @@ public final class ObjectIndex implements Index {
       if (keys.put(key, index) != null) {
         throw duplicateKey(key);
       }
-      indexes.add(key);
+      locations.add(key);
       currentSize++;
     }
 
@@ -275,19 +277,19 @@ public final class ObjectIndex implements Index {
     public Index build() {
       Index index = new ObjectIndex(
           Collections.unmodifiableMap(keys),
-          Collections.unmodifiableList(indexes)
+          Collections.unmodifiableList(locations)
       );
       this.keys = null;
-      this.indexes = null;
+      this.locations = null;
       return index;
     }
 
     @Override
     public void swap(int a, int b) {
-      Object keyA = indexes.get(a);
-      Object keyB = indexes.get(b);
-      indexes.set(a, keyB);
-      indexes.set(b, keyA);
+      Object keyA = locations.get(a);
+      Object keyB = locations.get(b);
+      locations.set(a, keyB);
+      locations.set(b, keyA);
 
       Integer tmp = keys.get(keyA);
       keys.put(keyA, keys.get(keyB));
@@ -301,10 +303,11 @@ public final class ObjectIndex implements Index {
 
     @Override
     public void remove(int index) {
-      keys.remove(indexes.remove(index));
+      keys.remove(locations.remove(index));
+      // swap locations backwards
       for (int i = index; i < size(); i++) {
-        Object key = indexes.get(i);
-        keys.compute(key, (k, v) -> v - 1); // change index back one
+        Object key = locations.get(i);
+        keys.compute(key, (k, v) -> v - 1);
       }
     }
 

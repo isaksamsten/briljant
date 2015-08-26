@@ -24,10 +24,8 @@
 
 package org.briljantframework.io;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Is;
 import org.briljantframework.vector.Na;
 
@@ -35,7 +33,7 @@ import org.briljantframework.vector.Na;
  * A string data entry holds string values and tries to convert them to appropriate types. Such
  * failures won't propagate, instead the respective NA value will be returned.
  */
-public class StringDataEntry implements DataEntry {
+public final class StringDataEntry implements DataEntry {
 
   public static final String MISSING_VALUE = "?";
   private final String[] values;
@@ -56,13 +54,12 @@ public class StringDataEntry implements DataEntry {
     String value = nextString();
     if (Is.NA(value)) {
       return Na.from(cls);
+    }
+    Resolver<T> resolver = Resolvers.find(cls);
+    if (resolver == null) {
+      return Na.from(cls);
     } else {
-      Resolver<T> resolver = Resolvers.find(cls);
-      if (resolver == null) {
-        return Na.from(cls);
-      } else {
-        return resolver.resolve(value);
-      }
+      return resolver.resolve(value);
     }
   }
 
@@ -83,13 +80,11 @@ public class StringDataEntry implements DataEntry {
     if (repr == null) {
       return Na.INT;
     }
-    Integer value;
     try {
-      value = Integer.parseInt(repr);
+      return Integer.parseInt(repr);
     } catch (NumberFormatException e) {
-      value = null;
+      return Na.INT;
     }
-    return value == null ? Na.INT : value;
   }
 
   @Override
@@ -97,25 +92,12 @@ public class StringDataEntry implements DataEntry {
     String repr = nextString();
     if (repr == null) {
       return Na.DOUBLE;
-    } else {
-      Double value;
-      try {
-        value = Double.parseDouble(repr);
-      } catch (NumberFormatException e) {
-        value = null;
-      }
-      return value == null ? Na.DOUBLE : value;
     }
-  }
-
-  @Override
-  public Logical nextBinary() {
-    return Logical.valueOf(nextInt());
-  }
-
-  @Override
-  public Complex nextComplex() {
-    return next(Complex.class);
+    try {
+      return Double.parseDouble(repr);
+    } catch (NumberFormatException e) {
+      return Na.DOUBLE;
+    }
   }
 
   @Override

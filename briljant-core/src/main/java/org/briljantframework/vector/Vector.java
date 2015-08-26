@@ -672,12 +672,7 @@ public interface Vector extends Serializable {
 
     Builder remove(Object key);
 
-    default Builder readAll(DataEntry entry) throws IOException {
-      while (entry.hasNext()) {
-        read(entry);
-      }
-      return this;
-    }
+    Builder readAll(DataEntry entry) throws IOException;
 
     VectorLocationSetter loc();
 
@@ -689,16 +684,6 @@ public interface Vector extends Serializable {
      * @throws IOException if {@code inputStream} fail
      */
     Builder read(DataEntry entry) throws IOException;
-
-    /**
-     * Reads a value from the input stream and set {@code index} to the next value in the stream.
-     *
-     * @param index the index
-     * @param entry the input stream
-     * @return receiver modified
-     * @throws IOException if {@code inputStream} fail
-     */
-    Builder read(int index, DataEntry entry) throws IOException;
 
     /**
      * Returns the size of the resulting vector

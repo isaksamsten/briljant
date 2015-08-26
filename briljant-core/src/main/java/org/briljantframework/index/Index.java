@@ -100,11 +100,11 @@ public interface Index {
       this.index = index;
     }
 
-    public Object key() {
+    public Object getKey() {
       return key;
     }
 
-    public int index() {
+    public int getValue() {
       return index;
     }
 
@@ -119,6 +119,12 @@ public interface Index {
 
   public interface Builder extends Swappable {
 
+    /**
+     * Returns {@code true} if the index builder contains the specified key.
+     *
+     * @param key the key
+     * @return a boolean indicator
+     */
     boolean contains(Object key);
 
     /**

@@ -217,10 +217,9 @@ public class GenericVector extends AbstractVector {
     }
 
     @Override
-    public Vector.Builder read(int index, DataEntry entry) throws IOException {
+    protected void readAt(int index, DataEntry entry) throws IOException {
       ensureCapacity(index);
       buffer.set(index, entry.next(cls)); // TODO: do resolve here
-      return this;
     }
 
     @Override

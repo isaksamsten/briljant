@@ -25,6 +25,8 @@
 package org.briljantframework.vector;
 
 import org.briljantframework.dataframe.ObjectIndex;
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.StringDataEntry;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -283,13 +285,48 @@ public abstract class VectorBuilderTest {
   }
 
   @Test
-  public void testAddAll1() throws Exception {
+  public void testBuildVectorUsingDataEntries() throws Exception {
+    Vector.Builder builder = getBuilder();
+    DataEntry entry = new StringDataEntry("1", "2", "4", "10");
+    while (entry.hasNext()) {
+      builder.read(entry);
+    }
 
+    Vector v = builder.build();
+    assertEquals(Arrays.asList(1, 2, 4, 10), v.asList(Integer.class));
   }
+
+//  @Test
+//  public void testAddAll1() throws Exception {
+//    double[] array = new double[1000000];
+//    Arrays.fill(array, 20);
+//
+//    List<Double> list = new ArrayList<>();
+//    long start = System.nanoTime();
+//    for (int j = 0; j < 100; j++) {
+//      for (double i : array) {
+//        list.add(i);
+//      }
+//    }
+//
+//    double end = (System.nanoTime() - start) / 1e6 / 100;
+//    System.out.println(list.size() + " " + end);
+//  }
 
   @Test
   public void testAddAll2() throws Exception {
-
+    double[] array = new double[1000000];
+    Arrays.fill(array, 20);
+    Vector.Builder builder = getBuilder();
+    long start = System.nanoTime();
+    for (int j = 0; j < 100; j++) {
+      for (double i : array) {
+        builder.addNA();
+      }
+    }
+    double end = (System.nanoTime() - start) / 1e6 / 100;
+    Vector v = builder.build();
+    System.out.println(v.size() + " " + end);
   }
 
   @Test

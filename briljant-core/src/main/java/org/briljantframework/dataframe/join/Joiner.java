@@ -73,9 +73,9 @@ public abstract class Joiner {
         entry = bIt.next();
       }
 
-      Object key = entry.key();
-      if (on.contains(entry.index())) {
-        builder.add(a.loc().get(entry.index()).newBuilder(size));
+      Object key = entry.getKey();
+      if (on.contains(entry.getValue())) {
+        builder.add(a.loc().get(entry.getValue()).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
         currentColumnIndex += 1;
@@ -84,10 +84,10 @@ public abstract class Joiner {
 
     int columnIndex = on.size();
     for (Index.Entry entry : a.getColumnIndex().entrySet()) {
-      int index = entry.index();
+      int index = entry.getValue();
       Vector sourceColumn = a.loc().get(index);
-      Object key = entry.key();
-      if (on.contains(entry.index())) {
+      Object key = entry.getKey();
+      if (on.contains(entry.getValue())) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
@@ -99,10 +99,10 @@ public abstract class Joiner {
     }
 
     for (Index.Entry entry : b.getColumnIndex().entrySet()) {
-      int index = entry.index();
+      int index = entry.getValue();
       Vector sourceColumn = b.loc().get(index);
-      Object key = entry.key();
-      if (on.contains(entry.index())) {
+      Object key = entry.getKey();
+      if (on.contains(entry.getValue())) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromRightIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {

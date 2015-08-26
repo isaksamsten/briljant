@@ -374,7 +374,7 @@ public abstract class AbstractVector implements Vector {
     return new AbstractList<T>() {
       @Override
       public T get(int index) {
-        return AbstractVector.this.loc().get(cls, index);
+        return loc().get(cls, index);
       }
 
       @Override
@@ -446,15 +446,20 @@ public abstract class AbstractVector implements Vector {
 
   protected static abstract class AbstractBuilder implements Vector.Builder {
 
+    protected static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
     private final VectorLocationSetterImpl locationSetter = new VectorLocationSetterImpl();
     private Index.Builder indexer;
+    private boolean hasIndexer;
 
     protected AbstractBuilder(Index.Builder indexer) {
-      this.indexer = indexer;
+      this.indexer = Objects.requireNonNull(indexer);
+      this.hasIndexer = true;
     }
 
     protected AbstractBuilder() {
-      this.indexer = null; // NO indexer. Lazy initialization if needed
+      indexer = null;
+      hasIndexer = false;
     }
 
     @Override
@@ -465,17 +470,80 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a default implementation. To improve performance, sub-classes can override.
+     *
+     * <p> If overridden, the implementor should make sure to extend the index using {@link
+     * #extendIndex(int)}, for {@code add}-operations, this usually amounts to {@code
+     * extendIndex(size())}
      */
     @Override
-    public final Builder addNA() {
+    public Builder addNA() {
       loc().setNA(size());
       return this;
     }
 
+    /**
+     * Provides a default implementation. To improve performance, sub-classes can override.
+     *
+     * <p> If overridden, the implementor should make sure to extend the index using {@link
+     * #extendIndex(int)}, for {@code add}-operations, this usually amounts to {@code
+     * extendIndex(size())}
+     */
     @Override
-    public final Builder add(Vector from, int fromIndex) {
+    public Builder add(Vector from, int fromIndex) {
       loc().set(size(), from, fromIndex);
+      return this;
+    }
+
+    /**
+     * Provides a default implementation. To improve performance, sub-classes can override.
+     *
+     * <p> If overridden, the implementor should make sure to extend the index using {@link
+     * #extendIndex(int)}, for {@code add}-operations, this usually amounts to {@code
+     * extendIndex(size())}
+     */
+    @Override
+    public Vector.Builder add(Object value) {
+      loc().set(size(), value);
+      return this;
+    }
+
+    /**
+     * Provides a default implementation. To improve performance, sub-classes can override.
+     *
+     * <p> If overridden, the implementor should make sure to extend the index using {@link
+     * #extendIndex(int)}, for {@code add}-operations, this usually amounts to {@code
+     * extendIndex(size())}
+     */
+    @Override
+    public Builder add(int value) {
+      loc().set(size(), value);
+      return this;
+    }
+
+    /**
+     * Provides a default implementation. To improve performance, sub-classes can override.
+     *
+     * <p> If overridden, the implementor should make sure to extend the index using {@link
+     * #extendIndex(int)}, for {@code add}-operations, this usually amounts to {@code
+     * extendIndex(size())}
+     */
+    @Override
+    public Builder add(double value) {
+      loc().set(size(), value);
+      return this;
+    }
+
+    /**
+     * Provides a default implementation. To improve performance, sub-classes can override.
+     *
+     * <p> If overridden, the implementor should make sure to extend the index using {@link
+     * #extendIndex(int)}, for {@code add}-operations, this usually amounts to {@code
+     * extendIndex(size())}
+     */
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      loc().set(size(), from, key);
       return this;
     }
 
@@ -483,30 +551,6 @@ public abstract class AbstractVector implements Vector {
     public final Builder set(Object key, Object value) {
       int index = getOrCreateIndex(key);
       setAt(index, value);
-      return this;
-    }
-
-    @Override
-    public final Vector.Builder add(Object value) {
-      loc().set(size(), value);
-      return this;
-    }
-
-    @Override
-    public final Builder add(int value) {
-      loc().set(size(), value);
-      return this;
-    }
-
-    @Override
-    public final Builder add(double value) {
-      loc().set(size(), value);
-      return this;
-    }
-
-    @Override
-    public final Vector.Builder add(Vector from, Object key) {
-      loc().set(size(), from, key);
       return this;
     }
 
@@ -547,11 +591,23 @@ public abstract class AbstractVector implements Vector {
     }
 
     @Override
-    public final Vector.Builder read(DataEntry entry) throws IOException {
-      return read(size(), entry);
+    public Builder readAll(DataEntry entry) throws IOException {
+      Objects.requireNonNull(entry, "Require non-null entry");
+      while (entry.hasNext()) {
+        read(entry);
+      }
+      return this;
     }
 
-    protected final int getOrCreateIndex(Object key) {
+    @Override
+    public final Vector.Builder read(DataEntry entry) throws IOException {
+      final int size = size();
+      readAt(size, entry);
+      extendIndex(size);
+      return this;
+    }
+
+    private int getOrCreateIndex(Object key) {
       initializeIndexer();
       int index = size();
       if (indexer.contains(key)) {
@@ -563,8 +619,27 @@ public abstract class AbstractVector implements Vector {
     }
 
     private void initializeIndexer() {
-      if (indexer == null) {
+      if (!hasIndexer) {
         indexer = new IntIndex.Builder(size());
+        hasIndexer = true;
+      }
+    }
+
+    protected void swapIndex(int a, int b) {
+      if (hasIndexer) {
+        indexer.swap(a, b);
+      }
+    }
+
+    protected void removeIndex(int i) {
+      if (hasIndexer) {
+        indexer.remove(i);
+      }
+    }
+
+    protected void extendIndex(int i) {
+      if (hasIndexer) {
+        indexer.extend(i + 1);
       }
     }
 
@@ -584,18 +659,17 @@ public abstract class AbstractVector implements Vector {
 
     protected abstract void setAt(int t, Vector from, Object fromIndex);
 
+    protected abstract void readAt(int i, DataEntry entry) throws IOException;
+
     protected abstract void removeAt(int i);
 
     protected abstract void swapAt(int a, int b);
 
     protected Index getIndex() {
-      if (indexer != null) {
-        Index index = indexer.build();
-        indexer = null;
-        return index;
-      } else {
+      if (!hasIndexer) {
         return new IntIndex(size());
       }
+      return indexer.build();
     }
 
     private class VectorLocationSetterImpl implements VectorLocationSetter {
@@ -637,6 +711,11 @@ public abstract class AbstractVector implements Vector {
       }
 
       @Override
+      public void read(int index, DataEntry entry) throws IOException {
+        readAt(index, entry);
+      }
+
+      @Override
       public void remove(int i) {
         removeAt(i);
         removeIndex(i);
@@ -646,24 +725,6 @@ public abstract class AbstractVector implements Vector {
       public void swap(int a, int b) {
         swapAt(a, b);
         swapIndex(a, b);
-      }
-    }
-
-    protected void swapIndex(int a, int b) {
-      if (indexer != null) {
-        indexer.swap(a, b);
-      }
-    }
-
-    protected void removeIndex(int i) {
-      if (indexer != null) {
-        indexer.remove(i);
-      }
-    }
-
-    protected void extendIndex(int i) {
-      if (indexer != null) {
-        indexer.extend(i + 1);
       }
     }
   }

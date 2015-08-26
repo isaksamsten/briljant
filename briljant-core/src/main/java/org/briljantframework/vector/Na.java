@@ -32,7 +32,7 @@ import org.apache.commons.math3.complex.Complex;
 public final class Na {
 
   /**
-   * The constant NA.
+   * The integer NA.
    */
   public static final int INT = Integer.MIN_VALUE;
   private static final Integer BOXED_INT_NA = INT;
@@ -50,18 +50,23 @@ public final class Na {
    * }</pre>
    *
    * <p>This implementation is provided by {@link org.briljantframework.vector.Is#NA(double)}.
+   *
+   * <p>TL;DR; DO NOT {@code v == NA.DOUBLE}. DO {@code Is.NA(v);}
    */
   public static final double DOUBLE = Double.longBitsToDouble(0x7ff0000000000009L);
-  protected static final Complex COMPLEX = new Complex(DOUBLE, DOUBLE);
+
   /**
    * The mask used in conjunction with {@link #DOUBLE} and and {@link #DOUBLE_NA_RES} to recognize
    * a {@code NA} value from {@link Double#NaN}.
    */
   public static final long DOUBLE_NA_MASK = 0x000000000000000FL;
   public static final int DOUBLE_NA_RES = 9;
+
   private static final Double BOXED_DOUBLE_NA = DOUBLE;
 
   private static final Long BOXED_LONG_NA = Long.MAX_VALUE;
+
+  public static final Complex COMPLEX = new Complex(DOUBLE, DOUBLE);
 
   private Na() {
   }

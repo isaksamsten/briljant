@@ -286,7 +286,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
       int row = rows();
       ensureCapacity(row);
       for (int i = 0; i < entry.size() && entry.hasNext(); i++) {
-        builders.get(row).read(i, entry);
+        builders.get(row).loc().read(i, entry);
       }
     }
 

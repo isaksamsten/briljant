@@ -24,14 +24,13 @@
 
 package org.briljantframework.vector;
 
-import com.carrotsearch.hppc.IntArrayList;
-
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.index.Index;
+import org.briljantframework.index.IntIndex;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -41,7 +40,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
- * Created by Isak Karlsson on 20/11/14.
+ * @author Isak Karlsson
  */
 public class IntVector extends AbstractVector {
 
@@ -79,7 +78,6 @@ public class IntVector extends AbstractVector {
       } else {
         return Integer.compare(x, y);
       }
-//      return !va.isNA(a) && !ba.isNA(b) ? va.getAsInt(a) - ba.getAsInt(b) : 0;
     }
 
     @Override
@@ -92,7 +90,8 @@ public class IntVector extends AbstractVector {
       return "int";
     }
   };
-  private final int[] values;
+
+  private final int[] buffer;
   private final int size;
 
   public IntVector(int... values) {
@@ -103,31 +102,19 @@ public class IntVector extends AbstractVector {
     this(values, size, true);
   }
 
-  IntVector(int[] values, int size, boolean safe) {
+  private IntVector(int[] values, int size, boolean safe) {
     if (safe) {
-      this.values = Arrays.copyOf(values, size);
+      this.buffer = Arrays.copyOf(values, size);
     } else {
-      this.values = values;
+      this.buffer = values;
     }
     this.size = size;
   }
 
   private IntVector(int[] buffer, int size, Index index) {
     super(index);
-    this.values = buffer;
+    this.buffer = buffer;
     this.size = size;
-  }
-
-  public static Builder newBuilderWithInitialValues(int... values) {
-    Builder builder = new Builder(0, values.length);
-    for (int value : values) {
-      builder.add(value);
-    }
-    return builder;
-  }
-
-  public static IntVector unsafe(int[] newLeftPool) {
-    return new IntVector(newLeftPool, newLeftPool.length, false);
   }
 
   public static IntVector range(int end) {
@@ -139,73 +126,52 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
-  public int getAsIntAt(int i) {
-    return values[i];
+  protected final int getAsIntAt(int i) {
+    Check.elementIndex(i, size);
+    return buffer[i];
   }
 
   @Override
-  public <T> T getAt(Class<T> cls, int index) {
+  protected final <T> T getAt(Class<T> cls, int index) {
     Check.argument(!cls.isPrimitive(), "can't get primitive values");
     int v = getAsIntAt(index);
     return Convert.to(cls, v);
-//    if (Is.NA(v)) {
-//      return Na.from(cls);
-//    }
-//    if (cls.isAssignableFrom(Integer.class)) {
-//      return cls.cast(v);
-//    } else {
-//      if (cls.isAssignableFrom(Double.class)) {
-//        return cls.cast(getAsDouble(index));
-//      } else if (cls.isAssignableFrom(Complex.class)) {
-//        return cls.cast(getAsComplex(index));
-//      } else if (cls.isAssignableFrom(Logical.class)) {
-//        return cls.cast(getAsBit(index));
-//      } else if (cls.isAssignableFrom(String.class)) {
-//        return cls.cast(Integer.toString(v));
-//      } else {
-//        return Na.from(cls);
-//      }
-//    }
   }
 
   @Override
-  public String toStringAt(int index) {
+  protected final String toStringAt(int index) {
     int value = getAsIntAt(index);
     return value == Na.INT ? "NA" : String.valueOf(value);
   }
 
   @Override
-  public boolean isNaAt(int index) {
+  protected final boolean isNaAt(int index) {
     return getAsIntAt(index) == Na.INT;
   }
 
   @Override
-  public double getAsDoubleAt(int i) {
+  protected final double getAsDoubleAt(int i) {
     int value = getAsIntAt(i);
     return value == Na.INT ? Na.DOUBLE : value;
   }
 
   @Override
-  public IntArray toIntArray() throws IllegalTypeException {
-    return Bj.array(Arrays.copyOf(values, size()));
-  }
-
-  public Logical getAsBit(int index) {
-    return Logical.valueOf(getAsIntAt(index));
-  }
-
-  @Override
-  public VectorType getType() {
-    return TYPE;
-  }
-
-  @Override
-  public int compareAt(int a, Vector other, int b) {
+  protected final int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
   }
 
   @Override
-  public int hashCode() {
+  public IntArray toIntArray() throws IllegalTypeException {
+    return Bj.array(Arrays.copyOf(buffer, size()));
+  }
+
+  @Override
+  public final VectorType getType() {
+    return TYPE;
+  }
+
+  @Override
+  public final int hashCode() {
     int code = 1;
     for (int i = 0; i < size(); i++) {
       code += 31 * getAsIntAt(i);
@@ -214,7 +180,7 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public final boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -236,58 +202,125 @@ public class IntVector extends AbstractVector {
   }
 
   @Override
-  public int size() {
+  public final int size() {
     return size;
   }
 
   @Override
-  public Builder newBuilder() {
+  public final Builder newBuilder() {
     return new Builder();
   }
 
   @Override
-  public Builder newBuilder(int size) {
+  public final Builder newBuilder(int size) {
     return new Builder(size, size);
   }
 
   @Override
   public Builder newCopyBuilder() {
-    return new Builder(Arrays.copyOf(values, size()), getIndex().newCopyBuilder());
+    return new Builder(this);
   }
 
   @Override
-  public IntStream intStream() {
-    return Arrays.stream(values, 0, size());
+  public final IntStream intStream() {
+    return Arrays.stream(buffer, 0, size());
   }
 
   public static final class Builder extends AbstractBuilder {
 
-    private IntArrayList buffer;
+    private int[] buffer;
+    private int size;
 
     public Builder() {
       this(0, INITIAL_CAPACITY);
     }
 
     public Builder(int size) {
-      this(0, size);
+      this(size, size);
     }
 
     public Builder(int size, int capacity) {
-      buffer = new IntArrayList(Math.max(size, capacity));
+      this.size = size;
+      buffer = new int[Math.max(size, capacity)];
       for (int i = 0; i < size; i++) {
-        buffer.add(Na.INT);
+        buffer[i] = Na.INT;
       }
     }
 
-    private Builder(int[] buffer, Index.Builder index) {
-      super(index);
-      this.buffer = IntArrayList.from(buffer);
+    private Builder(IntVector vector) {
+      super(getIndexer(vector));
+      this.size = vector.size;
+      this.buffer = Arrays.copyOf(vector.buffer, vector.size);
+    }
+
+    private static Index.Builder getIndexer(IntVector vector) {
+      Index.Builder builder = vector.getIndex().newCopyBuilder();
+      if (builder instanceof IntIndex.Builder) {
+        return null;
+      }
+      return builder;
+    }
+
+    @Override
+    public Vector.Builder addNA() {
+      final int index = size;
+      ensureCapacity(size + 1); // sets the size
+      buffer[index] = Na.INT;
+      extendIndex(index);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(int value) {
+      final int index = size;
+      ensureCapacity(size + 1); // sets the size
+      buffer[index] = value;
+      extendIndex(index);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(double value) {
+      final int index = size();
+      ensureCapacity(size + 1); // sets the size
+      buffer[index] = (int) value;
+      extendIndex(index);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(Object value) {
+      final int index = size();
+      ensureCapacity(size + 1); // sets the size
+      buffer[index] = convert(value);
+      extendIndex(index);
+      return this;
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, int fromIndex) {
+      return add(from.loc().getAsInt(fromIndex));
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return add(from.getAsInt(key));
+    }
+
+    /**
+     * Fill with NA from {@code index} until {@code size}
+     */
+    private static void fillNa(final int from, final int until, int[] buffer) {
+      for (int i = from; i < until; i++) {
+        buffer[i] = Na.INT;
+      }
     }
 
     @Override
     public void setNaAt(int index) {
-      ensureCapacity(index);
-      buffer.buffer[index] = Na.INT;
+      final int oldSize = size;
+      ensureCapacity(index + 1);
+      fillNa(oldSize, size, buffer);
     }
 
     @Override
@@ -297,11 +330,18 @@ public class IntVector extends AbstractVector {
 
     @Override
     protected void setAt(int index, Object value) {
-      ensureCapacity(index);
+      final int oldSize = size;
+      ensureCapacity(index + 1);
+      int dval = convert(value);
+      fillNa(oldSize, size, buffer);
+      buffer[index] = dval;
+    }
+
+    private int convert(Object value) {
       int dval = Na.INT;
-      if (value instanceof Number) {
+      if (value instanceof Number && !Is.NA(value)) {
         dval = ((Number) value).intValue();
-      } else if (value != null) {
+      } else if (value != null && !Is.NA(value)) {
         Resolver<Integer> resolver = Resolvers.find(Integer.class);
         if (resolver != null) {
           Integer resolve = resolver.resolve(value);
@@ -310,45 +350,62 @@ public class IntVector extends AbstractVector {
           }
         }
       }
-      buffer.buffer[index] = dval;
+      return dval;
     }
 
     @Override
     protected void setAt(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.buffer[atIndex] = from.loc().getAsInt(fromIndex);
+      final int oldSize = size;
+      ensureCapacity(atIndex + 1);
+      fillNa(oldSize, size, buffer);
+      buffer[atIndex] = from.loc().getAsInt(fromIndex);
     }
 
     protected void setAt(int index, int value) {
-      ensureCapacity(index);
-      buffer.buffer[index] = value;
+      final int oldSize = size;
+      ensureCapacity(index + 1);
+      fillNa(oldSize, size, buffer);
+      buffer[index] = value;
+    }
+
+    @Override
+    protected void setAt(int index, double value) {
+      final int oldSize = size;
+      ensureCapacity(index + 1);
+      fillNa(oldSize, size, buffer);
+      buffer[index] = Is.NA(value) ? Na.INT : (int) value;
     }
 
     @Override
     protected void removeAt(int index) {
-      buffer.remove(index);
+      rangeCheck(index);
+      int numMoved = size - index - 1;
+      if (numMoved > 0) {
+        System.arraycopy(buffer, index + 1, buffer, index, numMoved);
+      }
     }
 
     @Override
     public void swapAt(int a, int b) {
+      rangeCheck(a);
+      rangeCheck(b);
       Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
-      Utils.swap(buffer.buffer, a, b);
+      Utils.swap(buffer, a, b);
     }
 
     @Override
-    public Vector.Builder read(int index, DataEntry entry) throws IOException {
+    protected void readAt(int index, DataEntry entry) throws IOException {
       setAt(index, entry.nextInt());
-      return this;
     }
 
     @Override
     public int size() {
-      return buffer.size();
+      return size;
     }
 
     @Override
     public Vector getTemporaryVector() {
-      return new IntVector(buffer.buffer, buffer.size(), false) {
+      return new IntVector(buffer, size(), false) {
         @Override
         public Builder newCopyBuilder() {
           return Builder.this;
@@ -358,22 +415,53 @@ public class IntVector extends AbstractVector {
 
     @Override
     public IntVector build() {
-      IntVector vector = new IntVector(buffer.buffer, buffer.size(), getIndex());
+      IntVector vector = new IntVector(buffer, size(), getIndex());
       buffer = null;
       return vector;
     }
 
-    private void ensureCapacity(int index) {
-      buffer.ensureCapacity(index + 1);
-      // TODO: extend
-      int i = buffer.size();
-      while (i <= index) {
-//        if (i < index) {
-//          this.indexer.add(i);
-//        }
-        buffer.buffer[i++] = Na.INT;
-        buffer.elementsCount++;
+    private void ensureCapacity(final int newSize) {
+      if (newSize - buffer.length > 0) {
+        grow(newSize);
       }
+      size = newSize;
+    }
+
+    private void rangeCheck(int index) {
+      if (index >= size) {
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+      }
+    }
+
+    private String outOfBoundsMsg(int index) {
+      return "Index: " + index + ", Size: " + size;
+    }
+
+    /**
+     * From {@link java.util.ArrayList}
+     */
+    private void grow(int minCapacity) {
+      // overflow-conscious code
+      int oldCapacity = buffer.length;
+      int newCapacity = oldCapacity + (oldCapacity >> 1);
+      if (newCapacity - minCapacity < 0) {
+        newCapacity = minCapacity;
+      }
+      if (newCapacity - MAX_ARRAY_SIZE > 0) {
+        newCapacity = hugeCapacity(minCapacity);
+      }
+      // minCapacity is usually close to size, so this is a win:
+      buffer = Arrays.copyOf(buffer, newCapacity);
+    }
+
+    /**
+     * From {@link java.util.ArrayList}
+     */
+    private static int hugeCapacity(int minCapacity) {
+      if (minCapacity < 0) { // overflow
+        throw new OutOfMemoryError();
+      }
+      return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
     }
   }
 }
