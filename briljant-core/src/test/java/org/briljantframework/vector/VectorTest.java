@@ -32,7 +32,7 @@ public class VectorTest {
 
   @Test
   public void testHead() throws Exception {
-    Vector a = VectorType.inferringBuilder()
+    Vector a = new TypeInferenceVectorBuilder()
         .set("a", 10)
         .set("b", 100)
         .set("c", 1)
@@ -45,7 +45,7 @@ public class VectorTest {
 
   @Test
   public void testTestSort() throws Exception {
-    Vector a = VectorType.inferringBuilder()
+    Vector a = new TypeInferenceVectorBuilder()
         .set(40, 3)
         .set(30, 2)
         .set(20, 4)

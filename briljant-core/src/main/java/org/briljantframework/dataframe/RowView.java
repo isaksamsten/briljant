@@ -24,6 +24,7 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.index.Index;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;

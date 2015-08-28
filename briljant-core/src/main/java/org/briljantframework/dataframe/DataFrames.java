@@ -319,8 +319,8 @@ public final class DataFrames {
    * @param dataFrame the data frame
    * @return a tabular string representation
    */
-  public static String toTabularString(DataFrame dataFrame) {
-    return toTabularString(dataFrame, 100);
+  public static String toString(DataFrame dataFrame) {
+    return toString(dataFrame, 100);
   }
 
   /**
@@ -336,28 +336,73 @@ public final class DataFrames {
    * @param max       the maximum number of rows to show
    * @return a tabular string representation
    */
-  public static String toTabularString(DataFrame dataFrame, int max) {
+  public static String toString(DataFrame dataFrame, int max) {
     Index recordIndex = dataFrame.getRecordIndex();
     Index columnIndex = dataFrame.getColumnIndex();
 
-//    ImmutableTable.Builder<Object, Object, Object> b = ImmutableTable.builder();
-//    b.put(0, 0, " Index");
-//
-//    for (int j = 0; j < dataFrame.columns(); j++) {
-//      b.put(0, j + 1, columnIndex.get(j));
-//    }
-//
-//    for (int i = 0; i < dataFrame.rows() && i < max; i++) {
-//      b.put(i + 1, 0, String.format("[%s,] ", recordIndex.get(i)));
-//      for (int j = 0; j < dataFrame.columns(); j++) {
-//        b.put(i + 1, j + 1, dataFrame.toString(i, j));
-//      }
-//    }
-//
-    StringBuilder builder =
-        new StringBuilder(dataFrame.getClass().getSimpleName()).append(" (")
-            .append(dataFrame.rows()).append("x").append(dataFrame.columns()).append(")\n");
-//    Utils.prettyPrintTable(builder, b.build(), 1, 2, false, false);
+    int longestRecordValue = recordIndex.keySet().stream()
+                                 .limit(max)
+                                 .map(Object::toString)
+                                 .mapToInt(String::length)
+                                 .max()
+                                 .orElse(0) + 2;
+
+    int[] longestColumnValue = columnIndex.keySet().stream()
+        .map(dataFrame::get)
+        .mapToInt(v -> {
+          int longest = 0;
+          for (int i = 0, size = v.size(); i < size && i < max; i++) {
+            int length = v.loc().toString(i).length();
+            if (length > longest) {
+              longest = length;
+            }
+          }
+          return longest + 2;
+        })
+        .toArray();
+
+    StringBuilder builder = new StringBuilder(dataFrame.getClass().getSimpleName())
+        .append(" (")
+        .append(dataFrame.rows())
+        .append("x")
+        .append(dataFrame.columns())
+        .append(")\n");
+
+    int column = 0;
+    for (int i = 0; i < longestRecordValue; i++) {
+      builder.append(" ");
+    }
+    for (Object columnKey : columnIndex.keySet()) {
+      int columnKeyLength = columnKey.toString().length();
+      builder.append(columnKey);
+      for (int i = 0; i < longestColumnValue[column] - columnKeyLength; i++) {
+        builder.append(" ");
+      }
+      column++;
+    }
+    builder.append("\n");
+
+    int records = 0;
+    for (Object recordKey : recordIndex.keySet()) {
+      if (records++ > max) {
+        break;
+      }
+      String keyString = recordKey.toString();
+      builder.append(keyString);
+      for (int i = 0; i < longestRecordValue - keyString.length(); i++) {
+        builder.append(" ");
+      }
+      column = 0;
+      for (Object columnKey : columnIndex.keySet()) {
+        String str = dataFrame.toString(recordKey, columnKey);
+        builder.append(str);
+        for (int i = 0; i < longestColumnValue[column] - str.length(); i++) {
+          builder.append(" ");
+        }
+        column++;
+      }
+      builder.append("\n");
+    }
     return builder.toString();
   }
 

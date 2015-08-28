@@ -164,6 +164,10 @@ public class GenericVector extends AbstractVector {
       }
     }
 
+    public Builder() {
+      this(Object.class);
+    }
+
     private <T> Class<?> ensureValidClass(Class<T> cls) {
       if (INVALID_CLASSES.contains(cls)) {
         throw new IllegalArgumentException(
@@ -179,8 +183,8 @@ public class GenericVector extends AbstractVector {
     }
 
     @Override
-    protected void setAt(int atIndex, Vector from, Object fromKey) {
-      setAt(atIndex, from.get(cls, fromKey));
+    protected void setAt(int atIndex, Vector from, Object f) {
+      setAt(atIndex, from.get(cls, f));
     }
 
     @Override
@@ -201,9 +205,9 @@ public class GenericVector extends AbstractVector {
     }
 
     @Override
-    protected void setAt(int atIndex, Vector from, int fromIndex) {
-      ensureCapacity(atIndex);
-      buffer.set(atIndex, from.loc().get(cls, fromIndex));
+    protected void setAt(int t, Vector from, int f) {
+      ensureCapacity(t);
+      buffer.set(t, from.loc().get(cls, f));
     }
 
     @Override

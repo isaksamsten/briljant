@@ -39,22 +39,11 @@ import static org.briljantframework.function.Aggregates.*
 /**
  * Created by isak on 04/06/15.
  */
+@CompileStatic
 class DataFrameExtensions {
 
-  static <T> T get(DataFrame self, Object r, Object c) {
-    return self.loc().get(T, r, c)
-  }
-
-  static <T> T getAt(DataFrame self, int r, int c) {
-    return self.loc().get(T, r, c)
-  }
-
-  static Vector getAt(DataFrame self, int i) {
-    return self.getRecordAt(i)
-  }
-
-  static <T> T getAt(DataFrame self, Object r, Object c) {
-    return self.loc().get(T, r, c)
+  static Vector getAt(DataFrame self, Object key) {
+    return self.get(key)
   }
 
   @CompileStatic(TypeCheckingMode.SKIP)
@@ -116,6 +105,6 @@ class DataFrameExtensions {
   }
 
   static Vector getValueCounts(DataFrame self) {
-    return self.collector(Object, valueCounts())
+    return self.collect(Object, valueCounts())
   }
 }

@@ -25,6 +25,7 @@
 package org.briljantframework.dataframe;
 
 import org.briljantframework.Check;
+import org.briljantframework.index.DataFrameLocationGetter;
 import org.briljantframework.vector.AbstractVector;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
@@ -39,9 +40,11 @@ class ColumnView extends AbstractVector {
   private final DataFrame parent;
   private final VectorType type;
   private final int column;
+  private DataFrameLocationGetter locationGetter;
 
   public ColumnView(DataFrame parent, VectorType type, int column) {
     super(parent.getRecordIndex());
+    locationGetter = parent.loc();
     this.parent = parent;
     this.type = type;
     this.column = column;
@@ -49,27 +52,27 @@ class ColumnView extends AbstractVector {
 
   @Override
   public <T> T getAt(Class<T> cls, int index) {
-    return parent.loc().get(cls, index, column);
+    return locationGetter.get(cls, index, column);
   }
 
   @Override
   public String toStringAt(int index) {
-    return parent.loc().toString(index, column);
+    return locationGetter.toString(index, column);
   }
 
   @Override
   public boolean isNaAt(int index) {
-    return parent.loc().isNA(index, column);
+    return locationGetter.isNA(index, column);
   }
 
   @Override
   public double getAsDoubleAt(int i) {
-    return parent.loc().getAsDouble(i, column);
+    return locationGetter.getAsDouble(i, column);
   }
 
   @Override
   public int getAsIntAt(int i) {
-    return parent.loc().getAsInt(i, column);
+    return locationGetter.getAsInt(i, column);
   }
 
   @Override
@@ -111,15 +114,5 @@ class ColumnView extends AbstractVector {
   @Override
   public int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder("[");
-    builder.append(toStringAt(0));
-    for (int i = 1; i < size(); i++) {
-      builder.append(",").append(toStringAt(i));
-    }
-    return builder.append("]").toString();
   }
 }

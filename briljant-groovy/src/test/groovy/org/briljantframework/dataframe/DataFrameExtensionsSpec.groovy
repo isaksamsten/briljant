@@ -38,14 +38,12 @@ class DataFrameExtensionsSpec extends Specification {
 //        "a", Vector.of([1, 2, 3, 4]),
 //        "b", Vector.of(["a","b","q","f"])
 //    )
-    def df = new MixedDataFrame([
+    DataFrame df = MixedDataFrame.create([
         a: Vector.of([1, 1, 1, 2]),
         b: Vector.of([1, 2, 3, 4]),
         c: Vector.of(["1", "3", "10", "g"])
     ])
-    df.recordIndex = ["a", "b", "c", "d"] as ObjectIndex
-
     then:
-    df[0, 0] == 1
+    df.get("a")[0] == 1
   }
 }

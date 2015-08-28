@@ -172,33 +172,38 @@ public class IntVector extends AbstractVector {
 
   @Override
   public final int hashCode() {
-    int code = 1;
+    int result = 1;
     for (int i = 0; i < size(); i++) {
-      code += 31 * getAsIntAt(i);
+      result = 31 * result + getAsIntAt(i);
     }
-    return code;
+    return result;
   }
 
   @Override
-  public final boolean equals(Object o) {
-    if (this == o) {
+  public final boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if (o instanceof Vector) {
-      Vector ov = (Vector) o;
-      if (size() == ov.size()) {
-        for (int i = 0; i < size(); i++) {
-          if (getAsIntAt(i) != ov.loc().getAsInt(i)) {
-            return false;
-          }
-        }
-        return true;
-      } else {
-        return false;
-      }
-    } else {
+    if (object == null || !(object instanceof Vector)) {
       return false;
     }
+
+    Vector that = (Vector) object;
+    if (size() != that.size()) {
+      return false;
+    }
+    if (!getIndex().equals(that.getIndex())) {
+      return false;
+    }
+    for (Object key : getIndex().keySet()) {
+      int a = getAsInt(key);
+      int b = getAsInt(key);
+      if (!Is.NA(a) && !Is.NA(b) && a != b) {
+        return false;
+      }
+
+    }
+    return true;
   }
 
   @Override
@@ -324,8 +329,8 @@ public class IntVector extends AbstractVector {
     }
 
     @Override
-    protected void setAt(int atIndex, Vector from, Object fromKey) {
-      setAt(atIndex, from.getAsInt(fromKey));
+    protected void setAt(int atIndex, Vector from, Object f) {
+      setAt(atIndex, from.getAsInt(f));
     }
 
     @Override
@@ -354,11 +359,11 @@ public class IntVector extends AbstractVector {
     }
 
     @Override
-    protected void setAt(int atIndex, Vector from, int fromIndex) {
+    protected void setAt(int t, Vector from, int f) {
       final int oldSize = size;
-      ensureCapacity(atIndex + 1);
+      ensureCapacity(t + 1);
       fillNa(oldSize, size, buffer);
-      buffer[atIndex] = from.loc().getAsInt(fromIndex);
+      buffer[t] = from.loc().getAsInt(f);
     }
 
     protected void setAt(int index, int value) {
@@ -424,7 +429,9 @@ public class IntVector extends AbstractVector {
       if (newSize - buffer.length > 0) {
         grow(newSize);
       }
-      size = newSize;
+      if (newSize > size) {
+        size = newSize;
+      }
     }
 
     private void rangeCheck(int index) {

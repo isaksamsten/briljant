@@ -61,7 +61,7 @@ public interface DataFrameGroupBy extends Iterable<Group> {
    * @param function the function to perform on each column
    * @return a data frame
    */
-  DataFrame aggregate(Function<Vector, Object> function);
+  DataFrame collect(Function<Vector, Object> function);
 
   /**
    * Select and aggregate on all columns of type {@code cls}
@@ -75,6 +75,6 @@ public interface DataFrameGroupBy extends Iterable<Group> {
   <T, C> DataFrame collect(Class<? extends T> cls,
                            Collector<? super T, C, ? extends T> collector);
 
-  <T> DataFrameGroupBy transform(Class<T> cls, UnaryOperator<T> op);
+  DataFrame apply(UnaryOperator<Vector> op);
 
 }

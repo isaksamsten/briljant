@@ -24,14 +24,16 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.function.Aggregates;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.StringDataEntry;
 import org.briljantframework.vector.Vector;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,22 +41,7 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class DataFrameTest {
 
-  private DataFrame dataA, dataB;
-
   abstract DataFrame.Builder getBuilder();
-
-  @Before
-  public void setUp() throws Exception {
-    dataA = getBuilder()
-        .add(Vector.of(("a b c d e f".split(" "))))
-        .add(Vector.of(1.0, 2, 3, 4, 5, 6))
-        .build();
-
-    dataB = getBuilder()
-        .add(Vector.of("g h i j k l".split(" ")))
-        .add(Vector.of(7.0, 8, 9, 10, 11, 12))
-        .build();
-  }
 
   @Test
   public void testHead() throws Exception {
@@ -266,11 +253,11 @@ public abstract class DataFrameTest {
     assertEquals(2, df.rows());
     assertEquals(2, df.columns());
 
-    assertEquals(Vector.of(4, 32), df.getRecord("a"));
-    assertEquals(Vector.of(37, 44), df.getRecord("b"));
+    assertEquals(Vector.of(4, 32).asList(Integer.class), df.getRecord("a").asList(Integer.class));
+    assertEquals(Vector.of(37, 44).asList(Integer.class), df.getRecord("b").asList(Integer.class));
 
-    assertEquals(Vector.of(4, 37), df.get("id"));
-    assertEquals(Vector.of(32, 44), df.get("age"));
+    assertEquals(Vector.of(4, 37).asList(Integer.class), df.get("id").asList(Integer.class));
+    assertEquals(Vector.of(32, 44).asList(Integer.class), df.get("age").asList(Integer.class));
   }
 
   @Test
@@ -309,113 +296,105 @@ public abstract class DataFrameTest {
         .set("b", Vector.of(1, 2, 3, 4))
         .set("c", Vector.of(1, 2, 3, 4));
 
-//    builder.loc().remove(0);
-//    DataFrame df = builder.build();
-//    assertEquals(2, df.columns());
-//    assertEquals(4, df.rows());
-
+    builder.loc().remove(0);
+    DataFrame df = builder.build();
+    assertEquals(2, df.columns());
+    assertEquals(4, df.rows());
   }
 
-  //  @Test
-//  public void testBuilderSet() throws Exception {
-//    DataFrame.Builder builder = getBuilder();
-//    builder.set(0, 0, dataA, 0, 1);
-//    builder.set(0, 3, dataB, 0, 0);
-//
-//    DataFrame build = builder.build();
-//    assertEquals(dataA.getTypeAt(1), build.getTypeAt(0));
-//    assertEquals(dataB.getTypeAt(0), build.getTypeAt(3));
-//  }
-//
-//  @Test
-//  public void testBuilderSet1() throws Exception {
-//    DataFrame.Builder builder = getBuilder();
-//    builder.set(0, 0, dataA.getRecord(0), 0);
-//    builder.set(3, 3, dataB.at().get(1), 2);
-//
-//    DataFrame build = builder.build();
-//    assertEquals(dataA.getTypeAt(0), build.getTypeAt(0));
-//    assertEquals(dataB.getTypeAt(1), build.getTypeAt(3));
-//  }
+  @Test
+  public void testReduceBinaryOpWithInit() throws Exception {
+    DataFrame df = getBuilder()
+        .set("i", Vector.of(1, 2, 3, 4, 5))
+        .set("k", Vector.of(1, 2, 3, 4, 5))
+        .set("d", Vector.of(1, 2, 3, 4, 5))
+        .build();
 
-//  @Test
-//  public void testFizzBuzz() throws Exception {
-//    IntVector.Builder b = new IntVector.Builder();
-//    for (int i = 1; i <= 100; i++) {
-//      b.set(i - 1, i);
-//    }
-//    DataFrame df = getBuilder().add(b).build();
-//    df.setColumnIndex(HashIndex.from("number"));
-//    DataFrame fizzBuzz =
-//        df.transform(
-//            v -> v.transform(Integer.class, String.class,
-//                             i -> i % 15 == 0 ? "FizzBuzz" :
-//                                  i % 3 == 0 ? "Fizz" :
-//                                  i % 5 == 0 ? "Buzz" :
-//                                  String.valueOf(i)))
-//            .groupBy("number")
-//            .collect(Object.class, Aggregates.count())
-//            .sort(SortOrder.DESC, "number")
-//            .head(3);
-//
-//    assertEquals(3, fizzBuzz.rows());
-//    assertEquals(1, fizzBuzz.columns());
-////    assertEquals(27, fizzBuzz.getAsInt("Fizz", "number"));
-////    assertEquals(14, fizzBuzz.getAsInt("Buzz", "number"));
-////    assertEquals(6, fizzBuzz.getAsInt("FizzBuzz", "number"));
-//  }
-//
-//  @Test
-//  public void testBuilderConcat() throws Exception {
-//    DataFrame.Builder builderA = dataA.newCopyBuilder();
-//    DataFrame concatAB = builderA.concat(dataB).concat(3, new IntVector(1, 2)).build();
-//    assertTrue(concatAB.loc().isNA(0, 5));
-//  }
-//
-//  @Test
-//  public void testBuilderStack() throws Exception {
-//    DataFrame.Builder builderA = dataA.newCopyBuilder();
-//    DataFrame stackAB = builderA.stack(dataB).stack(1, new IntVector(2, 3, 4)).build();
-//    assertTrue(stackAB.loc().isNA(12, 0));
-//    dataA.setRecordIndex(HashIndex.from("a", "b", "c", "d", "e", "f"));
-//    DataFrame df = getBuilder()
-//        .add(Vector.of("d d d d".split(" ")))
-//        .add(new IntVector(0, 0, 0, 0))
-//        .build();
-//    dataB.setColumnIndex(HashIndex.from("String", "Double B"));
-//    dataA.setColumnIndex(HashIndex.from("String", "Double A"));
-//  }
-//
-//  @Test
-//  public void testMapConstructor() throws Exception {
-//    Map<String, Vector> vectors = new HashMap<>();
-//    vectors.put("engines", Vector.of("hybrid", "electric", "electric", "steam"));
-//    vectors.put("bhp", new IntVector(150, 130, 75, Na.INT));
-//    vectors.put("brand", Vector.of("toyota", "tesla", "tesla", "volvo"));
-//
-//    DataFrame frame = new MixedDataFrame(vectors);
-//    frame.setRecordIndex(HashIndex.from(Arrays.asList("a", "b", "c", "d")));
-//    frame.setColumnIndex(HashIndex.from(Arrays.asList("brand", "engines", "bhp")));
-//  }
-//
-//  @Test
-//  public void testRemoveColumnUsingBuilder() throws Exception {
-//    Resolvers.find(LocalDate.class).put(String.class,
-//                                        new StringDateConverter(DateTimeFormatter.ISO_DATE));
-//    Vector a = new GenericVector.Builder(String.class).add("a").add("b").add(32).addNA().build();
-//    Vector b = new DoubleVector.Builder().add(1).add(1).add(2).add(100.23).build();
-//    Vector c = new GenericVector.Builder(LocalDate.class)
-//        .add("2011-03-23")
-//        .add(LocalDate.now())
-//        .add(LocalDate.now())
-//        .add(LocalDate.now())
-//        .build();
-//
-//    DataFrame frame = new MixedDataFrame(a, b, c);
-////    frame.setColumnIndex(HashIndex.from("a", "b", "c"));
-////    frame.setColumnNames("a", "b");
-//    frame = new RemoveIncompleteColumns().transform(frame);
-//    assertEquals("The second column should be removed", 2, frame.columns());
-////    assertEquals("The column names should be retained", "b", frame.getColumnName(0));
-//  }
+    Vector sums = df.reduce(Integer.class, 0, Integer::sum);
+    assertEquals(15, sums.getAsInt("i"));
+    assertEquals(15, sums.getAsInt("k"));
+    assertEquals(15, sums.getAsInt("d"));
+  }
+
+  @Test
+  public void testReduceWithVectorFunction() throws Exception {
+    DataFrame df = getBuilder()
+        .set("i", Vector.of(1, 2, 3, 4, 5))
+        .set("k", Vector.of(1, 2, 3, 4, 5))
+        .set("d", Vector.of(1, 2, 3, 4, 5))
+        .build();
+
+    Vector sums = df.reduce(Vector::sum);
+    assertEquals(15, sums.getAsInt("i"));
+    assertEquals(15, sums.getAsInt("k"));
+    assertEquals(15, sums.getAsInt("d"));
+  }
+
+  @Test
+  public void testCollectWithCollector() throws Exception {
+    DataFrame df = getBuilder()
+        .set("i", Vector.of(1, 2, 3, 4, 5))
+        .set("k", Vector.of(1, 2, 3, 4, 5))
+        .set("d", Vector.of(1, 2, 3, 4, 5))
+        .build();
+
+    Vector sums = df.collect(Double.class, Aggregates.sum());
+    assertEquals(15, sums.getAsInt("i"));
+    assertEquals(15, sums.getAsInt("k"));
+    assertEquals(15, sums.getAsInt("d"));
+  }
+
+  @Test
+  public void testMap() throws Exception {
+    DataFrame df = getBuilder()
+        .set("i", Vector.of(1, 2, 3, 4, 5))
+        .set("k", Vector.of(1, 2, 3, 4, 5))
+        .set("d", Vector.of(1, 2, 3, 4, 5))
+        .build();
+
+    DataFrame dfs = df.map(Integer.class, a -> a * 2);
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("i").asList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("k").asList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("d").asList(Integer.class));
+  }
+
+  @Test
+  public void testGroupByObjectKey() throws Exception {
+    DataFrame df = getBuilder()
+        .set("i", Vector.of(1, 1, 1, 2, 2, 2))
+        .set("j", Vector.of(1, 2, 3, 3, 3, 3))
+        .build();
+
+    DataFrame sums = df.groupBy("i").collect(Vector::sum);
+    assertEquals(9, sums.getAsInt(2, "j"));
+    assertEquals(6, sums.getAsInt(1, "j"));
+  }
+
+  @Test
+  public void testGroupByTransform() throws Exception {
+    DataFrame df = getBuilder()
+        .set("i", Vector.of(1, 1, 2, 2, 3, 3))
+        .set("j", Vector.of(10, 10, 20, 20, 30, null))
+        .build();
+
+    DataFrame replaced = df.groupBy("i")
+        .apply(v -> v.collect(Aggregates.fillNa(22)));
+    System.out.println(replaced);
+  }
+
+  @Test
+  public void testGroupByYearFromLocalDate() throws Exception {
+    DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DataFrame df = getBuilder()
+        .setRecord(LocalDate.parse("2010-02-22", format), Vector.of(1, 2, 3))
+        .setRecord(LocalDate.parse("2011-03-10", format), Vector.of(11, 22, 33))
+        .setRecord(LocalDate.parse("2011-03-11", format), Vector.of(11, 22, 33))
+        .build();
+    df.setColumnIndex(ObjectIndex.from("A", "B", "C"));
+
+    DataFrame sums = df.groupBy(v -> LocalDate.class.cast(v).getYear()).collect(Vector::sum);
+
+    System.out.println(sums);
+    System.out.println(df);
+  }
 }

@@ -25,6 +25,7 @@
 package org.briljantframework.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
@@ -216,35 +217,66 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public final boolean equals(Object o) {
-    if (this == o) {
+  public final boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if (o instanceof Vector) {
-      Vector ov = (Vector) o;
-      if (size() == ov.size()) {
-        for (int i = 0; i < size(); i++) {
-          if (getAsDoubleAt(i) != ov.loc().getAsDouble(i)) {
-            return false;
-          }
-        }
-        return true;
-      } else {
-        return false;
-      }
-    } else {
+    if (object == null || !(object instanceof Vector)) {
       return false;
     }
+
+    Vector that = (Vector) object;
+    if (size() != that.size()) {
+      return false;
+    }
+    if (!getIndex().equals(that.getIndex())) {
+      return false;
+    }
+    for (Object key : getIndex().keySet()) {
+      double a = getAsDouble(key);
+      double b = getAsDouble(key);
+      if (!Is.NA(a) && !Is.NA(b) && a != b) {
+        return false;
+      }
+
+    }
+    return true;
   }
 
   @Override
   public final int hashCode() {
-    int code = 1;
+    int result = 1;
     for (int i = 0; i < size(); i++) {
       long v = Double.doubleToLongBits(getAsDoubleAt(i));
-      code += 31 * (int) (v ^ v >>> 32);
+      result = 31 * result + (int) (v ^ v >>> 32);
     }
-    return code;
+    return result;
+  }
+
+  // Specialized double method
+
+  @Override
+  public double sum() {
+    double sum = 0;
+    for (int i = 0, size = size(); i < size; i++) {
+      double v = getAsDoubleAt(i);
+      if (!Is.NA(v)) {
+        sum += v;
+      }
+    }
+    return sum;
+  }
+
+  @Override
+  public double mean() {
+    Mean mean = new Mean();
+    for (int i = 0, size = size(); i < size; i++) {
+      double v = getAsDoubleAt(i);
+      if (!Is.NA(v)) {
+        mean.increment(v);
+      }
+    }
+    return mean.getN() > 0 ? mean.getResult() : Na.DOUBLE;
   }
 
   @Override
@@ -291,6 +323,7 @@ public class DoubleVector extends AbstractVector {
       super(getIndexer(vector));
       this.buffer = new double[vector.size()];
       System.arraycopy(vector.buffer, 0, this.buffer, 0, vector.size());
+      this.size = buffer.length;
     }
 
     protected static Index.Builder getIndexer(DoubleVector vector) {
@@ -355,8 +388,8 @@ public class DoubleVector extends AbstractVector {
     }
 
     @Override
-    protected void setAt(int atIndex, Vector from, Object fromKey) {
-      setAt(atIndex, from.getAsDouble(fromKey));
+    protected void setAt(int atIndex, Vector from, Object f) {
+      setAt(atIndex, from.getAsDouble(f));
     }
 
     @Override
@@ -400,11 +433,11 @@ public class DoubleVector extends AbstractVector {
     }
 
     @Override
-    protected void setAt(int atIndex, Vector from, int fromIndex) {
+    protected void setAt(int t, Vector from, int f) {
       final int oldSize = size;
-      ensureCapacity(atIndex + 1);
+      ensureCapacity(t + 1);
       fillNa(oldSize, size, buffer);
-      buffer[atIndex] = from.loc().getAsDouble(fromIndex);
+      buffer[t] = from.loc().getAsDouble(f);
     }
 
     @Override
@@ -458,11 +491,16 @@ public class DoubleVector extends AbstractVector {
       }
     }
 
+    /**
+     * Alters the current size of the vector if the supplied size is larger than the current.
+     */
     private void ensureCapacity(final int newSize) {
       if (newSize - buffer.length > 0) {
         grow(newSize);
       }
-      size = newSize;
+      if (newSize > size) {
+        size = newSize;
+      }
     }
 
     /**

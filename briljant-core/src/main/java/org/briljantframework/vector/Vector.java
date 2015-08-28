@@ -26,13 +26,12 @@ package org.briljantframework.vector;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
-import org.briljantframework.array.BitArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.LongArray;
 import org.briljantframework.dataframe.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
+import org.briljantframework.function.Aggregates;
 import org.briljantframework.index.Index;
 import org.briljantframework.index.VectorLocationGetter;
 import org.briljantframework.index.VectorLocationSetter;
@@ -44,7 +43,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -62,7 +60,7 @@ import java.util.stream.Stream;
  * contents cannot change) list (with O(1) access) of values supporting missing entries (i.e. NA).
  *
  * <p> Since NA value are implemented differently depending value type, checking for NA-values are
- * done via the {@link #isNA(int)} method. For the default types, the {@link Is#NA} is available.
+ * done via the {@link #isNA(Object)} method.
  *
  * <p> Implementers must ensure that:
  *
@@ -80,20 +78,24 @@ public interface Vector extends Serializable {
    * Construct a vector of values. The type of vector is inferred from the values.
    *
    * @param array the values
-   * @param <T>   the type
-   * @return a new vector, inferred from {@code T}
+   * @return a new vector
    */
-  @SafeVarargs
-  static <T> Vector of(T... array) {
+  static Vector of(Object... array) {
     return of(Arrays.asList(array));
   }
 
-  static <T> Vector of(Iterable<T> values) {
-    Iterator<T> it = values.iterator();
+  /**
+   * Creates a vector of the values in the iterable
+   *
+   * @param values the specified values
+   * @return a new vector with the specified values
+   */
+  static Vector of(Iterable<Object> values) {
+    Iterator<Object> it = values.iterator();
     if (!it.hasNext()) {
       return singleton(null);
     }
-    T t = it.next();
+    Object t = it.next();
     Builder builder = VectorType.from(t).newBuilder().add(t);
     while (it.hasNext()) {
       builder.add(it.next());
@@ -101,11 +103,20 @@ public interface Vector extends Serializable {
     return builder.build();
   }
 
-  static <T> Vector of(Supplier<T> supplier, int size) {
+  /**
+   * Creates a vector with the specified size consisting of the values given by the supplier
+   *
+   * <pre>{@code
+   * Vector.Builder b;
+   * for(int i = 0; i < size; i++){
+   *   b.add(supplier.get());
+   * }}</pre>
+   */
+  static Vector of(Supplier<Object> supplier, int size) {
     if (size < 1) {
       throw new UnsupportedOperationException();
     }
-    T value = supplier.get();
+    Object value = supplier.get();
     Vector.Builder builder = VectorType.from(value).newBuilder().add(value);
     for (int i = 1; i < size; i++) {
       builder.add(supplier.get());
@@ -113,14 +124,32 @@ public interface Vector extends Serializable {
     return builder.build();
   }
 
+  /**
+   * Creates a vector with the specified value and size
+   *
+   * @param value the value
+   * @param size  the size of the vector
+   * @return a new vector
+   */
   static Vector singleton(Object value, int size) {
     return new SingletonVector(value, size);
   }
 
+  /**
+   * Creates a one element vector with the specified value
+   *
+   * @param value the value
+   * @return a one element vector
+   */
   static Vector singleton(Object value) {
     return singleton(value, 1);
   }
 
+  /**
+   * Creates an empty vector
+   *
+   * @return an empty vector
+   */
   static Vector empty() {
     return SingletonVector.empty();
   }
@@ -147,18 +176,18 @@ public interface Vector extends Serializable {
    */
   <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate);
 
-  <T> Vector satisfies(Class<? extends T> cls, Predicate<? super T> predicate);
+  <T> Vector satisfies(Class<T> cls, Predicate<? super T> predicate);
 
   /**
    * Filter values in this vector, treating each value as {@code cls} (or NA), using the supplied
    * predicate.
    *
+   * @param <T>       the type
    * @param cls       the class
    * @param predicate the predicate
-   * @param <T>       the type
    * @return a new vector with only values for which {@code predicate} returns true
    */
-  <T> Vector filter(Class<T> cls, Predicate<T> predicate);
+  <T> Vector filter(Class<T> cls, Predicate<? super T> predicate);
 
   /**
    * <p> Transform each value (as a value of T) in the vector using {@code operator}, producing a
@@ -186,7 +215,7 @@ public interface Vector extends Serializable {
    * @param <O>      the output type (i.e. the type of values in the resulting vector)
    * @return a new vector of type {@code O}
    */
-  <T, O> Vector transform(Class<T> in, Class<O> out, Function<? super T, ? extends O> operator);
+  <T, O> Vector map(Class<T> in, Class<O> out, Function<? super T, ? extends O> operator);
 
   /**
    * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
@@ -202,7 +231,7 @@ public interface Vector extends Serializable {
    * 3     0.196
    * 4     0.554
    *
-   * > Vector b = a.transform(Double.class, Math::round);
+   * > Vector b = a.map(Double.class, Math::round);
    * 0     -1.000
    * 1     1.000
    * 2     1.000
@@ -215,7 +244,7 @@ public interface Vector extends Serializable {
    * @param <T>      the input type
    * @return a new vector of type inferred by {@code operator}
    */
-  <T> Vector transform(Class<T> cls, UnaryOperator<T> operator);
+  <T> Vector map(Class<T> cls, UnaryOperator<T> operator);
 
   /**
    * Performs a mutable aggregation of the values in this vector, similar to {@linkplain
@@ -260,7 +289,6 @@ public interface Vector extends Serializable {
    *
    * > double mean = vector.collect(Double.class, Aggregates.mean());
    * > Vector summary = vector.collect(Double.class, Aggregate.summary());
-   * type: double
    * mean  0.029
    * sum   28.714
    * std   1.008
@@ -278,7 +306,7 @@ public interface Vector extends Serializable {
    * 2  Lisa
    * type: string
    *
-   * > names.repeat(Collectors.repeat(2));
+   * > names.collect(Collectors.repeat(2));
    * 0  Mary
    * 1  Bob
    * 2  Lisa
@@ -297,28 +325,11 @@ public interface Vector extends Serializable {
    * @see java.util.stream.Collector
    * @see java.util.stream.Stream#collect(java.util.stream.Collector)
    */
-  <T, R, C> R collect(Class<? extends T> in, Collector<? super T, C, ? extends R> collector);
-
-  /**
-   * Example:
-   *
-   * <pre>{@code
-   *  ArrayList<Double> list = Vector.of(1,2,3).aggregate(Double.class,
-   *    ArrayList::new, ArrayList::add);
-   * }</pre>
-   *
-   * @param in       the input class
-   * @param supplier the mutable container
-   * @param consumer the update function
-   * @param <T>      the input type
-   * @param <R>      the result type
-   * @return a value of type {@code R}
-   */
-  <T, R> R collect(Class<? extends T> in, Supplier<R> supplier, BiConsumer<R, ? super T> consumer);
+  <T, R, C> R collect(Class<T> in, Collector<? super T, C, ? extends R> collector);
 
   <R> R collect(Collector<? super Object, ?, R> collector);
 
-  <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
+  <T, R> Vector combine(Class<T> in, Class<R> out, Vector other,
                         BiFunction<? super T, ? super T, ? extends R> combiner);
 
   <T> Vector combine(Class<T> cls, Vector other,
@@ -364,10 +375,31 @@ public interface Vector extends Serializable {
     return singleton(other, size()).combine(Object.class, this, Combine.sub());
   }
 
+  /**
+   * Sort the vector in its <i>natural order</i> in ascending or descending order
+   *
+   * <p> The sort order is specified by the implementation
+   *
+   * @param order the specified order
+   * @return the vector sorted
+   */
   Vector sort(SortOrder order);
 
+  /**
+   * Sort the vector using the the specified comparator and the defined type
+   *
+   * @param cls the type of elements
+   * @param cmp the comparator
+   * @return a new sorted vector
+   */
   <T> Vector sort(Class<T> cls, Comparator<T> cmp);
 
+  /**
+   * Sort the vector according to the natural sort order of the specified comparable
+   *
+   * @param cls the comparable type
+   * @return a new vector sorted
+   */
   <T extends Comparable<T>> Vector sort(Class<T> cls);
 
   /**
@@ -424,13 +456,6 @@ public interface Vector extends Serializable {
    */
   void setIndex(Index index);
 
-//  <T> T get(Class<T> cls, int index);
-
-  /**
-   * Same as {@code loc().get(cls, getIndex().getLocation(key))}
-   *
-   * @see org.briljantframework.index.VectorLocationGetter#get(Class, int)
-   */
   <T> T get(Class<T> cls, Object key);
 
   double getAsDouble(Object key);
@@ -440,7 +465,7 @@ public interface Vector extends Serializable {
   String toString(Object key);
 
   /**
-   * Returns true there ara any NA values
+   * Returns true if there are any NA values
    *
    * @return true or false
    */
@@ -474,42 +499,6 @@ public interface Vector extends Serializable {
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   VectorType getType(int index);
-
-  /**
-   * For values implementing {@link java.lang.Comparable}, {@link org.briljantframework.vector.Scale#NUMERICAL}
-   * should be returned; otherwise {@link org.briljantframework.vector.Scale#NOMINAL}.
-   */
-  Scale getScale();
-
-  /**
-   * Creates a new builder able to build new vectors of this type, initialized with the values in
-   * this builder. <p>
-   *
-   * <pre>
-   * Vector vec = vector.newCopyBuilder().add("Hello world")
-   * assert vec.size() == vector.size() + 1
-   * assert vec.getAsString(0) == vector.getAsString(0)
-   * </pre>
-   *
-   * @return a new builder
-   */
-  Builder newCopyBuilder();
-
-  /**
-   * Creates a new builder able to build vectors of this type
-   *
-   * @return a new builder
-   */
-  Builder newBuilder();
-
-  /**
-   * Creates a new builder able to build vectors of this type. The constructed builder produces a
-   * vector of length {@code size}, filled with NA.
-   *
-   * @param size the initial size
-   * @return a new builder
-   */
-  Builder newBuilder(int size);
 
   <T> List<T> asList(Class<T> cls);
 
@@ -549,6 +538,15 @@ public interface Vector extends Serializable {
   }
 
   /**
+   * The default implementation is equivalent to calling {@code toArray(Integer.class).asInt()}.
+   *
+   * @see #toArray(Class)
+   */
+  default IntArray toIntArray() throws IllegalTypeException {
+    return toArray(Integer.class).asInt();
+  }
+
+  /**
    * The default implementation is equivalent to calling {@code toArray(Complex.class).asComplex()}.
    *
    * @see #toArray(Class)
@@ -558,33 +556,119 @@ public interface Vector extends Serializable {
   }
 
   /**
-   * The default implementation is equivalent to calling {@code toArray(Long.class).asLong()}.
+   * Returns the sum of the values in this vector, or {@code NA}.
    *
-   * @see #toArray(Class)
+   * @return the sum
    */
-  default LongArray toLongArray() throws IllegalTypeException {
-    return toArray(Long.class).asLong();
+  default double sum() {
+    return collect(Double.class, Aggregates.sum());
   }
 
   /**
-   * The default implementation is equivalent to calling {@code toArray(Boolean.class).asBit()}.
+   * Returns the mean of the values in this vector or {@code NA}.
    *
-   * @see #toArray(Class)
+   * @return the mean
    */
-  default BitArray toBitArray() throws IllegalTypeException {
-    return toArray(Boolean.class).asBit();
+  default double mean() {
+    return collect(Double.class, Aggregates.mean());
   }
 
   /**
-   * The default implementation is equivalent to calling {@code toArray(Integer.class).asInt()}.
+   * Returns the standard deviation of the values in this vector or {@code NA}.
    *
-   * @see #toArray(Class)
+   * @return the standard deviation
    */
-  default IntArray toIntArray() throws IllegalTypeException {
-    return toArray(Integer.class).asInt();
+  default double std() {
+    return collect(Double.class, Aggregates.std());
   }
 
+  /**
+   * Return the variance of the values in this vector or {@code NA}.
+   *
+   * @return the variance
+   */
+  default double var() {
+    return collect(Double.class, Aggregates.var());
+  }
+
+  /**
+   * Return the number of uniqe elements in this vector.
+   * <pre>{@code
+   * > Vector.of(1,2,1,2).nunique()
+   * 2
+   * }</pre>
+   *
+   * @return the number of unique values
+   */
+  default int nunique() {
+    return collect(Aggregates.nunique());
+  }
+
+  /**
+   * Return a vector of value and their counts.
+   *
+   * <pre>{@code
+   * > Vector.of(1,1,2,2).valueCounts();
+   * 1   2
+   * 2   2
+   * type: int
+   * }</pre>
+   *
+   * @return a vector of value counts
+   */
+  default Vector valueCounts() {
+    return collect(Aggregates.valueCounts());
+  }
+
+  /**
+   * Return a vector of only {@code non-NA} values
+   *
+   * @return a vector without {@code NA} values
+   */
+  default Vector nonNA() {
+    return collect(Aggregates.nonNA());
+  }
+
+  /**
+   * Return an indexer that provides pure location based indexing.
+   *
+   * <p> Location based indexing closely follows the indexing rules of other java containers such
+   * as
+   * lists and arrays
+   *
+   * @return a location indexer
+   */
   VectorLocationGetter loc();
+
+  /**
+   * Creates a new builder able to build new vectors of this type, initialized with the values in
+   * this builder. <p>
+   *
+   * <pre>
+   * Vector vec = vector.newCopyBuilder().add("Hello world")
+   * assert vec.size() == vector.size() + 1
+   * assert vec.getAsString(0) == vector.getAsString(0)
+   * </pre>
+   *
+   * @return a new builder
+   */
+  Builder newCopyBuilder();
+
+  /**
+   * Creates a new builder able to build vectors of this type
+   *
+   * @return a new builder
+   */
+  Builder newBuilder();
+
+  /**
+   * Creates a new builder able to build vectors of this type. The constructed builder produces a
+   * vector of length {@code size}, filled with NA.
+   *
+   * @param size the initial size
+   * @return a new builder
+   */
+  Builder newBuilder(int size);
 
   /**
    * <p> Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if
@@ -601,6 +685,7 @@ public interface Vector extends Serializable {
    * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or {@code
    * Bit.TRUE} in a bit-vector. </p>
    */
+
   public static interface Builder {
 
     /**

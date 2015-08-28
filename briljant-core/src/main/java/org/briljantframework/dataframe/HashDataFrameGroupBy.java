@@ -24,7 +24,9 @@
 
 package org.briljantframework.dataframe;
 
+import org.briljantframework.index.DataFrameLocationSetter;
 import org.briljantframework.index.Index;
+import org.briljantframework.index.VectorLocationGetter;
 import org.briljantframework.vector.Vector;
 
 import java.util.HashMap;
@@ -40,16 +42,31 @@ import java.util.stream.Collector;
  */
 class HashDataFrameGroupBy implements DataFrameGroupBy {
 
+  /**
+   * If no key should be dropped dropKey is assigned this identity.
+   *
+   * This convention is required since null-keys are allowed
+   */
+  private static final Object NO_DROP_KEY_IDENTITY = new Object();
+
   private final HashMap<Object, Vector> groups;
   private final DataFrame dataFrame;
-  private final Function<?, ?> transform = a -> a;
+  private final Object dropKey;
 
   HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, ? extends Vector.Builder> groups) {
+    this(dataFrame, groups, NO_DROP_KEY_IDENTITY);
+  }
+
+  HashDataFrameGroupBy(
+      DataFrame dataFrame,
+      HashMap<Object, ? extends Vector.Builder> groups,
+      Object key) {
     this.dataFrame = dataFrame;
     this.groups = new HashMap<>();
     for (Map.Entry<Object, ? extends Vector.Builder> e : groups.entrySet()) {
       this.groups.put(e.getKey(), e.getValue().build());
     }
+    this.dropKey = key;
   }
 
   @Override
@@ -87,90 +104,109 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   protected DataFrame createDataFrame(Vector indices) {
+    VectorLocationGetter index = indices.loc();
+    final int size = indices.size();
+
     DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrameLocationSetter locationSetter = builder.loc();
     if (indices.size() > 0) {
-      for (int j = 0; j < dataFrame.columns(); j++) {
+      for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
         builder.add(dataFrame.loc().get(j).getType());
-        for (int i = 0; i < indices.size(); i++) {
-          builder.loc().set(i, j, dataFrame, indices.loc().getAsInt(i), j);
+        for (int i = 0; i < size; i++) {
+          locationSetter.set(i, j, dataFrame, index.getAsInt(i), j);
         }
       }
     }
+    Index.Builder recordIndex = dataFrame.getRecordIndex().newBuilder();
+    for (int i = 0; i < size; i++) {
+      recordIndex.add(dataFrame.getRecordIndex().getKey(index.getAsInt(i)));
+    }
+
     DataFrame df = builder.build();
     df.setColumnIndex(dataFrame.getColumnIndex());
+    df.setRecordIndex(recordIndex.build());
     return df;
   }
 
   @Override
-  public DataFrame aggregate(Function<Vector, Object> function) {
+  public DataFrame collect(Function<Vector, Object> function) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    Index.Builder recordIndex = new ObjectIndex.Builder();
-    Index.Builder columnIndex = new ObjectIndex.Builder();
-    for (int j = 0; j < dataFrame.columns(); j++) {
-      columnIndex.add(dataFrame.getColumnIndex().getKey(j));
-    }
-    int row = 0;
-    for (Map.Entry<Object, Vector> e : groups()) {
-      recordIndex.add(e.getKey());
-      Vector groupIndex = e.getValue();
-      int column = 0;
-      for (int j = 0; j < dataFrame.columns(); j++) {
-        Vector col = dataFrame.loc().get(j);
-        Vector.Builder reduce = col.newBuilder(groupIndex.size());
-        for (int i = 0; i < groupIndex.size(); i++) {
-          reduce.loc().set(i, col, groupIndex.loc().getAsInt(i));
+    for (Map.Entry<Object, Vector> group : groups()) {
+      VectorLocationGetter index = group.getValue().loc();
+      for (Object columnKey : dataFrame.getColumnIndex().keySet()) {
+        if (dropColumnKey(columnKey)) {
+          continue; // do not include the key used for grouping
         }
-        builder.loc().set(row, column++, function.apply(reduce.build()));
+        Vector column = dataFrame.get(columnKey);
+        Vector.Builder groupVector = column.newBuilder();
+        for (int i = 0, size = group.getValue().size(); i < size; i++) {
+          groupVector.loc().set(i, column, index.getAsInt(i));
+        }
+        builder.set(group.getKey(), columnKey, function.apply(groupVector.build()));
       }
-      row += 1;
     }
+    return builder.build();
+  }
 
-    return finalizeDataFrame(builder, recordIndex, columnIndex);
+  protected boolean dropColumnKey(Object columnKey) {
+    return dropKey != NO_DROP_KEY_IDENTITY &&
+           (columnKey == dropKey || // columnKey is null and dropKey is null
+            (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
   }
 
   @Override
   public <T, C> DataFrame collect(Class<? extends T> cls,
                                   Collector<? super T, C, ? extends T> collector) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    Index.Builder recordIndex = new ObjectIndex.Builder();
-    Index.Builder columnIndex = new ObjectIndex.Builder();
-    for (int j = 0; j < dataFrame.columns(); j++) {
-      if (cls.isAssignableFrom(dataFrame.loc().get(j).getType().getDataClass())) {
-        columnIndex.add(dataFrame.getColumnIndex().getKey(j));
-      }
-    }
+    for (Map.Entry<Object, Vector> group : groups.entrySet()) {
+      Object groupKey = group.getKey();
+      Vector index = group.getValue();
+      VectorLocationGetter indexLocation = index.loc();
 
-    int row = 0;
-    for (Map.Entry<Object, Vector> e : groups.entrySet()) {
-      recordIndex.add(e.getKey());
-      int colIndex = 0;
-      for (int j = 0; j < dataFrame.columns(); j++) {
-        Vector col = dataFrame.loc().get(j);
-        if (cls.isAssignableFrom(col.getType().getDataClass())) {
-          Vector groupIndex = e.getValue();
-          C c = collector.supplier().get();
-          for (int i = 0; i < groupIndex.size(); i++) {
-            collector.accumulator().accept(c, col.loc().get(cls, groupIndex.loc().getAsInt(i)));
-          }
-          T t = collector.finisher().apply(c);
-          builder.loc().set(row, colIndex++, t);
+      for (Object columnKey : dataFrame.getColumnIndex().keySet()) {
+        Vector column = dataFrame.get(columnKey);
+        if (dropColumnKey(columnKey) || !cls.isAssignableFrom(column.getType().getDataClass())) {
+          continue;
         }
+        VectorLocationGetter columnLocation = column.loc();
+        C accumulator = collector.supplier().get();
+        for (int i = 0, size = index.size(); i < size; i++) {
+          T value = columnLocation.get(cls, indexLocation.getAsInt(i));
+          collector.accumulator().accept(accumulator, value);
+        }
+        builder.set(groupKey, columnKey, collector.finisher().apply(accumulator));
       }
-      row++;
     }
-    return finalizeDataFrame(builder, recordIndex, columnIndex);
+    return builder.build();
   }
 
   @Override
-  public <T> DataFrameGroupBy transform(Class<T> cls, UnaryOperator<T> op) {
-    return null;
-  }
+  public DataFrame apply(UnaryOperator<Vector> op) {
+    DataFrame.Builder builder = dataFrame.newBuilder();
+    Index.Builder recordIndex = dataFrame.getRecordIndex().newBuilder();
+    int row = 0;
+    for (Vector index : groups.values()) {
+      for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
+        Vector column = dataFrame.loc().get(j);
+        Vector.Builder columnBuilder = column.newBuilder();
+        for (int i = 0, size = index.size(); i < size; i++) {
+          columnBuilder.loc().set(i, column, index.loc().getAsInt(i));
+        }
+        Vector transformed = op.apply(columnBuilder.build());
+        for (int i = row, from = 0, size = transformed.size(); from < size; i++, from++) {
+          builder.loc().set(i, j, transformed, from);
+        }
+      }
 
-  protected DataFrame finalizeDataFrame(DataFrame.Builder builder, Index.Builder recordIndex,
-                                        Index.Builder columnIndex) {
+      for (int i = 0, size = index.size(); i < size; i++) {
+        recordIndex.add(dataFrame.getRecordIndex().getKey(index.loc().getAsInt(i)));
+      }
+      row += index.size();
+    }
+
     DataFrame df = builder.build();
+    df.setColumnIndex(dataFrame.getColumnIndex());
     df.setRecordIndex(recordIndex.build());
-    df.setColumnIndex(columnIndex.build());
     return df;
   }
 }

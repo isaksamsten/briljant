@@ -28,10 +28,10 @@ import org.apache.commons.math3.stat.descriptive.AggregateSummaryStatistics;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.briljantframework.dataframe.ObjectIndex;
-import org.briljantframework.index.Index;
-import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Is;
+import org.briljantframework.vector.Logical;
 import org.briljantframework.vector.Na;
+import org.briljantframework.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -130,7 +130,7 @@ public final class Aggregates {
    * @return an aggregator for testing, and aggregating a bit-vector, for values that are not {@code
    * NA}.
    */
-  public static Collector<Object, ?, Vector> notNA() {
+  public static Collector<Object, ?, Vector> nonNA() {
     return test(v -> !Is.NA(v));
   }
 
@@ -154,7 +154,7 @@ public final class Aggregates {
   }
 
   public static <T> Collector<T, ?, Vector> each(int copies) {
-    return each(VectorType::inferringBuilder, copies);
+    return each(TypeInferenceVectorBuilder::new, copies);
   }
 
   public static <T> Collector<T, ?, Vector> repeat(Supplier<Vector.Builder> vb, int copies) {
@@ -178,12 +178,12 @@ public final class Aggregates {
   }
 
   public static <T> Collector<T, ?, Vector> repeat(int copies) {
-    return repeat(VectorType::inferringBuilder, copies);
+    return repeat(TypeInferenceVectorBuilder::new, copies);
   }
 
   public static <T> Collector<T, ?, Vector> valueCounts() {
     return Collector.of(
-        () -> new HashMap<T, Integer>(),
+        HashMap::new,
         (map, t) -> map.compute(t, (v, c) -> c == null ? 1 : c + 1),
         new BinaryOperator<HashMap<T, Integer>>() {
           @Override
@@ -196,15 +196,11 @@ public final class Aggregates {
           }
         },
         (map) -> {
-          Vector.Builder b = VectorType.inferringBuilder();
-          Index.Builder ib = new ObjectIndex.Builder();
+          Vector.Builder b = new TypeInferenceVectorBuilder();
           for (Map.Entry<T, Integer> e : map.entrySet()) {
-            b.add(e.getValue());
-            ib.add(e.getKey());
+            b.set(e.getKey(), e.getValue());
           }
-          Vector v = b.build();
-          v.setIndex(ib.build());
-          return v;
+          return b.build();
         },
         Collector.Characteristics.UNORDERED
     );
@@ -218,7 +214,7 @@ public final class Aggregates {
           ts.addAll(ts2);
           return ts;
         },
-        ts -> VectorType.inferringBuilder().addAll(ts).build()
+        ts -> new TypeInferenceVectorBuilder().addAll(ts).build()
     );
   }
 
@@ -231,17 +227,27 @@ public final class Aggregates {
   }
 
   public static <T> Collector<T, ?, T> mode() {
-    throw new UnsupportedOperationException();
-//    return Aggregator.of(
-//        HashMultiset::<T>create,
-//        (a, v) -> a.add(v),
-//        (HashMultiset<T> accum) -> Ordering.natural().onResultOf(
-//            new com.google.common.base.Function<Multiset.Entry<T>, Integer>() {
-//              public Integer apply(Multiset.Entry<T> entry) {
-//                return entry.getCount();
-//              }
-//            }).max(accum.entrySet()).getElement()
-//    );
+    return Collector.of(
+        HashMap::new,
+        (HashMap<T, Integer> map, T value) ->
+            map.compute(value, (key, count) -> count == null ? 1 : count + 1),
+        (left, right) -> {
+          right.forEach((k, v) -> left.merge(k, v, (Integer o, Integer n) ->
+              o == null ? n : o + n));
+          return left;
+        },
+        (HashMap<T, Integer> map) -> {
+          int max = 0;
+          T value = null;
+          for (Map.Entry<T, Integer> k : map.entrySet()) {
+            if (k.getValue() > max) {
+              value = k.getKey();
+            }
+          }
+          return value;
+        },
+        Collector.Characteristics.UNORDERED
+    );
   }
 
   public static <T> Collector<T, ?, Integer> nunique() {
@@ -253,7 +259,7 @@ public final class Aggregates {
 
   public static Collector<Number, ?, Double> sum() {
     return Collector.of(
-        () -> new double[0],
+        () -> new double[1],
         (s, v) -> {
           if (!Is.NA(v)) {
             s[0] += v.doubleValue();
@@ -299,9 +305,7 @@ public final class Aggregates {
             a.addValue(v.doubleValue());
           }
         },
-        (left, right) -> {
-          return left;
-        },
+        (left, right) -> left,
         (stat) -> {
           return statistics.getSummary();
         }
@@ -413,6 +417,24 @@ public final class Aggregates {
           return left;
         },
         (int[] a) -> a[0]
+    );
+  }
+
+  public static <T> Collector<T, ?, Vector> fillNa(T fill) {
+    return Collector.of(
+        TypeInferenceVectorBuilder::new,
+        (builder, t) -> {
+          if (Is.NA(t)) {
+            builder.add(fill);
+          } else {
+            builder.add(t);
+          }
+        },
+        (left, right) -> {
+          left.addAll(right);
+          return left;
+        },
+        Vector.Builder::build
     );
   }
 }

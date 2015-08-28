@@ -37,7 +37,7 @@ public class MeanImputerTest {
 
   @Test
   public void testFit() throws Exception {
-    DataFrame frame = new MixedDataFrame(
+    DataFrame frame = MixedDataFrame.create(
         DoubleVector.wrap(1, 2, 3, Na.DOUBLE),
         DoubleVector.wrap(3, 3, 3, Na.DOUBLE),
         DoubleVector.wrap(Na.DOUBLE, 2, 2, Na.DOUBLE)

@@ -42,7 +42,6 @@ import java.util.AbstractList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -80,18 +79,18 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> Vector satisfies(Class<? extends T> cls, Predicate<? super T> predicate) {
+  public <T> Vector satisfies(Class<T> cls, Predicate<? super T> predicate) {
     return collect(cls, Aggregates.test(predicate));
   }
 
   @Override
-  public <T> Vector filter(Class<T> cls, Predicate<T> predicate) {
+  public <T> Vector filter(Class<T> cls, Predicate<? super T> predicate) {
     return collect(cls, Aggregates.filter(this::newBuilder, predicate));
   }
 
   @Override
-  public <T, O> Vector transform(Class<T> in, Class<O> out,
-                                 Function<? super T, ? extends O> operator) {
+  public <T, O> Vector map(Class<T> in, Class<O> out,
+                           Function<? super T, ? extends O> operator) {
     Collector<T, ?, Vector> transform = Aggregates.transform(
         () -> VectorType.from(out).newBuilder(), operator
     );
@@ -99,12 +98,12 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> Vector transform(Class<T> cls, UnaryOperator<T> operator) {
+  public <T> Vector map(Class<T> cls, UnaryOperator<T> operator) {
     return collect(cls, Aggregates.transform(this::newBuilder, operator));
   }
 
   @Override
-  public <T, R, C> R collect(Class<? extends T> in,
+  public <T, R, C> R collect(Class<T> in,
                              Collector<? super T, C, ? extends R> collector) {
     C accumulator = collector.supplier().get();
     for (int i = 0; i < size(); i++) {
@@ -114,26 +113,12 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T, R> R collect(Class<? extends T> in, Supplier<R> supplier,
-                          BiConsumer<R, ? super T> consumer) {
-    return collect(in, Collector.of(
-        supplier,
-        consumer,
-        (left, right) -> {
-          throw new UnsupportedOperationException();
-        },
-        Function.identity(),
-        Collector.Characteristics.IDENTITY_FINISH
-    ));
-  }
-
-  @Override
   public <R> R collect(Collector<? super Object, ?, R> collector) {
     return collect(getType().getDataClass(), collector);
   }
 
   @Override
-  public <T, R> Vector combine(Class<? extends T> in, Class<? extends R> out, Vector other,
+  public <T, R> Vector combine(Class<T> in, Class<R> out, Vector other,
                                BiFunction<? super T, ? super T, ? extends R> combiner) {
     Vector.Builder builder = VectorType.from(out).newBuilder();
     return combineVectors(in, other, combiner, builder);
@@ -290,11 +275,6 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public Scale getScale() {
-    return getType().getScale();
-  }
-
-  @Override
   public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
     final VectorLocationGetter get = loc();
     Array<U> n = Bj.referenceArray(size());
@@ -309,7 +289,7 @@ public abstract class AbstractVector implements Vector {
     if (this == object) {
       return true;
     }
-    if (object == null || getClass() != object.getClass()) {
+    if (object == null || !(object instanceof Vector)) {
       return false;
     }
 
@@ -317,7 +297,9 @@ public abstract class AbstractVector implements Vector {
     if (size() != that.size()) {
       return false;
     }
-    // TODO: equality should take into account the keys
+    if (!getIndex().equals(that.getIndex())) {
+      return false;
+    }
     for (Object key : getIndex().keySet()) {
       Object a = get(Object.class, key);
       Object b = get(Object.class, key);
@@ -327,6 +309,16 @@ public abstract class AbstractVector implements Vector {
 
     }
     return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    for (int i = 0, size = size(); i < size; i++) {
+      Object o = loc().get(Object.class, i);
+      result += 31 * result + (!Is.NA(o) ? o.hashCode() : 0);
+    }
+    return result;
   }
 
   @Override
@@ -444,29 +436,127 @@ public abstract class AbstractVector implements Vector {
     return builder.toString();
   }
 
+  /**
+   * The class provides a skeletal implementation of the {@link org.briljantframework.vector.Vector.Builder}
+   * interface and handles key-based indexing and location-based indexing.
+   *
+   * <p> Implementers must define
+   * <ul>
+   * <li>{@link #setNaAt(int)}</li>
+   * <li>{@link #setAt(int, Vector, int)}</li>
+   * <li>{@link #setAt(int, Object)} </li>
+   * <li>{@link #setAt(int, Vector, Object)} </li>
+   * <li>{@link #removeAt(int)} </li>
+   * <li>{@link #swapAt(int, int)} </li>
+   * <li>{@link #size()}</li>
+   * <li>{@link #getTemporaryVector()}</li>
+   * <li>{@link #build()}</li>
+   * </ul>
+   *
+   * When called for, e.g., when performance is a concern the {@code add}-operations can also
+   * be overridden.
+   *
+   * <p> Implementing a {@code Vector.Builder} backed by an {@link java.util.ArrayList} is as
+   * simple
+   * as
+   *
+   * <pre>{@code
+   * class ArrayListVectorBuilder extends AbstractBuilder {
+   *   private ArrayList<Object> buffer = new ArrayList<>();
+   *
+   *   private void extend(int index) {
+   *    while(index <= buffer.size()) buffer.add(null)
+   *   }
+   *
+   *   @Override
+   *   protected void setNaAt(int index) { extend(index); buffer.set(index, null); }
+   *
+   *   @Override
+   *   protected void setAt(int index, Object value) {
+   *     extend(index);
+   *     buffer.set(index, value);
+   *   }
+   *
+   *   @Override
+   *   protected void setAt(int t, Vector from, int f) {
+   *     extend(index);
+   *     buffer.set(index, from.loc().get(Object.class, f));
+   *   }
+   *
+   *   @Override
+   *   protected void setAt(int t, Vector from, Object f) {
+   *     extend(index);
+   *     buffer.set(index, from.get(Object.class, f));
+   *   }
+   *
+   *   @Override
+   *   protected void readAt(int i, DataEntry entry) throws IOException {
+   *     extend(i);
+   *     buffer.set(i, entry.next(Object.class));
+   *   }
+   *
+   *   @Override
+   *   protected void removeAt(int i) {
+   *     buffer.remove(i);
+   *   }
+   *
+   *   @Override
+   *   protected void swapAt(int a, int b) {
+   *     Collections.swap(buffer, a, b);
+   *   }
+   *
+   *   @Override
+   *   public int size() {
+   *     return buffer.size();
+   *   }
+   *
+   *   @Override
+   *   public Vector getTemporaryVector() {
+   *     throw new UnsupportedOperationException("need implementation");
+   *   }
+   *
+   *   @Override
+   *   public Vector build() {
+   *     throw new UnsupportedOperationException("need implementation");
+   *   }
+   * }
+   * }</pre>
+   */
   protected static abstract class AbstractBuilder implements Vector.Builder {
 
     protected static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
     private final VectorLocationSetterImpl locationSetter = new VectorLocationSetterImpl();
-    private Index.Builder indexer;
-    private boolean hasIndexer;
 
+    /**
+     * Since null-checks are expensive in micro-benchmarks (increases the cost of creating
+     * primitive vectors substantially), this indicator indicates whether or not an indexer is
+     * initialized. If the value is true, the indexer cannot be null.
+     */
+    private boolean hasIndexer;
+    private Index.Builder indexer;
+
+    /**
+     * Constructs a new builder with a specified indexer. If the supplied indexer is {@code null}
+     * an indexer will be initialized when needed.
+     *
+     * <p> The performance of the builder is improved when avoiding an indexer, however,
+     * calls to e.g., {@link #set(Object, Object)} will require and initializes one. The
+     * performance of subsequent calls will decorate.
+     *
+     * @param indexer the indexer
+     */
     protected AbstractBuilder(Index.Builder indexer) {
-      this.indexer = Objects.requireNonNull(indexer);
-      this.hasIndexer = true;
+      this.indexer = indexer;
+      this.hasIndexer = !(indexer == null);
     }
 
+    /**
+     * Constructs a default builder
+     */
     protected AbstractBuilder() {
       indexer = null;
       hasIndexer = false;
-    }
-
-    @Override
-    public final Builder setNA(Object key) {
-      int index = getOrCreateIndex(key);
-      setAt(index, null);
-      return this;
     }
 
     /**
@@ -548,6 +638,13 @@ public abstract class AbstractVector implements Vector {
     }
 
     @Override
+    public final Builder setNA(Object key) {
+      int index = getOrCreateIndex(key);
+      setAt(index, null);
+      return this;
+    }
+
+    @Override
     public final Builder set(Object key, Object value) {
       int index = getOrCreateIndex(key);
       setAt(index, value);
@@ -607,6 +704,110 @@ public abstract class AbstractVector implements Vector {
       return this;
     }
 
+    /**
+     * Set {@code NA} at the specified index. Fill with {@code NA} between {@code size()} and
+     * {@code index}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param index the index
+     */
+    protected abstract void setNaAt(int index);
+
+    /**
+     * Set the value at the specified index. Fill with {@code NA} between {@code size()} and
+     * {@code index}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param index the index
+     */
+    protected abstract void setAt(int index, Object value);
+
+    /**
+     * Set value at the specified index. Fill with {@code NA} between {@code size()} and
+     * {@code index}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param index the index
+     */
+    protected void setAt(int index, int value) {
+      setAt(index, (Integer) value);
+    }
+
+    /**
+     * Set value at the specified index. Fill with {@code NA} between {@code size()} and
+     * {@code index}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param index the index
+     */
+    protected void setAt(int index, double value) {
+      setAt(index, (Double) value);
+    }
+
+    /**
+     * Set value at the specified index using the value at {@code f} in the supplied
+     * vector.
+     * Fill with {@code NA} between {@code size()} and {@code t}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param t    the index
+     * @param from the supplier
+     * @param f    the index in the supplier
+     */
+    protected abstract void setAt(int t, Vector from, int f);
+
+    /**
+     * Set value at the specified index using the value with the key in the supplied
+     * vector. Fill with {@code NA} between {@code size()} and {@code t}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param t    the index
+     * @param from the supplier
+     * @param f    the index in the supplier
+     */
+    protected abstract void setAt(int t, Vector from, Object f);
+
+    /**
+     * Set value at the specified index to a value read from the supplied entry. Fill with {@code
+     * NA} between {@code size()} and {@code index}
+     *
+     * <p> DO NOT: extend the index
+     *
+     * @param i     the index
+     * @param entry the data entry
+     */
+    protected abstract void readAt(int i, DataEntry entry) throws IOException;
+
+    /**
+     * Removes the element at the specified location in this builder.
+     * Shifts any subsequent elements to the left (subtracts one from their
+     * locations).
+     *
+     * @param i the index of the element to be removed
+     */
+    protected abstract void removeAt(int i);
+
+    /**
+     * Swap the elements at the specified location.
+     *
+     * @param a the location of the first element
+     * @param b the location of the second element
+     */
+    protected abstract void swapAt(int a, int b);
+
+    /**
+     * Get the location of the element with the supplied key. If no such key exist
+     * a new location is created at the end of this vector and assocciated with the supplied key.
+     *
+     * @param key the key
+     * @return the location of the key
+     */
     private int getOrCreateIndex(Object key) {
       initializeIndexer();
       int index = size();
@@ -618,6 +819,9 @@ public abstract class AbstractVector implements Vector {
       return index;
     }
 
+    /**
+     * Initializes the index if needed
+     */
     private void initializeIndexer() {
       if (!hasIndexer) {
         indexer = new IntIndex.Builder(size());
@@ -625,46 +829,45 @@ public abstract class AbstractVector implements Vector {
       }
     }
 
+    /**
+     * Swaps the index at the specified locations
+     *
+     * @param a the first location
+     * @param b the second location
+     */
     protected void swapIndex(int a, int b) {
       if (hasIndexer) {
         indexer.swap(a, b);
       }
     }
 
+    /**
+     * Remove the index at the specified location
+     *
+     * @param i the location of the index to remove
+     */
     protected void removeIndex(int i) {
       if (hasIndexer) {
         indexer.remove(i);
       }
     }
 
+    /**
+     * Extend the index to include the supplied index
+     *
+     * @param i the final index to include
+     */
     protected void extendIndex(int i) {
       if (hasIndexer) {
         indexer.extend(i + 1);
       }
     }
 
-    protected abstract void setNaAt(int index);
-
-    protected abstract void setAt(int index, Object value);
-
-    protected void setAt(int index, int value) {
-      setAt(index, (Integer) value);
-    }
-
-    protected void setAt(int index, double value) {
-      setAt(index, (Double) value);
-    }
-
-    protected abstract void setAt(int atIndex, Vector from, int fromIndex);
-
-    protected abstract void setAt(int t, Vector from, Object fromIndex);
-
-    protected abstract void readAt(int i, DataEntry entry) throws IOException;
-
-    protected abstract void removeAt(int i);
-
-    protected abstract void swapAt(int a, int b);
-
+    /**
+     * Get the Index of the completed vector
+     *
+     * @return the index
+     */
     protected Index getIndex() {
       if (!hasIndexer) {
         return new IntIndex(size());
@@ -672,7 +875,7 @@ public abstract class AbstractVector implements Vector {
       return indexer.build();
     }
 
-    private class VectorLocationSetterImpl implements VectorLocationSetter {
+    private final class VectorLocationSetterImpl implements VectorLocationSetter {
 
       @Override
       public void setNA(int i) {
@@ -729,7 +932,7 @@ public abstract class AbstractVector implements Vector {
     }
   }
 
-  private class VectorLocationGetterImpl implements VectorLocationGetter {
+  private final class VectorLocationGetterImpl implements VectorLocationGetter {
 
     @Override
     public double getAsDouble(int i) {

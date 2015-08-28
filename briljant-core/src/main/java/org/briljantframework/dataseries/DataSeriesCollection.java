@@ -171,7 +171,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   @Override
   public Vector getRecordAt(int index) {
-    return series.get(index); // TODO: the index
+    Vector vector = series.get(index);
+    vector.setIndex(getColumnIndex());
+    return vector; // TODO: rethink indexing?
   }
 
   /**
@@ -303,15 +305,17 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataFrame getTemporaryDataFrame() {
       int columns = columns();
-      return new DataSeriesCollection(
-          builders.stream()
-              .map(Vector.Builder::getTemporaryVector)
-              .collect(Collectors.toCollection(ArrayList::new)),
-          type,
-          columns,
-          getColumnIndex(columns),
-          getRecordIndex(rows())
-      );
+      ArrayList<Vector> series = builders.stream()
+          .map(Vector.Builder::getTemporaryVector)
+          .collect(Collectors.toCollection(ArrayList::new));
+      Index recordIndex = getRecordIndex(rows());
+      Index columnIndex = getColumnIndex(columns);
+      return new DataSeriesCollection(series, type, columns, columnIndex, recordIndex) {
+        @Override
+        public Builder newCopyBuilder() {
+          return Builder.this;
+        }
+      };
     }
 
     @Override

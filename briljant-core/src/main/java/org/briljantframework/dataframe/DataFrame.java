@@ -127,26 +127,33 @@ public interface DataFrame extends Iterable<Vector> {
     return join(type, other, getColumnIndex().indices(keys));
   }
 
-  default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Object key) {
-    return apply(cls, op, getColumnIndex().getLocation(key));
-  }
-
-  default <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op, Object... keys) {
-    return apply(cls, op, getColumnIndex().indices(keys));
-  }
-
   /**
    * <p> Apply {@code op} to value. If {@code op} returns {@code NA}, the old value is kept.
    *
+   * @param <T> the type
    * @param cls the type of values to transform
    * @param op  the operation
-   * @param <T> the type
    * @return a new data frame
    */
-  <T> DataFrame apply(Class<? extends T> cls, UnaryOperator<T> op);
+  <T> DataFrame map(Class<T> cls, Function<? super T, Object> op);
+
+  DataFrame apply(Function<? super Vector, ? extends Vector> transform);
+
+  <T, C> DataFrame apply(Class<T> cls, Collector<? super T, C, ? extends Vector> collector);
 
   /**
    * <p> Reduce all columns, applying {@code op} with the initial value {@code init}.
+   *
+   * <pre>{@code
+   * for(Object colKey : getColumnIndex().keySet()) {
+   *   Vector column = get(colKey);
+   *   T value = init;
+   *   for(int i = 0; i < column.size(); i++){
+   *     value = op.apply(value, column.loc().get(cls, i));
+   *   }
+   *   newVector.set(colKey, value);
+   * }
+   * }</pre>
    *
    * @param <T>  the type
    * @param cls  the class
@@ -182,7 +189,7 @@ public interface DataFrame extends Iterable<Vector> {
    * dataframe.
    *
    * <p> Note that {@link org.briljantframework.function.Aggregates} implement several convenient
-   * aggregates, for example {@code df.aggregate(Number.class, Aggregate.median())}.
+   * aggregates, for example {@code df.collect(Number.class, Aggregate.median())}.
    *
    * @param <T>       the type of value to be aggregated
    * @param <C>       the type of the mutable collector
@@ -190,28 +197,28 @@ public interface DataFrame extends Iterable<Vector> {
    * @param collector the collector
    * @return a vector of aggregated values
    */
-  <T, C> Vector collector(Class<T> cls, Collector<? super T, C, ? extends T> collector);
+  <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ? extends T> collector);
 
   <T, R, C> Vector collect(Class<T> in, Class<R> out,
                            Collector<? super T, C, ? extends R> collector);
 
-  default DataFrameGroupBy groupBy(Object key) {
-    return groupBy(getColumnIndex().getLocation(key));
-  }
+
+
+  DataFrameGroupBy groupBy(Object column);
+
+  DataFrameGroupBy groupBy(Object... columns);
 
   /**
    * <p> Group data frame based on the value returned by {@code keyFunction}. Each record in the
    * data frame is used for grouping.
    *
    * <p> The result of {@link #groupBy(Object);} can be implemented as {@code groupBy(v ->
-   * v.get(Object.class, index))}
+   * v.get(Object.class, key))}
    *
    * @param keyFunction the key function
    * @return a group by data frame
    */
-  DataFrameGroupBy groupBy(Function<? super Vector, Object> keyFunction);
-
-  DataFrame transform(Function<? super Vector, ? extends Vector> transform);
+  DataFrameGroupBy groupBy(UnaryOperator<Object> keyFunction);
 
   DataFrame add(Vector column);
 
@@ -257,6 +264,8 @@ public interface DataFrame extends Iterable<Vector> {
   int getAsInt(Object row, Object col);
 
   boolean isNA(Object row, Object col);
+
+  String toString(Object row, Object col);
 
   /**
    * Drop rows in {@code indexes} and return a new DataFrame

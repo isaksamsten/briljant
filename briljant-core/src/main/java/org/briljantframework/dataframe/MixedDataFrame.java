@@ -28,6 +28,7 @@ import org.briljantframework.Check;
 import org.briljantframework.index.Index;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
+import org.briljantframework.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.vector.Vector;
 import org.briljantframework.vector.VectorType;
 
@@ -48,7 +49,7 @@ import java.util.stream.Stream;
  *
  * @author Isak Karlsson
  */
-public final class MixedDataFrame extends AbstractDataFrame {
+public class MixedDataFrame extends AbstractDataFrame {
 
   private final List<Vector> columns;
   private final int rows;
@@ -58,7 +59,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
    *
    * @param columns the vectors
    */
-  public MixedDataFrame(Vector... columns) {
+  private MixedDataFrame(Vector... columns) {
     this(Arrays.asList(columns));
   }
 
@@ -67,8 +68,8 @@ public final class MixedDataFrame extends AbstractDataFrame {
    *
    * @param vectors the collection of vectors
    */
-  public MixedDataFrame(Collection<? extends Vector> vectors) {
-    super(null, null); // TODO: fix me
+  private MixedDataFrame(Collection<? extends Vector> vectors) {
+    super(null, null);
     Check.argument(vectors.size() > 0);
 
     this.columns = new ArrayList<>(vectors.size());
@@ -93,7 +94,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
    *
    * @param vectors the map of vectors and names
    */
-  public <T> MixedDataFrame(Map<T, ? extends Vector> vectors) {
+  private <T> MixedDataFrame(Map<T, ? extends Vector> vectors) {
     super(null, null); // TODO: fix me
     Check.argument(vectors.size() > 0);
     this.columns = new ArrayList<>(vectors.size());
@@ -125,7 +126,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
    * @param vectors the vectors
    * @param rows    the expected size of the vectors (not checked but should be enforced)
    */
-  protected MixedDataFrame(List<Vector> vectors, int rows) {
+  private MixedDataFrame(List<Vector> vectors, int rows) {
     super(null, null); // TODO: fix me
     this.columns = vectors;
     this.rows = rows;
@@ -146,17 +147,29 @@ public final class MixedDataFrame extends AbstractDataFrame {
     return builder;
   }
 
+  public static MixedDataFrame create(Collection<? extends Vector> vectors) {
+    return new MixedDataFrame(vectors);
+  }
+
+  public static MixedDataFrame create(Vector... columns) {
+    return new MixedDataFrame(columns);
+  }
+
+  public static <T> MixedDataFrame create(Map<T, ? extends Vector> vectors) {
+    return new MixedDataFrame(vectors);
+  }
+
   public static DataFrame of(Object name, Vector c) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(name, c);
-    return new MixedDataFrame(map);
+    return create(map);
   }
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
-    return new MixedDataFrame(map);
+    return create(map);
   }
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
@@ -164,7 +177,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
-    return new MixedDataFrame(map);
+    return create(map);
   }
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
@@ -174,7 +187,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
     map.put(n2, v2);
     map.put(n3, v3);
     map.put(n4, v4);
-    return new MixedDataFrame(map);
+    return create(map);
   }
 
   public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
@@ -185,7 +198,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
     map.put(n3, v3);
     map.put(n4, v4);
     map.put(n5, v5);
-    return new MixedDataFrame(map);
+    return create(map);
   }
 
   public static DataFrame read(DataInputStream io) throws IOException {
@@ -264,12 +277,14 @@ public final class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   public Vector getAt(int index) {
-    return columns.get(index); // TODO: the index?!
+    Vector vector = columns.get(index);
+    vector.setIndex(getRecordIndex());
+    return vector;
   }
 
   @Override
   public String toString() {
-    return DataFrames.toTabularString(this);
+    return DataFrames.toString(this);
   }
 
   public static final class Builder extends AbstractBuilder {
@@ -450,12 +465,12 @@ public final class MixedDataFrame extends AbstractDataFrame {
       List<Vector> vectors = buffers.stream()
           .map((builder) -> padVectorWithNA(builder, rows).getTemporaryVector())
           .collect(Collectors.toCollection(ArrayList::new));
-      return new MixedDataFrame(
-          vectors,
-          rows,
-          getColumnIndex(columns()),
-          getRecordIndex(rows)
-      );
+      return new MixedDataFrame(vectors, rows, getColumnIndex(columns()), getRecordIndex(rows)) {
+        @Override
+        public Builder newCopyBuilder() {
+          return Builder.this;
+        }
+      };
     }
 
     @Override
@@ -485,7 +500,7 @@ public final class MixedDataFrame extends AbstractDataFrame {
     private void ensureColumnCapacity(int index) {
       int i = buffers.size();
       while (i <= index) {
-        buffers.add(VectorType.inferringBuilder());
+        buffers.add(new TypeInferenceVectorBuilder());
         i++;
       }
     }
