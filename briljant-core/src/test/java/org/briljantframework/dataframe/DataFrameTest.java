@@ -379,7 +379,9 @@ public abstract class DataFrameTest {
 
     DataFrame replaced = df.groupBy("i")
         .apply(v -> v.collect(Aggregates.fillNa(22)));
-    System.out.println(replaced);
+    assertEquals(6, replaced.rows());
+    assertEquals(2, replaced.columns());
+    assertEquals(22, replaced.get("j").getAsInt(5));
   }
 
   @Test
@@ -393,8 +395,9 @@ public abstract class DataFrameTest {
     df.setColumnIndex(ObjectIndex.from("A", "B", "C"));
 
     DataFrame sums = df.groupBy(v -> LocalDate.class.cast(v).getYear()).collect(Vector::sum);
-
-    System.out.println(sums);
-    System.out.println(df);
+    assertEquals(2, sums.rows());
+    assertEquals(3, sums.columns());
+    assertEquals(66, sums.get("C").getAsInt(2010));
+    assertEquals(1, sums.getAsInt(2010, "A"));
   }
 }
