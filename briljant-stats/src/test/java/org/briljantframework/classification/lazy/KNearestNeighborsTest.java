@@ -25,14 +25,14 @@
 package org.briljantframework.classification.lazy;
 
 import org.briljantframework.classification.KNearestNeighbors;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.DataFrames;
-import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrames;
+import org.briljantframework.data.dataframe.Datasets;
 import org.briljantframework.distance.DynamicTimeWarping;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 public class KNearestNeighborsTest {

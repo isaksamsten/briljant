@@ -24,8 +24,8 @@
 
 package org.briljantframework.dataseries;
 
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * <p>
@@ -36,9 +36,9 @@ import org.briljantframework.vector.VectorType;
  * </p>
  * 
  * <p>
- * The {@link #partialAggregate(org.briljantframework.vector.Vector)}, takes an input vector and
- * produces a mutable {@link org.briljantframework.vector.Vector.Builder} for futher transformation.
- * The {@link #aggregate(org.briljantframework.vector.Vector)} produces a new, aggregated, vector.
+ * The {@link #partialAggregate(org.briljantframework.data.vector.Vector)}, takes an input vector and
+ * produces a mutable {@link org.briljantframework.data.vector.Vector.Builder} for futher transformation.
+ * The {@link #aggregate(org.briljantframework.data.vector.Vector)} produces a new, aggregated, vector.
  * </p>
  * 
  * @author Isak Karlsson

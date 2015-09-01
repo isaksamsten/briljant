@@ -24,9 +24,9 @@
 
 package org.briljantframework.dataseries;
 
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.util.Objects;
 

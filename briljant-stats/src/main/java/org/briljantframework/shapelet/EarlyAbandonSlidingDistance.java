@@ -25,7 +25,7 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.distance.Distance;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.Objects;
 

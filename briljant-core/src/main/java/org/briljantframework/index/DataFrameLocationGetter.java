@@ -24,8 +24,8 @@
 
 package org.briljantframework.index;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson
@@ -34,9 +34,9 @@ public interface DataFrameLocationGetter {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.vector.Na#from(Class)}. The
+   * return {@code NA} as defined by {@link org.briljantframework.data.vector.Na#from(Class)}. The
    * conversion is performed according to the convention found in {@link
-   * org.briljantframework.vector.Convert#to(Class, Object)}
+   * org.briljantframework.data.vector.Convert#to(Class, Object)}
    *
    * @param cls the class
    * @param r   the row

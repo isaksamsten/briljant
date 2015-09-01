@@ -24,7 +24,7 @@
 
 package org.briljantframework.function;
 
-import org.briljantframework.vector.Is;
+import org.briljantframework.data.vector.Is;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;

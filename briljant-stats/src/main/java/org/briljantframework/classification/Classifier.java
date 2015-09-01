@@ -24,8 +24,8 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * <p>
@@ -36,7 +36,7 @@ import org.briljantframework.vector.Vector;
  *
  * <p>
  * The input {@code x} is usually denoted as the instances and the output {@code y} as the classes.
- * The input instances is represented as a {@link org.briljantframework.dataframe.DataFrame} which
+ * The input instances is represented as a {@link org.briljantframework.data.dataframe.DataFrame} which
  * consists of possibly heterogeneous vectors of values characterizing each instance.
  * </p>
  *

@@ -24,7 +24,7 @@
 
 package org.briljantframework.index;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.function.Supplier;
 
@@ -38,7 +38,7 @@ public interface VectorLocationGetter {
    * not an instance of {@code cls}, returns an appropriate {@code NA} value. For references types
    * (apart from {@code Complex} and {@code Bit}) this means {@code null} and for {@code primitive}
    * types their respective {@code NA} value. Hence, checking for {@code null} does not always
-   * work. Instead {@link org.briljantframework.vector.Is#NA(Object)} should be used.
+   * work. Instead {@link org.briljantframework.data.vector.Is#NA(Object)} should be used.
    *
    * <pre>{@code
    * Vector v = new GenericVector(Date.class, Arrays.asList(new Date(), new Date());
@@ -79,7 +79,7 @@ public interface VectorLocationGetter {
 
   /**
    * Returns value as {@code double} if applicable. Otherwise returns {@link
-   * org.briljantframework.vector.Na#DOUBLE}.
+   * org.briljantframework.data.vector.Na#DOUBLE}.
    *
    * @param i the index
    * @return a double
@@ -89,7 +89,7 @@ public interface VectorLocationGetter {
 
   /**
    * Returns value as {@code int} if applicable. Otherwise returns {@link
-   * org.briljantframework.vector.Na#INT}
+   * org.briljantframework.data.vector.Na#INT}
    *
    * @param i the index
    * @return an int

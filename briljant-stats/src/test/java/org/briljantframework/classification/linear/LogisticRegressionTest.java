@@ -27,14 +27,14 @@ package org.briljantframework.classification.linear;
 import org.briljantframework.Utils;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.LogisticRegression;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.DataFrames;
-import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrames;
+import org.briljantframework.data.dataframe.Datasets;
+import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 public class LogisticRegressionTest {

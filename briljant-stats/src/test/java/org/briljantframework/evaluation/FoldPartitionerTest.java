@@ -24,9 +24,9 @@
 
 package org.briljantframework.evaluation;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.Datasets;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.Datasets;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

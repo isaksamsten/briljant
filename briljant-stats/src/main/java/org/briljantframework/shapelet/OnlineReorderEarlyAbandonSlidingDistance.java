@@ -26,8 +26,8 @@ package org.briljantframework.shapelet;
 
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.vector.Vec;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * TODO(isak): make this work! Created by Isak Karlsson on 27/10/14.

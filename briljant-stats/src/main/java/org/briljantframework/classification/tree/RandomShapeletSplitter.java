@@ -30,12 +30,12 @@ import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
 import org.briljantframework.Bj;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;

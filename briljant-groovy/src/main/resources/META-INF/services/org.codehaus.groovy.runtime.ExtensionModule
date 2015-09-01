@@ -1,5 +1,5 @@
 moduleName = briljant-core
 moduleVersion = 1.0
 extensionClasses = org.briljantframework.array.ArrayExtensions,\
-                   org.briljantframework.dataframe.DataFrameExtensions,\
-                   org.briljantframework.vector.VectorExtensions
+                   org.briljantframework.data.dataframe.DataFrameExtensions,\
+                   org.briljantframework.data.vector.VectorExtensions

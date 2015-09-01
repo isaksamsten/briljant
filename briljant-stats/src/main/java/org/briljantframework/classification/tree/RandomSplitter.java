@@ -25,9 +25,9 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.Utils;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * NOTE: This cannot be reused among trees (it is stateful for performance reasons)

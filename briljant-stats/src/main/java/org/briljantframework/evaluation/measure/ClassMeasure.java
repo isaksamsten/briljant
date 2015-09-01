@@ -25,7 +25,7 @@
 package org.briljantframework.evaluation.measure;
 
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson

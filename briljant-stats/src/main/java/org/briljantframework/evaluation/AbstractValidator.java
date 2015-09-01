@@ -25,13 +25,13 @@
 package org.briljantframework.evaluation;
 
 import org.briljantframework.classification.Predictor;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.util.ArrayList;
 import java.util.Collection;

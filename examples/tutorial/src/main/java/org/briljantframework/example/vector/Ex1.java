@@ -25,7 +25,7 @@
 package org.briljantframework.example.vector;
 
 import org.briljantframework.function.Aggregates;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by isak on 13/08/15.

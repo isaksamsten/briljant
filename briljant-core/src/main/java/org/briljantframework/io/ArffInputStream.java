@@ -24,8 +24,8 @@
 
 package org.briljantframework.io;
 
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedReader;
 import java.io.IOException;

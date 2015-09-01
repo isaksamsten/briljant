@@ -24,7 +24,7 @@
 
 package org.briljantframework.similiarity;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by isak on 10/03/15.

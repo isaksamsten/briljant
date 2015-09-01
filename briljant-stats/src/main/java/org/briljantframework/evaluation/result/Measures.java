@@ -26,7 +26,7 @@ package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.briljantframework.vector.Vec.find;
+import static org.briljantframework.data.vector.Vec.find;
 
 /**
  * @author Isak Karlsson

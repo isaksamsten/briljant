@@ -29,8 +29,8 @@ import com.univocity.parsers.common.processor.RowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -55,9 +55,9 @@ import java.util.Map;
  * <p>The types are simple strings and are mapped to {@code briljant} data types as follows:
  *
  * <ul>
- * <li>{@code numeric} and {@code regressor}: {@link org.briljantframework.vector.DoubleVector}</li>
- * <li>{@code categoric} and {@code class}: {@link org.briljantframework.vector.GenericVector}</li>
- * <li>{@code date}: {@link org.briljantframework.vector.GenericVector}</li>
+ * <li>{@code numeric} and {@code regressor}: {@link org.briljantframework.data.vector.DoubleVector}</li>
+ * <li>{@code categoric} and {@code class}: {@link org.briljantframework.data.vector.GenericVector}</li>
+ * <li>{@code date}: {@link org.briljantframework.data.vector.GenericVector}</li>
  * </ul>
  *
  * By convention, missing values are represented as {@code ?}.

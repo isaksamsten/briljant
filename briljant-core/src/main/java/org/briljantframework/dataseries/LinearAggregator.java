@@ -26,9 +26,9 @@ package org.briljantframework.dataseries;
 
 
 import org.briljantframework.Check;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * Created by Isak Karlsson on 12/12/14.

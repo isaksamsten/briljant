@@ -24,10 +24,10 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumSet;
 
@@ -39,7 +39,7 @@ public interface Predictor {
   /**
    * The classes this predictor is able to predict, i.e. its co-domain. Note that the i:th element
    * of the returned vector is the label of the j:th column in the probability matrix returned by
-   * {@link #estimate(org.briljantframework.dataframe.DataFrame)}.
+   * {@link #estimate(org.briljantframework.data.dataframe.DataFrame)}.
    *
    * @return the vector of classes.
    */
@@ -54,7 +54,7 @@ public interface Predictor {
   Vector predict(DataFrame x);
 
   /**
-   * Predict the class label of a specific {@link org.briljantframework.vector.Vector}
+   * Predict the class label of a specific {@link org.briljantframework.data.vector.Vector}
    *
    * @param record to which the class label shall be assigned
    * @return the prediction

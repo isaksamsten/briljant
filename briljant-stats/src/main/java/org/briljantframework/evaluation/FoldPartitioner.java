@@ -25,8 +25,8 @@
 package org.briljantframework.evaluation;
 
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Creates a k-fold partitioner

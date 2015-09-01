@@ -28,10 +28,10 @@ import org.briljantframework.Bj;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +49,7 @@ import java.util.stream.IntStream;
 
 import static org.briljantframework.Bj.argmax;
 import static org.briljantframework.evaluation.result.Sample.OUT;
-import static org.briljantframework.vector.Vec.find;
+import static org.briljantframework.data.vector.Vec.find;
 
 /**
  * @author Isak Karlsson

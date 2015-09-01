@@ -25,11 +25,11 @@
 package org.briljantframework.evaluation.measure;
 
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Na;
-import org.briljantframework.vector.Vec;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.vector.Na;
+import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumMap;
 import java.util.Map;

@@ -24,9 +24,7 @@
 
 package org.briljantframework.function;
 
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.distribution.RealDistribution;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 import static org.briljantframework.function.Aggregates.repeat;

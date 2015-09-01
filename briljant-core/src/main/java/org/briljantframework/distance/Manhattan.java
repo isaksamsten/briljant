@@ -24,7 +24,7 @@
 
 package org.briljantframework.distance;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Manhattan distance, i.e sum of absolute difference

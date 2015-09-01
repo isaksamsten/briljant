@@ -25,7 +25,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson

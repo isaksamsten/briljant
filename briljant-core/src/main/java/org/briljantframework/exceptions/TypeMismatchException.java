@@ -24,7 +24,7 @@
 
 package org.briljantframework.exceptions;
 
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * Exception to throw when the expected and actual type of data frames does not match

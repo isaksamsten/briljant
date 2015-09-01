@@ -24,8 +24,8 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by isak on 29/05/15.

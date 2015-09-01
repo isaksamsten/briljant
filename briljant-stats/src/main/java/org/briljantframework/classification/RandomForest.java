@@ -29,10 +29,10 @@ import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.classification.tree.RandomSplitter;
 import org.briljantframework.classification.tree.Splitter;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.array.BitArray;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.Vec;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vec;
 
 import java.util.ArrayList;
 import java.util.List;

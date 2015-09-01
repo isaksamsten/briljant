@@ -25,9 +25,9 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.Check;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * The MeanResampler implements the perhaps simplest resampling (approximation) method for data

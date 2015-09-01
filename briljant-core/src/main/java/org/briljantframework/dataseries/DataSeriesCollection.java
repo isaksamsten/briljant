@@ -25,13 +25,13 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.AbstractDataFrame;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.AbstractDataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.index.Index;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.vector.Na;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.Na;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p> A DataSeries collection is collection of data series, i.e., vectors of the same type -
- * usually {@link org.briljantframework.vector.DoubleVector#TYPE}. There are some interesting
+ * usually {@link org.briljantframework.data.vector.DoubleVector#TYPE}. There are some interesting
  * differences between this implementation and the traditional {@code DataFrame}. It is possible
  * for
  * the data series in the collection to be of different length. Therefore, {@link #columns()}

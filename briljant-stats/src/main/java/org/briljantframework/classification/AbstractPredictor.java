@@ -26,11 +26,11 @@ package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.index.VectorLocationSetter;
-import org.briljantframework.vector.GenericVector;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.GenericVector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -40,7 +40,7 @@ import static org.briljantframework.Bj.argmax;
 
 /**
  * Provides sane defaults for a predictor. Sub-classes only have to implement the
- * {@link #estimate(org.briljantframework.vector.Vector)} method to have a sensible default
+ * {@link #estimate(org.briljantframework.data.vector.Vector)} method to have a sensible default
  * predictor.
  *
  * @author Isak Karlsson

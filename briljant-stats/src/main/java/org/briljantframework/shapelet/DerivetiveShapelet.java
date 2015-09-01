@@ -24,7 +24,7 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by isak on 16/04/15.

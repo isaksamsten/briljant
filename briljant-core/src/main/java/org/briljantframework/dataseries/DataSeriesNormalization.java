@@ -24,10 +24,10 @@
 
 package org.briljantframework.dataseries;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.transform.Transformation;
-import org.briljantframework.vector.Vec;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.transform.Transformation;
+import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * <p>

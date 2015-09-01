@@ -34,10 +34,10 @@ import org.briljantframework.classification.tree.TreePredictor;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vec;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson

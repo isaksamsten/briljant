@@ -24,9 +24,9 @@
 
 package org.briljantframework.dataseries;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

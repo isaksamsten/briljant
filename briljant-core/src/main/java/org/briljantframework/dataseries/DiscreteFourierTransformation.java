@@ -28,11 +28,11 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.transform.InvertibleTransformation;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.transform.InvertibleTransformation;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
 import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft;
@@ -43,7 +43,7 @@ import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft
 public class DiscreteFourierTransformation implements InvertibleTransformation {
 
   /**
-   * Asserts that each row has {@link org.briljantframework.vector.DoubleVector#TYPE}.
+   * Asserts that each row has {@link org.briljantframework.data.vector.DoubleVector#TYPE}.
    *
    * @param x data frame to transform
    * @return a new data frame; each row has type

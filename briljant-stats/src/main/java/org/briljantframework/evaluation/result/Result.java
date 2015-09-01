@@ -25,15 +25,15 @@
 package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.ObjectIndex;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.index.Index;
-import org.briljantframework.dataframe.MixedDataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.function.Aggregates;
-import org.briljantframework.vector.DoubleVector;
-import org.briljantframework.vector.IntVector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.DoubleVector;
+import org.briljantframework.data.vector.IntVector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.util.Collection;
 import java.util.Collections;

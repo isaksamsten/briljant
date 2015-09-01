@@ -28,9 +28,9 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.GenericVector;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.vector.GenericVector;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.util.Arrays;
 import java.util.HashMap;

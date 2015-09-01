@@ -25,7 +25,7 @@
 package org.briljantframework.distance;
 
 import org.briljantframework.similiarity.Similarity;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by isak on 10/03/15.

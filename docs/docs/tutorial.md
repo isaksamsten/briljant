@@ -425,7 +425,7 @@ Some other operations?
 
 Vectors are Briljants main abstraction and resembles immutable lists
 of homogenoues values. Vectors come in six homogeneous flavors, all of
-which resides in the namespace `org.briljantframework.vector`. The
+which resides in the namespace `org.briljantframework.data.vector`. The
 flavors are:
 
 * `DoubleVector` for storing real number (`double`).
@@ -433,7 +433,7 @@ flavors are:
   (`org.briljantframework.complex.Complex`).
 * `Intvector` for storing integers (`int`).
 * `BitVector` for storing binary values
-  (`org.briljantframework.vector.Bit`)
+  (`org.briljantframework.data.vector.Bit`)
 * `GenericVector(Class<? extends T>)` for storing values of `T`.
 
 In addition to values, each vector can store a distinct value, called
@@ -444,7 +444,7 @@ data structure. For most applications in Briljant, `Vector` will be a
 trusty companion. To get started, we import
 
 ```
-import org.briljantframework.vector.*;
+import org.briljantframework.data.vector.*;
 import org.briljantframework.functions.Aggregates;
 private final Random rand = new Random(123);
 ```

@@ -28,7 +28,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.evaluation.Partition;
 import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.Collection;
 import java.util.HashMap;

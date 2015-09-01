@@ -26,9 +26,9 @@ package org.briljantframework.classification.tune;
 
 import org.briljantframework.Check;
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.Validators;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collections;

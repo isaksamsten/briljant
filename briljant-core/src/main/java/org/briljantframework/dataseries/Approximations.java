@@ -25,8 +25,8 @@
 package org.briljantframework.dataseries;
 
 import org.briljantframework.Check;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.transform.PipelineTransformation;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.transform.PipelineTransformation;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,7 +65,7 @@ public final class Approximations {
    *
    * @param in   the input data frame
    * @param size the resulting time series size
-   * @return a new data frame with {@link org.briljantframework.dataframe.DataFrame#columns()}
+   * @return a new data frame with {@link org.briljantframework.data.dataframe.DataFrame#columns()}
    * equals to {@code size}
    */
   public static DataFrame paa(DataFrame in, int size) {
@@ -73,7 +73,7 @@ public final class Approximations {
   }
 
   /**
-   * Returns a {@link org.briljantframework.dataframe.transform.Transformation} that reduces the
+   * Returns a {@link org.briljantframework.data.dataframe.transform.Transformation} that reduces the
    * length of each row-vector to {@code size}.
    *
    * @param size the resulting time series size
@@ -84,7 +84,7 @@ public final class Approximations {
   }
 
   /**
-   * Returns a {@link org.briljantframework.dataframe.transform.Transformation} that reduces the
+   * Returns a {@link org.briljantframework.data.dataframe.transform.Transformation} that reduces the
    * size and transforms each row in the input data frame to
    */
   public static AggregateApproximation sax(List<String> alphabet) {

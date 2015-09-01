@@ -24,10 +24,10 @@
 
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 import java.util.Random;
 

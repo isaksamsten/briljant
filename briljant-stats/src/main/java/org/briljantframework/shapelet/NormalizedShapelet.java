@@ -24,7 +24,7 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * A z-normalized sub sequence view of another MatrixLike

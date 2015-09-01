@@ -27,7 +27,7 @@ package org.briljantframework.linalg;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.dataframe.transform.InverseTransformation;
+import org.briljantframework.data.dataframe.transform.InverseTransformation;
 import org.briljantframework.linalg.decomposition.LuDecomposer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;

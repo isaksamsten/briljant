@@ -27,10 +27,10 @@ package org.briljantframework.evaluation;
 import java.util.List;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * An Evaluator is used to evaluate an algorithm on a particular dataset

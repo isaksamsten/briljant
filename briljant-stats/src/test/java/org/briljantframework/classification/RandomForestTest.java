@@ -26,14 +26,14 @@ package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.DataFrames;
-import org.briljantframework.dataframe.Datasets;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrames;
+import org.briljantframework.data.dataframe.Datasets;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.measure.Accuracy;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 import java.util.List;

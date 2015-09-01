@@ -27,7 +27,7 @@ package org.briljantframework.classification.tree;
 
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collection;

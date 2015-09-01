@@ -24,6 +24,7 @@
 
 package org.briljantframework.index;
 
+import org.briljantframework.data.BoundType;
 import org.briljantframework.sort.Swappable;
 
 import java.util.AbstractList;
@@ -48,6 +49,12 @@ public interface Index {
    */
   int getLocation(Object key);
 
+  Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound);
+
+  default Set<Object> selectRange(Object from, Object to) {
+    return selectRange(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
+  }
+
   /**
    * Get the key at the supplied location
    *
@@ -68,7 +75,7 @@ public interface Index {
 
   Set<Index.Entry> entrySet();
 
-  int[] indices(Object[] keys);
+  int[] locations(Object[] keys);
 
   Builder newBuilder();
 

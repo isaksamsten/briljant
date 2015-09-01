@@ -26,8 +26,8 @@ package org.briljantframework.io;
 
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.vector.Is;
-import org.briljantframework.vector.Na;
+import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.vector.Na;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such

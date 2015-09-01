@@ -26,7 +26,7 @@ package org.briljantframework.evaluation;
 
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictor;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.measure.FitTime;
 import org.briljantframework.evaluation.measure.PredictTime;
 import org.briljantframework.evaluation.measure.TrainingSetSize;
@@ -36,8 +36,8 @@ import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.vector.Vec;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;

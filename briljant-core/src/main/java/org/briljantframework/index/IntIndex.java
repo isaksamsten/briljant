@@ -25,7 +25,9 @@
 package org.briljantframework.index;
 
 
-import org.briljantframework.dataframe.ObjectIndex;
+import org.briljantframework.Check;
+import org.briljantframework.data.BoundType;
+import org.briljantframework.data.dataframe.ObjectIndex;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -40,9 +42,11 @@ import java.util.Set;
  */
 public final class IntIndex implements Index {
 
+  private final int start;
   private final int size;
 
-  public IntIndex(int size) {
+  public IntIndex(int start, int size) {
+    this.start = start;
     this.size = size;
   }
 
@@ -59,6 +63,15 @@ public final class IntIndex implements Index {
       }
     }
     throw noSuchElement(key);
+  }
+
+  @Override
+  public Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound) {
+    Check.argument(from instanceof Integer && to instanceof Integer);
+    int s = (int) from;
+    int e = (int) to;
+    Check.argument(s >= 0 && e < size);
+    return new SelectSet(s, e);
   }
 
   @Override
@@ -86,7 +99,7 @@ public final class IntIndex implements Index {
       @Override
       public Iterator<Integer> iterator() {
         return new Iterator<Integer>() {
-          public int current = 0;
+          public int current = start;
 
           @Override
           public boolean hasNext() {
@@ -170,7 +183,7 @@ public final class IntIndex implements Index {
   }
 
   @Override
-  public int[] indices(Object[] keys) {
+  public int[] locations(Object[] keys) {
     int[] indicies = new int[keys.length];
     for (int i = 0; i < keys.length; i++) {
       indicies[i] = getLocation(keys[i]);
@@ -351,7 +364,7 @@ public final class IntIndex implements Index {
     @Override
     public Index build() {
       if (builder == null) {
-        return new IntIndex(currentSize);
+        return new IntIndex(0, currentSize);
       } else {
         return builder.build();
       }
@@ -372,8 +385,41 @@ public final class IntIndex implements Index {
 
     @Override
     public void remove(int index) {
-      // TODO: implement
-      throw new UnsupportedOperationException("not implemented yet");
+      initializeHashBuilder();
+      builder.remove(index);
+    }
+  }
+
+  private static class SelectSet extends AbstractSet<Object> {
+
+    private final int s;
+    private final int e;
+
+    public SelectSet(int s, int e) {
+      this.s = s;
+      this.e = e;
+    }
+
+    @Override
+    public Iterator<Object> iterator() {
+      return new Iterator<Object>() {
+        private int current = s;
+
+        @Override
+        public boolean hasNext() {
+          return current < e;
+        }
+
+        @Override
+        public Object next() {
+          return current++;
+        }
+      };
+    }
+
+    @Override
+    public int size() {
+      return e - s;
     }
   }
 }

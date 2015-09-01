@@ -28,10 +28,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 25/09/14.

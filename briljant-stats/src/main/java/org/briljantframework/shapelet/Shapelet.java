@@ -24,8 +24,8 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorView;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorView;
 
 import java.util.ArrayList;
 import java.util.List;

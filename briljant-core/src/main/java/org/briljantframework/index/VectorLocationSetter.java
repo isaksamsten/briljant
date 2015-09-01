@@ -25,7 +25,7 @@
 package org.briljantframework.index;
 
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.io.IOException;
 

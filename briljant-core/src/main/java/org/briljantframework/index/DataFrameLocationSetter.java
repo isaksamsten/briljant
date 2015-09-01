@@ -24,9 +24,9 @@
 
 package org.briljantframework.index;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * @author Isak Karlsson
@@ -35,7 +35,7 @@ public interface DataFrameLocationSetter {
 
   /**
    * Set value at {@code row} in {@code column} to NA. If {@code column >= columns()} adds empty
-   * {@link org.briljantframework.vector.GenericVector} of all {@code NA} from {@code columns()
+   * {@link org.briljantframework.data.vector.GenericVector} of all {@code NA} from {@code columns()
    * ... column}.
    *
    * @param r the row
@@ -45,20 +45,20 @@ public interface DataFrameLocationSetter {
 
   /**
    * Set value at {@code row, column} to {@code value}. If {@code toCol >= columns()}, adds empty
-   * {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ... column
+   * {@link org.briljantframework.data.vector.GenericVector} columns from {@code columns() ... column
    * - 1}, inferring the type at {@code toCol} using {@code Vectors.getInstance(object)}
    *
    * @param r     the row
    * @param c     the column
    * @param value the value
    * @return a modified builder
-   * @see org.briljantframework.vector.Vector.Builder#set(int, Object)
+   * @see org.briljantframework.data.vector.Vector.Builder#set(int, Object)
    */
   void set(int r, int c, Object value);
 
   /**
    * Set value at {@code row, toCol} using the value at {@code fromRow, fromCol} in {@code from}.
-   * If {@code toCol >= columns()}, adds empty {@link org.briljantframework.vector.GenericVector}x
+   * If {@code toCol >= columns()}, adds empty {@link org.briljantframework.data.vector.GenericVector}x
    * columns from {@code columns() ... column - 1}, inferring the type at {@code toCol} using
    * {@code from.getColumnType(fromCol)}
    *
@@ -67,7 +67,7 @@ public interface DataFrameLocationSetter {
    * @param df the vector
    * @param fr the row
    * @param fc the column
-   * @see org.briljantframework.vector.Vector.Builder#set(int, org.briljantframework.vector.Vector,
+   * @see org.briljantframework.data.vector.Vector.Builder#set(int, org.briljantframework.data.vector.Vector,
    * int)
    */
   void set(int tr, int tc, DataFrame df, int fr, int fc);
@@ -75,7 +75,7 @@ public interface DataFrameLocationSetter {
   /**
    * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}. If
    * {@code
-   * toCol >= columns()}, adds empty {@link org.briljantframework.vector.GenericVector} columns
+   * toCol >= columns()}, adds empty {@link org.briljantframework.data.vector.GenericVector} columns
    * from {@code columns() ... column - 1}, inferring the type at {@code toCol} using {@code
    * from.getType(index)}
    *
@@ -88,7 +88,7 @@ public interface DataFrameLocationSetter {
 
   /**
    * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds
-   * empty {@link org.briljantframework.vector.GenericVector} columns from {@code columns() ...
+   * empty {@link org.briljantframework.data.vector.GenericVector} columns from {@code columns() ...
    * column - 1}. If {@code index < columns()} each column is shifted to the right.
    *
    * @param c             the index {@code index < columns()}

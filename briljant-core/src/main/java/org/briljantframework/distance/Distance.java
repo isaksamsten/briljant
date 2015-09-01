@@ -24,7 +24,7 @@
 
 package org.briljantframework.distance;
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * In mathematics, a metric or distance function is a function that defines a distance between

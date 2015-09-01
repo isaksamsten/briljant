@@ -25,8 +25,8 @@
 package org.briljantframework.classification.tune;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Created by Isak Karlsson on 24/09/14.

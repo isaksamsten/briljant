@@ -24,8 +24,8 @@
 
 package org.briljantframework.evaluation;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * The partitioner represents a strategy of how to partition a {@code DataFrame} and {@code Vector}

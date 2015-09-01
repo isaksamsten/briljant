@@ -25,7 +25,7 @@
 package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.Collections;
 import java.util.HashMap;

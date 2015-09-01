@@ -24,8 +24,8 @@
 
 package org.briljantframework.dataseries;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.dataframe.transform.Transformation;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.transform.Transformation;
 
 import java.util.Objects;
 

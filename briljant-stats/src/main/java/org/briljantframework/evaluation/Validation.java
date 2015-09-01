@@ -27,9 +27,9 @@ package org.briljantframework.evaluation;
 import org.briljantframework.Check;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictor;
-import org.briljantframework.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson

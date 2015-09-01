@@ -26,7 +26,7 @@ package org.briljantframework.classification.tree;
 
 import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Represents a Tree based predictor. Uses a

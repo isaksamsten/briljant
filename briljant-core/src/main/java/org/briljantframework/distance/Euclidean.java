@@ -25,7 +25,7 @@
 package org.briljantframework.distance;
 
 
-import org.briljantframework.vector.Vector;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * EuclideanDistance between two Points (either Vectors or scalars)

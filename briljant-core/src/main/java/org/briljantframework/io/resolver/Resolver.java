@@ -24,7 +24,7 @@
 
 package org.briljantframework.io.resolver;
 
-import org.briljantframework.vector.Na;
+import org.briljantframework.data.vector.Na;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +59,9 @@ public class Resolver<R> {
 
   /**
    * Resolves the value of {@code value} to an instance of {@code R}. If it fails, returns the value
-   * denoting {@code NA} (for the type {@code R}) as returned by {@link org.briljantframework.vector.Na#from(Class)}.
+   * denoting {@code NA} (for the type {@code R}) as returned by {@link org.briljantframework.data.vector.Na#from(Class)}.
    *
-   * <p>Use {@link org.briljantframework.vector.Is#NA(java.lang.Object)} to check for {@code NA}
+   * <p>Use {@link org.briljantframework.data.vector.Is#NA(java.lang.Object)} to check for {@code NA}
    * values.
    *
    * <p>The resolves values by sequentially scan the added converters and finds the first converter

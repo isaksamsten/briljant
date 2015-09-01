@@ -24,8 +24,8 @@
 
 package org.briljantframework.io;
 
-import org.briljantframework.dataframe.DataFrame;
-import org.briljantframework.vector.VectorType;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.VectorType;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.List;
  * <p>
  * The simplest is to use the convince methods {@link #readColumnTypes()} and
  * {@link #readColumnIndex()} constructing a {@link DataFrame.Builder} and use its
- * {@link org.briljantframework.dataframe.DataFrame.Builder#read(EntryReader)} method.
+ * {@link org.briljantframework.data.dataframe.DataFrame.Builder#read(EntryReader)} method.
  * <p>
  * For example: <code>
  * <pre>
@@ -60,7 +60,7 @@ import java.util.List;
  * </code>
  *
  * Entries returned by {@link #next()} are returned in row-major order and typed according to the
- * {@link org.briljantframework.vector.VectorType}s returned by {@link #readColumnTypes()}.
+ * {@link org.briljantframework.data.vector.VectorType}s returned by {@link #readColumnTypes()}.
  *
  * For example, given the dataset, where the first and second row are names and types respectively:
  *
