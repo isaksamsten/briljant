@@ -19,11 +19,11 @@ Briljants main abstractions are the (nd)-`array <#array>`__,
    -  Different implementations with varying performance
       characteristics.
 
--  ``Vector`` is an immutable homogeneous data container. It supports
-   ``String`` (i.e. categorical values), ``Double`` (i.e. double
-   precision floating point numbers), ``Binary`` (i.e. true/false),
-   ``Integer`` and ``Complex`` numbers. All providing a unique ``NA``
-   representation.
+- ``Vector`` is an immutable homogeneous data container. It supports
+   reference types such as ``String`` (i.e. categorical values),
+   ``Double`` (i.e. double precision floating point numbers),
+   ``Binary`` (i.e. true/false/NA), ``Integer`` and ``Complex``
+   numbers. All providing a unique ``NA`` representation.
 
 -  ``Array<T>``, ``DoubleArray``, ``IntArray``, ``LongArray``,
    ``ComplexArray`` and ``BitArray`` are d-dimensional data containers
@@ -42,13 +42,10 @@ one specific type and ``NA`` supporting that it is aware of missing
 values. Suppose that we are given a list of employees and want to count
 the frequency of each name.
 
-.. note:: Since Groovy syntax is relativley close to Java and it
-    has a decent REPL (read-eval-print-loop), we'll be using it's
-    shell for the code examples in this document.
-
-::
-
-    > Vector employees = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
+.. code-block:: java
+                
+   Vector employees = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
+   /*
     0  Bob
     1  Mary
     2  Lisa
@@ -57,14 +54,17 @@ the frequency of each name.
     5  Mary
     6  Anna
     type: string
+   */
 
-    > Vector counts = employees.collect(Aggregates.valueCounts());
-    Bob   1
-    John  1
-    Anna  1
-    Lisa  2
-    Mary  2
-    type: int
+    Vector counts = employees.collect(Aggregates.valueCounts());
+    /*
+     Bob   1
+     John  1
+     Anna  1
+     Lisa  2
+     Mary  2
+     type: int
+    */
 
 In the first statement we constructs a vector of names (with the type
 ``string``). If we don't explicitly index the vector it will receive a
@@ -301,6 +301,7 @@ parameters (`c` in the example above). To simplify common use-cases,
 Briljant provides many convenience methods over the BLAS routines. 
 
 ::
+   
    DoubleArray a = Bj.doubleVector(9).assign(2).reshape(3, 3);
    DoubleArray b = Bj.rand(9, new NormalDistribution(-1, 1)).reshape(3, 3);
 
@@ -734,7 +735,7 @@ simplify and generalize the use-case outlined above, Briljant provides
    Since vectors can be indexed (using the ``Vector#setIndex``)
    method, the first example only works for `int`-indexed vectors. To
    combine over locations (i.e. physical access locations) use
-   ``Vector#loc``.
+   ``Vector#loc()``.
    
 
 Now, what if one of the vector contains ``NA`` values?

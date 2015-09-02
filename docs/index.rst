@@ -7,19 +7,9 @@ Welcome to Briljant framework's documentation!
 ==============================================
 
 
-This is the user documentation for
-`briljant <http://www.briljantframework.org>`__ (Swedish spelling of
+This is the user documentation for **briljant** (Swedish spelling of
 *brilliant*), an open source framework for efficient and simple
 scientific computations in Java.
-
-::
-
-    brilliant |ˈbrɪlj(ə)nt| adjective
-    1 (of light or color) very bright
-    2 exceptionally clever or talented
-
-    noun
-    a diamond of brilliant cut
 
 It contains among other things:
 
@@ -41,9 +31,10 @@ Contents:
    tutorial
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. Indices and tables
+.. ==================
+.. 
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
+   
