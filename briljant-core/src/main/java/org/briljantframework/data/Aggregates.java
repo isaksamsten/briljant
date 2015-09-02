@@ -28,6 +28,7 @@ import org.apache.commons.math3.stat.descriptive.AggregateSummaryStatistics;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.vector.IntVector;
 import org.briljantframework.data.vector.Is;
 import org.briljantframework.data.vector.Logical;
 import org.briljantframework.data.vector.Na;
@@ -255,6 +256,34 @@ public final class Aggregates {
       left.addAll(right);
       return left;
     }, HashSet::size);
+  }
+
+  public static <T> Collector<Object, ?, Vector> factorize() {
+    Object sync = new Object();
+    class Factorize {
+
+      Map<Object, Integer> map = new HashMap<>();
+      Vector.Builder builder = new IntVector.Builder();
+      int highest = 0;
+    }
+    return Collector.of(
+        Factorize::new,
+        (Factorize acc, Object value) -> {
+          synchronized (sync) {
+            Integer code = acc.map.get(value);
+            if (code == null) {
+              code = acc.highest;
+              acc.map.put(value, code);
+              acc.highest++;
+            }
+            acc.builder.add(code);
+          }
+        },
+        (left, right) -> {
+          return left;
+        },
+        (acc) -> acc.builder.build()
+    );
   }
 
   public static Collector<Number, ?, Double> sum() {

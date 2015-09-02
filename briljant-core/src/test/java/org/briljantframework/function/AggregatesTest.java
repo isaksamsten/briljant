@@ -24,6 +24,7 @@
 
 package org.briljantframework.function;
 
+import org.briljantframework.data.Aggregates;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
@@ -46,4 +47,13 @@ public class AggregatesTest {
     Vector counts = vec.collect(Character.class, valueCounts());
     assertEquals(2, counts.get(Integer.class, (Object) 'e').intValue());
   }
+
+
+  @Test
+  public void testFactorize() throws Exception {
+    Vector v = Vector.of("a", "b", "c", "c", "d", "d", "a");
+    Vector actual = v.collect(Aggregates.factorize());
+    assertEquals(Vector.of(0, 1, 2, 2, 3, 3, 0), actual);
+  }
+
 }

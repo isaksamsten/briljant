@@ -63,5 +63,7 @@ public class ConvertTest {
 
     assertEquals(10, Convert.to(Double.class, 10.0), 0);
     assertEquals(10, (int) Convert.to(Integer.class, 10));
+
+    assertEquals(Vector.of(1, 2, 3), Convert.to(Vector.class, Vector.of(1.0, 2.0, 3.0)));
   }
 }
