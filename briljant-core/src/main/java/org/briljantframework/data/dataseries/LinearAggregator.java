@@ -71,7 +71,7 @@ public class LinearAggregator implements Aggregator {
 
   @Override
   public VectorType getAggregatedType() {
-    return DoubleVector.TYPE;
+    return VectorType.DOUBLE;
   }
 
   private double lerp(double a, double b, double w) {

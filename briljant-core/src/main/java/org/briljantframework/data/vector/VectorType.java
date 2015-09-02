@@ -25,7 +25,9 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.index.ObjectComparator;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,9 +40,9 @@ public abstract class VectorType {
 
   public static final VectorType STRING = new GenericVectorType(String.class);
   public static final VectorType LOGICAL = new GenericVectorType(Logical.class);
-  public static final VectorType INT = IntVector.TYPE;
+  public static final VectorType INT = new IntVectorType();
   public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
-  public static final VectorType DOUBLE = DoubleVector.TYPE;
+  public static final VectorType DOUBLE = new DoubleVectorType();
   public static final VectorType OBJECT = new GenericVectorType(Object.class);
   public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
   public static final Set<VectorType> NUMERIC = new HashSet<>();
@@ -55,15 +57,15 @@ public abstract class VectorType {
     CATEGORIC.add(VectorType.LOGICAL);
 
     CLASS_TO_VECTOR_TYPE = new HashMap<>();
-    CLASS_TO_VECTOR_TYPE.put(Integer.class, VectorType.INT);
-    CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, VectorType.INT);
-    CLASS_TO_VECTOR_TYPE.put(Double.class, VectorType.DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(Double.TYPE, VectorType.DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(String.class, VectorType.STRING);
-    CLASS_TO_VECTOR_TYPE.put(Boolean.class, VectorType.LOGICAL);
-    CLASS_TO_VECTOR_TYPE.put(Logical.class, VectorType.LOGICAL);
-    CLASS_TO_VECTOR_TYPE.put(Complex.class, VectorType.COMPLEX);
-    CLASS_TO_VECTOR_TYPE.put(Object.class, VectorType.OBJECT);
+    CLASS_TO_VECTOR_TYPE.put(Integer.class, INT);
+    CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, INT);
+    CLASS_TO_VECTOR_TYPE.put(Double.class, DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(Double.TYPE, DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(String.class, STRING);
+    CLASS_TO_VECTOR_TYPE.put(Boolean.class, LOGICAL);
+    CLASS_TO_VECTOR_TYPE.put(Logical.class, LOGICAL);
+    CLASS_TO_VECTOR_TYPE.put(Complex.class, COMPLEX);
+    CLASS_TO_VECTOR_TYPE.put(Object.class, OBJECT);
   }
 
   public static VectorType from(Class<?> cls) {
@@ -157,4 +159,152 @@ public abstract class VectorType {
     return compare(a, va, b, ba) == 0;
   }
 
+  private static class DoubleVectorType extends VectorType {
+
+    @Override
+    public DoubleVector.Builder newBuilder() {
+      return new DoubleVector.Builder();
+    }
+
+    @Override
+    public DoubleVector.Builder newBuilder(int size) {
+      return new DoubleVector.Builder(size);
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+      return Double.class;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return Is.NA(value);
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      double dva = va.loc().getAsDouble(a);
+      double dba = ba.loc().getAsDouble(b);
+
+      return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
+    }
+
+    @Override
+    public Scale getScale() {
+      return Scale.NUMERICAL;
+    }
+
+    @Override
+    public String toString() {
+      return "double";
+    }
+  }
+
+  private static class IntVectorType extends VectorType {
+
+    @Override
+    public IntVector.Builder newBuilder() {
+      return new IntVector.Builder();
+    }
+
+    @Override
+    public IntVector.Builder newBuilder(int size) {
+      return new IntVector.Builder(size, size);
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+      return Integer.class;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return value == null || (value instanceof Integer && (int) value == Na.INT);
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      int x = va.loc().getAsInt(a);
+      int y = ba.loc().getAsInt(b);
+      boolean aIsNa = Is.NA(x);
+      boolean bIsNa = Is.NA(y);
+      if (aIsNa && !bIsNa) {
+        return -1;
+      } else if (!aIsNa && bIsNa) {
+        return 1;
+      } else {
+        return Integer.compare(x, y);
+      }
+    }
+
+    @Override
+    public Scale getScale() {
+      return Scale.NUMERICAL;
+    }
+
+    @Override
+    public String toString() {
+      return "int";
+    }
+  }
+
+  /**
+   * @author Isak Karlsson
+   */
+  private static class GenericVectorType extends VectorType {
+
+    private final static Comparator<Object> CMP = ObjectComparator.getInstance();
+    private Class<?> cls;
+
+    public GenericVectorType(Class<?> cls) {
+      this.cls = cls;
+    }
+
+    @Override
+    public Vector.Builder newBuilder() {
+      return new GenericVector.Builder(cls);
+    }
+
+    @Override
+    public Vector.Builder newBuilder(int size) {
+      return new GenericVector.Builder(cls, size);
+    }
+
+    @Override
+    public Class<?> getDataClass() {
+      return cls;
+    }
+
+    @Override
+    public boolean isNA(Object value) {
+      return value == null;
+    }
+
+    @Override
+    public int compare(int a, Vector va, int b, Vector ba) {
+      Object ca = va.loc().get(Object.class, a);
+      Object cb = ba.loc().get(Object.class, b);
+      return CMP.compare(ca, cb);
+    }
+
+    @Override
+    public Scale getScale() {
+      return Number.class.isAssignableFrom(cls) ? Scale.NUMERICAL : Scale.NOMINAL;
+    }
+
+    @Override
+    public int hashCode() {
+      return cls.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof GenericVectorType && ((GenericVectorType) obj).cls.equals(cls);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s", cls.getSimpleName());
+    }
+  }
 }

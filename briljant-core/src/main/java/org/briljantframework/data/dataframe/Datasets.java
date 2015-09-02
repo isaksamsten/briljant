@@ -153,7 +153,7 @@ public class Datasets {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
     DataFrame frame = loadSyntheticControl(
-        types -> new DataSeriesCollection.Builder(DoubleVector.TYPE)
+        types -> new DataSeriesCollection.Builder(VectorType.DOUBLE)
     );
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;

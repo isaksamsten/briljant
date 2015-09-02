@@ -50,46 +50,6 @@ import java.util.stream.DoubleStream;
  */
 public class DoubleVector extends AbstractVector {
 
-  public static final VectorType TYPE = new VectorType() {
-    @Override
-    public Builder newBuilder() {
-      return new Builder();
-    }
-
-    @Override
-    public Builder newBuilder(int size) {
-      return new Builder(size);
-    }
-
-    @Override
-    public Class<?> getDataClass() {
-      return Double.class;
-    }
-
-    @Override
-    public boolean isNA(Object value) {
-      return Is.NA(value);
-    }
-
-    @Override
-    public int compare(int a, Vector va, int b, Vector ba) {
-      double dva = va.loc().getAsDouble(a);
-      double dba = ba.loc().getAsDouble(b);
-
-      return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
-    }
-
-    @Override
-    public Scale getScale() {
-      return Scale.NUMERICAL;
-    }
-
-    @Override
-    public String toString() {
-      return "double";
-    }
-  };
-
   private final double[] buffer;
   private final int size;
 
@@ -196,7 +156,7 @@ public class DoubleVector extends AbstractVector {
 
   @Override
   public VectorType getType() {
-    return TYPE;
+    return VectorType.DOUBLE;
   }
 
   @Override
@@ -540,4 +500,5 @@ public class DoubleVector extends AbstractVector {
       return "Index: " + index + ", Size: " + size;
     }
   }
+
 }

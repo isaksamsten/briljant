@@ -72,9 +72,9 @@ public class RdsInputStream extends DataInputStream {
 
   static {
     Map<String, VectorType> map = new HashMap<>();
-    map.put("numeric", DoubleVector.TYPE);
+    map.put("numeric", VectorType.DOUBLE);
     map.put("date", VectorType.from(LocalDate.class));
-    map.put("regressor", DoubleVector.TYPE);
+    map.put("regressor", VectorType.DOUBLE);
     map.put("class", VectorType.from(String.class));
     map.put("categoric", VectorType.from(String.class));
 

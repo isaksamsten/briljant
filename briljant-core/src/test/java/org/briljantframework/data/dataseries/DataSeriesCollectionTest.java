@@ -27,6 +27,7 @@ package org.briljantframework.data.dataseries;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +36,7 @@ public class DataSeriesCollectionTest {
 
   @Test
   public void testDropRows() throws Exception {
-    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(DoubleVector.TYPE);
+    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(VectorType.DOUBLE);
     builder.addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
         .addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
         .addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6));

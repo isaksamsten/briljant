@@ -102,6 +102,6 @@ public class LeastTriagleThreeBucketAggregator implements Aggregator {
 
   @Override
   public VectorType getAggregatedType() {
-    return DoubleVector.TYPE;
+    return VectorType.DOUBLE;
   }
 }

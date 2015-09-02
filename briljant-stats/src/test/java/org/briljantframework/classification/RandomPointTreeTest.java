@@ -30,6 +30,7 @@ import org.briljantframework.classification.tree.Example;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
+import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.io.DataInputStream;
@@ -134,10 +135,10 @@ public class RandomPointTreeTest {
     try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
          DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
-          DataFrames.permuteRecords(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
+          DataFrames.permuteRecords(new DataSeriesCollection.Builder(VectorType.DOUBLE).read(train)
                                         .build());
       DataFrame validationSet =
-          new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
+          new DataSeriesCollection.Builder(VectorType.DOUBLE).read(test).build();
 
       DataFrame xTrain = trainingSet.drop(0);
       Vector yTrain = Convert.toStringVector(trainingSet.get(0));

@@ -190,10 +190,10 @@ public class RandomShapeletForestTest {
     String testFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TEST", name, name);
     try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
          DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
-      DataFrame trainingSet = new DataSeriesCollection.Builder(DoubleVector.TYPE)
+      DataFrame trainingSet = new DataSeriesCollection.Builder(VectorType.DOUBLE)
           .read(train)
           .build();
-      DataFrame validationSet = new DataSeriesCollection.Builder(DoubleVector.TYPE)
+      DataFrame validationSet = new DataSeriesCollection.Builder(VectorType.DOUBLE)
           .read(test)
           .build();
       System.out.println(trainingSet);

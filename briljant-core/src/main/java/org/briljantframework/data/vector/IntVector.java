@@ -28,9 +28,9 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
@@ -43,53 +43,6 @@ import java.util.stream.IntStream;
  * @author Isak Karlsson
  */
 public class IntVector extends AbstractVector {
-
-  public static final VectorType TYPE = new VectorType() {
-    @Override
-    public Builder newBuilder() {
-      return new Builder();
-    }
-
-    @Override
-    public Builder newBuilder(int size) {
-      return new Builder(size, size);
-    }
-
-    @Override
-    public Class<?> getDataClass() {
-      return Integer.class;
-    }
-
-    @Override
-    public boolean isNA(Object value) {
-      return value == null || (value instanceof Integer && (int) value == Na.INT);
-    }
-
-    @Override
-    public int compare(int a, Vector va, int b, Vector ba) {
-      int x = va.loc().getAsInt(a);
-      int y = ba.loc().getAsInt(b);
-      boolean aIsNa = Is.NA(x);
-      boolean bIsNa = Is.NA(y);
-      if (aIsNa && !bIsNa) {
-        return -1;
-      } else if (!aIsNa && bIsNa) {
-        return 1;
-      } else {
-        return Integer.compare(x, y);
-      }
-    }
-
-    @Override
-    public Scale getScale() {
-      return Scale.NUMERICAL;
-    }
-
-    @Override
-    public String toString() {
-      return "int";
-    }
-  };
 
   private final int[] buffer;
   private final int size;
@@ -167,7 +120,7 @@ public class IntVector extends AbstractVector {
 
   @Override
   public final VectorType getType() {
-    return TYPE;
+    return VectorType.INT;
   }
 
   @Override
@@ -471,4 +424,5 @@ public class IntVector extends AbstractVector {
       return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
     }
   }
+
 }

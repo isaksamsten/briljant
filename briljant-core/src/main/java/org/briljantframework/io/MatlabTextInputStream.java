@@ -73,7 +73,7 @@ public class MatlabTextInputStream extends DataInputStream {
     initializeValues();
     if (currentType < columns) {
       currentType++;
-      return DoubleVector.TYPE;
+      return VectorType.DOUBLE;
     } else {
       return null;
     }

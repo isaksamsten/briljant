@@ -57,8 +57,8 @@ public class ArffInputStream extends DataInputStream {
 
   static {
     TYPE_MAP = new HashMap<>();
-    TYPE_MAP.put("real", DoubleVector.TYPE);
-    TYPE_MAP.put("numeric", DoubleVector.TYPE);
+    TYPE_MAP.put("real", VectorType.DOUBLE);
+    TYPE_MAP.put("numeric", VectorType.DOUBLE);
   }
 
   private BufferedReader reader;

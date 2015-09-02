@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import static org.briljantframework.data.vector.Vectors.identityBuilder;
+
 /**
  * @author Isak Karlsson
  */
@@ -89,9 +91,10 @@ class FoldIterator implements Iterator<Partition> {
     // foldSize * current examples as training examples
     int trainingEnd = foldEnd - pad;
     for (int i = 0; i < trainingEnd; i++) {
-      for (int j = 0; j < x.columns(); j++) {
-        xTrainingBuilder.loc().set(i, j, x, index, j);
-      }
+//      for (int j = 0; j < x.columns(); j++) {
+//        xTrainingBuilder.loc().set(i, j, x, index, j);
+//      }
+      xTrainingBuilder.loc().setRecord(i, identityBuilder(x.loc().getRecord(index)));
       yTrainingBuilder.add(y, index);
       index += 1;
     }
@@ -101,9 +104,10 @@ class FoldIterator implements Iterator<Partition> {
     int newIndex = 0;
     int validationEnd = foldEnd + foldSize;
     for (int i = trainingEnd; i < validationEnd; i++) {
-      for (int j = 0; j < x.columns(); j++) {
-        xValidationBuilder.loc().set(newIndex, j, x, index, j);
-      }
+//      for (int j = 0; j < x.columns(); j++) {
+//        xValidationBuilder.loc().set(newIndex, j, x, index, j);
+//      }
+      xValidationBuilder.loc().setRecord(newIndex, identityBuilder(x.loc().getRecord(index)));
       yValidationBuilder.add(y, index);
       index += 1;
       newIndex += 1;
@@ -112,9 +116,10 @@ class FoldIterator implements Iterator<Partition> {
     // Part 3: this is a training part
     newIndex = trainingEnd;
     for (int i = validationEnd; i < rows; i++) {
-      for (int j = 0; j < x.columns(); j++) {
-        xTrainingBuilder.loc().set(newIndex, j, x, index, j);
-      }
+//      for (int j = 0; j < x.columns(); j++) {
+//        xTrainingBuilder.loc().set(newIndex, j, x, index, j);
+//      }
+      xTrainingBuilder.loc().setRecord(newIndex, identityBuilder(x.loc().getRecord(index)));
       yTrainingBuilder.add(y, index);
       index += 1;
       newIndex += 1;

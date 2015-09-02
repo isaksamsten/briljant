@@ -36,8 +36,8 @@ public class FoldPartitionerTest {
   @Test
   public void testPartition() throws Exception {
     DataFrame dummy = Datasets.loadIris();
-    DataFrame x = dummy.loc().get(0, 2);
-    Vector y = dummy.loc().get(2);
+    DataFrame x = dummy.loc().get(0, 1, 2, 3);
+    Vector y = dummy.loc().get(4);
 
     System.out.println(x);
 
@@ -46,8 +46,8 @@ public class FoldPartitionerTest {
     int i = 0;
     for (Partition partition : partitionIterator) {
       System.out.println("Fold " + i++);
-      System.out.println(partition.getTrainingData().rows());
-      System.out.println(partition.getValidationData().rows());
+      System.out.println(partition.getTrainingData().head(135));
+      System.out.println(partition.getValidationData().head(15));
     }
 
     // DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
