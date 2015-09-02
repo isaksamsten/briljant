@@ -29,8 +29,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.index.DataFrameLocationGetter;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.index.DataFrameLocationGetter;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.VectorType;
 
 /**
@@ -49,7 +49,7 @@ public class ZNormalizer implements Transformer {
     DoubleArray mean = Bj.doubleArray(frame.columns());
     DoubleArray sigma = Bj.doubleArray(frame.columns());
     for (int i = 0; i < frame.columns(); i++) {
-      StatisticalSummary stats = Vec.statistics(frame.loc().get(i));
+      StatisticalSummary stats = Vectors.statistics(frame.loc().get(i));
       mean.set(i, stats.getMean());
       sigma.set(i, stats.getStandardDeviation());
     }

@@ -26,7 +26,7 @@ package org.briljantframework.evaluation.measure;
 
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumMap;
@@ -60,13 +60,13 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
 
   @Override
   public double getAverage(Sample sample, String value) {
-    return Vec.mean(get(sample, value));
+    return Vectors.mean(get(sample, value));
   }
 
   @Override
   public double getStandardDeviation(Sample sample, String value) {
     double mean = getAverage(sample, value);
-    return Vec.std(get(sample, value), mean);
+    return Vectors.std(get(sample, value), mean);
   }
 
   @Override

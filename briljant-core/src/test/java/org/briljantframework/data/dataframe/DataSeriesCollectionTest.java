@@ -24,7 +24,7 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.data.dataseries.DataSeriesCollection;
 import org.briljantframework.data.vector.VectorType;
 
 /**

@@ -28,8 +28,8 @@ import com.carrotsearch.hppc.ObjectIntMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.index.DataFrameLocationSetter;
-import org.briljantframework.index.Index;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.Collection;

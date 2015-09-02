@@ -24,7 +24,7 @@
 
 package org.briljantframework.data.vector;
 
-import org.briljantframework.index.Index;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;

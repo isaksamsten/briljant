@@ -29,11 +29,11 @@ import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.function.Aggregates;
-import org.briljantframework.index.Index;
-import org.briljantframework.index.IntIndex;
-import org.briljantframework.index.VectorLocationGetter;
-import org.briljantframework.index.VectorLocationSetter;
+import org.briljantframework.data.Aggregates;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.IntIndex;
+import org.briljantframework.data.index.VectorLocationGetter;
+import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.QuickSort;
 
@@ -267,11 +267,6 @@ public abstract class AbstractVector implements Vector {
         .filter(bits::isTrue)
         .forEach(key -> builder.set(key, this, key));
     return builder.build();
-  }
-
-  @Override
-  public VectorType getType(int index) {
-    return getType();
   }
 
   @Override

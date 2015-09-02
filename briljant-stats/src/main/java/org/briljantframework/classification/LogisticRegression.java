@@ -37,7 +37,7 @@ import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
 import org.briljantframework.data.vector.GenericVector;
 import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumSet;
@@ -95,11 +95,11 @@ public class LogisticRegression implements Classifier {
     int m = df.columns();
     Check.argument(n == target.size(),
                    "The number of training instances must equal the number of target");
-    Vector classes = Vec.unique(target);
+    Vector classes = Vectors.unique(target);
     DoubleArray x = constructInputMatrix(df, n, m);
     IntArray y = Bj.intArray(target.size());
     for (int i = 0; i < y.size(); i++) {
-      y.set(i, Vec.find(classes, target, i));
+      y.set(i, Vectors.find(classes, target, i));
     }
     DoubleArray theta;
     DifferentialFunction objective;
@@ -404,7 +404,7 @@ public class LogisticRegression implements Classifier {
     }
 
     public double getOddsRatio(Object coefficient) {
-      int i = Vec.find(names, coefficient);
+      int i = Vectors.find(names, coefficient);
       if (i < 0) {
         throw new IllegalArgumentException("Label not found");
       }

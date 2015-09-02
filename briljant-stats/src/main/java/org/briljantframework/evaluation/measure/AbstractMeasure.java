@@ -28,7 +28,7 @@ import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Is;
 import org.briljantframework.data.vector.Na;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumMap;
@@ -146,7 +146,7 @@ public abstract class AbstractMeasure implements Measure {
         if (Is.NA(mean)) {
           std.put(e.getKey(), mean);
         }
-        std.put(e.getKey(), Vec.std(e.getValue().getTemporaryVector(), mean));
+        std.put(e.getKey(), Vectors.std(e.getValue().getTemporaryVector(), mean));
       }
 
       return std;

@@ -29,12 +29,12 @@ import org.briljantframework.array.Array;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.Aggregates;
 import org.briljantframework.data.SortOrder;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.VectorLocationGetter;
+import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.function.Aggregates;
-import org.briljantframework.index.Index;
-import org.briljantframework.index.VectorLocationGetter;
-import org.briljantframework.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
 
 import java.io.IOException;
@@ -491,15 +491,6 @@ public interface Vector extends Serializable {
    */
   VectorType getType();
 
-  /**
-   * Get type of value at {@code index}
-   *
-   * @param index the index
-   * @return the type of value
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  VectorType getType(int index);
-
   <T> List<T> asList(Class<T> cls);
 
   <T> Stream<T> stream(Class<T> cls);
@@ -515,7 +506,8 @@ public interface Vector extends Serializable {
   /**
    * <p>Copies this vector to a {@link org.briljantframework.array.Array}. An appropriate
    * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
-   * preferred. For example, a {@link org.briljantframework.data.vector.DoubleVector} should return a
+   * preferred. For example, a {@link org.briljantframework.data.vector.DoubleVector} should return
+   * a
    * {@link org.briljantframework.array.DoubleArray} implementation.
    *
    * <pre>{@code

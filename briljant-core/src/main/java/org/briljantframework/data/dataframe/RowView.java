@@ -84,11 +84,6 @@ class RowView extends AbstractVector {
   }
 
   @Override
-  public VectorType getType(int index) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Builder newCopyBuilder() {
     return newBuilder().addAll(this);
   }

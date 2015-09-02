@@ -25,7 +25,7 @@
 package org.briljantframework.distance;
 
 import org.briljantframework.Check;
-import org.briljantframework.dataseries.SymbolicAggregator;
+import org.briljantframework.data.dataseries.SymbolicAggregator;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.Arrays;

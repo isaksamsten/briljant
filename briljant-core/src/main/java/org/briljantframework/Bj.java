@@ -40,6 +40,7 @@ import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
+import org.briljantframework.array.netlib.NetlibArrayBackend;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
@@ -70,8 +71,7 @@ public final class Bj {
             .filter(ArrayBackend::isAvailable)
             .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority()))
             .findFirst()
-            .orElseThrow(() -> new UnsupportedOperationException(String.format(
-                "Unable to load MatrixBackend. No available matrix backend registered.")));
+            .orElse(new NetlibArrayBackend());
 
     MATRIX_FACTORY = backend.getArrayFactory();
     MATRIX_ROUTINES = backend.getArrayRoutines();

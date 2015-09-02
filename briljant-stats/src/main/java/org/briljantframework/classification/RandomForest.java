@@ -32,7 +32,7 @@ import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class RandomForest extends Ensemble {
 
   @Override
   public DefaultEnsemblePredictor fit(DataFrame x, Vector y) {
-    Vector classes = Vec.unique(y);
+    Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> fitTasks = new ArrayList<>();
     BitArray oobIndicator = Bj.booleanArray(x.rows(), size());

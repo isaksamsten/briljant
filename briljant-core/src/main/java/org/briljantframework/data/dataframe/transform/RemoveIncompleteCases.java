@@ -26,7 +26,7 @@ package org.briljantframework.data.dataframe.transform;
 
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.index.DataFrameLocationGetter;
+import org.briljantframework.data.index.DataFrameLocationGetter;
 
 /**
  * Removes incomplete cases, i.e. rows with missing values.

@@ -24,9 +24,9 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.index.DataFrameLocationSetter;
-import org.briljantframework.index.Index;
-import org.briljantframework.index.VectorLocationGetter;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.HashMap;

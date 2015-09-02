@@ -26,13 +26,13 @@ package org.briljantframework.io.resolver;
 
 import org.briljantframework.data.vector.Na;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Resolver<R> {
 
   private final Class<R> cls;
-  private final List<Holder<R>> converters = new ArrayList<>();
+  private final List<Holder<R>> converters = new CopyOnWriteArrayList<>();
 
   public Resolver(Class<R> cls) {
     this.cls = cls;
@@ -46,22 +46,23 @@ public class Resolver<R> {
    * @param <T>       the type
    */
   public <T> void put(Class<T> cls, Converter<T, R> converter) {
-    synchronized (converters) {
-      for (Holder<R> holder : converters) {
-        if (holder.cls.equals(cls)) {
-          holder.converter = converter;
-          return;
-        }
+    for (Holder<R> holder : converters) {
+      if (holder.cls.equals(cls)) {
+        holder.converter = converter;
+        return;
       }
-      converters.add(new Holder<>(cls, converter));
     }
+    converters.add(new Holder<>(cls, converter));
   }
 
   /**
-   * Resolves the value of {@code value} to an instance of {@code R}. If it fails, returns the value
-   * denoting {@code NA} (for the type {@code R}) as returned by {@link org.briljantframework.data.vector.Na#from(Class)}.
+   * Resolves the value of {@code value} to an instance of {@code R}. If it fails, returns the
+   * value
+   * denoting {@code NA} (for the type {@code R}) as returned by {@link
+   * org.briljantframework.data.vector.Na#from(Class)}.
    *
-   * <p>Use {@link org.briljantframework.data.vector.Is#NA(java.lang.Object)} to check for {@code NA}
+   * <p>Use {@link org.briljantframework.data.vector.Is#NA(java.lang.Object)} to check for {@code
+   * NA}
    * values.
    *
    * <p>The resolves values by sequentially scan the added converters and finds the first converter
@@ -71,7 +72,7 @@ public class Resolver<R> {
    * class matches)
    *
    * @param value the value to resolve
-   * @return the resolved value; or {@code Vectors.naValue(value.getClass())} otherwise
+   * @return the resolved value; or {@code Na.from(value.getClass())} otherwise
    */
   public R resolve(Object value) {
     return resolve(value.getClass(), value);

@@ -34,7 +34,7 @@ import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.array.BitArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class RandomShapeletForest extends Ensemble {
 
   @Override
   public Predictor fit(DataFrame x, Vector y) {
-    Vector classes = Vec.unique(y);
+    Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
     BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
@@ -88,7 +88,7 @@ public class RandomShapeletForest extends Ensemble {
       lenSum.update(v -> v / size());
       posSum.update(v -> v / size());
 
-      Map<Object, Integer> counts = Vec.count(y);
+      Map<Object, Integer> counts = Vectors.count(y);
       DoubleArray apriori = Bj.doubleArray(classes.size());
       for (int i = 0; i < classes.size(); i++) {
         apriori.set(i, counts.get(classes.loc().get(Object.class, i)) / (double) y.size());

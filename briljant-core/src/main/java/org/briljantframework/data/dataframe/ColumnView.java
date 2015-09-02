@@ -24,8 +24,7 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.Check;
-import org.briljantframework.index.DataFrameLocationGetter;
+import org.briljantframework.data.index.DataFrameLocationGetter;
 import org.briljantframework.data.vector.AbstractVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -83,12 +82,6 @@ class ColumnView extends AbstractVector {
   @Override
   public VectorType getType() {
     return type;
-  }
-
-  @Override
-  public VectorType getType(int index) {
-    Check.size(index, size());
-    return getType();
   }
 
   @Override

@@ -24,11 +24,11 @@
 
 package org.briljantframework.data.dataframe;
 
+import org.briljantframework.data.Aggregates;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.function.Aggregates;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.StringDataEntry;
@@ -423,6 +423,23 @@ public abstract class DataFrameTest {
     assertEquals(on, join.get("a"));
     assertEquals(actualLeftAndRight, join.get("left"));
     assertEquals(actualLeftAndRight, join.get("right"));
+  }
+
+  @Test
+  public void testResetIndex() throws Exception {
+    DataFrame df = getBuilder()
+        .setRecord("a", Vector.of(1, 2, 3))
+        .setRecord("b", Vector.of(1, 2, 3))
+        .setRecord("c", Vector.of(1, 2, 3))
+        .setRecord("d", Vector.of(1, 2, 3))
+        .setRecord("e", Vector.of(1, 2, 3))
+        .build();
+
+    DataFrame actual = df.resetIndex();
+    System.out.println(actual);
+    assertEquals(Vector.of("a", "b", "c", "d", "e"), actual.get("index"));
+    assertEquals(Arrays.<Object>asList(0, 1, 2, 3, 4), actual.getRecordIndex().asList());
+
   }
 
   @Test

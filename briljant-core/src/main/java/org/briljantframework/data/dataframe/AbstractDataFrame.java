@@ -33,18 +33,19 @@ import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.dataframe.join.JoinUtils;
 import org.briljantframework.data.dataframe.join.Joiner;
+import org.briljantframework.data.index.DataFrameLocationGetter;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.IntIndex;
+import org.briljantframework.data.index.ObjectComparator;
+import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.vector.GenericVector;
 import org.briljantframework.data.vector.IntVector;
 import org.briljantframework.data.vector.Is;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.index.DataFrameLocationGetter;
-import org.briljantframework.index.DataFrameLocationSetter;
-import org.briljantframework.index.Index;
-import org.briljantframework.index.IntIndex;
-import org.briljantframework.index.ObjectComparator;
-import org.briljantframework.index.VectorLocationGetter;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.sort.QuickSort;
@@ -499,7 +500,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     Builder builder = newBuilder();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
-      if (Arrays.binarySearch(indexes, i) < 0) {
+      if (Arrays.binarySearch(indexes, i) < 0) { // TODO: indexes is not sorted!!
         columnIndex.add(getColumnIndex().getKey(i));
         builder.add(getAt(i));
       }
@@ -523,21 +524,22 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame drop(Object... keys) {
+
     return dropAt(getColumnIndex().locations(keys));
   }
 
   @Override
-  public DataFrame drop(Predicate<? super Vector> predicate) {
+  public DataFrame drop(Predicate<Vector> predicate) {
     Builder builder = newBuilder();
-    Index.Builder columnIndex = getColumnIndex().newBuilder();
-    for (int j = 0; j < columns(); j++) {
-      Vector column = getAt(j);
+    for (Object columnKey : getColumnIndex().keySet()) {
+      Vector column = get(columnKey);
       if (predicate.test(column)) {
-        builder.add(column);
-        columnIndex.add(getColumnIndex().getKey(j));
+        builder.set(columnKey, getIdentityVectorBuilder(column));
       }
     }
-    return transferRecordIndex(builder, columnIndex);
+    DataFrame df = builder.build();
+    df.setRecordIndex(getRecordIndex());
+    return df;
   }
 
   @Override
@@ -549,7 +551,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame getRecord(Object... keys) {
     DataFrame.Builder builder = newBuilder();
     for (Object key : keys) {
-      builder.setRecord(key, getRecord(key));
+      builder.setRecord(key, getIdentityVectorBuilder(getRecord(key)));
     }
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
@@ -565,7 +567,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame select(Object from, BoundType fromBound, Object to, BoundType toBound) {
     DataFrame.Builder builder = newBuilder();
     for (Object record : getRecordIndex().selectRange(from, fromBound, to, toBound)) {
-      builder.setRecord(record, getRecord(record));
+      builder.setRecord(record, getIdentityVectorBuilder(getRecord(record)));
     }
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
@@ -577,7 +579,9 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame.Builder builder = newBuilder();
     getRecordIndex().keySet().stream()
         .filter(bits::isTrue)
-        .forEach(recordKey -> builder.setRecord(recordKey, getRecord(recordKey)));
+        .forEach(recordKey -> {
+          builder.setRecord(recordKey, getIdentityVectorBuilder(getRecord(recordKey)));
+        });
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
     return df;
@@ -589,7 +593,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (Object recordKey : getRecordIndex().keySet()) {
       Vector record = getRecord(recordKey);
       if (predicate.test(record)) {
-        builder.setRecord(recordKey, record);
+        builder.setRecord(recordKey, getIdentityVectorBuilder(record));
       }
     }
 
@@ -687,26 +691,6 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrame stack(Iterable<DataFrame> dataFrames) {
-    DataFrame.Builder builder = newCopyBuilder();
-    for (DataFrame dataFrame : dataFrames) {
-      Check.size(this.columns(), dataFrame.columns());
-      builder.stack(dataFrame);
-    }
-    return builder.build();
-  }
-
-  @Override
-  public DataFrame concat(Iterable<DataFrame> dataFrames) {
-    DataFrame.Builder builder = newCopyBuilder();
-    for (DataFrame dataFrame : dataFrames) {
-      Check.size(this.columns(), dataFrame.columns());
-      builder.concat(dataFrame);
-    }
-    return builder.build();
-  }
-
-  @Override
   public DataFrame copy() {
     DataFrame df = newCopyBuilder().build();
     df.setColumnIndex(getColumnIndex());
@@ -779,24 +763,34 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame resetIndex() {
-    DataFrame.Builder builder = newBuilder().add(VectorType.from(Object.class));
-    Index.Builder columnIndex = new ObjectIndex.Builder();
-    columnIndex.add("index");
-    for (int i = 0; i < rows(); i++) {
-      builder.loc().set(i, 0, getRecordIndex().getKey(i));
+    Check.state(!getColumnIndex().contains("index"), "cannot insert 'index', already exists");
+    DataFrame.Builder builder = newBuilder();
+    Vector.Builder indexColumn = new TypeInferenceVectorBuilder();
+    getRecordIndex().keySet().forEach(indexColumn::add);
+    builder.set("index", indexColumn);
+    for (Object columnKey : getColumnIndex().keySet()) {
+      builder.set(columnKey, getIdentityVectorBuilder(get(columnKey)));
     }
-    int column = 1;
-    for (int j = 0; j < columns(); j++) {
-      columnIndex.add(getColumnIndex().getKey(j));
-      for (int i = 0; i < rows(); i++) {
-        builder.loc().set(i, column, this, i, j);
-      }
-      column++;
-    }
+
     DataFrame df = builder.build();
     df.setRecordIndex(new IntIndex(0, rows()));
-    df.setColumnIndex(columnIndex.build());
     return df;
+  }
+
+  /**
+   * Returns a vector builder from the supplied vector. If possible, an {@link
+   * Vectors#identityBuilder(org.briljantframework.data.vector.Vector) identity builder} is
+   * returned.
+   *
+   * @param vector the vector
+   * @return an identity vector if possible
+   */
+  protected Vector.Builder getIdentityVectorBuilder(Vector vector) {
+    if (vector instanceof RowView || vector instanceof ColumnView) {
+      return vector.newCopyBuilder();
+    } else {
+      return Vectors.identityBuilder(vector);
+    }
   }
 
   /**

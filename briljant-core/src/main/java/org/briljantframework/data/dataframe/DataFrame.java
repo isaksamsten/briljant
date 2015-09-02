@@ -29,12 +29,12 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
+import org.briljantframework.data.index.DataFrameLocationGetter;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.Ix;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.index.DataFrameLocationGetter;
-import org.briljantframework.index.DataFrameLocationSetter;
-import org.briljantframework.index.Index;
-import org.briljantframework.index.Ix;
 import org.briljantframework.io.EntryReader;
 
 import java.io.IOException;
@@ -207,7 +207,7 @@ public interface DataFrame extends Iterable<Vector> {
    * <p> Returns a series consisting of the mean of the {@code Double} columns in {@code this}
    * dataframe.
    *
-   * <p> Note that {@link org.briljantframework.function.Aggregates} implement several convenient
+   * <p> Note that {@link org.briljantframework.data.Aggregates} implement several convenient
    * aggregates, for example {@code df.collect(Number.class, Aggregate.median())}.
    *
    * @param <T>       the type of value to be aggregated
@@ -261,7 +261,7 @@ public interface DataFrame extends Iterable<Vector> {
 
   DataFrame drop(Object... keys);
 
-  DataFrame drop(Predicate<? super Vector> predicate);
+  DataFrame drop(Predicate<Vector> predicate);
 
   Vector getRecord(Object key);
 
@@ -312,23 +312,6 @@ public interface DataFrame extends Iterable<Vector> {
   DataFrame addRecord(Vector record);
 
   /**
-   * {@code stack} {@code DataFrames} on top of each other.  All DataFrames in {@code dataFrames}
-   * must have the same number of columns.
-   *
-   * @param dataFrames the data frames to stack.
-   * @return a new data data frame
-   */
-  DataFrame stack(Iterable<DataFrame> dataFrames);
-
-  /**
-   * {@code concat}enate {@code DataFrames} side-by-side.
-   *
-   * @param dataFrames the data frames to stack.
-   * @return a new data frame
-   */
-  DataFrame concat(Iterable<DataFrame> dataFrames);
-
-  /**
    * Returns the number of rows in this data frame
    *
    * @return the number of rows
@@ -366,7 +349,7 @@ public interface DataFrame extends Iterable<Vector> {
   Builder newCopyBuilder();
 
   /**
-   * Returns {@code this} DataFrame as a real valued matrix.
+   * Returns {@code this} DataFrame as an {@linkplain org.briljantframework.array.Array array}.
    *
    * @return this data frame as a matrix
    */
@@ -500,128 +483,6 @@ public interface DataFrame extends Iterable<Vector> {
     }
 
     Builder setRecordIndex(Index recordIndex);
-
-    /**
-     * Concatenates the row at {@code toRow} with {@code vector} starting at {@code startCol}. If
-     * {@code startCol < columns()}, values will be overwritten.
-     *
-     * @param toRow    the row to concat {@code vector} with
-     * @param startCol the starting index in {@code toRow}
-     * @param vector   the vector to concat
-     * @return receiver modified
-     */
-    default Builder concat(int toRow, int startCol, Vector vector) {
-      if (startCol > columns() || startCol < 0 || toRow > rows() || toRow < 0) {
-        throw new IndexOutOfBoundsException();
-      }
-
-      for (int i = 0; i < vector.size(); i++) {
-        if (startCol == columns()) {
-          add(vector.getType(i).newBuilder());
-        }
-
-        loc().set(toRow, startCol++, vector, i);
-      }
-      return this;
-    }
-
-    /**
-     * Same as {@code concat(toRow, columns(), vector)}
-     *
-     * @param toRow  the row concat {@code vector} with
-     * @param vector the vector to concat
-     * @return receiver modified
-     */
-    default Builder concat(int toRow, Vector vector) {
-      return concat(toRow, columns(), vector);
-    }
-
-    /**
-     * Concatenates {@code this} builder with {@code frame}. If {@code startCol < columns()} values
-     * will be overwritten. <p> For example, a builder representing:
-     * <pre>
-     * a   b
-     * 2   2
-     * 3   5
-     * 3   5</pre>
-     *
-     * concatenated with
-     * <pre>
-     * c   d
-     * a   b
-     * c   d</pre>
-     *
-     * results in
-     * <pre>
-     * a   b   c   d
-     * 2   2   a   b
-     * 3   5   c   d
-     * 3   5   NA  NA</pre>
-     *
-     * (assuming that startCol = columns())
-     * </pre>
-     *
-     * @param startCol the starting column
-     * @param frame    the data frame to concatenate
-     * @return receiver modified
-     */
-    default Builder concat(int startCol, DataFrame frame) {
-      for (int i = 0; i < frame.columns(); i++) {
-//        if (frame.getColumnNames().containsKey(i)) {
-//          getColumnNames().put(startCol + i, frame.getColumnName(i));
-//        }
-      }
-      for (int i = 0; i < rows(); i++) {
-        concat(i, startCol, frame.loc().getRecord(i));
-      }
-      return this;
-    }
-
-    /**
-     * @param frame the data frame
-     * @return receiver modified
-     */
-    default Builder concat(DataFrame frame) {
-      return concat(columns(), frame);
-    }
-
-    default Builder stack(int toCol, Vector vector) {
-      return stack(rows(), toCol, vector);
-    }
-
-    /**
-     * Add all values in {@code vector} to column {@code toCol}, starting at {@code startRow}. If
-     * {@code startRow < rows()}, values are overwritten.
-     *
-     * @param startRow the start row
-     * @param toCol    the index
-     * @param vector   the vector
-     * @return a modified builder
-     */
-    default Builder stack(int startRow, int toCol, Vector vector) {
-      for (int i = 0; i < vector.size(); i++) {
-        loc().set(startRow++, toCol, vector, i);
-      }
-      return this;
-    }
-
-    default Builder stack(DataFrame frame) {
-      return stack(rows(), frame);
-    }
-
-    /**
-     * Add all values from frame (from column 0 until column()) starting at {@code startRow}. If
-     * {@code startRow < rows()}, values are overwritten.
-     *
-     * @param frame the frame
-     * @return a modified builder
-     */
-    default Builder stack(int startRow, DataFrame frame) {
-      for (int i = 0; i < frame.columns(); i++) {
-        stack(startRow, i, frame.loc().get(i));
-      }
-      return this;
-    }
 
     /**
      * Read values from the {@code inputStream} and add the values to the correct column.

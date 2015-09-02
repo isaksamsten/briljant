@@ -24,7 +24,7 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.data.dataseries.DataSeriesCollection;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.RdsInputStream;
 import org.briljantframework.io.MatlabTextInputStream;

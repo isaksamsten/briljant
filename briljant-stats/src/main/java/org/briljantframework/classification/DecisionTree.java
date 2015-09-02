@@ -36,7 +36,7 @@ import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -64,7 +64,7 @@ public class DecisionTree implements Classifier {
   @Override
   public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
-    Vector classes = this.classes != null ? this.classes : Vec.unique(y);
+    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
     if (classSet == null) {
       classSet = new ClassSet(y, classes);
     }

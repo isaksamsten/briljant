@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.briljantframework.data.vector.Vec.find;
+import static org.briljantframework.data.vector.Vectors.find;
 
 /**
  * @author Isak Karlsson

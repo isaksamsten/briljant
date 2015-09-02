@@ -25,7 +25,7 @@
 package org.briljantframework.data.dataframe;
 
 import org.briljantframework.Check;
-import org.briljantframework.index.Index;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;

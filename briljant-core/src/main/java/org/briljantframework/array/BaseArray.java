@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  * The {@code Matrix} interface is a base interface for several different matrix implementations.
  *
  * There are four supported matrix types {@code double}, {@code int}, {@code boolean} and
- * {@link org.briljantframework.complex.Complex}, specialized in
+ * {@link org.apache.commons.math3.complex.Complex}, specialized in
  * {@link DoubleArray}, {@link IntArray}
  * , {@link BitArray} and
  * {@link ComplexArray} respectively.
@@ -899,7 +899,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
 
   /**
    * Returns {@code true} if th
-   * @return
    */
   boolean isView();
 

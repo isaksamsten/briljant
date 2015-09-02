@@ -24,7 +24,7 @@
 
 package org.briljantframework.data.vector;
 
-import org.briljantframework.index.ObjectComparator;
+import org.briljantframework.data.index.ObjectComparator;
 
 import java.util.Comparator;
 

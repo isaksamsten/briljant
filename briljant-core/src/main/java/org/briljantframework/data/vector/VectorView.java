@@ -113,11 +113,6 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public VectorType getType(int index) {
-    return parent.getType(offset + index);
-  }
-
-  @Override
   public Builder newCopyBuilder() {
     throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
   }

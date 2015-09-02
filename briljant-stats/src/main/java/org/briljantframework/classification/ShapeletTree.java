@@ -48,9 +48,9 @@ import org.briljantframework.classification.tree.TreePredictor;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.dataseries.Aggregator;
-import org.briljantframework.dataseries.Approximations;
-import org.briljantframework.dataseries.MeanAggregator;
+import org.briljantframework.data.dataseries.Aggregator;
+import org.briljantframework.data.dataseries.Approximations;
+import org.briljantframework.data.dataseries.MeanAggregator;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.shapelet.DerivetiveShapelet;
@@ -58,7 +58,7 @@ import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
@@ -144,7 +144,7 @@ public class ShapeletTree implements Classifier {
   @Override
   public Predictor fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
-    Vector classes = this.classes != null ? this.classes : Vec.unique(y);
+    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
     if (classSet == null) {
       classSet = new ClassSet(y, classes);
     }

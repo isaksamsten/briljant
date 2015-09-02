@@ -34,7 +34,7 @@ import java.util.function.Function
 import java.util.function.Supplier
 import java.util.stream.Collector
 
-import static org.briljantframework.function.Aggregates.*
+import static org.briljantframework.data.Aggregates.*
 
 /**
  * Created by isak on 04/06/15.

@@ -29,7 +29,7 @@ import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
-import org.briljantframework.dataseries.DataSeriesCollection;
+import org.briljantframework.data.dataseries.DataSeriesCollection;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.io.DataInputStream;
@@ -38,7 +38,7 @@ import org.briljantframework.array.BitArray;
 import org.briljantframework.data.vector.Convert;
 import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -55,7 +55,7 @@ public class RandomPointTreeTest {
     Classifier forest = new Ensemble(500) {
       @Override
       public Predictor fit(DataFrame x, Vector y) {
-        Vector classes = Vec.unique(y);
+        Vector classes = Vectors.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
         BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
@@ -134,8 +134,8 @@ public class RandomPointTreeTest {
     try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
          DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
       DataFrame trainingSet =
-          DataFrames.permuteRows(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
-                                     .build());
+          DataFrames.permuteRecords(new DataSeriesCollection.Builder(DoubleVector.TYPE).read(train)
+                                        .build());
       DataFrame validationSet =
           new DataSeriesCollection.Builder(DoubleVector.TYPE).read(test).build();
 

@@ -27,7 +27,7 @@ package org.briljantframework.data.dataframe.transform;
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -40,7 +40,7 @@ public class MeanImputer implements Transformer {
 //    DoubleArray means = Bj.doubleArray(frame.columns());
     Vector.Builder builder = new DoubleVector.Builder();
     for (Object key : frame.getColumnIndex().keySet()) {
-      builder.set(key, Vec.mean(frame.get(key)));
+      builder.set(key, Vectors.mean(frame.get(key)));
     }
     Vector means = builder.build();
     return x -> {

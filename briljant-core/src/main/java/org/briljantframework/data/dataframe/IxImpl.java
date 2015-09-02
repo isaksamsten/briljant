@@ -24,8 +24,8 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.index.Index;
-import org.briljantframework.index.Ix;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.Ix;
 
 /**
  * @author Isak Karlsson

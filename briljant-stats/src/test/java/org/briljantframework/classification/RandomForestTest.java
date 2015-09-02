@@ -42,7 +42,7 @@ public class RandomForestTest {
 
   @Test
   public void testFit() throws Exception {
-    DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
+    DataFrame iris = DataFrames.permuteRecords(Datasets.loadIris());
     DataFrame x = iris.drop("Class");
     Vector y = iris.get("Class");
 

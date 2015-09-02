@@ -27,8 +27,8 @@ package org.briljantframework.function;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
-import static org.briljantframework.function.Aggregates.repeat;
-import static org.briljantframework.function.Aggregates.valueCounts;
+import static org.briljantframework.data.Aggregates.repeat;
+import static org.briljantframework.data.Aggregates.valueCounts;
 import static org.junit.Assert.assertEquals;
 
 public class AggregatesTest {

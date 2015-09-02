@@ -91,7 +91,7 @@ public class MixedDataFrameTest extends DataFrameTest {
   @Test
   public void testBuilderAddColumn() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.add(Vector.of("1 2 3 4 5".split(" ")));
+    builder.add(Vector.of((Object[]) "1 2 3 4 5".split(" ")));
     builder.add(new IntVector(1, 2, 3, 4, 5));
     builder.add(new DoubleVector(1, 2, 3, 4, 5));
     builder.add(Vector.of(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));

@@ -30,7 +30,7 @@ import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import org.briljantframework.Bj;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.index.Index;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.Collection;

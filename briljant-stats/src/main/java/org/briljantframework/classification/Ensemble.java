@@ -49,7 +49,7 @@ import java.util.stream.IntStream;
 
 import static org.briljantframework.Bj.argmax;
 import static org.briljantframework.evaluation.result.Sample.OUT;
-import static org.briljantframework.data.vector.Vec.find;
+import static org.briljantframework.data.vector.Vectors.find;
 
 /**
  * @author Isak Karlsson

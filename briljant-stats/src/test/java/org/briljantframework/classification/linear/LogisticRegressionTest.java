@@ -42,7 +42,7 @@ public class LogisticRegressionTest {
   @Test
   public void testLogisticRegression() throws Exception {
     Utils.setRandomSeed(102);
-    DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());
+    DataFrame iris = DataFrames.permuteRecords(Datasets.loadIris());
     DataFrame x = iris.drop("Class").map(Double.class, v -> !Is.NA(v) ? v : 0);
     Vector y = iris.get("Class");//.satisfies(String.class, v -> v.equals("Iris-setosa"));
     Classifier classifier = LogisticRegression.withIterations(500).withRegularization(10).build();

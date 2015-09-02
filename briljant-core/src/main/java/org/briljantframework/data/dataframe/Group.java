@@ -24,6 +24,8 @@
 
 package org.briljantframework.data.dataframe;
 
+import java.util.Objects;
+
 /**
  * @author Isak Karlsson
  */
@@ -33,8 +35,8 @@ public class Group {
   private final DataFrame data;
 
   public Group(Object group, DataFrame data) {
-    this.group = group;
-    this.data = data;
+    this.group = Objects.requireNonNull(group);
+    this.data = Objects.requireNonNull(data);
   }
 
   public Object group() {

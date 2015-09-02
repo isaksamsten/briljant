@@ -24,7 +24,7 @@
 
 package org.briljantframework.data.vector;
 
-import org.briljantframework.index.VectorLocationSetter;
+import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
 
 import java.io.IOException;

@@ -29,6 +29,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Utils;
+import org.briljantframework.data.Aggregates;
 import org.briljantframework.data.dataframe.join.InnerJoin;
 import org.briljantframework.data.dataframe.join.JoinOperation;
 import org.briljantframework.data.dataframe.join.LeftOuterJoin;
@@ -36,23 +37,22 @@ import org.briljantframework.data.dataframe.join.OuterJoin;
 import org.briljantframework.data.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.data.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.data.dataframe.transform.Transformation;
-import org.briljantframework.index.Index;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.vector.Na;
+import org.briljantframework.data.vector.Scale;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.StringDataEntry;
-import org.briljantframework.data.vector.Na;
-import org.briljantframework.data.vector.Scale;
-import org.briljantframework.data.vector.Vec;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -215,52 +215,66 @@ public final class DataFrames {
    * values, the {@code min}, {@code max}, {@code mean} and {@code mode}. The first
    * three are presented for numerical columns and the fourth for categorical.
    *
+   * <pre>{@code
+   * > DataFrame df = MixedDataFrame.of(
+   *    "a", Vector.of(1, 2, 3, 4, 5, 6),
+   *    "b", Vector.of("a", "b", "b", "b", "e", "f"),
+   *    "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6)
+   *  );
+   *
+   * > DataFrames.summary(df)
+   *    mean   var    std    min    max    mode
+   * a  3.500  3.500  1.871  1.000  6.000  6
+   * b  NA     NA     NA     NA     NA     f
+   * c  1.350  0.035  0.187  1.100  1.600  1.1
+   *
+   * [3 rows x 6 columns]
+   * }</pre>
+   *
    * @param df the data frame
    * @return a data frame summarizing {@code df}
    */
   public static DataFrame summary(DataFrame df) {
-    DataFrame.Builder builder = new MixedDataFrame.Builder(
-        Arrays.asList(
-            VectorType.DOUBLE, VectorType.DOUBLE, VectorType.DOUBLE, VectorType.STRING
-        )
-    );
-    for (int j = 0; j < df.columns(); j++) {
-      Vector column = df.loc().get(j);
+    DataFrame.Builder builder = new MixedDataFrame.Builder();
+    builder.set("mean", VectorType.DOUBLE)
+        .set("var", VectorType.DOUBLE)
+        .set("std", VectorType.DOUBLE)
+        .set("min", VectorType.DOUBLE)
+        .set("max", VectorType.DOUBLE)
+        .set("mode", VectorType.OBJECT);
+
+    for (Object columnKey : df.getColumnIndex().keySet()) {
+      Vector column = df.get(columnKey);
       if (column.getType().getScale() == Scale.NUMERICAL) {
-        StatisticalSummary desc = Vec.statistics(column);
-        double mean = desc.getMean();
-        double min = desc.getMin();
-        double max = desc.getMax();
-        builder.loc().set(j, 0, mean);
-        builder.loc().set(j, 1, min);
-        builder.loc().set(j, 2, max);
-      } else {
-        throw new UnsupportedOperationException();
-//        Object mode = Vec.mode(column);
-//        builder.set(j, 3, mode);
+        StatisticalSummary summary = column.collect(Number.class, Aggregates.statisticalSummary());
+        builder.set(columnKey, "mean", summary.getMean())
+            .set(columnKey, "var", summary.getVariance())
+            .set(columnKey, "std", summary.getStandardDeviation())
+            .set(columnKey, "min", summary.getMin())
+            .set(columnKey, "max", summary.getMax());
       }
+      builder.set(columnKey, "mode", column.collect(Aggregates.mode()));
     }
-    DataFrame bdf = builder.build();
-    bdf.setColumnIndex(ObjectIndex.create(
-        Arrays.asList("Mean", "Min", "Max", "Mode")
-    ));
-    return bdf;
+    return builder.build();
   }
 
   /**
    * Returns a row-permuted copy of {@code df}. This implementations uses the Fisher–Yates shuffle
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
-   * Knuth), which is an algorithm for generating a random permutation of a finite set — df plain
-   * terms, for randomly shuffling the finite set.
+   * Knuth), which is an algorithm for generating a random permutation of a finite set.
+   *
+   * <p> The permutation is only visible when accessing values using {@link
+   * org.briljantframework.data.index.DataFrameLocationGetter location-based indexing}.
    *
    * @param df     the input {@code DataFrame}
    * @param random the random number generator used
-   * @return a permuted copy of {@code df}
+   * @return a permuted copy of input
    */
-  public static DataFrame permuteRows(DataFrame df, Random random) {
+  public static DataFrame permuteRecords(DataFrame df, Random random) {
     DataFrame.Builder builder = df.newCopyBuilder();
+    DataFrameLocationSetter loc = builder.loc();
     for (int i = builder.rows(); i > 1; i--) {
-      builder.loc().swapRecords(i - 1, random.nextInt(i));
+      loc.swapRecords(i - 1, random.nextInt(i));
     }
     DataFrame bdf = builder.build();
     bdf.setColumnIndex(df.getColumnIndex());
@@ -268,22 +282,23 @@ public final class DataFrames {
   }
 
   /**
-   * Same as {@link #permuteRows(DataFrame, java.util.Random)} with a static random number
+   * Same as {@link #permuteRecords(DataFrame, java.util.Random)} with a static random number
    * generator.
    *
    * @param in the input data frame
    * @return a permuted copy of {@code in}
    */
-  public static DataFrame permuteRows(DataFrame in) {
-    return permuteRows(in, Utils.getRandom());
+  public static DataFrame permuteRecords(DataFrame in) {
+    return permuteRecords(in, Utils.getRandom());
   }
 
   /**
-   * Returns a column-permuted copy of {@code in}. See {@link #permuteRows(DataFrame)} for details.
+   * Returns a column-permuted copy of {@code in}. See {@link #permuteRecords(DataFrame)} for
+   * details.
    *
    * @param in input data frame
    * @return a column permuted copy
-   * @see #permuteRows(DataFrame)
+   * @see #permuteRecords(DataFrame)
    */
   public static DataFrame permuteColumns(DataFrame in) {
     DataFrame.Builder builder = in.newCopyBuilder();

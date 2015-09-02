@@ -28,7 +28,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.index.VectorLocationSetter;
+import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.vector.GenericVector;
 import org.briljantframework.data.vector.Vector;
 

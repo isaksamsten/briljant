@@ -41,7 +41,7 @@ import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.vector.Vec;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class PatternTree implements Classifier {
   @Override
   public Predictor fit(DataFrame x, Vector y) {
     if (classes == null) {
-      classes = Vec.unique(y);
+      classes = Vectors.unique(y);
     }
 
     if (classSet == null) {
