@@ -25,10 +25,13 @@
 package org.briljantframework.data;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.stat.FastStatistics;
 
 import java.util.ArrayList;
@@ -48,6 +51,25 @@ import java.util.stream.Collector;
 public final class Collectors {
 
   private Collectors() {
+  }
+
+  public static Collector<Vector, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
+    return Collector.of(
+        supplier,
+        (DataFrame.Builder acc, Vector record)
+            -> acc.addRecord(Vectors.transferableBuilder(record)),
+        (DataFrame.Builder left, DataFrame.Builder right) -> {
+          for (Vector vector : right.build().getRecords()) {
+            left.addRecord(Vectors.transferableBuilder(vector));
+          }
+          return left;
+        },
+        DataFrame.Builder::build
+    );
+  }
+
+  public static Collector<Vector, ?, DataFrame> toDataFrame() {
+    return toDataFrame(MixedDataFrame.Builder::new);
   }
 
   /**

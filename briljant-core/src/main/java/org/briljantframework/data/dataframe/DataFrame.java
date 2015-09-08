@@ -32,7 +32,6 @@ import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.index.DataFrameLocationGetter;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.Ix;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.io.EntryReader;
@@ -376,10 +375,6 @@ public interface DataFrame extends Iterable<Vector> {
   void setRecordIndex(Index index);
 
   void setColumnIndex(Index index);
-
-  default Ix getIx() {
-    return new IxImpl(this);
-  }
 
   DataFrameLocationGetter loc();
 
