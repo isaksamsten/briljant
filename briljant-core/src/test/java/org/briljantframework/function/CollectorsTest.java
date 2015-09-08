@@ -25,8 +25,11 @@
 package org.briljantframework.function;
 
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.briljantframework.data.Collectors.repeat;
 import static org.briljantframework.data.Collectors.valueCounts;
@@ -56,4 +59,14 @@ public class CollectorsTest {
     assertEquals(Vector.of(0, 1, 2, 2, 3, 3, 0), actual);
   }
 
+  @Test
+  public void testToDataFrame() throws Exception {
+    DataFrame df = Arrays.asList(Vector.of(1, 2, 3),
+                                 Vector.of(1, 2, 3),
+                                 Vector.of(1, 2, 3, 4)).stream()
+        .collect(Collectors.toDataFrame());
+
+    assertEquals(2, df.getAsInt(1, 1));
+
+  }
 }
