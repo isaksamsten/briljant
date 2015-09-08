@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation;
+package org.briljantframework.evaluation.partition;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static org.briljantframework.data.vector.Vectors.identityBuilder;
+import static org.briljantframework.data.vector.Vectors.transferableBuilder;
 
 /**
  * @author Isak Karlsson
@@ -52,10 +52,10 @@ class FoldIterator implements Iterator<Partition> {
 
     this.x = Objects.requireNonNull(x);
     this.y = Objects.requireNonNull(y);
-    this.rows = this.x.rows();
+    this.rows = x.rows();
     this.folds = folds;
-    this.foldSize = this.rows / folds;
-    this.reminder = this.rows % folds;
+    this.foldSize = rows / folds;
+    this.reminder = rows % folds;
   }
 
   @Override
@@ -91,10 +91,7 @@ class FoldIterator implements Iterator<Partition> {
     // foldSize * current examples as training examples
     int trainingEnd = foldEnd - pad;
     for (int i = 0; i < trainingEnd; i++) {
-//      for (int j = 0; j < x.columns(); j++) {
-//        xTrainingBuilder.loc().set(i, j, x, index, j);
-//      }
-      xTrainingBuilder.loc().setRecord(i, identityBuilder(x.loc().getRecord(index)));
+      xTrainingBuilder.loc().setRecord(i, transferableBuilder(x.loc().getRecord(index)));
       yTrainingBuilder.add(y, index);
       index += 1;
     }
@@ -104,10 +101,7 @@ class FoldIterator implements Iterator<Partition> {
     int newIndex = 0;
     int validationEnd = foldEnd + foldSize;
     for (int i = trainingEnd; i < validationEnd; i++) {
-//      for (int j = 0; j < x.columns(); j++) {
-//        xValidationBuilder.loc().set(newIndex, j, x, index, j);
-//      }
-      xValidationBuilder.loc().setRecord(newIndex, identityBuilder(x.loc().getRecord(index)));
+      xValidationBuilder.loc().setRecord(newIndex, transferableBuilder(x.loc().getRecord(index)));
       yValidationBuilder.add(y, index);
       index += 1;
       newIndex += 1;
@@ -116,10 +110,7 @@ class FoldIterator implements Iterator<Partition> {
     // Part 3: this is a training part
     newIndex = trainingEnd;
     for (int i = validationEnd; i < rows; i++) {
-//      for (int j = 0; j < x.columns(); j++) {
-//        xTrainingBuilder.loc().set(newIndex, j, x, index, j);
-//      }
-      xTrainingBuilder.loc().setRecord(newIndex, identityBuilder(x.loc().getRecord(index)));
+      xTrainingBuilder.loc().setRecord(newIndex, transferableBuilder(x.loc().getRecord(index)));
       yTrainingBuilder.add(y, index);
       index += 1;
       newIndex += 1;
@@ -129,8 +120,9 @@ class FoldIterator implements Iterator<Partition> {
     trainingSet.setColumnIndex(x.getColumnIndex());
     DataFrame validationSet = xValidationBuilder.build();
     validationSet.setColumnIndex(x.getColumnIndex());
-    return new Partition(
-        trainingSet, validationSet, yTrainingBuilder.build(), yValidationBuilder.build()
-    );
+
+    Vector yTraining = yTrainingBuilder.build();
+    Vector yValidation = yValidationBuilder.build();
+    return new Partition(trainingSet, validationSet, yTraining, yValidation);
   }
 }

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.data;
 
 import org.apache.commons.math3.complex.Complex;
 
@@ -52,11 +52,12 @@ public final class Na {
    *  Double.isNaN(value) && Double.doubleToRawLongBits(value) & NA_MASK == NA_RES
    * }</pre>
    *
-   * <p>This implementation is provided by {@link org.briljantframework.data.vector.Is#NA(double)}.
+   * <p>This implementation is provided by {@link Is#NA(double)}.
    *
    * <p>TL;DR; DO NOT {@code v == NA.DOUBLE}. DO {@code Is.NA(v);}
    */
   public static final double DOUBLE = Double.longBitsToDouble(0x7ff0000000000009L);
+  private static final Double BOXED_DOUBLE_NA = DOUBLE;
 
   /**
    * The mask used in conjunction with {@link #DOUBLE} and and {@link #DOUBLE_NA_RES} to recognize
@@ -65,8 +66,6 @@ public final class Na {
   public static final long DOUBLE_NA_MASK = 0x000000000000000FL;
   public static final int DOUBLE_NA_RES = 9;
 
-  private static final Double BOXED_DOUBLE_NA = DOUBLE;
-
   private static final Long BOXED_LONG_NA = Long.MAX_VALUE;
 
   public static final Complex COMPLEX = new Complex(DOUBLE, DOUBLE);
@@ -74,7 +73,13 @@ public final class Na {
   private Na() {
   }
 
-  public static String safeToString(Object v) {
+  /**
+   * Returns a string representation of either NA or the supplied value
+   *
+   * @param v the value (possible null or NA)
+   * @return a string representation
+   */
+  public static String toString(Object v) {
     return Is.NA(v) ? "NA" : v.toString();
   }
 
@@ -96,7 +101,7 @@ public final class Na {
    * @return a {@code NA} value of type {@code T}
    */
   @SuppressWarnings("unchecked")
-  public static <T> T from(Class<T> cls) {
+  public static <T> T of(Class<T> cls) {
     if (cls == null) {
       return null;
     } else if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {
@@ -131,10 +136,6 @@ public final class Na {
    */
   public static <T> UnaryOperator<T> ignore(UnaryOperator<T> operator) {
     return v -> Is.NA(v) ? v : operator.apply(v);
-  }
-
-  public static <T> UnaryOperator<T> as(Class<T> cls, UnaryOperator<T> operator) {
-    return operator;
   }
 
   /**

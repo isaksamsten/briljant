@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.VectorType;
 
 /**

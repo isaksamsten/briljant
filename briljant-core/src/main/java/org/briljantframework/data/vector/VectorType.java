@@ -25,11 +25,15 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Logical;
+import org.briljantframework.data.Na;
+import org.briljantframework.data.Scale;
 import org.briljantframework.data.index.ObjectComparator;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,9 +48,10 @@ public abstract class VectorType {
   public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
   public static final VectorType DOUBLE = new DoubleVectorType();
   public static final VectorType OBJECT = new GenericVectorType(Object.class);
-  public static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
-  public static final Set<VectorType> NUMERIC = new HashSet<>();
-  public static final Set<VectorType> CATEGORIC = new HashSet<>(); // TODO: unmodifiable
+
+  private static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
+  private static final Set<VectorType> NUMERIC = new HashSet<>();
+  private static final Set<VectorType> CATEGORIC = new HashSet<>();
 
   static {
     NUMERIC.add(VectorType.DOUBLE);
@@ -56,7 +61,7 @@ public abstract class VectorType {
     CATEGORIC.add(VectorType.STRING);
     CATEGORIC.add(VectorType.LOGICAL);
 
-    CLASS_TO_VECTOR_TYPE = new HashMap<>();
+    CLASS_TO_VECTOR_TYPE = new IdentityHashMap<>();
     CLASS_TO_VECTOR_TYPE.put(Integer.class, INT);
     CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, INT);
     CLASS_TO_VECTOR_TYPE.put(Double.class, DOUBLE);
@@ -68,7 +73,7 @@ public abstract class VectorType {
     CLASS_TO_VECTOR_TYPE.put(Object.class, OBJECT);
   }
 
-  public static VectorType from(Class<?> cls) {
+  public static VectorType of(Class<?> cls) {
     if (cls == null) {
       return OBJECT;
     } else {
@@ -80,9 +85,9 @@ public abstract class VectorType {
     }
   }
 
-  public static VectorType from(Object object) {
+  public static VectorType of(Object object) {
     if (object != null) {
-      return from(object.getClass());
+      return of(object.getClass());
     } else {
       return OBJECT;
     }
@@ -159,6 +164,8 @@ public abstract class VectorType {
     return compare(a, va, b, ba) == 0;
   }
 
+  public abstract Vector.Builder newBuilderWithCapacity(int capacity);
+
   private static class DoubleVectorType extends VectorType {
 
     @Override
@@ -192,6 +199,11 @@ public abstract class VectorType {
     @Override
     public Scale getScale() {
       return Scale.NUMERICAL;
+    }
+
+    @Override
+    public Vector.Builder newBuilderWithCapacity(int capacity) {
+      return new DoubleVector.Builder(0, capacity);
     }
 
     @Override
@@ -243,6 +255,11 @@ public abstract class VectorType {
     }
 
     @Override
+    public Vector.Builder newBuilderWithCapacity(int capacity) {
+      return new IntVector.Builder(0, capacity);
+    }
+
+    @Override
     public String toString() {
       return "int";
     }
@@ -290,6 +307,11 @@ public abstract class VectorType {
     @Override
     public Scale getScale() {
       return Number.class.isAssignableFrom(cls) ? Scale.NUMERICAL : Scale.NOMINAL;
+    }
+
+    @Override
+    public Vector.Builder newBuilderWithCapacity(int capacity) {
+      return new GenericVector.Builder(cls);
     }
 
     @Override

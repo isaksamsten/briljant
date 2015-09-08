@@ -25,6 +25,7 @@
 package org.briljantframework.data.vector
 
 import groovy.transform.CompileStatic
+import org.briljantframework.data.index.VectorLocationGetter
 
 /**
  * Created by isak on 04/06/15.
@@ -39,8 +40,13 @@ class VectorExtensions {
     throw new ClassCastException()
   }
 
-  static <T> T getAt(Vector self, int i) {
-    return self.loc().get(T, i)
+  static VectorLocationGetter getLoc(Vector self) {
+    return self.loc()
+  }
+
+
+  static Object propertyMissing(Vector self, String name) {
+    return self.get(Object, name)
   }
 
   static <T> T getAt(Vector self, Object k) {

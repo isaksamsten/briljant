@@ -25,6 +25,7 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.Na;
 
 import java.util.function.BiFunction;
 

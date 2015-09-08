@@ -28,11 +28,9 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.vector.GenericVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +93,7 @@ public class SymbolicAggregator implements Aggregator {
    * @param alphabet the alphabet
    */
   public SymbolicAggregator(List<String> alphabet) {
-    this(new GenericVector(String.class, alphabet));
+    this(Vector.of(alphabet));
   }
 
   /**
@@ -104,7 +102,7 @@ public class SymbolicAggregator implements Aggregator {
    * @param alphabet the alphabet
    */
   public SymbolicAggregator(String... alphabet) {
-    this(new GenericVector(String.class, Arrays.asList(alphabet)));
+    this(Vector.of(alphabet));
   }
 
   /**
@@ -114,7 +112,7 @@ public class SymbolicAggregator implements Aggregator {
    * @return the lookup table
    */
   public static Map<String, Map<String, Double>> newLookupTable(List<String> alphabet) {
-    Vector vector = new GenericVector(String.class, alphabet);
+    Vector vector = Vector.of(alphabet); // TODO: note of(...)
     return createLookupTable(vector, calculateThresholds(vector));
   }
 
@@ -164,7 +162,7 @@ public class SymbolicAggregator implements Aggregator {
 
   @Override
   public Vector.Builder partialAggregate(Vector in) {
-    GenericVector.Builder sax = new GenericVector.Builder(String.class);
+    Vector.Builder sax = Vector.Builder.of(String.class);
     for (int j = 0; j < in.size(); j++) {
       double value = in.loc().getAsDouble(j);
       if (value <= thresholds.get(0)) {
@@ -188,6 +186,6 @@ public class SymbolicAggregator implements Aggregator {
 
   @Override
   public VectorType getAggregatedType() {
-    return VectorType.from(String.class);
+    return VectorType.of(String.class);
   }
 }

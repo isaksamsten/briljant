@@ -38,19 +38,24 @@ public class NormalizedShapelet extends Shapelet {
 
   public NormalizedShapelet(int start, int length, Vector vector) {
     super(start, length, vector);
-    double ex = 0;
-    double ex2 = 0;
-    int size = start + length;
-    for (int i = start; i < size; i++) {
-      double v = vector.loc().getAsDouble(i);
-      ex += v;
-      ex2 += v * v;
-    }
-    this.mean = ex / length;
-    if (length == 1) {
-      this.sigma = 0;
+    if (vector instanceof NormalizedShapelet) {
+      this.sigma = ((NormalizedShapelet) vector).sigma;
+      this.mean = ((NormalizedShapelet) vector).mean;
     } else {
-      this.sigma = Math.sqrt(ex2 / length - mean * mean);
+      double ex = 0;
+      double ex2 = 0;
+      int size = start + length;
+      for (int i = start; i < size; i++) {
+        double v = vector.loc().getAsDouble(i);
+        ex += v;
+        ex2 += v * v;
+      }
+      this.mean = ex / length;
+      if (length == 1) {
+        this.sigma = 0;
+      } else {
+        this.sigma = Math.sqrt(ex2 / length - mean * mean);
+      }
     }
   }
 
@@ -71,7 +76,7 @@ public class NormalizedShapelet extends Shapelet {
     if (sigma == 0) {
       return 0;
     } else {
-      return (super.loc().getAsDouble(i) - mean) / sigma;
+      return (super.getAsDoubleAt(i) - mean) / sigma;
     }
   }
 }

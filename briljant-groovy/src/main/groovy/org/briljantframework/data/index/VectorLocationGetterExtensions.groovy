@@ -22,36 +22,18 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.data.index
+
+import groovy.transform.CompileStatic
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 03/09/15.
  */
-public enum Logical {
-  TRUE(1), FALSE(0), NA(Na.INT);
+@CompileStatic
+class VectorLocationGetterExtensions {
 
-  private final int value;
-
-  Logical(int value) {
-    this.value = value;
+  static <T> T getAt(VectorLocationGetter self, int i) {
+    return self.get(T, i)
   }
 
-  public static Logical valueOf(boolean value) {
-    return value ? TRUE : FALSE;
-  }
-
-  public static Logical valueOf(int value) {
-    switch (value) {
-      case 1:
-        return TRUE;
-      case 0:
-        return FALSE;
-      default:
-        return NA;
-    }
-  }
-
-  public int asInt() {
-    return value;
-  }
 }

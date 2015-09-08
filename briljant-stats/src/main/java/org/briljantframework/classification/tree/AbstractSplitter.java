@@ -25,7 +25,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 

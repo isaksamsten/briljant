@@ -31,6 +31,6 @@ public class GenericVectorBuilderTest extends VectorBuilderTest {
 
   @Override
   Vector.Builder getBuilder() {
-    return VectorType.from(Object.class).newBuilder();
+    return VectorType.of(Object.class).newBuilder();
   }
 }

@@ -22,38 +22,28 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.function;
+package org.briljantframework.evaluation.partition;
 
-import org.briljantframework.data.Aggregates;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.junit.Test;
 
-import static org.briljantframework.data.Aggregates.repeat;
-import static org.briljantframework.data.Aggregates.valueCounts;
-import static org.junit.Assert.assertEquals;
+/**
+ * The partitioner represents a strategy of how to partition a {@code DataFrame} and {@code Vector}
+ * into training and validation partitions.
+ *
+ * <p> The partitioner guarantees that the column-index of the {@code DataFrame} partitions
+ * are the same as the input-{@code DataFrame}. The record-indexing might, however, be lost.
+ *
+ * @author Isak Karlsson
+ */
+public interface Partitioner {
 
-public class AggregatesTest {
-
-  @Test
-  public void testRepeat() throws Exception {
-    Vector vec = Vector.of(1.0, 2.0, 3.0, 4.0, 5.0);
-    Vector vecX2 = vec.collect(repeat(2));
-    assertEquals(vec.size() * 2, vecX2.size());
-  }
-
-  @Test
-  public void testValueCounts() throws Exception {
-    Vector vec = Vector.of('a', 'b', 'c', 'd', 'e', 'e');
-    Vector counts = vec.collect(Character.class, valueCounts());
-    assertEquals(2, counts.get(Integer.class, (Object) 'e').intValue());
-  }
-
-
-  @Test
-  public void testFactorize() throws Exception {
-    Vector v = Vector.of("a", "b", "c", "c", "d", "d", "a");
-    Vector actual = v.collect(Aggregates.factorize());
-    assertEquals(Vector.of(0, 1, 2, 2, 3, 3, 0), actual);
-  }
-
+  /**
+   * Partitions {@code x} and {@code y} into training and validation partitions
+   *
+   * @param x the data
+   * @param y the target
+   * @return an iterable representing over the partitions
+   */
+  Iterable<Partition> partition(DataFrame x, Vector y);
 }

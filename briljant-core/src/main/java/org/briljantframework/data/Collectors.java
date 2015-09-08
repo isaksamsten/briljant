@@ -24,44 +24,35 @@
 
 package org.briljantframework.data;
 
-import org.apache.commons.math3.stat.descriptive.AggregateSummaryStatistics;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.briljantframework.data.dataframe.ObjectIndex;
-import org.briljantframework.data.vector.IntVector;
-import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Logical;
-import org.briljantframework.data.vector.Na;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.stat.FastStatistics;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * @author Isak Karlsson
  */
-public final class Aggregates {
+public final class Collectors {
 
-  private Aggregates() {
+  private Collectors() {
   }
 
   /**
    * Performs a transformation operation, mapping each element to a new value, adding it to the
-   * {@code Vector.Builder} finishing it constructing a new {@code Vector}.
+   * {@code Vector.Builder} finishing it constructs a new {@code Vector}.
    *
    * @param supplier supply the vector builder
    * @param function the mapper
@@ -69,7 +60,7 @@ public final class Aggregates {
    * @param <O>      the output type
    * @return a transformation aggregator
    */
-  public static <T, O> Collector<T, ?, Vector> transform(
+  public static <T, O> Collector<T, ?, Vector> map(
       Supplier<Vector.Builder> supplier,
       Function<? super T, ? extends O> function) {
     return Collector.of(
@@ -83,8 +74,13 @@ public final class Aggregates {
     );
   }
 
+  public static <T, O> Collector<T, ?, Vector> map(
+      Function<? super T, ? extends O> function) {
+    return map(TypeInferenceVectorBuilder::new, function);
+  }
+
   /**
-   * Returns an aggregator that is able to filter values.
+   * Returns an aggregator that filter values.
    *
    * @param supplier  the vector builder
    * @param predicate the predicate. If {@code true} include value.
@@ -116,7 +112,7 @@ public final class Aggregates {
    * @return a filter aggregator
    */
   public static <T> Collector<T, ?, Vector> test(Predicate<T> predicate) {
-    return transform(() -> VectorType.from(Logical.class).newBuilder(), predicate::test);
+    return map(() -> VectorType.of(Logical.class).newBuilder(), predicate::test);
   }
 
   /**
@@ -219,14 +215,6 @@ public final class Aggregates {
     );
   }
 
-  public static <T> Collector<T, ?, Optional<T>> maxBy(Comparator<? super T> comparator) {
-    return Collectors.reducing(BinaryOperator.maxBy(comparator));
-  }
-
-  public static <T> Collector<T, ?, Optional<T>> minBy(Comparator<? super T> comparator) {
-    return Collectors.reducing(BinaryOperator.minBy(comparator));
-  }
-
   public static <T> Collector<T, ?, T> mode() {
     return Collector.of(
         HashMap::new,
@@ -258,18 +246,20 @@ public final class Aggregates {
     }, HashSet::size);
   }
 
-  public static <T> Collector<Object, ?, Vector> factorize() {
-    Object sync = new Object();
+  public static Collector<Object, ?, Vector> factorize() {
     class Factorize {
 
       Map<Object, Integer> map = new HashMap<>();
-      Vector.Builder builder = new IntVector.Builder();
+      Vector.Builder builder = Vector.Builder.of(Integer.class);
       int highest = 0;
     }
+
+    // TODO: refactor into a real state-less collector
+    Factorize factorize = new Factorize();
     return Collector.of(
-        Factorize::new,
+        () -> factorize,
         (Factorize acc, Object value) -> {
-          synchronized (sync) {
+          synchronized (factorize) {
             Integer code = acc.map.get(value);
             if (code == null) {
               code = acc.highest;
@@ -279,26 +269,19 @@ public final class Aggregates {
             acc.builder.add(code);
           }
         },
-        (left, right) -> {
-          return left;
-        },
+        (left, right) -> left,
         (acc) -> acc.builder.build()
     );
   }
 
   public static Collector<Number, ?, Double> sum() {
-    return Collector.of(
-        () -> new double[1],
-        (s, v) -> {
-          if (!Is.NA(v)) {
-            s[0] += v.doubleValue();
-          }
-        },
-        (left, right) -> {
-          left[0] = left[0] + right[0];
-          return left;
-        },
-        s -> s[0]);
+    return withFinisher(statisticalSummary(), (summary) -> {
+      if (summary.getN() > 0) {
+        return summary.getSum();
+      } else {
+        return Na.DOUBLE;
+      }
+    });
   }
 
   public static Collector<Number, ?, Vector> summary() {
@@ -326,18 +309,17 @@ public final class Aggregates {
   }
 
   public static Collector<Number, ?, StatisticalSummary> statisticalSummary() {
-    AggregateSummaryStatistics statistics = new AggregateSummaryStatistics();
     return Collector.of(
-        statistics::createContributingStatistics,
-        (SummaryStatistics a, Number v) -> {
+        FastStatistics::new,
+        (FastStatistics a, Number v) -> {
           if (!Is.NA(v)) {
             a.addValue(v.doubleValue());
           }
         },
-        (left, right) -> left,
-        (stat) -> {
-          return statistics.getSummary();
-        }
+        (left, right) -> {
+          throw new IllegalStateException("Can't collect statistics in parallel");
+        },
+        FastStatistics::getSummary
     );
   }
 
@@ -358,15 +340,33 @@ public final class Aggregates {
   }
 
   public static Collector<Number, ?, Double> mean() {
-    return withFinisher(statisticalSummary(), StatisticalSummary::getMean);
+    return withFinisher(statisticalSummary(), (summary) -> {
+      if (summary.getN() > 0) {
+        return summary.getMean();
+      } else {
+        return Na.of(Double.class);
+      }
+    });
   }
 
   public static Collector<Number, ?, Double> std() {
-    return withFinisher(statisticalSummary(), StatisticalSummary::getStandardDeviation);
+    return withFinisher(statisticalSummary(), (summary) -> {
+      if (summary.getN() > 0) {
+        return summary.getStandardDeviation();
+      } else {
+        return Na.of(Double.class);
+      }
+    });
   }
 
   public static Collector<Number, ?, Double> var() {
-    return withFinisher(statisticalSummary(), StatisticalSummary::getVariance);
+    return withFinisher(statisticalSummary(), (summary) -> {
+      if (summary.getN() > 0) {
+        return summary.getVariance();
+      } else {
+        return Na.of(Double.class);
+      }
+    });
   }
 
   /**
@@ -383,13 +383,13 @@ public final class Aggregates {
         (ArrayList<Number> list) -> {
           int size = list.size();
           if (size == 0) {
-            return Na.from(Double.class);
+            return Na.of(Double.class);
           } else if (size == 1) {
             return list.get(0).doubleValue();
           } else if (size == 2) {
             return (list.get(0).doubleValue() + list.get(1).doubleValue()) / 2;
           } else {
-            Collections.sort(list, (a, b) -> Double.compare(a.doubleValue(), b.doubleValue()));
+            list.sort((a, b) -> Double.compare(a.doubleValue(), b.doubleValue()));
             int index = (size - 1) / 2;
             if (size % 2 == 0) {
               return (list.get(index).doubleValue() + list.get(index + 1).doubleValue()) / 2;
@@ -402,41 +402,63 @@ public final class Aggregates {
   }
 
   public static Collector<Number, ?, Number> max() {
+    class MaxBox {
+
+      double value = Double.NEGATIVE_INFINITY;
+      boolean hasValue = false;
+
+      void update(double v) {
+        if (!Is.NA(v)) {
+          hasValue = true;
+          value = Math.max(v, value);
+        }
+      }
+    }
+
     return Collector.of(
-        () -> new double[]{Double.NEGATIVE_INFINITY},
-        (a, v) -> {
-          if (!Is.NA(v)) {
-            a[0] = Math.max(a[0], v.doubleValue());
-          }
-        },
+        MaxBox::new,
+        (a, v) -> a.update(v.doubleValue()),
         (left, right) -> {
-          left[0] = Math.max(left[0], right[0]);
+          left.update(right.value);
           return left;
         },
-        (r) -> r[0]
+        (r) -> r.hasValue ? r.value : Na.DOUBLE
     );
   }
 
   public static Collector<Number, ?, Number> min() {
+    class MinBox {
+
+      double value = Double.NEGATIVE_INFINITY;
+      boolean hasValue = false;
+
+      void update(double v) {
+        if (!Is.NA(v)) {
+          hasValue = true;
+          value = Math.min(v, value);
+        }
+      }
+    }
     return Collector.of(
-        () -> new double[]{Double.NEGATIVE_INFINITY},
-        (a, v) -> {
-          if (!Is.NA(v)) {
-            a[0] = Math.min(a[0], v.doubleValue());
-          }
-        },
+        MinBox::new,
+        (a, v) -> a.update(v.doubleValue()),
         (left, right) -> {
-          left[0] = Math.min(left[0], right[0]);
+          left.update(right.value);
           return left;
         },
-        (r) -> r[0]
+        (r) -> r.hasValue ? r.value : Na.DOUBLE
     );
   }
 
-  public static <T> Collector<T, ?, Integer> count() {
+  /**
+   * Returns a collector that counts non-NA values
+   *
+   * @return a collector that counts non-NA values
+   */
+  public static Collector<Object, ?, Integer> count() {
     return Collector.of(
         () -> new int[1],
-        (int[] a, T b) -> {
+        (int[] a, Object b) -> {
           if (!Is.NA(b)) {
             a[0] += 1;
           }
@@ -449,7 +471,14 @@ public final class Aggregates {
     );
   }
 
-  public static <T> Collector<T, ?, Vector> fillNa(T fill) {
+  /**
+   * Returns a collector that collects objects into a vector while filling NA-values
+   * with the supplied value
+   *
+   * @param fill the value to fill NA with
+   * @return a collector for filling NA values
+   */
+  public static Collector<Object, ?, Vector> fillNa(Object fill) {
     return Collector.of(
         TypeInferenceVectorBuilder::new,
         (builder, t) -> {

@@ -28,7 +28,6 @@ import org.briljantframework.data.dataseries.DataSeriesCollection;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.RdsInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedInputStream;

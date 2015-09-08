@@ -25,7 +25,6 @@
 package org.briljantframework.data.dataseries;
 
 import org.briljantframework.Check;
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
@@ -51,7 +50,7 @@ public class MeanAggregator implements Aggregator {
     if (in.size() == targetSize) {
       return in.newCopyBuilder();
     }
-    DoubleVector.Builder out = new DoubleVector.Builder(0, targetSize);
+    Vector.Builder out = Vector.Builder.withCapacity(Double.class, targetSize);
     int bin = in.size() / targetSize;
     int pad = in.size() % targetSize;
 

@@ -7,23 +7,24 @@ Welcome to Briljant framework's documentation!
 ==============================================
 
 
-This is the user documentation for **briljant** (Swedish spelling of
-*brilliant*), an open source framework for efficient and simple
-scientific computations in Java.
+This is the user/developer documentation for **briljant** (Swedish
+spelling of *brilliant*), an open source framework for efficient and
+simple scientific computing in Java.
 
 It contains among other things:
 
--  a powerful (and efficient) n-dimensional array abstraction
-
--  native *BLAS* and *LAPACK* sub-routines
-
--  a powerful ``r``-like ``DataFrame`` and ``Vector`` abstraction
-
--  efficient machine learning procedures for *conformal prediction*,
-   *ensemble learning*, and *data series learning*.
+- a powerful and efficient n-dimensional array abstraction with native
+  *BLAS* and *LAPACK* sub-routines [#]_.
+- a powerful ``r``-like ``DataFrame``, ``Vector`` and List abstractions
+- efficient, accurate and powerful machine learning procedures for
+  *conformal prediction*, *ensemble learning*, and *data series
+  learning*.
 
 
-Contents:
+.. [#] Future versions are expected to also include GPU accelerated routines
+
+
+Table of contents
 
 .. toctree::
    :maxdepth: 1

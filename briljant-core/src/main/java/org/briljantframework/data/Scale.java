@@ -22,32 +22,19 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.dataseries;
+package org.briljantframework.data;
 
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
-import org.junit.Test;
+/**
+ * The expectations on the data stored within this type. If the data is
+ */
+public enum Scale {
+  /**
+   * If the scale is categorical
+   */
+  NOMINAL,
 
-import static org.junit.Assert.assertEquals;
-
-public class DataSeriesCollectionTest {
-
-  @Test
-  public void testDropRows() throws Exception {
-    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(VectorType.DOUBLE);
-    builder.addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
-        .addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6))
-        .addRecord(DoubleVector.newBuilderWithInitialValues(1, 2, 3, 4, 5, 6));
-
-    DataSeriesCollection collection = builder.build();
-    DataFrame drop = collection.loc().drop(0, 1);
-    for (Vector row : drop) {
-      assertEquals(3, row.loc().getAsDouble(0), 0.0001);
-      assertEquals(4, row.loc().getAsDouble(1), 0.0001);
-      assertEquals(5, row.loc().getAsDouble(2), 0.0001);
-      assertEquals(6, row.loc().getAsDouble(3), 0.0001);
-    }
-  }
+  /**
+   * If the scale is numerical
+   */
+  NUMERICAL
 }

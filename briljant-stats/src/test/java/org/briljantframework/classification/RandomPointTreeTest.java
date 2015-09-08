@@ -25,21 +25,20 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
+import org.briljantframework.array.BitArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
+import org.briljantframework.data.vector.Convert;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.array.BitArray;
-import org.briljantframework.data.vector.Convert;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vectors;
 import org.junit.Test;
 
 import java.io.FileInputStream;

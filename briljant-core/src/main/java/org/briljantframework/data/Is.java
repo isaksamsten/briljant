@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.data;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Utility class for checking value types
@@ -39,6 +40,20 @@ public final class Is {
 
   public static boolean nominal(Object value) {
     return !(value instanceof Number);
+  }
+
+  public static boolean nominal(Vector vector) {
+    return !Number.class.isAssignableFrom(vector.getType().getDataClass());
+  }
+
+  /**
+   * Check if vector is NA-vector
+   *
+   * @param vector the vector
+   * @return true if vector is {@code Undefined.INSTANCE}
+   */
+  public static boolean NA(Vector vector) {
+    return vector.size() == 0 || vector.stream(Logical.class).allMatch(Is::NA);
   }
 
   /**
@@ -88,16 +103,6 @@ public final class Is {
     return value == null || value == Logical.NA;
   }
 
-  /**
-   * Check if vector is NA-vector
-   *
-   * @param value the vector
-   * @return true if vector is {@code Undefined.INSTANCE}
-   */
-  public static boolean NA(Vector value) {
-    return value.size() == 0;
-  }
-
   public static boolean NA(Object o) {
     if (o == null) {
       return true;
@@ -108,7 +113,7 @@ public final class Is {
     } else if (o instanceof Complex) {
       return Is.NA((Complex) o);
     } else {
-      Object na = Na.from(o.getClass());
+      Object na = Na.of(o.getClass());
       return o.equals(na);
     }
   }

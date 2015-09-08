@@ -24,12 +24,13 @@
 
 package org.briljantframework.data.vector;
 
-import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.io.DataEntry;
@@ -48,38 +49,12 @@ import java.util.stream.DoubleStream;
  *
  * @author Isak Karlsson
  */
-public class DoubleVector extends AbstractVector {
+class DoubleVector extends AbstractVector implements Transferable {
 
   private final double[] buffer;
   private final int size;
 
-  /**
-   * Construct a new {@code DoubleVector} of the values in {@code values} using {@code size}
-   * elements.
-   *
-   * @param buffer the array of values
-   * @param size   the size of values to take
-   */
-  public DoubleVector(double[] buffer, int size) {
-    Check.argument(size <= buffer.length);
-    this.buffer = Arrays.copyOf(buffer, size);
-    this.size = this.buffer.length;
-  }
-
-  /**
-   * Construct a new {@code DoubleVector}.
-   *
-   * @param buffer the values
-   */
-  public DoubleVector(double... buffer) {
-    this(buffer, true);
-  }
-
-  /**
-   * Construct a new {@code DoubleVector}. If {@code copy} is true, the values of {@code values}
-   * are copied otherwise not. To presever the mutable nature of
-   */
-  protected DoubleVector(double[] buffer, boolean copy) {
+  private DoubleVector(double[] buffer, boolean copy) {
     if (copy) {
       this.buffer = Arrays.copyOf(buffer, buffer.length);
     } else {
@@ -88,33 +63,15 @@ public class DoubleVector extends AbstractVector {
     this.size = this.buffer.length;
   }
 
-  private DoubleVector(double[] buffer, int size, boolean copy) {
+  private DoubleVector(double[] buffer, int size) {
     this.buffer = buffer;
     this.size = size;
   }
 
-  public DoubleVector(double[] buffer, int size, Index index) {
+  private DoubleVector(double[] buffer, int size, Index index) {
     super(index);
     this.buffer = buffer;
     this.size = size;
-  }
-
-  /**
-   * Construct a new {@code Vector} using the supplied values.
-   *
-   * @param values the values
-   * @return the double vector
-   */
-  public static DoubleVector wrap(double... values) {
-    return new DoubleVector(values, false);
-  }
-
-  public static Vector.Builder newBuilderWithInitialValues(double... values) {
-    Builder builder = new Builder(0, values.length);
-    for (double value : values) {
-      builder.add(value);
-    }
-    return builder;
   }
 
   @Override
@@ -123,33 +80,24 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public <T> T getAt(Class<T> cls, int index) {
+  protected <T> T getAt(Class<T> cls, int index) {
     Check.argument(!cls.isPrimitive(), "can't get primitive values");
     return Convert.to(cls, getAsDoubleAt(index));
   }
 
   @Override
-  public String toStringAt(int index) {
+  protected String toStringAt(int index) {
     double value = getAsDoubleAt(index);
     return Is.NA(value) ? "NA" : String.format("%.3f", value);
   }
 
   @Override
-  public boolean isNaAt(int index) {
+  protected boolean isNaAt(int index) {
     return Is.NA(getAsDoubleAt(index));
   }
 
-  public Complex getAsComplex(int index) {
-    double v = getAsDoubleAt(index);
-    if (Is.NA(v)) {
-      return Complex.NaN;
-    } else {
-      return Complex.valueOf(v);
-    }
-  }
-
   @Override
-  public int getAsIntAt(int i) {
+  protected int getAsIntAt(int i) {
     double value = getAsDoubleAt(i);
     return Is.NA(value) ? Na.INT : (int) value;
   }
@@ -240,17 +188,17 @@ public class DoubleVector extends AbstractVector {
   }
 
   @Override
-  public DoubleVector.Builder newCopyBuilder() {
+  public Vector.Builder newCopyBuilder() {
     return new DoubleVector.Builder(this);
   }
 
   @Override
-  public DoubleVector.Builder newBuilder() {
+  public Vector.Builder newBuilder() {
     return new DoubleVector.Builder();
   }
 
   @Override
-  public DoubleVector.Builder newBuilder(int size) {
+  public Vector.Builder newBuilder(int size) {
     return new DoubleVector.Builder(size);
   }
 
@@ -259,7 +207,7 @@ public class DoubleVector extends AbstractVector {
     return Arrays.stream(buffer, 0, size());
   }
 
-  public static final class Builder extends AbstractBuilder {
+  static final class Builder extends AbstractBuilder {
 
     private double[] buffer;
     private int size;
@@ -316,7 +264,7 @@ public class DoubleVector extends AbstractVector {
     public Vector.Builder add(double value) {
       final int index = size();
       ensureCapacity(size + 1); // sets the size
-      buffer[index] = (int) value;
+      buffer[index] = value;
       extendIndex(index);
       return this;
     }
@@ -427,7 +375,7 @@ public class DoubleVector extends AbstractVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new DoubleVector(buffer, size(), false) {
+      return new DoubleVector(buffer, size()) {
         @Override
         public Builder newCopyBuilder() {
           return Builder.this;

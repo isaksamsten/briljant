@@ -26,7 +26,7 @@ package org.briljantframework.io.resolver;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
-import org.briljantframework.data.vector.Logical;
+import org.briljantframework.data.Logical;
 
 import java.time.Instant;
 import java.time.LocalDate;

@@ -25,10 +25,8 @@
 package org.briljantframework.data.dataframe;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.IntVector;
-import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Logical;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Logical;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.junit.Test;
@@ -92,8 +90,8 @@ public class MixedDataFrameTest extends DataFrameTest {
   public void testBuilderAddColumn() throws Exception {
     DataFrame.Builder builder = getBuilder();
     builder.add(Vector.of((Object[]) "1 2 3 4 5".split(" ")));
-    builder.add(new IntVector(1, 2, 3, 4, 5));
-    builder.add(new DoubleVector(1, 2, 3, 4, 5));
+    builder.add(Vector.of(1, 2, 3, 4, 5));
+    builder.add(Vector.of(1.0, 2, 3, 4, 5));
     builder.add(Vector.of(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
     builder.add(Vector.of(true, true, false, false, false));
 
@@ -149,7 +147,7 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.add(VectorType.COMPLEX.newBuilder());
     builder.add(VectorType.LOGICAL.newBuilder());
     builder.add(VectorType.OBJECT.newBuilder());
-    builder.add(VectorType.from(Date.class).newBuilder());
+    builder.add(VectorType.of(Date.class).newBuilder());
 
     builder.loc().set(0, 0, "hello");
     builder.loc().set(0, 1, 1);

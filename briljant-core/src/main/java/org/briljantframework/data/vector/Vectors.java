@@ -27,6 +27,8 @@ package org.briljantframework.data.vector;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.sort.QuickSort;
@@ -282,7 +284,7 @@ public final class Vectors {
       }
     }
 
-    return nonNA == 0 ? Na.from(Double.class) : mean / (double) nonNA;
+    return nonNA == 0 ? Na.of(Double.class) : mean / (double) nonNA;
   }
 
   /**
@@ -305,7 +307,7 @@ public final class Vectors {
         nonNA += 1;
       }
     }
-    return nonNA == 0 ? Na.from(Double.class) : var / (double) nonNA;
+    return nonNA == 0 ? Na.of(Double.class) : var / (double) nonNA;
   }
 
   /**
@@ -337,7 +339,7 @@ public final class Vectors {
         nonNas++;
       }
     }
-    return nonNas > 0 ? sum : Na.from(Double.class);
+    return nonNas > 0 ? sum : Na.of(Double.class);
   }
 
   public static <T extends Number> double sum(Class<T> cls, Vector vector) {
@@ -501,27 +503,42 @@ public final class Vectors {
     return 1.0 / (1 + Math.exp(dot(a, b)));
   }
 
+  public static Vector range(int size) {
+    Vector.Builder builder = Vector.Builder.of(Integer.class);
+    for (int i = 0; i < size; i++) {
+      builder.add(i);
+    }
+    return builder.build();
+  }
+
   /**
    * Returns an unmodifiable, identity, vector-builder which returns the argument when building a
    * vector. All mutators of the returned builder throws {@link java.lang.UnsupportedOperationException}.
    *
-   * <p> This can be useful when copying a vectorfrom one {@linkplain
-   * org.briljantframework.data.dataframe.DataFrame.Builder DataFrame-builder}to another without
+   * <p> This can be useful when copying a vector from one {@linkplain
+   * org.briljantframework.data.dataframe.DataFrame.Builder DataFrame-builder} to another without
    * adding new values.
    *
+   * <p> Vectors marked with the {@link org.briljantframework.data.vector.Transferable}-interface
+   * will be <em>transfered</em> without copying when built.
+   *
    * @param vector the vector to be built
-   * @return an unmodifiable vector-builder
+   * @return a transferable vector-builder
    */
-  public static Vector.Builder identityBuilder(Vector vector) {
-    return new IdentityVectorBuilder(vector);
+  public static Vector.Builder transferableBuilder(Vector vector) {
+    return new TransferableVectorBuilder(vector);
   }
 
-  private static class IdentityVectorBuilder implements Vector.Builder {
+  private static class TransferableVectorBuilder implements Vector.Builder {
 
     private final Vector vector;
 
-    private IdentityVectorBuilder(Vector vector) {
-      this.vector = vector;
+    private TransferableVectorBuilder(Vector vector) {
+      if (!(vector instanceof Transferable)) {
+        this.vector = vector.newCopyBuilder().build();
+      } else {
+        this.vector = vector;
+      }
     }
 
     @Override

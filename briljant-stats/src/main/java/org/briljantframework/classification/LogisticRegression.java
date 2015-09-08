@@ -28,17 +28,16 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.measure.LogLoss;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
-import org.briljantframework.data.vector.GenericVector;
-import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -115,7 +114,7 @@ public class LogisticRegression implements Classifier {
     }
     double logLoss = optimizer.optimize(objective, theta);
 
-    Vector.Builder names = new GenericVector.Builder(Object.class).add("(Intercept)");
+    Vector.Builder names = Vector.Builder.of(Object.class).add("(Intercept)");
     df.getColumnIndex().keySet().forEach(names::add);
     return new Predictor(names.build(), theta, logLoss, classes);
   }
@@ -362,7 +361,7 @@ public class LogisticRegression implements Classifier {
     @Override
     public DoubleArray estimate(Vector record) {
       DoubleArray x = Bj.doubleArray(record.size() + 1);
-      x.set(0, 1);
+      x.set(0, 1); // set the intercept
       for (int i = 0; i < record.size(); i++) {
         x.set(i + 1, record.loc().getAsDouble(i));
       }
@@ -418,8 +417,8 @@ public class LogisticRegression implements Classifier {
     }
 
     @Override
-    public void evaluation(EvaluationContext ctx) {
-      super.evaluation(ctx);
+    public void evaluate(EvaluationContext ctx) {
+      super.evaluate(ctx);
       ctx.getOrDefault(LogLoss.class, LogLoss.Builder::new).add(Sample.IN, logLoss);
     }
 

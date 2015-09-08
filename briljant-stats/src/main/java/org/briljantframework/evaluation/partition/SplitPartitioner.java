@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation;
+package org.briljantframework.evaluation.partition;
 
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import static org.briljantframework.data.vector.Vectors.transferableBuilder;
 
 /**
  * The split partitioner simply partitions the input {@code DataFrame} (with {@code m rows}) and
@@ -56,21 +58,16 @@ public class SplitPartitioner implements Partitioner {
       DataFrame.Builder xTrainingBuilder = x.newBuilder();
       Vector.Builder yTrainingBuilder = y.newBuilder();
       for (int i = 0; i < trainingSize; i++) {
-        for (int j = 0; j < x.columns(); j++) {
-          xTrainingBuilder.loc().set(i, j, x, i, j);
-        }
+        xTrainingBuilder.addRecord(transferableBuilder(x.loc().getRecord(i)));
         yTrainingBuilder.add(y, i);
       }
 
       DataFrame.Builder xValidationBuilder = x.newBuilder();
       Vector.Builder yValidationBuilder = y.newBuilder();
-      int index = 0;
       for (int i = trainingSize; i < x.rows(); i++) {
-        for (int j = 0; j < x.columns(); j++) {
-          xValidationBuilder.loc().set(index, j, x, i, j);
-        }
+        // TODO: this will fuck up for non-dataseries collections FIMME
+        xValidationBuilder.addRecord(transferableBuilder(x.loc().getRecord(i)));
         yValidationBuilder.add(y, i);
-        index += 1;
       }
 
       return new Iterator<Partition>() {
@@ -97,5 +94,12 @@ public class SplitPartitioner implements Partitioner {
         }
       };
     };
+  }
+
+  @Override
+  public String toString() {
+    return "SplitPartitioner{" +
+           "testFraction=" + testFraction +
+           '}';
   }
 }

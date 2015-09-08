@@ -25,6 +25,7 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.Logical;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,21 +42,21 @@ public class VectorsTest {
 
   @Before
   public void setUp() throws Exception {
-    vec6 = DoubleVector.wrap(1, 2, 3, 4, 5, 6);
+    vec6 = Vector.of(1.0, 2, 3, 4, 5, 6);
     vec8 = Vector.of("a", "sb", "cds", "qdsa", "fdasdsadsa", "dd", "r", "a");
   }
 
   @Test
   public void testInferType() throws Exception {
-    assertEquals(VectorType.DOUBLE, VectorType.from(Double.class));
-    assertEquals(VectorType.INT, VectorType.from(Integer.class));
-    assertEquals(VectorType.LOGICAL, VectorType.from(Boolean.class));
-    assertEquals(VectorType.LOGICAL, VectorType.from(Logical.class));
-    assertEquals(VectorType.COMPLEX, VectorType.from(Complex.class));
-    assertEquals(VectorType.STRING, VectorType.from(String.class));
-    assertEquals(VectorType.DOUBLE, VectorType.from(Double.TYPE));
-    assertEquals(VectorType.INT, VectorType.from(Integer.TYPE));
-    assertEquals(VectorType.OBJECT, VectorType.from(null));
+    assertEquals(VectorType.DOUBLE, VectorType.of(Double.class));
+    assertEquals(VectorType.INT, VectorType.of(Integer.class));
+    assertEquals(VectorType.LOGICAL, VectorType.of(Boolean.class));
+    assertEquals(VectorType.LOGICAL, VectorType.of(Logical.class));
+    assertEquals(VectorType.COMPLEX, VectorType.of(Complex.class));
+    assertEquals(VectorType.STRING, VectorType.of(String.class));
+    assertEquals(VectorType.DOUBLE, VectorType.of(Double.TYPE));
+    assertEquals(VectorType.INT, VectorType.of(Integer.TYPE));
+    assertEquals(VectorType.OBJECT, VectorType.of(null));
   }
 
   @Test
@@ -70,9 +71,9 @@ public class VectorsTest {
     List<Vector> listChunks = new ArrayList<>(chunks);
 
     assertEquals(3, chunks.size());
-    assertEquals(DoubleVector.wrap(1, 2), listChunks.get(0));
-    assertEquals(DoubleVector.wrap(3, 4), listChunks.get(1));
-    assertEquals(DoubleVector.wrap(5, 6), listChunks.get(2));
+    assertEquals(Vector.of(1, 2), listChunks.get(0));
+    assertEquals(Vector.of(3, 4), listChunks.get(1));
+    assertEquals(Vector.of(5, 6), listChunks.get(2));
   }
 
   @Test
@@ -81,7 +82,7 @@ public class VectorsTest {
     List<Vector> listChunks = new ArrayList<>(chunks);
 
     assertEquals(1, chunks.size());
-    assertEquals(DoubleVector.wrap(1, 2, 3, 4, 5, 6), listChunks.get(0));
+    assertEquals(Vector.of(1, 2, 3, 4, 5, 6), listChunks.get(0));
   }
 
   @Test
@@ -90,10 +91,9 @@ public class VectorsTest {
     List<Vector> listChunks = new ArrayList<>(chunks);
 
     assertEquals(4, chunks.size());
-    assertEquals(DoubleVector.wrap(1, 2), listChunks.get(0));
-    assertEquals(DoubleVector.wrap(3, 4), listChunks.get(1));
-    assertEquals(DoubleVector.wrap(5), listChunks.get(2));
-    assertEquals(DoubleVector.wrap(6), listChunks.get(3));
-
+    assertEquals(Vector.of(1, 2), listChunks.get(0));
+    assertEquals(Vector.of(3, 4), listChunks.get(1));
+    assertEquals(Vector.of(5), listChunks.get(2));
+    assertEquals(Vector.of(6), listChunks.get(3));
   }
 }

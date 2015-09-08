@@ -26,12 +26,15 @@ package org.briljantframework.evaluation.result;
 
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Predictor;
-import org.briljantframework.evaluation.Partition;
-import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.partition.Partition;
+import org.briljantframework.evaluation.measure.Measure;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -71,14 +74,14 @@ public class EvaluationContext {
    * Get the predictions made by {@link #getPredictor()}.
    *
    * @param sample if {@link Sample#IN}, returns the predictions on
-   *               {@link org.briljantframework.evaluation.Partition#getTrainingData()}; if
+   *               {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}; if
    *               {@link Sample#OUT}, returns the predictions on
-   *               {@link org.briljantframework.evaluation.Partition#getTrainingData()}.
+   *               {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}.
    * @return the predictions
    */
   public Vector getPredictions(Sample sample) {
-    return sample == Sample.OUT ? predictions : getPredictor().predict(
-        getPartition().getTrainingData());
+    DataFrame trainingData = getPartition().getTrainingData();
+    return sample == Sample.OUT ? predictions : getPredictor().predict(trainingData);
   }
 
   public void setEstimation(DoubleArray estimation) {
@@ -136,8 +139,16 @@ public class EvaluationContext {
     return (Measure.Builder<T>) builders.get(measure);
   }
 
-  public <T extends Measure> Measure.Builder<T> getOrDefault(Class<T> measure,
-                                                             Supplier<? extends Measure.Builder<T>> supplier) {
+  /**
+   * Get the builder for the key or the default value produced by the supplier
+   *
+   * @param measure  the measure
+   * @param supplier the supplier
+   * @param <T>      the type of measure
+   * @return a builder for the measure
+   */
+  public <T extends Measure> Measure.Builder<T> getOrDefault(
+      Class<T> measure, Supplier<? extends Measure.Builder<T>> supplier) {
     Measure.Builder<T> builder = get(measure);
     if (builder == null) {
       builder = supplier.get();
@@ -147,15 +158,35 @@ public class EvaluationContext {
     return builder;
   }
 
-  public boolean containsKey(Class<? extends Measure> measure) {
-    return builders.containsKey(measure);
-  }
-
   public <T extends Measure> void put(Class<T> measure, Measure.Builder<T> builder) {
     builders.put(measure, builder);
   }
 
   public Collection<Measure.Builder<?>> builders() {
     return builders.values();
+  }
+
+  /**
+   * Get a list of populated measures from this evaluation context
+   *
+   * <pre>{@code
+   *  EvaluationContext ctx = new EvaluationContext();
+   *  ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.9);
+   *  ctx.append(Accuracy.class, 0.9);
+   *  ctx.append(Accuracy.class, 0.8);
+   *  ....
+   *  List<Measure> measures = ctx.getMeasures();
+   * }</pre>
+   *
+   * @return a list of measures
+   */
+  public List<Measure> getMeasures() {
+    List<Measure> measures = new ArrayList<>();
+    builders().forEach(v -> measures.add(v.build()));
+    return measures;
+  }
+
+  public boolean contains(Class<? extends Measure> measure) {
+    return builders.containsKey(measure);
   }
 }

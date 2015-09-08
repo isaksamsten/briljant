@@ -24,7 +24,7 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.data.Aggregates;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
@@ -341,7 +341,8 @@ public abstract class DataFrameTest {
         .set("d", Vector.of(1, 2, 3, 4, 5))
         .build();
 
-    Vector sums = df.collect(Double.class, Aggregates.sum());
+    Vector sums = df.collect(Double.class, Collectors.sum());
+    System.out.println(sums);
     assertEquals(15, sums.getAsInt("i"));
     assertEquals(15, sums.getAsInt("k"));
     assertEquals(15, sums.getAsInt("d"));
@@ -381,7 +382,7 @@ public abstract class DataFrameTest {
         .build();
 
     DataFrame replaced = df.groupBy("i")
-        .apply(v -> v.collect(Aggregates.fillNa(22)));
+        .apply(v -> v.collect(Collectors.fillNa(22)));
     assertEquals(6, replaced.rows());
     assertEquals(2, replaced.columns());
     assertEquals(22, replaced.get("j").getAsInt(5));

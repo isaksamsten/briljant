@@ -22,29 +22,18 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation;
-
-import org.briljantframework.Check;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+package org.briljantframework.data.vector;
 
 /**
- * Creates a k-fold partitioner
- * <p>
+ * A marker-interface for vectors that are <em>transferable</em> between data frames and/or other
+ * data-structures. For example, a vector that keeps it's data in an {@code array} is generally
+ * <em>transferable</em> but a vector that is simply a view (e.g {@link VectorView}) of another
+ * vector or (heavy) data-structure such as a data frame is not. Vectors not marked will be copied
+ * by, e.g., {@link Vectors#transferableBuilder(Vector)} to allow larger objects to be garbage
+ * collected.
  *
  * @author Isak Karlsson
  */
-public class FoldPartitioner implements Partitioner {
+public interface Transferable {
 
-  private final int folds;
-
-  public FoldPartitioner(int folds) {
-    this.folds = folds;
-  }
-
-  @Override
-  public Iterable<Partition> partition(DataFrame x, Vector y) {
-    Check.size(x.rows(), y.size());
-    return () -> new FoldIterator(x, y, folds);
-  }
 }

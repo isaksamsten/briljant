@@ -24,8 +24,6 @@
 
 package org.briljantframework.data;
 
-import org.briljantframework.data.vector.Is;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;

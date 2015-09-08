@@ -24,6 +24,7 @@
 
 package org.briljantframework.data.vector
 
+import org.briljantframework.data.Logical
 import spock.lang.Specification
 
 /**

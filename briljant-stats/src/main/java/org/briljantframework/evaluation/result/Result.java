@@ -25,15 +25,15 @@
 package org.briljantframework.evaluation.result;
 
 import org.briljantframework.Check;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.data.Aggregates;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.IntVector;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.evaluation.measure.Measure;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -287,8 +287,8 @@ public class Result {
 
     if (it.hasNext()) {
       Measure measure = it.next();
-      df.add(IntVector.range(measure.size()).collect(Aggregates.repeat(2)));
-      df.add(VectorType.from(Sample.class));
+      df.add(Vectors.range(measure.size()).collect(Collectors.repeat(2)));
+      df.add(VectorType.of(Sample.class));
       for (int i = 0; i < measure.size() * 2; i++) {
         if (i < measure.size()) {
           df.loc().set(i, 1, Sample.OUT);
@@ -297,15 +297,15 @@ public class Result {
         }
       }
       index.add(measure.getName());
-      df.add(new DoubleVector.Builder()
+      df.add(Vector.Builder.of(Double.class)
                  .addAll(measure.get(Sample.OUT))
                  .addAll(measure.get(Sample.IN)));
       while (it.hasNext()) {
         measure = it.next();
         index.add(measure.getName());
-        DoubleVector.Builder bf = new DoubleVector.Builder();
-        bf.addAll(measure.get(Sample.OUT));
-        bf.addAll(measure.get(Sample.IN));
+        Vector.Builder bf = Vector.Builder.of(Double.class)
+            .addAll(measure.get(Sample.OUT))
+            .addAll(measure.get(Sample.IN));
         df.add(bf);
       }
       DataFrame bdf = df.build();

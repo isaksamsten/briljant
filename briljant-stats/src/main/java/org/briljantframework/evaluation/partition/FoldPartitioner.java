@@ -22,27 +22,36 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.partition;
 
-import org.briljantframework.evaluation.measure.Accuracy;
-import org.briljantframework.evaluation.measure.ErrorRate;
-
-import static org.briljantframework.evaluation.result.Measures.accuracy;
+import org.briljantframework.Check;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
+ * Creates a k-fold partitioner
+ * <p>
+ *
  * @author Isak Karlsson
  */
-public class ErrorEvaluator implements Evaluator {
+public class FoldPartitioner implements Partitioner {
+
+  private final int folds;
+
+  public FoldPartitioner(int folds) {
+    this.folds = folds;
+  }
 
   @Override
-  public void accept(EvaluationContext ctx) {
-    double a = accuracy(ctx.getPredictions(Sample.OUT), ctx.getPartition().getValidationTarget());
-    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT, 1 - a);
-    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, a);
+  public Iterable<Partition> partition(DataFrame x, Vector y) {
+    Check.size(x.rows(), y.size());
+    return () -> new FoldIterator(x, y, folds);
   }
 
   @Override
   public String toString() {
-    return "0/1-loss evaluator";
+    return "FoldPartitioner{" +
+           "folds=" + folds +
+           '}';
   }
 }

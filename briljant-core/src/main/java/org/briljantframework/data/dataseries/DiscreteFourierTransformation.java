@@ -30,7 +30,6 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.transform.InvertibleTransformation;
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
@@ -43,8 +42,6 @@ import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft
 public class DiscreteFourierTransformation implements InvertibleTransformation {
 
   /**
-   * Asserts that each row has {@link org.briljantframework.data.vector.DoubleVector#TYPE}.
-   *
    * @param x data frame to transform
    * @return a new data frame; each row has type
    */
@@ -55,7 +52,7 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
       Check.type(row, VectorType.DOUBLE);
       DoubleArray timeDomain = row.toDoubleArray();
       ComplexArray frequencyDomain = fft(timeDomain);
-      Vector.Builder rowBuilder = VectorType.from(Complex.class).newBuilder(timeDomain.size());
+      Vector.Builder rowBuilder = VectorType.of(Complex.class).newBuilder(timeDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.loc().set(i, frequencyDomain.get(i));
       }
@@ -68,10 +65,10 @@ public class DiscreteFourierTransformation implements InvertibleTransformation {
   public DataFrame inverseTransform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(VectorType.DOUBLE);
     for (Vector row : x) {
-      Check.type(row, VectorType.from(Complex.class));
+      Check.type(row, VectorType.of(Complex.class));
       ComplexArray timeDomain = row.toComplexArray();
       DoubleArray frequencyDomain = ifft(timeDomain).asDouble();
-      DoubleVector.Builder rowBuilder = new DoubleVector.Builder(0, frequencyDomain.size());
+      Vector.Builder rowBuilder = Vector.Builder.of(Double.class);/*(0, frequencyDomain.size());*/
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.loc().set(i, frequencyDomain.get(i));
       }

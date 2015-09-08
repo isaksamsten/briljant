@@ -22,27 +22,22 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.data.index
 
-import org.briljantframework.evaluation.measure.Accuracy;
-import org.briljantframework.evaluation.measure.ErrorRate;
-
-import static org.briljantframework.evaluation.result.Measures.accuracy;
+import groovy.transform.CompileStatic
+import org.briljantframework.data.vector.Vector
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 03/09/15.
  */
-public class ErrorEvaluator implements Evaluator {
+@CompileStatic
+class DataFrameLocationGetterExtensions {
 
-  @Override
-  public void accept(EvaluationContext ctx) {
-    double a = accuracy(ctx.getPredictions(Sample.OUT), ctx.getPartition().getValidationTarget());
-    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT, 1 - a);
-    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, a);
+  static Vector getAt(DataFrameLocationGetter self, int column) {
+    return self.get(column)
   }
 
-  @Override
-  public String toString() {
-    return "0/1-loss evaluator";
+  static Object getAt(DataFrameLocationGetter self, int row, int column) {
+    return self.get(Object, row, column)
   }
 }

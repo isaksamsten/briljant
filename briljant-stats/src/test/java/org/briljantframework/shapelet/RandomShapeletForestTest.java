@@ -42,7 +42,6 @@ import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
 import org.briljantframework.io.MatlabTextInputStream;
 import org.briljantframework.io.SequenceInputStream;
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;

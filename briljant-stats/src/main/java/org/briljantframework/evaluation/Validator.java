@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.evaluation.partition.Partitioner;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.data.vector.Vector;
@@ -63,9 +64,9 @@ public interface Validator {
 
   /**
    * Gets the partitioner used for this validator. The partitioner partitions the data into training
-   * and validation folds. For example, {@link org.briljantframework.evaluation.FoldPartitioner}
+   * and validation folds. For example, {@link org.briljantframework.evaluation.partition.FoldPartitioner}
    * partitions the data into {@code k} folds and
-   * {@link org.briljantframework.evaluation.SplitPartitioner} partitions the data into two folds.
+   * {@link org.briljantframework.evaluation.partition.SplitPartitioner} partitions the data into two folds.
    * 
    * @return the partitioner used by this validator
    */

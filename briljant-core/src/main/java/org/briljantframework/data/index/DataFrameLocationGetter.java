@@ -47,7 +47,7 @@ public interface DataFrameLocationGetter {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.data.vector.Na#from(Class)}. The
+   * return {@code NA} as defined by {@link org.briljantframework.data.Na#of(Class)}. The
    * conversion is performed according to the convention found in {@link
    * org.briljantframework.data.vector.Convert#to(Class, Object)}
    *

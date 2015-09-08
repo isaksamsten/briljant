@@ -26,6 +26,9 @@ package org.briljantframework.evaluation;
 
 import java.util.List;
 
+import org.briljantframework.evaluation.partition.FoldPartitioner;
+import org.briljantframework.evaluation.partition.LeaveOneOutPartitioner;
+import org.briljantframework.evaluation.partition.SplitPartitioner;
 import org.briljantframework.evaluation.result.Evaluator;
 
 /**

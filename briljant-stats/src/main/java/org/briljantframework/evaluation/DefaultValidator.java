@@ -27,17 +27,20 @@ package org.briljantframework.evaluation;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.measure.FitTime;
 import org.briljantframework.evaluation.measure.PredictTime;
 import org.briljantframework.evaluation.measure.TrainingSetSize;
 import org.briljantframework.evaluation.measure.ValidationSetSize;
+import org.briljantframework.evaluation.partition.Partition;
+import org.briljantframework.evaluation.partition.Partitioner;
+import org.briljantframework.evaluation.partition.SplitPartitioner;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +99,7 @@ public class DefaultValidator extends AbstractValidator {
       for (Evaluator evaluator : getEvaluators()) {
         evaluator.accept(ctx);
       }
-      predictor.evaluation(ctx);
+      predictor.evaluate(ctx);
 
       ctx.getOrDefault(TrainingSetSize.class, TrainingSetSize.Builder::new)
           .add(Sample.OUT, trainingData.rows());
@@ -105,6 +108,6 @@ public class DefaultValidator extends AbstractValidator {
       ctx.getOrDefault(FitTime.class, FitTime.Builder::new).add(Sample.OUT, fitTime);
       ctx.getOrDefault(PredictTime.class, PredictTime.Builder::new).add(Sample.OUT, predictTime);
     }
-    return Result.create(collect(ctx.builders()), confusionMatrices);
+    return Result.create(ctx.getMeasures(), confusionMatrices);
   }
 }

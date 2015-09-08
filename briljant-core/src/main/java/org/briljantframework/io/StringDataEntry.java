@@ -24,10 +24,10 @@
 
 package org.briljantframework.io;
 
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.io.resolver.Resolver;
 import org.briljantframework.io.resolver.Resolvers;
-import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Na;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
@@ -53,11 +53,11 @@ public final class StringDataEntry implements DataEntry {
   public <T> T next(Class<T> cls) {
     String value = nextString();
     if (Is.NA(value)) {
-      return Na.from(cls);
+      return Na.of(cls);
     }
     Resolver<T> resolver = Resolvers.find(cls);
     if (resolver == null) {
-      return Na.from(cls);
+      return Na.of(cls);
     } else {
       return resolver.resolve(value);
     }
@@ -103,6 +103,13 @@ public final class StringDataEntry implements DataEntry {
   @Override
   public boolean hasNext() {
     return current < size();
+  }
+
+  @Override
+  public void skip(int no) {
+    if (current + no < size()) {
+      current += no;
+    }
   }
 
   @Override

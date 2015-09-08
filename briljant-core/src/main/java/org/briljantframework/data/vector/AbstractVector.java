@@ -27,9 +27,10 @@ package org.briljantframework.data.vector;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.data.Aggregates;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationGetter;
@@ -80,26 +81,26 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public <T> Vector satisfies(Class<T> cls, Predicate<? super T> predicate) {
-    return collect(cls, Aggregates.test(predicate));
+    return collect(cls, Collectors.test(predicate));
   }
 
   @Override
   public <T> Vector filter(Class<T> cls, Predicate<? super T> predicate) {
-    return collect(cls, Aggregates.filter(this::newBuilder, predicate));
+    return collect(cls, Collectors.filter(this::newBuilder, predicate));
   }
 
   @Override
   public <T, O> Vector map(Class<T> in, Class<O> out,
                            Function<? super T, ? extends O> operator) {
-    Collector<T, ?, Vector> transform = Aggregates.transform(
-        () -> VectorType.from(out).newBuilder(), operator
+    Collector<T, ?, Vector> transform = Collectors.map(
+        () -> VectorType.of(out).newBuilder(), operator
     );
     return collect(in, transform);
   }
 
   @Override
   public <T> Vector map(Class<T> cls, UnaryOperator<T> operator) {
-    return collect(cls, Aggregates.transform(this::newBuilder, operator));
+    return collect(cls, Collectors.map(this::newBuilder, operator));
   }
 
   @Override
@@ -120,7 +121,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <T, R> Vector combine(Class<T> in, Class<R> out, Vector other,
                                BiFunction<? super T, ? super T, ? extends R> combiner) {
-    Vector.Builder builder = VectorType.from(out).newBuilder();
+    Vector.Builder builder = VectorType.of(out).newBuilder();
     return combineVectors(in, other, combiner, builder);
   }
 

@@ -27,6 +27,9 @@ package org.briljantframework.evaluation;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.Datasets;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.partition.FoldPartitioner;
+import org.briljantframework.evaluation.partition.Partition;
+import org.briljantframework.evaluation.partition.Partitioner;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

@@ -29,7 +29,7 @@ import org.briljantframework.array.Array;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.Aggregates;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
@@ -40,6 +40,7 @@ import org.briljantframework.io.DataEntry;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -57,15 +58,18 @@ import java.util.stream.Stream;
 
 /**
  * <p> A vector is an homogeneous (i.e. with values of only one (sub)type) and immutable (i.e. the
- * contents cannot change) list (with O(1) access) of values supporting missing entries (i.e. NA).
+ * contents cannot change) list/map (with O(1) location-based access and key-based access) of
+ * values supporting missing entries (i.e. NA).
  *
  * <p> Since NA value are implemented differently depending value type, checking for NA-values are
- * done via the {@link #isNA(Object)} method.
+ * done via the {@link #isNA(Object)} method or via the static {@link
+ * org.briljantframework.data.Is#NA(java.lang.Object)}
+ * method.
  *
  * <p> Implementers must ensure that:
  *
  * <ul>
- * <li>{@link #hashCode()} and {@link #equals(Object)} work as expected.</li>
+ * <li>{@link #hashCode()} and {@link #equals(Object)} are based on the values and the index.</li>
  * <li>The vector cannot be changed, i.e. a vector cannot expose it's underlying
  * implementation and be mutated. This simplifies parallel algorithms.</li>
  * </ul>
@@ -80,7 +84,8 @@ public interface Vector extends Serializable {
    * @param array the values
    * @return a new vector
    */
-  static Vector of(Object... array) {
+  @SafeVarargs
+  static <T> Vector of(T... array) {
     return of(Arrays.asList(array));
   }
 
@@ -96,11 +101,15 @@ public interface Vector extends Serializable {
       return singleton(null);
     }
     Object t = it.next();
-    Builder builder = VectorType.from(t).newBuilder().add(t);
+    Builder builder = VectorType.of(t).newBuilder().add(t);
     while (it.hasNext()) {
       builder.add(it.next());
     }
     return builder.build();
+  }
+
+  static Vector of(Collection<Object> collection) {
+    return of((Iterable<Object>) collection);
   }
 
   /**
@@ -117,7 +126,7 @@ public interface Vector extends Serializable {
       throw new UnsupportedOperationException();
     }
     Object value = supplier.get();
-    Vector.Builder builder = VectorType.from(value).newBuilder().add(value);
+    Vector.Builder builder = VectorType.of(value).newBuilder().add(value);
     for (int i = 1; i < size; i++) {
       builder.add(supplier.get());
     }
@@ -553,7 +562,7 @@ public interface Vector extends Serializable {
    * @return the sum
    */
   default double sum() {
-    return collect(Double.class, Aggregates.sum());
+    return collect(Double.class, Collectors.sum());
   }
 
   /**
@@ -562,7 +571,7 @@ public interface Vector extends Serializable {
    * @return the mean
    */
   default double mean() {
-    return collect(Double.class, Aggregates.mean());
+    return collect(Double.class, Collectors.mean());
   }
 
   /**
@@ -571,7 +580,7 @@ public interface Vector extends Serializable {
    * @return the standard deviation
    */
   default double std() {
-    return collect(Double.class, Aggregates.std());
+    return collect(Double.class, Collectors.std());
   }
 
   /**
@@ -580,7 +589,7 @@ public interface Vector extends Serializable {
    * @return the variance
    */
   default double var() {
-    return collect(Double.class, Aggregates.var());
+    return collect(Double.class, Collectors.var());
   }
 
   /**
@@ -593,7 +602,7 @@ public interface Vector extends Serializable {
    * @return the number of unique values
    */
   default int nunique() {
-    return collect(Aggregates.nunique());
+    return collect(Collectors.nunique());
   }
 
   /**
@@ -609,7 +618,7 @@ public interface Vector extends Serializable {
    * @return a vector of value counts
    */
   default Vector valueCounts() {
-    return collect(Aggregates.valueCounts());
+    return collect(Collectors.valueCounts());
   }
 
   /**
@@ -618,7 +627,7 @@ public interface Vector extends Serializable {
    * @return a vector without {@code NA} values
    */
   default Vector nonNA() {
-    return collect(Aggregates.nonNA());
+    return collect(Collectors.nonNA());
   }
 
   /**
@@ -674,10 +683,39 @@ public interface Vector extends Serializable {
    * value of {@code a} at index {@code 0} to the value at index {@code 10} in {@code b}. This
    * avoids unboxing values from one vector to another. For the numerical vectors, values are
    * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or {@code
-   * Bit.TRUE} in a bit-vector. </p>
+   * Logical.TRUE} in a logical-vector. </p>
    */
-
   public static interface Builder {
+
+    /**
+     * Construct a builder for the specified type
+     *
+     * @param cls the class of the builder
+     * @return a primitive or reference builder
+     * @see org.briljantframework.data.vector.VectorType#of(Class)
+     */
+    static Builder of(Class<?> cls) {
+      return VectorType.of(cls).newBuilder();
+    }
+
+    /**
+     * Construct a builder of the specified type and size filled with {@code NA}
+     *
+     * @param cls  the type
+     * @param size the size
+     * @return a new builder with the specified size filled with {@code NA}
+     */
+    static Builder of(Class<?> cls, int size) {
+      Vector.Builder builder = withCapacity(cls, size);
+      for (int i = 0; i < size; i++) {
+        builder.addNA();
+      }
+      return builder;
+    }
+
+    static Builder withCapacity(Class<?> cls, int capacity) {
+      return VectorType.of(cls).newBuilderWithCapacity(capacity);
+    }
 
     /**
      * Recommended initial capacity

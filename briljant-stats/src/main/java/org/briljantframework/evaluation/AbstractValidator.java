@@ -24,24 +24,21 @@
 
 package org.briljantframework.evaluation;
 
+import org.briljantframework.Bj;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.evaluation.result.Evaluator;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.evaluation.partition.Partitioner;
+import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.result.Evaluator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import static org.briljantframework.Bj.argmax;
-
 /**
- * Created by isak on 03/10/14.
- * <p>
+ * @author Isak Karlsson
  */
 public abstract class AbstractValidator implements Validator {
 
@@ -60,26 +57,12 @@ public abstract class AbstractValidator implements Validator {
 
   /**
    * Gets the partition strategy
-   * 
+   *
    * @return the partition strategy
    */
   @Override
   public Partitioner getPartitioner() {
     return partitioner;
-  }
-
-  /**
-   * Collect metric producers.
-   *
-   * @param builders the producers
-   * @return the array list
-   */
-  protected List<Measure> collect(Collection<Measure.Builder<?>> builders) {
-    List<Measure> measures = new ArrayList<>();
-    for (Measure.Builder<?> builder : builders) {
-      measures.add(builder.build());
-    }
-    return measures;
   }
 
   /**
@@ -91,19 +74,27 @@ public abstract class AbstractValidator implements Validator {
    * @param ctx       the evaluation context
    * @return a vector of class-labels produced for {@code predictor} using the hold-out dataset
    */
-  protected Vector computeClassLabels(DataFrame holdoutX, Predictor predictor, VectorType type,
-                                      EvaluationContext ctx) {
+  protected Vector computeClassLabels(
+      DataFrame x, Predictor predictor, VectorType type, EvaluationContext ctx) {
     Vector classes = predictor.getClasses();
     Vector.Builder builder = type.newBuilder();
     if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
-      DoubleArray estimate = predictor.estimate(holdoutX);
+      DoubleArray estimate = predictor.estimate(x);
       ctx.setEstimation(estimate);
       for (int i = 0; i < estimate.rows(); i++) {
-        builder.loc().set(i, classes, argmax(estimate.getRow(i)));
+        builder.loc().set(i, classes, Bj.argmax(estimate.getRow(i)));
       }
       return builder.build();
     } else {
-      return predictor.predict(holdoutX);
+      return predictor.predict(x);
     }
+  }
+
+  @Override
+  public String toString() {
+    return "AbstractValidator{" +
+           "evaluators=" + evaluators +
+           ", partitioner=" + partitioner +
+           '}';
   }
 }

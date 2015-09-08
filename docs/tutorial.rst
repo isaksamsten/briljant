@@ -2,50 +2,61 @@
 Tutorial
 ***********************
 
+Getting started
+===============
+
+Installation
+------------
+Building from source
+
 Introduction
 ============
 
-Briljants main abstractions are the (nd)-`array <#array>`__,
-`DataFrame <#dataframe>`__ and `Vector <#vector>`__.
+Briljants main abstractions are the (nd)-array, ``DataFrame`` and
+``Vector``.
 
--  ``DataFrame`` is an immutable column wise heterogeneous data
-   container and provides the essential tools for working with
-   statistical data in Java. In particular, ``DataFrame`` provides
+* ``DataFrame`` is an immutable column wise heterogeneous data
+  container and provides the essential tools for working with
+  statistical data in Java. In particular, ``DataFrame`` provides
 
-   -  ``NA``, i.e. missing (or non-existing) values, distinct from e.g.,
-      ``NaN``.
-   -  Operations for working with tabular data, similar to those found
-      in spreadsheets and databases.
-   -  Different implementations with varying performance
-      characteristics.
+  * ``NA``, i.e. missing (or non-existing) values, distinct from
+    e.g., ``NaN``.
+  * Operations for working with tabular data, similar to those found
+    in spreadsheets and databases.
+  * Different implementations with varying performance
+    characteristics.
 
-- ``Vector`` is an immutable homogeneous data container. It supports
-   reference types such as ``String`` (i.e. categorical values),
-   ``Double`` (i.e. double precision floating point numbers),
-   ``Binary`` (i.e. true/false/NA), ``Integer`` and ``Complex``
-   numbers. All providing a unique ``NA`` representation.
+* ``Vector`` is an immutable homogeneous data container. It supports
+  reference types such as ``String`` (i.e. categorical values),
+  ``Double`` (i.e. double precision floating point numbers),
+  ``Binary`` (i.e. true/false/NA), ``Integer`` and ``Complex``
+  numbers. All providing a unique ``NA`` representation.
 
--  ``Array<T>``, ``DoubleArray``, ``IntArray``, ``LongArray``,
-   ``ComplexArray`` and ``BitArray`` are d-dimensional data containers
-   of, reference and numerical (primitive) elements supporting a
-   multitude of linear algebra operations.
+* ``Array<T>``, ``DoubleArray``, ``IntArray``, ``LongArray``,
+  ``ComplexArray`` and ``BitArray`` are d-dimensional data containers
+  of, reference and numerical (primitive) elements supporting a
+  multitude of linear algebra operations.
 
-Getting started
-===============
-First we ..., in this tutorial we'll be using the Groovy shell
-
-To get a first taste of the Briljant framework, we'll start by exploring
-a few of its main primitives. The first primitive we introduce is the
-``Vector`` which, as explained above, is a homogeneous ``NA`` supporting
-container type. Homogeneous mean that a vector only contain values of
-one specific type and ``NA`` supporting that it is aware of missing
-values. Suppose that we are given a list of employees and want to count
-the frequency of each name.
+To get a first taste of the Briljant framework, we'll start by
+exploring a few of its main primitives. The first primitive we
+introduce is the ``Vector`` which, as explained above, is a
+homogeneous ``NA`` supporting container type. Homogeneous mean that a
+vector only contain values of one specific type; and ``NA`` supporting
+that it is aware of missing values. For example, suppose we are given
+a list of employees and want to know the frequency of each name. The
+following code (assuming that Briljant is correctly installed and that
+the correct packages are imported) creates a (``String``) vector
+consisting of the names *Bob*, *Mary*, *Lisa*, etc.
 
 .. code-block:: java
                 
    Vector employees = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
-   /*
+
+If we print the vector to the screen (e.g., using
+``System.out.println(employees)``), we'll see something like this.
+   
+::
+   
     0  Bob
     1  Mary
     2  Lisa
@@ -54,28 +65,186 @@ the frequency of each name.
     5  Mary
     6  Anna
     type: string
-   */
 
-    Vector counts = employees.collect(Aggregates.valueCounts());
-    /*
+Now, suppose we are interested in the frequency of each name, the
+traditional `Java` way would be something like this
+
+
+.. code-block:: java
+
+   Map<String, Integer> counts = new HashMap<>();
+   for(String employee : employees) {
+      Integer count = counts.get(employee);
+      if(counts == null) {
+        counts.put(employee, 1);
+      } else {
+        counts.put(employee, 1 + count);
+      }
+   }
+
+   
+While this code is fine in many circumstances, would it not be nice to
+have a data-structure that supports such common statistical methods
+directly and instead say:
+
+.. code-block:: java
+   
+    Vector counts = employees.valueCounts();
+
+Again, printing the vector (``counts`` in this case) produces something like this
+    
+::
+   
      Bob   1
      John  1
      Anna  1
      Lisa  2
      Mary  2
      type: int
-    */
 
-In the first statement we constructs a vector of names (with the type
-``string``). If we don't explicitly index the vector it will receive a
-numerical index from ``[0, ..., vector.size()]`` which means that we,
-for example, can call ``employees.get(String.class, 0)`` to get the
-first element of the vector. The second statement performs an
-`aggregation <reference/vector#aggregation>`__ operation which in this
-case take all elements of the ``employees`` vector and count their
-occurence. As you probably notice in the output, the index of the
-``counts`` vector is non-numerical, we can, for example, call
-``counts.getAsInt("Mary")`` to find the frequency of the name ``Mary``.
+The first thing you might notice is that the first "column" have
+changed from the numbers ``0..size()`` to instead be the names of the
+employees. This is because in Briljant, vectors are *indexed* which
+essentially means that they are somewhat like a combination of a
+``Map`` and a ``List``. To get the count of ``Mary`` we simply say
+``counts.getAsInt("Mary");`` which will give us the answer ``2``. To
+treat the vector as a list and, hence, access values based on their
+location we can say ``counts.loc().getAsInt(0)`` which will also
+return ``2``.
+
+In many cases ``Vectors`` will suffice, e.g., when storing the
+evolution of stock prices
+
+.. code-block:: java
+
+   Vector.Builder spb = new DoubleVector.Builder();
+   spb.set(LocalDateTime.of(2014, Month.JANUARY, 1, 10, 10, 30), 100);
+   spb.set(LocalDateTime.of(2014, Month.JANUARY, 1, 10, 10, 31), 200);
+   // ....
+   spb.set(LocalDateTime.of(2014, Month.JANUARY, 1, 10, 11, 00), 199);
+   Vector stockPrices = spb.build();
+
+or the price of products
+
+.. code-block:: java
+
+   Vector.Builder pp = new DoubleVector.Builder();
+   pp.set("iPad", 200);
+   pp.set("iPhone", 300);
+   // ...
+   pp.set("Macbook Pro", 3000);
+   Vector prices = pp.build();
+
+But what if we want to track the price, size and number of units in
+stock? Well, in those circumstances a common approach is to create a
+spreadsheet or a ``DataFrame``. For example,
+
+.. code-block:: java
+
+   DataFrame.Builder productBuilder = new MixedDataFrame.Builder();
+   productBuilder.set("Price", Vector.of(200.0, 300.0, 3000.0));
+   productBuilder.set("Size", Vector.of(150, 250, 2000));
+   productBuilder.set("UnitsInStock", Vector.of(10, null, 10));
+   productBuilder.set("Name", Vector.of("iPad", "iPhone", "Macbook Pro"));
+                
+   DataFrame products = productBuilder.build();
+
+will create a data frame with four columns ("Price", "Size",
+"UnitsInStock", "Name") and 3 rows. Again, printing the data frame
+produces
+
+::
+  
+       Price   Size  UnitsInStock  Name         
+    0  200.0   150   10            iPad         
+    1  300.0   250   NA            iPhone       
+    2  3000.0  2000  10            Macbook Pro  
+
+    [3 rows x 4 columns]
+
+In the output, the first row of the output denotes the *column index*
+and the first column denotes the *record index*. Using these indicies,
+one can get a **record** (i.e. a row), a **column** or a
+**value**. Records are retrived using the
+``DataFrame#getRecord(Object)``-method, columns by the
+``DataFrame#get(Object)` and values by
+``DataFrame#get(Class,Object,Object)``. For example,
+
+.. code-block:: java
+
+   products.getRecord(0);
+
+produces
+   
+::
+
+   Price         200.0
+   Size          150
+   UnitsInStock  10
+   Name          iPad
+
+.. code-block:: java
+
+   products.get("Price");
+
+produces
+
+::
+
+   0  200.0
+   1  300.0
+   2  3000.0
+
+and finally, ``products.getAsDouble(0, "Price")`` returns
+``200.0``. Since every product is unique (a requirement for a valid
+index), we can *re-index* our data frame on the ``Name``-column. We do
+this with the ``DataFrame#indexOn(Object)``
+
+.. code-block:: java
+
+   products = products.indexOn("Name")
+
+will create a new data frame with the column "Name" removed and made
+the **record index**, producing.
+
+::
+   
+                Price   Size  UnitsInStock  
+   iPad         200.0   150   10            
+   iPhone       300.0   250   NA            
+   Macbook Pro  3000.0  2000  10            
+
+   [3 rows x 3 columns]
+
+
+Now we can get the price of an *iPad* by simply saying
+``products.getAsDouble("iPad", "Price")`` and the entire *iPad*
+product by saying ``products.getRecord("iPad")``. While impressive
+(/s), the major benefits of data frames are the ability to
+*aggregate*, *group* and *combine* them to form new data frames. For
+example, we can compute the mean price and number of items in stock
+for products with ``siz < 200`` and products with size ``size >= 200``:
+
+.. code-block:: java
+
+   products.groupBy(Integer.class, "Size", v -> v >= 200)
+           .collect(Vector::mean);
+
+
+which will produce
+
+::
+
+          Price     UnitsInStock  Name  
+   false  200.000   10.000        NA
+   true   1650.000  10.000        NA   
+
+   [2 rows x 3 columns]
+
+Note that ``Vector::mean`` is a function and ignores `NA`-values which
+is why the mean for ``UnitsInStock`` is ``10``; also note that for
+non-numerical vectors ``Vector#mean`` is undefined and returns ``NA``
+which is why the mean of the ``Name``-column is ``NA``.
 
 The array
 ---------
@@ -763,6 +932,6 @@ Calculations with missing values
 --------------------------------
 
 The DataFrame
-=========
+=============
 
 Data frames are Briljants most

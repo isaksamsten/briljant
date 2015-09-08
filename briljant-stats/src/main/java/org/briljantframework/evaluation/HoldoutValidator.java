@@ -27,11 +27,12 @@ package org.briljantframework.evaluation;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.partition.Partition;
 import org.briljantframework.evaluation.result.ConfusionMatrix;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.Collections;
 import java.util.List;
@@ -72,8 +73,8 @@ public class HoldoutValidator extends AbstractValidator {
     ctx.setPartition(new Partition(x, holdoutX, y, holdoutY));
 
     getEvaluators().forEach(mc -> mc.accept(ctx));
-    predictor.evaluation(ctx);
-    return Result.create(collect(ctx.builders()), Collections.singletonList(confusionMatrix));
+    predictor.evaluate(ctx);
+    return Result.create(ctx.getMeasures(), Collections.singletonList(confusionMatrix));
   }
 
 }

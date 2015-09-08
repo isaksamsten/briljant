@@ -25,6 +25,9 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Logical;
+import org.briljantframework.data.Na;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

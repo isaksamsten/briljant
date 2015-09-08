@@ -22,22 +22,21 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation;
+package org.briljantframework.evaluation.partition;
 
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 
 /**
- * Stupid POJO for holding training / validation set
- * 
- * Created by Isak Karlsson on 01/12/14.
+ * @author Isak Karlsson
  */
-public class Partition {
+public final class Partition {
 
   private final DataFrame trainingX, validationX;
   private final Vector trainingY, validationY;
 
-  public Partition(DataFrame trainingX, DataFrame validationX, Vector trainingY, Vector validationY) {
+  public Partition(DataFrame trainingX, DataFrame validationX, Vector trainingY,
+                   Vector validationY) {
     this.trainingX = trainingX;
     this.validationX = validationX;
     this.trainingY = trainingY;
@@ -46,7 +45,7 @@ public class Partition {
 
   /**
    * Get the data intended for training
-   * 
+   *
    * @return the training data
    */
   public DataFrame getTrainingData() {
@@ -55,7 +54,7 @@ public class Partition {
 
   /**
    * Get the target intended for training
-   * 
+   *
    * @return the training target
    */
   public Vector getTrainingTarget() {
@@ -64,7 +63,7 @@ public class Partition {
 
   /**
    * Get the data intended for validation
-   * 
+   *
    * @return the validation data
    */
   public DataFrame getValidationData() {
@@ -73,7 +72,7 @@ public class Partition {
 
   /**
    * Get the target intended for validation
-   * 
+   *
    * @return the validation target
    */
   public Vector getValidationTarget() {

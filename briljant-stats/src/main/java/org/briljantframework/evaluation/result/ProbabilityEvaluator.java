@@ -24,12 +24,12 @@
 
 package org.briljantframework.evaluation.result;
 
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Predictor;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.measure.AreaUnderCurve;
 import org.briljantframework.evaluation.measure.Brier;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.Map;
 
@@ -64,5 +64,10 @@ public class ProbabilityEvaluator implements Evaluator {
     }
     ctx.get(AreaUnderCurve.class).add(Sample.OUT, averageAuc);
     ctx.getOrDefault(Brier.class, Brier.Builder::new).add(Sample.OUT, brier);
+  }
+
+  @Override
+  public String toString() {
+    return "Probability evaluator";
   }
 }

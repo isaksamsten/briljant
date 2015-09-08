@@ -29,7 +29,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Utils;
-import org.briljantframework.data.Aggregates;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.dataframe.join.InnerJoin;
 import org.briljantframework.data.dataframe.join.JoinOperation;
 import org.briljantframework.data.dataframe.join.LeftOuterJoin;
@@ -39,10 +39,11 @@ import org.briljantframework.data.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.data.dataframe.transform.Transformation;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.vector.Na;
-import org.briljantframework.data.vector.Scale;
+import org.briljantframework.data.Na;
+import org.briljantframework.data.Scale;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.DataInputStream;
 import org.briljantframework.io.EntryReader;
@@ -111,7 +112,7 @@ public final class DataFrames {
         df.add(VectorType.LOGICAL);
       } else {
         val = value;
-        df.add(VectorType.from(LocalDate.class));
+        df.add(VectorType.of(LocalDate.class));
       }
       df.loc().set(0, col, val);
     }
@@ -246,14 +247,14 @@ public final class DataFrames {
     for (Object columnKey : df.getColumnIndex().keySet()) {
       Vector column = df.get(columnKey);
       if (column.getType().getScale() == Scale.NUMERICAL) {
-        StatisticalSummary summary = column.collect(Number.class, Aggregates.statisticalSummary());
+        StatisticalSummary summary = column.collect(Number.class, Collectors.statisticalSummary());
         builder.set(columnKey, "mean", summary.getMean())
             .set(columnKey, "var", summary.getVariance())
             .set(columnKey, "std", summary.getStandardDeviation())
             .set(columnKey, "min", summary.getMin())
             .set(columnKey, "max", summary.getMax());
       }
-      builder.set(columnKey, "mode", column.collect(Aggregates.mode()));
+      builder.set(columnKey, "mode", column.collect(Collectors.mode()));
     }
     return builder.build();
   }
@@ -271,7 +272,7 @@ public final class DataFrames {
    * @return a permuted copy of input
    */
   public static DataFrame permuteRecords(DataFrame df, Random random) {
-    DataFrame.Builder builder = df.newCopyBuilder();
+    DataFrame.Builder builder = staticRecordCopy(df);
     DataFrameLocationSetter loc = builder.loc();
     for (int i = builder.rows(); i > 1; i--) {
       loc.swapRecords(i - 1, random.nextInt(i));
@@ -279,6 +280,15 @@ public final class DataFrames {
     DataFrame bdf = builder.build();
     bdf.setColumnIndex(df.getColumnIndex());
     return bdf;
+  }
+
+  public static DataFrame.Builder staticRecordCopy(DataFrame df) {
+    DataFrame.Builder builder = df.newBuilder();
+    for (Object recordKey : df.getRecordIndex().keySet()) {
+      // TODO: this will fuck-up when using views
+      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
+    }
+    return builder;
   }
 
   /**
@@ -363,7 +373,7 @@ public final class DataFrames {
     padWithSpace(builder, longestRecordValue);
     int column = 0;
     for (Object columnKey : columnIndex.keySet()) {
-      String safeColumnKey = Na.safeToString(columnKey);
+      String safeColumnKey = Na.toString(columnKey);
       int columnKeyLength = safeColumnKey.length();
       if (columnKeyLength + 2 > longestColumnValue[column]) {
         longestColumnValue[column] = columnKeyLength + 2;
@@ -379,7 +389,7 @@ public final class DataFrames {
       if (records++ > max) {
         break;
       }
-      String safeRecordKey = Na.safeToString(recordKey);
+      String safeRecordKey = Na.toString(recordKey);
       builder.append(safeRecordKey);
       padWithSpace(builder, longestRecordValue - safeRecordKey.length());
       column = 0;
@@ -423,7 +433,7 @@ public final class DataFrames {
   protected static int longestRecordValue(int max, Index recordIndex) {
     return recordIndex.keySet().stream()
                .limit(max)
-               .map(Na::safeToString)
+               .map(Na::toString)
                .mapToInt(String::length)
                .max()
                .orElse(0) + 2;

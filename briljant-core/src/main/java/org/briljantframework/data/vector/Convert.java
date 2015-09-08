@@ -25,6 +25,9 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Logical;
+import org.briljantframework.data.Na;
 
 /**
  * @author Isak Karlsson
@@ -37,7 +40,7 @@ public final class Convert {
   public static <T> T to(Class<T> cls, Object value) {
     if (!cls.isInstance(value)) {
       if (Is.NA(value)) {
-        return Na.from(cls);
+        return Na.of(cls);
       } else if (cls.equals(String.class)) {
         return cls.cast(value.toString());
       } else if (value instanceof Number) {
@@ -61,7 +64,7 @@ public final class Convert {
           return cls.cast(log == Logical.TRUE ? Complex.ONE : Complex.ZERO);
         }
       } else {
-        return Na.from(cls);
+        return Na.of(cls);
       }
     }
     return cls.cast(value);

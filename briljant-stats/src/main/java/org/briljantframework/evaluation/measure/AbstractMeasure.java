@@ -24,12 +24,11 @@
 
 package org.briljantframework.evaluation.measure;
 
-import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Is;
-import org.briljantframework.data.vector.Na;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.evaluation.result.Sample;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -39,7 +38,7 @@ import java.util.Map;
  */
 public abstract class AbstractMeasure implements Measure {
 
-  public static final double NA = Na.from(Double.class);
+  public static final double NA = Na.DOUBLE;
   protected final Vector naVector;
 
   private final EnumMap<Sample, Vector> values;
@@ -53,8 +52,8 @@ public abstract class AbstractMeasure implements Measure {
     this.mean = builder.computeMean();
     this.std = builder.computeStandardDeviation(mean);
     this.size = builder.size;
-    this.naVector = Vector.singleton(Na.from(Double.class), size());
-    for (Map.Entry<Sample, DoubleVector.Builder> entry : builder.values.entrySet()) {
+    this.naVector = Vector.singleton(NA, size());
+    for (Map.Entry<Sample, Vector.Builder> entry : builder.values.entrySet()) {
       values.put(entry.getKey(), entry.getValue().build());
     }
   }
@@ -96,13 +95,12 @@ public abstract class AbstractMeasure implements Measure {
 
   @Override
   public String toString() {
-    return String.format("Average %s: %.4f (std: %.4f) (of %d value(s))", getName(), getMean(),
-                         getStandardDeviation(), size());
+    return "Measure{name=" + getName() + ", mean=" + getMean() + "}";
   }
 
   protected abstract static class Builder<T extends Measure> implements Measure.Builder<T> {
 
-    protected final EnumMap<Sample, DoubleVector.Builder> values = new EnumMap<>(Sample.class);
+    protected final EnumMap<Sample, Vector.Builder> values = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> max = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> min = new EnumMap<>(Sample.class);
     protected final EnumMap<Sample, Double> sum = new EnumMap<>(Sample.class);
@@ -112,7 +110,7 @@ public abstract class AbstractMeasure implements Measure {
     public final void add(Sample sample, double value) {
       size++;
       sum.compute(sample, (k, v) -> v == null ? value : value + v);
-      this.values.computeIfAbsent(sample, x -> new DoubleVector.Builder()).add(value);
+      this.values.computeIfAbsent(sample, x -> Vector.Builder.of(Double.class)).add(value);
     }
 
     @Override
@@ -121,10 +119,10 @@ public abstract class AbstractMeasure implements Measure {
     }
 
     protected EnumMap<Sample, Double> computeMean() {
-      double inSum = sum.getOrDefault(Sample.IN, Na.from(Double.class));
-      double outSum = sum.getOrDefault(Sample.OUT, Na.from(Double.class));
-      DoubleVector.Builder inValues = values.get(Sample.IN);
-      DoubleVector.Builder outValues = values.get(Sample.OUT);
+      double inSum = sum.getOrDefault(Sample.IN, Na.of(Double.class));
+      double outSum = sum.getOrDefault(Sample.OUT, Na.of(Double.class));
+      Vector.Builder inValues = values.get(Sample.IN);
+      Vector.Builder outValues = values.get(Sample.OUT);
 
       EnumMap<Sample, Double> mean = new EnumMap<>(Sample.class);
       if (inValues != null && inValues.size() > 0) {
@@ -141,8 +139,8 @@ public abstract class AbstractMeasure implements Measure {
     protected EnumMap<Sample, Double> computeStandardDeviation(EnumMap<Sample, Double> means) {
       EnumMap<Sample, Double> std = new EnumMap<>(Sample.class);
 
-      for (Map.Entry<Sample, DoubleVector.Builder> e : values.entrySet()) {
-        double mean = means.getOrDefault(e.getKey(), Na.from(Double.class));
+      for (Map.Entry<Sample, Vector.Builder> e : values.entrySet()) {
+        double mean = means.getOrDefault(e.getKey(), Na.of(Double.class));
         if (Is.NA(mean)) {
           std.put(e.getKey(), mean);
         }

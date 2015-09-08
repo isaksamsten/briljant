@@ -24,6 +24,8 @@
 
 package org.briljantframework.data.vector;
 
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.io.DataEntry;
 import org.briljantframework.io.resolver.Resolver;
@@ -40,7 +42,7 @@ import java.util.Set;
 /**
  * @author Isak Karlsson
  */
-public class GenericVector extends AbstractVector {
+class GenericVector extends AbstractVector implements Transferable {
 
   private final VectorType type;
   private final Class<?> cls;
@@ -59,14 +61,14 @@ public class GenericVector extends AbstractVector {
   private GenericVector(Class<?> cls, List<Object> values, int size, boolean copy) {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
-    this.type = VectorType.from(cls);
+    this.type = VectorType.of(cls);
     this.size = size;
   }
 
   public GenericVector(Class<?> cls, List<Object> values, int size, Index index) {
     super(index);
     this.cls = cls;
-    this.type = VectorType.from(cls);
+    this.type = VectorType.of(cls);
     this.values = values;
     this.size = size;
   }
@@ -85,13 +87,13 @@ public class GenericVector extends AbstractVector {
   @Override
   public double getAsDoubleAt(int i) {
     Number number = loc().get(Number.class, i);
-    return Is.NA(number) ? Na.from(Double.class) : number.doubleValue();
+    return Is.NA(number) ? Na.of(Double.class) : number.doubleValue();
   }
 
   @Override
   public int getAsIntAt(int i) {
     Number number = loc().get(Number.class, i);
-    return Is.NA(number) ? Na.from(Integer.class) : number.intValue();
+    return Is.NA(number) ? Na.of(Integer.class) : number.intValue();
   }
 
   @Override
@@ -131,7 +133,7 @@ public class GenericVector extends AbstractVector {
     return cls.hashCode() + values.hashCode();
   }
 
-  public static final class Builder extends AbstractBuilder {
+  static final class Builder extends AbstractBuilder {
 
     private static final Set<Class<?>> INVALID_CLASSES = new HashSet<>();
 
@@ -233,7 +235,12 @@ public class GenericVector extends AbstractVector {
 
     @Override
     public Vector getTemporaryVector() {
-      return new GenericVector(cls, buffer, buffer.size(), false);
+      return new GenericVector(cls, buffer, buffer.size(), false) {
+        @Override
+        public Vector.Builder newCopyBuilder() {
+          return GenericVector.Builder.this;
+        }
+      };
     }
 
     @Override

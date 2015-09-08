@@ -371,7 +371,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public void setAt(int r, int c, Object value) {
       ensureColumnCapacity(c - 1);
-      ensureColumnCapacity(c, VectorType.from(value));
+      ensureColumnCapacity(c, VectorType.of(value));
       buffers.get(c).loc().set(r, value);
     }
 

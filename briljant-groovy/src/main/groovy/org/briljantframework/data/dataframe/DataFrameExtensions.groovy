@@ -26,6 +26,7 @@ package org.briljantframework.data.dataframe
 
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
+import org.briljantframework.data.index.DataFrameLocationGetter
 import org.briljantframework.data.vector.Vector
 
 import java.util.function.BiConsumer
@@ -34,13 +35,21 @@ import java.util.function.Function
 import java.util.function.Supplier
 import java.util.stream.Collector
 
-import static org.briljantframework.data.Aggregates.*
+import static org.briljantframework.data.Collectors.*
 
 /**
  * Created by isak on 04/06/15.
  */
 @CompileStatic
 class DataFrameExtensions {
+
+  static DataFrameLocationGetter getLoc(DataFrame self) {
+    return self.loc()
+  }
+
+  static Vector propertyMissing(DataFrame self, String name) {
+    return self.get(name)
+  }
 
   static Vector getAt(DataFrame self, Object key) {
     return self.get(key)

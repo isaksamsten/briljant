@@ -29,8 +29,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.exceptions.TypeMismatchException;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.vector.VectorType;
 
 /**

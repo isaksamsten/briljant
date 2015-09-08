@@ -24,11 +24,11 @@
 
 package org.briljantframework.data.dataframe.transform;
 
+import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Na;
+import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -38,9 +38,9 @@ public class MeanImputerTest {
   @Test
   public void testFit() throws Exception {
     DataFrame frame = MixedDataFrame.create(
-        DoubleVector.wrap(1, 2, 3, Na.DOUBLE),
-        DoubleVector.wrap(3, 3, 3, Na.DOUBLE),
-        DoubleVector.wrap(Na.DOUBLE, 2, 2, Na.DOUBLE)
+        Vector.of(1.0, 2, 3, Na.DOUBLE),
+        Vector.of(3.0, 3, 3, Na.DOUBLE),
+        Vector.of(Na.DOUBLE, 2, 2, Na.DOUBLE)
     );
     ObjectIndex columnIndex = ObjectIndex.create("first", "second", "third");
     ObjectIndex recordIndex = ObjectIndex.create("a", "b", "c", "d");

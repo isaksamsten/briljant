@@ -29,9 +29,9 @@ import org.briljantframework.array.BitArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,8 +48,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.briljantframework.Bj.argmax;
-import static org.briljantframework.evaluation.result.Sample.OUT;
 import static org.briljantframework.data.vector.Vectors.find;
+import static org.briljantframework.evaluation.result.Sample.OUT;
 
 /**
  * @author Isak Karlsson
@@ -64,7 +64,7 @@ public abstract class Ensemble implements Classifier {
     if (CORES <= 1) {
       THREAD_POOL = null;
     } else {
-      THREAD_POOL = (ThreadPoolExecutor) Executors.newFixedThreadPool(1, r -> {
+      THREAD_POOL = (ThreadPoolExecutor) Executors.newFixedThreadPool(CORES, r -> {
         Thread thread = new Thread(r);
         thread.setDaemon(true);
         return thread;
@@ -266,7 +266,7 @@ public abstract class Ensemble implements Classifier {
         }
 
         /* Get the mean probability vector for the i:th example */
-        DoubleArray meanEstimate = Bj.mean(1, memberEstimates); // TODO: check
+        DoubleArray meanEstimate = Bj.mean(0, memberEstimates); // TODO: check
         double variance = 0, mse = 0, bias = 0, accuracy = 0;
         for (int j = 0; j < memberEstimates.rows(); j++) {
           DoubleArray r = memberEstimates.getRow(j);
@@ -316,8 +316,8 @@ public abstract class Ensemble implements Classifier {
     }
 
     @Override
-    public void evaluation(EvaluationContext ctx) {
-      super.evaluation(ctx);
+    public void evaluate(EvaluationContext ctx) {
+      super.evaluate(ctx);
       computeMeanSquareError(ctx);
       computeOOBCorrelation(ctx);
     }

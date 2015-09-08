@@ -24,19 +24,37 @@
 
 package org.briljantframework.evaluation.measure;
 
-import org.briljantframework.evaluation.result.Sample;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.result.Sample;
 
 import java.util.Map;
 
 /**
- * <p>
- * Metrics are produced from evaluators to contain the performance of algorithms.
- * </p>
+ * A measure is an immutable container of evaluation measures either produced in sample or
+ * out of sample.
+ *
+ * <p> Measures are produced
  *
  * @author Isak Karlsson
  */
 public interface Measure extends Comparable<Measure> {
+
+  /**
+   * Get the mean
+   *
+   * @param sample the sample
+   * @return the mean
+   */
+  double getMean(Sample sample);
+
+  /**
+   * Get the out of sample mean
+   *
+   * @return the out of sample mean
+   */
+  default double getMean() {
+    return getMean(Sample.OUT);
+  }
 
   /**
    * Gets standard deviation.
@@ -106,7 +124,7 @@ public interface Measure extends Comparable<Measure> {
   }
 
   /**
-   * Get a {@code DoubleVector} of measurements. The i:th index contains the measurement from the
+   * Get a {@code Vector} of measurements. The i:th index contains the measurement from the
    * i:th run. For example, {@code Vectors.mean(measure.get(IN))}.
    *
    * @param sample the sample
@@ -119,6 +137,11 @@ public interface Measure extends Comparable<Measure> {
    */
   int size();
 
+  /**
+   * Get the name of the current measurement
+   *
+   * @return the name of the measurement
+   */
   String getName();
 
   @Override
@@ -126,17 +149,11 @@ public interface Measure extends Comparable<Measure> {
     return Double.compare(other.getMean(), getMean());
   }
 
-  double getMean(Sample sample);
-
-  default double getMean() {
-    return getMean(Sample.OUT);
-  }
-
   /**
-   * Metrics can be produced either in sample (denoted by {@link Sample#IN}) or out of sample
+   * Measures can be produced either in sample (denoted by {@link Sample#IN}) or out of sample
    * (denoted by {@link Sample#OUT})
-   * <p>
-   * Created by isak on 02/10/14.
+   *
+   * @au
    */
   interface Builder<T extends Measure> {
 

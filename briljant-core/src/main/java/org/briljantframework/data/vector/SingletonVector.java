@@ -24,13 +24,14 @@
 
 package org.briljantframework.data.vector;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 
 /**
  * @author Isak Karlsson
  */
-class SingletonVector extends AbstractVector {
+final class SingletonVector extends AbstractVector implements Transferable {
 
   private static final Vector EMPTY = new SingletonVector(null, 0);
 
@@ -43,48 +44,11 @@ class SingletonVector extends AbstractVector {
     this.cls = value != null ? value.getClass() : Object.class;
     this.value = value;
     this.size = size;
-    type = VectorType.from(cls);
+    type = VectorType.of(cls);
   }
 
-  public static final Vector empty() {
+  public static Vector empty() {
     return EMPTY;
-  }
-
-  @Override
-  public <T> T getAt(Class<T> cls, int index) {
-    Check.elementIndex(index, size());
-    Object obj = value;
-    if (Is.NA(obj)) {
-      return Na.from(cls);
-    }
-    if (!cls.isInstance(obj)) {
-      if (cls.equals(String.class)) {
-        return cls.cast(obj.toString());
-      } else {
-        if (this.cls.equals(Number.class)) {
-          Number num = Number.class.cast(obj);
-          if (cls.equals(Double.class)) {
-            return cls.cast(num.doubleValue());
-          } else if (cls.equals(Integer.class)) {
-            return cls.cast(num.intValue());
-          }
-        }
-      }
-      return Na.from(cls);
-    }
-    return cls.cast(obj);
-  }
-
-  @Override
-  public String toStringAt(int index) {
-    Check.elementIndex(index, size());
-    return value != null ? value.toString() : "NA";
-  }
-
-  @Override
-  public boolean isNaAt(int index) {
-    Check.elementIndex(index, size());
-    return Is.NA(value);
   }
 
   @Override
@@ -93,30 +57,35 @@ class SingletonVector extends AbstractVector {
   }
 
   @Override
-  public double getAsDoubleAt(int i) {
-    Check.elementIndex(i, size());
-    return value instanceof Number ? ((Number) value).doubleValue() : Na.DOUBLE;
+  protected <T> T getAt(Class<T> cls, int index) {
+    Check.elementIndex(index, size());
+    return Convert.to(cls, value);
   }
 
   @Override
-  public int getAsIntAt(int i) {
+  protected String toStringAt(int index) {
+    Check.elementIndex(index, size());
+    return Na.toString(value);
+  }
+
+  @Override
+  protected boolean isNaAt(int index) {
+    Check.elementIndex(index, size());
+    return Is.NA(value);
+  }
+
+  @Override
+  protected double getAsDoubleAt(int i) {
     Check.elementIndex(i, size());
-    return value instanceof Number ? ((Number) value).intValue() : Na.INT;
+    Number val = Convert.to(Number.class, value);
+    return Is.NA(val) ? Na.DOUBLE : val.doubleValue();
   }
 
-  public Logical getAsBit(int index) {
-    Check.elementIndex(index, size());
-    return value instanceof Number ? Logical.valueOf(((Number) value).intValue())
-                                   : value instanceof Logical ? (Logical) value :
-                                     value instanceof Boolean ? Logical.valueOf((boolean) value) :
-                                     Logical.NA;
-  }
-
-  public Complex getAsComplex(int index) {
-    Check.elementIndex(index, size());
-    return value instanceof Complex ? (Complex) value :
-           value instanceof Number ? Complex.valueOf(((Number) value).doubleValue())
-                                   : Na.from(Complex.class);
+  @Override
+  protected int getAsIntAt(int i) {
+    Check.elementIndex(i, size());
+    Number val = Convert.to(Number.class, value);
+    return Is.NA(val) ? Na.INT : val.intValue();
   }
 
   @Override

@@ -29,6 +29,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.dataframe.join.JoinUtils;
@@ -39,9 +40,6 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.index.VectorLocationGetter;
-import org.briljantframework.data.vector.GenericVector;
-import org.briljantframework.data.vector.IntVector;
-import org.briljantframework.data.vector.Is;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -234,7 +232,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   private Vector.Builder findCoherentColumnBuilder() {
     Set<VectorType> types = getColumns().stream().map(Vector::getType).collect(Collectors.toSet());
-    return types.size() == 1 ? types.iterator().next().newBuilder() : new GenericVector.Builder();
+    return types.size() == 1 ? types.iterator().next().newBuilder()
+                             : Vector.Builder.of(Object.class);
   }
 
   @Override
@@ -256,7 +255,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public <T, R, C> Vector collect(Class<T> in, Class<R> out,
                                   Collector<? super T, C, ? extends R> collector) {
-    Vector.Builder builder = VectorType.from(out).newBuilder();
+    Vector.Builder builder = VectorType.of(out).newBuilder();
 
     int column = 0;
     for (int j = 0; j < columns(); j++) {
@@ -274,35 +273,49 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrameGroupBy groupBy(Object columnKey) {
-    HashMap<Object, IntVector.Builder> groups = new LinkedHashMap<>();
+    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
     Vector column = get(columnKey);
     VectorLocationGetter loc = column.loc();
     for (int i = 0, size = column.size(); i < size; i++) {
-      groups.computeIfAbsent(loc.get(Object.class, i), a -> new IntVector.Builder()).add(i);
+      groups.computeIfAbsent(loc.get(Object.class, i),
+                             a -> Vector.Builder.of(Integer.class)).add(i);
+    }
+    return new HashDataFrameGroupBy(this, groups, columnKey);
+  }
+
+  @Override
+  public <T> DataFrameGroupBy groupBy(Class<T> cls, Object columnKey,
+                                      Function<? super T, Object> map) {
+    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
+    Vector column = get(columnKey);
+    VectorLocationGetter loc = column.loc();
+    for (int i = 0, size = column.size(); i < size; i++) {
+      groups.computeIfAbsent(map.apply(loc.get(cls, i)),
+                             a -> Vector.Builder.of(Integer.class)).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKey);
   }
 
   @Override
   public DataFrameGroupBy groupBy(Object... columnKeys) {
-    HashMap<Object, IntVector.Builder> groups = new LinkedHashMap<>();
+    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
     for (int i = 0, size = rows(); i < size; i++) {
       List<Object> keys = new ArrayList<>(columnKeys.length);
       for (Object columnKey : columnKeys) {
         keys.add(get(columnKey).get(Object.class, i));
       }
-      groups.computeIfAbsent(keys, a -> new IntVector.Builder()).add(i);
+      groups.computeIfAbsent(keys, a -> Vector.Builder.of(Integer.class)).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKeys);
   }
 
   @Override
   public DataFrameGroupBy groupBy(UnaryOperator<Object> keyFunction) {
-    HashMap<Object, IntVector.Builder> groups = new LinkedHashMap<>();
+    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
     for (Index.Entry entry : getRecordIndex().entrySet()) {
       groups.computeIfAbsent(
           keyFunction.apply(entry.getKey()),
-          a -> new IntVector.Builder()).add(entry.getValue()
+          a -> Vector.Builder.of(Integer.class)).add(entry.getValue()
       );
     }
     return new HashDataFrameGroupBy(this, groups);
@@ -779,7 +792,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Returns a vector builder from the supplied vector. If possible, an {@link
-   * Vectors#identityBuilder(org.briljantframework.data.vector.Vector) identity builder} is
+   * Vectors#transferableBuilder(org.briljantframework.data.vector.Vector) identity builder} is
    * returned.
    *
    * @param vector the vector
@@ -789,7 +802,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     if (vector instanceof RowView || vector instanceof ColumnView) {
       return vector.newCopyBuilder();
     } else {
-      return Vectors.identityBuilder(vector);
+      return Vectors.transferableBuilder(vector);
     }
   }
 
@@ -840,7 +853,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.data.vector.Na#from(Class)}. The
+   * return {@code NA} as defined by {@link org.briljantframework.data.Na#of(Class)}. The
    * conversion is performed according to the convention found in {@link
    * org.briljantframework.data.vector.Convert#to(Class, Object)}
    *

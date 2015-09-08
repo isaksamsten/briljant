@@ -26,7 +26,6 @@ package org.briljantframework.data.dataseries;
 
 
 import org.briljantframework.Check;
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
@@ -45,7 +44,7 @@ public class LinearAggregator implements Aggregator {
   public Vector.Builder partialAggregate(Vector in) {
     Check.argument(in.size() > targetSize, "Can't linearly oversample data series.");
 
-    DoubleVector.Builder builder = new DoubleVector.Builder(0, targetSize);
+    Vector.Builder builder = Vector.Builder.withCapacity(Double.class, targetSize);
     int bin = in.size() / targetSize;
     int pad = in.size() % targetSize;
 

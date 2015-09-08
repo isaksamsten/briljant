@@ -22,28 +22,21 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation;
-
-import org.briljantframework.Check;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+package org.briljantframework.shapelet;
 
 /**
- * The leave-one-out partitioner can be used to implement Leave-one-out cross-validation, a
- * commonly employed strategy for evaluating small and expensive to gather datasets.
- *
- * <p>The {@code DataFrame} (with {@code m} rows) and {@code Vector} (of length {@code m}) are
- * partitioned into {@code m} partitions. At each iteration {@code m-1} data points are returned as
- * the training set and {@code 1} data point as the validation set. All data points are used as
- * validation points exactly once.
- *
- * @author Isak Karlsson
+ * Created by isak on 03/09/15.
  */
-public class LeaveOneOutPartitioner implements Partitioner {
+public class ChannelShapelet extends IndexSortedNormalizedShapelet {
 
-  @Override
-  public Iterable<Partition> partition(DataFrame x, Vector y) {
-    Check.size(x.rows(), y.size());
-    return () -> new FoldIterator(x, y, x.rows());
+  private final int channel;
+
+  public ChannelShapelet(int channel, Shapelet delegate) {
+    super(0, delegate.size(), delegate);
+    this.channel = channel;
+  }
+
+  public int getChannel() {
+    return channel;
   }
 }

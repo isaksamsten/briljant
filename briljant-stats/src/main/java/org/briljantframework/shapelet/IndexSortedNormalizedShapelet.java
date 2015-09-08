@@ -24,8 +24,8 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 
 /**
  * Created by Isak Karlsson on 27/10/14.
@@ -46,10 +46,14 @@ public class IndexSortedNormalizedShapelet extends NormalizedShapelet {
    */
   public IndexSortedNormalizedShapelet(int start, int length, Vector vector) {
     super(start, length, vector);
-    this.order =
-        Vectors.indexSort(this,
-                          (i, j) -> Double.compare(Math.abs(loc().getAsDouble(j)),
-                                                   Math.abs(loc().getAsDouble(i))));
+    if (vector instanceof IndexSortedNormalizedShapelet) {
+      this.order = ((IndexSortedNormalizedShapelet) vector).getSortOrder();
+    } else {
+      this.order =
+          Vectors.indexSort(this,
+                            (i, j) -> Double.compare(Math.abs(loc().getAsDouble(j)),
+                                                     Math.abs(loc().getAsDouble(i))));
+    }
   }
 
   /**

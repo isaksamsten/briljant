@@ -26,7 +26,7 @@ package org.briljantframework.data.dataframe
 
 import org.apache.commons.math3.complex.Complex
 import org.briljantframework.data.BoundType
-import org.briljantframework.data.vector.Na
+import org.briljantframework.data.Na
 import spock.lang.Specification
 
 /**
@@ -54,7 +54,7 @@ class ObjectIndexSpec extends Specification {
     ObjectIndex.create([na]).getLocation(na) == 0
 
     where:
-    na << [Na.from(Double), Na.from(Integer), Na.from(Object), Na.from(Complex)]
+    na << [Na.of(Double), Na.of(Integer), Na.of(Object), Na.of(Complex)]
   }
 
 

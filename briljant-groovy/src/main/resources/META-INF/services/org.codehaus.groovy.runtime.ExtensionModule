@@ -2,4 +2,6 @@ moduleName = briljant-core
 moduleVersion = 1.0
 extensionClasses = org.briljantframework.array.ArrayExtensions,\
                    org.briljantframework.data.dataframe.DataFrameExtensions,\
-                   org.briljantframework.data.vector.VectorExtensions
+                   org.briljantframework.data.vector.VectorExtensions,\
+                   org.briljantframework.data.index.DataFrameLocationGetterExtensions,\
+                   org.briljantframework.data.index.VectorLocationGetterExtensions

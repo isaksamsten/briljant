@@ -22,19 +22,36 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.data;
 
 /**
- * The expectations on the data stored within this type. If the data is
+ * @author Isak Karlsson
  */
-public enum Scale {
-  /**
-   * If the scale is categorical
-   */
-  NOMINAL,
+public enum Logical {
+  TRUE(1), FALSE(0), NA(Na.INT);
 
-  /**
-   * If the scale is numerical
-   */
-  NUMERICAL
+  private final int value;
+
+  Logical(int value) {
+    this.value = value;
+  }
+
+  public static Logical valueOf(boolean value) {
+    return value ? TRUE : FALSE;
+  }
+
+  public static Logical valueOf(int value) {
+    switch (value) {
+      case 1:
+        return TRUE;
+      case 0:
+        return FALSE;
+      default:
+        return NA;
+    }
+  }
+
+  public int toInteger() {
+    return value;
+  }
 }

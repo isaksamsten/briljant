@@ -71,7 +71,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
   public Vector.Builder add(Vector from, Object key) {
     Object value = from.get(Object.class, key);
     if (builder == null) {
-      builder = VectorType.from(value).newBuilder();
+      builder = VectorType.of(value).newBuilder();
     }
     builder.loc().set(size(), value);
     return this;
@@ -81,7 +81,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
   public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
     if (builder == null) {
       Object value = from.loc().get(Object.class, fromIndex);
-      builder = VectorType.from(value).newBuilder();
+      builder = VectorType.of(value).newBuilder();
     }
     builder.set(atKey, from, fromIndex);
     return this;
@@ -91,7 +91,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
   public Vector.Builder set(Object atKey, Vector from, Object fromKey) {
     if (builder == null) {
       Object value = from.get(Object.class, fromKey);
-      builder = VectorType.from(value).newBuilder();
+      builder = VectorType.of(value).newBuilder();
     }
     builder.set(atKey, from, fromKey);
     return this;
@@ -100,7 +100,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
   @Override
   public Vector.Builder set(Object key, Object value) {
     if (builder == null) {
-      builder = VectorType.from(value).newBuilder();
+      builder = VectorType.of(value).newBuilder();
     }
     builder.set(key, value);
     return this;
@@ -129,7 +129,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     if (from.size() > 0) {
       Object value = from.loc().get(Object.class, 0);
       if (builder == null) {
-        builder = VectorType.from(value).newBuilder();
+        builder = VectorType.of(value).newBuilder();
       }
       builder.addAll(from);
     }
@@ -184,7 +184,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void set(int i, Object value) {
       if (builder == null) {
-        builder = VectorType.from(value).newBuilder();
+        builder = VectorType.of(value).newBuilder();
       }
       builder.loc().set(i, value);
     }
@@ -193,7 +193,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     public void set(int t, Vector from, int f) {
       if (builder == null) {
         Object value = from.loc().get(Object.class, f);
-        builder = VectorType.from(value).newBuilder();
+        builder = VectorType.of(value).newBuilder();
       }
       builder.loc().set(t, from, f);
     }
@@ -202,7 +202,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     public void set(int atIndex, Vector from, Object fromKey) {
       if (builder == null) {
         Object value = from.get(Object.class, fromKey);
-        builder = VectorType.from(value).newBuilder();
+        builder = VectorType.of(value).newBuilder();
       }
       builder.loc().set(atIndex, from, fromKey);
     }
@@ -225,7 +225,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void set(int i, double value) {
       if (builder == null) {
-        builder = VectorType.from(Double.class).newBuilder();
+        builder = VectorType.of(Double.class).newBuilder();
       }
       builder.loc().set(i, value);
     }
@@ -233,7 +233,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void set(int i, int value) {
       if (builder == null) {
-        builder = VectorType.from(Integer.class).newBuilder();
+        builder = VectorType.of(Integer.class).newBuilder();
       }
       builder.loc().set(i, value);
     }

@@ -24,8 +24,9 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.distance.Distance;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.distance.Distance;
+import org.briljantframework.distance.Euclidean;
 
 import java.util.Objects;
 
@@ -75,7 +76,8 @@ public class EarlyAbandonSlidingDistance implements Distance {
     double minDistance = Double.POSITIVE_INFINITY;
     Vector candidate = a.size() < b.size() ? a : b;
     if (!(candidate instanceof NormalizedShapelet)) {
-      throw new IllegalArgumentException("Candidate shapelet must be z-normalized");
+      return Euclidean.getInstance().compute(a, b);
+//      throw new IllegalArgumentException("Candidate shapelet must be z-normalized");
     }
 
     int[] order = null;
@@ -131,9 +133,18 @@ public class EarlyAbandonSlidingDistance implements Distance {
       if (order != null) {
         i = order[i];
       }
-      double x = ((t[i + j] - mean) / std) - c.loc().getAsDouble(i);
+      double x = normalize(t[i + j], mean, std) - c.loc().getAsDouble(i);
+//      double x = ((t[i + j] - mean) / std) - c.loc().getAsDouble(i);
       sum += x * x;
     }
     return sum;
+  }
+
+  public double normalize(double value, double mean, double std) {
+    if (std == 0) {
+      return 0;
+    } else {
+      return (value - mean) / std;
+    }
   }
 }

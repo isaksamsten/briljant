@@ -24,10 +24,10 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.result.EvaluationContext;
 
 import java.util.EnumSet;
 
@@ -64,14 +64,21 @@ public interface Predictor {
   /**
    * Estimates the posterior probabilities for all records in {@code x}.
    *
+   * <p> Each column corresponds to the probability of a particular class (the j:th column
+   * correspond to the j:th element (using {@link Vector#loc()}) in {@linkplain #getClasses()}) and
+   * each row corresponds to a particular record in the supplied data frame.
+   *
    * @param x the data frame of records to estimate the posterior probabilities for
    * @return a matrix with probability estimates; shape =
-   * {@code [x.rows(), this.getClasses().size()]}.
+   * {@code [x.rows(), getClasses().size()]}.
    */
   DoubleArray estimate(DataFrame x);
 
   /**
    * Estimates the posterior probability for the supplied vector.
+   *
+   * <p> The i:th element in the returned array correspond to the probability of the i:th class in
+   * {@linkplain #getClasses()} (using {@link Vector#loc()})
    *
    * @param record the vector to estimate the posterior probability for
    * @return a matrix with probability estimates; shape = {@code [1, this.getClasses().size()]}.
@@ -85,13 +92,14 @@ public interface Predictor {
    */
   EnumSet<Characteristics> getCharacteristics();
 
-  /** // TODO: rename evaluate
-   * Perform an evaluation of the predictor and appending those evaluations to the
-   * {@code EvaluationContext}.
+  /**
+   * // TODO: rename evaluate
+   * Perform an internal evaluation of the predictor and appending the produced evaluators to the
+   * supplied {@linkplain EvaluationContext evaluation context}.
    *
    * @param ctx the evaluation context
    */
-  void evaluation(EvaluationContext ctx);
+  void evaluate(EvaluationContext ctx);
 
   public enum Characteristics {
     ESTIMATOR

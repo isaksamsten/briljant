@@ -24,7 +24,7 @@
 
 package org.briljantframework.io.resolver;
 
-import org.briljantframework.data.vector.Na;
+import org.briljantframework.data.Na;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -59,9 +59,9 @@ public class Resolver<R> {
    * Resolves the value of {@code value} to an instance of {@code R}. If it fails, returns the
    * value
    * denoting {@code NA} (for the type {@code R}) as returned by {@link
-   * org.briljantframework.data.vector.Na#from(Class)}.
+   * org.briljantframework.data.Na#of(Class)}.
    *
-   * <p>Use {@link org.briljantframework.data.vector.Is#NA(java.lang.Object)} to check for {@code
+   * <p>Use {@link org.briljantframework.data.Is#NA(java.lang.Object)} to check for {@code
    * NA}
    * values.
    *
@@ -97,9 +97,9 @@ public class Resolver<R> {
     Converter<Object, R> converter = getConverter(cls);
     if (converter != null) {
       R convert = converter.convert(value);
-      return convert == null ? Na.from(this.cls) : convert;
+      return convert == null ? Na.of(this.cls) : convert;
     } else {
-      return Na.from(this.cls);
+      return Na.of(this.cls);
     }
   }
 

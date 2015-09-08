@@ -207,7 +207,7 @@ public interface DataFrame extends Iterable<Vector> {
    * <p> Returns a series consisting of the mean of the {@code Double} columns in {@code this}
    * dataframe.
    *
-   * <p> Note that {@link org.briljantframework.data.Aggregates} implement several convenient
+   * <p> Note that {@link org.briljantframework.data.Collectors} implement several convenient
    * aggregates, for example {@code df.collect(Number.class, Aggregate.median())}.
    *
    * @param <T>       the type of value to be aggregated
@@ -224,7 +224,9 @@ public interface DataFrame extends Iterable<Vector> {
 
   DataFrameGroupBy groupBy(Object column);
 
-  DataFrameGroupBy groupBy(Object... columns);
+  <T> DataFrameGroupBy groupBy(Class<T> cls, Object column, Function<? super T, Object> map);
+
+  DataFrameGroupBy groupBy(Object[] columns);
 
   /**
    * Group data frame based on the value returned by {@code keyFunction}. Each record in the

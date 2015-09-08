@@ -24,7 +24,6 @@
 
 package org.briljantframework.io;
 
-import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedReader;
@@ -100,7 +99,7 @@ public class ArffInputStream extends DataInputStream {
       if (type != null) {
         columnTypes.add(type);
       } else if ((NOMINAL.matcher(typeRepr)).matches()) {
-        columnTypes.add(VectorType.from(String.class));
+        columnTypes.add(VectorType.of(String.class));
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));
       }

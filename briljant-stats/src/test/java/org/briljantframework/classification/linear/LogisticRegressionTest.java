@@ -33,7 +33,7 @@ import org.briljantframework.data.dataframe.Datasets;
 import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.data.vector.Is;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 

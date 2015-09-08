@@ -29,7 +29,7 @@ import org.briljantframework.data.dataframe.AbstractDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.io.DataEntry;
-import org.briljantframework.data.vector.Na;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
@@ -80,7 +80,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     if (column >= 0 && column < rvec.size()) {
       return rvec.loc().get(cls, column);
     } else if (column >= 0 && column < columns) {
-      return Na.from(cls);
+      return Na.of(cls);
     } else {
       throw new IndexOutOfBoundsException();
     }
@@ -196,7 +196,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     public Builder(Class<?> cls) {
-      this(VectorType.from(cls));
+      this(VectorType.of(cls));
     }
 
     private Builder(DataSeriesCollection df, VectorType type) {

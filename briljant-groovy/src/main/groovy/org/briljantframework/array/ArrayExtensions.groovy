@@ -24,11 +24,11 @@
 
 package org.briljantframework.array
 
-import groovy.transform.CompileStatic
 import org.briljantframework.Bj
 
 /**
  * Created by isak on 03/06/15.
+ * TODO: fix me!
  */
 //@CompileStatic
 class ArrayExtensions {

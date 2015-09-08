@@ -27,10 +27,9 @@ package org.briljantframework.classification;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.data.index.VectorLocationSetter;
-import org.briljantframework.data.vector.GenericVector;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.result.EvaluationContext;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -61,7 +60,7 @@ public abstract class AbstractPredictor implements Predictor {
   @Override
   public Vector predict(DataFrame x) {
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
-    Vector.Builder labels = new GenericVector.Builder(Object.class, x.rows());
+    Vector.Builder labels = Vector.Builder.of(Object.class, x.rows());
     VectorLocationSetter loc = labels.loc();
     IntStream.range(0, x.rows()).parallel().forEach(
         i -> loc.set(i, predict(x.loc().getRecord(i)))
@@ -89,7 +88,7 @@ public abstract class AbstractPredictor implements Predictor {
   }
 
   @Override
-  public void evaluation(EvaluationContext ctx) {
+  public void evaluate(EvaluationContext ctx) {
 
   }
 }

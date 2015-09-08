@@ -22,27 +22,28 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.partition;
 
-import org.briljantframework.evaluation.measure.Accuracy;
-import org.briljantframework.evaluation.measure.ErrorRate;
-
-import static org.briljantframework.evaluation.result.Measures.accuracy;
+import org.briljantframework.Check;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
+ * The leave-one-out partitioner can be used to implement Leave-one-out cross-validation, a
+ * commonly employed strategy for evaluating small and expensive to gather datasets.
+ *
+ * <p>The {@code DataFrame} (with {@code m} rows) and {@code Vector} (of length {@code m}) are
+ * partitioned into {@code m} partitions. At each iteration {@code m-1} data points are returned as
+ * the training set and {@code 1} data point as the validation set. All data points are used as
+ * validation points exactly once.
+ *
  * @author Isak Karlsson
  */
-public class ErrorEvaluator implements Evaluator {
+public class LeaveOneOutPartitioner implements Partitioner {
 
   @Override
-  public void accept(EvaluationContext ctx) {
-    double a = accuracy(ctx.getPredictions(Sample.OUT), ctx.getPartition().getValidationTarget());
-    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT, 1 - a);
-    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, a);
-  }
-
-  @Override
-  public String toString() {
-    return "0/1-loss evaluator";
+  public Iterable<Partition> partition(DataFrame x, Vector y) {
+    Check.size(x.rows(), y.size());
+    return () -> new FoldIterator(x, y, x.rows());
   }
 }

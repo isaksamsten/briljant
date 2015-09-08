@@ -33,7 +33,7 @@ public interface DataEntry {
    * Reads the next entry and tries to resolve the value as {@code cls}. If this fails, {@code
    * next}
    * returns an appropriate {@code NA} value
-   * (as defined by {@link org.briljantframework.data.vector.Na#from(Class)}).
+   * (as defined by {@link org.briljantframework.data.Na#of(Class)}).
    *
    * @param cls the class
    * @param <T> the type to return
@@ -68,6 +68,13 @@ public interface DataEntry {
    * @return if has next
    */
   boolean hasNext();
+
+  /**
+   * Skip the first n data items
+   *
+   * @param no the number of items to skip
+   */
+  void skip(int no);
 
   /**
    * Returns the size of the entry (if known).

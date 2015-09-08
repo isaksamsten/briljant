@@ -24,10 +24,9 @@
 
 package org.briljantframework.evaluation.measure;
 
-import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.data.vector.DoubleVector;
-import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.evaluation.result.Sample;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -95,8 +94,8 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
       Map<Object, Vector.Builder> all =
           sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());
       for (Map.Entry<Object, Double> entry : values.entrySet()) {
-        all.computeIfAbsent(entry.getKey(), x -> new DoubleVector.Builder()).add(
-            entry.getValue());
+        all.computeIfAbsent(entry.getKey(),
+                            x -> Vector.Builder.of(Double.class)).add(entry.getValue());
       }
       sampleMetricValues.put(sample, all);
     }

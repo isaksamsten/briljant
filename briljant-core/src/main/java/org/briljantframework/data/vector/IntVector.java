@@ -28,6 +28,8 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.exceptions.IllegalTypeException;
@@ -42,7 +44,7 @@ import java.util.stream.IntStream;
 /**
  * @author Isak Karlsson
  */
-public class IntVector extends AbstractVector {
+class IntVector extends AbstractVector implements Transferable {
 
   private final int[] buffer;
   private final int size;
@@ -184,7 +186,7 @@ public class IntVector extends AbstractVector {
     return Arrays.stream(buffer, 0, size());
   }
 
-  public static final class Builder extends AbstractBuilder {
+  static final class Builder extends AbstractBuilder {
 
     private int[] buffer;
     private int size;

@@ -192,8 +192,8 @@ public class RandomShapeletForest extends Ensemble {
     }
 
     @Override
-    public void evaluation(EvaluationContext ctx) {
-      super.evaluation(ctx);
+    public void evaluate(EvaluationContext ctx) {
+      super.evaluate(ctx);
       double depth = 0;
       for (org.briljantframework.classification.Predictor predictor : getPredictors()) {
         if (predictor instanceof ShapeletTree.Predictor) {
