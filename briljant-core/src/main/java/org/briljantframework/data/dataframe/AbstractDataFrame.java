@@ -547,7 +547,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (Object columnKey : getColumnIndex().keySet()) {
       Vector column = get(columnKey);
       if (predicate.test(column)) {
-        builder.set(columnKey, getIdentityVectorBuilder(column));
+        builder.set(columnKey, Vectors.transferableBuilder(column));
       }
     }
     DataFrame df = builder.build();
@@ -564,7 +564,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame getRecord(Object... keys) {
     DataFrame.Builder builder = newBuilder();
     for (Object key : keys) {
-      builder.setRecord(key, getIdentityVectorBuilder(getRecord(key)));
+      builder.setRecord(key, Vectors.transferableBuilder(getRecord(key)));
     }
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
@@ -580,7 +580,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame select(Object from, BoundType fromBound, Object to, BoundType toBound) {
     DataFrame.Builder builder = newBuilder();
     for (Object record : getRecordIndex().selectRange(from, fromBound, to, toBound)) {
-      builder.setRecord(record, getIdentityVectorBuilder(getRecord(record)));
+      builder.setRecord(record, Vectors.transferableBuilder(getRecord(record)));
     }
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
@@ -593,7 +593,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     getRecordIndex().keySet().stream()
         .filter(bits::isTrue)
         .forEach(recordKey -> {
-          builder.setRecord(recordKey, getIdentityVectorBuilder(getRecord(recordKey)));
+          builder.setRecord(recordKey, Vectors.transferableBuilder(getRecord(recordKey)));
         });
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
@@ -606,7 +606,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (Object recordKey : getRecordIndex().keySet()) {
       Vector record = getRecord(recordKey);
       if (predicate.test(record)) {
-        builder.setRecord(recordKey, getIdentityVectorBuilder(record));
+        builder.setRecord(recordKey, Vectors.transferableBuilder(record));
       }
     }
 
@@ -782,7 +782,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     getRecordIndex().keySet().forEach(indexColumn::add);
     builder.set("index", indexColumn);
     for (Object columnKey : getColumnIndex().keySet()) {
-      builder.set(columnKey, getIdentityVectorBuilder(get(columnKey)));
+      builder.set(columnKey, Vectors.transferableBuilder(get(columnKey)));
     }
 
     DataFrame df = builder.build();
@@ -791,29 +791,13 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   /**
-   * Returns a vector builder from the supplied vector. If possible, an {@link
-   * Vectors#transferableBuilder(org.briljantframework.data.vector.Vector) identity builder} is
-   * returned.
-   *
-   * @param vector the vector
-   * @return an identity vector if possible
-   */
-  protected Vector.Builder getIdentityVectorBuilder(Vector vector) {
-    if (vector instanceof RowView || vector instanceof ColumnView) {
-      return vector.newCopyBuilder();
-    } else {
-      return Vectors.transferableBuilder(vector);
-    }
-  }
-
-  /**
-   * Returns an iterator over the rows of this DataFrame
+   * Returns an iterator over the column indexes in this data frame
    *
    * @return a row iterator
    */
   @Override
-  public Iterator<Vector> iterator() {
-    return getRecords().iterator();
+  public Iterator<Object> iterator() {
+    return getColumnIndex().keySet().iterator();
   }
 
   @Override

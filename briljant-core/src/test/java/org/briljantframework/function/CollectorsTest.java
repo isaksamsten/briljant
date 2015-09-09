@@ -63,10 +63,10 @@ public class CollectorsTest {
   public void testToDataFrame() throws Exception {
     DataFrame df = Arrays.asList(Vector.of(1, 2, 3),
                                  Vector.of(1, 2, 3),
-                                 Vector.of(1, 2, 3, 4)).stream()
+                                 Vector.of(1, 2, 3)).stream()
         .collect(Collectors.toDataFrame());
+    System.out.println(df);
 
     assertEquals(2, df.getAsInt(1, 1));
-
   }
 }

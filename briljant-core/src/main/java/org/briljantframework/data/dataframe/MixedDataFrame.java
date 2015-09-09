@@ -26,11 +26,11 @@ package org.briljantframework.data.dataframe;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataInputStream;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.io.DataEntry;
+import org.briljantframework.io.DataInputStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -402,6 +402,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public void setAt(int r, int c, Vector from, int i) {
       ensureColumnCapacity(c - 1);
+      // TODO: should we be this draconian here? Perhaps we should infer the new column based on the value at i instead?
       ensureColumnCapacity(c, from.getType());
       buffers.get(c).loc().set(r, from, i);
     }

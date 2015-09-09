@@ -28,6 +28,9 @@ import org.briljantframework.data.vector.AbstractVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Isak Karlsson
  */
@@ -45,7 +48,19 @@ class RowView extends AbstractVector {
   }
 
   public RowView(DataFrame parent, int row) {
-    this(parent, row, VectorType.OBJECT);
+    this(parent, row, findUnionType(parent));
+  }
+
+  /**
+   * For data-frames where the columns have the same type, the type of a record is the same
+   * otherwise we return the most generic type (i.e. Object).
+   */
+  private static VectorType findUnionType(DataFrame df) {
+    Set<VectorType> types = new HashSet<>();
+    for (Vector column : df.getColumns()) {
+      types.add(column.getType());
+    }
+    return types.size() == 1 ? types.iterator().next() : VectorType.OBJECT;
   }
 
   @Override
@@ -100,6 +115,6 @@ class RowView extends AbstractVector {
 
   @Override
   public int compareAt(int a, Vector other, int b) {
-    throw new UnsupportedOperationException("TODO");
+    return getType().compare(a, this, b, other);
   }
 }

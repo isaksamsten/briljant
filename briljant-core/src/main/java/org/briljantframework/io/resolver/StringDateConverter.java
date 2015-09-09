@@ -51,7 +51,7 @@ public class StringDateConverter implements Converter<String, LocalDate> {
     try {
       return LocalDate.parse(t, format);
     } catch (Exception e) {
-      return null;
+      return null; // NA
     }
   }
 }

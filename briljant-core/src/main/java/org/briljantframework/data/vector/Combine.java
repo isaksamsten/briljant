@@ -46,9 +46,10 @@ public final class Combine {
 
   /**
    * @return an adder that ignores {@code NA} and defaults to {@code fillValue}
+   * @param fillValue the value to fill
    * @see Na#ignore(java.util.function.BiFunction, Object)
    */
-  public static BiFunction<Object, Object, Object> add(Number fillValue) {
+  public static BiFunction<Object, Object, Object> add(Object fillValue) {
     return Na.ignore(Combine::plusNumber, fillValue);
   }
 
@@ -56,7 +57,7 @@ public final class Combine {
     return Na.ignore(Combine::multiplyNumber);
   }
 
-  public static BiFunction<Object, Object, Object> multiply(Number fillValue) {
+  public static BiFunction<Object, Object, Object> multiply(Object fillValue) {
     return Na.ignore(Combine::multiplyNumber, fillValue);
   }
 

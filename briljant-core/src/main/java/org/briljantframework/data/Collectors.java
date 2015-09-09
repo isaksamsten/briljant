@@ -56,13 +56,22 @@ public final class Collectors {
   public static Collector<Vector, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
     return Collector.of(
         supplier,
-        (DataFrame.Builder acc, Vector record)
-            -> acc.addRecord(Vectors.transferableBuilder(record)),
-        (DataFrame.Builder left, DataFrame.Builder right) -> {
-          for (Vector vector : right.build().getRecords()) {
-            left.addRecord(Vectors.transferableBuilder(vector));
+        (DataFrame.Builder acc, Vector column) -> {
+          if (acc.columns() > 0 && column.size() != acc.rows()) {
+            throw new IllegalStateException("Columns must all have the same length.");
+          } else {
+            acc.add(Vectors.transferableBuilder(column));
           }
-          return left;
+        },
+        (DataFrame.Builder left, DataFrame.Builder right) -> {
+          if (left.columns() > 0 && left.rows() != right.rows()) {
+            throw new IllegalStateException("Columns must all have the same length.");
+          } else {
+            for (Vector vector : right.build().getRecords()) {
+              left.add(Vectors.transferableBuilder(vector));
+            }
+            return left;
+          }
         },
         DataFrame.Builder::build
     );

@@ -33,7 +33,7 @@ public interface Converter<T, R> {
    * Converts from {@code t} (of type {@code T}) to a value of {@code R}.
    *
    * @param t the value to convert
-   * @return the converted value
+   * @return the converted value or {@code null} if the conversion failed
    */
   R convert(T t);
 }

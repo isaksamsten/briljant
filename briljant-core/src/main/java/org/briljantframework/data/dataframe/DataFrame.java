@@ -52,7 +52,7 @@ import java.util.stream.StreamSupport;
  *
  * @author Isak Karlsson
  */
-public interface DataFrame extends Iterable<Vector> {
+public interface DataFrame extends Iterable<Object> {
 
   void sort(SortOrder order);
 
@@ -359,11 +359,11 @@ public interface DataFrame extends Iterable<Vector> {
   DoubleArray toDoubleArray();
 
   default Stream<Vector> stream() {
-    return StreamSupport.stream(spliterator(), false);
+    return StreamSupport.stream(getRecords().spliterator(), false);
   }
 
   default Stream<Vector> parallelStream() {
-    return StreamSupport.stream(spliterator(), true);
+    return StreamSupport.stream(getRecords().spliterator(), true);
   }
 
   DataFrame resetIndex();
