@@ -37,8 +37,8 @@ import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.io.DatasetReader;
-import org.briljantframework.io.MatlabDatasetReader;
+import org.briljantframework.dataset.io.DatasetReader;
+import org.briljantframework.dataset.io.MatlabDatasetReader;
 import org.junit.Test;
 
 import java.io.FileInputStream;

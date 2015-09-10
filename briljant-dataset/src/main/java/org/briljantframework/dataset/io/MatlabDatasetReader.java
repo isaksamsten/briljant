@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
+package org.briljantframework.dataset.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;

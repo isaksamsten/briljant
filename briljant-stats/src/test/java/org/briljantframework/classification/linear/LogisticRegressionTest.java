@@ -29,7 +29,7 @@ import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.LogisticRegression;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
-import org.briljantframework.data.dataframe.Datasets;
+import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;

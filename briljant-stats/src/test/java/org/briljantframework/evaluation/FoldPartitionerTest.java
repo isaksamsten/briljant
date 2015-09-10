@@ -25,7 +25,7 @@
 package org.briljantframework.evaluation;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.Datasets;
+import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.partition.FoldPartitioner;
 import org.briljantframework.evaluation.partition.Partition;

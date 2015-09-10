@@ -41,7 +41,6 @@ import org.briljantframework.data.Scale;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.io.DatasetReader;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -74,35 +73,6 @@ public final class DataFrames {
   private DataFrames() {
   }
 
-  /**
-   * Load data frame using {@code in} and construct a new {@link org.briljantframework.data.dataframe.DataFrame}
-   * using the function {@code f} which should return a {@link org.briljantframework.data.dataframe.DataFrame.Builder}
-   * using the column names and the column types. The values from {@code in} are read to the {@code
-   * DataFrame.Builder} and returned as the DataFrame created by {@link
-   * org.briljantframework.data.dataframe.DataFrame.Builder#build()}. <p>
-   * <code><pre>
-   *    DataFrame dataframe =
-   *        DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris.txt"));
-   * </pre></code>
-   *
-   * @param f  the producing {@code BiFunction}
-   * @param in the input stream
-   * @return a new dataframe
-   */
-  public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
-                               DatasetReader in) throws IOException {
-    try {
-      Collection<VectorType> types = in.readColumnTypes();
-      Collection<Object> names = in.readColumnIndex();
-      DataFrame df = f.apply(types).readAll(in).build();
-      df.setColumnIndex(ObjectIndex.create(names));
-      return df;
-    } finally {
-      if (in != null) {
-        in.close();
-      }
-    }
-  }
 
   /**
    * Presents a summary of the given data frame. For each column of {@code df}

@@ -27,7 +27,7 @@ package org.briljantframework.classification.lazy;
 import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
-import org.briljantframework.data.dataframe.Datasets;
+import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.distance.DynamicTimeWarping;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.Validators;

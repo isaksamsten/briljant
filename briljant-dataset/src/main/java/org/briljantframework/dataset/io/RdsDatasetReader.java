@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
+package org.briljantframework.dataset.io;
 
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.RowProcessor;

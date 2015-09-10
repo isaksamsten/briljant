@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
+package org.briljantframework.dataset.io;
 
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.StringDataEntry;

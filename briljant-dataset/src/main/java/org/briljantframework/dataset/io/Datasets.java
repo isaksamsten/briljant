@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe;
+package org.briljantframework.dataset.io;
 
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
+import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
-import org.briljantframework.io.DatasetReader;
-import org.briljantframework.io.RdsDatasetReader;
-import org.briljantframework.io.MatlabDatasetReader;
 import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedInputStream;
@@ -59,10 +59,41 @@ public class Datasets {
   }
 
   /**
+   * Load data frame using {@code in} and construct a new {@link org.briljantframework.data.dataframe.DataFrame}
+   * using the function {@code f} which should return a {@link org.briljantframework.data.dataframe.DataFrame.Builder}
+   * using the column names and the column types. The values from {@code in} are read to the {@code
+   * DataFrame.Builder} and returned as the DataFrame created by {@link
+   * org.briljantframework.data.dataframe.DataFrame.Builder#build()}. <p>
+   * <code><pre>
+   *    DataFrame dataframe =
+   *        DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris.txt"));
+   * </pre></code>
+   *
+   * @param f  the producing {@code BiFunction}
+   * @param in the input stream
+   * @return a new dataframe
+   */
+  public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
+                               DatasetReader in) throws IOException {
+    try {
+      Collection<VectorType> types = in.readColumnTypes();
+      Collection<Object> names = in.readColumnIndex();
+      DataFrame df = f.apply(types).readAll(in).build();
+      df.setColumnIndex(ObjectIndex.create(names));
+      return df;
+    } finally {
+      if (in != null) {
+        in.close();
+      }
+    }
+  }
+
+
+  /**
    * Returns the same dataset as {@link #loadIris()}, but using a particular {@code DataFrame}
    * builder.
    *
-   * For example, if using the {@link MixedDataFrame}:
+   * For example, if using the {@link org.briljantframework.data.dataframe.MixedDataFrame}:
    *
    * <pre>
    * DataFrame dataFrame = loadIris((names, types) -&gt; new MixedDataFrame.Builder(names, types));
@@ -194,7 +225,7 @@ public class Datasets {
   public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
                                Function<InputStream, DatasetReader> fin, String name) {
     try (DatasetReader dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
-      return DataFrames.load(f, dfis);
+      return load(f, dfis);
     } catch (IOException e) {
       throw new IOError(e);
     }
