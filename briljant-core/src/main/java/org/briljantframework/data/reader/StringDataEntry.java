@@ -22,12 +22,17 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
+package org.briljantframework.data.reader;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.io.resolver.Resolver;
-import org.briljantframework.io.resolver.Resolvers;
+import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.data.resolver.Resolvers;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
@@ -77,27 +82,19 @@ public final class StringDataEntry implements DataEntry {
   @Override
   public int nextInt() {
     String repr = nextString();
-    if (repr == null) {
+    if (repr == null || !NumberUtils.isNumber(repr)) {
       return Na.INT;
     }
-    try {
-      return Integer.parseInt(repr);
-    } catch (NumberFormatException e) {
-      return Na.INT;
-    }
+    return NumberUtils.createNumber(repr).intValue();
   }
 
   @Override
   public double nextDouble() {
     String repr = nextString();
-    if (repr == null) {
+    if (repr == null || !NumberUtils.isNumber(repr)) {
       return Na.DOUBLE;
     }
-    try {
-      return Double.parseDouble(repr);
-    } catch (NumberFormatException e) {
-      return Na.DOUBLE;
-    }
+    return NumberUtils.createNumber(repr).doubleValue();
   }
 
   @Override
@@ -110,6 +107,23 @@ public final class StringDataEntry implements DataEntry {
     if (current + no < size()) {
       current += no;
     }
+  }
+
+  @Override
+  public List<Class<?>> inferTypes() {
+    List<Class<?>> types = new ArrayList<>();
+    for (String repr : values) {
+      repr = repr == null ? repr : repr.trim();
+      if (repr == null || repr.equals(missingValue)) {
+        types.add(Object.class);
+      } else if (NumberUtils.isNumber(repr)) {
+        Number number = NumberUtils.createNumber(repr);
+        types.add(number.getClass());
+      } else {
+        types.add(Object.class);
+      }
+    }
+    return Collections.unmodifiableList(types);
   }
 
   @Override

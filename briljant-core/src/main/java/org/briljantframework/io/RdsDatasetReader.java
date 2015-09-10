@@ -29,6 +29,8 @@ import com.univocity.parsers.common.processor.RowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedInputStream;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,7 +66,8 @@ import java.util.Map;
  *
  * @author Isak Karlsson
  */
-public class RdsInputStream extends DataInputStream {
+@Deprecated
+public class RdsDatasetReader extends DatasetReader {
 
   private static final char DEFAULT_SEPARATOR = ',';
   private static final String DEFAULT_MISSING_VALUE = "?";
@@ -81,20 +85,19 @@ public class RdsInputStream extends DataInputStream {
   }
 
   private final CsvParser parser;
-  private final RdsRowProcessor processor;
+  private final RdsRowProcessor processor = new RdsRowProcessor();
   private final String missingValue;
   private String[] currentRow;
 
   /**
    * @param in the underlying input stream
    */
-  public RdsInputStream(InputStream in, String missingValue, char separator) {
+  public RdsDatasetReader(InputStream in, String missingValue, char separator) {
     super(in);
     CsvParserSettings settings = new CsvParserSettings();
     settings.setIgnoreLeadingWhitespaces(true);
     settings.setIgnoreTrailingWhitespaces(true);
     settings.getFormat().setDelimiter(separator);
-    processor = new RdsRowProcessor();
     settings.setRowProcessor(processor);
     parser = new CsvParser(settings);
     parser.beginParsing(new InputStreamReader(in));
@@ -108,7 +111,7 @@ public class RdsInputStream extends DataInputStream {
   /**
    * @param inputStream
    */
-  public RdsInputStream(InputStream inputStream) {
+  public RdsDatasetReader(InputStream inputStream) {
     this(inputStream, DEFAULT_MISSING_VALUE, DEFAULT_SEPARATOR);
   }
 
@@ -117,7 +120,7 @@ public class RdsInputStream extends DataInputStream {
    *
    * @param file the file
    */
-  public RdsInputStream(File file) throws FileNotFoundException {
+  public RdsDatasetReader(File file) throws FileNotFoundException {
     this(new BufferedInputStream(new FileInputStream(file)), DEFAULT_MISSING_VALUE,
          DEFAULT_SEPARATOR);
   }
@@ -126,7 +129,7 @@ public class RdsInputStream extends DataInputStream {
   /**
    * @param fileName the file name
    */
-  public RdsInputStream(String fileName) throws FileNotFoundException {
+  public RdsDatasetReader(String fileName) throws FileNotFoundException {
     this(new File(fileName));
   }
 
@@ -147,7 +150,7 @@ public class RdsInputStream extends DataInputStream {
   }
 
   @Override
-  public Collection<VectorType> readColumnTypes() throws IOException {
+  public List<VectorType> readColumnTypes() throws IOException {
     return processor.columnTypes;
   }
 
@@ -174,9 +177,9 @@ public class RdsInputStream extends DataInputStream {
 
   private static class RdsRowProcessor implements RowProcessor {
 
-    private Collection<Object> columnNames = null;
+    private List<Object> columnNames = null;
 
-    private Collection<VectorType> columnTypes = null;
+    private List<VectorType> columnTypes = null;
 
     @Override
     public void processStarted(ParsingContext context) {

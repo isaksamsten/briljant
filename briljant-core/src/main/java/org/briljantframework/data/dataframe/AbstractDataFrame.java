@@ -40,12 +40,12 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.index.VectorLocationGetter;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.EntryReader;
 import org.briljantframework.sort.QuickSort;
 
 import java.io.IOException;
@@ -138,7 +138,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       if (i >= n) {
         break;
       }
-      builder.setRecord(key, getRecord(key));
+      builder.setRecord(key, Vectors.transferableBuilder(getRecord(key)));
       i++;
     }
     DataFrame df = builder.build();
@@ -315,8 +315,8 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (Index.Entry entry : getRecordIndex().entrySet()) {
       groups.computeIfAbsent(
           keyFunction.apply(entry.getKey()),
-          a -> Vector.Builder.of(Integer.class)).add(entry.getValue()
-      );
+          a -> Vector.Builder.of(Integer.class)
+      ).add(entry.getValue());
     }
     return new HashDataFrameGroupBy(this, groups);
   }
@@ -434,9 +434,10 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame selectColumns(Object first, Object last) {
     DataFrame.Builder builder = newBuilder();
-    for (Object columnKey : getColumnIndex().selectRange(first, BoundType.INCLUSIVE, last,
-                                                         BoundType.EXCLUSIVE)) {
-      builder.set(columnKey, get(columnKey)); // TODO: avoid making a copy :/
+    Set<Object> selectedRange = getColumnIndex().selectRange(
+        first, BoundType.INCLUSIVE, last, BoundType.EXCLUSIVE);
+    for (Object columnKey : selectedRange) {
+      builder.set(columnKey, Vectors.transferableBuilder(get(columnKey)));
     }
     DataFrame df = builder.build();
     df.setRecordIndex(getRecordIndex());
@@ -475,25 +476,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newCopyBuilder()}
    */
   protected DataFrame dropAt(int index) {
-//    Index.Builder columnIndex = new HashIndex.Builder();
-//    for (int i = 0; i < columns(); i++) {
-//      if (index == i) {
-//        continue;
-//      }
-//      if (i > index) {
-//        columnIndex.set(getColumnIndex().getKey(i), i - 1);
-//      } else {
-//        columnIndex.set(getColumnIndex().getKey(i), i);
-//      }
-//    }
-//
-//    Builder builder = newCopyBuilder();
-//    builder.loc().remove(index);
-//
-//    DataFrame df = builder.build();
-//    df.setRecordIndex(getRecordIndex());
-//    df.setColumnIndex(columnIndex.build());
-//    return df;
+    // TODO: implement me
     throw new UnsupportedOperationException();
   }
 
@@ -508,14 +491,15 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   protected DataFrame dropAt(int[] indexes) {
+    // TODO: profile me. Perhaps creating a set is more apt.
     Arrays.sort(indexes);
 
     Builder builder = newBuilder();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
-      if (Arrays.binarySearch(indexes, i) < 0) { // TODO: indexes is not sorted!!
+      if (Arrays.binarySearch(indexes, i) < 0) {
         columnIndex.add(getColumnIndex().getKey(i));
-        builder.add(getAt(i));
+        builder.add(Vectors.transferableBuilder(getAt(i)));
       }
     }
 
@@ -537,7 +521,6 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame drop(Object... keys) {
-
     return dropAt(getColumnIndex().locations(keys));
   }
 
@@ -900,7 +883,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * <li>{@link #setAt(int, org.briljantframework.data.vector.Vector.Builder)}</li>
    * <li>{@link #setRecordAt(int, org.briljantframework.data.vector.Vector.Builder)}</li>
    * <li>{@link #setAt(int, int, org.briljantframework.data.vector.Vector, int)}</li>
-   * <li>{@link #readEntry(org.briljantframework.io.DataEntry)}</li>
+   * <li>{@link #readEntry(org.briljantframework.data.reader.DataEntry)}</li>
    * </ul>
    *
    * and the following methods from the {@link org.briljantframework.data.dataframe.DataFrame.Builder}
@@ -1031,21 +1014,21 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public Builder setRecordIndex(Index recordIndex) {
-      Check.argument(recordIndex.size() == rows());
       this.recordIndex = recordIndex.newCopyBuilder();
+      this.recordIndex.extend(rows());
       return this;
     }
 
     @Override
     public Builder setColumnIndex(Index columnIndex) {
-      Check.argument(columnIndex.size() == columns());
       this.columnIndex = columnIndex.newCopyBuilder();
+      this.columnIndex.extend(columns());
       return this;
     }
 
     @Override
-    public final Builder read(EntryReader entryReader) throws IOException {
-      int entries = 0;
+    public final Builder readAll(EntryReader entryReader) throws IOException {
+      int entries = rows();
       while (entryReader.hasNext()) {
         DataEntry entry = entryReader.next();
         extendColumnIndex(entry.size());
@@ -1054,6 +1037,14 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
       extendRecordIndex(entries);
 
+      return this;
+    }
+
+    @Override
+    public Builder read(DataEntry entry) throws IOException {
+      int rows = rows();
+      readEntry(entry);
+      extendRecordIndex(rows + 1);
       return this;
     }
 

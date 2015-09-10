@@ -22,64 +22,36 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
+package org.briljantframework.data.resolver;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
- * Created by Isak Karlsson on 11/12/14.
+ * @author Isak Karlsson
  */
-public interface DataEntry {
+public class StringDateConverter implements Converter<String, LocalDate> {
 
-  /**
-   * Reads the next entry and tries to resolve the value as {@code cls}. If this fails, {@code
-   * next}
-   * returns an appropriate {@code NA} value
-   * (as defined by {@link org.briljantframework.data.Na#of(Class)}).
-   *
-   * @param cls the class
-   * @param <T> the type to return
-   * @return a value of type {@code T}
-   */
-  <T> T next(Class<T> cls);
+  private final DateTimeFormatter format;
 
-  /**
-   * Reads the next string in this stream
-   *
-   * @return the next string
-   */
-  String nextString();
+  public StringDateConverter(DateTimeFormatter format) {
+    this.format = format;
+  }
 
-  /**
-   * Reads the next int in this stream
-   *
-   * @return the next int
-   */
-  int nextInt();
+  public StringDateConverter(String pattern) {
+    this(DateTimeFormatter.ofPattern(pattern));
+  }
 
-  /**
-   * Reads the next {@code double} in this stream
-   *
-   * @return the next {@code double}
-   */
-  double nextDouble();
+  public StringDateConverter() {
+    this(DateTimeFormatter.ISO_DATE);
+  }
 
-  /**
-   * Returns {@code true} if there are more values in the stream
-   *
-   * @return if has next
-   */
-  boolean hasNext();
-
-  /**
-   * Skip the first n data items
-   *
-   * @param no the number of items to skip
-   */
-  void skip(int no);
-
-  /**
-   * Returns the size of the entry (if known).
-   *
-   * @return the size
-   */
-  int size();
+  @Override
+  public LocalDate convert(String t) {
+    try {
+      return LocalDate.parse(t, format);
+    } catch (Exception e) {
+      return null; // NA
+    }
+  }
 }

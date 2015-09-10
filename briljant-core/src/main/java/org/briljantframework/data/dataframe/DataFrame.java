@@ -27,6 +27,8 @@ package org.briljantframework.data.dataframe;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.index.DataFrameLocationGetter;
@@ -34,7 +36,6 @@ import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.io.EntryReader;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -482,12 +483,21 @@ public interface DataFrame extends Iterable<Object> {
     Builder setRecordIndex(Index recordIndex);
 
     /**
-     * Read values from the {@code inputStream} and add the values to the correct column.
+     * Read all records ({@linkplain org.briljantframework.data.reader.DataEntry}) from the supplied
+     * reader.
      *
-     * @param entryReader the input stream
+     * @param entryReader the entry reader
      * @return a modified builder
      */
-    public Builder read(EntryReader entryReader) throws IOException;
+    public Builder readAll(EntryReader entryReader) throws IOException;
+
+    /**
+     * Append the entry as a record.
+     *
+     * @param entry the data entry
+     * @return a modified builder
+     */
+    public Builder read(DataEntry entry) throws IOException;
 
     /**
      * Returns the number of columns in the resulting data frame

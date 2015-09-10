@@ -22,26 +22,37 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
+package org.briljantframework.statistics;
 
-import java.io.IOException;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * Created by isak on 08/05/15.
- */
-public interface EntryReader {
+import static org.junit.Assert.assertEquals;
 
-  /**
-   * Reads the next entry from this stream
-   *
-   * @return the next entry
-   */
-  DataEntry next() throws IOException;
+public class RunningStatisticsTest {
 
-  /**
-   * Returns {@code true} if there are more values in the stream
-   *
-   * @return if has next
-   */
-  boolean hasNext() throws IOException;
+  private FastStatistics s;
+
+  @Before
+  public void setUp() throws Exception {
+    s = new FastStatistics();
+    s.addValue(10);
+    s.addValue(20);
+    s.addValue(30);
+  }
+
+  @Test
+  public void testMean() throws Exception {
+    assertEquals(20.0, s.getMean(), 0);
+  }
+
+  @Test
+  public void testVariance() throws Exception {
+    assertEquals(66.66, s.getVariance(), 0.1);
+  }
+
+  @Test
+  public void testStd() throws Exception {
+    assertEquals(Math.sqrt(66.66), s.getStandardDeviation(), 0.1);
+  }
 }

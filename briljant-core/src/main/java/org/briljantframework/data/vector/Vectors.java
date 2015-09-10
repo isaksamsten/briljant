@@ -30,9 +30,9 @@ import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.VectorLocationSetter;
-import org.briljantframework.io.DataEntry;
+import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.sort.QuickSort;
-import org.briljantframework.stat.FastStatistics;
+import org.briljantframework.statistics.FastStatistics;
 
 import java.io.IOException;
 import java.util.AbstractCollection;

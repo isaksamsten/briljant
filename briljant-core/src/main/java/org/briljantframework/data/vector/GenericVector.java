@@ -27,9 +27,9 @@ package org.briljantframework.data.vector;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.resolver.Resolver;
-import org.briljantframework.io.resolver.Resolvers;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.data.resolver.Resolvers;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -28,14 +28,14 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.Utils;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
+import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.data.resolver.Resolvers;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.resolver.Resolver;
-import org.briljantframework.io.resolver.Resolvers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -241,7 +241,7 @@ class IntVector extends AbstractVector implements Transferable {
 
     @Override
     public Vector.Builder add(double value) {
-      final int index = size();
+      final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = (int) value;
       extendIndex(index);
@@ -250,7 +250,7 @@ class IntVector extends AbstractVector implements Transferable {
 
     @Override
     public Vector.Builder add(Object value) {
-      final int index = size();
+      final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = convert(value);
       extendIndex(index);

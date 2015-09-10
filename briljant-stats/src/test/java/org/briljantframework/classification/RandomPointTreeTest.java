@@ -37,8 +37,8 @@ import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.io.DataInputStream;
-import org.briljantframework.io.MatlabTextInputStream;
+import org.briljantframework.io.DatasetReader;
+import org.briljantframework.io.MatlabDatasetReader;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -131,13 +131,14 @@ public class RandomPointTreeTest {
     String name = "OSULeaf";
     String trainFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TRAIN", name, name);
     String testFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TEST", name, name);
-    try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
-         DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
+    try (DatasetReader train = new MatlabDatasetReader(new FileInputStream(trainFile));
+         DatasetReader test = new MatlabDatasetReader(new FileInputStream(testFile))) {
       DataFrame trainingSet =
-          DataFrames.permuteRecords(new DataSeriesCollection.Builder(VectorType.DOUBLE).read(train)
+          DataFrames.permuteRecords(new DataSeriesCollection.Builder(VectorType.DOUBLE).readAll(
+              train)
                                         .build());
       DataFrame validationSet =
-          new DataSeriesCollection.Builder(VectorType.DOUBLE).read(test).build();
+          new DataSeriesCollection.Builder(VectorType.DOUBLE).readAll(test).build();
 
       DataFrame xTrain = trainingSet.drop(0);
       Vector yTrain = Convert.toStringVector(trainingSet.get(0));

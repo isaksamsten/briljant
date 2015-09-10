@@ -42,7 +42,7 @@ import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
-import org.briljantframework.stat.FastStatistics;
+import org.briljantframework.statistics.FastStatistics;
 
 import java.util.AbstractList;
 import java.util.Arrays;

@@ -33,9 +33,9 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.resolver.Resolver;
-import org.briljantframework.io.resolver.Resolvers;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.data.resolver.Resolvers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,15 +53,6 @@ class DoubleVector extends AbstractVector implements Transferable {
 
   private final double[] buffer;
   private final int size;
-
-  private DoubleVector(double[] buffer, boolean copy) {
-    if (copy) {
-      this.buffer = Arrays.copyOf(buffer, buffer.length);
-    } else {
-      this.buffer = buffer;
-    }
-    this.size = this.buffer.length;
-  }
 
   private DoubleVector(double[] buffer, int size) {
     this.buffer = buffer;
@@ -262,7 +253,7 @@ class DoubleVector extends AbstractVector implements Transferable {
 
     @Override
     public Vector.Builder add(double value) {
-      final int index = size();
+      final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = value;
       extendIndex(index);
@@ -271,7 +262,7 @@ class DoubleVector extends AbstractVector implements Transferable {
 
     @Override
     public Vector.Builder add(Object value) {
-      final int index = size();
+      final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = convert(value);
       extendIndex(index);
@@ -369,7 +360,7 @@ class DoubleVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    public int size() {
+    public final int size() {
       return size;
     }
 

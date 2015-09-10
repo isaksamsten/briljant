@@ -31,7 +31,7 @@ import org.briljantframework.array.IntArray;
  */
 public final class LeftOuterJoin implements JoinOperation {
 
-  public static final LeftOuterJoin INSTANCE = new LeftOuterJoin();
+  private static final LeftOuterJoin INSTANCE = new LeftOuterJoin();
 
   public static LeftOuterJoin getInstance() {
     return INSTANCE;

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io.resolver;
+package org.briljantframework.data.resolver;
 
 import org.briljantframework.data.Na;
 

@@ -29,9 +29,9 @@ import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.EntryReader;
-import org.briljantframework.io.StringDataEntry;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReader;
+import org.briljantframework.data.reader.StringDataEntry;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -283,7 +283,7 @@ public abstract class DataFrameTest {
       }
     };
 
-    DataFrame df = getBuilder().read(entryReader).build();
+    DataFrame df = getBuilder().readAll(entryReader).build();
 
     assertEquals(2, df.rows());
     assertEquals(3, df.columns());

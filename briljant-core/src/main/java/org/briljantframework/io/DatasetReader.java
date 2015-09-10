@@ -24,6 +24,7 @@
 
 package org.briljantframework.io;
 
+import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.VectorType;
 
@@ -47,7 +48,8 @@ import java.util.List;
  * <p>
  * The simplest is to use the convince methods {@link #readColumnTypes()} and
  * {@link #readColumnIndex()} constructing a {@link DataFrame.Builder} and use its
- * {@link org.briljantframework.data.dataframe.DataFrame.Builder#read(EntryReader)} method.
+ * {@link org.briljantframework.data.dataframe.DataFrame.Builder#readAll(org.briljantframework.data.reader.EntryReader)}
+ * method.
  * <p>
  * For example: <code>
  * <pre>
@@ -76,7 +78,8 @@ import java.util.List;
  * should return {@code [DoubleVector.TYPE, StringVector.TYPE, IntVector.TYPE]}.
  *
  * Then, subsequent calls to {@link #next()} should return a
- * {@link org.briljantframework.io.DataEntry} with {@code [3.2, "hello", 1]}, {@code [2.0 "sx", 3]}
+ * {@link org.briljantframework.data.reader.DataEntry} with {@code [3.2, "hello", 1]}, {@code [2.0 "sx",
+ * 3]}
  * and {@code [2, "dds", 100]} in sequence.
  *
  * Hence, summing the columns of
@@ -109,7 +112,8 @@ import java.util.List;
  *
  * @author Isak Karlsson
  */
-public abstract class DataInputStream extends FilterInputStream implements EntryReader {
+@Deprecated
+public abstract class DatasetReader extends FilterInputStream implements EntryReader {
 
   protected static final String NAMES_BEFORE_TYPE = "Can't read name before types";
   protected static final String UNEXPECTED_EOF = "Unexpected EOF.";
@@ -121,7 +125,7 @@ public abstract class DataInputStream extends FilterInputStream implements Entry
   /**
    * @param in the underlying input stream
    */
-  protected DataInputStream(InputStream in) {
+  protected DatasetReader(InputStream in) {
     super(in);
   }
 
@@ -142,39 +146,17 @@ public abstract class DataInputStream extends FilterInputStream implements Entry
   protected abstract String readColumnName() throws IOException;
 
   /**
-   * For convenience. This method reads all column types from the input stream.
-   * <p>
-   * Same as:
-   *
-   * <pre>
-   * Type t = null;
-   * while ((t = f.readColumnType()) != null) {
-   *   coll.add(t);
-   * }
-   * </pre>
-   *
    * @return a collection of types
    */
-  public Collection<VectorType> readColumnTypes() throws IOException {
+  public List<VectorType> readColumnTypes() throws IOException {
     List<VectorType> types = new ArrayList<>();
     for (VectorType type = readColumnType(); type != null; type = readColumnType()) {
       types.add(type);
     }
-    return Collections.unmodifiableCollection(types);
+    return Collections.unmodifiableList(types);
   }
 
   /**
-   * For convenience. This method read all the column names from the input stream.
-   * <p>
-   * Same as:
-   *
-   * <pre>
-   * String n = null;
-   * while ((n = f.readColumnName()) != null) {
-   *   coll.add(t);
-   * }
-   * </pre>
-   *
    * @return a collection of column names
    */
   public Collection<Object> readColumnIndex() throws IOException {

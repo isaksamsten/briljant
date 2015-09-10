@@ -24,6 +24,8 @@
 
 package org.briljantframework.io;
 
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedReader;
@@ -42,7 +44,8 @@ import java.util.regex.Pattern;
 /**
  * @author Isak Karlsson
  */
-public class ArffInputStream extends DataInputStream {
+@Deprecated
+public class ArffDatasetReader extends DatasetReader {
 
   private static final String INVALID_TYPE = "Can't understand type %s";
   private static final Map<String, VectorType> TYPE_MAP;
@@ -68,7 +71,7 @@ public class ArffInputStream extends DataInputStream {
   /**
    * @param in the underlying input stream
    */
-  public ArffInputStream(InputStream in) {
+  public ArffDatasetReader(InputStream in) {
     super(in);
     reader = new BufferedReader(new InputStreamReader(in));
   }
@@ -123,7 +126,7 @@ public class ArffInputStream extends DataInputStream {
   }
 
   @Override
-  public Collection<VectorType> readColumnTypes() throws IOException {
+  public List<VectorType> readColumnTypes() throws IOException {
     initialize();
     return columnTypes;
   }

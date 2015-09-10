@@ -29,8 +29,8 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataInputStream;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.io.DatasetReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -201,9 +201,9 @@ public class MixedDataFrame extends AbstractDataFrame {
     return create(map);
   }
 
-  public static DataFrame read(DataInputStream io) throws IOException {
+  public static DataFrame read(DatasetReader io) throws IOException {
     Collection<Object> index = io.readColumnIndex();
-    DataFrame frame = new MixedDataFrame.Builder(io.readColumnTypes()).read(io).build();
+    DataFrame frame = new MixedDataFrame.Builder(io.readColumnTypes()).readAll(io).build();
     if (index != null) {
       frame.setColumnIndex(ObjectIndex.create(index));
       return frame;

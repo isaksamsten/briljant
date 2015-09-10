@@ -22,35 +22,26 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe
+package org.briljantframework.data.reader;
 
-import org.apache.commons.math3.complex.Complex
-import spock.lang.Specification
+import java.io.IOException;
 
 /**
- * Created by isak on 04/06/15.
+ * @author Isak Karlsson
  */
-class DataFrameExtensionsSpec extends Specification {
+public interface EntryReader {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-//    DataFrame df = MixedDataFrame.create([
-//        a: Vector.of([1, 1, 1, 2]),
-//        b: Vector.of([1, 2, 3, 4]),
-//        c: Vector.of(["1", "3", "10", "g"])
-//    ])
+  /**
+   * Reads the next entry from this stream
+   *
+   * @return the next entry
+   */
+  DataEntry next() throws IOException;
 
-    def df = DataFrame.readCSV(new File("/Users/isak-kar/Downloads/multipleTest/test.csv")) {
-      delimiter = ','
-      types = [String, Double, Double, Double, Double]
-      skipRows = 0
-    }.indexOn("Dataset")
-
-    then:
-    println(df)
-  }
+  /**
+   * Returns {@code true} if there are more values in the stream
+   *
+   * @return if has next
+   */
+  boolean hasNext() throws IOException;
 }

@@ -35,7 +35,7 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.io.DataEntry;
+import org.briljantframework.data.reader.DataEntry;
 
 import java.io.IOException;
 import java.io.Serializable;

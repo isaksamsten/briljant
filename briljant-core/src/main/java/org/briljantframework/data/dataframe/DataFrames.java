@@ -24,9 +24,6 @@
 
 package org.briljantframework.data.dataframe;
 
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
-
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Utils;
 import org.briljantframework.data.Collectors;
@@ -44,16 +41,9 @@ import org.briljantframework.data.Scale;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.DataInputStream;
-import org.briljantframework.io.EntryReader;
-import org.briljantframework.io.StringDataEntry;
+import org.briljantframework.io.DatasetReader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,102 +74,6 @@ public final class DataFrames {
   private DataFrames() {
   }
 
-  public static DataFrame loadCsv(String file) throws IOException {
-    CsvParserSettings settings = new CsvParserSettings();
-    settings.getFormat().setDelimiter(',');
-//    settings.setLineSeparatorDetectionEnabled(true);
-    CsvParser parser = new CsvParser(settings);
-    parser.beginParsing(new BufferedReader(new FileReader(new File(file))));
-
-    Index.Builder columnIndex = new ObjectIndex.Builder();
-    for (String s : parser.parseNext()) {
-      columnIndex.add(s);
-    }
-    DataFrame.Builder df = new MixedDataFrame.Builder();
-    DataEntry entry = new StringDataEntry(parser.parseNext());
-    for (int col = 0; col < entry.size() && entry.hasNext(); col++) {
-      String value = entry.nextString();
-      Object val;
-      if ((val = Integer.parseInt(value)) != null) {
-        df.add(VectorType.INT);
-      } else if ((val = Double.parseDouble(value)) != null) {
-        df.add(VectorType.DOUBLE);
-      } else if ("true".equalsIgnoreCase(value)) {
-        val = true;
-        df.add(VectorType.LOGICAL);
-      } else if ("false".equalsIgnoreCase(value)) {
-        val = false;
-        df.add(VectorType.LOGICAL);
-      } else {
-        val = value;
-        df.add(VectorType.of(LocalDate.class));
-      }
-      df.loc().set(0, col, val);
-    }
-
-    try {
-      df.read(new EntryReader() {
-        private String[] current = null;
-
-        @Override
-        public DataEntry next() throws IOException {
-          DataEntry de = new StringDataEntry(current);
-          current = null;
-          return de;
-        }
-
-        @Override
-        public boolean hasNext() throws IOException {
-          if (current == null) {
-            current = parser.parseNext();
-          }
-          return current != null;
-        }
-      });
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    parser.stopParsing();
-    DataFrame bdf = df.build();
-    bdf.setColumnIndex(columnIndex.build());
-    return bdf;
-  }
-
-  public static DataFrame concat(Collection<? extends DataFrame> dataFrames) {
-    if (dataFrames.size() == 1) {
-      return dataFrames.iterator().next();
-    }
-    DataFrame.Builder builder = null;
-    Index.Builder columnIndex = new ObjectIndex.Builder();
-
-    int toRow = 0;
-    int currentColumn = 0;
-    for (DataFrame df : dataFrames) {
-      if (builder == null) {
-        builder = df.newBuilder();
-      }
-
-      int rows = df.rows();
-      for (Index.Entry col : df.getColumnIndex().entrySet()) {
-        int toColumn = columnIndex.getLocation(col.getKey());
-        int fromCol = col.getValue();
-        if (toColumn < 0) {
-          columnIndex.add(col.getKey());
-          toColumn = currentColumn;
-          currentColumn += 1;
-        }
-        for (int i = 0; i < rows; i++) {
-          builder.loc().set(toRow + i, toColumn, df, i, fromCol);
-        }
-      }
-      toRow += rows;
-    }
-    assert builder != null;
-    DataFrame df = builder.build();
-    df.setColumnIndex(columnIndex.build());
-    return df;
-  }
-
   /**
    * Load data frame using {@code in} and construct a new {@link org.briljantframework.data.dataframe.DataFrame}
    * using the function {@code f} which should return a {@link org.briljantframework.data.dataframe.DataFrame.Builder}
@@ -196,11 +90,11 @@ public final class DataFrames {
    * @return a new dataframe
    */
   public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
-                               DataInputStream in) throws IOException {
+                               DatasetReader in) throws IOException {
     try {
       Collection<VectorType> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
-      DataFrame df = f.apply(types).read(in).build();
+      DataFrame df = f.apply(types).readAll(in).build();
       df.setColumnIndex(ObjectIndex.create(names));
       return df;
     } finally {

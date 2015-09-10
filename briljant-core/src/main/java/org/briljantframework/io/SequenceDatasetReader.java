@@ -30,12 +30,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.vector.VectorType;
 
 /**
  * @author Isak Karlsson
  */
-public class SequenceInputStream extends DataInputStream {
+@Deprecated
+public class SequenceDatasetReader extends DatasetReader {
 
   private final BufferedReader reader;
   private String separator = ",";
@@ -46,7 +49,7 @@ public class SequenceInputStream extends DataInputStream {
   /**
    * @param in the underlying input stream
    */
-  public SequenceInputStream(InputStream in) {
+  public SequenceDatasetReader(InputStream in) {
     super(in);
     this.reader = new BufferedReader(new InputStreamReader(in));
 

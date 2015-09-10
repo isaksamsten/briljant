@@ -28,7 +28,7 @@ import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.AbstractDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.io.DataEntry;
+import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;

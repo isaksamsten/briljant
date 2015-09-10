@@ -25,9 +25,9 @@
 package org.briljantframework.data.dataframe;
 
 import org.briljantframework.data.dataseries.DataSeriesCollection;
-import org.briljantframework.io.DataInputStream;
-import org.briljantframework.io.RdsInputStream;
-import org.briljantframework.io.MatlabTextInputStream;
+import org.briljantframework.io.DatasetReader;
+import org.briljantframework.io.RdsDatasetReader;
+import org.briljantframework.io.MatlabDatasetReader;
 import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedInputStream;
@@ -76,7 +76,7 @@ public class Datasets {
    */
   public static DataFrame loadIris(
       Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, RdsInputStream::new, IRIS);
+    return load(f, RdsDatasetReader::new, IRIS);
   }
 
   /**
@@ -140,7 +140,7 @@ public class Datasets {
    */
   public static DataFrame loadConnect4(
       Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, RdsInputStream::new, CONNECT_4);
+    return load(f, RdsDatasetReader::new, CONNECT_4);
   }
 
   /**
@@ -165,7 +165,7 @@ public class Datasets {
    */
   public static DataFrame loadSyntheticControl(
       Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, MatlabTextInputStream::new, SYNTHETIC_CONTROL);
+    return load(f, MatlabDatasetReader::new, SYNTHETIC_CONTROL);
   }
 
   /**
@@ -188,12 +188,12 @@ public class Datasets {
    */
   public static DataFrame loadDummy(
       Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
-    return load(f, RdsInputStream::new, DUMMY);
+    return load(f, RdsDatasetReader::new, DUMMY);
   }
 
   public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
-                               Function<InputStream, DataInputStream> fin, String name) {
-    try (DataInputStream dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
+                               Function<InputStream, DatasetReader> fin, String name) {
+    try (DatasetReader dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return DataFrames.load(f, dfis);
     } catch (IOException e) {
       throw new IOError(e);

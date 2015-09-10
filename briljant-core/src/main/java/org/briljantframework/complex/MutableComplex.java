@@ -46,11 +46,11 @@ import org.apache.commons.math3.complex.Complex;
  * </p>
  *
  * <p>
- * Instead, the {@code ComplexBuilder} can be used as a drop-in replacement
+ * Instead, the {@code MutableComplex} can be used as a drop-in replacement
  * </p>
  *
  * <pre>{@code
- * ComplexBuilder accSum = new ComplexBuilder(0);
+ * MutableComplex accSum = new MutableComplex(0);
  * List<Complex> complexes = ...;
  * for(Complex c : complexes) {
  *   accSum = accSum.plus(c);

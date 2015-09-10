@@ -26,9 +26,9 @@ package org.briljantframework.data.dataframe;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.BoundType;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectComparator;
+import org.briljantframework.data.vector.Vector;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -285,6 +285,7 @@ public final class ObjectIndex implements Index {
         this.keys = new LinkedHashMap<>(keys);
       }
       this.locations = new ArrayList<>(locations);
+      this.currentSize = this.locations.size();
     }
 
     @Override

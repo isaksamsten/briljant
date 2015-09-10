@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io.resolver;
+package org.briljantframework.data.resolver;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.briljantframework.data.Logical;
@@ -57,7 +58,7 @@ public final class Resolvers {
     Resolver<Integer> integerResolver = new Resolver<>(Integer.class);
     integerResolver.put(String.class, s -> {
       try {
-        return Integer.parseInt(s);
+        return NumberUtils.createNumber(s).intValue();
       } catch (Exception e) {
         return null;
       }
@@ -67,7 +68,7 @@ public final class Resolvers {
     Resolver<Double> doubleResolver = new Resolver<>(Double.class);
     doubleResolver.put(String.class, s -> {
       try {
-        return Double.parseDouble(s);
+        return NumberUtils.createNumber(s).doubleValue();
       } catch (Exception e) {
         return null;
       }

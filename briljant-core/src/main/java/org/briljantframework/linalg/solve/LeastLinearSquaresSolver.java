@@ -24,13 +24,9 @@
 
 package org.briljantframework.linalg.solve;
 
-import com.github.fommil.netlib.LAPACK;
-
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-
-//import org.briljantframework.matrix.DefaultDoubleMatrix;
 
 /**
  * Solve LLS using complete orthogonal factorization
@@ -39,15 +35,13 @@ import org.briljantframework.array.IntArray;
  */
 public class LeastLinearSquaresSolver extends AbstractSolver {
 
-  public static final LAPACK lapack = LAPACK.getInstance();
-
   /**
    * Instantiates a new Least linear squares solver.
    *
-   * @param matrix the matrix
+   * @param a the matrix
    */
-  public LeastLinearSquaresSolver(DoubleArray matrix) {
-    super(matrix);
+  public LeastLinearSquaresSolver(DoubleArray a) {
+    super(a);
   }
 
   @Override

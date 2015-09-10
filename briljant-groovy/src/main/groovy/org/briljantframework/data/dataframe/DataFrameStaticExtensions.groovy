@@ -22,36 +22,37 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io.resolver;
+package org.briljantframework.data.dataframe
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import org.briljantframework.data.parser.CsvParser
 
 /**
  * @author Isak Karlsson
  */
-public class StringDateConverter implements Converter<String, LocalDate> {
+class DataFrameStaticExtensions {
 
-  private final DateTimeFormatter format;
-
-  public StringDateConverter(DateTimeFormatter format) {
-    this.format = format;
+  /**
+   * Read a {@link File}, {@link String file path}, {@link InputStream input stream} or {@link Reader} and constructs a data frame.
+   *
+   * <pre>
+   * DataFrame.readCSV("test.csv") {
+   *   delimiter = ','
+   *   header = ["First", "Second", "Third"]
+   * </pre>
+   *
+   * @param self a dataframe
+   * @param fileOrPath a file, reader or path
+   * @param closure a closure for providing additional settings
+   * @return a data frame
+   * @see CsvParser
+   * @see CsvParser.Settings
+   */
+  static DataFrame readCSV(DataFrame self, Object fileOrPath,
+                           @DelegatesTo(value = CsvParser.Settings, strategy = Closure.DELEGATE_ONLY)
+                               Closure closure = {}) {
+    def parser = new CsvParser()
+    parser.settings.with closure
+    return parser.parse(fileOrPath)
   }
 
-  public StringDateConverter(String pattern) {
-    this(DateTimeFormatter.ofPattern(pattern));
-  }
-
-  public StringDateConverter() {
-    this(DateTimeFormatter.ISO_DATE);
-  }
-
-  @Override
-  public LocalDate convert(String t) {
-    try {
-      return LocalDate.parse(t, format);
-    } catch (Exception e) {
-      return null; // NA
-    }
-  }
 }

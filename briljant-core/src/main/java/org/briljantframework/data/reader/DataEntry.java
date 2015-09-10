@@ -22,18 +22,68 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io.resolver;
+package org.briljantframework.data.reader;
+
+import java.util.List;
 
 /**
  * @author Isak Karlsson
  */
-public interface Converter<T, R> {
+public interface DataEntry {
 
   /**
-   * Converts from {@code t} (of type {@code T}) to a value of {@code R}.
+   * Reads the next entry and tries to resolve the value as {@code cls}. If this fails, {@code
+   * next}
+   * returns an appropriate {@code NA} value
+   * (as defined by {@link org.briljantframework.data.Na#of(Class)}).
    *
-   * @param t the value to convert
-   * @return the converted value or {@code null} if the conversion failed
+   * @param cls the class
+   * @param <T> the type to return
+   * @return a value of type {@code T}
    */
-  R convert(T t);
+  <T> T next(Class<T> cls);
+
+  /**
+   * Reads the next string in this entry
+   *
+   * @return the next string
+   */
+  String nextString();
+
+  /**
+   * Reads the next int in this entry
+   *
+   * @return the next int
+   */
+  int nextInt();
+
+  /**
+   * Reads the next {@code double} in this entry
+   *
+   * @return the next {@code double}
+   */
+  double nextDouble();
+
+  /**
+   * Returns {@code true} if there are more values in the entry
+   *
+   * @return if has next
+   */
+  boolean hasNext();
+
+  /**
+   * Skip the first n data entries
+   *
+   * @param no the number of entries to skip
+   */
+  void skip(int no);
+
+  List<Class<?>> inferTypes();
+
+  /**
+   * Returns the size of the entry (if known).
+   *
+   * @return the size
+   */
+  int size();
 }

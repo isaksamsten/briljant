@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.stat;
+package org.briljantframework.statistics;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;

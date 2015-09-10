@@ -27,8 +27,8 @@ package org.briljantframework.data.vector;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.ObjectIndex;
-import org.briljantframework.io.DataEntry;
-import org.briljantframework.io.StringDataEntry;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.StringDataEntry;
 import org.junit.Test;
 
 import java.util.Arrays;

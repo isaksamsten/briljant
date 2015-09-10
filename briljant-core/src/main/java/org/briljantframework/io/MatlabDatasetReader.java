@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.vector.VectorType;
 
 /**
@@ -47,7 +49,8 @@ import org.briljantframework.data.vector.VectorType;
  * <p>
  * Created by Isak Karlsson on 01/09/14.
  */
-public class MatlabTextInputStream extends DataInputStream {
+@Deprecated
+public class MatlabDatasetReader extends DatasetReader {
 
   private final BufferedReader reader;
   private String separator = "\\s+";
@@ -62,7 +65,7 @@ public class MatlabTextInputStream extends DataInputStream {
    *
    * @param in the in
    */
-  public MatlabTextInputStream(InputStream in) {
+  public MatlabDatasetReader(InputStream in) {
     super(in);
     this.reader = new BufferedReader(new InputStreamReader(in));
   }

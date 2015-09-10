@@ -29,7 +29,7 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
-import org.briljantframework.stat.FastStatistics;
+import org.briljantframework.statistics.FastStatistics;
 
 import java.util.Random;
 

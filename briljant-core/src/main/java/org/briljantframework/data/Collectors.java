@@ -32,7 +32,7 @@ import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.stat.FastStatistics;
+import org.briljantframework.statistics.FastStatistics;
 
 import java.util.ArrayList;
 import java.util.HashMap;

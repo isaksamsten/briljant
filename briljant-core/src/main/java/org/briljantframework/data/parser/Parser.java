@@ -22,29 +22,49 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.io;
-
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+package org.briljantframework.data.parser;
 
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.function.Supplier;
 
 /**
- * Created by Isak Karlsson on 14/08/14.
+ * Created by isak on 09/09/15.
  */
-public abstract class DataOutputStream extends FilterOutputStream {
+public abstract class Parser {
 
-  /**
-   * @param out the out
-   */
-  public DataOutputStream(OutputStream out) {
-    super(out);
+  private final Supplier<DataFrame.Builder> builderFactory;
+
+  protected Parser(Supplier<DataFrame.Builder> builderFactory) {
+    this.builderFactory = builderFactory;
   }
 
-  /**
-   * @param dataFrame the instances
-   * @throws IOException the iO exception
-   */
-  public abstract void write(DataFrame dataFrame) throws IOException;
+  public Parser() {
+    this(MixedDataFrame.Builder::new);
+  }
+
+  protected Supplier<DataFrame.Builder> getBuilderFactory() {
+    return builderFactory;
+  }
+
+  public DataFrame parse(String fileName) throws IOException {
+    return parse(new File(fileName));
+  }
+
+  public DataFrame parse(File file) throws IOException {
+    return parse(new FileReader(file));
+  }
+
+  public DataFrame parse(InputStream inputStream) throws IOException {
+    return parse(new InputStreamReader(inputStream));
+  }
+
+  abstract DataFrame parse(Reader reader) throws IOException;
 }

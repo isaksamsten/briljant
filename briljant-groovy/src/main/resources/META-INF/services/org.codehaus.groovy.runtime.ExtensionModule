@@ -4,4 +4,6 @@ extensionClasses = org.briljantframework.array.ArrayExtensions,\
                    org.briljantframework.data.dataframe.DataFrameExtensions,\
                    org.briljantframework.data.vector.VectorExtensions,\
                    org.briljantframework.data.index.DataFrameLocationGetterExtensions,\
-                   org.briljantframework.data.index.VectorLocationGetterExtensions
+                   org.briljantframework.data.index.VectorLocationGetterExtensions,\
+                   org.briljantframework.groovy.BriljantExtensions
+staticExtensionClasses = org.briljantframework.data.dataframe.DataFrameStaticExtensions

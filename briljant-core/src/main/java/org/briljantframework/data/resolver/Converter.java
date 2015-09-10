@@ -22,37 +22,18 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.stat;
+package org.briljantframework.data.resolver;
 
-import org.junit.Before;
-import org.junit.Test;
+/**
+ * @author Isak Karlsson
+ */
+public interface Converter<T, R> {
 
-import static org.junit.Assert.assertEquals;
-
-public class RunningStatisticsTest {
-
-  private FastStatistics s;
-
-  @Before
-  public void setUp() throws Exception {
-    s = new FastStatistics();
-    s.addValue(10);
-    s.addValue(20);
-    s.addValue(30);
-  }
-
-  @Test
-  public void testMean() throws Exception {
-    assertEquals(20.0, s.getMean(), 0);
-  }
-
-  @Test
-  public void testVariance() throws Exception {
-    assertEquals(66.66, s.getVariance(), 0.1);
-  }
-
-  @Test
-  public void testStd() throws Exception {
-    assertEquals(Math.sqrt(66.66), s.getStandardDeviation(), 0.1);
-  }
+  /**
+   * Converts from {@code t} (of type {@code T}) to a value of {@code R}.
+   *
+   * @param t the value to convert
+   * @return the converted value or {@code null} if the conversion failed
+   */
+  R convert(T t);
 }

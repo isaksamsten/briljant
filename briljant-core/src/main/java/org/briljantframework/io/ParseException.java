@@ -27,6 +27,7 @@ package org.briljantframework.io;
 /**
  * Created by isak on 16/03/15.
  */
+@Deprecated
 public class ParseException extends RuntimeException {
 
   public ParseException(long line, long column) {

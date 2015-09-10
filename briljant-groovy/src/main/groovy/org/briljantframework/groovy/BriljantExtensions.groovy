@@ -22,35 +22,20 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe
+package org.briljantframework.groovy
 
-import org.apache.commons.math3.complex.Complex
-import spock.lang.Specification
+import org.briljantframework.data.vector.VectorType
 
 /**
- * Created by isak on 04/06/15.
+ * Created by isak on 09/09/15.
  */
-class DataFrameExtensionsSpec extends Specification {
+class BriljantExtensions {
 
-  def "getAt returns the correct type"() {
-    when:
-//    def df = MixedDataFrame.of(
-//        "a", Vector.of([1, 2, 3, 4]),
-//        "b", Vector.of(["a","b","q","f"])
-//    )
-//    DataFrame df = MixedDataFrame.create([
-//        a: Vector.of([1, 1, 1, 2]),
-//        b: Vector.of([1, 2, 3, 4]),
-//        c: Vector.of(["1", "3", "10", "g"])
-//    ])
-
-    def df = DataFrame.readCSV(new File("/Users/isak-kar/Downloads/multipleTest/test.csv")) {
-      delimiter = ','
-      types = [String, Double, Double, Double, Double]
-      skipRows = 0
-    }.indexOn("Dataset")
-
-    then:
-    println(df)
+  static Object asType(Class self, Class toType) {
+    if (toType == VectorType) {
+      return VectorType.of(self)
+    } else {
+      return self.asType(toType)
+    }
   }
 }

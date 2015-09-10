@@ -38,10 +38,10 @@ import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.io.DataInputStream;
-import org.briljantframework.io.EntryReader;
-import org.briljantframework.io.MatlabTextInputStream;
-import org.briljantframework.io.SequenceInputStream;
+import org.briljantframework.io.DatasetReader;
+import org.briljantframework.data.reader.EntryReader;
+import org.briljantframework.io.MatlabDatasetReader;
+import org.briljantframework.io.SequenceDatasetReader;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -154,9 +154,9 @@ public class RandomShapeletForestTest {
   public void testSequences() throws Exception {
     String ade = "L270";
     EntryReader in =
-        new SequenceInputStream(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
+        new SequenceDatasetReader(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
 
-    DataFrame frame = new DataSeriesCollection.Builder(VectorType.STRING).read(in).build();
+    DataFrame frame = new DataSeriesCollection.Builder(VectorType.STRING).readAll(in).build();
     System.out.println(frame.rows() + ", " + frame.columns());
     Utils.setRandomSeed(32);
     frame = DataFrames.permuteRecords(frame);
@@ -187,13 +187,13 @@ public class RandomShapeletForestTest {
     // path to the data sets
     String trainFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TRAIN", name, name);
     String testFile = String.format("/Users/isak-kar/Downloads/dataset/%s/%s_TEST", name, name);
-    try (DataInputStream train = new MatlabTextInputStream(new FileInputStream(trainFile));
-         DataInputStream test = new MatlabTextInputStream(new FileInputStream(testFile))) {
+    try (DatasetReader train = new MatlabDatasetReader(new FileInputStream(trainFile));
+         DatasetReader test = new MatlabDatasetReader(new FileInputStream(testFile))) {
       DataFrame trainingSet = new DataSeriesCollection.Builder(VectorType.DOUBLE)
-          .read(train)
+          .readAll(train)
           .build();
       DataFrame validationSet = new DataSeriesCollection.Builder(VectorType.DOUBLE)
-          .read(test)
+          .readAll(test)
           .build();
       System.out.println(trainingSet);
 

@@ -35,7 +35,7 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
-import org.briljantframework.io.DataEntry;
+import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.sort.QuickSort;
 
 import java.io.IOException;
