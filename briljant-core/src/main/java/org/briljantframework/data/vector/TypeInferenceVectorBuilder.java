@@ -143,7 +143,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
   }
 
   @Override
-  public Vector.Builder read(DataEntry entry) throws IOException {
+  public Vector.Builder read(DataEntry entry) {
     getObjectBuilder().read(entry);
     return this;
   }
@@ -208,7 +208,7 @@ public class TypeInferenceVectorBuilder implements Vector.Builder {
     }
 
     @Override
-    public void read(int index, DataEntry entry) throws IOException {
+    public void read(int index, DataEntry entry) {
       getObjectBuilder().loc().read(index, entry);
     }
 

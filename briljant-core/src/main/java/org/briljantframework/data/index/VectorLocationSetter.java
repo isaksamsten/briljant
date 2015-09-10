@@ -87,7 +87,7 @@ public interface VectorLocationSetter {
    * @return receiver modified
    * @throws java.io.IOException if {@code inputStream} fail
    */
-  void read(int index, DataEntry entry) throws IOException;
+  void read(int index, DataEntry entry);
 
   /**
    * Removes value at {@code index} and shifts element to the left.

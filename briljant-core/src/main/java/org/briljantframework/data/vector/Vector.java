@@ -797,7 +797,7 @@ public interface Vector extends Serializable {
      * @return receiver modified
      * @throws IOException if {@code inputStream} fail
      */
-    Builder read(DataEntry entry) throws IOException;
+    Builder read(DataEntry entry);
 
     /**
      * Returns the size of the resulting vector

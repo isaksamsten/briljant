@@ -26,14 +26,19 @@ package org.briljantframework.data.parser;
 
 import com.univocity.parsers.csv.CsvParserSettings;
 
-import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.reader.CsvEntryReader;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.vector.VectorType;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +57,15 @@ public class CsvParser extends Parser {
   private String missingValue = "?";
   private List<Object> header = null;
   private List<VectorType> types = null;
+  private Reader reader;
+
+  public CsvParser(Reader reader) {
+    this.csvSettings = new CsvParserSettings();
+    this.reader = reader;
+  }
 
   public CsvParser() {
-    csvSettings = new CsvParserSettings();
+    this(null);
   }
 
   public Settings getSettings() {
@@ -66,7 +77,8 @@ public class CsvParser extends Parser {
   }
 
   @Override
-  public DataFrame parse(Reader reader) throws IOException {
+  public DataFrame parse() {
+    Check.state(reader != null, "No source file provided.");
     CsvEntryReader entryReader = new CsvEntryReader(csvSettings, reader, missingValue);
     for (int i = 0; i < skipRows && entryReader.hasNext(); i++) {
       entryReader.next();
@@ -86,16 +98,13 @@ public class CsvParser extends Parser {
       header.forEach(columnIndex::add);
     }
 
-    // If no types are set, infer the types from the next entry
+    // If no types are set, use the entry reader to infer the types
     if (types == null) {
-      DataEntry entry = entryReader.next();
-      for (Class<?> type : entry.inferTypes()) {
+      for (Class<?> type : entryReader.getTypes()) {
         builder.add(VectorType.of(type));
       }
-      builder.read(entry);
     } else {
       types.forEach(builder::add);
-
     }
     return builder.readAll(entryReader).setColumnIndex(columnIndex.build()).build();
   }
@@ -106,6 +115,21 @@ public class CsvParser extends Parser {
   public class Settings {
 
     private Settings() {
+    }
+
+    public Settings setFile(File file) throws FileNotFoundException {
+      reader = new FileReader(file);
+      return this;
+    }
+
+    public Settings setInputStream(InputStream inputStream) {
+      reader = new InputStreamReader(inputStream);
+      return this;
+    }
+
+    public Settings setFileName(String fileName) throws FileNotFoundException {
+      reader = new FileReader(new File(fileName));
+      return this;
     }
 
     /**

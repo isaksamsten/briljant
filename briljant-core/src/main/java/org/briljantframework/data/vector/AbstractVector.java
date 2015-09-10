@@ -693,7 +693,7 @@ public abstract class AbstractVector implements Vector {
     }
 
     @Override
-    public final Vector.Builder read(DataEntry entry) throws IOException {
+    public final Vector.Builder read(DataEntry entry) {
       final int size = size();
       readAt(size, entry);
       extendIndex(size);
@@ -774,11 +774,10 @@ public abstract class AbstractVector implements Vector {
      * NA} between {@code size()} and {@code index}
      *
      * <p> DO NOT: extend the index
-     *
-     * @param i     the index
+     *  @param i     the index
      * @param entry the data entry
      */
-    protected abstract void readAt(int i, DataEntry entry) throws IOException;
+    protected abstract void readAt(int i, DataEntry entry);
 
     /**
      * Removes the element at the specified location in this builder.
@@ -910,7 +909,7 @@ public abstract class AbstractVector implements Vector {
       }
 
       @Override
-      public void read(int index, DataEntry entry) throws IOException {
+      public void read(int index, DataEntry entry) {
         readAt(index, entry);
       }
 

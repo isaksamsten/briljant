@@ -25,6 +25,7 @@
 package org.briljantframework.data.dataframe
 
 import org.briljantframework.data.parser.CsvParser
+import org.briljantframework.data.parser.SqlParser
 
 /**
  * @author Isak Karlsson
@@ -35,8 +36,7 @@ class DataFrameStaticExtensions {
    * Read a {@link File}, {@link String file path}, {@link InputStream input stream} or {@link Reader} and constructs a data frame.
    *
    * <pre>
-   * DataFrame.readCSV("test.csv") {
-   *   delimiter = ','
+   * DataFrame.readCSV("test.csv") {*   delimiter = ','
    *   header = ["First", "Second", "Third"]
    * </pre>
    *
@@ -47,12 +47,16 @@ class DataFrameStaticExtensions {
    * @see CsvParser
    * @see CsvParser.Settings
    */
-  static DataFrame readCSV(DataFrame self, Object fileOrPath,
-                           @DelegatesTo(value = CsvParser.Settings, strategy = Closure.DELEGATE_ONLY)
-                               Closure closure = {}) {
+  static DataFrame readCSV(DataFrame self, @DelegatesTo(CsvParser.Settings) Closure closure = {}) {
     def parser = new CsvParser()
     parser.settings.with closure
-    return parser.parse(fileOrPath)
+    return parser.parse()
+  }
+
+  static DataFrame readSQL(DataFrame self, @DelegatesTo(SqlParser.Settings) Closure closure = {}) {
+    def parser = new SqlParser()
+    parser.settings.with closure
+    return parser.parse()
   }
 
 }

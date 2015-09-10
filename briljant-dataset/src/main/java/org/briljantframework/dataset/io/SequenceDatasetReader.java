@@ -24,15 +24,17 @@
 
 package org.briljantframework.dataset.io;
 
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReaderException;
+import org.briljantframework.data.reader.StringDataEntry;
+import org.briljantframework.data.vector.VectorType;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.NoSuchElementException;
-
-import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.reader.StringDataEntry;
-import org.briljantframework.data.vector.VectorType;
 
 /**
  * @author Isak Karlsson
@@ -66,7 +68,12 @@ public class SequenceDatasetReader extends DatasetReader {
   }
 
   @Override
-  public DataEntry next() throws IOException {
+  public List<Class<?>> getTypes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DataEntry next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
@@ -82,8 +89,12 @@ public class SequenceDatasetReader extends DatasetReader {
   }
 
   @Override
-  public boolean hasNext() throws IOException {
-    return initializeValues();
+  public boolean hasNext() {
+    try {
+      return initializeValues();
+    } catch (IOException e) {
+      throw new EntryReaderException(e);
+    }
   }
 
   /**

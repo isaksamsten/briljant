@@ -160,14 +160,19 @@ public class RdsDatasetReader extends DatasetReader {
   }
 
   @Override
-  public DataEntry next() throws IOException {
+  public List<Class<?>> getTypes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DataEntry next() {
     StringDataEntry entry = new StringDataEntry(currentRow, missingValue);
     currentRow = null;
     return entry;
   }
 
   @Override
-  public boolean hasNext() throws IOException {
+  public boolean hasNext() {
     if (currentRow == null) {
       currentRow = parser.parseNext();
     }

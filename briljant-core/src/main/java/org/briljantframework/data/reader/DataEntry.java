@@ -78,8 +78,6 @@ public interface DataEntry {
    */
   void skip(int no);
 
-  List<Class<?>> inferTypes();
-
   /**
    * Returns the size of the entry (if known).
    *

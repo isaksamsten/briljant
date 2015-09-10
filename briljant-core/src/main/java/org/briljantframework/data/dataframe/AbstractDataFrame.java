@@ -48,7 +48,6 @@ import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.sort.QuickSort;
 
-import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,11 +118,14 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame sort(SortOrder order, Object key) {
     DataFrame.Builder builder = newCopyBuilder();
-    VectorLocationGetter temp = builder.getTemporaryDataFrame().get(key).loc();
+    VectorLocationGetter temp = builder.getTemporaryDataFrame()
+        .loc()
+        .get(getColumnIndex().getLocation(key))
+        .loc();
     QuickSort.quickSort(0, builder.rows(), (a, b) -> {
       int cmp = temp.compare(a, b);
       return order == SortOrder.ASC ? cmp : -cmp;
-    }, builder.loc()::swap);
+    }, builder.loc()::swapRecords);
     return builder.build();
   }
 
@@ -1027,7 +1029,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public final Builder readAll(EntryReader entryReader) throws IOException {
+    public final Builder readAll(EntryReader entryReader) {
       int entries = rows();
       while (entryReader.hasNext()) {
         DataEntry entry = entryReader.next();
@@ -1041,7 +1043,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder read(DataEntry entry) throws IOException {
+    public Builder read(DataEntry entry) {
       int rows = rows();
       readEntry(entry);
       extendRecordIndex(rows + 1);
@@ -1161,7 +1163,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     protected abstract void swapRecordsAt(int a, int b);
 
-    protected abstract void readEntry(DataEntry entry) throws IOException;
+    protected abstract void readEntry(DataEntry entry);
 
     private class DataFrameLocationSetterImpl implements DataFrameLocationSetter {
 

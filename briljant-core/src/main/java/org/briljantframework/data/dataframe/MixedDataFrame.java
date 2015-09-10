@@ -31,7 +31,6 @@ import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -426,7 +425,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    protected void readEntry(DataEntry entry) throws IOException {
+    protected void readEntry(DataEntry entry) {
       ensureColumnCapacity(entry.size() - 1);
       for (int i = 0; i < entry.size(); i++) {
         buffers.get(i).read(entry);
@@ -454,7 +453,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       List<Vector> vectors = buffers.stream()
           .map((builder) -> padVectorWithNA(builder, rows).getTemporaryVector())
           .collect(Collectors.toCollection(ArrayList::new));
-      return new MixedDataFrame(vectors, rows, getColumnIndex(columns()), getRecordIndex(rows)) {
+      return new MixedDataFrame(vectors, rows) {
         @Override
         public Builder newCopyBuilder() {
           return Builder.this;

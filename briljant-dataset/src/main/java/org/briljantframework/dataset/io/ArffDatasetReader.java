@@ -25,6 +25,7 @@
 package org.briljantframework.dataset.io;
 
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.vector.VectorType;
 
@@ -138,7 +139,12 @@ public class ArffDatasetReader extends DatasetReader {
   }
 
   @Override
-  public DataEntry next() throws IOException {
+  public List<Class<?>> getTypes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DataEntry next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
@@ -148,17 +154,22 @@ public class ArffDatasetReader extends DatasetReader {
   }
 
   @Override
-  public boolean hasNext() throws IOException {
-    initialize();
-    if (currentLine == null || DATA.matcher(currentLine).matches()) {
-      currentLine = reader.readLine();
+  public boolean hasNext() {
+    try {
+      initialize();
+      if (currentLine == null || DATA.matcher(currentLine).matches()) {
+        currentLine = reader.readLine();
+
+      }
+      while (currentLine != null && currentLine.trim().equals("")) {
+        currentLine = reader.readLine();
+      }
+      if (currentLine == null) {
+        return false;
+      }
+      return true;
+    } catch (IOException e) {
+      throw new EntryReaderException(e);
     }
-    while (currentLine != null && currentLine.trim().equals("")) {
-      currentLine = reader.readLine();
-    }
-    if (currentLine == null) {
-      return false;
-    }
-    return true;
   }
 }

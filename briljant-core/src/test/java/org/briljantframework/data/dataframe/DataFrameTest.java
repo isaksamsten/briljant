@@ -24,17 +24,16 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.data.Collectors;
 import org.briljantframework.data.BoundType;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
-import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.reader.StringDataEntry;
+import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -273,12 +272,17 @@ public abstract class DataFrameTest {
       private int current = 0;
 
       @Override
-      public DataEntry next() throws IOException {
+      public List<Class<?>> getTypes() {
+        return Arrays.asList(String.class, String.class, String.class);
+      }
+
+      @Override
+      public DataEntry next() {
         return entries[current++];
       }
 
       @Override
-      public boolean hasNext() throws IOException {
+      public boolean hasNext() {
         return current < entries.length;
       }
     };

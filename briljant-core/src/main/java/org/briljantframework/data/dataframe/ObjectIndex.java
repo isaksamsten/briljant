@@ -364,18 +364,18 @@ public final class ObjectIndex implements Index {
 
     @Override
     public void swap(int a, int b) {
-      Collections.swap(locations, a, b);
+//      Collections.swap(locations, a, b);
       Object keyA = locations.get(a);
       Object keyB = locations.get(b);
       locations.set(a, keyB);
       locations.set(b, keyA);
 
       // swap
-      getKeys().put(keyA, getKeys().put(keyB, getKeys().get(keyA)));
+//      getKeys().put(keyA, getKeys().put(keyB, getKeys().get(keyA)));
 //
-//      Integer tmp = getKeys().get(keyA);
-//      getKeys().put(keyA, getKeys().get(keyB));
-//      getKeys().put(keyB, tmp);
+      Integer tmp = getKeys().get(keyA);
+      getKeys().put(keyA, getKeys().get(keyB));
+      getKeys().put(keyB, tmp);
 
     }
 

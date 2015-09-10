@@ -37,7 +37,6 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolver;
 import org.briljantframework.data.resolver.Resolvers;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
@@ -355,7 +354,7 @@ class DoubleVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    protected void readAt(int index, DataEntry entry) throws IOException {
+    protected void readAt(int index, DataEntry entry) {
       setAt(index, entry.nextDouble());
     }
 

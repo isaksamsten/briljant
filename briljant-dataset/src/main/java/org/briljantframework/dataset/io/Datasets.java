@@ -52,7 +52,7 @@ public class Datasets {
   private static final String DUMMY = "dummy";
 
 
-  private static final String RESOURCE_PATTERN = "/org/briljantframework/datasets/%s.txt";
+  private static final String RESOURCE_PATTERN = "/datasets/%s.txt";
   private static final Map<String, DataFrame> DATA_CACHE = new HashMap<>();
 
   private Datasets() {

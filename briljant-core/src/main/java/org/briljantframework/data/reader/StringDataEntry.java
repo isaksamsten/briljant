@@ -30,10 +30,6 @@ import org.briljantframework.data.Na;
 import org.briljantframework.data.resolver.Resolver;
 import org.briljantframework.data.resolver.Resolvers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
  * failures won't propagate, instead the respective NA value will be returned.
@@ -107,23 +103,6 @@ public final class StringDataEntry implements DataEntry {
     if (current + no < size()) {
       current += no;
     }
-  }
-
-  @Override
-  public List<Class<?>> inferTypes() {
-    List<Class<?>> types = new ArrayList<>();
-    for (String repr : values) {
-      repr = repr == null ? repr : repr.trim();
-      if (repr == null || repr.equals(missingValue)) {
-        types.add(Object.class);
-      } else if (NumberUtils.isNumber(repr)) {
-        Number number = NumberUtils.createNumber(repr);
-        types.add(number.getClass());
-      } else {
-        types.add(Object.class);
-      }
-    }
-    return Collections.unmodifiableList(types);
   }
 
   @Override

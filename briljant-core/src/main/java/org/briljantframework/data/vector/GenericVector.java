@@ -31,7 +31,6 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolver;
 import org.briljantframework.data.resolver.Resolvers;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -223,7 +222,7 @@ class GenericVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    protected void readAt(int index, DataEntry entry) throws IOException {
+    protected void readAt(int index, DataEntry entry) {
       ensureCapacity(index);
       buffer.set(index, entry.next(cls)); // TODO: do resolve here
     }

@@ -33,7 +33,6 @@ import org.briljantframework.data.Na;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -284,7 +283,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
-    protected void readEntry(DataEntry entry) throws IOException {
+    protected void readEntry(DataEntry entry) {
       int row = rows();
       ensureCapacity(row);
       for (int i = 0; i < entry.size() && entry.hasNext(); i++) {

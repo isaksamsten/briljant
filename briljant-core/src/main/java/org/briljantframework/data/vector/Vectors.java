@@ -612,7 +612,7 @@ public final class Vectors {
     }
 
     @Override
-    public Vector.Builder read(DataEntry entry) throws IOException {
+    public Vector.Builder read(DataEntry entry) {
       throw new UnsupportedOperationException();
     }
 

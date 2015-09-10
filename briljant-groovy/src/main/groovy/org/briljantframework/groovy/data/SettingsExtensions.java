@@ -22,31 +22,16 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.parser;
+package org.briljantframework.groovy.data;
 
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
-
-import java.util.function.Supplier;
+import org.briljantframework.data.parser.SqlParser;
 
 /**
- * Created by isak on 09/09/15.
+ * Created by isak on 10/09/15.
  */
-public abstract class Parser {
+public class SettingsExtensions {
 
-  private final Supplier<DataFrame.Builder> builderFactory;
-
-  protected Parser(Supplier<DataFrame.Builder> builderFactory) {
-    this.builderFactory = builderFactory;
+  static void propertyMissing(SqlParser.Settings self, String key, Object value) {
+    self.set(key, value);
   }
-
-  public Parser() {
-    this(MixedDataFrame.Builder::new);
-  }
-
-  protected Supplier<DataFrame.Builder> getBuilderFactory() {
-    return builderFactory;
-  }
-
-  public abstract DataFrame parse();
 }

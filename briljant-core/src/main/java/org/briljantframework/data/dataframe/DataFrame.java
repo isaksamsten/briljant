@@ -489,7 +489,7 @@ public interface DataFrame extends Iterable<Object> {
      * @param entryReader the entry reader
      * @return a modified builder
      */
-    public Builder readAll(EntryReader entryReader) throws IOException;
+    public Builder readAll(EntryReader entryReader);
 
     /**
      * Append the entry as a record.
@@ -497,7 +497,7 @@ public interface DataFrame extends Iterable<Object> {
      * @param entry the data entry
      * @return a modified builder
      */
-    public Builder read(DataEntry entry) throws IOException;
+    public Builder read(DataEntry entry);
 
     /**
      * Returns the number of columns in the resulting data frame

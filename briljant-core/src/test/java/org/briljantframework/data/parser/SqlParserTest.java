@@ -24,29 +24,34 @@
 
 package org.briljantframework.data.parser;
 
+import org.briljantframework.data.Collectors;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
+import org.junit.Test;
 
-import java.util.function.Supplier;
+import static org.junit.Assert.assertEquals;
 
-/**
- * Created by isak on 09/09/15.
- */
-public abstract class Parser {
+public class SqlParserTest {
 
-  private final Supplier<DataFrame.Builder> builderFactory;
+  @Test
+  public void testParse() throws Exception {
+    String url = "jdbc:sqlite::resource:org/briljantframework/data/chinook.db";
+    String query =
+        "SELECT ab.Title, a.Name FROM Album AS ab, Artist AS a WHERE ab.ArtistId = a.ArtistId";
+    SqlParser parser = new SqlParser(url);
+    parser.getSettings().setQuery(query);
 
-  protected Parser(Supplier<DataFrame.Builder> builderFactory) {
-    this.builderFactory = builderFactory;
+    DataFrame df = parser.parse();
+    DataFrame sort = df.groupBy("Name")
+        .collect(Object.class, Collectors.count())
+        .sort(SortOrder.DESC, "Title");
+
+    System.out.println(sort);
+//    for (int i = 0; i < sort.rows(); i++) {
+//      System.out.println(sort.loc().getRecord(i));
+//    }
+
+    assertEquals(2, df.columns());
+
   }
-
-  public Parser() {
-    this(MixedDataFrame.Builder::new);
-  }
-
-  protected Supplier<DataFrame.Builder> getBuilderFactory() {
-    return builderFactory;
-  }
-
-  public abstract DataFrame parse();
 }

@@ -22,31 +22,30 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.parser;
-
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
-
-import java.util.function.Supplier;
+package org.briljantframework.data.reader;
 
 /**
- * Created by isak on 09/09/15.
+ * Created by isak on 10/09/15.
  */
-public abstract class Parser {
+public class EntryReaderException extends RuntimeException {
 
-  private final Supplier<DataFrame.Builder> builderFactory;
-
-  protected Parser(Supplier<DataFrame.Builder> builderFactory) {
-    this.builderFactory = builderFactory;
+  public EntryReaderException() {
   }
 
-  public Parser() {
-    this(MixedDataFrame.Builder::new);
+  public EntryReaderException(String message) {
+    super(message);
   }
 
-  protected Supplier<DataFrame.Builder> getBuilderFactory() {
-    return builderFactory;
+  public EntryReaderException(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  public abstract DataFrame parse();
+  public EntryReaderException(Throwable cause) {
+    super(cause);
+  }
+
+  public EntryReaderException(String message, Throwable cause, boolean enableSuppression,
+                              boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
 }

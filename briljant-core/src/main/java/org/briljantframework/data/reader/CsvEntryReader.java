@@ -27,9 +27,13 @@ package org.briljantframework.data.reader;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -43,6 +47,7 @@ public class CsvEntryReader implements EntryReader {
   private final CsvParser csvParser;
   private final String missingValue;
   private String[] current = null;
+  private List<Class<?>> types = null;
 
   public CsvEntryReader(CsvParserSettings settings, Reader reader, String missingValue) {
     csvParser = new CsvParser(settings);
@@ -51,23 +56,55 @@ public class CsvEntryReader implements EntryReader {
   }
 
   @Override
-  public DataEntry next() throws IOException {
-    if (current == null) {
-      current = csvParser.parseNext();
-    }
-    if (current == null) {
+  public List<Class<?>> getTypes() {
+    return Collections.unmodifiableList(types);
+  }
+
+  @Override
+  public DataEntry next() {
+    if (!hasNext()) {
       throw new NoSuchElementException();
     }
+//    if (current == null) {
+//      current = csvParser.parseNext();
+//    }
+//    if (current == null) {
+//      throw new NoSuchElementException();
+//    }
     DataEntry entry = new StringDataEntry(current, missingValue);
     current = null;
     return entry;
   }
 
   @Override
-  public boolean hasNext() throws IOException {
+  public boolean hasNext() {
+    initialize();
     if (current == null) {
       current = csvParser.parseNext();
     }
     return current != null;
   }
+
+  private void initialize() {
+    if (types == null) {
+      if (current == null) {
+        current = csvParser.parseNext();
+      }
+
+      types = new ArrayList<>();
+      for (String repr : current) {
+        repr = repr == null ? repr : repr.trim();
+        if (repr == null || repr.equals(missingValue)) {
+          types.add(Object.class);
+        } else if (NumberUtils.isNumber(repr)) {
+          Number number = NumberUtils.createNumber(repr);
+          types.add(number.getClass());
+        } else {
+          types.add(Object.class);
+        }
+      }
+    }
+  }
+
+
 }

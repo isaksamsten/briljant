@@ -25,23 +25,26 @@
 package org.briljantframework.data.reader;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Isak Karlsson
  */
 public interface EntryReader {
 
+  List<Class<?>> getTypes();
+
   /**
    * Reads the next entry from this stream
    *
    * @return the next entry
    */
-  DataEntry next() throws IOException;
+  DataEntry next();
 
   /**
    * Returns {@code true} if there are more values in the stream
    *
    * @return if has next
    */
-  boolean hasNext() throws IOException;
+  boolean hasNext();
 }
