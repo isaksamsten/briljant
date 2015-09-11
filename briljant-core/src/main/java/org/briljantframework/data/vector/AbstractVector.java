@@ -133,37 +133,41 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public Vector sort(SortOrder order) {
+    if (getIndex() instanceof IntIndex && order == SortOrder.ASC) {
+      return this;
+    }
+
     int o = order == SortOrder.DESC ? -1 : 1;
-    Vector.Builder builder = newCopyBuilder();
-    VectorLocationGetter get = builder.getTemporaryVector().loc();
-    VectorLocationSetter set = builder.loc();
-    QuickSort.quickSort(0, builder.size(), (a, b) -> o * get.compare(a, b), set::swap);
-    return builder.build();
+    Index.Builder index = getIndex().newCopyBuilder();
+    QuickSort.quickSort(
+        0,
+        index.size(),
+        (a, b) -> o * compare(index.getKey(a), index.getKey(b)),
+        index::swap
+    );
+    return shallowCopy(index.build());
   }
 
   @Override
   public <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
-    Vector.Builder builder = newCopyBuilder();
-    VectorLocationGetter get = builder.getTemporaryVector().loc();
-
-    VectorLocationSetter set = builder.loc();
+    Index.Builder index = getIndex().newCopyBuilder();
     QuickSort.quickSort(
         0,
-        builder.size(),
-        (a, b) -> cmp.compare(get.get(cls, a), get.get(cls, b)),
-        set::swap
+        index.size(),
+        (a, b) -> cmp.compare(get(cls, index.getKey(a)), get(cls, index.getKey(b))),
+        index::swap
     );
-    return builder.build();
+    return shallowCopy(index.build());
   }
 
   @Override
   public <T extends Comparable<T>> Vector sort(Class<T> cls) {
-    Vector.Builder b = newCopyBuilder();
-    VectorLocationGetter t = b.getTemporaryVector().loc();
-    VectorLocationSetter set = b.loc();
-
-    QuickSort.quickSort(0, b.size(), (i, j) -> t.get(cls, i).compareTo(t.get(cls, j)), set::swap);
-    return b.build();
+//    Vector.Builder b = newCopyBuilder();
+//    VectorLocationGetter t = b.getTemporaryVector().loc();
+//    VectorLocationSetter set = b.loc();
+//
+//    QuickSort.quickSort(0, b.size(), (i, j) -> t.get(cls, i).compareTo(t.get(cls, j)), set::swap);
+    return sort(cls, Comparable::compareTo);
   }
 
   protected <T> Vector combineVectors(Class<? extends T> cls, Vector other,
@@ -276,6 +280,11 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public Vector copy() {
+    return shallowCopy(index);
+  }
+
+  @Override
   public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
     final VectorLocationGetter get = loc();
     Array<U> n = Bj.referenceArray(size());
@@ -342,6 +351,8 @@ public abstract class AbstractVector implements Vector {
   }
 
   protected abstract int compareAt(int a, Vector other, int b);
+
+  protected abstract Vector shallowCopy(Index index);
 
   @Override
   public Builder newCopyBuilder() {
@@ -415,12 +426,12 @@ public abstract class AbstractVector implements Vector {
     }
 
     int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
-    for (int i = 0; i < size(); i++) {
-      String value = toStringAt(i);
-      Object o = index.getKey(i);
-      String key = Is.NA(o) ? "NA" : o.toString();
-      int keyPad = longestKey - key.length();
-      builder.append(key).append("  ");
+    int i = 0;
+    for (Object key : getIndex().keySet()) {
+      String value = toString(key);
+      String keyString = Is.NA(key) ? "NA" : key.toString();
+      int keyPad = longestKey - keyString.length();
+      builder.append(keyString).append("  ");
       for (int j = 0; j < keyPad; j++) {
         builder.append(" ");
       }
@@ -432,6 +443,7 @@ public abstract class AbstractVector implements Vector {
           builder.append("...\n");
         }
       }
+      i++;
     }
     builder.append("type: ").append(getType().toString());
     return builder.toString();
@@ -801,6 +813,8 @@ public abstract class AbstractVector implements Vector {
      * @param b the location of the second element
      */
     protected abstract void swapAt(int a, int b);
+
+    ;
 
     /**
      * Get the location of the element with the supplied key. If no such key exist

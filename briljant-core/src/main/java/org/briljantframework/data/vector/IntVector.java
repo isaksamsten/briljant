@@ -24,16 +24,16 @@
 
 package org.briljantframework.data.vector;
 
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.ArrayUtils;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.Transferable;
-import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
+import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
+import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolver;
 import org.briljantframework.data.resolver.Resolvers;
 import org.briljantframework.exceptions.IllegalTypeException;
@@ -113,6 +113,11 @@ class IntVector extends AbstractVector implements Transferable {
   @Override
   protected final int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    return new IntVector(buffer, size, index);
   }
 
   @Override

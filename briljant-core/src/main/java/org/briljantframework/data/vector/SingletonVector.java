@@ -28,6 +28,7 @@ import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
+import org.briljantframework.data.index.Index;
 
 /**
  * @author Isak Karlsson
@@ -42,6 +43,11 @@ final class SingletonVector extends AbstractVector implements Transferable {
   private final int size;
 
   SingletonVector(Object value, int size) {
+    this(null, value, size);
+  }
+
+  SingletonVector(Index index, Object value, int size) {
+    super(index);
     this.cls = value != null ? value.getClass() : Object.class;
     this.value = value;
     this.size = size;
@@ -102,5 +108,10 @@ final class SingletonVector extends AbstractVector implements Transferable {
   @Override
   public int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    return new SingletonVector(index, value, size);
   }
 }

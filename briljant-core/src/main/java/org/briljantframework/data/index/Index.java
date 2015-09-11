@@ -154,6 +154,8 @@ public interface Index {
 
     void extend(int size);
 
+    void resize(int size);
+
     Index build();
 
     int size();

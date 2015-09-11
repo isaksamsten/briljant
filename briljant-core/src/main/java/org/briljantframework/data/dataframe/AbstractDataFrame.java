@@ -446,13 +446,14 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame select(Object from, BoundType fromBound, Object to, BoundType toBound) {
+  public DataFrame select(Object from, BoundType fromBound, Object to, BoundType toBound) {
     DataFrame.Builder builder = newBuilder();
     for (Object record : getIndex().selectRange(from, fromBound, to, toBound)) {
       builder.setRecord(record, Vectors.transferableBuilder(getRecord(record)));
     }
+    builder.setColumnIndex(getColumnIndex());
     DataFrame df = builder.build();
-    df.setColumnIndex(getColumnIndex());
+//    df.setColumnIndex(getColumnIndex());
     return df;
   }
 
@@ -897,14 +898,14 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public Builder setIndex(Index index) {
       this.index = index.newCopyBuilder();
-      this.index.extend(rows());
+      this.index.resize(rows());
       return this;
     }
 
     @Override
     public Builder setColumnIndex(Index columnIndex) {
       this.columnIndex = columnIndex.newCopyBuilder();
-      this.columnIndex.extend(columns());
+      this.columnIndex.resize(columns());
       return this;
     }
 

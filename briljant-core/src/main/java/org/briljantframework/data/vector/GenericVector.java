@@ -117,6 +117,11 @@ class GenericVector extends AbstractVector implements Transferable {
   }
 
   @Override
+  protected Vector shallowCopy(Index index) {
+    return new GenericVector(cls, values, size, index);
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj instanceof GenericVector) {
       if (!this.cls.equals(((GenericVector) obj).cls)) {

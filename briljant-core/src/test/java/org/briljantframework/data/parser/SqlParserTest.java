@@ -24,6 +24,7 @@
 
 package org.briljantframework.data.parser;
 
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.junit.Test;
 
@@ -36,14 +37,13 @@ public class SqlParserTest {
     String url = "jdbc:sqlite::resource:org/briljantframework/data/chinook.db";
     String query =
         "SELECT ab.Title, a.Name FROM Album AS ab, Artist AS a WHERE ab.ArtistId = a.ArtistId";
-    SqlParser parser = new SqlParser(url);
+    SqlParser parser = new SqlParser(url, query);
     parser.getSettings()
-        .setQuery(query)
         .remap("Title", "MyTitle")
         .remap("Name", "Artist");
 
     DataFrame df = parser.parse();
-    System.out.println(df);
+    System.out.println(df.get("Artist").valueCounts().sort(SortOrder.DESC));
 //    for (int i = 0; i < sort.rows(); i++) {
 //      System.out.println(sort.loc().getRecord(i));
 //    }

@@ -27,6 +27,8 @@ package org.briljantframework.data.index;
 import java.util.Comparator;
 
 /**
+ * Sort values of different types into individually sorted bins.
+ *
  * @author Isak Karlsson
  */
 public final class ObjectComparator implements Comparator<Object> {

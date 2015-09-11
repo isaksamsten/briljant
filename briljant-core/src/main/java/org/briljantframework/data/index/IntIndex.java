@@ -70,7 +70,7 @@ public final class IntIndex implements Index {
     Check.argument(from instanceof Integer && to instanceof Integer);
     int s = (int) from;
     int e = (int) to;
-    Check.argument(s >= 0 && e < size);
+    Check.argument(s >= 0 && e < size && s < e, "Illegal select");
     return new SelectSet(s, e);
   }
 
@@ -358,6 +358,16 @@ public final class IntIndex implements Index {
         if (size > currentSize) {
           currentSize = size;
         }
+      }
+    }
+
+    @Override
+    public void resize(int size) {
+      if (builder != null) {
+        initializeHashBuilder();
+        builder.resize(size);
+      } else {
+        currentSize = size;
       }
     }
 

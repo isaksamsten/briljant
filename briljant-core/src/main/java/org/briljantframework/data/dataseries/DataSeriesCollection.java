@@ -186,7 +186,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public Vector getRecordAt(int index) {
     Vector vector = series.get(index);
-    vector.setIndex(getColumnIndex());
+//    vector.setIndex(getColumnIndex());
     return vector; // TODO: rethink indexing?
   }
 

@@ -25,9 +25,9 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.ArrayUtils;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -113,6 +113,11 @@ class DoubleVector extends AbstractVector implements Transferable {
     double va = getAsDoubleAt(a);
     double vb = other.loc().getAsDouble(b);
     return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    return new DoubleVector(buffer, size, index);
   }
 
   @Override

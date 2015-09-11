@@ -24,6 +24,7 @@
 
 package org.briljantframework.data.dataframe;
 
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.AbstractVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -116,5 +117,12 @@ class RecordView extends AbstractVector {
   @Override
   public int compareAt(int a, Vector other, int b) {
     return getType().compare(a, this, b, other);
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    Vector vector = newCopyBuilder().build();
+    vector.setIndex(index);
+    return vector;
   }
 }

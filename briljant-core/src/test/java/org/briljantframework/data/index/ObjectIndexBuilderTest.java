@@ -22,43 +22,17 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.data.index;
 
-import org.briljantframework.data.SortOrder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.briljantframework.data.dataframe.ObjectIndex;
 
-public class VectorTest {
+/**
+ * Created by isak on 11/09/15.
+ */
+public class ObjectIndexBuilderTest extends IndexBuilderTest {
 
-  @Test
-  public void testHead() throws Exception {
-    Vector a = new TypeInferenceVectorBuilder()
-        .set("a", 10)
-        .set("b", 100)
-        .set("c", 1)
-        .set("d", 11)
-        .build();
-
-//    Vector head = a.head(2);
-    System.out.println(a);
-
-    System.out.println(a.sort(SortOrder.DESC));
-  }
-
-  @Test
-  public void testTestSort() throws Exception {
-    Vector a = new TypeInferenceVectorBuilder()
-        .set(40, 3)
-        .set(30, 2)
-        .set(20, 4)
-        .set(10, 1)
-        .build();
-
-    Vector v = a.sort(SortOrder.ASC);
-    System.out.println(v.asList(Object.class));
-    System.out.println(v);
-//    for (int i = 0; i < v.size(); i++) {
-//      Assert.assertEquals(i + 1, v.loc().getAsInt(i));
-//    }
+  @Override
+  Index.Builder getBuilder() {
+    return new ObjectIndex.Builder();
   }
 }

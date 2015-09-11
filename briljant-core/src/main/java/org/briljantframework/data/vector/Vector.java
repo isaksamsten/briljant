@@ -502,6 +502,8 @@ public interface Vector extends Serializable {
    */
   VectorType getType();
 
+  Vector copy();
+
   <T> List<T> asList(Class<T> cls);
 
   <T> Stream<T> stream(Class<T> cls);

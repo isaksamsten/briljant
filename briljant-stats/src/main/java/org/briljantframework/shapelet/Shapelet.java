@@ -24,6 +24,7 @@
 
 package org.briljantframework.shapelet;
 
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorView;
 
@@ -87,6 +88,13 @@ public class Shapelet extends VectorView {
   @Override
   protected String toStringAt(int index) {
     return parent.loc().toString(index);
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    Vector n = parent.copy();
+    n.setIndex(index);
+    return new Shapelet(start, length, n);
   }
 
   @Override

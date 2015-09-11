@@ -24,7 +24,9 @@
 
 package org.briljantframework.data.dataframe;
 
+import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
@@ -457,15 +459,17 @@ public abstract class DataFrameTest {
         .setRecord("f", Vector.of("A", "B", "C", "D"))
         .setColumnIndex("First", "Second", "Third")
         .build();
-//    System.out.println(df.sort(SortOrder.DESC,"Second"));
-    DataFrame x = DataFrames.permuteRecords(df);
-    x.getRecords().forEach(v -> System.out.println(v.getType()));
-    x.getColumns().forEach(v -> System.out.println(v.getType()));
+    System.out.println(df.sort(SortOrder.DESC,"Second"));
+
+
+//    DataFrame x = DataFrames.permuteRecords(df);
+//    x.getRecords().forEach(v -> System.out.println(v.getType()));
+//    x.getColumns().forEach(v -> System.out.println(v.getType()));
 //    df.getColumns().forEach(v -> System.out.println(v.getType()));
 
 //    df.sort(SortOrder.DESC);
-//    DataFrame selected = df.select("e", BoundType.EXCLUSIVE, "a", BoundType.INCLUSIVE);
-//    System.out.println(selected);
+    DataFrame selected = df.select("a", BoundType.EXCLUSIVE, "e", BoundType.INCLUSIVE);
+    System.out.println(selected);
   }
 
 }
