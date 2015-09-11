@@ -74,7 +74,7 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
 
   @Override
   public Array<T> asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseReferenceArray<T>(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseReferenceArray<>(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override

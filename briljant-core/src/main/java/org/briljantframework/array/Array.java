@@ -142,6 +142,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param to   the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToDouble(java.util.function.ToDoubleFunction)
    */
   DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from);
 
@@ -151,6 +152,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToDouble(java.util.function.ToDoubleFunction)
    */
   DoubleArray asDouble(ToDoubleFunction<? super T> to);
 
@@ -162,6 +164,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param to   the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToInt(java.util.function.ToIntFunction)
    */
   IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from);
 
@@ -171,6 +174,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToInt(java.util.function.ToIntFunction)
    */
   IntArray asInt(ToIntFunction<? super T> to);
 
@@ -182,6 +186,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param to   the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToLong(java.util.function.ToLongFunction)
    */
   LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from);
 
@@ -191,6 +196,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToLong(java.util.function.ToLongFunction)
    */
   LongArray asLong(ToLongFunction<? super T> to);
 
@@ -222,6 +228,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param to   the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToComplex(java.util.function.Function)
    */
   ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from);
 
@@ -231,6 +238,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToComplex(java.util.function.Function)
    */
   ComplexArray asComplex(Function<? super T, Complex> to);
 
