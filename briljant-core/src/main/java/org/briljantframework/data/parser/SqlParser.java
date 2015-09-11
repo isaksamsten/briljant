@@ -37,6 +37,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -48,6 +51,9 @@ public class SqlParser extends Parser {
   private String url;
   private String query;
   private final Properties properties = new Properties();
+  private List<Class<?>> types = null;
+  private List<Object> header = null;
+  private Map<String, Object> headerReMap = new HashMap<>();
 
   public SqlParser() {
   }
@@ -71,19 +77,36 @@ public class SqlParser extends Parser {
     Check.state(query != null, "No query provided");
 
     try {
-      Connection connection = DriverManager.getConnection(url);
+      Connection connection = DriverManager.getConnection(url, properties);
       PreparedStatement stmt = connection.prepareStatement(query);
       ResultSet resultSet = stmt.executeQuery();
       ObjectIndex.Builder index = new ObjectIndex.Builder();
 
-      ResultSetMetaData metaData = resultSet.getMetaData();
-      for (int i = 0; i < metaData.getColumnCount(); i++) {
-        index.add(metaData.getColumnLabel(i + 1)); // index starts with 1
+      if (header != null) {
+        header.forEach(index::add);
+      } else {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        for (int i = 0; i < metaData.getColumnCount(); i++) {
+          // index starts with 1
+          String columnLabel = metaData.getColumnLabel(i + 1);
+          Object remappedColumnLabel = headerReMap.get(columnLabel);
+          if (remappedColumnLabel != null) {
+            index.add(remappedColumnLabel);
+          } else {
+            index.add(columnLabel);
+          }
+        }
       }
 
       SqlEntryReader entryReader = new SqlEntryReader(resultSet);
       DataFrame.Builder builder = getBuilderFactory().get();
-      entryReader.getTypes().stream().map(VectorType::of).forEach(builder::add);
+      List<Class<?>> columnTypes;
+      if (types != null) {
+        columnTypes = types;
+      } else {
+        columnTypes = entryReader.getTypes();
+      }
+      columnTypes.stream().map(VectorType::of).forEach(builder::add);
       builder.readAll(entryReader);
       builder.setColumnIndex(index.build());
       return builder.build();
@@ -104,6 +127,26 @@ public class SqlParser extends Parser {
 
     public Settings setQuery(String query) {
       SqlParser.this.query = query;
+      return this;
+    }
+
+    public Settings setHeader(List<Object> header) {
+      SqlParser.this.header = header;
+      return this;
+    }
+
+    public Settings setHeader(Map<String, Object> map) {
+      headerReMap = map;
+      return this;
+    }
+
+    public Settings setTypes(List<Class<?>> types) {
+      SqlParser.this.types = types;
+      return this;
+    }
+
+    public Settings remap(String column, Object header) {
+      headerReMap.put(column, header);
       return this;
     }
 

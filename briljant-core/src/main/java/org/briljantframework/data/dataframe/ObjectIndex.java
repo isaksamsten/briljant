@@ -74,12 +74,12 @@ public final class ObjectIndex implements Index {
     this.locations = locations;
   }
 
-  public static ObjectIndex from(Vector vector) {
+  public static ObjectIndex of(Vector vector) {
     return create(vector.asList(Object.class));
   }
 
 
-  public static ObjectIndex create(Object... args) {
+  public static ObjectIndex of(Object... args) {
     return create(Arrays.asList(args));
   }
 

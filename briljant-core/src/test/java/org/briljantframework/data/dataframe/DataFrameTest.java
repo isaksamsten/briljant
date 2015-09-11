@@ -24,7 +24,6 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
@@ -54,7 +53,7 @@ public abstract class DataFrameTest {
         .add(first)
         .add(second)
         .build();
-    df.setColumnIndex(ObjectIndex.create("123", "abc"));
+    df.setColumnIndex(ObjectIndex.of("123", "abc"));
 
     int n = 3;
     DataFrame head = df.head(n);
@@ -77,7 +76,7 @@ public abstract class DataFrameTest {
         .add(a)
         .add(b)
         .build();
-    df.setColumnIndex(ObjectIndex.create("a", "b"));
+    df.setColumnIndex(ObjectIndex.of("a", "b"));
 
     DataFrame.Builder builder = df.newBuilder();
     for (int i = 0; i < df.rows(); i++) {
@@ -400,7 +399,7 @@ public abstract class DataFrameTest {
         .setRecord(LocalDate.parse("2011-03-10", format), Vector.of(11, 22, 33))
         .setRecord(LocalDate.parse("2011-03-11", format), Vector.of(11, 22, 33))
         .build();
-    df.setColumnIndex(ObjectIndex.create("A", "B", "C"));
+    df.setColumnIndex(ObjectIndex.of("A", "B", "C"));
 
     DataFrame sums = df.groupBy(v -> LocalDate.class.cast(v).getYear()).collect(Vector::sum);
     assertEquals(2, sums.rows());
@@ -443,23 +442,25 @@ public abstract class DataFrameTest {
     DataFrame actual = df.resetIndex();
     System.out.println(actual);
     assertEquals(Vector.of("a", "b", "c", "d", "e"), actual.get("index"));
-    assertEquals(Arrays.<Object>asList(0, 1, 2, 3, 4), actual.getRecordIndex().asList());
+    assertEquals(Arrays.<Object>asList(0, 1, 2, 3, 4), actual.getIndex().asList());
 
   }
 
   @Test
   public void testSelectRange() throws Exception {
     DataFrame df = getBuilder()
-        .setRecord("a", Vector.of(1, 2, 3))
-        .setRecord("c", Vector.of(1, 2, 3))
-        .setRecord("q", Vector.of(1, 2, 3))
-        .setRecord("e", Vector.of(1, 2, 3))
+        .setRecord("a", Vector.of(1, 44, 3))
+        .setRecord("c", Vector.of(1, 662, 3))
+        .setRecord("q", Vector.of(1, 3, 3))
+        .setRecord("e", Vector.of(1, 199, 3))
         .setColumnIndex("First", "Second", "Third")
         .build();
+    System.out.println(df.sort(SortOrder.DESC,"Second"));
 
-    df.sort(SortOrder.DESC);
-    DataFrame selected = df.select("e", BoundType.EXCLUSIVE, "a", BoundType.INCLUSIVE);
-    System.out.println(selected);
+
+//    df.sort(SortOrder.DESC);
+//    DataFrame selected = df.select("e", BoundType.EXCLUSIVE, "a", BoundType.INCLUSIVE);
+//    System.out.println(selected);
   }
 
 }

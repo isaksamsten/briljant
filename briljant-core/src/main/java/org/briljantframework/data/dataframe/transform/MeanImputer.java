@@ -47,7 +47,7 @@ public class MeanImputer implements Transformer {
       DataFrame.Builder df = x.newBuilder();
       for (Object colKey : x.getColumnIndex().keySet()) {
         Vector column = frame.get(colKey);
-        for (Object rowKey : x.getRecordIndex().keySet()) {
+        for (Object rowKey : x.getIndex().keySet()) {
           if (column.isNA(rowKey)) {
             df.set(rowKey, colKey, means, colKey);
           } else {

@@ -272,7 +272,7 @@ public abstract class VectorBuilderTest {
   @Test
   public void testGetSubVectorWithKeysUsingBitVector() throws Exception {
     Vector select = Vector.of(0, 1, 1, 0);
-    select.setIndex(ObjectIndex.create("a", "b", "c", "d"));
+    select.setIndex(ObjectIndex.of("a", "b", "c", "d"));
     List<Object> keys = Arrays.asList("a", "b", "c", "d");
 
     Vector.Builder builder = getBuilder();

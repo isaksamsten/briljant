@@ -77,7 +77,7 @@ public class JoinUtils {
    * @return a new join key
    */
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b) {
-    return createJoinKeys(a.getRecordIndex().asList(), b.getRecordIndex().asList());
+    return createJoinKeys(a.getIndex().asList(), b.getIndex().asList());
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> on) {

@@ -27,15 +27,15 @@ package org.briljantframework.data.vector;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
-import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.data.Collectors;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.sort.QuickSort;
 
 import java.io.IOException;
@@ -268,6 +268,11 @@ public abstract class AbstractVector implements Vector {
         .filter(bits::isTrue)
         .forEach(key -> builder.set(key, this, key));
     return builder.build();
+  }
+
+  @Override
+  public int compare(Object a, Object b) {
+    return compareAt(getIndex().getLocation(a), this, getIndex().getLocation(b));
   }
 
   @Override
@@ -774,7 +779,8 @@ public abstract class AbstractVector implements Vector {
      * NA} between {@code size()} and {@code index}
      *
      * <p> DO NOT: extend the index
-     *  @param i     the index
+     *
+     * @param i     the index
      * @param entry the data entry
      */
     protected abstract void readAt(int i, DataEntry entry);

@@ -24,8 +24,6 @@
 
 package org.briljantframework.data.parser;
 
-import org.briljantframework.data.Collectors;
-import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.junit.Test;
 
@@ -39,14 +37,13 @@ public class SqlParserTest {
     String query =
         "SELECT ab.Title, a.Name FROM Album AS ab, Artist AS a WHERE ab.ArtistId = a.ArtistId";
     SqlParser parser = new SqlParser(url);
-    parser.getSettings().setQuery(query);
+    parser.getSettings()
+        .setQuery(query)
+        .remap("Title", "MyTitle")
+        .remap("Name", "Artist");
 
     DataFrame df = parser.parse();
-    DataFrame sort = df.groupBy("Name")
-        .collect(Object.class, Collectors.count())
-        .sort(SortOrder.DESC, "Title");
-
-    System.out.println(sort);
+    System.out.println(df);
 //    for (int i = 0; i < sort.rows(); i++) {
 //      System.out.println(sort.loc().getRecord(i));
 //    }

@@ -42,12 +42,9 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * Utility methods for handling {@code DataFrame}s <p> Created by Isak Karlsson on 27/11/14.
@@ -148,7 +145,7 @@ public final class DataFrames {
 
   public static DataFrame.Builder staticRecordCopy(DataFrame df) {
     DataFrame.Builder builder = df.newBuilder();
-    for (Object recordKey : df.getRecordIndex().keySet()) {
+    for (Object recordKey : df.getIndex().keySet()) {
       // TODO: this will fuck-up when using views
       builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
     }
@@ -227,10 +224,10 @@ public final class DataFrames {
    * @return a tabular string representation
    */
   public static String toString(DataFrame df, int max) {
-    Index recordIndex = df.getRecordIndex();
+    Index index = df.getIndex();
     Index columnIndex = df.getColumnIndex();
 
-    int longestRecordValue = longestRecordValue(max, recordIndex);
+    int longestRecordValue = longestRecordValue(max, index);
     int[] longestColumnValue = longestColumnValues(df, max, columnIndex);
 
     StringBuilder builder = new StringBuilder();
@@ -249,7 +246,7 @@ public final class DataFrames {
     builder.append("\n");
 
     int records = 0;
-    for (Object recordKey : recordIndex.keySet()) {
+    for (Object recordKey : index.keySet()) {
       if (records++ > max) {
         break;
       }
@@ -294,8 +291,8 @@ public final class DataFrames {
         .toArray();
   }
 
-  protected static int longestRecordValue(int max, Index recordIndex) {
-    return recordIndex.keySet().stream()
+  protected static int longestRecordValue(int max, Index index) {
+    return index.keySet().stream()
                .limit(max)
                .map(Na::toString)
                .mapToInt(String::length)

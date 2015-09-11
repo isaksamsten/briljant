@@ -42,17 +42,17 @@ public class MeanImputerTest {
         Vector.of(3.0, 3, 3, Na.DOUBLE),
         Vector.of(Na.DOUBLE, 2, 2, Na.DOUBLE)
     );
-    ObjectIndex columnIndex = ObjectIndex.create("first", "second", "third");
-    ObjectIndex recordIndex = ObjectIndex.create("a", "b", "c", "d");
+    ObjectIndex columnIndex = ObjectIndex.of("first", "second", "third");
+    ObjectIndex index = ObjectIndex.of("a", "b", "c", "d");
     frame.setColumnIndex(columnIndex);
-    frame.setRecordIndex(recordIndex);
+    frame.setIndex(index);
 
     MeanImputer imputer = new MeanImputer();
     Transformation t = imputer.fit(frame);
     DataFrame imputed = t.transform(frame);
 
     assertEquals(columnIndex, imputed.getColumnIndex());
-    assertEquals(recordIndex, imputed.getRecordIndex());
+    assertEquals(index, imputed.getIndex());
     assertEquals(2, imputed.loc().getAsDouble(3, 0), 0.0);
   }
 }

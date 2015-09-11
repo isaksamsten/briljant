@@ -117,14 +117,14 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         }
       }
     }
-    Index.Builder recordIndex = dataFrame.getRecordIndex().newBuilder();
+    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
     for (int i = 0; i < size; i++) {
-      recordIndex.add(dataFrame.getRecordIndex().getKey(index.getAsInt(i)));
+      recordIndex.add(dataFrame.getIndex().getKey(index.getAsInt(i)));
     }
 
     DataFrame df = builder.build();
     df.setColumnIndex(dataFrame.getColumnIndex());
-    df.setRecordIndex(recordIndex.build());
+    df.setIndex(recordIndex.build());
     return df;
   }
 
@@ -183,7 +183,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public DataFrame apply(UnaryOperator<Vector> op) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    Index.Builder recordIndex = dataFrame.getRecordIndex().newBuilder();
+    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
     int row = 0;
     for (Vector index : groups.values()) {
       for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
@@ -199,14 +199,14 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       }
 
       for (int i = 0, size = index.size(); i < size; i++) {
-        recordIndex.add(dataFrame.getRecordIndex().getKey(index.loc().getAsInt(i)));
+        recordIndex.add(dataFrame.getIndex().getKey(index.loc().getAsInt(i)));
       }
       row += index.size();
     }
 
     DataFrame df = builder.build();
     df.setColumnIndex(dataFrame.getColumnIndex());
-    df.setRecordIndex(recordIndex.build());
+    df.setIndex(recordIndex.build());
     return df;
   }
 }

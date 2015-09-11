@@ -486,6 +486,8 @@ public interface Vector extends Serializable {
 
   Vector select(Vector bits);
 
+  int compare(Object a, Object b);
+
   /**
    * Returns the size of the vector
    *

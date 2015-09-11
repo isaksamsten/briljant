@@ -130,10 +130,10 @@ public class MixedDataFrame extends AbstractDataFrame {
     this.rows = rows;
   }
 
-  private MixedDataFrame(List<Vector> columns, int rows, Index columnIndex, Index recordIndex) {
-    super(columnIndex, recordIndex);
+  private MixedDataFrame(List<Vector> columns, int rows, Index columnIndex, Index index) {
+    super(columnIndex, index);
     Check.argument(columns.size() == columnIndex.size());
-    Check.argument(recordIndex.size() == rows);
+    Check.argument(index.size() == rows);
     this.columns = columns;
     this.rows = rows;
   }
@@ -225,6 +225,11 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
+  protected DataFrame shallowCopy(Index columnIndex, Index index) {
+    return new MixedDataFrame(columns, rows, columnIndex, index);
+  }
+
+  @Override
   public VectorType getTypeAt(int index) {
     return columns.get(index).getType();
   }
@@ -265,7 +270,7 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   public Vector getAt(int index) {
     Vector vector = columns.get(index);
-    vector.setIndex(getRecordIndex());
+    vector.setIndex(getIndex());
     return vector;
   }
 
@@ -471,7 +476,7 @@ public class MixedDataFrame extends AbstractDataFrame {
           vectors,
           rows,
           getColumnIndex(columns()),
-          getRecordIndex(rows)
+          getIndex(rows)
       );
       buffers = null;
       return df;

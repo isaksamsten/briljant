@@ -25,11 +25,11 @@
 package org.briljantframework.data.dataseries;
 
 import org.briljantframework.Check;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.AbstractDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.Na;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
@@ -60,13 +60,13 @@ public class DataSeriesCollection extends AbstractDataFrame {
   private final int columns;
 
   private DataSeriesCollection(
-      ArrayList<Vector> series,
+      List<Vector> series,
       VectorType type,
       int columns,
       Index columnIndex,
-      Index recordIndex) {
-    super(columnIndex, recordIndex);
-    Check.argument(series.size() == recordIndex.size());
+      Index index) {
+    super(columnIndex, index);
+    Check.argument(series.size() == index.size());
     Check.argument(columnIndex.size() == columns);
     this.series = series;
     this.type = type;
@@ -124,6 +124,11 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public boolean isNaAt(int row, int column) {
     return series.get(row).loc().isNA(column);
+  }
+
+  @Override
+  protected DataFrame shallowCopy(Index columnIndex, Index index) {
+    return new DataSeriesCollection(series, type, columns, columnIndex, index);
   }
 
   @Override
@@ -307,9 +312,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
       ArrayList<Vector> series = builders.stream()
           .map(Vector.Builder::getTemporaryVector)
           .collect(Collectors.toCollection(ArrayList::new));
-      Index recordIndex = getRecordIndex(rows());
+      Index index = getIndex(rows());
       Index columnIndex = getColumnIndex(columns);
-      return new DataSeriesCollection(series, type, columns, columnIndex, recordIndex) {
+      return new DataSeriesCollection(series, type, columns, columnIndex, index) {
         @Override
         public Builder newCopyBuilder() {
           return Builder.this;
@@ -327,7 +332,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
           type,
           columns,
           getColumnIndex(columns),
-          getRecordIndex(rows())
+          getIndex(rows())
       );
       builders = null;
       return collection;

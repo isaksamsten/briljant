@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -453,21 +452,28 @@ public final class Vectors {
                                                         vector.loc().getAsDouble(o2)));
   }
 
+  public interface IntCmp {
+
+    int compare(int a, int b);
+  }
+
   /**
    * @param vector     the vector
    * @param comparator the comparator
    * @return the indexes of {@code vector} sorted according to {@code comparator} by value
    */
-  public static int[] indexSort(Vector vector, Comparator<Integer> comparator) {
+  public static int[] indexSort(Vector vector, IntCmp comparator) {
     int[] indicies = new int[vector.size()];
     for (int i = 0; i < indicies.length; i++) {
       indicies[i] = i;
     }
-    QuickSort.quickSort(0, indicies.length, comparator::compare, (a, b) -> {
-      int tmp = indicies[a];
-      indicies[a] = indicies[b];
-      indicies[b] = tmp;
-    });
+    QuickSort.quickSort(0, indicies.length,
+                        (a, b) -> comparator.compare(indicies[a], indicies[b]),
+                        (a, b) -> {
+                          int tmp = indicies[a];
+                          indicies[a] = indicies[b];
+                          indicies[b] = tmp;
+                        });
     return indicies;
   }
 

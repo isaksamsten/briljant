@@ -81,7 +81,7 @@ public class RemoveIncompleteColumns implements Transformation {
 
     DataFrame df = builder.build();
     if (df.rows() > 0 && df.columns() > 0) {
-      df.setRecordIndex(x.getRecordIndex());
+      df.setIndex(x.getIndex());
     }
     return df;
   }

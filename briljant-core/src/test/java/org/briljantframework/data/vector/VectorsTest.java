@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,6 +40,17 @@ public class VectorsTest {
 
   private Vector vec6;
   private Vector vec8;
+
+  @Test
+  public void testIndexSort() throws Exception {
+    Vector v = Vector.of(10, 23, 5, 31, 0);
+    int[] order = Vectors.indexSort(v);
+    System.out.println(Arrays.toString(order));
+    for (int i : order) {
+      System.out.println(v.loc().getAsDouble(i));
+    }
+
+  }
 
   @Before
   public void setUp() throws Exception {

@@ -27,17 +27,16 @@ package org.briljantframework.data.dataframe;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
-import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.index.DataFrameLocationGetter;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.function.BinaryOperator;
@@ -49,24 +48,47 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * <p> A DataFrame is a heterogeneous storage of data. </p>
+ * A DataFrame is a 2-dimensional storage of data consisting of (index) <em>columns</em> and
+ * <em>rows</em>.
  *
  * @author Isak Karlsson
  */
 public interface DataFrame extends Iterable<Object> {
 
-  void sort(SortOrder order);
-
-  void sort(Comparator<Object> comparator);
+  /**
+   * Return a <em>shallow copy</em> of the data frame with the index sorted in the specified order.
+   *
+   * <p/> For example,
+   * <pre>{@code
+   * DataFrame df = MixedDataFrame.of(
+   *    "a", Vector.of(3,2,1),
+   *    "b", Vector.of(2,9,0));
+   * df.setIndex(ObjectIndex.of("F", "Q", "A"));
+   * df.sort(SortOrder.ASC);
+   * }</pre>
+   *
+   * produces
+   * <pre>
+   *    a  b
+   * A  1  0
+   * F  3  2
+   * Q  2  9
+   * </pre>
+   *
+   * @param order the sort order
+   * @return a shallow copy
+   */
+  DataFrame sort(SortOrder order);
 
   /**
-   * Sort the data frame in the order specified by {@code order} using the specified column.
+   * Return a <em>shallow copy</em> of the data frame with the index sorted in the order
+   * specified by the supplied {@link Comparator}.
    *
-   * @param order the order
-   * @param key   the column
-   * @return a new sorted data frame
+   * @param comparator the comparator
+   * @return a shallow copy
+   * @see #sort(org.briljantframework.data.SortOrder)
    */
-  DataFrame sort(SortOrder order, Object key);
+  DataFrame sort(Comparator<Object> comparator);
 
   /**
    * Equivalent to {@code sort(SortOrder.ASC, key)}
@@ -76,7 +98,23 @@ public interface DataFrame extends Iterable<Object> {
   DataFrame sort(Object key);
 
   /**
-   * Sort the data frame according to the comparator and the vector at the specified position.
+   * Return a <em>shallow copy</em> of the data frame sorted in the order specified using the
+   * values
+   * of the specified column.
+   *
+   * <p/> Generally, the index is sorted which makes the iteration order of {@linkplain
+   * #getIndex()} sorted by the values in the specified column but leaves the values in
+   * their original order. Hence, the location of rows are unchanged.
+   *
+   * @param order the order
+   * @param key   the column
+   * @return a new sorted data frame
+   */
+  DataFrame sort(SortOrder order, Object key);
+
+  /**
+   * Return a <em>shallow copy</em> of the data frame sorted according to the values and the
+   * comparator in the specified column.
    *
    * @param cls the type of values to sort on
    * @param cmp the comparator
@@ -369,11 +407,11 @@ public interface DataFrame extends Iterable<Object> {
 
   DataFrame resetIndex();
 
-  Index getRecordIndex();
+  Index getIndex();
 
   Index getColumnIndex();
 
-  void setRecordIndex(Index index);
+  void setIndex(Index index);
 
   void setColumnIndex(Index index);
 
@@ -471,19 +509,20 @@ public interface DataFrame extends Iterable<Object> {
     Builder removeRecord(Object key);
 
     default Builder setColumnIndex(Object... keys) {
-      return setColumnIndex(ObjectIndex.create(keys));
+      return setColumnIndex(ObjectIndex.of(keys));
     }
 
     Builder setColumnIndex(Index columnIndex);
 
-    default Builder setRecordIndex(Object... keys) {
-      return setRecordIndex(ObjectIndex.create(keys));
+    default Builder setIndex(Object... keys) {
+      return setIndex(ObjectIndex.of(keys));
     }
 
-    Builder setRecordIndex(Index recordIndex);
+    Builder setIndex(Index index);
 
     /**
-     * Read all records ({@linkplain org.briljantframework.data.reader.DataEntry}) from the supplied
+     * Read all records ({@linkplain org.briljantframework.data.reader.DataEntry}) from the
+     * supplied
      * reader.
      *
      * @param entryReader the entry reader

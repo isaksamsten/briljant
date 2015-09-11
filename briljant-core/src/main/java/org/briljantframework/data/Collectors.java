@@ -326,7 +326,7 @@ public final class Collectors {
           v.getMax(),
           v.getN()
       );
-      summary.setIndex(ObjectIndex.create(
+      summary.setIndex(ObjectIndex.of(
           "mean",
           "sum",
           "std",

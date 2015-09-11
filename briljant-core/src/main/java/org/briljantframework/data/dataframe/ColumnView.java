@@ -42,7 +42,7 @@ class ColumnView extends AbstractVector {
   private DataFrameLocationGetter locationGetter;
 
   public ColumnView(DataFrame parent, VectorType type, int column) {
-    super(parent.getRecordIndex());
+    super(parent.getIndex());
     locationGetter = parent.loc();
     this.parent = parent;
     this.type = type;
