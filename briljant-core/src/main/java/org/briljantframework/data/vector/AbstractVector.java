@@ -24,6 +24,8 @@
 
 package org.briljantframework.data.vector;
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
@@ -36,7 +38,6 @@ import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.exceptions.IllegalTypeException;
-import org.briljantframework.sort.QuickSort;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -133,40 +134,26 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public Vector sort(SortOrder order) {
-    if (getIndex() instanceof IntIndex && order == SortOrder.ASC) {
-      return this;
-    }
+//    if (getIndex() instanceof IntIndex && order == SortOrder.ASC) {
+//      return this;
+//    }
 
-    int o = order == SortOrder.DESC ? -1 : 1;
+    IntComparator cmp = order == SortOrder.ASC ? loc()::compare : (a, b) -> loc().compare(b, a);
     Index.Builder index = getIndex().newCopyBuilder();
-    QuickSort.quickSort(
-        0,
-        index.size(),
-        (a, b) -> o * compare(index.getKey(a), index.getKey(b)),
-        index::swap
-    );
+    index.sortOrder(cmp);
     return shallowCopy(index.build());
   }
 
   @Override
   public <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
     Index.Builder index = getIndex().newCopyBuilder();
-    QuickSort.quickSort(
-        0,
-        index.size(),
-        (a, b) -> cmp.compare(get(cls, index.getKey(a)), get(cls, index.getKey(b))),
-        index::swap
-    );
+    VectorLocationGetter loc = loc();
+    index.sortOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return shallowCopy(index.build());
   }
 
   @Override
   public <T extends Comparable<T>> Vector sort(Class<T> cls) {
-//    Vector.Builder b = newCopyBuilder();
-//    VectorLocationGetter t = b.getTemporaryVector().loc();
-//    VectorLocationSetter set = b.loc();
-//
-//    QuickSort.quickSort(0, b.size(), (i, j) -> t.get(cls, i).compareTo(t.get(cls, j)), set::swap);
     return sort(cls, Comparable::compareTo);
   }
 

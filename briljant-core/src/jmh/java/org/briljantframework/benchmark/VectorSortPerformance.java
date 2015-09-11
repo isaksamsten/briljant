@@ -22,43 +22,37 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.benchmark;
 
+import org.apache.commons.math3.random.UniformRandomGenerator;
+import org.apache.commons.math3.random.Well1024a;
 import org.briljantframework.data.SortOrder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.briljantframework.data.vector.Vector;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
 
-public class VectorTest {
+/**
+ * Created by isak on 11/09/15.
+ */
+@State(Scope.Benchmark)
+public class VectorSortPerformance {
 
-  @Test
-  public void testHead() throws Exception {
-    Vector a = new TypeInferenceVectorBuilder()
-        .set("a", 10)
-        .set("b", 100)
-        .set("c", 1)
-        .set("d", 11)
-        .build();
+  private Vector vector;
 
-//    Vector head = a.head(2);
-    System.out.println(a);
-
-    System.out.println(a.sort(SortOrder.DESC));
+  @Setup
+  public void setupDataFrame() {
+    Vector.Builder builder = Vector.Builder.of(Double.class);
+    UniformRandomGenerator gen = new UniformRandomGenerator(new Well1024a());
+    for (int i = 0; i < 1000_000; i++) {
+      builder.add(gen.nextNormalizedDouble());
+    }
+    vector = builder.build();
   }
 
-  @Test
-  public void testTestSort() throws Exception {
-    Vector a = new TypeInferenceVectorBuilder()
-        .set(40, 3)
-        .set(30, 2)
-        .set(20, 4)
-        .set(10, 1)
-        .build();
-
-    Vector v = a.sort(SortOrder.DESC);
-    System.out.println(v.asList(Object.class));
-    System.out.println(v);
-//    for (int i = 0; i < v.size(); i++) {
-//      Assert.assertEquals(i + 1, v.loc().getAsInt(i));
-//    }
+  @Benchmark
+  public Object sortPerformance() {
+    return vector.sort(SortOrder.ASC);
   }
 }

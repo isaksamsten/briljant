@@ -24,7 +24,8 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.data.BoundType;
+import org.apache.commons.math3.random.UniformRandomGenerator;
+import org.apache.commons.math3.random.Well1024a;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
@@ -451,16 +452,33 @@ public abstract class DataFrameTest {
 
   @Test
   public void testSelectRange() throws Exception {
-    DataFrame df = getBuilder()
-        .setRecord("a", Vector.of(1, 44, 3))
-        .setRecord("c", Vector.of(1, 662, 3))
-        .setRecord("q", Vector.of(1, 3, 3))
-        .setRecord("e", Vector.of(1, 199, 3))
-        .setRecord("f", Vector.of("A", "B", "C", "D"))
-        .setColumnIndex("First", "Second", "Third")
-        .build();
-    System.out.println(df.sort(SortOrder.DESC,"Second"));
+    DataFrame.Builder builder = getBuilder();
+    UniformRandomGenerator gen = new UniformRandomGenerator(new Well1024a());
+    for (int i = 0; i < 100000; i++) {
+      builder.setRecord(String.valueOf(i), Vector.of(gen.nextNormalizedDouble(), i, 20.0, 30.0));
+    }
+    builder.setColumnIndex("First", "Second", "Third", "Fourth");
+    DataFrame df = builder.build();
 
+//        .setRecord("a", Vector.of(1, 44, 3))
+//        .setRecord("c", Vector.of(1, 662, 3))
+//        .setRecord("q", Vector.of(1, 3, 3))
+//        .setRecord("e", Vector.of(1, 199, 3))
+//        .setRecord("f", Vector.of("A", "B", "C", "D"))
+//        .setColumnIndex("First", "Second", "Third")
+//        .build();
+
+    double best = Double.POSITIVE_INFINITY;
+    for (int i = 0; i < 100; i++) {
+      long start = System.nanoTime();
+      DataFrame sorted = df.sort(SortOrder.DESC, "First");
+      double time = (System.nanoTime() - start) / 1e6;
+      if(time < best) {
+        best = time;
+      }
+    }
+    System.out.println(best);
+//    System.out.println(sorted);
 
 //    DataFrame x = DataFrames.permuteRecords(df);
 //    x.getRecords().forEach(v -> System.out.println(v.getType()));
@@ -468,8 +486,8 @@ public abstract class DataFrameTest {
 //    df.getColumns().forEach(v -> System.out.println(v.getType()));
 
 //    df.sort(SortOrder.DESC);
-    DataFrame selected = df.select("a", BoundType.EXCLUSIVE, "e", BoundType.INCLUSIVE);
-    System.out.println(selected);
+//    DataFrame selected = df.select("a", BoundType.INCLUSIVE, "e", BoundType.INCLUSIVE);
+//    System.out.println(selected);
   }
 
 }

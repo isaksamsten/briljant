@@ -295,12 +295,23 @@ public final class DataFrames {
         .map(df::get)
         .mapToInt(v -> {
           int longest = 0;
-          for (int i = 0, size = v.size(); i < size && i < max; i++) {
-            int length = v.loc().toString(i).length();
+          int i = 0;
+          for (Object recordKey : df.getIndex().keySet()) {
+            if (i++ > max) {
+              break;
+            }
+            int length = v.toString(recordKey).length();
             if (length > longest) {
               longest = length;
             }
+
           }
+//          for (int i = 0, size = v.size(); i < size && i < max; i++) {
+//            int length = v.loc().toString(i).length();
+//            if (length > longest) {
+//              longest = length;
+//            }
+//          }
           return longest + 2;
         })
         .toArray();

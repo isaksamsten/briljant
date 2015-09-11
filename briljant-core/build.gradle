@@ -16,6 +16,7 @@ apply plugin: "groovy"
 
 jmh {
   jmhVersion = '1.10.5'
+  include = 'VectorSort*'
   iterations = 4
   batchSize = 1
   fork = 2
@@ -41,6 +42,7 @@ dependencies {
   compile group: 'com.github.fommil.netlib', name: 'all', version: '1.1.2'
   compile group: 'org.apache.commons', name: 'commons-math3', version: '3.5'
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+  compile group: 'net.mintern', name: 'primitive', version: '1.2.1'
 
   compile group: 'com.univocity', name: 'univocity-parsers', version: '1.4.0'
 

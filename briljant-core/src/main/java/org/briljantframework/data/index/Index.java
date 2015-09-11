@@ -24,6 +24,8 @@
 
 package org.briljantframework.data.index;
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.briljantframework.data.BoundType;
 import org.briljantframework.sort.Swappable;
 
@@ -161,5 +163,7 @@ public interface Index {
     int size();
 
     void remove(int index);
+
+    void sortOrder(IntComparator cmp);
   }
 }

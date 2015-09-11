@@ -48,6 +48,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: org.openjdk.jmh:jmh-generator-annprocess:1.10.5" level="project" />
     <orderEntry type="library" exported="" name="Gradle: org.apache.commons:commons-lang3:3.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.xerial:sqlite-jdbc:3.8.11" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: net.mintern:primitive:1.2.1" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

@@ -25,6 +25,8 @@
 package org.briljantframework.data.index;
 
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.briljantframework.Check;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.dataframe.ObjectIndex;
@@ -397,6 +399,11 @@ public final class IntIndex implements Index {
     public void remove(int index) {
       initializeHashBuilder();
       builder.remove(index);
+    }
+
+    @Override
+    public void sortOrder(IntComparator cmp) {
+
     }
   }
 

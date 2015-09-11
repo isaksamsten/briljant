@@ -24,6 +24,8 @@
 
 package org.briljantframework.data.dataframe;
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
@@ -46,7 +48,6 @@ import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.sort.QuickSort;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -109,26 +110,19 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
-    Vector column = get(key);
+    VectorLocationGetter loc = get(key).loc();
     Index.Builder index = getIndex().newCopyBuilder();
-    QuickSort.quickSort(
-        0, index.size(),
-        (a, b) -> cmp.compare(column.get(cls, index.getKey(a)),
-                              column.get(cls, index.getKey(b))),
-        index::swap);
+    index.sortOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return shallowCopy(getColumnIndex(), index.build());
   }
 
   @Override
   public final DataFrame sort(SortOrder order, Object key) {
-    Vector column = get(key);
+    VectorLocationGetter loc = get(key).loc();
+    boolean asc = order == SortOrder.ASC;
+    IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
     Index.Builder index = getIndex().newCopyBuilder();
-
-    // Sort the record index based on the values in the comparator
-    QuickSort.quickSort(0, index.size(), (a, b) -> {
-      int cmp = column.compare(index.getKey(a), index.getKey(b));
-      return order == SortOrder.ASC ? cmp : -cmp;
-    }, index::swap);
+    index.sortOrder(cmp);
     return shallowCopy(getColumnIndex(), index.build());
   }
 

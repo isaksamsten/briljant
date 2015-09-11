@@ -27,6 +27,7 @@ package org.briljantframework.benchmark;
 import org.briljantframework.data.vector.Vector;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import java.util.List;
  * Created by isak on 09/09/15.
  */
 @State(Scope.Benchmark)
-public class VectorPerf {
+public class VectorBuilderAddPerformance {
 
   private static final int iterations = 10000;
 
