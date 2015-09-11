@@ -32,7 +32,7 @@ import org.briljantframework.distance.Distance;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
@@ -71,7 +71,7 @@ public class RandomShapeletForest extends Ensemble {
     Vector classes = Vectors.unique(y);
     ClassSet classSet = new ClassSet(y, classes);
     List<FitTask> tasks = new ArrayList<>();
-    BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
+    BooleanArray oobIndicator = Bj.booleanArray(x.rows(), size());
     for (int i = 0; i < size(); i++) {
       tasks.add(new FitTask(classSet, x, y, builder, classes, oobIndicator.getColumn(i)));
     }
@@ -114,11 +114,11 @@ public class RandomShapeletForest extends Ensemble {
     private final Vector y;
     private final Vector classes;
     private final ShapeletTree.Builder builder;
-    private final BitArray oobIndicator;
+    private final BooleanArray oobIndicator;
 
 
     private FitTask(ClassSet classSet, DataFrame x, Vector y, ShapeletTree.Builder builder,
-                    Vector classes, BitArray oobIndicator) {
+                    Vector classes, BooleanArray oobIndicator) {
       this.classSet = classSet;
       this.x = x;
       this.y = y;
@@ -176,7 +176,7 @@ public class RandomShapeletForest extends Ensemble {
     public Predictor(
         Vector classes, DoubleArray apriori,
         List<? extends org.briljantframework.classification.Predictor> members,
-        DoubleArray lengthImportance, DoubleArray positionImportance, BitArray oobIndicator) {
+        DoubleArray lengthImportance, DoubleArray positionImportance, BooleanArray oobIndicator) {
       super(classes, members, oobIndicator);
       this.lengthImportance = lengthImportance;
       this.positionImportance = positionImportance;

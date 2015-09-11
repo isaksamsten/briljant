@@ -289,8 +289,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray satisfies(LongPredicate predicate) {
-    BitArray bits = bj.booleanArray();
+  public BooleanArray satisfies(LongPredicate predicate) {
+    BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -298,9 +298,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray satisfies(LongArray matrix, LongBiPredicate predicate) {
+  public BooleanArray satisfies(LongArray matrix, LongBiPredicate predicate) {
     Check.shape(this, matrix);
-    BitArray bits = bj.booleanArray();
+    BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
     }
@@ -350,8 +350,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray asBit() {
-    return new AsBitArray(
+  public BooleanArray asBoolean() {
+    return new AsBooleanArray(
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
@@ -635,9 +635,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray lt(LongArray other) {
+  public BooleanArray lt(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) < other.get(i));
@@ -646,9 +646,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray gt(LongArray other) {
+  public BooleanArray gt(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) > other.get(i));
@@ -657,9 +657,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray eq(LongArray other) {
+  public BooleanArray eq(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) == other.get(i));
@@ -668,9 +668,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray lte(LongArray other) {
+  public BooleanArray lte(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) <= other.get(i));
@@ -679,9 +679,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BitArray gte(LongArray other) {
+  public BooleanArray gte(LongArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) >= other.get(i));
@@ -767,7 +767,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray slice(BitArray bits) {
+  public LongArray slice(BooleanArray bits) {
     Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {

@@ -209,7 +209,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param from the function to apply to the argument when setting
    * @return an array view
    */
-  BitArray asBit(Function<? super T, Boolean> to, Function<Boolean, T> from);
+  BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from);
 
   /**
    * Return a view of this array consisting of the results of lazily (i.e. when accessing the
@@ -218,7 +218,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param to the function to apply to each element
    * @return an array view
    */
-  BitArray asBit(Function<? super T, Boolean> to);
+  BooleanArray asBoolean(Function<? super T, Boolean> to);
 
   /**
    * Return a view of this array consisting of the results of lazily
@@ -267,7 +267,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param predicate the predicate to apply to each element to determine the
    * @return a new array
    */
-  BitArray satisfies(Predicate<T> predicate);
+  BooleanArray satisfies(Predicate<T> predicate);
 
   /**
    * Return an array of the same shape consisting of the the value of the given predicate after
@@ -286,7 +286,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * @param predicate the predicate to apply to each pair of elements
    * @return a new array
    */
-  BitArray satisfies(Array<T> other, BiPredicate<T, T> predicate);
+  BooleanArray satisfies(Array<T> other, BiPredicate<T, T> predicate);
 
   T reduce(T initial, BinaryOperator<T> accumulator);
 

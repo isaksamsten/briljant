@@ -85,7 +85,7 @@ public final class ArrayPrinter {
     print(out, new DoubleToStringArray(matrix, floatFormat), "[", "]");
   }
 
-  public static void print(BitArray matrix) {
+  public static void print(BooleanArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -93,7 +93,7 @@ public final class ArrayPrinter {
     }
   }
 
-  public static void print(Appendable out, BitArray matrix) throws IOException {
+  public static void print(Appendable out, BooleanArray matrix) throws IOException {
     print(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
   }
 

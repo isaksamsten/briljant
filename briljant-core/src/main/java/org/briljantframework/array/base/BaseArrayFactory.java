@@ -26,7 +26,7 @@ package org.briljantframework.array.base;
 
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
@@ -134,13 +134,13 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public BitArray array(boolean[][] data) {
+  public BooleanArray array(boolean[][] data) {
     return null;
   }
 
   @Override
-  public BitArray array(boolean[] data) {
-    return new BaseBitArray(this, data);
+  public BooleanArray array(boolean[] data) {
+    return new BaseBooleanArray(this, data);
   }
 
   @Override
@@ -164,8 +164,8 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public BitArray booleanArray(int... shape) {
-    return new BaseBitArray(this, shape);
+  public BooleanArray booleanArray(int... shape) {
+    return new BaseBooleanArray(this, shape);
   }
 
   @Override

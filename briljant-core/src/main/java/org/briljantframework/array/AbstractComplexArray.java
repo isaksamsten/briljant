@@ -313,17 +313,17 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public BitArray satisfies(Predicate<Complex> predicate) {
-    BitArray bits = bj.booleanArray(getShape());
+  public BooleanArray satisfies(Predicate<Complex> predicate) {
+    BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
     return bits;
   }
 
-  public BitArray satisfies(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
+  public BooleanArray satisfies(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BitArray bits = bj.booleanArray(getShape());
+    BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -364,27 +364,27 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
 
   @Override
-  public BitArray lt(ComplexArray other) {
+  public BooleanArray lt(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray gt(ComplexArray other) {
+  public BooleanArray gt(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray eq(ComplexArray other) {
+  public BooleanArray eq(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray lte(ComplexArray other) {
+  public BooleanArray lte(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray gte(ComplexArray other) {
+  public BooleanArray gte(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
@@ -468,8 +468,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public BitArray asBit() {
-    return new AsBitArray(
+  public BooleanArray asBoolean() {
+    return new AsBooleanArray(
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
@@ -549,7 +549,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray slice(BitArray bits) {
+  public ComplexArray slice(BooleanArray bits) {
     Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {

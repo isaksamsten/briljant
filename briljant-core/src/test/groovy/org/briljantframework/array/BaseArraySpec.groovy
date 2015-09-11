@@ -484,7 +484,7 @@ class BaseArraySpec extends Specification {
 
   def getRangeArrays(int length) {
     return [
-        bj.range(length).asBit().copy(),
+        bj.range(length).asBoolean().copy(),
         bj.range(length).asInt().copy(),
         bj.range(length).asDouble().copy(),
         bj.range(length).asLong().copy(),

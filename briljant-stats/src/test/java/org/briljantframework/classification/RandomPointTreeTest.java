@@ -25,18 +25,12 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.DataFrames;
-import org.briljantframework.data.dataseries.DataSeriesCollection;
-import org.briljantframework.data.vector.Convert;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.evaluation.HoldoutValidator;
-import org.briljantframework.evaluation.result.Result;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -55,7 +49,7 @@ public class RandomPointTreeTest {
         Vector classes = Vectors.unique(y);
         ClassSet classSet = new ClassSet(y, classes);
         List<FitTask> fitTasks = new ArrayList<>();
-        BitArray oobIndicator = Bj.booleanArray(x.rows(), size());
+        BooleanArray oobIndicator = Bj.booleanArray(x.rows(), size());
         for (int i = 0; i < size(); i++) {
           fitTasks.add(new FitTask(classSet, x, y, classes, oobIndicator.getColumn(i)));
         }
@@ -73,10 +67,10 @@ public class RandomPointTreeTest {
         private final DataFrame x;
         private final Vector y;
         private final Vector classes;
-        private final BitArray oobIndicator;
+        private final BooleanArray oobIndicator;
 
         private FitTask(ClassSet classSet, DataFrame x, Vector y, Vector classes,
-                        BitArray oobIndicator) {
+                        BooleanArray oobIndicator) {
           this.classSet = classSet;
           this.x = x;
           this.y = y;

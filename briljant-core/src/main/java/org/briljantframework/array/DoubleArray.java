@@ -193,9 +193,9 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   DoubleArray filter(DoublePredicate predicate);
 
-  BitArray satisfies(DoublePredicate predicate);
+  BooleanArray satisfies(DoublePredicate predicate);
 
-  BitArray satisfies(DoubleArray matrix, DoubleBiPredicate predicate);
+  BooleanArray satisfies(DoubleArray matrix, DoubleBiPredicate predicate);
 
   void forEach(DoubleConsumer consumer);
 

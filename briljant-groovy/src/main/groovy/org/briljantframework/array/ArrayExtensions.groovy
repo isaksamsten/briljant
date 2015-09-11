@@ -39,7 +39,7 @@ class ArrayExtensions {
       case IntArray: return cls.cast(self.asInt())
       case LongArray: return cls.cast(self.asLong())
       case ComplexArray: return cls.cast(self.asLong())
-      case BitArray: return cls.cast(self.asBit())
+      case BooleanArray: return cls.cast(self.asBoolean())
       default:
         throw new ClassCastException("Can't convert ${self.getClass()} to $cls")
     }

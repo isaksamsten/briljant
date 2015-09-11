@@ -123,9 +123,9 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   ComplexArray mapToComplex(LongFunction<Complex> map);
 
-  BitArray satisfies(LongPredicate predicate);
+  BooleanArray satisfies(LongPredicate predicate);
 
-  BitArray satisfies(LongArray matrix, LongBiPredicate predicate);
+  BooleanArray satisfies(LongArray matrix, LongBiPredicate predicate);
 
   long reduce(long identity, LongBinaryOperator reduce);
 

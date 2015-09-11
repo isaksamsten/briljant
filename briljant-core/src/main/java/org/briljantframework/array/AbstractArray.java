@@ -83,7 +83,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public Array<T> slice(BitArray bits) {
+  public Array<T> slice(BooleanArray bits) {
     return null;
   }
 
@@ -192,13 +192,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   @SuppressWarnings("unchecked")
-  public BitArray asBit() {
-    return asBit(v -> (Boolean) v, v -> (T) v);
+  public BooleanArray asBoolean() {
+    return asBoolean(v -> (Boolean) v, v -> (T) v);
   }
 
   @Override
-  public BitArray asBit(Function<? super T, Boolean> to, Function<Boolean, T> from) {
-    return new AsBitArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+  public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
                           getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, boolean value) {
@@ -218,8 +218,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray asBit(Function<? super T, Boolean> to) {
-    return asBit(to, v -> {
+  public BooleanArray asBoolean(Function<? super T, Boolean> to) {
+    return asBoolean(to, v -> {
       throw new UnsupportedOperationException();
     });
   }
@@ -285,27 +285,27 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray lt(Array<T> other) {
+  public BooleanArray lt(Array<T> other) {
     return satisfies(other, (a, b) -> comparator.compare(a, b) < 0);
   }
 
   @Override
-  public BitArray gt(Array<T> other) {
+  public BooleanArray gt(Array<T> other) {
     return satisfies(other, (a, b) -> comparator.compare(a, b) > 0);
   }
 
   @Override
-  public BitArray eq(Array<T> other) {
+  public BooleanArray eq(Array<T> other) {
     return satisfies(other, Object::equals);
   }
 
   @Override
-  public BitArray lte(Array<T> other) {
+  public BooleanArray lte(Array<T> other) {
     return satisfies(other, (a, b) -> comparator.compare(a, b) <= 0);
   }
 
   @Override
-  public BitArray gte(Array<T> other) {
+  public BooleanArray gte(Array<T> other) {
     return satisfies(other, (a, b) -> comparator.compare(a, b) >= 0);
   }
 
@@ -400,8 +400,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray satisfies(Predicate<T> predicate) {
-    BitArray array = getArrayFactory().booleanArray(getShape());
+  public BooleanArray satisfies(Predicate<T> predicate) {
+    BooleanArray array = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i)));
     }
@@ -409,9 +409,9 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray satisfies(Array<T> other, BiPredicate<T, T> predicate) {
+  public BooleanArray satisfies(Array<T> other, BiPredicate<T, T> predicate) {
     Check.shape(this, other);
-    BitArray array = getArrayFactory().booleanArray(getShape());
+    BooleanArray array = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i), other.get(i)));
     }

@@ -36,7 +36,7 @@ import java.util.function.Consumer;
  * There are four supported matrix types {@code double}, {@code int}, {@code boolean} and
  * {@link org.apache.commons.math3.complex.Complex}, specialized in
  * {@link DoubleArray}, {@link IntArray}
- * , {@link BitArray} and
+ * , {@link BooleanArray} and
  * {@link ComplexArray} respectively.
  * </p>
  *
@@ -72,7 +72,7 @@ import java.util.function.Consumer;
  * {@code this}</li>
  * <li>{@link org.briljantframework.array.LongArray}, {@link #asLong()} must return {@code
  * this}</li>
- * <li>{@link BitArray}, {@link #asBit()} must return
+ * <li>{@link BooleanArray}, {@link #asBoolean()} must return
  * {@code this}</li>
  * <li>{@link ComplexArray}, {@link #asComplex()} must return
  * {@code this}</li>
@@ -451,7 +451,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   S select(int[][] indexes);
 
-  S slice(BitArray bits);
+  S slice(BooleanArray bits);
 
   /**
    * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays, {@linkplain
@@ -918,9 +918,9 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   LongArray asLong();
 
   /**
-   * @return this matrix as an {@link BitArray}.
+   * @return this matrix as an {@link BooleanArray}.
    */
-  BitArray asBit();
+  BooleanArray asBoolean();
 
   /**
    * @return this matrix as a {@link ComplexArray}.
@@ -968,14 +968,14 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   S copy();
 
-  BitArray lt(S other);
+  BooleanArray lt(S other);
 
-  BitArray gt(S other);
+  BooleanArray gt(S other);
 
-  BitArray eq(S other);
+  BooleanArray eq(S other);
 
-  BitArray lte(S other);
+  BooleanArray lte(S other);
 
-  BitArray gte(S other);
+  BooleanArray gte(S other);
 
 }

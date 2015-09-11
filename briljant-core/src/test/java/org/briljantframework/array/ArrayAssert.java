@@ -114,14 +114,14 @@ public final class ArrayAssert {
     }
   }
 
-  public static void assertValuesEquals(BitArray expected, BitArray actual) {
+  public static void assertValuesEquals(BooleanArray expected, BooleanArray actual) {
     assertEquals(expected.size(), actual.size());
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected.get(i), actual.get(i));
     }
   }
 
-  public static void assertArrayEquals(BitArray actual, boolean expected) {
+  public static void assertArrayEquals(BooleanArray actual, boolean expected) {
     for (int i = 0; i < actual.size(); i++) {
       assertEquals(expected, actual.get(i));
     }

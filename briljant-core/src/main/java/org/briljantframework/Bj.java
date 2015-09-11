@@ -30,7 +30,7 @@ import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
@@ -303,21 +303,21 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#booleanArray(int...)
    */
-  public static BitArray booleanArray(int... shape) {
+  public static BooleanArray booleanArray(int... shape) {
     return MATRIX_FACTORY.booleanArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
    */
-  public static BitArray array(boolean[] data) {
+  public static BooleanArray array(boolean[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(boolean[][])
    */
-  public static BitArray array(boolean[][] data) {
+  public static BooleanArray array(boolean[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -980,7 +980,7 @@ public final class Bj {
    * @param values the values; same shape as {@code array}
    * @return a new array; the returned array has the same type as {@code array}.
    */
-  public static <T extends BaseArray<T>> T mask(T array, BitArray mask, T values) {
+  public static <T extends BaseArray<T>> T mask(T array, BooleanArray mask, T values) {
     Check.shape(array, mask);
     Check.shape(array, values);
 
@@ -999,7 +999,7 @@ public final class Bj {
    * @param mask   the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
    */
-  public static <T extends BaseArray<T>> void putMask(T a, BitArray mask, T values) {
+  public static <T extends BaseArray<T>> void putMask(T a, BooleanArray mask, T values) {
     Check.shape(a, mask);
     Check.shape(a, values);
     for (int i = 0; i < a.size(); i++) {
@@ -1020,7 +1020,7 @@ public final class Bj {
    * @param replace the replacement value
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
-  public static IntArray select(IntArray a, BitArray where, int replace) {
+  public static IntArray select(IntArray a, BooleanArray where, int replace) {
     Check.shape(a, where);
     return a.copy().assign(where, (b, i) -> b ? replace : i);
   }

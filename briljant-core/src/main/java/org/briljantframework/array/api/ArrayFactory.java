@@ -27,7 +27,7 @@ package org.briljantframework.array.api;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
@@ -164,9 +164,9 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  BitArray array(boolean[][] data);
+  BooleanArray array(boolean[][] data);
 
-  BitArray array(boolean[] data);
+  BooleanArray array(boolean[] data);
 
   /**
    * Create an {@code IntMatrix} with designated shape filled with {@code 0}.
@@ -198,7 +198,7 @@ public interface ArrayFactory {
    * @param shape the rows
    * @return a new matrix
    */
-  BitArray booleanArray(int... shape);
+  BooleanArray booleanArray(int... shape);
 
   <T> Array<T> referenceArray(int... shape);
 

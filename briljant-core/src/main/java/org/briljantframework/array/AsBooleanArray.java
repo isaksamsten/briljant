@@ -29,33 +29,33 @@ import org.briljantframework.array.api.ArrayFactory;
 /**
  * @author Isak Karlsson
  */
-abstract class AsBitArray extends AbstractBitArray {
+abstract class AsBooleanArray extends AbstractBooleanArray {
 
-  AsBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  AsBooleanArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
-  public BitArray newEmptyArray(int... shape) {
+  public BooleanArray newEmptyArray(int... shape) {
     return getArrayFactory().booleanArray(shape);
   }
 
   @Override
-  public BitArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsBitArray(getArrayFactory(), offset, shape, stride, majorStride) {
+  public BooleanArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new AsBooleanArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, boolean value) {
-        AsBitArray.this.setElement(i, value);
+        AsBooleanArray.this.setElement(i, value);
       }
 
       @Override
       protected boolean getElement(int i) {
-        return AsBitArray.this.getElement(i);
+        return AsBooleanArray.this.getElement(i);
       }
 
       @Override
       protected int elementSize() {
-        return AsBitArray.this.elementSize();
+        return AsBooleanArray.this.elementSize();
       }
     };
   }

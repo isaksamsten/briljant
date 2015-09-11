@@ -31,11 +31,11 @@ import java.util.stream.Stream;
 /**
  * @author Isak Karlsson
  */
-public interface BitArray extends BaseArray<BitArray> {
+public interface BooleanArray extends BaseArray<BooleanArray> {
 
-  BitArray assign(Supplier<Boolean> supplier);
+  BooleanArray assign(Supplier<Boolean> supplier);
 
-  BitArray assign(boolean value);
+  BooleanArray assign(boolean value);
 
   void set(int index, boolean value);
 
@@ -49,27 +49,27 @@ public interface BitArray extends BaseArray<BitArray> {
 
   boolean get(int... index);
 
-  BitArray xor(BitArray other);
+  BooleanArray xor(BooleanArray other);
 
-  BitArray or(BitArray other);
+  BooleanArray or(BooleanArray other);
 
-  BitArray orNot(BitArray other);
+  BooleanArray orNot(BooleanArray other);
 
-  BitArray and(BitArray other);
+  BooleanArray and(BooleanArray other);
 
-  BitArray andNot(BitArray other);
+  BooleanArray andNot(BooleanArray other);
 
-  BitArray not();
+  BooleanArray not();
 
-  BitArray add(BitArray o);
+  BooleanArray add(BooleanArray o);
 
-  BitArray sub(BitArray o);
+  BooleanArray sub(BooleanArray o);
 
-  BitArray mul(BitArray o);
+  BooleanArray mul(BooleanArray o);
 
-  BitArray div(BitArray o);
+  BooleanArray div(BooleanArray o);
 
-  BitArray mmul(BitArray o);
+  BooleanArray mmul(BooleanArray o);
 
   Stream<Boolean> stream();
 

@@ -24,7 +24,7 @@
 
 package org.briljantframework.classification;
 
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public interface EnsemblePredictor extends Predictor {
    *
    * @return the out of bag indicator matrix
    */
-  public BitArray getOobIndicator();
+  public BooleanArray getOobIndicator();
 
   List<Predictor> getPredictors();
 }

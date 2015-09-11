@@ -90,7 +90,7 @@ public interface IntArray extends BaseArray<IntArray> {
 
   IntArray assign(LongArray matrix, LongToIntFunction operator);
 
-  IntArray assign(BitArray matrix, ToIntObjIntBiFunction<Boolean> function);
+  IntArray assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function);
 
   IntArray update(IntUnaryOperator operator);
 
@@ -132,9 +132,9 @@ public interface IntArray extends BaseArray<IntArray> {
 
   IntArray filter(IntPredicate operator);
 
-  BitArray satisfies(IntPredicate predicate);
+  BooleanArray satisfies(IntPredicate predicate);
 
-  BitArray satisfies(IntArray matrix, IntBiPredicate predicate);
+  BooleanArray satisfies(IntArray matrix, IntBiPredicate predicate);
 
   void forEach(IntConsumer consumer);
 

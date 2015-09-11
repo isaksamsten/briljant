@@ -232,7 +232,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray assign(BitArray matrix, ToIntObjIntBiFunction<Boolean> function) {
+  public IntArray assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
     Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i), get(i)));
@@ -327,8 +327,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray satisfies(IntPredicate predicate) {
-    BitArray bits = bj.booleanArray();
+  public BooleanArray satisfies(IntPredicate predicate) {
+    BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -336,9 +336,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray satisfies(IntArray matrix, IntBiPredicate predicate) {
+  public BooleanArray satisfies(IntArray matrix, IntBiPredicate predicate) {
     Check.shape(this, matrix);
-    BitArray bits = bj.booleanArray();
+    BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
     }
@@ -353,8 +353,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray asBit() {
-    return new AsBitArray(
+  public BooleanArray asBoolean() {
+    return new AsBooleanArray(
         getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
 
       @Override
@@ -400,9 +400,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray lt(IntArray other) {
+  public BooleanArray lt(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) < other.get(i));
@@ -411,9 +411,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray gt(IntArray other) {
+  public BooleanArray gt(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) > other.get(i));
@@ -422,9 +422,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray eq(IntArray other) {
+  public BooleanArray eq(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) == other.get(i));
@@ -433,9 +433,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray lte(IntArray other) {
+  public BooleanArray lte(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) <= other.get(i));
@@ -444,9 +444,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BitArray gte(IntArray other) {
+  public BooleanArray gte(IntArray other) {
     Check.size(this, other);
-    BitArray bits = getArrayFactory().booleanArray(getShape());
+    BooleanArray bits = getArrayFactory().booleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) >= other.get(i));
@@ -808,7 +808,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray slice(BitArray bits) {
+  public IntArray slice(BooleanArray bits) {
     Check.shape(this, bits);
     Builder builder = new Builder();
     for (int i = 0; i < size(); i++) {

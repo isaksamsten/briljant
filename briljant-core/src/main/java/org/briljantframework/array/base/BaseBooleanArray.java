@@ -24,8 +24,8 @@
 
 package org.briljantframework.array.base;
 
-import org.briljantframework.array.AbstractBitArray;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.AbstractBooleanArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.api.ArrayFactory;
 
 import java.util.Objects;
@@ -33,34 +33,34 @@ import java.util.Objects;
 /**
  * @author Isak Karlsson
  */
-class BaseBitArray extends AbstractBitArray {
+class BaseBooleanArray extends AbstractBooleanArray {
 
   private final boolean[] data;
 
-  BaseBitArray(ArrayFactory bj, int size) {
+  BaseBooleanArray(ArrayFactory bj, int size) {
     super(bj, size);
     data = new boolean[size];
   }
 
-  BaseBitArray(ArrayFactory bj, boolean[] data) {
+  BaseBooleanArray(ArrayFactory bj, boolean[] data) {
     super(bj, Objects.requireNonNull(data).length);
     this.data = data;
   }
 
-  public BaseBitArray(ArrayFactory bj, int[] shape) {
+  public BaseBooleanArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
     this.data = new boolean[size()];
   }
 
-  public BaseBitArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
-                      boolean[] data) {
+  public BaseBooleanArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
+                          boolean[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @Override
-  public BitArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseBitArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+  public BooleanArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseBooleanArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
@@ -79,7 +79,7 @@ class BaseBitArray extends AbstractBitArray {
   }
 
   @Override
-  public BitArray newEmptyArray(int... shape) {
-    return new BaseBitArray(getArrayFactory(), shape);
+  public BooleanArray newEmptyArray(int... shape) {
+    return new BaseBooleanArray(getArrayFactory(), shape);
   }
 }

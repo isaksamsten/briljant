@@ -25,7 +25,7 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
-import org.briljantframework.array.BitArray;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -138,10 +138,10 @@ public abstract class Ensemble implements Classifier {
       extends AbstractPredictor implements EnsemblePredictor {
 
     private final List<? extends Predictor> members;
-    private final BitArray oobIndicator;
+    private final BooleanArray oobIndicator;
 
     public DefaultEnsemblePredictor(Vector classes, List<? extends Predictor> members,
-                                    BitArray oobIndicator) {
+                                    BooleanArray oobIndicator) {
       super(classes);
       this.members = members;
       this.oobIndicator = oobIndicator;
@@ -154,7 +154,7 @@ public abstract class Ensemble implements Classifier {
      * @return the out of bag indicator matrix
      */
     @Override
-    public BitArray getOobIndicator() {
+    public BooleanArray getOobIndicator() {
       return oobIndicator;
     }
 
