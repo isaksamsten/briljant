@@ -26,6 +26,7 @@ package org.briljantframework.data.vector;
 
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
+import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolver;

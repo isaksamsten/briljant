@@ -25,6 +25,7 @@
 package org.briljantframework.complex;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
 
 /**
  * <p>

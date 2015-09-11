@@ -29,8 +29,9 @@ import com.carrotsearch.hppc.IntDoubleOpenHashMap;
 import com.carrotsearch.hppc.ObjectDoubleMap;
 import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Bj;
-import org.briljantframework.Utils;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.ShapeletTree.Threshold;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
@@ -41,14 +42,14 @@ import org.briljantframework.classification.tree.TreeNode;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by isak on 17/03/15.
@@ -142,8 +143,8 @@ public class RandomPointTree implements Classifier {
     Threshold bestThreshold = Threshold.inf();
     TreeSplit<SplitPoint> bestSplit = null;
     for (int i = 0; i < 10; i++) {
-      int take = Utils.randInt(2, 20);
-      Utils.permute(index);
+      int take = 1;
+      ArrayUtils.shuffle(index);
       ClassSet.Sample a = classSet.getRandomSample();
       Vector pivot = x.loc().getRecord(a.getRandomExample().getIndex());
 
@@ -178,7 +179,7 @@ public class RandomPointTree implements Classifier {
       for (Example example : sample) {
         double pivotDistance = distanceMap.get(example.getIndex());
         if (pivotDistance == threshold) {
-          if (Utils.getRandom().nextDouble() <= 0.5) {
+          if (ThreadLocalRandom.current().nextDouble() <= 0.5) {
             leftSample.add(example);
           } else {
             rightSample.add(example);

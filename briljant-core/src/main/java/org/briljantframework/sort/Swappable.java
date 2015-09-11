@@ -24,11 +24,21 @@
 
 package org.briljantframework.sort;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
  * @author Isak Karlsson
  */
 @FunctionalInterface
 public interface Swappable {
+
+  default void permute(int count) {
+    Random random = ThreadLocalRandom.current();
+    for (int i = count; i > 1; i--) {
+      swap(i - 1, random.nextInt(i));
+    }
+  }
 
   /**
    * Swaps, in for example a list, the value at position {@code a} and {@code b}.

@@ -20,6 +20,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: org.spockframework:spock-core:1.0-groovy-2.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="module" module-name="briljant-dataset" exported="" />
+    <orderEntry type="library" exported="" name="Gradle: com.carrotsearch:hppc:0.6.1" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

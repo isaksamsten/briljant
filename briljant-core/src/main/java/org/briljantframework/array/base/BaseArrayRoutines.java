@@ -29,7 +29,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
@@ -558,6 +557,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
                      "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
       columns += matrix.columns();
     }
+    // First can't be null unless arrays contains null element
     T newMatrix = first.newEmptyArray(rows, columns);
     int pad = 0;
     for (T matrix : arrays) {
@@ -574,7 +574,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public <T extends BaseArray<T>> T shuffle(T x) {
     T out = x.copy();
-    Utils.permute(out.size(), out);
+    out.permute(out.size());
     return out;
   }
 

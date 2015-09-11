@@ -39,6 +39,7 @@ import org.briljantframework.data.vector.VectorType;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -282,8 +283,6 @@ public interface DataFrame extends Iterable<Object> {
    */
   DataFrameGroupBy groupBy(UnaryOperator<Object> keyFunction);
 
-  DataFrame add(Vector column);
-
   /**
    * Uses the column index to find the specified column
    *
@@ -322,14 +321,14 @@ public interface DataFrame extends Iterable<Object> {
    *
    * @return an (immutable) collection of columns
    */
-  Collection<Vector> getColumns();
+  List<Vector> getColumns();
 
   /**
    * Returns a collection of records.
    *
    * @return an (immutable) collection of rows
    */
-  Collection<Vector> getRecords();
+  List<Vector> getRecords();
 
   <T> T get(Class<T> cls, Object row, Object col);
 
@@ -340,16 +339,6 @@ public interface DataFrame extends Iterable<Object> {
   boolean isNA(Object row, Object col);
 
   String toString(Object row, Object col);
-
-  /**
-   * Drop rows in {@code indexes} and return a new DataFrame
-   *
-   * @param indexes the indexes to drop
-   * @return a new data frame
-   */
-  DataFrame removeRecords(Collection<Integer> indexes);
-
-  DataFrame addRecord(Vector record);
 
   /**
    * Returns the number of rows in this data frame

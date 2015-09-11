@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe;
+package org.briljantframework.data.dataseries;
 
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.DataFrameLocationGetter;
 import org.briljantframework.data.vector.AbstractVector;
 import org.briljantframework.data.vector.Vector;

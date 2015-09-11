@@ -25,7 +25,6 @@
 package org.briljantframework.data.dataframe;
 
 import org.briljantframework.data.Collectors;
-import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
@@ -40,6 +39,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
+// TODO ISSUE#13: edge cases
 public abstract class DataFrameTest {
 
   abstract DataFrame.Builder getBuilder();
@@ -422,6 +422,7 @@ public abstract class DataFrameTest {
         .build();
 
     DataFrame join = a.join(JoinType.INNER, b, "a");
+    System.out.println(join);
     Vector on = Vector.of(1, 2, 2, 3, 5);
     Vector actualLeftAndRight = Vector.of(10, 20, 20, 30, 20);
     assertEquals(on, join.get("a"));
@@ -453,10 +454,14 @@ public abstract class DataFrameTest {
         .setRecord("c", Vector.of(1, 662, 3))
         .setRecord("q", Vector.of(1, 3, 3))
         .setRecord("e", Vector.of(1, 199, 3))
+        .setRecord("f", Vector.of("A", "B", "C", "D"))
         .setColumnIndex("First", "Second", "Third")
         .build();
-    System.out.println(df.sort(SortOrder.DESC,"Second"));
-
+//    System.out.println(df.sort(SortOrder.DESC,"Second"));
+    DataFrame x = DataFrames.permuteRecords(df);
+    x.getRecords().forEach(v -> System.out.println(v.getType()));
+    x.getColumns().forEach(v -> System.out.println(v.getType()));
+//    df.getColumns().forEach(v -> System.out.println(v.getType()));
 
 //    df.sort(SortOrder.DESC);
 //    DataFrame selected = df.select("e", BoundType.EXCLUSIVE, "a", BoundType.INCLUSIVE);

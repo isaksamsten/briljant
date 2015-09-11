@@ -24,8 +24,13 @@
 
 package org.briljantframework.data.dataframe.join;
 
+import org.briljantframework.data.dataframe.DataFrame;
+
+import java.util.Collection;
+
 /**
- * A join-operation produces a {@link org.briljantframework.data.dataframe.join.Joiner}. For example,
+ * A join-operation produces a {@link org.briljantframework.data.dataframe.join.Joiner}. For
+ * example,
  * {@link org.briljantframework.data.dataframe.join.InnerJoin}.
  *
  * @author Isak Karlsson
@@ -33,4 +38,8 @@ package org.briljantframework.data.dataframe.join;
 public interface JoinOperation {
 
   Joiner createJoiner(JoinKeys keys);
+
+  default Joiner createJoiner(DataFrame a, DataFrame b, Collection<?> columns) {
+    return createJoiner(JoinUtils.createJoinKeys(a, b, columns));
+  }
 }

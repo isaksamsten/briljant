@@ -42,8 +42,7 @@ dependencies {
   compile group: 'org.apache.commons', name: 'commons-math3', version: '3.5'
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
 
-  compile group: 'com.univocity', name: 'univocity-parsers', version: '1.4.0' // TODO: remove
-  compile group: 'com.carrotsearch', name: 'hppc', version: '0.6.1' // TODO: remove
+  compile group: 'com.univocity', name: 'univocity-parsers', version: '1.4.0'
 
   // mandatory dependencies for using Spock
   testCompile "org.codehaus.groovy:groovy-all:2.4.1"

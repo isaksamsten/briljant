@@ -132,6 +132,11 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
+  protected VectorType getMostSpecificColumnType() {
+    return type;
+  }
+
+  @Override
   public VectorType getTypeAt(int index) {
     return type;
   }
@@ -154,6 +159,11 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public Builder newCopyBuilder() {
     return new Builder(this, type);
+  }
+
+  @Override
+  protected Vector getAt(int index) {
+    return new ColumnView(this, type, index);
   }
 
   @Override

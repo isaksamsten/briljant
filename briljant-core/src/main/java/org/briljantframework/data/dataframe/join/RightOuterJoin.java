@@ -59,7 +59,7 @@ public final class RightOuterJoin implements JoinOperation {
     }
 
     @Override
-    public DataFrame join(DataFrame a, DataFrame b, Collection<Integer> on) {
+    public DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
       return super.join(b, a, on);
     }
 

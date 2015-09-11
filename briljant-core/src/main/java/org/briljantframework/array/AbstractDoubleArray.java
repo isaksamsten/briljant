@@ -24,9 +24,8 @@
 
 package org.briljantframework.array;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
@@ -538,16 +537,18 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     };
   }
 
-  public class IncrementalBuilder {
+  private class IncrementalBuilder {
 
-    private DoubleArrayList buffer = new DoubleArrayList();
+    private double[] buffer = new double[10];
+    private int size = 0;
 
     public void add(double value) {
-      buffer.add(value);
+      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer[size++] = value;
     }
 
     public DoubleArray build() {
-      return bj.array(buffer.toArray());
+      return bj.array(Arrays.copyOf(buffer, size));
     }
   }
 

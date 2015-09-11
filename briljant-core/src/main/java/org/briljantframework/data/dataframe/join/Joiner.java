@@ -24,22 +24,23 @@
 
 package org.briljantframework.data.dataframe.join;
 
-import com.carrotsearch.hppc.ObjectIntMap;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
-
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * A joiner keeps track of the indexes that will be joined.
  * For example, given a joiner of the left index {@code [1, 2, 3]} the right indexes and {@code
  * [2, 2, 2]}, {@link #join(org.briljantframework.data.dataframe.DataFrame,
- * org.briljantframework.data.dataframe.DataFrame, java.util.Collection)} produces a data frame with the
+ * org.briljantframework.data.dataframe.DataFrame, java.util.Collection)} produces a data frame
+ * with
+ * the
  * rows {@code 1, 2, 3}
  * from {@code a} concatenated with {@code 2, 2, 2} from {@code b}.
  *
@@ -49,13 +50,6 @@ import java.util.Iterator;
  */
 public abstract class Joiner {
 
-//  // Joined on the
-//  public DataFrame join(DataFrame a, DataFrame b) {
-//
-//
-//
-//  }
-
   /**
    * Combines two data frames using this joiner.
    *
@@ -63,27 +57,26 @@ public abstract class Joiner {
    * @param b the second data frame. Uses the indexes from {@link #getRightIndex(int)}
    * @return a new DataFrame
    */
-  public DataFrame join(DataFrame a, DataFrame b, Collection<Integer> on) {
+  public DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
     int size = this.size();
     int indexSize = on.size();
 
     DataFrame.Builder builder = a.newBuilder();
     Index.Builder columnIndexer = a.getColumnIndex().newBuilder();
-    ObjectIntMap<Object> indexColumn = new ObjectIntOpenHashMap<>(on.size());
-    Iterator<Index.Entry> aIt = a.getColumnIndex().entrySet().iterator();
-    Iterator<Index.Entry> bIt = b.getColumnIndex().entrySet().iterator();
+    Map<Object, Integer> indexColumn = new HashMap<>(on.size());
+    Iterator<Object> aIt = a.getColumnIndex().keySet().iterator();
+    Iterator<Object> bIt = b.getColumnIndex().keySet().iterator();
     int currentColumnIndex = 0;
     while (currentColumnIndex < indexSize && (aIt.hasNext() || bIt.hasNext())) {
-      Index.Entry entry;
+      Object key;
       if (aIt.hasNext()) {
-        entry = aIt.next();
+        key = aIt.next();
       } else {
-        entry = bIt.next();
+        key = bIt.next();
       }
 
-      Object key = entry.getKey();
-      if (on.contains(entry.getValue())) {
-        builder.add(a.loc().get(entry.getValue()).newBuilder(size));
+      if (on.contains(key)) {
+        builder.add(a.get(key).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
         currentColumnIndex += 1;
@@ -91,26 +84,22 @@ public abstract class Joiner {
     }
 
     int columnIndex = on.size();
-    for (Index.Entry entry : a.getColumnIndex().entrySet()) {
-      int index = entry.getValue();
-      Vector sourceColumn = a.loc().get(index);
-      Object key = entry.getKey();
-      if (on.contains(entry.getValue())) {
+    for (Object key : a.getColumnIndex().keySet()) {
+      Vector sourceColumn = a.get(key);
+      if (on.contains(key)) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
         columnIndexer.add(key);
-        builder.add(a.loc().get(index).newBuilder(size));
+        builder.add(a.get(key).newBuilder(size));
         appendColumnFromLeftIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
     }
 
-    for (Index.Entry entry : b.getColumnIndex().entrySet()) {
-      int index = entry.getValue();
-      Vector sourceColumn = b.loc().get(index);
-      Object key = entry.getKey();
-      if (on.contains(entry.getValue())) {
+    for (Object key : b.getColumnIndex().keySet()) {
+      Vector sourceColumn = b.get(key);
+      if (on.contains(key)) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromRightIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
@@ -119,7 +108,7 @@ public abstract class Joiner {
           newKey = key.toString() + " (right)";
         }
         columnIndexer.add(newKey);
-        builder.add(b.loc().get(index).newBuilder(size));
+        builder.add(b.get(key).newBuilder(size));
         appendColumnFromRightIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }

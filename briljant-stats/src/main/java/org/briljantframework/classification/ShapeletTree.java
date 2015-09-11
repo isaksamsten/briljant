@@ -34,7 +34,6 @@ import com.carrotsearch.hppc.cursors.ObjectDoubleCursor;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
@@ -65,6 +64,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * An implementation of a shapelet tree
@@ -329,7 +329,8 @@ public class ShapeletTree implements Classifier {
       shapelet = getDownsampledShapelet(index, timeSeries, timeSeriesLength, length, start);
     } else if (sampleMode == SampleMode.RANDOMIZE) {
       shapelet = getRandomizedShapelet(classSet, x, length, start);
-    } else if (sampleMode == SampleMode.DERIVATE && Utils.getRandom().nextGaussian() > 0) {
+    } else if (sampleMode == SampleMode.DERIVATE
+               && ThreadLocalRandom.current().nextGaussian() > 0) {
       shapelet = getDerivativeShapelet(timeSeries, timeSeriesLength, length, start);
     } else {
       shapelet = new IndexSortedNormalizedShapelet(start, length, timeSeries);
@@ -603,7 +604,7 @@ public class ShapeletTree implements Classifier {
       for (Example example : sample) {
         double shapeletDistance = distanceMap.get(example.getIndex());
         if (shapeletDistance == threshold) {
-          if (Utils.getRandom().nextDouble() <= 0.5) {
+          if (getRandom().nextDouble() <= 0.5) {
             leftSample.add(example);
           } else {
             rightSample.add(example);

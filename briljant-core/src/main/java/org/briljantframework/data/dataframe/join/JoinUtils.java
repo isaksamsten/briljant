@@ -24,9 +24,6 @@
 
 package org.briljantframework.data.dataframe.join;
 
-import com.carrotsearch.hppc.ObjectIntMap;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
-
 import org.briljantframework.Bj;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -34,7 +31,9 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -80,13 +79,13 @@ public class JoinUtils {
     return createJoinKeys(a.getIndex().asList(), b.getIndex().asList());
   }
 
-  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<Integer> on) {
+  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<?> on) {
     IntArray left = null;
     IntArray right = null;
 
     int noGroups = 1;
-    for (int column : on) {
-      JoinKeys pool = createJoinKeys(a.loc().get(column), b.loc().get(column));
+    for (Object columnKey : on) {
+      JoinKeys pool = createJoinKeys(a.get(columnKey), b.get(columnKey));
 
       if (noGroups > 1) {
         IntArray lt = pool.getLeft();
@@ -112,7 +111,7 @@ public class JoinUtils {
     int bSize = b.size();
     int[] left = new int[aSize];
     int[] right = new int[bSize];
-    ObjectIntMap<Object> pool = new ObjectIntOpenHashMap<>();
+    Map<Object, Integer> pool = new HashMap<>(Math.max(a.size(), b.size()));
 
     int j = 0;
     for (int i = 0; i < aSize; i++) {

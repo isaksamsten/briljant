@@ -25,8 +25,9 @@
 package org.briljantframework.data.dataframe;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.briljantframework.Utils;
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.Na;
+import org.briljantframework.data.Scale;
 import org.briljantframework.data.dataframe.join.InnerJoin;
 import org.briljantframework.data.dataframe.join.JoinOperation;
 import org.briljantframework.data.dataframe.join.LeftOuterJoin;
@@ -36,8 +37,6 @@ import org.briljantframework.data.dataframe.transform.RemoveIncompleteColumns;
 import org.briljantframework.data.dataframe.transform.Transformation;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.Na;
-import org.briljantframework.data.Scale;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
@@ -45,6 +44,7 @@ import org.briljantframework.data.vector.Vectors;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Utility methods for handling {@code DataFrame}s <p> Created by Isak Karlsson on 27/11/14.
@@ -121,6 +121,17 @@ public final class DataFrames {
   }
 
   /**
+   * Same as {@link #permuteRecords(DataFrame, java.util.Random)} with a static random number
+   * generator.
+   *
+   * @param in the input data frame
+   * @return a permuted copy of {@code in}
+   */
+  public static DataFrame permuteRecords(DataFrame in) {
+    return permuteRecords(in, ThreadLocalRandom.current());
+  }
+
+  /**
    * Returns a row-permuted copy of {@code df}. This implementations uses the Fisher–Yates shuffle
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
    * Knuth), which is an algorithm for generating a random permutation of a finite set.
@@ -133,7 +144,7 @@ public final class DataFrames {
    * @return a permuted copy of input
    */
   public static DataFrame permuteRecords(DataFrame df, Random random) {
-    DataFrame.Builder builder = staticRecordCopy(df);
+    DataFrame.Builder builder = transferableRecordCopy(df);
     DataFrameLocationSetter loc = builder.loc();
     for (int i = builder.rows(); i > 1; i--) {
       loc.swapRecords(i - 1, random.nextInt(i));
@@ -143,41 +154,45 @@ public final class DataFrames {
     return bdf;
   }
 
-  public static DataFrame.Builder staticRecordCopy(DataFrame df) {
-    DataFrame.Builder builder = df.newBuilder();
-    for (Object recordKey : df.getIndex().keySet()) {
-      // TODO: this will fuck-up when using views
-      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
-    }
-    return builder;
-  }
-
   /**
-   * Same as {@link #permuteRecords(DataFrame, java.util.Random)} with a static random number
-   * generator.
-   *
-   * @param in the input data frame
-   * @return a permuted copy of {@code in}
-   */
-  public static DataFrame permuteRecords(DataFrame in) {
-    return permuteRecords(in, Utils.getRandom());
-  }
-
-  /**
-   * Returns a column-permuted copy of {@code in}. See {@link #permuteRecords(DataFrame)} for
-   * details.
+   * Returns a column-permuted shallow copy of {@code in}.
    *
    * @param in input data frame
    * @return a column permuted copy
    * @see #permuteRecords(DataFrame)
    */
-  public static DataFrame permuteColumns(DataFrame in) {
-    DataFrame.Builder builder = in.newCopyBuilder();
-    Random random = Utils.getRandom();
+  public static DataFrame permute(DataFrame in) {
+    DataFrame.Builder builder = transferableColumnCopy(in);
+    Random random = ThreadLocalRandom.current();
     for (int i = builder.columns(); i > 1; i--) {
       builder.loc().swap(i - 1, random.nextInt(i));
     }
     return builder.build();
+  }
+
+  public static DataFrame.Builder transferableRecordCopy(DataFrame df) {
+    DataFrame.Builder builder = df.newBuilder();
+    for (Object recordKey : df.getIndex().keySet()) {
+      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
+    }
+    builder.setColumnIndex(df.getColumnIndex());
+    return builder;
+  }
+
+  /**
+   * Returns a {@linkplain org.briljantframework.data.Transferable transferable} column
+   * copy of the argument. The builder only allows operations that do not modify the vectors.
+   *
+   * @param df the data frame
+   * @return a shallow copy
+   */
+  public static DataFrame.Builder transferableColumnCopy(DataFrame df) {
+    DataFrame.Builder builder = df.newBuilder();
+    for (Object column : df) {
+      builder.set(column, Vectors.transferableBuilder(df.get(column)));
+    }
+    builder.setIndex(df.getIndex());
+    return builder;
   }
 
   /**
@@ -269,13 +284,13 @@ public final class DataFrames {
         .toString();
   }
 
-  protected static void padWithSpace(StringBuilder builder, int pad) {
+  private static void padWithSpace(StringBuilder builder, int pad) {
     for (int i = 0; i < pad; i++) {
       builder.append(" ");
     }
   }
 
-  protected static int[] longestColumnValues(DataFrame df, int max, Index columnIndex) {
+  private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex) {
     return columnIndex.keySet().stream()
         .map(df::get)
         .mapToInt(v -> {
@@ -291,19 +306,12 @@ public final class DataFrames {
         .toArray();
   }
 
-  protected static int longestRecordValue(int max, Index index) {
+  private static int longestRecordValue(int max, Index index) {
     return index.keySet().stream()
                .limit(max)
                .map(Na::toString)
                .mapToInt(String::length)
                .max()
                .orElse(0) + 2;
-  }
-
-  public static final class Builder {
-
-    private Builder() {
-
-    }
   }
 }

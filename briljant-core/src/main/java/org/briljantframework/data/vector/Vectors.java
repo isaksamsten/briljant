@@ -29,6 +29,7 @@ import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
+import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.sort.QuickSort;
@@ -525,7 +526,7 @@ public final class Vectors {
    * org.briljantframework.data.dataframe.DataFrame.Builder DataFrame-builder} to another without
    * adding new values.
    *
-   * <p> Vectors marked with the {@link org.briljantframework.data.vector.Transferable}-interface
+   * <p> Vectors marked with the {@link org.briljantframework.data.Transferable}-interface
    * will be <em>transfered</em> without copying when built.
    *
    * @param vector the vector to be built

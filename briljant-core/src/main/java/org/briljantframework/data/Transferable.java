@@ -22,18 +22,44 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.vector;
+package org.briljantframework.data;
 
 /**
- * A marker-interface for vectors that are <em>transferable</em> between data frames and/or other
+ * A marker-interface for {@linkplain org.briljantframework.data.vector.Vector vectors} that are
+ * <em>transferable</em> between data frames and/or other
  * data-structures. For example, a vector that keeps it's data in an {@code array} is generally
- * <em>transferable</em> but a vector that is simply a view (e.g {@link VectorView}) of another
+ * <em>transferable</em> but a vector that is simply a view (e.g {@link
+ * org.briljantframework.data.vector.VectorView}) of another
  * vector or (heavy) data-structure such as a data frame is not. Vectors not marked will be copied
- * by, e.g., {@link Vectors#transferableBuilder(Vector)} to allow larger objects to be garbage
+ * by, e.g., {@link org.briljantframework.data.vector.Vectors#transferableBuilder(org.briljantframework.data.vector.Vector)}
+ * to allow larger objects to be garbage
  * collected.
  *
  * @author Isak Karlsson
+ * @since 0.1
  */
 public interface Transferable {
+
+  /**
+   * Marker interface for {@linkplain org.briljantframework.data.dataframe.DataFrame data frames}
+   * where columns are transferable
+   *
+   * @author Isak Karlsson
+   * @since 0.1
+   */
+  public interface Column {
+
+  }
+
+  /**
+   * Marker interface for {@linkplain org.briljantframework.data.dataframe.DataFrame data frames}
+   * where records are transferable
+   *
+   * @author Isak Karlsson
+   * @since 0.1
+   */
+  public interface Record {
+
+  }
 
 }

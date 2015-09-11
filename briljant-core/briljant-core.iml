@@ -20,7 +20,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="Gradle: com.univocity:univocity-parsers:1.4.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.carrotsearch:hppc:0.6.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: net.sourceforge.f2j:arpack_combined_all:0.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:core:1.1.2" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.github.fommil.netlib:netlib-native_ref-osx-x86_64:1.1:natives" level="project" />

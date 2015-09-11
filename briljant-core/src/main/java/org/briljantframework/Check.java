@@ -25,11 +25,11 @@
 package org.briljantframework;
 
 import org.briljantframework.array.BaseArray;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -37,10 +37,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Implement argument, state, size and type checking for {@linkplain
- * org.briljantframework.data.vector.Vector}, {@linkplain org.briljantframework.data.dataframe.DataFrame} and
- * {@link org.briljantframework.array.BaseArray}
- *
  * @author Isak Karlsson
  */
 public final class Check {

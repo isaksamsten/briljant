@@ -24,11 +24,10 @@
 
 package org.briljantframework.array;
 
-import com.carrotsearch.hppc.LongArrayList;
-
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
 
@@ -327,14 +326,14 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public LongArray reduceVector(int dim, ToLongFunction<? super LongArray> accumulator) {
-      Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-      LongArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
-      int vectors = vectors(dim);
-      for (int i = 0; i < vectors; i++) {
-        long value = accumulator.applyAsLong(getVector(dim, i));
-        reduced.set(i, value);
-      }
-      return reduced;
+    Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
+    LongArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    int vectors = vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      long value = accumulator.applyAsLong(getVector(dim, i));
+      reduced.set(i, value);
+    }
+    return reduced;
   }
 
   @Override
@@ -751,18 +750,16 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   private class IncrementalBuilder {
 
-    private LongArrayList buffer = new LongArrayList();
+    private long[] buffer = new long[10];
+    private int size = 0;
 
-    public LongArray build() {
-      LongArray n = newEmptyArray(buffer.size());
-      for (int i = 0; i < n.size(); i++) {
-        n.set(i, buffer.get(i));
-      }
-      return n;
+    public void add(long a) {
+      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer[size++] = a;
     }
 
-    public void add(long value) {
-      buffer.add(value);
+    public LongArray build() {
+      return bj.array(Arrays.copyOf(buffer, size));
     }
   }
 

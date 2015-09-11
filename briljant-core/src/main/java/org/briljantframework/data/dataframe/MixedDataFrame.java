@@ -36,9 +36,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,6 +52,7 @@ import java.util.stream.Stream;
 public class MixedDataFrame extends AbstractDataFrame {
 
   private final List<Vector> columns;
+  private final VectorType mostSpecificColumnType;
   private final int rows;
 
   /**
@@ -72,6 +75,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
+    Set<VectorType> typeSet = new HashSet<>();
     for (Vector vector : vectors) {
       if (rows == 0) {
         rows = vector.size();
@@ -81,8 +85,12 @@ public class MixedDataFrame extends AbstractDataFrame {
           "Arguments imply different numbers of rows: %s, %s.",
           rows, vector.size()
       );
+      typeSet.add(vector.getType());
       this.columns.add(vector);
     }
+    this.mostSpecificColumnType = typeSet.size() == 1 ?
+                                  typeSet.iterator().next() :
+                                  VectorType.OBJECT;
     this.rows = rows;
   }
 
@@ -98,6 +106,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
     List<T> columnIndex = new ArrayList<>();
+    Set<VectorType> typeSet = new HashSet<>();
     for (Map.Entry<T, ? extends Vector> kv : vectors.entrySet()) {
       Vector vector = kv.getValue();
       T key = kv.getKey();
@@ -111,8 +120,13 @@ public class MixedDataFrame extends AbstractDataFrame {
           rows, vector.size()
       );
       this.columns.add(vector);
+      typeSet.add(vector.getType());
+
     }
     this.rows = rows;
+    this.mostSpecificColumnType = typeSet.size() == 1 ?
+                                  typeSet.iterator().next() :
+                                  VectorType.OBJECT;
     setColumnIndex(new ObjectIndex(columnIndex));
   }
 
@@ -121,21 +135,30 @@ public class MixedDataFrame extends AbstractDataFrame {
    * for
    * performance by checked builder).
    *
-   * @param vectors the vectors
+   * @param columns the vectors
    * @param rows    the expected size of the vectors (not checked but should be enforced)
    */
-  private MixedDataFrame(List<Vector> vectors, int rows) {
-    super(null, null); // TODO: fix me
-    this.columns = vectors;
+  private MixedDataFrame(List<Vector> columns, int rows) {
+    super(null, null);
+    this.columns = columns;
     this.rows = rows;
+    Set<VectorType> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
+    this.mostSpecificColumnType = typeSet.size() == 1 ?
+                                  typeSet.iterator().next() :
+                                  VectorType.OBJECT;
   }
 
   private MixedDataFrame(List<Vector> columns, int rows, Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(columns.size() == columnIndex.size());
     Check.argument(index.size() == rows);
+    Set<VectorType> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
+    this.mostSpecificColumnType = typeSet.size() == 1 ?
+                                  typeSet.iterator().next() :
+                                  VectorType.OBJECT;
     this.columns = columns;
     this.rows = rows;
+
   }
 
   private static Vector.Builder padVectorWithNA(Vector.Builder builder, int maximumRows) {
@@ -210,6 +233,12 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
+  protected Vector getRecordAt(int index) {
+    Check.elementIndex(index, rows());
+    return new RecordView(this, index, mostSpecificColumnType);
+  }
+
+  @Override
   public int getAsIntAt(int row, int column) {
     return columns.get(column).loc().getAsInt(row);
   }
@@ -227,6 +256,11 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   protected DataFrame shallowCopy(Index columnIndex, Index index) {
     return new MixedDataFrame(columns, rows, columnIndex, index);
+  }
+
+  @Override
+  protected VectorType getMostSpecificColumnType() {
+    return mostSpecificColumnType;
   }
 
   @Override
@@ -255,28 +289,10 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public DataFrame add(Vector column) {
-    List<Vector> newColumns = new ArrayList<>(columns);
-    if (column.size() == rows()) {
-      newColumns.add(column);
-    } else if (column.size() < rows()) {
-      newColumns.add(padVectorWithNA(column.newCopyBuilder(), rows()).build());
-    } else {
-      throw new IllegalArgumentException();
-    }
-    return new MixedDataFrame(newColumns, rows());
-  }
-
-  @Override
   public Vector getAt(int index) {
     Vector vector = columns.get(index);
     vector.setIndex(getIndex());
     return vector;
-  }
-
-  @Override
-  public String toString() {
-    return DataFrames.toString(this);
   }
 
   public static final class Builder extends AbstractBuilder {
@@ -378,13 +394,16 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     protected void setRecordAt(int index, Vector.Builder builder) {
-      ensureColumnCapacity(builder.size() - 1);
+//      ensureColumnCapacity(builder.size() - 1);
       final int columns = columns();
       final int size = builder.size();
       final Vector vector = builder.getTemporaryVector();
       for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
-          setAt(index, j, vector, j);
+          Object value = vector.loc().get(Object.class, j);
+          ensureColumnCapacity(j, VectorType.of(value));
+          setAt(index, j, value);
+//          setAt(index, j, vector, j);
         } else {
           setNaAt(index, j);
         }
@@ -394,7 +413,6 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public void setAt(int r, int c, Vector from, int i) {
       ensureColumnCapacity(c - 1);
-      // TODO: should we be this draconian here? Perhaps we should infer the new column based on the value at i instead?
       ensureColumnCapacity(c, from.getType());
       buffers.get(c).loc().set(r, from, i);
     }

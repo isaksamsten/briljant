@@ -34,20 +34,20 @@ import java.util.Set;
 /**
  * @author Isak Karlsson
  */
-class RowView extends AbstractVector {
+class RecordView extends AbstractVector {
 
   private final DataFrame parent;
   private final int row;
   private final VectorType type;
 
-  public RowView(DataFrame parent, int row, VectorType type) {
+  public RecordView(DataFrame parent, int row, VectorType type) {
     super(parent.getColumnIndex());
     this.parent = parent;
     this.type = type;
     this.row = row;
   }
 
-  public RowView(DataFrame parent, int row) {
+  public RecordView(DataFrame parent, int row) {
     this(parent, row, findUnionType(parent));
   }
 

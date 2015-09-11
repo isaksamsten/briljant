@@ -24,11 +24,10 @@
 
 package org.briljantframework.array;
 
-import com.carrotsearch.hppc.IntArrayList;
-
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.apache.commons.math3.complex.Complex;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -252,18 +251,16 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   public class IncrementalBuilder {
 
-    private IntArrayList buffer = new IntArrayList();
+    private boolean[] buffer = new boolean[10];
+    private int size = 0;
 
     public void add(boolean a) {
-      buffer.add(a ? 1 : 0);
+      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer[size++] = a;
     }
 
     public BooleanArray build() {
-      BooleanArray n = newEmptyArray(buffer.size(), 1);
-      for (int i = 0; i < buffer.size(); i++) {
-        n.set(i, buffer.get(i) == 1);
-      }
-      return n;
+      return bj.array(Arrays.copyOf(buffer, size));
     }
   }
 

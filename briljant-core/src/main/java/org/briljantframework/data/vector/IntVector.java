@@ -26,8 +26,9 @@ package org.briljantframework.data.vector;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.Transferable;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -349,7 +350,7 @@ class IntVector extends AbstractVector implements Transferable {
       rangeCheck(a);
       rangeCheck(b);
       Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
-      Utils.swap(buffer, a, b);
+      ArrayUtils.swap(buffer, a, b);
     }
 
     @Override

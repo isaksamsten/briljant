@@ -24,7 +24,7 @@
 
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.Utils;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.vector.Vector;
@@ -66,7 +66,7 @@ public class RandomSplitter extends AbstractSplitter {
 
     // TODO! Fix me!
     synchronized (features) {
-      Utils.permute(features);
+      ArrayUtils.shuffle(features);
     }
 
     TreeSplit<ValueThreshold> bestSplit = null;

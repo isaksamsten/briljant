@@ -28,13 +28,7 @@ package org.briljantframework.data;
  * @author Isak Karlsson
  */
 public enum Logical {
-  TRUE(1), FALSE(0), NA(Na.INT);
-
-  private final int value;
-
-  Logical(int value) {
-    this.value = value;
-  }
+  FALSE, TRUE, NA;
 
   public static Logical valueOf(boolean value) {
     return value ? TRUE : FALSE;
@@ -49,9 +43,5 @@ public enum Logical {
       default:
         return NA;
     }
-  }
-
-  public int toInteger() {
-    return value;
   }
 }

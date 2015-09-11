@@ -24,24 +24,23 @@
 
 package org.briljantframework.classification.linear;
 
-import org.briljantframework.Utils;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.LogisticRegression;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
-import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.data.dataframe.MixedDataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.data.Is;
-import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 public class LogisticRegressionTest {
 
   @Test
   public void testLogisticRegression() throws Exception {
-    Utils.setRandomSeed(102);
+//    Utils.setRandomSeed(102);
     DataFrame iris = DataFrames.permuteRecords(Datasets.loadIris());
     DataFrame x = iris.drop("Class").map(Double.class, v -> !Is.NA(v) ? v : 0);
     Vector y = iris.get("Class");//.satisfies(String.class, v -> v.equals("Iris-setosa"));

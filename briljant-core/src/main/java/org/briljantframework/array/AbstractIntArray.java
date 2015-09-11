@@ -24,9 +24,8 @@
 
 package org.briljantframework.array;
 
-import com.carrotsearch.hppc.IntArrayList;
-
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
@@ -821,14 +820,16 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   private class Builder {
 
-    private IntArrayList buffer = new IntArrayList();
+    private int[] buffer = new int[10];
+    private int size = 0;
 
-    public void add(int value) {
-      buffer.add(value);
+    public void add(int a) {
+      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer[size++] = a;
     }
 
     public IntArray build() {
-      return bj.array(buffer.toArray());
+      return bj.array(Arrays.copyOf(buffer, size));
     }
   }
 

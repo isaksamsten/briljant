@@ -24,25 +24,21 @@
 
 package org.briljantframework.shapelet;
 
-import org.briljantframework.Utils;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.KNearestNeighbors;
-import org.briljantframework.classification.RandomShapeletForest;
-import org.briljantframework.classification.ShapeletTree;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
+import org.briljantframework.data.reader.EntryReader;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.dataset.io.SequenceDatasetReader;
 import org.briljantframework.distance.EditDistance;
-import org.briljantframework.evaluation.HoldoutValidator;
 import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.data.reader.EntryReader;
-import org.briljantframework.dataset.io.SequenceDatasetReader;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 import org.junit.Test;
 
 import java.io.FileInputStream;
@@ -152,11 +148,12 @@ public class RandomShapeletForestTest {
   public void testSequences() throws Exception {
     String ade = "L270";
     EntryReader in =
-        new SequenceDatasetReader(new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
+        new SequenceDatasetReader(
+            new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
 
     DataFrame frame = new DataSeriesCollection.Builder(VectorType.STRING).readAll(in).build();
     System.out.println(frame.rows() + ", " + frame.columns());
-    Utils.setRandomSeed(32);
+//    Utils.setRandomSeed(32);
     frame = DataFrames.permuteRecords(frame);
     Vector y = frame.get(0);
     DataFrame x = frame.drop(0);

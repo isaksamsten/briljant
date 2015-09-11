@@ -27,6 +27,7 @@ package org.briljantframework.data.vector;
 import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
+import org.briljantframework.data.Transferable;
 
 /**
  * @author Isak Karlsson
