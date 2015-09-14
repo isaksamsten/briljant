@@ -31,6 +31,7 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -43,11 +44,11 @@ public class DataFrameSortPerformance {
 
   private DataFrame dataFrame;
 
-  @Setup
+  @Setup(Level.Iteration)
   public void setupDataFrame() {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
     UniformRandomGenerator gen = new UniformRandomGenerator(new Well1024a());
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 1000_000; i++) {
       builder.setRecord(String.valueOf(i), Vector.of(gen.nextNormalizedDouble(), i, 20.0, 30.0));
     }
     builder.setColumnIndex("First", "Second", "Third", "Fourth");

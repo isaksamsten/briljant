@@ -112,7 +112,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public final <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
     VectorLocationGetter loc = get(key).loc();
     Index.Builder index = getIndex().newCopyBuilder();
-    index.sortOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
+    index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return shallowCopy(getColumnIndex(), index.build());
   }
 
@@ -122,7 +122,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     boolean asc = order == SortOrder.ASC;
     IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
     Index.Builder index = getIndex().newCopyBuilder();
-    index.sortOrder(cmp);
+    index.sortIterationOrder(cmp);
     return shallowCopy(getColumnIndex(), index.build());
   }
 

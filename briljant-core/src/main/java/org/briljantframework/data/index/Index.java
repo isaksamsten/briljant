@@ -164,6 +164,6 @@ public interface Index {
 
     void remove(int index);
 
-    void sortOrder(IntComparator cmp);
+    void sortIterationOrder(IntComparator cmp);
   }
 }

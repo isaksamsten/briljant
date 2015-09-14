@@ -29,6 +29,7 @@ import org.apache.commons.math3.random.Well1024a;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.vector.Vector;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -41,7 +42,7 @@ public class VectorSortPerformance {
 
   private Vector vector;
 
-  @Setup
+  @Setup(Level.Iteration)
   public void setupDataFrame() {
     Vector.Builder builder = Vector.Builder.of(Double.class);
     UniformRandomGenerator gen = new UniformRandomGenerator(new Well1024a());
@@ -53,6 +54,6 @@ public class VectorSortPerformance {
 
   @Benchmark
   public Object sortPerformance() {
-    return vector.sort(SortOrder.ASC);
+    return vector.sort(SortOrder.DESC);
   }
 }

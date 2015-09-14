@@ -402,8 +402,9 @@ public final class IntIndex implements Index {
     }
 
     @Override
-    public void sortOrder(IntComparator cmp) {
-
+    public void sortIterationOrder(IntComparator cmp) {
+      initializeHashBuilder();
+      builder.sortIterationOrder(cmp);
     }
   }
 

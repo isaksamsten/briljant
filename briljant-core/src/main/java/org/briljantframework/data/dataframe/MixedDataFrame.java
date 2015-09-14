@@ -127,7 +127,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     this.mostSpecificColumnType = typeSet.size() == 1 ?
                                   typeSet.iterator().next() :
                                   VectorType.OBJECT;
-    setColumnIndex(new ObjectIndex(columnIndex));
+    setColumnIndex(ObjectIndex.of(columnIndex));
   }
 
   /**

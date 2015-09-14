@@ -24,7 +24,6 @@
 
 package org.briljantframework.data.dataframe;
 
-import net.mintern.primitive.Primitive;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.Check;
@@ -32,7 +31,7 @@ import org.briljantframework.data.BoundType;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.primitive.IntArrayList;
+import org.briljantframework.primitive.IntList;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -61,11 +60,17 @@ import java.util.TreeMap;
  */
 public final class ObjectIndex implements Index {
 
-  private Map<Object, Integer> keys = new LinkedHashMap<>();
-  private List<Object> locations = new ArrayList<>();
-  private IntArrayList order = new IntArrayList();
+  private final IterationOrderKeySet iterationOrderKeySet = new IterationOrderKeySet();
+  private final boolean maintainsOrder;
+  private final Map<Object, Integer> keys;
+  private final List<Object> locations;
+  private final IntList order;
 
-  public ObjectIndex(Collection<?> coll) {
+  private ObjectIndex(Collection<?> coll) {
+    keys = new HashMap<>(coll.size());
+    locations = new ArrayList<>(coll.size());
+    order = new IntList(coll.size());
+    maintainsOrder = true;
     Iterator<?> it = coll.iterator();
     for (int i = 0; it.hasNext(); i++) {
       Object next = it.next();
@@ -77,11 +82,13 @@ public final class ObjectIndex implements Index {
     }
   }
 
-  private ObjectIndex(
-      Map<Object, Integer> keys, List<Object> locations, IntArrayList order) {
-    this.keys = keys;
+  private ObjectIndex(Map<Object, Integer> keys, List<Object> locations, IntList order) {
+    this.keys = keys instanceof NavigableMap ?
+                Collections.unmodifiableNavigableMap((NavigableMap<Object, Integer>) keys) :
+                Collections.unmodifiableMap(keys);
     this.locations = locations;
     this.order = order;
+    this.maintainsOrder = this.order != null;
   }
 
   public static ObjectIndex of(Vector vector) {
@@ -95,22 +102,6 @@ public final class ObjectIndex implements Index {
 
   public static <T> ObjectIndex create(Collection<? extends T> coll) {
     return new ObjectIndex(coll);
-  }
-
-  public static <T extends Comparable<T>> ObjectIndex createSorted(
-      Collection<? extends T> collection) {
-    TreeMap<Object, Integer> keys = new TreeMap<>();
-    Iterator<? extends T> it = collection.iterator();
-    List<Object> locations = new ArrayList<>();
-//    List<>
-    for (int i = 0; it.hasNext(); i++) {
-      T next = it.next();
-      if (keys.put(next, i) != null) {
-        throw duplicateKey(next);
-      }
-      locations.add(next);
-    }
-    return new ObjectIndex(keys, locations, null);
   }
 
   private static UnsupportedOperationException duplicateKey(Object next) {
@@ -139,8 +130,8 @@ public final class ObjectIndex implements Index {
 
     Map<Object, Integer> includedKeys;
     if (getKeys() instanceof NavigableMap) {
-      SortedMap<Object, Integer> tmp = ((NavigableMap<Object, Integer>) getKeys())
-          .subMap(from, fromBound == BoundType.INCLUSIVE, to, toBound == BoundType.INCLUSIVE);
+      SortedMap<Object, Integer> tmp = ((NavigableMap<Object, Integer>) getKeys()).subMap(
+          from, fromBound == BoundType.INCLUSIVE, to, toBound == BoundType.INCLUSIVE);
 
       // note: is this a good idea for saving memory?
       if (tmp.size() / getKeys().size() > 0.5) {
@@ -151,7 +142,7 @@ public final class ObjectIndex implements Index {
       }
     } else {
       includedKeys = new LinkedHashMap<>();
-      for (Map.Entry<Object, Integer> entry : getKeys().entrySet()) {
+      for (Entry entry : entrySet()) {
         Object key = entry.getKey();
         if (fromBound.greaterThan(compare(key, from)) && toBound.lessThan(compare(key, to))) {
           includedKeys.put(key, entry.getValue());
@@ -178,7 +169,7 @@ public final class ObjectIndex implements Index {
 
   @Override
   public Object getKey(int location) {
-    return locations.get(location);
+    return locations.get(maintainsOrder ? order.get(location) : location);
   }
 
   @Override
@@ -193,10 +184,10 @@ public final class ObjectIndex implements Index {
 
   @Override
   public Set<Entry> entrySet() {
-    if (order == null) {
-      return new EntrySet();
+    if (!maintainsOrder) {
+      return new HashOrderEntrySet();
     }
-    return new OrderedEntrySet();
+    return new IterationOrderEntrySet();
   }
 
   @Override
@@ -219,12 +210,11 @@ public final class ObjectIndex implements Index {
 
   @Override
   public Set<Object> keySet() {
-    // Already maintains an order
     if (keys instanceof NavigableMap) {
       return keys.keySet();
+    } else {
+      return iterationOrderKeySet;
     }
-
-    return new OrderedKeySet();
   }
 
   @Override
@@ -266,18 +256,17 @@ public final class ObjectIndex implements Index {
         ObjectComparator.getInstance();
     private Map<Object, Integer> keys;
     private List<Object> locations;
-    private IntArrayList order;
+    private IntList order;
     private int currentSize = 0;
 
 
     public Builder() {
       this.keys = new HashMap<>();
       this.locations = new ArrayList<>();
-      this.order = new IntArrayList();
+      this.order = new IntList();
     }
 
-    private Builder(
-        Map<Object, Integer> keys, List<Object> locations, IntArrayList order) {
+    private Builder(Map<Object, Integer> keys, List<Object> locations, IntList order) {
       if (keys instanceof SortedMap) {
         this.keys = new TreeMap<>(((SortedMap<Object, Integer>) keys).comparator());
         this.keys.putAll(keys);
@@ -285,7 +274,7 @@ public final class ObjectIndex implements Index {
         this.keys = new HashMap<>(keys);
       }
       this.locations = new ArrayList<>(locations);
-      this.order = new IntArrayList(order);
+      this.order = new IntList(order);
       this.currentSize = this.locations.size();
     }
 
@@ -422,9 +411,8 @@ public final class ObjectIndex implements Index {
     }
 
     @Override
-    public void sortOrder(IntComparator cmp) {
-      Primitive.sort(order.elementData, 0, order.size(), cmp);
-//      order.sort(cmp);
+    public void sortIterationOrder(IntComparator cmp) {
+      order.primitiveSort(cmp);
     }
 
     protected Map<Object, Integer> getKeys() {
@@ -432,7 +420,7 @@ public final class ObjectIndex implements Index {
     }
   }
 
-  private class EntrySet extends AbstractSet<Entry> {
+  private class HashOrderEntrySet extends AbstractSet<Entry> {
 
     @Override
     public Iterator<Entry> iterator() {
@@ -459,7 +447,7 @@ public final class ObjectIndex implements Index {
     }
   }
 
-  private class OrderedEntrySet extends AbstractSet<Entry> {
+  private class IterationOrderEntrySet extends AbstractSet<Entry> {
 
     @Override
     public Iterator<Entry> iterator() {
@@ -486,7 +474,7 @@ public final class ObjectIndex implements Index {
     }
   }
 
-  private class OrderedKeySet extends AbstractSet<Object> {
+  private class IterationOrderKeySet extends AbstractSet<Object> {
 
     @Override
     public Iterator<Object> iterator() {
@@ -500,8 +488,8 @@ public final class ObjectIndex implements Index {
 
         @Override
         public Object next() {
-          int location = order.get(current++);
-          return getKey(location);
+//          int location = order.get(current++);
+          return getKey(current++);
         }
       };
     }

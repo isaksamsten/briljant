@@ -24,6 +24,8 @@
 
 package org.briljantframework.array;
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
@@ -194,6 +196,10 @@ public interface IntArray extends BaseArray<IntArray> {
   List<Integer> list();
 
   Array<Integer> boxed();
+
+  void sort();
+
+  void sort(IntComparator cmp);
 
   // Arithmetical operations ///////////
 

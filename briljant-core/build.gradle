@@ -10,13 +10,19 @@ buildscript {
   }
 
 }
+
 apply plugin: 'me.champeau.gradle.jmh'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "groovy"
+apply plugin: 'idea'
+
+idea.module {
+  scopes.PROVIDED.plus += [configurations.jmh]
+}
 
 jmh {
   jmhVersion = '1.10.5'
-  include = 'VectorSort*'
+  include = 'DataFrameSort*'
   iterations = 4
   batchSize = 1
   fork = 2
@@ -29,7 +35,7 @@ jmh {
   operationsPerInvocation = 10
   timeOnIteration = '1s'
   resultFormat = 'CSV' // CSV, JSON, NONE, SCSV, TEXT
-  timeUnit = 'ns' // [m, s, ms, us, ns].
+  timeUnit = 'ms' // [m, s, ms, us, ns].
   verbosity = 'NORMAL'
   warmup = '1s'
   warmupBatchSize = 10

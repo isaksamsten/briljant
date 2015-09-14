@@ -25,6 +25,7 @@
 package org.briljantframework.primitive;
 
 import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.IntComparator;
 
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -39,7 +40,15 @@ import java.util.function.Consumer;
 /**
  * ArrayList backed by a primitive List
  */
-public class IntArrayList extends AbstractList<Integer> {
+public class IntList extends AbstractList<Integer> {
+
+  /**
+   * The maximum size of array to allocate.
+   * Some VMs reserve some header words in an array.
+   * Attempts to allocate larger arrays may result in
+   * OutOfMemoryError: Requested array size exceeds VM limit
+   */
+  private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
   /**
    * Default initial capacity.
@@ -59,22 +68,56 @@ public class IntArrayList extends AbstractList<Integer> {
   private static final int[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
   public int[] elementData = new int[10];
+
   private int size = 0;
 
-  public IntArrayList(IntArrayList list) {
+  public IntList(IntList list) {
     this.elementData = Arrays.copyOf(list.elementData, list.size());
     this.size = elementData.length;
   }
 
-  public IntArrayList() {
+  public IntList() {
 
   }
 
+  public IntList(int capacity) {
+    if (capacity < 0) {
+      throw new IllegalArgumentException("negative capacity");
+    } else {
+      this.elementData = new int[capacity];
+    }
+  }
+
+  /**
+   * Trims the capacity of this <tt>ArrayList</tt> instance to be the
+   * list's current size.  An application can use this operation to minimize
+   * the storage of an <tt>ArrayList</tt> instance.
+   */
+  public void trimToSize() {
+    modCount++;
+    if (size < elementData.length) {
+      elementData = (size == 0)
+                    ? EMPTY_ELEMENTDATA
+                    : Arrays.copyOf(elementData, size);
+    }
+  }
+
+  /**
+   * Trims the capacity of this <tt>ArrayList</tt> instance to be the
+   * list's current size.  An application can use this operation to minimize
+   * the storage of an <tt>ArrayList</tt> instance.
+   */
   @Override
   public boolean add(Integer e) {
     return add((int) e);
   }
 
+  /**
+   * Avoid boxing of {@code int}-values
+   *
+   * @param e the value
+   * @return true
+   */
   public boolean add(int e) {
     ensureCapacityInternal(size + 1);
     elementData[size++] = e;
@@ -91,7 +134,6 @@ public class IntArrayList extends AbstractList<Integer> {
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
   public Integer remove(int index) {
-
     modCount++;
     int oldValue = elementData[index];
 
@@ -121,14 +163,6 @@ public class IntArrayList extends AbstractList<Integer> {
       grow(minCapacity);
     }
   }
-
-  /**
-   * The maximum size of array to allocate.
-   * Some VMs reserve some header words in an array.
-   * Attempts to allocate larger arrays may result in
-   * OutOfMemoryError: Requested array size exceeds VM limit
-   */
-  private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
   /**
    * Increases the capacity to ensure that it can hold at least the
@@ -230,6 +264,10 @@ public class IntArrayList extends AbstractList<Integer> {
     Primitive.sort(elementData, 0, size, c::compare);
   }
 
+  public void primitiveSort(IntComparator comparator) {
+    Primitive.sort(elementData, 0, size, comparator);
+  }
+
   /**
    * An optimized version of AbstractList.Itr
    */
@@ -250,7 +288,7 @@ public class IntArrayList extends AbstractList<Integer> {
       if (i >= size) {
         throw new NoSuchElementException();
       }
-      int[] elementData = IntArrayList.this.elementData;
+      int[] elementData = IntList.this.elementData;
       if (i >= elementData.length) {
         throw new ConcurrentModificationException();
       }
@@ -265,7 +303,7 @@ public class IntArrayList extends AbstractList<Integer> {
       checkForComodification();
 
       try {
-        IntArrayList.this.remove(lastRet);
+        IntList.this.remove(lastRet);
         cursor = lastRet;
         lastRet = -1;
         expectedModCount = modCount;
@@ -278,12 +316,12 @@ public class IntArrayList extends AbstractList<Integer> {
     @SuppressWarnings("unchecked")
     public void forEachRemaining(Consumer<? super Integer> consumer) {
       Objects.requireNonNull(consumer);
-      final int size = IntArrayList.this.size;
+      final int size = IntList.this.size;
       int i = cursor;
       if (i >= size) {
         return;
       }
-      final int[] elementData = IntArrayList.this.elementData;
+      final int[] elementData = IntList.this.elementData;
       if (i >= elementData.length) {
         throw new ConcurrentModificationException();
       }
@@ -332,7 +370,7 @@ public class IntArrayList extends AbstractList<Integer> {
       if (i < 0) {
         throw new NoSuchElementException();
       }
-      int[] elementData = IntArrayList.this.elementData;
+      int[] elementData = IntList.this.elementData;
       if (i >= elementData.length) {
         throw new ConcurrentModificationException();
       }
@@ -347,7 +385,7 @@ public class IntArrayList extends AbstractList<Integer> {
       checkForComodification();
 
       try {
-        IntArrayList.this.set(lastRet, e);
+        IntList.this.set(lastRet, e);
       } catch (IndexOutOfBoundsException ex) {
         throw new ConcurrentModificationException();
       }
@@ -358,7 +396,7 @@ public class IntArrayList extends AbstractList<Integer> {
 
       try {
         int i = cursor;
-        IntArrayList.this.add(i, e);
+        IntList.this.add(i, e);
         cursor = i + 1;
         lastRet = -1;
         expectedModCount = modCount;

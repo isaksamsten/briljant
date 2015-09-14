@@ -140,7 +140,12 @@ public abstract class AbstractVector implements Vector {
 
     IntComparator cmp = order == SortOrder.ASC ? loc()::compare : (a, b) -> loc().compare(b, a);
     Index.Builder index = getIndex().newCopyBuilder();
-    index.sortOrder(cmp);
+    index.sortIterationOrder(new IntComparator() {
+      @Override
+      public int compare(int i1, int i2) {
+        return cmp.compare(i1, i2);
+      }
+    });
     return shallowCopy(index.build());
   }
 
@@ -148,7 +153,7 @@ public abstract class AbstractVector implements Vector {
   public <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
     Index.Builder index = getIndex().newCopyBuilder();
     VectorLocationGetter loc = loc();
-    index.sortOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
+    index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return shallowCopy(index.build());
   }
 
@@ -415,6 +420,9 @@ public abstract class AbstractVector implements Vector {
     int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
     int i = 0;
     for (Object key : getIndex().keySet()) {
+      if (i >= size()) {
+        break;
+      }
       String value = toString(key);
       String keyString = Is.NA(key) ? "NA" : key.toString();
       int keyPad = longestKey - keyString.length();

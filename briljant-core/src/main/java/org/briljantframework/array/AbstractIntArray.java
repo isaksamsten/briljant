@@ -24,6 +24,9 @@
 
 package org.briljantframework.array;
 
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
@@ -31,6 +34,8 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
+import org.briljantframework.primitive.IntList;
+import org.briljantframework.sort.QuickSort;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -315,14 +320,14 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray filter(IntPredicate operator) {
-    Builder builder = new Builder();
+    IntList builder = new IntList();
     for (int i = 0; i < size(); i++) {
       int value = get(i);
       if (operator.test(value)) {
         builder.add(value);
       }
     }
-    return builder.build();
+    return bj.array(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
@@ -624,6 +629,20 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
+  public void sort() {
+    sort(Integer::compare);
+  }
+
+  @Override
+  public void sort(IntComparator cmp) {
+    if (stride(0) == 1 && dims() == 1) {
+      Primitive.sort(data(), 0, size(), cmp);
+    } else {
+      QuickSort.quickSort(0, size(), cmp::compare, this);
+    }
+  }
+
+  @Override
   public IntArray mmul(IntArray other) {
     return mmul(1, other);
   }
@@ -809,28 +828,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public IntArray slice(BooleanArray bits) {
     Check.shape(this, bits);
-    Builder builder = new Builder();
+    IntList list = new IntList();
     for (int i = 0; i < size(); i++) {
       if (bits.get(i)) {
-        builder.add(get(i));
+        list.add(get(i));
       }
     }
-    return builder.build();
+    return bj.array(Arrays.copyOf(list.elementData, list.size()));
   }
-
-  private class Builder {
-
-    private int[] buffer = new int[10];
-    private int size = 0;
-
-    public void add(int a) {
-      buffer = ArrayUtils.ensureCapacity(buffer, size);
-      buffer[size++] = a;
-    }
-
-    public IntArray build() {
-      return bj.array(Arrays.copyOf(buffer, size));
-    }
-  }
-
 }
