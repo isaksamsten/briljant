@@ -1,1 +1,0 @@
-protoc --java_out=../core/src/generated/java Instances.protocd
