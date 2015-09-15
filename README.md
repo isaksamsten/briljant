@@ -71,7 +71,6 @@ Open     High     Low      Close    Volume
 1980  0.000    4.365    4.349    4.349    3232815.385    
 
 [36 rows x 5 columns]
-
 ```
 
 ## Installation
@@ -86,25 +85,19 @@ Since Briljant is built using [Gradle](https://gradle.org/) it is
 simple to build from source and reference the binaries from your
 project. First we need to clone the repository
 
-
     git clone https://github.com/isakkarlsson/briljant.git
-
 
 Then building the source code is as simple as
 
-
     gradle install
 
-
 In your `build.gradle` or `pom.xml` reference
-
 
     <dependency>
         <groupId>org.briljantframework</groupId>
         <artifactId>briljant-core</artifactId>
         <version>0.1-SNAPSHOT</version>
     </dependency>
-
 
 ## Contribute
 
