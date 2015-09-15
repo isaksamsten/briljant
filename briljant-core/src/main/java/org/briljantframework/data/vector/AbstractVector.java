@@ -29,6 +29,7 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
+import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
@@ -42,6 +43,7 @@ import org.briljantframework.exceptions.IllegalTypeException;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -140,12 +142,7 @@ public abstract class AbstractVector implements Vector {
 
     IntComparator cmp = order == SortOrder.ASC ? loc()::compare : (a, b) -> loc().compare(b, a);
     Index.Builder index = getIndex().newCopyBuilder();
-    index.sortIterationOrder(new IntComparator() {
-      @Override
-      public int compare(int i1, int i2) {
-        return cmp.compare(i1, i2);
-      }
-    });
+    index.sortIterationOrder(cmp::compare);
     return shallowCopy(index.build());
   }
 
@@ -267,6 +264,20 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public Vector select(Object from, BoundType fromBound, Object to, BoundType toBound) {
+    Vector.Builder builder = newBuilder();
+    for (Object key : getIndex().selectRange(from, fromBound, to, toBound)) {
+      builder.set(key, this, key);
+    }
+    return builder.build();
+  }
+
+  @Override
+  public Iterator<Object> iterator() {
+    return getIndex().keySet().iterator();
+  }
+
+  @Override
   public int compare(Object a, Object b) {
     return compareAt(getIndex().getLocation(a), this, getIndex().getLocation(b));
   }
@@ -363,6 +374,17 @@ public abstract class AbstractVector implements Vector {
   @Override
   public Builder newBuilder(int size) {
     return getType().newBuilder(size);
+  }
+
+  @Override
+  public <T> boolean all(Class<T> cls, Predicate<? super T> predicate) {
+    VectorLocationGetter getter = loc();
+    for (int i = 0, size = size(); i < size; i++) {
+      if (!predicate.test(getter.get(cls, i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -808,8 +830,6 @@ public abstract class AbstractVector implements Vector {
      * @param b the location of the second element
      */
     protected abstract void swapAt(int a, int b);
-
-    ;
 
     /**
      * Get the location of the element with the supplied key. If no such key exist

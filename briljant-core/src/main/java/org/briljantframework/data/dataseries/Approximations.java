@@ -26,7 +26,8 @@ package org.briljantframework.data.dataseries;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.transform.PipelineTransformation;
+import org.briljantframework.data.dataframe.transform.PipelineTransformer;
+import org.briljantframework.data.dataframe.transform.Transformer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,7 +74,7 @@ public final class Approximations {
   }
 
   /**
-   * Returns a {@link org.briljantframework.data.dataframe.transform.Transformation} that reduces the
+   * Returns a {@link Transformer} that reduces the
    * length of each row-vector to {@code size}.
    *
    * @param size the resulting time series size
@@ -84,7 +85,7 @@ public final class Approximations {
   }
 
   /**
-   * Returns a {@link org.briljantframework.data.dataframe.transform.Transformation} that reduces the
+   * Returns a {@link Transformer} that reduces the
    * size and transforms each row in the input data frame to
    */
   public static AggregateApproximation sax(List<String> alphabet) {
@@ -101,7 +102,7 @@ public final class Approximations {
 
   public static DataFrame sax(DataFrame in, int size, List<String> alphabet) {
     Check.argument(alphabet.size() > 1, "Alphabet size must be larger than 1.");
-    return PipelineTransformation.of(paa(size), sax(alphabet)).transform(in);
+    return PipelineTransformer.of(paa(size), sax(alphabet)).transform(in);
   }
 
 }

@@ -41,11 +41,11 @@ import org.briljantframework.data.vector.VectorType;
  *
  * @author Isak Karlsson
  */
-public class MinMaxNormalizer implements Transformer {
+public class MinMaxNormalizer implements Transformation {
 
 
   @Override
-  public Transformation fit(DataFrame frame) {
+  public Transformer fit(DataFrame frame) {
     DoubleArray min = Bj.doubleArray(frame.columns());
     DoubleArray max = Bj.doubleArray(frame.columns());
     for (int j = 0; j < frame.columns(); j++) {

@@ -24,66 +24,34 @@
 
 package org.briljantframework.data.dataframe.transform;
 
-
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.linalg.LinearAlgebra;
 
 /**
- * Transformer that removes columns with missing values.
- *
- * <p> Given the DataFrame {@code x} equal to
- *
- * <pre>
- *    1  2 3
- *    NA 1 3
- *    1  2 3,
- * </pre>
- *
- * the DataFrame {@code m} equal to
- *
- * <pre>
- *     1  3 NA
- *     1  1 3
- *     2  2 2
- * </pre>
- *
- * {@code t.transform(m)} returns a new DataFrame
- *
- * <pre>
- *     1 3
- *     1 1
- *     2 2
- * </pre>
- *
- * and {@code t.transform(x)} a new data frame
- *
- * <pre>
- *     2 3
- *     1 3
- *     2 3
- * </pre>
- *
- * </p>
- *
- * @author Isak Karlsson
+ * Transforms a frame to it's inverse
+ * <p>
+ * Created by Isak Karlsson on 11/08/14.
  */
-public class RemoveIncompleteColumns implements Transformer {
+public class PseudoInverseTransformation implements Transformation {
 
   @Override
-  public DataFrame transform(DataFrame x) {
-    DataFrame.Builder builder = x.newBuilder();
-    for (Object columnKey : x.getColumnIndex().keySet()) {
-      Vector column = x.get(columnKey);
-      if (!column.hasNA()) {
-        builder.set(columnKey, Vectors.transferableBuilder(column));
-      }
-    }
+  public Transformer fit(DataFrame container) {
+    return new PinvTransformer();
+  }
 
-    DataFrame df = builder.build();
-    if (df.rows() > 0 && df.columns() > 0) {
-      df.setIndex(x.getIndex());
+  private static class PinvTransformer implements Transformer {
+
+    @Override
+    public DataFrame transform(DataFrame x) {
+      DoubleArray matrix = LinearAlgebra.pinv(x.toDoubleArray());
+      DataFrame.Builder builder = x.newBuilder();
+      for (int j = 0; j < x.columns(); j++) {
+        for (int i = 0; i < x.rows(); i++) {
+          builder.loc().set(i, j, matrix.get(i, j));
+        }
+      }
+      return builder.build();
     }
-    return df;
   }
 }

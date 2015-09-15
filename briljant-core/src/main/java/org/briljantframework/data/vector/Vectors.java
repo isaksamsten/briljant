@@ -136,7 +136,7 @@ public final class Vectors {
    * <p> Create a vector of length {@code num} with evenly spaced values between {@code start} and
    * {@code end}. </p>
    *
-   * <p> Returns a vector of {@link DoubleVector#TYPE} </p>
+   * <p> Returns a vector of {@link VectorType#DOUBLE} </p>
    *
    * @param start the start value
    * @param stop  the end value
@@ -232,8 +232,9 @@ public final class Vectors {
   public static StatisticalSummary statistics(Vector vector) {
     FastStatistics r = new FastStatistics();
     for (int i = 0; i < vector.size(); i++) {
-      if (!vector.loc().isNA(i)) {
-        r.addValue(vector.loc().getAsDouble(i));
+      double v = vector.loc().getAsDouble(i);
+      if (!Is.NA(v)) {
+        r.addValue(v);
       }
     }
     return r.getSummary();
@@ -411,7 +412,7 @@ public final class Vectors {
   /**
    * <p> Counts the number of occurrences for each value (of type {@code T}) in {@code vector}
    *
-   * <p> Since {@link Vector#get(Class, int)} returns {@code NA} if value is not an instance of
+   * <p> Since {@link Vector#get(Class, Object)} returns {@code NA} if value is not an instance of
    * {@code T}, the resulting {@code Map} might contain a {@code null} key
    *
    * @param cls    the class

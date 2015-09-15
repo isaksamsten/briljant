@@ -32,11 +32,10 @@ import org.briljantframework.data.vector.Vector;
 /**
  * @author Isak Karlsson
  */
-public class MeanImputer implements Transformer {
+public class MeanImputer implements Transformation {
 
   @Override
-  public Transformation fit(DataFrame frame) {
-//    DoubleArray means = Bj.doubleArray(frame.columns());
+  public Transformer fit(DataFrame frame) {
     Vector.Builder builder = Vector.Builder.of(Double.class);
     for (Object key : frame.getColumnIndex().keySet()) {
       builder.set(key, Vectors.mean(frame.get(key)));

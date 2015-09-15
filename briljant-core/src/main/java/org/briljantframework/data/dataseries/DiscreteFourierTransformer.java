@@ -29,7 +29,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.transform.InvertibleTransformation;
+import org.briljantframework.data.dataframe.transform.InvertibleTransformer;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
@@ -39,7 +39,7 @@ import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft
 /**
  * @author Isak Karlsson
  */
-public class DiscreteFourierTransformation implements InvertibleTransformation {
+public class DiscreteFourierTransformer implements InvertibleTransformer {
 
   /**
    * @param x data frame to transform

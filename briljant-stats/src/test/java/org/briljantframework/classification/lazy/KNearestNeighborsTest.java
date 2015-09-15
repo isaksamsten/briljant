@@ -61,7 +61,7 @@ public class KNearestNeighborsTest {
     //
     //
     // ZNormalizer<ClassificationFrame> normalizer = new ZNormalizer<>();
-    // Transformation<ClassificationFrame> n = normalizer.fit(train);
+    // Transformer<ClassificationFrame> n = normalizer.fit(train);
     //
     // ClassificationFrame f = n.transform(train, ClassificationFrame.FACTORY);
     //

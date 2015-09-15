@@ -27,7 +27,6 @@ package org.briljantframework.linalg;
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.dataframe.transform.InverseTransformation;
 import org.briljantframework.linalg.decomposition.LuDecomposer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
@@ -86,27 +85,6 @@ public class LinearAlgebra {
    */
   public static LuDecomposition lu(DoubleArray matrix) {
     return new LuDecomposer().decompose(matrix);
-  }
-
-  /**
-   * Return the inverse of a matrix a.
-   * <p>
-   *
-   * <pre>
-   * Matrix a = ArrayMatrix.of(2, 2, 1, 1, 1, 2);
-   * Matrix inverse = Linalg.inverse(a);
-   * // Result:
-   * // 2 -1
-   * // -1 1
-   * </pre>
-   *
-   * @param a the matrix to inverse
-   * @return the inverse of a
-   * @throws IllegalArgumentException if matrix is not square
-   * @throws RuntimeException         if the decomposition fail (i.e. the matrix is singular)
-   */
-  public static DoubleArray inv(DoubleArray a) {
-    return new InverseTransformation().transform(a);
   }
 
 

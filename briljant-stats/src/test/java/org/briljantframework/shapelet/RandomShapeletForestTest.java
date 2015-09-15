@@ -52,7 +52,7 @@ public class RandomShapeletForestTest {
 //    String trainFile = String.format("/Users/isak-kar/Downloads/dataset3/%s/%s.arff", name, name);
 //    try (DataInputStream train = new ArffInputStream(new FileInputStream(trainFile))) {
 //      DataFrame trainingSet = MixedDataFrame.read(train);
-//      Transformation znorm = new DataSeriesNormalization();
+//      Transformer znorm = new DataSeriesNormalization();
 ////      DataFrame xTrain =
 ////          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE)
 ////                              .stack(0, trainingSet.drop(trainingSet.columns() - 1))
@@ -102,7 +102,7 @@ public class RandomShapeletForestTest {
 //          new MixedDataFrame.Builder(test.readColumnTypes()).read(test)
 //              .build();
 //
-//      Transformation znorm = new DataSeriesNormalization();
+//      Transformer znorm = new DataSeriesNormalization();
 //      DataFrame xTrain =
 //          znorm.transform(new DataSeriesCollection.Builder(DoubleVector.TYPE).stack(
 //              0, trainingSet.drop(trainingSet.columns() - 1)).build());

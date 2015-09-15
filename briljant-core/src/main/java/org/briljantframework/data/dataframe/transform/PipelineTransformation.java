@@ -24,31 +24,41 @@
 
 package org.briljantframework.data.dataframe.transform;
 
+import org.briljantframework.data.dataframe.DataFrame;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.briljantframework.data.dataframe.DataFrame;
-
 /**
- * Created by Isak Karlsson on 17/12/14.
+ * @author Isak Karlsson
  */
 public class PipelineTransformation implements Transformation {
 
   private final List<Transformation> transformations;
 
-  public PipelineTransformation(List<Transformation> transformations) {
+  private PipelineTransformation(List<Transformation> transformations) {
     this.transformations = transformations;
   }
 
-  public static PipelineTransformation of(Transformation... transformations) {
+  public static Transformation of(Transformation... transformations) {
+    if (transformations.length < 1) {
+      throw new IllegalArgumentException(
+          "Cannot construct a PipelineTransformation without transformations");
+    }
+
     return new PipelineTransformation(Arrays.asList(transformations));
   }
 
   @Override
-  public DataFrame transform(DataFrame x) {
+  public Transformer fit(DataFrame dataFrame) {
+    List<Transformer> transformers = new ArrayList<>();
     for (Transformation transformation : transformations) {
-      x = transformation.transform(x);
+      Transformer transformer = transformation.fit(dataFrame);
+      dataFrame = transformer.transform(dataFrame);
+      transformers.add(transformer);
     }
-    return x;
+    return new PipelineTransformer(transformers);
   }
+
 }

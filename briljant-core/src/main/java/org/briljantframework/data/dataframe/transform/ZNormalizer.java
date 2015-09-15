@@ -25,56 +25,70 @@
 package org.briljantframework.data.dataframe.transform;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
-import org.briljantframework.array.DoubleArray;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.DataFrameLocationGetter;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.VectorType;
 
 /**
  * Z normalization is also known as "Normalization to Zero Mean and Unit of Energy" first mentioned
- * by found in Goldin & Kanellakis. It ensures that all elements of the input vector are
- * transformed
+ * in Goldin & Kanellakis. It ensures that all elements of the input vector are transformed
  * into the output vector whose mean is approximately 0 while the standard deviation are in a range
  * close to 1.
  *
  * @author Isak Karlsson
  */
-public class ZNormalizer implements Transformer {
+public class ZNormalizer implements Transformation {
 
   @Override
-  public Transformation fit(DataFrame frame) {
-    DoubleArray mean = Bj.doubleArray(frame.columns());
-    DoubleArray sigma = Bj.doubleArray(frame.columns());
-    for (int i = 0; i < frame.columns(); i++) {
-      StatisticalSummary stats = Vectors.statistics(frame.loc().get(i));
-      mean.set(i, stats.getMean());
-      sigma.set(i, stats.getStandardDeviation());
+  public Transformer fit(DataFrame df) {
+    Vector.Builder meanBuilder = Vector.Builder.of(Double.class);
+    Vector.Builder stdBuilder = Vector.Builder.of(Double.class);
+    for (Object columnKey : df) {
+      // TODO: ISSUE#14 check for NA result
+      StatisticalSummary stats = Vectors.statistics(df.get(columnKey));
+      meanBuilder.set(columnKey, stats.getMean());
+      stdBuilder.set(columnKey, stats.getStandardDeviation());
     }
+    Vector mean = meanBuilder.build();
+    Vector sigma = stdBuilder.build();
 
-    return x -> {
-      Check.size(mean.size(), x.columns());
-      DataFrame.Builder builder = x.newBuilder();
-      DataFrameLocationGetter loc = x.loc();
-      for (int j = 0; j < x.columns(); j++) {
-        VectorType type = loc.get(j).getType();
-        Check.type(type, VectorType.DOUBLE);
-        builder.add(type);
-//        builder.getColumnNames().putFromIfPresent(j, x.getColumnNames(), j);
-        double m = mean.get(j);
-        double std = sigma.get(j);
-        for (int i = 0; i < x.rows(); i++) {
-          if (loc.isNA(i, j)) {
-            builder.loc().setNA(i, j);
-          } else {
-            builder.loc().set(i, j, (loc.getAsDouble(i, j) - m) / std);
-          }
-        }
-      }
-      return builder.build();
-    };
+    return new ZNormalizerTransformer(mean, sigma);
   }
 
+  private static class ZNormalizerTransformer implements Transformer {
+
+    private final Vector mean;
+    private final Vector sigma;
+
+    public ZNormalizerTransformer(Vector mean, Vector sigma) {
+      this.mean = mean;
+      this.sigma = sigma;
+    }
+
+    @Override
+    public DataFrame transform(DataFrame x) {
+      Check.argument(mean.getIndex().equals(x.getColumnIndex()), "Columns must match.");
+      DataFrame.Builder builder = x.newBuilder();
+      for (Object columnKey : x) {
+        Vector column = x.get(columnKey);
+        double m = mean.getAsDouble(columnKey);
+        double std = sigma.getAsDouble(columnKey);
+        Vector.Builder normalized = column.newBuilder(column.size());
+        for (int i = 0, size = column.size(); i < size; i++) {
+          double v = column.loc().getAsDouble(i);
+          if (Is.NA(v)) {
+            normalized.addNA();
+          } else if (std == 0) {
+            normalized.add(0);
+          } else {
+            normalized.add((v - m) / std);
+          }
+        }
+        builder.set(columnKey, normalized);
+      }
+      return builder.setIndex(x.getIndex()).build();
+    }
+  }
 }

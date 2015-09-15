@@ -26,35 +26,25 @@ package org.briljantframework.data.dataframe.transform;
 
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.DataFrameLocationGetter;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 
 /**
  * Removes incomplete cases, i.e. rows with missing values.
- * 
+ *
  * @author Isak Karlsson
  */
-public class RemoveIncompleteCases implements Transformation {
+public class RemoveIncompleteCases implements Transformer {
 
   @Override
   public DataFrame transform(DataFrame x) {
     DataFrame.Builder builder = x.newBuilder();
-    DataFrameLocationGetter loc = x.loc();
-    int nonNaRow = 0;
-    for (int i = 0; i < x.rows(); i++) {
-      boolean hasNA = false;
-      for (int j = 0; j < x.columns(); j++) {
-        if (loc.isNA(i, j)) {
-          hasNA = true;
-          break;
-        }
-      }
-      if (!hasNA) {
-        for (int j = 0; j < x.columns(); j++) {
-          builder.loc().set(nonNaRow, j, x, i, j);
-        }
-        nonNaRow += 1;
+    for (Object recordKey : x.getIndex().keySet()) {
+      Vector record = x.getRecord(recordKey);
+      if (!record.hasNA()) {
+        builder.setRecord(recordKey, Vectors.transferableBuilder(record));
       }
     }
-    return builder.build();
+    return builder.setColumnIndex(x.getColumnIndex()).build();
   }
 }

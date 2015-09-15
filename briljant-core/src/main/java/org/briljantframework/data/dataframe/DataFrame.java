@@ -25,6 +25,7 @@
 package org.briljantframework.data.dataframe;
 
 import org.briljantframework.array.Array;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
@@ -382,6 +383,7 @@ public interface DataFrame extends Iterable<Object> {
    *
    * @return this data frame as a matrix
    */
+  // TODO: perhaps
   Array<Object> toArray();
 
   DoubleArray toDoubleArray();

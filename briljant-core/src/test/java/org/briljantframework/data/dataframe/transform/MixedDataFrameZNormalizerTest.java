@@ -25,32 +25,15 @@
 package org.briljantframework.data.dataframe.transform;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.linalg.LinearAlgebra;
-import org.briljantframework.array.DoubleArray;
+import org.briljantframework.data.dataframe.MixedDataFrame;
 
 /**
- * Transforms a frame to it's inverse
- * <p>
- * Created by Isak Karlsson on 11/08/14.
+ * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class PseudoInverseTransformer implements Transformer {
+public class MixedDataFrameZNormalizerTest extends ZNormalizerTest {
 
   @Override
-  public Transformation fit(DataFrame container) {
-    return new PinvTransformation();
-  }
-
-  private static class PinvTransformation implements Transformation {
-    @Override
-    public DataFrame transform(DataFrame x) {
-      DoubleArray matrix = LinearAlgebra.pinv(x.toArray().asDouble());
-      DataFrame.Builder builder = x.newBuilder();
-      for (int j = 0; j < x.columns(); j++) {
-        for (int i = 0; i < x.rows(); i++) {
-          builder.loc().set(i, j, matrix.get(i, j));
-        }
-      }
-      return builder.build();
-    }
+  DataFrame.Builder getBuilder() {
+    return new MixedDataFrame.Builder();
   }
 }

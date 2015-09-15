@@ -39,7 +39,7 @@ public class RemoveIncompleteColumnsTest {
         "a", Vector.of(1, 1, 2, 2, null),
         "b", Vector.of(1, 2, 3, 4, 5),
         "c", Vector.of("hello", "a", "b", "c", "d"));
-    Transformation ric = new RemoveIncompleteColumns();
+    Transformer ric = new RemoveIncompleteColumns();
     DataFrame removed = ric.transform(df);
 
     assertEquals(2, removed.columns());

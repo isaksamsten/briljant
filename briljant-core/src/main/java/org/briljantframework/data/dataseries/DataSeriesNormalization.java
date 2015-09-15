@@ -25,7 +25,7 @@
 package org.briljantframework.data.dataseries;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.transform.Transformation;
+import org.briljantframework.data.dataframe.transform.Transformer;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
 
@@ -41,7 +41,7 @@ import org.briljantframework.data.vector.Vector;
  *
  * @author Isak Karlsson
  */
-public class DataSeriesNormalization implements Transformation {
+public class DataSeriesNormalization implements Transformer {
 
   /**
    * <p>

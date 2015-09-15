@@ -69,11 +69,12 @@ public final class IntIndex implements Index {
 
   @Override
   public Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound) {
-    Check.argument(from instanceof Integer && to instanceof Integer);
+    Check.argument(from instanceof Integer && to instanceof Integer, "Illegal keys");
     int s = (int) from;
     int e = (int) to;
-    Check.argument(s >= 0 && e < size && s < e, "Illegal select");
-    return new SelectSet(s, e);
+    Check.argument(s >= 0 && e <= size && s < e, "Illegal select");
+    return new SelectSet(fromBound == BoundType.INCLUSIVE ? s : s + 1,
+                         toBound == BoundType.EXCLUSIVE ? e : e + 1);
   }
 
   @Override

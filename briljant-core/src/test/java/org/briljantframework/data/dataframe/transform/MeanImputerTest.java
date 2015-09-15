@@ -48,7 +48,7 @@ public class MeanImputerTest {
     frame.setIndex(index);
 
     MeanImputer imputer = new MeanImputer();
-    Transformation t = imputer.fit(frame);
+    Transformer t = imputer.fit(frame);
     DataFrame imputed = t.transform(frame);
 
     assertEquals(columnIndex, imputed.getColumnIndex());

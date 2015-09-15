@@ -27,18 +27,20 @@ package org.briljantframework.data.dataframe.transform;
 import org.briljantframework.data.dataframe.DataFrame;
 
 /**
- * Fit an invertible transformation, e.g. PCA.
+ * Some transformations are (semi) invertible, e.g. PCA. Given the transformation {@code f(x)} and
+ * the inverse {@code f'(x)}, {@code f'(f(x)) ~= x}.
  * 
  * @author Isak Karlsson
  */
 public interface InvertibleTransformer extends Transformer {
 
   /**
-   * Perform an invertible transformation on {@code x}
+   * Inverse the transformation produced by
+   * {@link #transform(org.briljantframework.data.dataframe.DataFrame)}
    *
-   * @param x dataset to transform
-   * @return the invertible transformation
+   * @param x a data frame as produced by
+   *        {@link #transform(org.briljantframework.data.dataframe.DataFrame)}
+   * @return the x before transformation
    */
-  @Override
-  InvertibleTransformation fit(DataFrame x);
+  DataFrame inverseTransform(DataFrame x);
 }

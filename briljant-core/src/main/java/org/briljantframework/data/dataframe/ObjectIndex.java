@@ -191,16 +191,24 @@ public final class ObjectIndex implements Index {
   }
 
   @Override
-  public boolean equals(Object object) {
-    if (this == object) {
+  public boolean equals(Object other) {
+    if (this == other) {
       return true;
     }
-    if (object == null || getClass() != object.getClass()) {
+    if (other instanceof ObjectIndex) {
+      ObjectIndex entries = (ObjectIndex) other;
+      return getKeys().keySet().equals(entries.getKeys().keySet());
+    } else if (other instanceof Index) {
+      Index index = (Index) other;
+      for (Object key : getKeys().keySet()) {
+        if (!index.contains(key)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
       return false;
     }
-
-    ObjectIndex entries = (ObjectIndex) object;
-    return getKeys().equals(entries.getKeys());
   }
 
   @Override

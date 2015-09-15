@@ -25,7 +25,7 @@
 package org.briljantframework.data.dataseries;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.transform.Transformation;
+import org.briljantframework.data.dataframe.transform.Transformer;
 
 import java.util.Objects;
 
@@ -46,7 +46,7 @@ import java.util.Objects;
  *
  * @author Isak Karlsson
  */
-public class AggregateApproximation implements Transformation {
+public class AggregateApproximation implements Transformer {
 
   private final Aggregator aggregator;
 

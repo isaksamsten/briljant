@@ -29,13 +29,14 @@ import org.briljantframework.array.Array;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
-import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.exceptions.IllegalTypeException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -76,7 +77,7 @@ import java.util.stream.Stream;
  *
  * @author Isak Karlsson
  */
-public interface Vector extends Serializable {
+public interface Vector extends Serializable, Iterable<Object> {
 
   /**
    * Construct a vector of values. The type of vector is inferred from the values.
@@ -486,6 +487,12 @@ public interface Vector extends Serializable {
 
   Vector select(Vector bits);
 
+  default Vector select(Object from, Object to) {
+    return select(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
+  }
+
+  Vector select(Object from, BoundType fromBound, Object to, BoundType toBound);
+
   int compare(Object a, Object b);
 
   /**
@@ -674,6 +681,12 @@ public interface Vector extends Serializable {
    */
   Builder newBuilder(int size);
 
+  default boolean all(Predicate<Object> predicate) {
+    return all(Object.class, predicate);
+  }
+
+  <T> boolean all(Class<T> cls, Predicate<? super T> predicate);
+
   /**
    * <p> Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if
    * a builder is initialized with size {@code 8}, {@link #add(Object)} (et. al.) adds a value at
@@ -689,7 +702,7 @@ public interface Vector extends Serializable {
    * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or {@code
    * Logical.TRUE} in a logical-vector. </p>
    */
-  public static interface Builder {
+  interface Builder {
 
     /**
      * Construct a builder for the specified type
@@ -799,7 +812,6 @@ public interface Vector extends Serializable {
      *
      * @param entry the input stream
      * @return receiver modified
-     * @throws IOException if {@code inputStream} fail
      */
     Builder read(DataEntry entry);
 

@@ -34,7 +34,7 @@ import org.briljantframework.data.dataframe.join.LeftOuterJoin;
 import org.briljantframework.data.dataframe.join.OuterJoin;
 import org.briljantframework.data.dataframe.transform.RemoveIncompleteCases;
 import org.briljantframework.data.dataframe.transform.RemoveIncompleteColumns;
-import org.briljantframework.data.dataframe.transform.Transformation;
+import org.briljantframework.data.dataframe.transform.Transformer;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
@@ -55,8 +55,8 @@ public final class DataFrames {
   public static final String OUTER = "outer";
   public static final String INNER = "inner";
   public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
-  private static final Transformation removeIncompleteColumns = new RemoveIncompleteColumns();
-  private static final Transformation removeIncompleteCases = new RemoveIncompleteCases();
+  private static final Transformer removeIncompleteColumns = new RemoveIncompleteColumns();
+  private static final Transformer removeIncompleteCases = new RemoveIncompleteCases();
   private static final Map<String, JoinOperation> joinOperations;
 
   static {

@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
 /**
- * Created by isak on 11/09/15.
+ * @author Isak Karlsson
  */
 @State(Scope.Benchmark)
 public class VectorSortPerformance {

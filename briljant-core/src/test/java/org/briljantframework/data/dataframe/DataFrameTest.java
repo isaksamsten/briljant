@@ -473,7 +473,7 @@ public abstract class DataFrameTest {
       long start = System.nanoTime();
       DataFrame sorted = df.sort(SortOrder.DESC, "First");
       double time = (System.nanoTime() - start) / 1e6;
-      if(time < best) {
+      if (time < best) {
         best = time;
       }
     }

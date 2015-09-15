@@ -58,8 +58,8 @@ import java.util.Map;
  * {@link MeanAggregator}. For example,
  *
  * <pre>
- * Transformation sax =
- *     PipelineTransformation.of(new AggregateApproximation(new MeanAggreagator(5)),
+ * Transformer sax =
+ *     PipelineTransformer.of(new AggregateApproximation(new MeanAggreagator(5)),
  *         new AggreagetApproximation(new SymbolicAggregator(&quot;a&quot;, &quot;b&quot;,
  * &quot;c&quot;, &quot;d&quot;)));
  * sax.transform(x);

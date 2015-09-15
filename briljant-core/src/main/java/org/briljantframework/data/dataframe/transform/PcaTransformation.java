@@ -48,21 +48,21 @@ import org.briljantframework.data.vector.VectorType;
  *
  * @author Isak Karlsson
  */
-public class PcaTransformer implements InvertibleTransformer {
+public class PcaTransformation implements InvertibleTransformation {
 
   private final SingularValueDecomposer decomposer;
   private final int components;
 
-  public PcaTransformer(SingularValueDecomposer decomposer, int components) {
+  public PcaTransformation(SingularValueDecomposer decomposer, int components) {
     this.decomposer = decomposer;
     this.components = components;
   }
 
-  public PcaTransformer(int components) {
+  public PcaTransformation(int components) {
     this(new SingularValueDecomposer(), components);
   }
 
-  public PcaTransformer() {
+  public PcaTransformation() {
     this(-1);
   }
 
@@ -72,11 +72,11 @@ public class PcaTransformer implements InvertibleTransformer {
   }
 
   @Override
-  public InvertibleTransformation fit(DataFrame x) {
+  public InvertibleTransformer fit(DataFrame x) {
     Check.all(col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA(), x.getColumns());
     SingularValueDecomposition svd = getSingularValueDecomposition(x.toArray().asDouble());
     DoubleArray u = svd.getLeftSingularValues();
-    return new InvertibleTransformation() {
+    return new InvertibleTransformer() {
       @Override
       public DataFrame inverseTransform(DataFrame x) {
         Check.all(col -> col.getType() == VectorType.DOUBLE && !col.hasNA(), x.getColumns());

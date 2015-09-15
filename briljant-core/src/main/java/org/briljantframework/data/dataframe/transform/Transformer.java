@@ -24,34 +24,21 @@
 
 package org.briljantframework.data.dataframe.transform;
 
+
 import org.briljantframework.data.dataframe.DataFrame;
 
 /**
- * Fit a Transformer to a dataset and return a transformation which can be used to transform other
- * datasets using the parameters of the fitted dataset. This can be particularly useful when a
- * transformation must be fitted on a dataset and applied on another. For example, in the case of
- * normalizing training and testing data.
- * 
+ * A transformer takes a dataset D and applies a transformation, resulting in an new dataset D'
+ *
  * @author Isak Karlsson
  */
-@FunctionalInterface
 public interface Transformer {
 
   /**
-   * Fit a transformation to data frame
+   * Apply transformer to {@code x} resulting in a new data frame
    *
-   * @param dataFrame the dataset to use in the fit procedure
-   * @return the transformation
+   * @param x data frame to transform
+   * @return transformation of {@code dataFrame}
    */
-  Transformation fit(DataFrame dataFrame);
-
-  /**
-   * Fit and transform the data frame in a single operation
-   *
-   * @param dataFrame the data frame
-   * @return the transformed data frame
-   */
-  default DataFrame fitTransform(DataFrame dataFrame) {
-    return fit(dataFrame).transform(dataFrame);
-  }
+  DataFrame transform(DataFrame x);
 }
