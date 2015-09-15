@@ -263,7 +263,9 @@ public abstract class AbstractDataFrame implements DataFrame {
     Vector column = get(columnKey);
     VectorLocationGetter loc = column.loc();
     for (int i = 0, size = column.size(); i < size; i++) {
-      groups.computeIfAbsent(map.apply(loc.get(cls, i)),
+      T value = loc.get(cls, i);
+      // Ignore NA values (group them separately)
+      groups.computeIfAbsent(Is.NA(value) ? value : map.apply(value),
                              a -> Vector.Builder.of(Integer.class)).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKey);
