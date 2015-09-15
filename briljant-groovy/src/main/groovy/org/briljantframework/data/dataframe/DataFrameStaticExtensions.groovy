@@ -41,7 +41,6 @@ class DataFrameStaticExtensions {
    * </pre>
    *
    * @param self a dataframe
-   * @param fileOrPath a file, reader or path
    * @param closure a closure for providing additional settings
    * @return a data frame
    * @see CsvParser

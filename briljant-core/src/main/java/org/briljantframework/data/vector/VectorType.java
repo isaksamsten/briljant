@@ -65,6 +65,8 @@ public abstract class VectorType {
     CLASS_TO_VECTOR_TYPE.put(Integer.class, INT);
     CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, INT);
     CLASS_TO_VECTOR_TYPE.put(Double.class, DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(Float.class, DOUBLE);
+    CLASS_TO_VECTOR_TYPE.put(Float.TYPE, DOUBLE);
     CLASS_TO_VECTOR_TYPE.put(Double.TYPE, DOUBLE);
     CLASS_TO_VECTOR_TYPE.put(String.class, STRING);
     CLASS_TO_VECTOR_TYPE.put(Boolean.class, LOGICAL);

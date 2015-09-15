@@ -28,9 +28,12 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.data.resolver.Resolvers;
 
 import java.io.BufferedReader;
 import java.io.Reader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,40 +60,10 @@ public class CsvEntryReader implements EntryReader {
 
   @Override
   public List<Class<?>> getTypes() {
-    return Collections.unmodifiableList(types);
-  }
-
-  @Override
-  public DataEntry next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-//    if (current == null) {
-//      current = csvParser.parseNext();
-//    }
-//    if (current == null) {
-//      throw new NoSuchElementException();
-//    }
-    DataEntry entry = new StringDataEntry(current, missingValue);
-    current = null;
-    return entry;
-  }
-
-  @Override
-  public boolean hasNext() {
-    initialize();
-    if (current == null) {
-      current = csvParser.parseNext();
-    }
-    return current != null;
-  }
-
-  private void initialize() {
     if (types == null) {
-      if (current == null) {
-        current = csvParser.parseNext();
-      }
-
       types = new ArrayList<>();
       for (String repr : current) {
         repr = repr == null ? repr : repr.trim();
@@ -100,11 +73,40 @@ public class CsvEntryReader implements EntryReader {
           Number number = NumberUtils.createNumber(repr);
           types.add(number.getClass());
         } else {
-          types.add(Object.class);
+          // Finally, try to resolve the value using the registered resolvers
+          Resolver<?> resolver = null;
+          Object data;
+          if ((resolver = Resolvers.find(LocalDate.class)) != null) {
+            data = resolver.resolve(repr);
+          } else {
+            data = null;
+          }
+          if (data == null) {
+            types.add(Object.class);
+          } else {
+            types.add(data.getClass());
+          }
         }
       }
     }
+    return Collections.unmodifiableList(types);
   }
 
+  @Override
+  public DataEntry next() {
+    if (!hasNext()) {
+      throw new NoSuchElementException();
+    }
+    DataEntry entry = new StringDataEntry(current, missingValue);
+    current = null;
+    return entry;
+  }
 
+  @Override
+  public boolean hasNext() {
+    if (current == null) {
+      current = csvParser.parseNext();
+    }
+    return current != null;
+  }
 }
