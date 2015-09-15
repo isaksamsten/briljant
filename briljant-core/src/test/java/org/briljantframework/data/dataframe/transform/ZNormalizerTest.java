@@ -46,7 +46,8 @@ public abstract class ZNormalizerTest {
 
   @Before
   public void setUp() throws Exception {
-    NormalDistribution distribution = new NormalDistribution(new Well1024a(100), 10, 2);
+    NormalDistribution distribution = new NormalDistribution(new Well1024a(100), 10, 2,
+                                                             NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
     train = getBuilder()
         .set("a", Vector.of(distribution::sample, 100))
         .set("b", Vector.of(distribution::sample, 100))

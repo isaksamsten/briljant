@@ -46,8 +46,10 @@ public class ZNormalizer implements Transformation {
     Vector.Builder meanBuilder = Vector.Builder.of(Double.class);
     Vector.Builder stdBuilder = Vector.Builder.of(Double.class);
     for (Object columnKey : df) {
-      // TODO: ISSUE#14 check for NA result
       StatisticalSummary stats = Vectors.statistics(df.get(columnKey));
+      if (stats.getN() <= 0 || Is.NA(stats.getMean()) || Is.NA(stats.getStandardDeviation())) {
+        throw new IllegalArgumentException("Illegal value for column " + columnKey);
+      }
       meanBuilder.set(columnKey, stats.getMean());
       stdBuilder.set(columnKey, stats.getStandardDeviation());
     }
