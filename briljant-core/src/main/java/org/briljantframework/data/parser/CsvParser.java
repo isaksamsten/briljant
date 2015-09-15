@@ -37,9 +37,11 @@ import org.briljantframework.data.vector.VectorType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -130,6 +132,10 @@ public class CsvParser extends Parser {
     public Settings setFileName(String fileName) throws FileNotFoundException {
       reader = new FileReader(new File(fileName));
       return this;
+    }
+
+    public Settings setUrl(URL url) throws IOException {
+      return setInputStream(url.openStream());
     }
 
     /**
