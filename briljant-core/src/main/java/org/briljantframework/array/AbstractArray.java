@@ -27,6 +27,7 @@ package org.briljantframework.array;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.data.index.ObjectComparator;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -52,7 +53,7 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
 
-  private final Comparator<T> comparator = null;
+  private final Comparator<T> comparator = ObjectComparator.getInstance();
 
   protected AbstractArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);

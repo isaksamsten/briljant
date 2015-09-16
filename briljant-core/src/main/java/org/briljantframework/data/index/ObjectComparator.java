@@ -31,12 +31,13 @@ import java.util.Comparator;
  *
  * @author Isak Karlsson
  */
-public final class ObjectComparator implements Comparator<Object> {
+public final class ObjectComparator<T> implements Comparator<T> {
 
-  private static final ObjectComparator INSTANCE = new ObjectComparator();
+  private static final ObjectComparator<Object> INSTANCE = new ObjectComparator<>();
 
-  public static ObjectComparator getInstance() {
-    return INSTANCE;
+  @SuppressWarnings("unchecked")
+  public static <T> ObjectComparator<T> getInstance() {
+    return (ObjectComparator<T>) INSTANCE;
   }
 
   private ObjectComparator() {

@@ -30,14 +30,17 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * @author Isak Karlsson
  */
-@FunctionalInterface
 public interface Swappable {
 
-  default void permute(int count) {
-    Random random = ThreadLocalRandom.current();
+  default void permute(int count, Random random) {
     for (int i = count; i > 1; i--) {
       swap(i - 1, random.nextInt(i));
     }
+  }
+
+  default void permute(int count) {
+    Random random = ThreadLocalRandom.current();
+    permute(count, random);
   }
 
   /**
