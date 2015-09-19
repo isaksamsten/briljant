@@ -50,10 +50,24 @@ public final class Is {
    * Check if vector is NA-vector
    *
    * @param vector the vector
-   * @return true if vector is {@code Undefined.INSTANCE}
+   * @return true/false
    */
   public static boolean NA(Vector vector) {
     return vector.size() == 0 || vector.stream(Logical.class).allMatch(Is::NA);
+  }
+
+  public static boolean NA(char value) {
+    return value == Na.CHAR;
+  }
+
+  /**
+   * Check if value is NA
+   *
+   * @param value the value
+   * @return true if value is NA
+   */
+  public static boolean NA(long value) {
+    return value == Na.LONG;
   }
 
   /**
@@ -72,13 +86,32 @@ public final class Is {
    * @param value the value
    * @return true if value is NA
    */
+  public static boolean NA(short value) {
+    return value == Na.SHORT;
+  }
+
+  /**
+   * Check if value is NA
+   *
+   * @param value the value
+   * @return true if value is NA
+   */
+  public static boolean NA(byte value) {
+    return value == Na.BYTE;
+  }
+
+
+  /**
+   * Check if value is NA
+   *
+   * @param value the value
+   * @return true if value is NA
+   */
   public static boolean NA(Complex value) {
     if (value == null) {
       return true;
     } else {
-      boolean imagNA = Is.NA(value.getImaginary());
-      boolean realNA = Is.NA(value.getReal());
-      return imagNA && realNA;
+      return Is.NA(value.getImaginary()) || Is.NA(value.getReal());
     }
   }
 
@@ -99,6 +132,17 @@ public final class Is {
    * @param value the value
    * @return true if value is NA
    */
+  public static boolean NA(float value) {
+    return Float.isNaN(value)
+           && (Float.floatToRawIntBits(value) & Na.FLOAT_NA_MASK) == Na.FLOAT_NA_RES;
+  }
+
+  /**
+   * Check if value is NA
+   *
+   * @param value the value
+   * @return true if value is NA
+   */
   public static boolean NA(Logical value) {
     return value == null || value == Logical.NA;
   }
@@ -108,8 +152,18 @@ public final class Is {
       return true;
     } else if (o instanceof Double) {
       return Is.NA((double) o);
+    } else if (o instanceof Float) {
+      return Is.NA((float) o);
+    } else if (o instanceof Long) {
+      return Is.NA((long) o);
     } else if (o instanceof Integer) {
       return Is.NA((int) o);
+    } else if (o instanceof Short) {
+      return Is.NA((short) o);
+    } else if (o instanceof Byte) {
+      return Is.NA((byte) o);
+    } else if (o instanceof Character) {
+      return Is.NA((char) o);
     } else if (o instanceof Complex) {
       return Is.NA((Complex) o);
     } else {

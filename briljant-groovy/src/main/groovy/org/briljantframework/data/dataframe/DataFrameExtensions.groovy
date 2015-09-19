@@ -25,17 +25,8 @@
 package org.briljantframework.data.dataframe
 
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import org.briljantframework.data.index.DataFrameLocationGetter
 import org.briljantframework.data.vector.Vector
-
-import java.util.function.BiConsumer
-import java.util.function.BinaryOperator
-import java.util.function.Function
-import java.util.function.Supplier
-import java.util.stream.Collector
-
-import static org.briljantframework.data.Collectors.*
 
 /**
  * Created by isak on 04/06/15.
@@ -55,65 +46,4 @@ class DataFrameExtensions {
     return self.get(key)
   }
 
-  @CompileStatic(TypeCheckingMode.SKIP)
-  static Vector collect(DataFrame self, Collector collector) {
-    def safeCollector = new Collector() {
-
-      @Override
-      Supplier supplier() {
-        return collector.supplier()
-      }
-
-      @Override
-      BiConsumer accumulator() {
-        return {a, b ->
-          try {
-            collector.accumulator().accept(a, b)
-          } catch (ClassCastException ignored) {
-            collector.accumulator().accept(a, null)
-          }
-        }
-      }
-
-      @Override
-      BinaryOperator combiner() {
-        return {left, right ->
-          try {
-            collector.combiner().apply(left, right);
-          } catch (ClassCastException ignored) {
-
-          }
-        }
-      }
-
-      @Override
-      Function finisher() {
-        return {v ->
-          try {
-            return collector.finisher().apply(v)
-          } catch (ClassCastException e) {
-            return null
-          }
-        }
-      }
-
-      @Override
-      Set<Collector.Characteristics> characteristics() {
-        return collector.characteristics()
-      }
-    }
-    return self.collect(Object, Object, safeCollector)
-  }
-
-  static Vector getMean(DataFrame self) {
-    return self.collect(Number, Double, mean())
-  }
-
-  static Vector getMedian(DataFrame self) {
-    return self.collect(Number, Number, median())
-  }
-
-  static Vector getValueCounts(DataFrame self) {
-    return self.collect(Object, valueCounts())
-  }
 }

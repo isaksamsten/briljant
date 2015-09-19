@@ -35,8 +35,8 @@ import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.data.resolver.Resolvers;
 
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
@@ -325,7 +325,7 @@ class DoubleVector extends AbstractVector implements Transferable {
       if (value instanceof Number && !Is.NA(value)) {
         dval = ((Number) value).doubleValue();
       } else if (value != null && !Is.NA(value)) {
-        Resolver<Double> resolver = Resolvers.find(Double.class);
+        Resolver<Double> resolver = Resolve.find(Double.class);
         if (resolver != null) {
           Double resolve = resolver.resolve(value);
           if (resolve != null) {

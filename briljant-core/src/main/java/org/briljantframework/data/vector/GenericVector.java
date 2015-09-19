@@ -29,8 +29,8 @@ import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.data.resolver.Resolvers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,7 +200,7 @@ class GenericVector extends AbstractVector implements Transferable {
       if (value != null && cls.isInstance(value)) {
         buffer.set(index, value);
       } else if (value != null) {
-        Resolver<?> resolver = this.resolver == null ? Resolvers.find(cls) : this.resolver;
+        Resolver<?> resolver = this.resolver == null ? Resolve.find(cls) : this.resolver;
         if (resolver == null) {
           buffer.set(index, null);
         } else {
@@ -230,7 +230,7 @@ class GenericVector extends AbstractVector implements Transferable {
     @Override
     protected void readAt(int index, DataEntry entry) {
       ensureCapacity(index);
-      buffer.set(index, entry.next(cls)); // TODO: do resolve here
+      buffer.set(index, entry.next(cls));
     }
 
     @Override

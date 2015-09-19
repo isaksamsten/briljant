@@ -46,7 +46,7 @@ public class ZNormalizer implements Transformation {
     Vector.Builder meanBuilder = Vector.Builder.of(Double.class);
     Vector.Builder stdBuilder = Vector.Builder.of(Double.class);
     for (Object columnKey : df) {
-      StatisticalSummary stats = Vectors.statistics(df.get(columnKey));
+      StatisticalSummary stats = Vectors.statisticalSummary(df.get(columnKey));
       if (stats.getN() <= 0 || Is.NA(stats.getMean()) || Is.NA(stats.getStandardDeviation())) {
         throw new IllegalArgumentException("Illegal value for column " + columnKey);
       }
@@ -57,6 +57,11 @@ public class ZNormalizer implements Transformation {
     Vector sigma = stdBuilder.build();
 
     return new ZNormalizerTransformer(mean, sigma);
+  }
+
+  @Override
+  public String toString() {
+    return "ZNormalizer";
   }
 
   private static class ZNormalizerTransformer implements Transformer {
@@ -91,6 +96,14 @@ public class ZNormalizer implements Transformation {
         builder.set(columnKey, normalized);
       }
       return builder.setIndex(x.getIndex()).build();
+    }
+
+    @Override
+    public String toString() {
+      return "ZNormalizerTransformer{" +
+             "mean=" + mean +
+             ", sigma=" + sigma +
+             '}';
     }
   }
 }

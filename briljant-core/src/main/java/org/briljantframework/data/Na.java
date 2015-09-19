@@ -66,9 +66,23 @@ public final class Na {
   public static final long DOUBLE_NA_MASK = 0x000000000000000FL;
   public static final int DOUBLE_NA_RES = 9;
 
-  private static final Long BOXED_LONG_NA = Long.MAX_VALUE;
+  public static final long LONG = Long.MIN_VALUE;
+  private static final Long BOXED_LONG_NA = LONG;
 
   public static final Complex COMPLEX = new Complex(DOUBLE, DOUBLE);
+  public static final byte BYTE = Byte.MIN_VALUE;
+  private static final Byte BOXED_BYTE_NA = BYTE;
+
+  public static final short SHORT = Short.MIN_VALUE;
+  private static final Short BOXED_SHORT_NA = SHORT;
+
+  public static final float FLOAT = Float.intBitsToFloat(0xff800009);
+  public static final long FLOAT_NA_MASK = 0x0000000F;
+  public static final int FLOAT_NA_RES = 9;
+  private static final Float BOXED_FLOAT_NA = FLOAT;
+
+  public static final char CHAR = '\0';
+  private static final Character BOXED_CHAR_NA = CHAR;
 
   private Na() {
   }
@@ -86,14 +100,14 @@ public final class Na {
   /**
    * Returns the {@code NA} value for the class {@code T}. For reference types (excluding {@link
    * Complex} and {@link Logical}) {@code NA} is represented as {@code null}, but for primitive
-   * types a
-   * special convention is used.
+   * types a special convention is used.
    *
    * <ul>
    * <li>{@code double}: {@link Na#DOUBLE}</li>
    * <li>{@code int}: {@link Na#INT}</li>
    * <li>{@code long}: {@link Long#MAX_VALUE}</li>
    * <li>{@link Logical}: {@link Logical#NA}</li>
+   * <li>{@link Complex}: {@link Na#COMPLEX}</li>
    * </ul>
    *
    * @param cls the class
@@ -104,12 +118,20 @@ public final class Na {
   public static <T> T of(Class<T> cls) {
     if (cls == null) {
       return null;
-    } else if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {
-      return (T) BOXED_INT_NA;
     } else if (Double.class.equals(cls) || Double.TYPE.equals(cls)) {
       return (T) BOXED_DOUBLE_NA;
+    } else if (Float.class.equals(cls) || Float.TYPE.equals(cls)) {
+      return (T) BOXED_FLOAT_NA;
     } else if (Long.class.equals(cls) || Long.TYPE.equals(cls)) {
       return (T) BOXED_LONG_NA;
+    } else if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {
+      return (T) BOXED_INT_NA;
+    } else if (Short.class.equals(cls) || Short.TYPE.equals(cls)) {
+      return (T) BOXED_SHORT_NA;
+    } else if (Byte.class.equals(cls) || Byte.TYPE.equals(cls)) {
+      return (T) BOXED_BYTE_NA;
+    } else if (Character.class.equals(cls) || Character.TYPE.equals(cls)) {
+      return (T) BOXED_CHAR_NA;
     } else if (Logical.class.equals(cls)) {
       return (T) Logical.NA;
     } else if (Complex.class.equals(cls)) {

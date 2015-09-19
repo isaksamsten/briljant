@@ -32,7 +32,7 @@ df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
 ```
 
 ```
-Open     High     Low      Close    Volume         
+      Open     High     Low      Close    Volume         
 2015  122.715  123.807  121.366  122.559  54701792.000   
 2014  92.216   93.009   91.482   92.264   63235262.818   
 2013  67.587   68.234   66.893   67.519   101612690.714  

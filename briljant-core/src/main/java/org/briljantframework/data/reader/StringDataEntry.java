@@ -27,8 +27,7 @@ package org.briljantframework.data.reader;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.data.resolver.Resolvers;
+import org.briljantframework.data.resolver.Resolve;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
@@ -56,12 +55,7 @@ public final class StringDataEntry implements DataEntry {
     if (Is.NA(value)) {
       return Na.of(cls);
     }
-    Resolver<T> resolver = Resolvers.find(cls);
-    if (resolver == null) {
-      return Na.of(cls);
-    } else {
-      return resolver.resolve(value);
-    }
+    return Resolve.to(cls, value);
   }
 
   @Override

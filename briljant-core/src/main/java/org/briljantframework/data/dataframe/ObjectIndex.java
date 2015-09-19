@@ -92,15 +92,15 @@ public final class ObjectIndex implements Index {
   }
 
   public static ObjectIndex of(Vector vector) {
-    return create(vector.asList(Object.class));
+    return of(vector.asList(Object.class));
   }
 
 
   public static ObjectIndex of(Object... args) {
-    return create(Arrays.asList(args));
+    return of(Arrays.asList(args));
   }
 
-  public static <T> ObjectIndex create(Collection<? extends T> coll) {
+  public static <T> ObjectIndex of(Collection<? extends T> coll) {
     return new ObjectIndex(coll);
   }
 

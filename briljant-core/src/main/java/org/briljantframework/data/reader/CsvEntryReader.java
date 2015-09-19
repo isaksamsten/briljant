@@ -28,8 +28,8 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.data.resolver.Resolvers;
 
 import java.io.BufferedReader;
 import java.io.Reader;
@@ -76,7 +76,7 @@ public class CsvEntryReader implements EntryReader {
           // Finally, try to resolve the value using the registered resolvers
           Resolver<?> resolver = null;
           Object data;
-          if ((resolver = Resolvers.find(LocalDate.class)) != null) {
+          if ((resolver = Resolve.find(LocalDate.class)) != null) {
             data = resolver.resolve(repr);
           } else {
             data = null;

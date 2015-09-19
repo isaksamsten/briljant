@@ -44,6 +44,7 @@ import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
+import org.briljantframework.data.vector.Convert;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -165,7 +166,12 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame join(JoinType type, DataFrame other, Object key) {
-    return doJoin(type, other, Arrays.asList(key));
+    return doJoin(type, other, Collections.singletonList(key));
+  }
+
+  @Override
+  public DataFrame join(JoinType type, DataFrame other, Object... keys) {
+    return doJoin(type, other, Arrays.asList(keys));
   }
 
   private DataFrame doJoin(JoinType type, DataFrame other, Collection<Object> columns) {
@@ -174,21 +180,22 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final <T> DataFrame map(Class<T> cls, Function<? super T, Object> op) {
+  public final <T> DataFrame map(Class<T> cls, Function<? super T, ?> mapper) {
     DataFrame.Builder builder = newBuilder();
     for (int j = 0; j < columns(); j++) {
       Vector column = getAt(j);
-      VectorLocationGetter loc = column.loc();
-      builder.add(new TypeInferenceVectorBuilder());
+
+      // Not affected by ISSUE#7
+      Vector.Builder newColumn = new TypeInferenceVectorBuilder();
       for (int i = 0, size = column.size(); i < size; i++) {
-        T value = loc.get(cls, i);
-        Object transformed = op.apply(value);
-        if (Is.NA(transformed)) { // TODO: fix?
-          builder.loc().set(i, j, this, i, j);
+        Object transformed = mapper.apply(column.loc().get(cls, i));
+        if (Is.NA(transformed)) {
+          newColumn.addNA();
         } else {
-          builder.loc().set(i, j, transformed);
+          newColumn.add(transformed);
         }
       }
+      builder.add(newColumn);
     }
     return builder.setIndex(getIndex()).setColumnIndex(getColumnIndex()).build();
   }
@@ -196,52 +203,63 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final <T> Vector reduce(Class<? extends T> cls, T init, BinaryOperator<T> op) {
     Vector.Builder builder = Vector.Builder.of(cls);
-    for (int j = 0, columns = columns(); j < columns; j++) {
-      VectorLocationGetter column = getAt(j).loc();
-      T result = init; // TODO: only include columns whose type is instance of cls
-      for (int i = 0, size = rows(); i < size; i++) {
-        result = op.apply(result, column.get(cls, i));
+    for (Object columnKey : this) {
+      Vector column = get(columnKey);
+      if (column.getType().isAssignableTo(cls)) {
+        T result = init;
+        for (int i = 0, size = column.size(); i < size; i++) {
+          result = op.apply(result, column.loc().get(cls, i));
+        }
+        builder.set(columnKey, result);
       }
-      builder.loc().set(j, result);
     }
-    Vector build = builder.build();
-    build.setIndex(getColumnIndex());
-    return build;
+    return builder.build();
   }
 
   @Override
-  public final Vector reduce(Function<Vector, Object> op) {
+  public final Vector reduce(Function<Vector, ?> op) {
+    //ISSUE#7 use an improved TypeInferenceBuilder here
     Vector.Builder builder = getMostSpecificColumnType().newBuilder();
-    for (int j = 0, columns = columns(); j < columns; j++) {
-      builder.set(j, op.apply(getAt(j)));
+    for (Object columnKey : this) {
+      Vector column = get(columnKey);
+      Object value = op.apply(column);
+      if (Is.NA(value)) {
+        builder.setNA(columnKey);
+      } else if (getMostSpecificColumnType().isAssignableTo(value.getClass())) {
+        builder.set(columnKey, value);
+      }
     }
-    Vector v = builder.build();
-    v.setIndex(getColumnIndex());
-    return v;
+    return builder.build();
   }
 
   @Override
-  public final <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ? extends T> collector) {
-    return collect(cls, cls, collector);
+  public final <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ?> collector) {
+    // Affected by ISSUE#7
+    Vector.Builder builder = new TypeInferenceVectorBuilder();
+    return doCollect(cls, collector, builder);
   }
 
   @Override
   public final <T, R, C> Vector collect(
       Class<T> in, Class<R> out, Collector<? super T, C, ? extends R> collector) {
     Vector.Builder builder = VectorType.of(out).newBuilder();
+    return doCollect(in, collector, builder);
+  }
 
-    int column = 0;
-    for (int j = 0; j < columns(); j++) {
-      Vector vec = getAt(j);
-      C accumulator = collector.supplier().get();
-      for (int i = 0; i < rows(); i++) {
-        collector.accumulator().accept(accumulator, vec.loc().get(in, i));
+  private <T, C> Vector doCollect(
+      Class<T> cls, Collector<? super T, C, ?> collector, Vector.Builder builder) {
+
+    for (Object columnKey : this) {
+      Vector column = get(columnKey);
+      if (column.getType().isAssignableTo(cls)) {
+        C accumulator = collector.supplier().get();
+        for (int i = 0, size = column.size(); i < size; i++) {
+          collector.accumulator().accept(accumulator, column.loc().get(cls, i));
+        }
+        builder.set(columnKey, collector.finisher().apply(accumulator));
       }
-      builder.loc().set(column++, collector.finisher().apply(accumulator));
     }
-    Vector v = builder.build();
-    v.setIndex(getColumnIndex());
-    return v;
+    return builder.build();
   }
 
   @Override
@@ -286,10 +304,16 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrameGroupBy groupBy(UnaryOperator<Object> keyFunction) {
+    return groupBy(Object.class, keyFunction);
+  }
+
+  @Override
+  public <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> function) {
     HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
     for (Index.Entry entry : getIndex().entrySet()) {
+      T key = Convert.to(cls, entry.getKey());
       groups.computeIfAbsent(
-          keyFunction.apply(entry.getKey()),
+          Is.NA(key) ? key : function.apply(key), // ignore NA keys
           a -> Vector.Builder.of(Integer.class)
       ).add(entry.getValue());
     }
@@ -299,17 +323,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final DataFrame apply(Function<? super Vector, ? extends Vector> transform) {
     DataFrame.Builder builder = newBuilder();
-    for (int j = 0; j < columns(); j++) {
-      Vector col = getAt(j);
-      Vector transformed = transform.apply(col);
-      builder.add(transformed.getType());
-      for (int i = 0, size = transformed.size(); i < size; i++) {
-        builder.loc().set(i, j, transformed, i);
-      }
+    for (Object columnKey : this) {
+      Vector column = get(columnKey);
+      builder.set(columnKey, transform.apply(column));
     }
-    DataFrame df = builder.build();
-    setColumnIndex(getColumnIndex());
-    return df;
+    return builder.setIndex(getIndex()).build();
   }
 
   @Override

@@ -26,8 +26,8 @@ package org.briljantframework.data.dataframe.transform;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 
 /**
  * @author Isak Karlsson
@@ -41,11 +41,28 @@ public class MeanImputer implements Transformation {
       builder.set(key, Vectors.mean(frame.get(key)));
     }
     Vector means = builder.build();
-    return x -> {
+    return new MeanImputTransformer(means);
+  }
+
+  @Override
+  public String toString() {
+    return "MeanImputer{}";
+  }
+
+  private static class MeanImputTransformer implements Transformer {
+
+    private final Vector means;
+
+    public MeanImputTransformer(Vector means) {
+      this.means = means;
+    }
+
+    @Override
+    public DataFrame transform(DataFrame x) {
       Check.size(x.columns(), means.size());
       DataFrame.Builder df = x.newBuilder();
       for (Object colKey : x.getColumnIndex().keySet()) {
-        Vector column = frame.get(colKey);
+        Vector column = x.get(colKey);
         for (Object rowKey : x.getIndex().keySet()) {
           if (column.isNA(rowKey)) {
             df.set(rowKey, colKey, means, colKey);
@@ -55,20 +72,13 @@ public class MeanImputer implements Transformation {
         }
       }
       return df.build();
-//      for (int j = 0; j < x.columns(); j++) {
-//        Check.type(x.loc().get(j).getType(), VectorType.DOUBLE);
-//        for (int i = 1; i < x.rows(); i++) {
-//          if (x.loc().isNA(i, j)) {
-//            builder.loc().set(i, j, means.get(j));
-//          } else {
-//            builder.loc().set(i, j, x, i, j);
-//          }
-//        }
-//      }
-//      DataFrame df = builder.build();
-//      df.setColumnIndex(columnIndex.build());
-//      df.setRecordIndex(recordIndex.build());
-//      return df;
-    };
+    }
+
+    @Override
+    public String toString() {
+      return "MeanImputTransformer{" +
+             "means=" + means +
+             '}';
+    }
   }
 }

@@ -25,7 +25,6 @@
 package org.briljantframework.data.dataframe;
 
 import org.briljantframework.array.Array;
-import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
@@ -33,19 +32,21 @@ import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.index.DataFrameLocationGetter;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -101,8 +102,7 @@ public interface DataFrame extends Iterable<Object> {
 
   /**
    * Return a <em>shallow copy</em> of the data frame sorted in the order specified using the
-   * values
-   * of the specified column.
+   * values of the specified column.
    *
    * <p/> Generally, the index is sorted which makes the iteration order of {@linkplain
    * #getIndex()} sorted by the values in the specified column but leaves the values in
@@ -182,19 +182,67 @@ public interface DataFrame extends Iterable<Object> {
 
   DataFrame join(JoinType type, DataFrame other, Object key);
 
-  default DataFrame join(JoinType type, DataFrame other, Object... keys) {
-    return join(type, other, getColumnIndex().locations(keys));
-  }
+  DataFrame join(JoinType type, DataFrame other, Object... keys);
 
   /**
-   * <p> Apply {@code op} to value. If {@code op} returns {@code NA}, the old value is kept.
+   * Apply {@code mapper} to each value, where the value is an instance of  the supplied class, in
+   * the
+   * data frame elementwise .
    *
-   * @param <T> the type
-   * @param cls the type of values to transform
-   * @param op  the operation
+   * <pre>{@code
+   * DataFrame df = MixedDataFrame.of("A", Vector.of(1,2,3),
+   *                                  "B", Vector.of("a","b","c");
+   * df.map(Integer.class, i -> i * 2);
+   * }</pre>
+   *
+   * result in the data frame:
+   *
+   * <pre>
+   *    A  B
+   * 0  1  a
+   * 1  4  b
+   * 2  6  c
+   * [3 rows x 2 columns]
+   * </pre>
+   *
+   * @param <T>    the type
+   * @param cls    the type of values to transform
+   * @param mapper the operation
    * @return a new data frame
    */
-  <T> DataFrame map(Class<T> cls, Function<? super T, Object> op);
+  <T> DataFrame map(Class<T> cls, Function<? super T, ?> mapper);
+
+  /**
+   * Apply the supplied operation to each value in the data frame elementwise.
+   *
+   * <pre>{@code
+   * DataFrame df = MixedDataFrame.of("A", Vector.of(1,2,3),
+   *                                  "B", Vector.of("a","b","c");
+   * df.map(o -> {
+   *   if(o instanceof String) {
+   *     return ((String)o).toUpperCase();
+   *   } else if(o instanceof Integer){
+   *     return (Integer)o * 2
+   *   } else {
+   *     return o;
+   *   }
+   * });
+   * }</pre>
+   *
+   * <pre>
+   *    A  B
+   * 0  1  A
+   * 1  4  B
+   * 2  6  C
+   * [3 rows x 2 columns]
+   * </pre>
+   *
+   * @param function the function to apply
+   * @return a new data frame
+   */
+  default DataFrame map(Function<Object, ?> function) {
+    return map(Object.class, function);
+  }
 
   DataFrame apply(Function<? super Vector, ? extends Vector> transform);
 
@@ -202,17 +250,6 @@ public interface DataFrame extends Iterable<Object> {
 
   /**
    * <p> Reduce all columns, applying {@code op} with the initial value {@code init}.
-   *
-   * <pre>{@code
-   * for(Object colKey : getColumnIndex().keySet()) {
-   *   Vector column = get(colKey);
-   *   T value = init;
-   *   for(int i = 0; i < column.size(); i++){
-   *     value = op.apply(value, column.loc().get(cls, i));
-   *   }
-   *   newVector.set(colKey, value);
-   * }
-   * }</pre>
    *
    * @param <T>  the type
    * @param cls  the class
@@ -223,32 +260,42 @@ public interface DataFrame extends Iterable<Object> {
   <T> Vector reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
 
   /**
-   * <p> Reduce every column by applying a function.
+   * <p> Reduce every column by applying a (summarizing) function over the vector. The reduction
+   * function must return a value which is an instance of the vector, i.e. if the i:th vector is a
+   * double-vector it must return a {@code double}. The type of the returned value will is
+   * determined of the columns. If all columns share the same type, the returned vector will have
+   * that type; otherwise the most general vector will be returned.
    *
    * <pre>{@code
-   *  df.reduce(Vec::mode);
+   * DataFrame df = MixedDataFrame.of("a", Vector.of(1,2,3), "b", Vector.of(10, 20, 30));
+   * Vector means = df.reduce(Vector::mean);
    * }</pre>
    *
-   * <p> Returns a record with the most frequent value of each column
+   * produces
+   *
+   * <pre>
+   * a  2
+   * b  20
+   * type: int
+   * </pre>
    *
    * @param op the operation to apply
    * @return a new record with the reduced values
    */
-  Vector reduce(Function<Vector, Object> op);
+  Vector reduce(Function<Vector, ?> op);
 
   /**
    * <p> Aggregate every column which is an instance of {@code cls} using the supplied collector.
    *
    * <pre>{@code
-   *  df.aggregate(Double.class, Aggregate.of(
-   *    RunningStatistics::new, RunningStatistics::add, RunningStatistics::getMean))
+   * df.collect(Double.class, Collectors.mean())
    * }</pre>
    *
    * <p> Returns a series consisting of the mean of the {@code Double} columns in {@code this}
    * dataframe.
    *
    * <p> Note that {@link org.briljantframework.data.Collectors} implement several convenient
-   * aggregates, for example {@code df.collect(Number.class, Aggregate.median())}.
+   * collectors, for example {@code df.collect(Number.class, Collectors.median())}.
    *
    * @param <T>       the type of value to be aggregated
    * @param <C>       the type of the mutable collector
@@ -256,11 +303,11 @@ public interface DataFrame extends Iterable<Object> {
    * @param collector the collector
    * @return a vector of aggregated values
    */
-  <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ? extends T> collector);
+  <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ?> collector);
 
+  // TODO: remove when ISSUE#7 is resolved
   <T, R, C> Vector collect(Class<T> in, Class<R> out,
                            Collector<? super T, C, ? extends R> collector);
-
 
   DataFrameGroupBy groupBy(Object column);
 
@@ -283,6 +330,8 @@ public interface DataFrame extends Iterable<Object> {
    * @return a group by data frame
    */
   DataFrameGroupBy groupBy(UnaryOperator<Object> keyFunction);
+
+  <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> function);
 
   /**
    * Uses the column index to find the specified column
@@ -407,6 +456,22 @@ public interface DataFrame extends Iterable<Object> {
   void setColumnIndex(Index index);
 
   DataFrameLocationGetter loc();
+
+  // Operations
+
+  default Vector mean() {
+    return reduce(Vector::mean);
+  }
+
+  default Vector min() {
+    return collect(Object.class, org.briljantframework.data.Collectors.withFinisher(
+        Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
+  }
+
+  default Vector max() {
+    return collect(Object.class, org.briljantframework.data.Collectors.withFinisher(
+        Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
+  }
 
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames

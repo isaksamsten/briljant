@@ -36,7 +36,7 @@ class ObjectIndexSpec extends Specification {
 
   def "create HashIndex from list"() {
     when:
-    def i = ObjectIndex.create(["a", "b", "c"])
+    def i = ObjectIndex.of(["a", "b", "c"])
 
     then:
     i.keySet() as ArrayList == ["a", "b", "c"]
@@ -51,7 +51,7 @@ class ObjectIndexSpec extends Specification {
 
   def "handles NA-index"() {
     expect:
-    ObjectIndex.create([na]).getLocation(na) == 0
+    ObjectIndex.of([na]).getLocation(na) == 0
 
     where:
     na << [Na.of(Double), Na.of(Integer), Na.of(Object), Na.of(Complex)]

@@ -34,8 +34,8 @@ import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.data.resolver.Resolvers;
 import org.briljantframework.exceptions.IllegalTypeException;
 
 import java.util.Arrays;
@@ -307,7 +307,7 @@ class IntVector extends AbstractVector implements Transferable {
       if (value instanceof Number && !Is.NA(value)) {
         dval = ((Number) value).intValue();
       } else if (value != null && !Is.NA(value)) {
-        Resolver<Integer> resolver = Resolvers.find(Integer.class);
+        Resolver<Integer> resolver = Resolve.find(Integer.class);
         if (resolver != null) {
           Integer resolve = resolver.resolve(value);
           if (resolve != null) {

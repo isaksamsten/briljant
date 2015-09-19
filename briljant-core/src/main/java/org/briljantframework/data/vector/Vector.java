@@ -25,6 +25,7 @@
 package org.briljantframework.data.vector;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -45,6 +46,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -632,6 +634,12 @@ public interface Vector extends Serializable, Iterable<Object> {
     return collect(Collectors.valueCounts());
   }
 
+  default <T extends Comparable<T>> T min(Class<T> cls) {
+    return collect(cls, Collectors.withFinisher(
+        java.util.stream.Collectors.minBy(Comparable::compareTo),
+        Optional::get));
+  }
+
   /**
    * Return a vector of only {@code non-NA} values
    *
@@ -639,6 +647,10 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   default Vector nonNA() {
     return collect(Collectors.nonNA());
+  }
+
+  default StatisticalSummary statisticalSummary() {
+    return Vectors.statisticalSummary(this);
   }
 
   /**

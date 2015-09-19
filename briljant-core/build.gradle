@@ -22,7 +22,7 @@ idea.module {
 
 jmh {
   jmhVersion = '1.10.5'
-  include = 'DataFrameSort*'
+  include = 'Convert*'
   iterations = 4
   batchSize = 1
   fork = 2

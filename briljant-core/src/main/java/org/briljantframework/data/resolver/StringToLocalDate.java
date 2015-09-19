@@ -22,18 +22,37 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe.transform;
+package org.briljantframework.data.resolver;
 
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
- * @author Isak Karlsson <isak-kar@dsv.su.se>
+ * @author Isak Karlsson
  */
-public class MixedDataFrameZNormalizerTest extends ZNormalizerTest {
+public class StringToLocalDate implements Converter<String, LocalDate> {
+
+  public static final StringToLocalDate ISO_DATE = new StringToLocalDate();
+  private final DateTimeFormatter format;
+
+  public StringToLocalDate(DateTimeFormatter format) {
+    this.format = format;
+  }
+
+  public StringToLocalDate(String pattern) {
+    this(DateTimeFormatter.ofPattern(pattern));
+  }
+
+  private StringToLocalDate() {
+    this(DateTimeFormatter.ISO_DATE);
+  }
 
   @Override
-  DataFrame.Builder getBuilder() {
-    return new MixedDataFrame.Builder();
+  public LocalDate convert(String t) {
+    try {
+      return LocalDate.parse(t, format);
+    } catch (Exception e) {
+      return null; // NA
+    }
   }
 }

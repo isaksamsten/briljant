@@ -224,12 +224,12 @@ public final class Vectors {
   }
 
   /**
-   * Computes the {@code Double} descriptive statistics of {@code vector}
+   * Computes descriptive statistics of {@code vector}
    *
-   * @param vector a vector (with {@code type = double})
+   * @param vector a vector
    * @return the descriptive statistics
    */
-  public static StatisticalSummary statistics(Vector vector) {
+  public static StatisticalSummary statisticalSummary(Vector vector) {
     FastStatistics r = new FastStatistics();
     for (int i = 0; i < vector.size(); i++) {
       double v = vector.loc().getAsDouble(i);
@@ -249,7 +249,7 @@ public final class Vectors {
    * @return the standard deviation
    */
   public static double std(Vector vector) {
-    return statistics(vector).getStandardDeviation();
+    return statisticalSummary(vector).getStandardDeviation();
   }
 
   /**

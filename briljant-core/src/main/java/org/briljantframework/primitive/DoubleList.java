@@ -25,7 +25,7 @@
 package org.briljantframework.primitive;
 
 import net.mintern.primitive.Primitive;
-import net.mintern.primitive.comparators.IntComparator;
+import net.mintern.primitive.comparators.DoubleComparator;
 
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 /**
  * ArrayList backed by a primitive {@code int}-array.
  */
-public class IntList extends AbstractList<Integer> {
+public class DoubleList extends AbstractList<Double> {
 
   /**
    * The maximum size of array to allocate.
@@ -58,33 +58,33 @@ public class IntList extends AbstractList<Integer> {
   /**
    * Shared empty array instance used for empty instances.
    */
-  private static final int[] EMPTY_ELEMENTDATA = {};
+  private static final double[] EMPTY_ELEMENTDATA = {};
 
   /**
    * Shared empty array instance used for default sized empty instances. We
    * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
    * first element is added.
    */
-  private static final int[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+  private static final double[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
-  public int[] elementData = new int[10];
+  public double[] elementData = new double[10];
 
   private int size = 0;
 
-  public IntList(IntList list) {
+  public DoubleList(DoubleList list) {
     this.elementData = Arrays.copyOf(list.elementData, list.size());
     this.size = elementData.length;
   }
 
-  public IntList() {
+  public DoubleList() {
 
   }
 
-  public IntList(int capacity) {
+  public DoubleList(int capacity) {
     if (capacity < 0) {
       throw new IllegalArgumentException("negative capacity");
     } else {
-      this.elementData = new int[capacity];
+      this.elementData = new double[capacity];
     }
   }
 
@@ -108,17 +108,17 @@ public class IntList extends AbstractList<Integer> {
    * the storage of an <tt>ArrayList</tt> instance.
    */
   @Override
-  public boolean add(Integer e) {
-    return add((int) e);
+  public boolean add(Double e) {
+    return add((double) e);
   }
 
   /**
-   * Avoid boxing of {@code int}-values
+   * Avoid boxing of {@code double}-values
    *
    * @param e the value
    * @return true
    */
-  public boolean add(int e) {
+  public boolean add(double e) {
     ensureCapacityInternal(size + 1);
     elementData[size++] = e;
     return true;
@@ -133,9 +133,9 @@ public class IntList extends AbstractList<Integer> {
    * @return the element that was removed from the list
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
-  public Integer remove(int index) {
+  public Double remove(int index) {
     modCount++;
-    int oldValue = elementData[index];
+    double oldValue = elementData[index];
 
     int numMoved = size - index - 1;
     if (numMoved > 0) {
@@ -195,20 +195,20 @@ public class IntList extends AbstractList<Integer> {
   }
 
   @Override
-  public Integer set(int index, Integer element) {
-    int oldValue = elementData[index];
+  public Double set(int index, Double element) {
+    double oldValue = elementData[index];
     elementData[index] = element;
     return oldValue;
   }
 
-  public Integer set(int index, int element) {
-    int oldValue = elementData[index];
+  public Double set(int index, int element) {
+    double oldValue = elementData[index];
     elementData[index] = element;
     return oldValue;
   }
 
   @Override
-  public Integer get(int index) {
+  public Double get(int index) {
     return elementData[index];
   }
 
@@ -229,7 +229,7 @@ public class IntList extends AbstractList<Integer> {
    *
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
-  public ListIterator<Integer> listIterator(int index) {
+  public ListIterator<Double> listIterator(int index) {
     if (index < 0 || index > size) {
       throw new IndexOutOfBoundsException("Index: " + index);
     }
@@ -244,7 +244,7 @@ public class IntList extends AbstractList<Integer> {
    *
    * @see #listIterator(int)
    */
-  public ListIterator<Integer> listIterator() {
+  public ListIterator<Double> listIterator() {
     return new ListItr(0);
   }
 
@@ -255,23 +255,23 @@ public class IntList extends AbstractList<Integer> {
    *
    * @return an iterator over the elements in this list in proper sequence
    */
-  public Iterator<Integer> iterator() {
+  public Iterator<Double> iterator() {
     return new Itr();
   }
 
   @Override
-  public void sort(Comparator<? super Integer> c) {
+  public void sort(Comparator<? super Double> c) {
     Primitive.sort(elementData, 0, size, c::compare);
   }
 
-  public void primitiveSort(IntComparator comparator) {
+  public void primitiveSort(DoubleComparator comparator) {
     Primitive.sort(elementData, 0, size, comparator);
   }
 
   /**
    * An optimized version of AbstractList.Itr
    */
-  private class Itr implements Iterator<Integer> {
+  private class Itr implements Iterator<Double> {
 
     int cursor;       // index of next element to return
     int lastRet = -1; // index of last element returned; -1 if no such
@@ -282,13 +282,13 @@ public class IntList extends AbstractList<Integer> {
     }
 
     @SuppressWarnings("unchecked")
-    public Integer next() {
+    public Double next() {
       checkForComodification();
       int i = cursor;
       if (i >= size) {
         throw new NoSuchElementException();
       }
-      int[] elementData = IntList.this.elementData;
+      double[] elementData = DoubleList.this.elementData;
       if (i >= elementData.length) {
         throw new ConcurrentModificationException();
       }
@@ -303,7 +303,7 @@ public class IntList extends AbstractList<Integer> {
       checkForComodification();
 
       try {
-        IntList.this.remove(lastRet);
+        DoubleList.this.remove(lastRet);
         cursor = lastRet;
         lastRet = -1;
         expectedModCount = modCount;
@@ -314,14 +314,14 @@ public class IntList extends AbstractList<Integer> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void forEachRemaining(Consumer<? super Integer> consumer) {
+    public void forEachRemaining(Consumer<? super Double> consumer) {
       Objects.requireNonNull(consumer);
-      final int size = IntList.this.size;
+      final int size = DoubleList.this.size;
       int i = cursor;
       if (i >= size) {
         return;
       }
-      final int[] elementData = IntList.this.elementData;
+      final double[] elementData = DoubleList.this.elementData;
       if (i >= elementData.length) {
         throw new ConcurrentModificationException();
       }
@@ -344,7 +344,7 @@ public class IntList extends AbstractList<Integer> {
   /**
    * An optimized version of AbstractList.ListItr
    */
-  private class ListItr extends Itr implements ListIterator<Integer> {
+  private class ListItr extends Itr implements ListIterator<Double> {
 
     ListItr(int index) {
       super();
@@ -364,13 +364,13 @@ public class IntList extends AbstractList<Integer> {
     }
 
     @SuppressWarnings("unchecked")
-    public Integer previous() {
+    public Double previous() {
       checkForComodification();
       int i = cursor - 1;
       if (i < 0) {
         throw new NoSuchElementException();
       }
-      int[] elementData = IntList.this.elementData;
+      double[] elementData = DoubleList.this.elementData;
       if (i >= elementData.length) {
         throw new ConcurrentModificationException();
       }
@@ -378,25 +378,25 @@ public class IntList extends AbstractList<Integer> {
       return elementData[lastRet = i];
     }
 
-    public void set(Integer e) {
+    public void set(Double e) {
       if (lastRet < 0) {
         throw new IllegalStateException();
       }
       checkForComodification();
 
       try {
-        IntList.this.set(lastRet, e);
+        DoubleList.this.set(lastRet, e);
       } catch (IndexOutOfBoundsException ex) {
         throw new ConcurrentModificationException();
       }
     }
 
-    public void add(Integer e) {
+    public void add(Double e) {
       checkForComodification();
 
       try {
         int i = cursor;
-        IntList.this.add(i, e);
+        DoubleList.this.add(i, e);
         cursor = i + 1;
         lastRet = -1;
         expectedModCount = modCount;

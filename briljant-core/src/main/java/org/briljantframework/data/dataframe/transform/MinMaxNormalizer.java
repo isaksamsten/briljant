@@ -24,13 +24,11 @@
 
 package org.briljantframework.data.dataframe.transform;
 
-import org.briljantframework.Bj;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.exceptions.TypeMismatchException;
 import org.briljantframework.data.Is;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Class to fit a min max normalizer to a data frame. Calculate, for each column {@code j}, the min
@@ -45,55 +43,61 @@ public class MinMaxNormalizer implements Transformation {
 
 
   @Override
-  public Transformer fit(DataFrame frame) {
-    DoubleArray min = Bj.doubleArray(frame.columns());
-    DoubleArray max = Bj.doubleArray(frame.columns());
-    for (int j = 0; j < frame.columns(); j++) {
-      if (!frame.loc().get(j).getType().equals(VectorType.DOUBLE)) {
-        throw new TypeMismatchException(VectorType.DOUBLE, frame.loc().get(j).getType());
-      }
-
-      double minTemp = Double.POSITIVE_INFINITY, maxTemp = Double.NEGATIVE_INFINITY;
-      for (int i = 0; i < frame.rows(); i++) {
-        double value = frame.loc().getAsDouble(i, j);
-        if (Is.NA(value)) {
-          continue;
-        }
-        if (value > maxTemp) {
-          maxTemp = value;
-        }
-
-        if (value < minTemp) {
-          minTemp = value;
-        }
-      }
-
-      min.set(j, minTemp);
-      max.set(j, maxTemp);
+  public Transformer fit(DataFrame df) {
+    Vector.Builder min = Vector.Builder.of(Double.class);
+    Vector.Builder max = Vector.Builder.of(Double.class);
+    for (Object columnKey : df) {
+      StatisticalSummary summary = df.get(columnKey).statisticalSummary();
+      min.set(columnKey, summary.getMin());
+      max.set(columnKey, summary.getMax());
     }
 
-    return x -> {
-      Check.size(x.columns(), max.size());
-      DataFrame.Builder builder = x.newBuilder();
-      for (int j = 0; j < x.columns(); j++) {
-        Check.type(x.loc().get(j).getType(), VectorType.DOUBLE);
+    return new MinMaxNormalizeTransformer(max.build(), min.build());
+  }
 
-        double mi = min.get(j);
-        double ma = max.get(j);
-        for (int i = 0; i < x.rows(); i++) {
-          if (x.loc().isNA(i, j) || isSane(mi) || isSane(ma)) {
-            builder.loc().setNA(i, j);
+  @Override
+  public String toString() {
+    return "MinMaxNormalizer";
+  }
+
+  private static class MinMaxNormalizeTransformer implements Transformer {
+
+    private final Vector max;
+    private final Vector min;
+
+    public MinMaxNormalizeTransformer(Vector max, Vector min) {
+      this.max = max;
+      this.min = min;
+    }
+
+    @Override
+    public DataFrame transform(DataFrame x) {
+      Check.argument(max.getIndex().equals(x.getColumnIndex()), "Index does not match");
+      DataFrame.Builder builder = x.newBuilder();
+      for (Object columnKey : x) {
+        double min = this.min.getAsDouble(columnKey);
+        double max = this.max.getAsDouble(columnKey);
+        Vector.Builder normalized = Vector.Builder.of(Double.class);
+        Vector column = x.get(columnKey);
+        for (int i = 0, size = column.size(); i < size; i++) {
+          double v = column.loc().getAsDouble(i);
+          if (Is.NA(v)) {
+            normalized.addNA();
           } else {
-            builder.loc().set(i, j, (x.loc().getAsDouble(i, j) - mi) / (ma - mi));
+            normalized.add((column.loc().getAsDouble(i) - min) / (max - min));
           }
         }
+        builder.set(columnKey, normalized);
       }
-      return builder.build();
-    };
-  }
+      return builder.setIndex(x.getIndex()).build();
+    }
 
-  private static boolean isSane(double value) {
-    return !Is.NA(value) && !Double.isNaN(value) && !Double.isInfinite(value);
+    @Override
+    public String toString() {
+      return "MinMaxNormalizeTransformer{" +
+             "max=" + max +
+             ", min=" + min +
+             '}';
+    }
   }
-
 }

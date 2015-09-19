@@ -24,24 +24,10 @@
 
 package org.briljantframework.data.vector;
 
-import org.apache.commons.math3.random.UniformRandomGenerator;
-import org.apache.commons.math3.random.Well1024a;
 import org.briljantframework.data.SortOrder;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class VectorTest {
-
-  @Test
-  public void testSort() throws Exception {
-    Vector.Builder builder = Vector.Builder.of(Double.class);
-    UniformRandomGenerator gen = new UniformRandomGenerator(new Well1024a());
-    for (int i = 0; i < 1000_000; i++) {
-      builder.add(gen.nextNormalizedDouble());
-    }
-    Vector vector = builder.build();
-    System.out.println(vector.sort(SortOrder.DESC));
-  }
 
   @Test
   public void testHead() throws Exception {
@@ -56,6 +42,7 @@ public class VectorTest {
     System.out.println(a);
 
     System.out.println(a.sort(SortOrder.DESC));
+    System.out.println(a.sort(Boolean.class));
   }
 
   @Test

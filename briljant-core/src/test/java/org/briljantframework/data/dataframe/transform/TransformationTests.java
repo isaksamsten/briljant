@@ -26,6 +26,8 @@ package org.briljantframework.data.dataframe.transform;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.Well1024a;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
@@ -38,7 +40,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public abstract class ZNormalizerTest {
+public abstract class TransformationTests {
 
   abstract DataFrame.Builder getBuilder();
 
@@ -63,7 +65,7 @@ public abstract class ZNormalizerTest {
   }
 
   @Test
-  public void testFit() throws Exception {
+  public void testFit_ZNormalization() throws Exception {
     Transformation normalizer = new ZNormalizer();
     Transformer transformer = normalizer.fit(train);
 
@@ -79,5 +81,33 @@ public abstract class ZNormalizerTest {
     assertEquals(0, testMean.getAsDouble("a"), 3e-1);
     assertEquals(0, testMean.getAsDouble("b"), 3e-1);
     assertEquals(0, testMean.getAsDouble("c"), 3e-1);
+  }
+
+  @Test
+  public void testFit_MinMaxNormalization() throws Exception {
+    Transformation normalizer = new MinMaxNormalizer();
+    Transformer transformer = normalizer.fit(train);
+    Vector
+        trainSummary =
+        transformer.transform(train).collect(Double.class, Collectors.statisticalSummary());
+
+    System.out.println(trainSummary);
+    assertEquals(1, trainSummary.get(StatisticalSummary.class, "a").getMax(), 0);
+    assertEquals(1, trainSummary.get(StatisticalSummary.class, "b").getMax(), 0);
+    assertEquals(1, trainSummary.get(StatisticalSummary.class, "c").getMax(), 0);
+
+    assertEquals(0, trainSummary.get(StatisticalSummary.class, "a").getMin(), 0);
+    assertEquals(0, trainSummary.get(StatisticalSummary.class, "b").getMin(), 0);
+    assertEquals(0, trainSummary.get(StatisticalSummary.class, "c").getMin(), 0);
+  }
+
+  @Test
+  public void testFit_MeanImputer() throws Exception {
+    MeanImputer imputer = new MeanImputer();
+    Transformer t = imputer.fit(train);
+    DataFrame imputed = t.transform(test);
+
+    assertEquals(train, imputed.getColumnIndex());
+    assertEquals(test, imputed.getIndex());
   }
 }

@@ -103,7 +103,7 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public <T> Vector map(Class<T> cls, UnaryOperator<T> operator) {
-    return collect(cls, Collectors.map(this::newBuilder, operator));
+    return collect(cls, Collectors.map(TypeInferenceVectorBuilder::new, operator));
   }
 
   @Override
@@ -136,10 +136,6 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public Vector sort(SortOrder order) {
-//    if (getIndex() instanceof IntIndex && order == SortOrder.ASC) {
-//      return this;
-//    }
-
     IntComparator cmp = order == SortOrder.ASC ? loc()::compare : (a, b) -> loc().compare(b, a);
     Index.Builder index = getIndex().newCopyBuilder();
     index.sortIterationOrder(cmp::compare);

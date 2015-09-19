@@ -24,10 +24,7 @@
 
 package org.briljantframework.data.dataframe;
 
-import org.apache.commons.math3.random.UniformRandomGenerator;
-import org.apache.commons.math3.random.Well1024a;
 import org.briljantframework.data.Collectors;
-import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
@@ -88,6 +85,7 @@ public abstract class DataFrameTest {
       }
     }
     DataFrame copy = builder.build();
+    copy.setColumnIndex(df.getColumnIndex());
     assertEquals(df, copy);
   }
 
@@ -348,7 +346,6 @@ public abstract class DataFrameTest {
         .build();
 
     Vector sums = df.collect(Double.class, Collectors.sum());
-    System.out.println(sums);
     assertEquals(15, sums.getAsInt("i"));
     assertEquals(15, sums.getAsInt("k"));
     assertEquals(15, sums.getAsInt("d"));
@@ -401,9 +398,8 @@ public abstract class DataFrameTest {
         .setRecord(LocalDate.parse("2010-02-22", format), Vector.of(1, 2, 3))
         .setRecord(LocalDate.parse("2011-03-10", format), Vector.of(11, 22, 33))
         .setRecord(LocalDate.parse("2011-03-11", format), Vector.of(11, 22, 33))
+        .setColumnIndex("A", "B", "C")
         .build();
-    df.setColumnIndex(ObjectIndex.of("A", "B", "C"));
-
     DataFrame sums = df.groupBy(v -> LocalDate.class.cast(v).getYear()).collect(Vector::sum);
     assertEquals(2, sums.rows());
     assertEquals(3, sums.columns());
@@ -425,7 +421,6 @@ public abstract class DataFrameTest {
         .build();
 
     DataFrame join = a.join(JoinType.INNER, b, "a");
-    System.out.println(join);
     Vector on = Vector.of(1, 2, 2, 3, 5);
     Vector actualLeftAndRight = Vector.of(10, 20, 20, 30, 20);
     assertEquals(on, join.get("a"));
@@ -444,50 +439,9 @@ public abstract class DataFrameTest {
         .build();
 
     DataFrame actual = df.resetIndex();
-    System.out.println(actual);
     assertEquals(Vector.of("a", "b", "c", "d", "e"), actual.get("index"));
     assertEquals(Arrays.<Object>asList(0, 1, 2, 3, 4), actual.getIndex().asList());
 
-  }
-
-  @Test
-  public void testSelectRange() throws Exception {
-    DataFrame.Builder builder = getBuilder();
-    UniformRandomGenerator gen = new UniformRandomGenerator(new Well1024a());
-    for (int i = 0; i < 100000; i++) {
-      builder.setRecord(String.valueOf(i), Vector.of(gen.nextNormalizedDouble(), i, 20.0, 30.0));
-    }
-    builder.setColumnIndex("First", "Second", "Third", "Fourth");
-    DataFrame df = builder.build();
-
-//        .setRecord("a", Vector.of(1, 44, 3))
-//        .setRecord("c", Vector.of(1, 662, 3))
-//        .setRecord("q", Vector.of(1, 3, 3))
-//        .setRecord("e", Vector.of(1, 199, 3))
-//        .setRecord("f", Vector.of("A", "B", "C", "D"))
-//        .setColumnIndex("First", "Second", "Third")
-//        .build();
-
-    double best = Double.POSITIVE_INFINITY;
-    for (int i = 0; i < 100; i++) {
-      long start = System.nanoTime();
-      DataFrame sorted = df.sort(SortOrder.DESC, "First");
-      double time = (System.nanoTime() - start) / 1e6;
-      if (time < best) {
-        best = time;
-      }
-    }
-    System.out.println(best);
-//    System.out.println(sorted);
-
-//    DataFrame x = DataFrames.permuteRecords(df);
-//    x.getRecords().forEach(v -> System.out.println(v.getType()));
-//    x.getColumns().forEach(v -> System.out.println(v.getType()));
-//    df.getColumns().forEach(v -> System.out.println(v.getType()));
-
-//    df.sort(SortOrder.DESC);
-//    DataFrame selected = df.select("a", BoundType.INCLUSIVE, "e", BoundType.INCLUSIVE);
-//    System.out.println(selected);
   }
 
 }

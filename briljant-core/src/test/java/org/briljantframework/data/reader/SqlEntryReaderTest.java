@@ -44,7 +44,7 @@ public class SqlEntryReaderTest {
   @Before
   public void setUp() throws Exception {
     connection = DriverManager.getConnection(
-        "jdbc:sqlite::resource:org/briljantframework/data/reader/chinook.db"
+        "jdbc:sqlite::resource:org/briljantframework/data/chinook.db"
     );
 
   }

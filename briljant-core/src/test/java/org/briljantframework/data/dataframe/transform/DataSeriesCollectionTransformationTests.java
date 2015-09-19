@@ -22,36 +22,18 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.resolver;
+package org.briljantframework.data.dataframe.transform;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataseries.DataSeriesCollection;
 
 /**
- * @author Isak Karlsson
+ * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class StringDateConverter implements Converter<String, LocalDate> {
-
-  private final DateTimeFormatter format;
-
-  public StringDateConverter(DateTimeFormatter format) {
-    this.format = format;
-  }
-
-  public StringDateConverter(String pattern) {
-    this(DateTimeFormatter.ofPattern(pattern));
-  }
-
-  public StringDateConverter() {
-    this(DateTimeFormatter.ISO_DATE);
-  }
+public class DataSeriesCollectionTransformationTests extends TransformationTests {
 
   @Override
-  public LocalDate convert(String t) {
-    try {
-      return LocalDate.parse(t, format);
-    } catch (Exception e) {
-      return null; // NA
-    }
+  DataFrame.Builder getBuilder() {
+    return new DataSeriesCollection.Builder(Double.class);
   }
 }

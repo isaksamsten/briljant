@@ -27,8 +27,11 @@ package org.briljantframework.data.vector;
 import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
+
+import java.util.Comparator;
 
 /**
  * @author Isak Karlsson
@@ -37,7 +40,6 @@ final class SingletonVector extends AbstractVector implements Transferable {
 
   private static final Vector EMPTY = new SingletonVector(null, 0);
 
-  private final Class<?> cls;
   private final Object value;
   private final VectorType type;
   private final int size;
@@ -48,14 +50,29 @@ final class SingletonVector extends AbstractVector implements Transferable {
 
   SingletonVector(Index index, Object value, int size) {
     super(index);
-    this.cls = value != null ? value.getClass() : Object.class;
     this.value = value;
     this.size = size;
+    Class<?> cls = value != null ? value.getClass() : Object.class;
     type = VectorType.of(cls);
   }
 
   public static Vector empty() {
     return EMPTY;
+  }
+
+  @Override
+  public <T extends Comparable<T>> Vector sort(Class<T> cls) {
+    return shallowCopy(getIndex());
+  }
+
+  @Override
+  public Vector sort(SortOrder order) {
+    return shallowCopy(getIndex());
+  }
+
+  @Override
+  public <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
+    return shallowCopy(getIndex());
   }
 
   @Override

@@ -192,7 +192,7 @@ public abstract class VectorBuilderTest {
   public void testSetFromVectorFromKey() throws Exception {
     List<Object> index = Arrays.asList("a", "b", "c");
     Vector expected = Vector.of(10, 20, 30);
-    expected.setIndex(ObjectIndex.create(index));
+    expected.setIndex(ObjectIndex.of(index));
 
     Vector.Builder builder = getBuilder();
     for (int i = 0; i < index.size(); i++) {
@@ -210,7 +210,7 @@ public abstract class VectorBuilderTest {
   public void testSetFromVectorWithKeyFromIndex() throws Exception {
     List<Object> index = Arrays.asList("a", "b", "c");
     Vector expected = Vector.of(10, 20, 30);
-    expected.setIndex(ObjectIndex.create(index));
+    expected.setIndex(ObjectIndex.of(index));
 
     Vector.Builder builder = getBuilder();
     for (int i = 0; i < index.size(); i++) {
@@ -229,7 +229,7 @@ public abstract class VectorBuilderTest {
   public void testSetFromVectorWithKeyFromKey() throws Exception {
     List<Object> index = Arrays.asList("a", "b", "c");
     Vector expected = Vector.of(10, 20, 30);
-    expected.setIndex(ObjectIndex.create(index));
+    expected.setIndex(ObjectIndex.of(index));
 
     Vector.Builder builder = getBuilder();
     for (Object key : index) {

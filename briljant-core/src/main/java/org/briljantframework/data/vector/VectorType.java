@@ -27,15 +27,12 @@ package org.briljantframework.data.vector;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
-import org.briljantframework.data.Na;
 import org.briljantframework.data.Scale;
 import org.briljantframework.data.index.ObjectComparator;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Provides information of a particular vectors type.
@@ -45,41 +42,45 @@ public abstract class VectorType {
   public static final VectorType STRING = new GenericVectorType(String.class);
   public static final VectorType LOGICAL = new GenericVectorType(Logical.class);
   public static final VectorType INT = new IntVectorType();
+  public static final VectorType LONG = new GenericVectorType(Long.class);
   public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
   public static final VectorType DOUBLE = new DoubleVectorType();
   public static final VectorType OBJECT = new GenericVectorType(Object.class);
 
-  private static final Map<Class<?>, VectorType> CLASS_TO_VECTOR_TYPE;
-  private static final Set<VectorType> NUMERIC = new HashSet<>();
-  private static final Set<VectorType> CATEGORIC = new HashSet<>();
+  private static final Map<Class<?>, VectorType> CLASS_TO_TYPE;
 
   static {
-    NUMERIC.add(VectorType.DOUBLE);
-    NUMERIC.add(VectorType.INT);
-    NUMERIC.add(VectorType.COMPLEX);
-
-    CATEGORIC.add(VectorType.STRING);
-    CATEGORIC.add(VectorType.LOGICAL);
-
-    CLASS_TO_VECTOR_TYPE = new IdentityHashMap<>();
-    CLASS_TO_VECTOR_TYPE.put(Integer.class, INT);
-    CLASS_TO_VECTOR_TYPE.put(Integer.TYPE, INT);
-    CLASS_TO_VECTOR_TYPE.put(Double.class, DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(Float.class, DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(Float.TYPE, DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(Double.TYPE, DOUBLE);
-    CLASS_TO_VECTOR_TYPE.put(String.class, STRING);
-    CLASS_TO_VECTOR_TYPE.put(Boolean.class, LOGICAL);
-    CLASS_TO_VECTOR_TYPE.put(Logical.class, LOGICAL);
-    CLASS_TO_VECTOR_TYPE.put(Complex.class, COMPLEX);
-    CLASS_TO_VECTOR_TYPE.put(Object.class, OBJECT);
+    CLASS_TO_TYPE = new IdentityHashMap<>();
+    CLASS_TO_TYPE.put(Long.class, LONG);
+    CLASS_TO_TYPE.put(Long.TYPE, LONG);
+    CLASS_TO_TYPE.put(Integer.class, INT);
+    CLASS_TO_TYPE.put(Integer.TYPE, INT);
+    CLASS_TO_TYPE.put(Short.class, INT);
+    CLASS_TO_TYPE.put(Short.TYPE, INT);
+    CLASS_TO_TYPE.put(Byte.class, INT);
+    CLASS_TO_TYPE.put(Byte.TYPE, INT);
+    CLASS_TO_TYPE.put(Double.class, DOUBLE);
+    CLASS_TO_TYPE.put(Double.TYPE, DOUBLE);
+    CLASS_TO_TYPE.put(Float.class, DOUBLE);
+    CLASS_TO_TYPE.put(Float.TYPE, DOUBLE);
+    CLASS_TO_TYPE.put(String.class, STRING);
+    CLASS_TO_TYPE.put(Boolean.class, LOGICAL);
+    CLASS_TO_TYPE.put(Logical.class, LOGICAL);
+    CLASS_TO_TYPE.put(Complex.class, COMPLEX);
+    CLASS_TO_TYPE.put(Object.class, OBJECT);
   }
 
+  /**
+   * Create a new type from the specified class
+   *
+   * @param cls the specified class
+   * @return a type
+   */
   public static VectorType of(Class<?> cls) {
     if (cls == null) {
       return OBJECT;
     } else {
-      VectorType type = CLASS_TO_VECTOR_TYPE.get(cls);
+      VectorType type = CLASS_TO_TYPE.get(cls);
       if (type == null) {
         return new GenericVectorType(cls);
       }
@@ -87,9 +88,16 @@ public abstract class VectorType {
     }
   }
 
-  public static VectorType of(Object object) {
-    if (object != null) {
-      return of(object.getClass());
+  /**
+   * Return a new type from the specified class using the class of the specified value. Returns
+   * {@link #OBJECT} if {@code null} is specified.
+   *
+   * @param value the value
+   * @return a new type
+   */
+  public static VectorType of(Object value) {
+    if (value != null) {
+      return of(value.getClass());
     } else {
       return OBJECT;
     }
@@ -111,6 +119,14 @@ public abstract class VectorType {
   public abstract Vector.Builder newBuilder(int size);
 
   /**
+   * Creates a new builder with the specified initial capacity
+   *
+   * @param capacity the initial capacity
+   * @return a new builder with the specified initial capacity
+   */
+  public abstract Vector.Builder newBuilderWithCapacity(int capacity);
+
+  /**
    * Copy (and perhaps convert) {@code vector} to this type
    *
    * @param vector the vector to copy
@@ -126,14 +142,6 @@ public abstract class VectorType {
    * @return the class
    */
   public abstract Class<?> getDataClass();
-
-  /**
-   * Returns true if this object is NA for this value type
-   *
-   * @param value the value
-   * @return true if value is NA
-   */
-  public abstract boolean isNA(Object value);
 
   /**
    * Compare value at position {@code a} from {@code va} to value at position {@code b} from {@code
@@ -166,7 +174,13 @@ public abstract class VectorType {
     return compare(a, va, b, ba) == 0;
   }
 
-  public abstract Vector.Builder newBuilderWithCapacity(int capacity);
+  public boolean isAssignableTo(Class<?> cls) {
+    return cls.isAssignableFrom(getDataClass());
+  }
+
+  public boolean isAssignableTo(VectorType type) {
+    return isAssignableTo(type.getDataClass());
+  }
 
   private static class DoubleVectorType extends VectorType {
 
@@ -183,11 +197,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return Double.class;
-    }
-
-    @Override
-    public boolean isNA(Object value) {
-      return Is.NA(value);
     }
 
     @Override
@@ -229,11 +238,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return Integer.class;
-    }
-
-    @Override
-    public boolean isNA(Object value) {
-      return value == null || (value instanceof Integer && (int) value == Na.INT);
     }
 
     @Override
@@ -292,11 +296,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return cls;
-    }
-
-    @Override
-    public boolean isNA(Object value) {
-      return value == null;
     }
 
     @Override

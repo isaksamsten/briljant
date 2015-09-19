@@ -79,7 +79,7 @@ public class Datasets {
       Collection<VectorType> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
       DataFrame df = f.apply(types).readAll(in).build();
-      df.setColumnIndex(ObjectIndex.create(names));
+      df.setColumnIndex(ObjectIndex.of(names));
       return df;
     } finally {
       if (in != null) {

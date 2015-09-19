@@ -28,16 +28,22 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class IsTest {
 
   @Test
-  public void testNA() throws Exception {
-    Double v = Na.DOUBLE;
-    Double o = Double.NaN;
+  public void testNA_double() throws Exception {
+    assertTrue(Is.NA(Na.DOUBLE));
+    assertFalse(Is.NA(Double.NaN));
+    assertFalse(Is.NA(1.3));
+  }
 
-    assertTrue(Is.NA(v));
-    assertFalse(Is.NA(o));
+  @Test
+  public void testNA_float() throws Exception {
+    assertTrue(Is.NA(Na.FLOAT));
+    assertFalse(Is.NA(Float.NaN));
+    assertFalse(Is.NA(1.3f));
   }
 }

@@ -25,9 +25,8 @@
 package org.briljantframework.data.index;
 
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.vector.Vector;
-
-import java.io.IOException;
 
 /**
  * @author Isak Karlsson
@@ -53,7 +52,7 @@ public interface VectorLocationSetter {
    *
    * <ul>
    * <li>{@code null} always result in {@code NA}</li>
-   * <li>If {@link org.briljantframework.data.resolver.Resolvers#find(Class)} return a
+   * <li>If {@link Resolve#find(Class)} return a
    * non-null value the returned {@link org.briljantframework.data.resolver.Resolver#resolve(Class,
    * Object)} shall be used to produce the converted value. </li>
    * </ul>

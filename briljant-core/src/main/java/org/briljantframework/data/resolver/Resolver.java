@@ -79,13 +79,9 @@ public class Resolver<R> {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Converter<T, R> get(Class<T> cls) {
-    return (Converter<T, R>) getConverter(cls);
-  }
-
-  @SuppressWarnings("unchecked")
   private Converter<Object, R> getConverter(Class<?> cls) {
-    for (Holder<R> converter : converters) {
+    for (int i = 0, size = converters.size(); i < size; i++) {
+      Holder<R> converter = converters.get(i);
       if (converter.cls.isAssignableFrom(cls)) {
         return (Converter<Object, R>) converter.converter;
       }
