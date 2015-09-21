@@ -35,8 +35,6 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static org.briljantframework.Bj.argmax;
-
 /**
  * Provides sane defaults for a predictor. Sub-classes only have to implement the
  * {@link #estimate(org.briljantframework.data.vector.Vector)} method to have a sensible default
@@ -70,7 +68,7 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Object predict(Vector record) {
-    return getClasses().loc().get(Object.class, argmax(estimate(record)));
+    return getClasses().loc().get(Object.class, Bj.argmax(estimate(record)));
   }
 
   @Override

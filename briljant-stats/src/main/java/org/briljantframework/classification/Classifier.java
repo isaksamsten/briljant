@@ -79,13 +79,13 @@ public interface Classifier {
    * @param y the classes
    * @return a classification model
    */
-  public abstract Predictor fit(DataFrame x, Vector y);
+  Predictor fit(DataFrame x, Vector y);
 
   /**
    * The interface Builder.
    */
 
-  public static interface Builder<C extends Classifier> {
+  interface Builder<C extends Classifier> {
 
     /**
      * Create classifier.

@@ -35,9 +35,66 @@ import java.util.Objects;
 import static org.briljantframework.data.vector.Vectors.transferableBuilder;
 
 /**
+ * Lazy iterator that partitions the supplied {@linkplain DataFrame data frame} and {@code Vector
+ * target vector} into {@code n} disjoint <em>folds</em> of <em>training</em> and
+ * <em>validation</em> partitions.
+ *
+ * <p/> For example,
+ * Given the data frame {@code x}
+ *
+ * <pre>{@code
+ * DataFrame df = MixedDataFrame.of(
+ *   "a", Vector.of(1, 2, 3, 4, 5),
+ *   "b", Vector.of(5, 4, 3, 2, 1),
+ *   "c", Vector.of(4, 3, 2, 2, 1)
+ * );
+ * }</pre>
+ *
+ * which produces:
+ *
+ * <pre>
+ *    a  b  c
+ * 0  1  5  4
+ * 1  2  4  3
+ * 2  3  3  2
+ * 3  4  2  2
+ * 4  5  1  1
+ *
+ * [5 rows x 3 columns]
+ * </pre>
+ *
+ * Then,
+ * <pre>{@code
+ * FoldIterator iter = new FoldIterator(df.drop("a"), df.get("a"), 2)
+ * Partition part = iter.next()
+ * }</pre>
+ *
+ * produces a first (and a second) <em>training</em> partition {@code part.getTrainingData()}:
+ *
+ * <pre>
+ *    b  c
+ * 0  5  4
+ * 1  4  3
+ *
+ * [2 rows x 2 columns]
+ * </pre>
+ *
+ * and a first (and a second) <em>validation</em> partition {@code part.getValidationData()}:
+ * <pre>
+ *    b  c
+ * 0  3  2
+ * 1  2  2
+ * 2  1  1
+ *
+ * [3 rows x 2 columns]
+ * </pre>
+ *
+ * This class can be used to implement cross-validation. For an implementation, see {@link
+ * org.briljantframework.evaluation.Validators#crossValidation(int)}
+ *
  * @author Isak Karlsson
  */
-class FoldIterator implements Iterator<Partition> {
+public class FoldIterator implements Iterator<Partition> {
 
   private final int folds, foldSize, rows;
   private final DataFrame x;
@@ -46,7 +103,7 @@ class FoldIterator implements Iterator<Partition> {
 
   private int current = 0;
 
-  FoldIterator(DataFrame x, Vector y, int folds) {
+  public FoldIterator(DataFrame x, Vector y, int folds) {
     Check.argument(x.rows() == y.size(), "Data and target must be of equal size.");
     Check.argument(folds > 1 && folds <= x.rows(), "Invalid fold count.");
 

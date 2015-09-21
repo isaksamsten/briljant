@@ -78,6 +78,9 @@ public abstract class AbstractValidator implements Validator {
       DataFrame x, Predictor predictor, VectorType type, EvaluationContext ctx) {
     Vector classes = predictor.getClasses();
     Vector.Builder builder = type.newBuilder();
+
+    // For the case where the predictor reports the ESTIMATOR characteristic
+    // improve the performance by avoiding to recompute the classifications twice.
     if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
       DoubleArray estimate = predictor.estimate(x);
       ctx.setEstimation(estimate);

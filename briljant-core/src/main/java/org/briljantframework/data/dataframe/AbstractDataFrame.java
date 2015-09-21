@@ -734,8 +734,9 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newCopyBuilder()}
    */
   protected DataFrame dropAt(int index) {
-    // TODO: implement me
-    throw new UnsupportedOperationException();
+    Builder newBuilder = newCopyBuilder();
+    newBuilder.loc().remove(index);
+    return newBuilder.build();
   }
 
   /**

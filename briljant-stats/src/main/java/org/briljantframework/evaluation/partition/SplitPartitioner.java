@@ -24,13 +24,9 @@
 
 package org.briljantframework.evaluation.partition;
 
+import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
-import static org.briljantframework.data.vector.Vectors.transferableBuilder;
 
 /**
  * The split partitioner simply partitions the input {@code DataFrame} (with {@code m rows}) and
@@ -47,53 +43,13 @@ public class SplitPartitioner implements Partitioner {
   private final double testFraction;
 
   public SplitPartitioner(double testFraction) {
+    Check.inRange(testFraction, 0, 1);
     this.testFraction = testFraction;
   }
 
   @Override
   public Iterable<Partition> partition(DataFrame x, Vector y) {
-    return () -> {
-      int trainingSize = x.rows() - (int) Math.round(x.rows() * testFraction);
-
-      DataFrame.Builder xTrainingBuilder = x.newBuilder();
-      Vector.Builder yTrainingBuilder = y.newBuilder();
-      for (int i = 0; i < trainingSize; i++) {
-        xTrainingBuilder.addRecord(transferableBuilder(x.loc().getRecord(i)));
-        yTrainingBuilder.add(y, i);
-      }
-
-      DataFrame.Builder xValidationBuilder = x.newBuilder();
-      Vector.Builder yValidationBuilder = y.newBuilder();
-      for (int i = trainingSize; i < x.rows(); i++) {
-        // TODO: this will fuck up for non-dataseries collections FIMME
-        xValidationBuilder.addRecord(transferableBuilder(x.loc().getRecord(i)));
-        yValidationBuilder.add(y, i);
-      }
-
-      return new Iterator<Partition>() {
-        private boolean has = true;
-
-        @Override
-        public boolean hasNext() {
-          return has;
-        }
-
-        @Override
-        public Partition next() {
-          if (!hasNext()) {
-            throw new NoSuchElementException();
-          }
-          has = false;
-          DataFrame trainingSet = xTrainingBuilder.build();
-          trainingSet.setColumnIndex(x.getColumnIndex());
-          DataFrame validationSet = xValidationBuilder.build();
-          validationSet.setColumnIndex(x.getColumnIndex());
-          return new Partition(
-              trainingSet, validationSet, yTrainingBuilder.build(), yValidationBuilder.build()
-          );
-        }
-      };
-    };
+    return new SplitIterator(x, y, testFraction);
   }
 
   @Override
@@ -102,4 +58,5 @@ public class SplitPartitioner implements Partitioner {
            "testFraction=" + testFraction +
            '}';
   }
+
 }
