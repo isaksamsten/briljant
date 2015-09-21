@@ -60,7 +60,7 @@ public abstract class AbstractPredictor implements Predictor {
   @Override
   public Vector predict(DataFrame x) {
     // This is really only safe since Builder is initialized with a size i.e. filled with NA
-    Vector.Builder labels = Vector.Builder.of(Object.class, x.rows());
+    Vector.Builder labels = Vector.Builder.withSize(Object.class, x.rows());
     VectorLocationSetter loc = labels.loc();
     IntStream.range(0, x.rows()).parallel().forEach(
         i -> loc.set(i, predict(x.loc().getRecord(i)))

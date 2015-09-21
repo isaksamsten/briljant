@@ -734,7 +734,7 @@ public interface Vector extends Serializable, Iterable<Object> {
      * @param size the size
      * @return a new builder with the specified size filled with {@code NA}
      */
-    static Builder of(Class<?> cls, int size) {
+    static Builder withSize(Class<?> cls, int size) {
       Vector.Builder builder = withCapacity(cls, size);
       for (int i = 0; i < size; i++) {
         builder.addNA();
