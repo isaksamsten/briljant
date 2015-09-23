@@ -52,7 +52,7 @@ public class Datasets {
   private static final String DUMMY = "dummy";
 
 
-  private static final String RESOURCE_PATTERN = "/datasets/%s.txt";
+  private static final String RESOURCE_PATTERN = "%s.txt";
   private static final Map<String, DataFrame> DATA_CACHE = new HashMap<>();
 
   private Datasets() {
@@ -232,11 +232,12 @@ public class Datasets {
   }
 
   private static InputStream getResourceAsStream(String name) {
+    String fileName = String.format(RESOURCE_PATTERN, name);
     InputStream inputStream =
-        Datasets.class.getResourceAsStream(String.format(RESOURCE_PATTERN, name));
+        Datasets.class.getResourceAsStream(fileName);
 
     if (inputStream == null) {
-      throw new IOError(new IOException(String.format("Unable to find %s", name)));
+      throw new IOError(new IOException(String.format("Unable to find %s", fileName)));
     }
     return inputStream;
   }

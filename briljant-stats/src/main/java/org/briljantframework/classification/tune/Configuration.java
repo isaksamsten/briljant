@@ -24,63 +24,37 @@
 
 package org.briljantframework.classification.tune;
 
+import org.briljantframework.classification.Classifier;
+import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.evaluation.result.Result;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
-import org.briljantframework.classification.Classifier;
-import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.evaluation.result.ConfusionMatrix;
-import org.briljantframework.evaluation.result.Result;
-
 /**
- * The type Optimization result.
+ * @author Isak Karlsson
  */
 public class Configuration implements Comparable<Configuration> {
+
   private final Classifier classifier;
   private final Result result;
 
   private final Map<String, Object> parameters;
 
-  /**
-   * Instantiates a new Optimization result.
-   *
-   * @param classifier the classifier
-   * @param result the error
-   * @param parameters the parameters
-   */
   public Configuration(Classifier classifier, Result result, Map<String, Object> parameters) {
     this.classifier = classifier;
     this.result = result;
     this.parameters = parameters;
   }
 
-  /**
-   * Metric comparator.
-   *
-   * @param <T> the type parameter
-   * @param metric the metric
-   * @return the comparator
-   */
-  public static <T extends Measure> Comparator<Configuration> metricComparator(Class<T> metric) {
-    return (o1, o2) -> o1.getMetric(metric).compareTo(o2.getMetric(metric));
+  public static <T extends Measure> Comparator<Configuration> measureComparator(Class<T> measure) {
+    return (o1, o2) -> o1.getResult().get(measure).compareTo(o2.getResult().get(measure));
   }
 
   /**
-   * Create optimization result.
-   *
-   * @param classifier the classifier
-   * @param error the error
-   * @param map the map
-   * @return the optimization result
-   */
-  public static Configuration create(Classifier classifier, Result error, Map<String, Object> map) {
-    return new Configuration(classifier, error, map);
-  }
-
-  /**
-   * Gets classifier.
+   * Get the classifier configured according to the parameters
    *
    * @return the classifier
    */
@@ -89,16 +63,17 @@ public class Configuration implements Comparable<Configuration> {
   }
 
   /**
-   * Gets error.
+   * Get the average error of this configuration
    *
    * @return the error
+   * @see Result#getAverageError()
    */
-  public double getError() {
+  public double getAverageError() {
     return result.getAverageError();
   }
 
   /**
-   * Gets result.
+   * Get the result of this configuration
    *
    * @return the result
    */
@@ -107,60 +82,21 @@ public class Configuration implements Comparable<Configuration> {
   }
 
   /**
-   * Gets average confusion matrix.
-   *
-   * @return the average confusion matrix
-   */
-  public ConfusionMatrix getAverageConfusionMatrix() {
-    return result.getAverageConfusionMatrix();
-  }
-
-  /**
-   * Gets average.
-   *
-   * @param key the key
-   * @return the average
-   */
-  public double getAverage(Class<? extends Measure> key) {
-    return result.getAverage(key);
-  }
-
-  /**
-   * Gets standard deviation.
-   *
-   * @param key the key
-   * @return the standard deviation
-   */
-  public double getStandardDeviation(Class<? extends Measure> key) {
-    return result.getStandardDeviation(key);
-  }
-
-  /**
-   * Get t.
-   *
-   * @param key the key
-   * @return the t
-   */
-  public <T extends Measure> T getMetric(Class<T> key) {
-    return result.get(key);
-  }
-
-  /**
-   * Get object.
+   * Get the value for the parameter with the supplied key
    *
    * @param key the key
    * @return the object
    */
-  public Object get(String key) {
+  public Object getParameterValue(String key) {
     return parameters.get(key);
   }
 
   /**
-   * Keys set.
+   * Get the parameter names
    *
-   * @return the set
+   * @return a set of parameter names
    */
-  public Set<String> keys() {
+  public Set<String> getParameters() {
     return parameters.keySet();
   }
 
@@ -169,7 +105,7 @@ public class Configuration implements Comparable<Configuration> {
    *
    * @return the collection
    */
-  public Collection<Object> values() {
+  public Collection<Object> getParameterValues() {
     return parameters.values();
   }
 
@@ -178,36 +114,12 @@ public class Configuration implements Comparable<Configuration> {
    *
    * @return the parameters
    */
-  public Set<Map.Entry<String, Object>> entries() {
+  public Set<Map.Entry<String, Object>> parameterEntrySet() {
     return parameters.entrySet();
   }
 
   @Override
   public int compareTo(Configuration o) {
-    return Double.compare(getError(), o.getError());
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder out = new StringBuilder();
-    out.append(getClassifier().toString()).append("\n\n");
-    int longestParameter = entries().stream().mapToInt(x -> x.getKey().length()).max().getAsInt();
-    if (longestParameter < 9) {
-      longestParameter = 9;
-    }
-
-//    out.append("Settings\n").append("Parameter")
-//        .append(Strings.repeat(" ", longestParameter > 12 ? longestParameter - 9 : 4))
-//        .append("Value\n");
-//    for (Map.Entry<String, Object> kv : entries()) {
-//      out.append("").append(kv.getKey())
-//          .append(Strings.repeat(" ", (longestParameter - kv.getKey().length()) + 4))
-//          .append(kv.getValue()).append("\n");
-//    }
-//    out.append("\n");
-//    out.append(getResult());
-    return out.toString();
-    // return String.format("Configuration(%s, %.2f, %s)", classifier, result.getAverageError(),
-    // parameters);
+    return Double.compare(getAverageError(), o.getAverageError());
   }
 }

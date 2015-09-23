@@ -32,21 +32,11 @@ import java.util.function.Supplier;
 /**
  * Created by isak on 09/09/15.
  */
-public abstract class Parser {
+public interface Parser {
 
-  private final Supplier<DataFrame.Builder> builderFactory;
-
-  protected Parser(Supplier<DataFrame.Builder> builderFactory) {
-    this.builderFactory = builderFactory;
+  default DataFrame parse() {
+    return parse(MixedDataFrame.Builder::new);
   }
 
-  public Parser() {
-    this(MixedDataFrame.Builder::new);
-  }
-
-  protected Supplier<DataFrame.Builder> getBuilderFactory() {
-    return builderFactory;
-  }
-
-  public abstract DataFrame parse();
+  DataFrame parse(Supplier<? extends DataFrame.Builder> dataFrameType);
 }

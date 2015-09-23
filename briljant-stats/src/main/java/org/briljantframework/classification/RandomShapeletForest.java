@@ -25,24 +25,23 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
+import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.evaluation.measure.AbstractMeasure;
 import org.briljantframework.evaluation.result.EvaluationContext;
 import org.briljantframework.evaluation.result.Sample;
-import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 /**
  * <h1>Publications</h1>
@@ -77,12 +76,12 @@ public class RandomShapeletForest extends Ensemble {
     }
 
     try {
-      List<ShapeletTree.Predictor> models = execute(tasks);
+      List<ShapeletTree.Predictor> models = Ensemble.execute(tasks);
       DoubleArray lenSum = Bj.doubleArray(x.columns());
       DoubleArray posSum = Bj.doubleArray(x.columns());
       for (ShapeletTree.Predictor m : models) {
-        lenSum.assign(m.getLengthImportance(), Double::sum);
-        posSum.assign(m.getPositionImportance(), Double::sum);
+        lenSum.addi(m.getLengthImportance());
+        posSum.addi(m.getPositionImportance());
       }
 
       lenSum.update(v -> v / size());
@@ -194,6 +193,10 @@ public class RandomShapeletForest extends Ensemble {
     @Override
     public void evaluate(EvaluationContext ctx) {
       super.evaluate(ctx);
+      ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT, getDepth());
+    }
+
+    public double getDepth() {
       double depth = 0;
       for (org.briljantframework.classification.Predictor predictor : getPredictors()) {
         if (predictor instanceof ShapeletTree.Predictor) {
@@ -201,25 +204,24 @@ public class RandomShapeletForest extends Ensemble {
           depth += d;
         }
       }
-      double avg = depth / getPredictors().size();
-      ctx.getOrDefault(Depth.class, Depth.Builder::new).add(Sample.OUT, avg);
+      return depth / getPredictors().size();
     }
 
-    @Override
-    public DoubleArray estimate(Vector record) {
-      List<DoubleArray> predictions = getPredictors().parallelStream()
-          .map(model -> model.estimate(record))
-          .collect(Collectors.toList());
-
-      int estimators = getPredictors().size();
-      Vector classes = getClasses();
-      DoubleArray m = Bj.doubleArray(classes.size());
-      for (DoubleArray prediction : predictions) {
-        m.assign(prediction, (t, o) -> t + o / estimators);
-      }
-//      return m.mul(apriori.rsub(1));
-      return m;
-    }
+//    @Override
+//    public DoubleArray estimate(Vector record) {
+//      List<DoubleArray> predictions = getPredictors().parallelStream()
+//          .map(model -> model.estimate(record))
+//          .collect(Collectors.toList());
+//
+//      int estimators = getPredictors().size();
+//      Vector classes = getClasses();
+//      DoubleArray m = Bj.doubleArray(classes.size());
+//      for (DoubleArray prediction : predictions) {
+//        m.assign(prediction, (t, o) -> t + o / estimators);
+//      }
+////      return m.mul(apriori.rsub(1));
+//      return m;
+//    }
   }
 
   public static class Depth extends AbstractMeasure {

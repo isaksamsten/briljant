@@ -38,7 +38,7 @@ public interface EnsemblePredictor extends Predictor {
    *
    * @return the out of bag indicator matrix
    */
-  public BooleanArray getOobIndicator();
+  BooleanArray getOobIndicator();
 
   List<Predictor> getPredictors();
 }

@@ -29,49 +29,13 @@ package org.briljantframework.classification.tune;
  *
  * @param <T> the type parameter
  */
-public interface Updater<T> {
+public interface ParameterUpdater<T> {
 
-  /**
-   * Gets name.
-   *
-   * @return the name
-   */
   String getParameter();
 
-  /**
-   * Reset void.
-   */
-  public void restore();
+  void restore();
 
-  /**
-   * Can update.
-   *
-   * @return the boolean
-   */
-  public boolean hasUpdate();
+  boolean hasUpdate();
 
-  /**
-   * Update void.
-   *
-   * @param toUpdate the to update
-   * @return the object
-   */
-  public Object update(T toUpdate);
-
-  /**
-   * The interface Update.
-   *
-   * @param <T> the type parameter
-   * @param <V> the type parameter
-   */
-  @FunctionalInterface
-  public interface Update<T, V> {
-    /**
-     * Update void.
-     *
-     * @param toUpdate the to update
-     * @param value the value
-     */
-    void update(T toUpdate, V value);
-  }
+  Object update(T toUpdate);
 }

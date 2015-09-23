@@ -45,12 +45,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * @author Isak Karlsson
  */
-public class CsvParser extends Parser {
+public class CsvParser implements Parser {
 
   private final Settings settings = new Settings();
   private final CsvParserSettings csvSettings;
@@ -79,14 +80,14 @@ public class CsvParser extends Parser {
   }
 
   @Override
-  public DataFrame parse() {
+  public DataFrame parse(Supplier<? extends DataFrame.Builder> supplier) {
     Check.state(reader != null, "No source file provided.");
     CsvEntryReader entryReader = new CsvEntryReader(csvSettings, reader, missingValue);
     for (int i = 0; i < skipRows && entryReader.hasNext(); i++) {
       entryReader.next();
     }
 
-    DataFrame.Builder builder = getBuilderFactory().get();
+    DataFrame.Builder builder = supplier.get();
     Index.Builder columnIndex = new ObjectIndex.Builder();
 
     // The first row after skipRows are used as header if there are no

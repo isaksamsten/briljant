@@ -276,7 +276,7 @@ class DoubleVector extends AbstractVector implements Transferable {
 
     @Override
     public Vector.Builder add(Vector from, int fromIndex) {
-      return add(from.loc().getAsInt(fromIndex));
+      return add(from.loc().getAsDouble(fromIndex));
     }
 
     @Override

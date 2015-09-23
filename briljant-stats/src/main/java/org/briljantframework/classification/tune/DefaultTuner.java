@@ -24,14 +24,18 @@
 
 package org.briljantframework.classification.tune;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.data.vector.Vector;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Isak Karlsson on 25/09/14.
@@ -45,7 +49,7 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
   /**
    * The Updaters.
    */
-  protected final ArrayList<Updater<O>> updaters;
+  protected final ArrayList<ParameterUpdater<O>> updaters;
 
   /**
    * The Parameter names.
@@ -61,12 +65,12 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
    * @param evaluator the evaluator
    * @param comparator the comparator
    */
-  protected DefaultTuner(ArrayList<Updater<O>> updaters, Validator evaluator,
+  protected DefaultTuner(ArrayList<ParameterUpdater<O>> updaters, Validator evaluator,
       Comparator<Configuration> comparator) {
     this.updaters = updaters;
     this.evaluator = evaluator;
     this.comparator = comparator;
-    parameterNames = updaters.stream().map(Updater::getParameter).collect(Collectors.toList());
+    parameterNames = updaters.stream().map(ParameterUpdater::getParameter).collect(Collectors.toList());
   }
 
   /**
@@ -92,7 +96,7 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
   private void optimizeParameters(O classifierBuilder, DataFrame x, Vector y,
       List<Configuration> results, Object[] parameters, int n) {
     if (n != updaters.size()) {
-      Updater<O> updater = updaters.get(n);
+      ParameterUpdater<O> updater = updaters.get(n);
       while (updater.hasUpdate()) {
         Object value = updater.update(classifierBuilder);
         parameters[n] = value;
@@ -107,7 +111,7 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
       for (int i = 0; i < parameterNames.size(); i++) {
         map.put(parameterNames.get(i), parameters[i]);
       }
-      results.add(Configuration.create(classifier, result, map));
+      results.add(new Configuration(classifier, result, map));
     }
   }
 

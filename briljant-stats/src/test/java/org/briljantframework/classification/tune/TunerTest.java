@@ -58,7 +58,7 @@ public class TunerTest {
     // Configurations<KNearestNeighbors> knn = Tuners.crossValidatation(
     // KNearestNeighbors.builder(),
     // storage,
-    // Configuration.metricComparator(Accuracy.class),
+    // Configuration.measureComparator(Accuracy.class),
     // 10,
     // range("Neighbors", KNearestNeighbors.Builder::neighbours, 1, 8, 1),
     // enumeration("Distance", KNearestNeighbors.Builder::distance, Distance.EUCLIDEAN,
@@ -85,7 +85,7 @@ public class TunerTest {
     // ).set("no_features", "default");
     //
     // Configurations<RemoteClassifier> rm = Tuners.crossValidatation(randomForest, storage,
-    // Configuration.metricComparator(AreaUnderCurve.class), 10,
+    // Configuration.measureComparator(AreaUnderCurve.class), 10,
     // enumeration("no_trees", (toUpdate, value) -> toUpdate.set("no_trees", value), 10, 20, 30,
     // 40),
     // enumeration("no_features", (toUpdate, value) -> toUpdate.set("no_features", value),
@@ -101,7 +101,7 @@ public class TunerTest {
     // DataFrame x = null;
     // Vector y = null;
     // Tuners.crossValidation(new RandomForest.Builder(), x, y,
-    // Configuration.metricComparator(Accuracy.class), 10,
+    // Configuration.measureComparator(Accuracy.class), 10,
     // range("No. trees", RandomForest.Builder::withSize, 10, 1000, 10),
     // range("No. features", RandomForest.Builder::withMaximumFeatures, 2, x.columns(), 1));
 

@@ -35,108 +35,56 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The type Configurations.
+ * @author Isak Karlsson
  */
 public class Configurations implements Iterable<Configuration> {
 
   private final List<Configuration> configurations;
   private final Validator evaluator;
 
-  /**
-   * Instantiates a new Configurations.
-   *
-   * @param configurations the configurations
-   * @param evaluator      the evaluator
-   */
   protected Configurations(List<Configuration> configurations, Validator evaluator) {
     this.configurations = configurations;
     this.evaluator = evaluator;
   }
 
-  /**
-   * Create configurations.
-   *
-   * @param configurations the configurations
-   * @param evaluator      the evaluator
-   * @return the configurations
-   */
   public static Configurations create(List<Configuration> configurations,
                                       Validator evaluator) {
     Check.argument(configurations.size() > 0);
     return new Configurations(configurations, evaluator);
   }
 
-  /**
-   * Size int.
-   *
-   * @return the int
-   */
   public int size() {
     return configurations.size();
   }
 
-  /**
-   * Is empty.
-   *
-   * @return the boolean
-   */
   public boolean isEmpty() {
     return configurations.isEmpty();
   }
 
-  /**
-   * Iterator iterator.
-   *
-   * @return the iterator
-   */
   public Iterator<Configuration> iterator() {
     return configurations.iterator();
   }
 
-  /**
-   * Best configuration.
-   *
-   * @return the configuration
-   */
   public Configuration best() {
     return get(0);
   }
 
-  /**
-   * Sort void.
-   *
-   * @param cmp the cmp
-   */
   public void sort(Comparator<Configuration> cmp) {
     Collections.sort(configurations, cmp);
   }
 
-  /**
-   * Sort void.
-   */
   public void sort() {
     Collections.sort(configurations);
   }
 
-  /**
-   * Get configuration.
-   *
-   * @param index the index
-   * @return the configuration
-   */
   public Configuration get(int index) {
     return configurations.get(index);
   }
 
-  /**
-   * Gets parameters.
-   *
-   * @return the parameters
-   */
   public Set<String> getParameters() {
     Set<String> set = new HashSet<>();
     for (Configuration c : configurations) {
-      set.addAll(c.keys());
+      set.addAll(c.getParameters());
     }
     return set;
   }
@@ -179,14 +127,14 @@ public class Configurations implements Iterable<Configuration> {
   // public Plot getPlotForParameter(String key, Class<? extends Measure> metricKey) {
   // Map<Number, Double> map = new HashMap<>();
   // for (Configuration configuration : configurations) {
-  // Measure measure = configuration.getMetric(metricKey);
+  // Measure measure = configuration.getMeasure(metricKey);
   // double average = measure.getAverage(Measure.Sample.OUT);
   // Number param = (Number) configuration.get(key);
   // map.compute(param, (k, v) -> v == null ? average : v + average);
   // }
   //
   // XYSeriesCollection collection = new XYSeriesCollection();
-  // XYSeries series = new XYSeries(configurations.get(0).getMetric(metricKey).getName(), true);
+  // XYSeries series = new XYSeries(configurations.get(0).getMeasure(metricKey).getName(), true);
   //
   // int noParams = getParameters().size();
   // for (Map.Entry<Number, Double> entry : map.entrySet()) {
@@ -198,7 +146,7 @@ public class Configurations implements Iterable<Configuration> {
   // NumberAxis xAxis = new NumberAxis(key + " value");
   // xAxis.setAutoRangeIncludesZero(false);
   //
-  // return new XYPlot(collection, xAxis, new NumberAxis(configurations.get(0).getMetric(metricKey)
+  // return new XYPlot(collection, xAxis, new NumberAxis(configurations.get(0).getMeasure(metricKey)
   // .getName()), new XYLineAndShapeRenderer());
   // }
   //

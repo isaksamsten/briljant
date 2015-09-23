@@ -24,22 +24,22 @@
 
 package org.briljantframework.classification.tune;
 
-import static org.junit.Assert.assertEquals;
+import org.briljantframework.classification.KNearestNeighbors;
+import org.junit.Test;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.briljantframework.classification.KNearestNeighbors;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class UpdatersTest {
 
   @Test
   public void testRange() throws Exception {
     KNearestNeighbors.Builder knnBuilder = KNearestNeighbors.withNeighbors(1);
-    Updater<KNearestNeighbors.Builder> updater =
+    ParameterUpdater<KNearestNeighbors.Builder> updater =
         Updaters.range("n", KNearestNeighbors.Builder::withNeighbors, 0, 10, 2);
     while (updater.hasUpdate()) {
       updater.update(knnBuilder);
@@ -62,7 +62,7 @@ public class UpdatersTest {
     // Updater<PrintStream> updater = ;
     // Updater<PrintStream> updater1 = enumeration(PrintStream::println, 10, 11, 12);
 
-    List<Updater<PrintStream>> updaters = new ArrayList<>();
+    List<ParameterUpdater<PrintStream>> updaters = new ArrayList<>();
     updaters.add(Updaters.range("r", PrintStream::println, 0.0, 3, 1));
     updaters.add(Updaters.enumeration("e", PrintStream::println, 10, 11, 12));
     // updaters.add(enumeration("e", PrintStream::println, 10, 11, 12));
@@ -71,15 +71,15 @@ public class UpdatersTest {
 
   }
 
-  private <T> void testCombinations(List<Updater<T>> ud, T toUpdate) {
+  private <T> void testCombinations(List<ParameterUpdater<T>> ud, T toUpdate) {
     cartesian(new int[][] {new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10}, new int[] {10, 11}});
     cartesian(ud, toUpdate, 0);
 
   }
 
-  private <T> void cartesian(List<Updater<T>> updaters, T toUpdate, int n) {
+  private <T> void cartesian(List<ParameterUpdater<T>> updaters, T toUpdate, int n) {
     if (n != updaters.size()) {
-      Updater<T> updater = updaters.get(n);
+      ParameterUpdater<T> updater = updaters.get(n);
       while (updater.hasUpdate()) {
         updater.update(toUpdate);
         cartesian(updaters, toUpdate, n + 1);

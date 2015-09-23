@@ -41,11 +41,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * @author Isak Karlsson
  */
-public class SqlParser extends Parser {
+public class SqlParser implements Parser {
 
   private final Settings settings = new Settings();
   private String url;
@@ -72,7 +73,7 @@ public class SqlParser extends Parser {
   }
 
   @Override
-  public DataFrame parse() {
+  public DataFrame parse(Supplier<? extends DataFrame.Builder> supplier) {
     Check.state(url != null, "No database provided");
     Check.state(query != null, "No query provided");
 
@@ -99,7 +100,7 @@ public class SqlParser extends Parser {
       }
 
       SqlEntryReader entryReader = new SqlEntryReader(resultSet);
-      DataFrame.Builder builder = getBuilderFactory().get();
+      DataFrame.Builder builder = supplier.get();
       List<Class<?>> columnTypes;
       if (types != null) {
         columnTypes = types;

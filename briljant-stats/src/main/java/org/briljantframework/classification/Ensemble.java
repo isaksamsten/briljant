@@ -44,7 +44,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.DoubleAdder;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.briljantframework.Bj.argmax;
@@ -324,17 +323,13 @@ public abstract class Ensemble implements Classifier {
 
     @Override
     public DoubleArray estimate(Vector record) {
-      List<DoubleArray> predictions = members.parallelStream()
-          .map(model -> model.estimate(record))
-          .collect(Collectors.toList());
-
       int estimators = getPredictors().size();
       Vector classes = getClasses();
-      DoubleArray m = Bj.doubleArray(classes.size());
-      for (DoubleArray prediction : predictions) {
-        m.assign(prediction, (t, o) -> t + o / estimators);
-      }
-      return m;
+      DoubleArray estimate = Bj.doubleArray(classes.size());
+      getPredictors().parallelStream()
+          .map(model -> model.estimate(record))
+          .forEach(estimation -> estimate.assign(estimation, (t, o) -> t + o / estimators));
+      return estimate;
     }
   }
 

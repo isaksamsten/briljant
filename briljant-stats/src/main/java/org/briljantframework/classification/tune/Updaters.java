@@ -26,6 +26,8 @@ package org.briljantframework.classification.tune;
 
 import org.briljantframework.Check;
 
+import java.util.function.BiConsumer;
+
 /**
  * Created by Isak Karlsson on 24/09/14.
  */
@@ -43,9 +45,9 @@ public final class Updaters {
    * @param step     the step
    * @return the updater
    */
-  public static <T> Updater<T> range(String name, Updater.Update<? super T, Integer> consumer,
+  public static <T> ParameterUpdater<T> range(String name, BiConsumer<? super T, Integer> consumer,
                                      int start, int end, int step) {
-    return new Updater<T>() {
+    return new ParameterUpdater<T>() {
       private int current = start;
 
       @Override
@@ -68,7 +70,7 @@ public final class Updaters {
         if (!hasUpdate()) {
           throw new IllegalStateException();
         }
-        consumer.update(toUpdate, current);
+        consumer.accept(toUpdate, current);
         current += step;
 
         return current - step;
@@ -85,9 +87,9 @@ public final class Updaters {
    * @param step     the step
    * @return the updater
    */
-  public static <T> Updater<T> range(String name, Updater.Update<? super T, Double> consumer,
+  public static <T> ParameterUpdater<T> range(String name, BiConsumer<? super T, Double> consumer,
                                      double start, double end, double step) {
-    return new Updater<T>() {
+    return new ParameterUpdater<T>() {
       private double current = start;
 
       @Override
@@ -110,7 +112,7 @@ public final class Updaters {
         if (!hasUpdate()) {
           throw new IllegalStateException();
         }
-        consumer.update(toUpdate, current);
+        consumer.accept(toUpdate, current);
         current += step;
 
         return current - step;
@@ -118,42 +120,11 @@ public final class Updaters {
     };
   }
 
-  /**
-   * Options updater.
-   *
-   * @param <T>         the type parameter
-   * @param updater     the option
-   * @param enumeration the options
-   * @return the updater
-   */
   @SafeVarargs
-  public static <T, V> Updater<T> enumeration(String name, Updater.Update<T, V> updater,
+  public static <T, V> ParameterUpdater<T> enumeration(String name, BiConsumer<T, V> updater,
                                               V... enumeration) {
     Check.argument(enumeration.length > 0, "must enumerate value");
-    return new Updater<T>() {
-      private int current = 0;
-
-      @Override
-      public String getParameter() {
-        return name;
-      }
-
-      @Override
-      public void restore() {
-        current = 0;
-      }
-
-      @Override
-      public boolean hasUpdate() {
-        return current < enumeration.length;
-      }
-
-      @Override
-      public Object update(T toUpdate) {
-        V value = enumeration[current++];
-        updater.update(toUpdate, value);
-        return value;
-      }
-    };
+    return new EnumerationUpdater<>(name, updater, enumeration);
   }
+
 }

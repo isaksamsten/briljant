@@ -27,6 +27,7 @@ package org.briljantframework.data.index;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.data.BoundType;
+import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.sort.Swappable;
 
 import java.util.AbstractList;
@@ -41,6 +42,18 @@ import java.util.Set;
  * @author Isak Karlsson
  */
 public interface Index {
+
+  static Index range(int end) {
+    return range(0, end);
+  }
+
+  static Index range(int start, int end) {
+    return new IntIndex(start, end);
+  }
+
+  static Index of(Object... values) {
+    return ObjectIndex.of(values);
+  }
 
   /**
    * Get the index location of the supplied key.

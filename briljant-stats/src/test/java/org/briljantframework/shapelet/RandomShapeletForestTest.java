@@ -24,15 +24,22 @@
 
 package org.briljantframework.shapelet;
 
+import org.briljantframework.Bj;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.KNearestNeighbors;
+import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.dataset.io.Datasets;
+import org.briljantframework.dataset.io.MatlabDatasetReader;
 import org.briljantframework.dataset.io.SequenceDatasetReader;
 import org.briljantframework.distance.EditDistance;
 import org.briljantframework.evaluation.Validator;
@@ -143,6 +150,78 @@ public class RandomShapeletForestTest {
 //
 //    }
 //  }
+
+
+  @Test
+  public void testSynticControl() throws Exception {
+//
+//    CsvParser parser =
+//        new CsvParser(
+//            new FileReader(new File("/Users/isak-kar/Downloads/smts_noparallel/GunPoint_TRAIN")));
+//
+//    parser.getSettings().setDelimiter(' ').setSkipRows(1);
+//    DataFrame df = parser.parse(() -> new DataSeriesCollection.Builder(double.class));
+//    System.out.println(df.head(5));
+//
+
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset2/ECGFiveDays/ECGFiveDays_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset2/ECGFiveDays/ECGFiveDays_TEST")));
+
+    DataFrame train = Datasets.load(
+        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+            new FileInputStream(
+                "/Users/isak-kar/Downloads/dataset2/wafer/wafer_TRAIN")));
+    DataFrame test = Datasets.load(
+        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+            new FileInputStream(
+                "/Users/isak-kar/Downloads/dataset2/wafer/wafer_TEST")));
+    train.setColumnIndex(Index.range(train.columns()));
+    test.setColumnIndex(Index.range(test.columns()));
+    RandomShapeletForest forest = RandomShapeletForest.withSize(100).withUpperLength(1).build();
+    //    System.out.println(y.valueCounts());
+//    Result result = Validators.splitValidation(0.3).test(forest, x, y);
+//    System.out.println(result.getAverage(Accuracy.class));
+
+    RandomShapeletForest.Predictor predictor = forest.fit(train.drop(0), train.get(0));
+    Vector classes = predictor.getClasses();
+    System.out.println(predictor.getDepth());
+    DataFrame xTest = test.drop(0);
+    Vector yTest = test.get(0);
+
+    IntArray decision = Bj.intArray(xTest.rows());
+    double correct = 0;
+    for (int i = 0; i < xTest.rows(); i++) {
+      System.out.printf("Processing test instance %d/%d\n", i, xTest.rows());
+      Vector record = xTest.loc().getRecord(i);
+      Object trueLabel = yTest.loc().get(Object.class, i);
+      boolean found = false;
+      for (int j = 5; j < record.size() && !found; j++) {
+        DoubleArray estimation = predictor.estimate(record.select(0, j));
+        int max = Bj.argmax(estimation);
+        if (estimation.get(max) > 0.8) {
+          decision.set(i, j);
+          correct += classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0;
+          found = true;
+        }
+      }
+      if (!found) {
+        correct += predictor.predict(record).equals(trueLabel) ? 1 : 0;
+        decision.set(i, record.size());
+      }
+
+
+    }
+
+    System.out.println(correct / yTest.size() +
+                       " average len " +
+                       Bj.mean(decision.mapToDouble(v -> ((double) v) / xTest.columns())));
+  }
 
   @Test
   public void testSequences() throws Exception {

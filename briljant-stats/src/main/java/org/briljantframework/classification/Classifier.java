@@ -60,7 +60,7 @@ import org.briljantframework.data.vector.Vector;
  *
  * <pre>{@code
  * Tuners.crossValidation(new RandomForest.Builder(), x, y,
- *   Configuration.metricComparator(Accuracy.class), 10,
+ *   Configuration.measureComparator(Accuracy.class), 10,
  *   range(&quot;No. trees&quot;, RandomForest.Builder::withSize, 10, 1000, 10),
  *   range(&quot;No. features&quot;, RandomForest.Builder::withMaximumFeatures, 2, x.columns(),1));
  * }

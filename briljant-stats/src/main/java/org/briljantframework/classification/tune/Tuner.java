@@ -29,18 +29,15 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 24/09/14.
- *
- * @param <C> the type parameter
- * @param <O> the type parameter
+ * @author Isak Karlsson
  */
 public interface Tuner<C extends Classifier, O extends Classifier.Builder<? extends C>> {
 
   /**
-   * Optimize void.
+   * Optimize the paramters of the specified classifier over the specified data frame and labels
    *
-   * @param toOptimize the to optimize
-   * @return the classifier
+   * @param toOptimize the classifier to optimize
+   * @return the classifier configurations which has been optimized
    */
   Configurations tune(O toOptimize, DataFrame x, Vector y);
 

@@ -25,12 +25,12 @@
 package org.briljantframework.classification;
 
 import org.briljantframework.Bj;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Example;
 import org.briljantframework.classification.tree.RandomSplitter;
 import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.array.BooleanArray;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 
@@ -74,11 +74,11 @@ public class RandomForest extends Ensemble {
 
   @Override
   public String toString() {
-    return String.format("Random Classification Forest");
+    return "Random Classification Forest";
   }
 
-  private static final class FitTask implements
-                                     Callable<org.briljantframework.classification.Predictor> {
+  private static final class FitTask
+      implements Callable<org.briljantframework.classification.Predictor> {
 
     private final ClassSet classSet;
     private final DataFrame x;

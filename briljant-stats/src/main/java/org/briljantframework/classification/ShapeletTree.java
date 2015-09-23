@@ -165,11 +165,11 @@ public class ShapeletTree implements Classifier {
     params.originalData = x;
     int size = 10;//Utils.randInt(10, x.columns() - 1);
     TreeNode<ShapeletThreshold> node = build(dataFrame, y, classSet, params);
-    Predictor predictor = new Predictor(
-        classes, node, new ShapletTreeVisitor(size, getDistanceMetric()),
+    /*new ShapletTreeVisitor(size, getDistanceMetric())*/
+    return new Predictor(
+        classes, node, new WeightVisitor(getDistanceMetric()),
         params.lengthImportance, params.positionImportance, params.depth, classSet
     );
-    return predictor;
   }
 
   protected TreeNode<ShapeletThreshold> build(DataFrame x, Vector y, ClassSet classSet,
@@ -711,7 +711,8 @@ public class ShapeletTree implements Classifier {
     private final DoubleArray positionImportance;
 
     protected Predictor(Vector classes, TreeNode<ShapeletThreshold> node,
-                        ShapletTreeVisitor predictionVisitor, DoubleArray lengthImportance,
+                        TreeVisitor<ShapeletThreshold> predictionVisitor,
+                        DoubleArray lengthImportance,
                         DoubleArray positionImportance, int depth, ClassSet classSet) {
       super(classes, node, predictionVisitor);
       this.lengthImportance = lengthImportance;
@@ -740,6 +741,56 @@ public class ShapeletTree implements Classifier {
 
     public int getDepth() {
       return depth;
+    }
+  }
+
+  private static class WeightVisitor
+      implements TreeVisitor<ShapeletThreshold> {
+
+    private final Distance distanceMeasure;
+    private final double weight;
+
+    private WeightVisitor(Distance distanceMeasure, double weight) {
+      this.distanceMeasure = distanceMeasure;
+      this.weight = weight;
+    }
+
+    public WeightVisitor(Distance distanceMeasure) {
+      this(distanceMeasure, 1);
+    }
+
+    @Override
+    public DoubleArray visitLeaf(TreeLeaf<ShapeletThreshold> leaf, Vector example) {
+//      Bj.sum(leaf.getProbabilities().mul(weight));
+      return leaf.getProbabilities().mul(weight);
+    }
+
+    @Override
+    public DoubleArray visitBranch(TreeBranch<ShapeletThreshold> node, Vector example) {
+      Shapelet shapelet = node.getThreshold().getShapelet();
+      if (shapelet.size() > example.size()) {
+        WeightVisitor leftVisitor = new WeightVisitor(distanceMeasure, weight / 2);
+        WeightVisitor rightVisitor = new WeightVisitor(distanceMeasure, weight / 2);
+        DoubleArray leftProbabilities = leftVisitor.visit(node.getLeft(), example);
+        DoubleArray rightProbabilities = rightVisitor.visit(node.getRight(), example);
+        return leftProbabilities.add(rightProbabilities);
+      } else {
+        WeightVisitor visitor = new WeightVisitor(distanceMeasure, weight);
+        double distance = node.getThreshold().getDistance();
+        double computedDistance;
+        if (shapelet instanceof ChannelShapelet) {
+          ChannelShapelet channelShapelet = (ChannelShapelet) shapelet;
+          Vector channel = example.loc().get(Vector.class, channelShapelet.getChannel());
+          computedDistance = distanceMeasure.compute(channel, shapelet);
+        } else {
+          computedDistance = distanceMeasure.compute(example, shapelet);
+        }
+        if (computedDistance < distance) {
+          return visitor.visit(node.getLeft(), example);
+        } else {
+          return visitor.visit(node.getRight(), example);
+        }
+      }
     }
   }
 
