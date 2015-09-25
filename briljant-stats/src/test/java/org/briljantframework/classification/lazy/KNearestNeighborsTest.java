@@ -27,12 +27,12 @@ package org.briljantframework.classification.lazy;
 import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.distance.DynamicTimeWarping;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.Validators;
 import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
 public class KNearestNeighborsTest {
@@ -55,7 +55,7 @@ public class KNearestNeighborsTest {
     // Frame.FACTORY, DefaultTarget.FACTORY);
 
     // System.out.println(train);
-    // KNearestNeighbors.Model model = oneNearestNeighbours.fit(train);
+    // KNearestNeighbors.Predictor model = oneNearestNeighbours.fit(train);
     // Result result = Evaluators.holdOutValidation(oneNearestNeighbours, train, test);
     // System.out.println(result);
     //
@@ -87,13 +87,13 @@ public class KNearestNeighborsTest {
     // .create();
     //
     // long start = System.currentTimeMillis();
-    // Ensemble.Model<Frame> model2 = ensemble.fit(train);
+    // Ensemble.Predictor<Frame> model2 = ensemble.fit(train);
     // System.out.println("Fit: " + ((System.currentTimeMillis() - start) / 1000) + " seconds");
     //
     //
     // Ensemble<Dataset> ensemble1 = Ensemble.withMember(DecisionTree.withSplitter(RandomSplitter
     // .withMaximumFeatures(2))).setRandomizer(Bootstrap.create()).create();
-    // Ensemble.Model<Dataset> model2 = ensemble1.fit(train);
+    // Ensemble.Predictor<Dataset> model2 = ensemble1.fit(train);
     // start = System.currentTimeMillis();
     // Predictions predictions = model2.predict(test.getDataset());
     // System.out.println("Predict: " + ((System.currentTimeMillis() - start) / 1000) + " seconds");

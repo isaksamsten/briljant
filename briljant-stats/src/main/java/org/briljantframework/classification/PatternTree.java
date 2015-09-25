@@ -121,7 +121,7 @@ public class PatternTree implements Classifier {
       } else {
         right = buildNode(x, y, split.getRight(), depth + 1);
       }
-      return new TreeBranch<>(left, right, split.getThreshold());
+      return new TreeBranch<>(left, right, split.getThreshold(), 1);
     }
   }
 

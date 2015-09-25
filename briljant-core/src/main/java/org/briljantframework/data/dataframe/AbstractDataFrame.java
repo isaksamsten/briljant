@@ -364,7 +364,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame selectColumns(Object first, Object last) {
+  public final DataFrame select(Object first, Object last) {
     DataFrame.Builder builder = newBuilder();
     Set<Object> selectedRange = getColumnIndex().selectRange(
         first, BoundType.INCLUSIVE, last, BoundType.EXCLUSIVE);
@@ -455,12 +455,12 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame select(Object from, Object to) {
-    return select(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
+  public final DataFrame limit(Object from, Object to) {
+    return limit(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
   }
 
   @Override
-  public DataFrame select(Object from, BoundType fromBound, Object to, BoundType toBound) {
+  public DataFrame limit(Object from, BoundType fromBound, Object to, BoundType toBound) {
     DataFrame.Builder builder = newBuilder();
     for (Object record : getIndex().selectRange(from, fromBound, to, toBound)) {
       builder.setRecord(record, Vectors.transferableBuilder(getRecord(record)));
@@ -469,6 +469,16 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame df = builder.build();
 //    df.setColumnIndex(getColumnIndex());
     return df;
+  }
+
+  @Override
+  public DataFrame transpose() {
+    DataFrame.Builder builder = newBuilder();
+    for (Object columnKey : getColumnIndex().keySet()) {
+      builder.setRecord(columnKey, Vectors.transferableBuilder(get(columnKey)));
+    }
+    builder.setColumnIndex(getIndex());
+    return builder.build();
   }
 
   @Override

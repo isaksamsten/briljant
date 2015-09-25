@@ -51,15 +51,15 @@ public abstract class TransformationTests {
     NormalDistribution distribution = new NormalDistribution(new Well1024a(100), 10, 2,
                                                              NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
     train = getBuilder()
-        .set("a", Vector.of(distribution::sample, 100))
-        .set("b", Vector.of(distribution::sample, 100))
-        .set("c", Vector.of(distribution::sample, 100))
+        .set("a", Vector.fromSupplier(distribution::sample, 100))
+        .set("b", Vector.fromSupplier(distribution::sample, 100))
+        .set("c", Vector.fromSupplier(distribution::sample, 100))
         .build();
 
     test = getBuilder()
-        .set("a", Vector.of(distribution::sample, 100))
-        .set("c", Vector.of(distribution::sample, 100))
-        .set("b", Vector.of(distribution::sample, 80))
+        .set("a", Vector.fromSupplier(distribution::sample, 100))
+        .set("c", Vector.fromSupplier(distribution::sample, 100))
+        .set("b", Vector.fromSupplier(distribution::sample, 80))
         .build();
 
   }

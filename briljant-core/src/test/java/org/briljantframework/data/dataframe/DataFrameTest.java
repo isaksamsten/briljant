@@ -26,6 +26,7 @@ package org.briljantframework.data.dataframe;
 
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.dataframe.join.JoinType;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.reader.StringDataEntry;
@@ -53,7 +54,7 @@ public abstract class DataFrameTest {
         .add(first)
         .add(second)
         .build();
-    df.setColumnIndex(ObjectIndex.of("123", "abc"));
+    df.setColumnIndex(Index.of("123", "abc"));
 
     int n = 3;
     DataFrame head = df.head(n);
@@ -76,7 +77,7 @@ public abstract class DataFrameTest {
         .add(a)
         .add(b)
         .build();
-    df.setColumnIndex(ObjectIndex.of("a", "b"));
+    df.setColumnIndex(Index.of("a", "b"));
 
     DataFrame.Builder builder = df.newBuilder();
     for (int i = 0; i < df.rows(); i++) {

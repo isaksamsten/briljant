@@ -24,14 +24,15 @@
 
 package org.briljantframework.classification;
 
+import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.EnumSet;
 
@@ -86,10 +87,10 @@ public class KNearestNeighbors implements Classifier {
   }
 
   @Override
-  public Model fit(DataFrame x, Vector y) {
+  public Predictor fit(DataFrame x, Vector y) {
     Check.argument(x.rows() == y.size(),
                    "The size of x and y don't match: %s != %s.", x.rows(), y.size());
-    return new Model(x, y, distance, neighbors, Vectors.unique(y));
+    return new Predictor(x, y, distance, neighbors, Vectors.unique(y));
   }
 
   @Override
@@ -156,10 +157,10 @@ public class KNearestNeighbors implements Classifier {
   /**
    * Created by Isak Karlsson on 01/09/14.
    */
-  public static class Model extends AbstractPredictor {
+  public static class Predictor extends AbstractPredictor {
 
-    private final DataFrame frame;
-    private final Vector targets;
+    private final DataFrame x;
+    private final Vector y;
     private final Distance distance;
     private final int k;
 
@@ -170,10 +171,10 @@ public class KNearestNeighbors implements Classifier {
      * @param distance the distance
      * @param k        the k
      */
-    Model(DataFrame x, Vector y, Distance distance, int k, Vector classes) {
+    Predictor(DataFrame x, Vector y, Distance distance, int k, Vector classes) {
       super(classes);
-      this.frame = x;
-      this.targets = y;
+      this.x = x;
+      this.y = y;
 
       this.distance = distance;
       this.k = k;
@@ -181,6 +182,17 @@ public class KNearestNeighbors implements Classifier {
 
     @Override
     public DoubleArray estimate(Vector record) {
+      // Only 1nn
+
+      Object cls = null;
+      double bestSoFar = Double.POSITIVE_INFINITY;
+      for (int i = 0; i < x.rows(); i++) {
+        double distance = this.distance.compute(x.loc().getRecord(i), record);
+        if (distance < bestSoFar) {
+          cls = y.loc().get(Object.class, i);
+          bestSoFar = distance;
+        }
+      }
 //      MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
 //      for (int i = 0; i < frame.rows(); i++) {
 //        double d = distance.compute(record, frame.getRecord(i));
@@ -190,14 +202,13 @@ public class KNearestNeighbors implements Classifier {
 //      for (DistanceIndex di : queue) {
 //        votes.putOrAdd(di.target, 1, 1);
 //      }
-//      Vector classes = getClasses();
 //      int voters = queue.size();
-//      DoubleArray probas = Bj.doubleArray(classes.size());
-//      for (int i = 0; i < classes.size(); i++) {
-//        probas.set(i, votes.getOrDefault(classes.get(Object.class, i), 0) / voters);
-//      }
-//      return probas;
-      throw new UnsupportedOperationException();
+      Vector classes = getClasses();
+      DoubleArray estimate = Bj.doubleArray(classes.size());
+      for (int i = 0; i < classes.size(); i++) {
+        estimate.set(i, classes.loc().get(Object.class, i).equals(cls) ? 1 : 0);
+      }
+      return estimate;
     }
 
     @Override

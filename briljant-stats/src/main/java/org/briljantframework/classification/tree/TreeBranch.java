@@ -34,12 +34,14 @@ public final class TreeBranch<T> implements TreeNode<T> {
 
   private final TreeNode<T> left;
   private final TreeNode<T> right;
-  private T threshold;
+  private final T threshold;
+  private final double weight;
 
-  public TreeBranch(TreeNode<T> left, TreeNode<T> right, T threshold) {
+  public TreeBranch(TreeNode<T> left, TreeNode<T> right, T threshold, double weight) {
     this.left = left;
     this.right = right;
     this.threshold = threshold;
+    this.weight = weight;
   }
 
   public TreeNode<T> getLeft() {
@@ -52,6 +54,11 @@ public final class TreeBranch<T> implements TreeNode<T> {
 
   public T getThreshold() {
     return threshold;
+  }
+
+  @Override
+  public double getWeight() {
+    return weight;
   }
 
   @Override

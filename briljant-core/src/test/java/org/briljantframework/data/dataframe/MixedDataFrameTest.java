@@ -25,6 +25,7 @@
 package org.briljantframework.data.dataframe;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
 import org.briljantframework.data.vector.Vector;
@@ -47,11 +48,31 @@ public class MixedDataFrameTest extends DataFrameTest {
   }
 
   @Test
+  public void testNiceBuilder() throws Exception {
+    NormalDistribution gaussian = new NormalDistribution();
+    DataFrame df = DataFrame.of(
+        "a", Vector.of(1, 2, 3),
+        "b", Vector.of(2, 3, 3),
+        "c", Vector.fromSupplier(gaussian::sample, 3),
+        "d", Vector.singleton("hello", 3)
+    );
+
+    DataFrame df2 = DataFrame.builder()
+        .set("a", Vector.fromSupplier(gaussian::sample, 4))
+        .set("b", Vector.fromSupplier(gaussian::sample, 4))
+        .build();
+
+    System.out.println(df.transpose());
+
+  }
+
+  @Test
   public void testBuilderSetNA() throws Exception {
     DataFrame.Builder builder = getBuilder();
     builder.loc().setNA(0, 0);
     builder.loc().setNA(0, 4);
     builder.add(VectorType.DOUBLE);
+
     builder.loc().setNA(5, 5);
 
     DataFrame build = builder.build();

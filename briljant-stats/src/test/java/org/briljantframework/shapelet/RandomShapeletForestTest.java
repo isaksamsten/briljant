@@ -25,11 +25,14 @@
 package org.briljantframework.shapelet;
 
 import org.briljantframework.Bj;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.KNearestNeighbors;
+import org.briljantframework.classification.Predictor;
 import org.briljantframework.classification.RandomShapeletForest;
+import org.briljantframework.classification.ShapeletTree;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
@@ -49,7 +52,10 @@ import org.briljantframework.evaluation.result.Result;
 import org.junit.Test;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class RandomShapeletForestTest {
 
@@ -154,15 +160,23 @@ public class RandomShapeletForestTest {
 
   @Test
   public void testSynticControl() throws Exception {
-//
-//    CsvParser parser =
-//        new CsvParser(
-//            new FileReader(new File("/Users/isak-kar/Downloads/smts_noparallel/GunPoint_TRAIN")));
-//
-//    parser.getSettings().setDelimiter(' ').setSkipRows(1);
-//    DataFrame df = parser.parse(() -> new DataSeriesCollection.Builder(double.class));
-//    System.out.println(df.head(5));
-//
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset/Gun_Point/Gun_Point_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset/Gun_Point/Gun_Point_TEST")));
+
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset2/SonyAIBORobotSurfaceII/SonyAIBORobotSurfaceII_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset2/SonyAIBORobotSurfaceII/SonyAIBORobotSurfaceII_TEST")));
 
 //    DataFrame train = Datasets.load(
 //        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
@@ -173,54 +187,156 @@ public class RandomShapeletForestTest {
 //            new FileInputStream(
 //                "/Users/isak-kar/Downloads/dataset2/ECGFiveDays/ECGFiveDays_TEST")));
 
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset/Coffee/Coffee_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset/Coffee/Coffee_TEST")));
+//
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream("/Users/isak-kar/Downloads/dataset2/wafer/wafer_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream("/Users/isak-kar/Downloads/dataset2/wafer/wafer_TEST")));
+
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset2/MoteStrain/MoteStrain_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset2/MoteStrain/MoteStrain_TEST")));
+
+//    DataFrame train = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset/Two_Patterns/Two_Patterns_TRAIN")));
+//    DataFrame test = Datasets.load(
+//        (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
+//            new FileInputStream(
+//                "/Users/isak-kar/Downloads/dataset/Two_Patterns/Two_Patterns_TEST")));
+
     DataFrame train = Datasets.load(
         (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
             new FileInputStream(
-                "/Users/isak-kar/Downloads/dataset2/wafer/wafer_TRAIN")));
+                "/Users/isak-kar/Downloads/dataset/synthetic_control/synthetic_control_TRAIN")));
     DataFrame test = Datasets.load(
         (i) -> new DataSeriesCollection.Builder(double.class), new MatlabDatasetReader(
             new FileInputStream(
-                "/Users/isak-kar/Downloads/dataset2/wafer/wafer_TEST")));
+                "/Users/isak-kar/Downloads/dataset/synthetic_control/synthetic_control_TEST")));
     train.setColumnIndex(Index.range(train.columns()));
     test.setColumnIndex(Index.range(test.columns()));
-    RandomShapeletForest forest = RandomShapeletForest.withSize(100).withUpperLength(1).build();
-    //    System.out.println(y.valueCounts());
-//    Result result = Validators.splitValidation(0.3).test(forest, x, y);
-//    System.out.println(result.getAverage(Accuracy.class));
+    System.out.println(test.get(0).valueCounts());
+    System.out.println(train.get(0).valueCounts());
 
-    RandomShapeletForest.Predictor predictor = forest.fit(train.drop(0), train.get(0));
+//    System.out.println(train.head(5));
+//    System.out.println(train.getRecord(0).asList(Double.class).subList(1, 85));
+//    System.out.println(train.drop(0).getRecord(0).asList(Double.class));
+//    System.out.println(train.drop(0).columns());
+    Classifier classifier = RandomShapeletForest.withSize(100).withAssessment(
+        ShapeletTree.Assessment.IG).withInspectedShapelets(100).withUpperLength(1).build();
+//    Classifier classifier = KNearestNeighbors.withNeighbors(1).build();
+//    System.out.println(HoldoutValidator.withHoldout(test.drop(0), test.get(0))
+//                           .test(classifier, train.drop(0), train.get(0))
+//                           .getAverage(Accuracy.class));
+    testEarlyClassification(train, test, classifier);
+  }
+
+  private void testEarlyClassification(DataFrame train, DataFrame test, Classifier classifier) {
+    Predictor predictor = classifier.fit(train.drop(0), train.get(0));
+
+//    DoubleArray oobAccuracyPerLength = computeOobAccuracy(predictor, train.drop(0), train.get(0));
+
     Vector classes = predictor.getClasses();
-    System.out.println(predictor.getDepth());
     DataFrame xTest = test.drop(0);
     Vector yTest = test.get(0);
 
-    IntArray decision = Bj.intArray(xTest.rows());
+    IntArray decisionTime = Bj.intArray(xTest.rows());
+    IntArray correctAt = Bj.intArray(xTest.columns());
     double correct = 0;
     for (int i = 0; i < xTest.rows(); i++) {
-      System.out.printf("Processing test instance %d/%d\n", i, xTest.rows());
+      if (i % 100 == 0) {
+        System.out.printf("Processing test instance %d/%d\n", i, xTest.rows());
+      }
       Vector record = xTest.loc().getRecord(i);
       Object trueLabel = yTest.loc().get(Object.class, i);
       boolean found = false;
       for (int j = 5; j < record.size() && !found; j++) {
         DoubleArray estimation = predictor.estimate(record.select(0, j));
         int max = Bj.argmax(estimation);
+        correctAt.addTo(j, classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0);
         if (estimation.get(max) > 0.8) {
-          decision.set(i, j);
+          decisionTime.set(i, j);
           correct += classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0;
-          found = true;
+//          found = true;
         }
       }
       if (!found) {
         correct += predictor.predict(record).equals(trueLabel) ? 1 : 0;
-        decision.set(i, record.size());
+        decisionTime.set(i, record.size());
       }
-
-
     }
 
     System.out.println(correct / yTest.size() +
-                       " average len " +
-                       Bj.mean(decision.mapToDouble(v -> ((double) v) / xTest.columns())));
+                       " average decision time " +
+                       Bj.mean(decisionTime.asDouble().div(xTest.columns())));
+
+    System.out.println(correctAt.asDouble().div(xTest.rows()));
+  }
+
+
+  private final Random random = new Random(123);
+
+  private Vector shift(Vector record) {
+    Vector.Builder builder = record.newBuilder();
+    int start = random.nextInt(record.size() - 1);
+    for (int i = start; i < record.size(); i++) {
+      builder.add(record, i);
+    }
+    for (int i = 0; i < start; i++) {
+      builder.add(record, i);
+    }
+
+    return builder.build();
+  }
+
+  @Test
+  public void testShift() throws Exception {
+    System.out.println(shift(Vector.of(1, 2, 3, 4, 5, 6)));
+  }
+
+  private DoubleArray computeOobAccuracy(RandomShapeletForest.Predictor predictor, DataFrame x,
+                                         Vector y) {
+
+    BooleanArray oob = predictor.getOobIndicator();
+    for (int i = 0; i < x.rows(); i++) {
+      Vector record = x.loc().getRecord(i);
+      List<Predictor> oobMembers = getOobMembers(oob.getRow(i), predictor.getPredictors());
+      DoubleArray estimate = predictOob(oobMembers, record);
+
+    }
+    return null;
+  }
+
+  private List<Predictor> getOobMembers(BooleanArray oob, List<Predictor> predictors) {
+    List<Predictor> oobPredictors = new ArrayList<>();
+    for (int i = 0; i < predictors.size(); i++) {
+      if (oob.get(i)) {
+        oobPredictors.add(predictors.get(i));
+      }
+    }
+
+    return oobPredictors;
+  }
+
+  private DoubleArray predictOob(List<Predictor> members, Vector record) {
+
+    return null;
   }
 
   @Test

@@ -34,10 +34,10 @@ import org.briljantframework.classification.tree.TreePredictor;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
-import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.Is;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
 
 /**
  * @author Isak Karlsson
@@ -88,7 +88,7 @@ public class DecisionTree implements Classifier {
     } else {
       TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
       TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);
-      return new TreeBranch<>(leftNode, rightNode, maxSplit.getThreshold());
+      return new TreeBranch<>(leftNode, rightNode, maxSplit.getThreshold(), 1);
     }
   }
 

@@ -152,7 +152,7 @@ public final class ArrayPrinter {
           maxWidth
       );
     }
-    out.append(" type: ").append(arr.type()).append(")");
+    out.append(")");
   }
 
   private static IntArray computeMaxWidth(ToStringArray arr, boolean truncate) {

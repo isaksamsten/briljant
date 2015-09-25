@@ -180,46 +180,129 @@ public class MixedDataFrame extends AbstractDataFrame {
     return new MixedDataFrame(vectors);
   }
 
-  public static DataFrame of(Object name, Vector c) {
+  static MixedDataFrame of(Object name, Vector c) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(name, c);
-    return create(map);
+    if (map.size() != 1) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
   }
 
-  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
-    return create(map);
+    if (map.size() != 2) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
   }
 
-  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
-    return create(map);
+    if (map.size() != 3) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
   }
 
-  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                             Object n4, Vector v4) {
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                           Object n4, Vector v4) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
     map.put(n4, v4);
-    return create(map);
+    if (map.size() != 4) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
   }
 
-  public static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                             Object n4, Vector v4, Object n5, Vector v5) {
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                           Object n4, Vector v4, Object n5, Vector v5) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
     map.put(n4, v4);
     map.put(n5, v5);
-    return create(map);
+    if (map.size() != 5) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
+  }
+
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                           Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6) {
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    map.put(n3, v3);
+    map.put(n4, v4);
+    map.put(n5, v5);
+    map.put(n6, v6);
+    if (map.size() != 6) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
+  }
+
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                           Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6,
+                           Object n7, Vector v7) {
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    map.put(n3, v3);
+    map.put(n4, v4);
+    map.put(n5, v5);
+    map.put(n6, v6);
+    map.put(n7, v7);
+    if (map.size() != 7) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
+  }
+
+  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                           Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6,
+                           Object n7, Vector v7, Object n8, Vector v8) {
+    HashMap<Object, Vector> map = new LinkedHashMap<>();
+    map.put(n1, v1);
+    map.put(n2, v2);
+    map.put(n3, v3);
+    map.put(n4, v4);
+    map.put(n5, v5);
+    map.put(n6, v6);
+    map.put(n7, v7);
+    map.put(n8, v8);
+    if (map.size() != 8) {
+      throw new IllegalArgumentException("duplicate elements");
+    }
+    return MixedDataFrame.create(map);
+  }
+
+  /**
+   * Create a mixed data frame containing the keys and values from the given entries.
+   *
+   * @param entries the keys and values with which the dataframe is populated
+   * @return a newly created {@code MixedDataFrame}
+   */
+  public static MixedDataFrame fromEntries(Map.Entry<Object, ? extends Vector>... entries) {
+    Map<Object, Vector> map = new LinkedHashMap<>();
+    for (Map.Entry<Object, ? extends Vector> entry : entries) {
+      map.put(entry.getKey(), entry.getValue());
+    }
+    return new MixedDataFrame(map);
+  }
+
+  public static MixedDataFrame.Builder builder() {
+    return new MixedDataFrame.Builder();
   }
 
   @Override

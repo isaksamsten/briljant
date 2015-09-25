@@ -105,7 +105,7 @@ public class VectorsTest {
     assertEquals(4, chunks.size());
     assertEquals(Vector.of(1, 2), listChunks.get(0));
     assertEquals(Vector.of(3, 4), listChunks.get(1));
-    assertEquals(Vector.of(5), listChunks.get(2));
-    assertEquals(Vector.of(6), listChunks.get(3));
+    assertEquals(Vector.singleton(5), listChunks.get(2));
+    assertEquals(Vector.singleton(6), listChunks.get(3));
   }
 }

@@ -350,6 +350,7 @@ class DoubleVector extends AbstractVector implements Transferable {
       int numMoved = size - index - 1;
       if (numMoved > 0) {
         System.arraycopy(buffer, index + 1, buffer, index, numMoved);
+        size--;
       }
     }
 

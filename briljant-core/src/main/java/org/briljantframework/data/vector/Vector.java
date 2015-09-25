@@ -42,7 +42,6 @@ import org.briljantframework.exceptions.IllegalTypeException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -89,51 +88,26 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   @SafeVarargs
   static <T> Vector of(T... array) {
-    return of(Arrays.asList(array));
+    return fromIterable(Arrays.asList(array));
   }
 
   /**
-   * Creates a vector of the values in the iterable
+   * Creates an empty vector
    *
-   * @param values the specified values
-   * @return a new vector with the specified values
+   * @return an empty vector
    */
-  static Vector of(Iterable<Object> values) {
-    Iterator<Object> it = values.iterator();
-    if (!it.hasNext()) {
-      return singleton(null);
-    }
-    Object t = it.next();
-    Builder builder = VectorType.of(t).newBuilder().add(t);
-    while (it.hasNext()) {
-      builder.add(it.next());
-    }
-    return builder.build();
-  }
-
-  static Vector of(Collection<Object> collection) {
-    return of((Iterable<Object>) collection);
+  static Vector of() {
+    return SingletonVector.empty();
   }
 
   /**
-   * Creates a vector with the specified size consisting of the values given by the supplier
+   * Creates a one element vector with the specified value
    *
-   * <pre>{@code
-   * Vector.Builder b;
-   * for(int i = 0; i < size; i++){
-   *   b.add(supplier.get());
-   * }}</pre>
+   * @param value the value
+   * @return a one element vector
    */
-  static Vector of(Supplier<Object> supplier, int size) {
-    if (size < 1) {
-      throw new UnsupportedOperationException();
-    }
-    Object value = supplier.get();
-    Vector.Builder builder = VectorType.of(value).newBuilder().add(value);
-    for (int i = 1; i < size; i++) {
-      builder.add(supplier.get());
-    }
-    return builder.build();
+  static Vector singleton(Object value) {
+    return singleton(value, 1);
   }
 
   /**
@@ -148,22 +122,43 @@ public interface Vector extends Serializable, Iterable<Object> {
   }
 
   /**
-   * Creates a one element vector with the specified value
+   * Creates a vector of the values in the iterable
    *
-   * @param value the value
-   * @return a one element vector
+   * @param values the specified values
+   * @return a new vector with the specified values
    */
-  static Vector singleton(Object value) {
-    return singleton(value, 1);
+  static Vector fromIterable(Iterable<Object> values) {
+    Iterator<Object> it = values.iterator();
+    if (!it.hasNext()) {
+      return singleton(null);
+    }
+    Object t = it.next();
+    Builder builder = VectorType.of(t).newBuilder().add(t);
+    while (it.hasNext()) {
+      builder.add(it.next());
+    }
+    return builder.build();
   }
 
   /**
-   * Creates an empty vector
+   * Creates a vector with the specified size consisting of the values given by the supplier
    *
-   * @return an empty vector
+   * <pre>{@code
+   * Vector.Builder b;
+   * for(int i = 0; i < size; i++){
+   *   b.add(supplier.get());
+   * }}</pre>
    */
-  static Vector empty() {
-    return SingletonVector.empty();
+  static Vector fromSupplier(Supplier<Object> supplier, int size) {
+    if (size < 1) {
+      throw new UnsupportedOperationException();
+    }
+    Object value = supplier.get();
+    Vector.Builder builder = VectorType.of(value).newBuilder().add(value);
+    for (int i = 1; i < size; i++) {
+      builder.add(supplier.get());
+    }
+    return builder.build();
   }
 
   /**

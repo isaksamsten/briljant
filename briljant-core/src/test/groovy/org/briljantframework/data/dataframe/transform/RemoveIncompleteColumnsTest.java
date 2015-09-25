@@ -25,7 +25,6 @@
 package org.briljantframework.data.dataframe.transform;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
@@ -35,7 +34,7 @@ public class RemoveIncompleteColumnsTest {
 
   @Test
   public void testTransform() throws Exception {
-    DataFrame df = MixedDataFrame.of(
+    DataFrame df = DataFrame.of(
         "a", Vector.of(1, 1, 2, 2, null),
         "b", Vector.of(1, 2, 3, 4, 5),
         "c", Vector.of("hello", "a", "b", "c", "d"));

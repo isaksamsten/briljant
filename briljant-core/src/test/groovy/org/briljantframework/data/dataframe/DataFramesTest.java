@@ -30,7 +30,7 @@ import org.junit.Test;
 public class DataFramesTest {
 
   protected DataFrame createDataFrame() {
-    return MixedDataFrame.of(
+    return DataFrame.of(
         "a", Vector.of(1, 2, 3, 4, 5, 6),
         "b", Vector.of("a", "b", "b", "b", "e", "f"),
         "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6)

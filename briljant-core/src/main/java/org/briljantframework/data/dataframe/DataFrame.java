@@ -40,6 +40,8 @@ import org.briljantframework.data.vector.VectorType;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -356,15 +358,40 @@ public interface DataFrame extends Iterable<Object> {
 
   DataFrame getRecord(Object... keys);
 
-  DataFrame select(Object from, Object to);
+  /**
+   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given
+   * range.
+   *
+   * @param from from inclusive
+   * @param to   to exclusive
+   * @return a newly created {@code DataFrame}
+   */
+  DataFrame limit(Object from, Object to);
 
-  DataFrame select(Object from, BoundType fromBound, Object to, BoundType toBound);
+  /**
+   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given
+   * range.
+   *
+   * @param from      from object
+   * @param fromBound the bound of from
+   * @param to        to object
+   * @param toBound   the bound of to
+   * @return a newly created {@code DataFrame}
+   */
+  DataFrame limit(Object from, BoundType fromBound, Object to, BoundType toBound);
 
+  DataFrame transpose();
+
+  /**
+   *
+   * @param bits
+   * @return
+   */
   DataFrame select(Vector bits);
 
   DataFrame select(Predicate<Vector> predicate);
 
-  DataFrame selectColumns(Object first, Object last);
+  DataFrame select(Object first, Object last);
 
   /**
    * Return a collection of columns
@@ -616,6 +643,105 @@ public interface DataFrame extends Iterable<Object> {
      * @return a new data frame
      */
     DataFrame build();
+  }
+
+  static DataFrame of(Object name, Vector c) {
+    return MixedDataFrame.of(name, c);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
+    return MixedDataFrame.of(n1, v1, n2, v2);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
+    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                      Object n4, Vector v4) {
+    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                      Object n4, Vector v4, Object n5, Vector v5) {
+    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6) {
+    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6,
+                      Object n7, Vector v7) {
+    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7);
+  }
+
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
+                      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6,
+                      Object n7, Vector v7, Object n8, Vector v8) {
+    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7, n8, v8);
+  }
+
+  /**
+   * Creates a data frame from the given keys and values.
+   *
+   * @param entries the keys and values with which the dataframe is populated
+   * @return a newly created {@code DataFrame}
+   */
+  static DataFrame fromEntries(Map.Entry<Object, ? extends Vector>... entries) {
+    return MixedDataFrame.fromEntries(entries);
+  }
+
+  static DataFrame.Builder builder() {
+    return MixedDataFrame.builder();
+  }
+
+  static KeyVectorHolder entry(Object key, Vector vector) {
+    return new KeyVectorHolder(key, vector);
+  }
+
+  final class KeyVectorHolder implements Map.Entry<Object, Vector> {
+
+    private final Object key;
+    private final Vector value;
+
+    public KeyVectorHolder(Object key, Vector value) {
+      this.key = key;
+      this.value = Objects.requireNonNull(value);
+    }
+
+    /**
+     * Gets the key from this holder
+     *
+     * @return the key
+     */
+    @Override
+    public Object getKey() {
+      return key;
+    }
+
+    /**
+     * Gets the value from this holder
+     *
+     * @return the value
+     */
+    @Override
+    public Vector getValue() {
+      return value;
+    }
+
+    /**
+     * Throws {@link UnsupportedOperationException}.
+     *
+     * @param value ignored
+     * @return never returns normally
+     */
+    @Override
+    public Vector setValue(Vector value) {
+      throw new UnsupportedOperationException();
+    }
   }
 
 }

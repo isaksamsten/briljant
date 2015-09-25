@@ -29,7 +29,6 @@ import org.briljantframework.classification.LogisticRegression;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
-import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.evaluation.Validators;
@@ -62,7 +61,7 @@ public class LogisticRegressionTest {
 
   @Test
   public void testOdds() throws Exception {
-    DataFrame x = MixedDataFrame.of(
+    DataFrame x = DataFrame.of(
         "Age", Vector.of(55, 28, 65, 46, 86, 56, 85, 33, 21, 42),
         "Smoker", Vector.of(0, 0, 1, 0, 1, 1, 0, 0, 1, 1)
     );

@@ -31,5 +31,8 @@ import org.briljantframework.data.vector.Vector;
  * Created by isak on 2/11/15.
  */
 public interface TreeNode<T> {
+
+  double getWeight();
+
   DoubleArray visit(TreeVisitor<T> visitor, Vector example);
 }

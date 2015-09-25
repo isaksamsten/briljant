@@ -35,13 +35,19 @@ public final class TreeLeaf<T> implements TreeNode<T> {
 
   private final Vector domain;
   private final DoubleArray probabilities;
+  private final double weight;
 
-  public TreeLeaf(Vector domain, DoubleArray probabilities) {
+  public TreeLeaf(Vector domain, DoubleArray probabilities, double weight) {
     this.domain = domain;
     this.probabilities = probabilities;
+    this.weight = weight;
   }
 
   public static <T> TreeLeaf<T> fromExamples(ClassSet classSet) {
+    return fromExamples(classSet, 1);
+  }
+
+  public static <T> TreeLeaf<T> fromExamples(ClassSet classSet, double weight) {
     Vector domain = classSet.getDomain();
     DoubleArray prob = Bj.doubleArray(domain.size());
     double totalWeight = classSet.getTotalWeight();
@@ -54,7 +60,7 @@ public final class TreeLeaf<T> implements TreeNode<T> {
         prob.set(i, sample.getWeight() / totalWeight);
       }
     }
-    return new TreeLeaf<>(domain, prob);
+    return new TreeLeaf<>(domain, prob, weight);
   }
 
   public Vector getDomain() {
@@ -66,7 +72,14 @@ public final class TreeLeaf<T> implements TreeNode<T> {
   }
 
   @Override
+  public double getWeight() {
+    return weight;
+  }
+
+  @Override
   public final DoubleArray visit(TreeVisitor<T> visitor, Vector example) {
     return visitor.visitLeaf(this, example);
   }
+
+
 }

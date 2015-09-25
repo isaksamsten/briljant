@@ -93,7 +93,7 @@ public class SymbolicAggregator implements Aggregator {
    * @param alphabet the alphabet
    */
   public SymbolicAggregator(List<String> alphabet) {
-    this(Vector.of(alphabet));
+    this(Vector.singleton(alphabet));
   }
 
   /**
@@ -112,7 +112,7 @@ public class SymbolicAggregator implements Aggregator {
    * @return the lookup table
    */
   public static Map<String, Map<String, Double>> newLookupTable(List<String> alphabet) {
-    Vector vector = Vector.of(alphabet); // TODO: note of(...)
+    Vector vector = Vector.singleton(alphabet); // TODO: note of(...)
     return createLookupTable(vector, calculateThresholds(vector));
   }
 

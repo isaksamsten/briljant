@@ -42,8 +42,8 @@ class IntVectorSpec extends Specification {
 
   def "IntVector arithmetic"() {
     setup:
-    def a = Vector.of([1, 2, 3, 4])
-    def b = Vector.of([1, 2, 3, 4])
+    def a = Vector.fromIterable([1, 2, 3, 4])
+    def b = Vector.fromIterable([1, 2, 3, 4])
 
     when:
     def c = a.add(b)
@@ -52,10 +52,10 @@ class IntVectorSpec extends Specification {
     def f = a.div(b)
 
     then:
-    c == Vector.of([2, 4, 6, 8])
-    d == Vector.of([0, 0, 0, 0])
-    e == Vector.of([1, 4, 9, 16])
-    f == Vector.of([1, 1, 1, 1])
+    c == Vector.fromIterable([2, 4, 6, 8])
+    d == Vector.fromIterable([0, 0, 0, 0])
+    e == Vector.fromIterable([1, 4, 9, 16])
+    f == Vector.fromIterable([1, 1, 1, 1])
   }
 
   def "IntVector builder adds NA values"() {
@@ -75,7 +75,7 @@ class IntVectorSpec extends Specification {
 
   def "IntVector converts to correct values"() {
     when:
-    def a = Vector.of([1, 2, 3, null, 5])
+    def a = Vector.fromIterable([1, 2, 3, null, 5])
 
     then:
     a.loc().getAsDouble(0) == 1.0

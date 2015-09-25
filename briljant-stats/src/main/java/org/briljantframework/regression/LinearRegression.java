@@ -30,8 +30,8 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.AbstractPredictor;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.linalg.LinearAlgebra;
 
 /**
  * Created by Isak Karlsson on 29/09/14.
@@ -58,14 +58,14 @@ public class LinearRegression implements Classifier {
   }
 
   /**
-   * The type Model.
+   * The type Predictor.
    */
   public static final class Model extends AbstractPredictor {
 
     private final DoubleArray theta;
 
     /**
-     * Instantiates a new Model.
+     * Instantiates a new Predictor.
      *
      * @param theta the theta
      */
