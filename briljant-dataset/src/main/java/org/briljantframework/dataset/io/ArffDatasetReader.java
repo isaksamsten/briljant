@@ -164,10 +164,7 @@ public class ArffDatasetReader extends DatasetReader {
       while (currentLine != null && currentLine.trim().equals("")) {
         currentLine = reader.readLine();
       }
-      if (currentLine == null) {
-        return false;
-      }
-      return true;
+      return currentLine != null;
     } catch (IOException e) {
       throw new EntryReaderException(e);
     }

@@ -1,31 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification.tune;
-
-import org.briljantframework.Check;
-import org.briljantframework.evaluation.Validator;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.briljantframework.Check;
+import org.briljantframework.evaluation.Validator;
 
 /**
  * @author Isak Karlsson
@@ -47,8 +44,7 @@ public class Configurations implements Iterable<Configuration> {
     this.evaluator = evaluator;
   }
 
-  public static Configurations create(List<Configuration> configurations,
-                                      Validator evaluator) {
+  public static Configurations create(List<Configuration> configurations, Validator evaluator) {
     Check.argument(configurations.size() > 0);
     return new Configurations(configurations, evaluator);
   }
@@ -95,26 +91,26 @@ public class Configurations implements Iterable<Configuration> {
     out.append("\n\n").append("Resampling: ").append(evaluator).append("\n\n")
         .append("Results across tuning parameters:\n\n");
 
-//    ImmutableTable.Builder<Integer, String, Object> table = ImmutableTable.builder();
-//    int index = 0;
-//    for (Configuration configuration : configurations) {
-//      for (Map.Entry<String, Object> params : configuration.entries()) {
-//        if (params.getValue() instanceof Double) {
-//          table.put(index, params.getKey(), String.format("%.4f", (double) params.getValue()));
-//        } else {
-//          table.put(index, params.getKey(), params.getValue());
-//        }
-//      }
-//      for (Measure measure : configuration.getResult().getMeasures()) {
-//        table.put(index, measure.getName(), String.format("%.4f", measure.getMean()));
-//      }
-//      ConfusionMatrix m = configuration.getAverageConfusionMatrix();
-//      table.put(index, "Precision", String.format("%.4f", m.getAveragePrecision()));
-//      table.put(index, "Recall", String.format("%.4f", m.getAverageRecall()));
-//      table.put(index, "F-Measure", String.format("%.4f", m.getAverageFMeasure(2)));
-//      index += 1;
-//    }
-//    out.append(Utils.prettyPrintTable(table.build(), 3, 2, false, true));
+    // ImmutableTable.Builder<Integer, String, Object> table = ImmutableTable.builder();
+    // int index = 0;
+    // for (Configuration configuration : configurations) {
+    // for (Map.Entry<String, Object> params : configuration.entries()) {
+    // if (params.getValue() instanceof Double) {
+    // table.put(index, params.getKey(), String.format("%.4f", (double) params.getValue()));
+    // } else {
+    // table.put(index, params.getKey(), params.getValue());
+    // }
+    // }
+    // for (Measure measure : configuration.getResult().getMeasures()) {
+    // table.put(index, measure.getName(), String.format("%.4f", measure.getMean()));
+    // }
+    // ConfusionMatrix m = configuration.getAverageConfusionMatrix();
+    // table.put(index, "Precision", String.format("%.4f", m.getAveragePrecision()));
+    // table.put(index, "Recall", String.format("%.4f", m.getAverageRecall()));
+    // table.put(index, "F-Measure", String.format("%.4f", m.getAverageFMeasure(2)));
+    // index += 1;
+    // }
+    // out.append(Utils.prettyPrintTable(table.build(), 3, 2, false, true));
     return out.toString();
   }
 

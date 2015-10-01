@@ -1,37 +1,29 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification;
 
-import org.briljantframework.Bj;
-import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.measure.AbstractMeasure;
-import org.briljantframework.evaluation.result.EvaluationContext;
+import static org.briljantframework.Bj.argmax;
+import static org.briljantframework.data.vector.Vectors.find;
+import static org.briljantframework.evaluation.result.Sample.OUT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,9 +39,14 @@ import java.util.concurrent.atomic.DoubleAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.briljantframework.Bj.argmax;
-import static org.briljantframework.data.vector.Vectors.find;
-import static org.briljantframework.evaluation.result.Sample.OUT;
+import org.briljantframework.Bj;
+import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.measure.AbstractMeasure;
+import org.briljantframework.evaluation.result.EvaluationContext;
 
 /**
  * @author Isak Karlsson
@@ -79,16 +76,16 @@ public abstract class Ensemble implements Classifier {
   }
 
   /**
-   * Executes {@code callable} either sequential or in parallel depending on the number of
-   * available cores.
+   * Executes {@code callable} either sequential or in parallel depending on the number of available
+   * cores.
    *
    * @param callables the callables
-   * @param <T>       the models produced
+   * @param <T> the models produced
    * @return a list of produced models
    * @throws Exception if something goes wrong
    */
-  protected static <T extends Predictor> List<T> execute(
-      Collection<? extends Callable<T>> callables) throws Exception {
+  protected static <T extends Predictor> List<T> execute(Collection<? extends Callable<T>> callables)
+      throws Exception {
     List<T> models = new ArrayList<>();
     if (THREAD_POOL != null && THREAD_POOL.getActiveCount() < CORES) {
       for (Future<T> future : THREAD_POOL.invokeAll(callables)) {
@@ -134,22 +131,22 @@ public abstract class Ensemble implements Classifier {
     return max;
   }
 
-  public static class DefaultEnsemblePredictor
-      extends AbstractPredictor implements EnsemblePredictor {
+  public static class DefaultEnsemblePredictor extends AbstractPredictor implements
+      EnsemblePredictor {
 
     private final List<? extends Predictor> members;
     private final BooleanArray oobIndicator;
 
     public DefaultEnsemblePredictor(Vector classes, List<? extends Predictor> members,
-                                    BooleanArray oobIndicator) {
+        BooleanArray oobIndicator) {
       super(classes);
       this.members = members;
       this.oobIndicator = oobIndicator;
     }
 
     /**
-     * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code
-     * true} the i:th training sample is out of the j:th members training sample.
+     * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code true}
+     * the i:th training sample is out of the j:th members training sample.
      *
      * @return the out of bag indicator matrix
      */
@@ -267,27 +264,27 @@ public abstract class Ensemble implements Classifier {
 
         /* Get the mean probability vector for the i:th example */
         DoubleArray meanEstimate = Bj.mean(0, memberEstimates); // TODO: check
-        double variance = 0, mse = 0, bias = 0, accuracy = 0;
-        for (int j = 0; j < memberEstimates.rows(); j++) {
-          DoubleArray r = memberEstimates.getRow(j);
-          double meanDiff = 0;
-          double trueDiff = 0;
-          double meanTrueDiff = 0;
-          for (int k = 0; k < r.size(); k++) {
-            meanDiff += Math.pow(r.get(k) - meanEstimate.get(k), 2);
-            trueDiff += Math.pow(r.get(k) - c.get(k), 2);
-            meanTrueDiff += Math.pow(meanEstimate.get(k) - c.get(k), 2);
+          double variance = 0, mse = 0, bias = 0, accuracy = 0;
+          for (int j = 0; j < memberEstimates.rows(); j++) {
+            DoubleArray r = memberEstimates.getRow(j);
+            double meanDiff = 0;
+            double trueDiff = 0;
+            double meanTrueDiff = 0;
+            for (int k = 0; k < r.size(); k++) {
+              meanDiff += Math.pow(r.get(k) - meanEstimate.get(k), 2);
+              trueDiff += Math.pow(r.get(k) - c.get(k), 2);
+              meanTrueDiff += Math.pow(meanEstimate.get(k) - c.get(k), 2);
+            }
+            variance += meanDiff;
+            mse += trueDiff;
+            bias += meanTrueDiff;
+            accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
           }
-          variance += meanDiff;
-          mse += trueDiff;
-          bias += meanTrueDiff;
-          accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
-        }
-        meanVariance.add(variance / estimators);
-        meanSquareError.add(mse / estimators);
-        baseAccuracy.add(accuracy / estimators);
-        meanBias.add(bias / estimators);
-      });
+          meanVariance.add(variance / estimators);
+          meanSquareError.add(mse / estimators);
+          baseAccuracy.add(accuracy / estimators);
+          meanBias.add(bias / estimators);
+        });
 
       double avgVariance = meanVariance.doubleValue() / x.rows();
       double avgBias = meanBias.doubleValue() / x.rows();
@@ -324,9 +321,9 @@ public abstract class Ensemble implements Classifier {
 
     @Override
     public DoubleArray estimate(Vector record) {
-      List<DoubleArray> predictions = members.parallelStream()
-          .map(model -> model.estimate(record))
-          .collect(Collectors.toList());
+      List<DoubleArray> predictions =
+          members.parallelStream().map(model -> model.estimate(record))
+              .collect(Collectors.toList());
 
       int estimators = getPredictors().size();
       Vector classes = getClasses();

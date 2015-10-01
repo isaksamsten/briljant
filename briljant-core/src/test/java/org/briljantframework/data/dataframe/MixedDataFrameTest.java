@@ -1,28 +1,30 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -31,11 +33,6 @@ import org.briljantframework.data.Logical;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.junit.Test;
-
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by isak on 17/08/15.
@@ -50,17 +47,13 @@ public class MixedDataFrameTest extends DataFrameTest {
   @Test
   public void testNiceBuilder() throws Exception {
     NormalDistribution gaussian = new NormalDistribution();
-    DataFrame df = DataFrame.of(
-        "a", Vector.of(1, 2, 3),
-        "b", Vector.of(2, 3, 3),
-        "c", Vector.fromSupplier(gaussian::sample, 3),
-        "d", Vector.singleton("hello", 3)
-    );
+    DataFrame df =
+        DataFrame.of("a", Vector.of(1, 2, 3), "b", Vector.of(2, 3, 3), "c",
+            Vector.fromSupplier(gaussian::sample, 3), "d", Vector.singleton("hello", 3));
 
-    DataFrame df2 = DataFrame.builder()
-        .set("a", Vector.fromSupplier(gaussian::sample, 4))
-        .set("b", Vector.fromSupplier(gaussian::sample, 4))
-        .build();
+    DataFrame df2 =
+        DataFrame.builder().set("a", Vector.fromSupplier(gaussian::sample, 4))
+            .set("b", Vector.fromSupplier(gaussian::sample, 4)).build();
 
     System.out.println(df.transpose());
 
@@ -76,12 +69,12 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().setNA(5, 5);
 
     DataFrame build = builder.build();
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(0));
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(1));
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(2));
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(3));
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(4));
-//    assertEquals(VectorType.DOUBLE, build.getTypeAt(5));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(0));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(1));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(2));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(3));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(4));
+    // assertEquals(VectorType.DOUBLE, build.getTypeAt(5));
     assertTrue(Is.NA(build.loc().getAsDouble(5, 5)));
     assertTrue(Is.NA(build.loc().get(Double.class, 5, 5).doubleValue()));
   }
@@ -98,13 +91,13 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(6, 6, new Date());
 
     DataFrame build = builder.build();
-//    assertEquals(VectorType.DOUBLE, build.getTypeAt(0));
-//    assertEquals(VectorType.INT, build.getTypeAt(1));
-//    assertEquals(VectorType.STRING, build.getTypeAt(2));
-//    assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
-//    assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(5));
-//    assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
+    // assertEquals(VectorType.DOUBLE, build.getTypeAt(0));
+    // assertEquals(VectorType.INT, build.getTypeAt(1));
+    // assertEquals(VectorType.STRING, build.getTypeAt(2));
+    // assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
+    // assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(5));
+    // assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
   }
 
   @Test
@@ -117,17 +110,17 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.add(Vector.of(true, true, false, false, false));
 
     DataFrame build = builder.build();
-//    assertEquals(VectorType.STRING, build.getTypeAt(0));
-//    assertEquals(VectorType.INT, build.getTypeAt(1));
-//    assertEquals(VectorType.DOUBLE, build.getTypeAt(2));
-//    assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
-//    assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
+    // assertEquals(VectorType.STRING, build.getTypeAt(0));
+    // assertEquals(VectorType.INT, build.getTypeAt(1));
+    // assertEquals(VectorType.DOUBLE, build.getTypeAt(2));
+    // assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
+    // assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
 
     assertEquals(1, build.loc().getAsInt(0, 1));
     assertEquals(1, build.loc().getAsDouble(0, 2), 0);
     assertEquals(Complex.I, build.loc().get(Complex.class, 0, 3));
     assertEquals(Logical.TRUE, build.loc().get(Logical.class, 0, 4));
-//    assertEquals(Convert.toValue(1), build.getAsValue(0, 5));
+    // assertEquals(Convert.toValue(1), build.getAsValue(0, 5));
   }
 
   @Test
@@ -147,16 +140,16 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(0, 5, new Date());
 
     DataFrame df = builder.build();
-//    assertEquals(VectorType.STRING, df.getTypeAt(0));
-//    assertEquals(VectorType.INT, df.getTypeAt(1));
+    // assertEquals(VectorType.STRING, df.getTypeAt(0));
+    // assertEquals(VectorType.INT, df.getTypeAt(1));
     assertEquals(1, df.loc().getAsInt(0, 1));
-//    assertEquals(VectorType.DOUBLE, df.getTypeAt(2));
+    // assertEquals(VectorType.DOUBLE, df.getTypeAt(2));
     assertEquals(2, df.loc().getAsDouble(0, 2), 0);
-//    assertEquals(VectorType.COMPLEX, df.getTypeAt(3));
+    // assertEquals(VectorType.COMPLEX, df.getTypeAt(3));
     assertEquals(Complex.I, df.loc().get(Complex.class, 0, 3));
-//    assertEquals(VectorType.LOGICAL, df.getTypeAt(4));
+    // assertEquals(VectorType.LOGICAL, df.getTypeAt(4));
     assertEquals(Logical.TRUE, df.loc().get(Logical.class, 0, 4));
-//    assertEquals(VectorType.OBJECT, df.getTypeAt(5));
+    // assertEquals(VectorType.OBJECT, df.getTypeAt(5));
   }
 
   @Test
@@ -181,17 +174,17 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(2, 6, "2015-03-15");
 
     DataFrame build = builder.build();
-//    assertEquals(VectorType.STRING, build.getTypeAt(0));
-//    assertEquals(VectorType.INT, build.getTypeAt(1));
+    // assertEquals(VectorType.STRING, build.getTypeAt(0));
+    // assertEquals(VectorType.INT, build.getTypeAt(1));
     assertEquals(1, build.loc().getAsInt(0, 1));
-//    assertEquals(VectorType.DOUBLE, build.getTypeAt(2));
+    // assertEquals(VectorType.DOUBLE, build.getTypeAt(2));
     assertEquals(2, build.loc().getAsDouble(0, 2), 0);
-//    assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
+    // assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
     assertEquals(Complex.I, build.loc().get(Complex.class, 0, 3));
-//    assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
+    // assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
     assertEquals(Logical.TRUE, build.loc().get(Logical.class, 0, 4));
-//    assertEquals(VectorType.OBJECT, build.getTypeAt(5));
-//    assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
+    // assertEquals(VectorType.OBJECT, build.getTypeAt(5));
+    // assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
     assertEquals(new Date(321321321738L), build.loc().get(6).loc().get(Date.class, 0));
     assertEquals(1, (int) build.loc().get(Integer.class, 0, 1));
   }

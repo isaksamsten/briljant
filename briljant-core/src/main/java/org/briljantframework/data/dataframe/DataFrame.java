@@ -1,42 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe;
-
-import org.briljantframework.array.Array;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.BoundType;
-import org.briljantframework.data.SortOrder;
-import org.briljantframework.data.dataframe.join.JoinType;
-import org.briljantframework.data.index.DataFrameLocationGetter;
-import org.briljantframework.data.index.DataFrameLocationSetter;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectComparator;
-import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.reader.EntryReader;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +35,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.briljantframework.array.Array;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.data.BoundType;
+import org.briljantframework.data.SortOrder;
+import org.briljantframework.data.dataframe.join.JoinType;
+import org.briljantframework.data.index.DataFrameLocationGetter;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectComparator;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.reader.EntryReader;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.VectorType;
+
 /**
  * A DataFrame is a 2-dimensional storage of data consisting of (index) <em>columns</em> and
  * <em>rows</em>.
@@ -63,16 +60,20 @@ public interface DataFrame extends Iterable<Object> {
   /**
    * Return a <em>shallow copy</em> of the data frame with the index sorted in the specified order.
    *
-   * <p/> For example,
-   * <pre>{@code
-   * DataFrame df = MixedDataFrame.of(
-   *    "a", Vector.of(3,2,1),
-   *    "b", Vector.of(2,9,0));
-   * df.setIndex(ObjectIndex.of("F", "Q", "A"));
-   * df.sort(SortOrder.ASC);
-   * }</pre>
+   * <p/>
+   * For example,
+   * 
+   * <pre>
+   * {
+   *   &#064;code
+   *   DataFrame df = MixedDataFrame.of(&quot;a&quot;, Vector.of(3, 2, 1), &quot;b&quot;, Vector.of(2, 9, 0));
+   *   df.setIndex(ObjectIndex.of(&quot;F&quot;, &quot;Q&quot;, &quot;A&quot;));
+   *   df.sort(SortOrder.ASC);
+   * }
+   * </pre>
    *
    * produces
+   * 
    * <pre>
    *    a  b
    * A  1  0
@@ -86,8 +87,8 @@ public interface DataFrame extends Iterable<Object> {
   DataFrame sort(SortOrder order);
 
   /**
-   * Return a <em>shallow copy</em> of the data frame with the index sorted in the order
-   * specified by the supplied {@link Comparator}.
+   * Return a <em>shallow copy</em> of the data frame with the index sorted in the order specified
+   * by the supplied {@link Comparator}.
    *
    * @param comparator the comparator
    * @return a shallow copy
@@ -103,15 +104,16 @@ public interface DataFrame extends Iterable<Object> {
   DataFrame sort(Object key);
 
   /**
-   * Return a <em>shallow copy</em> of the data frame sorted in the order specified using the
-   * values of the specified column.
+   * Return a <em>shallow copy</em> of the data frame sorted in the order specified using the values
+   * of the specified column.
    *
-   * <p/> Generally, the index is sorted which makes the iteration order of {@linkplain
-   * #getIndex()} sorted by the values in the specified column but leaves the values in
-   * their original order. Hence, the location of rows are unchanged.
+   * <p/>
+   * Generally, the index is sorted which makes the iteration order of {@linkplain #getIndex()}
+   * sorted by the values in the specified column but leaves the values in their original order.
+   * Hence, the location of rows are unchanged.
    *
    * @param order the order
-   * @param key   the column
+   * @param key the column
    * @return a new sorted data frame
    */
   DataFrame sort(SortOrder order, Object key);
@@ -155,16 +157,18 @@ public interface DataFrame extends Iterable<Object> {
 
   /**
    * Join this data frame with the supplied data frame on common indicies using the specified
-   * {@linkplain org.briljantframework.data.dataframe.join.JoinType type}. For example, given
-   * two data frames with the column-index {@code ["a", "c", "id"]} and {@code ["c", "f", "id"]},
-   * the common indicies {@code ["a", "id"]} will be used as join-keys.
+   * {@linkplain org.briljantframework.data.dataframe.join.JoinType type}. For example, given two
+   * data frames with the column-index {@code ["a", "c", "id"]} and {@code ["c", "f", "id"]}, the
+   * common indicies {@code ["a", "id"]} will be used as join-keys.
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
+   * 
+   * 
+   * }
+   * </pre>
    *
-   *
-   * }</pre>
-   *
-   * @param type  the type of join to perform
+   * @param type the type of join to perform
    * @param other the data frame to join
    * @return the data frames joined
    */
@@ -187,15 +191,16 @@ public interface DataFrame extends Iterable<Object> {
   DataFrame join(JoinType type, DataFrame other, Object... keys);
 
   /**
-   * Apply {@code mapper} to each value, where the value is an instance of  the supplied class, in
-   * the
-   * data frame elementwise .
+   * Apply {@code mapper} to each value, where the value is an instance of the supplied class, in
+   * the data frame elementwise .
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * DataFrame df = MixedDataFrame.of("A", Vector.of(1,2,3),
    *                                  "B", Vector.of("a","b","c");
    * df.map(Integer.class, i -> i * 2);
-   * }</pre>
+   * }
+   * </pre>
    *
    * result in the data frame:
    *
@@ -207,8 +212,8 @@ public interface DataFrame extends Iterable<Object> {
    * [3 rows x 2 columns]
    * </pre>
    *
-   * @param <T>    the type
-   * @param cls    the type of values to transform
+   * @param <T> the type
+   * @param cls the type of values to transform
    * @param mapper the operation
    * @return a new data frame
    */
@@ -217,7 +222,8 @@ public interface DataFrame extends Iterable<Object> {
   /**
    * Apply the supplied operation to each value in the data frame elementwise.
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * DataFrame df = MixedDataFrame.of("A", Vector.of(1,2,3),
    *                                  "B", Vector.of("a","b","c");
    * df.map(o -> {
@@ -229,7 +235,8 @@ public interface DataFrame extends Iterable<Object> {
    *     return o;
    *   }
    * });
-   * }</pre>
+   * }
+   * </pre>
    *
    * <pre>
    *    A  B
@@ -251,27 +258,32 @@ public interface DataFrame extends Iterable<Object> {
   <T, C> DataFrame apply(Class<T> cls, Collector<? super T, C, ? extends Vector> collector);
 
   /**
-   * <p> Reduce all columns, applying {@code op} with the initial value {@code init}.
+   * <p>
+   * Reduce all columns, applying {@code op} with the initial value {@code init}.
    *
-   * @param <T>  the type
-   * @param cls  the class
+   * @param <T> the type
+   * @param cls the class
    * @param init the initial value
-   * @param op   the operation
+   * @param op the operation
    * @return a record with the reduced values
    */
   <T> Vector reduce(Class<? extends T> cls, T init, BinaryOperator<T> op);
 
   /**
-   * <p> Reduce every column by applying a (summarizing) function over the vector. The reduction
+   * <p>
+   * Reduce every column by applying a (summarizing) function over the vector. The reduction
    * function must return a value which is an instance of the vector, i.e. if the i:th vector is a
    * double-vector it must return a {@code double}. The type of the returned value will is
    * determined of the columns. If all columns share the same type, the returned vector will have
    * that type; otherwise the most general vector will be returned.
    *
-   * <pre>{@code
-   * DataFrame df = MixedDataFrame.of("a", Vector.of(1,2,3), "b", Vector.of(10, 20, 30));
-   * Vector means = df.reduce(Vector::mean);
-   * }</pre>
+   * <pre>
+   * {
+   *   &#064;code
+   *   DataFrame df = MixedDataFrame.of(&quot;a&quot;, Vector.of(1, 2, 3), &quot;b&quot;, Vector.of(10, 20, 30));
+   *   Vector means = df.reduce(Vector::mean);
+   * }
+   * </pre>
    *
    * produces
    *
@@ -287,29 +299,33 @@ public interface DataFrame extends Iterable<Object> {
   Vector reduce(Function<Vector, ?> op);
 
   /**
-   * <p> Aggregate every column which is an instance of {@code cls} using the supplied collector.
+   * <p>
+   * Aggregate every column which is an instance of {@code cls} using the supplied collector.
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * df.collect(Double.class, Collectors.mean())
-   * }</pre>
+   * }
+   * </pre>
    *
-   * <p> Returns a series consisting of the mean of the {@code Double} columns in {@code this}
+   * <p>
+   * Returns a series consisting of the mean of the {@code Double} columns in {@code this}
    * dataframe.
    *
-   * <p> Note that {@link org.briljantframework.data.Collectors} implement several convenient
+   * <p>
+   * Note that {@link org.briljantframework.data.Collectors} implement several convenient
    * collectors, for example {@code df.collect(Number.class, Collectors.median())}.
    *
-   * @param <T>       the type of value to be aggregated
-   * @param <C>       the type of the mutable collector
-   * @param cls       the class
+   * @param <T> the type of value to be aggregated
+   * @param <C> the type of the mutable collector
+   * @param cls the class
    * @param collector the collector
    * @return a vector of aggregated values
    */
   <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ?> collector);
 
   // TODO: remove when ISSUE#7 is resolved
-  <T, R, C> Vector collect(Class<T> in, Class<R> out,
-                           Collector<? super T, C, ? extends R> collector);
+  <T, R, C> Vector collect(Class<T> in, Class<R> out, Collector<? super T, C, ? extends R> collector);
 
   DataFrameGroupBy groupBy(Object column);
 
@@ -318,15 +334,18 @@ public interface DataFrame extends Iterable<Object> {
   DataFrameGroupBy groupBy(Object[] columns);
 
   /**
-   * Group data frame based on the value returned by {@code keyFunction}. Each record in the
-   * data frame is used for grouping.
+   * Group data frame based on the value returned by {@code keyFunction}. Each record in the data
+   * frame is used for grouping.
    *
-   * <p> Example, given a {@link java.time.LocalDate}-index {@code DataFrame}, the data frame can
-   * be grouped based on year:
+   * <p>
+   * Example, given a {@link java.time.LocalDate}-index {@code DataFrame}, the data frame can be
+   * grouped based on year:
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * df.groupBy(k -> LocalDate.class.cast(v).getYear());
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param keyFunction the key function
    * @return a group by data frame
@@ -359,23 +378,21 @@ public interface DataFrame extends Iterable<Object> {
   DataFrame getRecord(Object... keys);
 
   /**
-   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given
-   * range.
+   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given range.
    *
    * @param from from inclusive
-   * @param to   to exclusive
+   * @param to to exclusive
    * @return a newly created {@code DataFrame}
    */
   DataFrame limit(Object from, Object to);
 
   /**
-   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given
-   * range.
+   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given range.
    *
-   * @param from      from object
+   * @param from from object
    * @param fromBound the bound of from
-   * @param to        to object
-   * @param toBound   the bound of to
+   * @param to to object
+   * @param toBound the bound of to
    * @return a newly created {@code DataFrame}
    */
   DataFrame limit(Object from, BoundType fromBound, Object to, BoundType toBound);
@@ -447,8 +464,8 @@ public interface DataFrame extends Iterable<Object> {
   Builder newBuilder();
 
   /**
-   * Creates a new builder, initialized with a copy of this data frame, i.e. {@code
-   * c.newCopyBuilder().build()} creates a new copy.
+   * Creates a new builder, initialized with a copy of this data frame, i.e.
+   * {@code c.newCopyBuilder().build()} creates a new copy.
    *
    * @return a new builder
    */
@@ -491,13 +508,17 @@ public interface DataFrame extends Iterable<Object> {
   }
 
   default Vector min() {
-    return collect(Object.class, org.briljantframework.data.Collectors.withFinisher(
-        Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
+    return collect(
+        Object.class,
+        org.briljantframework.data.Collectors.withFinisher(
+            Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
   }
 
   default Vector max() {
-    return collect(Object.class, org.briljantframework.data.Collectors.withFinisher(
-        Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
+    return collect(
+        Object.class,
+        org.briljantframework.data.Collectors.withFinisher(
+            Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
   }
 
   /**
@@ -544,7 +565,8 @@ public interface DataFrame extends Iterable<Object> {
     }
 
     /**
-     * Adds a new vector builder as an additional column using {@link org.briljantframework.data.vector.VectorType#newBuilder()}
+     * Adds a new vector builder as an additional column using
+     * {@link org.briljantframework.data.vector.VectorType#newBuilder()}
      *
      * @param columnType the type
      * @return receiver modified
@@ -604,14 +626,13 @@ public interface DataFrame extends Iterable<Object> {
     Builder setIndex(Index index);
 
     /**
-     * Read all records ({@linkplain org.briljantframework.data.reader.DataEntry}) from the
-     * supplied
+     * Read all records ({@linkplain org.briljantframework.data.reader.DataEntry}) from the supplied
      * reader.
      *
      * @param entryReader the entry reader
      * @return a modified builder
      */
-    public Builder readAll(EntryReader entryReader);
+    Builder readAll(EntryReader entryReader);
 
     /**
      * Append the entry as a record.
@@ -619,7 +640,7 @@ public interface DataFrame extends Iterable<Object> {
      * @param entry the data entry
      * @return a modified builder
      */
-    public Builder read(DataEntry entry);
+    Builder read(DataEntry entry);
 
     /**
      * Returns the number of columns in the resulting data frame
@@ -657,30 +678,29 @@ public interface DataFrame extends Iterable<Object> {
     return MixedDataFrame.of(n1, v1, n2, v2, n3, v3);
   }
 
-  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                      Object n4, Vector v4) {
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3, Object n4,
+      Vector v4) {
     return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4);
   }
 
-  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                      Object n4, Vector v4, Object n5, Vector v5) {
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3, Object n4,
+      Vector v4, Object n5, Vector v5) {
     return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5);
   }
 
-  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6) {
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3, Object n4,
+      Vector v4, Object n5, Vector v5, Object n6, Vector v6) {
     return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6);
   }
 
-  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6,
-                      Object n7, Vector v7) {
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3, Object n4,
+      Vector v4, Object n5, Vector v5, Object n6, Vector v6, Object n7, Vector v7) {
     return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7);
   }
 
-  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-                      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6,
-                      Object n7, Vector v7, Object n8, Vector v8) {
+  static DataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3, Object n4,
+      Vector v4, Object n5, Vector v5, Object n6, Vector v6, Object n7, Vector v7, Object n8,
+      Vector v8) {
     return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7, n8, v8);
   }
 

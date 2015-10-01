@@ -1,35 +1,28 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
 
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ArrayUtils;
-import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.function.LongBiPredicate;
+import static org.briljantframework.array.Indexer.columnMajor;
+import static org.briljantframework.array.Indexer.rowMajor;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -53,8 +46,12 @@ import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ArrayUtils;
+import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.function.LongBiPredicate;
 
 /**
  * @author Isak Karlsson
@@ -66,7 +63,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   protected AbstractLongArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
-                              int majorStride) {
+      int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
@@ -151,8 +148,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return AbstractLongArray.this.getElement(i);
@@ -224,8 +221,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public IntArray asInt() {
-    return new AsIntArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       public int getElement(int index) {
         return (int) AbstractLongArray.this.getElement(index);
@@ -350,8 +347,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public BooleanArray asBoolean() {
-    return new AsBooleanArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -448,8 +445,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public ComplexArray asComplex() {
-    return new AsComplexArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractLongArray.this.setElement(index, (long) value.getReal());
@@ -493,12 +490,10 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
               a == Op.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
-                                                                                     thisRows,
-                                                                                     thisCols);
+                  thisRows, thisCols);
           int otherIndex =
-              b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
-                                                                                          otherRows,
-                                                                                          otherColumns);
+              b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k,
+                  col, otherRows, otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);

@@ -1,54 +1,52 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.evaluation.partition;
 
-import org.briljantframework.Check;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+import static org.briljantframework.data.vector.Vectors.transferableBuilder;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static org.briljantframework.data.vector.Vectors.transferableBuilder;
+import org.briljantframework.Check;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * Lazy iterator that partitions the supplied {@linkplain DataFrame data frame} and {@code Vector
  * target vector} into {@code n} disjoint <em>folds</em> of <em>training</em> and
  * <em>validation</em> partitions.
  *
- * <p/> For example,
- * Given the data frame {@code x}
+ * <p/>
+ * For example, Given the data frame {@code x}
  *
- * <pre>{@code
- * DataFrame df = MixedDataFrame.of(
- *   "a", Vector.of(1, 2, 3, 4, 5),
- *   "b", Vector.of(5, 4, 3, 2, 1),
- *   "c", Vector.of(4, 3, 2, 2, 1)
- * );
- * }</pre>
+ * <pre>
+ * {
+ *   &#064;code
+ *   DataFrame df =
+ *       MixedDataFrame.of(&quot;a&quot;, Vector.of(1, 2, 3, 4, 5), &quot;b&quot;, Vector.of(5, 4, 3, 2, 1), &quot;c&quot;,
+ *           Vector.of(4, 3, 2, 2, 1));
+ * }
+ * </pre>
  *
  * which produces:
  *
@@ -59,15 +57,18 @@ import static org.briljantframework.data.vector.Vectors.transferableBuilder;
  * 2  3  3  2
  * 3  4  2  2
  * 4  5  1  1
- *
+ * 
  * [5 rows x 3 columns]
  * </pre>
  *
  * Then,
- * <pre>{@code
+ * 
+ * <pre>
+ * {@code
  * FoldIterator iter = new FoldIterator(df.drop("a"), df.get("a"), 2)
  * Partition part = iter.next()
- * }</pre>
+ * }
+ * </pre>
  *
  * produces a first (and a second) <em>training</em> partition {@code part.getTrainingData()}:
  *
@@ -75,22 +76,23 @@ import static org.briljantframework.data.vector.Vectors.transferableBuilder;
  *    b  c
  * 0  5  4
  * 1  4  3
- *
+ * 
  * [2 rows x 2 columns]
  * </pre>
  *
  * and a first (and a second) <em>validation</em> partition {@code part.getValidationData()}:
+ * 
  * <pre>
  *    b  c
  * 0  3  2
  * 1  2  2
  * 2  1  1
- *
+ * 
  * [3 rows x 2 columns]
  * </pre>
  *
- * This class can be used to implement cross-validation. For an implementation, see {@link
- * org.briljantframework.evaluation.Validators#crossValidation(int)}
+ * This class can be used to implement cross-validation. For an implementation, see
+ * {@link org.briljantframework.evaluation.Validators#crossValidation(int)}
  *
  * @author Isak Karlsson
  */

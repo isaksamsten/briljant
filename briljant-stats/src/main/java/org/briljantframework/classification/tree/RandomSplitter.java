@@ -1,32 +1,29 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.ArrayUtils;
-import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.Is;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -62,7 +59,7 @@ public class RandomSplitter extends AbstractSplitter {
 
     int maxFeatures =
         this.maxFeatures > 0 ? this.maxFeatures
-                             : (int) Math.round(Math.sqrt(dataFrame.columns())) + 1;
+            : (int) Math.round(Math.sqrt(dataFrame.columns())) + 1;
 
     // TODO! Fix me!
     synchronized (features) {
@@ -103,7 +100,7 @@ public class RandomSplitter extends AbstractSplitter {
   /**
    * Search value.
    *
-   * @param axis     the dataset
+   * @param axis the dataset
    * @param classSet the examples
    * @return the value
    */
@@ -121,7 +118,7 @@ public class RandomSplitter extends AbstractSplitter {
   /**
    * Sample numeric value.
    *
-   * @param vector   the dataset
+   * @param vector the dataset
    * @param classSet the examples
    * @return the value
    */
@@ -147,7 +144,7 @@ public class RandomSplitter extends AbstractSplitter {
    * Sample categoric value.
    *
    * @param axisVector the dataset
-   * @param classSet   the examples
+   * @param classSet the examples
    * @return the value
    */
   protected Object sampleCategoricValue(Vector axisVector, ClassSet classSet) {

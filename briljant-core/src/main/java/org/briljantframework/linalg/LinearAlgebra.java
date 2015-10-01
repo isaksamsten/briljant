@@ -1,25 +1,22 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.linalg;
@@ -45,8 +42,7 @@ public class LinearAlgebra {
 
   /**
    * In statistics and mathematics, linear least squares is an approach fitting a mathematical or
-   * statistical model to data in cases where the idealized value provided by the model for any
-   * data
+   * statistical model to data in cases where the idealized value provided by the model for any data
    * point is expressed linearly in terms of the unknown parameters of the model. The resulting
    * fitted model can be used to summarize the data, to predict unobserved values from the same
    * system, and to understand the mechanisms that may underlie the system.
@@ -105,7 +101,7 @@ public class LinearAlgebra {
    * Pinvi void.
    *
    * @param matrix the tensor
-   * @param copy   the copy
+   * @param copy the copy
    */
   public static void pinvi(DoubleArray matrix, double[] copy) {
     SingularValueDecomposition svd = svd(matrix);
@@ -122,8 +118,7 @@ public class LinearAlgebra {
 
   /**
    * Formally, the singular value decomposition of an m×n real or complex matrix M is a
-   * factorization of the form \mathbf{M} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^* where U is
-   * a
+   * factorization of the form \mathbf{M} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^* where U is a
    * m×m real or complex unitary matrix, \Sigma is an m×n rectangular diagonal matrix with
    * nonnegative real numbers on the diagonal, and V* (the conjugate transpose of V, or simply the
    * transpose of V if V is real) is an n×n real or complex unitary matrix. The diagonal entries
@@ -143,8 +138,7 @@ public class LinearAlgebra {
    * In linear algebra, the determinant is a value associated with a square matrix. It can be
    * computed from the entries of the matrix by a specific arithmetic expression, while other ways
    * to determine its value exist as well. The determinant provides important information about a
-   * matrix of coefficients of a system of linear equations, or about a matrix that corresponds to
-   * a
+   * matrix of coefficients of a system of linear equations, or about a matrix that corresponds to a
    * linear transformation of a vector space.
    *
    * @param x a square mutable array
@@ -172,13 +166,13 @@ public class LinearAlgebra {
   public static double rank(DoubleArray x) {
     SingularValueDecomposition svd = new SingularValueDecomposer().decompose(x);
     DoubleArray singular = svd.getDiagonal();
-//    int rank = 0;
-//    for (int i = 0; i < singular.diagonalSize(); i++) {
-//      if (singular.getDiagonal(i) > 0) {
-//        rank += 1;
-//      }
-//    }
-//    return rank;
+    // int rank = 0;
+    // for (int i = 0; i < singular.diagonalSize(); i++) {
+    // if (singular.getDiagonal(i) > 0) {
+    // rank += 1;
+    // }
+    // }
+    // return rank;
     return Double.NaN;
   }
 

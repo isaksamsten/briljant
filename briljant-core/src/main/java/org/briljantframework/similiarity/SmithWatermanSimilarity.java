@@ -1,25 +1,22 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.similiarity;
@@ -60,38 +57,38 @@ public class SmithWatermanSimilarity implements Similarity {
         }
       }
     }
-//    int maxAlign = 0, length = 0;
-//    int i = maxI, j = maxJ;
-//    while (i > 0 && j > 0) {
-//      double current = h.get(i, j);
-//      double getDiagonal = h.get(i - 1, j - 1);
-//      double up = h.get(i - 1, j);
-//      double left = h.get(i, j - 1);
-//      if (current == 0) {
-//        break;
-//      } else if (current == getDiagonal + (a.equals(i - 1, b, j - 1) ? match : miss)) {
-//        length++;
-//        if (length > maxAlign) {
-//          maxAlign = length;
-//        }
-//        i--;
-//        j--;
-//      } else if (current == left + gap) {
-//        j--;
-//        length = 0;
-//      } else if (current == up + gap) {
-//        i--;
-//        length = 0;
-//      }
-//    }
-//    while (i > 0) {
-//      // length++;
-//      i--;
-//    }
-//    while (j > 0) {
-//      // length++;
-//      j--;
-//    }
+    // int maxAlign = 0, length = 0;
+    // int i = maxI, j = maxJ;
+    // while (i > 0 && j > 0) {
+    // double current = h.get(i, j);
+    // double getDiagonal = h.get(i - 1, j - 1);
+    // double up = h.get(i - 1, j);
+    // double left = h.get(i, j - 1);
+    // if (current == 0) {
+    // break;
+    // } else if (current == getDiagonal + (a.equals(i - 1, b, j - 1) ? match : miss)) {
+    // length++;
+    // if (length > maxAlign) {
+    // maxAlign = length;
+    // }
+    // i--;
+    // j--;
+    // } else if (current == left + gap) {
+    // j--;
+    // length = 0;
+    // } else if (current == up + gap) {
+    // i--;
+    // length = 0;
+    // }
+    // }
+    // while (i > 0) {
+    // // length++;
+    // i--;
+    // }
+    // while (j > 0) {
+    // // length++;
+    // j--;
+    // }
 
     // int i = maxI, j = maxJ;
     // Vector.Builder al = new StringVector.Builder();
@@ -141,7 +138,7 @@ public class SmithWatermanSimilarity implements Similarity {
     // System.out.println(" ---------- " + computeScore(na, nb) + " " + minDist);
     // }
 
-    return maxScore; /*/ Math.max(a.size(), b.size());*/
+    return maxScore; /* / Math.max(a.size(), b.size()); */
 
   }
 }

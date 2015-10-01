@@ -1,30 +1,34 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataseries;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.briljantframework.Check;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.AbstractDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -33,19 +37,12 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * <p> A DataSeries collection is collection of data series, i.e., vectors of the same type -
- * usually {@link org.briljantframework.data.vector.DoubleVector#TYPE}. There are some interesting
- * differences between this implementation and the traditional {@code DataFrame}. It is possible
- * for
- * the data series in the collection to be of different length. Therefore, {@link #columns()}
- * return
+ * <p>
+ * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
+ * {@link org.briljantframework.data.vector.DoubleVector#TYPE}. There are some interesting
+ * differences between this implementation and the traditional {@code DataFrame}. It is possible for
+ * the data series in the collection to be of different length. Therefore, {@link #columns()} return
  * the maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
  * {@code col < col.getRecord(n).size()}. If not (and {@code index < columns()}), NA is returned.
  * </p>
@@ -59,12 +56,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   private final int columns;
 
-  private DataSeriesCollection(
-      List<Vector> series,
-      VectorType type,
-      int columns,
-      Index columnIndex,
-      Index index) {
+  private DataSeriesCollection(List<Vector> series, VectorType type, int columns,
+      Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(series.size() == index.size());
     Check.argument(columnIndex.size() == columns);
@@ -186,8 +179,13 @@ public class DataSeriesCollection extends AbstractDataFrame {
   @Override
   public Vector getRecordAt(int index) {
     Vector vector = series.get(index);
-//    vector.setIndex(getColumnIndex());
+    // vector.setIndex(getColumnIndex());
     return vector; // TODO: rethink indexing?
+  }
+
+  @Override
+  protected DataFrame getRecordsAt(IntArray indexes) {
+    return null;
   }
 
   /**
@@ -216,9 +214,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private Builder(DataSeriesCollection df, VectorType type) {
       super(df);
       this.type = type;
-      this.builders = df.series.stream()
-          .map(Vector::newCopyBuilder)
-          .collect(Collectors.toCollection(ArrayList::new));
+      this.builders =
+          df.series.stream().map(Vector::newCopyBuilder)
+              .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -319,9 +317,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataFrame getTemporaryDataFrame() {
       int columns = columns();
-      ArrayList<Vector> series = builders.stream()
-          .map(Vector.Builder::getTemporaryVector)
-          .collect(Collectors.toCollection(ArrayList::new));
+      ArrayList<Vector> series =
+          builders.stream().map(Vector.Builder::getTemporaryVector)
+              .collect(Collectors.toCollection(ArrayList::new));
       Index index = getIndex(rows());
       Index columnIndex = getColumnIndex(columns);
       return new DataSeriesCollection(series, type, columns, columnIndex, index) {
@@ -335,15 +333,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataSeriesCollection build() {
       int columns = columns();
-      DataSeriesCollection collection = new DataSeriesCollection(
-          builders.stream()
-              .map(Vector.Builder::build)
-              .collect(Collectors.toCollection(ArrayList::new)),
-          type,
-          columns,
-          getColumnIndex(columns),
-          getIndex(rows())
-      );
+      DataSeriesCollection collection =
+          new DataSeriesCollection(builders.stream().map(Vector.Builder::build)
+              .collect(Collectors.toCollection(ArrayList::new)), type, columns,
+              getColumnIndex(columns), getIndex(rows()));
       builders = null;
       return collection;
     }

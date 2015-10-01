@@ -1,41 +1,28 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
 
-import net.mintern.primitive.Primitive;
-import net.mintern.primitive.comparators.IntComparator;
-
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ArrayUtils;
-import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntObjIntBiFunction;
-import org.briljantframework.primitive.IntList;
-import org.briljantframework.sort.QuickSort;
+import static org.briljantframework.array.Indexer.columnMajor;
+import static org.briljantframework.array.Indexer.rowMajor;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -59,8 +46,17 @@ import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.IntComparator;
+
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.function.IntBiPredicate;
+import org.briljantframework.function.ToIntObjIntBiFunction;
+import org.briljantframework.primitive.IntList;
+import org.briljantframework.sort.QuickSort;
 
 /**
  * @author Isak Karlsson
@@ -71,8 +67,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     super(bj, shape);
   }
 
-  protected AbstractIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
-                             int majorStride) {
+  protected AbstractIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
@@ -141,8 +136,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return AbstractIntArray.this.getElement(i);
@@ -272,8 +267,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public LongArray asLong() {
-    return new AsLongArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return AbstractIntArray.this.getElement(index);
@@ -358,8 +353,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public BooleanArray asBoolean() {
-    return new AsBooleanArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -499,8 +494,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public ComplexArray asComplex() {
-    return new AsComplexArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       public void setElement(int index, Complex value) {
         AbstractIntArray.this.setElement(index, (int) value.getReal());
@@ -643,6 +638,46 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
+  public IntArray addi(IntArray other) {
+    return assign(other, Integer::sum);
+  }
+
+  @Override
+  public IntArray addi(int scalar) {
+    return update(i -> i + scalar);
+  }
+
+  @Override
+  public IntArray subi(IntArray other) {
+    return assign(other, (a, b) -> a - b);
+  }
+
+  @Override
+  public IntArray subi(int scalar) {
+    return update(i -> i - scalar);
+  }
+
+  @Override
+  public IntArray rsubi(int scalar) {
+    return update(i -> scalar - i);
+  }
+
+  @Override
+  public IntArray divi(IntArray other) {
+    return assign(other, (a, b) -> a / b);
+  }
+
+  @Override
+  public IntArray divi(int other) {
+    return update(i -> i / other);
+  }
+
+  @Override
+  public IntArray rdivi(int other) {
+    return update(i -> other / i);
+  }
+
+  @Override
   public IntArray mmul(IntArray other) {
     return mmul(1, other);
   }
@@ -683,12 +718,10 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
               a == Op.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
-                                                                                     thisRows,
-                                                                                     thisCols);
+                  thisRows, thisCols);
           int otherIndex =
-              b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
-                                                                                          otherRows,
-                                                                                          otherColumns);
+              b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k,
+                  col, otherRows, otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);
@@ -727,7 +760,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray add(IntArray other) {
-    return add(1, other, 1);
+    return add(1, other);
   }
 
   @Override
@@ -742,12 +775,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray add(int alpha, IntArray other, int beta) {
+  public IntArray add(int alpha, IntArray other) {
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, alpha * get(i, j) + other.get(i, j) * beta);
+        matrix.set(i, j, alpha * get(i, j) + other.get(i, j));
       }
     }
     return matrix;
@@ -755,7 +788,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray sub(IntArray other) {
-    return sub(1, other, 1);
+    return sub(1, other);
   }
 
   @Override
@@ -764,12 +797,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray sub(int alpha, IntArray other, int beta) {
+  public IntArray sub(int alpha, IntArray other) {
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, alpha * get(i, j) - other.get(i, j) * beta);
+        matrix.set(i, j, alpha * get(i, j) - other.get(i, j));
       }
     }
     return matrix;

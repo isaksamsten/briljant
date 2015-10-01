@@ -4,8 +4,6 @@ import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.index.Index;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by isak on 14/09/15.
  */

@@ -1,34 +1,28 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
 
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.MutableComplex;
-import org.briljantframework.exceptions.NonConformantException;
+import static org.briljantframework.array.Indexer.columnMajor;
+import static org.briljantframework.array.Indexer.rowMajor;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -54,17 +48,20 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.complex.MutableComplex;
+import org.briljantframework.exceptions.NonConformantException;
 
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray>
-    implements ComplexArray {
+public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
+    ComplexArray {
 
   protected AbstractComplexArray(ArrayFactory bj, int size) {
-    super(bj, new int[]{size});
+    super(bj, new int[] {size});
   }
 
   public AbstractComplexArray(ArrayFactory bj, int[] shape) {
@@ -72,7 +69,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   public AbstractComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
-                              int majorStride) {
+      int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
@@ -111,7 +108,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   /**
    * Sets the element at index {@code i}, ignoring offsets and strides.
    *
-   * @param i     the index
+   * @param i the index
    * @param value the value
    */
   protected abstract void setElement(int i, Complex value);
@@ -240,8 +237,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       protected void setElement(int i, double value) {
@@ -262,8 +259,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public IntArray asInt() {
-    return new AsIntArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       public int getElement(int index) {
@@ -395,8 +392,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public LongArray asLong() {
-    return new AsLongArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return (long) AbstractComplexArray.this.getElement(index).getReal();
@@ -415,8 +412,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
-                        UnaryOperator<Complex> map) {
+  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.apply(map.apply(get(i)), identity);
     }
@@ -469,8 +465,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public BooleanArray asBoolean() {
-    return new AsBooleanArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -540,7 +536,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
     public ComplexArray build() {
       return bj.array(buffer.toArray(new Complex[buffer.size()]));
-      //new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
+      // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
     }
 
     public void add(Complex value) {

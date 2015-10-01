@@ -1,35 +1,32 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.data.dataframe.DataFrame;
+import java.util.Random;
+
 import org.briljantframework.data.Is;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
-
-import java.util.Random;
 
 /**
  * Created by Isak Karlsson on 10/09/14.
@@ -47,13 +44,13 @@ public abstract class AbstractSplitter implements Splitter {
   /**
    * Basic implementation of the splitting procedure
    *
-   * @param classSet  the examples
-   * @param axis      the axis
+   * @param classSet the examples
+   * @param axis the axis
    * @param threshold the threshold
    * @return the examples . split
    */
   protected TreeSplit<ValueThreshold> split(DataFrame dataset, ClassSet classSet, int axis,
-                                            Object threshold) {
+      Object threshold) {
     ClassSet left = new ClassSet(classSet.getDomain());
     ClassSet right = new ClassSet(classSet.getDomain());
     Vector axisVector = dataset.loc().get(axis);
@@ -83,17 +80,17 @@ public abstract class AbstractSplitter implements Splitter {
             @SuppressWarnings("unchecked")
             Comparable<Object> leftComparable = axisVector.loc().get(Comparable.class, index);
             direction = leftComparable.compareTo(threshold) <= 0 ? LEFT : RIGHT;
-//            direction = axisVector.compare(index, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
+            // direction = axisVector.compare(index, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
           }
         }
-//        switch (axisType.getScale()) {
-//          case NOMINAL:
-//            direction = axisType.equals(threshold, value) ? LEFT : RIGHT;
-//            break;
-//          case NUMERICAL:
-//            direction = axisType.compare(threshold, value) <= 0 ? LEFT : RIGHT;
-//            break;
-//        }
+        // switch (axisType.getScale()) {
+        // case NOMINAL:
+        // direction = axisType.equals(threshold, value) ? LEFT : RIGHT;
+        // break;
+        // case NUMERICAL:
+        // direction = axisType.compare(threshold, value) <= 0 ? LEFT : RIGHT;
+        // break;
+        // }
         switch (direction) {
           case LEFT:
             leftSample.add(example);
@@ -124,19 +121,19 @@ public abstract class AbstractSplitter implements Splitter {
     }
 
     return new TreeSplit<>(left, right, ValueThreshold.create(axis, threshold));
-//
-//    throw new UnsupportedOperationException("TODO");
+    //
+    // throw new UnsupportedOperationException("TODO");
   }
 
   /**
    * Distribute missing getPosteriorProbabilities (this should be an injected dependency)
    *
-   * @param left    the left
-   * @param right   the right
+   * @param left the left
+   * @param right the right
    * @param missing the missing
    */
   protected void distributeMissing(ClassSet.Sample left, ClassSet.Sample right,
-                                   ClassSet.Sample missing) {
+      ClassSet.Sample missing) {
     for (Example example : missing) {
       if (random.nextDouble() > 0.5) {
         left.add(example);

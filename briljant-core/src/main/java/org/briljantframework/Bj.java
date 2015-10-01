@@ -1,28 +1,32 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -44,12 +48,6 @@ import org.briljantframework.array.netlib.NetlibArrayBackend;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.stream.StreamSupport;
-
 /**
  * @author Isak Karlsson
  */
@@ -69,8 +67,7 @@ public final class Bj {
     ArrayBackend backend =
         StreamSupport.stream(ServiceLoader.load(ArrayBackend.class).spliterator(), false)
             .filter(ArrayBackend::isAvailable)
-            .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority()))
-            .findFirst()
+            .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority())).findFirst()
             .orElse(new NetlibArrayBackend());
 
     MATRIX_FACTORY = backend.getArrayFactory();
@@ -78,8 +75,7 @@ public final class Bj {
     linalg = backend.getLinearAlgebraRoutines();
   }
 
-  private Bj() {
-  }
+  private Bj() {}
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#referenceArray(int...)
@@ -154,7 +150,7 @@ public final class Bj {
   /**
    * Create a 1d-array with values sampled from the specified distribution.
    *
-   * @param size         the size of the array
+   * @param size the size of the array
    * @param distribution the distribution to sample from
    * @return a new 1d-array
    */
@@ -163,16 +159,20 @@ public final class Bj {
   }
 
   /**
-   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean {@code
-   * 0} and standard deviation {@code 1}.
+   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean
+   * {@code 0} and standard deviation {@code 1}.
    *
-   * <p>Example
-   * <pre>{@code
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * {@code
    * > Bj.randn(9).reshape(3, 3);
    * array([[0.168, -0.297, -0.374],
    *        [1.030, -1.465,  0.636],
    *        [0.957, -0.990,  0.498]] type: double)
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param size the size of the array
    * @return a new 1d-array
@@ -183,12 +183,16 @@ public final class Bj {
 
   /**
    * Create a 1d-array with values sampled uniformly from the range {@code [-1, 1]}
-   * <p>Example
-   * <pre>{@code
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * {@code
    * > Bj.rand(4).reshape(2,2)
    * array([[0.467, 0.898],
    *        [0.568, 0.103]] type: double)
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param size the size of the array
    * @return a new 1d-array
@@ -336,7 +340,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#mean(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#mean(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray mean(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.mean(dim, x);
@@ -350,7 +355,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#var(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#var(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray var(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.var(dim, x);
@@ -364,7 +370,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#std(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#std(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray std(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.std(dim, x);
@@ -378,7 +385,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sum(int, org.briljantframework.array.IntArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#sum(int,
+   *      org.briljantframework.array.IntArray)
    */
   public static IntArray sum(int dim, IntArray x) {
     return MATRIX_ROUTINES.sum(dim, x);
@@ -392,7 +400,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sum(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#sum(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray sum(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.sum(dim, x);
@@ -406,7 +415,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#prod(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#prod(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray prod(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.prod(dim, x);
@@ -420,7 +430,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#min(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#min(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray min(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.min(dim, x);
@@ -434,7 +445,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#min(int, org.briljantframework.array.IntArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#min(int,
+   *      org.briljantframework.array.IntArray)
    */
   public static IntArray min(int dim, IntArray x) {
     return MATRIX_ROUTINES.min(dim, x);
@@ -448,7 +460,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#min(int, org.briljantframework.array.LongArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#min(int,
+   *      org.briljantframework.array.LongArray)
    */
   public static LongArray min(int dim, LongArray x) {
     return MATRIX_ROUTINES.min(dim, x);
@@ -456,7 +469,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#min(org.briljantframework.array.Array,
-   * java.util.Comparator)
+   *      java.util.Comparator)
    */
   public static <T> T min(Array<T> x, Comparator<T> cmp) {
     return MATRIX_ROUTINES.min(x, cmp);
@@ -464,7 +477,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#min(int, org.briljantframework.array.Array,
-   * java.util.Comparator)
+   *      java.util.Comparator)
    */
   public static <T> Array<T> min(int dim, Array<T> x, Comparator<T> cmp) {
     return MATRIX_ROUTINES.min(dim, x, cmp);
@@ -492,7 +505,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#max(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#max(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray max(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.max(dim, x);
@@ -506,7 +520,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#max(int, org.briljantframework.array.IntArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#max(int,
+   *      org.briljantframework.array.IntArray)
    */
   public static IntArray max(int dim, IntArray x) {
     return MATRIX_ROUTINES.max(dim, x);
@@ -520,7 +535,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#max(int, org.briljantframework.array.LongArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#max(int,
+   *      org.briljantframework.array.LongArray)
    */
   public static LongArray max(int dim, LongArray x) {
     return MATRIX_ROUTINES.max(dim, x);
@@ -528,7 +544,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#max(org.briljantframework.array.Array,
-   * java.util.Comparator)
+   *      java.util.Comparator)
    */
   public static <T> T max(Array<T> x, Comparator<T> cmp) {
     return MATRIX_ROUTINES.max(x, cmp);
@@ -536,7 +552,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#max(int, org.briljantframework.array.Array,
-   * java.util.Comparator)
+   *      java.util.Comparator)
    */
   public static <T> Array<T> max(int dim, Array<T> x, Comparator<T> cmp) {
     return MATRIX_ROUTINES.max(dim, x, cmp);
@@ -606,7 +622,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#cumsum(int, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#cumsum(int,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static DoubleArray cumsum(int dim, DoubleArray x) {
     return MATRIX_ROUTINES.cumsum(dim, x);
@@ -621,7 +638,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#vsplit(org.briljantframework.array.BaseArray,
-   * int)
+   *      int)
    */
   public static <T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
     return MATRIX_ROUTINES.vsplit(array, parts);
@@ -636,7 +653,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#hsplit(org.briljantframework.array.BaseArray,
-   * int)
+   *      int)
    */
   public static <T extends BaseArray<T>> List<T> hsplit(T matrix, int parts) {
     return MATRIX_ROUTINES.hsplit(matrix, parts);
@@ -651,7 +668,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#copy(org.briljantframework.array.BaseArray,
-   * org.briljantframework.array.BaseArray)
+   *      org.briljantframework.array.BaseArray)
    */
   public static <T extends BaseArray<T>> void copy(T from, T to) {
     MATRIX_ROUTINES.copy(from, to);
@@ -659,7 +676,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#swap(org.briljantframework.array.BaseArray,
-   * org.briljantframework.array.BaseArray)
+   *      org.briljantframework.array.BaseArray)
    */
   public static <T extends BaseArray<T>> void swap(T a, T b) {
     MATRIX_ROUTINES.swap(a, b);
@@ -667,7 +684,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#take(org.briljantframework.array.BaseArray,
-   * int)
+   *      int)
    */
   public static <T extends BaseArray<T>> T take(T x, int num) {
     return MATRIX_ROUTINES.take(x, num);
@@ -675,7 +692,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#repmat(org.briljantframework.array.BaseArray,
-   * int, int)
+   *      int, int)
    */
   public static <T extends BaseArray<T>> T repmat(T x, int r, int c) {
     return MATRIX_ROUTINES.repmat(x, r, c);
@@ -683,7 +700,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#repmat(org.briljantframework.array.BaseArray,
-   * int)
+   *      int)
    */
   public static <T extends BaseArray<T>> T repmat(T x, int n) {
     return MATRIX_ROUTINES.repmat(x, n);
@@ -691,7 +708,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#repeat(org.briljantframework.array.BaseArray,
-   * int)
+   *      int)
    */
   public static <T extends BaseArray<T>> T repeat(T x, int num) {
     return MATRIX_ROUTINES.repeat(x, num);
@@ -713,7 +730,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.Array,
-   * java.util.Comparator)
+   *      java.util.Comparator)
    */
   public static <T> Array<T> sort(Array<T> array, Comparator<T> cmp) {
     return MATRIX_ROUTINES.sort(array, cmp);
@@ -721,10 +738,9 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#sort(int, org.briljantframework.array.Array,
-   * java.util.Comparator)
+   *      java.util.Comparator)
    */
-  public static <T> Array<T> sort(int dim, Array<T> array,
-                                  Comparator<T> cmp) {
+  public static <T> Array<T> sort(int dim, Array<T> array, Comparator<T> cmp) {
     return MATRIX_ROUTINES.sort(dim, array, cmp);
   }
 
@@ -736,7 +752,8 @@ public final class Bj {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(int, org.briljantframework.array.BaseArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#sort(int,
+   *      org.briljantframework.array.BaseArray)
    */
   public static <T extends BaseArray<T>> T sort(int dim, T array) {
     return MATRIX_ROUTINES.sort(dim, array);
@@ -744,15 +761,15 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.BaseArray,
-   * org.briljantframework.sort.IndexComparator)
+   *      org.briljantframework.sort.IndexComparator)
    */
   public static <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
     return MATRIX_ROUTINES.sort(x, cmp);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(int, org.briljantframework.array.BaseArray,
-   * org.briljantframework.sort.IndexComparator)
+   * @see org.briljantframework.array.api.ArrayRoutines#sort(int,
+   *      org.briljantframework.array.BaseArray, org.briljantframework.sort.IndexComparator)
    */
   public static <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp) {
     return MATRIX_ROUTINES.sort(dim, x, cmp);
@@ -767,21 +784,26 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#dot(org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray)
+   *      org.briljantframework.array.DoubleArray)
    */
   public static double dot(DoubleArray a, DoubleArray b) {
     return MATRIX_ROUTINES.dot(a, b);
   }
 
   /**
-   * Compute the inner product of two arrays. If the arguments are {@code vectors}, the result
-   * is equivalent to {@linkplain #dot(org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray)}. In other cases, the arguments are raveled.
-   * <p>Example
-   * <pre>{@code
+   * Compute the inner product of two arrays. If the arguments are {@code vectors}, the result is
+   * equivalent to
+   * {@linkplain #dot(org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)}
+   * . In other cases, the arguments are raveled.
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * {@code
    * > Bj.inner(Bj.linspace(0,3,4), Bj.linspace(0,3,4).reshape(2, 2))
    * 14.0
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param a the first array
    * @param b the second array
@@ -795,18 +817,22 @@ public final class Bj {
 
   /**
    * Computes the outer product of two arrays. If the arguments are {@code vectors}, the result is
-   * equivalent to {@link #ger(double, org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)}. In other
-   * cases, the arguments are raveled.
+   * equivalent to
+   * {@link #ger(double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)}
+   * . In other cases, the arguments are raveled.
    *
-   * <p>Example
-   * <pre>{@code
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * {@code
    * Bj.outer(Bj.linspace(0, 3, 4), Bj.linspace(0,3,4).reshape(2,2))
    * array([[0.000, 0.000, 0.000, 0.000],
    *        [0.000, 1.000, 2.000, 3.000],
    *        [0.000, 2.000, 4.000, 6.000],
    *        [0.000, 3.000, 6.000, 9.000]] type: double)
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param a the first argument of size {@code m}
    * @param b the second argument of size {@code n}
@@ -823,7 +849,7 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#dotc(org.briljantframework.array.ComplexArray,
-   * org.briljantframework.array.ComplexArray)
+   *      org.briljantframework.array.ComplexArray)
    */
   public static Complex dotc(ComplexArray a, ComplexArray b) {
     return MATRIX_ROUTINES.dotc(a, b);
@@ -831,80 +857,77 @@ public final class Bj {
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#dotu(org.briljantframework.array.ComplexArray,
-   * org.briljantframework.array.ComplexArray)
+   *      org.briljantframework.array.ComplexArray)
    */
   public static Complex dotu(ComplexArray a, ComplexArray b) {
     return MATRIX_ROUTINES.dotu(a, b);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#scal(double, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#scal(double,
+   *      org.briljantframework.array.DoubleArray)
    */
   public static void scal(double alpha, DoubleArray x) {
     MATRIX_ROUTINES.scal(alpha, x);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#axpy(double, org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#axpy(double,
+   *      org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)
    */
   public static void axpy(double alpha, DoubleArray x, DoubleArray y) {
     MATRIX_ROUTINES.axpy(alpha, x, y);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#ger(double, org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#ger(double,
+   *      org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray,
+   *      org.briljantframework.array.DoubleArray)
    */
-  public static void ger(double alpha, DoubleArray x, DoubleArray y,
-                         DoubleArray a) {
+  public static void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
     MATRIX_ROUTINES.ger(alpha, x, y, a);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#gemm(org.briljantframework.array.Op,
-   * org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
+   *      org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
+   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
    */
   public static void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
-                          DoubleArray y) {
+      DoubleArray y) {
     MATRIX_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 
   /**
-   * Delegates to {@link #gemv(org.briljantframework.array.Op, double,
-   * org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double,
-   * org.briljantframework.array.DoubleArray)}
+   * Delegates to
+   * {@link #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)}
    * with the first argument {@code Op.KEEP}.
    *
    * @see #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
+   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
    */
-  public static void gemv(double alpha, DoubleArray a, DoubleArray x, double beta,
-                          DoubleArray y) {
+  public static void gemv(double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y) {
     gemv(Op.KEEP, alpha, a, x, beta, y);
   }
 
   /**
-   * Delegates to {@link #gemv(org.briljantframework.array.Op, double,
-   * org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double,
-   * org.briljantframework.array.DoubleArray)}
+   * Delegates to
+   * {@link #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)}
    * with the first argument {@code Op.KEEP}, {@code alpha = 1} and {@code beta = 1}
    *
    * @see #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
-   * org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
+   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
    */
   public static void gemv(DoubleArray a, DoubleArray x, DoubleArray y) {
     gemv(1, a, x, 1, y);
   }
 
-  public static void gemm(Op transA, Op transB, double alpha, DoubleArray a,
-                          DoubleArray b, double beta, DoubleArray c) {
+  public static void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b,
+      double beta, DoubleArray c) {
     MATRIX_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
   }
 
-  public static void gemm(double alpha, DoubleArray a,
-                          DoubleArray b, double beta, DoubleArray c) {
+  public static void gemm(double alpha, DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
     gemm(Op.KEEP, Op.KEEP, alpha, a, b, beta, c);
   }
 
@@ -953,7 +976,7 @@ public final class Bj {
    * Take values in {@code array}, using the indexes in {@code indexes}.
    * </p>
    *
-   * @param array   the source array
+   * @param array the source array
    * @param indexes the indexes of the values to extract
    * @return a new array; the returned matrix has the same type as {@code array} (as returned by
    */
@@ -968,15 +991,13 @@ public final class Bj {
   /**
    * <p>
    * Changes the values of array copy of {@code array} according to the values of the {@code mask}
-   * and the
-   * values in {@code values}. The value at {@code i} in array copy of {@code array} is set to
-   * value
-   * at
-   * {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is {@code true}.
+   * and the values in {@code values}. The value at {@code i} in array copy of {@code array} is set
+   * to value at {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is
+   * {@code true}.
    * </p>
    *
-   * @param array  array source array
-   * @param mask   the mask; same shape as {@code array}
+   * @param array array source array
+   * @param mask the mask; same shape as {@code array}
    * @param values the values; same shape as {@code array}
    * @return a new array; the returned array has the same type as {@code array}.
    */
@@ -995,8 +1016,8 @@ public final class Bj {
    * {@code values}.
    * </p>
    *
-   * @param a      the target matrix
-   * @param mask   the mask; same shape as {@code a}
+   * @param a the target matrix
+   * @param mask the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
    */
   public static <T extends BaseArray<T>> void putMask(T a, BooleanArray mask, T values) {
@@ -1015,8 +1036,8 @@ public final class Bj {
    * selected with {@code replace}.
    * </p>
    *
-   * @param a       the source matrix
-   * @param where   the selection matrix; same shape as {@code a}
+   * @param a the source matrix
+   * @param where the selection matrix; same shape as {@code a}
    * @param replace the replacement value
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
@@ -1179,5 +1200,14 @@ public final class Bj {
 
   public static ComplexArray ceil(ComplexArray array) {
     return MATRIX_ROUTINES.ceil(array);
+  }
+
+  public static int argOf(BooleanArray array, Predicate<Boolean> predicate) {
+    for (int i = 0; i < array.size(); i++) {
+      if (predicate.test(array.get(i))) {
+        return i;
+      }
+    }
+    return -1;
   }
 }

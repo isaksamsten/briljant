@@ -1,28 +1,27 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification;
+
+import java.util.EnumSet;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
@@ -34,19 +33,15 @@ import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 
-import java.util.EnumSet;
-
 /**
- * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a
- * non-parametric
+ * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a non-parametric
  * method used for classification and regression.[1] In both cases, the input consists of the k
  * closest training examples in the feature space. The output depends on whether k-NN is used for
  * classification or regression:
  * <p>
  * In k-NN classification, the output is a class membership. An object is classified by a majority
  * vote of its neighbors, with the object being assigned to the class most common among its k
- * nearest neighbors (k is a positive integer, typically small). If k = 1, then the object is
- * simply
+ * nearest neighbors (k is a positive integer, typically small). If k = 1, then the object is simply
  * assigned to the class of that single nearest neighbor. In k-NN regression, the output is the
  * property value for the object. This value is the average of the getPosteriorProbabilities of its
  * k nearest neighbors. k-NN is a type of instance-based learning, or lazy learning, where the
@@ -88,8 +83,8 @@ public class KNearestNeighbors implements Classifier {
 
   @Override
   public Predictor fit(DataFrame x, Vector y) {
-    Check.argument(x.rows() == y.size(),
-                   "The size of x and y don't match: %s != %s.", x.rows(), y.size());
+    Check.argument(x.rows() == y.size(), "The size of x and y don't match: %s != %s.", x.rows(),
+        y.size());
     return new Predictor(x, y, distance, neighbors, Vectors.unique(y));
   }
 
@@ -167,9 +162,9 @@ public class KNearestNeighbors implements Classifier {
     /**
      * Instantiates a new K nearest classification.
      *
-     * @param x        the storage
+     * @param x the storage
      * @param distance the distance
-     * @param k        the k
+     * @param k the k
      */
     Predictor(DataFrame x, Vector y, Distance distance, int k, Vector classes) {
       super(classes);
@@ -193,16 +188,16 @@ public class KNearestNeighbors implements Classifier {
           bestSoFar = distance;
         }
       }
-//      MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
-//      for (int i = 0; i < frame.rows(); i++) {
-//        double d = distance.compute(record, frame.getRecord(i));
-//        queue.add(new DistanceIndex(targets.get(Object.class, i), d));
-//      }
-//      ObjectIntMap<Object> votes = new ObjectIntOpenHashMap<>();
-//      for (DistanceIndex di : queue) {
-//        votes.putOrAdd(di.target, 1, 1);
-//      }
-//      int voters = queue.size();
+      // MinMaxPriorityQueue<DistanceIndex> queue = MinMaxPriorityQueue.maximumSize(k).create();
+      // for (int i = 0; i < frame.rows(); i++) {
+      // double d = distance.compute(record, frame.getRecord(i));
+      // queue.add(new DistanceIndex(targets.get(Object.class, i), d));
+      // }
+      // ObjectIntMap<Object> votes = new ObjectIntOpenHashMap<>();
+      // for (DistanceIndex di : queue) {
+      // votes.putOrAdd(di.target, 1, 1);
+      // }
+      // int voters = queue.size();
       Vector classes = getClasses();
       DoubleArray estimate = Bj.doubleArray(classes.size());
       for (int i = 0; i < classes.size(); i++) {

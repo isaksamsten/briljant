@@ -1,28 +1,31 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.resolver;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.complex.Complex;
@@ -32,53 +35,56 @@ import org.briljantframework.data.Logical;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.reader.DataEntry;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * This class provide options for <em>resolving</em> a value from one class to another. For
- * example, if none of the default resolvers are modified, {@code Resolve.to(Integer.class,
+ * This class provide options for <em>resolving</em> a value from one class to another. For example,
+ * if none of the default resolvers are modified, {@code Resolve.to(Integer.class,
  * "2011")} would produce the {@code int} value {@code 2011}.
  *
- * <p/> This class is thread-safe, i.e. calls to {@link #install(Class, Resolver)} and {@link
- * #find(Class)} can be made in different threads. The guarantees provided are the same as those
- * provided by the {@linkplain ConcurrentHashMap}.
+ * <p/>
+ * This class is thread-safe, i.e. calls to {@link #install(Class, Resolver)} and
+ * {@link #find(Class)} can be made in different threads. The guarantees provided are the same as
+ * those provided by the {@linkplain ConcurrentHashMap}.
  *
- * <p/> To install a new {@link Resolver} use {@link #install(Class, Resolver)}, for example, given
- * a class
+ * <p/>
+ * To install a new {@link Resolver} use {@link #install(Class, Resolver)}, for example, given a
+ * class
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * class Employee {
  *   String name, familyName
  *   public Employee(String name, String familyName) {
  *     this.name = name;
  *     this.familyName = familyName;
  *   }
- *
+ * 
  *   public String toString(){
  *     return "Employee{name=" +name + ", familyName=" + familyName + "}";
  *   }
  * }
- * }</pre>
+ * }
+ * </pre>
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * Resolver<Employee> employeeResolver = new Resolver<>(Employee.class);
  * emplyeeResolver.put(String.class, v -> new Employee(v.split("\s+")[0], v.split("\s+")[1]));
  * Resolve.install(Employee.class, employeeResolver);
  * Employee e = Resolve.to(Employee.class, "Foo Bar");
- * }</pre>
+ * }
+ * </pre>
  *
  * Once installed, {@link org.briljantframework.data.vector.Vector.Builder#read(DataEntry)} will
  * pick up the resolver and produce vectors accordingly, e.g., we can produce a vector of employees
  *
- * <pre>{@code
- * DataEntry entry = new StringDataEntry(new String[]{"Foo Bar", "Bob Bobson", "John Doe"});
- * Vector vector = Vector.Builder.of(Employee.class).readAll(entry).build();
- * Employee bob = vector.get(Employee.class, 1);
- * }</pre>
+ * <pre>
+ * {
+ *   &#064;code
+ *   DataEntry entry = new StringDataEntry(new String[] {&quot;Foo Bar&quot;, &quot;Bob Bobson&quot;, &quot;John Doe&quot;});
+ *   Vector vector = Vector.Builder.of(Employee.class).readAll(entry).build();
+ *   Employee bob = vector.get(Employee.class, 1);
+ * }
+ * </pre>
  *
  * which would render the following vector
  *
@@ -205,8 +211,8 @@ public final class Resolve {
 
   private static Resolver<LocalDate> initializeLocalDateResolver() {
     Resolver<LocalDate> resolver = new Resolver<>(LocalDate.class);
-    Converter<Long, LocalDate> longToLocalDate = (l) ->
-        Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDate();
+    Converter<Long, LocalDate> longToLocalDate =
+        (l) -> Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDate();
 
     resolver.put(String.class, StringToLocalDate.ISO_DATE);
     resolver.put(Long.class, longToLocalDate);
@@ -214,8 +220,7 @@ public final class Resolve {
     return resolver;
   }
 
-  private Resolve() {
-  }
+  private Resolve() {}
 
   public static <T> void install(Class<T> cls, Resolver<T> resolver) {
     RESOLVERS.put(cls, resolver);

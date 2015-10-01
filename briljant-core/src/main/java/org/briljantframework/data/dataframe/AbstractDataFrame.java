@@ -1,28 +1,43 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe;
+
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
 import net.mintern.primitive.comparators.IntComparator;
 
@@ -30,6 +45,7 @@ import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
@@ -50,24 +66,6 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collector;
-
 /**
  * Implements some default behaviour for DataFrames
  *
@@ -83,7 +81,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * @param columnIndex allowed to be {@code null}
-   * @param index       allowed to be {@code null}
+   * @param index allowed to be {@code null}
    */
   protected AbstractDataFrame(Index columnIndex, Index index) {
     this.columnIndex = columnIndex;
@@ -159,8 +157,9 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame join(JoinType type, DataFrame other) {
-    Joiner joiner = type.getJoinOperation().createJoiner(
-        JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
+    Joiner joiner =
+        type.getJoinOperation()
+            .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
     return joiner.join(this, other, Collections.emptyList());
   }
 
@@ -218,7 +217,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final Vector reduce(Function<Vector, ?> op) {
-    //ISSUE#7 use an improved TypeInferenceBuilder here
+    // ISSUE#7 use an improved TypeInferenceBuilder here
     Vector.Builder builder = getMostSpecificColumnType().newBuilder();
     for (Object columnKey : this) {
       Vector column = get(columnKey);
@@ -240,14 +239,14 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final <T, R, C> Vector collect(
-      Class<T> in, Class<R> out, Collector<? super T, C, ? extends R> collector) {
+  public final <T, R, C> Vector collect(Class<T> in, Class<R> out,
+      Collector<? super T, C, ? extends R> collector) {
     Vector.Builder builder = VectorType.of(out).newBuilder();
     return doCollect(in, collector, builder);
   }
 
-  private <T, C> Vector doCollect(
-      Class<T> cls, Collector<? super T, C, ?> collector, Vector.Builder builder) {
+  private <T, C> Vector doCollect(Class<T> cls, Collector<? super T, C, ?> collector,
+      Vector.Builder builder) {
 
     for (Object columnKey : this) {
       Vector column = get(columnKey);
@@ -268,15 +267,15 @@ public abstract class AbstractDataFrame implements DataFrame {
     Vector column = get(columnKey);
     VectorLocationGetter loc = column.loc();
     for (int i = 0, size = column.size(); i < size; i++) {
-      groups.computeIfAbsent(loc.get(Object.class, i),
-                             a -> Vector.Builder.of(Integer.class)).add(i);
+      groups.computeIfAbsent(loc.get(Object.class, i), a -> Vector.Builder.of(Integer.class))
+          .add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKey);
   }
 
   @Override
   public final <T> DataFrameGroupBy groupBy(Class<T> cls, Object columnKey,
-                                            Function<? super T, Object> map) {
+      Function<? super T, Object> map) {
     HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
     Vector column = get(columnKey);
     VectorLocationGetter loc = column.loc();
@@ -284,7 +283,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       T value = loc.get(cls, i);
       // Ignore NA values (group them separately)
       groups.computeIfAbsent(Is.NA(value) ? value : map.apply(value),
-                             a -> Vector.Builder.of(Integer.class)).add(i);
+          a -> Vector.Builder.of(Integer.class)).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKey);
   }
@@ -312,10 +311,8 @@ public abstract class AbstractDataFrame implements DataFrame {
     HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
     for (Index.Entry entry : getIndex().entrySet()) {
       T key = Convert.to(cls, entry.getKey());
-      groups.computeIfAbsent(
-          Is.NA(key) ? key : function.apply(key), // ignore NA keys
-          a -> Vector.Builder.of(Integer.class)
-      ).add(entry.getValue());
+      groups.computeIfAbsent(Is.NA(key) ? key : function.apply(key), // ignore NA keys
+          a -> Vector.Builder.of(Integer.class)).add(entry.getValue());
     }
     return new HashDataFrameGroupBy(this, groups);
   }
@@ -331,8 +328,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final <T, C> DataFrame apply(
-      Class<T> cls, Collector<? super T, C, ? extends Vector> collector) {
+  public final <T, C> DataFrame apply(Class<T> cls,
+      Collector<? super T, C, ? extends Vector> collector) {
     DataFrame.Builder builder = newBuilder();
     for (Object columnKey : getColumnIndex().keySet()) {
       Vector column = get(columnKey);
@@ -366,8 +363,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final DataFrame select(Object first, Object last) {
     DataFrame.Builder builder = newBuilder();
-    Set<Object> selectedRange = getColumnIndex().selectRange(
-        first, BoundType.INCLUSIVE, last, BoundType.EXCLUSIVE);
+    Set<Object> selectedRange =
+        getColumnIndex().selectRange(first, BoundType.INCLUSIVE, last, BoundType.EXCLUSIVE);
     for (Object columnKey : selectedRange) {
       builder.set(columnKey, Vectors.transferableBuilder(get(columnKey)));
     }
@@ -467,7 +464,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
     builder.setColumnIndex(getColumnIndex());
     DataFrame df = builder.build();
-//    df.setColumnIndex(getColumnIndex());
+    // df.setColumnIndex(getColumnIndex());
     return df;
   }
 
@@ -484,11 +481,9 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final DataFrame select(Vector bits) {
     DataFrame.Builder builder = newBuilder();
-    getIndex().keySet().stream()
-        .filter(bits::isTrue)
-        .forEach(recordKey -> {
-          builder.setRecord(recordKey, Vectors.transferableBuilder(getRecord(recordKey)));
-        });
+    getIndex().keySet().stream().filter(bits::isTrue).forEach(recordKey -> {
+      builder.setRecord(recordKey, Vectors.transferableBuilder(getRecord(recordKey)));
+    });
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
     return df;
@@ -607,9 +602,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     if (obj.getClass().equals(getClass())) {
       DataFrame o = (DataFrame) obj;
-      if (o.rows() == rows() &&
-          getColumnIndex().equals(o.getColumnIndex()) &&
-          getIndex().equals(o.getIndex())) {
+      if (o.rows() == rows() && getColumnIndex().equals(o.getColumnIndex())
+          && getIndex().equals(o.getIndex())) {
         for (Object columnKey : this) {
           if (!get(columnKey).equals(o.get(columnKey))) {
             return false;
@@ -638,13 +632,13 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
-   * return {@code NA} as defined by {@link org.briljantframework.data.Na#of(Class)}. The
-   * conversion is performed according to the convention found in {@link
-   * org.briljantframework.data.vector.Convert#to(Class, Object)}
+   * return {@code NA} as defined by {@link org.briljantframework.data.Na#of(Class)}. The conversion
+   * is performed according to the convention found in
+   * {@link org.briljantframework.data.vector.Convert#to(Class, Object)}
    *
-   * @param <T>    the type of the returned value
-   * @param cls    the class
-   * @param row    the row
+   * @param <T> the type of the returned value
+   * @param cls the class
+   * @param row the row
    * @param column the column
    * @return an instance of {@code T}
    */
@@ -697,10 +691,12 @@ public abstract class AbstractDataFrame implements DataFrame {
     return builder.build();
   }
 
+  protected abstract DataFrame getRecordsAt(IntArray indexes);
+
   /**
    * Get value at {@code row} and {@code column} as {@code double}.
    *
-   * @param row    the row
+   * @param row the row
    * @param column the column
    * @return the value
    */
@@ -709,18 +705,18 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Get value at {@code row} and {@code column} as {@code int}.
    *
-   * @param row    the row
+   * @param row the row
    * @param column the column
    * @return the value
    */
   protected abstract int getAsIntAt(int row, int column);
 
   /**
-   * Returns string representation of value at {@code row, column}. In most cases this is
-   * equivalent to {@code get(Object.class, row, column).toString()}, but it handles {@code NA}
-   * values, i.e. the returned {@linkplain String string} is never {@code null}.
+   * Returns string representation of value at {@code row, column}. In most cases this is equivalent
+   * to {@code get(Object.class, row, column).toString()}, but it handles {@code NA} values, i.e.
+   * the returned {@linkplain String string} is never {@code null}.
    *
-   * @param row    the row
+   * @param row the row
    * @param column the column
    * @return the representation
    */
@@ -729,7 +725,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Returns true if value at {@code row, column} is {@code NA}.
    *
-   * @param row    the row
+   * @param row the row
    * @param column the column
    * @return true or false
    */
@@ -752,8 +748,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Constructs a new DataFrame by dropping the columns in {@code indexes}.
    *
-   * This implementations rely on {@link #newBuilder()} returning a builder and that {@link
-   * org.briljantframework.data.dataframe.DataFrame.Builder#add(org.briljantframework.data.vector.Vector)}
+   * This implementations rely on {@link #newBuilder()} returning a builder and that
+   * {@link org.briljantframework.data.dataframe.DataFrame.Builder#add(org.briljantframework.data.vector.Vector)}
    * adds a vector.
    *
    * @param indexes collection of indexes
@@ -779,12 +775,13 @@ public abstract class AbstractDataFrame implements DataFrame {
   protected abstract VectorType getMostSpecificColumnType();
 
   /**
-   * This class provides a skeletal implementation of the {@link org.briljantframework.data.dataframe.DataFrame.Builder}
-   * interface to minimize the effort required to implement this interface, including the handling
-   * of key and index-based setters.
+   * This class provides a skeletal implementation of the
+   * {@link org.briljantframework.data.dataframe.DataFrame.Builder} interface to minimize the effort
+   * required to implement this interface, including the handling of key and index-based setters.
    *
-   * <p> To implement this builder, the programmer needs to implement the following abstract
-   * methods (the documentation for each method provides information on how to implement them):
+   * <p>
+   * To implement this builder, the programmer needs to implement the following abstract methods
+   * (the documentation for each method provides information on how to implement them):
    * <ul>
    * <li>{@link #setNaAt(int, int)}</li>
    * <li>{@link #setAt(int, int, Object)}</li>
@@ -794,8 +791,8 @@ public abstract class AbstractDataFrame implements DataFrame {
    * <li>{@link #readEntry(org.briljantframework.data.reader.DataEntry)}</li>
    * </ul>
    *
-   * and the following methods from the {@link org.briljantframework.data.dataframe.DataFrame.Builder}
-   * interface
+   * and the following methods from the
+   * {@link org.briljantframework.data.dataframe.DataFrame.Builder} interface
    * <ul>
    * <li>{@link #rows()}</li>
    * <li>{@link #columns()}</li>
@@ -804,27 +801,28 @@ public abstract class AbstractDataFrame implements DataFrame {
    * </ul>
    *
    * <h3>Notes for object keys</h3>
-   * <p> For object keys, the position can be retrieved using {@link #getOrCreateColumnIndex(Object)}
+   * <p>
+   * For object keys, the position can be retrieved using {@link #getOrCreateColumnIndex(Object)}
    * and {@link #getOrCreateIndex(Object)}
    *
    * <h3>Notes for the abstract methods</h3>
-   * <p> If the indexes are larger than {@link #rows()} and {@link #columns()} respectively
-   * additional rows and columns, filled with {@code NA}, are inserted between the specified
-   * indexes and the current size.
+   * <p>
+   * If the indexes are larger than {@link #rows()} and {@link #columns()} respectively additional
+   * rows and columns, filled with {@code NA}, are inserted between the specified indexes and the
+   * current size.
    */
   protected static abstract class AbstractBuilder implements Builder {
 
     private final DataFrameLocationSetter loc = new DataFrameLocationSetterImpl();
 
     /**
-     * The column index. When getting the index of a key, prefer {@link
-     * #getOrCreateColumnIndex(Object)}.
+     * The column index. When getting the index of a key, prefer
+     * {@link #getOrCreateColumnIndex(Object)}.
      */
     private Index.Builder columnIndex;
 
     /**
-     * The record index. When getting the index of a key, prefer {@link
-     * #getOrCreateIndex(Object)}.
+     * The record index. When getting the index of a key, prefer {@link #getOrCreateIndex(Object)}.
      */
     private Index.Builder index;
 
@@ -843,8 +841,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     /**
      * Implicit default constructor for constructing default {@code int}-based indexes
      */
-    protected AbstractBuilder() {
-    }
+    protected AbstractBuilder() {}
 
     @Override
     public final DataFrameLocationSetter loc() {
@@ -855,8 +852,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     public final Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc) {
       int r = getOrCreateIndex(tr);
       int c = getOrCreateColumnIndex(tc);
-      setAt(r, c, from, from.getIndex().getLocation(fr),
-            from.getColumnIndex().getLocation(fc));
+      setAt(r, c, from, from.getIndex().getLocation(fr), from.getColumnIndex().getLocation(fc));
       return this;
     }
 
@@ -978,8 +974,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     /**
      * Extend the column index with the specified number of entries. For example, if the index
-     * contains {@code 3} items and the argument is {@code 5}, index {@code 4} and {@code 5} will
-     * be added.
+     * contains {@code 3} items and the argument is {@code 5}, index {@code 4} and {@code 5} will be
+     * added.
      */
     private void extendColumnIndex(int c) {
       if (columnIndex != null) {
@@ -1043,8 +1039,8 @@ public abstract class AbstractDataFrame implements DataFrame {
     protected abstract void setNaAt(int r, int c);
 
     /**
-     * Set the element at the specified position to the specified value as defined by {@link
-     * org.briljantframework.data.vector.Convert#to(Class, Object)}
+     * Set the element at the specified position to the specified value as defined by
+     * {@link org.briljantframework.data.vector.Convert#to(Class, Object)}
      *
      * @param r the row location
      * @param c the column location
@@ -1200,6 +1196,11 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public DataFrame getRecord(int... records) {
       return getRecordAt(records);
+    }
+
+    @Override
+    public DataFrame getRecords(IntArray records) {
+      return getRecordsAt(records);
     }
   }
 

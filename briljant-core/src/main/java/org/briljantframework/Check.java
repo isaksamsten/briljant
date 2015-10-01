@@ -1,28 +1,30 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.data.vector.Vector;
@@ -30,11 +32,6 @@ import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
-
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * @author Isak Karlsson
@@ -44,19 +41,21 @@ public final class Check {
   protected static final String NON_CONFORMAT_VALUE =
       "The value of %s did not conform with the predicate.";
 
-  private Check() {
-  }
+  private Check() {}
 
   /**
    * Throws {@linkplain java.lang.IllegalArgumentException} if {@code predicate} returns false for
    * any of the values in the supplied list of arguments.
    * <p>
-   * <pre>{@code
+   * 
+   * <pre>
+   * {@code
    * Check.any(x -> x.length() > 3, "a", "b", "c", string);
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param predicate the predicate to test
-   * @param array     the values to check
+   * @param array the values to check
    */
   @SafeVarargs
   public static <T> void all(Predicate<? super T> predicate, T... array) {
@@ -82,19 +81,19 @@ public final class Check {
    * Throws {@linkplain java.lang.IllegalArgumentException} if {@code value < min || value > max}
    *
    * @param value the value to check
-   * @param min   the minimum range value
-   * @param max   the maximum range value
+   * @param min the minimum range value
+   * @param max the maximum range value
    */
   public static void inRange(double value, double min, double max) {
     if (value < min || value > max) {
-      throw new IllegalArgumentException(
-          String.format("%f < %f (min) || %f > %f (max)", value, min, value, max));
+      throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", value,
+          min, value, max));
     }
   }
 
   /**
-   * Throws {@linkplain org.briljantframework.exceptions.NonConformantException} if the shape of
-   * the arguments differ.
+   * Throws {@linkplain org.briljantframework.exceptions.NonConformantException} if the shape of the
+   * arguments differ.
    *
    * @param a an array
    * @param b an array
@@ -117,14 +116,13 @@ public final class Check {
   }
 
   /**
-   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if {@code
-   * condition}
+   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if {@code condition}
    * is {@code false}
    *
    * @param condition the condition
-   * @param message   the message
-   * @param args      the arguments to message (formatted as {@link String#format(java.util.Locale,
-   *                  String, Object...)}
+   * @param message the message
+   * @param args the arguments to message (formatted as
+   *        {@link String#format(java.util.Locale, String, Object...)}
    */
   public static void size(boolean condition, String message, Object... args) {
     if (!condition) {
@@ -136,7 +134,7 @@ public final class Check {
    * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the arguments
    * differ.
    *
-   * @param actual   the actual size
+   * @param actual the actual size
    * @param expected the expected size
    * @throws SizeMismatchException if {@code actual != expected}
    */
@@ -182,9 +180,9 @@ public final class Check {
    * Throws {@linkplain java.lang.IllegalArgumentException} if the boolean condition is false with
    * the message formatted using {@linkplain String#format(String, Object...)}
    *
-   * @param check   the boolean condition
+   * @param check the boolean condition
    * @param message the message
-   * @param args    the arguments to format
+   * @param args the arguments to format
    */
   public static void argument(boolean check, String message, Object... args) {
     if (!check) {
@@ -207,9 +205,9 @@ public final class Check {
    * Throws {@linkplain java.lang.IllegalStateException} if the boolean condition is false with the
    * message formatted using {@linkplain String#format(String, Object...)}.
    *
-   * @param test    the boolean condition
+   * @param test the boolean condition
    * @param message the message
-   * @param args    the format arguments
+   * @param args the format arguments
    */
   public static void state(boolean test, String message, Object... args) {
     if (!test) {
@@ -221,9 +219,9 @@ public final class Check {
    * Throws {@linkplain java.lang.IllegalArgumentException} if the boolean condition is false with
    * the message formatted using {@linkplain String#format(String, Object...)}.
    *
-   * @param test    the boolean condition
+   * @param test the boolean condition
    * @param message the message
-   * @param args    the format arguments
+   * @param args the format arguments
    */
   public static void type(boolean test, String message, Object... args) {
     if (!test) {
@@ -235,13 +233,11 @@ public final class Check {
     type(vector.getType(), type);
   }
 
-  public static void type(VectorType actual, VectorType expected)
-      throws IllegalTypeException {
+  public static void type(VectorType actual, VectorType expected) throws IllegalTypeException {
     type(actual.equals(expected), "Require type %s but got %s", expected, actual);
   }
 
-  public static void type(Set<VectorType> expected, VectorType actual)
-      throws IllegalTypeException {
+  public static void type(Set<VectorType> expected, VectorType actual) throws IllegalTypeException {
     type(actual.equals(expected), "Require any type of %s but got %s", expected, actual);
   }
 

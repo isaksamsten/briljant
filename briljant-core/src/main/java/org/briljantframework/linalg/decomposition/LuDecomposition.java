@@ -1,36 +1,33 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.linalg.decomposition;
+
+import java.util.Optional;
 
 import org.briljantframework.Bj;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.netlib.NetlibLapackException;
 import org.netlib.util.intW;
-
-import java.util.Optional;
 
 /**
  * Created by isak on 02/07/14.
@@ -48,7 +45,7 @@ public class LuDecomposition {
   /**
    * Instantiates a new Lu decomposition.
    *
-   * @param lu     the lu
+   * @param lu the lu
    * @param pivots the pivots
    */
   public LuDecomposition(DoubleArray lu, IntArray pivots) {
@@ -74,14 +71,14 @@ public class LuDecomposition {
     if (!lu.isSquare()) {
       throw new IllegalStateException("Matrix must be square.");
     }
-//    DoubleMatrix inv = lu.copy();
+    // DoubleMatrix inv = lu.copy();
     int n = lu.rows();
     int lwork = -1;
     double[] work = new double[1];
     intW err = new intW(0);
-//    DoubleStorage invs = (DoubleStorage) inv.getStorage();
+    // DoubleStorage invs = (DoubleStorage) inv.getStorage();
     double[] invs = lu.data();
-//    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
+    // LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new NetlibLapackException(err.val, "Querying failed");
     }
@@ -89,7 +86,7 @@ public class LuDecomposition {
     lwork = (int) work[0];
     work = new double[lwork];
     // TODO (implement in linalg)
-//    LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
+    // LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
     if (err.val != 0) {
       throw new NetlibLapackException(err.val, "Inverse failed.");
     }

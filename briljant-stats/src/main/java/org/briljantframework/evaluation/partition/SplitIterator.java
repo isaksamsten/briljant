@@ -1,13 +1,13 @@
 package org.briljantframework.evaluation.partition;
 
-import org.briljantframework.Check;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+import static org.briljantframework.data.vector.Vectors.transferableBuilder;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import static org.briljantframework.data.vector.Vectors.transferableBuilder;
+import org.briljantframework.Check;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -61,9 +61,8 @@ public class SplitIterator implements Iterable<Partition> {
         trainingSet.setColumnIndex(x.getColumnIndex());
         DataFrame validationSet = xValidationBuilder.build();
         validationSet.setColumnIndex(x.getColumnIndex());
-        return new Partition(
-            trainingSet, validationSet, yTrainingBuilder.build(), yValidationBuilder.build()
-        );
+        return new Partition(trainingSet, validationSet, yTrainingBuilder.build(),
+            yValidationBuilder.build());
       }
     };
   }

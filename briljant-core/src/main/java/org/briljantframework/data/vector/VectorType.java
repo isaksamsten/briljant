@@ -1,38 +1,35 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.vector;
+
+import java.util.Comparator;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
 import org.briljantframework.data.Scale;
 import org.briljantframework.data.index.ObjectComparator;
-
-import java.util.Comparator;
-import java.util.IdentityHashMap;
-import java.util.Map;
 
 /**
  * Provides information of a particular vectors type.
@@ -144,12 +141,12 @@ public abstract class VectorType {
   public abstract Class<?> getDataClass();
 
   /**
-   * Compare value at position {@code a} from {@code va} to value at position {@code b} from {@code
-   * ba}.
+   * Compare value at position {@code a} from {@code va} to value at position {@code b} from
+   * {@code ba}.
    *
-   * @param a  the index in va
+   * @param a the index in va
    * @param va the vector
-   * @param b  the index in ba
+   * @param b the index in ba
    * @param ba the vector
    * @return the comparison
    */
@@ -164,9 +161,9 @@ public abstract class VectorType {
    * Check if value at position {@code a} from {@code va} and value at position {@code b} from
    * {@code va} are equal.
    *
-   * @param a  the index in va
+   * @param a the index in va
    * @param va the vector
-   * @param b  the index in ba
+   * @param b the index in ba
    * @param ba the vector
    * @return true if equal false otherwise
    */

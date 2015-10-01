@@ -7,6 +7,7 @@
  * user guide available at http://gradle.org/docs/1.12/userguide/tutorial_java_projects.html
  */
 buildscript {
+  ext.applicationVersion = "0.1"
   repositories {
     jcenter()
     mavenCentral()
@@ -20,8 +21,6 @@ buildscript {
 task createWrapper(type: Wrapper) {
   gradleVersion = '2.1'
 }
-
-ext.applicationVersion = "0.1"
 
 allprojects {
   group = "org.briljantframework"

@@ -1,31 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.function.DoubleBiPredicate;
 
 import java.util.List;
 import java.util.function.DoubleBinaryOperator;
@@ -44,13 +38,15 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.function.DoubleBiPredicate;
+
 /**
  * A matrix is a n-dimensional array.
  *
  * <p>
- * Every implementation have to ensure that {@link #set(int, double)}, {@link #get(int)} and
- * work in <b>column-major</b> order as fortran and not in
- * <b>row-major</b> order as in e.g., c.
+ * Every implementation have to ensure that {@link #set(int, double)}, {@link #get(int)} and work in
+ * <b>column-major</b> order as fortran and not in <b>row-major</b> order as in e.g., c.
  *
  * More specifically this means that given the matrix {@code m}
  *
@@ -87,12 +83,12 @@ import java.util.stream.DoubleStream;
  *     m.put(i, j, m.get(i, j) * 2);
  *   }
  * }
- *
+ * 
  * // Option 2
  * for (int i = 0; i < m.size(); i++) {
  *   m.put(i, m.get(i) * 2)
  * }
- *
+ * 
  * // Option 3
  * for (int j = 0; j < m.columns(); j++) {
  *   for (int i = 0; i < m.rows() ; i++) {
@@ -131,7 +127,7 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix   the matrix
+   * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -208,8 +204,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
    * {@code matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
    * @param identity the initial value
-   * @param reduce   takes two values and reduces them to one
-   * @param map      takes a value and possibly transforms it
+   * @param reduce takes two values and reduces them to one
+   * @param map takes a value and possibly transforms it
    * @return the result
    */
   double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map);
@@ -305,12 +301,11 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   DoubleArray mul(double alpha, DoubleArray other, double beta);
@@ -343,12 +338,11 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   DoubleArray add(double alpha, DoubleArray other, double beta);
@@ -365,12 +359,11 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   DoubleArray sub(double alpha, DoubleArray other, double beta);
@@ -423,8 +416,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray negate();
 
   /**
-   * Returns a double array representation of this matrix. If {@linkplain #isView()} is {@code
-   * true}, a copy is returned.
+   * Returns a double array representation of this matrix. If {@linkplain #isView()} is {@code true}
+   * , a copy is returned.
    *
    * @return a double array
    */

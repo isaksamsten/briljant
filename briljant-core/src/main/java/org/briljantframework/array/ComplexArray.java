@@ -1,30 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.apache.commons.math3.complex.Complex;
 
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -40,6 +35,8 @@ import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import org.apache.commons.math3.complex.Complex;
 
 /**
  * Implements a 2-dimensional matrix of complex numbers.
@@ -65,8 +62,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   }
 
   /**
-   * Assign value returned by {@link #size()} successive calls to {@link
-   * java.util.function.DoubleSupplier#getAsDouble()}
+   * Assign value returned by {@link #size()} successive calls to
+   * {@link java.util.function.DoubleSupplier#getAsDouble()}
    *
    * @param supplier the supplier
    * @return receiver modified
@@ -76,7 +73,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix   the matrix
+   * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -95,7 +92,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
    *
-   * @param matrix   the matrix
+   * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -152,12 +149,12 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
   /**
-   * Reduces {@code this} into a real value. For example, summing can be implemented as {@code
-   * matrix.reduce(0, (a, b) -> a + b, x -> x)}
+   * Reduces {@code this} into a real value. For example, summing can be implemented as
+   * {@code matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
    * @param identity the initial value
-   * @param reduce   takes two values and reduces them to one
-   * @param map      takes a value and possibly transforms it
+   * @param reduce takes two values and reduces them to one
+   * @param map takes a value and possibly transforms it
    * @return the result
    */
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map);
@@ -201,20 +198,25 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix <p>
+   * column-major order. For example, given the following matrix
+   * <p>
    *
    * <pre>
    *     1 2 3
    *     4 5 6
    * </pre>
-   * <p> this code <p>
+   * <p>
+   * this code
+   * <p>
    *
    * <pre>
    * for (int i = 0; i &lt; x.size(); i++) {
    *   System.out.print(x.get(i));
    * }
    * </pre>
-   * <p> prints <p>
+   * <p>
+   * prints
+   * <p>
    *
    * <pre>
    * 142536
@@ -250,8 +252,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))},
-   * but in one pass.
+   * {@code other} with {@code beta}. Hence, it computes
+   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this*other}
    * @param other the other matrix
@@ -273,12 +275,11 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   ComplexArray mul(Complex alpha, ComplexArray other, Complex beta);
@@ -308,12 +309,12 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   ComplexArray add(Complex scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with {@code
-   * beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   ComplexArray add(Complex alpha, ComplexArray other, Complex beta);
@@ -336,12 +337,11 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code
-   * beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   ComplexArray sub(Complex alpha, ComplexArray other, Complex beta);

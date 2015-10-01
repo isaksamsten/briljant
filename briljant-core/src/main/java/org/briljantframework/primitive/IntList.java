@@ -1,31 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.primitive;
-
-import net.mintern.primitive.Primitive;
-import net.mintern.primitive.comparators.IntComparator;
 
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -37,16 +31,17 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.IntComparator;
+
 /**
  * ArrayList backed by a primitive {@code int}-array.
  */
 public class IntList extends AbstractList<Integer> {
 
   /**
-   * The maximum size of array to allocate.
-   * Some VMs reserve some header words in an array.
-   * Attempts to allocate larger arrays may result in
-   * OutOfMemoryError: Requested array size exceeds VM limit
+   * The maximum size of array to allocate. Some VMs reserve some header words in an array. Attempts
+   * to allocate larger arrays may result in OutOfMemoryError: Requested array size exceeds VM limit
    */
   private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
@@ -61,9 +56,8 @@ public class IntList extends AbstractList<Integer> {
   private static final int[] EMPTY_ELEMENTDATA = {};
 
   /**
-   * Shared empty array instance used for default sized empty instances. We
-   * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
-   * first element is added.
+   * Shared empty array instance used for default sized empty instances. We distinguish this from
+   * EMPTY_ELEMENTDATA to know how much to inflate when first element is added.
    */
   private static final int[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
@@ -89,23 +83,19 @@ public class IntList extends AbstractList<Integer> {
   }
 
   /**
-   * Trims the capacity of this <tt>ArrayList</tt> instance to be the
-   * list's current size.  An application can use this operation to minimize
-   * the storage of an <tt>ArrayList</tt> instance.
+   * Trims the capacity of this <tt>ArrayList</tt> instance to be the list's current size. An
+   * application can use this operation to minimize the storage of an <tt>ArrayList</tt> instance.
    */
   public void trimToSize() {
     modCount++;
     if (size < elementData.length) {
-      elementData = (size == 0)
-                    ? EMPTY_ELEMENTDATA
-                    : Arrays.copyOf(elementData, size);
+      elementData = (size == 0) ? EMPTY_ELEMENTDATA : Arrays.copyOf(elementData, size);
     }
   }
 
   /**
-   * Trims the capacity of this <tt>ArrayList</tt> instance to be the
-   * list's current size.  An application can use this operation to minimize
-   * the storage of an <tt>ArrayList</tt> instance.
+   * Trims the capacity of this <tt>ArrayList</tt> instance to be the list's current size. An
+   * application can use this operation to minimize the storage of an <tt>ArrayList</tt> instance.
    */
   @Override
   public boolean add(Integer e) {
@@ -125,9 +115,8 @@ public class IntList extends AbstractList<Integer> {
   }
 
   /**
-   * Removes the element at the specified position in this list.
-   * Shifts any subsequent elements to the left (subtracts one from their
-   * indices).
+   * Removes the element at the specified position in this list. Shifts any subsequent elements to
+   * the left (subtracts one from their indices).
    *
    * @param index the index of the element to be removed
    * @return the element that was removed from the list
@@ -139,8 +128,7 @@ public class IntList extends AbstractList<Integer> {
 
     int numMoved = size - index - 1;
     if (numMoved > 0) {
-      System.arraycopy(elementData, index + 1, elementData, index,
-                       numMoved);
+      System.arraycopy(elementData, index + 1, elementData, index, numMoved);
     }
     elementData[--size] = -1; // clear to let GC do its work
 
@@ -165,8 +153,8 @@ public class IntList extends AbstractList<Integer> {
   }
 
   /**
-   * Increases the capacity to ensure that it can hold at least the
-   * number of elements specified by the minimum capacity argument.
+   * Increases the capacity to ensure that it can hold at least the number of elements specified by
+   * the minimum capacity argument.
    *
    * @param minCapacity the desired minimum capacity
    */
@@ -189,9 +177,7 @@ public class IntList extends AbstractList<Integer> {
     {
       throw new OutOfMemoryError();
     }
-    return (minCapacity > MAX_ARRAY_SIZE) ?
-           Integer.MAX_VALUE :
-           MAX_ARRAY_SIZE;
+    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
   }
 
   @Override
@@ -218,14 +204,14 @@ public class IntList extends AbstractList<Integer> {
   }
 
   /**
-   * Returns a list iterator over the elements in this list (in proper
-   * sequence), starting at the specified position in the list.
-   * The specified index indicates the first element that would be
-   * returned by an initial call to {@link java.util.ListIterator#next next}.
-   * An initial call to {@link java.util.ListIterator#previous previous} would
-   * return the element with the specified index minus one.
+   * Returns a list iterator over the elements in this list (in proper sequence), starting at the
+   * specified position in the list. The specified index indicates the first element that would be
+   * returned by an initial call to {@link java.util.ListIterator#next next}. An initial call to
+   * {@link java.util.ListIterator#previous previous} would return the element with the specified
+   * index minus one.
    *
-   * <p>The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   * <p>
+   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
    *
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
@@ -237,10 +223,10 @@ public class IntList extends AbstractList<Integer> {
   }
 
   /**
-   * Returns a list iterator over the elements in this list (in proper
-   * sequence).
+   * Returns a list iterator over the elements in this list (in proper sequence).
    *
-   * <p>The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   * <p>
+   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
    *
    * @see #listIterator(int)
    */
@@ -251,7 +237,8 @@ public class IntList extends AbstractList<Integer> {
   /**
    * Returns an iterator over the elements in this list in proper sequence.
    *
-   * <p>The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   * <p>
+   * The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
    *
    * @return an iterator over the elements in this list in proper sequence
    */
@@ -273,7 +260,7 @@ public class IntList extends AbstractList<Integer> {
    */
   private class Itr implements Iterator<Integer> {
 
-    int cursor;       // index of next element to return
+    int cursor; // index of next element to return
     int lastRet = -1; // index of last element returned; -1 if no such
     int expectedModCount = modCount;
 

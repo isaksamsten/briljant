@@ -1,25 +1,22 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification;
@@ -78,7 +75,7 @@ public class DecisionTree implements Classifier {
   }
 
   protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet,
-                                           int depth) {
+      int depth) {
     if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
       return TreeLeaf.fromExamples(classSet);
     }
@@ -88,7 +85,7 @@ public class DecisionTree implements Classifier {
     } else {
       TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
       TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);
-      return new TreeBranch<>(leftNode, rightNode, maxSplit.getThreshold(), 1);
+      return new TreeBranch<>(leftNode, rightNode, classes, maxSplit.getThreshold(), 1);
     }
   }
 
@@ -115,7 +112,7 @@ public class DecisionTree implements Classifier {
           @SuppressWarnings("unchecked")
           Comparable<Object> leftComparable = example.loc().get(Comparable.class, axis);
           direction = leftComparable.compareTo(threshold) <= 0 ? LEFT : RIGHT;
-//          direction = example.compare(axis, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
+          // direction = example.compare(axis, (Comparable<?>) threshold) <= 0 ? LEFT : RIGHT;
         }
       }
 
@@ -134,7 +131,7 @@ public class DecisionTree implements Classifier {
   public static class Predictor extends TreePredictor<ValueThreshold> {
 
     private Predictor(Vector classes, TreeNode<ValueThreshold> node,
-                      TreeVisitor<ValueThreshold> predictionVisitor) {
+        TreeVisitor<ValueThreshold> predictionVisitor) {
       super(classes, node, predictionVisitor);
     }
   }

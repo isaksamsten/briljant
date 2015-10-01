@@ -1,37 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe;
-
-import net.mintern.primitive.comparators.IntComparator;
-
-import org.briljantframework.Check;
-import org.briljantframework.data.BoundType;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectComparator;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.primitive.IntList;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -51,10 +39,20 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import net.mintern.primitive.comparators.IntComparator;
+
+import org.briljantframework.Check;
+import org.briljantframework.data.BoundType;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectComparator;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.primitive.IntList;
+
 /**
  * The {@code ObjectIndex} contains any key and associates it with a location.
  *
- * <p> Keys of this index is iterated in insertion order
+ * <p>
+ * Keys of this index is iterated in insertion order
  *
  * @author Isak Karlsson
  */
@@ -83,9 +81,10 @@ public final class ObjectIndex implements Index {
   }
 
   private ObjectIndex(Map<Object, Integer> keys, List<Object> locations, IntList order) {
-    this.keys = keys instanceof NavigableMap ?
-                Collections.unmodifiableNavigableMap((NavigableMap<Object, Integer>) keys) :
-                Collections.unmodifiableMap(keys);
+    this.keys =
+        keys instanceof NavigableMap ? Collections
+            .unmodifiableNavigableMap((NavigableMap<Object, Integer>) keys) : Collections
+            .unmodifiableMap(keys);
     this.locations = locations;
     this.order = order;
     this.maintainsOrder = this.order != null;
@@ -124,14 +123,15 @@ public final class ObjectIndex implements Index {
   @Override
   public Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound) {
     Check.argument(shareComparableSupertype(from, to), "keys are not comparable");
-    Check.argument(!fromBound.greaterThan(compare(from, to)) &&
-                   !toBound.lessThan(compare(to, from)),
-                   "Illegal key ordering (to-key is larger than from-key)");
+    Check.argument(
+        !fromBound.greaterThan(compare(from, to)) && !toBound.lessThan(compare(to, from)),
+        "Illegal key ordering (to-key is larger than from-key)");
 
     Map<Object, Integer> includedKeys;
     if (getKeys() instanceof NavigableMap) {
-      SortedMap<Object, Integer> tmp = ((NavigableMap<Object, Integer>) getKeys()).subMap(
-          from, fromBound == BoundType.INCLUSIVE, to, toBound == BoundType.INCLUSIVE);
+      SortedMap<Object, Integer> tmp =
+          ((NavigableMap<Object, Integer>) getKeys()).subMap(from,
+              fromBound == BoundType.INCLUSIVE, to, toBound == BoundType.INCLUSIVE);
 
       // note: is this a good idea for saving memory?
       if (tmp.size() / getKeys().size() > 0.5) {
@@ -260,8 +260,7 @@ public final class ObjectIndex implements Index {
 
   public static final class Builder implements Index.Builder {
 
-    private final static Comparator<Object> objectComparator =
-        ObjectComparator.getInstance();
+    private final static Comparator<Object> objectComparator = ObjectComparator.getInstance();
     private Map<Object, Integer> keys;
     private List<Object> locations;
     private IntList order;
@@ -372,13 +371,12 @@ public final class ObjectIndex implements Index {
     public Index build() {
       Map<Object, Integer> immutableKeys;
       if (getKeys() instanceof NavigableMap) {
-        immutableKeys = Collections.unmodifiableNavigableMap(
-            (NavigableMap<Object, Integer>) getKeys());
+        immutableKeys =
+            Collections.unmodifiableNavigableMap((NavigableMap<Object, Integer>) getKeys());
       } else {
         immutableKeys = Collections.unmodifiableMap(getKeys());
       }
-      Index index = new ObjectIndex(immutableKeys,
-                                    Collections.unmodifiableList(locations), order);
+      Index index = new ObjectIndex(immutableKeys, Collections.unmodifiableList(locations), order);
       this.keys = null;
       this.locations = null;
       this.order = null;
@@ -407,7 +405,7 @@ public final class ObjectIndex implements Index {
       }
 
       if (order != null) {
-        for (ListIterator<Integer> iterator = order.listIterator(); iterator.hasNext(); ) {
+        for (ListIterator<Integer> iterator = order.listIterator(); iterator.hasNext();) {
           int v = iterator.next();
           if (v > index) {
             iterator.set(v - 1);
@@ -496,7 +494,7 @@ public final class ObjectIndex implements Index {
 
         @Override
         public Object next() {
-//          int location = order.get(current++);
+          // int location = order.get(current++);
           return getKey(current++);
         }
       };

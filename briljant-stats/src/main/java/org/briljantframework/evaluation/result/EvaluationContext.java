@@ -1,35 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.evaluation.result;
-
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.Predictor;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.partition.Partition;
-import org.briljantframework.evaluation.measure.Measure;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.classification.Predictor;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.measure.Measure;
+import org.briljantframework.evaluation.partition.Partition;
 
 /**
  * @author Isak Karlsson
@@ -50,8 +47,7 @@ public class EvaluationContext {
   private Partition partition;
   private DoubleArray estimation;
 
-  public EvaluationContext() {
-  }
+  public EvaluationContext() {}
 
   public void setPredictions(Vector predictions) {
     this.predictions = Objects.requireNonNull(predictions);
@@ -74,9 +70,9 @@ public class EvaluationContext {
    * Get the predictions made by {@link #getPredictor()}.
    *
    * @param sample if {@link Sample#IN}, returns the predictions on
-   *               {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}; if
-   *               {@link Sample#OUT}, returns the predictions on
-   *               {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}.
+   *        {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}; if
+   *        {@link Sample#OUT}, returns the predictions on
+   *        {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}.
    * @return the predictions
    */
   public Vector getPredictions(Sample sample) {
@@ -90,8 +86,7 @@ public class EvaluationContext {
 
   /**
    * If the predictor returned by {@link #getPredictor()} has the
-   * {@link org.briljantframework.classification.Predictor.Characteristics#ESTIMATOR}
-   * characteristic
+   * {@link org.briljantframework.classification.Predictor.Characteristics#ESTIMATOR} characteristic
    *
    * @param sample the sample
    * @return the probability estimations made by predictor; shape [no samples, domain]
@@ -121,7 +116,7 @@ public class EvaluationContext {
    * <pre>
    *     // Good
    *     ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.3);
-   *
+   * 
    *     // Bad
    *     Measure.Builder b = ctx.get(Accuracy.class);
    *     if(b == null) {
@@ -142,13 +137,13 @@ public class EvaluationContext {
   /**
    * Get the builder for the key or the default value produced by the supplier
    *
-   * @param measure  the measure
+   * @param measure the measure
    * @param supplier the supplier
-   * @param <T>      the type of measure
+   * @param <T> the type of measure
    * @return a builder for the measure
    */
-  public <T extends Measure> Measure.Builder<T> getOrDefault(
-      Class<T> measure, Supplier<? extends Measure.Builder<T>> supplier) {
+  public <T extends Measure> Measure.Builder<T> getOrDefault(Class<T> measure,
+      Supplier<? extends Measure.Builder<T>> supplier) {
     Measure.Builder<T> builder = get(measure);
     if (builder == null) {
       builder = supplier.get();
@@ -169,14 +164,16 @@ public class EvaluationContext {
   /**
    * Get a list of populated measures from this evaluation context
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    *  EvaluationContext ctx = new EvaluationContext();
    *  ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.9);
    *  ctx.append(Accuracy.class, 0.9);
    *  ctx.append(Accuracy.class, 0.8);
    *  ....
    *  List<Measure> measures = ctx.getMeasures();
-   * }</pre>
+   * }
+   * </pre>
    *
    * @return a list of measures
    */

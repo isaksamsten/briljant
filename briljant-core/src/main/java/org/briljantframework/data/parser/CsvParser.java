@@ -1,38 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.parser;
-
-import com.univocity.parsers.csv.CsvParserSettings;
-
-import org.briljantframework.Check;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.reader.CsvEntryReader;
-import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.vector.VectorType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,6 +34,16 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.briljantframework.Check;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.reader.CsvEntryReader;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.vector.VectorType;
+
+import com.univocity.parsers.csv.CsvParserSettings;
 
 /**
  * @author Isak Karlsson
@@ -117,8 +114,7 @@ public class CsvParser implements Parser {
    */
   public class Settings {
 
-    private Settings() {
-    }
+    private Settings() {}
 
     public Settings setFile(File file) throws FileNotFoundException {
       reader = new FileReader(file);
@@ -151,13 +147,13 @@ public class CsvParser implements Parser {
     }
 
     /**
-     * Set the header of the returned data frame. If the csv-file has a header, use {@link
-     * #setSkipRows(int)} (default: null). If {@code null} is supplied, the header is the first
-     * non-skipped row of the file.
+     * Set the header of the returned data frame. If the csv-file has a header, use
+     * {@link #setSkipRows(int)} (default: null). If {@code null} is supplied, the header is the
+     * first non-skipped row of the file.
      *
      * @param header the new header (if {@code header.size() < numberOfColumns}, the resulting data
-     *               frame will have some headers numbered from {@code header.size()} until {@code
-     *               numberOfColumns})
+     *        frame will have some headers numbered from {@code header.size()} until
+     *        {@code numberOfColumns})
      * @return this
      */
     public Settings setHeader(List<Object> header) {
@@ -240,8 +236,8 @@ public class CsvParser implements Parser {
     }
 
     /**
-     * Accept un-escaped quotes inside values (if true accept them; if false raises {@link
-     * com.univocity.parsers.common.TextParsingException} if encountered during parsing)
+     * Accept un-escaped quotes inside values (if true accept them; if false raises
+     * {@link com.univocity.parsers.common.TextParsingException} if encountered during parsing)
      *
      * @param parseUnescapedQuotes boolean
      * @return this

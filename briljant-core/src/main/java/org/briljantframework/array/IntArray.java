@@ -1,34 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import net.mintern.primitive.comparators.IntComparator;
-
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntObjIntBiFunction;
 
 import java.util.List;
 import java.util.function.DoubleToIntFunction;
@@ -43,6 +34,12 @@ import java.util.function.IntUnaryOperator;
 import java.util.function.LongToIntFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
+
+import net.mintern.primitive.comparators.IntComparator;
+
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.function.IntBiPredicate;
+import org.briljantframework.function.ToIntObjIntBiFunction;
 
 /**
  * @author Isak Karlsson
@@ -80,7 +77,7 @@ public interface IntArray extends BaseArray<IntArray> {
    * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
    * {@code this} and {@code matrix}
    *
-   * @param matrix  the matrix
+   * @param matrix the matrix
    * @param combine the combiner
    * @return receiver modified
    */
@@ -146,12 +143,13 @@ public interface IntArray extends BaseArray<IntArray> {
    * Reduces {@code this} into a real value. For example, summing can be implemented as
    * {@code matrix.reduce(0, (a, sumSoFar) -> a + sumSoFar, x -> x)}
    *
-   * <p> The operation {@code reduce} takes two parameters the current value and the accumulated
-   * value (set to {@code identity} at the first iteration)
+   * <p>
+   * The operation {@code reduce} takes two parameters the current value and the accumulated value
+   * (set to {@code identity} at the first iteration)
    *
    * @param identity the initial value
-   * @param reduce   takes two values and reduces them to one
-   * @param map      takes a value and possibly transforms it
+   * @param reduce takes two values and reduces them to one
+   * @param map takes a value and possibly transforms it
    * @return the result
    */
   int reduce(int identity, IntBinaryOperator reduce, IntUnaryOperator map);
@@ -225,9 +223,9 @@ public interface IntArray extends BaseArray<IntArray> {
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
    *
-   * @param a     transpose for {@code this}
+   * @param a transpose for {@code this}
    * @param other the matrix
-   * @param b     transpose for {@code other}
+   * @param b transpose for {@code other}
    * @return a new matrix
    */
   IntArray mmul(Op a, IntArray other, Op b);
@@ -237,9 +235,9 @@ public interface IntArray extends BaseArray<IntArray> {
    * scaling by {@code alpha} {@code beta}.
    *
    * @param alpha scaling factor for {@code this * other}
-   * @param a     transpose for {@code this}
+   * @param a transpose for {@code this}
    * @param other the matrix
-   * @param b     transpose for {@code other}
+   * @param b transpose for {@code other}
    * @return a new matrix
    */
   IntArray mmul(int alpha, Op a, IntArray other, Op b);
@@ -254,12 +252,11 @@ public interface IntArray extends BaseArray<IntArray> {
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   IntArray mul(int alpha, IntArray other, int beta);
@@ -280,6 +277,8 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   IntArray add(IntArray other);
 
+  IntArray addi(IntArray other);
+
   /**
    * Element wise addition.
    *
@@ -288,17 +287,17 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   IntArray add(int scalar);
 
+  IntArray addi(int scalar);
+
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
-  IntArray add(int alpha, IntArray other, int beta);
+  IntArray add(int alpha, IntArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -308,6 +307,9 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   IntArray sub(IntArray other);
 
+  IntArray subi(IntArray other);
+
+
   /**
    * Element wise subtraction. {@code this - other}.
    *
@@ -316,17 +318,18 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   IntArray sub(int scalar);
 
+  IntArray subi(int scalar);
+
+
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
-  IntArray sub(int alpha, IntArray other, int beta);
+  IntArray sub(int alpha, IntArray other);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -335,6 +338,8 @@ public interface IntArray extends BaseArray<IntArray> {
    * @return a new matrix
    */
   IntArray rsub(int scalar);
+
+  IntArray rsubi(int scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -345,6 +350,8 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   IntArray div(IntArray other);
 
+  IntArray divi(IntArray other);
+
   /**
    * Element wise division. {@code this / other}.
    *
@@ -354,6 +361,8 @@ public interface IntArray extends BaseArray<IntArray> {
    */
   IntArray div(int other);
 
+  IntArray divi(int other);
+
   /**
    * Element wise division. {@code other / this}.
    *
@@ -362,6 +371,8 @@ public interface IntArray extends BaseArray<IntArray> {
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
   IntArray rdiv(int other);
+
+  IntArray rdivi(int other);
 
   /**
    * Returns a new matrix with elements negated.

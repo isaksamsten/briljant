@@ -1,28 +1,29 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataseries;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
@@ -31,39 +32,31 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * <p>
  * Symbolic aggregation (when normalized) is a representation method for data series that allow for
- * lower bounding the distance calculation. It works by transforming the normalized data series
- * into
+ * lower bounding the distance calculation. It works by transforming the normalized data series into
  * a series of discrete symbols, called words, by mapping each data point using the probability
  * associated with a particular value.
  * </p>
  *
  * <p>
  * For example, given the alphabet {@code [a, b, c, d]} the following thresholds can be computed
- * from
- * the normal distribution and equally sized regions {@code [-0.674,0.000,0.674]}. Then, if a value
- * is {@code <= -0.674} assign {@code a}, if the value is {@code >= 0.674} assign {@code d}, if
- * value is {@code -0.674 < value < 0} assign b and if {@code 0 < value < 0.674} assign c. That is,
- * {@code [-1, 1, 0.3, -0.2]} becomes {@code [a, d, c, b]}.
+ * from the normal distribution and equally sized regions {@code [-0.674,0.000,0.674]}. Then, if a
+ * value is {@code <= -0.674} assign {@code a}, if the value is {@code >= 0.674} assign {@code d},
+ * if value is {@code -0.674 < value < 0} assign b and if {@code 0 < value < 0.674} assign c. That
+ * is, {@code [-1, 1, 0.3, -0.2]} becomes {@code [a, d, c, b]}.
  * </p>
  *
  * <p>
- * The {@link SymbolicAggregator} is often coupled with the
- * {@link MeanAggregator}. For example,
+ * The {@link SymbolicAggregator} is often coupled with the {@link MeanAggregator}. For example,
  *
  * <pre>
  * Transformer sax =
  *     PipelineTransformer.of(new AggregateApproximation(new MeanAggreagator(5)),
- *         new AggreagetApproximation(new SymbolicAggregator(&quot;a&quot;, &quot;b&quot;,
- * &quot;c&quot;, &quot;d&quot;)));
+ *         new AggreagetApproximation(new SymbolicAggregator(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;)));
  * sax.transform(x);
- *
+ * 
  * // Alternatively
  * Approximations.sax(x, 5, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;);
  * </pre>
@@ -133,7 +126,7 @@ public class SymbolicAggregator implements Aggregator {
    * Creates a lookup table for the similarity between two items in alphabet
    */
   private static Map<String, Map<String, Double>> createLookupTable(Vector alphabet,
-                                                                    DoubleArray thresholds) {
+      DoubleArray thresholds) {
     Map<String, Map<String, Double>> tab = new HashMap<>();
     for (int r = 0; r < alphabet.size(); r++) {
       Map<String, Double> sub = new HashMap<>();
@@ -142,8 +135,8 @@ public class SymbolicAggregator implements Aggregator {
         if (Math.abs(r - c) <= 1) {
           sub.put(alphabet.loc().get(String.class, c), 0.0);
         } else {
-          sub.put(alphabet.loc().get(String.class, c),
-                  thresholds.get(Math.max(r, c) - 1) - thresholds.get(Math.min(r, c)));
+          sub.put(alphabet.loc().get(String.class, c), thresholds.get(Math.max(r, c) - 1)
+              - thresholds.get(Math.min(r, c)));
         }
       }
     }

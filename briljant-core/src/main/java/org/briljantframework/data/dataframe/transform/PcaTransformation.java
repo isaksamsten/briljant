@@ -1,36 +1,33 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe.transform;
 
 import org.briljantframework.Check;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
  * Principal component analysis (PCA) is a statistical procedure that uses an orthogonal
@@ -39,8 +36,7 @@ import org.briljantframework.data.vector.VectorType;
  * components is less than or equal to the number of original variables. This transformation is
  * defined in such a way that the first principal component has the largest possible variance (that
  * is, accounts for as much of the variability in the data as possible), and each succeeding
- * component in turn has the highest variance possible under the constraint that it is orthogonal
- * to
+ * component in turn has the highest variance possible under the constraint that it is orthogonal to
  * (i.e., uncorrelated with) the preceding components. Principal components are guaranteed to be
  * independent if the data set is jointly normally distributed. PCA is sensitive to the relative
  * scaling of the original variables.
@@ -102,7 +98,7 @@ public class PcaTransformation implements InvertibleTransformation {
         for (int j = 0; j < pca.columns(); j++) {
           result.add(VectorType.DOUBLE);
           // TODO
-//          result.getColumnNames().put(j, String.format("Component %d", j));
+          // result.getColumnNames().put(j, String.format("Component %d", j));
           for (int i = 0; i < pca.rows(); i++) {
             result.loc().set(i, j, pca.get(i, j));
           }

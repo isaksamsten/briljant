@@ -1,13 +1,13 @@
 package org.briljantframework.data.vector;
 
-import org.briljantframework.data.Na;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
+import org.briljantframework.data.Na;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>

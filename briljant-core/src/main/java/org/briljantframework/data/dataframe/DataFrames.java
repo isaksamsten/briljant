@@ -1,28 +1,30 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.data.Collectors;
@@ -41,13 +43,10 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
- * Utility methods for handling {@code DataFrame}s <p> Created by Isak Karlsson on 27/11/14.
+ * Utility methods for handling {@code DataFrame}s
+ * <p>
+ * Created by Isak Karlsson on 27/11/14.
  */
 public final class DataFrames {
 
@@ -67,42 +66,40 @@ public final class DataFrames {
   }
 
 
-  private DataFrames() {
-  }
+  private DataFrames() {}
 
 
   /**
-   * Presents a summary of the given data frame. For each column of {@code df}
-   * the returned summary contains one row. Each row is described by four
-   * values, the {@code min}, {@code max}, {@code mean} and {@code mode}. The first
-   * three are presented for numerical columns and the fourth for categorical.
+   * Presents a summary of the given data frame. For each column of {@code df} the returned summary
+   * contains one row. Each row is described by four values, the {@code min}, {@code max},
+   * {@code mean} and {@code mode}. The first three are presented for numerical columns and the
+   * fourth for categorical.
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * > DataFrame df = MixedDataFrame.of(
    *    "a", Vector.of(1, 2, 3, 4, 5, 6),
    *    "b", Vector.of("a", "b", "b", "b", "e", "f"),
    *    "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6)
    *  );
-   *
+   * 
    * > DataFrames.summary(df)
    *    mean   var    std    min    max    mode
    * a  3.500  3.500  1.871  1.000  6.000  6
    * b  NA     NA     NA     NA     NA     f
    * c  1.350  0.035  0.187  1.100  1.600  1.1
-   *
+   * 
    * [3 rows x 6 columns]
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param df the data frame
    * @return a data frame summarizing {@code df}
    */
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.set("mean", VectorType.DOUBLE)
-        .set("var", VectorType.DOUBLE)
-        .set("std", VectorType.DOUBLE)
-        .set("min", VectorType.DOUBLE)
-        .set("max", VectorType.DOUBLE)
+    builder.set("mean", VectorType.DOUBLE).set("var", VectorType.DOUBLE)
+        .set("std", VectorType.DOUBLE).set("min", VectorType.DOUBLE).set("max", VectorType.DOUBLE)
         .set("mode", VectorType.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
@@ -112,8 +109,7 @@ public final class DataFrames {
         builder.set(columnKey, "mean", summary.getMean())
             .set(columnKey, "var", summary.getVariance())
             .set(columnKey, "std", summary.getStandardDeviation())
-            .set(columnKey, "min", summary.getMin())
-            .set(columnKey, "max", summary.getMax());
+            .set(columnKey, "min", summary.getMin()).set(columnKey, "max", summary.getMax());
       }
       builder.set(columnKey, "mode", column.collect(Collectors.mode()));
     }
@@ -136,10 +132,11 @@ public final class DataFrames {
    * (named after Ronald Fisher and Frank Yates), also known as the Knuth shuffle (after Donald
    * Knuth), which is an algorithm for generating a random permutation of a finite set.
    *
-   * <p> The permutation is only visible when accessing values using {@link
-   * org.briljantframework.data.index.DataFrameLocationGetter location-based indexing}.
+   * <p>
+   * The permutation is only visible when accessing values using
+   * {@link org.briljantframework.data.index.DataFrameLocationGetter location-based indexing}.
    *
-   * @param df     the input {@code DataFrame}
+   * @param df the input {@code DataFrame}
    * @param random the random number generator used
    * @return a permuted copy of input
    */
@@ -180,8 +177,8 @@ public final class DataFrames {
   }
 
   /**
-   * Returns a {@linkplain org.briljantframework.data.Transferable transferable} column
-   * copy of the argument. The builder only allows operations that do not modify the vectors.
+   * Returns a {@linkplain org.briljantframework.data.Transferable transferable} column copy of the
+   * argument. The builder only allows operations that do not modify the vectors.
    *
    * @param df the data frame
    * @return a shallow copy
@@ -226,7 +223,10 @@ public final class DataFrames {
   }
 
   /**
-   * Generates a string representation from {@code dataFrame}. <p> For example: <p>
+   * Generates a string representation from {@code dataFrame}.
+   * <p>
+   * For example:
+   * <p>
    *
    * <pre>
    *     a    b    c
@@ -234,7 +234,7 @@ public final class DataFrames {
    * 1   1    NA   3
    * </pre>
    *
-   * @param df  the data frame
+   * @param df the data frame
    * @param max the maximum number of rows to show
    * @return a tabular string representation
    */
@@ -276,12 +276,8 @@ public final class DataFrames {
       }
       builder.append("\n");
     }
-    return builder.append("\n[")
-        .append(df.rows())
-        .append(" rows x ")
-        .append(df.columns())
-        .append(" columns]")
-        .toString();
+    return builder.append("\n[").append(df.rows()).append(" rows x ").append(df.columns())
+        .append(" columns]").toString();
   }
 
   private static void padWithSpace(StringBuilder builder, int pad) {
@@ -291,38 +287,31 @@ public final class DataFrames {
   }
 
   private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex) {
-    return columnIndex.keySet().stream()
-        .map(df::get)
-        .mapToInt(v -> {
-          int longest = 0;
-          int i = 0;
-          for (Object recordKey : df.getIndex().keySet()) {
-            if (i++ > max) {
-              break;
-            }
-            int length = v.toString(recordKey).length();
-            if (length > longest) {
-              longest = length;
-            }
+    return columnIndex.keySet().stream().map(df::get).mapToInt(v -> {
+      int longest = 0;
+      int i = 0;
+      for (Object recordKey : df.getIndex().keySet()) {
+        if (i++ > max) {
+          break;
+        }
+        int length = v.toString(recordKey).length();
+        if (length > longest) {
+          longest = length;
+        }
 
-          }
-//          for (int i = 0, size = v.size(); i < size && i < max; i++) {
-//            int length = v.loc().toString(i).length();
-//            if (length > longest) {
-//              longest = length;
-//            }
-//          }
-          return longest + 2;
-        })
-        .toArray();
+      }
+      // for (int i = 0, size = v.size(); i < size && i < max; i++) {
+      // int length = v.loc().toString(i).length();
+      // if (length > longest) {
+      // longest = length;
+      // }
+      // }
+      return longest + 2;
+    }).toArray();
   }
 
   private static int longestRecordValue(int max, Index index) {
-    return index.keySet().stream()
-               .limit(max)
-               .map(Na::toString)
-               .mapToInt(String::length)
-               .max()
-               .orElse(0) + 2;
+    return index.keySet().stream().limit(max).map(Na::toString).mapToInt(String::length).max()
+        .orElse(0) + 2;
   }
 }

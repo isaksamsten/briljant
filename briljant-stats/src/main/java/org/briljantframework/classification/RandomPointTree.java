@@ -1,33 +1,31 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification;
 
-import com.carrotsearch.hppc.IntDoubleMap;
-import com.carrotsearch.hppc.IntDoubleOpenHashMap;
-import com.carrotsearch.hppc.ObjectDoubleMap;
-import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.briljantframework.ArrayUtils;
 import org.briljantframework.Bj;
@@ -45,11 +43,10 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import com.carrotsearch.hppc.IntDoubleMap;
+import com.carrotsearch.hppc.IntDoubleOpenHashMap;
+import com.carrotsearch.hppc.ObjectDoubleMap;
+import com.carrotsearch.hppc.ObjectDoubleOpenHashMap;
 
 /**
  * Created by isak on 17/03/15.
@@ -135,7 +132,7 @@ public class RandomPointTree implements Classifier {
       } else {
         right = buildNode(x, y, split.getRight(), depth + 1);
       }
-      return new TreeBranch<>(left, right, split.getThreshold(), 1);
+      return new TreeBranch<>(left, right, classes, split.getThreshold(), 1);
     }
   }
 
@@ -166,8 +163,7 @@ public class RandomPointTree implements Classifier {
   }
 
   private TreeSplit<SplitPoint> split(IntDoubleMap distanceMap, ClassSet classSet, int take,
-                                      Vector first,
-                                      double threshold) {
+      Vector first, double threshold) {
     ClassSet left = new ClassSet(classSet.getDomain());
     ClassSet right = new ClassSet(classSet.getDomain());
     for (ClassSet.Sample sample : classSet.samples()) {
@@ -198,13 +194,12 @@ public class RandomPointTree implements Classifier {
         right.add(rightSample);
       }
     }
-    return new TreeSplit<>(
-        left, right, new SplitPoint(first, Arrays.copyOf(index, take), threshold));
+    return new TreeSplit<>(left, right,
+        new SplitPoint(first, Arrays.copyOf(index, take), threshold));
   }
 
-  protected Threshold bestDistanceThresholdInSample(
-      ClassSet classSet, DataFrame x, Vector y, int take, Vector pivot,
-      IntDoubleMap memoizedDistances) {
+  protected Threshold bestDistanceThresholdInSample(ClassSet classSet, DataFrame x, Vector y,
+      int take, Vector pivot, IntDoubleMap memoizedDistances) {
     double sum = 0.0;
     List<ExampleDistance> distances = new ArrayList<>();
     for (Example example : classSet) {
@@ -219,9 +214,8 @@ public class RandomPointTree implements Classifier {
     return findBestThreshold(distances, classSet, y, sum);
   }
 
-  public Threshold findBestThreshold(List<ExampleDistance> distances,
-                                     ClassSet classSet, Vector y,
-                                     double distanceSum) {
+  public Threshold findBestThreshold(List<ExampleDistance> distances, ClassSet classSet, Vector y,
+      double distanceSum) {
     ObjectDoubleMap<Object> lt = new ObjectDoubleOpenHashMap<>();
     ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
@@ -331,9 +325,8 @@ public class RandomPointTree implements Classifier {
     private final TreeVisitor<SplitPoint> splitPointTreeVisitor;
     private final TreeNode<SplitPoint> treeNode;
 
-    protected Predictor(Vector classes,
-                        TreeNode<SplitPoint> treeNode,
-                        TreeVisitor<SplitPoint> splitPointTreeVisitor) {
+    protected Predictor(Vector classes, TreeNode<SplitPoint> treeNode,
+        TreeVisitor<SplitPoint> splitPointTreeVisitor) {
       super(classes);
       this.treeNode = treeNode;
       this.splitPointTreeVisitor = splitPointTreeVisitor;

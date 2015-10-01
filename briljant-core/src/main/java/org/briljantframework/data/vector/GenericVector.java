@@ -1,28 +1,32 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.vector;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -31,13 +35,6 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Isak Karlsson
@@ -143,9 +140,7 @@ class GenericVector extends AbstractVector implements Transferable {
     private static final Set<Class<?>> INVALID_CLASSES = new HashSet<>();
 
     static {
-      INVALID_CLASSES.addAll(Arrays.asList(
-          Integer.class, Integer.TYPE, Double.TYPE, Double.class
-      ));
+      INVALID_CLASSES.addAll(Arrays.asList(Integer.class, Integer.TYPE, Double.TYPE, Double.class));
     }
 
     private final Class<?> cls;
@@ -177,8 +172,8 @@ class GenericVector extends AbstractVector implements Transferable {
 
     private <T> Class<?> ensureValidClass(Class<T> cls) {
       if (INVALID_CLASSES.contains(cls)) {
-        throw new IllegalArgumentException(
-            String.format("GenericVector should not be used for: %s", cls));
+        throw new IllegalArgumentException(String.format(
+            "GenericVector should not be used for: %s", cls));
       }
       return cls;
     }

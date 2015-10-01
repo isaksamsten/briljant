@@ -1,33 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe;
-
-import org.briljantframework.data.index.DataFrameLocationSetter;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.VectorLocationGetter;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +28,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
+
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.VectorLocationGetter;
+import org.briljantframework.data.vector.Vector;
 
 /**
  * @author Isak Karlsson
@@ -57,9 +54,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     this(dataFrame, groups, NO_DROP_KEY_IDENTITY);
   }
 
-  HashDataFrameGroupBy(
-      DataFrame dataFrame,
-      HashMap<Object, ? extends Vector.Builder> groups,
+  HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, ? extends Vector.Builder> groups,
       Object key) {
     this.dataFrame = dataFrame;
     this.groups = new HashMap<>();
@@ -149,14 +144,14 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   protected boolean dropColumnKey(Object columnKey) {
-    return dropKey != NO_DROP_KEY_IDENTITY &&
-           (columnKey == dropKey || // columnKey is null and dropKey is null
-            (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
+    return dropKey != NO_DROP_KEY_IDENTITY && (columnKey == dropKey || // columnKey is null and
+                                                                       // dropKey is null
+        (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
   }
 
   @Override
   public <T, C> DataFrame collect(Class<? extends T> cls,
-                                  Collector<? super T, C, ? extends T> collector) {
+      Collector<? super T, C, ? extends T> collector) {
     DataFrame.Builder builder = dataFrame.newBuilder();
     for (Map.Entry<Object, Vector> group : groups.entrySet()) {
       Object groupKey = group.getKey();

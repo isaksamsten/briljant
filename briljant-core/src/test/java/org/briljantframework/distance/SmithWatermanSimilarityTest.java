@@ -1,25 +1,22 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.distance;
@@ -31,18 +28,18 @@ public class SmithWatermanSimilarityTest {
 
   @Test
   public void testCompute() throws Exception {
-//    String[] aa = Lists.charactersOf("xxxxABCx").stream()
-//        .map(String::valueOf)
-//        .toArray(String[]::new);
-//
-//    String[] bb = Lists.charactersOf("yABCyyyy").stream()
-//        .map(String::valueOf)
-//        .toArray(String[]::new);
-//
-//    Vector a = Vector.of(aa);
-//    Vector b = Vector.of(bb);
-//    SmithWatermanSimilarity distance = new SmithWatermanSimilarity(1, 0, 0);
-//    double compute = distance.compute(a, b);
-//    assertEquals(3, compute, 0);
+    // String[] aa = Lists.charactersOf("xxxxABCx").stream()
+    // .map(String::valueOf)
+    // .toArray(String[]::new);
+    //
+    // String[] bb = Lists.charactersOf("yABCyyyy").stream()
+    // .map(String::valueOf)
+    // .toArray(String[]::new);
+    //
+    // Vector a = Vector.of(aa);
+    // Vector b = Vector.of(bb);
+    // SmithWatermanSimilarity distance = new SmithWatermanSimilarity(1, 0, 0);
+    // double compute = distance.compute(a, b);
+    // assertEquals(3, compute, 0);
   }
 }

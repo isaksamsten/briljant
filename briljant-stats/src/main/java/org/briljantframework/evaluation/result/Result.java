@@ -1,28 +1,35 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.evaluation.result;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.Collectors;
@@ -34,16 +41,6 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.measure.Measure;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * @author Isak Karlsson
@@ -75,7 +72,7 @@ public class Result {
     for (Measure measure : measures) {
       if (measure.size() != length) {
         throw new IllegalArgumentException(String.format("Invalid number of metrics for %s",
-                                                         measure.getName()));
+            measure.getName()));
       }
       metricMap.put(measure.getClass(), measure);
     }
@@ -175,7 +172,7 @@ public class Result {
   /**
    * Gets average.
    *
-   * @param key    the key
+   * @param key the key
    * @param sample the sample
    * @return the average
    */
@@ -196,7 +193,7 @@ public class Result {
   /**
    * Gets standard deviation.
    *
-   * @param key    the key
+   * @param key the key
    * @param sample the sample
    * @return the standard deviation
    */
@@ -217,7 +214,7 @@ public class Result {
   /**
    * Gets min.
    *
-   * @param key    the key
+   * @param key the key
    * @param sample the sample
    * @return the min
    */
@@ -238,7 +235,7 @@ public class Result {
   /**
    * Gets max.
    *
-   * @param key    the key
+   * @param key the key
    * @param sample the sample
    * @return the max
    */
@@ -249,7 +246,7 @@ public class Result {
   /**
    * Get double.
    *
-   * @param key   the key
+   * @param key the key
    * @param index the index
    * @return the double
    */
@@ -260,9 +257,9 @@ public class Result {
   /**
    * Get double.
    *
-   * @param key    the key
+   * @param key the key
    * @param sample the sample
-   * @param index  the index
+   * @param index the index
    * @return the double
    */
   public double get(Class<? extends Measure> key, Sample sample, int index) {
@@ -297,15 +294,14 @@ public class Result {
         }
       }
       index.add(measure.getName());
-      df.add(Vector.Builder.of(Double.class)
-                 .addAll(measure.get(Sample.OUT))
-                 .addAll(measure.get(Sample.IN)));
+      df.add(Vector.Builder.of(Double.class).addAll(measure.get(Sample.OUT))
+          .addAll(measure.get(Sample.IN)));
       while (it.hasNext()) {
         measure = it.next();
         index.add(measure.getName());
-        Vector.Builder bf = Vector.Builder.of(Double.class)
-            .addAll(measure.get(Sample.OUT))
-            .addAll(measure.get(Sample.IN));
+        Vector.Builder bf =
+            Vector.Builder.of(Double.class).addAll(measure.get(Sample.OUT))
+                .addAll(measure.get(Sample.IN));
         df.add(bf);
       }
       DataFrame bdf = df.build();
@@ -322,20 +318,20 @@ public class Result {
     builder.append("Average Confusion Matrix\n").append(getAverageConfusionMatrix()).append("\n\n")
         .append("Metrics\n");
 
-//    ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
-//    getMeasures()
-//        .stream()
-//        .sorted(Comparator.comparing(Measure::getName))
-//        .forEach(
-//            measure -> {
-//              for (int i = 0; i < measure.size(); i++) {
-//                table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
-//              }
-//              table.put("Average", measure.getName(), String.format("%.4f", measure.getMean()));
-//              table.put("Standard Deviation", measure.getName(),
-//                        String.format("%.4f", measure.getStandardDeviation()));
-//            });
-//    Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
+    // ImmutableTable.Builder<String, String, Object> table = ImmutableTable.builder();
+    // getMeasures()
+    // .stream()
+    // .sorted(Comparator.comparing(Measure::getName))
+    // .forEach(
+    // measure -> {
+    // for (int i = 0; i < measure.size(); i++) {
+    // table.put(i + "", measure.getName(), String.format("%.4f", measure.get(i)));
+    // }
+    // table.put("Average", measure.getName(), String.format("%.4f", measure.getMean()));
+    // table.put("Standard Deviation", measure.getName(),
+    // String.format("%.4f", measure.getStandardDeviation()));
+    // });
+    // Utils.prettyPrintTable(builder, table.build(), 0, 3, true, true);
     return builder.toString();
   }
   // @Override

@@ -1,30 +1,28 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array.netlib;
 
-import com.github.fommil.netlib.BLAS;
+import java.util.Arrays;
+import java.util.Objects;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.AbstractDoubleArray;
@@ -33,8 +31,7 @@ import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
 
-import java.util.Arrays;
-import java.util.Objects;
+import com.github.fommil.netlib.BLAS;
 
 /**
  * @author Isak Karlsson
@@ -45,12 +42,12 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   private final double[] data;
 
   NetlibDoubleArray(ArrayFactory bj, int size) {
-    super(bj, new int[]{size});
+    super(bj, new int[] {size});
     data = new double[size];
   }
 
   NetlibDoubleArray(ArrayFactory bj, double[] data) {
-    super(bj, new int[]{Objects.requireNonNull(data).length});
+    super(bj, new int[] {Objects.requireNonNull(data).length});
     this.data = data;
   }
 
@@ -60,13 +57,13 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   public NetlibDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
-                           double[] data) {
+      double[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   public NetlibDoubleArray(ArrayFactory bj, double[] data, int rows, int columns) {
-    super(bj, new int[]{rows, columns});
+    super(bj, new int[] {rows, columns});
     this.data = data;
   }
 
@@ -87,14 +84,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new NetlibDoubleArray(
-        getArrayFactory(),
-        offset,
-        shape,
-        stride,
-        majorStride,
-        data
-    );
+    return new NetlibDoubleArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
@@ -111,8 +101,8 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   /**
-   * Performs the operation {@code alpha*transA(this)*transB(b)}. Copies are made if either
-   * arrays are {@linkplain #isContiguous() non-contiguous} or have {@code stride(0) != 1}.
+   * Performs the operation {@code alpha*transA(this)*transB(b)}. Copies are made if either arrays
+   * are {@linkplain #isContiguous() non-contiguous} or have {@code stride(0) != 1}.
    */
   @Override
   public DoubleArray mmul(double alpha, Op transA, DoubleArray b, Op transB) {
@@ -136,24 +126,9 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     }
 
     double[] ca = new double[m * n];
-    blas.dgemm(
-        transA.asString(),
-        transB.asString(),
-        m,
-        n,
-        k,
-        alpha,
-        self.data(),
-        self.getOffset(),
-        Math.max(1, self.stride(1)),
-        b.data(),
-        b.getOffset(),
-        Math.max(1, b.stride(1)),
-        1.0,
-        ca,
-        0,
-        Math.max(1, n)
-    );
+    blas.dgemm(transA.asString(), transB.asString(), m, n, k, alpha, self.data(), self.getOffset(),
+        Math.max(1, self.stride(1)), b.data(), b.getOffset(), Math.max(1, b.stride(1)), 1.0, ca, 0,
+        Math.max(1, n));
     return new NetlibDoubleArray(getArrayFactory(), ca, m, n);
   }
 

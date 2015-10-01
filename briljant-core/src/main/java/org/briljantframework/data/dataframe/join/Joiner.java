@@ -1,50 +1,45 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.dataframe.join;
-
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.DataFrameLocationSetter;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.vector.Vector;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.vector.Vector;
+
 /**
- * A joiner keeps track of the indexes that will be joined.
- * For example, given a joiner of the left index {@code [1, 2, 3]} the right indexes and {@code
- * [2, 2, 2]}, {@link #join(org.briljantframework.data.dataframe.DataFrame,
- * org.briljantframework.data.dataframe.DataFrame, java.util.Collection)} produces a data frame
- * with
- * the
- * rows {@code 1, 2, 3}
- * from {@code a} concatenated with {@code 2, 2, 2} from {@code b}.
+ * A joiner keeps track of the indexes that will be joined. For example, given a joiner of the left
+ * index {@code [1, 2, 3]} the right indexes and {@code [2, 2, 2]},
+ * {@link #join(org.briljantframework.data.dataframe.DataFrame, org.briljantframework.data.dataframe.DataFrame, java.util.Collection)}
+ * produces a data frame with the rows {@code 1, 2, 3} from {@code a} concatenated with
+ * {@code 2, 2, 2} from {@code b}.
  *
- * <p>Joiners are often created using a {@link org.briljantframework.data.dataframe.join.JoinOperation}.
+ * <p>
+ * Joiners are often created using a {@link org.briljantframework.data.dataframe.join.JoinOperation}.
  *
  * @author Isak Karlsson
  */
@@ -119,7 +114,7 @@ public abstract class Joiner {
   }
 
   private void appendColumnFromLeftIndexIgnoreNA(int size, DataFrame.Builder builder,
-                                                 int targetColumn, Vector source) {
+      int targetColumn, Vector source) {
     DataFrameLocationSetter loc = builder.loc();
     for (int i = 0; i < size; i++) {
       int row = getLeftIndex(i);
@@ -130,7 +125,7 @@ public abstract class Joiner {
   }
 
   private void appendColumnFromRightIndexIgnoreNA(int size, DataFrame.Builder builder,
-                                                  int targetColumn, Vector source) {
+      int targetColumn, Vector source) {
     DataFrameLocationSetter loc = builder.loc();
     for (int i = 0; i < size; i++) {
       int row = getRightIndex(i);

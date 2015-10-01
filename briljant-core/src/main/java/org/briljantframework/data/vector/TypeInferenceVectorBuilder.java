@@ -1,46 +1,43 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.vector;
+
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import org.briljantframework.data.Is;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 
-import java.io.IOException;
-import java.util.NoSuchElementException;
-
 /**
  * Builder that infers the type of vector to build based on the first added value.
  *
- * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to
- * return based on the first value added value.
+ * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to return
+ * based on the first value added value.
  *
- * <p> For example, {@code new TypeInferenceVectorBuilder().add(1.0).build()} returns a {@code
- * double}
- * vector. The builder is unable to infer the correct type if the first call is {@link
- * #setNA(Object)}, {@link #read(DataEntry)} or {@link #readAll(DataEntry)} an {@link Object}
+ * <p>
+ * For example, {@code new TypeInferenceVectorBuilder().add(1.0).build()} returns a {@code double}
+ * vector. The builder is unable to infer the correct type if the first call is
+ * {@link #setNA(Object)}, {@link #read(DataEntry)} or {@link #readAll(DataEntry)} an {@link Object}
  * vector is returned.
  */
 public final class TypeInferenceVectorBuilder implements Vector.Builder {

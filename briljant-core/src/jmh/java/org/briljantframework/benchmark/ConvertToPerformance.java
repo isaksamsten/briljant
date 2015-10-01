@@ -15,15 +15,16 @@ public class ConvertToPerformance {
 
 
   public static final int OPERATIONS_PER_INVOCATION = 1000_000;
-//
-//  @Benchmark
-//  public Object convertToDoublePerformance_IfChain() {
-//    Object object = null;
-//    for (int i = 0; i < OPERATIONS_PER_INVOCATION; i++) {
-//      object = Convert.to(Double.class, i);
-//    }
-//    return object;
-//  }
+
+  //
+  // @Benchmark
+  // public Object convertToDoublePerformance_IfChain() {
+  // Object object = null;
+  // for (int i = 0; i < OPERATIONS_PER_INVOCATION; i++) {
+  // object = Convert.to(Double.class, i);
+  // }
+  // return object;
+  // }
 
   @Benchmark
   public Object convertToDoublePerformance_Resolver() {

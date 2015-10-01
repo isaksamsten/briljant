@@ -1,29 +1,36 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array.base;
 
+
+import static org.briljantframework.array.Indexer.columnMajor;
+import static org.briljantframework.array.Indexer.rowMajor;
+
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
@@ -43,16 +50,6 @@ import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.statistics.FastStatistics;
 
-import java.util.AbstractList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
-
 /**
  * @author Isak Karlsson
  */
@@ -61,8 +58,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   protected static final double LOG_2 = Math.log(2);
   protected static final double EPS = 1e-10;
 
-  protected BaseArrayRoutines() {
-  }
+  protected BaseArrayRoutines() {}
 
   @Override
   public double mean(DoubleArray x) {
@@ -381,8 +377,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
-                   DoubleArray y) {
+  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y) {
     throw new UnsupportedOperationException();
   }
 
@@ -399,9 +394,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void gemm(Op transA, Op transB,
-                   double alpha, DoubleArray a, DoubleArray b,
-                   double beta, DoubleArray c) {
+  public void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b, double beta,
+      DoubleArray c) {
 
     int thisRows = a.rows();
     int thisCols = a.columns();
@@ -424,20 +418,20 @@ public class BaseArrayRoutines implements ArrayRoutines {
     int dk = a.size(transA == Op.KEEP ? 1 : 0);
     if (m != c.size(0) || n != c.size(1)) {
       throw new NonConformantException(String.format(
-          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)",
-          m, dk, dk, n, c.size(0), c.size(1)));
+          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n, c.size(0),
+          c.size(1)));
     }
 
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex = transA.isTrue() ?
-                          rowMajor(row, k, thisRows, thisCols) :
-                          columnMajor(0, row, k, thisRows, thisCols);
-          int otherIndex = transB.isTrue() ?
-                           rowMajor(k, col, otherRows, otherColumns) :
-                           columnMajor(0, k, col, otherRows, otherColumns);
+          int thisIndex =
+              transA.isTrue() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
+                  thisRows, thisCols);
+          int otherIndex =
+              transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
+                  otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
         c.set(row, col, alpha * sum + beta * c.get(row, col));
@@ -498,8 +492,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
         first = matrix;
         columns = first.columns();
       }
-      Check.argument(columns == matrix.columns(),
-                     "Can't vstack %s with %s.", matrix.getShape(), first.getShape());
+      Check.argument(columns == matrix.columns(), "Can't vstack %s with %s.", matrix.getShape(),
+          first.getShape());
       rows += matrix.rows();
     }
 
@@ -553,8 +547,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
         first = matrix;
         rows = first.rows();
       }
-      Check.argument(rows == matrix.rows(),
-                     "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
+      Check.argument(rows == matrix.rows(), "Can't hstack %s with %s.", matrix.getShape(),
+          first.getShape());
       columns += matrix.columns();
     }
     // First can't be null unless arrays contains null element

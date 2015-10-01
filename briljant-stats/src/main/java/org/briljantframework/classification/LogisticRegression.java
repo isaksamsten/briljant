@@ -1,28 +1,28 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.classification;
+
+import java.util.EnumSet;
+import java.util.Objects;
 
 import org.briljantframework.Bj;
 import org.briljantframework.Check;
@@ -39,18 +39,14 @@ import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
 
-import java.util.EnumSet;
-import java.util.Objects;
-
 /**
- * Logistic regression implemented using a quasi newton method based on
- * the limited memory BFGS.
+ * Logistic regression implemented using a quasi newton method based on the limited memory BFGS.
  *
- * <p>References:
+ * <p>
+ * References:
  * <ol>
  * <li>
- * Murphy, Kevin P. Machine learning: a probabilistic perspective. MIT press, 2012.
- * </li>
+ * Murphy, Kevin P. Machine learning: a probabilistic perspective. MIT press, 2012.</li>
  *
  * </ol>
  *
@@ -62,8 +58,8 @@ public class LogisticRegression implements Classifier {
   private final NonlinearOptimizer optimizer;
 
   private LogisticRegression(Builder builder) {
-    Check.argument(!Double.isNaN(builder.regularization) &&
-                   !Double.isInfinite(builder.regularization));
+    Check.argument(!Double.isNaN(builder.regularization)
+        && !Double.isInfinite(builder.regularization));
     this.regularization = builder.regularization;
     this.optimizer = Objects.requireNonNull(builder.optimizer);
   }
@@ -82,10 +78,8 @@ public class LogisticRegression implements Classifier {
 
   @Override
   public String toString() {
-    return "LogisticRegression{" +
-           "regularization=" + regularization +
-           ", optimizer=" + optimizer +
-           '}';
+    return "LogisticRegression{" + "regularization=" + regularization + ", optimizer=" + optimizer
+        + '}';
   }
 
   @Override
@@ -93,7 +87,7 @@ public class LogisticRegression implements Classifier {
     int n = df.rows();
     int m = df.columns();
     Check.argument(n == target.size(),
-                   "The number of training instances must equal the number of target");
+        "The number of training instances must equal the number of target");
     Vector classes = Vectors.unique(target);
     DoubleArray x = constructInputMatrix(df, n, m);
     IntArray y = Bj.intArray(target.size());
@@ -126,8 +120,8 @@ public class LogisticRegression implements Classifier {
       for (int j = 0; j < df.columns(); j++) {
         double v = df.loc().getAsDouble(i, j);
         if (Is.NA(v) || Double.isNaN(v)) {
-          throw new IllegalArgumentException(
-              String.format("Illegal input value at (%d, %d)", i, j - 1));
+          throw new IllegalArgumentException(String.format("Illegal input value at (%d, %d)", i,
+              j - 1));
         }
         x.set(i, j + 1, v);
       }
@@ -342,11 +336,11 @@ public class LogisticRegression implements Classifier {
     private final Vector names;
 
     /**
-     * If {@code getClasses().size()} is larger than {@code 2}, coefficients is a a 2d-array
-     * where each column is the coefficients for the the j:th class and the i:th feature.
+     * If {@code getClasses().size()} is larger than {@code 2}, coefficients is a a 2d-array where
+     * each column is the coefficients for the the j:th class and the i:th feature.
      *
-     * On the other hand, if {@code getClasses().size() <= 2}, coefficients is a 1d-array
-     * where each element is the coefficient for the i:th feature.
+     * On the other hand, if {@code getClasses().size() <= 2}, coefficients is a 1d-array where each
+     * element is the coefficient for the i:th feature.
      */
     private final DoubleArray coefficients;
     private final double logLoss;
@@ -429,10 +423,8 @@ public class LogisticRegression implements Classifier {
 
     @Override
     public String toString() {
-      return "LogisticRegression.Predictor{" +
-             "coefficients=" + coefficients +
-             ", logLoss=" + logLoss +
-             '}';
+      return "LogisticRegression.Predictor{" + "coefficients=" + coefficients + ", logLoss="
+          + logLoss + '}';
     }
   }
 

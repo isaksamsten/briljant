@@ -1,31 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.function.LongBiPredicate;
 
 import java.util.List;
 import java.util.function.DoubleToLongFunction;
@@ -39,6 +33,9 @@ import java.util.function.LongToIntFunction;
 import java.util.function.LongUnaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
+
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.function.LongBiPredicate;
 
 /**
  * Created by Isak Karlsson on 09/01/15.
@@ -58,8 +55,8 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
   void assign(long[] values);
 
   /**
-   * Assign value returned by {@link #size()} successive calls to {@link
-   * java.util.function.LongSupplier#getAsLong()}
+   * Assign value returned by {@link #size()} successive calls to
+   * {@link java.util.function.LongSupplier#getAsLong()}
    *
    * @param supplier the supplier
    * @return receiver modified
@@ -69,7 +66,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix   the matrix
+   * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -130,15 +127,14 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
   long reduce(long identity, LongBinaryOperator reduce);
 
   /**
-   * Reduces {@code this} longo a real value. For example, summing can be implemented as {@code
-   * matrix.reduce(0, (a, b) -> a + b, x -> x)}
+   * Reduces {@code this} longo a real value. For example, summing can be implemented as
+   * {@code matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
-   * The first value of {@code reduce} is the current value and the second value is the
-   * accumulator.
+   * The first value of {@code reduce} is the current value and the second value is the accumulator.
    *
    * @param identity the initial value
-   * @param reduce   takes two values and reduces them to one
-   * @param map      takes a value and possibly transforms it
+   * @param reduce takes two values and reduces them to one
+   * @param map takes a value and possibly transforms it
    * @return the result
    */
   long reduce(long identity, LongBinaryOperator reduce, LongUnaryOperator map);
@@ -190,8 +186,8 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))},
-   * but in one pass.
+   * {@code other} with {@code beta}. Hence, it computes
+   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this * other}
    * @param other the other matrix
@@ -202,9 +198,9 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
   /**
    * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
    *
-   * @param a     transpose for {@code this}
+   * @param a transpose for {@code this}
    * @param other the matrix
-   * @param b     transpose for {@code other}
+   * @param b transpose for {@code other}
    * @return a new matrix
    */
   LongArray mmul(Op a, LongArray other, Op b);
@@ -214,9 +210,9 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
    * scaling by {@code alpha} {@code beta}.
    *
    * @param alpha scaling factor for {@code this * other}
-   * @param a     transpose for {@code this}
+   * @param a transpose for {@code this}
    * @param other the matrix
-   * @param b     transpose for {@code other}
+   * @param b transpose for {@code other}
    * @return a new matrix
    */
   LongArray mmul(long alpha, Op a, LongArray other, Op b);
@@ -231,12 +227,11 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
-   * pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   LongArray mul(long alpha, LongArray other, long beta);
@@ -266,12 +261,12 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
   LongArray add(long scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with {@code
-   * beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   LongArray add(long alpha, LongArray other, long beta);
@@ -294,12 +289,11 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code
-   * beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
   LongArray sub(long alpha, LongArray other, long beta);

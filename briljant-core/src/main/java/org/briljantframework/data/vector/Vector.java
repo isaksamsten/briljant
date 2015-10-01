@@ -1,43 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.data.vector;
-
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.data.BoundType;
-import org.briljantframework.data.Collectors;
-import org.briljantframework.data.SortOrder;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.VectorLocationGetter;
-import org.briljantframework.data.index.VectorLocationSetter;
-import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.exceptions.IllegalTypeException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -58,22 +40,42 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
+import org.briljantframework.data.BoundType;
+import org.briljantframework.data.Collectors;
+import org.briljantframework.data.SortOrder;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.VectorLocationGetter;
+import org.briljantframework.data.index.VectorLocationSetter;
+import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.exceptions.IllegalTypeException;
+
 /**
- * <p> A vector is an homogeneous (i.e. with values of only one (sub)type) and immutable (i.e. the
- * contents cannot change) list/map (with O(1) location-based access and key-based access) of
- * values supporting missing entries (i.e. NA).
+ * <p>
+ * A vector is an homogeneous (i.e. with values of only one (sub)type) and immutable (i.e. the
+ * contents cannot change) list/map (with O(1) location-based access and key-based access) of values
+ * supporting missing entries (i.e. NA).
  *
- * <p> Since NA value are implemented differently depending value type, checking for NA-values are
- * done via the {@link #isNA(Object)} method or via the static {@link
- * org.briljantframework.data.Is#NA(java.lang.Object)}
- * method.
+ * <p/>
+ * Since NA value are implemented differently depending value type, checking for NA-values are done
+ * via the {@link #isNA(Object)} method or via the static
+ * {@link org.briljantframework.data.Is#NA(java.lang.Object)} method.
  *
- * <p> Implementers must ensure that:
+ * <p/>
+ * <strong>Note:</strong>
+ *
+ * <p>
+ * Implementers must ensure that:
  *
  * <ul>
  * <li>{@link #hashCode()} and {@link #equals(Object)} are based on the values and the index.</li>
- * <li>The vector cannot be changed, i.e. a vector cannot expose it's underlying
- * implementation and be mutated. This simplifies parallel algorithms.</li>
+ * <li>The vector cannot be changed, i.e. a vector cannot expose it's underlying implementation and
+ * be mutated. This simplifies parallel algorithms.</li>
  * </ul>
  *
  * @author Isak Karlsson
@@ -114,7 +116,7 @@ public interface Vector extends Serializable, Iterable<Object> {
    * Creates a vector with the specified value and size
    *
    * @param value the value
-   * @param size  the size of the vector
+   * @param size the size of the vector
    * @return a new vector
    */
   static Vector singleton(Object value, int size) {
@@ -143,11 +145,15 @@ public interface Vector extends Serializable, Iterable<Object> {
   /**
    * Creates a vector with the specified size consisting of the values given by the supplier
    *
-   * <pre>{@code
-   * Vector.Builder b;
-   * for(int i = 0; i < size; i++){
-   *   b.add(supplier.get());
-   * }}</pre>
+   * <pre>
+   * {
+   *   &#064;code
+   *   Vector.Builder b;
+   *   for (int i = 0; i &lt; size; i++) {
+   *     b.add(supplier.get());
+   *   }
+   * }
+   * </pre>
    */
   static Vector fromSupplier(Supplier<Object> supplier, int size) {
     if (size < 1) {
@@ -165,7 +171,9 @@ public interface Vector extends Serializable, Iterable<Object> {
    * Construct a new vector of truth values based on the supplied predicate.
    *
    * <p>
-   * <pre>{@code
+   * 
+   * <pre>
+   * {@code
    *  Vector a = ..;
    *  Vector b = ..;
    *  Vector.Builder builder = Vector.Builder.of(Boolean.class);
@@ -173,10 +181,11 @@ public interface Vector extends Serializable, Iterable<Object> {
    *     builder.add(predicate.test(a.get(cls, i), b.get(cls, i));
    *  }
    *  Vector c = builder.build();
-   * }</pre>
+   * }
+   * </pre>
    *
-   * @param cls       the type
-   * @param other     other vector
+   * @param cls the type
+   * @param other other vector
    * @param predicate the predicate to test
    * @return a new {@code BitVector} of values
    * @see #combine(Class, Class, Vector, java.util.function.BiFunction)
@@ -189,37 +198,45 @@ public interface Vector extends Serializable, Iterable<Object> {
    * Filter values in this vector, treating each value as {@code cls} (or NA), using the supplied
    * predicate.
    *
-   * @param <T>       the type
-   * @param cls       the class
+   * @param <T> the type
+   * @param cls the class
    * @param predicate the predicate
    * @return a new vector with only values for which {@code predicate} returns true
    */
   <T> Vector filter(Class<T> cls, Predicate<? super T> predicate);
 
   /**
-   * <p> Transform each value (as a value of T) in the vector using {@code operator}, producing a
-   * new vector with values of type {@code O}.
+   * <p>
+   * Transform each value (as a value of T) in the vector using {@code operator}, producing a new
+   * vector with values of type {@code O}.
    *
-   * <p> Example:
-   * <pre>{@code
+   * <p>
+   * Example:
+   * 
+   * <pre>
+   * {@code
    *  Random rand = new Random(123);
    *  > Vector a = Vector.of(rand::nextGaussian, 10);
    *  > Vector b = a.transform(Double.class, Long.class, Math::round);
    *  [-1, 1, 0, 0, 0, 0, 1, 0, 0, 1] type: long
-   * }</pre>
+   * }
+   * </pre>
    *
-   * <p> Please note that transformations can be implemented in terms of aggregation operations.
-   * For example, this method can be implemented as:
+   * <p>
+   * Please note that transformations can be implemented in terms of aggregation operations. For
+   * example, this method can be implemented as:
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    *  a.aggregate(in, Aggregates.transform(() -> Vec.typeOf(out).newBuilder, operator));
-   * }</pre>
+   * }
+   * </pre>
    *
-   * @param in       the input type (if the vector cannot coerce values to {@code T}, NA is used)
-   * @param out      the output type
+   * @param in the input type (if the vector cannot coerce values to {@code T}, NA is used)
+   * @param out the output type
    * @param operator the operator to apply
-   * @param <T>      the input type (i.e. the type of values stored in {@code this})
-   * @param <O>      the output type (i.e. the type of values in the resulting vector)
+   * @param <T> the input type (i.e. the type of values stored in {@code this})
+   * @param <O> the output type (i.e. the type of values in the resulting vector)
    * @return a new vector of type {@code O}
    */
   <T, O> Vector map(Class<T> in, Class<O> out, Function<? super T, ? extends O> operator);
@@ -228,8 +245,11 @@ public interface Vector extends Serializable, Iterable<Object> {
    * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
    * a new vector with the type inferred from the first value returned by {@code operator}.
    *
-   * <p> Example:
-   * <pre>{@code
+   * <p>
+   * Example:
+   * 
+   * <pre>
+   * {@code
    * > Random rand = new Random();
    * > Vector a = Vector.of(rand::nextGaussian, 3);
    * 0     -0.862
@@ -237,40 +257,48 @@ public interface Vector extends Serializable, Iterable<Object> {
    * 2     0.836
    * 3     0.196
    * 4     0.554
-   *
+   * 
    * > Vector b = a.map(Double.class, Math::round);
    * 0     -1.000
    * 1     1.000
    * 2     1.000
    * 3     1.000
    * 4     1.000
-   * }</pre>
+   * }
+   * </pre>
    *
-   * @param cls      the input type
+   * @param cls the input type
    * @param operator the operator
-   * @param <T>      the input type
+   * @param <T> the input type
    * @return a new vector of type inferred by {@code operator}
    */
   <T> Vector map(Class<T> cls, UnaryOperator<T> operator);
 
   /**
-   * Performs a mutable aggregation of the values in this vector, similar to {@linkplain
-   * Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its aggregation
-   * by mutating and adding values to an aggregation container such as a {@linkplain List list}.
+   * Performs a mutable aggregation of the values in this vector, similar to
+   * {@linkplain Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its
+   * aggregation by mutating and adding values to an aggregation container such as a
+   * {@linkplain List list}.
    *
-   * <p> The result produced is equivalent to:
+   * <p>
+   * The result produced is equivalent to:
    *
-   * <pre>{@code
-   * T container = collector.supplier();
-   * for(int i = 0; i < size(); i++) {
-   *  collector.accumulator().accept(container, get(in, i));
+   * <pre>
+   * {
+   *   &#064;code
+   *   T container = collector.supplier();
+   *   for (int i = 0; i &lt; size(); i++) {
+   *     collector.accumulator().accept(container, get(in, i));
+   *   }
+   *   return collector.finisher().apply(container);
    * }
-   * return collector.finisher().apply(container);
-   * }</pre>
+   * </pre>
    *
-   * <p> Example:
+   * <p>
+   * Example:
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * > RealDistribution normal = new NormalDistribution()
    * > Vector vector = Vector.of(normal::sample, 1000)
    * 0     -0.862
@@ -293,7 +321,7 @@ public interface Vector extends Serializable, Iterable<Object> {
    * 998   -0.856
    * 999   -0.055
    * type: double
-   *
+   * 
    * > double mean = vector.collect(Double.class, Aggregates.mean());
    * > Vector summary = vector.collect(Double.class, Aggregate.summary());
    * mean  0.029
@@ -304,15 +332,17 @@ public interface Vector extends Serializable, Iterable<Object> {
    * max   3.589
    * n     1000.000
    * type: double
-   * }</pre>
+   * }
+   * </pre>
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * > Vector names = Vector.of("Mary", "Bob", "Lisa");
    * 0  Mary
    * 1  Bob
    * 2  Lisa
    * type: string
-   *
+   * 
    * > names.collect(Collectors.repeat(2));
    * 0  Mary
    * 1  Bob
@@ -321,12 +351,13 @@ public interface Vector extends Serializable, Iterable<Object> {
    * 4  Bob
    * 5  Lisa
    * type: string
-   * }</pre>
+   * }
+   * </pre>
    *
-   * @param <T>       the type of the input value to the mutable aggregation
-   * @param <R>       the type of the mutable collector
-   * @param <C>       the type of the return type of the aggregation
-   * @param in        the input type
+   * @param <T> the type of the input value to the mutable aggregation
+   * @param <R> the type of the mutable collector
+   * @param <C> the type of the return type of the aggregation
+   * @param in the input type
    * @param collector the collector
    * @return a value of type {@code R} (i.e. the result of the aggregation)
    * @see java.util.stream.Collector
@@ -337,10 +368,10 @@ public interface Vector extends Serializable, Iterable<Object> {
   <R> R collect(Collector<? super Object, ?, R> collector);
 
   <T, R> Vector combine(Class<T> in, Class<R> out, Vector other,
-                        BiFunction<? super T, ? super T, ? extends R> combiner);
+      BiFunction<? super T, ? super T, ? extends R> combiner);
 
   <T> Vector combine(Class<T> cls, Vector other,
-                     BiFunction<? super T, ? super T, ? extends T> combiner);
+      BiFunction<? super T, ? super T, ? extends T> combiner);
 
   default Vector add(Vector other) {
     return combine(Object.class, other, Combine.add());
@@ -385,7 +416,8 @@ public interface Vector extends Serializable, Iterable<Object> {
   /**
    * Sort the vector in its <i>natural order</i> in ascending or descending order
    *
-   * <p> The sort order is specified by the implementation
+   * <p>
+   * The sort order is specified by the implementation
    *
    * @param order the specified order
    * @return the vector sorted
@@ -412,19 +444,23 @@ public interface Vector extends Serializable, Iterable<Object> {
   /**
    * Return a vector of the {@code n} first elements
    *
-   * <p> Example
-   * <pre>{@code
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * {@code
    * > Vector v = Vector.of(1, 2, 3, 4);
    * 0  1
    * 1  2
    * 2  3
    * 3  4
    * type: int
-   *
+   * 
    * > v.head(2);
    * 0  1
    * 1  2
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param n the first elements
    * @return the n first elements
@@ -433,19 +469,23 @@ public interface Vector extends Serializable, Iterable<Object> {
 
   /**
    * Returns a vector of the {@code n} last elements
-   * <p>Example
-   * <pre>{@code
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * {@code
    * > Vector v = Vector.of(1, 2, 3, 4);
    * 0  1
    * 1  2
    * 2  3
    * 3  4
-   *
+   * 
    * > v.tail(1);
    * 0  2
    * 1  3
    * 2  4
-   * }</pre>
+   * }
+   * </pre>
    */
   Vector tail(int n);
 
@@ -466,6 +506,8 @@ public interface Vector extends Serializable, Iterable<Object> {
   <T> T get(Class<T> cls, Object key);
 
   double getAsDouble(Object key);
+
+  double getAsDouble(Object key, double defaultValue);
 
   int getAsInt(Object key);
 
@@ -521,17 +563,20 @@ public interface Vector extends Serializable, Iterable<Object> {
   LongStream longStream();
 
   /**
-   * <p>Copies this vector to a {@link org.briljantframework.array.Array}. An appropriate
+   * <p>
+   * Copies this vector to a {@link org.briljantframework.array.Array}. An appropriate
    * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
    * preferred. For example, a {@link org.briljantframework.data.vector.DoubleVector} should return
-   * a
-   * {@link org.briljantframework.array.DoubleArray} implementation.
+   * a {@link org.briljantframework.array.DoubleArray} implementation.
    *
-   * <pre>{@code
-   * Vector a = new DoubleVector(1, 2, 3, 4, 5);
-   * DoubleMatrix mat = a.toArray(Double.class).asDouble();
-   * double sum = mat.reduce(0, Double::sum);
-   * }</pre>
+   * <pre>
+   * {
+   *   &#064;code
+   *   Vector a = new DoubleVector(1, 2, 3, 4, 5);
+   *   DoubleMatrix mat = a.toArray(Double.class).asDouble();
+   *   double sum = mat.reduce(0, Double::sum);
+   * }
+   * </pre>
    *
    * @return this vector as an {@linkplain org.briljantframework.array.Array array}
    */
@@ -602,10 +647,13 @@ public interface Vector extends Serializable, Iterable<Object> {
 
   /**
    * Return the number of unique elements in this vector.
-   * <pre>{@code
+   * 
+   * <pre>
+   * {@code
    * > Vector.of(1, 2, 1, 2).nunique()
    * 2
-   * }</pre>
+   * }
+   * </pre>
    *
    * @return the number of unique values
    */
@@ -616,12 +664,14 @@ public interface Vector extends Serializable, Iterable<Object> {
   /**
    * Return a vector of value and their counts.
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * > Vector.of(1, 1, 2, 2).valueCounts();
    * 1   2
    * 2   2
    * type: int
-   * }</pre>
+   * }
+   * </pre>
    *
    * @return a vector of value counts
    */
@@ -631,8 +681,7 @@ public interface Vector extends Serializable, Iterable<Object> {
 
   default <T extends Comparable<T>> T min(Class<T> cls) {
     return collect(cls, Collectors.withFinisher(
-        java.util.stream.Collectors.minBy(Comparable::compareTo),
-        Optional::get));
+        java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
   }
 
   /**
@@ -651,8 +700,8 @@ public interface Vector extends Serializable, Iterable<Object> {
   /**
    * Return an indexer that provides pure location based indexing.
    *
-   * <p> Location based indexing closely follows the indexing rules of other java containers such
-   * as
+   * <p>
+   * Location based indexing closely follows the indexing rules of other java containers such as
    * lists and arrays
    *
    * @return a location indexer
@@ -663,10 +712,12 @@ public interface Vector extends Serializable, Iterable<Object> {
    * Creates a new builder able to build new vectors of this type, initialized with the values in
    * this builder.
    *
-   * <pre>{@code
+   * <pre>
+   * {@code
    * Vector vec = vector.newCopyBuilder().add("Hello world")
    * assert vec.size() == vector.size() + 1
-   * assert vec.getAsString(0) == vector.getAsString(0)}</pre>
+   * assert vec.getAsString(0) == vector.getAsString(0)}
+   * </pre>
    *
    * @return a new builder
    */
@@ -695,19 +746,21 @@ public interface Vector extends Serializable, Iterable<Object> {
   <T> boolean all(Class<T> cls, Predicate<? super T> predicate);
 
   /**
-   * <p> Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if
-   * a builder is initialized with size {@code 8}, {@link #add(Object)} (et. al.) adds a value at
+   * <p>
+   * Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if a
+   * builder is initialized with size {@code 8}, {@link #add(Object)} (et. al.) adds a value at
    * index {@code 8} and indexes {@code 0-7} have the value {@code NA}. If the value at index
-   * {@code 11} is set, values {@code 9, 10} are set to {@code NA}. </p>
+   * {@code 11} is set, values {@code 9, 10} are set to {@code NA}.
+   * </p>
    *
-   * <p> When transferring values between vectors, prefer {@link #set(Object, Vector, int)} to
-   * {@link
-   * #set(Object, Object)}. For example, {@code Vector.Builder a; Vector b; a.set(0, b, 10)} sets
-   * the
-   * value of {@code a} at index {@code 0} to the value at index {@code 10} in {@code b}. This
-   * avoids unboxing values from one vector to another. For the numerical vectors, values are
-   * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or {@code
-   * Logical.TRUE} in a logical-vector. </p>
+   * <p>
+   * When transferring values between vectors, prefer {@link #set(Object, Vector, int)} to
+   * {@link #set(Object, Object)}. For example, {@code Vector.Builder a; Vector b; a.set(0, b, 10)}
+   * sets the value of {@code a} at index {@code 0} to the value at index {@code 10} in {@code b}.
+   * This avoids unboxing values from one vector to another. For the numerical vectors, values are
+   * coerced, e.g. {@code 1} from an int-vector becomes {@code 1.0} in a double vector or
+   * {@code Logical.TRUE} in a logical-vector.
+   * </p>
    */
   interface Builder {
 
@@ -725,7 +778,7 @@ public interface Vector extends Serializable, Iterable<Object> {
     /**
      * Construct a builder of the specified type and size filled with {@code NA}
      *
-     * @param cls  the type
+     * @param cls the type
      * @param size the size
      * @return a new builder with the specified size filled with {@code NA}
      */
@@ -756,7 +809,7 @@ public interface Vector extends Serializable, Iterable<Object> {
     /**
      * Same as {@code add(size(), from, fromIndex)}
      *
-     * @param from      the vector to take the value from
+     * @param from the vector to take the value from
      * @param fromIndex the index
      * @return a modified builder
      */
