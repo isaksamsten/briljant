@@ -37,11 +37,6 @@ public class ErrorRate extends AbstractMeasure {
     return "Error";
   }
 
-  @Override
-  public int compareTo(Measure other) {
-    return Double.compare(getMean(), other.getMean());
-  }
-
   public static class Builder extends AbstractMeasure.Builder<ErrorRate> {
 
     public Builder() {

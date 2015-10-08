@@ -19,43 +19,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.distance;
 
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.result.Sample;
+import org.briljantframework.shapelet.Shapelet;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 24/03/15.
  */
-public interface ClassMeasure {
+public class SlidingDistance implements Distance {
 
-  default Vector get(String value) {
-    return get(Sample.OUT, value);
+  private final Distance distanceMeasure;
+
+  public SlidingDistance(Euclidean instance) {
+    this.distanceMeasure = instance;
   }
 
-  Vector get(Sample sample, String value);
-
-  default double getAverage(String value) {
-    return getAverage(Sample.OUT, value);
+  @Override
+  public double compute(double a, double b) {
+    return 0;
   }
 
-  double getAverage(Sample sample, String value);
+  @Override
+  public double compute(Vector a, Vector b) {
+    double minDistance = Double.POSITIVE_INFINITY;
 
-  default double getStandardDeviation(String value) {
-    return getStandardDeviation(Sample.OUT, value);
+    // Assumed to be normalized!
+    Vector candidate = a.size() < b.size() ? a : b;
+    Vector vector = a.size() >= b.size() ? a : b;
+    for (int i = 0; i <= vector.size() - candidate.size(); i++) {
+      Shapelet subShapelet = new Shapelet(i, candidate.size(), vector);
+      double sumDistance = distanceMeasure.compute(candidate, subShapelet);
+      if (sumDistance < minDistance) {
+        minDistance = sumDistance;
+      }
+    }
+    return Math.sqrt(minDistance / candidate.size());
   }
 
-  double getStandardDeviation(Sample sample, String value);
-
-  default double getMin(String value) {
-    return getMin(Sample.OUT, value);
+  @Override
+  public double max() {
+    return 0;
   }
 
-  double getMin(Sample out, String value);
-
-  default double getMax(String value) {
-    return getMax(Sample.OUT, value);
+  @Override
+  public double min() {
+    return 0;
   }
-
-  double getMax(Sample out, String value);
 }

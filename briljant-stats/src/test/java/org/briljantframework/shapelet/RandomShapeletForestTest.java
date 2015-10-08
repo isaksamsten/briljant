@@ -35,8 +35,13 @@ import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.KNearestNeighbors;
 import org.briljantframework.classification.Predictor;
 import org.briljantframework.classification.RandomShapeletForest;
-import org.briljantframework.classification.ShapeletTree;
-import org.briljantframework.data.Collectors;
+import org.briljantframework.conformal.ConformalClassifier;
+import org.briljantframework.conformal.ConformalPredictor;
+import org.briljantframework.conformal.InductiveConformalClassifier;
+import org.briljantframework.conformal.Margin;
+import org.briljantframework.conformal.NonconformityLearner;
+import org.briljantframework.conformal.ProbabilityEstimateNonconformityLearner;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
@@ -51,6 +56,8 @@ import org.briljantframework.dataset.io.SequenceDatasetReader;
 import org.briljantframework.distance.EditDistance;
 import org.briljantframework.evaluation.Validator;
 import org.briljantframework.evaluation.Validators;
+import org.briljantframework.evaluation.partition.Partition;
+import org.briljantframework.evaluation.partition.SplitPartitioner;
 import org.briljantframework.evaluation.result.Evaluator;
 import org.briljantframework.evaluation.result.Result;
 import org.junit.Test;
@@ -228,13 +235,13 @@ public class RandomShapeletForestTest {
     // new FileInputStream(
     // "/Users/isak-kar/Downloads/dataset/Two_Patterns/Two_Patterns_TEST")));
 
-    String fileName = "MedicalImages";
-    String path = "/Users/isak-kar/Downloads/dataset2";
+    String fileName = "synthetic_control";
+    String path = "/Users/isak-kar/Downloads/dataset";
     DataFrame train =
-        Datasets.load(
+        DataFrames.permuteRecords(Datasets.load(
             (i) -> new DataSeriesCollection.Builder(double.class),
             new MatlabDatasetReader(new FileInputStream(String.format("%s/%s/%s_TRAIN", path,
-                fileName, fileName))));
+                fileName, fileName)))), new Random(123));
     DataFrame test =
         Datasets.load(
             (i) -> new DataSeriesCollection.Builder(double.class),
@@ -250,17 +257,40 @@ public class RandomShapeletForestTest {
     // System.out.println(train.getRecord(0).asList(Double.class).subList(1, 85));
     // System.out.println(train.drop(0).getRecord(0).asList(Double.class));
     // System.out.println(train.drop(0).columns());
-    Classifier rsf =
-        RandomShapeletForest.withSize(100).withAssessment(ShapeletTree.Assessment.IG)
-            .withInspectedShapelets(100).withUpperLength(1).build();
+    // Classifier rsf =
+    // RandomShapeletForest.withSize(100).withAssessment(ShapeletTree.Assessment.IG)
+    // .withInspectedShapelets(100).withUpperLength(1).build();
     // Classifier knn = KNearestNeighbors.withNeighbors(1).build();
-    // System.out.println(HoldoutValidator.withHoldout(test.drop(0), test.get(0))
-    // .test(classifier, train.drop(0), train.get(0))
+    // System.out.println(HoldoutValidator.withHoldout(test.drop(0), test.get(0)).test(knn,
+    // train.drop(0), train.get(0)).get(ErrorRate.class));
+
     // .getAverage(Accuracy.class));
+    // CBF = 0.3
+    // synthetic_control = 0.1
+    // Gun_Point = 0.3
+    // Mote_strain = 0.5
+    Partition trainPart =
+        new SplitPartitioner(0.1).partition(train.drop(0), train.get(0)).iterator().next();
+
+    // NonconformityLearner nc = new DistanceNonconformityLearner(1, new DynamicTimeWarping(-1));
+    NonconformityLearner nc =
+        new ProbabilityEstimateNonconformityLearner(RandomShapeletForest.withSize(100).build(),
+            new Margin());
+    ConformalClassifier classifier = new InductiveConformalClassifier(nc);
+    ConformalPredictor predictor =
+        classifier.fit(trainPart.getTrainingData(), trainPart.getTrainingTarget());
+    predictor.calibrate(trainPart.getValidationData(), trainPart.getValidationTarget());
+    //
     StringBuilder builder = new StringBuilder();
-    // testEarlyClassification(train, test, knn, fileName, "knn", builder);
+    testEarlyClassification(test, predictor,
+        RandomShapeletForest.withSize(100).build().fit(train.drop(0), train.get(0)), fileName,
+        "knn", builder);
+    // testEarlyClassification(test, predictor,
+    // new KNearestNeighbors(1).fit(train.drop(0), train.get(0)), fileName, "knn", builder);
+    // ArrayPrinter.setMinimumTruncateSize(1000000);
+    // System.out.println(predictor.estimate(test.drop(0)));
     // builder.append("\n");
-    testEarlyClassification(train, test, rsf, fileName, "rsf", builder);
+    // testEarlyClassification(train, test, rsf, fileName, "rsf", builder);
     // builder.append("\n");
     // builder.append("plot(knn_").append(fileName).append("[5:], 'g')").append("\n");
     // builder.append("plot(rsf_").append(fileName).append("[5:], 'g')").append("\n");
@@ -270,9 +300,9 @@ public class RandomShapeletForestTest {
 
   }
 
-  private void testEarlyClassification(DataFrame train, DataFrame test, Classifier classifier,
+  private void testEarlyClassification(DataFrame test, ConformalPredictor predictor, Predictor knn,
       String fileName, String variable, StringBuilder builder) {
-    Predictor predictor = classifier.fit(train.drop(0), train.get(0));
+    // Predictor predictor = classifier.fit(train.drop(0), train.get(0));
 
     // DoubleArray oobAccuracyPerLength = computeOobAccuracy(predictor, train.drop(0),
     // train.get(0));
@@ -280,6 +310,8 @@ public class RandomShapeletForestTest {
     Vector classes = predictor.getClasses();
     DataFrame xTest = test.drop(0);
     Vector yTest = test.get(0);
+
+
 
     IntArray decisionTime = Bj.intArray(xTest.rows());
     IntArray correctAt = Bj.intArray(xTest.columns());
@@ -292,26 +324,39 @@ public class RandomShapeletForestTest {
       Object trueLabel = yTest.loc().get(Object.class, i);
       boolean found = false;
       for (int j = 5; j < record.size() && !found; j++) {
-        DoubleArray estimation = predictor.estimate(record.select(0, j));
-        int max = Bj.argmax(estimation);
-        correctAt.addTo(j, classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0);
-        if (estimation.get(max) > 0.8) {
+        // TODO: the significance should be the lowest possible?
+        // CBF: 0.3 2/9 - 3/9
+        // synthetic_control = 0.07 2/30 <> 3/30
+        // Gun_Point = 0.2
+        // MoteStrain = 0.1
+        double significance = 0.07;
+        Object prediction = predictor.predict(record.select(0, j), significance);
+        // if(prediction)
+        // DoubleArray estimation = predictor.estimate(record.select(0, j));
+        // int max = Bj.argmax(estimation);
+        // correctAt.addTo(j, classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0);
+        if (!Is.NA(prediction)) {
+          System.out.println(i + " : " + j + " "
+              + predictor.conformalPredict(record.select(0, j), significance));
           decisionTime.set(i, j);
-          correct += classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0;
-          // found = true;
+          correct += Is.equal(prediction, trueLabel) ? 1 : 0;
+          found = true;
         }
       }
       if (!found) {
-        correct += predictor.predict(record).equals(trueLabel) ? 1 : 0;
+        correct += Is.equal(knn.predict(record), trueLabel) ? 1 : 0;
         decisionTime.set(i, record.size());
       }
     }
 
-    DoubleArray meanCorrectness = correctAt.asDouble().div(xTest.rows());
-    System.out.println(meanCorrectness.get(Bj.range(5, meanCorrectness.size()))
-        .collect(Collectors.statisticalSummary()).getMean());
-    builder.append(variable).append("_").append(fileName).append(" = ").append("np.")
-        .append(meanCorrectness);
+    System.out.println(correct / xTest.rows());
+    System.out.println(Bj.mean(decisionTime.get(Bj.range(5, xTest.rows())).asDouble())
+        / xTest.columns());
+    // DoubleArray meanCorrectness = correctAt.asDouble().div(xTest.rows());
+    // System.out.println(meanCorrectness.get(Bj.range(5, meanCorrectness.size()))
+    // .collect(Collectors.statisticalSummary()).getMean());
+    // builder.append(variable).append("_").append(fileName).append(" = ").append("np.")
+    // .append(meanCorrectness);
   }
 
 

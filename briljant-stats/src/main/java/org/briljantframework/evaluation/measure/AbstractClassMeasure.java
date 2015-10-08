@@ -32,7 +32,7 @@ import org.briljantframework.evaluation.result.Sample;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractClassMeasure extends AbstractMeasure implements ClassMeasure {
+public abstract class AbstractClassMeasure extends AbstractMeasure {
 
   protected final EnumMap<Sample, Map<Object, Vector>> valueForValue;
 
@@ -48,28 +48,23 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
     }
   }
 
-  @Override
   public Vector get(Sample sample, String value) {
     return valueForValue.get(sample).getOrDefault(value, naVector);
   }
 
-  @Override
   public double getAverage(Sample sample, String value) {
     return Vectors.mean(get(sample, value));
   }
 
-  @Override
   public double getStandardDeviation(Sample sample, String value) {
     double mean = getAverage(sample, value);
     return Vectors.std(get(sample, value), mean);
   }
 
-  @Override
   public double getMin(Sample sample, String value) {
     return get(sample, value).stream(Number.class).mapToDouble(Number::doubleValue).min().orElse(0);
   }
 
-  @Override
   public double getMax(Sample sample, String value) {
     return get(sample, value).stream(Number.class).mapToDouble(Number::doubleValue).min().orElse(0);
   }
@@ -84,14 +79,14 @@ public abstract class AbstractClassMeasure extends AbstractMeasure implements Cl
      * {@link #add(org.briljantframework.evaluation.result.Sample, double)}
      *
      * @param sample the sample
-     * @param values the values
+     * @param measurements the values
      */
-    public void add(Sample sample, Map<Object, Double> values) {
+    public void add(Sample sample, Vector measurements) {
       Map<Object, Vector.Builder> all =
           sampleMetricValues.computeIfAbsent(sample, x -> new HashMap<>());
-      for (Map.Entry<Object, Double> entry : values.entrySet()) {
-        all.computeIfAbsent(entry.getKey(), x -> Vector.Builder.of(Double.class)).add(
-            entry.getValue());
+      for (Object key : measurements) {
+        all.computeIfAbsent(key, x -> Vector.Builder.of(double.class)).add(
+            measurements.getAsDouble(key));
       }
       sampleMetricValues.put(sample, all);
     }

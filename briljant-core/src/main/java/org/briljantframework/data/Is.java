@@ -21,6 +21,8 @@
 
 package org.briljantframework.data;
 
+import java.util.Objects;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.data.vector.Vector;
 
@@ -36,11 +38,24 @@ public final class Is {
   }
 
   public static boolean nominal(Object value) {
-    return !(value instanceof Number);
+    return !numeric(value);
   }
 
   public static boolean nominal(Vector vector) {
     return !Number.class.isAssignableFrom(vector.getType().getDataClass());
+  }
+
+  public static boolean numeric(Object value) {
+    return value instanceof Number || value instanceof Complex;
+  }
+
+  public static boolean numeric(Vector v) {
+    return Number.class.isAssignableFrom(v.getType().getDataClass())
+        || Complex.class.isAssignableFrom(v.getType().getDataClass());
+  }
+
+  public static boolean equal(Object a, Object b) {
+    return Is.NA(a) && Is.NA(b) || Objects.equals(a, b);
   }
 
   /**

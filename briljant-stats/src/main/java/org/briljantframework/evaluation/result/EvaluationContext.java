@@ -92,7 +92,8 @@ public class EvaluationContext {
    * @return the probability estimations made by predictor; shape [no samples, domain]
    */
   public DoubleArray getEstimation(Sample sample) {
-    return sample == Sample.OUT ? estimation : getPredictor().estimate(
+    return (sample == Sample.OUT) ? estimation == null ? getPredictor().estimate(
+        getPartition().getValidationData()) : estimation : getPredictor().estimate(
         getPartition().getTrainingData());
   }
 

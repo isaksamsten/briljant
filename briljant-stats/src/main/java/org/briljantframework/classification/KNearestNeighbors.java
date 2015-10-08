@@ -60,6 +60,15 @@ public class KNearestNeighbors implements Classifier {
     this.distance = builder.distance;
   }
 
+  public KNearestNeighbors(int k) {
+    this(k, Euclidean.getInstance());
+  }
+
+  public KNearestNeighbors(int k, Distance distance) {
+    this.neighbors = k;
+    this.distance = distance;
+  }
+
   /**
    * Builder builder.
    *
@@ -179,6 +188,11 @@ public class KNearestNeighbors implements Classifier {
     public DoubleArray estimate(Vector record) {
       // Only 1nn
 
+      // DoubleArray distances = distance(record);
+      // IntArray order = Bj.order(distances);
+      //
+
+
       Object cls = null;
       double bestSoFar = Double.POSITIVE_INFINITY;
       for (int i = 0; i < x.rows(); i++) {
@@ -209,6 +223,32 @@ public class KNearestNeighbors implements Classifier {
     @Override
     public EnumSet<Characteristics> getCharacteristics() {
       return EnumSet.of(Characteristics.ESTIMATOR);
+    }
+
+    public DoubleArray distance(DataFrame x) {
+      int n = x.rows();
+      int m = this.x.rows();
+      DoubleArray distances = Bj.doubleArray(n, m);
+      for (int i = 0; i < n; i++) {
+        Vector ri = x.loc().getRecord(i);
+        for (int j = 0; j < m; j++) {
+          distances.set(i, j, this.distance.compute(ri, this.x.loc().getRecord(j)));
+        }
+      }
+      return distances;
+    }
+
+    public DoubleArray distance(Vector example) {
+      int n = x.rows();
+      DoubleArray distances = Bj.doubleArray(n);
+      for (int i = 0; i < n; i++) {
+        distances.set(i, this.distance.compute(example, x.loc().getRecord(i)));
+      }
+      return distances;
+    }
+
+    public Vector getTarget() {
+      return y;
     }
   }
 

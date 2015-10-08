@@ -64,6 +64,10 @@ public interface VectorLocationGetter {
    */
   <T> T get(Class<T> cls, int i);
 
+  default Object get(int i) {
+    return get(Object.class, i);
+  }
+
   /**
    * Get the value at the specified index. If the value is {@code NA}, the supplied default value is
    * returned.

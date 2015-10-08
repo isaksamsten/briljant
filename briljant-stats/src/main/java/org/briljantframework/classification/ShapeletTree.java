@@ -50,10 +50,10 @@ import org.briljantframework.data.dataseries.MeanAggregator;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
+import org.briljantframework.distance.EarlyAbandonSlidingDistance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.shapelet.ChannelShapelet;
 import org.briljantframework.shapelet.DerivetiveShapelet;
-import org.briljantframework.shapelet.EarlyAbandonSlidingDistance;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.statistics.FastStatistics;
@@ -171,12 +171,12 @@ public class ShapeletTree implements Classifier {
     // classes, node, new ShapeletTree.ShapletTreeVisitor(10, getDistanceMetric()),
     // params.lengthImportance, params.positionImportance, params.depth, classSet
     // );
-    // return new Predictor(
-    // classes, node, new WeightVisitor(getDistanceMetric()),
-    // params.lengthImportance, params.positionImportance, params.depth, classSet
-    // );
-    return new Predictor(classes, node, new OneNnVisitor(getDistanceMetric(), x, y),
-        params.lengthImportance, params.positionImportance, params.depth, classSet);
+     return new Predictor(
+     classes, node, new WeightVisitor(getDistanceMetric()),
+     params.lengthImportance, params.positionImportance, params.depth, classSet
+     );
+//    return new Predictor(classes, node, new OneNnVisitor(getDistanceMetric(), x, y),
+//        params.lengthImportance, params.positionImportance, params.depth, classSet);
     // return new Predictor(
     // classes, node, new GuessVisitor(getDistanceMetric()),
     // params.lengthImportance, params.positionImportance, params.depth, classSet

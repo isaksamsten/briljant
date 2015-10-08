@@ -22,41 +22,27 @@
 package org.briljantframework.regression;
 
 
-import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.AbstractPredictor;
-import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.linalg.LinearAlgebra;
 
 /**
- * Created by Isak Karlsson on 29/09/14.
+ * @author Isak Karlsson
  */
-public class LinearRegression implements Classifier {
+public class LinearRegression implements RegressionLearner {
 
-  private LinearRegression() {}
-
-  /**
-   * Create linear regression.
-   *
-   * @return the linear regression
-   */
-  public static LinearRegression create() {
-    return new LinearRegression();
-  }
+  public LinearRegression() {}
 
   @Override
-  public Model fit(DataFrame x, Vector y) {
-    Check.argument(x.rows() == y.size());
-    DoubleArray yMatrix = y.toDoubleArray();
-    return new Model(LinearAlgebra.leastLinearSquares(x.toDoubleArray(), yMatrix));
+  public Regressor fit(DoubleArray x, DoubleArray y) {
+    return new Model(LinearAlgebra.leastLinearSquares(x, y));
   }
 
   /**
    * The type Predictor.
    */
-  public static final class Model extends AbstractPredictor {
+  public static final class Model implements Regressor {
 
     private final DoubleArray theta;
 
@@ -66,7 +52,6 @@ public class LinearRegression implements Classifier {
      * @param theta the theta
      */
     public Model(DoubleArray theta) {
-      super(null);
       this.theta = theta;
     }
 
@@ -80,8 +65,13 @@ public class LinearRegression implements Classifier {
     }
 
     @Override
-    public DoubleArray estimate(Vector record) {
-      throw new UnsupportedOperationException();
+    public double predict(Vector y) {
+      return 0;
+    }
+
+    @Override
+    public Vector predict(DataFrame x) {
+      return null;
     }
   }
 }

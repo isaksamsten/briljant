@@ -57,6 +57,9 @@ public class DynamicTimeWarping implements Distance {
     this.constraint = constraint;
   }
 
+  public DynamicTimeWarping(int constraint) {
+    this(Euclidean.getInstance(), constraint);
+  }
 
   /**
    * Delegated to the injected distance function

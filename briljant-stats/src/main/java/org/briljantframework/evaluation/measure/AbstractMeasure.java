@@ -31,6 +31,45 @@ import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.result.Sample;
 
 /**
+ * Provides a complete implementation of the {@link Measure} interface to simplify the
+ * implementation of new evaluation measures.
+ * 
+ * <p/>
+ * For example, to create a new measure create a class with a single private constructor and a
+ * public internal class {@code Builder}, which acts as producer of said measure class.
+ * 
+ * <pre>
+ * class FooBar extends AbstractMeasure {
+ *   FooBar(AbstractMeasure.Builder&lt;FooBar&gt; builder) {
+ *     super(builder);
+ *   }
+ * 
+ *   public static final class Builder extends AbstractMeasure.Builder&lt;Accuracy&gt; {
+ * 
+ *     &#064;Override
+ *     public FooBar build() {
+ *       return new FooBar(this);
+ *     }
+ *   }
+ * }
+ * </pre>
+ * 
+ * Now, we can create a {@code Builder}
+ * 
+ * <pre>
+ *   FooBar.Builder b = new FooBar.Builder()
+ *   b.add(Sample.OUT, 10);
+ *   b.add(Sample.OUT, 10);
+ *   
+ *   FooBar f = b.build();
+ *   f.getMean(Sample.OUT); // 10
+ *   f.getStandardDeviation(Sample.OUT); // 0
+ * </pre>
+ * 
+ * Measures are usually attached to an
+ * {@link org.briljantframework.evaluation.result.EvaluationContext} to procude a
+ * {@link org.briljantframework.evaluation.result.Result}.
+ * 
  * @author Isak Karlsson
  */
 public abstract class AbstractMeasure implements Measure {
@@ -111,8 +150,8 @@ public abstract class AbstractMeasure implements Measure {
     }
 
     @Override
-    public void add(Sample sample, Map<Object, Double> values) {
-      add(sample, values.values().stream().mapToDouble(Double::doubleValue).average().orElse(0));
+    public void add(Sample sample, Vector measurements) {
+      add(sample, measurements.mean());
     }
 
     protected EnumMap<Sample, Double> computeMean() {

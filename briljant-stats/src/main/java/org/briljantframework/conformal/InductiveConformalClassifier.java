@@ -35,7 +35,15 @@ public class InductiveConformalClassifier implements ConformalClassifier {
    */
   public static class Predictor extends AbstractPredictor implements ConformalPredictor {
 
+    /**
+     * The nonconformity scores
+     */
     private final NonconformityScorer nonconformityScorer;
+
+    /**
+     * [no-calibration, 1] double array of nonconformity scores for the calibration set used to
+     * estimate the p-values when performing a conformal prediction
+     */
     private DoubleArray calibration;
 
     protected Predictor(NonconformityScorer nonconformityScorer, Vector classes) {
@@ -51,18 +59,18 @@ public class InductiveConformalClassifier implements ConformalClassifier {
 
     @Override
     public DoubleArray estimate(Vector example) {
-      Check.state(calibration != null, "conformal predictor must be calibrated");
-      DoubleArray pvalues = Bj.doubleArray(getClasses().size());
-      for (int i = 0; i < pvalues.size(); i++) {
+      Check.state(calibration != null, "the conformal predictor must be calibrated");
+      DoubleArray significance = Bj.doubleArray(getClasses().size());
+      for (int i = 0; i < significance.size(); i++) {
         Object trueClass = getClasses().loc().get(Object.class, i);
         double testNc = nonconformityScorer.nonconformity(example, trueClass);
         double nCal = calibration.size();
         double nGt = calibration.filter(score -> score > testNc).size();
         double nEq = calibration.filter(score -> score == testNc).size() + 1;
-        pvalues.set(i, nGt / (nCal + 1) + nEq / (nCal + 1));
+        significance.set(i, nGt / (nCal + 1) + nEq / (nCal + 1));
       }
 
-      return pvalues;
+      return significance;
     }
 
     @Override

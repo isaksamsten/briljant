@@ -67,7 +67,7 @@ public interface ConformalPredictor extends Predictor {
    */
   default Object predict(Vector record, double significance) {
     DoubleArray estimate = estimate(record);
-    if (estimate.filter(e -> e > significance).size() == 1) {
+    if (estimate.filter(v -> v > significance).size() == 1) {
       return getClasses().loc().get(Object.class, Bj.argmax(estimate));
     } else {
       return Na.of(Object.class);

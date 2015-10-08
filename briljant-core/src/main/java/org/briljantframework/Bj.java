@@ -28,6 +28,8 @@ import java.util.ServiceLoader;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
+import net.mintern.primitive.comparators.DoubleComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
@@ -1044,6 +1046,29 @@ public final class Bj {
   public static IntArray select(IntArray a, BooleanArray where, int replace) {
     Check.shape(a, where);
     return a.copy().assign(where, (b, i) -> b ? replace : i);
+  }
+
+  public static IntArray order(DoubleArray array, DoubleComparator cmp) {
+    IntArray order = Bj.range(array.size()).copy();
+    order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
+    return order;
+  }
+
+  public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
+    int vectors = array.vectors(dim);
+    IntArray order = intArray(array.getShape());
+    for (int i = 0; i < vectors; i++) {
+      order.setVector(dim, i, order(array.getVector(dim, i), cmp));
+    }
+    return order;
+  }
+
+  public static IntArray order(DoubleArray array) {
+    return order(array, Double::compare);
+  }
+
+  public static IntArray order(int dim, DoubleArray array) {
+    return order(dim, array, Double::compare);
   }
 
   public static DoubleArray cos(ComplexArray array) {

@@ -21,7 +21,7 @@
 
 package org.briljantframework.evaluation.result;
 
-import static org.briljantframework.evaluation.result.Measures.accuracy;
+import static org.briljantframework.evaluation.result.ClassificationMeasures.accuracy;
 
 import org.briljantframework.evaluation.measure.Accuracy;
 import org.briljantframework.evaluation.measure.ErrorRate;

@@ -19,12 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.shapelet;
+package org.briljantframework.distance;
 
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.distance.Distance;
-import org.briljantframework.distance.Euclidean;
+import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 
 /**
  * TODO(isak): make this work! Created by Isak Karlsson on 27/10/14.

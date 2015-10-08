@@ -19,52 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.shapelet;
+package org.briljantframework.regression;
 
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.distance.Distance;
-import org.briljantframework.distance.Euclidean;
 
 /**
- * Created by isak on 24/03/15.
+ * Created by isak on 29/05/15.
  */
-public class SlidingDistance implements Distance {
+public interface Regressor {
 
-  private final Distance distanceMeasure;
+  double predict(Vector y);
 
-  public SlidingDistance(Euclidean instance) {
-    this.distanceMeasure = instance;
-  }
+  Vector predict(DataFrame x);
 
-  @Override
-  public double compute(double a, double b) {
-    return 0;
-  }
-
-  @Override
-  public double compute(Vector a, Vector b) {
-    double minDistance = Double.POSITIVE_INFINITY;
-
-    // Assumed to be normalized!
-    Vector candidate = a.size() < b.size() ? a : b;
-    Vector vector = a.size() >= b.size() ? a : b;
-    for (int i = 0; i <= vector.size() - candidate.size(); i++) {
-      Shapelet subShapelet = Shapelet.create(i, candidate.size(), vector);
-      double sumDistance = distanceMeasure.compute(candidate, subShapelet);
-      if (sumDistance < minDistance) {
-        minDistance = sumDistance;
-      }
-    }
-    return Math.sqrt(minDistance / candidate.size());
-  }
-
-  @Override
-  public double max() {
-    return 0;
-  }
-
-  @Override
-  public double min() {
-    return 0;
-  }
 }

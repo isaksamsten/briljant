@@ -42,21 +42,23 @@ public class ProbabilityEvaluator implements Evaluator {
     }
     Vector actual = ctx.getPartition().getValidationTarget();
     Vector predicted = ctx.getPredictions(Sample.OUT);
-    Predictor predictor = ctx.getPredictor();
-
     DoubleArray probabilities = ctx.getEstimation(Sample.OUT);
-    Vector classes = predictor.getClasses();
 
-    Map<Object, Double> auc = Measures.auc(predicted, probabilities, actual, classes);
-    double brier = Measures.brier(predicted, probabilities, actual, classes);
+    Predictor predictor = ctx.getPredictor();
+    Vector classes = predictor.getClasses();
+    
+    Vector auc = ClassificationMeasures.areaUnderRocCurve(predicted, actual, probabilities, classes);
+    double brier = ClassificationMeasures.brier(predicted, actual, probabilities, classes);
     ctx.getOrDefault(AreaUnderCurve.class, AreaUnderCurve.Builder::new).add(Sample.OUT, auc);
 
     Map<Object, Integer> classDistribution = Vectors.count(actual);
     double averageAuc = 0;
-    for (Map.Entry<Object, Double> aucEntry : auc.entrySet()) {
-      if (classDistribution.containsKey(aucEntry.getKey())) {
-        int classCount = classDistribution.get(aucEntry.getKey());
-        averageAuc += aucEntry.getValue() * (classCount / (double) actual.size());
+    for (Object classKey : auc) {
+      if (classDistribution.containsKey(classKey)) {
+        int classCount = classDistribution.get(classKey);
+        averageAuc += auc.getAsDouble(classKey) * (classCount / (double) actual.size());
+      } else {
+        throw new IllegalStateException("Unexpected class " + classKey);
       }
     }
     ctx.get(AreaUnderCurve.class).add(Sample.OUT, averageAuc);

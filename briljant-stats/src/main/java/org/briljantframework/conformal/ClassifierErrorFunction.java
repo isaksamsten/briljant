@@ -21,10 +21,8 @@ public interface ClassifierErrorFunction {
         throw new IllegalArgumentException(String.format("Illegal class value: '%s' (not found)", y
             .loc().get(Object.class, i)));
       }
-      // double prob = predictions.get(i, yIndex);
-      // double maxProb = Bj.max(predictions.getRow(i));
-      // probabilities.set(i, 0.5 - (prob - maxProb) / 2);
-      probabilities.set(i, apply(predictions.getRow(i), y.loc().get(Object.class, i), classes));
+      double value = apply(predictions.getRow(i), y.loc().get(Object.class, i), classes);
+      probabilities.set(i, value);
     }
 
     return probabilities;

@@ -21,18 +21,13 @@
 
 package org.briljantframework.evaluation.measure;
 
-import java.util.Map;
-
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.result.Sample;
 
 /**
  * A measure is an immutable container of evaluation measures either produced in sample or out of
  * sample.
- *
- * <p>
- * Measures are produced
- *
+ * 
  * @author Isak Karlsson
  */
 public interface Measure extends Comparable<Measure> {
@@ -151,25 +146,13 @@ public interface Measure extends Comparable<Measure> {
    * Measures can be produced either in sample (denoted by {@link Sample#IN}) or out of sample
    * (denoted by {@link Sample#OUT})
    *
-   * @au
+   * @author Isak Karlsson
    */
   interface Builder<T extends Measure> {
-
-    /**
-     * Add a performance metric
-     *
-     * @param sample the sample
-     * @param measurement the measurement
-     */
     void add(Sample sample, double measurement);
 
-    void add(Sample sample, Map<Object, Double> values);
+    void add(Sample sample, Vector measurements);
 
-    /**
-     * Gets performance metric.
-     *
-     * @return the performance metric
-     */
     T build();
   }
 }
