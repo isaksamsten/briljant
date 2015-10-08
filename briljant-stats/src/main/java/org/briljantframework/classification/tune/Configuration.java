@@ -35,12 +35,12 @@ import org.briljantframework.evaluation.result.Result;
  */
 public class Configuration implements Comparable<Configuration> {
 
-  private final Classifier classifier;
+  private final Classifier.Learner classifier;
   private final Result result;
 
   private final Map<String, Object> parameters;
 
-  public Configuration(Classifier classifier, Result result, Map<String, Object> parameters) {
+  public Configuration(Classifier.Learner classifier, Result result, Map<String, Object> parameters) {
     this.classifier = classifier;
     this.result = result;
     this.parameters = parameters;
@@ -55,7 +55,7 @@ public class Configuration implements Comparable<Configuration> {
    *
    * @return the classifier
    */
-  public Classifier getClassifier() {
+  public Classifier.Learner getClassifier() {
     return classifier;
   }
 

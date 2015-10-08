@@ -21,8 +21,8 @@
 
 package org.briljantframework.linalg;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.linalg.decomposition.LuDecomposer;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
@@ -94,7 +94,7 @@ public class LinearAlgebra {
     Check.argument(matrix.isMatrix());
     double[] array = new double[matrix.size()];
     pinvi(matrix, array);
-    return Bj.array(array).reshape(matrix.columns(), matrix.rows());
+    return Arrays.of(array).reshape(matrix.columns(), matrix.rows());
   }
 
   /**

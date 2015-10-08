@@ -37,7 +37,7 @@ import org.briljantframework.evaluation.Validators;
 public class Tuners {
 
   @SafeVarargs
-  public static <C extends Classifier, O extends Classifier.Builder<? extends C>> Configurations crossValidation(
+  public static <C extends Classifier.Learner, O extends Classifier.Configurator<? extends C>> Configurations crossValidation(
       O builder, DataFrame x, Vector y, Comparator<Configuration> comparator, int folds,
       ParameterUpdater<O>... updaters) {
     Check.argument(updaters.length > 0, "Can't tune without updaters");

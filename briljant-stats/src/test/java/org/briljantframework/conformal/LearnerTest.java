@@ -1,8 +1,8 @@
 package org.briljantframework.conformal;
 
 import org.briljantframework.array.ArrayPrinter;
-import org.briljantframework.classification.KNearestNeighbors;
-import org.briljantframework.conformal.conformal.ConformalClassificationEvaluation;
+import org.briljantframework.classification.NearestNeighbours;
+import org.briljantframework.conformal.conformal.ConformalClassifierEvaluator;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
@@ -16,7 +16,7 @@ import org.junit.Test;
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class ConformalClassifierTest {
+public class LearnerTest {
 
   @Test
   public void testConformalPredictions() throws Exception {
@@ -31,7 +31,7 @@ public class ConformalClassifierTest {
     DataFrame x = sc.drop("0");
     Vector y = sc.get("0");
 
-    System.out.println(Validators.splitValidation(0.3).test(new KNearestNeighbors(1), x, y));
+    System.out.println(Validators.splitValidation(0.3).test(new NearestNeighbours.Learner(1), x, y));
 
     Partition train = new SplitPartitioner(0.66).partition(x, y).iterator().next();
     Partition test =
@@ -39,13 +39,14 @@ public class ConformalClassifierTest {
             .iterator().next();
 
     // RandomForest forest = RandomForest.withSize(100).build();
-    // ClassifierErrorFunction errorFunction = new Margin();
+    // ClassificationErrorFunction errorFunction = new Margin();
     // NonconformityLearner nc =
-    // new ProbabilityEstimateNonconformityLearner(RandomShapeletForest.withSize(100).build(),
+    // new ProbabilityEstimateNonconformity.Learner(RandomShapeletForest.withSize(100).build(),
     // errorFunction);
-    NonconformityLearner nc = new DistanceNonconformityLearner(1);
-    ConformalClassifier classifier = new InductiveConformalClassifier(nc);
-    ConformalPredictor predictor =
+    Nonconformity.Learner nc = new DistanceNonconformity.Learner(1);
+    ConformalClassifier.Learner
+        classifier = new InductiveConformalClassifier.Learner(nc);
+    ConformalClassifier predictor =
         classifier.fit(train.getTrainingData(), train.getTrainingTarget());
     predictor.calibrate(test.getTrainingData(), test.getTrainingTarget());
     //
@@ -58,7 +59,7 @@ public class ConformalClassifierTest {
     context.setPartition(test);
     context.setPredictor(predictor);
 
-    new ConformalClassificationEvaluation(0.05).accept(context);
+    new ConformalClassifierEvaluator(0.05).accept(context);
     System.out.println(context.getMeasures().get(0).getMean());
 
     Vector testY = test.getValidationTarget();

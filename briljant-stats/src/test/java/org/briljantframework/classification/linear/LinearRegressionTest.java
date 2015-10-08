@@ -33,7 +33,7 @@ public class LinearRegressionTest {
     // container = Transformers.removeIncompleteCases(container);
     //
     // LinearRegression lr = LinearRegression.create();
-    // LinearRegression.Predictor lrModel = lr.fit(container);
+    // LinearRegression.Classifier lrModel = lr.fit(container);
     // int index = 49;
     // for (int i = 0; i < container.rows(); i++) {
     // System.out.println(i + " == " + lrModel.predict(container.getDataset().getEntry(i)) + " " +

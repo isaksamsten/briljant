@@ -380,7 +380,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public int reduce(int identity, IntBinaryOperator reduce, IntUnaryOperator map) {
-    for (int i = 0; i < size(); i++) {
+    for (int i = 0, size = size(); i < size; i++) {
       identity = reduce.applyAsInt(map.applyAsInt(get(i)), identity);
     }
     return identity;

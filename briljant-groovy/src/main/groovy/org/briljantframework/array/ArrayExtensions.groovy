@@ -23,9 +23,6 @@
  */
 
 package org.briljantframework.array
-
-import org.briljantframework.Bj
-
 /**
  * Created by isak on 03/06/15.
  * TODO: fix me!
@@ -58,7 +55,7 @@ class ArrayExtensions {
   }
 
   static <T extends BaseArray<T>> T get(T self, IntRange[] ranges) {
-    return self.get(ranges.collect {IntRange it -> Bj.range(it.fromInt, it.toInt)} as Range[])
+    return self.get(ranges.collect {IntRange it -> Arrays.range(it.fromInt, it.toInt)} as Range[])
   }
 
   static DoubleArray power(DoubleArray self, double power) {

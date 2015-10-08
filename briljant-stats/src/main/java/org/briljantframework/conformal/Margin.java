@@ -10,7 +10,7 @@ import org.briljantframework.data.vector.Vectors;
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class Margin implements ClassifierErrorFunction {
+public class Margin implements ClassificationErrorFunction {
 
   @Override
   public double apply(DoubleArray prediction, Object label, Vector classes) {

@@ -21,12 +21,10 @@
 
 package org.briljantframework.data.vector;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import org.briljantframework.ArrayUtils;
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -37,6 +35,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
 import org.briljantframework.exceptions.IllegalTypeException;
+import org.briljantframework.primitive.ArrayAllocations;
 
 /**
  * @author Isak Karlsson
@@ -56,7 +55,7 @@ class IntVector extends AbstractVector implements Transferable {
 
   private IntVector(int[] values, int size, boolean safe) {
     if (safe) {
-      this.buffer = Arrays.copyOf(values, size);
+      this.buffer = java.util.Arrays.copyOf(values, size);
     } else {
       this.buffer = values;
     }
@@ -119,7 +118,7 @@ class IntVector extends AbstractVector implements Transferable {
 
   @Override
   public IntArray toIntArray() throws IllegalTypeException {
-    return Bj.array(Arrays.copyOf(buffer, size()));
+    return Arrays.of(java.util.Arrays.copyOf(buffer, size()));
   }
 
   @Override
@@ -185,7 +184,7 @@ class IntVector extends AbstractVector implements Transferable {
 
   @Override
   public final IntStream intStream() {
-    return Arrays.stream(buffer, 0, size());
+    return java.util.Arrays.stream(buffer, 0, size());
   }
 
   static final class Builder extends AbstractBuilder {
@@ -212,7 +211,7 @@ class IntVector extends AbstractVector implements Transferable {
     private Builder(IntVector vector) {
       super(getIndexer(vector));
       this.size = vector.size;
-      this.buffer = Arrays.copyOf(vector.buffer, vector.size);
+      this.buffer = java.util.Arrays.copyOf(vector.buffer, vector.size);
     }
 
     private static Index.Builder getIndexer(IntVector vector) {
@@ -353,7 +352,7 @@ class IntVector extends AbstractVector implements Transferable {
       rangeCheck(a);
       rangeCheck(b);
       Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
-      ArrayUtils.swap(buffer, a, b);
+      ArrayAllocations.swap(buffer, a, b);
     }
 
     @Override
@@ -416,7 +415,7 @@ class IntVector extends AbstractVector implements Transferable {
         newCapacity = hugeCapacity(minCapacity);
       }
       // minCapacity is usually close to size, so this is a win:
-      buffer = Arrays.copyOf(buffer, newCapacity);
+      buffer = java.util.Arrays.copyOf(buffer, newCapacity);
     }
 
     /**

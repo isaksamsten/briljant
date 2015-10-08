@@ -21,7 +21,7 @@
 
 package org.briljantframework.optimize;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 
 /**
@@ -54,12 +54,12 @@ public class BacktrackingLineSearch {
   public double optimize(MultivariateFunction function, DoubleArray xold, double fold,
       DoubleArray g, DoubleArray p, DoubleArray x, double maxStepSize) {
     int n = xold.size();
-    double pnorm = Bj.norm2(p);
+    double pnorm = Arrays.norm2(p);
     if (pnorm > maxStepSize) {
       double r = maxStepSize / pnorm;
-      Bj.scal(r, p);
+      Arrays.scal(r, p);
     }
-    double slope = Bj.dot(g, p);
+    double slope = Arrays.dot(g, p);
     if (slope >= 0) {
       return Double.NaN;
     }
@@ -84,7 +84,7 @@ public class BacktrackingLineSearch {
       double f = function.cost(x);
 
       if (alam < minScale) {
-        Bj.copy(xold, x);
+        Arrays.copy(xold, x);
         return alam;
       } else if (f <= fold + DECREASE_FRACTION * alam * slope) {
         return f;

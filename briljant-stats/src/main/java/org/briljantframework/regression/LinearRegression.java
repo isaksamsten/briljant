@@ -35,19 +35,19 @@ public class LinearRegression implements RegressionLearner {
   public LinearRegression() {}
 
   @Override
-  public Regressor fit(DoubleArray x, DoubleArray y) {
+  public Regression fit(DoubleArray x, DoubleArray y) {
     return new Model(LinearAlgebra.leastLinearSquares(x, y));
   }
 
   /**
-   * The type Predictor.
+   * The type Classifier.
    */
-  public static final class Model implements Regressor {
+  public static final class Model implements Regression {
 
     private final DoubleArray theta;
 
     /**
-     * Instantiates a new Predictor.
+     * Instantiates a new Classifier.
      *
      * @param theta the theta
      */

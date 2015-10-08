@@ -23,7 +23,7 @@ package org.briljantframework.distance;
 
 import java.util.function.DoubleSupplier;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
 
@@ -56,9 +56,9 @@ public class EditDistance implements Distance {
       }
     };
 
-    DoubleArray previousRow = Bj.doubleArray(b.size() + 1).assign(iter);
+    DoubleArray previousRow = Arrays.doubleArray(b.size() + 1).assign(iter);
     for (int i = 0; i < a.size(); i++) {
-      DoubleArray currentRow = Bj.doubleArray(b.size() + 1);
+      DoubleArray currentRow = Arrays.doubleArray(b.size() + 1);
       currentRow.set(0, i + 1);
       for (int j = 0; j < b.size(); j++) {
         double insert = previousRow.get(j + 1) + 1;

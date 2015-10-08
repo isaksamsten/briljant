@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
@@ -43,7 +43,7 @@ public class JoinUtils {
    * @return retVal[0] := indexer, retVal[1] := counts
    */
   public static IntArray[] groupSortIndexer(IntArray index, int maxGroups) {
-    IntArray counts = Bj.intArray(maxGroups + 1);
+    IntArray counts = Arrays.intArray(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
       int idx = index.get(i) + 1;
@@ -55,7 +55,7 @@ public class JoinUtils {
       where[i] = where[i - 1] + counts.get(i - 1);
     }
 
-    IntArray results = Bj.intArray(n);
+    IntArray results = Arrays.intArray(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
       results.set(where[label], i);
@@ -135,7 +135,7 @@ public class JoinUtils {
       }
     }
 
-    return new JoinKeys(Bj.array(left), Bj.array(right), pool.size());
+    return new JoinKeys(Arrays.of(left), Arrays.of(right), pool.size());
   }
 
   public static JoinKeys createJoinKeys(Index a, Index b) {

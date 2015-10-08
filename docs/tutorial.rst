@@ -250,7 +250,7 @@ The array
 ---------
 
 There are several ways to create matrices, of which most are implemented
-in the ``org.briljantframework.Bj`` class. For example, matrices can be
+in the ``org.briljantframework.array.Arrays`` class. For example, matrices can be
 created from one and two dimensional arrays. The factory methods in
 ``Bj`` is delegated to an instance of
 ``org.briljantframework.matrix.api.MatrixFactory`` and decided based on

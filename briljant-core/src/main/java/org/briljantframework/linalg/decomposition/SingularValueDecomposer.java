@@ -21,7 +21,7 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 
 /**
@@ -39,11 +39,11 @@ public class SingularValueDecomposer {
 
   public SingularValueDecomposition decompose(DoubleArray x) {
     int m = x.rows(), n = x.columns();
-    DoubleArray s = Bj.doubleArray(n);
-    DoubleArray u = Bj.doubleArray(m, m);
-    DoubleArray vt = Bj.doubleArray(n, n);
+    DoubleArray s = Arrays.doubleArray(n);
+    DoubleArray u = Arrays.doubleArray(m, m);
+    DoubleArray vt = Arrays.doubleArray(n, n);
     DoubleArray a = x.copy();
-    Bj.linalg.gesvd('a', 'a', a, s, u, vt);
+    Arrays.linalg.gesvd('a', 'a', a, s, u, vt);
     return new SingularValueDecomposition(s, u, vt);
   }
 }

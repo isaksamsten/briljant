@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -117,7 +117,7 @@ public class SymbolicAggregator implements Aggregator {
     double prob = 1.0 / alphabet.size();
     int length = alphabet.size() - 1;
     RealDistribution distribution = new NormalDistribution(0, 1);
-    DoubleArray array = Bj.linspace(prob, 1.0 - prob, length);
+    DoubleArray array = Arrays.linspace(prob, 1.0 - prob, length);
     array.map(distribution::inverseCumulativeProbability);
     return array;
   }

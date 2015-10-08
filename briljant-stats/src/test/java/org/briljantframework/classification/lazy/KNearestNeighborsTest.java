@@ -21,7 +21,7 @@
 
 package org.briljantframework.classification.lazy;
 
-import org.briljantframework.classification.KNearestNeighbors;
+import org.briljantframework.classification.NearestNeighbours;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
@@ -36,9 +36,8 @@ public class KNearestNeighborsTest {
 
   @Test
   public void testClassifier() throws Exception {
-    KNearestNeighbors oneNearestNeighbours =
-        KNearestNeighbors.withNeighbors(1)
-            .withDistance(new DynamicTimeWarping(Euclidean.getInstance(), 3)).build();
+    NearestNeighbours.Learner oneNearestNeighbours =
+        new NearestNeighbours.Learner(1, new DynamicTimeWarping(Euclidean.getInstance(), 3));
 
     DataFrame iris = DataFrames.dropIncompleteCases(Datasets.loadIris());
     Vector y = iris.get(4);
@@ -52,7 +51,7 @@ public class KNearestNeighborsTest {
     // Frame.FACTORY, DefaultTarget.FACTORY);
 
     // System.out.println(train);
-    // KNearestNeighbors.Predictor model = oneNearestNeighbours.fit(train);
+    // KNearestNeighbors.Classifier model = oneNearestNeighbours.fit(train);
     // Result result = Evaluators.holdOutValidation(oneNearestNeighbours, train, test);
     // System.out.println(result);
     //
@@ -84,13 +83,13 @@ public class KNearestNeighborsTest {
     // .create();
     //
     // long start = System.currentTimeMillis();
-    // Ensemble.Predictor<Frame> model2 = ensemble.fit(train);
+    // Ensemble.Classifier<Frame> model2 = ensemble.fit(train);
     // System.out.println("Fit: " + ((System.currentTimeMillis() - start) / 1000) + " seconds");
     //
     //
     // Ensemble<Dataset> ensemble1 = Ensemble.withMember(DecisionTree.withSplitter(RandomSplitter
     // .withMaximumFeatures(2))).setRandomizer(Bootstrap.create()).create();
-    // Ensemble.Predictor<Dataset> model2 = ensemble1.fit(train);
+    // Ensemble.Classifier<Dataset> model2 = ensemble1.fit(train);
     // start = System.currentTimeMillis();
     // Predictions predictions = model2.predict(test.getDataset());
     // System.out.println("Predict: " + ((System.currentTimeMillis() - start) / 1000) + " seconds");

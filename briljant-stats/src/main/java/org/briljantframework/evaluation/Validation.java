@@ -23,7 +23,6 @@ package org.briljantframework.evaluation;
 
 import org.briljantframework.Check;
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Predictor;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.result.Result;
@@ -35,23 +34,23 @@ public final class Validation {
 
   private Validation() {}
 
-  public static Result test(Predictor predictor, DataFrame xTrain, Vector yTrain, DataFrame xTest,
+  public static Result test(Classifier classifier, DataFrame xTrain, Vector yTrain, DataFrame xTest,
       Vector yTest) {
     Check.size(xTrain.rows(), yTrain.size());
-    return HoldoutValidator.withHoldout(xTest, yTest).evaluate(predictor, xTrain, yTrain);
+    return HoldoutValidator.withHoldout(xTest, yTest).evaluate(classifier, xTrain, yTrain);
   }
 
-  public static Result cv(int folds, Classifier c, DataFrame x, Vector y) {
+  public static Result cv(int folds, Classifier.Learner c, DataFrame x, Vector y) {
     Check.size(x.rows(), y.size());
     return Validators.crossValidation(folds).test(c, x, y);
   }
 
-  public static Result loocv(Classifier c, DataFrame x, Vector y) {
+  public static Result loocv(Classifier.Learner c, DataFrame x, Vector y) {
     Check.size(x.rows(), y.size());
     return Validators.leaveOneOutValidation().test(c, x, y);
   }
 
-  public static Result split(double testFraction, Classifier c, DataFrame x, Vector y) {
+  public static Result split(double testFraction, Classifier.Learner c, DataFrame x, Vector y) {
     Check.size(x.rows(), y.size());
     return Validators.splitValidation(testFraction).test(c, x, y);
   }

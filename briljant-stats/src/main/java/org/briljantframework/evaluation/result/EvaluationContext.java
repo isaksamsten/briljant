@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.Predictor;
+import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.measure.Measure;
@@ -43,7 +43,7 @@ public class EvaluationContext {
   private final HashMap<Class<?>, Measure.Builder<?>> builders = new HashMap<>();
 
   private Vector predictions;
-  private Predictor predictor;
+  private Classifier classifier;
   private Partition partition;
   private DoubleArray estimation;
 
@@ -85,11 +85,11 @@ public class EvaluationContext {
   }
 
   /**
-   * If the predictor returned by {@link #getPredictor()} has the
-   * {@link org.briljantframework.classification.Predictor.Characteristics#ESTIMATOR} characteristic
+   * If the classifier returned by {@link #getPredictor()} has the
+   * {@link Classifier.Characteristics#ESTIMATOR} characteristic
    *
    * @param sample the sample
-   * @return the probability estimations made by predictor; shape [no samples, domain]
+   * @return the probability estimations made by classifier; shape [no samples, domain]
    */
   public DoubleArray getEstimation(Sample sample) {
     return (sample == Sample.OUT) ? estimation == null ? getPredictor().estimate(
@@ -98,16 +98,16 @@ public class EvaluationContext {
   }
 
   /**
-   * Returns the evaluated predictor
+   * Returns the evaluated classifier
    *
-   * @return the predictor under evaluation
+   * @return the classifier under evaluation
    */
-  public Predictor getPredictor() {
-    return predictor;
+  public Classifier getPredictor() {
+    return classifier;
   }
 
-  public void setPredictor(Predictor predictor) {
-    this.predictor = Objects.requireNonNull(predictor);
+  public void setPredictor(Classifier classifier) {
+    this.classifier = Objects.requireNonNull(classifier);
   }
 
   /**

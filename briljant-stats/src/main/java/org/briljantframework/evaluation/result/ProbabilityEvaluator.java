@@ -24,7 +24,7 @@ package org.briljantframework.evaluation.result;
 import java.util.Map;
 
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.Predictor;
+import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.measure.AreaUnderCurve;
@@ -37,15 +37,15 @@ public class ProbabilityEvaluator implements Evaluator {
 
   @Override
   public void accept(EvaluationContext ctx) {
-    if (!ctx.getPredictor().getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
+    if (!ctx.getPredictor().getCharacteristics().contains(Classifier.Characteristics.ESTIMATOR)) {
       return;
     }
     Vector actual = ctx.getPartition().getValidationTarget();
     Vector predicted = ctx.getPredictions(Sample.OUT);
     DoubleArray probabilities = ctx.getEstimation(Sample.OUT);
 
-    Predictor predictor = ctx.getPredictor();
-    Vector classes = predictor.getClasses();
+    Classifier classifier = ctx.getPredictor();
+    Vector classes = classifier.getClasses();
     
     Vector auc = ClassificationMeasures.areaUnderRocCurve(predicted, actual, probabilities, classes);
     double brier = ClassificationMeasures.brier(predicted, actual, probabilities, classes);

@@ -19,23 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.classification;
+package org.briljantframework.regression;
 
-import java.util.List;
-
-import org.briljantframework.array.BooleanArray;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 29/05/15.
  */
-public interface EnsemblePredictor extends Predictor {
-  /**
-   * Shape = {@code [no training samples, no members]}, if element e<sup>i,j</sup> is {@code true}
-   * the i:th training sample is out of the j:th members training sample.
-   *
-   * @return the out of bag indicator matrix
-   */
-  BooleanArray getOobIndicator();
+public interface Regression {
 
-  List<Predictor> getPredictors();
+  double predict(Vector y);
+
+  Vector predict(DataFrame x);
+
 }

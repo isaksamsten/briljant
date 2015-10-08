@@ -240,7 +240,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     bjr.min(array) == min
 
     where:
-    array                                        | min   | max
+    of                                        | min   | max
     bj.array("aaaa", "a", "ssda", "dsa")         | "a"   | "ssda"
     bj.array([0.1, 0.0001, -1, -23] as double[]) | -23.0 | 0.1
     bj.array([1, 2, 3, 4, 5, -2] as int[])       | -2    | 5
@@ -252,7 +252,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     bjr.sort(array) == sorted
 
     where:
-    array                        | sorted
+    of                        | sorted
     bj.array("a", "c", "b", "d") | bj.array("a", "b", "c", "d")
   }
 

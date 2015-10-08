@@ -23,7 +23,6 @@ package org.briljantframework.data.dataframe;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,9 +40,9 @@ import java.util.stream.Collector;
 
 import net.mintern.primitive.comparators.IntComparator;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
@@ -170,7 +169,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame join(JoinType type, DataFrame other, Object... keys) {
-    return doJoin(type, other, Arrays.asList(keys));
+    return doJoin(type, other, java.util.Arrays.asList(keys));
   }
 
   private DataFrame doJoin(JoinType type, DataFrame other, Collection<Object> columns) {
@@ -545,7 +544,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final Array<Object> toArray() {
-    Array<Object> matrix = Bj.referenceArray(rows(), columns());
+    Array<Object> matrix = Arrays.referenceArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAt(Object.class, i, j));
@@ -556,7 +555,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DoubleArray toDoubleArray() {
-    DoubleArray matrix = Bj.doubleArray(rows(), columns());
+    DoubleArray matrix = Arrays.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDoubleAt(i, j));
@@ -756,12 +755,12 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return a new data frame as created by {@link #newBuilder()}
    */
   protected DataFrame dropAt(int[] indexes) {
-    Arrays.sort(indexes);
+    java.util.Arrays.sort(indexes);
 
     Builder builder = newBuilder();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
-      if (Arrays.binarySearch(indexes, i) < 0) {
+      if (java.util.Arrays.binarySearch(indexes, i) < 0) {
         columnIndex.add(getColumnIndex().getKey(i));
         builder.add(Vectors.transferableBuilder(getAt(i)));
       }

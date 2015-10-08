@@ -22,7 +22,7 @@
 package org.briljantframework.classification.tree;
 
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.AbstractPredictor;
+import org.briljantframework.classification.AbstractClassifier;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -31,19 +31,19 @@ import org.briljantframework.data.vector.Vector;
  * 
  * @author Isak Karlsson
  */
-public class TreePredictor<T> extends AbstractPredictor {
+public class TreeClassifier<T> extends AbstractClassifier {
 
   private final TreeVisitor<T> predictionVisitor;
 
   private final TreeNode<T> node;
 
   /**
-   * Instantiates a new Predictor.
+   * Instantiates a new Classifier.
    *
    * @param node the node
    * @param predictionVisitor the prediction visitor
    */
-  protected TreePredictor(Vector classes, TreeNode<T> node, TreeVisitor<T> predictionVisitor) {
+  protected TreeClassifier(Vector classes, TreeNode<T> node, TreeVisitor<T> predictionVisitor) {
     super(classes);
     this.node = node;
     this.predictionVisitor = predictionVisitor;
@@ -61,7 +61,7 @@ public class TreePredictor<T> extends AbstractPredictor {
   @Override
   public DoubleArray estimate(Vector record) {
     DoubleArray probabilities = predictionVisitor.visit(node, record);
-    // int max = Bj.argmax(probabilities);
+    // int max = Arrays.argmax(probabilities);
     // for (int i = 0; i < probabilities.size(); i++) {
     // probabilities.set(i, max == i ? 1 : 0);
     // }

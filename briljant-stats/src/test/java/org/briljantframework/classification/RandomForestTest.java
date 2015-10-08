@@ -23,7 +23,7 @@ package org.briljantframework.classification;
 
 import java.util.List;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
@@ -44,10 +44,11 @@ public class RandomForestTest {
     Vector y = iris.get("Class");
 
     System.out.println(x);
-    IntArray f = Bj.array(new int[] {10, 2, 3});
+    IntArray f = Arrays.of(new int[] {10, 2, 3});
     for (int i = 0; i < f.size(); i++) {
       long start = System.nanoTime();
-      RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(f.get(i)).build();
+      RandomForest.Learner forest =
+          new RandomForest.Configurator(100).setMaximumFeatures(f.get(i)).configure();
       List<Evaluator> evaluators = Evaluator.getDefaultClassificationEvaluators();
       Result result = Validators.crossValidation(evaluators, 10).test(forest, x, y);
       System.out.println((System.nanoTime() - start) / 1e6);

@@ -21,8 +21,8 @@
 
 package org.briljantframework.optimize;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 
 /**
@@ -49,14 +49,14 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   @Override
   public double optimize(DifferentialFunction function, DoubleArray x) {
     int n = x.size();
-    DoubleArray currentSolution = Bj.doubleArray(n);
-    DoubleArray currentGradient = Bj.doubleArray(n);
-    DoubleArray direction = Bj.doubleArray(n);
-    DoubleArray solutions = Bj.doubleArray(memory, n);
-    DoubleArray gradients = Bj.doubleArray(memory, n);
-    DoubleArray gradient = Bj.doubleArray(n);
-    DoubleArray scales = Bj.doubleArray(memory);
-    DoubleArray a = Bj.doubleArray(memory);
+    DoubleArray currentSolution = Arrays.doubleArray(n);
+    DoubleArray currentGradient = Arrays.doubleArray(n);
+    DoubleArray direction = Arrays.doubleArray(n);
+    DoubleArray solutions = Arrays.doubleArray(memory, n);
+    DoubleArray gradients = Arrays.doubleArray(memory, n);
+    DoubleArray gradient = Arrays.doubleArray(n);
+    DoubleArray scales = Arrays.doubleArray(memory);
+    DoubleArray a = Arrays.doubleArray(memory);
 
     double f = function.gradientCost(x, gradient);
     double sum = 0;
@@ -107,8 +107,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       }
 
       DoubleArray kGradient = gradients.getRow(k);
-      double ys = Bj.dot(kGradient, solutions.getRow(k));
-      double yy = Bj.dot(kGradient, kGradient);
+      double ys = Arrays.dot(kGradient, solutions.getRow(k));
+      double yy = Arrays.dot(kGradient, kGradient);
       double scalingFactor = ys / yy;
 
       scales.set(k, 1.0 / ys);
@@ -117,20 +117,20 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       int cp = k;
       int bound = iter > memory ? memory : iter;
       for (int i = 0; i < bound; i++) {
-        a.set(cp, scales.get(cp) * Bj.dot(solutions.getRow(cp), direction));
-        Bj.axpy(-a.get(cp), gradients.getRow(cp), direction);
+        a.set(cp, scales.get(cp) * Arrays.dot(solutions.getRow(cp), direction));
+        Arrays.axpy(-a.get(cp), gradients.getRow(cp), direction);
         if (--cp == -1) {
           cp = memory - 1;
         }
       }
-      Bj.scal(scalingFactor, direction);
+      Arrays.scal(scalingFactor, direction);
 
       for (int i = 0; i < bound; i++) {
         if (++cp == memory) {
           cp = 0;
         }
-        double b = scales.get(cp) * Bj.dot(gradients.getRow(cp), direction);
-        Bj.axpy(a.get(cp) - b, solutions.getRow(cp), direction);
+        double b = scales.get(cp) * Arrays.dot(gradients.getRow(cp), direction);
+        Arrays.axpy(a.get(cp) - b, solutions.getRow(cp), direction);
       }
 
       if (++k == memory) {

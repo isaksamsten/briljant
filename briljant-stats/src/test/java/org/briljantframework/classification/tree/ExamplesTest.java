@@ -53,7 +53,7 @@ public class ExamplesTest {
   // .withCriterion(Gain.GINI))
   // .create();
   // System.out.println(Evaluators.crossValidation(tree, container, 10));
-  // // DecisionTree.Predictor mdl = tree.fit(storage);
+  // // DecisionTree.Classifier mdl = tree.fit(storage);
   //
   // // mdl = tree.fit(storage);
   // // mdl = tree.fit(storage);

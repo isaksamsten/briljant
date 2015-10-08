@@ -21,13 +21,11 @@
 
 package org.briljantframework.data.vector;
 
-import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import org.briljantframework.ArrayUtils;
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -37,6 +35,7 @@ import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.primitive.ArrayAllocations;
 
 /**
  * Vector of {@code double} primitives.
@@ -103,7 +102,7 @@ class DoubleVector extends AbstractVector implements Transferable {
 
   @Override
   public DoubleArray toDoubleArray() {
-    return Bj.array(Arrays.copyOf(buffer, size()));
+    return Arrays.of(java.util.Arrays.copyOf(buffer, size()));
   }
 
   @Override
@@ -198,7 +197,7 @@ class DoubleVector extends AbstractVector implements Transferable {
 
   @Override
   public DoubleStream doubleStream() {
-    return Arrays.stream(buffer, 0, size());
+    return java.util.Arrays.stream(buffer, 0, size());
   }
 
   static final class Builder extends AbstractBuilder {
@@ -355,7 +354,7 @@ class DoubleVector extends AbstractVector implements Transferable {
     @Override
     public void swapAt(int a, int b) {
       Check.argument(a >= 0 && a < size() && b >= 0 && b < size());
-      ArrayUtils.swap(buffer, a, b);
+      ArrayAllocations.swap(buffer, a, b);
     }
 
     @Override
@@ -420,7 +419,7 @@ class DoubleVector extends AbstractVector implements Transferable {
         newCapacity = hugeCapacity(minCapacity);
       }
       // minCapacity is usually close to size, so this is a win:
-      buffer = Arrays.copyOf(buffer, newCapacity);
+      buffer = java.util.Arrays.copyOf(buffer, newCapacity);
     }
 
     /**

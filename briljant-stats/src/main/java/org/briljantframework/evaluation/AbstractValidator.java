@@ -24,9 +24,9 @@ package org.briljantframework.evaluation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.Predictor;
+import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -66,27 +66,27 @@ public abstract class AbstractValidator implements Validator {
    * Computes the class labels. Chooses the 'best' strategy to avoid computing the probability
    * estimation matrix twice.
    *
-   * @param predictor the predictor
+   * @param classifier the classifier
    * @param type the the resulting vector type
    * @param ctx the evaluation context
-   * @return a vector of class-labels produced for {@code predictor} using the hold-out dataset
+   * @return a vector of class-labels produced for {@code classifier} using the hold-out dataset
    */
-  protected Vector computeClassLabels(DataFrame x, Predictor predictor, VectorType type,
+  protected Vector computeClassLabels(DataFrame x, Classifier classifier, VectorType type,
       EvaluationContext ctx) {
-    Vector classes = predictor.getClasses();
+    Vector classes = classifier.getClasses();
     Vector.Builder builder = type.newBuilder();
 
-    // For the case where the predictor reports the ESTIMATOR characteristic
+    // For the case where the classifier reports the ESTIMATOR characteristic
     // improve the performance by avoiding to recompute the classifications twice.
-    if (predictor.getCharacteristics().contains(Predictor.Characteristics.ESTIMATOR)) {
-      DoubleArray estimate = predictor.estimate(x);
+    if (classifier.getCharacteristics().contains(Classifier.Characteristics.ESTIMATOR)) {
+      DoubleArray estimate = classifier.estimate(x);
       ctx.setEstimation(estimate);
       for (int i = 0; i < estimate.rows(); i++) {
-        builder.loc().set(i, classes, Bj.argmax(estimate.getRow(i)));
+        builder.loc().set(i, classes, Arrays.argmax(estimate.getRow(i)));
       }
       return builder.build();
     } else {
-      return predictor.predict(x);
+      return classifier.predict(x);
     }
   }
 

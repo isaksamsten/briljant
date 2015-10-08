@@ -58,7 +58,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * 
    * <pre>
    * {@code
-   * > Array<Double> random = Bj.referenceArray(3, 3);
+   * > Array<Double> random = Arrays.referenceArray(3, 3);
    * > Random rng = new Random();
    * > random.assign(rng::nextGaussian);
    * 
@@ -80,8 +80,8 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * 
    * <pre>
    * {@code
-   * > Array<Integer> i = Bj.range(0, 3).boxed();
-   * > Array<String> x = Bj.array(new String[]{"foo", "bar", "baz"});
+   * > Array<Integer> i = Arrays.range(0, 3).boxed();
+   * > Array<String> x = Arrays.array(new String[]{"foo", "bar", "baz"});
    * > i.assign(x, String::length).mapToInt(Integer::intValue);
    * array([3, 3, 3] type: int)
    * }
@@ -263,7 +263,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * 
    * <pre>
    * {@code
-   * > Array<String> x = Bj.array(new String[]{"a", "b", "dd", "ee"}).reshape(2, 2);
+   * > Array<String> x = Arrays.array(new String[]{"a", "b", "dd", "ee"}).reshape(2, 2);
    * > x.satisfies(v -> v.length() > 1);
    * array([[0, 1]
    *        [0, 1]] type: int)
@@ -284,8 +284,8 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * 
    * <pre>
    * {@code
-   * > Array<String> x = Bj.array(new String[]{"a", "b", "c"});
-   * > Array<String> y = Bj.array(new String[]{"a", "c", "b"});
+   * > Array<String> x = Arrays.array(new String[]{"a", "b", "c"});
+   * > Array<String> y = Arrays.array(new String[]{"a", "c", "b"});
    * > x.satisfies(y, String::equalsIgnoreCase);
    * array([1, 0, 0] type: int);
    * }

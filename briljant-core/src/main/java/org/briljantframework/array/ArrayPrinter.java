@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.StringJoiner;
 
 import org.apache.commons.math3.complex.ComplexFormat;
-import org.briljantframework.Bj;
 
 /**
  * @author Isak Karlsson
@@ -150,7 +149,7 @@ public final class ArrayPrinter {
     if (truncate) {
       maxPerSlice = visiblePerSlice < 0 ? maxPerSlice : visiblePerSlice;
     }
-    IntArray maxWidth = Bj.intArray(maxPerSlice);
+    IntArray maxWidth = Arrays.intArray(maxPerSlice);
     return computeMaxWidthRecursive(arr, truncate, maxWidth, maxPerSlice);
   }
 

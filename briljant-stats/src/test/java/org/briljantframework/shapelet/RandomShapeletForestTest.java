@@ -27,20 +27,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.KNearestNeighbors;
-import org.briljantframework.classification.Predictor;
+import org.briljantframework.classification.NearestNeighbours;
 import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.conformal.ConformalClassifier;
-import org.briljantframework.conformal.ConformalPredictor;
 import org.briljantframework.conformal.InductiveConformalClassifier;
 import org.briljantframework.conformal.Margin;
-import org.briljantframework.conformal.NonconformityLearner;
-import org.briljantframework.conformal.ProbabilityEstimateNonconformityLearner;
+import org.briljantframework.conformal.Nonconformity;
+import org.briljantframework.conformal.ProbabilityEstimateNonconformity;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
@@ -132,8 +130,8 @@ public class RandomShapeletForestTest {
   // Vector yTest = Convert.toStringVector(validationSet.get(validationSet.columns() - 1));
   //
   // long start = System.nanoTime();
-  // DoubleArray upper = Bj.array(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
-  // IntArray sizes = Bj.array(new int[]{100});
+  // DoubleArray upper = Arrays.array(new double[]{0.05, 0.1, 0.3, 0.5, 0.7, 1});
+  // IntArray sizes = Arrays.array(new int[]{100});
   // // IntMatrix sizes = IntMatrix.of(500);
   // System.out.println("Size,Correlation,Strength,Quality,Expected Error,"
   // + "Accuracy,OOB Accuracy,Variance,Bias,Brier,Depth");
@@ -235,7 +233,7 @@ public class RandomShapeletForestTest {
     // new FileInputStream(
     // "/Users/isak-kar/Downloads/dataset/Two_Patterns/Two_Patterns_TEST")));
 
-    String fileName = "synthetic_control";
+    String fileName = "Fish";
     String path = "/Users/isak-kar/Downloads/dataset";
     DataFrame train =
         DataFrames.permuteRecords(Datasets.load(
@@ -272,21 +270,21 @@ public class RandomShapeletForestTest {
     Partition trainPart =
         new SplitPartitioner(0.1).partition(train.drop(0), train.get(0)).iterator().next();
 
-    // NonconformityLearner nc = new DistanceNonconformityLearner(1, new DynamicTimeWarping(-1));
-    NonconformityLearner nc =
-        new ProbabilityEstimateNonconformityLearner(RandomShapeletForest.withSize(100).build(),
-            new Margin());
-    ConformalClassifier classifier = new InductiveConformalClassifier(nc);
-    ConformalPredictor predictor =
+    // Nonconformity.Learner nc = new DistanceNonconformity.Learner(1);
+    Nonconformity.Learner nc =
+        new ProbabilityEstimateNonconformity.Learner(
+            RandomShapeletForest.withSize(100).configure(), new Margin());
+    ConformalClassifier.Learner classifier = new InductiveConformalClassifier.Learner(nc);
+    ConformalClassifier predictor =
         classifier.fit(trainPart.getTrainingData(), trainPart.getTrainingTarget());
     predictor.calibrate(trainPart.getValidationData(), trainPart.getValidationTarget());
     //
     StringBuilder builder = new StringBuilder();
     testEarlyClassification(test, predictor,
-        RandomShapeletForest.withSize(100).build().fit(train.drop(0), train.get(0)), fileName,
+        RandomShapeletForest.withSize(100).configure().fit(train.drop(0), train.get(0)), fileName,
         "knn", builder);
     // testEarlyClassification(test, predictor,
-    // new KNearestNeighbors(1).fit(train.drop(0), train.get(0)), fileName, "knn", builder);
+    // new NearestNeighbours.Learner(1).fit(train.drop(0), train.get(0)), fileName, "knn", builder);
     // ArrayPrinter.setMinimumTruncateSize(1000000);
     // System.out.println(predictor.estimate(test.drop(0)));
     // builder.append("\n");
@@ -300,9 +298,9 @@ public class RandomShapeletForestTest {
 
   }
 
-  private void testEarlyClassification(DataFrame test, ConformalPredictor predictor, Predictor knn,
-      String fileName, String variable, StringBuilder builder) {
-    // Predictor predictor = classifier.fit(train.drop(0), train.get(0));
+  private void testEarlyClassification(DataFrame test, ConformalClassifier predictor,
+      Classifier knn, String fileName, String variable, StringBuilder builder) {
+    // Classifier predictor = classifier.fit(train.drop(0), train.get(0));
 
     // DoubleArray oobAccuracyPerLength = computeOobAccuracy(predictor, train.drop(0),
     // train.get(0));
@@ -313,8 +311,8 @@ public class RandomShapeletForestTest {
 
 
 
-    IntArray decisionTime = Bj.intArray(xTest.rows());
-    IntArray correctAt = Bj.intArray(xTest.columns());
+    IntArray decisionTime = Arrays.intArray(xTest.rows());
+    IntArray correctAt = Arrays.intArray(xTest.columns());
     double correct = 0;
     for (int i = 0; i < xTest.rows(); i++) {
       if (i % 100 == 0) {
@@ -329,11 +327,11 @@ public class RandomShapeletForestTest {
         // synthetic_control = 0.07 2/30 <> 3/30
         // Gun_Point = 0.2
         // MoteStrain = 0.1
-        double significance = 0.07;
+        double significance = 0.1;
         Object prediction = predictor.predict(record.select(0, j), significance);
         // if(prediction)
         // DoubleArray estimation = predictor.estimate(record.select(0, j));
-        // int max = Bj.argmax(estimation);
+        // int max = Arrays.argmax(estimation);
         // correctAt.addTo(j, classes.loc().get(Object.class, max).equals(trueLabel) ? 1 : 0);
         if (!Is.NA(prediction)) {
           System.out.println(i + " : " + j + " "
@@ -350,10 +348,10 @@ public class RandomShapeletForestTest {
     }
 
     System.out.println(correct / xTest.rows());
-    System.out.println(Bj.mean(decisionTime.get(Bj.range(5, xTest.rows())).asDouble())
+    System.out.println(Arrays.mean(decisionTime.get(Arrays.range(5, xTest.rows())).asDouble())
         / xTest.columns());
     // DoubleArray meanCorrectness = correctAt.asDouble().div(xTest.rows());
-    // System.out.println(meanCorrectness.get(Bj.range(5, meanCorrectness.size()))
+    // System.out.println(meanCorrectness.get(Arrays.range(5, meanCorrectness.size()))
     // .collect(Collectors.statisticalSummary()).getMean());
     // builder.append(variable).append("_").append(fileName).append(" = ").append("np.")
     // .append(meanCorrectness);
@@ -380,31 +378,30 @@ public class RandomShapeletForestTest {
     System.out.println(shift(Vector.of(1, 2, 3, 4, 5, 6)));
   }
 
-  private DoubleArray computeOobAccuracy(RandomShapeletForest.Predictor predictor, DataFrame x,
-      Vector y) {
+  private DoubleArray computeOobAccuracy(RandomShapeletForest predictor, DataFrame x, Vector y) {
 
     BooleanArray oob = predictor.getOobIndicator();
     for (int i = 0; i < x.rows(); i++) {
       Vector record = x.loc().getRecord(i);
-      List<Predictor> oobMembers = getOobMembers(oob.getRow(i), predictor.getPredictors());
+      List<Classifier> oobMembers = getOobMembers(oob.getRow(i), predictor.getEnsembleMembers());
       DoubleArray estimate = predictOob(oobMembers, record);
 
     }
     return null;
   }
 
-  private List<Predictor> getOobMembers(BooleanArray oob, List<Predictor> predictors) {
-    List<Predictor> oobPredictors = new ArrayList<>();
-    for (int i = 0; i < predictors.size(); i++) {
+  private List<Classifier> getOobMembers(BooleanArray oob, List<Classifier> classifiers) {
+    List<Classifier> oobPredictors = new ArrayList<>();
+    for (int i = 0; i < classifiers.size(); i++) {
       if (oob.get(i)) {
-        oobPredictors.add(predictors.get(i));
+        oobPredictors.add(classifiers.get(i));
       }
     }
 
     return oobPredictors;
   }
 
-  private DoubleArray predictOob(List<Predictor> members, Vector record) {
+  private DoubleArray predictOob(List<Classifier> members, Vector record) {
 
     return null;
   }
@@ -427,7 +424,7 @@ public class RandomShapeletForestTest {
     int min = freq.values().stream().min(Integer::min).get();
     System.out.println(freq + " => " + ((double) min / sum));
 
-    Classifier forest = KNearestNeighbors.withNeighbors(1).withDistance(new EditDistance()).build();
+    Classifier.Learner forest = new NearestNeighbours.Learner(1, new EditDistance());
     Validator cv = Validators.crossValidation(5);
     cv.getEvaluators().add(
         Evaluator.foldOutput(fold -> System.out.printf("Completed fold %d\n", fold)));
@@ -437,7 +434,6 @@ public class RandomShapeletForestTest {
     System.out.println(result.getAverageConfusionMatrix().getFMeasure("ade", 2));
     System.out.println(result);
   }
-
   // @Test
   // public void testClassify() throws Exception {
   // String name = "Gun_Point";

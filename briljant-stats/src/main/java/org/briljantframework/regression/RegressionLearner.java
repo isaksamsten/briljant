@@ -11,12 +11,12 @@ import org.briljantframework.data.vector.Vector;
  */
 public interface RegressionLearner {
 
-  default Regressor fit(DataFrame x, Vector y) {
+  default Regression fit(DataFrame x, Vector y) {
     Check.argument(x.rows() == y.size(), "Size of input data and input target don't match");
     Check.argument(x.getColumns().stream().allMatch(Is::numeric), "Only supports numerical data.");
     Check.argument(Is.numeric(y), "Only support numerical target");
     return fit(x.toDoubleArray(), y.toDoubleArray());
   }
 
-  Regressor fit(DoubleArray x, DoubleArray y);
+  Regression fit(DoubleArray x, DoubleArray y);
 }

@@ -23,7 +23,7 @@ package org.briljantframework.linalg.decomposition;
 
 import java.util.Optional;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.netlib.NetlibLapackException;
@@ -91,7 +91,7 @@ public class LuDecomposition {
       throw new NetlibLapackException(err.val, "Inverse failed.");
     }
 
-    return Bj.array(invs).reshape(lu.rows(), lu.columns());
+    return Arrays.of(invs).reshape(lu.rows(), lu.columns());
   }
 
   /**
@@ -153,7 +153,7 @@ public class LuDecomposition {
   }
 
   private DoubleArray computeUpper() {
-    DoubleArray upperMatrix = Bj.doubleArray(lu.rows(), lu.columns());
+    DoubleArray upperMatrix = Arrays.doubleArray(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         upperMatrix.set(i, j, lu.get(i, j));
@@ -173,7 +173,7 @@ public class LuDecomposition {
   }
 
   private DoubleArray computeLower() {
-    DoubleArray lowerMatrix = Bj.doubleArray(lu.rows(), lu.columns());
+    DoubleArray lowerMatrix = Arrays.doubleArray(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         int ii = lu.rows() - 1 - i;

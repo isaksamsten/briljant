@@ -36,12 +36,12 @@ public class LogisticRegressionTest {
 
   @Test
   public void testLogisticRegression() throws Exception {
-    // Utils.setRandomSeed(102);
     DataFrame iris = DataFrames.permuteRecords(Datasets.loadIris());
     DataFrame x = iris.drop("Class").map(Double.class, v -> !Is.NA(v) ? v : 0);
     Vector y = iris.get("Class");// .satisfies(String.class, v -> v.equals("Iris-setosa"));
-    Classifier classifier = LogisticRegression.withIterations(500).withRegularization(10).build();
-    LogisticRegression.Predictor model = (LogisticRegression.Predictor) classifier.fit(x, y);
+    Classifier.Learner classifier =
+        new LogisticRegression.Configurator(500).setRegularization(0.01).configure();
+    LogisticRegression model = (LogisticRegression) classifier.fit(x, y);
 
     System.out.println(model.getOddsRatio("(Intercept)"));
     for (Object o : x.getColumnIndex().keySet()) {
@@ -58,14 +58,13 @@ public class LogisticRegressionTest {
 
   @Test
   public void testOdds() throws Exception {
-    DataFrame x =
-        DataFrame.of("Age", Vector.of(55, 28, 65, 46, 86, 56, 85, 33, 21, 42), "Smoker",
-            Vector.of(0, 0, 1, 0, 1, 1, 0, 0, 1, 1));
+    DataFrame x = DataFrame.of("Age", Vector.of(55, 28, 65, 46, 86, 56, 85, 33, 21, 42), "Smoker",
+                               Vector.of(0, 0, 1, 0, 1, 1, 0, 0, 1, 1));
     Vector y = Vector.of(0, 0, 0, 1, 1, 1, 0, 0, 0, 1);
     System.out.println(x);
 
-    LogisticRegression regression = LogisticRegression.create();
-    LogisticRegression.Predictor model = regression.fit(x, y);
+    LogisticRegression.Learner regression = new LogisticRegression.Learner();
+    LogisticRegression model = regression.fit(x, y);
     System.out.println(model);
 
     System.out.println("(Intercept) " + model.getOddsRatio("(Intercept)"));

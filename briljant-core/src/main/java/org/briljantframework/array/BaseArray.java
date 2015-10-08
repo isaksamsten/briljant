@@ -152,8 +152,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   *  > DoubleArray arr = Bj.array(new double[]{1,2,3,4});
-   *  > DoubleArray zero = Bj.doubleArray(4);
+   *  > DoubleArray arr = Arrays.array(new double[]{1,2,3,4});
+   *  > DoubleArray zero = Arrays.doubleArray(4);
    *  > zero.assign(arr);
    *  > zero
    *  array([1.000, 2.000, 3.000, 4.000])
@@ -171,7 +171,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > DoubleArray a = Bj.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
+   * > DoubleArray a = Arrays.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
    * > a.forEach(0, x -> System.out.println(x))
    * 
    * array([0.000, 0.091])
@@ -193,8 +193,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > DoubleArray a = Bj.linspace(0, 1, 3 * 3).reshape(3, 3);
-   * > a.setColumn(0, Bj.zero(3));
+   * > DoubleArray a = Arrays.linspace(0, 1, 3 * 3).reshape(3, 3);
+   * > a.setColumn(0, Arrays.zero(3));
    * 
    * array([[0.000, 0.375, 0.750],
    *        [0.000, 0.500, 0.875],
@@ -217,19 +217,19 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray r = Bj.range(3 * 3).reshape(3, 3).copy()
+   * > IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy()
    * > r
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
    * 
-   * > r.setColumn(0, Bj.array(new int[]{0, 0, 1}))
+   * > r.setColumn(0, Arrays.array(new int[]{0, 0, 1}))
    * > r
    * array([[0, 3, 6],
    *        [0, 4, 7],
    *        [1, 5, 8]])
    * 
-   * > r.get(Bj.range(3), Bj.range(1)).assign(Bj.array(new int[]{0, 1, 0}))
+   * > r.get(Arrays.range(3), Arrays.range(1)).assign(Arrays.array(new int[]{0, 1, 0}))
    * > r
    * array([[0, 3, 6],
    *        [1, 4, 7],
@@ -251,8 +251,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray r = Bj.range(3 * 3).reshape(3, 3).copy()
-   * > r.setRow(0, Bj.array(new int[]{0, 0, 1}))
+   * > IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy()
+   * > r.setRow(0, Arrays.array(new int[]{0, 0, 1}))
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
@@ -261,7 +261,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *        [1, 4, 7],
    *        [2, 5, 8]])
    * 
-   * > r.get(bj.range(1)).assign(Bj.array(new int[]{0, 1, 0}))
+   * > r.get(bj.range(1)).assign(Arrays.array(new int[]{0, 1, 0}))
    * > r
    * array([[0, 1, 0],
    *        [1, 4, 7],
@@ -295,7 +295,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3 * 3).copy();
+   * > IntArray x = Arrays.range(3 * 3).copy();
    * array([0, 1, 2, 3, 4, 5, 6, 7, 8])
    * 
    * > x.reshape(3, 3)
@@ -311,7 +311,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3 * 3).reshape(3, 3).copy().transpose();
+   * > IntArray x = Arrays.range(3 * 3).reshape(3, 3).copy().transpose();
    * array([[0, 1, 2],
    *        [3, 4, 5],
    *        [6, 7, 8]])
@@ -329,7 +329,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3 * 3).reshape(3, 3).transpose()
+   * > IntArray x = Arrays.range(3 * 3).reshape(3, 3).transpose()
    * array([[0, 1, 2],
    *       [3, 4, 5],
    *       [6, 7, 8]])
@@ -356,7 +356,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
@@ -395,7 +395,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
@@ -420,14 +420,14 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   /**
    * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
    * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
-   * include ranges of values, one simple way is to use {@code Bj.range(end).flat()}.
+   * include ranges of values, one simple way is to use {@code Arrays.range(end).flat()}.
    *
    * <p>
    * Examples
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(2 * 3 * 4).reshape(2, 3, 4);
+   * > IntArray x = Arrays.range(2 * 3 * 4).reshape(2, 3, 4);
    * array([[[0,  9, 18, 27],
    *         [3, 12, 21, 30],
    *         [6, 15, 24, 33]],
@@ -489,7 +489,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
@@ -548,7 +548,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3*3*3).reshape(3, 3, 3)
+   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
@@ -560,7 +560,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *         [[2, 11, 20],
    *         [5, 14, 23],
    *         [8, 17, 26]]])
-   * > x.setVector(0, 0, Bj.zero(3).asInt());
+   * > x.setVector(0, 0, Arrays.zero(3).asInt());
    * > x
    * array([[[0,  9, 18],
    *         [3, 12, 21],
@@ -588,7 +588,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *
    * <pre>
    * {@code
-   *  > DoubleArray b = Bj.array(new double[]{1,2,3,4}).reshape(2, 2);
+   *  > DoubleArray b = Arrays.array(new double[]{1,2,3,4}).reshape(2, 2);
    *  > b.getDiagonal();
    *  array([1,4])
    * }
@@ -626,10 +626,10 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray r = Bj.range(10)
+   * > IntArray r = Arrays.range(10)
    * array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
    * 
-   * > r.get(Bj.range(0, 8, 2))
+   * > r.get(Arrays.range(0, 8, 2))
    * array([0, 2, 4, 6])
    * }
    * </pre>
@@ -639,15 +639,15 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray r = Bj.range(3 * 3).reshape(3, 3)
+   * > IntArray r = Arrays.range(3 * 3).reshape(3, 3)
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
    * 
-   * > r.get(Bj.range(1, 2))
+   * > r.get(Arrays.range(1, 2))
    * array([[1, 4, 7]])
    * 
-   * > r.get(Bj.range(0, 3, 2), Bj.range(0, 3, 2))
+   * > r.get(Arrays.range(0, 3, 2), Arrays.range(0, 3, 2))
    * array([[0, 6],
    *        [2, 8]])
    * }
@@ -658,7 +658,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * >IntArray r = Bj.range(3*3*3).reshape(3,3,3)
+   * >IntArray r = Arrays.range(3*3*3).reshape(3,3,3)
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
@@ -671,7 +671,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *         [5, 14, 23],
    *         [8, 17, 26]]])
    * 
-   * > r.get(Bj.range(0,3,2))
+   * > r.get(Arrays.range(0,3,2))
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
@@ -680,7 +680,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *         [5, 14, 23],
    *         [8, 17, 26]]])
    * 
-   * > r.get(Bj.range(0,3,2), Bj.range(0,1), Bj.range(0,3,2))
+   * > r.get(Arrays.range(0,3,2), Arrays.range(0,1), Arrays.range(0,3,2))
    * array([[[0, 18]],
    * 
    *         [[2, 20]]])
@@ -703,7 +703,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(1, 10).reshape(3, 3).transpose();
+   * > IntArray x = Arrays.range(1, 10).reshape(3, 3).transpose();
    * array([[1, 2, 3],
    *        [4, 5, 6]
    *        [7, 8, 9]])
@@ -881,7 +881,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(10).reshape(2,5);
+   * > IntArray x = Arrays.range(10).reshape(2,5);
    * array([[0, 2, 4, 6, 8],
    *        [1, 3, 5, 7, 9]] type: int)
    * 
@@ -918,7 +918,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(1, 17).reshape(4, 4)
+   * > IntArray x = Arrays.range(1, 17).reshape(4, 4)
    * > int h = x.size(0), w = x.size(1);
    * > int bh = 2, bw = 2;
    * > int[] shape = new int[]{h / bw, w / bw, bh, bw};
@@ -993,7 +993,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * <pre>
    * {@code
-   * > IntArray a = Bj.array(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 3);
+   * > IntArray a = Arrays.array(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 3);
    * array([[1, 3, 5]
    *        [2, 4, 6]] type: int);
    * 

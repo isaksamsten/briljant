@@ -25,9 +25,9 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
 import org.briljantframework.classification.tree.Splitter;
 import org.briljantframework.classification.tree.TreeBranch;
+import org.briljantframework.classification.tree.TreeClassifier;
 import org.briljantframework.classification.tree.TreeLeaf;
 import org.briljantframework.classification.tree.TreeNode;
-import org.briljantframework.classification.tree.TreePredictor;
 import org.briljantframework.classification.tree.TreeSplit;
 import org.briljantframework.classification.tree.TreeVisitor;
 import org.briljantframework.classification.tree.ValueThreshold;
@@ -39,7 +39,7 @@ import org.briljantframework.data.vector.Vectors;
 /**
  * @author Isak Karlsson
  */
-public class DecisionTree implements Classifier {
+public class DecisionTree implements Classifier.Learner {
 
   protected final double mininumWeight = 1;
   protected final Splitter splitter;
@@ -59,7 +59,7 @@ public class DecisionTree implements Classifier {
   }
 
   @Override
-  public Predictor fit(DataFrame x, Vector y) {
+  public Classifier fit(DataFrame x, Vector y) {
     ClassSet classSet = this.classSet;
     Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
     if (classSet == null) {
@@ -67,7 +67,7 @@ public class DecisionTree implements Classifier {
     }
 
     TreeNode<ValueThreshold> node = build(x, y, classSet);
-    return new Predictor(classes, node, new SimplePredictionVisitor());
+    return new Classifier(classes, node, new SimplePredictionVisitor());
   }
 
   protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet) {
@@ -128,10 +128,10 @@ public class DecisionTree implements Classifier {
     }
   }
 
-  public static class Predictor extends TreePredictor<ValueThreshold> {
+  public static class Classifier extends TreeClassifier<ValueThreshold> {
 
-    private Predictor(Vector classes, TreeNode<ValueThreshold> node,
-        TreeVisitor<ValueThreshold> predictionVisitor) {
+    private Classifier(Vector classes, TreeNode<ValueThreshold> node,
+                       TreeVisitor<ValueThreshold> predictionVisitor) {
       super(classes, node, predictionVisitor);
     }
   }

@@ -28,7 +28,7 @@ import org.briljantframework.data.vector.Vector;
 /**
  * @author Isak Karlsson
  */
-public interface Tuner<C extends Classifier, O extends Classifier.Builder<? extends C>> {
+public interface Tuner<C extends Classifier.Learner, O extends Classifier.Configurator<? extends C>> {
 
   /**
    * Optimize the paramters of the specified classifier over the specified data frame and labels

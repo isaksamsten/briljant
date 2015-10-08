@@ -24,8 +24,8 @@ package org.briljantframework.array.random;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
 
 /**
@@ -58,7 +58,7 @@ public final class Sample {
     Check.argument(population > 0, "Population should be larger than 0");
     Check.argument(samples < population, "The population should be larger than the sample");
 
-    IntArray out = Bj.intArray(samples);
+    IntArray out = Arrays.intArray(samples);
     for (int i = 0; i < samples; i++) {
       out.set(i, i);
     }

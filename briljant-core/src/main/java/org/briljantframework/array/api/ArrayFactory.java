@@ -133,15 +133,15 @@ public interface ArrayFactory {
    * 
    * <pre>
    * {@code
-   * > IntArray x = Bj.range(3)
+   * > IntArray x = Arrays.range(3)
    * array([0, 1, 2] type: int)
    * 
-   * > IntArray y = Bj.diag(x)
+   * > IntArray y = Arrays.diag(x)
    * array([[0, 0, 0],
    *        [0, 1, 0],
    *        [0, 0, 2]] type: int)
    * 
-   * > Bj.diag(y)
+   * > Arrays.diag(y)
    * array([0, 1, 2] type: int)
    * }
    * </pre>

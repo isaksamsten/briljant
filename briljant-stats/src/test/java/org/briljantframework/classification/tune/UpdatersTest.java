@@ -21,32 +21,29 @@
 
 package org.briljantframework.classification.tune;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.briljantframework.classification.KNearestNeighbors;
 import org.junit.Test;
 
 public class UpdatersTest {
 
   @Test
   public void testRange() throws Exception {
-    KNearestNeighbors.Builder knnBuilder = KNearestNeighbors.withNeighbors(1);
-    ParameterUpdater<KNearestNeighbors.Builder> updater =
-        Updaters.range("n", KNearestNeighbors.Builder::withNeighbors, 0, 10, 2);
-    while (updater.hasUpdate()) {
-      updater.update(knnBuilder);
-    }
-    assertEquals(10, knnBuilder.neighbors);
+//    NearestNeighbours.Builder knnBuilder = NearestNeighbours.Learner.withNeighbors(1);
+//    ParameterUpdater<NearestNeighbours.Builder> updater =
+//        Updaters.range("n", NearestNeighbours.Builder::withNeighbors, 0, 10, 2);
+//    while (updater.hasUpdate()) {
+//      updater.update(knnBuilder);
+//    }
+//    assertEquals(10, knnBuilder.neighbors);
   }
 
   @Test
   public void testOptions() throws Exception {
-    KNearestNeighbors.Builder knnBuilder = KNearestNeighbors.withNeighbors(1);
+//    NearestNeighbours.Builder knnBuilder = NearestNeighbours.Learner.withNeighbors(1);
     // Tuners.split(knnBuilder, null,
     // range("n", KNearestNeighbors.Builder::withNeighbors, 0, 10, 2));
     // enumeration("d", KNearestNeighbors.Builder::distance, Distance.EUCLIDEAN,

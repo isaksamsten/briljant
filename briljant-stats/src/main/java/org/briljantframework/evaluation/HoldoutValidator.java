@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Predictor;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.partition.Partition;
@@ -53,24 +52,24 @@ public class HoldoutValidator extends AbstractValidator {
   }
 
   @Override
-  public Result test(Classifier classifier, DataFrame x, Vector y) {
-    Predictor model = classifier.fit(x, y);
+  public Result test(Classifier.Learner classifier, DataFrame x, Vector y) {
+    Classifier model = classifier.fit(x, y);
     return evaluate(model, x, y);
   }
 
-  public Result evaluate(Predictor predictor, DataFrame x, Vector y) {
-    Vector classes = predictor.getClasses();
+  public Result evaluate(Classifier classifier, DataFrame x, Vector y) {
+    Vector classes = classifier.getClasses();
     EvaluationContext ctx = new EvaluationContext();
 
-    Vector holdOutPredictions = computeClassLabels(holdoutX, predictor, y.getType(), ctx);
+    Vector holdOutPredictions = computeClassLabels(holdoutX, classifier, y.getType(), ctx);
     ConfusionMatrix confusionMatrix =
         ConfusionMatrix.compute(holdOutPredictions, holdoutY, classes);
-    ctx.setPredictor(predictor);
+    ctx.setPredictor(classifier);
     ctx.setPredictions(holdOutPredictions);
     ctx.setPartition(new Partition(x, holdoutX, y, holdoutY));
 
     getEvaluators().forEach(mc -> mc.accept(ctx));
-    predictor.evaluate(ctx);
+    classifier.evaluate(ctx);
     return Result.create(ctx.getMeasures(), Collections.singletonList(confusionMatrix));
   }
 

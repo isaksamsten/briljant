@@ -43,7 +43,7 @@ public interface Validator {
    * @param classifier classifier to use for classification
    * @param x the data frame to use during evaluation
    */
-  Result test(Classifier classifier, DataFrame x, Vector y);
+  Result test(Classifier.Learner classifier, DataFrame x, Vector y);
 
   /**
    * Get a list of evaluators used but this validator. The list is mutable and support adding new

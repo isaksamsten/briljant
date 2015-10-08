@@ -47,11 +47,11 @@ import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.LongBiPredicate;
+import org.briljantframework.primitive.ArrayAllocations;
 
 /**
  * @author Isak Karlsson
@@ -749,7 +749,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     private int size = 0;
 
     public void add(long a) {
-      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer = ArrayAllocations.ensureCapacity(buffer, size);
       buffer[size++] = a;
     }
 

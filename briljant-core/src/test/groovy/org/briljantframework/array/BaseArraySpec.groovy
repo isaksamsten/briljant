@@ -310,7 +310,7 @@ class BaseArraySpec extends Specification {
     array.reshape(shape).reshape(Indexer.reverse(shape)).shape == Indexer.reverse(shape)
 
     where:
-    array << getArrays(2 * 3 * 4 * 5);
+    of << getArrays(2 * 3 * 4 * 5);
     shape << getShapes([2, 3, 4, 5], 5);
   }
 
@@ -327,7 +327,7 @@ class BaseArraySpec extends Specification {
     s.select(2).shape == dims2
 
     where:
-    array << getArrays(2, 3, 4);
+    of << getArrays(2, 3, 4);
     dims1 << getShapes([3, 4], 5)
     dims2 << getShapes([4], 5)
   }

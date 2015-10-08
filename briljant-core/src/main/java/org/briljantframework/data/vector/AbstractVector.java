@@ -41,9 +41,9 @@ import java.util.stream.Stream;
 
 import net.mintern.primitive.comparators.IntComparator;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
@@ -289,7 +289,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
     final VectorLocationGetter get = loc();
-    Array<U> n = Bj.referenceArray(size());
+    Array<U> n = Arrays.referenceArray(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, get.get(cls, i));
     }

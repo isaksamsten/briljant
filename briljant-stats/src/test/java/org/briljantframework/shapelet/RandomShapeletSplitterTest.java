@@ -44,7 +44,7 @@ public class RandomShapeletSplitterTest {
     //
     // ShapeletTree tree = new ShapeletTree(splitter);
     //
-    // ShapeletTree.Predictor model = tree.fit(container);
+    // ShapeletTree.Classifier model = tree.fit(container);
     //
     // Ensemble.Member<Frame> member = ShapeletTree.withSplitter(RandomShapeletSplitter.withDistance
     // (EarlyAbandonSlidingDistance.create(Distance.EUCLIDEAN)));

@@ -21,10 +21,10 @@
 
 package org.briljantframework.classification.tree;
 
-import org.briljantframework.ArrayUtils;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.primitive.ArrayAllocations;
 
 /**
  * NOTE: This cannot be reused among trees (it is stateful for performance reasons)
@@ -63,7 +63,7 @@ public class RandomSplitter extends AbstractSplitter {
 
     // TODO! Fix me!
     synchronized (features) {
-      ArrayUtils.shuffle(features);
+      ArrayAllocations.shuffle(features);
     }
 
     TreeSplit<ValueThreshold> bestSplit = null;
@@ -170,7 +170,7 @@ public class RandomSplitter extends AbstractSplitter {
      * @param maxFeatures the max features
      * @return the max features
      */
-    public Builder withMaximumFeatures(int maxFeatures) {
+    public Builder setMaximumFeatures(int maxFeatures) {
       this.maxFeatures = maxFeatures;
       return this;
     }

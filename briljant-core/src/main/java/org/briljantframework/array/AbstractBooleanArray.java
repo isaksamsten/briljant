@@ -35,9 +35,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.primitive.ArrayAllocations;
 
 /**
  * @author Isak Karlsson
@@ -284,7 +284,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     private int size = 0;
 
     public void add(boolean a) {
-      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer = ArrayAllocations.ensureCapacity(buffer, size);
       buffer[size++] = a;
     }
 

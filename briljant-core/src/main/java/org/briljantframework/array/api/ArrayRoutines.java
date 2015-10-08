@@ -314,7 +314,7 @@ public interface ArrayRoutines {
    *
    * <p>
    * The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is called. To
-   * get a computed list, use {@code new ArrayList<>(Bj.hsplit(m, 3))}. This is useful when
+   * get a computed list, use {@code new ArrayList<>(Arrays.hsplit(m, 3))}. This is useful when
    * {@link List#get(int)} is used multiple times.
    *
    * @param array array to be split

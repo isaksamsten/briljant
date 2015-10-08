@@ -51,11 +51,11 @@ import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
+import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.DoubleList;
 
 /**
@@ -541,7 +541,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     private int size = 0;
 
     public void add(double value) {
-      buffer = ArrayUtils.ensureCapacity(buffer, size);
+      buffer = ArrayAllocations.ensureCapacity(buffer, size);
       buffer[size++] = value;
     }
 

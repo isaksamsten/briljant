@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework;
+package org.briljantframework.primitive;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -28,11 +28,11 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Isak Karlsson on 14/08/14.
  */
-public final class ArrayUtils {
+public final class ArrayAllocations {
 
   private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
-  private ArrayUtils() {}
+  private ArrayAllocations() {}
 
   /**
    * Alters the current size of the vector if the supplied size is larger than the current.

@@ -40,7 +40,7 @@ import org.briljantframework.evaluation.result.Result;
  * @param <C> the type parameter
  * @param <O> the type parameter
  */
-public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? extends C>>
+public class DefaultTuner<C extends Classifier.Learner, O extends Classifier.Configurator<? extends C>>
     implements Tuner<C, O> {
 
   /**
@@ -102,7 +102,7 @@ public class DefaultTuner<C extends Classifier, O extends Classifier.Builder<? e
       }
       updater.restore();
     } else {
-      C classifier = classifierBuilder.build();
+      C classifier = classifierBuilder.configure();
       Result result = evaluator.test(classifier, x, y);
 
       Map<String, Object> map = new HashMap<>();

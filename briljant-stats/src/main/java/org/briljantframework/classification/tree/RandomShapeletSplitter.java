@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
@@ -163,8 +163,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
     List<Object> presentTargets = classSet.getTargets();
-    DoubleArray ltRelativeFrequency = Bj.doubleArray(presentTargets.size());
-    DoubleArray gtRelativeFrequency = Bj.doubleArray(presentTargets.size());
+    DoubleArray ltRelativeFrequency = Arrays.doubleArray(presentTargets.size());
+    DoubleArray gtRelativeFrequency = Arrays.doubleArray(presentTargets.size());
 
 
 

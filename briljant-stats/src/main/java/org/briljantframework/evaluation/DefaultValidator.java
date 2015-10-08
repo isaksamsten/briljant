@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.Predictor;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
@@ -62,7 +61,7 @@ public class DefaultValidator extends AbstractValidator {
   }
 
   @Override
-  public Result test(Classifier classifier, DataFrame x, Vector y) {
+  public Result test(Classifier.Learner classifier, DataFrame x, Vector y) {
     Iterable<Partition> partitions = getPartitioner().partition(x, y);
     Vector domain = Vectors.unique(y);
     List<ConfusionMatrix> confusionMatrices = new ArrayList<>();
@@ -73,7 +72,7 @@ public class DefaultValidator extends AbstractValidator {
 
       // Step 1: Fit the classifier using the training data
       long start = System.nanoTime();
-      Predictor predictor = classifier.fit(trainingData, trainingTarget);
+      Classifier predictor = classifier.fit(trainingData, trainingTarget);
       double fitTime = (System.nanoTime() - start) / 1e6;
 
       DataFrame validationData = partition.getValidationData();

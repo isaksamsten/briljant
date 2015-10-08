@@ -25,7 +25,7 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.VectorLocationSetter;
@@ -45,16 +45,16 @@ import org.briljantframework.evaluation.result.EvaluationContext;
  * 
  * <p/>
  * Predictors that produces probability estimates should make sure to include the
- * {@link org.briljantframework.classification.Predictor.Characteristics#ESTIMATOR ESTIMATOR}
+ * {@link Classifier.Characteristics#ESTIMATOR ESTIMATOR}
  * characteristics in the {@link EnumSet} returned by {@link #getCharacteristics()}
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractPredictor implements Predictor {
+public abstract class AbstractClassifier implements Classifier {
 
   private final Vector classes;
 
-  protected AbstractPredictor(Vector classes) {
+  protected AbstractClassifier(Vector classes) {
     this.classes = Objects.requireNonNull(classes);
   }
 
@@ -74,12 +74,12 @@ public abstract class AbstractPredictor implements Predictor {
 
   @Override
   public Object predict(Vector record) {
-    return getClasses().loc().get(Object.class, Bj.argmax(estimate(record)));
+    return getClasses().loc().get(Object.class, Arrays.argmax(estimate(record)));
   }
 
   @Override
   public DoubleArray estimate(DataFrame x) {
-    DoubleArray estimations = Bj.doubleArray(x.rows(), getClasses().size());
+    DoubleArray estimations = Arrays.doubleArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel()
         .forEach(i -> estimations.setRow(i, estimate(x.loc().getRecord(i))));
     return estimations;

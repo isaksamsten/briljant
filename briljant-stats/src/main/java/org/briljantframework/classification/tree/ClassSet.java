@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
 
@@ -130,7 +130,7 @@ public final class ClassSet implements Iterable<Example> {
     for (Sample c : samples.values()) {
       rel[i++] = c.getWeight() / size;
     }
-    return Bj.array(rel);
+    return Arrays.of(rel);
   }
 
   public double getTotalWeight() {

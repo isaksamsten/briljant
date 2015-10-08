@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework;
+package org.briljantframework.array;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -34,15 +34,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.array.LongArray;
-import org.briljantframework.array.Op;
-import org.briljantframework.array.Range;
+import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
@@ -53,7 +45,7 @@ import org.briljantframework.sort.IndexComparator;
 /**
  * @author Isak Karlsson
  */
-public final class Bj {
+public final class Arrays {
 
   private static final RealDistribution normalDistribution = new NormalDistribution(0, 1);
   private static final RealDistribution uniformDistribution = new UniformRealDistribution(-1, 1);
@@ -77,7 +69,7 @@ public final class Bj {
     linalg = backend.getLinearAlgebraRoutines();
   }
 
-  private Bj() {}
+  private Arrays() {}
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#referenceArray(int...)
@@ -89,14 +81,14 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
    */
-  public static <T> Array<T> array(T[] data) {
+  public static <T> Array<T> of(T[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(Object[][])
    */
-  public static <T> Array<T> array(T[][] data) {
+  public static <T> Array<T> of(T[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -131,14 +123,14 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(double[])
    */
-  public static DoubleArray array(double[] data) {
+  public static DoubleArray of(double[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(double[][])
    */
-  public static DoubleArray array(double[][] data) {
+  public static DoubleArray of(double[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -169,7 +161,7 @@ public final class Bj {
    * 
    * <pre>
    * {@code
-   * > Bj.randn(9).reshape(3, 3);
+   * > Arrays.randn(9).reshape(3, 3);
    * array([[0.168, -0.297, -0.374],
    *        [1.030, -1.465,  0.636],
    *        [0.957, -0.990,  0.498]] type: double)
@@ -190,7 +182,7 @@ public final class Bj {
    * 
    * <pre>
    * {@code
-   * > Bj.rand(4).reshape(2,2)
+   * > Arrays.rand(4).reshape(2,2)
    * array([[0.467, 0.898],
    *        [0.568, 0.103]] type: double)
    * }
@@ -220,14 +212,14 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[])
    */
-  public static ComplexArray array(Complex[] data) {
+  public static ComplexArray of(Complex[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[][])
    */
-  public static ComplexArray array(Complex[][] data) {
+  public static ComplexArray of(Complex[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -241,14 +233,14 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(int[])
    */
-  public static IntArray array(int[] data) {
+  public static IntArray of(int[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(int[][])
    */
-  public static IntArray array(int[][] data) {
+  public static IntArray of(int[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -295,14 +287,14 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(long[])
    */
-  public static LongArray array(long[] data) {
+  public static LongArray of(long[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(long[][])
    */
-  public static LongArray array(long[][] data) {
+  public static LongArray of(long[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -316,14 +308,14 @@ public final class Bj {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
    */
-  public static BooleanArray array(boolean[] data) {
+  public static BooleanArray of(boolean[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(boolean[][])
    */
-  public static BooleanArray array(boolean[][] data) {
+  public static BooleanArray of(boolean[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -384,6 +376,14 @@ public final class Bj {
    */
   public static int sum(IntArray x) {
     return MATRIX_ROUTINES.sum(x);
+  }
+
+  public static int sum(BooleanArray x) {
+    return sum(x.asInt());
+  }
+
+  public static IntArray sum(int dim, BooleanArray x) {
+    return sum(dim, x.asInt());
   }
 
   /**
@@ -802,7 +802,7 @@ public final class Bj {
    * 
    * <pre>
    * {@code
-   * > Bj.inner(Bj.linspace(0,3,4), Bj.linspace(0,3,4).reshape(2, 2))
+   * > Arrays.inner(Arrays.linspace(0,3,4), Arrays.linspace(0,3,4).reshape(2, 2))
    * 14.0
    * }
    * </pre>
@@ -828,7 +828,7 @@ public final class Bj {
    * 
    * <pre>
    * {@code
-   * Bj.outer(Bj.linspace(0, 3, 4), Bj.linspace(0,3,4).reshape(2,2))
+   * Arrays.outer(Arrays.linspace(0, 3, 4), Arrays.linspace(0,3,4).reshape(2,2))
    * array([[0.000, 0.000, 0.000, 0.000],
    *        [0.000, 1.000, 2.000, 3.000],
    *        [0.000, 2.000, 4.000, 6.000],
@@ -1049,7 +1049,7 @@ public final class Bj {
   }
 
   public static IntArray order(DoubleArray array, DoubleComparator cmp) {
-    IntArray order = Bj.range(array.size()).copy();
+    IntArray order = Arrays.range(array.size()).copy();
     order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
     return order;
   }

@@ -21,7 +21,7 @@
 
 package org.briljantframework.linalg.decomposition;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 
@@ -32,9 +32,9 @@ public class LuDecomposer {
 
   public LuDecomposition decompose(DoubleArray matrix) {
     int m = matrix.rows(), n = matrix.columns();
-    IntArray pivots = Bj.intArray(Math.min(m, n));
+    IntArray pivots = Arrays.intArray(Math.min(m, n));
     DoubleArray lu = matrix.copy();
-    Bj.linalg.getrf(lu, pivots);
+    Arrays.linalg.getrf(lu, pivots);
     return new LuDecomposition(lu, pivots);
   }
 }

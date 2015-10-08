@@ -21,7 +21,7 @@
 
 package org.briljantframework.linalg.solve;
 
-import org.briljantframework.Bj;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 
@@ -45,8 +45,8 @@ public class LeastLinearSquaresSolver extends AbstractSolver {
   public DoubleArray solve(DoubleArray b) {
     DoubleArray aCopy = a.copy();
     DoubleArray bCopy = b.copy();
-    IntArray jpvt = Bj.intArray(a.columns());
-    Bj.linalg.gelsy(aCopy, bCopy, jpvt, 0.01);
+    IntArray jpvt = Arrays.intArray(a.columns());
+    Arrays.linalg.gelsy(aCopy, bCopy, jpvt, 0.01);
     return bCopy;
   }
 }
