@@ -39,7 +39,7 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
       100 * Math.pow(x.get(0) + 3, 4) + Math.pow(x.get(1) - 3, 4);
     }
     def optimizer = new LimitedMemoryBfgsOptimizer(5, 100, 1e-5)
-    def x = Arrays.array(0.0, 0.0 as double)
+    def x = Arrays.of(0.0, 0.0 as double)
 
     when:
     optimizer.optimize(d, x)

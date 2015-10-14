@@ -38,12 +38,6 @@ import org.briljantframework.array.DoubleArray;
 public class SingularValueDecomposer {
 
   public SingularValueDecomposition decompose(DoubleArray x) {
-    int m = x.rows(), n = x.columns();
-    DoubleArray s = Arrays.doubleArray(n);
-    DoubleArray u = Arrays.doubleArray(m, m);
-    DoubleArray vt = Arrays.doubleArray(n, n);
-    DoubleArray a = x.copy();
-    Arrays.linalg.gesvd('a', 'a', a, s, u, vt);
-    return new SingularValueDecomposition(s, u, vt);
+    return Arrays.linalg.svd(x);
   }
 }

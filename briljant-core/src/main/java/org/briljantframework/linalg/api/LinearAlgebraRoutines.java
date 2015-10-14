@@ -37,7 +37,6 @@ public interface LinearAlgebraRoutines {
 
   SingularValueDecomposition svd(DoubleArray x);
 
-
   /**
    * DGEEV computes for an N-by-N real nonsymmetric matrix A, the eigenvalues and, optionally, the
    * left and/or right eigenvectors.

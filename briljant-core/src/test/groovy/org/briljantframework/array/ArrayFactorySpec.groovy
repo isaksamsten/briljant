@@ -50,7 +50,7 @@ abstract class ArrayFactorySpec extends Specification {
     array == result
 
     where:
-    of << getElementArray(3, 0)
+    array << getElementArray(3, 0)
     element << getValue(3)
     result << getElementArray(3, 3)
   }
@@ -63,7 +63,7 @@ abstract class ArrayFactorySpec extends Specification {
     array == other
 
     where:
-    of << getElementArray(3, 0)
+    array << getElementArray(3, 0)
     other << getElementArray(3, 3)
   }
 
@@ -75,7 +75,7 @@ abstract class ArrayFactorySpec extends Specification {
     array == result
 
     where:
-    of << getElementArray(3, 0)
+    array << getElementArray(3, 0)
     other << getNativeArray(3, 3)
     result << getElementArray(3, 3)
   }
@@ -88,7 +88,7 @@ abstract class ArrayFactorySpec extends Specification {
     array == result
 
     where:
-    of << getElementArray([3, 3], 0)
+    array << getElementArray([3, 3], 0)
     result << getElementArray([3, 3], 3)
     supplier << getSupplier(3)
   }

@@ -39,8 +39,11 @@ import org.briljantframework.data.vector.Vector;
  * {@code 2, 2, 2} from {@code b}.
  *
  * <p>
- * Joiners are often created using a {@link org.briljantframework.data.dataframe.join.JoinOperation}.
+ * Joiners are often created using a {@link org.briljantframework.data.dataframe.join.JoinOperation}
+ * .
  *
+ * // TODO: joining does not work yet
+ * 
  * @author Isak Karlsson
  */
 public abstract class Joiner {

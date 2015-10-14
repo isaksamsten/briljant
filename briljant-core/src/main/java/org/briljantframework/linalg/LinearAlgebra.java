@@ -33,6 +33,7 @@ import org.briljantframework.linalg.solve.LeastLinearSquaresSolver;
 /**
  * Created by isak on 23/06/14.
  */
+@Deprecated
 public class LinearAlgebra {
 
   /**

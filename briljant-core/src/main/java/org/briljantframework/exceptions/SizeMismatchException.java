@@ -28,25 +28,11 @@ package org.briljantframework.exceptions;
  */
 public class SizeMismatchException extends RuntimeException {
 
-  /**
-   * Produces message "Expected size {expected} but got {actual}.".
-   *
-   * @param expected expected size
-   * @param actual actual size
-   */
-  public SizeMismatchException(int expected, int actual) {
-    super(String.format("Expected size %d but got %d.", expected, actual));
-  }
-
-  /**
-   * For example, {@code throw new SizeMismatchException("Size %d is not the same as %d", 10, 11)}.
-   *
-   * The {@code message} must contain 2 {@code %d} to format the {@code expected} and {@code actual}
-   * . The first {@code %d} is {@code expected} and the second {@code actual}.
-   *
-   * @param message the message; a format string which must contain 2 {@code %d}.
-   */
   public SizeMismatchException(String message) {
     super(message);
+  }
+
+  public SizeMismatchException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

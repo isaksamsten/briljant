@@ -140,8 +140,6 @@ public final class DiscreteFourierTransform {
     }
 
     fftInplace(xt); // inverse transform, since xt is reversed above
-    // TODO: implement divi for complex matrices
-    // scaling and reversing back
     for (int i = 0; i < n; i++) {
       Complex c = xt.get(i);
       xt.set(i, Complex.valueOf(c.getImaginary() / n, c.getReal() / n));

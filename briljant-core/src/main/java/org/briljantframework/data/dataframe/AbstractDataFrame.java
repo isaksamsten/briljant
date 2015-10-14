@@ -203,13 +203,13 @@ public abstract class AbstractDataFrame implements DataFrame {
     Vector.Builder builder = Vector.Builder.of(cls);
     for (Object columnKey : this) {
       Vector column = get(columnKey);
-      if (column.getType().isAssignableTo(cls)) {
-        T result = init;
-        for (int i = 0, size = column.size(); i < size; i++) {
-          result = op.apply(result, column.loc().get(cls, i));
-        }
-        builder.set(columnKey, result);
+      // if (column.getType().isAssignableTo(cls)) {
+      T result = init;
+      for (int i = 0, size = column.size(); i < size; i++) {
+        result = op.apply(result, column.loc().get(cls, i));
       }
+      builder.set(columnKey, result);
+      // }
     }
     return builder.build();
   }
@@ -217,13 +217,13 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final Vector reduce(Function<Vector, ?> op) {
     // ISSUE#7 use an improved TypeInferenceBuilder here
-    Vector.Builder builder = getMostSpecificColumnType().newBuilder();
+    Vector.Builder builder = new TypeInferenceVectorBuilder();
     for (Object columnKey : this) {
       Vector column = get(columnKey);
       Object value = op.apply(column);
       if (Is.NA(value)) {
         builder.setNA(columnKey);
-      } else if (getMostSpecificColumnType().isAssignableTo(value.getClass())) {
+      } else {
         builder.set(columnKey, value);
       }
     }
@@ -249,13 +249,13 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     for (Object columnKey : this) {
       Vector column = get(columnKey);
-      if (column.getType().isAssignableTo(cls)) {
-        C accumulator = collector.supplier().get();
-        for (int i = 0, size = column.size(); i < size; i++) {
-          collector.accumulator().accept(accumulator, column.loc().get(cls, i));
-        }
-        builder.set(columnKey, collector.finisher().apply(accumulator));
+      // if (column.getType().isAssignableTo(cls)) {
+      C accumulator = collector.supplier().get();
+      for (int i = 0, size = column.size(); i < size; i++) {
+        collector.accumulator().accept(accumulator, column.loc().get(cls, i));
       }
+      builder.set(columnKey, collector.finisher().apply(accumulator));
+      // }
     }
     return builder.build();
   }

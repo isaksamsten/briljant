@@ -355,7 +355,6 @@ public abstract class DataFrameTest {
   public void testInnerJoin() throws Exception {
     Vector values = Vector.of(10, 20, 30, 10, 20);
     DataFrame a = getBuilder().set("a", Vector.of(1, 2, 3, 4, 5)).set("left", values).build();
-
     DataFrame b = getBuilder().set("a", Vector.of(5, 2, 3, 2, 1)).set("right", values).build();
 
     DataFrame join = a.join(JoinType.INNER, b, "a");
