@@ -28,8 +28,8 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.distance.DynamicTimeWarping;
 import org.briljantframework.distance.Euclidean;
-import org.briljantframework.evaluation.Validators;
-import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.evaluation.Result;
+import org.briljantframework.evaluation.classification.Validators;
 import org.junit.Test;
 
 public class KNearestNeighborsTest {

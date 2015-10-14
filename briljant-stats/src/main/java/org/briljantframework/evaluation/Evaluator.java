@@ -19,27 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation;
+
+
+import java.util.function.IntConsumer;
 
 /**
  * @author Isak Karlsson
  */
-public class Accuracy extends AbstractMeasure {
+public interface Evaluator {
 
-  private Accuracy(AbstractMeasure.Builder<Accuracy> builder) {
-    super(builder);
+  static Evaluator foldOutput(IntConsumer consumer) {
+    return new Evaluator() {
+      private int fold = 0;
+
+      @Override
+      public void accept(EvaluationContext ctx) {
+        consumer.accept(fold++);
+      }
+    };
   }
 
-  @Override
-  public String getName() {
-    return "Accuracy";
-  }
-
-  public static final class Builder extends AbstractMeasure.Builder<Accuracy> {
-
-    @Override
-    public Accuracy build() {
-      return new Accuracy(this);
-    }
-  }
+  /**
+   * Performs a modification to the evaluation context. For example, adding a measure.
+   *
+   * @param ctx the evaluation context
+   */
+  void accept(EvaluationContext ctx);
 }

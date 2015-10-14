@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation.classification;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -27,16 +27,18 @@ import java.util.Map;
 
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.evaluation.result.Sample;
+import org.briljantframework.evaluation.Measure;
+import org.briljantframework.evaluation.PointMeasure;
+import org.briljantframework.evaluation.Sample;
 
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractClassMeasure extends AbstractMeasure {
+abstract class PerClassPointMeasure extends PointMeasure {
 
   protected final EnumMap<Sample, Map<Object, Vector>> valueForValue;
 
-  protected AbstractClassMeasure(Builder<? extends Measure> producer) {
+  protected PerClassPointMeasure(Builder<? extends Measure> producer) {
     super(producer);
     this.valueForValue = new EnumMap<>(Sample.class);
     for (Map.Entry<Sample, Map<Object, Vector.Builder>> e : producer.sampleMetricValues.entrySet()) {
@@ -48,11 +50,11 @@ public abstract class AbstractClassMeasure extends AbstractMeasure {
     }
   }
 
-  public Vector get(Sample sample, String value) {
+  public Vector get(Sample sample, Object value) {
     return valueForValue.get(sample).getOrDefault(value, naVector);
   }
 
-  public double getAverage(Sample sample, String value) {
+  public double getAverage(Sample sample, Object value) {
     return Vectors.mean(get(sample, value));
   }
 
@@ -61,22 +63,27 @@ public abstract class AbstractClassMeasure extends AbstractMeasure {
     return Vectors.std(get(sample, value), mean);
   }
 
-  public double getMin(Sample sample, String value) {
+  public double getMin(Sample sample, Object value) {
     return get(sample, value).stream(Number.class).mapToDouble(Number::doubleValue).min().orElse(0);
   }
 
-  public double getMax(Sample sample, String value) {
+  public double getMax(Sample sample, Object value) {
     return get(sample, value).stream(Number.class).mapToDouble(Number::doubleValue).min().orElse(0);
   }
 
-  protected static abstract class Builder<T extends Measure> extends AbstractMeasure.Builder<T> {
+  @Override
+  public String toString() {
+    return "PerClassPointMeasure{name=" + getName() + " mean=" + getMean() + "}";
+  }
+
+  protected static abstract class Builder<T extends Measure> extends PointMeasure.Builder<T> {
 
     protected final EnumMap<Sample, Map<Object, Vector.Builder>> sampleMetricValues =
         new EnumMap<>(Sample.class);
 
     /**
      * Adds values for each value. Callers must ensure that an average value is added using
-     * {@link #add(org.briljantframework.evaluation.result.Sample, double)}
+     * {@link #add(Sample, double)}
      *
      * @param sample the sample
      * @param measurements the values

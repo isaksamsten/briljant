@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,73 +28,79 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.classification.Classifier;
-import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.measure.Measure;
 import org.briljantframework.evaluation.partition.Partition;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson
  */
-public class EvaluationContext {
+class EvaluationContextImpl implements EvaluationContext {
 
   private final HashMap<Class<?>, Measure.Builder<?>> builders = new HashMap<>();
 
   private Vector predictions;
-  private Classifier classifier;
+  private Predictor predictor;
   private Partition partition;
   private DoubleArray estimation;
 
-  public EvaluationContext() {}
-
-  public void setPredictions(Vector predictions) {
-    this.predictions = Objects.requireNonNull(predictions);
-  }
+  public EvaluationContextImpl() {}
 
   /**
    * Get the partition representing the training and the evaluation data.
    *
    * @return the partitions
    */
+  @Override
   public Partition getPartition() {
+    Check.state(partition != null, "no partition");
     return partition;
   }
 
   public void setPartition(Partition partition) {
-    this.partition = Objects.requireNonNull(partition);
+    this.partition = Objects.requireNonNull(partition, "requires a partition");
+  }
+
+  /**
+   * Set the out of sample predictions made by the predictor
+   * 
+   * @param predictions the out of sample predictions
+   */
+  public void setPredictions(Vector predictions) {
+    this.predictions = Objects.requireNonNull(predictions, "requires predictions");
   }
 
   /**
    * Get the predictions made by {@link #getPredictor()}.
    *
-   * @param sample if {@link Sample#IN}, returns the predictions on
-   *        {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}; if
-   *        {@link Sample#OUT}, returns the predictions on
-   *        {@link org.briljantframework.evaluation.partition.Partition#getTrainingData()}.
    * @return the predictions
    */
-  public Vector getPredictions(Sample sample) {
-    DataFrame trainingData = getPartition().getTrainingData();
-    return sample == Sample.OUT ? predictions : getPredictor().predict(trainingData);
-  }
-
-  public void setEstimation(DoubleArray estimation) {
-    this.estimation = Objects.requireNonNull(estimation);
+  @Override
+  public Vector getPredictions() {
+    Check.state(predictions != null, "no predictions");
+    return predictions;
   }
 
   /**
-   * If the classifier returned by {@link #getPredictor()} has the
-   * {@link Classifier.Characteristics#ESTIMATOR} characteristic
-   *
-   * @param sample the sample
+   * Set the out-of-sample probability estimates
+   * 
+   * @param estimation the probability estimates
+   */
+  public void setEstimation(DoubleArray estimation) {
+    this.estimation = Objects.requireNonNull(estimation, "requires an estimation");
+  }
+
+  /**
+   * Get the probability estimates from this
+   * 
    * @return the probability estimations made by classifier; shape [no samples, domain]
    */
-  public DoubleArray getEstimation(Sample sample) {
-    return (sample == Sample.OUT) ? estimation == null ? getPredictor().estimate(
-        getPartition().getValidationData()) : estimation : getPredictor().estimate(
-        getPartition().getTrainingData());
+  @Override
+  public DoubleArray getEstimation() {
+    Check.state(estimation != null, "no probability estimates");
+    return estimation;
   }
 
   /**
@@ -102,12 +108,19 @@ public class EvaluationContext {
    *
    * @return the classifier under evaluation
    */
-  public Classifier getPredictor() {
-    return classifier;
+  @Override
+  public Predictor getPredictor() {
+    Check.state(predictor != null, "no predictor");
+    return predictor;
   }
 
-  public void setPredictor(Classifier classifier) {
-    this.classifier = Objects.requireNonNull(classifier);
+  /**
+   * Set the predictor
+   * 
+   * @param predictor the predictor
+   */
+  public void setPredictor(Predictor predictor) {
+    this.predictor = Objects.requireNonNull(predictor, "requires a predictor");
   }
 
   /**
@@ -115,37 +128,32 @@ public class EvaluationContext {
    * <p>
    *
    * <pre>
-   *     // Good
-   *     ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.3);
-   * 
-   *     // Bad
-   *     Measure.Builder b = ctx.get(Accuracy.class);
-   *     if(b == null) {
-   *         b = new Accuracy.Builder();
-   *         ctx.put(Accuracy.class, b);
-   *     }
-   *     b.add(0.3)
+   * // Good
+   * ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.3);
    * </pre>
    *
    * @param measure the measure
    * @return a measure builder; or {@code null}.
    */
   @SuppressWarnings("unchecked")
-  public <T extends Measure> Measure.Builder<T> get(Class<T> measure) {
-    return (Measure.Builder<T>) builders.get(measure);
+  private <T extends Measure, C extends Measure.Builder<T>> C get(Class<T> measure) {
+    return (C) builders.get(measure);
   }
 
   /**
    * Get the builder for the key or the default value produced by the supplier
    *
+   * TODO: this method is unsafe. We need an alternative here.
+   * 
    * @param measure the measure
    * @param supplier the supplier
    * @param <T> the type of measure
    * @return a builder for the measure
    */
-  public <T extends Measure> Measure.Builder<T> getOrDefault(Class<T> measure,
-      Supplier<? extends Measure.Builder<T>> supplier) {
-    Measure.Builder<T> builder = get(measure);
+  @Override
+  public <T extends Measure, C extends Measure.Builder<T>> C getOrDefault(Class<T> measure,
+      Supplier<C> supplier) {
+    C builder = get(measure);
     if (builder == null) {
       builder = supplier.get();
       builders.put(measure, builder);
@@ -154,11 +162,7 @@ public class EvaluationContext {
     return builder;
   }
 
-  public <T extends Measure> void put(Class<T> measure, Measure.Builder<T> builder) {
-    builders.put(measure, builder);
-  }
-
-  public Collection<Measure.Builder<?>> builders() {
+  private Collection<Measure.Builder<?>> getMeasureBuilders() {
     return builders.values();
   }
 
@@ -167,7 +171,7 @@ public class EvaluationContext {
    *
    * <pre>
    * {@code
-   *  EvaluationContext ctx = new EvaluationContext();
+   *  EvaluationContextImpl ctx = new EvaluationContextImpl();
    *  ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.9);
    *  ctx.append(Accuracy.class, 0.9);
    *  ctx.append(Accuracy.class, 0.8);
@@ -178,13 +182,10 @@ public class EvaluationContext {
    *
    * @return a list of measures
    */
+  @Override
   public List<Measure> getMeasures() {
     List<Measure> measures = new ArrayList<>();
-    builders().forEach(v -> measures.add(v.build()));
+    getMeasureBuilders().forEach(v -> measures.add(v.build()));
     return measures;
-  }
-
-  public boolean contains(Class<? extends Measure> measure) {
-    return builders.containsKey(measure);
   }
 }

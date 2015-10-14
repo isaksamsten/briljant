@@ -19,16 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.classification;
+
+import static org.briljantframework.evaluation.classification.ClassificationMeasures.areaUnderRocCurve;
+import static org.briljantframework.evaluation.classification.ClassificationMeasures.brierScore;
 
 import java.util.Map;
 
+import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.classification.ClassifierCharacteristic;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.evaluation.measure.AreaUnderCurve;
-import org.briljantframework.evaluation.measure.Brier;
+import org.briljantframework.evaluation.EvaluationContext;
+import org.briljantframework.evaluation.Evaluator;
+import org.briljantframework.evaluation.Sample;
 
 /**
  * @author Isak Karlsson
@@ -37,18 +43,20 @@ public class ProbabilityEvaluator implements Evaluator {
 
   @Override
   public void accept(EvaluationContext ctx) {
-    if (!ctx.getPredictor().getCharacteristics().contains(Classifier.Characteristics.ESTIMATOR)) {
+    Check.argument(ctx.getPredictor() instanceof Classifier, "requires a classifier");
+    // Ignore classifiers without the ESTIMATOR characteristics
+    if (!ctx.getPredictor().getCharacteristics().contains(ClassifierCharacteristic.ESTIMATOR)) {
       return;
     }
     Vector actual = ctx.getPartition().getValidationTarget();
-    Vector predicted = ctx.getPredictions(Sample.OUT);
-    DoubleArray probabilities = ctx.getEstimation(Sample.OUT);
+    Vector predicted = ctx.getPredictions();
+    DoubleArray probabilities = ctx.getEstimation();
 
-    Classifier classifier = ctx.getPredictor();
+    Classifier classifier = (Classifier) ctx.getPredictor();
     Vector classes = classifier.getClasses();
-    
-    Vector auc = ClassificationMeasures.areaUnderRocCurve(predicted, actual, probabilities, classes);
-    double brier = ClassificationMeasures.brier(predicted, actual, probabilities, classes);
+
+    Vector auc = areaUnderRocCurve(predicted, actual, probabilities, classes);
+    double brier = brierScore(predicted, actual, probabilities, classes);
     ctx.getOrDefault(AreaUnderCurve.class, AreaUnderCurve.Builder::new).add(Sample.OUT, auc);
 
     Map<Object, Integer> classDistribution = Vectors.count(actual);
@@ -61,7 +69,7 @@ public class ProbabilityEvaluator implements Evaluator {
         throw new IllegalStateException("Unexpected class " + classKey);
       }
     }
-    ctx.get(AreaUnderCurve.class).add(Sample.OUT, averageAuc);
+    ctx.getOrDefault(AreaUnderCurve.class, AreaUnderCurve.Builder::new).add(Sample.OUT, averageAuc);
     ctx.getOrDefault(Brier.class, Brier.Builder::new).add(Sample.OUT, brier);
   }
 

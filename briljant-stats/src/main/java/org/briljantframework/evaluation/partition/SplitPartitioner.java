@@ -21,6 +21,10 @@
 
 package org.briljantframework.evaluation.partition;
 
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
@@ -46,8 +50,18 @@ public class SplitPartitioner implements Partitioner {
   }
 
   @Override
-  public Iterable<Partition> partition(DataFrame x, Vector y) {
-    return new SplitIterator(x, y, testFraction);
+  public Collection<Partition> partition(DataFrame x, Vector y) {
+    return new AbstractCollection<Partition>() {
+      @Override
+      public Iterator<Partition> iterator() {
+        return new SplitIterator(x, y, testFraction);
+      }
+
+      @Override
+      public int size() {
+        return 1;
+      }
+    };
   }
 
   @Override

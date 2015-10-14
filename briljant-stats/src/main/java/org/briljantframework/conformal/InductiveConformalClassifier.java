@@ -36,14 +36,13 @@ public class InductiveConformalClassifier extends AbstractClassifier implements 
   @Override
   public DoubleArray estimate(Vector example) {
     Check.state(calibration != null, "the conformal predictor must be calibrated");
-    double nCal = calibration.size();
     DoubleArray significance = Arrays.doubleArray(getClasses().size());
+    double n = calibration.size();
     for (int i = 0; i < significance.size(); i++) {
-      Object trueClass = getClasses().loc().get(Object.class, i);
-      double testNc = nonconformity.estimate(example, trueClass);
-      double nGt = calibration.filter(score -> score > testNc).size();
-      double nEq = calibration.filter(score -> score == testNc).size() + 1;
-      significance.set(i, nGt / (nCal + 1) + nEq / (nCal + 1));
+      Object label = getClasses().loc().get(i);
+      double nc = nonconformity.estimate(example, label);
+      double gt = calibration.filter(score -> score >= nc).size();
+      significance.set(i, gt / (n + 1));
     }
 
     return significance;

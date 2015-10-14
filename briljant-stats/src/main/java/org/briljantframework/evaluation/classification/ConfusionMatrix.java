@@ -19,17 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.classification;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.briljantframework.Check;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.Measure;
 
 /**
  * In the field of machine learning, a confusion matrix, also known as a contingency table or an
@@ -49,45 +53,26 @@ import org.briljantframework.data.vector.Vector;
  *   good    6.0       3.0         1.0         45.0
  * </pre>
  *
- * Created by isak on 02/10/14.
+ * @author Isak Karlsson
  */
-public class ConfusionMatrix {
+public class ConfusionMatrix implements Measure {
 
-  private final Map<Object, Map<Object, Double>> matrix;
+  private final List<Map<Object, Map<Object, Double>>> matrices;
+  private final Map<Object, Map<Object, Double>> averageMatrix;
   private final Set<Object> labels;
-  private final double sum;
+  private final Vector sums;
+  private final double averageSum;
 
-  public ConfusionMatrix(Map<Object, Map<Object, Double>> matrix, Set<Object> labels, double sum) {
-    this.matrix = Objects.requireNonNull(matrix, "Matrix cannot be null");
+  public ConfusionMatrix(Map<Object, Map<Object, Double>> averageMatrix,
+      List<Map<Object, Map<Object, Double>>> matrices, Set<Object> labels, Vector sums,
+      double averageSum) {
+    this.matrices = matrices;
+    this.averageMatrix = Objects.requireNonNull(averageMatrix, "Matrix cannot be null");
     this.labels =
         Collections.unmodifiableSet(Objects.requireNonNull(labels, "Labels cannot be null"));
 
-    this.sum = sum;
-  }
-
-  public static ConfusionMatrix compute(Vector predictions, Vector truth, Vector domain) {
-    Check.argument(predictions.size() == truth.size(), "The vector sizes don't match %s != %s.",
-        predictions.size(), truth.size());
-
-    Map<Object, Map<Object, Double>> matrix = new HashMap<>();
-    Set<Object> labels = new HashSet<>();
-    double sum = 0;
-    for (int i = 0; i < predictions.size(); i++) {
-      Object predicted = predictions.loc().get(Object.class, i);
-      Object actual = truth.loc().get(Object.class, i);
-
-      Map<Object, Double> actuals = matrix.get(predicted);
-      if (actuals == null) {
-        actuals = new HashMap<>();
-        matrix.put(predicted, actuals);
-      }
-      actuals.compute(actual, (key, value) -> value == null ? 1 : value + 1);
-
-      labels.add(predicted);
-      labels.add(actual);
-      sum++;
-    }
-    return new ConfusionMatrix(matrix, labels, sum);
+    this.averageSum = averageSum;
+    this.sums = sums;
   }
 
   public double getAverageRecall() {
@@ -140,7 +125,7 @@ public class ConfusionMatrix {
   }
 
   public double get(Object predicted, Object actual) {
-    Map<Object, Double> values = matrix.get(predicted);
+    Map<Object, Double> values = averageMatrix.get(predicted);
     if (values == null) {
       return 0;
     } else {
@@ -153,11 +138,7 @@ public class ConfusionMatrix {
   }
 
   public double getAccuracy() {
-    double diagonal = 0.0;
-    for (Object value : labels) {
-      diagonal += get(value, value);
-    }
-    return diagonal / sum;
+    return getAccuracy(averageMatrix, averageSum);
   }
 
   public double getError() {
@@ -172,70 +153,100 @@ public class ConfusionMatrix {
     return sum;
   }
 
+  private double getAccuracy(Map<Object, Map<Object, Double>> matrix, double sum) {
+    double diagonal = 0.0;
+    for (Object value : labels) {
+      diagonal += get(matrix, value, value);
+    }
+    return diagonal / sum;
+  }
+
+  public DataFrame toDataFrame() {
+    DataFrame.Builder builder = MixedDataFrame.builder();
+    for (Object predicted : labels) {
+      for (Object actual : labels) {
+        builder.set(predicted, actual, get(predicted, actual));
+      }
+    }
+    return builder.build();
+  }
+
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    int longest =
-        labels.stream().map(Object::toString).mapToInt(String::length).summaryStatistics().getMax();
-    if (longest < 3) {
-      longest = 3;
+    return "ConfusionMatrix{accuracy=" + getAccuracy() + " precision=" + getAveragePrecision()
+        + " recall=" + getAverageRecall() + "}";
+  }
+
+  @Override
+  public int size() {
+    return matrices.size();
+  }
+
+  @Override
+  public String getName() {
+    return "Confusion Matrix";
+  }
+
+  private static double get(Map<Object, Map<Object, Double>> averageMatrix, Object predicted,
+      Object actual) {
+    Map<Object, Double> values = averageMatrix.get(predicted);
+    if (values == null) {
+      return 0;
+    } else {
+      return values.getOrDefault(actual, 0.0);
+    }
+  }
+
+  public static final class Builder implements Measure.Builder<ConfusionMatrix> {
+
+    private final List<Map<Object, Map<Object, Double>>> matrices = new ArrayList<>();
+    private final Set<Object> labels = new HashSet<>();
+    private final Vector.Builder sums = Vector.Builder.of(Integer.class);
+
+    public void add(Vector p, Vector t) {
+      Map<Object, Map<Object, Double>> matrix = new HashMap<>();
+      double sum = 0;
+      for (int i = 0; i < p.size(); i++) {
+        Object predicted = p.loc().get(i);
+        Object actual = t.loc().get(i);
+
+        Map<Object, Double> actuals = matrix.get(predicted);
+        if (actuals == null) {
+          actuals = new HashMap<>();
+          matrix.put(predicted, actuals);
+        }
+        actuals.compute(actual, (key, value) -> value == null ? 1 : value + 1);
+
+        labels.add(predicted);
+        labels.add(actual);
+        sum++;
+      }
+      sums.add(sum);
+      matrices.add(matrix);
     }
 
-    int longestValue = 0;
-    for (Object p : labels) {
-      for (Object n : labels) {
-        int len = Double.toString(get(p, n)).length();
-        if (len > longestValue) {
-          longestValue = len;
+    private Map<Object, Map<Object, Double>> getAverageConfusionMatrix() {
+      Map<Object, Map<Object, Double>> matrix = new HashMap<>();
+      for (Map<Object, Map<Object, Double>> cm : matrices) {
+        for (Object predicted : labels) {
+          for (Object actual : labels) {
+            Map<Object, Double> actuals = matrix.get(predicted);
+            if (actuals == null) {
+              actuals = new HashMap<>();
+              matrix.put(predicted, actuals);
+            }
+            double count = get(cm, predicted, actual);
+            actuals.compute(actual, (key, value) -> value == null ? count : count + value);
+          }
         }
       }
+      return matrix;
     }
 
-    builder.append(repeat(" ", longest + 3));
-    for (Object value : labels) {
-      builder.append(value);
-      builder.append(repeat(" ", longestValue + 1));
+    @Override
+    public ConfusionMatrix build() {
+      Vector s = sums.build();
+      return new ConfusionMatrix(getAverageConfusionMatrix(), matrices, labels, s, s.sum());
     }
-
-    builder.append("\n");
-    for (Object predicted : labels) {
-      builder.append(padEnd(predicted.toString(), longest + 3, ' '));
-
-      for (Object actual : labels) {
-        String valueStr = Double.toString(get(predicted, actual));
-        builder.append(valueStr);
-        builder.append(repeat(" ",
-            actual.toString().length() + 1 + longestValue - valueStr.length()));
-      }
-      builder.append("\n");
-    }
-    builder.append(" ---- (rows: predicted, columns: actual) ---- \n");
-    builder.append("Accuracy       ");
-    builder.append(String.format("%.2f", getAccuracy()));
-    builder.append(" (");
-    builder.append(String.format("%.2f", getError()));
-    builder.append(")\n");
-    builder.append("Avg. precision ").append(String.format("%.2f\n", getAveragePrecision()));
-    builder.append("Avg. recall    ").append(String.format("%.2f\n", getAverageRecall()));
-
-    return builder.toString();
-  }
-
-  private String padEnd(String s, int i, char c) {
-    int m = Math.max(s.length(), i);
-    StringBuilder builder = new StringBuilder(s);
-    for (int j = 0; j < m; j++) {
-      builder.append(c);
-    }
-
-    return builder.toString();
-  }
-
-  private String repeat(String p, int len) {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < len; i++) {
-      builder.append(p);
-    }
-    return builder.toString();
   }
 }

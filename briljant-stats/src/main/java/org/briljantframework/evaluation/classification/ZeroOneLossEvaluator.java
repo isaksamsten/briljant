@@ -19,33 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation.classification;
+
+import static org.briljantframework.evaluation.classification.ClassificationMeasures.accuracy;
+
+import org.briljantframework.Check;
+import org.briljantframework.classification.Classifier;
+import org.briljantframework.evaluation.EvaluationContext;
+import org.briljantframework.evaluation.Evaluator;
+import org.briljantframework.evaluation.Sample;
 
 /**
- * Error rate, i.e. miss-classification rate, i.e. fraction of errors.
- *
  * @author Isak Karlsson
  */
-public class ErrorRate extends AbstractMeasure {
+public class ZeroOneLossEvaluator implements Evaluator {
 
-  protected ErrorRate(AbstractMeasure.Builder<? extends Measure> builder) {
-    super(builder);
+  @Override
+  public void accept(EvaluationContext ctx) {
+    Check.argument(ctx.getPredictor() instanceof Classifier, "requires a classifier");
+    double a = accuracy(ctx.getPredictions(), ctx.getPartition().getValidationTarget());
+    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT, 1 - a);
+    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, a);
   }
 
   @Override
-  public String getName() {
-    return "Error";
-  }
-
-  public static class Builder extends AbstractMeasure.Builder<ErrorRate> {
-
-    public Builder() {
-      super();
-    }
-
-    @Override
-    public ErrorRate build() {
-      return new ErrorRate(this);
-    }
+  public String toString() {
+    return "0/1-loss evaluator";
   }
 }

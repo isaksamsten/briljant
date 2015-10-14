@@ -19,26 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation;
 
 /**
  * @author Isak Karlsson
  */
-public class PredictTime extends AbstractMeasure {
-  protected PredictTime(Builder builder) {
+public class ValidationSetSize extends PointMeasure {
+  protected ValidationSetSize(Builder builder) {
     super(builder);
   }
 
   @Override
   public String getName() {
-    return "Predict-time";
+    return "Validation-set size";
   }
 
-  public static class Builder extends AbstractMeasure.Builder<PredictTime> {
+  public static class Builder extends PointMeasure.Builder<ValidationSetSize> {
 
     @Override
-    public PredictTime build() {
-      return new PredictTime(this);
+    public ValidationSetSize build() {
+      return new ValidationSetSize(this);
     }
   }
 }

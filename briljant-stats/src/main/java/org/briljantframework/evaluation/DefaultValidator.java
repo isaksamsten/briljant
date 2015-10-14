@@ -22,89 +22,115 @@
 package org.briljantframework.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.briljantframework.array.Arrays;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.classification.ClassifierCharacteristic;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.evaluation.measure.FitTime;
-import org.briljantframework.evaluation.measure.PredictTime;
-import org.briljantframework.evaluation.measure.TrainingSetSize;
-import org.briljantframework.evaluation.measure.ValidationSetSize;
+import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.evaluation.partition.Partition;
 import org.briljantframework.evaluation.partition.Partitioner;
-import org.briljantframework.evaluation.partition.SplitPartitioner;
-import org.briljantframework.evaluation.result.ConfusionMatrix;
-import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.evaluation.result.Evaluator;
-import org.briljantframework.evaluation.result.Result;
-import org.briljantframework.evaluation.result.Sample;
+import org.briljantframework.supervised.Predictor;
 
-/**
- * The default
- * <p>
- * Created by Isak Karlsson on 01/12/14.
- */
-public class DefaultValidator extends AbstractValidator {
+public class DefaultValidator implements Validator {
+
+  private final List<Evaluator> evaluators;
+  private final Partitioner partitioner;
 
   public DefaultValidator(List<Evaluator> evaluators, Partitioner partitioner) {
-    super(evaluators, partitioner);
+    this.evaluators = new ArrayList<>(evaluators);
+    this.partitioner = partitioner;
   }
 
   public DefaultValidator(Partitioner partitioner) {
-    this(Evaluator.getDefaultClassificationEvaluators(), partitioner);
-  }
-
-  public DefaultValidator() {
-    this(new SplitPartitioner(0.33));
+    this(new ArrayList<>(), partitioner);
   }
 
   @Override
-  public Result test(Classifier.Learner classifier, DataFrame x, Vector y) {
-    Iterable<Partition> partitions = getPartitioner().partition(x, y);
-    Vector domain = Vectors.unique(y);
-    List<ConfusionMatrix> confusionMatrices = new ArrayList<>();
-    EvaluationContext ctx = new EvaluationContext();
+  public Result test(Predictor.Learner classifier, DataFrame x, Vector y) {
+    Collection<Partition> partitions = getPartitioner().partition(x, y);
+    EvaluationContextImpl ctx = new EvaluationContextImpl();
     for (Partition partition : partitions) {
       DataFrame trainingData = partition.getTrainingData();
       Vector trainingTarget = partition.getTrainingTarget();
+      DataFrame validationData = partition.getValidationData();
 
       // Step 1: Fit the classifier using the training data
       long start = System.nanoTime();
-      Classifier predictor = classifier.fit(trainingData, trainingTarget);
+      Predictor predictor = classifier.fit(trainingData, trainingTarget);
       double fitTime = (System.nanoTime() - start) / 1e6;
 
-      DataFrame validationData = partition.getValidationData();
-      Vector validationTarget = partition.getValidationTarget();
-
-      // Step 2: Classify the validation data
+      // Step 2: Make predictions on the validation data
       start = System.nanoTime();
-      Vector predictions = computeClassLabels(validationData, predictor, y.getType(), ctx);
+      // TODO: refactor to an injected dependency
+      predictOrEstimate(validationData, predictor, y.getType(), ctx);
       double predictTime = (System.nanoTime() - start) / 1e6;
 
       // Step 3: Update the evaluation context
       ctx.setPredictor(predictor);
       ctx.setPartition(partition);
-      ctx.setPredictions(predictions);
 
-      // Step 3: compute the confusion matrix
-      ConfusionMatrix matrix = ConfusionMatrix.compute(predictions, validationTarget, domain);
-      confusionMatrices.add(matrix);
-
-      for (Evaluator evaluator : getEvaluators()) {
-        evaluator.accept(ctx);
-      }
+      // Step 4: Compute the given measures
+      getEvaluators().forEach(evaluator -> evaluator.accept(ctx));
       predictor.evaluate(ctx);
 
+      // These are evaluated for all predictors no matter what
       ctx.getOrDefault(TrainingSetSize.class, TrainingSetSize.Builder::new).add(Sample.OUT,
-                                                                                trainingData.rows());
+          trainingData.rows());
       ctx.getOrDefault(ValidationSetSize.class, ValidationSetSize.Builder::new).add(Sample.OUT,
-                                                                                    validationData
-                                                                                        .rows());
+          validationData.rows());
       ctx.getOrDefault(FitTime.class, FitTime.Builder::new).add(Sample.OUT, fitTime);
       ctx.getOrDefault(PredictTime.class, PredictTime.Builder::new).add(Sample.OUT, predictTime);
     }
-    return Result.create(ctx.getMeasures(), confusionMatrices);
+    return new Result(ctx);
+  }
+
+  /**
+   * Chooses the 'best' strategy to avoid computing the probability estimation array twice. If the
+   * given classifier provides the {@link ClassifierCharacteristic#ESTIMATOR} characteristic, the
+   * {@link EvaluationContextImpl#setEstimation(DoubleArray)} method is called with the probability
+   * estimates and the predictions are computed and returned. If not, only the predictions are set.
+   *
+   * @param predictor the classifier
+   * @param type the the resulting vector type
+   * @param ctx the evaluation context
+   */
+  protected void predictOrEstimate(DataFrame x, Predictor predictor, VectorType type,
+      EvaluationContextImpl ctx) {
+    Vector.Builder builder = type.newBuilder();
+
+    // For the case where the classifier reports the ESTIMATOR characteristic
+    // improve the performance by avoiding to recompute the classifications twice.
+    if (predictor instanceof Classifier
+        && predictor.getCharacteristics().contains(ClassifierCharacteristic.ESTIMATOR)) {
+      Classifier classifier1 = (Classifier) predictor;
+      Vector classes = classifier1.getClasses();
+      DoubleArray estimate = classifier1.estimate(x);
+      ctx.setEstimation(estimate);
+      for (int i = 0; i < estimate.rows(); i++) {
+        builder.loc().set(i, classes, Arrays.argmax(estimate.getRow(i)));
+      }
+      ctx.setPredictions(builder.build());
+    } else {
+      ctx.setPredictions(predictor.predict(x));
+    }
+  }
+
+  @Override
+  public void add(Evaluator evaluator) {
+    this.evaluators.add(evaluator);
+  }
+
+  protected List<Evaluator> getEvaluators() {
+    return evaluators;
+  }
+
+  @Override
+  public Partitioner getPartitioner() {
+    return partitioner;
   }
 }

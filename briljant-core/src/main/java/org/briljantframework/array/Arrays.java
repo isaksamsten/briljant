@@ -39,6 +39,7 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
@@ -1227,12 +1228,35 @@ public final class Arrays {
     return MATRIX_ROUTINES.ceil(array);
   }
 
-  public static int argOf(BooleanArray array, Predicate<Boolean> predicate) {
+  public static int arg(Predicate<Boolean> predicate, BooleanArray array) {
     for (int i = 0; i < array.size(); i++) {
       if (predicate.test(array.get(i))) {
         return i;
       }
     }
     return -1;
+  }
+
+  public static <S extends BaseArray<S>> S where(BaseArray<?> condition, S x, S y) {
+    Check.size(x.size() == y.size() && x.size() == condition.size(), "Illegal sizes");
+    int size = x.size();
+    S selected = x.newEmptyArray(size);
+    BooleanArray z = condition.asBoolean();
+    for (int i = 0; i < size; i++) {
+      selected.set(i, z.get(i) ? x : y, i);
+    }
+    return selected;
+  }
+
+  public static DoubleArray select(DoubleBiPredicate predicate, DoubleArray x, DoubleArray y) {
+    Check.size(x, y);
+    int size = x.size();
+    DoubleArray selected = doubleArray(size);
+    for (int i = 0; i < size; i++) {
+      double a = x.get(i);
+      double b = y.get(i);
+      selected.set(i, predicate.test(a, b) ? a : b);
+    }
+    return selected;
   }
 }

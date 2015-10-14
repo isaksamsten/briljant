@@ -1,7 +1,8 @@
 package org.briljantframework.classification;
 
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.Arrays;
@@ -11,12 +12,13 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.evaluation.measure.LogLoss;
-import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.evaluation.result.Sample;
+import org.briljantframework.evaluation.EvaluationContext;
+import org.briljantframework.evaluation.PointMeasure;
+import org.briljantframework.evaluation.Sample;
 import org.briljantframework.optimize.DifferentialFunction;
 import org.briljantframework.optimize.LimitedMemoryBfgsOptimizer;
 import org.briljantframework.optimize.NonlinearOptimizer;
+import org.briljantframework.supervised.Characteristic;
 
 /**
  * @author Isak Karlsson
@@ -87,7 +89,7 @@ public class LogisticRegression extends AbstractClassifier {
   }
 
   public double getOddsRatio(Object coefficient) {
-    int i = Vectors.find(names, coefficient);
+    int i = names.loc().indexOf(coefficient);
     if (i < 0) {
       throw new IllegalArgumentException("Label not found");
     }
@@ -107,8 +109,8 @@ public class LogisticRegression extends AbstractClassifier {
   }
 
   @Override
-  public EnumSet<Characteristics> getCharacteristics() {
-    return EnumSet.of(Characteristics.ESTIMATOR);
+  public Set<Characteristic> getCharacteristics() {
+    return Collections.singleton(ClassifierCharacteristic.ESTIMATOR);
   }
 
   @Override
@@ -434,5 +436,28 @@ public class LogisticRegression extends AbstractClassifier {
       return y;
     }
 
+  }
+
+  /**
+   * @author Isak Karlsson
+   */
+  public static class LogLoss extends PointMeasure {
+
+    private LogLoss(Builder builder) {
+      super(builder);
+    }
+
+    @Override
+    public String getName() {
+      return "LogLoss";
+    }
+
+    public static class Builder extends PointMeasure.Builder<LogLoss> {
+
+      @Override
+      public LogLoss build() {
+        return new LogLoss(this);
+      }
+    }
   }
 }

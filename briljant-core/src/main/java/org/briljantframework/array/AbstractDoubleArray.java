@@ -196,7 +196,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public LongArray mapToLong(DoubleToLongFunction function) {
-    LongArray m = bj.longArray(getShape());// TODO
+    LongArray m = bj.longArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.applyAsLong(get(i)));
     }
@@ -205,7 +205,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public ComplexArray mapToComplex(DoubleFunction<Complex> function) {
-    ComplexArray m = bj.complexArray();// TODO
+    ComplexArray m = bj.complexArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.apply(get(i)));
     }

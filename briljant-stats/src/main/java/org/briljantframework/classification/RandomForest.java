@@ -91,7 +91,7 @@ public final class RandomForest extends Ensemble {
       public Classifier call() throws Exception {
         Random random = new Random(Thread.currentThread().getId() * System.currentTimeMillis());
         ClassSet bootstrap = sample(classSet, random);
-        return new DecisionTree(splitter, bootstrap, classes).fit(x, y);
+        return new DecisionTree.Learner(splitter, bootstrap, classes).fit(x, y);
       }
 
       public ClassSet sample(ClassSet classSet, Random random) {

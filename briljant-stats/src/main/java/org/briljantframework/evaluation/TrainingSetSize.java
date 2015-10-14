@@ -19,38 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
-
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.IntConsumer;
+package org.briljantframework.evaluation;
 
 /**
  * @author Isak Karlsson
  */
-public interface Evaluator {
-
-  static Evaluator foldOutput(IntConsumer consumer) {
-    return new Evaluator() {
-      private int fold = 0;
-
-      @Override
-      public void accept(EvaluationContext ctx) {
-        consumer.accept(fold++);
-      }
-    };
+public class TrainingSetSize extends PointMeasure {
+  protected TrainingSetSize(Builder builder) {
+    super(builder);
   }
 
-  static List<Evaluator> getDefaultClassificationEvaluators() {
-    return new ArrayList<>(Arrays.asList(new ErrorEvaluator(), new ProbabilityEvaluator()));
+  @Override
+  public String getName() {
+    return "Training-set size";
   }
 
-  /**
-   * Performs a modification to the evaluation context. For example, adding a measure.
-   *
-   * @param ctx the evaluation context
-   */
-  void accept(EvaluationContext ctx);
+  public static class Builder extends PointMeasure.Builder<TrainingSetSize> {
+
+    @Override
+    public TrainingSetSize build() {
+      return new TrainingSetSize(this);
+    }
+  }
 }

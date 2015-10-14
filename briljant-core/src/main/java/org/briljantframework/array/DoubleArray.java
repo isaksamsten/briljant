@@ -415,6 +415,30 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
    */
   DoubleArray negate();
 
+  default BooleanArray gt(double v) {
+    return satisfies(x -> x > v);
+  }
+
+  default BooleanArray gte(double v) {
+    return satisfies(x -> x >= v);
+  }
+
+  default BooleanArray lt(double v) {
+    return satisfies(x -> x < v);
+  }
+
+  default BooleanArray lte(double v) {
+    return satisfies(x -> x <= v);
+  }
+
+  default BooleanArray eq(double v) {
+    return satisfies(x -> x == v);
+  }
+
+  default BooleanArray neq(double v) {
+    return satisfies(x -> x != v);
+  }
+
   /**
    * Returns a double array representation of this matrix. If {@linkplain #isView()} is {@code true}
    * , a copy is returned.

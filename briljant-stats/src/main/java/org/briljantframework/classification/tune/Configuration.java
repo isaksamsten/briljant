@@ -22,13 +22,11 @@
 package org.briljantframework.classification.tune;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.evaluation.measure.Measure;
-import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.evaluation.Result;
 
 /**
  * @author Isak Karlsson
@@ -46,10 +44,6 @@ public class Configuration implements Comparable<Configuration> {
     this.parameters = parameters;
   }
 
-  public static <T extends Measure> Comparator<Configuration> measureComparator(Class<T> measure) {
-    return (o1, o2) -> o1.getResult().get(measure).compareTo(o2.getResult().get(measure));
-  }
-
   /**
    * Get the classifier configured according to the parameters
    *
@@ -57,16 +51,6 @@ public class Configuration implements Comparable<Configuration> {
    */
   public Classifier.Learner getClassifier() {
     return classifier;
-  }
-
-  /**
-   * Get the average error of this configuration
-   *
-   * @return the error
-   * @see Result#getAverageError()
-   */
-  public double getAverageError() {
-    return result.getAverageError();
   }
 
   /**
@@ -117,6 +101,6 @@ public class Configuration implements Comparable<Configuration> {
 
   @Override
   public int compareTo(Configuration o) {
-    return Double.compare(getAverageError(), o.getAverageError());
+    return -1;
   }
 }

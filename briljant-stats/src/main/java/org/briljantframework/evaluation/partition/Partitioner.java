@@ -21,6 +21,8 @@
 
 package org.briljantframework.evaluation.partition;
 
+import java.util.Collection;
+
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 
@@ -43,5 +45,5 @@ public interface Partitioner {
    * @param y the target
    * @return an iterable representing over the partitions
    */
-  Iterable<Partition> partition(DataFrame x, Vector y);
+  Collection<Partition> partition(DataFrame x, Vector y);
 }

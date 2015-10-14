@@ -19,27 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation;
 
 /**
- * Created by isak on 27/05/15.
+ * @author Isak Karlsson
  */
-public class LogLoss extends AbstractMeasure {
-
-  protected LogLoss(Builder builder) {
+public class PredictTime extends PointMeasure {
+  protected PredictTime(Builder builder) {
     super(builder);
   }
 
   @Override
   public String getName() {
-    return "LogLoss";
+    return "Predict-time";
   }
 
-  public static class Builder extends AbstractMeasure.Builder<LogLoss> {
+  public static class Builder extends PointMeasure.Builder<PredictTime> {
 
     @Override
-    public LogLoss build() {
-      return new LogLoss(this);
+    public PredictTime build() {
+      return new PredictTime(this);
     }
   }
 }

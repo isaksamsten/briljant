@@ -31,37 +31,21 @@ import java.util.stream.Collectors;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.Result;
 import org.briljantframework.evaluation.Validator;
-import org.briljantframework.evaluation.result.Result;
 
 /**
- * Created by Isak Karlsson on 25/09/14.
- *
- * @param <C> the type parameter
- * @param <O> the type parameter
+ * @author Isak Karlsson
  */
 public class DefaultTuner<C extends Classifier.Learner, O extends Classifier.Configurator<? extends C>>
     implements Tuner<C, O> {
 
-  /**
-   * The Updaters.
-   */
   protected final ArrayList<ParameterUpdater<O>> updaters;
 
-  /**
-   * The Parameter names.
-   */
   protected final List<String> parameterNames;
   private final Validator evaluator;
   private final Comparator<Configuration> comparator;
 
-  /**
-   * Instantiates a new Abstract optimizer.
-   *
-   * @param updaters the updaters
-   * @param evaluator the evaluator
-   * @param comparator the comparator
-   */
   protected DefaultTuner(ArrayList<ParameterUpdater<O>> updaters, Validator evaluator,
       Comparator<Configuration> comparator) {
     this.updaters = updaters;

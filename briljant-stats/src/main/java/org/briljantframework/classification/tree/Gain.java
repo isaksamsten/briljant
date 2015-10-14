@@ -28,14 +28,7 @@ import org.briljantframework.array.DoubleArray;
  */
 public class Gain {
 
-  /**
-   * The constant GINI.
-   */
   public static final Gain GINI = Gain.with(Gini.getInstance());
-
-  /**
-   * The constant INFO.
-   */
   public static final Gain INFO = Gain.with(Entropy.getInstance());
 
   private final Impurity impurity;
@@ -52,7 +45,7 @@ public class Gain {
     return impurity;
   }
 
-  public double compute(ClassSet before, TreeSplit<?> split) {
+  public double compute(TreeSplit<?> split) {
     ClassSet left = split.getLeft();
     ClassSet right = split.getRight();
     return compute(left.getTotalWeight(), left.getRelativeFrequencies(), right.getTotalWeight(),

@@ -1,6 +1,7 @@
 package org.briljantframework.classification;
 
-import java.util.EnumSet;
+import java.util.Collections;
+import java.util.Set;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.Arrays;
@@ -10,6 +11,7 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
+import org.briljantframework.supervised.Characteristic;
 
 /**
  * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a non-parametric
@@ -67,8 +69,8 @@ public class NearestNeighbours extends AbstractClassifier {
   }
 
   @Override
-  public EnumSet<Characteristics> getCharacteristics() {
-    return EnumSet.of(Characteristics.ESTIMATOR);
+  public Set<Characteristic> getCharacteristics() {
+    return Collections.singleton(ClassifierCharacteristic.ESTIMATOR);
   }
 
   public DoubleArray distance(DataFrame x) {
@@ -84,6 +86,13 @@ public class NearestNeighbours extends AbstractClassifier {
     return distances;
   }
 
+  /**
+   * Computes the distance of the given example to all examples in the search space represented by
+   * this classifier
+   * 
+   * @param example the given example
+   * @return a {@code [search space size]} array of distances to the given example
+   */
   public DoubleArray distance(Vector example) {
     int n = x.rows();
     DoubleArray distances = Arrays.doubleArray(n);
@@ -97,7 +106,9 @@ public class NearestNeighbours extends AbstractClassifier {
     return y;
   }
 
-
+  /**
+   * A nearest neighbour learner learns a nearest neighbours classifier
+   */
   public static class Learner implements Classifier.Learner {
 
     private final int neighbors;
@@ -128,7 +139,6 @@ public class NearestNeighbours extends AbstractClassifier {
     public String toString() {
       return "k-Nearest Neighbors";
     }
-
   }
 
   public static class Configurator implements Classifier.Configurator<Learner> {
@@ -140,12 +150,12 @@ public class NearestNeighbours extends AbstractClassifier {
       this.neighbors = neighbors;
     }
 
-    public Classifier.Configurator withNeighbors(int k) {
+    public Classifier.Configurator setNeighbors(int k) {
       this.neighbors = k;
       return this;
     }
 
-    public Classifier.Configurator withDistance(Distance distance) {
+    public Classifier.Configurator setDistance(Distance distance) {
       this.distance = distance;
       return this;
     }

@@ -21,8 +21,10 @@
 
 package org.briljantframework.classification;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.briljantframework.array.Arrays;
@@ -30,7 +32,8 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.EvaluationContext;
+import org.briljantframework.supervised.Characteristic;
 
 /**
  * Provides sane defaults for a predictor. Sub-classes only have to implement the
@@ -45,8 +48,8 @@ import org.briljantframework.evaluation.result.EvaluationContext;
  * 
  * <p/>
  * Predictors that produces probability estimates should make sure to include the
- * {@link Classifier.Characteristics#ESTIMATOR ESTIMATOR}
- * characteristics in the {@link EnumSet} returned by {@link #getCharacteristics()}
+ * {@link ClassifierCharacteristic#ESTIMATOR ESTIMATOR} characteristics in the {@link EnumSet}
+ * returned by {@link #getCharacteristics()}
  *
  * @author Isak Karlsson
  */
@@ -86,8 +89,8 @@ public abstract class AbstractClassifier implements Classifier {
   }
 
   @Override
-  public EnumSet<Characteristics> getCharacteristics() {
-    return EnumSet.noneOf(Characteristics.class);
+  public Set<Characteristic> getCharacteristics() {
+    return Collections.emptySet();
   }
 
   @Override

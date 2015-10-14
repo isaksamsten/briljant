@@ -32,8 +32,8 @@ public class LinearRegressionTest {
     // .FACTORY, Series.FACTORY);
     // container = Transformers.removeIncompleteCases(container);
     //
-    // LinearRegression lr = LinearRegression.create();
-    // LinearRegression.Classifier lrModel = lr.fit(container);
+    // Learner lr = Learner.create();
+    // Learner.Classifier lrModel = lr.fit(container);
     // int index = 49;
     // for (int i = 0; i < container.rows(); i++) {
     // System.out.println(i + " == " + lrModel.predict(container.getDataset().getEntry(i)) + " " +

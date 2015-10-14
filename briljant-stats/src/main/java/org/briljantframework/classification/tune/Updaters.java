@@ -26,23 +26,15 @@ import java.util.function.BiConsumer;
 import org.briljantframework.Check;
 
 /**
- * Created by Isak Karlsson on 24/09/14.
+ * @author Isak Karlsson
  */
 public final class Updaters {
 
   private Updaters() {}
 
-  /**
-   * Range updater.
-   *
-   * @param consumer the consumer
-   * @param start the start
-   * @param end the end
-   * @param step the step
-   * @return the updater
-   */
   public static <T> ParameterUpdater<T> range(String name, BiConsumer<? super T, Integer> consumer,
       int start, int end, int step) {
+    Check.state(step > 0);
     return new ParameterUpdater<T>() {
       private int current = start;
 
@@ -74,17 +66,9 @@ public final class Updaters {
     };
   }
 
-  /**
-   * Range updater.
-   *
-   * @param consumer the consumer
-   * @param start the start
-   * @param end the end
-   * @param step the step
-   * @return the updater
-   */
   public static <T> ParameterUpdater<T> range(String name, BiConsumer<? super T, Double> consumer,
       double start, double end, double step) {
+    Check.argument(step > 0, "Illegal step size");
     return new ParameterUpdater<T>() {
       private double current = start;
 

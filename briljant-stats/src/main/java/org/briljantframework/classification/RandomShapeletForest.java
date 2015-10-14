@@ -15,9 +15,9 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
-import org.briljantframework.evaluation.measure.AbstractMeasure;
-import org.briljantframework.evaluation.result.EvaluationContext;
-import org.briljantframework.evaluation.result.Sample;
+import org.briljantframework.evaluation.EvaluationContext;
+import org.briljantframework.evaluation.PointMeasure;
+import org.briljantframework.evaluation.Sample;
 
 /**
  * <h1>Publications</h1>
@@ -70,7 +70,7 @@ public class RandomShapeletForest extends Ensemble {
     return depth / getEnsembleMembers().size();
   }
 
-  public static class Depth extends AbstractMeasure {
+  public static class Depth extends PointMeasure {
 
     protected Depth(Builder builder) {
       super(builder);
@@ -81,7 +81,7 @@ public class RandomShapeletForest extends Ensemble {
       return "Depth";
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Depth> {
+    public static class Builder extends PointMeasure.Builder<Depth> {
 
       @Override
       public Depth build() {

@@ -2,13 +2,13 @@ package org.briljantframework.classification;
 
 import static org.briljantframework.array.Arrays.argmax;
 import static org.briljantframework.data.vector.Vectors.find;
-import static org.briljantframework.evaluation.result.Sample.OUT;
+import static org.briljantframework.evaluation.Sample.OUT;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -24,8 +24,9 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.measure.AbstractMeasure;
-import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.EvaluationContext;
+import org.briljantframework.evaluation.PointMeasure;
+import org.briljantframework.supervised.Characteristic;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -56,10 +57,6 @@ public class Ensemble extends AbstractClassifier {
   }
 
   private void computeOOBCorrelation(EvaluationContext ctx) {
-    if (!ctx.getPredictor().getCharacteristics().contains(Characteristics.ESTIMATOR)) {
-      return;
-    }
-
     Vector classes = getClasses();
     DataFrame x = ctx.getPartition().getTrainingData();
     Vector y = ctx.getPartition().getTrainingTarget();
@@ -203,8 +200,8 @@ public class Ensemble extends AbstractClassifier {
   }
 
   @Override
-  public EnumSet<Characteristics> getCharacteristics() {
-    return EnumSet.of(Characteristics.ESTIMATOR);
+  public Set<Characteristic> getCharacteristics() {
+    return Collections.singleton(ClassifierCharacteristic.ESTIMATOR);
   }
 
   @Override
@@ -314,13 +311,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class BaseAccuracy extends AbstractMeasure {
+  public static class BaseAccuracy extends PointMeasure {
 
     protected BaseAccuracy(Builder builder) {
       super(builder);
     }
 
-    public static final class Builder extends AbstractMeasure.Builder<BaseAccuracy> {
+    public static final class Builder extends PointMeasure.Builder<BaseAccuracy> {
 
       @Override
       public BaseAccuracy build() {
@@ -337,13 +334,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class MeanSquareError extends AbstractMeasure {
+  public static class MeanSquareError extends PointMeasure {
 
     protected MeanSquareError(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<MeanSquareError> {
+    public static class Builder extends PointMeasure.Builder<MeanSquareError> {
 
       @Override
       public MeanSquareError build() {
@@ -357,13 +354,13 @@ public class Ensemble extends AbstractClassifier {
     }
   }
 
-  public static class Bias extends AbstractMeasure {
+  public static class Bias extends PointMeasure {
 
     protected Bias(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Bias> {
+    public static class Builder extends PointMeasure.Builder<Bias> {
 
       @Override
       public Bias build() {
@@ -380,13 +377,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class Variance extends AbstractMeasure {
+  public static class Variance extends PointMeasure {
 
     protected Variance(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Variance> {
+    public static class Builder extends PointMeasure.Builder<Variance> {
 
       @Override
       public Variance build() {
@@ -400,7 +397,7 @@ public class Ensemble extends AbstractClassifier {
     }
   }
 
-  public static class Quality extends AbstractMeasure {
+  public static class Quality extends PointMeasure {
 
     protected Quality(Builder builder) {
       super(builder);
@@ -411,7 +408,7 @@ public class Ensemble extends AbstractClassifier {
       return "Quality (c/s^2)";
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Quality> {
+    public static class Builder extends PointMeasure.Builder<Quality> {
 
       @Override
       public Quality build() {
@@ -423,13 +420,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class OobAccuracy extends AbstractMeasure {
+  public static class OobAccuracy extends PointMeasure {
 
     protected OobAccuracy(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<OobAccuracy> {
+    public static class Builder extends PointMeasure.Builder<OobAccuracy> {
 
       @Override
       public OobAccuracy build() {
@@ -446,13 +443,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class Correlation extends AbstractMeasure {
+  public static class Correlation extends PointMeasure {
 
     protected Correlation(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Correlation> {
+    public static class Builder extends PointMeasure.Builder<Correlation> {
 
       @Override
       public Correlation build() {
@@ -469,13 +466,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class Strength extends AbstractMeasure {
+  public static class Strength extends PointMeasure {
 
     protected Strength(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<Strength> {
+    public static class Builder extends PointMeasure.Builder<Strength> {
 
       @Override
       public Strength build() {
@@ -492,13 +489,13 @@ public class Ensemble extends AbstractClassifier {
   /**
    * @author Isak Karlsson
    */
-  public static class ErrorBound extends AbstractMeasure {
+  public static class ErrorBound extends PointMeasure {
 
     protected ErrorBound(Builder builder) {
       super(builder);
     }
 
-    public static class Builder extends AbstractMeasure.Builder<ErrorBound> {
+    public static class Builder extends PointMeasure.Builder<ErrorBound> {
 
       @Override
       public ErrorBound build() {

@@ -21,14 +21,10 @@
 package org.briljantframework.evaluation;
 
 
-import java.util.List;
-
-import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.partition.Partitioner;
-import org.briljantframework.evaluation.result.Evaluator;
-import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * An Evaluator is used to evaluate an algorithm on a particular dataset
@@ -39,32 +35,31 @@ public interface Validator {
 
   /**
    * Evaluate {@code classifier} using the data {@code x} and {@code y}
-   *
+   * 
    * @param classifier classifier to use for classification
    * @param x the data frame to use during evaluation
    */
-  Result test(Classifier.Learner classifier, DataFrame x, Vector y);
+  Result test(Predictor.Learner classifier, DataFrame x, Vector y);
 
   /**
-   * Get a list of evaluators used but this validator. The list is mutable and support adding new
-   * evaluators.
+   * Add an evaluator to the validator for computing additional measures.
    * 
    * <pre>
    * Validator cv = Validators.crossValidation(10);
-   * cv.getEvaluators().add(Evaluator.foldOutput(System.out::println))
-   * // prints the current fold to std-out
+   * cv.add((ctx) -&gt; System.out.println(&quot;New round&quot;));
+   * // For each fold, print &quot;New round&quot; to std-out
    * </pre>
    * 
-   * @return the evaluators
+   * @param evaluator the evaluator
    */
-  List<Evaluator> getEvaluators();
+  void add(Evaluator evaluator);
 
   /**
    * Gets the partitioner used for this validator. The partitioner partitions the data into training
    * and validation folds. For example,
    * {@link org.briljantframework.evaluation.partition.FoldPartitioner} partitions the data into
    * {@code k} folds and {@link org.briljantframework.evaluation.partition.SplitPartitioner}
-   * partitions the data into two folds.
+   * partitions the data into one fold.
    * 
    * @return the partitioner used by this validator
    */

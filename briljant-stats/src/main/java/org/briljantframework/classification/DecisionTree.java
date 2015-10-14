@@ -1,25 +1,7 @@
-/*
- * The MIT License (MIT)
- * 
- * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package org.briljantframework.classification;
+
+import java.util.Collections;
+import java.util.Set;
 
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.tree.ClassSet;
@@ -35,60 +17,76 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.supervised.Characteristic;
 
 /**
- * @author Isak Karlsson
+ * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class DecisionTree implements Classifier.Learner {
+public class DecisionTree extends TreeClassifier<ValueThreshold> {
 
-  protected final double mininumWeight = 1;
-  protected final Splitter splitter;
-
-  protected ClassSet classSet;
-  protected Vector classes = null;
-
-
-  public DecisionTree(Splitter splitter) {
-    this(splitter, null, null);
-  }
-
-  protected DecisionTree(Splitter splitter, ClassSet classSet, Vector classes) {
-    this.splitter = splitter;
-    this.classSet = classSet;
-    this.classes = classes;
+  private DecisionTree(Vector classes, TreeNode<ValueThreshold> node,
+      TreeVisitor<ValueThreshold> predictionVisitor) {
+    super(classes, node, predictionVisitor);
   }
 
   @Override
-  public Classifier fit(DataFrame x, Vector y) {
-    ClassSet classSet = this.classSet;
-    Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
-    if (classSet == null) {
-      classSet = new ClassSet(y, classes);
-    }
-
-    TreeNode<ValueThreshold> node = build(x, y, classSet);
-    return new Classifier(classes, node, new SimplePredictionVisitor());
+  public Set<Characteristic> getCharacteristics() {
+    return Collections.singleton(ClassifierCharacteristic.ESTIMATOR);
   }
 
-  protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet) {
-    return build(frame, target, classSet, 0);
-  }
+  /**
+   * @author Isak Karlsson
+   */
+  public static class Learner implements Classifier.Learner {
 
-  protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet,
-      int depth) {
-    if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
-      return TreeLeaf.fromExamples(classSet);
+    protected final double mininumWeight = 1;
+    protected final Splitter splitter;
+
+    protected ClassSet classSet;
+    protected Vector classes = null;
+
+
+    public Learner(Splitter splitter) {
+      this(splitter, null, null);
     }
-    TreeSplit<ValueThreshold> maxSplit = splitter.find(classSet, frame, target);
-    if (maxSplit == null) {
-      return TreeLeaf.fromExamples(classSet);
-    } else {
-      TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
-      TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);
-      return new TreeBranch<>(leftNode, rightNode, classes, maxSplit.getThreshold(), 1);
+
+    protected Learner(Splitter splitter, ClassSet classSet, Vector classes) {
+      this.splitter = splitter;
+      this.classSet = classSet;
+      this.classes = classes;
+    }
+
+    @Override
+    public DecisionTree fit(DataFrame x, Vector y) {
+      ClassSet classSet = this.classSet;
+      Vector classes = this.classes != null ? this.classes : Vectors.unique(y);
+      if (classSet == null) {
+        classSet = new ClassSet(y, classes);
+      }
+
+      TreeNode<ValueThreshold> node = build(x, y, classSet);
+      return new DecisionTree(classes, node, new SimplePredictionVisitor());
+    }
+
+    protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet) {
+      return build(frame, target, classSet, 0);
+    }
+
+    protected TreeNode<ValueThreshold> build(DataFrame frame, Vector target, ClassSet classSet,
+        int depth) {
+      if (classSet.getTotalWeight() <= mininumWeight || classSet.getTargetCount() == 1) {
+        return TreeLeaf.fromExamples(classSet);
+      }
+      TreeSplit<ValueThreshold> maxSplit = splitter.find(classSet, frame, target);
+      if (maxSplit == null) {
+        return TreeLeaf.fromExamples(classSet);
+      } else {
+        TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
+        TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);
+        return new TreeBranch<>(leftNode, rightNode, classes, maxSplit.getThreshold(), 1);
+      }
     }
   }
-
 
   private static final class SimplePredictionVisitor implements TreeVisitor<ValueThreshold> {
 
@@ -125,14 +123,6 @@ public class DecisionTree implements Classifier.Learner {
         default:
           return visit(node.getLeft(), example); // TODO: what to do with missing values?
       }
-    }
-  }
-
-  public static class Classifier extends TreeClassifier<ValueThreshold> {
-
-    private Classifier(Vector classes, TreeNode<ValueThreshold> node,
-                       TreeVisitor<ValueThreshold> predictionVisitor) {
-      super(classes, node, predictionVisitor);
     }
   }
 }

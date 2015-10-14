@@ -12,8 +12,9 @@ import org.briljantframework.data.vector.Vector;
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class SplitIterator implements Iterable<Partition> {
+public class SplitIterator implements Iterator<Partition> {
 
+  private boolean has = true;
   private final DataFrame x;
   private final Vector y;
   private final double splitFraction;
@@ -23,10 +24,20 @@ public class SplitIterator implements Iterable<Partition> {
     this.splitFraction = splitFraction;
     this.x = x;
     this.y = y;
+
   }
 
   @Override
-  public Iterator<Partition> iterator() {
+  public boolean hasNext() {
+    return has;
+  }
+
+  @Override
+  public Partition next() {
+    if (!hasNext()) {
+      throw new NoSuchElementException();
+    }
+    has = false;
     int trainingSize = x.rows() - (int) Math.round(x.rows() * splitFraction);
 
     DataFrame.Builder xTrainingBuilder = x.newBuilder();
@@ -42,28 +53,11 @@ public class SplitIterator implements Iterable<Partition> {
       xValidationBuilder.addRecord(transferableBuilder(x.loc().getRecord(i)));
       yValidationBuilder.add(y, i);
     }
-
-    return new Iterator<Partition>() {
-      private boolean has = true;
-
-      @Override
-      public boolean hasNext() {
-        return has;
-      }
-
-      @Override
-      public Partition next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        has = false;
-        DataFrame trainingSet = xTrainingBuilder.build();
-        trainingSet.setColumnIndex(x.getColumnIndex());
-        DataFrame validationSet = xValidationBuilder.build();
-        validationSet.setColumnIndex(x.getColumnIndex());
-        return new Partition(trainingSet, validationSet, yTrainingBuilder.build(),
-            yValidationBuilder.build());
-      }
-    };
+    DataFrame trainingSet = xTrainingBuilder.build();
+    trainingSet.setColumnIndex(x.getColumnIndex());
+    DataFrame validationSet = xValidationBuilder.build();
+    validationSet.setColumnIndex(x.getColumnIndex());
+    return new Partition(trainingSet, validationSet, yTrainingBuilder.build(),
+        yValidationBuilder.build());
   }
 }

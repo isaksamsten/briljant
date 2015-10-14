@@ -39,10 +39,5 @@ public class Gini implements Impurity {
   @Override
   public double impurity(DoubleArray values) {
     return values.reduce(1, (value, acc) -> acc - value * value);
-    // double impurity = 1.0;
-    // for (double value : values.flat()) {
-    // impurity -= value * value;
-    // }
-    // return impurity;
   }
 }

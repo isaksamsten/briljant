@@ -29,7 +29,7 @@ import org.briljantframework.Check;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.Validators;
+import org.briljantframework.evaluation.classification.Validators;
 
 /**
  * Created by isak on 01/10/14.

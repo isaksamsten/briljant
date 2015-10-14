@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.classification;
 
 import static org.briljantframework.data.vector.Vectors.find;
 
@@ -43,27 +43,27 @@ public final class ClassificationMeasures {
    * Returns the prediction error, i.e. the fraction of miss-classified values. The same as
    * {@code 1 - accuracy}.
    *
-   * @param predicted the predicted values; shape {@code [no sample]}
-   * @param actual the actual values; shape {@code [no samples]}
+   * @param p the predicted values; shape {@code [no sample]}
+   * @param t the actual values; shape {@code [no samples]}
    * @return the error rate
    */
-  public static double error(Vector predicted, Vector actual) {
-    return 1 - accuracy(predicted, actual);
+  public static double error(Vector p, Vector t) {
+    return 1 - accuracy(p, t);
   }
 
   /**
    * Returns the prediction accuracy, i.e., the fraction of correctly classified examples.
    *
-   * @param predicted the predicted values; shape {@code [no sample]}
-   * @param actual the actual values; shape {@code [no samples]}
+   * @param p the predicted values; shape {@code [no sample]}
+   * @param t the actual values; shape {@code [no samples]}
    * @return the accuracy
    */
-  public static double accuracy(Vector predicted, Vector actual) {
-    Check.size(predicted.size(), actual.size());
+  public static double accuracy(Vector p, Vector t) {
+    Check.size(p.size(), t.size());
     double accuracy = 0;
-    int n = predicted.size();
+    int n = p.size();
     for (int i = 0; i < n; i++) {
-      if (Is.equal(predicted.loc().get(i), actual.loc().get(i))) {
+      if (Is.equal(p.loc().get(i), t.loc().get(i))) {
         accuracy += 1;
       }
     }
@@ -74,27 +74,27 @@ public final class ClassificationMeasures {
    * Computes the brier score. The brier score is defined as the squared difference between the
    * classification probabilities and the optimal probability.
    *
-   * @param predicted vector of shape {@code [no samples]}
-   * @param actual vector of shape {@code [no samples]}
+   * @param p vector of shape {@code [no samples]}
+   * @param t vector of shape {@code [no samples]}
    * @param scores matrix of shape {@code [no samples, no classes]}
-   * @param classes vector of shape {@code [no classes]}; the i:th index gives the score column in
+   * @param c vector of shape {@code [no classes]}; the i:th index gives the score column in
    *        {@code scores}
    * @return the brier score
    */
-  public static double brier(Vector predicted, Vector actual, DoubleArray scores, Vector classes) {
-    Check.size(predicted.size(), actual.size());
-    Check.size(actual.size(), scores.rows());
+  public static double brierScore(Vector p, Vector t, DoubleArray scores, Vector c) {
+    Check.size(p.size(), t.size());
+    Check.size(t.size(), scores.rows());
 
-    int n = predicted.size();
+    int n = p.size();
     double brier = 0;
     for (int i = 0; i < n; i++) {
-      int classIndex = find(classes, predicted.loc().get(i));
-      if (classIndex < 0 || classIndex > n) {
-        throw new IllegalStateException("Missing class " + predicted.loc().get(i));
+      int classIndex = find(c, p, i);
+      if (classIndex < 0 || classIndex > c.size()) {
+        throw new IllegalStateException("Missing class " + p.loc().get(i));
       }
 
       double prob = scores.get(i, classIndex);
-      if (Is.equal(predicted.loc().get(i), actual.loc().get(i))) {
+      if (Is.equal(p.loc().get(i), t.loc().get(i))) {
         brier += Math.pow(1 - prob, 2);
       } else {
         brier += prob * prob;
@@ -104,30 +104,29 @@ public final class ClassificationMeasures {
   }
 
   /**
-   * @param predicted vector of shape {@code [no samples]} the predicted labels
-   * @param actual vector of shape {@code [no samples]} the true labels
+   * @param p vector of shape {@code [no samples]} the predicted labels
+   * @param t vector of shape {@code [no samples]} the true labels
    * @param score matrix of shape {@code [no samples, domain.size()]} with scores (probabilities,
    *        confidences or binary indicators)
-   * @param domain vector of shape {@code [no classes]} the i:th index in the domain denotes the
-   *        score in the j:th column of the score matrix
-   * @return a vector of labels (from {@code domain}) and its associated area under roc-curve
+   * @param c vector of shape {@code [no classes]} the i:th index in the domain denotes the score in
+   *        the j:th column of the score matrix
+   * @return a vector of labels (from {@code c}) and its associated area under roc-curve
    */
-  public static Vector areaUnderRocCurve(Vector predicted, Vector actual, DoubleArray score,
-      Vector domain) {
+  public static Vector areaUnderRocCurve(Vector p, Vector t, DoubleArray score, Vector c) {
     Vector.Builder builder = Vector.Builder.of(Double.class);
-    for (int i = 0; i < domain.size(); i++) {
-      Object value = domain.loc().get(Object.class, i);
-      DoubleArray p = score.getColumn(i);
-      builder.set(value, computeAuc(value, predicted, p, actual));
+    for (int i = 0; i < c.size(); i++) {
+      Object value = c.loc().get(Object.class, i);
+      DoubleArray s = score.getColumn(i);
+      builder.set(value, computeAuc(p, t, s, value));
     }
     return builder.build();
   }
 
-  private static double computeAuc(Object value, Vector predicted, DoubleArray score, Vector actual) {
+  private static double computeAuc(Vector p, Vector t, DoubleArray score, Object label) {
     double truePositives = 0, falsePositives = 0, positives = 0;
-    List<PredictionProbability> pairs = new ArrayList<>(predicted.size());
-    for (int i = 0; i < actual.size(); i++) {
-      boolean positiveness = Is.equal(actual.loc().get(i), value);
+    List<PredictionProbability> pairs = new ArrayList<>(p.size());
+    for (int i = 0; i < t.size(); i++) {
+      boolean positiveness = Is.equal(t.loc().get(i), label);
       if (positiveness) {
         positives++;
       }
@@ -137,7 +136,7 @@ public final class ClassificationMeasures {
     // Sort in decreasing order of posterior probability
     Collections.sort(pairs);
 
-    double negatives = predicted.size() - positives;
+    double negatives = p.size() - positives;
     double previousProbability = -1;
     double auc = 0.0;
     double previousTruePositive = 0.0;

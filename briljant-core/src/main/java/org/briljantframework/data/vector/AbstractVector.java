@@ -1014,6 +1014,26 @@ public abstract class AbstractVector implements Vector {
     }
 
     @Override
+    public int indexOf(Object o) {
+      for (int i = 0; i < size(); i++) {
+        if (Is.equal(o, get(i))) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    @Override
+    public int lastIndexOf(Object o) {
+      for (int i = size() - 1; i >= 0; i--) {
+        if (Is.equal(o, get(i))) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    @Override
     public Vector get(int... locations) {
       Builder builder = newBuilder(locations.length);
       Index index = getIndex();

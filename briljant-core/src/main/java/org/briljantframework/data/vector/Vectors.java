@@ -72,7 +72,7 @@ public final class Vectors {
   /**
    * Finds the index, in {@code vector}, of the value at {@code index} in {@code values}. Hence,
    * given {@code Vector a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should
-   * be preferred over {@code find(a, b.get(i))}.
+   * be preferred over {@code find(a, b.loc().get(i))}.
    *
    * @param haystack the vector to search
    * @param needleSource the source of the needle
@@ -94,14 +94,13 @@ public final class Vectors {
    *
    * @param haystack the haystack
    * @param needle the needle
-   * @param <T> the type of object to be searched for
    * @return the index of {@code needle} or {@code -1}
    */
-  public static <T> int find(Vector haystack, T needle) {
-    Class<?> cls = needle.getClass();
+  @Deprecated
+  public static int find(Vector haystack, Object needle) {
     for (int i = 0; i < haystack.size(); i++) {
-      Object v = haystack.loc().get(cls, i);
-      if (!Is.NA(v) && v.equals(needle)) {
+      Object v = haystack.loc().get(i);
+      if (Is.equal(v, needle)) {
         return i;
       }
     }

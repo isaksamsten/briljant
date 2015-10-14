@@ -19,11 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
+package org.briljantframework.evaluation.classification;
+
+import org.briljantframework.evaluation.Measure;
 
 /**
  * @author Isak Karlsson
  */
-public enum Sample {
-  IN, OUT
+public class AreaUnderCurve extends PerClassPointMeasure {
+
+  private AreaUnderCurve(PerClassPointMeasure.Builder<? extends Measure> producer) {
+    super(producer);
+  }
+
+  @Override
+  public String getName() {
+    return "Area Under ROC Curve";
+  }
+
+  public static final class Builder extends PerClassPointMeasure.Builder<AreaUnderCurve> {
+
+    public Builder() {
+      super();
+    }
+
+    @Override
+    public AreaUnderCurve build() {
+      return new AreaUnderCurve(this);
+    }
+  }
 }

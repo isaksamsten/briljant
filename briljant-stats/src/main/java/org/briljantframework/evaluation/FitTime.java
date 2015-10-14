@@ -19,31 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation;
 
 /**
  * @author Isak Karlsson
  */
-public class AreaUnderCurve extends AbstractClassMeasure {
-
-  private AreaUnderCurve(AbstractClassMeasure.Builder<? extends Measure> producer) {
-    super(producer);
+public class FitTime extends PointMeasure {
+  protected FitTime(Builder builder) {
+    super(builder);
   }
 
   @Override
   public String getName() {
-    return "Area Under ROC Curve";
+    return "Fit-time";
   }
 
-  public static final class Builder extends AbstractClassMeasure.Builder<AreaUnderCurve> {
-
-    public Builder() {
-      super();
-    }
+  public static class Builder extends PointMeasure.Builder<FitTime> {
 
     @Override
-    public AreaUnderCurve build() {
-      return new AreaUnderCurve(this);
+    public FitTime build() {
+      return new FitTime(this);
     }
   }
 }

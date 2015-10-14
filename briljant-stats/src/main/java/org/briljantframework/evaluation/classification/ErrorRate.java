@@ -19,26 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation.classification;
+
+import org.briljantframework.evaluation.Measure;
+import org.briljantframework.evaluation.PointMeasure;
 
 /**
+ * Error rate, i.e. miss-classification rate, i.e. fraction of errors.
+ *
  * @author Isak Karlsson
  */
-public class TrainingSetSize extends AbstractMeasure {
-  protected TrainingSetSize(Builder builder) {
+public class ErrorRate extends PointMeasure {
+
+  protected ErrorRate(PointMeasure.Builder<? extends Measure> builder) {
     super(builder);
   }
 
   @Override
   public String getName() {
-    return "Training-set size";
+    return "Error";
   }
 
-  public static class Builder extends AbstractMeasure.Builder<TrainingSetSize> {
+  public static class Builder extends PointMeasure.Builder<ErrorRate> {
+
+    public Builder() {
+      super();
+    }
 
     @Override
-    public TrainingSetSize build() {
-      return new TrainingSetSize(this);
+    public ErrorRate build() {
+      return new ErrorRate(this);
     }
   }
 }

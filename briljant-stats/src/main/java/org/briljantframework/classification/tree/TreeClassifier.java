@@ -34,15 +34,8 @@ import org.briljantframework.data.vector.Vector;
 public class TreeClassifier<T> extends AbstractClassifier {
 
   private final TreeVisitor<T> predictionVisitor;
-
   private final TreeNode<T> node;
 
-  /**
-   * Instantiates a new Classifier.
-   *
-   * @param node the node
-   * @param predictionVisitor the prediction visitor
-   */
   protected TreeClassifier(Vector classes, TreeNode<T> node, TreeVisitor<T> predictionVisitor) {
     super(classes);
     this.node = node;
@@ -50,7 +43,7 @@ public class TreeClassifier<T> extends AbstractClassifier {
   }
 
   /**
-   * Gets node.
+   * Get the root-node of this tree
    *
    * @return the node
    */
@@ -60,11 +53,6 @@ public class TreeClassifier<T> extends AbstractClassifier {
 
   @Override
   public DoubleArray estimate(Vector record) {
-    DoubleArray probabilities = predictionVisitor.visit(node, record);
-    // int max = Arrays.argmax(probabilities);
-    // for (int i = 0; i < probabilities.size(); i++) {
-    // probabilities.set(i, max == i ? 1 : 0);
-    // }
-    return probabilities;
+    return predictionVisitor.visit(getTree(), record);
   }
 }

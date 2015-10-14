@@ -19,40 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation;
+package org.briljantframework.evaluation.classification;
 
-import org.briljantframework.Check;
-import org.briljantframework.classification.Classifier;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.result.Result;
+import org.briljantframework.evaluation.PointMeasure;
 
 /**
  * @author Isak Karlsson
  */
-public final class Validation {
+public class Accuracy extends PointMeasure {
 
-  private Validation() {}
-
-  public static Result test(Classifier classifier, DataFrame xTrain, Vector yTrain, DataFrame xTest,
-      Vector yTest) {
-    Check.size(xTrain.rows(), yTrain.size());
-    return HoldoutValidator.withHoldout(xTest, yTest).evaluate(classifier, xTrain, yTrain);
+  private Accuracy(PointMeasure.Builder<Accuracy> builder) {
+    super(builder);
   }
 
-  public static Result cv(int folds, Classifier.Learner c, DataFrame x, Vector y) {
-    Check.size(x.rows(), y.size());
-    return Validators.crossValidation(folds).test(c, x, y);
+  @Override
+  public String getName() {
+    return "Accuracy";
   }
 
-  public static Result loocv(Classifier.Learner c, DataFrame x, Vector y) {
-    Check.size(x.rows(), y.size());
-    return Validators.leaveOneOutValidation().test(c, x, y);
-  }
+  public static final class Builder extends PointMeasure.Builder<Accuracy> {
 
-  public static Result split(double testFraction, Classifier.Learner c, DataFrame x, Vector y) {
-    Check.size(x.rows(), y.size());
-    return Validators.splitValidation(testFraction).test(c, x, y);
+    @Override
+    public Accuracy build() {
+      return new Accuracy(this);
+    }
   }
-
 }

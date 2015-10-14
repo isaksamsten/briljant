@@ -77,7 +77,7 @@ public class RandomSplitter extends AbstractSplitter {
       }
 
       TreeSplit<ValueThreshold> split = split(dataFrame, classSet, axis, threshold);
-      double impurity = criterion.compute(classSet, split);
+      double impurity = criterion.compute(split);
       if (impurity < bestImpurity) {
         bestSplit = split;
         bestImpurity = impurity;

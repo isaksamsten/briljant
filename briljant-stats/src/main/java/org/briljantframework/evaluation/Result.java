@@ -21,31 +21,53 @@
 
 package org.briljantframework.evaluation;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
-import org.briljantframework.evaluation.partition.FoldPartitioner;
-import org.briljantframework.evaluation.partition.LeaveOneOutPartitioner;
-import org.briljantframework.evaluation.partition.SplitPartitioner;
-import org.briljantframework.evaluation.result.Evaluator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * @author Isak Karlsson
  */
-public class Validators {
+public class Result {
 
-  public static Validator splitValidation(double testFraction) {
-    return new DefaultValidator(new SplitPartitioner(testFraction));
+  private final Map<Class<?>, Measure> measures;
+
+  public Result(EvaluationContext ctx) {
+    List<Measure> measures = ctx.getMeasures();
+    this.measures = new HashMap<>();
+
+    int length = 0;
+    if (measures.size() > 0) {
+      length = measures.get(0).size();
+    }
+
+    for (Measure measure : measures) {
+      if (measure.size() != length) {
+        throw new IllegalArgumentException(String.format("Invalid number of metrics for %s",
+            measure.getName()));
+      }
+      this.measures.put(measure.getClass(), measure);
+    }
   }
 
-  public static Validator leaveOneOutValidation() {
-    return new DefaultValidator(new LeaveOneOutPartitioner());
+  public <T extends Measure> T get(Class<T> key) {
+    Measure measure = measures.get(key);
+    if (measure != null) {
+      return key.cast(measure);
+    } else {
+      throw new NoSuchElementException(String.format("%s can't be found", key.getSimpleName()));
+    }
   }
 
-  public static Validator crossValidation(int folds) {
-    return new DefaultValidator(new FoldPartitioner(folds));
+  public Collection<Measure> getMeasures() {
+    return Collections.unmodifiableCollection(measures.values());
   }
 
-  public static Validator crossValidation(List<Evaluator> measures, int folds) {
-    return new DefaultValidator(measures, new FoldPartitioner(folds));
+  @Override
+  public String toString() {
+    return getMeasures().toString();
   }
 }

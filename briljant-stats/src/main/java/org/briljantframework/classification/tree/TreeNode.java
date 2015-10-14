@@ -25,7 +25,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
 
 /**
- * Created by isak on 2/11/15.
+ * @author Isak Karlsson
  */
 public interface TreeNode<T> {
 

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -28,7 +28,6 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.evaluation.result.Sample;
 
 /**
  * Provides a complete implementation of the {@link Measure} interface to simplify the
@@ -39,12 +38,12 @@ import org.briljantframework.evaluation.result.Sample;
  * public internal class {@code Builder}, which acts as producer of said measure class.
  * 
  * <pre>
- * class FooBar extends AbstractMeasure {
- *   FooBar(AbstractMeasure.Builder&lt;FooBar&gt; builder) {
+ * class FooBar extends PointMeasure {
+ *   FooBar(PointMeasure.Builder&lt;FooBar&gt; builder) {
  *     super(builder);
  *   }
  * 
- *   public static final class Builder extends AbstractMeasure.Builder&lt;Accuracy&gt; {
+ *   public static final class Builder extends PointMeasure.Builder&lt;FooBar&gt; {
  * 
  *     &#064;Override
  *     public FooBar build() {
@@ -66,13 +65,11 @@ import org.briljantframework.evaluation.result.Sample;
  *   f.getStandardDeviation(Sample.OUT); // 0
  * </pre>
  * 
- * Measures are usually attached to an
- * {@link org.briljantframework.evaluation.result.EvaluationContext} to procude a
- * {@link org.briljantframework.evaluation.result.Result}.
+ * Measures are usually attached to an {@link EvaluationContextImpl} to procude a {@link Result}.
  * 
  * @author Isak Karlsson
  */
-public abstract class AbstractMeasure implements Measure {
+public abstract class PointMeasure implements Measure {
 
   public static final double NA = Na.DOUBLE;
   protected final Vector naVector;
@@ -81,7 +78,7 @@ public abstract class AbstractMeasure implements Measure {
   private final EnumMap<Sample, Double> min, max, mean, std;
   private final int size;
 
-  protected AbstractMeasure(Builder<? extends Measure> builder) {
+  protected PointMeasure(Builder<? extends Measure> builder) {
     this.values = new EnumMap<>(Sample.class);
     this.max = builder.max;
     this.min = builder.min;
@@ -94,29 +91,84 @@ public abstract class AbstractMeasure implements Measure {
     }
   }
 
-  @Override
+  /**
+   * Get the out of sample mean
+   *
+   * @return the out of sample mean
+   */
+  public double getMean() {
+    return getMean(Sample.OUT);
+  }
+
+  /**
+   * Gets standard deviation.
+   *
+   * @return the standard deviation for {@code Sample.OUT}
+   */
+  public double getStandardDeviation() {
+    return getStandardDeviation(Sample.OUT);
+  }
+
+  /**
+   * Gets the minimum value of a specified run.
+   *
+   * @return the min
+   */
+  public double getMin() {
+    return getMin(Sample.OUT);
+  }
+
+  /**
+   * @return the max (for {@code Sample.OUT})
+   */
+  public double getMax() {
+    return getMax(Sample.OUT);
+  }
+
+  /**
+   * @param i the i:th out of sample measurement
+   * @return the measurement
+   */
+  public double get(int i) {
+    return get(Sample.OUT, i);
+  }
+
+  /**
+   * @return {@code get(Sample.OUT)}
+   */
+  public Vector get() {
+    return get(Sample.OUT);
+  }
+
   public double getStandardDeviation(Sample sample) {
     return std.getOrDefault(sample, NA);
   }
 
-  @Override
   public double getMin(Sample sample) {
     return min.getOrDefault(sample, NA);
   }
 
-  @Override
   public double getMax(Sample sample) {
     return max.getOrDefault(sample, NA);
   }
 
-  @Override
   public double get(Sample sample, int i) {
     return values.getOrDefault(sample, naVector).loc().getAsDouble(i);
   }
 
-  @Override
+  /**
+   * Get a {@code Vector} of measurements. The i:th index contains the measurement from the i:th
+   * run. For example, {@code Vectors.mean(measure.get(IN))}.
+   *
+   * @param sample the sample
+   * @return the measurements
+   */
   public Vector get(Sample sample) {
     return values.getOrDefault(sample, naVector);
+  }
+
+  public double getMean(Sample sample) {
+    return mean.getOrDefault(sample, NA);
   }
 
   @Override
@@ -125,13 +177,8 @@ public abstract class AbstractMeasure implements Measure {
   }
 
   @Override
-  public double getMean(Sample sample) {
-    return mean.getOrDefault(sample, NA);
-  }
-
-  @Override
   public String toString() {
-    return "Measure{name=" + getName() + ", mean=" + getMean() + "}";
+    return "PointMeasure{name=" + getName() + ", mean=" + getMean() + "}";
   }
 
   protected abstract static class Builder<T extends Measure> implements Measure.Builder<T> {
@@ -142,16 +189,10 @@ public abstract class AbstractMeasure implements Measure {
     protected final EnumMap<Sample, Double> sum = new EnumMap<>(Sample.class);
     protected int size = 0;
 
-    @Override
     public final void add(Sample sample, double value) {
       size++;
       sum.compute(sample, (k, v) -> v == null ? value : value + v);
-      this.values.computeIfAbsent(sample, x -> Vector.Builder.of(Double.class)).add(value);
-    }
-
-    @Override
-    public void add(Sample sample, Vector measurements) {
-      add(sample, measurements.mean());
+      values.computeIfAbsent(sample, x -> Vector.Builder.of(Double.class)).add(value);
     }
 
     protected EnumMap<Sample, Double> computeMean() {

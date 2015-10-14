@@ -21,17 +21,42 @@
 
 package org.briljantframework.classification;
 
-import java.util.EnumSet;
-
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.result.EvaluationContext;
+import org.briljantframework.evaluation.classification.Validators;
+import org.briljantframework.supervised.Predictor;
 
 /**
- * A predictor is a model fit by a classifier to make predictions.
+ * <p>
+ * A classifier is a function {@code f(X, y)} which produces a hypothesis {@code g = X -> y} that as
+ * accurately as possible model the true function {@code h} used to generate {@code X -> y}.
+ * </p>
+ *
+ * <p>
+ * The input {@code x} is usually denoted as the instances and the output {@code y} as the classes.
+ * The input instances is represented as a {@link DataFrame} which consists of possibly
+ * heterogeneous vectors of values characterizing each instance.
+ * </p>
+ *
+ * <p>
+ * The output of the classifier is a {@link Classifier} (i.e., the {@code g}) which (hopefully)
+ * approximates {@code h}. To estimate how well {@code g} approximates {@code h}, cross-validation
+ * {@link Validators#crossValidation(int)} can be employed.
+ * </p>
+ *
+ * A classifier is always atomic, i.e. does not have mutable state.
+ *
+ * <pre>
+ * Tuners.crossValidation(new RandomForest.Builder(), x, y,
+ *     Configuration.measureComparator(Accuracy.class), 10,
+ *     range(&quot;No. trees&quot;, RandomForest.Builder::withSize, 10, 1000, 10),
+ *     range(&quot;No. features&quot;, RandomForest.Builder::withMaximumFeatures, 2, x.columns(), 1));
+ * </pre>
+ *
+ * @author Isak Karlsson
  */
-public interface Classifier {
+public interface Classifier extends Predictor {
 
   /**
    * The classes this predictor is able to predict, i.e. its co-domain. Note that the i:th element
@@ -48,6 +73,7 @@ public interface Classifier {
    * @param x to determine class labels for
    * @return the predictions; shape = {@code [x.rows, 1]}.
    */
+  @Override
   Vector predict(DataFrame x);
 
   /**
@@ -83,67 +109,7 @@ public interface Classifier {
    */
   DoubleArray estimate(Vector record);
 
-  /**
-   * Get a set of characteristics for this particular predictor
-   *
-   * @return the set of characteristics
-   */
-  EnumSet<Characteristics> getCharacteristics();
-
-  /**
-   * Performs an internal evaluation of the predictor and appending the produced evaluators to the
-   * supplied {@linkplain EvaluationContext evaluation context}.
-   *
-   * @param ctx the evaluation context
-   */
-  void evaluate(EvaluationContext ctx);
-
-  enum Characteristics {
-    ESTIMATOR
-  }
-
-  /**
-   * <p>
-   * A classifier is a function {@code f(X, y)} which produces a hypothesis {@code g = X -> y} that
-   * as accurately as possible model the true function {@code h} used to generate {@code X -> y}.
-   * </p>
-   *
-   * <p>
-   * The input {@code x} is usually denoted as the instances and the output {@code y} as the
-   * classes. The input instances is represented as a {@link DataFrame} which consists of possibly
-   * heterogeneous vectors of values characterizing each instance.
-   * </p>
-   *
-   * <p>
-   * The output of the classifier is a {@link Classifier} (i.e., the {@code g}) which (hopefully)
-   * approximates {@code h}. To estimate how well {@code g} approximates {@code h}, cross-validation
-   * {@link org.briljantframework.evaluation.Validators#crossValidation(int)} can be employed.
-   * </p>
-   *
-   * A classifier is always atomic, i.e. does not have mutable state.
-   *
-   * <p>
-   * Implementors are encouraged to also provide a convenient builder for the classifier, for
-   * example in cases where the number of parameters are large. For example,
-   * {@code RandomForest forest = RandomForest.withSize(100).withMaximumFeatures(2).build();} is
-   * more clear than {@code RandomForest forest = new RandomForest(100, 2);}. If the builder
-   * implements {@link Configurator}, the {@link org.briljantframework.classification.tune.Tuner} can be
-   * used to optimize parameter configurations.
-   *
-   * <pre>
-   * {@code
-   * Tuners.crossValidation(new RandomForest.Builder(), x, y,
-   *   Configuration.measureComparator(Accuracy.class), 10,
-   *   range(&quot;No. trees&quot;, RandomForest.Builder::withSize, 10, 1000, 10),
-   *   range(&quot;No. features&quot;, RandomForest.Builder::withMaximumFeatures, 2, x.columns(),1));
-   * }
-   * </pre>
-   *
-   * </p>
-   *
-   * @author Isak Karlsson
-   */
-  interface Learner {
+  interface Learner extends Predictor.Learner {
 
     /**
      * Fit a hypothesis using the instances in {@code x} to the output classes in {@code y}

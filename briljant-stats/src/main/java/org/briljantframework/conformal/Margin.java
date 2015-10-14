@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vectors;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -18,7 +17,7 @@ public class Margin implements ClassificationErrorFunction {
     Objects.requireNonNull(classes, "Require possible class values.");
     Check.argument(prediction.size() == classes.size(),
         "The size of prediction array and classes don't match");
-    int yIndex = Vectors.find(classes, label);
+    int yIndex = classes.loc().indexOf(label);
     if (yIndex < 0) {
       throw new IllegalArgumentException(String.format("Illegal class value: '%s' (not found)",
           label));

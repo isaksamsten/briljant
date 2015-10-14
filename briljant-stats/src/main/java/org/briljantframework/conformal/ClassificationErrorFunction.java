@@ -16,10 +16,10 @@ public interface ClassificationErrorFunction {
     Check.argument(classes.size() == predictions.columns(), "Illegal prediction matrix");
     DoubleArray probabilities = Arrays.doubleArray(y.size());
     for (int i = 0, size = y.size(); i < size; i++) {
-      int yIndex = Vectors.find(classes, y.loc().get(Object.class, i));
+      int yIndex = Vectors.find(classes, y, i);
       if (yIndex < 0) {
         throw new IllegalArgumentException(String.format("Illegal class value: '%s' (not found)", y
-            .loc().get(Object.class, i)));
+            .loc().get(i)));
       }
       double value = apply(predictions.getRow(i), y.loc().get(Object.class, i), classes);
       probabilities.set(i, value);

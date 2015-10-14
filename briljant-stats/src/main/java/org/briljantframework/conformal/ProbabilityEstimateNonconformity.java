@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.classification.ClassifierCharacteristic;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 
@@ -60,7 +61,7 @@ public class ProbabilityEstimateNonconformity implements Nonconformity {
       Check.state(
           probabilityEstimator != null
               && probabilityEstimator.getCharacteristics().contains(
-                  Classifier.Characteristics.ESTIMATOR),
+                  ClassifierCharacteristic.ESTIMATOR),
           "The produced classifier can't estimate probabilities");
       return new ProbabilityEstimateNonconformity(probabilityEstimator, errorFunction);
     }

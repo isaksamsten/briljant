@@ -19,26 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.measure;
+package org.briljantframework.evaluation.classification;
+
+import org.briljantframework.evaluation.PointMeasure;
 
 /**
  * @author Isak Karlsson
  */
-public class ValidationSetSize extends AbstractMeasure {
-  protected ValidationSetSize(Builder builder) {
-    super(builder);
+public class Brier extends PointMeasure {
+
+  protected Brier(Builder producer) {
+    super(producer);
   }
 
   @Override
   public String getName() {
-    return "Validation-set size";
+    return "Brier-score";
   }
 
-  public static class Builder extends AbstractMeasure.Builder<ValidationSetSize> {
+  public static class Builder extends PointMeasure.Builder<Brier> {
+
+    public Builder() {
+      super();
+    }
 
     @Override
-    public ValidationSetSize build() {
-      return new ValidationSetSize(this);
+    public Brier build() {
+      return new Brier(this);
     }
   }
+
 }

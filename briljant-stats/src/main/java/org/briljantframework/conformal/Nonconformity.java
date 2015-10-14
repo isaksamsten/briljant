@@ -9,8 +9,23 @@ import org.briljantframework.data.vector.Vector;
  */
 public interface Nonconformity {
 
+  /**
+   * Estimate the nonconformity score for each example (record) in the given dataframe w.r.t. to the
+   * true class label in y
+   * 
+   * @param x the given dataframe of examples
+   * @param y the true class labels of the examples
+   * @return a {@code [no examples]} double array of nonconformity scores
+   */
   DoubleArray estimate(DataFrame x, Vector y);
 
+  /**
+   * Estimate the nonconformity score for the given example and label
+   * 
+   * @param example the given example
+   * @param label the given label
+   * @return the nonconformity score of example w.r.t the
+   */
   double estimate(Vector example, Object label);
 
   /**

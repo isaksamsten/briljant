@@ -140,6 +140,12 @@ public interface VectorLocationGetter {
    */
   String toString(int index);
 
+  int indexOf(Object o);
+
+  int lastIndexOf(Object o);
+
+
+
   Vector get(int... locations);
 
   /**

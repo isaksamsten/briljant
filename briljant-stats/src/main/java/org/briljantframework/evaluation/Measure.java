@@ -19,27 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.result;
-
-import static org.briljantframework.evaluation.result.ClassificationMeasures.accuracy;
-
-import org.briljantframework.evaluation.measure.Accuracy;
-import org.briljantframework.evaluation.measure.ErrorRate;
+package org.briljantframework.evaluation;
 
 /**
+ * A measure is an immutable container of evaluation measures either produced in sample or out of
+ * sample.
+ * 
  * @author Isak Karlsson
  */
-public class ErrorEvaluator implements Evaluator {
+public interface Measure {
 
-  @Override
-  public void accept(EvaluationContext ctx) {
-    double a = accuracy(ctx.getPredictions(Sample.OUT), ctx.getPartition().getValidationTarget());
-    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT, 1 - a);
-    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, a);
-  }
+  /**
+   * @return the number of measurements
+   */
+  int size();
 
-  @Override
-  public String toString() {
-    return "0/1-loss evaluator";
+  /**
+   * Get the name of the current measurement
+   *
+   * @return the name of the measurement
+   */
+  String getName();
+
+  /**
+   * Measures can be produced either in sample (denoted by {@link Sample#IN}) or out of sample
+   * (denoted by {@link Sample#OUT})
+   *
+   * @author Isak Karlsson
+   */
+  interface Builder<T extends Measure> {
+
+//    void compute(EvaluationContextImpl ctx);
+
+    T build();
   }
 }

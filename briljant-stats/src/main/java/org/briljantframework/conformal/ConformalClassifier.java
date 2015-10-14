@@ -49,8 +49,8 @@ public interface ConformalClassifier extends Classifier {
   }
 
   /**
-   * Returns the prediction of the given example or {@code NA} if no class with
-   * {@link #DEFAULT_SIGNIFICANCE} can be assigned.
+   * Returns the prediction of the given example or {@code NA}. A prediction is given iff one class
+   * have a significance greater than or equal to {@link #DEFAULT_SIGNIFICANCE}.
    *
    * @param record to which the class label shall be assigned
    * @return a class-label or {@code NA}
@@ -59,8 +59,8 @@ public interface ConformalClassifier extends Classifier {
   Object predict(Vector record);
 
   /**
-   * Returns the prediction of the given example or {@code NA} if no class with the given
-   * significance can be assigned.
+   * Returns the prediction of the given example or {@code NA}. A prediction is given iff one class
+   * have a significance greater than or equal to the specified significance level.
    *
    * @param record to which the class label shall be assigned
    * @return a class-label or {@code NA}
@@ -68,9 +68,9 @@ public interface ConformalClassifier extends Classifier {
   default Object predict(Vector record, double significance) {
     DoubleArray estimate = estimate(record);
     if (estimate.filter(v -> v > significance).size() == 1) {
-      return getClasses().loc().get(Object.class, Arrays.argmax(estimate));
+      return getClasses().loc().get(Arrays.argmax(estimate));
     } else {
-      return Na.of(Object.class);
+      return Na.of(getClasses().getType().getDataClass());
     }
   }
 
@@ -78,14 +78,22 @@ public interface ConformalClassifier extends Classifier {
    * Returns a boolean array {@code [n-classes]}, where each element denotes which labels are
    * included in the prediction set.
    *
-   * @param example      the example to predict
+   * @param example the example to predict
    * @param significance the significance level
-   * @return a
+   * @return a boolean array
    */
   default BooleanArray conformalPredict(Vector example, double significance) {
-    return estimate(example).satisfies(v -> v > significance);
+    return estimate(example).satisfies(v -> v >= significance);
   }
 
+  /**
+   * Returns a boolean array of {@code [no examples, no classes]}, where each element denotes whihc
+   * labels are included in the prediction set for the i:th example
+   * 
+   * @param x the data frame
+   * @param significance the specified significance
+   * @return a boolean array
+   */
   default BooleanArray conformalPredict(DataFrame x, double significance) {
     BooleanArray estimates = Arrays.booleanArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
@@ -93,6 +101,25 @@ public interface ConformalClassifier extends Classifier {
       estimates.setRow(i, estimate);
     });
     return estimates;
+  }
+
+  /**
+   * Returns a vector of possible predictions with a significance greater than or equal to the
+   * specified significance level.
+   * 
+   * @param example the given example
+   * @param significance the given significance level
+   * @return a vector of possible predictions
+   */
+  default Vector predictionSet(Vector example, double significance) {
+    Vector.Builder set = getClasses().newBuilder();
+    BooleanArray predict = conformalPredict(example, significance);
+    for (int i = 0; i < predict.size(); i++) {
+      if (predict.get(i)) {
+        set.add(getClasses(), i);
+      }
+    }
+    return set.build();
   }
 
   /**

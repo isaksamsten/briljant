@@ -21,6 +21,10 @@
 
 package org.briljantframework.evaluation.partition;
 
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
@@ -40,9 +44,19 @@ public class FoldPartitioner implements Partitioner {
   }
 
   @Override
-  public Iterable<Partition> partition(DataFrame x, Vector y) {
+  public Collection<Partition> partition(DataFrame x, Vector y) {
     Check.size(x.rows(), y.size());
-    return () -> new FoldIterator(x, y, folds);
+    return new AbstractCollection<Partition>() {
+      @Override
+      public Iterator<Partition> iterator() {
+        return new FoldIterator(x, y, folds);
+      }
+
+      @Override
+      public int size() {
+        return folds;
+      }
+    };
   }
 
   @Override
