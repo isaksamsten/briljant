@@ -131,9 +131,9 @@ public interface IntArray extends BaseArray<IntArray> {
 
   IntArray filter(IntPredicate operator);
 
-  BooleanArray satisfies(IntPredicate predicate);
+  BooleanArray where(IntPredicate predicate);
 
-  BooleanArray satisfies(IntArray matrix, IntBiPredicate predicate);
+  BooleanArray where(IntArray matrix, IntBiPredicate predicate);
 
   void forEach(IntConsumer consumer);
 

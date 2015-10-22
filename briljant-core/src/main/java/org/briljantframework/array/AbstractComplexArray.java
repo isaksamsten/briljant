@@ -310,7 +310,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public BooleanArray satisfies(Predicate<Complex> predicate) {
+  public BooleanArray where(Predicate<Complex> predicate) {
     BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
@@ -318,7 +318,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     return bits;
   }
 
-  public BooleanArray satisfies(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
+  public BooleanArray where(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
     BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {

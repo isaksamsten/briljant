@@ -83,7 +83,7 @@ public interface ConformalClassifier extends Classifier {
    * @return a boolean array
    */
   default BooleanArray conformalPredict(Vector example, double significance) {
-    return estimate(example).satisfies(v -> v >= significance);
+    return estimate(example).where(v -> v >= significance);
   }
 
   /**

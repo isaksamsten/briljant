@@ -32,7 +32,7 @@ public class ConformalClassifierEvaluator implements Evaluator<ConformalClassifi
     MeasureCollection<? extends ConformalClassifier> measureCollection = ctx.getMeasureCollection();
 
     // Compute accuracy
-    BooleanArray predictions = estimates.satisfies(v -> v >= significance);
+    BooleanArray predictions = estimates.where(v -> v >= significance);
     double accuracy = 0;
     for (int i = 0; i < predictions.rows(); i++) {
       int j = Vectors.find(classes, y, i);

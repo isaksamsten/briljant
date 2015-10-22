@@ -326,7 +326,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BooleanArray satisfies(IntPredicate predicate) {
+  public BooleanArray where(IntPredicate predicate) {
     BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
@@ -335,7 +335,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BooleanArray satisfies(IntArray matrix, IntBiPredicate predicate) {
+  public BooleanArray where(IntArray matrix, IntBiPredicate predicate) {
     Check.shape(this, matrix);
     BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {

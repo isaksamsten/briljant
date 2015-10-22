@@ -284,27 +284,27 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public BooleanArray lt(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) < 0);
+    return where(other, (a, b) -> comparator.compare(a, b) < 0);
   }
 
   @Override
   public BooleanArray gt(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) > 0);
+    return where(other, (a, b) -> comparator.compare(a, b) > 0);
   }
 
   @Override
   public BooleanArray eq(Array<T> other) {
-    return satisfies(other, Object::equals);
+    return where(other, Object::equals);
   }
 
   @Override
   public BooleanArray lte(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) <= 0);
+    return where(other, (a, b) -> comparator.compare(a, b) <= 0);
   }
 
   @Override
   public BooleanArray gte(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) >= 0);
+    return where(other, (a, b) -> comparator.compare(a, b) >= 0);
   }
 
   @Override
@@ -398,7 +398,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BooleanArray satisfies(Predicate<T> predicate) {
+  public BooleanArray where(Predicate<T> predicate) {
     BooleanArray array = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i)));
@@ -407,7 +407,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BooleanArray satisfies(Array<T> other, BiPredicate<T, T> predicate) {
+  public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
     Check.shape(this, other);
     BooleanArray array = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {

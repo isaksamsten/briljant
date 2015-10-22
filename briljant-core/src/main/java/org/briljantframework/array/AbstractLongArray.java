@@ -285,7 +285,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BooleanArray satisfies(LongPredicate predicate) {
+  public BooleanArray where(LongPredicate predicate) {
     BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
@@ -294,7 +294,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BooleanArray satisfies(LongArray matrix, LongBiPredicate predicate) {
+  public BooleanArray where(LongArray matrix, LongBiPredicate predicate) {
     Check.shape(this, matrix);
     BooleanArray bits = bj.booleanArray();
     for (int i = 0; i < size(); i++) {

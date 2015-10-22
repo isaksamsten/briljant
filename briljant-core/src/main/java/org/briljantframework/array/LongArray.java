@@ -120,9 +120,9 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   ComplexArray mapToComplex(LongFunction<Complex> map);
 
-  BooleanArray satisfies(LongPredicate predicate);
+  BooleanArray where(LongPredicate predicate);
 
-  BooleanArray satisfies(LongArray matrix, LongBiPredicate predicate);
+  BooleanArray where(LongArray matrix, LongBiPredicate predicate);
 
   long reduce(long identity, LongBinaryOperator reduce);
 

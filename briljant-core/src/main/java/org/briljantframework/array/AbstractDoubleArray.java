@@ -225,7 +225,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public BooleanArray satisfies(DoublePredicate predicate) {
+  public BooleanArray where(DoublePredicate predicate) {
     BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
@@ -234,7 +234,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public BooleanArray satisfies(DoubleArray matrix, DoubleBiPredicate predicate) {
+  public BooleanArray where(DoubleArray matrix, DoubleBiPredicate predicate) {
     Check.shape(this, matrix);
     BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {

@@ -142,9 +142,9 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   ComplexArray filter(Predicate<Complex> predicate);
 
-  BooleanArray satisfies(Predicate<Complex> predicate);
+  BooleanArray where(Predicate<Complex> predicate);
 
-  BooleanArray satisfies(ComplexArray matrix, BiPredicate<Complex, Complex> predicate);
+  BooleanArray where(ComplexArray matrix, BiPredicate<Complex, Complex> predicate);
 
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
