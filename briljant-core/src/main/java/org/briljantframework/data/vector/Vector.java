@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -43,11 +42,13 @@ import java.util.stream.Stream;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.array.Array;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
@@ -134,8 +135,7 @@ public interface Vector extends Serializable, Iterable<Object> {
     if (!it.hasNext()) {
       return singleton(null);
     }
-    Object t = it.next();
-    Builder builder = VectorType.of(t).newBuilder().add(t);
+    Vector.Builder builder = new TypeInferenceVectorBuilder();
     while (it.hasNext()) {
       builder.add(it.next());
     }
@@ -168,31 +168,14 @@ public interface Vector extends Serializable, Iterable<Object> {
   }
 
   /**
-   * Construct a new vector of truth values based on the supplied predicate.
-   *
-   * <p>
+   * Return a boolean array of the elements for which the predicate returns {@code true}
    * 
-   * <pre>
-   * {@code
-   *  Vector a = ..;
-   *  Vector b = ..;
-   *  Vector.Builder builder = Vector.Builder.of(Boolean.class);
-   *  for(int i = 0; Math.min(a.size(), b.size()); i++){
-   *     builder.add(predicate.test(a.get(cls, i), b.get(cls, i));
-   *  }
-   *  Vector c = builder.build();
-   * }
-   * </pre>
-   *
+   * @param <T> the type
    * @param cls the type
-   * @param other other vector
-   * @param predicate the predicate to test
-   * @return a new {@code BitVector} of values
-   * @see #combine(Class, Class, Vector, java.util.function.BiFunction)
+   * @param predicate the predicate
+   * @return a boolean vector
    */
-  <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate);
-
-  <T> Vector satisfies(Class<T> cls, Predicate<? super T> predicate);
+  <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
 
   /**
    * Filter values in this vector, treating each value as {@code cls} (or NA), using the supplied
@@ -225,13 +208,7 @@ public interface Vector extends Serializable, Iterable<Object> {
    * <p>
    * Please note that transformations can be implemented in terms of aggregation operations. For
    * example, this method can be implemented as:
-   *
-   * <pre>
-   * {@code
-   *  a.aggregate(in, Aggregates.transform(() -> Vec.typeOf(out).newBuilder, operator));
-   * }
-   * </pre>
-   *
+   * 
    * @param in the input type (if the vector cannot coerce values to {@code T}, NA is used)
    * @param out the output type
    * @param operator the operator to apply
@@ -503,15 +480,51 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   void setIndex(Index index);
 
+  /**
+   * Get the value with the given key as an instance of the specified type
+   * 
+   * @param cls the type
+   * @param key the key
+   * @param <T> the type
+   * @return the value with the given key
+   * @see Convert#to(Class, Object)
+   */
   <T> T get(Class<T> cls, Object key);
 
+  default Object get(Object key) {
+    return get(Object.class, key);
+  }
+
+  /**
+   * Get the value with the given key as a double
+   * 
+   * @param key the key
+   * @return a double
+   */
   double getAsDouble(Object key);
 
-  double getAsDouble(Object key, double defaultValue);
-
+  /**
+   * Get the value witht the given key as an int
+   * 
+   * @param key the key
+   * @return an int
+   */
   int getAsInt(Object key);
 
-  String toString(Object key);
+  @Deprecated
+  double getAsDouble(Object key, double defaultValue);
+
+  /**
+   * Select a subset of this vector for which the keys of this vector is true in the given vector
+   *
+   * @param select a vector of truth values
+   * @return a subset of this vector
+   */
+  Vector get(BooleanArray select);
+
+  Vector set(Object key, Object value);
+
+  Vector set(BooleanArray array, Object value);
 
   /**
    * Returns true if there are any NA values
@@ -520,12 +533,29 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   boolean hasNA();
 
+  /**
+   * Return true if the value with the given key is {@code NA}
+   *
+   * @param key the key
+   * @return true if the value is {@code NA}
+   */
   boolean isNA(Object key);
 
+  /**
+   * Return true if the value with the given key is {@code true}
+   *
+   * @param key the key
+   * @return true if the value is {@code true}
+   */
   boolean isTrue(Object key);
 
-  Vector select(Vector bits);
-
+  /**
+   * Select the values in this vector with keys from the given value to the given value
+   * 
+   * @param from the first value (inclusive)
+   * @param to the last value (exclusive)
+   * @return a subset of this vector
+   */
   default Vector select(Object from, Object to) {
     return select(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
   }
@@ -542,6 +572,15 @@ public interface Vector extends Serializable, Iterable<Object> {
   int size();
 
   /**
+   * Returns true if the vector is empty
+   * 
+   * @return true if the vector is empty
+   */
+  default boolean isEmpty() {
+    return size() == 0;
+  }
+
+  /**
    * Get the type of the vector.
    *
    * @return the type
@@ -552,9 +591,11 @@ public interface Vector extends Serializable, Iterable<Object> {
 
   <T> List<T> asList(Class<T> cls);
 
-  <T> Stream<T> stream(Class<T> cls);
+  default List<Object> asList() {
+    return asList(Object.class);
+  }
 
-  <T> Stream<T> parallelStream(Class<T> cls);
+  <T> Stream<T> stream(Class<T> cls);
 
   IntStream intStream();
 
@@ -607,6 +648,18 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   default ComplexArray toComplexArray() throws IllegalTypeException {
     return toArray(Complex.class).asComplex();
+  }
+
+  default Vector abs() {
+    return map(Integer.class, Na.ignore(Math::abs));
+  }
+
+  default Object argmax() {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  default Object argmin() {
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -697,6 +750,18 @@ public interface Vector extends Serializable, Iterable<Object> {
     return Vectors.statisticalSummary(this);
   }
 
+  default boolean all(Predicate<Object> predicate) {
+    return all(Object.class, predicate);
+  }
+
+  <T> boolean all(Class<T> cls, Predicate<? super T> predicate);
+
+  default boolean any(Predicate<Object> predicate) {
+    return any(Object.class, predicate);
+  }
+
+  <T> boolean any(Class<T> cls, Predicate<? super T> predicate);
+
   /**
    * Return an indexer that provides pure location based indexing.
    *
@@ -739,11 +804,7 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   Builder newBuilder(int size);
 
-  default boolean all(Predicate<Object> predicate) {
-    return all(Object.class, predicate);
-  }
 
-  <T> boolean all(Class<T> cls, Predicate<? super T> predicate);
 
   /**
    * <p>

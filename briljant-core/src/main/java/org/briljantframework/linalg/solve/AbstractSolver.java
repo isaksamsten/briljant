@@ -24,7 +24,7 @@ package org.briljantframework.linalg.solve;
 import org.briljantframework.array.DoubleArray;
 
 /**
- * Created by Isak Karlsson on 08/09/14.
+ * @author Isak Karlsson
  */
 public abstract class AbstractSolver implements Solver {
 

@@ -238,6 +238,16 @@ public class DataSeriesCollection extends AbstractDataFrame {
     }
 
     @Override
+    protected Vector.Builder getAt(int i) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected Vector.Builder getRecordAt(int i) {
+      return builders.get(i);
+    }
+
+    @Override
     protected void setAt(int r, int c, Vector from, int i) {
       ensureCapacity(r);
       builders.get(r).loc().set(c, from, i);

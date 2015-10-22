@@ -24,17 +24,19 @@ package org.briljantframework.evaluation;
 
 import java.util.function.IntConsumer;
 
+import org.briljantframework.supervised.Predictor;
+
 /**
  * @author Isak Karlsson
  */
-public interface Evaluator {
+public interface Evaluator<P extends Predictor> {
 
-  static Evaluator foldOutput(IntConsumer consumer) {
-    return new Evaluator() {
+  static Evaluator<Predictor> foldOutput(IntConsumer consumer) {
+    return new Evaluator<Predictor>() {
       private int fold = 0;
 
       @Override
-      public void accept(EvaluationContext ctx) {
+      public void accept(EvaluationContext<? extends Predictor> ctx) {
         consumer.accept(fold++);
       }
     };
@@ -45,5 +47,5 @@ public interface Evaluator {
    *
    * @param ctx the evaluation context
    */
-  void accept(EvaluationContext ctx);
+  void accept(EvaluationContext<? extends P> ctx);
 }

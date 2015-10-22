@@ -49,7 +49,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexArray ifft(ComplexArray a) {
-    ComplexArray copy = Arrays.complexArray(a.size());
+    ComplexArray copy = Arrays.newComplexArray(a.size());
     for (int i = 0; i < a.size(); i++) {
       Complex c = a.get(i);
       copy.set(i, new Complex(c.getImaginary(), c.getReal()));
@@ -79,16 +79,16 @@ public final class DiscreteFourierTransform {
     int m = Integer.highestOneBit(n * 2 + 1) << 1;
 
     // Trigonometric tables
-    DoubleArray cosTable = Arrays.doubleArray(n);
-    DoubleArray sinTable = Arrays.doubleArray(n);
+    DoubleArray cosTable = Arrays.newDoubleArray(n);
+    DoubleArray sinTable = Arrays.newDoubleArray(n);
     for (int i = 0; i < n; i++) {
       int j = (int) ((long) i * i % (n * 2));
       cosTable.set(i, Math.cos(Math.PI * j / n));
       sinTable.set(i, Math.sin(Math.PI * j / n));
     }
 
-    ComplexArray an = Arrays.complexArray(m);
-    ComplexArray bn = Arrays.complexArray(m);
+    ComplexArray an = Arrays.newComplexArray(m);
+    ComplexArray bn = Arrays.newComplexArray(m);
 
     bn.set(0, new Complex(cosTable.get(0), sinTable.get(0)));
     for (int i = 0; i < n; i++) {
@@ -154,8 +154,8 @@ public final class DiscreteFourierTransform {
       throw new IllegalArgumentException();
     }
 
-    DoubleArray cosTable = Arrays.doubleArray(n / 2);
-    DoubleArray sinTable = Arrays.doubleArray(n / 2);
+    DoubleArray cosTable = Arrays.newDoubleArray(n / 2);
+    DoubleArray sinTable = Arrays.newDoubleArray(n / 2);
     final double v = 2 * Math.PI;
     for (int i = 0; i < n / 2; i++) {
       cosTable.set(i, Math.cos(v * i / n));

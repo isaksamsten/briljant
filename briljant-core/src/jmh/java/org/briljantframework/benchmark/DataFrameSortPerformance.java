@@ -54,6 +54,6 @@ public class DataFrameSortPerformance {
 
   @Benchmark
   public Object sort() {
-    return dataFrame.sort(SortOrder.ASC, "First");
+    return dataFrame.sortBy(SortOrder.ASC, "First");
   }
 }

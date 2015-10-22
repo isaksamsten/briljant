@@ -21,6 +21,7 @@
 
 package org.briljantframework.primitive;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -42,6 +43,42 @@ public final class ArrayAllocations {
       return grow(buffer, newSize);
     }
     return buffer;
+  }
+
+  public static <T> T[] prepend(T element, T[] array) {
+    Class<?> type;
+    if (array != null) {
+      type = array.getClass().getComponentType();
+    } else if (element != null) {
+      type = element.getClass();
+    } else {
+      throw new IllegalArgumentException("Arguments cannot both be null");
+    }
+    @SuppressWarnings("unchecked")
+    // type must be T
+    final T[] newArray = (T[]) copyArrayGrowMove1(array, type);
+    newArray[0] = element;
+    return newArray;
+  }
+
+  /**
+   * Returns a copy of the given array of size 1 greater than the argument. The first value is left
+   * to default value.
+   *
+   * @param array The array to copy, must not be {@code null}.
+   * @param newArrayComponentType If {@code array} is {@code null}, create a size 1 array of this
+   *        type.
+   * @return A new copy of the array of size 1 greater than the input.
+   */
+  private static Object copyArrayGrowMove1(final Object array, final Class<?> newArrayComponentType) {
+    if (array != null) {
+      final int arrayLength = Array.getLength(array);
+      final Object newArray =
+          Array.newInstance(array.getClass().getComponentType(), arrayLength + 1);
+      System.arraycopy(array, 0, newArray, 1, arrayLength);
+      return newArray;
+    }
+    return Array.newInstance(newArrayComponentType, 1);
   }
 
   /**

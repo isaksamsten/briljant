@@ -46,8 +46,8 @@ public class FoldPartitionerTest {
     int i = 0;
     for (Partition partition : partitionIterator) {
       System.out.println("Fold " + i++);
-      System.out.println(partition.getTrainingData().head(135));
-      System.out.println(partition.getValidationData().head(15));
+      System.out.println(partition.getTrainingData().limit(135));
+      System.out.println(partition.getValidationData().limit(15));
     }
 
     // DataFrame iris = DataFrames.permuteRows(Datasets.loadIris());

@@ -561,7 +561,7 @@ public final class Vectors {
 
     private TransferableVectorBuilder(Vector vector) {
       if (!(vector instanceof Transferable)) {
-        this.vector = vector.newCopyBuilder().build();
+        this.vector = vector.copy();
       } else {
         this.vector = vector;
       }

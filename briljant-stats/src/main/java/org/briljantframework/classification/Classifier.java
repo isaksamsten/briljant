@@ -24,7 +24,6 @@ package org.briljantframework.classification;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.classification.Validators;
 import org.briljantframework.supervised.Predictor;
 
 /**
@@ -42,7 +41,7 @@ import org.briljantframework.supervised.Predictor;
  * <p>
  * The output of the classifier is a {@link Classifier} (i.e., the {@code g}) which (hopefully)
  * approximates {@code h}. To estimate how well {@code g} approximates {@code h}, cross-validation
- * {@link Validators#crossValidation(int)} can be employed.
+ * {@link ClassifierValidator#crossValidation(int)} can be employed.
  * </p>
  *
  * A classifier is always atomic, i.e. does not have mutable state.
@@ -109,20 +108,4 @@ public interface Classifier extends Predictor {
    */
   DoubleArray estimate(Vector record);
 
-  interface Learner extends Predictor.Learner {
-
-    /**
-     * Fit a hypothesis using the instances in {@code x} to the output classes in {@code y}
-     *
-     * @param x the instances
-     * @param y the classes
-     * @return a classification model
-     */
-    Classifier fit(DataFrame x, Vector y);
-
-  }
-
-  interface Configurator<C extends Learner> {
-    C configure();
-  }
 }

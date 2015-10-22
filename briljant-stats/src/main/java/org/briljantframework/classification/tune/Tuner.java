@@ -21,14 +21,23 @@
 
 package org.briljantframework.classification.tune;
 
-import org.briljantframework.classification.Classifier;
+import java.util.List;
+
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.evaluation.Validator;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson
  */
-public interface Tuner<C extends Classifier.Learner, O extends Classifier.Configurator<? extends C>> {
+public interface Tuner<P extends Predictor, O extends Predictor.Configurator<? extends Predictor.Learner<? extends P>>> {
+
+  Tuner<P, O> setParameter(String name, UpdatableParameter<O> updater);
+
+  Tuner<P, O> setValidator(Validator<P> validator);
+
+  Validator<P> getValidator();
 
   /**
    * Optimize the paramters of the specified classifier over the specified data frame and labels
@@ -36,6 +45,6 @@ public interface Tuner<C extends Classifier.Learner, O extends Classifier.Config
    * @param toOptimize the classifier to optimize
    * @return the classifier configurations which has been optimized
    */
-  Configurations tune(O toOptimize, DataFrame x, Vector y);
+  List<Configuration<P>> tune(O toOptimize, DataFrame x, Vector y);
 
 }

@@ -4,19 +4,18 @@ import org.briljantframework.Check;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.classification.ClassifierMeasure;
 import org.briljantframework.conformal.ConformalClassifier;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.EvaluationContext;
 import org.briljantframework.evaluation.Evaluator;
-import org.briljantframework.evaluation.Sample;
-import org.briljantframework.evaluation.classification.Accuracy;
-import org.briljantframework.evaluation.classification.ErrorRate;
+import org.briljantframework.evaluation.MeasureCollection;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class ConformalClassifierEvaluator implements Evaluator {
+public class ConformalClassifierEvaluator implements Evaluator<ConformalClassifier> {
 
   private final double significance;
 
@@ -25,14 +24,12 @@ public class ConformalClassifierEvaluator implements Evaluator {
   }
 
   @Override
-  public void accept(EvaluationContext ctx) {
-    Check.argument(ctx.getPredictor() instanceof ConformalClassifier,
-        "requires a conformal predictor");
-
-    ConformalClassifier classifier = (ConformalClassifier) ctx.getPredictor();
+  public void accept(EvaluationContext<? extends ConformalClassifier> ctx) {
+    ConformalClassifier classifier = ctx.getPredictor();
     Vector y = ctx.getPartition().getValidationTarget();
     Vector classes = classifier.getClasses();
-    DoubleArray estimates = ctx.getEstimation();
+    DoubleArray estimates = ctx.getEstimates();
+    MeasureCollection<? extends ConformalClassifier> measureCollection = ctx.getMeasureCollection();
 
     // Compute accuracy
     BooleanArray predictions = estimates.satisfies(v -> v >= significance);
@@ -44,9 +41,8 @@ public class ConformalClassifierEvaluator implements Evaluator {
         accuracy++;
       }
     }
-    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, accuracy / y.size());
-    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT,
-        1 - (accuracy / y.size()));
+    measureCollection.add(ClassifierMeasure.ACCURACY, accuracy / y.size());
+    measureCollection.add(ClassifierMeasure.ERROR, 1 - (accuracy / y.size()));
 
     // Compute confidence and credibility
     double avgConfidence = 0, avgCredibility = 0;
@@ -60,8 +56,8 @@ public class ConformalClassifierEvaluator implements Evaluator {
       avgConfidence += confidence / estimates.rows();
     }
 
-    ctx.getOrDefault(Confidence.class, Confidence.Builder::new).add(Sample.OUT, avgConfidence);
-    ctx.getOrDefault(Credibility.class, Credibility.Builder::new).add(Sample.OUT, avgCredibility);
+    measureCollection.add(ConformalClassifierMeasure.CONFIDENCE, avgConfidence);
+    measureCollection.add(ConformalClassifierMeasure.CREDIBILITY, avgCredibility);
   }
 
   private static double maxnot(DoubleArray array, int not) {

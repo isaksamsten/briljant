@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -39,7 +40,7 @@ public interface DataFrameGroupBy extends Iterable<Group> {
    *
    * @return a set of entries
    */
-  Set<Map.Entry<Object, Vector>> groups();
+  Set<Map.Entry<Object, IntArray>> groups();
 
   /**
    * Get a data frame of the elements grouped as {@code key}.

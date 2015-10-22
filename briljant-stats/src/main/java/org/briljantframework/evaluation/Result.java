@@ -21,50 +21,32 @@
 
 package org.briljantframework.evaluation;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson
  */
-public class Result {
+public class Result<P extends Predictor> {
 
-  private final Map<Class<?>, Measure> measures;
+  private final DataFrame measures;
 
-  public Result(EvaluationContext ctx) {
-    List<Measure> measures = ctx.getMeasures();
-    this.measures = new HashMap<>();
-
-    int length = 0;
-    if (measures.size() > 0) {
-      length = measures.get(0).size();
-    }
-
-    for (Measure measure : measures) {
-      if (measure.size() != length) {
-        throw new IllegalArgumentException(String.format("Invalid number of metrics for %s",
-            measure.getName()));
-      }
-      this.measures.put(measure.getClass(), measure);
-    }
+  public Result(EvaluationContext<P> ctx) {
+    this.measures = ctx.getMeasureCollection().toDataFrame();
   }
 
-  public <T extends Measure> T get(Class<T> key) {
-    Measure measure = measures.get(key);
-    if (measure != null) {
-      return key.cast(measure);
-    } else {
-      throw new NoSuchElementException(String.format("%s can't be found", key.getSimpleName()));
-    }
+  public DataFrame getMeasures() {
+    return measures;
   }
 
-  public Collection<Measure> getMeasures() {
-    return Collections.unmodifiableCollection(measures.values());
+  public Vector getMeasure(PredictionMeasure<? super P> measure) {
+    return measures.get(measure);
   }
+
+  // public Collection<Measure> getMeasures() {
+  // return Collections.unmodifiableCollection(measures.values());
+  // }
 
   @Override
   public String toString() {

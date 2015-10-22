@@ -21,8 +21,8 @@
 
 package org.briljantframework.data.dataframe;
 
+import java.io.IOException;
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,6 +43,7 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
@@ -57,6 +58,7 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.index.VectorLocationGetter;
+import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Convert;
@@ -64,6 +66,8 @@ import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.primitive.ArrayAllocations;
+import org.briljantframework.primitive.IntList;
 
 /**
  * Implements some default behaviour for DataFrames
@@ -88,6 +92,102 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
+  public <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate) {
+    BooleanArray array = Arrays.newBooleanArray(rows(), columns());
+    for (int i = 0; i < rows(); i++) {
+      for (int j = 0; j < columns(); j++) {
+        array.set(i, j, predicate.test(loc().get(cls, i, j)));
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public DataFrame set(Object key, Object value) {
+    DataFrame.Builder builder = newCopyBuilder();
+    builder.set(key, Vectors.transferableBuilder(Vector.singleton(value, rows())));
+    return builder.build();
+  }
+
+  @Override
+  public DataFrame setRecord(Object key, Object value) {
+    DataFrame.Builder builder = newCopyBuilder();
+    builder.setRecord(key, Vectors.transferableBuilder(Vector.singleton(value, columns())));
+    return null;
+  }
+
+  @Override
+  public DataFrame get(BooleanArray array) {
+    DataFrame.Builder builder = newBuilder();
+    if (array.isMatrix()) { // Select values; setting false values to NA
+      Check.argument(array.rows() == rows() && array.columns() == columns(), "Illegal shape");
+      for (int j = 0; j < array.columns(); j++) {
+        Vector column = loc().get(j);
+        Vector.Builder columnBuilder = column.newBuilder();
+        for (int i = 0; i < array.rows(); i++) {
+          if (array.get(i, j)) {
+            columnBuilder.loc().set(i, column, i);
+          } else {
+            columnBuilder.loc().setNA(i);
+          }
+        }
+        builder.set(getColumnIndex().getKey(j), columnBuilder);
+      }
+      builder.setIndex(getIndex());
+    } else if (array.isVector()) { // Select rows;
+      for (int i = 0; i < array.size(); i++) {
+        if (array.get(i)) {
+          builder.setRecord(getIndex().getKey(i), Vectors.transferableBuilder(loc().getRecord(i)));
+        }
+      }
+      builder.setColumnIndex(getColumnIndex());
+    } else {
+      throw new IllegalArgumentException("Illegal array dimension " + array.dims());
+    }
+
+    return builder.build();
+  }
+
+  @Override
+  public DataFrame set(BooleanArray array, Object value) {
+    DataFrame.Builder builder = newBuilder();
+    if (array.dims() == 2) { // Select values; setting false values to NA
+      Check.argument(array.rows() == rows() && array.columns() == columns(), "Illegal shape");
+      for (int j = 0; j < array.columns(); j++) {
+        Vector column = loc().get(j);
+        Vector.Builder columnBuilder = column.newBuilder();
+        for (int i = 0; i < array.rows(); i++) {
+          if (array.get(i, j)) {
+            columnBuilder.loc().set(i, value);
+          } else {
+            columnBuilder.loc().set(i, column, i);
+          }
+        }
+        builder.set(getColumnIndex().getKey(j), columnBuilder);
+      }
+      builder.setIndex(getIndex());
+    } else if (array.dims() == 1) { // Select rows;
+      for (int i = 0; i < array.size(); i++) {
+        Object key = getIndex().getKey(i);
+        if (array.get(i)) {
+          builder.setRecord(key, Vectors.transferableBuilder(Vector.singleton(value, columns())));
+        } else {
+          builder.setRecord(key, Vectors.transferableBuilder(loc().getRecord(i)));
+        }
+      }
+      builder.setColumnIndex(getColumnIndex());
+    } else {
+      throw new IllegalArgumentException("Illegal array dimension " + array.dims());
+    }
+
+    return builder.build();
+  }
+
+  private void setWhereTrue(Builder builder, BooleanArray array, Object value) {
+
+  }
+
+  @Override
   public final DataFrame sort(SortOrder order) {
     Index.Builder index = getIndex().newCopyBuilder();
     index.sort(order.orderComparator(ObjectComparator.getInstance()));
@@ -102,12 +202,12 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame sort(Object key) {
-    return sort(SortOrder.ASC, key);
+  public final DataFrame sortBy(Object key) {
+    return sortBy(SortOrder.ASC, key);
   }
 
   @Override
-  public final <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
+  public final <T> DataFrame sortBy(Class<? extends T> cls, Comparator<? super T> cmp, Object key) {
     VectorLocationGetter loc = get(key).loc();
     Index.Builder index = getIndex().newCopyBuilder();
     index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
@@ -115,7 +215,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame sort(SortOrder order, Object key) {
+  public final DataFrame sortBy(SortOrder order, Object key) {
     VectorLocationGetter loc = get(key).loc();
     boolean asc = order == SortOrder.ASC;
     IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
@@ -125,7 +225,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame head(int n) {
+  public final DataFrame limit(int n) {
     Check.argument(n >= 0 && n <= rows(), "Illegal number of records");
     if (n == rows()) {
       return this;
@@ -262,42 +362,47 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrameGroupBy groupBy(Object columnKey) {
-    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
+    HashMap<Object, IntList> groups = new LinkedHashMap<>();
     Vector column = get(columnKey);
     VectorLocationGetter loc = column.loc();
     for (int i = 0, size = column.size(); i < size; i++) {
-      groups.computeIfAbsent(loc.get(Object.class, i), a -> Vector.Builder.of(Integer.class))
-          .add(i);
+      groups.computeIfAbsent(loc.get(Object.class, i), a -> new IntList()).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKey);
   }
 
   @Override
-  public final <T> DataFrameGroupBy groupBy(Class<T> cls, Object columnKey,
-      Function<? super T, Object> map) {
-    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
+  public final <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, Object> map,
+      Object columnKey) {
+    HashMap<Object, IntList> groups = new LinkedHashMap<>();
     Vector column = get(columnKey);
     VectorLocationGetter loc = column.loc();
     for (int i = 0, size = column.size(); i < size; i++) {
       T value = loc.get(cls, i);
       // Ignore NA values (group them separately)
-      groups.computeIfAbsent(Is.NA(value) ? value : map.apply(value),
-          a -> Vector.Builder.of(Integer.class)).add(i);
+      groups.computeIfAbsent(Is.NA(value) ? value : map.apply(value), a -> new IntList()).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, columnKey);
   }
 
   @Override
-  public final DataFrameGroupBy groupBy(Object... columnKeys) {
-    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
+  public final DataFrameGroupBy groupBy(Object key, Object... keys) {
+    return groupBy(vector -> vector.asList(Object.class), key, keys);
+  }
+
+  @Override
+  public DataFrameGroupBy groupBy(Function<? super Vector, Object> combiner, Object key,
+      Object... keys) {
+    HashMap<Object, IntList> groups = new LinkedHashMap<>();
+    Vector.Builder cs = new TypeInferenceVectorBuilder();
+    keys = ArrayAllocations.prepend(key, keys);
     for (int i = 0, size = rows(); i < size; i++) {
-      List<Object> keys = new ArrayList<>(columnKeys.length);
-      for (Object columnKey : columnKeys) {
-        keys.add(get(columnKey).get(Object.class, i));
+      for (int j = 0; j < keys.length; j++) {
+        cs.loc().set(j, get(keys[j]), i);
       }
-      groups.computeIfAbsent(keys, a -> Vector.Builder.of(Integer.class)).add(i);
+      groups.computeIfAbsent(combiner.apply(cs.getTemporaryVector()), a -> new IntList()).add(i);
     }
-    return new HashDataFrameGroupBy(this, groups, columnKeys);
+    return new HashDataFrameGroupBy(this, groups, keys);
   }
 
   @Override
@@ -307,11 +412,12 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> function) {
-    HashMap<Object, Vector.Builder> groups = new LinkedHashMap<>();
+    HashMap<Object, IntList> groups = new LinkedHashMap<>();
+
     for (Index.Entry entry : getIndex().entrySet()) {
       T key = Convert.to(cls, entry.getKey());
       groups.computeIfAbsent(Is.NA(key) ? key : function.apply(key), // ignore NA keys
-          a -> Vector.Builder.of(Integer.class)).add(entry.getValue());
+          a -> new IntList()).add(entry.getValue());
     }
     return new HashDataFrameGroupBy(this, groups);
   }
@@ -347,8 +453,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame get(Object... keys) {
-    return getAt(getColumnIndex().locations(keys));
+  public final DataFrame get(Object key, Object... keys) {
+    return getAt(getColumnIndex().locations(ArrayAllocations.prepend(key, keys)));
   }
 
   @Override
@@ -393,23 +499,13 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final String toString(Object row, Object col) {
-    return toStringAt(getIndex().getLocation(row), getColumnIndex().getLocation(col));
-  }
-
-  @Override
-  public final DataFrame dropna() {
-    return DataFrames.dropMissingColumns(this);
-  }
-
-  @Override
   public final DataFrame drop(Object key) {
     return dropAt(getColumnIndex().getLocation(key));
   }
 
   @Override
-  public DataFrame drop(Object... keys) {
-    return dropAt(getColumnIndex().locations(keys));
+  public DataFrame drop(Object key, Object... keys) {
+    return dropAt(getColumnIndex().locations(ArrayAllocations.prepend(key, keys)));
   }
 
   @Override
@@ -432,10 +528,19 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame getRecord(Object... keys) {
+  public Vector getDiagonal() {
+    Vector.Builder builder = new TypeInferenceVectorBuilder();
+    for (int i = 0; i < rows(); i++) {
+      builder.loc().set(i, loc().get(Object.class, i, i));
+    }
+    return builder.build();
+  }
+
+  @Override
+  public final DataFrame getRecord(Object key, Object... keys) {
     DataFrame.Builder builder = newBuilder();
-    for (Object key : keys) {
-      builder.setRecord(key, Vectors.transferableBuilder(getRecord(key)));
+    for (Object recordKey : ArrayAllocations.prepend(key, keys)) {
+      builder.setRecord(recordKey, Vectors.transferableBuilder(getRecord(recordKey)));
     }
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
@@ -462,34 +567,11 @@ public abstract class AbstractDataFrame implements DataFrame {
       builder.setRecord(record, Vectors.transferableBuilder(getRecord(record)));
     }
     builder.setColumnIndex(getColumnIndex());
-    DataFrame df = builder.build();
-    // df.setColumnIndex(getColumnIndex());
-    return df;
-  }
-
-  @Override
-  public DataFrame transpose() {
-    DataFrame.Builder builder = newBuilder();
-    for (Object columnKey : getColumnIndex().keySet()) {
-      builder.setRecord(columnKey, Vectors.transferableBuilder(get(columnKey)));
-    }
-    builder.setColumnIndex(getIndex());
     return builder.build();
   }
 
   @Override
-  public final DataFrame select(Vector bits) {
-    DataFrame.Builder builder = newBuilder();
-    getIndex().keySet().stream().filter(bits::isTrue).forEach(recordKey -> {
-      builder.setRecord(recordKey, Vectors.transferableBuilder(getRecord(recordKey)));
-    });
-    DataFrame df = builder.build();
-    df.setColumnIndex(getColumnIndex());
-    return df;
-  }
-
-  @Override
-  public final DataFrame select(Predicate<Vector> predicate) {
+  public final DataFrame filter(Predicate<Vector> predicate) {
     DataFrame.Builder builder = newBuilder();
     for (Object recordKey : getIndex().keySet()) {
       Vector record = getRecord(recordKey);
@@ -501,6 +583,16 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame df = builder.build();
     df.setColumnIndex(getColumnIndex());
     return df;
+  }
+
+  @Override
+  public DataFrame transpose() {
+    DataFrame.Builder builder = newBuilder();
+    for (Object columnKey : getColumnIndex().keySet()) {
+      builder.setRecord(columnKey, Vectors.transferableBuilder(get(columnKey)));
+    }
+    builder.setColumnIndex(getIndex());
+    return builder.build();
   }
 
   @Override
@@ -543,11 +635,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final Array<Object> toArray() {
-    Array<Object> matrix = Arrays.referenceArray(rows(), columns());
+  public final <T> Array<T> toArray(Class<T> type) {
+    Array<T> matrix = Arrays.newArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, getAt(Object.class, i, j));
+        matrix.set(i, j, getAt(type, i, j));
       }
     }
     return matrix;
@@ -555,7 +647,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DoubleArray toDoubleArray() {
-    DoubleArray matrix = Arrays.doubleArray(rows(), columns());
+    DoubleArray matrix = Arrays.newDoubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, getAsDoubleAt(i, j));
@@ -566,7 +658,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrame resetIndex() {
-    Check.state(!getColumnIndex().contains("index"), "cannot insert 'index', already exists");
+    Check.state(!getColumnIndex().contains("index"),
+        "cannot reset index. Column 'index' already exists");
     DataFrame.Builder builder = newBuilder();
     Vector.Builder indexColumn = new TypeInferenceVectorBuilder();
     getIndex().keySet().forEach(indexColumn::add);
@@ -575,9 +668,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       builder.set(columnKey, Vectors.transferableBuilder(get(columnKey)));
     }
 
-    DataFrame df = builder.build();
-    df.setIndex(new IntIndex(0, rows()));
-    return df;
+    return builder.build();
   }
 
   /**
@@ -900,7 +991,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder remove(Object key) {
+    public final Builder remove(Object key) {
       initializeColumnIndexer();
       int index = columnIndex.getLocation(key);
       loc().remove(index);
@@ -908,7 +999,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder removeRecord(Object key) {
+    public final Builder removeRecord(Object key) {
       initializeIndexer();
       int index = this.index.getLocation(key);
       loc().removeRecord(index);
@@ -916,14 +1007,28 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder setIndex(Index index) {
+    public final Vector.Builder get(Object key) {
+      initializeColumnIndexer();
+      int index = columnIndex.getLocation(key);
+      return new UnbuildableVectorBuilder(getAt(index));
+    }
+
+    @Override
+    public final Vector.Builder getRecord(Object key) {
+      initializeIndexer();
+      int index = this.index.getLocation(key);
+      return new UnbuildableVectorBuilder(getRecordAt(index));
+    }
+
+    @Override
+    public final Builder setIndex(Index index) {
       this.index = index.newCopyBuilder();
       this.index.resize(rows());
       return this;
     }
 
     @Override
-    public Builder setColumnIndex(Index columnIndex) {
+    public final Builder setColumnIndex(Index columnIndex) {
       this.columnIndex = columnIndex.newCopyBuilder();
       this.columnIndex.resize(columns());
       return this;
@@ -944,7 +1049,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Builder read(DataEntry entry) {
+    public final Builder read(DataEntry entry) {
       int rows = rows();
       readEntry(entry);
       extendIndex(rows + 1);
@@ -1055,6 +1160,10 @@ public abstract class AbstractDataFrame implements DataFrame {
     protected void setAt(int tr, int tc, DataFrame from, int fr, int fc) {
       setAt(tr, tc, from.loc().get(fc), fr);
     }
+
+    protected abstract Vector.Builder getAt(int i);
+
+    protected abstract Vector.Builder getRecordAt(int i);
 
     protected abstract void removeAt(int c);
 
@@ -1200,6 +1309,120 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public DataFrame getRecords(IntArray records) {
       return getRecordsAt(records);
+    }
+  }
+
+  private static class UnbuildableVectorBuilder implements Vector.Builder {
+
+    private final Vector.Builder delegate;
+
+    private UnbuildableVectorBuilder(Vector.Builder delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public Vector.Builder setNA(Object key) {
+      return delegate.setNA(key);
+    }
+
+    @Override
+    public Vector.Builder addNA() {
+      return delegate.addNA();
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, int fromIndex) {
+      return delegate.add(from, fromIndex);
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return delegate.add(from, key);
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
+      return delegate.set(atKey, from, fromIndex);
+    }
+
+    @Override
+    public Vector.Builder set(Object atKey, Vector from, Object fromIndex) {
+      return delegate.set(atKey, from, fromIndex);
+    }
+
+    @Override
+    public Vector.Builder set(Object key, Object value) {
+      return delegate.set(key, value);
+    }
+
+    @Override
+    public Vector.Builder add(Object value) {
+      return delegate.add(value);
+    }
+
+    @Override
+    public Vector.Builder add(double value) {
+      return delegate.add(value);
+    }
+
+    @Override
+    public Vector.Builder add(int value) {
+      return delegate.add(value);
+    }
+
+    @Override
+    public Vector.Builder addAll(Vector from) {
+      return delegate.addAll(from);
+    }
+
+    @Override
+    public Vector.Builder addAll(Object... objects) {
+      return delegate.addAll(objects);
+    }
+
+    @Override
+    public Vector.Builder addAll(Vector.Builder builder) {
+      return delegate.addAll(builder);
+    }
+
+    @Override
+    public Vector.Builder addAll(Iterable<?> iterable) {
+      return delegate.addAll(iterable);
+    }
+
+    @Override
+    public Vector.Builder remove(Object key) {
+      return delegate.remove(key);
+    }
+
+    @Override
+    public Vector.Builder readAll(DataEntry entry) throws IOException {
+      return delegate.readAll(entry);
+    }
+
+    @Override
+    public VectorLocationSetter loc() {
+      return delegate.loc();
+    }
+
+    @Override
+    public Vector.Builder read(DataEntry entry) {
+      return delegate.read(entry);
+    }
+
+    @Override
+    public int size() {
+      return delegate.size();
+    }
+
+    @Override
+    public Vector getTemporaryVector() {
+      return delegate.getTemporaryVector();
+    }
+
+    @Override
+    public Vector build() {
+      throw new IllegalStateException("Can't build this vector");
     }
   }
 

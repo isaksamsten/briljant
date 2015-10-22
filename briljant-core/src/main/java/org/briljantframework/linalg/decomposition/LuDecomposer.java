@@ -32,7 +32,7 @@ public class LuDecomposer {
 
   public LuDecomposition decompose(DoubleArray matrix) {
     int m = matrix.rows(), n = matrix.columns();
-    IntArray pivots = Arrays.intArray(Math.min(m, n));
+    IntArray pivots = Arrays.newIntArray(Math.min(m, n));
     DoubleArray lu = matrix.copy();
     Arrays.linalg.getrf(lu, pivots);
     return new LuDecomposition(lu, pivots);

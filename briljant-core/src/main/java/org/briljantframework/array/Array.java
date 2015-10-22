@@ -43,6 +43,48 @@ import org.apache.commons.math3.complex.Complex;
 public interface Array<T> extends BaseArray<Array<T>> {
 
   /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
+   */
+  static <T> Array<T> of(T[] data) {
+    return Arrays.newVector(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
+   */
+  static DoubleArray of(double[] data) {
+    return Arrays.newDoubleVector(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[])
+   */
+  static ComplexArray of(Complex[] data) {
+    return Arrays.newComplexVector(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(int[])
+   */
+  static IntArray of(int[] data) {
+    return Arrays.newIntVector(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(long[])
+   */
+  static LongArray of(long[] data) {
+    return Arrays.newLongVector(data);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
+   */
+  static BooleanArray of(boolean[] data) {
+    return Arrays.newBooleanVector(data);
+  }
+
+  /**
    * Assign the given value to each position in {@code this}.
    *
    * @param value the value
@@ -55,7 +97,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * <p>
    * Example:
-   * 
+   *
    * <pre>
    * {@code
    * > Array<Double> random = Arrays.referenceArray(3, 3);
@@ -77,7 +119,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * {@code other}
    * <p>
    * Example
-   * 
+   *
    * <pre>
    * {@code
    * > Array<Integer> i = Arrays.range(0, 3).boxed();
@@ -260,7 +302,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * <p>
    * Example
-   * 
+   *
    * <pre>
    * {@code
    * > Array<String> x = Arrays.array(new String[]{"a", "b", "dd", "ee"}).reshape(2, 2);
@@ -281,7 +323,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * <p>
    * Example
-   * 
+   *
    * <pre>
    * {@code
    * > Array<String> x = Arrays.array(new String[]{"a", "b", "c"});

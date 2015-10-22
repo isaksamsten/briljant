@@ -163,8 +163,8 @@ public class RandomShapeletSplitter extends ShapeletSplitter {
     ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
     List<Object> presentTargets = classSet.getTargets();
-    DoubleArray ltRelativeFrequency = Arrays.doubleArray(presentTargets.size());
-    DoubleArray gtRelativeFrequency = Arrays.doubleArray(presentTargets.size());
+    DoubleArray ltRelativeFrequency = Arrays.newDoubleArray(presentTargets.size());
+    DoubleArray gtRelativeFrequency = Arrays.newDoubleArray(presentTargets.size());
 
 
 

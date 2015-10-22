@@ -23,6 +23,7 @@ package org.briljantframework.data.index;
 
 import java.util.function.Supplier;
 
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -144,7 +145,7 @@ public interface VectorLocationGetter {
 
   int lastIndexOf(Object o);
 
-
+  Vector get(IntArray index);
 
   Vector get(int... locations);
 

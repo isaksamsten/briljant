@@ -349,7 +349,7 @@ abstract class ArrayFactorySpec extends Specification {
 
     where:
     a << [bj.range(10), bj.range(2, 1000), bj.range(3, 33, 6)]
-    data << [
+    getData << [
         [1, 2, 8, 9],
         [4, 99, 999, 322, 421],
         [3, 9, 21]

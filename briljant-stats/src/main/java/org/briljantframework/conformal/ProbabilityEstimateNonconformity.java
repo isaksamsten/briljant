@@ -8,6 +8,7 @@ import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.ClassifierCharacteristic;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -17,8 +18,7 @@ public class ProbabilityEstimateNonconformity implements Nonconformity {
   private final Classifier classifier;
   private final ClassificationErrorFunction errorFunction;
 
-  ProbabilityEstimateNonconformity(Classifier classifier,
-                                   ClassificationErrorFunction errorFunction) {
+  ProbabilityEstimateNonconformity(Classifier classifier, ClassificationErrorFunction errorFunction) {
     this.classifier = classifier;
     this.errorFunction = errorFunction;
   }
@@ -42,11 +42,11 @@ public class ProbabilityEstimateNonconformity implements Nonconformity {
    */
   public static class Learner implements Nonconformity.Learner {
 
-    private final Classifier.Learner classifier;
+    private final Predictor.Learner<? extends Classifier> classifier;
     private final ClassificationErrorFunction errorFunction;
 
-    public Learner(Classifier.Learner classifier,
-                   ClassificationErrorFunction errorFunction) {
+    public Learner(Predictor.Learner<? extends Classifier> classifier,
+        ClassificationErrorFunction errorFunction) {
       this.classifier = Objects.requireNonNull(classifier, "A classifier is required.");
       this.errorFunction = Objects.requireNonNull(errorFunction, "An error function is required");
 

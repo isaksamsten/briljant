@@ -272,15 +272,15 @@ public abstract class VectorBuilderTest {
     select.setIndex(ObjectIndex.of("a", "b", "c", "d"));
     List<Object> keys = Arrays.asList("a", "b", "c", "d");
 
-    Vector.Builder builder = getBuilder();
-    for (int i = 0; i < select.size(); i++) {
-      builder.set(keys.get(i), i * 10);
-    }
+//    Vector.Builder builder = getBuilder();
+//    for (int i = 0; i < select.size(); i++) {
+//      builder.set(keys.get(i), i * 10);
+//    }
 
-    Vector actual = builder.build().select(select);
-
-    assertEquals(10, actual.getAsInt("b"));
-    assertEquals(20, actual.getAsInt("c"));
+//    Vector actual = builder.build().get(select);
+//
+//    assertEquals(10, actual.getAsInt("b"));
+//    assertEquals(20, actual.getAsInt("c"));
   }
 
   @Test

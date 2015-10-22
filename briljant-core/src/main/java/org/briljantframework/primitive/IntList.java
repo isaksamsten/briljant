@@ -34,6 +34,8 @@ import java.util.function.Consumer;
 import net.mintern.primitive.Primitive;
 import net.mintern.primitive.comparators.IntComparator;
 
+import org.briljantframework.array.IntArray;
+
 /**
  * ArrayList backed by a primitive {@code int}-array.
  */
@@ -80,6 +82,10 @@ public class IntList extends AbstractList<Integer> {
     } else {
       this.elementData = new int[capacity];
     }
+  }
+
+  public IntArray toIntArray() {
+    return org.briljantframework.array.Arrays.newIntVector(Arrays.copyOf(elementData, size));
   }
 
   /**

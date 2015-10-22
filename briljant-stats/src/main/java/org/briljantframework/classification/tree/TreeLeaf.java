@@ -46,7 +46,7 @@ public final class TreeLeaf<T> implements TreeNode<T> {
 
   public static <T> TreeLeaf<T> fromExamples(ClassSet classSet, double weight) {
     Vector domain = classSet.getDomain();
-    DoubleArray prob = Arrays.doubleArray(domain.size());
+    DoubleArray prob = Arrays.newDoubleArray(domain.size());
     double totalWeight = classSet.getTotalWeight();
     for (int i = 0; i < domain.size(); i++) {
       Object label = domain.get(Object.class, i);

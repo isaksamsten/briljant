@@ -21,25 +21,24 @@
 
 package org.briljantframework.evaluation.classification;
 
-import static org.briljantframework.evaluation.classification.ClassificationMeasures.accuracy;
+import static org.briljantframework.classification.ClassifierMeasure.ACCURACY;
+import static org.briljantframework.classification.ClassifierMeasure.ERROR;
+import static org.briljantframework.classification.ClassifierMeasure.accuracy;
 
-import org.briljantframework.Check;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.evaluation.EvaluationContext;
 import org.briljantframework.evaluation.Evaluator;
-import org.briljantframework.evaluation.Sample;
 
 /**
  * @author Isak Karlsson
  */
-public class ZeroOneLossEvaluator implements Evaluator {
+public class ZeroOneLossEvaluator implements Evaluator<Classifier> {
 
   @Override
-  public void accept(EvaluationContext ctx) {
-    Check.argument(ctx.getPredictor() instanceof Classifier, "requires a classifier");
+  public void accept(EvaluationContext<? extends Classifier> ctx) {
     double a = accuracy(ctx.getPredictions(), ctx.getPartition().getValidationTarget());
-    ctx.getOrDefault(ErrorRate.class, ErrorRate.Builder::new).add(Sample.OUT, 1 - a);
-    ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(Sample.OUT, a);
+    ctx.getMeasureCollection().add(ACCURACY, a);
+    ctx.getMeasureCollection().add(ERROR, 1 - a);
   }
 
   @Override

@@ -22,9 +22,20 @@
 package org.briljantframework.data.vector;
 
 import org.briljantframework.data.SortOrder;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class VectorTest {
+public abstract class VectorTest {
+
+  protected abstract Vector.Builder getBuilder();
+
+  @Test
+  public void testSet_BooleanArray() throws Exception {
+    Vector a = getBuilder().addAll(1, 2, 3, 4, 5).build();
+    Vector expected = getBuilder().addAll(1, 2, 320, 320, 320).build();
+    Vector actual = a.set(a.where(Double.class, v -> v > 2), 320);
+    Assert.assertEquals(expected, actual);
+  }
 
   @Test
   public void testHead() throws Exception {
@@ -35,7 +46,7 @@ public class VectorTest {
     // Vector head = a.head(2);
     System.out.println(a);
 
-    System.out.println(a.sort(SortOrder.DESC));
+    System.out.println(a.sort(SortOrder.ASC));
     System.out.println(a.sort(Boolean.class));
   }
 

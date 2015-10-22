@@ -21,24 +21,22 @@
 
 package org.briljantframework.classification.tune;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.Result;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson
  */
-public class Configuration implements Comparable<Configuration> {
+public class Configuration<P extends Predictor> {
 
-  private final Classifier.Learner classifier;
-  private final Result result;
+  private final Classifier.Learner<? extends P> classifier;
+  private final Result<? extends P> result;
+  private final Vector parameters;
 
-  private final Map<String, Object> parameters;
-
-  public Configuration(Classifier.Learner classifier, Result result, Map<String, Object> parameters) {
+  public Configuration(Predictor.Learner<? extends P> classifier, Result<? extends P> result,
+      Vector parameters) {
     this.classifier = classifier;
     this.result = result;
     this.parameters = parameters;
@@ -49,7 +47,7 @@ public class Configuration implements Comparable<Configuration> {
    *
    * @return the classifier
    */
-  public Classifier.Learner getClassifier() {
+  public Classifier.Learner<? extends P> getClassifier() {
     return classifier;
   }
 
@@ -58,49 +56,17 @@ public class Configuration implements Comparable<Configuration> {
    *
    * @return the result
    */
-  public Result getResult() {
+  public Result<? extends P> getResult() {
     return result;
   }
 
-  /**
-   * Get the value for the parameter with the supplied key
-   *
-   * @param key the key
-   * @return the object
-   */
-  public Object getParameterValue(String key) {
-    return parameters.get(key);
-  }
-
-  /**
-   * Get the parameter names
-   *
-   * @return a set of parameter names
-   */
-  public Set<String> getParameters() {
-    return parameters.keySet();
-  }
-
-  /**
-   * Values collection.
-   *
-   * @return the collection
-   */
-  public Collection<Object> getParameterValues() {
-    return parameters.values();
-  }
-
-  /**
-   * Gets parameters.
-   *
-   * @return the parameters
-   */
-  public Set<Map.Entry<String, Object>> parameterEntrySet() {
-    return parameters.entrySet();
+  public Vector getParameters() {
+    return parameters;
   }
 
   @Override
-  public int compareTo(Configuration o) {
-    return -1;
+  public String toString() {
+    return result.toString();
   }
+
 }

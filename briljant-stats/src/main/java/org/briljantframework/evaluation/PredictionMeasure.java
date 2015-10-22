@@ -21,24 +21,23 @@
 
 package org.briljantframework.evaluation;
 
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Vector;
+import org.briljantframework.supervised.Predictor;
+
 /**
  * @author Isak Karlsson
  */
-public class ValidationSetSize extends PointMeasure {
-  protected ValidationSetSize(Builder builder) {
-    super(builder);
-  }
+public interface PredictionMeasure<T extends Predictor> {
 
-  @Override
-  public String getName() {
-    return "Validation-set size";
-  }
-
-  public static class Builder extends PointMeasure.Builder<ValidationSetSize> {
-
-    @Override
-    public ValidationSetSize build() {
-      return new ValidationSetSize(this);
-    }
-  }
+  /**
+   * Compute the current measurement for the specified predictor using the given data and true
+   * labels
+   * 
+   * @param predictor the predictor
+   * @param x the data frame to predict
+   * @param t the true class labels
+   * @return the computed measure
+   */
+  double compute(T predictor, DataFrame x, Vector t);
 }

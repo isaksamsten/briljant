@@ -32,7 +32,6 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.EvaluationContext;
 import org.briljantframework.supervised.Characteristic;
 
 /**
@@ -82,7 +81,7 @@ public abstract class AbstractClassifier implements Classifier {
 
   @Override
   public DoubleArray estimate(DataFrame x) {
-    DoubleArray estimations = Arrays.doubleArray(x.rows(), getClasses().size());
+    DoubleArray estimations = Arrays.newDoubleArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel()
         .forEach(i -> estimations.setRow(i, estimate(x.loc().getRecord(i))));
     return estimations;
@@ -91,10 +90,5 @@ public abstract class AbstractClassifier implements Classifier {
   @Override
   public Set<Characteristic> getCharacteristics() {
     return Collections.emptySet();
-  }
-
-  @Override
-  public void evaluate(EvaluationContext ctx) {
-
   }
 }

@@ -21,6 +21,7 @@
 
 package org.briljantframework.classification.lazy;
 
+import org.briljantframework.classification.ClassifierValidator;
 import org.briljantframework.classification.NearestNeighbours;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
@@ -29,7 +30,6 @@ import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.distance.DynamicTimeWarping;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.evaluation.Result;
-import org.briljantframework.evaluation.classification.Validators;
 import org.junit.Test;
 
 public class KNearestNeighborsTest {
@@ -43,7 +43,7 @@ public class KNearestNeighborsTest {
     Vector y = iris.get(4);
     DataFrame x = iris.drop(4);
 
-    Result res = Validators.crossValidation(10).test(oneNearestNeighbours, x, y);
+    Result res = ClassifierValidator.crossValidation(10).test(oneNearestNeighbours, x, y);
     System.out.println(res);
     // ClassificationFrame train = DataSeriesInputStream.load(datasetPath + "TRAIN", 0,
     // Frame.FACTORY, DefaultTarget.FACTORY);

@@ -22,6 +22,7 @@
 package org.briljantframework.classification.linear;
 
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.classification.ClassifierValidator;
 import org.briljantframework.classification.LogisticRegression;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -29,7 +30,6 @@ import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.evaluation.Result;
-import org.briljantframework.evaluation.classification.Validators;
 import org.junit.Test;
 
 public class LogisticRegressionTest {
@@ -39,7 +39,7 @@ public class LogisticRegressionTest {
     DataFrame iris = DataFrames.permuteRecords(Datasets.loadIris());
     DataFrame x = iris.drop("Class").map(Double.class, v -> !Is.NA(v) ? v : 0);
     Vector y = iris.get("Class");// .satisfies(String.class, v -> v.equals("Iris-setosa"));
-    Classifier.Learner classifier =
+    Classifier.Learner<? extends Classifier> classifier =
         new LogisticRegression.Configurator(500).setRegularization(0.01).configure();
     LogisticRegression model = (LogisticRegression) classifier.fit(x, y);
 
@@ -51,15 +51,16 @@ public class LogisticRegressionTest {
     // reg = RandomForest.withSize(100).withMaximumFeatures(1).build();
     System.out.println(classifier);
     long start = System.nanoTime();
-    Result result = Validators.crossValidation(10).test(classifier, x, y);
+    Result result = ClassifierValidator.crossValidation(10).test(classifier, x, y);
     System.out.println((System.nanoTime() - start) / 1e6);
     System.out.println(result);
   }
 
   @Test
   public void testOdds() throws Exception {
-    DataFrame x = DataFrame.of("Age", Vector.of(55, 28, 65, 46, 86, 56, 85, 33, 21, 42), "Smoker",
-                               Vector.of(0, 0, 1, 0, 1, 1, 0, 0, 1, 1));
+    DataFrame x =
+        DataFrame.of("Age", Vector.of(55, 28, 65, 46, 86, 56, 85, 33, 21, 42), "Smoker",
+            Vector.of(0, 0, 1, 0, 1, 1, 0, 0, 1, 1));
     Vector y = Vector.of(0, 0, 0, 1, 1, 1, 0, 0, 0, 1);
     System.out.println(x);
 

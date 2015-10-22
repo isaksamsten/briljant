@@ -12,6 +12,7 @@ import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.distance.Distance;
 import org.briljantframework.distance.Euclidean;
 import org.briljantframework.supervised.Characteristic;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * In pattern recognition, the k-Nearest Neighbors algorithm (or k-NN for short) is a non-parametric
@@ -61,7 +62,7 @@ public class NearestNeighbours extends AbstractClassifier {
     }
 
     Vector classes = getClasses();
-    DoubleArray estimate = Arrays.doubleArray(classes.size());
+    DoubleArray estimate = Arrays.newDoubleArray(classes.size());
     for (int i = 0; i < classes.size(); i++) {
       estimate.set(i, classes.loc().get(Object.class, i).equals(cls) ? 1 : 0);
     }
@@ -76,7 +77,7 @@ public class NearestNeighbours extends AbstractClassifier {
   public DoubleArray distance(DataFrame x) {
     int n = x.rows();
     int m = this.x.rows();
-    DoubleArray distances = Arrays.doubleArray(n, m);
+    DoubleArray distances = Arrays.newDoubleArray(n, m);
     for (int i = 0; i < n; i++) {
       Vector ri = x.loc().getRecord(i);
       for (int j = 0; j < m; j++) {
@@ -95,7 +96,7 @@ public class NearestNeighbours extends AbstractClassifier {
    */
   public DoubleArray distance(Vector example) {
     int n = x.rows();
-    DoubleArray distances = Arrays.doubleArray(n);
+    DoubleArray distances = Arrays.newDoubleArray(n);
     for (int i = 0; i < n; i++) {
       distances.set(i, this.distance.compute(example, x.loc().getRecord(i)));
     }
@@ -109,7 +110,7 @@ public class NearestNeighbours extends AbstractClassifier {
   /**
    * A nearest neighbour learner learns a nearest neighbours classifier
    */
-  public static class Learner implements Classifier.Learner {
+  public static class Learner implements Predictor.Learner<NearestNeighbours> {
 
     private final int neighbors;
     private final Distance distance;

@@ -149,7 +149,7 @@ public final class ArrayPrinter {
     if (truncate) {
       maxPerSlice = visiblePerSlice < 0 ? maxPerSlice : visiblePerSlice;
     }
-    IntArray maxWidth = Arrays.intArray(maxPerSlice);
+    IntArray maxWidth = Arrays.newIntArray(maxPerSlice);
     return computeMaxWidthRecursive(arr, truncate, maxWidth, maxPerSlice);
   }
 

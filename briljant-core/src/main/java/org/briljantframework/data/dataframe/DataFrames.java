@@ -22,11 +22,14 @@
 package org.briljantframework.data.dataframe;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.briljantframework.Check;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Scale;
@@ -68,6 +71,39 @@ public final class DataFrames {
 
   private DataFrames() {}
 
+  public static DataFrame table(Vector a, Vector b) {
+    Check.size(a.size(), b.size());
+    Map<Object, Map<Object, Integer>> counts = new HashMap<>();
+    Set<Object> unique = new HashSet<>();
+    for (Object k : a) {
+      Object va = a.get(k);
+      Object vb = b.get(k);
+      Map<Object, Integer> as = counts.get(vb);
+      if (as == null) {
+        as = new HashMap<>();
+        counts.put(va, as);
+      }
+      as.compute(va, (key, value) -> value == null ? 1 : value + 1);
+
+      unique.add(va);
+      unique.add(vb);
+    }
+
+    DataFrame.Builder df = DataFrame.builder();
+    for (Object i : unique) {
+      Map<Object, Integer> row = counts.get(i);
+      if (row == null) {
+        for (Object j : unique) {
+          df.set(i, j, 0);
+        }
+      } else {
+        for (Object j : unique) {
+          df.set(i, j, row.getOrDefault(j, 0));
+        }
+      }
+    }
+    return df.build();
+  }
 
   /**
    * Presents a summary of the given data frame. For each column of {@code df} the returned summary
@@ -270,7 +306,7 @@ public final class DataFrames {
       padWithSpace(builder, longestRecordValue - safeRecordKey.length());
       column = 0;
       for (Object columnKey : columnIndex.keySet()) {
-        String str = df.toString(recordKey, columnKey);
+        String str = Na.toString(df.get(String.class, recordKey, columnKey));
         builder.append(str);
         padWithSpace(builder, longestColumnValue[column++] - str.length());
       }
@@ -294,18 +330,11 @@ public final class DataFrames {
         if (i++ > max) {
           break;
         }
-        int length = v.toString(recordKey).length();
+        int length = Na.toString(v.get(String.class, recordKey)).length();
         if (length > longest) {
           longest = length;
         }
-
       }
-      // for (int i = 0, size = v.size(); i < size && i < max; i++) {
-      // int length = v.loc().toString(i).length();
-      // if (length > longest) {
-      // longest = length;
-      // }
-      // }
       return longest + 2;
     }).toArray();
   }

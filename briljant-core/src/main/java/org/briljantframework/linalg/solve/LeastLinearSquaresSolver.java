@@ -27,26 +27,20 @@ import org.briljantframework.array.IntArray;
 
 /**
  * Solve LLS using complete orthogonal factorization
- * <p>
- * Created by Isak Karlsson on 08/09/14.
+ *
+ * @author Isak Karlsson
  */
 public class LeastLinearSquaresSolver extends AbstractSolver {
 
-  /**
-   * Instantiates a new Least linear squares solver.
-   *
-   * @param a the matrix
-   */
   public LeastLinearSquaresSolver(DoubleArray a) {
     super(a);
   }
 
   @Override
   public DoubleArray solve(DoubleArray b) {
-    DoubleArray aCopy = a.copy();
     DoubleArray bCopy = b.copy();
-    IntArray jpvt = Arrays.intArray(a.columns());
-    Arrays.linalg.gelsy(aCopy, bCopy, jpvt, 0.01);
+    IntArray jpvt = Arrays.newIntArray(a.columns());
+    Arrays.linalg.gelsy(a.copy(), bCopy, jpvt, 0.01);
     return bCopy;
   }
 }

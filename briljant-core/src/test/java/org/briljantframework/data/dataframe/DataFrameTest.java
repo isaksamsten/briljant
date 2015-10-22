@@ -21,6 +21,8 @@
 
 package org.briljantframework.data.dataframe;
 
+import static org.briljantframework.data.Collectors.toDataFrame;
+import static org.briljantframework.data.dataframe.DataFrame.entry;
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -43,6 +45,99 @@ public abstract class DataFrameTest {
   abstract DataFrame.Builder getBuilder();
 
   @Test
+  public void testWhere() throws Exception {
+    DataFrame df = getBuilder().set("A", Vector.of(1, 2, 3)).set("B", Vector.of(1, 2, 3)).build();
+    System.out.println(df.where(Integer.class, a -> a > 2));
+  }
+
+  @Test
+  public void testGet_BooleanArray() throws Exception {
+    DataFrame df = getBuilder().set("A", Vector.of(1, 2, 3)).set("B", Vector.of(1, 2, 3)).build();
+    System.out.println(df.get(df.where(Integer.class, i -> i > 1)));
+  }
+
+  @Test
+  public void testSet_BooleanArrayValue() throws Exception {
+    DataFrame df = getBuilder().set("A", Vector.of(1, 2, 3)).set("B", Vector.of(1, 2, 3)).build();
+    System.out.println(df.set(df.where(Integer.class, i -> i > 1), 30));
+  }
+
+  @Test
+  public void testLimit_range() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, 3, 4));
+    df.setIndex(Index.of("a", "b", "c", "d"));
+    System.out.println(df.limit("a", "c"));
+  }
+
+  @Test
+  public void testTranspose() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, 3, 4));
+    df.setIndex(Index.of("a", "b", "c", "d"));
+    System.out.println(df.transpose());
+  }
+
+  @Test
+  public void testApply_Function() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, 3), "B", Vector.of(1, 2, 3));
+    df.apply(a -> a.filter(Integer.class, i -> i >= 2).map(Integer.class, i -> i * 2));
+  }
+
+  @Test
+  public void testFilter_records() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, null), "B", Vector.of(1, null, 3));
+    System.out.println(df.filter(Vector::hasNA));
+  }
+
+  @Test
+  public void testToArray_with_class() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of("a", "b", "c"), "B", Vector.of(1, 2, 3));
+    System.out.println(df.toArray(Double.class));
+  }
+
+  @Test
+  public void testStream() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of("a", "b", null), "B", Vector.of(1, null, 3));
+    System.out.println(df.stream().filter(Vector::hasNA).collect(toDataFrame()));
+  }
+
+  @Test
+  public void testApply_Collector() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, 3), "B", Vector.of(1, 2, 3));
+    System.out.println(df.apply(Integer.class, Collectors.each(2)));
+  }
+
+  @Test
+  public void testGroupBy_column() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, 1, 2), "B", Vector.of(30.0, 2.0, 33.0, 6.0));
+    DataFrameGroupBy groups = df.groupBy("A");
+    System.out.println(groups.apply(op -> op.sub(op.mean())));
+    System.out.println(groups.get(1));
+  }
+
+  @Test
+  public void testGroupBy_column_with_mapper() throws Exception {
+    DataFrame df = DataFrame.of("A", Vector.of(1, 2, 10, 20), "B", Vector.of("a", "b", "c", "d"));
+    System.out.println(df.groupBy(String.class, String::length, "A").get(2));
+  }
+
+  @Test
+  public void testGroupBy_columns() throws Exception {
+    // @formatter:off
+    DataFrame df = DataFrame.fromEntries(
+        entry("A", Vector.of(1, 2, 3, 4)),
+        entry("B", Vector.of(1, 1, 0, 4)),
+        entry("C", Vector.of(1, 1, 0, 4))
+    );
+    // @formatter:on
+    for (Group group : df.groupBy(Vector::mean, "A", "B")) {
+      System.out.println(group.getKey());
+      System.out.println(group.getData());
+    }
+    System.out.println();
+  }
+
+
+  @Test
   public void testHead() throws Exception {
     Vector first = Vector.of(1, 2, 3, 4, 5);
     Vector second = Vector.of(1, 2, 3);
@@ -51,7 +146,7 @@ public abstract class DataFrameTest {
     df.setColumnIndex(Index.of("123", "abc"));
 
     int n = 3;
-    DataFrame head = df.head(n);
+    DataFrame head = df.limit(n);
 
     assertEquals(n, head.rows());
     for (int i = 0; i < n; i++) {
@@ -372,6 +467,9 @@ public abstract class DataFrameTest {
             .setRecord("c", Vector.of(1, 2, 3)).setRecord("d", Vector.of(1, 2, 3))
             .setRecord("e", Vector.of(1, 2, 3)).build();
 
+    DataFrame df2 =
+        DataFrame.builder().setRecord("a", Vector.of(1, 2)).setRecord("b", Vector.of(1, 2)).build();
+    System.out.println(df2.resetIndex());
     DataFrame actual = df.resetIndex();
     assertEquals(Vector.of("a", "b", "c", "d", "e"), actual.get("index"));
     assertEquals(Arrays.asList(0, 1, 2, 3, 4), actual.getIndex().asList());

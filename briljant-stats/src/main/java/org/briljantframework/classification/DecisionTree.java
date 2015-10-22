@@ -18,6 +18,7 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.supervised.Characteristic;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -37,7 +38,7 @@ public class DecisionTree extends TreeClassifier<ValueThreshold> {
   /**
    * @author Isak Karlsson
    */
-  public static class Learner implements Classifier.Learner {
+  public static class Learner implements Predictor.Learner<DecisionTree> {
 
     protected final double mininumWeight = 1;
     protected final Splitter splitter;

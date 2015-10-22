@@ -1,43 +1,58 @@
-/*
- * The MIT License (MIT)
- * 
- * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-package org.briljantframework.evaluation.classification;
+package org.briljantframework.classification;
 
 import static org.briljantframework.data.vector.Vectors.find;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Is;
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.evaluation.PredictionMeasure;
 
 /**
- * @author Isak Karlsson
+ * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public final class ClassificationMeasures {
+public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
+  ACCURACY, ERROR, AUCROC, BRIER_SCORE, PRECISION, RECALL, F1_SCORE;
 
-  private ClassificationMeasures() {}
+  @Override
+  public double compute(Classifier predictor, DataFrame x, Vector t) {
+    Vector p = predictor.predict(x);
+    Vector c = predictor.getClasses();
+    switch (this) {
+      case ACCURACY:
+        return accuracy(p, t);
+      case ERROR:
+        return error(p, t);
+      case AUCROC:
+        return averageAreaUnderRocCurve(p, t, predictor.estimate(x), c);
+      case BRIER_SCORE:
+        return brierScore(p, t, predictor.estimate(x), c);
+      case PRECISION:
+        throw new UnsupportedOperationException();
+      case RECALL:
+        throw new UnsupportedOperationException();
+      case F1_SCORE:
+        throw new UnsupportedOperationException();
+      default:
+        throw new EnumConstantNotPresentException(ClassifierMeasure.class, this.getName());
+    }
+  }
+
+  public static Vector compcuteAll(Classifier c, DataFrame x, Vector t) {
+    Vector.Builder measures = new DoubleVector.Builder();
+    for (ClassifierMeasure measure : ClassifierMeasure.values()) {
+      measures.set(measure, measure.compute(c, x, t));
+    }
+    return measures.build();
+  }
 
   /**
    * Returns the prediction error, i.e. the fraction of miss-classified values. The same as
@@ -122,6 +137,21 @@ public final class ClassificationMeasures {
     return builder.build();
   }
 
+  public static double averageAreaUnderRocCurve(Vector p, Vector a, DoubleArray score, Vector c) {
+    Vector auc = areaUnderRocCurve(p, a, score, c);
+    Map<Object, Integer> classDistribution = Vectors.count(a);
+    double averageAuc = 0;
+    for (Object classKey : auc) {
+      if (classDistribution.containsKey(classKey)) {
+        int classCount = classDistribution.get(classKey);
+        averageAuc += auc.getAsDouble(classKey) * (classCount / (double) a.size());
+      } else {
+        throw new IllegalStateException("Unexpected class " + classKey);
+      }
+    }
+    return averageAuc;
+  }
+
   private static double computeAuc(Vector p, Vector t, DoubleArray score, Object label) {
     double truePositives = 0, falsePositives = 0, positives = 0;
     List<PredictionProbability> pairs = new ArrayList<>(p.size());
@@ -168,6 +198,10 @@ public final class ClassificationMeasures {
       double posChange = positives + previousTruePositive;
       return (auc + negChange * posChange / 2) / (positives * negatives);
     }
+  }
+
+  public String getName() {
+    return null;
   }
 
   private static final class PredictionProbability implements Comparable<PredictionProbability> {

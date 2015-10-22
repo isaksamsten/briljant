@@ -56,7 +56,7 @@ public class DistanceNonconformity implements Nonconformity {
 
   @Override
   public DoubleArray estimate(DataFrame x, Vector y) {
-    DoubleArray array = Arrays.doubleArray(x.rows());
+    DoubleArray array = Arrays.newDoubleArray(x.rows());
     // Run in parallel
     IntStream.range(0, x.rows()).parallel()
         .forEach(i -> array.set(i, estimate(x.loc().getRecord(i), y.loc().get(i))));

@@ -21,14 +21,17 @@
 
 package org.briljantframework.classification;
 
+import static org.briljantframework.classification.ClassifierMeasure.AUCROC;
+import static org.briljantframework.classification.ClassifierMeasure.BRIER_SCORE;
+
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
-import org.briljantframework.evaluation.classification.ConfusionMatrix;
-import org.briljantframework.evaluation.classification.Validators;
+import org.briljantframework.evaluation.Result;
+import org.briljantframework.evaluation.Validator;
 import org.junit.Test;
 
 public class RandomForestTest {
@@ -41,14 +44,18 @@ public class RandomForestTest {
     System.out.println(y);
 
     System.out.println(x);
-    IntArray f = Arrays.of(new int[] {10, 2, 3});
+    IntArray f = Arrays.newIntVector(new int[]{10, 2, 3});
+    Validator<RandomForest> classifierValidator = ClassifierValidator.crossValidation(10);
+    classifierValidator.add(new Ensemble.Evaluator());
     for (int i = 0; i < f.size(); i++) {
-      long start = System.nanoTime();
       RandomForest.Learner forest =
           new RandomForest.Configurator(100).setMaximumFeatures(f.get(i)).configure();
 
-      System.out.println(Validators.crossValidation(10).test(forest, x, y)
-          .get(ConfusionMatrix.class));
+      Result<RandomForest> result = classifierValidator.test(forest, x, y);
+      System.out.println(result.getMeasures().mean().get(AUCROC));
+      System.out.println(result.getMeasure(BRIER_SCORE).mean());
+
+
       // List<Evaluator> evaluators = Evaluator.getDefaultClassificationEvaluators();
       // evaluators.add(new ConfusionMatrixEvaluator());
       // Result result = Validators.crossValidation(evaluators, 10).test(forest, x, y);
@@ -56,7 +63,7 @@ public class RandomForestTest {
       // System.out.println(result.get(ConfusionMatrix.class));
       // System.out.println(result.getAverage(Ensemble.Correlation.class) + " "
       // + result.getAverage(Ensemble.Strength.class) + " " + result.getAverage(Accuracy.class));
-  }
+    }
 
   }
 }

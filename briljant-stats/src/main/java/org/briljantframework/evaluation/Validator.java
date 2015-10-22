@@ -31,15 +31,15 @@ import org.briljantframework.supervised.Predictor;
  * <p>
  * Created by Isak Karlsson on 20/08/14.
  */
-public interface Validator {
+public interface Validator<P extends Predictor> {
 
   /**
    * Evaluate {@code classifier} using the data {@code x} and {@code y}
    * 
-   * @param classifier classifier to use for classification
+   * @param learner classifier to use for classification
    * @param x the data frame to use during evaluation
    */
-  Result test(Predictor.Learner classifier, DataFrame x, Vector y);
+  Result<P> test(Predictor.Learner<? extends P> learner, DataFrame x, Vector y);
 
   /**
    * Add an evaluator to the validator for computing additional measures.
@@ -52,7 +52,7 @@ public interface Validator {
    * 
    * @param evaluator the evaluator
    */
-  void add(Evaluator evaluator);
+  void add(Evaluator<? super P> evaluator);
 
   /**
    * Gets the partitioner used for this validator. The partitioner partitions the data into training

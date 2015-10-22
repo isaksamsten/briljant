@@ -5,6 +5,6 @@ import org.briljantframework.supervised.Characteristic;
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public enum ClassifierCharacteristic implements Characteristic{
+public enum ClassifierCharacteristic implements Characteristic {
   ESTIMATOR
 }

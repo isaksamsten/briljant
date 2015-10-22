@@ -6,7 +6,6 @@ import java.util.Set;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.EvaluationContext;
 import org.briljantframework.linalg.LinearAlgebra;
 import org.briljantframework.supervised.Characteristic;
 
@@ -40,20 +39,15 @@ public final class LinearRegression implements Regression {
     return Collections.emptySet();
   }
 
-  @Override
-  public void evaluate(EvaluationContext ctx) {
-
-  }
-
   /**
    * @author Isak Karlsson
    */
-  public static class Learner implements Regression.Learner {
+  public static class Learner implements Regression.Learner<LinearRegression> {
 
     public Learner() {}
 
     @Override
-    public Regression fit(DoubleArray x, DoubleArray y) {
+    public LinearRegression fit(DoubleArray x, DoubleArray y) {
       return new LinearRegression(LinearAlgebra.leastLinearSquares(x, y));
     }
 

@@ -19,36 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.classification;
-
-import org.briljantframework.evaluation.Measure;
-import org.briljantframework.evaluation.PointMeasure;
+package org.briljantframework.classification.tune;
 
 /**
- * Error rate, i.e. miss-classification rate, i.e. fraction of errors.
+ * Created by Isak Karlsson on 24/09/14.
  *
- * @author Isak Karlsson
+ * @param <T> the type parameter
  */
-public class ErrorRate extends PointMeasure {
+public interface UpdatableParameter<T> {
 
-  protected ErrorRate(PointMeasure.Builder<? extends Measure> builder) {
-    super(builder);
-  }
+  ParameterUpdator<T> updator();
 
-  @Override
-  public String getName() {
-    return "Error";
-  }
+//  void restore();
 
-  public static class Builder extends PointMeasure.Builder<ErrorRate> {
-
-    public Builder() {
-      super();
-    }
-
-    @Override
-    public ErrorRate build() {
-      return new ErrorRate(this);
-    }
-  }
+//  boolean hasUpdate();
+//
+//  Object update(T toUpdate);
 }

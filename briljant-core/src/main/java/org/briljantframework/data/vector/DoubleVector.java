@@ -46,7 +46,7 @@ import org.briljantframework.primitive.ArrayAllocations;
  *
  * @author Isak Karlsson
  */
-class DoubleVector extends AbstractVector implements Transferable {
+public class DoubleVector extends AbstractVector implements Transferable {
 
   private final double[] buffer;
   private final int size;
@@ -102,7 +102,7 @@ class DoubleVector extends AbstractVector implements Transferable {
 
   @Override
   public DoubleArray toDoubleArray() {
-    return Arrays.of(java.util.Arrays.copyOf(buffer, size()));
+    return Arrays.newDoubleVector(java.util.Arrays.copyOf(buffer, size()));
   }
 
   @Override
@@ -200,7 +200,7 @@ class DoubleVector extends AbstractVector implements Transferable {
     return java.util.Arrays.stream(buffer, 0, size());
   }
 
-  static final class Builder extends AbstractBuilder {
+  public static final class Builder extends AbstractBuilder {
 
     private double[] buffer;
     private int size;

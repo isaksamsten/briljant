@@ -39,13 +39,13 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
       100 * Math.pow(x.get(0) + 3, 4) + Math.pow(x.get(1) - 3, 4);
     }
     def optimizer = new LimitedMemoryBfgsOptimizer(5, 100, 1e-5)
-    def x = Arrays.of(0.0, 0.0 as double)
+    def x = Arrays.newDoubleVector(0.0, 0.0 as double)
 
     when:
     optimizer.optimize(d, x)
 
     then:
-    x.mapToLong {it -> Math.round it} == Arrays.of([-3, 3] as long[])
+    x.mapToLong {it -> Math.round it} == Arrays.newLongVector([-3, 3] as long[])
   }
 
   def "test limited memory optimizer with gradient cost"() {
@@ -76,7 +76,7 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
         return f;
       }
     }
-    def x = Arrays.doubleArray(100)
+    def x = Arrays.newDoubleArray(100)
     for (int i = 1; i <= x.size(); i += 2) {
       x.set(i - 1, -1.2)
       x.set(i + 1 - 1, 1.0)

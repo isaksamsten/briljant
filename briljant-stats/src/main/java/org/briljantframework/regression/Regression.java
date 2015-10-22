@@ -40,9 +40,9 @@ public interface Regression extends Predictor {
   /**
    * @author Isak Karlsson <isak-kar@dsv.su.se>
    */
-  interface Learner extends Predictor.Learner {
+  interface Learner<P extends Regression> extends Predictor.Learner<P> {
 
-    default Regression fit(DataFrame x, Vector y) {
+    default P fit(DataFrame x, Vector y) {
       Check.argument(x.rows() == y.size(), "Size of input data and input target don't match");
       Check
           .argument(x.getColumns().stream().allMatch(Is::numeric), "Only supports numerical data.");
@@ -50,6 +50,6 @@ public interface Regression extends Predictor {
       return fit(x.toDoubleArray(), y.toDoubleArray());
     }
 
-    Regression fit(DoubleArray x, DoubleArray y);
+    P fit(DoubleArray x, DoubleArray y);
   }
 }

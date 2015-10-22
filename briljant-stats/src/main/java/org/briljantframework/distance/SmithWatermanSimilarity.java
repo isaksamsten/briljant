@@ -40,7 +40,7 @@ public class SmithWatermanSimilarity implements Similarity {
 
   @Override
   public double compute(Vector a, Vector b) {
-    DoubleArray h = Arrays.doubleArray(a.size() + 1, b.size() + 1);
+    DoubleArray h = Arrays.newDoubleArray(a.size() + 1, b.size() + 1);
     double maxScore = Double.NEGATIVE_INFINITY;
     int maxI = 0, maxJ = 0;
     for (int i = 1; i < h.rows(); i++) {

@@ -32,7 +32,7 @@ public final class RandomForest extends Ensemble {
   /**
    * @author Isak Karlsson
    */
-  public static class Learner extends Ensemble.Learner {
+  public static class Learner extends Ensemble.Learner<RandomForest> {
 
     private final Splitter splitter;
 
@@ -47,11 +47,11 @@ public final class RandomForest extends Ensemble {
     }
 
     @Override
-    public Ensemble fit(DataFrame x, Vector y) {
+    public RandomForest fit(DataFrame x, Vector y) {
       Vector classes = Vectors.unique(y);
       ClassSet classSet = new ClassSet(y, classes);
       List<FitTask> fitTasks = new ArrayList<>();
-      BooleanArray oobIndicator = Arrays.booleanArray(x.rows(), size());
+      BooleanArray oobIndicator = Arrays.newBooleanArray(x.rows(), size());
       for (int i = 0; i < size(); i++) {
         fitTasks.add(new FitTask(classSet, x, y, splitter, classes, oobIndicator.getColumn(i)));
       }

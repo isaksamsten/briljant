@@ -32,6 +32,7 @@ import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.classification.Classifier;
+import org.briljantframework.classification.ClassifierValidator;
 import org.briljantframework.classification.NearestNeighbours;
 import org.briljantframework.classification.RandomShapeletForest;
 import org.briljantframework.conformal.ConformalClassifier;
@@ -54,9 +55,9 @@ import org.briljantframework.distance.EditDistance;
 import org.briljantframework.evaluation.Evaluator;
 import org.briljantframework.evaluation.Result;
 import org.briljantframework.evaluation.Validator;
-import org.briljantframework.evaluation.classification.Validators;
 import org.briljantframework.evaluation.partition.Partition;
 import org.briljantframework.evaluation.partition.SplitPartitioner;
+import org.briljantframework.supervised.Predictor;
 import org.junit.Test;
 
 public class RandomShapeletForestTest {
@@ -272,12 +273,14 @@ public class RandomShapeletForestTest {
     Nonconformity.Learner nc = new DistanceNonconformity.Learner(1);
     // Nonconformity.Learner nc =
     // new ProbabilityEstimateNonconformity.Learner(
-    // new RandomShapeletForest.Configurator(100).configure(), new Margin());
-    ConformalClassifier.Learner classifier = new InductiveConformalClassifier.Learner(nc);
-    ConformalClassifier predictor =
-        classifier.fit(trainPart.getTrainingData(), trainPart.getTrainingTarget());
-    predictor.calibrate(trainPart.getValidationData(), trainPart.getValidationTarget());
-    testEarlyClassification(test, predictor);
+    // new
+    // RandomShapeletForest.Configurator(100).setAssessment(ShapeletTree.Learner.Assessment.IG).configure(),
+    // new Margin());
+    InductiveConformalClassifier.Learner learner = new InductiveConformalClassifier.Learner(nc);
+    ConformalClassifier classifier =
+        learner.fit(trainPart.getTrainingData(), trainPart.getTrainingTarget());
+    classifier.calibrate(trainPart.getValidationData(), trainPart.getValidationTarget());
+    testEarlyClassification(test, classifier);
   }
 
   private void testEarlyClassification(DataFrame test, ConformalClassifier classifier) {
@@ -285,7 +288,7 @@ public class RandomShapeletForestTest {
     DataFrame x = test.drop(0);
     Vector y = test.get(0);
 
-    IntArray d = Arrays.intArray(x.rows());
+    IntArray d = Arrays.newIntArray(x.rows());
     double correct = 0;
     for (int i = 0; i < x.rows(); i++) {
       if (i % 100 == 0) {
@@ -296,13 +299,13 @@ public class RandomShapeletForestTest {
       boolean found = false;
       for (int j = 5; j < record.size() && !found; j++) {
         double minSignificance = 0.05;
-        double minConfidence = 1;
+        double minConfidence = 0.95;
         DoubleArray estimates = classifier.estimate(record.select(0, j));
         int prediction = Arrays.argmax(estimates);
         double credibility = estimates.get(prediction);
         double confidence = 1 - maxnot(estimates, prediction);
+        // System.out.println(confidence + " " + credibility + " from " + estimates);
         if (confidence >= minConfidence && credibility >= minSignificance) {
-          System.out.println(confidence + " " + credibility + " from " + estimates);
           d.set(i, j);
           correct += Is.equal(c.loc().get(prediction), trueLabel) ? 1 : 0;
           found = true;
@@ -402,8 +405,9 @@ public class RandomShapeletForestTest {
     int min = freq.values().stream().min(Integer::min).get();
     System.out.println(freq + " => " + ((double) min / sum));
 
-    Classifier.Learner forest = new NearestNeighbours.Learner(1, new EditDistance());
-    Validator cv = Validators.crossValidation(5);
+    Predictor.Learner<? extends Classifier> forest =
+        new NearestNeighbours.Learner(1, new EditDistance());
+    Validator<Classifier> cv = ClassifierValidator.crossValidation(5);
     cv.add(Evaluator.foldOutput(fold -> System.out.printf("Completed fold %d\n", fold)));
     Result result = cv.test(forest, x, y);
     // System.out.println(result.getAverageConfusionMatrix().getPrecision("ade"));

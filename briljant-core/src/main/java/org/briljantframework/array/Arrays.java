@@ -75,28 +75,28 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#referenceArray(int...)
    */
-  public static <T> Array<T> referenceArray(int... shape) {
+  public static <T> Array<T> newArray(int... shape) {
     return MATRIX_FACTORY.referenceArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
    */
-  public static <T> Array<T> of(T[] data) {
+  public static <T> Array<T> newVector(T[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(Object[][])
    */
-  public static <T> Array<T> of(T[][] data) {
+  public static <T> Array<T> newMatrix(T[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#doubleArray(int...)
    */
-  public static DoubleArray doubleArray(int... shape) {
+  public static DoubleArray newDoubleArray(int... shape) {
     return MATRIX_FACTORY.doubleArray(shape);
   }
 
@@ -124,14 +124,14 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(double[])
    */
-  public static DoubleArray of(double[] data) {
+  public static DoubleArray newDoubleVector(double[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(double[][])
    */
-  public static DoubleArray of(double[][] data) {
+  public static DoubleArray newDoubleMatrix(double[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -150,7 +150,7 @@ public final class Arrays {
    * @return a new 1d-array
    */
   public static DoubleArray rand(int size, RealDistribution distribution) {
-    return doubleArray(size).assign(distribution::sample);
+    return newDoubleArray(size).assign(distribution::sample);
   }
 
   /**
@@ -199,49 +199,49 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#complexArray(int...)
    */
-  public static ComplexArray complexArray(int... shape) {
+  public static ComplexArray newComplexArray(int... shape) {
     return MATRIX_FACTORY.complexArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#complexArray(double[])
    */
-  public static ComplexArray complexArray(double[] data) {
+  public static ComplexArray newComplexArray(double[] data) {
     return MATRIX_FACTORY.complexArray(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[])
    */
-  public static ComplexArray of(Complex[] data) {
+  public static ComplexArray newComplexVector(Complex[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[][])
    */
-  public static ComplexArray of(Complex[][] data) {
+  public static ComplexArray newComplexMatrix(Complex[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#intArray(int...)
    */
-  public static IntArray intArray(int... shape) {
+  public static IntArray newIntArray(int... shape) {
     return MATRIX_FACTORY.intArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(int[])
    */
-  public static IntArray of(int[] data) {
+  public static IntArray newIntVector(int[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(int[][])
    */
-  public static IntArray of(int[][] data) {
+  public static IntArray newIntMatrix(int[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -275,48 +275,48 @@ public final class Arrays {
 
   public static IntArray randi(int size, int l, int u) {
     RealDistribution distribution = new UniformRealDistribution(l, u);
-    return intArray(size).assign(() -> (int) Math.round(distribution.sample()));
+    return newIntArray(size).assign(() -> (int) Math.round(distribution.sample()));
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#longArray(int...)
    */
-  public static LongArray longArray(int... shape) {
+  public static LongArray newLongArray(int... shape) {
     return MATRIX_FACTORY.longArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(long[])
    */
-  public static LongArray of(long[] data) {
+  public static LongArray newLongVector(long[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(long[][])
    */
-  public static LongArray of(long[][] data) {
+  public static LongArray newLongMatrix(long[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#booleanArray(int...)
    */
-  public static BooleanArray booleanArray(int... shape) {
+  public static BooleanArray newBooleanArray(int... shape) {
     return MATRIX_FACTORY.booleanArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
    */
-  public static BooleanArray of(boolean[] data) {
+  public static BooleanArray newBooleanVector(boolean[] data) {
     return MATRIX_FACTORY.array(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(boolean[][])
    */
-  public static BooleanArray of(boolean[][] data) {
+  public static BooleanArray newBooleanMatrix(boolean[][] data) {
     return MATRIX_FACTORY.array(data);
   }
 
@@ -845,7 +845,7 @@ public final class Arrays {
     a = a.isVector() ? a : a.ravel();
     b = b.isVector() ? b : b.ravel();
 
-    DoubleArray out = doubleArray(a.size(), b.size());
+    DoubleArray out = newDoubleArray(a.size(), b.size());
     ger(1, a, b, out);
     return out;
   }
@@ -1057,7 +1057,7 @@ public final class Arrays {
 
   public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
     int vectors = array.vectors(dim);
-    IntArray order = intArray(array.getShape());
+    IntArray order = newIntArray(array.getShape());
     for (int i = 0; i < vectors; i++) {
       order.setVector(dim, i, order(array.getVector(dim, i), cmp));
     }
@@ -1251,7 +1251,7 @@ public final class Arrays {
   public static DoubleArray select(DoubleBiPredicate predicate, DoubleArray x, DoubleArray y) {
     Check.size(x, y);
     int size = x.size();
-    DoubleArray selected = doubleArray(size);
+    DoubleArray selected = newDoubleArray(size);
     for (int i = 0; i < size; i++) {
       double a = x.get(i);
       double b = y.get(i);

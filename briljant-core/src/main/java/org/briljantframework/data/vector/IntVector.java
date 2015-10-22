@@ -118,7 +118,7 @@ class IntVector extends AbstractVector implements Transferable {
 
   @Override
   public IntArray toIntArray() throws IllegalTypeException {
-    return Arrays.of(java.util.Arrays.copyOf(buffer, size()));
+    return Arrays.newIntVector(java.util.Arrays.copyOf(buffer, size()));
   }
 
   @Override

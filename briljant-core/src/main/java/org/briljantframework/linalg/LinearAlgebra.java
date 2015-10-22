@@ -95,7 +95,7 @@ public class LinearAlgebra {
     Check.argument(matrix.isMatrix());
     double[] array = new double[matrix.size()];
     pinvi(matrix, array);
-    return Arrays.of(array).reshape(matrix.columns(), matrix.rows());
+    return Arrays.newDoubleVector(array).reshape(matrix.columns(), matrix.rows());
   }
 
   /**

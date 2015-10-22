@@ -35,6 +35,7 @@ import org.briljantframework.shapelet.DerivetiveShapelet;
 import org.briljantframework.shapelet.IndexSortedNormalizedShapelet;
 import org.briljantframework.shapelet.Shapelet;
 import org.briljantframework.statistics.FastStatistics;
+import org.briljantframework.supervised.Predictor;
 
 import com.carrotsearch.hppc.IntDoubleMap;
 import com.carrotsearch.hppc.IntDoubleOpenHashMap;
@@ -94,7 +95,7 @@ public class ShapeletTree extends TreeClassifier<ShapeletThreshold> {
    *
    * @author Isak Karlsson
    */
-  public static class Learner implements Classifier.Learner {
+  public static class Learner implements Predictor.Learner<ShapeletTree> {
 
     protected final Random random = new Random();
     protected final Gain gain = Gain.INFO;
@@ -181,8 +182,8 @@ public class ShapeletTree extends TreeClassifier<ShapeletThreshold> {
 
       Params params = new Params();
       params.noExamples = classSet.getTotalWeight();
-      params.lengthImportance = Arrays.doubleArray(x.columns());
-      params.positionImportance = Arrays.doubleArray(x.columns());
+      params.lengthImportance = Arrays.newDoubleArray(x.columns());
+      params.positionImportance = Arrays.newDoubleArray(x.columns());
       params.originalData = x;
       TreeNode<ShapeletThreshold> node = build(dataFrame, y, classSet, params);
       /* new ShapletTreeVisitor(size, getDistanceMetric()) */
@@ -578,8 +579,8 @@ public class ShapeletTree extends TreeClassifier<ShapeletThreshold> {
       ObjectDoubleMap<Object> gt = new ObjectDoubleOpenHashMap<>();
 
       List<Object> presentTargets = classSet.getTargets();
-      DoubleArray ltRelativeFrequency = Arrays.doubleArray(presentTargets.size());
-      DoubleArray gtRelativeFrequency = Arrays.doubleArray(presentTargets.size());
+      DoubleArray ltRelativeFrequency = Arrays.newDoubleArray(presentTargets.size());
+      DoubleArray gtRelativeFrequency = Arrays.newDoubleArray(presentTargets.size());
 
       double ltWeight = 0.0, gtWeight = 0.0;
 

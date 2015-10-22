@@ -9,6 +9,7 @@ import org.briljantframework.classification.AbstractClassifier;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -36,13 +37,13 @@ public class InductiveConformalClassifier extends AbstractClassifier implements 
   @Override
   public DoubleArray estimate(Vector example) {
     Check.state(calibration != null, "the conformal predictor must be calibrated");
-    DoubleArray significance = Arrays.doubleArray(getClasses().size());
+    DoubleArray significance = Arrays.newDoubleArray(getClasses().size());
     double n = calibration.size();
     for (int i = 0; i < significance.size(); i++) {
       Object label = getClasses().loc().get(i);
       double nc = nonconformity.estimate(example, label);
       double gt = calibration.filter(score -> score >= nc).size();
-      significance.set(i, gt / (n + 1));
+      significance.set(i, (gt + 1) / (n + 1));
     }
 
     return significance;
@@ -51,7 +52,7 @@ public class InductiveConformalClassifier extends AbstractClassifier implements 
   /**
    * @author Isak Karlsson <isak-kar@dsv.su.se>
    */
-  public static class Learner implements ConformalClassifier.Learner {
+  public static class Learner implements Predictor.Learner<InductiveConformalClassifier> {
 
     private final Nonconformity.Learner learner;
 
@@ -60,7 +61,7 @@ public class InductiveConformalClassifier extends AbstractClassifier implements 
     }
 
     @Override
-    public ConformalClassifier fit(DataFrame x, Vector y) {
+    public InductiveConformalClassifier fit(DataFrame x, Vector y) {
       Objects.requireNonNull(x, "Input data is required.");
       Objects.requireNonNull(y, "Input target is required.");
       Check.argument(x.rows() == y.size(), "The size of input data and input target don't match.");

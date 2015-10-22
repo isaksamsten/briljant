@@ -1,8 +1,11 @@
 package org.briljantframework.classification;
 
 import static org.briljantframework.array.Arrays.argmax;
+import static org.briljantframework.classification.EnsembleMeasure.CORRELATION;
+import static org.briljantframework.classification.EnsembleMeasure.ERROR_BOUND;
+import static org.briljantframework.classification.EnsembleMeasure.QUALITY;
+import static org.briljantframework.classification.EnsembleMeasure.STRENGTH;
 import static org.briljantframework.data.vector.Vectors.find;
-import static org.briljantframework.evaluation.Sample.OUT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +28,9 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.evaluation.EvaluationContext;
-import org.briljantframework.evaluation.PointMeasure;
+import org.briljantframework.evaluation.MeasureCollection;
 import org.briljantframework.supervised.Characteristic;
+import org.briljantframework.supervised.Predictor;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -56,18 +60,22 @@ public class Ensemble extends AbstractClassifier {
     return Collections.unmodifiableList(members);
   }
 
-  private void computeOOBCorrelation(EvaluationContext ctx) {
-    Vector classes = getClasses();
+  private static void computeOOBCorrelation(EvaluationContext<? extends Ensemble> ctx) {
+    Ensemble ensemble = ctx.getPredictor();
+    Vector classes = ensemble.getClasses();
     DataFrame x = ctx.getPartition().getTrainingData();
     Vector y = ctx.getPartition().getTrainingTarget();
 
+    BooleanArray oobIndicator = ensemble.getOobIndicator();
+    List<Classifier> members = ensemble.getEnsembleMembers();
+    MeasureCollection<? extends Ensemble> measureCollection = ctx.getMeasureCollection();
+
     // Store the out-of-bag and in-bag probability estimates
-    DoubleArray oobEstimates = Arrays.doubleArray(x.rows(), classes.size());
-    DoubleArray inbEstimates = Arrays.doubleArray(x.rows(), classes.size());
+    DoubleArray oobEstimates = Arrays.newDoubleArray(x.rows(), classes.size());
+    DoubleArray inbEstimates = Arrays.newDoubleArray(x.rows(), classes.size());
 
     // Count the number of times each training sample have been included
     IntArray counts = Arrays.sum(1, oobIndicator.asInt());
-    // TODO: was reduceRows (should be 1)
 
     // Compute the in-bag and out-of-bag estimates for all examples
     DoubleAdder oobAccuracy = new DoubleAdder();
@@ -86,7 +94,8 @@ public class Ensemble extends AbstractClassifier {
       oobAccuracy.add(find(classes, y, i) == argmax(oobEstimates.getRow(i)) ? 1 : 0);
     });
     double avgOobAccuracy = oobAccuracy.sum() / x.rows();
-    ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT, avgOobAccuracy);
+    measureCollection.add(EnsembleMeasure.OOB_ERROR, 1 - avgOobAccuracy);
+    // ctx.getOrDefault(OobAccuracy.class, OobAccuracy.Builder::new).add(OUT, avgOobAccuracy);
 
     DoubleAdder strengthA = new DoubleAdder();
     DoubleAdder strengthSquareA = new DoubleAdder();
@@ -126,16 +135,17 @@ public class Ensemble extends AbstractClassifier {
     std = Math.pow(std / members.size(), 2);
     double correlation = variance / std;
     double errorBound = (correlation * (1 - s2)) / s2;
-    ctx.getOrDefault(Strength.class, Strength.Builder::new).add(OUT, strength);
-    ctx.getOrDefault(Correlation.class, Correlation.Builder::new).add(OUT, correlation);
-    ctx.getOrDefault(Quality.class, Quality.Builder::new).add(OUT, correlation / s2);
-    ctx.getOrDefault(ErrorBound.class, ErrorBound.Builder::new).add(OUT, errorBound);
+    measureCollection.add(STRENGTH, strength);
+    measureCollection.add(CORRELATION, correlation);
+    measureCollection.add(QUALITY, correlation / s2);
+    measureCollection.add(ERROR_BOUND, errorBound);
   }
 
-  private void computeMeanSquareError(EvaluationContext ctx) {
+  private static void computeMeanSquareError(EvaluationContext<? extends Ensemble> ctx) {
+    Ensemble ensemble = ctx.getPredictor();
     DataFrame x = ctx.getPartition().getValidationData();
     Vector y = ctx.getPartition().getValidationTarget();
-    Vector classes = getClasses();
+    Vector classes = ensemble.getClasses();
 
     DoubleAdder meanVariance = new DoubleAdder();
     DoubleAdder meanSquareError = new DoubleAdder();
@@ -147,50 +157,51 @@ public class Ensemble extends AbstractClassifier {
 
 
       /* Stores the probability of the m:th member for the j:th class */
+      List<Classifier> members = ensemble.getEnsembleMembers();
       int estimators = members.size();
-      DoubleArray memberEstimates = Arrays.doubleArray(estimators, classes.size());
+      DoubleArray memberEstimates = Arrays.newDoubleArray(estimators, classes.size());
       for (int j = 0; j < estimators; j++) {
         Classifier member = members.get(j);
         memberEstimates.setRow(j, member.estimate(record));
       }
 
       /* Get the mean probability vector for the i:th example */
-      DoubleArray meanEstimate = Arrays.mean(0, memberEstimates); // TODO: check
-        double variance = 0, mse = 0, bias = 0, accuracy = 0;
-        for (int j = 0; j < memberEstimates.rows(); j++) {
-          DoubleArray r = memberEstimates.getRow(j);
-          double meanDiff = 0;
-          double trueDiff = 0;
-          double meanTrueDiff = 0;
-          for (int k = 0; k < r.size(); k++) {
-            meanDiff += Math.pow(r.get(k) - meanEstimate.get(k), 2);
-            trueDiff += Math.pow(r.get(k) - c.get(k), 2);
-            meanTrueDiff += Math.pow(meanEstimate.get(k) - c.get(k), 2);
-          }
-          variance += meanDiff;
-          mse += trueDiff;
-          bias += meanTrueDiff;
-          accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
+      DoubleArray meanEstimate = Arrays.mean(0, memberEstimates);
+      double variance = 0, mse = 0, bias = 0, accuracy = 0;
+      for (int j = 0; j < memberEstimates.rows(); j++) {
+        DoubleArray r = memberEstimates.getRow(j);
+        double meanDiff = 0;
+        double trueDiff = 0;
+        double meanTrueDiff = 0;
+        for (int k = 0; k < r.size(); k++) {
+          meanDiff += Math.pow(r.get(k) - meanEstimate.get(k), 2);
+          trueDiff += Math.pow(r.get(k) - c.get(k), 2);
+          meanTrueDiff += Math.pow(meanEstimate.get(k) - c.get(k), 2);
         }
-        meanVariance.add(variance / estimators);
-        meanSquareError.add(mse / estimators);
-        baseAccuracy.add(accuracy / estimators);
-        meanBias.add(bias / estimators);
-      });
+        variance += meanDiff;
+        mse += trueDiff;
+        bias += meanTrueDiff;
+        accuracy += argmax(r) == find(classes, y, i) ? 1 : 0;
+      }
+      meanVariance.add(variance / estimators);
+      meanSquareError.add(mse / estimators);
+      baseAccuracy.add(accuracy / estimators);
+      meanBias.add(bias / estimators);
+    });
 
     double avgVariance = meanVariance.doubleValue() / x.rows();
     double avgBias = meanBias.doubleValue() / x.rows();
     double avgMse = meanSquareError.doubleValue() / x.rows();
     double avgBaseAccuracy = baseAccuracy.doubleValue() / x.rows();
-
-    ctx.getOrDefault(Variance.class, Variance.Builder::new).add(OUT, avgVariance);
-    ctx.getOrDefault(Bias.class, Bias.Builder::new).add(OUT, avgBias);
-    ctx.getOrDefault(MeanSquareError.class, MeanSquareError.Builder::new).add(OUT, avgMse);
-    ctx.getOrDefault(BaseAccuracy.class, BaseAccuracy.Builder::new).add(OUT, avgBaseAccuracy);
+    MeasureCollection<? extends Ensemble> measureCollection = ctx.getMeasureCollection();
+    measureCollection.add(EnsembleMeasure.VARIANCE, avgVariance);
+    measureCollection.add(EnsembleMeasure.BIAS, avgBias);
+    measureCollection.add(EnsembleMeasure.MSE, avgMse);
+    measureCollection.add(EnsembleMeasure.BASE_ERROR, 1 - avgBaseAccuracy);
   }
 
-  private DoubleArray createTrueClassVector(Vector y, Vector classes, int i) {
-    DoubleArray c = Arrays.doubleArray(classes.size());
+  private static DoubleArray createTrueClassVector(Vector y, Vector classes, int i) {
+    DoubleArray c = Arrays.newDoubleArray(classes.size());
     for (int j = 0; j < classes.size(); j++) {
       if (classes.loc().equals(j, y, i)) {
         c.set(j, 1);
@@ -205,30 +216,31 @@ public class Ensemble extends AbstractClassifier {
   }
 
   @Override
-  public void evaluate(EvaluationContext ctx) {
-    super.evaluate(ctx);
-    computeMeanSquareError(ctx);
-    computeOOBCorrelation(ctx);
-  }
-
-  @Override
   public DoubleArray estimate(Vector record) {
     List<DoubleArray> predictions =
         members.parallelStream().map(model -> model.estimate(record)).collect(Collectors.toList());
 
     int estimators = getEnsembleMembers().size();
     Vector classes = getClasses();
-    DoubleArray m = Arrays.doubleArray(classes.size());
+    DoubleArray m = Arrays.newDoubleArray(classes.size());
     for (DoubleArray prediction : predictions) {
       m.assign(prediction, (t, o) -> t + o / estimators);
     }
     return m;
   }
 
+  public static class Evaluator implements org.briljantframework.evaluation.Evaluator<Ensemble> {
+    @Override
+    public void accept(EvaluationContext<? extends Ensemble> ctx) {
+      computeMeanSquareError(ctx);
+      computeOOBCorrelation(ctx);
+    }
+  }
+
   /**
    * @author Isak Karlsson
    */
-  public abstract static class Learner implements Classifier.Learner {
+  public abstract static class Learner<P extends Ensemble> implements Predictor.Learner<P> {
 
     private final static ThreadPoolExecutor THREAD_POOL;
     private final static int CORES;
@@ -251,6 +263,19 @@ public class Ensemble extends AbstractClassifier {
     protected Learner(int size) {
       this.size = size;
     }
+
+    // @Override
+    // public void evaluate(EvaluationContext<? super P> ctx) {
+    // ctx.getPredictor().
+    // }
+
+    // @Override
+    // public Evaluator<P> getEvaluator() {
+    // return ctx -> {
+    // computeMeanSquareError(ctx);
+    // computeOOBCorrelation(ctx);
+    // };
+    // }
 
     /**
      * Executes {@code callable} either sequential or in parallel depending on the number of
@@ -308,204 +333,206 @@ public class Ensemble extends AbstractClassifier {
     }
   }
 
-  /**
-   * @author Isak Karlsson
-   */
-  public static class BaseAccuracy extends PointMeasure {
+  // public enum Measure implements org.briljantframework.evaluation.Measure<Ensemble>
 
-    protected BaseAccuracy(Builder builder) {
-      super(builder);
-    }
-
-    public static final class Builder extends PointMeasure.Builder<BaseAccuracy> {
-
-      @Override
-      public BaseAccuracy build() {
-        return new BaseAccuracy(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Base classifier accuracy";
-    }
-  }
-
-  /**
-   * @author Isak Karlsson
-   */
-  public static class MeanSquareError extends PointMeasure {
-
-    protected MeanSquareError(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<MeanSquareError> {
-
-      @Override
-      public MeanSquareError build() {
-        return new MeanSquareError(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Ensemble Mean Square Error";
-    }
-  }
-
-  public static class Bias extends PointMeasure {
-
-    protected Bias(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<Bias> {
-
-      @Override
-      public Bias build() {
-        return new Bias(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Ensemble Bias";
-    }
-  }
-
-  /**
-   * @author Isak Karlsson
-   */
-  public static class Variance extends PointMeasure {
-
-    protected Variance(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<Variance> {
-
-      @Override
-      public Variance build() {
-        return new Variance(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Ensemble Variance";
-    }
-  }
-
-  public static class Quality extends PointMeasure {
-
-    protected Quality(Builder builder) {
-      super(builder);
-    }
-
-    @Override
-    public String getName() {
-      return "Quality (c/s^2)";
-    }
-
-    public static class Builder extends PointMeasure.Builder<Quality> {
-
-      @Override
-      public Quality build() {
-        return new Quality(this);
-      }
-    }
-  }
-
-  /**
-   * @author Isak Karlsson
-   */
-  public static class OobAccuracy extends PointMeasure {
-
-    protected OobAccuracy(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<OobAccuracy> {
-
-      @Override
-      public OobAccuracy build() {
-        return new OobAccuracy(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "OOB Accuracy";
-    }
-  }
-
-  /**
-   * @author Isak Karlsson
-   */
-  public static class Correlation extends PointMeasure {
-
-    protected Correlation(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<Correlation> {
-
-      @Override
-      public Correlation build() {
-        return new Correlation(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Correlation";
-    }
-  }
-
-  /**
-   * @author Isak Karlsson
-   */
-  public static class Strength extends PointMeasure {
-
-    protected Strength(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<Strength> {
-
-      @Override
-      public Strength build() {
-        return new Strength(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Strength";
-    }
-  }
-
-  /**
-   * @author Isak Karlsson
-   */
-  public static class ErrorBound extends PointMeasure {
-
-    protected ErrorBound(Builder builder) {
-      super(builder);
-    }
-
-    public static class Builder extends PointMeasure.Builder<ErrorBound> {
-
-      @Override
-      public ErrorBound build() {
-        return new ErrorBound(this);
-      }
-    }
-
-    @Override
-    public String getName() {
-      return "Ensemble Error Bound";
-    }
-  }
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class BaseAccuracy extends PointMeasure {
+  //
+  // protected BaseAccuracy(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static final class Builder extends PointMeasure.Builder<BaseAccuracy> {
+  //
+  // @Override
+  // public BaseAccuracy build() {
+  // return new BaseAccuracy(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Base classifier accuracy";
+  // }
+  // }
+  //
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class MeanSquareError extends PointMeasure {
+  //
+  // protected MeanSquareError(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<MeanSquareError> {
+  //
+  // @Override
+  // public MeanSquareError build() {
+  // return new MeanSquareError(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Ensemble Mean Square Error";
+  // }
+  // }
+  //
+  // public static class Bias extends PointMeasure {
+  //
+  // protected Bias(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<Bias> {
+  //
+  // @Override
+  // public Bias build() {
+  // return new Bias(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Ensemble Bias";
+  // }
+  // }
+  //
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class Variance extends PointMeasure {
+  //
+  // protected Variance(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<Variance> {
+  //
+  // @Override
+  // public Variance build() {
+  // return new Variance(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Ensemble Variance";
+  // }
+  // }
+  //
+  // public static class Quality extends PointMeasure {
+  //
+  // protected Quality(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Quality (c/s^2)";
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<Quality> {
+  //
+  // @Override
+  // public Quality build() {
+  // return new Quality(this);
+  // }
+  // }
+  // }
+  //
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class OobAccuracy extends PointMeasure {
+  //
+  // protected OobAccuracy(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<OobAccuracy> {
+  //
+  // @Override
+  // public OobAccuracy build() {
+  // return new OobAccuracy(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "OOB Accuracy";
+  // }
+  // }
+  //
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class Correlation extends PointMeasure {
+  //
+  // protected Correlation(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<Correlation> {
+  //
+  // @Override
+  // public Correlation build() {
+  // return new Correlation(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Correlation";
+  // }
+  // }
+  //
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class Strength extends PointMeasure {
+  //
+  // protected Strength(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<Strength> {
+  //
+  // @Override
+  // public Strength build() {
+  // return new Strength(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Strength";
+  // }
+  // }
+  //
+  // /**
+  // * @author Isak Karlsson
+  // */
+  // public static class ErrorBound extends PointMeasure {
+  //
+  // protected ErrorBound(Builder builder) {
+  // super(builder);
+  // }
+  //
+  // public static class Builder extends PointMeasure.Builder<ErrorBound> {
+  //
+  // @Override
+  // public ErrorBound build() {
+  // return new ErrorBound(this);
+  // }
+  // }
+  //
+  // @Override
+  // public String getName() {
+  // return "Ensemble Error Bound";
+  // }
+  // }
 }

@@ -95,7 +95,7 @@ public interface ConformalClassifier extends Classifier {
    * @return a boolean array
    */
   default BooleanArray conformalPredict(DataFrame x, double significance) {
-    BooleanArray estimates = Arrays.booleanArray(x.rows(), getClasses().size());
+    BooleanArray estimates = Arrays.newBooleanArray(x.rows(), getClasses().size());
     IntStream.range(0, x.rows()).parallel().forEach(i -> {
       BooleanArray estimate = conformalPredict(x.loc().getRecord(i), significance);
       estimates.setRow(i, estimate);
@@ -133,20 +133,4 @@ public interface ConformalClassifier extends Classifier {
 
   @Override
   DoubleArray estimate(Vector record);
-
-  /**
-   * @author Isak Karlsson
-   */
-  interface Learner extends Classifier.Learner {
-
-    /**
-     * Fit a conformal predictor.
-     *
-     * @param x the instances
-     * @param y the classes
-     * @return a conformal predictor
-     */
-    @Override
-    ConformalClassifier fit(DataFrame x, Vector y);
-  }
 }

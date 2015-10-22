@@ -26,9 +26,9 @@ import java.util.AbstractList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -44,6 +44,8 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
+import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
@@ -74,14 +76,18 @@ public abstract class AbstractVector implements Vector {
     this.index = null;
   }
 
-  @Override
-  public <T> Vector satisfies(Class<T> cls, Vector other, BiPredicate<T, T> predicate) {
-    return combine(cls, Boolean.class, other, predicate::test);
-  }
+  // @Override
+  // public <T> BooleanArray where(Class<T> cls, Vector other, BiPredicate<T, T> predicate) {
+  // return combine(cls, Boolean.class, other, predicate::test);
+  // }
 
   @Override
-  public <T> Vector satisfies(Class<T> cls, Predicate<? super T> predicate) {
-    return collect(cls, Collectors.test(predicate));
+  public <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate) {
+    BooleanArray array = Arrays.newBooleanArray(size());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, predicate.test(loc().get(cls, i)));
+    }
+    return array;
   }
 
   @Override
@@ -230,8 +236,40 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public final String toString(Object key) {
-    return toStringAt(getIndex().getLocation(key));
+  public Vector get(BooleanArray array) {
+    Check.argument(array.isVector(), "1d-array required");
+    Check.size(this.size(), array.size());
+    Builder builder = newBuilder();
+    for (int i = 0; i < array.size(); i++) {
+      if (array.get(i)) {
+        builder.set(getIndex().getKey(i), this, i);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public Vector set(Object key, Object value) {
+    if (!getIndex().contains(key)) {
+      throw new NoSuchElementException();
+    }
+    return newCopyBuilder().set(key, value).build();
+  }
+
+  @Override
+  public Vector set(BooleanArray array, Object value) {
+    Check.argument(array.isVector(), "1d-array required");
+    Check.size(size(), array.size());
+    Builder builder = newBuilder();
+    for (int i = 0; i < array.size(); i++) {
+      Object key = getIndex().getKey(i);
+      if (array.get(i)) {
+        builder.set(key, value);
+      } else {
+        builder.set(key, this, i);
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -252,14 +290,6 @@ public abstract class AbstractVector implements Vector {
       }
     }
     return false;
-  }
-
-  @Override
-  public Vector select(Vector bits) {
-    Check.size(this.size(), bits.size());
-    Builder builder = newBuilder();
-    getIndex().keySet().stream().filter(bits::isTrue).forEach(key -> builder.set(key, this, key));
-    return builder.build();
   }
 
   @Override
@@ -289,7 +319,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
     final VectorLocationGetter get = loc();
-    Array<U> n = Arrays.referenceArray(size());
+    Array<U> n = Arrays.newArray(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, get.get(cls, i));
     }
@@ -407,11 +437,6 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> Stream<T> parallelStream(Class<T> cls) {
-    return asList(cls).parallelStream();
-  }
-
-  @Override
   public IntStream intStream() {
     return stream(Number.class).mapToInt(Number::intValue);
   }
@@ -443,7 +468,7 @@ public abstract class AbstractVector implements Vector {
       if (i >= size()) {
         break;
       }
-      String value = toString(key);
+      String value = get(String.class, key);
       String keyString = Is.NA(key) ? "NA" : key.toString();
       int keyPad = longestKey - keyString.length();
       builder.append(keyString).append("  ");
@@ -1034,13 +1059,19 @@ public abstract class AbstractVector implements Vector {
     }
 
     @Override
-    public Vector get(int... locations) {
-      Builder builder = newBuilder(locations.length);
+    public Vector get(IntArray locations) {
+      Builder builder = newBuilder();
       Index index = getIndex();
-      for (int location : locations) {
+      for (int i = 0; i < locations.size(); i++) {
+        int location = locations.get(i);
         builder.set(index.getKey(location), AbstractVector.this, location);
       }
       return builder.build();
+    }
+
+    @Override
+    public Vector get(int... locations) {
+      return get(Arrays.newIntVector(locations));
     }
 
     @Override

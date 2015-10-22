@@ -130,7 +130,7 @@ public final class ClassSet implements Iterable<Example> {
     for (Sample c : samples.values()) {
       rel[i++] = c.getWeight() / size;
     }
-    return Arrays.of(rel);
+    return Arrays.newDoubleVector(rel);
   }
 
   public double getTotalWeight() {

@@ -38,16 +38,16 @@ public class InductiveConformalClassifierTest {
     ClassificationErrorFunction errorFunction = new Margin();
     Nonconformity.Learner nc = new ProbabilityEstimateNonconformity.Learner(forest, errorFunction);
     // Nonconformity.Learner nc = new DistanceNonconformity.Learner(1);
-    ConformalClassifier.Learner classifier = new InductiveConformalClassifier.Learner(nc);
+    InductiveConformalClassifier.Learner classifier = new InductiveConformalClassifier.Learner(nc);
     ConformalClassifier predictor =
         classifier.fit(train.getTrainingData(), train.getTrainingTarget());
     predictor.calibrate(test.getTrainingData(), test.getTrainingTarget());
 
-//    EvaluationContextImpl context = new EvaluationContextImpl();
-//    context.setPartition(test);
-//    context.setPredictor(predictor);
+    // EvaluationContextImpl context = new EvaluationContextImpl();
+    // context.setPartition(test);
+    // context.setPredictor(predictor);
 
-//    new ConformalClassifierEvaluator(0.05).accept(context);
-//    System.out.println(context.getMeasures());
+    // new ConformalClassifierEvaluator(0.05).accept(context);
+    // System.out.println(context.getMeasures());
   }
 }

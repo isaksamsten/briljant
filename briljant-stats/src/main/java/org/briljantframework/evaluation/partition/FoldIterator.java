@@ -28,9 +28,9 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import org.briljantframework.Check;
+import org.briljantframework.classification.ClassifierValidator;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.evaluation.classification.Validators;
 
 /**
  * Lazy iterator that partitions the supplied {@linkplain DataFrame data frame} and {@code Vector
@@ -93,7 +93,7 @@ import org.briljantframework.evaluation.classification.Validators;
  * </pre>
  *
  * This class can be used to implement cross-validation. For an implementation, see
- * {@link Validators#crossValidation(int)}
+ * {@link ClassifierValidator#crossValidation(int)}
  *
  * @author Isak Karlsson
  */

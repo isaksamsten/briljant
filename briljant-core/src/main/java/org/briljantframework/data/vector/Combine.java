@@ -73,6 +73,9 @@ public final class Combine {
     return Na.ignore(Combine::minusNumber, fillValue);
   }
 
+  // TODO: propagate aptly. e.g., int / double => double, int / int => int, long + int => long
+  // TODO: follow the spec
+  // ISSUE#15
   private static Object plusNumber(Object a, Object b) {
     if (a instanceof Integer && b instanceof Integer || a instanceof Short && b instanceof Short) {
       return ((Number) a).intValue() + ((Number) a).intValue();

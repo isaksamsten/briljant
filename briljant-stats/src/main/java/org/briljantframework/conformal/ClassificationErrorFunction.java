@@ -14,7 +14,7 @@ public interface ClassificationErrorFunction {
 
   default DoubleArray apply(DoubleArray predictions, Vector y, Vector classes) {
     Check.argument(classes.size() == predictions.columns(), "Illegal prediction matrix");
-    DoubleArray probabilities = Arrays.doubleArray(y.size());
+    DoubleArray probabilities = Arrays.newDoubleArray(y.size());
     for (int i = 0, size = y.size(); i < size; i++) {
       int yIndex = Vectors.find(classes, y, i);
       if (yIndex < 0) {

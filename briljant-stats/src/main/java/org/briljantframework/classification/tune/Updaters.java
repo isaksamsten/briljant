@@ -24,6 +24,8 @@ package org.briljantframework.classification.tune;
 import java.util.function.BiConsumer;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
+import org.briljantframework.array.DoubleArray;
 
 /**
  * @author Isak Karlsson
@@ -32,21 +34,12 @@ public final class Updaters {
 
   private Updaters() {}
 
-  public static <T> ParameterUpdater<T> range(String name, BiConsumer<? super T, Integer> consumer,
-      int start, int end, int step) {
+  public static <T> UpdatableParameter<T> linspace(BiConsumer<? super T, Integer> consumer,
+                                                   int start,
+                                                   int end, int step) {
     Check.state(step > 0);
-    return new ParameterUpdater<T>() {
+    return () -> new ParameterUpdator<T>() {
       private int current = start;
-
-      @Override
-      public String getParameter() {
-        return name;
-      }
-
-      @Override
-      public void restore() {
-        current = start;
-      }
 
       @Override
       public boolean hasUpdate() {
@@ -66,25 +59,16 @@ public final class Updaters {
     };
   }
 
-  public static <T> ParameterUpdater<T> range(String name, BiConsumer<? super T, Double> consumer,
-      double start, double end, double step) {
-    Check.argument(step > 0, "Illegal step size");
-    return new ParameterUpdater<T>() {
-      private double current = start;
-
-      @Override
-      public String getParameter() {
-        return name;
-      }
-
-      @Override
-      public void restore() {
-        current = start;
-      }
+  public static <T> UpdatableParameter<T> linspace(BiConsumer<? super T, Double> consumer,
+                                                   double start, double end, int size) {
+    Check.argument(size > 0, "Illegal step size");
+    return () -> new ParameterUpdator<T>() {
+      private int current = 0;
+      private DoubleArray linspace = Arrays.linspace(start, end, size);
 
       @Override
       public boolean hasUpdate() {
-        return step > 0 ? current <= end : current >= end;
+        return current < linspace.size();
       }
 
       @Override
@@ -92,19 +76,17 @@ public final class Updaters {
         if (!hasUpdate()) {
           throw new IllegalStateException();
         }
-        consumer.accept(toUpdate, current);
-        current += step;
-
-        return current - step;
+        double value = linspace.get(current++);
+        consumer.accept(toUpdate, value);
+        return value;
       }
     };
   }
 
   @SafeVarargs
-  public static <T, V> ParameterUpdater<T> enumeration(String name, BiConsumer<T, V> updater,
-      V... enumeration) {
+  public static <T, V> UpdatableParameter<T> enumeration(BiConsumer<T, V> updater, V... enumeration) {
     Check.argument(enumeration.length > 0, "must enumerate value");
-    return new EnumerationUpdater<>(name, updater, enumeration);
+    return new UpdatableEnumerationParameter<>(updater, enumeration);
   }
 
 }

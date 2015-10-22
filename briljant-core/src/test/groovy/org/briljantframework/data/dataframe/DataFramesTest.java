@@ -37,4 +37,13 @@ public class DataFramesTest {
     DataFrame summary = DataFrames.summary(df);
     System.out.println(summary);
   }
+
+  @Test
+  public void testTable() throws Exception {
+    Vector a = Vector.of(1, 2, 3, 3, 3, 3);
+    Vector b = Vector.of(1, 2, 2, 2, 3, 3);
+    System.out.println(DataFrames.table(a, b));
+
+
+  }
 }

@@ -501,14 +501,23 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
+    protected Vector.Builder getAt(int i) {
+      return buffers.get(i);
+    }
+
+    @Override
+    protected Vector.Builder getRecordAt(int i) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void removeAt(int column) {
       buffers.remove(column);
     }
 
     @Override
     protected void removeRecordAt(int r) {
-      for (int i = 0, buffersSize = buffers.size(); i < buffersSize; i++) {
-        Vector.Builder buffer = buffers.get(i);
+      for (Vector.Builder buffer : buffers) {
         buffer.loc().remove(r);
       }
     }

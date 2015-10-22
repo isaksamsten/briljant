@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.briljantframework.array.Array;
+import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.SortOrder;
@@ -48,6 +49,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.primitive.ArrayAllocations;
 
 /**
  * A DataFrame is a 2-dimensional storage of data consisting of (index) <em>columns</em> and
@@ -62,18 +64,18 @@ public interface DataFrame extends Iterable<Object> {
    *
    * <p/>
    * For example,
-   * 
+   *
    * <pre>
    * {
    *   &#064;code
-   *   DataFrame df = MixedDataFrame.of(&quot;a&quot;, Vector.of(3, 2, 1), &quot;b&quot;, Vector.of(2, 9, 0));
-   *   df.setIndex(ObjectIndex.of(&quot;F&quot;, &quot;Q&quot;, &quot;A&quot;));
+   *   DataFrame df = DataFrame.of(&quot;a&quot;, Vector.of(3, 2, 1), &quot;b&quot;, Vector.of(2, 9, 0));
+   *   df.setIndex(Index.of(&quot;F&quot;, &quot;Q&quot;, &quot;A&quot;));
    *   df.sort(SortOrder.ASC);
    * }
    * </pre>
    *
    * produces
-   * 
+   *
    * <pre>
    *    a  b
    * A  1  0
@@ -99,9 +101,9 @@ public interface DataFrame extends Iterable<Object> {
   /**
    * Equivalent to {@code sort(SortOrder.ASC, key)}
    *
-   * @see #sort(SortOrder, Object)
+   * @see #sortBy(SortOrder, Object)
    */
-  DataFrame sort(Object key);
+  DataFrame sortBy(Object key);
 
   /**
    * Return a <em>shallow copy</em> of the data frame sorted in the order specified using the values
@@ -116,7 +118,7 @@ public interface DataFrame extends Iterable<Object> {
    * @param key the column
    * @return a new sorted data frame
    */
-  DataFrame sort(SortOrder order, Object key);
+  DataFrame sortBy(SortOrder order, Object key);
 
   /**
    * Return a <em>shallow copy</em> of the data frame sorted according to the values and the
@@ -128,26 +130,11 @@ public interface DataFrame extends Iterable<Object> {
    * @param <T> the type
    * @return a new data frame sorted according to the specified comparator
    */
-  <T> DataFrame sort(Class<? extends T> cls, Comparator<? super T> cmp, Object key);
-
-  /**
-   * Return a new data frame with the first {@code n} rows
-   *
-   * @param n the number of rows
-   * @return a new data frame
-   */
-  DataFrame head(int n);
-
-  /**
-   * Equivalent to {@code head(10)}
-   */
-  default DataFrame head() {
-    return head(10);
-  }
+  <T> DataFrame sortBy(Class<? extends T> cls, Comparator<? super T> cmp, Object key);
 
   /**
    * Return a new data frame indexed on the values of the column specified by {@code key}.
-   * <p>
+   * <p/>
    * An exception is raised if the specified column contains duplicates.
    *
    * @param key the column
@@ -223,9 +210,7 @@ public interface DataFrame extends Iterable<Object> {
    * Apply the supplied operation to each value in the data frame elementwise.
    *
    * <pre>
-   * {@code
-   * DataFrame df = MixedDataFrame.of("A", Vector.of(1,2,3),
-   *                                  "B", Vector.of("a","b","c");
+   * DataFrame df = DataFrame.of("A", Vector.of(1,2,3), "B", Vector.of("a","b","c");
    * df.map(o -> {
    *   if(o instanceof String) {
    *     return ((String)o).toUpperCase();
@@ -235,7 +220,6 @@ public interface DataFrame extends Iterable<Object> {
    *     return o;
    *   }
    * });
-   * }
    * </pre>
    *
    * <pre>
@@ -246,20 +230,81 @@ public interface DataFrame extends Iterable<Object> {
    * [3 rows x 2 columns]
    * </pre>
    *
-   * @param function the function to apply
+   * @param operator the function to apply
    * @return a new data frame
    */
-  default DataFrame map(Function<Object, ?> function) {
-    return map(Object.class, function);
+  default DataFrame map(UnaryOperator<Object> operator) {
+    return map(Object.class, operator);
   }
 
+  /**
+   * For each column, perform the specified transformation.
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.apply(a -&gt; a.filter(Integer.class, i -&gt; i &gt;= 2).map(Integer.class, i -&gt; i * 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   *    A  B
+   * 0  4  4
+   * 1  6  6
+   * 
+   * [2 rows x 2 columns]
+   * </pre>
+   *
+   * @param transform the transformation
+   * @return a new dataframe
+   * @see #apply(Class, Collector) a more efficient implementation
+   */
   DataFrame apply(Function<? super Vector, ? extends Vector> transform);
 
+  /**
+   * For each column, perform the specified collector transformation using each element.
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.apply(Integer.class, Collectors.each(2));
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   *    A  B
+   * 0  1  1
+   * 1  1  1
+   * 2  2  2
+   * 3  2  2
+   * 4  3  3
+   * 5  3  3
+   * 
+   * [6 rows x 2 columns]
+   * </pre>
+   *
+   * @param cls the type of value to transform
+   * @param collector the collector
+   * @param <T> the type of the input to the collector
+   * @param <C> the the mutable aggregate
+   * @return a new dataframe with each column transformed
+   */
   <T, C> DataFrame apply(Class<T> cls, Collector<? super T, C, ? extends Vector> collector);
 
   /**
-   * <p>
    * Reduce all columns, applying {@code op} with the initial value {@code init}.
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.reduce(Integer.class, 0, Integer::sum);
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   * A 6
+   * B 6
+   * </pre>
    *
    * @param <T> the type
    * @param cls the class
@@ -325,26 +370,144 @@ public interface DataFrame extends Iterable<Object> {
   <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ?> collector);
 
   // TODO: remove when ISSUE#7 is resolved
+  @Deprecated
   <T, R, C> Vector collect(Class<T> in, Class<R> out, Collector<? super T, C, ? extends R> collector);
 
+  /**
+   * Group this data frame based on the values of specified column.
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 1, 2), &quot;B&quot;, Vector.of(30, 2, 33, 6));
+   * DataFrameGroupBy groups = df.groupBy(&quot;A&quot;);
+   * groups.apply(v -&gt; v.sub(v.mean()));
+   * groups.get(1);
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   *     A  B
+   *  0  1  -1.5
+   *  1  2  -2.0
+   *  2  1  1.5
+   *  3  2  2.0
+   * 
+   *  [4 rows x 2 columns]
+   * 
+   *     A  B
+   *  0  1  30.0
+   *  2  1  33.0
+   * 
+   * [2 rows x 2 columns]
+   * </pre>
+   *
+   *
+   * @param column the specified column
+   * @return a grouped dataframe
+   */
   DataFrameGroupBy groupBy(Object column);
 
-  <T> DataFrameGroupBy groupBy(Class<T> cls, Object column, Function<? super T, Object> map);
-
-  DataFrameGroupBy groupBy(Object[] columns);
+  /**
+   * Group this data frame based on the values in the specified column as instances of the specified
+   * class transformed using the specified function.
+   *
+   * <pre>
+   *   DataFrame df = DataFrame.of("A", Vector.of(1, 2, 10, 20), "B", Vector.of("a", "b", "c", "d"));
+   *   df.groupBy(String.class, "A", String::length).get(2)
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   *    A   B
+   * 2  10  c
+   * 3  20  d
+   * 
+   * [2 rows x 2 columns]
+   * </pre>
+   *
+   * @param <T> the type
+   * @param cls the class
+   * @param map the mapper
+   * @param column the column
+   * @return a grouped data frame
+   */
+  <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, Object> map, Object column);
 
   /**
-   * Group data frame based on the value returned by {@code keyFunction}. Each record in the data
-   * frame is used for grouping.
+   * Group the data frame based on the concatenation of the values in the specified columns. This is
+   * equivalent to:
+   *
+   * <pre>
+   * df.groupBy(Vector::asList, &quot;A&quot;, &quot;B&quot;);
+   * </pre>
+   *
+   * @param key the first column
+   * @param keys the specified columns
+   * @return a grouped data frame
+   */
+  DataFrameGroupBy groupBy(Object key, Object... keys);
+
+  /**
+   * Group the data frame based on the function application over the combination of the values in
+   * the specified columns.
+   *
+   * <pre>
+   * // @formatter:off
+   *  DataFrame df = DataFrame.fromEntries(
+   *      entry(&quot;A&quot;, Vector.of(1, 2, 3, 4)),
+   *      entry(&quot;B&quot;, Vector.of(1, 1, 0, 4)),
+   *      entry(&quot;C&quot;, Vector.of(1, 1, 0, 4))
+   *  );
+   * 
+   * for (Group group : df.groupBy(Vector::mean, &quot;A&quot;, &quot;B&quot;)) {
+   *   System.out.println(&quot;key: &quot; + group.getKey());
+   *   System.out.println(group.getData());
+   * }
+   * // @formatter:on
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   * key: 1.0
+   *    A  B  C
+   * 0  1  1  1
+   * 
+   * [1 rows x 3 columns]
+   * 
+   * key: 4.0
+   *    A  B  C
+   * 3  4  4  4
+   * 
+   * [1 rows x 3 columns]
+   * 
+   * key: 1.5
+   *    A  B  C
+   * 1  2  1  1
+   * 2  3  0  0
+   * 
+   * [2 rows x 3 columns]
+   * </pre>
+   *
+   * @param key the first column
+   * @param keys the columns to select
+   * @param combiner the function to combine the column values
+   * @param key
+   * @return a grouped data frame
+   */
+  DataFrameGroupBy groupBy(Function<? super Vector, Object> combiner, Object key, Object... keys);
+
+  /**
+   * Group data frame based on the value of the index returned by {@code keyFunction}. Each record
+   * in the data frame is used for grouping.
    *
    * <p>
-   * Example, given a {@link java.time.LocalDate}-index {@code DataFrame}, the data frame can be
+   * Example, given a {@link java.time.LocalDate}-indexed {@code DataFrame}, the data frame can be
    * grouped based on year:
    *
    * <pre>
-   * {@code
-   * df.groupBy(k -> LocalDate.class.cast(v).getYear());
-   * }
+   * df.groupBy(k -&gt; LocalDate.class.cast(v).getYear());
    * </pre>
    *
    * @param keyFunction the key function
@@ -352,34 +515,211 @@ public interface DataFrame extends Iterable<Object> {
    */
   DataFrameGroupBy groupBy(UnaryOperator<Object> keyFunction);
 
+  /**
+   * Group data frame based on the value returned by the specified function given a value of the
+   * specified class, or {@code NA}, if the index key cannot be cast to the specified class.
+   *
+   * <pre>
+   * df.groupBy(LocalData.class, k -&gt; Is.NA(k) ? 2000 : k.getYear());
+   * 
+   * // or, if we allow the possibility of error
+   * df.groupBy(LocalData.class, LocalData::getYear);
+   * </pre>
+   *
+   * @param cls the class to cast the index keys to
+   * @param function the function to transform the index keys (receives {@code NA} if conversion
+   *        fails)
+   * @param <T> the type
+   * @return a grouped data frame
+   */
   <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> function);
 
   /**
-   * Uses the column index to find the specified column
+   * Get the specified column
    *
-   * @param key the column name
+   * @param key the column key
    * @return the column
    * @throws java.util.NoSuchElementException if key is not found
    */
   Vector get(Object key);
 
-  DataFrame get(Object... keys);
+  /**
+   * Return a new data frame where the values of the
+   * 
+   * @param key the key
+   * @param value the value
+   * @return a new data frame
+   */
+  DataFrame set(Object key, Object value);
 
-  DataFrame dropna();
+  /**
+   * Get the specified columns
+   * 
+   * @param key the first key
+   * @param keys the column keys
+   * @return a new data frame
+   */
+  DataFrame get(Object key, Object... keys);
 
+  /**
+   * Drop the column with the specified key
+   *
+   * @param key the key
+   * @return a new data frame
+   */
   DataFrame drop(Object key);
 
-  DataFrame drop(Object... keys);
+  /**
+   * Drop the columns with the specified keys
+   *
+   *
+   * @param key
+   * @param keys the keys
+   * @return a new data frame
+   */
+  DataFrame drop(Object key, Object... keys);
 
+  /**
+   * Drop the columns for which the specified predicat returns true.
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, null, 3))
+   *     .drop(Vector::hasNA);
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   *    A
+   * 0  1
+   * 1  2
+   * 2  3
+   * 
+   * [1 rows x 3 columns]
+   * </pre>
+   *
+   * @param predicate
+   * @return
+   */
   DataFrame drop(Predicate<Vector> predicate);
+
+  /**
+   * Return a boolean array ({@code [n-rows, n-columns]}, where the value of the predicate applied
+   * to each value is stored
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.where(Integer.class, i -&gt; i &gt; 2);
+   * </pre>
+   *
+   * produces,
+   * 
+   * <pre>
+   * array([[0, 0],
+   *        [0, 0],
+   *        [1, 1]])
+   * </pre>
+   * 
+   * @param cls type of element
+   * @param predicate the predicate (receives {@code NA}, if conversion to the specified class
+   *        fails)
+   * @param <T> the type
+   * @return a boolean array where each value denotes the truth of the predicate for a value
+   */
+  <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
+
+  /**
+   * The result is different depending on the shape of the input array. For vectors of shape
+   * {@code [n-rows]}, the rows for which the vector is true are selected. For matrices of shape
+   * {@code [n-rows, n-columns]}, the values for which the array is false are changed to {@code NA}.
+   * 
+   * For example,
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.get(df.where(Integer.class, i -&gt; i &gt; 1));
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   *    A   B   
+   * 0  NA  NA 
+   * 1  2   2   
+   * 2  3   3
+   * </pre>
+   * 
+   * whereas
+   * 
+   * <pre>
+   * df.get(Array.of(new boolean[] {false, true, true}));
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    A   B   
+   * 1  2   2   
+   * 2  3   3
+   * </pre>
+   * 
+   * 
+   * @param array the boolean array
+   * @return a new data frame
+   */
+  DataFrame get(BooleanArray array);
+
+  /**
+   * Set the values for which the boolean array is true (the boolean array has the same shape as for
+   * {@linkplain #get(BooleanArray)}).
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.set(df.where(Integer.class, i -> i > 1), 30)
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    A   B   
+   * 0  1   1   
+   * 1  30  30  
+   * 2  30  30  
+   * 
+   * [3 rows x 2 columns]
+   * </pre>
+   * 
+   * @param array the array
+   * @param value the value
+   * @return a new data frame where the new value is set
+   */
+  DataFrame set(BooleanArray array, Object value);
 
   Vector getRecord(Object key);
 
-  DataFrame getRecord(Object... keys);
+  DataFrame setRecord(Object key, Object value);
+
+  DataFrame getRecord(Object key, Object... keys);
+
+  Vector getDiagonal();
 
   /**
    * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given range.
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3, 4));
+   * df.setIndex(Index.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;));
+   * df.limit(0, 2);
+   * </pre>
    *
+   * produces,
+   * 
+   * <pre>
+   *    A  
+   * a  1  
+   * b  2
+   * </pre>
+   * 
    * @param from from inclusive
    * @param to to exclusive
    * @return a newly created {@code DataFrame}
@@ -397,18 +737,91 @@ public interface DataFrame extends Iterable<Object> {
    */
   DataFrame limit(Object from, BoundType fromBound, Object to, BoundType toBound);
 
+  /**
+   * Return a new data frame with the first {@code n} records
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3, 4));
+   * df.limit(2)
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    A
+   * 0  1
+   * 1  2
+   * </pre>
+   * 
+   * Note that the first {@code n} rows in the order of the index are returned.
+   * 
+   * @param n the number of rows
+   * @return a new data frame
+   */
+  DataFrame limit(int n);
+
+  /**
+   * Equivalent to {@code limit(10)}
+   * 
+   * @see #limit(int)
+   */
+  default DataFrame limit() {
+    return limit(10);
+  }
+
+  /**
+   * Select the columns with indices in the specified range.
+   * 
+   * @param first the first index
+   * @param last the last index
+   * @return a new data frame with only the columns whose index is in the specified range
+   */
+  DataFrame select(Object first, Object last);
+
+  /**
+   * Transpose the data frame, i.e. turning its columns into rows and its rows into columns.
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3, 4));
+   * df.setIndex(Index.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;));
+   * df.transpose();
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    a  b  c  d  
+   * A  1  2  3  4  
+   * 
+   * [1 rows x 4 columns]
+   * </pre>
+   * 
+   * @return a new transposed data frame
+   */
   DataFrame transpose();
 
   /**
+   * Select only the records for which he predicate returns true
    *
-   * @param bits
-   * @return
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, null), &quot;B&quot;, Vector.of(1, null, 3));
+   * df.filter(Vector::hasNA);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    A   B   
+   * 1  2   NA  
+   * 2  NA  3   
+   *  
+   * [2 rows x 2 columns]
+   * </pre>
+   *
+   * @param predicate the predicate indicating inclusion
+   * @return a dataframe with only the records for which the predicate returns true is present
    */
-  DataFrame select(Vector bits);
-
-  DataFrame select(Predicate<Vector> predicate);
-
-  DataFrame select(Object first, Object last);
+  DataFrame filter(Predicate<Vector> predicate);
 
   /**
    * Return a collection of columns
@@ -418,21 +831,66 @@ public interface DataFrame extends Iterable<Object> {
   List<Vector> getColumns();
 
   /**
-   * Returns a collection of records.
+   * Return a collection of records.
    *
    * @return an (immutable) collection of rows
    */
   List<Vector> getRecords();
 
+  /**
+   * Get the element with the specified row and column index as an instance of the specified class
+   * or {@code NA} if the conversion fails. For information on how values are converted see
+   * {@link org.briljantframework.data.vector.Convert#to(Class, Object)}.
+   * 
+   * @param cls the class of the returned values
+   * @param row the row index
+   * @param col the column index
+   * @param <T> the type of the returned value
+   * @return the specified value
+   */
   <T> T get(Class<T> cls, Object row, Object col);
 
+  /**
+   * Get the element with the specified row and column index as an instance of {@link Object}.
+   * 
+   * @param row the row index
+   * @param col the column index
+   * @return the specified value
+   */
+  default Object get(Object row, Object col) {
+    return get(Object.class, row, col);
+  }
+
+  /**
+   * Get the element at the specified position as a primitive {@code double} value. With the right
+   * support in the data frame this avoids unboxing.
+   * 
+   * @param row the row index
+   * @param col the column index
+   * @return the specified element
+   */
   double getAsDouble(Object row, Object col);
 
+  /**
+   * Get the element at the specified position as a primitive {@code in} value. With the right
+   * support in the data frame this avoids unboxing.
+   *
+   * @param row the row index
+   * @param col the column index
+   * @return the specified element
+   */
   int getAsInt(Object row, Object col);
 
+  /**
+   * Return {@code true} if the element at the specified position is {@code NA}. This is in some
+   * case more efficient than {@code Is.NA(df.get(row, col));} (e.g., when dealing with primitive
+   * values)
+   * 
+   * @param row the row index
+   * @param col the colum index
+   * @return {@code true} if the specified position contains {@code NA}
+   */
   boolean isNA(Object row, Object col);
-
-  String toString(Object row, Object col);
 
   /**
    * Returns the number of rows in this data frame
@@ -473,40 +931,186 @@ public interface DataFrame extends Iterable<Object> {
 
   /**
    * Returns {@code this} DataFrame as an {@linkplain org.briljantframework.array.Array array}.
-   *
+   * 
    * @return this data frame as a matrix
    */
-  // TODO: perhaps
-  Array<Object> toArray();
+  default Array<Object> toArray() {
+    return toArray(Object.class);
+  }
 
+  /**
+   * Return this data frame as an {@linkplain Array array}
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), &quot;B&quot;, Vector.of(1, 2, 3));
+   * df.toArray(String.class);
+   * df.toArray(Double.class);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   * array([[a, 1],
+   *        [b, 2],
+   *        [c, 3]])
+   *        
+   * array([[NaN, 1.0],
+   *        [NaN, 2.0],
+   *        [NaN, 3.0]])
+   * </pre>
+   * 
+   * Note that the array is populated with {@code NA} if the conversion fails; also note that this
+   * will result in surprising results if the type is Integer, where {@code NA} is represented as
+   * {@code Integer.MIN_VALUE}; use {@link org.briljantframework.data.Is#NA(Object)} to find
+   * {@code NA} values in the resulting array
+   * 
+   * @param type the type of the array
+   * @param <T> the type
+   * @return an array with the given type
+   */
+  <T> Array<T> toArray(Class<T> type);
+
+  /**
+   * Return this data frame as a double array
+   * 
+   * @return this as a double array
+   */
   DoubleArray toDoubleArray();
 
+  /**
+   * Return a stream over the records in this data frame. For example, we could filter the records
+   * with missing values
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), &quot;B&quot;, Vector.of(1, null, 3));
+   * df.stream().filter(Vector::hasNA).collect(Collectors.toDataFrame())
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    0   1   
+   * 0  b   NA  
+   * 1  NA  3   
+   * 
+   * [2 rows x 2 columns]
+   * </pre>
+   * 
+   * Note that the index information is lost, to retain such information use e.g.,
+   * {@link #filter(Predicate)}.
+   * 
+   * @return a stream of the records of this data frame
+   */
   default Stream<Vector> stream() {
     return StreamSupport.stream(getRecords().spliterator(), false);
   }
 
+  /**
+   * Return a parallel stream of the records of this data frame
+   * 
+   * @return a parallel stream of the records of this data frame
+   */
   default Stream<Vector> parallelStream() {
     return StreamSupport.stream(getRecords().spliterator(), true);
   }
 
+  /**
+   * Reset the index of this data frame. This will create a new data frame with an additional column
+   * named {@code index} with the values of the current index. If such column already exists, an
+   * exception is raised.
+   * 
+   * <pre>
+   * DataFrame df = DataFrame.builder().setRecord("a", Vector.of(1, 2)).setRecord("b", Vector.of(1, 2)).build();
+   * df.resetIndex()
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   *    index  0  1  
+   * 0  a      1  2  
+   * 1  b      1  2  
+   * 
+   * [2 rows x 3 columns]
+   * </pre>
+   * 
+   * @return a new data frame where the index is reset
+   */
   DataFrame resetIndex();
 
+  /**
+   * Get the index of the records of this data frame.
+   * 
+   * <pre>
+   * DataFrame df =
+   *     DataFrame.builds().setRecord(&quot;A&quot;, Vector.of(1, 2)).setRecord(&quot;B&quot;, Vector.of(1, 2)).build();
+   * df.getIndex().getLocation(&quot;A&quot;);
+   * </pre>
+   * 
+   * produces, {@code 0}.
+   * 
+   * @return the records index
+   */
   Index getIndex();
 
+  /**
+   * Get the index for the columns of this data frame
+   * 
+   * @return the column index
+   */
   Index getColumnIndex();
 
+  /**
+   * Set the index of the records of this data frame. This won't change the data in the data frame
+   * only the indexing. As a consequence, it is unadvised to change the index in a multithreaded
+   * application.
+   *
+   * @param index the record index
+   */
   void setIndex(Index index);
 
+  /**
+   * Set the index of the columns of this data frame. This won't change the data in the data frame
+   * only the indexing. As a consequence, it is unadvised to change the index in a multithreaded
+   * application.
+   *
+   * @param index the column index
+   */
   void setColumnIndex(Index index);
 
+  /**
+   * Return an indexer that allows integer based location indexing of the data frame irrespective of
+   * the current index assigned.
+   * 
+   * @return a location getter
+   */
   DataFrameLocationGetter loc();
 
   // Operations
 
+  /**
+   * Returns a vector of the means of each column in the data frame
+   * 
+   * @return a vector of the means of each column in the data frame
+   */
   default Vector mean() {
     return reduce(Vector::mean);
   }
 
+  /**
+   * Returns a vector of the sums of each column in the data frame
+   * 
+   * @return a vector of the sums of each column in the data frame
+   */
+  default Vector sum() {
+    return reduce(Vector::sum);
+  }
+
+  /**
+   * Returns a vector of the minimum value of each column in the data frame
+   * 
+   * @return a vector of the minimum value of each column in the data frame
+   */
   default Vector min() {
     return collect(
         Object.class,
@@ -514,6 +1118,11 @@ public interface DataFrame extends Iterable<Object> {
             Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
   }
 
+  /**
+   * Returns a vector of the maximum value of each column in the data frame
+   *
+   * @return a vector of the maximum value of each column in the data frame
+   */
   default Vector max() {
     return collect(
         Object.class,
@@ -528,18 +1137,72 @@ public interface DataFrame extends Iterable<Object> {
 
     DataFrameLocationSetter loc();
 
+    /**
+     * Set the element at the specified position to the value of specified data frame from the
+     * specified position
+     * 
+     * @param tr the row index to set
+     * @param tc the colum index to set
+     * @param from the data frame to get values from
+     * @param fr the row index to get from
+     * @param fc the column index to get from
+     * @return this modified
+     */
     Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc);
 
+    /**
+     * Set the element at the specified position to the value of the specified vector from the
+     * specified position.
+     * 
+     * @param row the row index to set
+     * @param column the colum index to set
+     * @param from the vector to get values from
+     * @param key the index to get from
+     * @return this modified
+     */
     Builder set(Object row, Object column, Vector from, Object key);
 
+    /**
+     * Set the element at the specified index to the specified value
+     * 
+     * @param row the row index
+     * @param column the colum index
+     * @param value the value
+     * @return this modified
+     */
     Builder set(Object row, Object column, Object value);
 
+    /**
+     * Set the column at the specified index to the specified vector builder
+     * 
+     * @param key the column index
+     * @param columnBuilder the vector
+     * @return this modified
+     */
     Builder set(Object key, Vector.Builder columnBuilder);
 
+    /**
+     * Set the column at the specified index to the specified vector
+     * 
+     * Note that the default implementation copies the given vector to allow the builder to expand.
+     * If the number of columns are known use {@linkplain #set(Object, Vector.Builder)} and wrap the
+     * vector using {@link org.briljantframework.data.vector.Vectors#transferableBuilder(Vector)}.
+     * 
+     * @param key the column index
+     * @param column the vector
+     * @return this modified
+     */
     default Builder set(Object key, Vector column) {
       return set(key, column.newCopyBuilder());
     }
 
+    /**
+     * Set the column at the specified index to a new empty vector builder of the specified type.
+     * 
+     * @param key the column index
+     * @param columnType the type of vector
+     * @return this modified
+     */
     default Builder set(Object key, VectorType columnType) {
       return set(key, columnType.newBuilder());
     }
@@ -575,12 +1238,35 @@ public interface DataFrame extends Iterable<Object> {
       return add(columnType.newBuilder());
     }
 
+    /**
+     * Set the record at the specified position to the given vector builder
+     * 
+     * @param key the record key
+     * @param recordBuilder the record
+     * @return this modified
+     */
     Builder setRecord(Object key, Vector.Builder recordBuilder);
 
+    /**
+     * Set the record at the specified position to the given vector. If the affected positions are
+     * not affected, {@link org.briljantframework.data.vector.Vectors#transferableBuilder(Vector)}
+     * can be used to avoid copying values.
+     * 
+     * @param key the record key
+     * @param record the vector
+     * @return this modified
+     */
     default Builder setRecord(Object key, Vector record) {
       return setRecord(key, record.newCopyBuilder());
     }
 
+    /**
+     * Set the record at the specified position to an empty vector of the specified type
+     * 
+     * @param key the record key
+     * @param recordType the vector type
+     * @return this modified
+     */
     default Builder setRecord(Object key, VectorType recordType) {
       return setRecord(key, recordType.newBuilder());
     }
@@ -599,30 +1285,78 @@ public interface DataFrame extends Iterable<Object> {
      * NA.
      *
      * @param vector the vector
-     * @return receiver modified
+     * @return this modified
      */
     default Builder addRecord(Vector vector) {
       return addRecord(vector.newCopyBuilder());
     }
 
+    /**
+     * Adds a new empty record of the specified type
+     * 
+     * @param recordType the vector type
+     * @return this modified
+     */
     default Builder addRecord(VectorType recordType) {
       return addRecord(recordType.newBuilder());
     }
 
+    /**
+     * Remove the column at the specified position
+     * 
+     * @param key the column key
+     * @return this modified
+     */
     Builder remove(Object key);
 
+    /**
+     * Remove the record at the specified position
+     * 
+     * @param key the record key
+     * @return this modified
+     */
     Builder removeRecord(Object key);
 
-    default Builder setColumnIndex(Object... keys) {
-      return setColumnIndex(ObjectIndex.of(keys));
+    Vector.Builder get(Object key);
+
+    Vector.Builder getRecord(Object key);
+
+    /**
+     * Set the column index
+     * 
+     * @param key the first key
+     * @param keys the rest of the keys
+     * @return this modified
+     */
+    default Builder setColumnIndex(Object key, Object... keys) {
+      return setColumnIndex(Index.of(ArrayAllocations.prepend(key, keys)));
     }
 
+    /**
+     * Set the column index
+     * 
+     * @param columnIndex the column index
+     * @return this modified
+     */
     Builder setColumnIndex(Index columnIndex);
 
-    default Builder setIndex(Object... keys) {
-      return setIndex(ObjectIndex.of(keys));
+    /**
+     * Set the index
+     * 
+     * @param key the first key
+     * @param keys the rest of the keys
+     * @return this modified
+     */
+    default Builder setIndex(Object key, Object... keys) {
+      return setIndex(Index.of(ArrayAllocations.prepend(key, keys)));
     }
 
+    /**
+     * Set the record index
+     * 
+     * @param index the index
+     * @return this modified
+     */
     Builder setIndex(Index index);
 
     /**
@@ -710,8 +1444,11 @@ public interface DataFrame extends Iterable<Object> {
    * @param entries the keys and values with which the dataframe is populated
    * @return a newly created {@code DataFrame}
    */
-  static DataFrame fromEntries(Map.Entry<Object, ? extends Vector>... entries) {
-    return MixedDataFrame.fromEntries(entries);
+  @SafeVarargs
+  @SuppressWarnings("unchecked")
+  static DataFrame fromEntries(Map.Entry<Object, ? extends Vector> entry,
+      Map.Entry<Object, ? extends Vector>... entries) {
+    return MixedDataFrame.fromEntries(ArrayAllocations.prepend(entry, entries));
   }
 
   static DataFrame.Builder builder() {

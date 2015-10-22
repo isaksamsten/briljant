@@ -36,11 +36,11 @@ public class Group {
     this.data = Objects.requireNonNull(data);
   }
 
-  public Object group() {
+  public Object getKey() {
     return group;
   }
 
-  public DataFrame data() {
+  public DataFrame getData() {
     return data;
   }
 }

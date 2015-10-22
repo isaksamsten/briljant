@@ -13,14 +13,14 @@ public class ArraysTest {
 
   @Test
   public void testOrder() throws Exception {
-    DoubleArray array = Arrays.of(new double[]{2, 3, 1, 9, 1});
+    DoubleArray array = Arrays.newDoubleVector(new double[]{2, 3, 1, 9, 1});
     System.out.println(Arrays.order(array));
 
   }
 
   @Test
   public void testOrderDimension() throws Exception {
-    DoubleArray array = Arrays.of(new double[]{1, 9, 1, 9, 2, 4}).reshape(3, 2);
+    DoubleArray array = Arrays.newDoubleVector(new double[]{1, 9, 1, 9, 2, 4}).reshape(3, 2);
     System.out.println(array);
     System.out.println(Arrays.order(0, array));
   }
@@ -797,8 +797,8 @@ public class ArraysTest {
 
   @Test
   public void testWhere() throws Exception {
-    DoubleArray condition = Arrays.of(new double[]{1, 0, 1, 2, 1});
-    ComplexArray x = Arrays.of(new double[]{1, 1, 1, 1, 1}).asComplex();
+    DoubleArray condition = Arrays.newDoubleVector(new double[]{1, 0, 1, 2, 1});
+    ComplexArray x = Arrays.newDoubleVector(new double[]{1, 1, 1, 1, 1}).asComplex();
     ComplexArray y = Arrays.rand(5).mapToComplex(v -> Complex.valueOf(v).sqrt());
     System.out.println(Arrays.where(condition.gte(2), x.asComplex(), y.asComplex()));
 

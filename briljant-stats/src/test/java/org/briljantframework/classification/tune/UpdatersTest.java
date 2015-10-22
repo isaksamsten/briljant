@@ -32,18 +32,18 @@ public class UpdatersTest {
 
   @Test
   public void testRange() throws Exception {
-//    NearestNeighbours.Builder knnBuilder = NearestNeighbours.Learner.withNeighbors(1);
-//    ParameterUpdater<NearestNeighbours.Builder> updater =
-//        Updaters.range("n", NearestNeighbours.Builder::withNeighbors, 0, 10, 2);
-//    while (updater.hasUpdate()) {
-//      updater.update(knnBuilder);
-//    }
-//    assertEquals(10, knnBuilder.neighbors);
+    // NearestNeighbours.Builder knnBuilder = NearestNeighbours.Learner.withNeighbors(1);
+    // ParameterUpdater<NearestNeighbours.Builder> updater =
+    // Updaters.range("n", NearestNeighbours.Builder::withNeighbors, 0, 10, 2);
+    // while (updater.hasUpdate()) {
+    // updater.update(knnBuilder);
+    // }
+    // assertEquals(10, knnBuilder.neighbors);
   }
 
   @Test
   public void testOptions() throws Exception {
-//    NearestNeighbours.Builder knnBuilder = NearestNeighbours.Learner.withNeighbors(1);
+    // NearestNeighbours.Builder knnBuilder = NearestNeighbours.Learner.withNeighbors(1);
     // Tuners.split(knnBuilder, null,
     // range("n", KNearestNeighbors.Builder::withNeighbors, 0, 10, 2));
     // enumeration("d", KNearestNeighbors.Builder::distance, Distance.EUCLIDEAN,
@@ -56,29 +56,28 @@ public class UpdatersTest {
     // Updater<PrintStream> updater = ;
     // Updater<PrintStream> updater1 = enumeration(PrintStream::println, 10, 11, 12);
 
-    List<ParameterUpdater<PrintStream>> updaters = new ArrayList<>();
-    updaters.add(Updaters.range("r", PrintStream::println, 0.0, 3, 1));
-    updaters.add(Updaters.enumeration("e", PrintStream::println, 10, 11, 12));
+    List<UpdatableParameter<PrintStream>> updaters = new ArrayList<>();
+    updaters.add(Updaters.linspace(PrintStream::println, 0.0, 3, 1));
+    updaters.add(Updaters.enumeration(PrintStream::println, 10, 11, 12));
     // updaters.add(enumeration("e", PrintStream::println, 10, 11, 12));
 
     testCombinations(updaters, System.out);
 
   }
 
-  private <T> void testCombinations(List<ParameterUpdater<T>> ud, T toUpdate) {
+  private <T> void testCombinations(List<UpdatableParameter<T>> ud, T toUpdate) {
     cartesian(new int[][] {new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10}, new int[] {10, 11}});
     cartesian(ud, toUpdate, 0);
 
   }
 
-  private <T> void cartesian(List<ParameterUpdater<T>> updaters, T toUpdate, int n) {
+  private <T> void cartesian(List<UpdatableParameter<T>> updaters, T toUpdate, int n) {
     if (n != updaters.size()) {
-      ParameterUpdater<T> updater = updaters.get(n);
+      ParameterUpdator<T> updater = updaters.get(n).updator();
       while (updater.hasUpdate()) {
         updater.update(toUpdate);
         cartesian(updaters, toUpdate, n + 1);
       }
-      updater.restore();
     }
   }
 
