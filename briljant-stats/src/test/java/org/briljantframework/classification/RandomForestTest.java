@@ -54,16 +54,6 @@ public class RandomForestTest {
       Result<RandomForest> result = classifierValidator.test(forest, x, y);
       System.out.println(result.getMeasures().mean().get(AUCROC));
       System.out.println(result.getMeasure(BRIER_SCORE).mean());
-
-
-      // List<Evaluator> evaluators = Evaluator.getDefaultClassificationEvaluators();
-      // evaluators.add(new ConfusionMatrixEvaluator());
-      // Result result = Validators.crossValidation(evaluators, 10).test(forest, x, y);
-      // System.out.println((System.nanoTime() - start) / 1e6);
-      // System.out.println(result.get(ConfusionMatrix.class));
-      // System.out.println(result.getAverage(Ensemble.Correlation.class) + " "
-      // + result.getAverage(Ensemble.Strength.class) + " " + result.getAverage(Accuracy.class));
     }
-
   }
 }
