@@ -183,10 +183,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     return builder.build();
   }
 
-  private void setWhereTrue(Builder builder, BooleanArray array, Object value) {
-
-  }
-
   @Override
   public final DataFrame sort(SortOrder order) {
     Index.Builder index = getIndex().newCopyBuilder();
@@ -199,6 +195,13 @@ public abstract class AbstractDataFrame implements DataFrame {
     Index.Builder index = getIndex().newCopyBuilder();
     index.sort(comparator);
     return shallowCopy(getColumnIndex(), index.build());
+  }
+
+  @Override
+  public DataFrame sortColumns(Comparator<Object> comparator) {
+    Index.Builder index = getColumnIndex().newCopyBuilder();
+    index.sort(comparator);
+    return shallowCopy(index.build(), getIndex());
   }
 
   @Override

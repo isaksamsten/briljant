@@ -23,22 +23,25 @@ package org.briljantframework.shapelet;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.ClassifierValidator;
-import org.briljantframework.classification.NearestNeighbours;
+import org.briljantframework.classification.RandomForest;
 import org.briljantframework.classification.RandomShapeletForest;
-import org.briljantframework.conformal.ConformalClassifier;
-import org.briljantframework.conformal.DistanceNonconformity;
-import org.briljantframework.conformal.InductiveConformalClassifier;
-import org.briljantframework.conformal.Nonconformity;
+import org.briljantframework.classifier.conformal.ConformalClassifier;
+import org.briljantframework.classifier.conformal.DistanceNonconformity;
+import org.briljantframework.classifier.conformal.InductiveConformalClassifier;
+import org.briljantframework.classifier.conformal.Nonconformity;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
@@ -51,7 +54,6 @@ import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.dataset.io.Datasets;
 import org.briljantframework.dataset.io.MatlabDatasetReader;
 import org.briljantframework.dataset.io.SequenceDatasetReader;
-import org.briljantframework.distance.EditDistance;
 import org.briljantframework.evaluation.Evaluator;
 import org.briljantframework.evaluation.Result;
 import org.briljantframework.evaluation.Validator;
@@ -387,33 +389,68 @@ public class RandomShapeletForestTest {
     return null;
   }
 
+  public DataFrame vectorize(DataFrame x) {
+    Set<Object> columns = new HashSet<>();
+    for (Object recordKey : x.getIndex().keySet()) {
+      List<Object> list = x.getRecord(recordKey).asList();
+      columns.addAll(list.subList(1, list.size() - 1));
+    }
+
+    DataFrame.Builder builder = DataFrame.builder();
+    builder.set("Class", x.get(0));
+    for (Object column : columns) {
+      if (StringUtils.isWhitespace(column.toString())) {
+        continue;
+      }
+      Vector.Builder columnBuilder = Vector.Builder.of(Boolean.class);
+      for (Object recordKey : x.getIndex().keySet()) {
+        columnBuilder.add(x.getRecord(recordKey).asList().contains(column));
+      }
+      builder.set(column, columnBuilder);
+    }
+
+    return builder.build();
+  }
+
   @Test
   public void testSequences() throws Exception {
-    String ade = "L270";
+    String ade = "G444";
     EntryReader in =
-        new SequenceDatasetReader(
-            new FileInputStream("/Users/isak-kar/Desktop/out/" + ade + ".seq"));
+        new SequenceDatasetReader(new FileInputStream("/Users/isak-kar/Desktop/sequences/" + ade
+            + ".seq"));
 
     DataFrame frame = new DataSeriesCollection.Builder(VectorType.STRING).readAll(in).build();
-    System.out.println(frame.rows() + ", " + frame.columns());
+    frame = vectorize(frame);
+
+    // System.out.println(frame.rows() + ", " + frame.columns());
     // Utils.setRandomSeed(32);
-    frame = DataFrames.permuteRecords(frame);
-    Vector y = frame.get(0);
-    DataFrame x = frame.drop(0);
+     frame = DataFrames.permuteRecords(frame);
+    //
+    Vector y = frame.get("Class");
+    DataFrame x = frame.drop("Class");
+    System.out.println(y.size());
+    System.out.println(x.rows());
     Map<Object, Integer> freq = Vectors.count(y);
     int sum = freq.values().stream().reduce(0, Integer::sum);
     int min = freq.values().stream().min(Integer::min).get();
     System.out.println(freq + " => " + ((double) min / sum));
-
+    //
     Predictor.Learner<? extends Classifier> forest =
-        new NearestNeighbours.Learner(1, new EditDistance());
-    Validator<Classifier> cv = ClassifierValidator.crossValidation(5);
+        new RandomForest.Configurator(100).setMaximumFeatures(100).configure();
+    // new RandomShapeletForest.Configurator(100).setF.configure();
+    // new RandomShapeletForest.Configurator(25).setDistance(
+    // new SlidingDistance(new HammingDistance())).configure();
+    // new NearestNeighbours.Learner(1, new SimilarityDistance(
+    // new SmithWatermanSimilarity(1, 0, 0)));
+
+    Validator<Classifier> cv = ClassifierValidator.crossValidation(10);
     cv.add(Evaluator.foldOutput(fold -> System.out.printf("Completed fold %d\n", fold)));
-    Result result = cv.test(forest, x, y);
+    Result<Classifier> result = cv.test(forest, x, y);
+    System.out.println(result.getMeasures().mean());
     // System.out.println(result.getAverageConfusionMatrix().getPrecision("ade"));
     // System.out.println(result.getAverageConfusionMatrix().getRecall("ade"));
     // System.out.println(result.getAverageConfusionMatrix().getFMeasure("ade", 2));
-    System.out.println(result);
+    // System.out.println(result);
   }
   // @Test
   // public void testClassify() throws Exception {

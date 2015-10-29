@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.classification;
+package org.briljantframework.classifier.evaluation;
 
 import static org.briljantframework.classification.ClassifierMeasure.AUCROC;
 import static org.briljantframework.classification.ClassifierMeasure.BRIER_SCORE;
 import static org.briljantframework.classification.ClassifierMeasure.averageAreaUnderRocCurve;
 import static org.briljantframework.classification.ClassifierMeasure.brierScore;
 
+import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.Classifier;
 import org.briljantframework.classification.ClassifierCharacteristic;
@@ -39,6 +40,14 @@ import org.briljantframework.evaluation.MeasureCollection;
  */
 public class ProbabilityEvaluator implements Evaluator<Classifier> {
 
+  public static final ProbabilityEvaluator INSTANCE = new ProbabilityEvaluator();
+
+  private ProbabilityEvaluator() {}
+
+  public static ProbabilityEvaluator getInstance() {
+    return INSTANCE;
+  }
+
   @Override
   public void accept(EvaluationContext<? extends Classifier> ctx) {
     // Ignore classifiers without the ESTIMATOR characteristics
@@ -50,6 +59,8 @@ public class ProbabilityEvaluator implements Evaluator<Classifier> {
     Vector actual = ctx.getPartition().getValidationTarget();
     Vector predicted = ctx.getPredictions();
     DoubleArray probabilities = ctx.getEstimates();
+    Check.state(probabilities != null, "Classifier reports ESTIMATOR but the "
+        + "EvaluationContext contains no probability estimates.");
 
     Classifier classifier = ctx.getPredictor();
     Vector classes = classifier.getClasses();

@@ -22,6 +22,7 @@
 package org.briljantframework.evaluation;
 
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.supervised.Predictor;
 
@@ -31,9 +32,13 @@ import org.briljantframework.supervised.Predictor;
 public class Result<P extends Predictor> {
 
   private final DataFrame measures;
+  private final Vector predictions;
+  private final Vector actual;
 
-  public Result(EvaluationContext<P> ctx) {
+  public Result(EvaluationContext<? extends P> ctx, Vector t, Vector p) {
     this.measures = ctx.getMeasureCollection().toDataFrame();
+    this.actual = t;
+    this.predictions = p;
   }
 
   public DataFrame getMeasures() {
@@ -44,9 +49,17 @@ public class Result<P extends Predictor> {
     return measures.get(measure);
   }
 
-  // public Collection<Measure> getMeasures() {
-  // return Collections.unmodifiableCollection(measures.values());
-  // }
+  public Vector getPredictions() {
+    return predictions;
+  }
+
+  public Vector getActual() {
+    return actual;
+  }
+
+  public DataFrame getConfusionMatrix() {
+    return DataFrames.table(actual, predictions);
+  }
 
   @Override
   public String toString() {

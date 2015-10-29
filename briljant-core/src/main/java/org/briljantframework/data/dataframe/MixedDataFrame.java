@@ -280,6 +280,7 @@ public class MixedDataFrame extends AbstractDataFrame {
    * @param entries the keys and values with which the dataframe is populated
    * @return a newly created {@code MixedDataFrame}
    */
+  @SafeVarargs
   public static MixedDataFrame fromEntries(Map.Entry<Object, ? extends Vector>... entries) {
     Map<Object, Vector> map = new LinkedHashMap<>();
     for (Map.Entry<Object, ? extends Vector> entry : entries) {

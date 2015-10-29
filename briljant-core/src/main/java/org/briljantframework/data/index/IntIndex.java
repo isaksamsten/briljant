@@ -53,6 +53,14 @@ public final class IntIndex implements Index {
     return new NoSuchElementException(String.format("name '%s' not in index", key));
   }
 
+  public int getStart() {
+    return start;
+  }
+
+  public int getSize() {
+    return size;
+  }
+
   @Override
   public int getLocation(Object key) {
     if (key instanceof Integer) {

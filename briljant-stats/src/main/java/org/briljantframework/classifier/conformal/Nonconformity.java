@@ -1,4 +1,4 @@
-package org.briljantframework.conformal;
+package org.briljantframework.classifier.conformal;
 
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;

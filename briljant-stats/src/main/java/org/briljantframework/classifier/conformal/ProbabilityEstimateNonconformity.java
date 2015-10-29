@@ -1,4 +1,4 @@
-package org.briljantframework.conformal;
+package org.briljantframework.classifier.conformal;
 
 import java.util.Objects;
 
@@ -16,9 +16,9 @@ import org.briljantframework.supervised.Predictor;
 public class ProbabilityEstimateNonconformity implements Nonconformity {
 
   private final Classifier classifier;
-  private final ClassificationErrorFunction errorFunction;
+  private final ClassificationCostFunction errorFunction;
 
-  ProbabilityEstimateNonconformity(Classifier classifier, ClassificationErrorFunction errorFunction) {
+  ProbabilityEstimateNonconformity(Classifier classifier, ClassificationCostFunction errorFunction) {
     this.classifier = classifier;
     this.errorFunction = errorFunction;
   }
@@ -26,7 +26,9 @@ public class ProbabilityEstimateNonconformity implements Nonconformity {
   @Override
   public double estimate(Vector example, Object label) {
     Objects.requireNonNull(example, "Require an example.");
-    return errorFunction.apply(classifier.estimate(example), label, classifier.getClasses());
+    int trueClassIndex = classifier.getClasses().loc().indexOf(label);
+    Check.argument(trueClassIndex >= 0, "illegal label %s", label);
+    return errorFunction.apply(classifier.estimate(example), trueClassIndex);
   }
 
   @Override
@@ -43,10 +45,10 @@ public class ProbabilityEstimateNonconformity implements Nonconformity {
   public static class Learner implements Nonconformity.Learner {
 
     private final Predictor.Learner<? extends Classifier> classifier;
-    private final ClassificationErrorFunction errorFunction;
+    private final ClassificationCostFunction errorFunction;
 
     public Learner(Predictor.Learner<? extends Classifier> classifier,
-        ClassificationErrorFunction errorFunction) {
+        ClassificationCostFunction errorFunction) {
       this.classifier = Objects.requireNonNull(classifier, "A classifier is required.");
       this.errorFunction = Objects.requireNonNull(errorFunction, "An error function is required");
 

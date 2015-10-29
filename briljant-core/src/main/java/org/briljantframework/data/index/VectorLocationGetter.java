@@ -111,29 +111,6 @@ public interface VectorLocationGetter {
   boolean isNA(int i);
 
   /**
-   * Returns {@code true} if value at {@code index} is considered to be true.
-   * <p>
-   * The following conventions apply:
-   *
-   * <ul>
-   * <li>{@code 1.0+-0i == TRUE}</li>
-   * <li>{@code 1.0 == TRUE}</li>
-   * <li>{@code 1 == TRUE}</li>
-   * <li>{@code &quot;true&quot; == TRUE}</li>
-   * <li>{@code Binary.TRUE == TRUE}</li>
-   * </ul>
-   *
-   * <p>
-   * All other values are considered to be FALSE
-   *
-   * @param index the index
-   * @return true or false
-   * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
-   */
-  /**/
-  boolean isTrue(int index);
-
-  /**
    * Return the string representation of the value at {@code index}
    *
    * @param index the index

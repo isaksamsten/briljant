@@ -98,6 +98,8 @@ public interface DataFrame extends Iterable<Object> {
    */
   DataFrame sort(Comparator<Object> comparator);
 
+  DataFrame sortColumns(Comparator<Object> comparator);
+
   /**
    * Equivalent to {@code sort(SortOrder.ASC, key)}
    *

@@ -31,14 +31,14 @@ public class TransformationsTest {
   public void testLessThan() throws Exception {
     Vector a = Vector.of(1, 2, 3, 4, 4);
     Assert.assertEquals(Vector.of(true, false, false, false, false),
-        a.map(Integer.class, Boolean.class, Transformations.lessThan(2)));
+        a.map(Integer.class, Transformations.lessThan(2)));
   }
 
   @Test
   public void testGreaterThan() throws Exception {
     Vector a = Vector.of(1, 2, 3, 4, 4);
     Assert.assertEquals(Vector.of(false, false, true, true, true),
-        a.map(Integer.class, Boolean.class, Transformations.greaterThan(2)));
+        a.map(Integer.class, Transformations.greaterThan(2)));
   }
 
   @Test

@@ -1,5 +1,6 @@
 package org.briljantframework.evaluation;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,8 +45,7 @@ public final class MeasureCollection<P extends Predictor> {
       // TODO: measures with both in-sample and out-sample will be overwritten
       df.set(entry.getKey().measure, entry.getValue());
     }
-
-    return df.build();
+    return df.build().sortColumns(Comparator.comparing(Object::toString));
   }
 
   private final static class Key<P extends Predictor> {

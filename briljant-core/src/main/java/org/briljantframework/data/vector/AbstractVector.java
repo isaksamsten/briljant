@@ -24,6 +24,7 @@ package org.briljantframework.data.vector;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -32,7 +33,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -96,15 +96,12 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T, O> Vector map(Class<T> in, Class<O> out, Function<? super T, ? extends O> operator) {
-    Collector<T, ?, Vector> transform =
-        Collectors.map(() -> VectorType.of(out).newBuilder(), operator);
-    return collect(in, transform);
-  }
-
-  @Override
-  public <T> Vector map(Class<T> cls, UnaryOperator<T> operator) {
-    return collect(cls, Collectors.map(TypeInferenceVectorBuilder::new, operator));
+  public <T> Vector map(Class<T> cls, Function<? super T, ?> operator) {
+    Vector.Builder builder = new TypeInferenceVectorBuilder();
+    for (Object key : this) {
+      builder.set(key, operator.apply(get(cls, key)));
+    }
+    return builder.build();
   }
 
   @Override
@@ -119,13 +116,6 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <R> R collect(Collector<? super Object, ?, R> collector) {
     return collect(getType().getDataClass(), collector);
-  }
-
-  @Override
-  public <T, R> Vector combine(Class<T> in, Class<R> out, Vector other,
-      BiFunction<? super T, ? super T, ? extends R> combiner) {
-    Vector.Builder builder = VectorType.of(out).newBuilder();
-    return combineVectors(in, other, combiner, builder);
   }
 
   @Override
@@ -157,20 +147,27 @@ public abstract class AbstractVector implements Vector {
 
   protected <T> Vector combineVectors(Class<? extends T> cls, Vector other,
       BiFunction<? super T, ? super T, ?> combiner, Builder builder) {
-    int thisSize = this.size();
-    int otherSize = other.size();
-    int size = Math.max(thisSize, otherSize);
-    for (int i = 0; i < size; i++) {
-      if (i < thisSize && i < otherSize) {
-        builder.add(combiner.apply(loc().get(cls, i), other.loc().get(cls, i)));
+    Index thisIndex = getIndex();
+    Index otherIndex = Objects.requireNonNull(other, "require other vector").getIndex();
+    // if (thisIndex instanceof IntIndex && otherIndex instanceof IntIndex) {
+    // TODO: optimize for int indicies
+    // } else {
+    HashSet<Object> keys = new HashSet<>();
+    keys.addAll(thisIndex.keySet());
+    keys.addAll(otherIndex.keySet());
+    for (Object key : keys) {
+      boolean thisIndexContainsKey = thisIndex.contains(key);
+      boolean otherIndexContainsKey = otherIndex.contains(key);
+      if (thisIndexContainsKey && otherIndexContainsKey) {
+        builder.set(key, combiner.apply(get(cls, key), other.get(cls, key)));
+      } else if (thisIndexContainsKey) {
+        builder.set(key, this, key);
       } else {
-        if (i < thisSize) {
-          builder.add(loc().get(cls, i));
-        } else {
-          builder.add(other.loc().get(cls, i));
-        }
+        builder.set(key, other, key);
       }
     }
+    // }
+    //
     return builder.build();
   }
 
@@ -278,11 +275,6 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public boolean isTrue(Object key) {
-    return isTrueAt(getIndex().getLocation(key));
-  }
-
-  @Override
   public boolean hasNA() {
     for (int i = 0; i < size(); i++) {
       if (loc().isNA(i)) {
@@ -378,10 +370,6 @@ public abstract class AbstractVector implements Vector {
 
   protected abstract String toStringAt(int index);
 
-  protected boolean isTrueAt(int index) {
-    return getAsIntAt(index) == 1;
-  }
-
   protected abstract int compareAt(int a, Vector other, int b);
 
   protected abstract Vector shallowCopy(Index index);
@@ -414,6 +402,16 @@ public abstract class AbstractVector implements Vector {
       }
     }
     return true;
+  }
+
+  @Override
+  public <T> boolean any(Class<T> cls, Predicate<? super T> predicate) {
+    for (int i = 0; i < size(); i++) {
+      if (predicate.test(loc().get(cls, i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -1026,11 +1024,6 @@ public abstract class AbstractVector implements Vector {
     @Override
     public boolean isNA(int i) {
       return isNaAt(i);
-    }
-
-    @Override
-    public boolean isTrue(int index) {
-      return isTrueAt(index);
     }
 
     @Override

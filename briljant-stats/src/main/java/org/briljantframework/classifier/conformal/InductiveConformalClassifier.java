@@ -1,14 +1,19 @@
-package org.briljantframework.conformal;
+package org.briljantframework.classifier.conformal;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.AbstractClassifier;
+import org.briljantframework.classification.ClassifierCharacteristic;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.supervised.Characteristic;
 import org.briljantframework.supervised.Predictor;
 
 /**
@@ -45,8 +50,12 @@ public class InductiveConformalClassifier extends AbstractClassifier implements 
       double gt = calibration.filter(score -> score >= nc).size();
       significance.set(i, (gt + 1) / (n + 1));
     }
-
     return significance;
+  }
+
+  @Override
+  public Set<Characteristic> getCharacteristics() {
+    return new HashSet<>(Collections.singletonList(ClassifierCharacteristic.ESTIMATOR));
   }
 
   /**

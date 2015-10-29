@@ -31,7 +31,7 @@ public class SlidingDistance implements Distance {
 
   private final Distance distanceMeasure;
 
-  public SlidingDistance(Euclidean instance) {
+  public SlidingDistance(Distance instance) {
     this.distanceMeasure = instance;
   }
 

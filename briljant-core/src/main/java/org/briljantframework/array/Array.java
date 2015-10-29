@@ -304,12 +304,15 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * Example
    *
    * <pre>
-   * {@code
-   * > Array<String> x = Arrays.array(new String[]{"a", "b", "dd", "ee"}).reshape(2, 2);
-   * > x.satisfies(v -> v.length() > 1);
+   * Array&lt;String&gt; x = Arrays.array(new String[] {&quot;a&quot;, &quot;b&quot;, &quot;dd&quot;, &quot;ee&quot;}).reshape(2, 2);
+   * x.where(v -&gt; v.length() &gt; 1);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
    * array([[0, 1]
    *        [0, 1]] type: int)
-   * }
    * </pre>
    *
    * @param predicate the predicate to apply to each element to determine the
@@ -328,7 +331,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * {@code
    * > Array<String> x = Arrays.array(new String[]{"a", "b", "c"});
    * > Array<String> y = Arrays.array(new String[]{"a", "c", "b"});
-   * > x.satisfies(y, String::equalsIgnoreCase);
+   * > x.where(y, String::equalsIgnoreCase);
    * array([1, 0, 0] type: int);
    * }
    * </pre>

@@ -1,4 +1,4 @@
-package org.briljantframework.conformal;
+package org.briljantframework.classifier.conformal;
 
 import java.util.stream.IntStream;
 

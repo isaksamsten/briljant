@@ -22,7 +22,7 @@
 package org.briljantframework.data;
 
 import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
+import java.util.function.Function;
 
 import org.apache.commons.math3.complex.Complex;
 
@@ -161,7 +161,7 @@ public final class Na {
    * @param <T> the type
    * @return a new operator which ignores {@code NA}
    */
-  public static <T> UnaryOperator<T> ignore(UnaryOperator<T> operator) {
+  public static <T> Function<T, ?> ignore(Function<? super T, ?> operator) {
     return v -> Is.NA(v) ? v : operator.apply(v);
   }
 

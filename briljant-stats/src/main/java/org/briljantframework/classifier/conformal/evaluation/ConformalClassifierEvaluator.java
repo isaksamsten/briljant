@@ -1,11 +1,12 @@
-package org.briljantframework.evaluation.conformal;
+package org.briljantframework.classifier.conformal.evaluation;
 
+import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.classification.ClassifierMeasure;
-import org.briljantframework.conformal.ConformalClassifier;
+import org.briljantframework.classifier.conformal.ConformalClassifier;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.EvaluationContext;
@@ -58,6 +59,23 @@ public class ConformalClassifierEvaluator implements Evaluator<ConformalClassifi
 
     measureCollection.add(ConformalClassifierMeasure.CONFIDENCE, avgConfidence);
     measureCollection.add(ConformalClassifierMeasure.CREDIBILITY, avgCredibility);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ConformalClassifierEvaluator that = (ConformalClassifierEvaluator) o;
+    return Precision.equals(significance, that.significance);
+  }
+
+  @Override
+  public int hashCode() {
+    return Double.hashCode(significance);
   }
 
   private static double maxnot(DoubleArray array, int not) {

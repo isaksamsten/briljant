@@ -40,9 +40,12 @@ public class DataFramesTest {
 
   @Test
   public void testTable() throws Exception {
-    Vector a = Vector.of(1, 2, 3, 3, 3, 3);
-    Vector b = Vector.of(1, 2, 2, 2, 3, 3);
+    Vector a = Vector.of(1, 2, 3, 3, 3, 3, 5);
+    Vector b = Vector.of(1, 2, 2, 2, 3, 3, 1);
     System.out.println(DataFrames.table(a, b));
+
+    System.out.println(DataFrames.table(Vector.of(1, 1, 1, 2, 2, 2),
+                                        Vector.of(1, 2, 3, 1, 2, 2)));
 
 
   }

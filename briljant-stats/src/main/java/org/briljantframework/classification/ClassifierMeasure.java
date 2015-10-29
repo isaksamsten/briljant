@@ -2,10 +2,7 @@ package org.briljantframework.classification;
 
 import static org.briljantframework.data.vector.Vectors.find;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.DoubleArray;
@@ -13,14 +10,47 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.evaluation.PredictionMeasure;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
 public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
-  ACCURACY, ERROR, AUCROC, BRIER_SCORE, PRECISION, RECALL, F1_SCORE;
+
+  /**
+   * Measures the fraction of correctly classified examples
+   */
+  ACCURACY,
+
+  /**
+   * Measures the fraction of incorrectly classified examples
+   */
+  ERROR,
+
+  /**
+   * Measures the probability of ranking a true positive ahead of a false positive example
+   */
+  AUCROC,
+
+  /**
+   * Measures the quality of probabilities
+   */
+  BRIER_SCORE,
+
+  /**
+   * Measures the fraction of true positives among the predicted positives (macro-averaged)
+   */
+  PRECISION,
+
+  /**
+   * Measures the fraction of true positives among the actual positives (macro-averaged)
+   */
+  RECALL,
+
+  /**
+   * Measures the harmonic mean between precision and recall (macro-averaged)
+   */
+  F1_SCORE;
 
   @Override
   public double compute(Classifier predictor, DataFrame x, Vector t) {
@@ -46,7 +76,7 @@ public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
     }
   }
 
-  public static Vector compcuteAll(Classifier c, DataFrame x, Vector t) {
+  public static Vector computeAll(Classifier c, DataFrame x, Vector t) {
     Vector.Builder measures = new DoubleVector.Builder();
     for (ClassifierMeasure measure : ClassifierMeasure.values()) {
       measures.set(measure, measure.compute(c, x, t));
@@ -128,9 +158,9 @@ public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
    * @return a vector of labels (from {@code c}) and its associated area under roc-curve
    */
   public static Vector areaUnderRocCurve(Vector p, Vector t, DoubleArray score, Vector c) {
-    Vector.Builder builder = Vector.Builder.of(Double.class);
+    Vector.Builder builder = new DoubleVector.Builder();
     for (int i = 0; i < c.size(); i++) {
-      Object value = c.loc().get(Object.class, i);
+      Object value = c.loc().get(i);
       DoubleArray s = score.getColumn(i);
       builder.set(value, computeAuc(p, t, s, value));
     }
@@ -139,14 +169,12 @@ public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
 
   public static double averageAreaUnderRocCurve(Vector p, Vector a, DoubleArray score, Vector c) {
     Vector auc = areaUnderRocCurve(p, a, score, c);
-    Map<Object, Integer> classDistribution = Vectors.count(a);
+    Vector dist = a.valueCounts();
     double averageAuc = 0;
     for (Object classKey : auc) {
-      if (classDistribution.containsKey(classKey)) {
-        int classCount = classDistribution.get(classKey);
+      if (dist.getIndex().contains(classKey)) {
+        int classCount = dist.getAsInt(classKey);
         averageAuc += auc.getAsDouble(classKey) * (classCount / (double) a.size());
-      } else {
-        throw new IllegalStateException("Unexpected class " + classKey);
       }
     }
     return averageAuc;
@@ -154,17 +182,17 @@ public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
 
   private static double computeAuc(Vector p, Vector t, DoubleArray score, Object label) {
     double truePositives = 0, falsePositives = 0, positives = 0;
-    List<PredictionProbability> pairs = new ArrayList<>(p.size());
+    PredictionProbability[] pairs = new PredictionProbability[p.size()];
     for (int i = 0; i < t.size(); i++) {
       boolean positiveness = Is.equal(t.loc().get(i), label);
       if (positiveness) {
         positives++;
       }
-      pairs.add(new PredictionProbability(positiveness, score.get(i)));
+      pairs[i] = new PredictionProbability(positiveness, score.get(i));
     }
 
     // Sort in decreasing order of posterior probability
-    Collections.sort(pairs);
+    Arrays.sort(pairs);
 
     double negatives = p.size() - positives;
     double previousProbability = -1;
@@ -191,8 +219,10 @@ public enum ClassifierMeasure implements PredictionMeasure<Classifier> {
         falsePositives++;
       }
     }
-    if (positives * negatives == 0) {
+    if (truePositives == 0) {
       return 0;
+    } else if (falsePositives == 0) {
+      return 1;
     } else {
       double negChange = Math.abs(negatives - previousFalsePositive);
       double posChange = positives + previousTruePositive;

@@ -46,8 +46,10 @@ public abstract class VectorTest {
     // Vector head = a.head(2);
     System.out.println(a);
 
-    System.out.println(a.sort(SortOrder.ASC));
-    System.out.println(a.sort(Boolean.class));
+    Vector sort = a.sort(SortOrder.ASC);
+    System.out.println(sort);
+//    System.out.println(sort.loc().get(0));
+//    System.out.println(a.sort(Boolean.class));
   }
 
   @Test

@@ -21,8 +21,8 @@
 
 package org.briljantframework.classification;
 
+import static org.briljantframework.classification.ClassifierMeasure.ACCURACY;
 import static org.briljantframework.classification.ClassifierMeasure.AUCROC;
-import static org.briljantframework.classification.ClassifierMeasure.BRIER_SCORE;
 
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
@@ -30,8 +30,10 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
+import org.briljantframework.evaluation.ContainerEvaluator;
 import org.briljantframework.evaluation.Result;
 import org.briljantframework.evaluation.Validator;
+import org.briljantframework.evaluation.partition.FoldPartitioner;
 import org.junit.Test;
 
 public class RandomForestTest {
@@ -45,15 +47,18 @@ public class RandomForestTest {
 
     System.out.println(x);
     IntArray f = Arrays.newIntVector(new int[]{10, 2, 3});
-    Validator<RandomForest> classifierValidator = ClassifierValidator.crossValidation(10);
+    Validator<RandomForest> classifierValidator =
+        new ClassifierValidator<>(new FoldPartitioner(10));
     classifierValidator.add(new Ensemble.Evaluator());
+    ContainerEvaluator<RandomForest> forestContainerEvaluator = new ContainerEvaluator<>();
+    forestContainerEvaluator.add(ACCURACY);
+    forestContainerEvaluator.add(AUCROC);
+    classifierValidator.add(forestContainerEvaluator);
     for (int i = 0; i < f.size(); i++) {
       RandomForest.Learner forest =
           new RandomForest.Configurator(100).setMaximumFeatures(f.get(i)).configure();
-
       Result<RandomForest> result = classifierValidator.test(forest, x, y);
-      System.out.println(result.getMeasures().mean().get(AUCROC));
-      System.out.println(result.getMeasure(BRIER_SCORE).mean());
+      System.out.println(result.getMeasures());
     }
   }
 }

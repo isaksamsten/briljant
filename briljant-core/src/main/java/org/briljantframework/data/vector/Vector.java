@@ -32,7 +32,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -189,36 +188,6 @@ public interface Vector extends Serializable, Iterable<Object> {
   <T> Vector filter(Class<T> cls, Predicate<? super T> predicate);
 
   /**
-   * <p>
-   * Transform each value (as a value of T) in the vector using {@code operator}, producing a new
-   * vector with values of type {@code O}.
-   *
-   * <p>
-   * Example:
-   * 
-   * <pre>
-   * {@code
-   *  Random rand = new Random(123);
-   *  > Vector a = Vector.of(rand::nextGaussian, 10);
-   *  > Vector b = a.transform(Double.class, Long.class, Math::round);
-   *  [-1, 1, 0, 0, 0, 0, 1, 0, 0, 1] type: long
-   * }
-   * </pre>
-   *
-   * <p>
-   * Please note that transformations can be implemented in terms of aggregation operations. For
-   * example, this method can be implemented as:
-   * 
-   * @param in the input type (if the vector cannot coerce values to {@code T}, NA is used)
-   * @param out the output type
-   * @param operator the operator to apply
-   * @param <T> the input type (i.e. the type of values stored in {@code this})
-   * @param <O> the output type (i.e. the type of values in the resulting vector)
-   * @return a new vector of type {@code O}
-   */
-  <T, O> Vector map(Class<T> in, Class<O> out, Function<? super T, ? extends O> operator);
-
-  /**
    * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
    * a new vector with the type inferred from the first value returned by {@code operator}.
    *
@@ -244,12 +213,12 @@ public interface Vector extends Serializable, Iterable<Object> {
    * }
    * </pre>
    *
+   * @param <T> the input type
    * @param cls the input type
    * @param operator the operator
-   * @param <T> the input type
    * @return a new vector of type inferred by {@code operator}
    */
-  <T> Vector map(Class<T> cls, UnaryOperator<T> operator);
+  <T> Vector map(Class<T> cls, Function<? super T, ?> operator);
 
   /**
    * Performs a mutable aggregation of the values in this vector, similar to
@@ -343,9 +312,6 @@ public interface Vector extends Serializable, Iterable<Object> {
   <T, R, C> R collect(Class<T> in, Collector<? super T, C, ? extends R> collector);
 
   <R> R collect(Collector<? super Object, ?, R> collector);
-
-  <T, R> Vector combine(Class<T> in, Class<R> out, Vector other,
-      BiFunction<? super T, ? super T, ? extends R> combiner);
 
   <T> Vector combine(Class<T> cls, Vector other,
       BiFunction<? super T, ? super T, ? extends T> combiner);
@@ -491,6 +457,12 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   <T> T get(Class<T> cls, Object key);
 
+  /**
+   * Get the object with the specified key as an object
+   * 
+   * @param key the key
+   * @return an object
+   */
   default Object get(Object key) {
     return get(Object.class, key);
   }
@@ -511,7 +483,6 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   int getAsInt(Object key);
 
-  @Deprecated
   double getAsDouble(Object key, double defaultValue);
 
   /**
@@ -522,8 +493,22 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   Vector get(BooleanArray select);
 
+  /**
+   * Return a new vector with the specified element set to the specified value
+   * 
+   * @param key the key
+   * @param value the valye
+   * @return a new vector
+   */
   Vector set(Object key, Object value);
 
+  /**
+   * Set the positions for which this array return true to the specified value
+   * 
+   * @param array the array of boolean values
+   * @param value the value
+   * @return a new vector
+   */
   Vector set(BooleanArray array, Object value);
 
   /**
@@ -540,14 +525,6 @@ public interface Vector extends Serializable, Iterable<Object> {
    * @return true if the value is {@code NA}
    */
   boolean isNA(Object key);
-
-  /**
-   * Return true if the value with the given key is {@code true}
-   *
-   * @param key the key
-   * @return true if the value is {@code true}
-   */
-  boolean isTrue(Object key);
 
   /**
    * Select the values in this vector with keys from the given value to the given value
@@ -651,7 +628,7 @@ public interface Vector extends Serializable, Iterable<Object> {
   }
 
   default Vector abs() {
-    return map(Integer.class, Na.ignore(Math::abs));
+    return map(Double.class, Na.ignore(v -> Math.abs(v)));
   }
 
   default Object argmax() {

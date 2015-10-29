@@ -74,30 +74,30 @@ public final class DataFrames {
   public static DataFrame table(Vector a, Vector b) {
     Check.size(a.size(), b.size());
     Map<Object, Map<Object, Integer>> counts = new HashMap<>();
-    Set<Object> unique = new HashSet<>();
-    for (Object k : a) {
-      Object va = a.get(k);
-      Object vb = b.get(k);
-      Map<Object, Integer> as = counts.get(vb);
-      if (as == null) {
-        as = new HashMap<>();
-        counts.put(va, as);
+    Set<Object> aUnique = new HashSet<>();
+    Set<Object> bUnique = new HashSet<>();
+    for (int i = 0; i < a.size(); i++) {
+      Object va = a.loc().get(i);
+      Object vb = b.loc().get(i);
+      Map<Object, Integer> countVb = counts.get(va);
+      if (countVb == null) {
+        countVb = new HashMap<>();
+        counts.put(va, countVb);
       }
-      as.compute(va, (key, value) -> value == null ? 1 : value + 1);
-
-      unique.add(va);
-      unique.add(vb);
+      countVb.compute(vb, (key, value) -> value == null ? 1 : value + 1);
+      aUnique.add(va);
+      bUnique.add(vb);
     }
 
     DataFrame.Builder df = DataFrame.builder();
-    for (Object i : unique) {
+    for (Object i : aUnique) {
       Map<Object, Integer> row = counts.get(i);
       if (row == null) {
-        for (Object j : unique) {
+        for (Object j : bUnique) {
           df.set(i, j, 0);
         }
       } else {
-        for (Object j : unique) {
+        for (Object j : bUnique) {
           df.set(i, j, row.getOrDefault(j, 0));
         }
       }

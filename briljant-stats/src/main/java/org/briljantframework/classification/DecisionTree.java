@@ -82,9 +82,17 @@ public class DecisionTree extends TreeClassifier<ValueThreshold> {
       if (maxSplit == null) {
         return TreeLeaf.fromExamples(classSet);
       } else {
-        TreeNode<ValueThreshold> leftNode = build(frame, target, maxSplit.getLeft(), depth + 1);
-        TreeNode<ValueThreshold> rightNode = build(frame, target, maxSplit.getRight(), depth + 1);
-        return new TreeBranch<>(leftNode, rightNode, classes, maxSplit.getThreshold(), 1);
+        ClassSet left = maxSplit.getLeft();
+        ClassSet right = maxSplit.getRight();
+        if (left.isEmpty()) {
+          return TreeLeaf.fromExamples(right);
+        } else if (right.isEmpty()) {
+          return TreeLeaf.fromExamples(left);
+        } else {
+          TreeNode<ValueThreshold> leftNode = build(frame, target, left, depth + 1);
+          TreeNode<ValueThreshold> rightNode = build(frame, target, right, depth + 1);
+          return new TreeBranch<>(leftNode, rightNode, classes, maxSplit.getThreshold(), 1);
+        }
       }
     }
   }

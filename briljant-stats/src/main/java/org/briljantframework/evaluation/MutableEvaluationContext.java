@@ -31,14 +31,14 @@ import org.briljantframework.supervised.Predictor;
 /**
  * @author Isak Karlsson
  */
-public class MutableEvaluationContext<P extends Predictor> {
+public class MutableEvaluationContext<P extends Predictor> implements EvaluationContext<P> {
 
   private final ImmutableEvaluationContext evaluationContext = new ImmutableEvaluationContext();
 
   private Vector predictions;
   private P predictor;
   private Partition partition;
-  private DoubleArray estimation;
+  private DoubleArray estimates;
 
   public MutableEvaluationContext() {}
 
@@ -58,10 +58,10 @@ public class MutableEvaluationContext<P extends Predictor> {
   /**
    * Set the out-of-sample probability estimates
    * 
-   * @param estimation the probability estimates
+   * @param estimates the probability estimates
    */
-  public void setEstimation(DoubleArray estimation) {
-    this.estimation = Objects.requireNonNull(estimation, "requires an estimation");
+  public void setEstimates(DoubleArray estimates) {
+    this.estimates = Objects.requireNonNull(estimates, "requires an estimation");
   }
 
   /**
@@ -73,39 +73,33 @@ public class MutableEvaluationContext<P extends Predictor> {
     this.predictor = Objects.requireNonNull(predictor, "requires a predictor");
   }
 
-  /**
-   * Get the predictor
-   * 
-   * @return the predictor
-   */
+  @Override
+  public Partition getPartition() {
+    return partition;
+  }
+
+  @Override
+  public Vector getPredictions() {
+    return predictions;
+  }
+
+  @Override
+  public DoubleArray getEstimates() {
+    return estimates;
+  }
+
   public P getPredictor() {
     return predictor;
   }
 
-//  /**
-//   * Get the measure builder for {@code measure}. Prefer,
-//   * <p>
-//   *
-//   * <pre>
-//   * // Good
-//   * ctx.getOrDefault(Accuracy.class, Accuracy.Builder::new).add(0.3);
-//   * </pre>
-//   *
-//   * @param measure the measure
-//   * @return a measure builder; or {@code null}.
-//   */
-//  @SuppressWarnings("unchecked")
-//  private <T extends Measure, C extends Measure.Builder<T>> C get(Class<T> measure) {
-//    return (C) builders.get(measure);
-//  }
+  @Override
+  public MeasureCollection<P> getMeasureCollection() {
+    throw new UnsupportedOperationException();
+  }
 
   public EvaluationContext<P> getEvaluationContext() {
     return evaluationContext;
   }
-
-//  private Collection<Measure.Builder<?>> getMeasureBuilders() {
-//    return builders.values();
-//  }
 
   private class ImmutableEvaluationContext implements EvaluationContext<P> {
 
@@ -123,7 +117,7 @@ public class MutableEvaluationContext<P extends Predictor> {
 
     @Override
     public DoubleArray getEstimates() {
-      return estimation;
+      return estimates;
     }
 
     // @Override

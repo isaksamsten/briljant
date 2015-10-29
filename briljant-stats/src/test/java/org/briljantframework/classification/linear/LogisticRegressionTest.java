@@ -22,14 +22,12 @@
 package org.briljantframework.classification.linear;
 
 import org.briljantframework.classification.Classifier;
-import org.briljantframework.classification.ClassifierValidator;
 import org.briljantframework.classification.LogisticRegression;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.DataFrames;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.dataset.io.Datasets;
-import org.briljantframework.evaluation.Result;
 import org.junit.Test;
 
 public class LogisticRegressionTest {
@@ -51,9 +49,9 @@ public class LogisticRegressionTest {
     // reg = RandomForest.withSize(100).withMaximumFeatures(1).build();
     System.out.println(classifier);
     long start = System.nanoTime();
-    Result result = ClassifierValidator.crossValidation(10).test(classifier, x, y);
+//    Result result = ClassifierValidator.crossValidation(10).test(classifier, x, y);
     System.out.println((System.nanoTime() - start) / 1e6);
-    System.out.println(result);
+//    System.out.println(result);
   }
 
   @Test

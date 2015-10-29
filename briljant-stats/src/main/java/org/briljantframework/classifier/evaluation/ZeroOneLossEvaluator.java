@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.evaluation.classification;
+package org.briljantframework.classifier.evaluation;
 
 import static org.briljantframework.classification.ClassifierMeasure.ACCURACY;
 import static org.briljantframework.classification.ClassifierMeasure.ERROR;
@@ -33,6 +33,14 @@ import org.briljantframework.evaluation.Evaluator;
  * @author Isak Karlsson
  */
 public class ZeroOneLossEvaluator implements Evaluator<Classifier> {
+
+  private static final ZeroOneLossEvaluator INSTANCE = new ZeroOneLossEvaluator();
+
+  private ZeroOneLossEvaluator() {}
+
+  public static ZeroOneLossEvaluator getInstance() {
+    return INSTANCE;
+  }
 
   @Override
   public void accept(EvaluationContext<? extends Classifier> ctx) {

@@ -65,11 +65,6 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  protected boolean isTrueAt(int index) {
-    return parent.loc().isTrue(offset + index);
-  }
-
-  @Override
   protected boolean isNaAt(int index) {
     return parent.loc().isNA(offset + index);
   }
