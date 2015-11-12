@@ -169,53 +169,12 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   // Arithmetical operations ///////////
 
   /**
-   * <u>m</u>atrix<u>m</u>ultiplication
-   *
-   * @param other the other
-   * @return r r
-   */
-  LongArray mmul(LongArray other);
-
-  /**
-   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.times(alpha).times(other.times(beta))}, but in one pass.
-   *
-   * @param alpha scaling for {@code this * other}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  LongArray mmul(long alpha, LongArray other);
-
-  /**
-   * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
-   *
-   * @param a transpose for {@code this}
-   * @param other the matrix
-   * @param b transpose for {@code other}
-   * @return a new matrix
-   */
-  LongArray mmul(Op a, LongArray other, Op b);
-
-  /**
-   * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
-   * scaling by {@code alpha} {@code beta}.
-   *
-   * @param alpha scaling factor for {@code this * other}
-   * @param a transpose for {@code this}
-   * @param other the matrix
-   * @param b transpose for {@code other}
-   * @return a new matrix
-   */
-  LongArray mmul(long alpha, Op a, LongArray other, Op b);
-
-  /**
    * Element wise <u>m</u>ultiplication
    *
    * @param other the matrix
    * @return a new matrix
    */
-  LongArray mul(LongArray other);
+  LongArray times(LongArray other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -227,7 +186,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongArray mul(long alpha, LongArray other, long beta);
+  LongArray times(long alpha, LongArray other, long beta);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -235,7 +194,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param scalar the scalar
    * @return a new matrix
    */
-  LongArray mul(long scalar);
+  LongArray times(long scalar);
 
   /**
    * Element wise addition.
@@ -243,7 +202,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param other the other matrix
    * @return a new matrix
    */
-  LongArray add(LongArray other);
+  LongArray plus(LongArray other);
 
   /**
    * Element wise addition.
@@ -251,7 +210,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param scalar the scalar
    * @return a new matrix
    */
-  LongArray add(long scalar);
+  LongArray plus(long scalar);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -263,7 +222,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongArray add(long alpha, LongArray other, long beta);
+  LongArray plus(long alpha, LongArray other, long beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -271,7 +230,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param other the other matrix
    * @return a new matrix
    */
-  LongArray sub(LongArray other);
+  LongArray minus(LongArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -279,7 +238,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param scalar the scalar
    * @return r r
    */
-  LongArray sub(long scalar);
+  LongArray minus(long scalar);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -291,7 +250,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongArray sub(long alpha, LongArray other, long beta);
+  LongArray minus(long alpha, LongArray other, long beta);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -299,7 +258,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @param scalar the scalar
    * @return a new matrix
    */
-  LongArray rsub(long scalar);
+  LongArray reverseMinus(long scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -326,7 +285,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  LongArray rdiv(long other);
+  LongArray reverseDiv(long other);
 
   /**
    * Returns a new matrix with elements negated.

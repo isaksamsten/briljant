@@ -428,19 +428,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     };
   }
 
-  @Override
-  public LongArray mmul(LongArray other) {
-    return mmul(1, other);
-  }
-
-  @Override
   public LongArray mmul(long alpha, LongArray other) {
     return mmul(alpha, Op.KEEP, other, Op.KEEP);
-  }
-
-  @Override
-  public LongArray mmul(Op a, LongArray other, Op b) {
-    return mmul(1, a, other, b);
   }
 
   @Override
@@ -464,7 +453,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     };
   }
 
-  @Override
   public LongArray mmul(long alpha, Op a, LongArray other, Op b) {
     int thisRows = rows();
     int thisCols = columns();
@@ -503,12 +491,12 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray mul(LongArray other) {
-    return mul(1, other, 1);
+  public LongArray times(LongArray other) {
+    return times(1, other, 1);
   }
 
   @Override
-  public LongArray mul(long alpha, LongArray other, long beta) {
+  public LongArray times(long alpha, LongArray other, long beta) {
     Check.size(this, other);
     LongArray m = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -520,7 +508,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray mul(long scalar) {
+  public LongArray times(long scalar) {
     LongArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i) * scalar);
@@ -529,12 +517,12 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray add(LongArray other) {
-    return add(1, other, 1);
+  public LongArray plus(LongArray other) {
+    return plus(1, other, 1);
   }
 
   @Override
-  public LongArray add(long scalar) {
+  public LongArray plus(long scalar) {
     LongArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -545,7 +533,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray add(long alpha, LongArray other, long beta) {
+  public LongArray plus(long alpha, LongArray other, long beta) {
     Check.size(this, other);
     LongArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -557,17 +545,17 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray sub(LongArray other) {
-    return sub(1, other, 1);
+  public LongArray minus(LongArray other) {
+    return minus(1, other, 1);
   }
 
   @Override
-  public LongArray sub(long scalar) {
-    return add(-scalar);
+  public LongArray minus(long scalar) {
+    return plus(-scalar);
   }
 
   @Override
-  public LongArray sub(long alpha, LongArray other, long beta) {
+  public LongArray minus(long alpha, LongArray other, long beta) {
     Check.size(this, other);
     LongArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -579,7 +567,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray rsub(long scalar) {
+  public LongArray reverseMinus(long scalar) {
     LongArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -611,7 +599,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray rdiv(long other) {
+  public LongArray reverseDiv(long other) {
     LongArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, other / get(i));
