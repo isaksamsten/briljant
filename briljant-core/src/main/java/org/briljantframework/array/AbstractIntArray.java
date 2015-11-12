@@ -21,9 +21,6 @@
 
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
-
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -52,7 +49,6 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 import org.briljantframework.primitive.IntList;
@@ -534,16 +530,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void addTo(int index, int value) {
-    set(index, get(index) + value);
-  }
-
-  @Override
-  public void addTo(int i, int j, int value) {
-    set(i, j, get(i, j) + value);
-  }
-
-  @Override
   public void update(int index, IntUnaryOperator operator) {
     set(index, operator.applyAsInt(get(index)));
   }
@@ -618,105 +604,52 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray addi(IntArray other) {
+  public IntArray plusAssign(IntArray other) {
     return assign(other, Integer::sum);
   }
 
   @Override
-  public IntArray addi(int scalar) {
+  public IntArray plusAssign(int scalar) {
     return update(i -> i + scalar);
   }
 
   @Override
-  public IntArray subi(IntArray other) {
+  public IntArray minusAssign(IntArray other) {
     return assign(other, (a, b) -> a - b);
   }
 
   @Override
-  public IntArray subi(int scalar) {
+  public IntArray minusAssign(int scalar) {
     return update(i -> i - scalar);
   }
 
   @Override
-  public IntArray rsubi(int scalar) {
+  public IntArray reverseMinusAssign(int scalar) {
     return update(i -> scalar - i);
   }
 
   @Override
-  public IntArray divi(IntArray other) {
+  public IntArray divAssign(IntArray other) {
     return assign(other, (a, b) -> a / b);
   }
 
   @Override
-  public IntArray divi(int other) {
+  public IntArray divAssign(int other) {
     return update(i -> i / other);
   }
 
   @Override
-  public IntArray rdivi(int other) {
+  public IntArray reverseDivAssign(int other) {
     return update(i -> other / i);
   }
 
   @Override
-  public IntArray mmul(IntArray other) {
-    return mmul(1, other);
+  public IntArray times(IntArray other) {
+    return times(1, other, 1);
   }
 
   @Override
-  public IntArray mmul(int alpha, IntArray other) {
-    return mmul(alpha, Op.KEEP, other, Op.KEEP);
-  }
-
-  @Override
-  public IntArray mmul(Op a, IntArray other, Op b) {
-    return mmul(1, a, other, b);
-  }
-
-  @Override
-  public IntArray mmul(int alpha, Op a, IntArray other, Op b) {
-    int thisRows = rows();
-    int thisCols = columns();
-    if (a == Op.TRANSPOSE) {
-      thisRows = columns();
-      thisCols = rows();
-    }
-    int otherRows = other.rows();
-    int otherColumns = other.columns();
-    if (b == Op.TRANSPOSE) {
-      otherRows = other.columns();
-      otherColumns = other.rows();
-    }
-
-    if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
-    }
-
-    IntArray result = newEmptyArray(thisRows, otherColumns);
-    for (int row = 0; row < thisRows; row++) {
-      for (int col = 0; col < otherColumns; col++) {
-        int sum = 0;
-        for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              a == Op.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
-                  thisRows, thisCols);
-          int otherIndex =
-              b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k,
-                  col, otherRows, otherColumns);
-          sum += get(thisIndex) * other.get(otherIndex);
-        }
-        result.set(row, col, alpha * sum);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public IntArray mul(IntArray other) {
-    return mul(1, other, 1);
-  }
-
-  @Override
-  public IntArray mul(int alpha, IntArray other, int beta) {
+  public IntArray times(int alpha, IntArray other, int beta) {
     Check.size(this, other);
     IntArray m = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -728,7 +661,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray mul(int scalar) {
+  public IntArray times(int scalar) {
     IntArray m = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -739,12 +672,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray add(IntArray other) {
-    return add(1, other);
+  public IntArray plus(IntArray other) {
+    return plus(1, other);
   }
 
   @Override
-  public IntArray add(int scalar) {
+  public IntArray plus(int scalar) {
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -755,7 +688,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray add(int alpha, IntArray other) {
+  public IntArray plus(int alpha, IntArray other) {
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -767,17 +700,17 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray sub(IntArray other) {
-    return sub(1, other);
+  public IntArray minus(IntArray other) {
+    return minus(1, other);
   }
 
   @Override
-  public IntArray sub(int scalar) {
-    return add(-scalar);
+  public IntArray minus(int scalar) {
+    return plus(-scalar);
   }
 
   @Override
-  public IntArray sub(int alpha, IntArray other) {
+  public IntArray minus(int alpha, IntArray other) {
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -789,7 +722,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray rsub(int scalar) {
+  public IntArray reverseMinus(int scalar) {
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
@@ -821,7 +754,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray rdiv(int other) {
+  public IntArray reverseDiv(int other) {
     IntArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, other / get(i));

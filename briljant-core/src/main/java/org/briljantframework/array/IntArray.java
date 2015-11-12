@@ -182,10 +182,6 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   int get(int... ix);
 
-  void addTo(int index, int value);
-
-  void addTo(int i, int j, int value);
-
   void update(int index, IntUnaryOperator operator);
 
   void update(int i, int j, IntUnaryOperator operator);
@@ -203,53 +199,12 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
   // Arithmetical operations ///////////
 
   /**
-   * <u>m</u>atrix<u>m</u>ultiplication
-   *
-   * @param other the other
-   * @return r r
-   */
-  IntArray mmul(IntArray other);
-
-  /**
-   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.times(alpha).times(other.times(beta))}, but in one pass.
-   *
-   * @param alpha scaling for {@code this*other}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntArray mmul(int alpha, IntArray other);
-
-  /**
-   * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}.
-   *
-   * @param a transpose for {@code this}
-   * @param other the matrix
-   * @param b transpose for {@code other}
-   * @return a new matrix
-   */
-  IntArray mmul(Op a, IntArray other, Op b);
-
-  /**
-   * Multiplies {@code this} with {@code other}. Transposing {@code this} and/or {@code other}
-   * scaling by {@code alpha} {@code beta}.
-   *
-   * @param alpha scaling factor for {@code this * other}
-   * @param a transpose for {@code this}
-   * @param other the matrix
-   * @param b transpose for {@code other}
-   * @return a new matrix
-   */
-  IntArray mmul(int alpha, Op a, IntArray other, Op b);
-
-  /**
    * Element wise <u>m</u>ultiplication
    *
    * @param other the matrix
    * @return a new matrix
    */
-  IntArray mul(IntArray other);
+  IntArray times(IntArray other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -261,7 +216,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  IntArray mul(int alpha, IntArray other, int beta);
+  IntArray times(int alpha, IntArray other, int beta);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -269,7 +224,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param scalar the scalar
    * @return a new matrix
    */
-  IntArray mul(int scalar);
+  IntArray times(int scalar);
 
   /**
    * Element wise addition.
@@ -277,9 +232,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param other the other matrix
    * @return a new matrix
    */
-  IntArray add(IntArray other);
-
-  IntArray addi(IntArray other);
+  IntArray plus(IntArray other);
 
   /**
    * Element wise addition.
@@ -287,9 +240,11 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param scalar the scalar
    * @return a new matrix
    */
-  IntArray add(int scalar);
+  IntArray plus(int scalar);
 
-  IntArray addi(int scalar);
+  IntArray plusAssign(IntArray other);
+
+  IntArray plusAssign(int scalar);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -300,7 +255,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param other the other matrix
    * @return a new matrix
    */
-  IntArray add(int alpha, IntArray other);
+  IntArray plus(int alpha, IntArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -308,10 +263,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param other the other matrix
    * @return a new matrix
    */
-  IntArray sub(IntArray other);
-
-  IntArray subi(IntArray other);
-
+  IntArray minus(IntArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -319,10 +271,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param scalar the scalar
    * @return r r
    */
-  IntArray sub(int scalar);
-
-  IntArray subi(int scalar);
-
+  IntArray minus(int scalar);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -333,7 +282,11 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param other the other matrix
    * @return a new matrix
    */
-  IntArray sub(int alpha, IntArray other);
+  IntArray minus(int alpha, IntArray other);
+
+  IntArray minusAssign(IntArray other);
+
+  IntArray minusAssign(int scalar);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -341,9 +294,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param scalar the scalar
    * @return a new matrix
    */
-  IntArray rsub(int scalar);
+  IntArray reverseMinus(int scalar);
 
-  IntArray rsubi(int scalar);
+  IntArray reverseMinusAssign(int scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -354,8 +307,6 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray div(IntArray other);
 
-  IntArray divi(IntArray other);
-
   /**
    * Element wise division. {@code this / other}.
    *
@@ -365,7 +316,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray div(int other);
 
-  IntArray divi(int other);
+  IntArray divAssign(IntArray other);
+
+  IntArray divAssign(int other);
 
   /**
    * Element wise division. {@code other / this}.
@@ -374,9 +327,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  IntArray rdiv(int other);
+  IntArray reverseDiv(int other);
 
-  IntArray rdivi(int other);
+  IntArray reverseDivAssign(int other);
 
   /**
    * Returns a new matrix with elements negated.

@@ -178,17 +178,17 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray add(BooleanArray o) {
-    return asInt().add(o.asInt()).asBoolean().copy();
+    return asInt().plus(o.asInt()).asBoolean().copy();
   }
 
   @Override
   public BooleanArray sub(BooleanArray o) {
-    return asInt().sub(o.asInt()).asBoolean().copy();
+    return asInt().minus(o.asInt()).asBoolean().copy();
   }
 
   @Override
   public BooleanArray mul(BooleanArray o) {
-    return asInt().mul(o.asInt()).asBoolean().copy();
+    return asInt().times(o.asInt()).asBoolean().copy();
   }
 
   @Override
