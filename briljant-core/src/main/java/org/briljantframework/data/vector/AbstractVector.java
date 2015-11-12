@@ -502,7 +502,7 @@ public abstract class AbstractVector implements Vector {
    * <li>{@link #build()}</li>
    * </ul>
    *
-   * When called for, e.g., when performance is a concern the {@code add}-operations can also be
+   * When called for, e.g., when performance is a concern the {@code plus}-operations can also be
    * overridden.
    *
    * <p>
@@ -514,7 +514,7 @@ public abstract class AbstractVector implements Vector {
    *   private ArrayList<Object> buffer = new ArrayList<>();
    * 
    *   private void extend(int index) {
-   *    while(index <= buffer.size()) buffer.add(null)
+   *    while(index <= buffer.size()) buffer.plus(null)
    *   }
    * 
    *   &#64;Override
@@ -611,11 +611,11 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * Provides a default implementation. To improve performance, sub-classes can override.
+     * Provides a default implementation. To improve performance, minus-classes can override.
      *
      * <p>
      * If overridden, the implementor should make sure to extend the index using
-     * {@link #extendIndex(int)}, for {@code add}-operations, this usually amounts to
+     * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
      * {@code extendIndex(size())}
      */
     @Override
@@ -625,11 +625,11 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * Provides a default implementation. To improve performance, sub-classes can override.
+     * Provides a default implementation. To improve performance, minus-classes can override.
      *
      * <p>
      * If overridden, the implementor should make sure to extend the index using
-     * {@link #extendIndex(int)}, for {@code add}-operations, this usually amounts to
+     * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
      * {@code extendIndex(size())}
      */
     @Override
@@ -639,11 +639,11 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * Provides a default implementation. To improve performance, sub-classes can override.
+     * Provides a default implementation. To improve performance, minus-classes can override.
      *
      * <p>
      * If overridden, the implementor should make sure to extend the index using
-     * {@link #extendIndex(int)}, for {@code add}-operations, this usually amounts to
+     * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
      * {@code extendIndex(size())}
      */
     @Override
@@ -653,11 +653,11 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * Provides a default implementation. To improve performance, sub-classes can override.
+     * Provides a default implementation. To improve performance, minus-classes can override.
      *
      * <p>
      * If overridden, the implementor should make sure to extend the index using
-     * {@link #extendIndex(int)}, for {@code add}-operations, this usually amounts to
+     * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
      * {@code extendIndex(size())}
      */
     @Override
@@ -667,11 +667,11 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * Provides a default implementation. To improve performance, sub-classes can override.
+     * Provides a default implementation. To improve performance, minus-classes can override.
      *
      * <p>
      * If overridden, the implementor should make sure to extend the index using
-     * {@link #extendIndex(int)}, for {@code add}-operations, this usually amounts to
+     * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
      * {@code extendIndex(size())}
      */
     @Override
@@ -681,11 +681,11 @@ public abstract class AbstractVector implements Vector {
     }
 
     /**
-     * Provides a default implementation. To improve performance, sub-classes can override.
+     * Provides a default implementation. To improve performance, minus-classes can override.
      *
      * <p>
      * If overridden, the implementor should make sure to extend the index using
-     * {@link #extendIndex(int)}, for {@code add}-operations, this usually amounts to
+     * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
      * {@code extendIndex(size())}
      */
     @Override

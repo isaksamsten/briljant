@@ -22,7 +22,19 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.ObjDoubleConsumer;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
@@ -86,9 +98,9 @@ import org.briljantframework.function.DoubleBiPredicate;
  * }
  * </pre>
  *
- * In the example above, prefer <b>Option 2</b> (or simply {@code m.addi(2)}). <b>Option 3</b> can
- * also be an alternative option, that for many implementations preserves cache locality and might
- * be more readable in some cases.
+ * In the example above, prefer <b>Option 2</b> (or simply {@code m.plusAssign(2)}). <b>Option 3</b>
+ * can also be an alternative option, that for many implementations preserves cache locality and
+ * might be more readable in some cases.
  *
  * @author Isak Karlsson
  */
@@ -273,33 +285,19 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   // Arithmetical operations ///////////
 
-  DoubleArray mmul(DoubleArray other);
-
-  /**
-   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha}.
-   *
-   * @param alpha scaling for {@code this*other}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleArray mmul(double alpha, DoubleArray other);
-
-  DoubleArray mmul(Op a, DoubleArray other, Op b);
-
-  DoubleArray mmul(double alpha, Op a, DoubleArray other, Op b);
-
-  DoubleArray mul(DoubleArray other);
+  DoubleArray times(DoubleArray other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray mul(double alpha, DoubleArray other, double beta);
+  DoubleArray times(double alpha, DoubleArray other, double beta);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -307,14 +305,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @param scalar the scalar
    * @return a new matrix
    */
-  DoubleArray mul(double scalar);
+  DoubleArray times(double scalar);
 
-  default DoubleArray addi(DoubleArray other) {
-    assign(other, (a, b) -> a + b);
-    return this;
-  }
-
-  DoubleArray add(DoubleArray other);
+  DoubleArray plus(DoubleArray other);
 
   /**
    * Element wise addition.
@@ -322,23 +315,29 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @param scalar the scalar
    * @return a new matrix
    */
-  DoubleArray add(double scalar);
+  DoubleArray plus(double scalar);
 
-  default DoubleArray addi(double scalar) {
+  default DoubleArray plusAssign(DoubleArray other) {
+    assign(other, (a, b) -> a + b);
+    return this;
+  }
+
+  default DoubleArray plusAssign(double scalar) {
     update(v -> v + scalar);
     return this;
   }
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray add(double alpha, DoubleArray other, double beta);
+  DoubleArray plus(double alpha, DoubleArray other, double beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -346,20 +345,21 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @param scalar the scalar
    * @return r r
    */
-  DoubleArray sub(double scalar);
+  DoubleArray minus(double scalar);
 
-  DoubleArray sub(DoubleArray other);
+  DoubleArray minus(DoubleArray other);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray sub(double alpha, DoubleArray other, double beta);
+  DoubleArray minus(double alpha, DoubleArray other, double beta);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -367,12 +367,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @param scalar the scalar
    * @return a new matrix
    */
-  DoubleArray rsub(double scalar);
-
-  default DoubleArray divi(DoubleArray other) {
-    assign(other, (x, y) -> x / y);
-    return this;
-  }
+  DoubleArray reverseMinus(double scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -385,7 +380,12 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   DoubleArray div(DoubleArray other);
 
-  default DoubleArray divi(double value) {
+  default DoubleArray divAssign(DoubleArray other) {
+    assign(other, (x, y) -> x / y);
+    return this;
+  }
+
+  default DoubleArray divAssign(double value) {
     update(v -> v / value);
     return this;
   }
@@ -397,9 +397,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  DoubleArray rdiv(double other);
+  DoubleArray reverseDiv(double other);
 
-  default DoubleArray rdivi(double other) {
+  default DoubleArray reverseDivAssign(double other) {
     update(v -> other / v);
     return this;
   }

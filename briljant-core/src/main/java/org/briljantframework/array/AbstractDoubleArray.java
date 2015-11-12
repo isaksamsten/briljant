@@ -21,9 +21,6 @@
 
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.Arrays;
@@ -35,7 +32,6 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.DoubleList;
@@ -585,63 +581,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray mmul(DoubleArray other) {
-    return mmul(1, other);
+  public DoubleArray times(DoubleArray other) {
+    return times(1, other, 1);
   }
 
   @Override
-  public DoubleArray mmul(double alpha, DoubleArray other) {
-    return mmul(alpha, Op.KEEP, other, Op.KEEP);
-  }
-
-  @Override
-  public DoubleArray mmul(Op a, DoubleArray other, Op b) {
-    return mmul(1, a, other, b);
-  }
-
-  @Override
-  public DoubleArray mmul(double alpha, Op a, DoubleArray other, Op b) {
-    int thisRows = rows();
-    int thisCols = columns();
-    if (a.isTrue()) {
-      thisRows = columns();
-      thisCols = rows();
-    }
-    int otherRows = other.rows();
-    int otherColumns = other.columns();
-    if (b.isTrue()) {
-      otherRows = other.columns();
-      otherColumns = other.rows();
-    }
-
-    if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
-    }
-
-    DoubleArray result = newEmptyArray(thisRows, otherColumns);
-    for (int row = 0; row < thisRows; row++) {
-      for (int col = 0; col < otherColumns; col++) {
-        double sum = 0.0;
-        for (int k = 0; k < thisCols; k++) {
-          int thisIndex = a.isTrue() ? rowMajor(row, k, thisRows, thisCols)
-              : columnMajor(0, row, k, thisRows, thisCols);
-          int otherIndex = b.isTrue() ? rowMajor(k, col, otherRows, otherColumns)
-              : columnMajor(0, k, col, otherRows, otherColumns);
-          sum += get(thisIndex) * other.get(otherIndex);
-        }
-        result.set(row, col, alpha * sum);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public DoubleArray mul(DoubleArray other) {
-    return mul(1, other, 1);
-  }
-
-  @Override
-  public DoubleArray mul(double alpha, DoubleArray other, double beta) {
+  public DoubleArray times(double alpha, DoubleArray other, double beta) {
     Check.size(this, other);
     DoubleArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -651,7 +596,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray mul(double scalar) {
+  public DoubleArray times(double scalar) {
     DoubleArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i) * scalar);
@@ -660,12 +605,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray add(DoubleArray other) {
-    return add(1, other, 1);
+  public DoubleArray plus(DoubleArray other) {
+    return plus(1, other, 1);
   }
 
   @Override
-  public DoubleArray add(double scalar) {
+  public DoubleArray plus(double scalar) {
     DoubleArray x = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       x.set(i, get(i) + scalar);
@@ -674,7 +619,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray add(double alpha, DoubleArray other, double beta) {
+  public DoubleArray plus(double alpha, DoubleArray other, double beta) {
     Check.size(this, other);
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -684,17 +629,17 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray sub(DoubleArray other) {
-    return sub(1, other, 1);
+  public DoubleArray minus(DoubleArray other) {
+    return minus(1, other, 1);
   }
 
   @Override
-  public DoubleArray sub(double scalar) {
-    return add(-scalar);
+  public DoubleArray minus(double scalar) {
+    return plus(-scalar);
   }
 
   @Override
-  public DoubleArray sub(double alpha, DoubleArray other, double beta) {
+  public DoubleArray minus(double alpha, DoubleArray other, double beta) {
     Check.size(this, other);
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -704,7 +649,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray rsub(double scalar) {
+  public DoubleArray reverseMinus(double scalar) {
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, scalar - get(i));
@@ -725,11 +670,11 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray div(double other) {
-    return mul(1.0 / other);
+    return times(1.0 / other);
   }
 
   @Override
-  public DoubleArray rdiv(double other) {
+  public DoubleArray reverseDiv(double other) {
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, other / get(i));

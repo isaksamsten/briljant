@@ -437,7 +437,7 @@ public interface DataFrame extends Iterable<Object> {
    * <pre>
    * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 1, 2), &quot;B&quot;, Vector.of(30, 2, 33, 6));
    * DataFrameGroupBy groups = df.groupBy(&quot;A&quot;);
-   * groups.apply(v -&gt; v.sub(v.mean()));
+   * groups.apply(v -&gt; v.minus(v.mean()));
    * groups.get(1);
    * </pre>
    *
@@ -1264,7 +1264,7 @@ public interface DataFrame extends Iterable<Object> {
      * Add a new vector builder as an additional column. If {@code builder.size() < rows()} the
      * added builder is padded with NA.
      *
-     * @param columnBuilder builder to add
+     * @param columnBuilder builder to plus
      * @return a modified builder
      */
     Builder add(Vector.Builder columnBuilder);

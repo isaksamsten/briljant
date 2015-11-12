@@ -24,12 +24,9 @@ package org.briljantframework.array.netlib;
 import java.util.Arrays;
 import java.util.Objects;
 
-import org.briljantframework.Check;
 import org.briljantframework.array.AbstractDoubleArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
 
 import com.github.fommil.netlib.BLAS;
 
@@ -98,38 +95,6 @@ class NetlibDoubleArray extends AbstractDoubleArray {
       return new NetlibDoubleArray(getArrayFactory(), Arrays.copyOf(data, size()));
     }
     return super.copy();
-  }
-
-  /**
-   * Performs the operation {@code alpha*transA(this)*transB(b)}. Copies are made if either arrays
-   * are {@linkplain #isContiguous() non-contiguous} or have {@code stride(0) != 1}.
-   */
-  @Override
-  public DoubleArray mmul(double alpha, Op transA, DoubleArray b, Op transB) {
-    Check.argument(b.isMatrix(), "require 2d-array argument");
-    Check.state(isMatrix(), "require 2d-array");
-
-    // Copy this or the argument if needed
-    DoubleArray self = isContiguous() && stride(0) == 1 ? this : this.copy();
-    b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
-
-    int m = self.size(transA == Op.KEEP ? 0 : 1);
-    int bm = b.size(transB == Op.KEEP ? 0 : 1);
-    int n = b.size(transB == Op.KEEP ? 1 : 0);
-    int k = self.size(transA == Op.KEEP ? 1 : 0);
-
-    if (m == 0 || k == 0 || n == 0 || bm == 0) {
-      throw new IllegalArgumentException("empty result");
-    }
-    if (b.size(transB == Op.KEEP ? 0 : 1) != self.size(transA == Op.KEEP ? 1 : 0)) {
-      throw new NonConformantException(this, b);
-    }
-
-    double[] ca = new double[m * n];
-    blas.dgemm(transA.asString(), transB.asString(), m, n, k, alpha, self.data(), self.getOffset(),
-        Math.max(1, self.stride(1)), b.data(), b.getOffset(), Math.max(1, b.stride(1)), 1.0, ca, 0,
-        Math.max(1, m));
-    return new NetlibDoubleArray(getArrayFactory(), ca, m, n);
   }
 
   @Override

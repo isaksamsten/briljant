@@ -47,7 +47,7 @@ import org.briljantframework.exceptions.IllegalTypeException;
 
 /**
  * <p>
- * A vector is an homogeneous (i.e. with values of only one (sub)type) and immutable (i.e. the
+ * A vector is an homogeneous (i.e. with values of only one (minus)type) and immutable (i.e. the
  * contents cannot change) list/map (with O(1) location-based access and key-based access) of values
  * supporting missing entries (i.e. NA).
  *
@@ -139,7 +139,7 @@ public interface Vector extends Serializable, Listable<Object> {
    *   &#064;code
    *   Vector.Builder b;
    *   for (int i = 0; i &lt; size; i++) {
-   *     b.add(supplier.get());
+   *     b.plus(supplier.get());
    *   }
    * }
    * </pre>
@@ -781,7 +781,7 @@ public interface Vector extends Serializable, Listable<Object> {
    *
    * <pre>
    * {@code
-   * Vector vec = vector.newCopyBuilder().add("Hello world")
+   * Vector vec = vector.newCopyBuilder().plus("Hello world")
    * assert vec.size() == vector.size() + 1
    * assert vec.getAsString(0) == vector.getAsString(0)}
    * </pre>
@@ -868,7 +868,7 @@ public interface Vector extends Serializable, Listable<Object> {
     Builder addNA();
 
     /**
-     * Same as {@code add(size(), from, fromIndex)}
+     * Same as {@code plus(size(), from, fromIndex)}
      *
      * @param from the vector to take the value from
      * @param fromIndex the index
@@ -885,7 +885,7 @@ public interface Vector extends Serializable, Listable<Object> {
     Builder set(Object key, Object value);
 
     /**
-     * Same as {@code add(size(), value)}
+     * Same as {@code plus(size(), value)}
      *
      * @param value the value
      * @return a modified builder

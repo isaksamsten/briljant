@@ -34,11 +34,11 @@ import com.github.fommil.netlib.BLAS;
  */
 class NetlibArrayRoutines extends BaseArrayRoutines {
 
-  private final static BLAS blas = BLAS.getInstance();
   protected static final String VECTOR_REQUIRED = "vector required";
+  private final static BLAS blas = BLAS.getInstance();
 
   @Override
-  public double dot(DoubleArray a, DoubleArray b) {
+  public double inner(DoubleArray a, DoubleArray b) {
     if (a instanceof NetlibDoubleArray && b instanceof NetlibDoubleArray) {
       Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
       Check.size(a, b);
@@ -46,7 +46,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       return blas.ddot(n, a.data(), a.getOffset(), a.getMajorStride(), b.data(), b.getOffset(),
           b.getMajorStride());
     } else {
-      return super.dot(a, b);
+      return super.inner(a, b);
     }
   }
 
@@ -148,14 +148,6 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.argument(b.dims() == 2, "'b' has %s dims", a.dims());
     Check.argument(c.dims() == 2, "'c' has %s dims", a.dims());
 
-    // Issue: is a or b is non-netlib arrays it might be beneficial to copy here if
-    // the array is a small view of a large array since the view performs a copy of
-    // the large array and, while the copy here might be small.
-    a = a.isContiguous() && a.stride(0) == 1 ? a : a.copy();
-    b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
-    DoubleArray maybeC =
-        c instanceof NetlibDoubleArray && c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
-
     if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
       boolean ta = transA == Op.KEEP;
       boolean tb = transB == Op.KEEP;
@@ -166,11 +158,19 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     int n = b.size(transB == Op.KEEP ? 1 : 0);
     int k = a.size(transA == Op.KEEP ? 1 : 0);
 
-    if (m != maybeC.size(0) || n != maybeC.size(1)) {
+    if (m != c.size(0) || n != c.size(1)) {
       throw new NonConformantException(String.format(
           "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, k, k, n,
-          maybeC.size(0), maybeC.size(1)));
+              c.size(0), c.size(1)));
     }
+
+    // Issue: is a or b is non-netlib arrays it might be beneficial to copy here if
+    // the array is a small view of a large array since the view performs a copy of
+    // the large array and, while the copy here might be small.
+    a = a.isContiguous() && a.stride(0) == 1 ? a : a.copy();
+    b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
+    DoubleArray maybeC =
+        c instanceof NetlibDoubleArray && c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
 
     double[] ca = maybeC.data();
     blas.dgemm(transA.asString(), transB.asString(), m, n, k, alpha, a.data(), a.getOffset(),

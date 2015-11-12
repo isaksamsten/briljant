@@ -44,7 +44,7 @@ abstract class ArrayRoutinesSpec extends Specification {
 
   def "dot product"() {
     expect:
-    bjr.dot(a, b) == c
+    bjr.inner(a, b) == c
 
     where:
     a << [

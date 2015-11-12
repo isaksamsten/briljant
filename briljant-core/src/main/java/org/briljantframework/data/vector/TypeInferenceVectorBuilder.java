@@ -35,7 +35,7 @@ import org.briljantframework.data.reader.DataEntry;
  * based on the first value added value.
  *
  * <p>
- * For example, {@code new TypeInferenceVectorBuilder().add(1.0).build()} returns a {@code double}
+ * For example, {@code new TypeInferenceVectorBuilder().plus(1.0).build()} returns a {@code double}
  * vector. The builder is unable to infer the correct type if the first call is
  * {@link #setNA(Object)}, {@link #read(DataEntry)} or {@link #readAll(DataEntry)} an {@link Object}
  * vector is returned.

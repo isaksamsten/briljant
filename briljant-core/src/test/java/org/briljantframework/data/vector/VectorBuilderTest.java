@@ -308,7 +308,7 @@ public abstract class VectorBuilderTest {
   // long start = System.nanoTime();
   // for (int j = 0; j < 100; j++) {
   // for (double i : array) {
-  // list.add(i);
+  // list.plus(i);
   // }
   // }
   //

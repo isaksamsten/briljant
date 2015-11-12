@@ -22,6 +22,7 @@
 package org.briljantframework.data.dataframe.transform;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -50,8 +51,7 @@ public class PcaTransformation implements InvertibleTransformation {
 
 
   private SingularValueDecomposition getSingularValueDecomposition(DoubleArray m) {
-    DoubleArray sigma = m.mmul(1, Op.TRANSPOSE, m, Op.KEEP).divi(m.rows());
-    // return decomposer.decompose(sigma);
+    DoubleArray sigma = Arrays.dot(Op.TRANSPOSE, Op.KEEP, m, m).divAssign(m.rows());
     return null;
   }
 
@@ -80,7 +80,7 @@ public class PcaTransformation implements InvertibleTransformation {
       public DataFrame transform(DataFrame x) {
         Check.all(x.getColumns(), col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA());
         DoubleArray m = x.toArray().asDouble();
-        DoubleArray pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
+        DoubleArray pca = Arrays.dot(m, u.getView(0, 0, m.rows(), components(m)));
 
         DataFrame.Builder result = x.newBuilder();
         for (int j = 0; j < pca.columns(); j++) {

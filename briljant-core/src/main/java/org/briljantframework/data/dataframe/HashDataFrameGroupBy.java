@@ -216,7 +216,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     // }
     //
     // for (int i = 0, size = index.size(); i < size; i++) {
-    // recordIndex.add(dataFrame.getIndex().getKey(index.loc().getAsInt(i)));
+    // recordIndex.plus(dataFrame.getIndex().getKey(index.loc().getAsInt(i)));
     // }
     // row += index.size();
     // }

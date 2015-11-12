@@ -67,7 +67,7 @@ class ArrayExtensions {
   }
 
   static DoubleArray plus(DoubleArray self, double v) {
-    return self.add(v)
+    return self.plus(v)
   }
 
   static <T extends BaseArray<T>> T plus(T self, T other) {
@@ -75,11 +75,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray plus(Number self, DoubleArray other) {
-    return other.add(self.doubleValue())
+    return other.plus(self.doubleValue())
   }
 
   static DoubleArray minus(DoubleArray self, double v) {
-    return self.sub(v)
+    return self.minus(v)
   }
 
   static <T extends BaseArray<T>> T minus(T self, T other) {
@@ -87,11 +87,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray minus(Number self, DoubleArray other) {
-    return other.rsub(self.doubleValue())
+    return other.reverseMinus(self.doubleValue())
   }
 
   static DoubleArray multiply(DoubleArray self, double v) {
-    return self.mul(v)
+    return self.times(v)
   }
 
   static <T extends BaseArray<T>> T multiply(T self, T other) {
@@ -99,11 +99,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray multiply(Number self, DoubleArray other) {
-    return other.mul(self.doubleValue())
+    return other.times(self.doubleValue())
   }
 
   static DoubleArray div(Number self, DoubleArray other) {
-    return other.rdiv(self.doubleValue())
+    return other.reverseDiv(self.doubleValue())
   }
 
 }

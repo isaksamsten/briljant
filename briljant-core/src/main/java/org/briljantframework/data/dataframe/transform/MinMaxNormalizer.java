@@ -29,10 +29,10 @@ import org.briljantframework.data.vector.Vector;
 
 /**
  * Class to fit a min max normalizer to a data frame. Calculate, for each column {@code j}, the min
- * <i>min</i><sub>j</sub> and max <i>max</i><sub>j</sub>. Then, for each value x<sub>i,j</sub> is
- * given by (x<sub>i,j</sub>-min<sub>j</sub>)/(max<sub>j</sub> - min<sub>j</sub>). This normalizes
- * the data frame in the range {@code [0, 1]} (under the assumption that min and max are
- * representative for the transformed dataframe).
+ * <i>min</i><minus>j</minus> and max <i>max</i><minus>j</minus>. Then, for each value x
+ * <minus>i,j</minus> is given by (x<minus>i,j</minus>-min<minus>j</minus>)/(max<minus>j</minus> -
+ * min<minus>j</minus>). This normalizes the data frame in the range {@code [0, 1]} (under the
+ * assumption that min and max are representative for the transformed dataframe).
  *
  * @author Isak Karlsson
  */

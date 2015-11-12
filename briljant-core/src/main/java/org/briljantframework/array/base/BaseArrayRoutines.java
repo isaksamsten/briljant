@@ -278,7 +278,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public double dot(DoubleArray a, DoubleArray b) {
+  public double inner(DoubleArray a, DoubleArray b) {
     Check.size(a, b);
     double s = 0;
     for (int i = 0; i < a.size(); i++) {

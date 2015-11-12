@@ -107,8 +107,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       }
 
       DoubleArray kGradient = gradients.getRow(k);
-      double ys = Arrays.dot(kGradient, solutions.getRow(k));
-      double yy = Arrays.dot(kGradient, kGradient);
+      double ys = Arrays.inner(kGradient, solutions.getRow(k));
+      double yy = Arrays.inner(kGradient, kGradient);
       double scalingFactor = ys / yy;
 
       scales.set(k, 1.0 / ys);
@@ -117,7 +117,7 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       int cp = k;
       int bound = iter > memory ? memory : iter;
       for (int i = 0; i < bound; i++) {
-        a.set(cp, scales.get(cp) * Arrays.dot(solutions.getRow(cp), direction));
+        a.set(cp, scales.get(cp) * Arrays.inner(solutions.getRow(cp), direction));
         Arrays.axpy(-a.get(cp), gradients.getRow(cp), direction);
         if (--cp == -1) {
           cp = memory - 1;
@@ -129,7 +129,7 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
         if (++cp == memory) {
           cp = 0;
         }
-        double b = scales.get(cp) * Arrays.dot(gradients.getRow(cp), direction);
+        double b = scales.get(cp) * Arrays.inner(gradients.getRow(cp), direction);
         Arrays.axpy(a.get(cp) - b, solutions.getRow(cp), direction);
       }
 

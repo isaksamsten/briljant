@@ -213,7 +213,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
   /**
    * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
    * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code this.times(alpha).times(other.times(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this*other}
    * @param other the other matrix
@@ -253,7 +253,8 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
@@ -292,7 +293,8 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
@@ -324,7 +326,8 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
+   * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix

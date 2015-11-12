@@ -200,7 +200,7 @@ public interface ArrayRoutines {
 
   DoubleArray cumsum(int dim, DoubleArray x);
 
-  double dot(DoubleArray a, DoubleArray b);
+  double inner(DoubleArray a, DoubleArray b);
 
   Complex dotu(ComplexArray a, ComplexArray b);
 

@@ -59,7 +59,7 @@ public class BacktrackingLineSearch {
       double r = maxStepSize / pnorm;
       Arrays.scal(r, p);
     }
-    double slope = Arrays.dot(g, p);
+    double slope = Arrays.inner(g, p);
     if (slope >= 0) {
       return Double.NaN;
     }

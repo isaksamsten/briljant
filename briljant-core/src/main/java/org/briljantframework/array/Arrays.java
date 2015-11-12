@@ -39,6 +39,7 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
@@ -844,22 +845,39 @@ public final class Arrays {
     return out;
   }
 
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#dot(org.briljantframework.array.DoubleArray,
-   *      org.briljantframework.array.DoubleArray)
-   */
-  public static double dot(DoubleArray a, DoubleArray b) {
-    return ARRAY_ROUTINES.dot(a, b);
+  public static DoubleArray dot(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b) {
+    Check.argument(a.isMatrix() && b.isMatrix(), "require 2d-arrays");
+    int m = a.size(transA == Op.KEEP ? 0 : 1);
+    int bm = b.size(transB == Op.KEEP ? 0 : 1);
+    int n = b.size(transB == Op.KEEP ? 1 : 0);
+    int k = a.size(transA == Op.KEEP ? 1 : 0);
+    if (m == 0 || k == 0 || n == 0 || bm == 0) {
+      throw new IllegalArgumentException("empty result");
+    }
+    if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
+      throw new NonConformantException(a, b);
+    }
+    DoubleArray c = newDoubleArray(m, n);
+    gemm(transA, transB, alpha, a, b, 1, c);
+    return c;
+  }
+
+  public static DoubleArray dot(Op transA, Op transB, DoubleArray a, DoubleArray b) {
+    return dot(transA, transB, 1, a, b);
+  }
+
+  public static DoubleArray dot(DoubleArray a, DoubleArray b) {
+    return dot(1.0, a, b);
+  }
+
+  public static DoubleArray dot(double alpha, DoubleArray a, DoubleArray b) {
+    return dot(Op.KEEP, Op.KEEP, alpha, a, b);
   }
 
   /**
-   * Compute the inner product of two arrays. If the arguments are {@code vectors}, the result is
-   * equivalent to
-   * {@linkplain #dot(org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)}
-   * . In other cases, the arguments are raveled.
-   * <p>
-   * Example
-   *
+   * Compute the inner product of two arrays. If the arguments are non-{@code vectors}, the
+   * arguments are raveled.
+   * 
    * <pre>
    * Arrays.inner(Arrays.linspace(0, 3, 4), Arrays.linspace(0, 3, 4).reshape(2, 2))
    * </pre>
@@ -871,7 +889,7 @@ public final class Arrays {
   public static double inner(DoubleArray a, DoubleArray b) {
     a = a.isVector() ? a : a.ravel();
     b = b.isVector() ? b : b.ravel();
-    return dot(a, b);
+    return ARRAY_ROUTINES.inner(a, b);
   }
 
   /**
@@ -902,22 +920,6 @@ public final class Arrays {
     DoubleArray out = newDoubleArray(a.size(), b.size());
     ger(1, a, b, out);
     return out;
-  }
-
-  public static DoubleArray mmul(DoubleArray a, DoubleArray b) {
-    if (a.isVector() && b.isVector()) {
-      if (a.dims() == 2 && b.dims() == 2) {
-        if (a.size(0) == 1 && b.size(1) > 1) {
-          return newDoubleVector(dot(a, b));
-        } else {
-          return outer(a, b);
-        }
-      } else {
-        return newDoubleVector(dot(a, b));
-      }
-    } else {
-      return a.mmul(b);
-    }
   }
 
   /**
