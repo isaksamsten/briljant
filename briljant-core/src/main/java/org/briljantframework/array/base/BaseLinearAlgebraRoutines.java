@@ -26,6 +26,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
@@ -35,6 +36,11 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   protected BaseLinearAlgebraRoutines(ArrayBackend matrixFactory) {
     super(matrixFactory);
+  }
+
+  @Override
+  public LuDecomposition lu(DoubleArray x) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -84,6 +90,11 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public int getrf(DoubleArray a, IntArray ipiv) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getri(DoubleArray a, IntArray ipiv) {
     throw new UnsupportedOperationException();
   }
 

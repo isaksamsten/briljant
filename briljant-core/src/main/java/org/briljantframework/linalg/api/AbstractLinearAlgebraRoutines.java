@@ -23,6 +23,7 @@ package org.briljantframework.linalg.api;
 
 import java.util.Objects;
 
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
 
 /**
@@ -38,5 +39,24 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
 
   protected ArrayBackend getArrayBackend() {
     return arrayBackend;
+  }
+
+  /**
+   * In linear algebra, the determinant is a value associated with a square matrix. It can be
+   * computed from the entries of the matrix by a specific arithmetic expression, while other ways
+   * to determine its value exist as well. The determinant provides important information about a
+   * matrix of coefficients of a system of linear equations, or about a matrix that corresponds to a
+   * linear transformation of a vector space.
+   *
+   * @param x a square mutable array
+   * @return the determinant
+   */
+  @Override
+  public double det(DoubleArray x) {
+    if (x.isSquare()) {
+      return lu(x).getDeterminant();
+    } else {
+      throw new IllegalArgumentException("argument must be a square array");
+    }
   }
 }

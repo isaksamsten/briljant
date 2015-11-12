@@ -27,6 +27,7 @@ import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.netlib.NetlibLapackException;
+import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.netlib.util.intW;
 
 /**
@@ -36,37 +37,31 @@ public class LuDecomposition {
 
   private final DoubleArray lu;
   private final IntArray pivots;
+  private final LinearAlgebraRoutines linalg;
   private Optional<Boolean> nonSingular = Optional.empty();
   private Optional<DoubleArray> lower = Optional.empty();
   private Optional<DoubleArray> upper = Optional.empty();
 
   private double det = Double.NaN;
 
-  /**
-   * Instantiates a new Lu decomposition.
-   *
-   * @param lu the lu
-   * @param pivots the pivots
-   */
-  public LuDecomposition(DoubleArray lu, IntArray pivots) {
+  public LuDecomposition(LinearAlgebraRoutines linalg, DoubleArray lu, IntArray pivots) {
+    this.linalg = linalg;
     this.lu = lu;
     this.pivots = pivots;
   }
 
-  /**
-   * Decomposition matrix.
-   *
-   * @return the matrix
-   */
+  public LuDecomposition(DoubleArray lu, IntArray pivots) {
+    this(Arrays.linalg, lu, pivots);
+  }
+
+  public DoubleArray getLu() {
+    return lu;
+  }
+
   public DoubleArray decomposition() {
     return lu;
   }
 
-  /**
-   * Inverse matrix.
-   *
-   * @return the inverse of the matrix
-   */
   public DoubleArray inverse() {
     if (!lu.isSquare()) {
       throw new IllegalStateException("Matrix must be square.");
@@ -94,11 +89,6 @@ public class LuDecomposition {
     return Arrays.newDoubleVector(invs).reshape(lu.rows(), lu.columns());
   }
 
-  /**
-   * Gets determinant.
-   *
-   * @return the determinant
-   */
   public double getDeterminant() {
     if (Double.isNaN(det)) {
       if (!lu.isSquare()) {
@@ -120,11 +110,6 @@ public class LuDecomposition {
     return det;
   }
 
-  /**
-   * Is non singular.
-   *
-   * @return the boolean
-   */
   public boolean isNonSingular() {
     if (!this.nonSingular.isPresent()) {
       if (!lu.isSquare()) {
@@ -143,11 +128,6 @@ public class LuDecomposition {
     return this.nonSingular.orElse(false);
   }
 
-  /**
-   * Gets upper.
-   *
-   * @return the upper
-   */
   public DoubleArray getUpper() {
     return upper.orElseGet(this::computeUpper);
   }
@@ -163,11 +143,6 @@ public class LuDecomposition {
     return upperMatrix;
   }
 
-  /**
-   * Gets lower.
-   *
-   * @return the lower
-   */
   public DoubleArray getLower() {
     return lower.orElseGet(this::computeLower);
   }
@@ -189,11 +164,6 @@ public class LuDecomposition {
     return lowerMatrix;
   }
 
-  /**
-   * Get pivot.
-   *
-   * @return the int [ ]
-   */
   public IntArray getPivot() {
     return pivots;
   }

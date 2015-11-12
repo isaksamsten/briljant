@@ -21,6 +21,7 @@
 
 package org.briljantframework.data.dataframe.transform;
 
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.linalg.LinearAlgebra;
@@ -41,7 +42,7 @@ public class PseudoInverseTransformation implements Transformation {
 
     @Override
     public DataFrame transform(DataFrame x) {
-      DoubleArray matrix = LinearAlgebra.pinv(x.toDoubleArray());
+      DoubleArray matrix = Arrays.linalg.pinv(x.toDoubleArray());
       DataFrame.Builder builder = x.newBuilder();
       for (int j = 0; j < x.columns(); j++) {
         for (int i = 0; i < x.rows(); i++) {

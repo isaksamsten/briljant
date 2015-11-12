@@ -24,6 +24,8 @@ package org.briljantframework.linalg.api;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Op;
+import org.briljantframework.linalg.decomposition.LuDecomposer;
+import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
@@ -31,11 +33,15 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
  */
 public interface LinearAlgebraRoutines {
 
+  LuDecomposition lu(DoubleArray x);
+
   DoubleArray inv(DoubleArray x);
 
   DoubleArray pinv(DoubleArray x);
 
   SingularValueDecomposition svd(DoubleArray x);
+
+  double det(DoubleArray x);
 
   /**
    * DGEEV computes for an N-by-N real nonsymmetric matrix A, the eigenvalues and, optionally, the
@@ -175,6 +181,8 @@ public interface LinearAlgebraRoutines {
    * @return 0 if factorization completed correctly and > 0 if some values are zero.
    */
   int getrf(DoubleArray a, IntArray ipiv);
+
+  int getri(DoubleArray a, IntArray ipiv);
 
   /**
    * Computes the minimum-norm solution to a real linear least squares problem: minimize || A * X -

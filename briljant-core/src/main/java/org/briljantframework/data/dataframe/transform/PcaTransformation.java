@@ -26,7 +26,6 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposer;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
@@ -46,25 +45,14 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
  */
 public class PcaTransformation implements InvertibleTransformation {
 
-  private final SingularValueDecomposer decomposer;
-  private final int components;
+  private final int components = 1;
 
-  public PcaTransformation(SingularValueDecomposer decomposer, int components) {
-    this.decomposer = decomposer;
-    this.components = components;
-  }
 
-  public PcaTransformation(int components) {
-    this(new SingularValueDecomposer(), components);
-  }
-
-  public PcaTransformation() {
-    this(-1);
-  }
 
   private SingularValueDecomposition getSingularValueDecomposition(DoubleArray m) {
     DoubleArray sigma = m.mmul(1, Op.TRANSPOSE, m, Op.KEEP).divi(m.rows());
-    return decomposer.decompose(sigma);
+    // return decomposer.decompose(sigma);
+    return null;
   }
 
   @Override

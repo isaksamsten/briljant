@@ -33,6 +33,7 @@ import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.netlib.util.intW;
 
@@ -52,24 +53,36 @@ import com.github.fommil.netlib.LAPACK;
  */
 public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
-  private static final LAPACK lapack = LAPACK.getInstance();
-
   public final static double MACHINE_EPSILON = Math.ulp(1);
-
+  protected static final String REQUIRE_2D_ARRAY = "require 2d-array";
+  static final List<Character> SYEVR_UPLO = Arrays.asList('l', 'u');
+  static final List<Character> ORMQR_SIDE = Arrays.asList('l', 'r');
+  private static final LAPACK lapack = LAPACK.getInstance();
   private static final List<Character> GESVD_JOB_CHAR = Arrays.asList('a', 's', 'o', 'n');
   private static final List<Character> SYEVR_JOBZ_CHAR = Arrays.asList('n', 'v');
   private static final List<Character> SYEVR_RANGE_CHAR = Arrays.asList('a', 'v', 'i');
-  static final List<Character> SYEVR_UPLO = Arrays.asList('l', 'u');
-  static final List<Character> ORMQR_SIDE = Arrays.asList('l', 'r');
-  protected static final String REQUIRE_2D_ARRAY = "require 2d-array";
 
   protected NetlibLinearAlgebraRoutines(NetlibArrayBackend matrixFactory) {
     super(matrixFactory);
   }
 
   @Override
+  public LuDecomposition lu(DoubleArray array) {
+    Check.argument(array.isMatrix() && array.isSquare(), "require square 2d-array");
+    int m = array.size(0);
+    int n = array.size(1);
+    IntArray pivots = getArrayBackend().getArrayFactory().intArray(Math.min(m, n));
+    DoubleArray lu = array.copy();
+    getrf(lu, pivots);
+    return new LuDecomposition(lu, pivots);
+  }
+
+  @Override
   public DoubleArray inv(DoubleArray x) {
-    return null;
+    LuDecomposition lu = lu(x);
+    DoubleArray out = lu.getLu();
+    getri(out, lu.getPivot());
+    return out;
   }
 
   @Override
@@ -156,13 +169,13 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     double[] work = new double[1];
     int lwork = -1;
     intW info = new intW(0);
-    lapack.dgeev(String.valueOf(jobvl), String.valueOf(jobvr), n, aa, Math.max(1, n), wra, wia,
-        vla, ldvl, vra, ldvr, work, lwork, info);
+    lapack.dgeev(String.valueOf(jobvl), String.valueOf(jobvr), n, aa, Math.max(1, n), wra, wia, vla,
+        ldvl, vra, ldvr, work, lwork, info);
     ensureInfo(info);
     lwork = (int) work[0];
 
-    lapack.dgeev(String.valueOf(jobvl), String.valueOf(jobvr), n, aa, Math.max(1, a.stride(1)),
-        wra, wia, vla, Math.max(1, a.stride(1)), vra, Math.max(1, a.stride(1)), work, lwork, info);
+    lapack.dgeev(String.valueOf(jobvl), String.valueOf(jobvr), n, aa, Math.max(1, a.stride(1)), wra,
+        wia, vla, Math.max(1, a.stride(1)), vra, Math.max(1, a.stride(1)), work, lwork, info);
 
     ensureInfo(info);
     assignIfNeeded(a, aa);
@@ -333,16 +346,16 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     int lwork = -1;
     int liwork = -1;
 
-    lapack.dsyevr(String.valueOf(jobz), String.valueOf(range), String.valueOf(uplo), n, aa, lda,
-        vl, vu, il, iu, abstol, m, wa, za, ldz, ia, work, lwork, iwork, liwork, info);
+    lapack.dsyevr(String.valueOf(jobz), String.valueOf(range), String.valueOf(uplo), n, aa, lda, vl,
+        vu, il, iu, abstol, m, wa, za, ldz, ia, work, lwork, iwork, liwork, info);
     ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
     liwork = iwork[0];
     iwork = new int[liwork];
 
-    lapack.dsyevr(String.valueOf(jobz), String.valueOf(range), String.valueOf(uplo), n, aa, lda,
-        vl, vu, il, iu, abstol, m, wa, za, ldz, ia, work, lwork, iwork, liwork, info);
+    lapack.dsyevr(String.valueOf(jobz), String.valueOf(range), String.valueOf(uplo), n, aa, lda, vl,
+        vu, il, iu, abstol, m, wa, za, ldz, ia, work, lwork, iwork, liwork, info);
     ensureInfo(info);
     assignIfNeeded(a, aa);
     assignIfNeeded(w, wa);
@@ -359,10 +372,31 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     double[] aa = getData(a);
     int[] ia = getData(ipiv);
     intW info = new intW(0);
-    LAPACK.getInstance().dgetrf(a.rows(), a.columns(), aa, a.rows(), ia, info);
+    lapack.dgetrf(a.rows(), a.columns(), aa, a.rows(), ia, info);
     ensureValidParameterInfo(info);
     assignIfNeeded(a, aa);
     reassignIfNeeded(ipiv, ia);
+    return info.val;
+  }
+
+  @Override
+  public int getri(DoubleArray a, IntArray ipiv) {
+    Check.argument(ipiv.isVector(), "ipiv must be a vector");
+    int n = a.size(1);
+    Check.size(ipiv.size(), n, "illegal size");
+
+    int lda = Math.max(1, a.size(0));
+    int lwork = -1;
+    double[] work = new double[1];
+    double[] aa = getData(a);
+    int[] ia = getData(ipiv);
+    intW info = new intW(0);
+    lapack.dgetri(n, aa, lda, ia, work, lwork, info);
+    ensureInfo(info);
+    lwork = (int) work[0];
+    work = new double[lwork];
+    lapack.dgetri(n, aa, lda, ia, work, lwork, info);
+    assignIfNeeded(a, aa);
     return info.val;
   }
 
@@ -447,23 +481,23 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     int lda = Math.max(1, m);
     int ldu = u.rows();
     if (!s.isVector() && s.size() != Math.min(m, n)) {
-      throw new IllegalArgumentException(String.format("Invalid shape for s (%s)",
-          Arrays.toString(s.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for s (%s)", Arrays.toString(s.getShape())));
     }
 
     if (jobu == 'a' && (u.rows() != m || u.columns() != m)) {
-      throw new IllegalArgumentException(String.format("Invalid shape for u (%s)",
-          Arrays.toString(u.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for u (%s)", Arrays.toString(u.getShape())));
     }
 
     if (jobu == 's' && (u.rows() != m || u.columns() != Math.min(m, n))) {
-      throw new IllegalArgumentException(String.format("Invalid shape for u (%s)",
-          Arrays.toString(u.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for u (%s)", Arrays.toString(u.getShape())));
     }
 
     if (jobvt == 'a' && (vt.rows() != n || vt.columns() != n)) {
-      throw new IllegalArgumentException(String.format("Invalid shape for vt (%s)",
-          Arrays.toString(vt.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for vt (%s)", Arrays.toString(vt.getShape())));
     }
 
     int ldvt = n;
@@ -507,23 +541,23 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     int lda = Math.max(1, m);
     int ldu = u.rows();
     if (!s.isVector() && s.size() != Math.min(m, n)) {
-      throw new IllegalArgumentException(String.format("Invalid shape for s (%s)",
-          Arrays.toString(s.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for s (%s)", Arrays.toString(s.getShape())));
     }
 
     if (jobz == 'a' && (u.rows() != m || u.columns() != m)) {
-      throw new IllegalArgumentException(String.format("Invalid shape for u (%s)",
-          Arrays.toString(u.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for u (%s)", Arrays.toString(u.getShape())));
     }
 
     if (jobz == 's' && (u.rows() != m || u.columns() != Math.min(m, n))) {
-      throw new IllegalArgumentException(String.format("Invalid shape for u (%s)",
-          Arrays.toString(u.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for u (%s)", Arrays.toString(u.getShape())));
     }
 
     if (jobz == 'a' && (vt.rows() != n || vt.columns() != n)) {
-      throw new IllegalArgumentException(String.format("Invalid shape for vt (%s)",
-          Arrays.toString(vt.getShape())));
+      throw new IllegalArgumentException(
+          String.format("Invalid shape for vt (%s)", Arrays.toString(vt.getShape())));
     }
 
     int ldvt = n;
@@ -613,7 +647,8 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private IllegalArgumentException invalidCharacter(String parameter, char c, List<Character> chars) {
+  private IllegalArgumentException invalidCharacter(String parameter, char c,
+      List<Character> chars) {
     return new IllegalArgumentException(String.format("%s %s not in %s.", parameter, c, chars));
   }
 }
