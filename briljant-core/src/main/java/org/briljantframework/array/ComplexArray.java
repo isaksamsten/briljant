@@ -245,35 +245,12 @@ public interface ComplexArray
   List<Complex> toList();
 
   /**
-   * <u>m</u>atrix<u>m</u>ultiplication
-   *
-   * @param other the other
-   * @return r r
-   */
-  ComplexArray mmul(ComplexArray other);
-
-  /**
-   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes
-   * {@code this.times(alpha).times(other.times(beta))}, but in one pass.
-   *
-   * @param alpha scaling for {@code this*other}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray mmul(Complex alpha, ComplexArray other);
-
-  ComplexArray mmul(Op a, ComplexArray other, Op b);
-
-  ComplexArray mmul(Complex alpha, Op a, ComplexArray other, Op b);
-
-  /**
    * Element wise <u>m</u>ultiplication
    *
    * @param other the matrix
    * @return a new matrix
    */
-  ComplexArray mul(ComplexArray other);
+  ComplexArray times(ComplexArray other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -285,7 +262,7 @@ public interface ComplexArray
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray mul(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray times(Complex alpha, ComplexArray other, Complex beta);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -293,7 +270,7 @@ public interface ComplexArray
    * @param scalar the scalar
    * @return a new matrix
    */
-  ComplexArray mul(Complex scalar);
+  ComplexArray times(Complex scalar);
 
   /**
    * Element wise addition.
@@ -301,7 +278,7 @@ public interface ComplexArray
    * @param other the other matrix
    * @return a new matrix
    */
-  ComplexArray add(ComplexArray other);
+  ComplexArray plus(ComplexArray other);
 
   /**
    * Element wise addition.
@@ -309,7 +286,7 @@ public interface ComplexArray
    * @param scalar the scalar
    * @return a new matrixget(
    */
-  ComplexArray add(Complex scalar);
+  ComplexArray plus(Complex scalar);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -321,7 +298,7 @@ public interface ComplexArray
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray add(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray plus(Complex alpha, ComplexArray other, Complex beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -329,7 +306,7 @@ public interface ComplexArray
    * @param other the other matrix
    * @return a new matrix
    */
-  ComplexArray sub(ComplexArray other);
+  ComplexArray minus(ComplexArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -337,7 +314,7 @@ public interface ComplexArray
    * @param scalar the scalar
    * @return r r
    */
-  ComplexArray sub(Complex scalar);
+  ComplexArray minus(Complex scalar);
 
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -349,7 +326,7 @@ public interface ComplexArray
    * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray sub(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray minus(Complex alpha, ComplexArray other, Complex beta);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -357,7 +334,7 @@ public interface ComplexArray
    * @param scalar the scalar
    * @return a new matrix
    */
-  ComplexArray rsub(Complex scalar);
+  ComplexArray reverseMinus(Complex scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -384,8 +361,7 @@ public interface ComplexArray
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  ComplexArray rdiv(Complex other);
-
+  ComplexArray reverseDiv(Complex other);
 
   /**
    * Returns a new matrix with elements negated.

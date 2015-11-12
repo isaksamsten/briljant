@@ -288,12 +288,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public Complex dotu(ComplexArray a, ComplexArray b) {
+  public Complex conjugateInner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
   @Override
-  public Complex dotc(ComplexArray a, ComplexArray b) {
+  public Complex inner(ComplexArray a, ComplexArray b) {
     return null;
   }
 

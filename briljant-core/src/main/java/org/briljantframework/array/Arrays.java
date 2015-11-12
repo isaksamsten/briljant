@@ -39,6 +39,7 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
@@ -923,19 +924,19 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#dotc(org.briljantframework.array.ComplexArray,
+   * @see org.briljantframework.array.api.ArrayRoutines#inner(org.briljantframework.array.ComplexArray,
    *      org.briljantframework.array.ComplexArray)
    */
-  public static Complex dotc(ComplexArray a, ComplexArray b) {
-    return ARRAY_ROUTINES.dotc(a, b);
+  public static Complex inner(ComplexArray a, ComplexArray b) {
+    return ARRAY_ROUTINES.inner(a.ravel(), b.ravel());
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#dotu(org.briljantframework.array.ComplexArray,
+   * @see org.briljantframework.array.api.ArrayRoutines#conjugateInner(org.briljantframework.array.ComplexArray,
    *      org.briljantframework.array.ComplexArray)
    */
-  public static Complex dotu(ComplexArray a, ComplexArray b) {
-    return ARRAY_ROUTINES.dotu(a, b);
+  public static Complex conjugateInner(ComplexArray a, ComplexArray b) {
+    return ARRAY_ROUTINES.conjugateInner(a.ravel(), b.ravel());
   }
 
   /**

@@ -202,9 +202,9 @@ public interface ArrayRoutines {
 
   double inner(DoubleArray a, DoubleArray b);
 
-  Complex dotu(ComplexArray a, ComplexArray b);
+  Complex conjugateInner(ComplexArray a, ComplexArray b);
 
-  Complex dotc(ComplexArray a, ComplexArray b);
+  Complex inner(ComplexArray a, ComplexArray b);
 
   double norm2(DoubleArray a);
 

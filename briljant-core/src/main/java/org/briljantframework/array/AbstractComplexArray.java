@@ -21,9 +21,6 @@
 
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
-
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -51,8 +48,6 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.MutableComplex;
-import org.briljantframework.exceptions.NonConformantException;
 
 /**
  * @author Isak Karlsson
@@ -609,77 +604,12 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray mmul(ComplexArray other) {
-    return mmul(Complex.ONE, other);
+  public ComplexArray times(ComplexArray other) {
+    return times(Complex.ONE, other, Complex.ONE);
   }
 
   @Override
-  public ComplexArray mmul(Complex alpha, ComplexArray other) {
-    return mmul(alpha, Op.KEEP, other, Op.KEEP);
-  }
-
-  @Override
-  public ComplexArray mmul(Op a, ComplexArray other, Op b) {
-    return mmul(Complex.ONE, a, other, b);
-  }
-
-  @Override
-  public ComplexArray mmul(Complex alpha, Op a, ComplexArray other, Op b) {
-    int thisRows = rows();
-    int thisCols = columns();
-    if (a.isTrue()) {
-      thisRows = columns();
-      thisCols = rows();
-    }
-
-    int otherRows = other.rows();
-    int otherColumns = other.columns();
-    if (b.isTrue()) {
-      otherRows = other.columns();
-      otherColumns = other.rows();
-    }
-
-    if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
-    }
-
-    ComplexArray result = newEmptyArray(thisRows, otherColumns);
-    for (int row = 0; row < thisRows; row++) {
-      for (int col = 0; col < otherColumns; col++) {
-        MutableComplex sumAcc = new MutableComplex(0);
-        for (int k = 0; k < thisCols; k++) {
-          int thisIndex;
-          int otherIndex;
-          if (a.isTrue()) {
-            thisIndex = rowMajor(row, k, thisRows, thisCols);
-          } else {
-            thisIndex = columnMajor(0, row, k, thisRows, thisCols);
-          }
-          if (b.isTrue()) {
-            otherIndex = rowMajor(k, col, otherRows, otherColumns);
-          } else {
-            otherIndex = columnMajor(0, k, col, otherRows, otherColumns);
-          }
-
-          Complex thisValue = get(thisIndex);
-          Complex otherValue = other.get(otherIndex);
-          thisValue = a == Op.CONJUGATE_TRANSPOSE ? thisValue.conjugate() : thisValue;
-          otherValue = b == Op.CONJUGATE_TRANSPOSE ? otherValue.conjugate() : otherValue;
-          sumAcc.plus(thisValue.multiply(otherValue));
-        }
-        result.set(row, col, sumAcc.multiply(alpha).toComplex());
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public ComplexArray mul(ComplexArray other) {
-    return mul(Complex.ONE, other, Complex.ONE);
-  }
-
-  @Override
-  public ComplexArray mul(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray times(Complex alpha, ComplexArray other, Complex beta) {
     Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -689,7 +619,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray mul(Complex scalar) {
+  public ComplexArray times(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).multiply(scalar));
@@ -698,12 +628,12 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray add(ComplexArray other) {
-    return add(Complex.ONE, other, Complex.ONE);
+  public ComplexArray plus(ComplexArray other) {
+    return plus(Complex.ONE, other, Complex.ONE);
   }
 
   @Override
-  public ComplexArray add(Complex scalar) {
+  public ComplexArray plus(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).add(scalar));
@@ -712,7 +642,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray add(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray plus(Complex alpha, ComplexArray other, Complex beta) {
     Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -722,12 +652,12 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray sub(ComplexArray other) {
-    return sub(Complex.ONE, other, Complex.ONE);
+  public ComplexArray minus(ComplexArray other) {
+    return minus(Complex.ONE, other, Complex.ONE);
   }
 
   @Override
-  public ComplexArray sub(Complex scalar) {
+  public ComplexArray minus(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).subtract(scalar));
@@ -736,7 +666,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray sub(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray minus(Complex alpha, ComplexArray other, Complex beta) {
     Check.size(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -746,7 +676,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray rsub(Complex scalar) {
+  public ComplexArray reverseMinus(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, scalar.subtract(get(i)));
@@ -773,7 +703,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray rdiv(Complex other) {
+  public ComplexArray reverseDiv(Complex other) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, other.divide(get(i)));
