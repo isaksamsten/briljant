@@ -22,23 +22,12 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleFunction;
-import java.util.function.DoublePredicate;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.DoubleToLongFunction;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.LongToDoubleFunction;
-import java.util.function.ObjDoubleConsumer;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Listable;
 import org.briljantframework.function.DoubleBiPredicate;
 
 /**
@@ -103,51 +92,47 @@ import org.briljantframework.function.DoubleBiPredicate;
  *
  * @author Isak Karlsson
  */
-public interface DoubleArray extends BaseArray<DoubleArray> {
+public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, Listable<Double> {
 
   /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign
-   * @return receiver modified
    */
-  DoubleArray assign(double value);
+  void assign(double value);
 
-  DoubleArray assign(double[] array);
+  void assign(double[] array);
 
   /**
    * Assign value returned by {@link #size()} successive calls to
    * {@link java.util.function.DoubleSupplier#getAsDouble()}
    *
    * @param supplier the supplier
-   * @return receiver modified
    */
-  DoubleArray assign(DoubleSupplier supplier);
+  void assign(DoubleSupplier supplier);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
    * @param matrix the matrix
    * @param operator the operator
-   * @return receiver modified
    */
-  DoubleArray assign(DoubleArray matrix, DoubleUnaryOperator operator);
+  void assign(DoubleArray matrix, DoubleUnaryOperator operator);
 
-  DoubleArray assign(DoubleArray matrix, DoubleBinaryOperator combine);
+  void assign(DoubleArray matrix, DoubleBinaryOperator combine);
 
-  DoubleArray assign(IntArray matrix, IntToDoubleFunction function);
+  void assign(IntArray matrix, IntToDoubleFunction function);
 
-  DoubleArray assign(LongArray matrix, LongToDoubleFunction function);
+  void assign(LongArray matrix, LongToDoubleFunction function);
 
-  DoubleArray assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
+  void assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
 
   /**
    * Perform {@code operator} element wise to receiver.
    *
    * @param operator the operator to apply to each element
-   * @return receiver modified
    */
-  DoubleArray update(DoubleUnaryOperator operator);
+  void update(DoubleUnaryOperator operator);
 
   <R, C> R collect(Collector<? super Double, C, R> collector);
 
@@ -179,6 +164,12 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
    */
   DoubleArray map(DoubleUnaryOperator operator);
 
+  /**
+   * Map each value of this double array to an int.
+   *
+   * @param function function for transforming double to int
+   * @return an int array
+   */
   IntArray mapToInt(DoubleToIntFunction function);
 
   LongArray mapToLong(DoubleToLongFunction function);
@@ -193,7 +184,7 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   BooleanArray where(DoubleArray matrix, DoubleBiPredicate predicate);
 
-  void forEach(DoubleConsumer consumer);
+  void forEachDouble(DoubleConsumer consumer);
 
   // Reduce
 
@@ -271,7 +262,7 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
 
   DoubleStream stream();
 
-  List<Double> list();
+  List<Double> toList();
 
   /**
    * Provides a lazy view of this {@code double} array as it's boxed counterpart.
@@ -319,7 +310,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray mul(double scalar);
 
   default DoubleArray addi(DoubleArray other) {
-    return assign(other, (a, b) -> a + b);
+    assign(other, (a, b) -> a + b);
+    return this;
   }
 
   DoubleArray add(DoubleArray other);
@@ -333,7 +325,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray add(double scalar);
 
   default DoubleArray addi(double scalar) {
-    return update(v -> v + scalar);
+    update(v -> v + scalar);
+    return this;
   }
 
   /**
@@ -377,7 +370,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray rsub(double scalar);
 
   default DoubleArray divi(DoubleArray other) {
-    return assign(other, (x, y) -> x / y);
+    assign(other, (x, y) -> x / y);
+    return this;
   }
 
   /**
@@ -392,7 +386,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray div(DoubleArray other);
 
   default DoubleArray divi(double value) {
-    return update(v -> v / value);
+    update(v -> v / value);
+    return this;
   }
 
   /**
@@ -405,7 +400,8 @@ public interface DoubleArray extends BaseArray<DoubleArray> {
   DoubleArray rdiv(double other);
 
   default DoubleArray rdivi(double other) {
-    return update(v -> other / v);
+    update(v -> other / v);
+    return this;
   }
 
   /**

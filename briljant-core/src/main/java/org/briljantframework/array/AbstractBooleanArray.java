@@ -22,13 +22,8 @@
 package org.briljantframework.array;
 
 import java.io.IOException;
-import java.util.AbstractList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -42,8 +37,8 @@ import org.briljantframework.primitive.ArrayAllocations;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray> implements
-    BooleanArray {
+public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray>
+    implements BooleanArray {
 
   protected AbstractBooleanArray(ArrayFactory bj, int size) {
     super(bj, new int[] {size});
@@ -143,22 +138,6 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   public int compare(int a, int b) {
     return Boolean.compare(get(a), get(b));
   }
-
-  //
-  // @Override
-  // public void setRow(int index, BooleanArray vec) {
-  // for (int j = 0; j < columns(); j++) {
-  // set(index, j, vec.get(j));
-  // }
-  // }
-  //
-  // @Override
-  // public void setColumn(int index, BooleanArray vec) {
-  // Check.size(rows(), vec.size());
-  // for (int i = 0; i < rows(); i++) {
-  // set(i, index, vec.get(i));
-  // }
-  // }
 
   @Override
   public BooleanArray assign(Supplier<Boolean> supplier) {
@@ -276,21 +255,6 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     boolean tmp = get(a);
     set(a, get(b));
     set(b, tmp);
-  }
-
-  public class IncrementalBuilder {
-
-    private boolean[] buffer = new boolean[10];
-    private int size = 0;
-
-    public void add(boolean a) {
-      buffer = ArrayAllocations.ensureCapacity(buffer, size);
-      buffer[size++] = a;
-    }
-
-    public BooleanArray build() {
-      return bj.array(Arrays.copyOf(buffer, size));
-    }
   }
 
   @Override
@@ -416,7 +380,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public List<Boolean> asList() {
+  public List<Boolean> toList() {
     return new AbstractList<Boolean>() {
       @Override
       public Boolean get(int index) {
@@ -435,6 +399,11 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
         return AbstractBooleanArray.this.size();
       }
     };
+  }
+
+  @Override
+  public Iterator<Boolean> iterator() {
+    return toList().iterator();
   }
 
   @Override
@@ -505,6 +474,21 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
       bm.set(i, !get(i));
     }
     return bm;
+  }
+
+  public class IncrementalBuilder {
+
+    private boolean[] buffer = new boolean[10];
+    private int size = 0;
+
+    public void add(boolean a) {
+      buffer = ArrayAllocations.ensureCapacity(buffer, size);
+      buffer[size++] = a;
+    }
+
+    public BooleanArray build() {
+      return bj.array(Arrays.copyOf(buffer, size));
+    }
   }
 
 

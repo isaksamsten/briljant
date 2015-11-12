@@ -26,10 +26,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.briljantframework.Listable;
+
 /**
  * @author Isak Karlsson
  */
-public interface BooleanArray extends BaseArray<BooleanArray> {
+public interface BooleanArray
+    extends BaseArray<BooleanArray>, Iterable<Boolean>, Listable<Boolean> {
 
   BooleanArray assign(Supplier<Boolean> supplier);
 
@@ -75,5 +78,5 @@ public interface BooleanArray extends BaseArray<BooleanArray> {
 
   Stream<Boolean> stream();
 
-  List<Boolean> asList();
+  List<Boolean> toList();
 }

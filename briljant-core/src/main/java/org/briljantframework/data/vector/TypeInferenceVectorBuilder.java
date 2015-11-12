@@ -104,21 +104,27 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   @Override
   public Vector.Builder set(Object atKey, Vector from, int fromIndex) {
     initializeBuilder(from.getType());
-    builder.set(atKey, from, fromIndex);
+    if (builder != null) {
+      builder.set(atKey, from, fromIndex);
+    }
     return this;
   }
 
   @Override
   public Vector.Builder set(Object atKey, Vector from, Object fromKey) {
     initializeBuilder(from.getType());
-    builder.set(atKey, from, fromKey);
+    if (builder != null) {
+      builder.set(atKey, from, fromKey);
+    }
     return this;
   }
 
   @Override
   public Vector.Builder set(Object key, Object value) {
     initializeBuilder(value);
-    builder.set(key, value);
+    if (builder != null) {
+      builder.set(key, value);
+    }
     return this;
   }
 
@@ -144,7 +150,9 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   public Vector.Builder addAll(Vector from) {
     if (from.size() > 0) {
       initializeBuilder(from.getType());
-      builder.addAll(from);
+      if (builder != null) {
+        builder.addAll(from);
+      }
     }
     return this;
   }
@@ -226,19 +234,25 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void set(int i, Object value) {
       initializeBuilder(value);
-      builder.loc().set(i, value);
+      if (builder != null) {
+        builder.loc().set(i, value);
+      }
     }
 
     @Override
     public void set(int t, Vector from, int f) {
       initializeBuilder(from.getType());
-      builder.loc().set(t, from, f);
+      if (builder != null) {
+        builder.loc().set(t, from, f);
+      }
     }
 
     @Override
     public void set(int atIndex, Vector from, Object fromKey) {
       initializeBuilder(from.getType());
-      builder.loc().set(atIndex, from, fromKey);
+      if (builder != null) {
+        builder.loc().set(atIndex, from, fromKey);
+      }
     }
 
     @Override

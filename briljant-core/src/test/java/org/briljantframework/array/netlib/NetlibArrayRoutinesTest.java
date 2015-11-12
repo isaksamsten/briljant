@@ -32,29 +32,30 @@ import org.junit.Test;
 
 public class NetlibArrayRoutinesTest {
 
-  private ArrayBackend backend = new NetlibArrayBackend();
-  private ArrayFactory bj = backend.getArrayFactory();
-  private ArrayRoutines bjr = backend.getArrayRoutines();
-
-  // private DoubleArray a = bj.doubleArray(10000).assign(10);
-  // private DoubleArray b = bj.doubleArray(10000).assign(10);
-  // private DoubleArray c = bj.doubleArray(10000, 10000).assign(32);
-
   static {
     ArrayPrinter.setPrintSlices(3);
     ArrayPrinter.setVisiblePerSlice(3);
     ArrayPrinter.setMinimumTruncateSize(1000);
   }
 
+  private ArrayBackend backend = new NetlibArrayBackend();
+  private ArrayFactory bj = backend.getArrayFactory();
+
+  // private DoubleArray a = bj.doubleArray(10000).assign(10);
+  // private DoubleArray b = bj.doubleArray(10000).assign(10);
+  // private DoubleArray c = bj.doubleArray(10000, 10000).assign(32);
+  private ArrayRoutines bjr = backend.getArrayRoutines();
+
   @Test
   public void testGemv() throws Exception {
-    DoubleArray a =
-        bj.array(new double[][] {new double[] {1, 2, 3}, new double[] {1, 2, 3},
-            new double[] {1, 2, 3}});
+    DoubleArray a = bj.array(
+        new double[][] {new double[] {1, 2, 3}, new double[] {1, 2, 3}, new double[] {1, 2, 3}});
 
     DoubleArray b = a.getRow(0);
     DoubleArray x = bj.array(new double[] {1, 2, 3});
-    DoubleArray y = bj.doubleArray(4).assign(3).asView(1, new int[] {3}, new int[] {1});
+    DoubleArray y = bj.doubleArray(4);
+    y.assign(3);
+    y = y.asView(1, new int[] {3}, new int[] {1});
     bjr.gemv(Op.TRANSPOSE, 1, a, x, 1, y);
     ArrayAssert.assertArrayEquals(bj.array(new double[] {9, 15, 21}), y, 0.0);
   }

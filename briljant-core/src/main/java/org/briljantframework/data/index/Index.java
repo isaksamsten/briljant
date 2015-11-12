@@ -24,6 +24,7 @@ package org.briljantframework.data.index;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ import org.briljantframework.sort.Swappable;
  *
  * @author Isak Karlsson
  */
-public interface Index {
+public interface Index extends Iterable<Object> {
 
   static Index range(int end) {
     return range(0, end);
@@ -89,6 +90,11 @@ public interface Index {
 
   int[] locations(Object[] keys);
 
+  @Override
+  default Iterator<Object> iterator() {
+    return keySet().iterator();
+  }
+
   Builder newBuilder();
 
   Builder newCopyBuilder();
@@ -108,30 +114,6 @@ public interface Index {
   }
 
   int size();
-
-  final class Entry {
-
-    private final Object key;
-    private final int index;
-
-    public Entry(Object key, int index) {
-      this.key = key;
-      this.index = index;
-    }
-
-    public Object getKey() {
-      return key;
-    }
-
-    public int getValue() {
-      return index;
-    }
-
-    @Override
-    public String toString() {
-      return "Entry{" + "key=" + key + ", index=" + index + '}';
-    }
-  }
 
   interface Builder extends Swappable {
 
@@ -172,5 +154,29 @@ public interface Index {
     void remove(int index);
 
     void sortIterationOrder(IntComparator cmp);
+  }
+
+  final class Entry {
+
+    private final Object key;
+    private final int index;
+
+    public Entry(Object key, int index) {
+      this.key = key;
+      this.index = index;
+    }
+
+    public Object getKey() {
+      return key;
+    }
+
+    public int getValue() {
+      return index;
+    }
+
+    @Override
+    public String toString() {
+      return "Entry{" + "key=" + key + ", index=" + index + '}';
+    }
   }
 }

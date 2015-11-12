@@ -390,7 +390,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrameGroupBy groupBy(Object key, Object... keys) {
-    return groupBy(vector -> vector.asList(Object.class), key, keys);
+    return groupBy(vector -> vector.toList(Object.class), key, keys);
   }
 
   @Override
@@ -611,18 +611,18 @@ public abstract class AbstractDataFrame implements DataFrame {
     return index;
   }
 
-  public final Index getColumnIndex() {
-    if (columnIndex == null) {
-      columnIndex = new IntIndex(0, columns());
-    }
-    return columnIndex;
-  }
-
   @Override
   public final void setIndex(Index index) {
     Objects.requireNonNull(index);
     Check.size(rows(), index.size());
     this.index = index;
+  }
+
+  public final Index getColumnIndex() {
+    if (columnIndex == null) {
+      columnIndex = new IntIndex(0, columns());
+    }
+    return columnIndex;
   }
 
   @Override
@@ -1252,69 +1252,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
   }
 
-  private class DataFrameLocationGetterImpl implements DataFrameLocationGetter {
-
-    @Override
-    public <T> T get(Class<T> cls, int r, int c) {
-      return getAt(cls, r, c);
-    }
-
-    @Override
-    public double getAsDouble(int r, int c) {
-      return getAsDoubleAt(r, c);
-    }
-
-    @Override
-    public int getAsInt(int r, int c) {
-      return getAsIntAt(r, c);
-    }
-
-    @Override
-    public String toString(int r, int c) {
-      return toStringAt(r, c);
-    }
-
-    @Override
-    public boolean isNA(int r, int c) {
-      return isNaAt(r, c);
-    }
-
-    @Override
-    public Vector get(int c) {
-      return getAt(c);
-    }
-
-    @Override
-    public DataFrame get(int... columns) {
-      return getAt(columns);
-    }
-
-    @Override
-    public DataFrame drop(int index) {
-      return dropAt(index);
-    }
-
-    @Override
-    public DataFrame drop(int... columns) {
-      return dropAt(columns);
-    }
-
-    @Override
-    public Vector getRecord(int r) {
-      return getRecordAt(r);
-    }
-
-    @Override
-    public DataFrame getRecord(int... records) {
-      return getRecordAt(records);
-    }
-
-    @Override
-    public DataFrame getRecords(IntArray records) {
-      return getRecordsAt(records);
-    }
-  }
-
   private static class UnbuildableVectorBuilder implements Vector.Builder {
 
     private final Vector.Builder delegate;
@@ -1426,6 +1363,69 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public Vector build() {
       throw new IllegalStateException("Can't build this vector");
+    }
+  }
+
+  private class DataFrameLocationGetterImpl implements DataFrameLocationGetter {
+
+    @Override
+    public <T> T get(Class<T> cls, int r, int c) {
+      return getAt(cls, r, c);
+    }
+
+    @Override
+    public double getAsDouble(int r, int c) {
+      return getAsDoubleAt(r, c);
+    }
+
+    @Override
+    public int getAsInt(int r, int c) {
+      return getAsIntAt(r, c);
+    }
+
+    @Override
+    public String toString(int r, int c) {
+      return toStringAt(r, c);
+    }
+
+    @Override
+    public boolean isNA(int r, int c) {
+      return isNaAt(r, c);
+    }
+
+    @Override
+    public Vector get(int c) {
+      return getAt(c);
+    }
+
+    @Override
+    public DataFrame get(int... columns) {
+      return getAt(columns);
+    }
+
+    @Override
+    public DataFrame drop(int index) {
+      return dropAt(index);
+    }
+
+    @Override
+    public DataFrame drop(int... columns) {
+      return dropAt(columns);
+    }
+
+    @Override
+    public Vector getRecord(int r) {
+      return getRecordAt(r);
+    }
+
+    @Override
+    public DataFrame getRecord(int... records) {
+      return getRecordAt(records);
+    }
+
+    @Override
+    public DataFrame getRecords(IntArray records) {
+      return getRecordsAt(records);
     }
   }
 

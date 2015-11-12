@@ -37,11 +37,10 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E> {
 
-  protected static final String CHANGED_TOTAL_SIZE =
-      "Total size of new array must be unchanged. (%s, %s)";
-
   public static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
+  protected static final String CHANGED_TOTAL_SIZE =
+      "Total size of new array must be unchanged. (%s, %s)";
   protected static final String ILLEGAL_INDEX = "Illegal index";
   protected static final String ILLEGAL_DIMENSION_INDEX =
       "Index %s is out of bounds for dimension %s with size %s";
@@ -73,7 +72,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   protected AbstractBaseArray(ArrayFactory bj, int[] shape) {
     this.bj = Objects.requireNonNull(bj);
-    this.shape = shape;
+    this.shape = shape.clone();
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);
     offset = 0;
@@ -239,8 +238,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.state(isMatrix(), "Can only get view from 2d-arrays");
     Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
         "Selected view is to large");
-    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1), new int[] {rows,
-        columns}, getStride(), rows == 1 ? 1 : 0 // change the major stride
+    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1),
+        new int[] {rows, columns}, getStride(), rows == 1 ? 1 : 0 // change the major stride
     );
   }
 
@@ -271,6 +270,11 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
 
     return asView(offset, shape, stride);
+  }
+
+  public E get(IntArray i) {
+    Check.argument(Arrays.equals(getShape(), i.getShape()), "Illegal shape");
+    throw new UnsupportedOperationException("unsupported");
   }
 
   @Override
@@ -378,8 +382,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public boolean isView() {
-    return !(majorStride == 0 && offset == 0 && Arrays.equals(stride,
-        Indexer.computeStride(1, shape)));
+    return !(majorStride == 0 && offset == 0
+        && Arrays.equals(stride, Indexer.computeStride(1, shape)));
   }
 
   @Override

@@ -3,8 +3,7 @@ moduleVersion = 1.0
 extensionClasses = org.briljantframework.array.ArrayExtensions,\
                    org.briljantframework.data.dataframe.DataFrameExtensions,\
                    org.briljantframework.data.vector.VectorExtensions,\
-                   org.briljantframework.data.index.DataFrameLocationGetterExtensions,\
-                   org.briljantframework.data.index.VectorLocationGetterExtensions,\
-                   org.briljantframework.groovy.BriljantExtensions,\
+                   org.briljantframework.data.dataframe.DataFrameLocationGetterExtensions,\
+                   org.briljantframework.data.vector.VectorLocationGetterExtensions,\
                    org.briljantframework.groovy.data.SettingsExtensions
 staticExtensionClasses = org.briljantframework.data.dataframe.DataFrameStaticExtensions

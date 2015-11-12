@@ -63,19 +63,19 @@ public class PcaTransformation implements InvertibleTransformation {
   }
 
   private SingularValueDecomposition getSingularValueDecomposition(DoubleArray m) {
-    DoubleArray sigma = m.mmul(1, Op.TRANSPOSE, m, Op.KEEP).update(v -> v / m.rows());
+    DoubleArray sigma = m.mmul(1, Op.TRANSPOSE, m, Op.KEEP).divi(m.rows());
     return decomposer.decompose(sigma);
   }
 
   @Override
   public InvertibleTransformer fit(DataFrame x) {
-    Check.all(col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA(), x.getColumns());
+    Check.all(x.getColumns(), col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA());
     SingularValueDecomposition svd = getSingularValueDecomposition(x.toArray().asDouble());
     DoubleArray u = svd.getLeftSingularValues();
     return new InvertibleTransformer() {
       @Override
       public DataFrame inverseTransform(DataFrame x) {
-        Check.all(col -> col.getType() == VectorType.DOUBLE && !col.hasNA(), x.getColumns());
+        Check.all(x.getColumns(), col -> col.getType() == VectorType.DOUBLE && !col.hasNA());
         DoubleArray matrix = x.toArray().asDouble();
 
         // Matrix m = frame.toMatrix();
@@ -90,7 +90,7 @@ public class PcaTransformation implements InvertibleTransformation {
 
       @Override
       public DataFrame transform(DataFrame x) {
-        Check.all(col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA(), x.getColumns());
+        Check.all(x.getColumns(), col -> col.getType().equals(VectorType.DOUBLE) && !col.hasNA());
         DoubleArray m = x.toArray().asDouble();
         DoubleArray pca = m.mmul(u.getView(0, 0, m.rows(), components(m)));
 

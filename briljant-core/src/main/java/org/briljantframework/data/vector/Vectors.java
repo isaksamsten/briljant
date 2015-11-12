@@ -354,16 +354,16 @@ public final class Vectors {
   }
 
   public static <T extends Number> double sum(Class<T> cls, Vector vector) {
-    return vector.asList(cls).stream().filter(x -> !Is.NA(x)).mapToDouble(Number::doubleValue)
+    return vector.toList(cls).stream().filter(x -> !Is.NA(x)).mapToDouble(Number::doubleValue)
         .sum();
   }
 
   public static <T extends Comparable<T>> Optional<T> min(Class<T> cls, Vector vector) {
-    return vector.asList(cls).stream().min(Comparable::compareTo);
+    return vector.toList(cls).stream().min(Comparable::compareTo);
   }
 
   public static <T extends Comparable<T>> Optional<T> max(Class<T> cls, Vector vector) {
-    return vector.asList(cls).stream().max(Comparable::compareTo);
+    return vector.toList(cls).stream().max(Comparable::compareTo);
   }
 
   /**
@@ -438,7 +438,7 @@ public final class Vectors {
    */
   public static <T> Map<T, Integer> count(Class<T> cls, Vector vector) {
     Map<T, Integer> count = new HashMap<>();
-    for (T value : vector.asList(cls)) {
+    for (T value : vector.toList(cls)) {
       count.compute(value, (x, v) -> v == null ? 1 : v + 1);
     }
     return Collections.unmodifiableMap(count);
@@ -455,7 +455,7 @@ public final class Vectors {
    */
   public static Map<Object, Integer> count(Vector vector) {
     Map<Object, Integer> freq = new HashMap<>();
-    for (Object value : vector.asList(Object.class)) {
+    for (Object value : vector.toList(Object.class)) {
       freq.compute(value, (x, i) -> i == null ? 1 : i + 1);
     }
     return Collections.unmodifiableMap(freq);
@@ -468,11 +468,6 @@ public final class Vectors {
   public static int[] indexSort(Vector vector) {
     return indexSort(vector,
         (o1, o2) -> Double.compare(vector.loc().getAsDouble(o1), vector.loc().getAsDouble(o2)));
-  }
-
-  public interface IntCmp {
-
-    int compare(int a, int b);
   }
 
   /**
@@ -553,6 +548,11 @@ public final class Vectors {
    */
   public static Vector.Builder transferableBuilder(Vector vector) {
     return new TransferableVectorBuilder(vector);
+  }
+
+  public interface IntCmp {
+
+    int compare(int a, int b);
   }
 
   private static class TransferableVectorBuilder implements Vector.Builder {

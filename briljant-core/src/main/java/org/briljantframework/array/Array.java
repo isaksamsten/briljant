@@ -36,11 +36,12 @@ import java.util.function.ToLongFunction;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Listable;
 
 /**
  * @author Isak Karlsson
  */
-public interface Array<T> extends BaseArray<Array<T>> {
+public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
@@ -410,7 +411,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * @return a new list
    */
-  List<T> list();
+  List<T> toList();
 
   /**
    * Return the contents of this array as a Java-array. If the array is a view, the returned data

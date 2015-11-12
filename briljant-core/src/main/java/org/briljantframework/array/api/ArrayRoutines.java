@@ -274,67 +274,17 @@ public interface ArrayRoutines {
    * @param n the repetitions of both rows and columns
    * @return a new matrix
    */
+  @Deprecated
   <T extends BaseArray<T>> T repmat(T x, int n);
 
+  @Deprecated
   <T extends BaseArray<T>> T repmat(T x, int r, int c);
 
+  @Deprecated
   <T extends BaseArray<T>> T repeat(T x, int num);
 
+  @Deprecated
   <T extends BaseArray<T>> T take(T x, int num);
-
-  /**
-   * Split array vertically (i.e. row-wise). A 3-by-3 array hsplit into 3 parts return a (lazy) list
-   * of 3 1-by-3 matrices.
-   *
-   * <p>
-   * The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is called. To
-   * get a computed list, use {@code new ArrayList<>(Matrices.hsplit(m, 3))}. This is useful when
-   * {@link List#get(int)} is used multiple times.
-   *
-   * @param array array to be split
-   * @param parts parts to split array (must evenly divide {@code array.columns()})
-   * @param <T> the array type
-   * @return a (lazy) list of {@code part} elements
-   */
-  <T extends BaseArray<T>> List<T> vsplit(T array, int parts);
-
-  /**
-   * Stacks arrays vertically, i.e. a 2-by-3 matrix vstacked with a 10-by-3 matrix resuls in a
-   * 12-by-3 matrix.
-   *
-   * @param arrays a sequence of arrays; all having the same {@code columns}
-   * @param <T> the matrix type
-   * @return a new matrix; {@code shape = [sum-of-rows, columns]}
-   */
-  <T extends BaseArray<T>> T vstack(Collection<T> arrays);
-
-  /**
-   * Split array horizontally (i.e. column-wise). A 3-by-3 array hsplit into 3 parts return a (lazy)
-   * list of 3 3-by-1 matrices.
-   *
-   * <p>
-   * The returned list is lazy, i.e. no splitting is done before {@link List#get(int)} is called. To
-   * get a computed list, use {@code new ArrayList<>(Arrays.hsplit(m, 3))}. This is useful when
-   * {@link List#get(int)} is used multiple times.
-   *
-   * @param array array to be split
-   * @param parts parts to split array (must evenly divide {@code array.columns()})
-   * @param <T> the array type
-   * @return a (lazy) list of {@code part} elements
-   */
-  <T extends BaseArray<T>> List<T> hsplit(T array, int parts);
-
-  /**
-   * Stacks arrays horizontally, i.e. a 3-by-2 matrix hstacked with a 3-by-10 matrix results in a
-   * 3-by-12 matrix.
-   *
-   * @param arrays a sequence of arrays; all having the same {@code rows}
-   * @param <T> the matrix type
-   * @return a new matrix; {@code shape = [rows, sum-of-columns]}
-   */
-  <T extends BaseArray<T>> T hstack(Collection<T> arrays);
-
-  <T extends BaseArray<T>> T shuffle(T x);
 
   default <T extends BaseArray<T>> T sort(T array) {
     return sort(array, (t, a, b) -> {

@@ -57,7 +57,7 @@ public abstract class VectorTest {
     Vector a = new TypeInferenceVectorBuilder().set(40, 3).set(30, 2).set(20, 4).set(10, 1).build();
 
     Vector v = a.sort(SortOrder.DESC);
-    System.out.println(v.asList(Object.class));
+    System.out.println(v.toList(Object.class));
     System.out.println(v);
     // for (int i = 0; i < v.size(); i++) {
     // Assert.assertEquals(i + 1, v.loc().getAsInt(i));

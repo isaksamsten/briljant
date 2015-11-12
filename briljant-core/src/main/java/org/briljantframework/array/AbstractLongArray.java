@@ -387,7 +387,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public List<Long> list() {
+  public List<Long> toList() {
     return new AbstractList<Long>() {
       @Override
       public Long get(int index) {
@@ -743,21 +743,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     };
   }
 
-  private class IncrementalBuilder {
-
-    private long[] buffer = new long[10];
-    private int size = 0;
-
-    public void add(long a) {
-      buffer = ArrayAllocations.ensureCapacity(buffer, size);
-      buffer[size++] = a;
-    }
-
-    public LongArray build() {
-      return bj.array(Arrays.copyOf(buffer, size));
-    }
-  }
-
   @Override
   public LongArray slice(BooleanArray bits) {
     Check.shape(this, bits);
@@ -777,5 +762,20 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       matrix.set(i, get(i));
     }
     return matrix;
+  }
+
+  private class IncrementalBuilder {
+
+    private long[] buffer = new long[10];
+    private int size = 0;
+
+    public void add(long a) {
+      buffer = ArrayAllocations.ensureCapacity(buffer, size);
+      buffer[size++] = a;
+    }
+
+    public LongArray build() {
+      return bj.array(Arrays.copyOf(buffer, size));
+    }
   }
 }

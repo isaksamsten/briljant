@@ -63,7 +63,7 @@ class ArrayExtensions {
   }
 
   static DoubleArray power(Number self, DoubleArray power) {
-    return power.map {Math.pow(self.doubleValue(), it)}
+    return power.map { Math.pow(self.doubleValue(), it) }
   }
 
   static DoubleArray plus(DoubleArray self, double v) {

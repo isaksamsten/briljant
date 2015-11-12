@@ -172,7 +172,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * <pre>
    * {@code
    * > DoubleArray a = Arrays.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
-   * > a.forEach(0, x -> System.out.println(x))
+   * > a.forEachDouble(0, x -> System.out.println(x))
    * 
    * array([0.000, 0.091])
    * array([0.182, 0.273])

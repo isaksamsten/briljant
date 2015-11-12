@@ -38,13 +38,14 @@ import java.util.stream.IntStream;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Listable;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 
 /**
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray> {
+public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   /**
    * Assign {@code value} to {@code this}
@@ -191,7 +192,7 @@ public interface IntArray extends BaseArray<IntArray> {
 
   IntStream stream();
 
-  List<Integer> list();
+  List<Integer> toList();
 
   Array<Integer> boxed();
 

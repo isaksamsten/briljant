@@ -44,10 +44,11 @@ class DataFrameExtensionsSpec extends Specification {
 //        c: Vector.of(["1", "3", "10", "g"])
 //    ])
 
-    def df = DataFrame.readCSV(new File("/Users/isak-kar/Downloads/multipleTest/test.csv")) {
+    def df = DataFrame.readCSV {
       delimiter = ','
       types = [String, Double, Double, Double, Double]
       skipRows = 0
+      file = new File("/Users/isak-kar/Downloads/multipleTest/test.csv")
     }.indexOn("Dataset")
 
     then:

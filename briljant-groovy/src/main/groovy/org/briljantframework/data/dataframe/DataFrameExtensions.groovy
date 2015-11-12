@@ -38,6 +38,12 @@ class DataFrameExtensions {
     return self.loc()
   }
 
+  /**
+   * Get the
+   * @param self
+   * @param name
+   * @return
+   */
   static Vector propertyMissing(DataFrame self, String name) {
     return self.get(name)
   }

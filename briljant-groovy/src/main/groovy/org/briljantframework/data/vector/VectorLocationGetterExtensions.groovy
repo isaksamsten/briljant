@@ -22,22 +22,19 @@
  * SOFTWARE.
  */
 
-package org.briljantframework.data.index
+package org.briljantframework.data.vector
 
 import groovy.transform.CompileStatic
-import org.briljantframework.data.vector.Vector
+import org.briljantframework.data.index.VectorLocationGetter
 
 /**
  * Created by isak on 03/09/15.
  */
 @CompileStatic
-class DataFrameLocationGetterExtensions {
+class VectorLocationGetterExtensions {
 
-  static Vector getAt(DataFrameLocationGetter self, int column) {
-    return self.get(column)
+  static <T> T getAt(VectorLocationGetter self, int i) {
+    return self.get(T, i)
   }
 
-  static Object getAt(DataFrameLocationGetter self, int row, int column) {
-    return self.get(Object, row, column)
-  }
 }

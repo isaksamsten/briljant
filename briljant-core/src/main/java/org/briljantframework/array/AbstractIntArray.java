@@ -524,26 +524,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     return builder.toString();
   }
 
-  private class IntListView extends AbstractList<Integer> {
-
-    @Override
-    public Integer get(int i) {
-      return AbstractIntArray.this.get(i);
-    }
-
-    @Override
-    public Integer set(int i, Integer value) {
-      int old = AbstractIntArray.this.get(i);
-      AbstractIntArray.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public int size() {
-      return AbstractIntArray.this.size();
-    }
-  }
-
   @Override
   public IntArray copy() {
     IntArray matrix = newEmptyArray(getShape());
@@ -595,7 +575,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public List<Integer> list() {
+  public List<Integer> toList() {
     return new IntListView();
   }
 
@@ -868,5 +848,25 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
       }
     }
     return bj.array(Arrays.copyOf(list.elementData, list.size()));
+  }
+
+  private class IntListView extends AbstractList<Integer> {
+
+    @Override
+    public Integer get(int i) {
+      return AbstractIntArray.this.get(i);
+    }
+
+    @Override
+    public Integer set(int i, Integer value) {
+      int old = AbstractIntArray.this.get(i);
+      AbstractIntArray.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public int size() {
+      return AbstractIntArray.this.size();
+    }
   }
 }

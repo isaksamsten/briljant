@@ -37,13 +37,15 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Listable;
 
 /**
  * Implements a 2-dimensional matrix of complex numbers.
  *
  * @author Isak Karlsson
  */
-public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex> {
+public interface ComplexArray
+    extends BaseArray<ComplexArray>, Iterable<Complex>, Listable<Complex> {
 
   /**
    * Assign {@code value} to {@code this}
@@ -240,7 +242,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   Stream<Complex> stream();
 
-  List<Complex> asList();
+  List<Complex> toList();
 
   /**
    * <u>m</u>atrix<u>m</u>ultiplication

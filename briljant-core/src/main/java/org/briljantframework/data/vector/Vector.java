@@ -23,28 +23,18 @@ package org.briljantframework.data.vector;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
+import org.briljantframework.Listable;
+import org.briljantframework.array.*;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Na;
@@ -80,7 +70,7 @@ import org.briljantframework.exceptions.IllegalTypeException;
  *
  * @author Isak Karlsson
  */
-public interface Vector extends Serializable, Iterable<Object> {
+public interface Vector extends Serializable, Listable<Object> {
 
   /**
    * Construct a vector of values. The type of vector is inferred from the values.
@@ -177,6 +167,17 @@ public interface Vector extends Serializable, Iterable<Object> {
   <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
 
   /**
+   * Returns a boolean array of the elements for which the predicate return {@code true}.
+   * 
+   * @param predicate the predicate
+   * @return a boolean vector
+   * @see #where(Class, Predicate)
+   */
+  default BooleanArray where(Predicate<? super Object> predicate) {
+    return where(Object.class, predicate);
+  }
+
+  /**
    * Filter values in this vector, treating each value as {@code cls} (or NA), using the supplied
    * predicate.
    *
@@ -186,6 +187,10 @@ public interface Vector extends Serializable, Iterable<Object> {
    * @return a new vector with only values for which {@code predicate} returns true
    */
   <T> Vector filter(Class<T> cls, Predicate<? super T> predicate);
+
+  default Vector filter(Predicate<? super Object> predicate) {
+    return filter(Object.class, predicate);
+  }
 
   /**
    * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
@@ -205,11 +210,11 @@ public interface Vector extends Serializable, Iterable<Object> {
    * 4     0.554
    * 
    * > Vector b = a.map(Double.class, Math::round);
-   * 0     -1.000
-   * 1     1.000
-   * 2     1.000
-   * 3     1.000
-   * 4     1.000
+   * 0     -1
+   * 1     1
+   * 2     1
+   * 3     1
+   * 4     1
    * }
    * </pre>
    *
@@ -282,14 +287,13 @@ public interface Vector extends Serializable, Iterable<Object> {
    * </pre>
    *
    * <pre>
-   * {@code
-   * > Vector names = Vector.of("Mary", "Bob", "Lisa");
+   * Vector names = Vector.of("Mary", "Bob", "Lisa");
    * 0  Mary
    * 1  Bob
    * 2  Lisa
    * type: string
    * 
-   * > names.collect(Collectors.repeat(2));
+   * names.collect(Collectors.repeat(2));
    * 0  Mary
    * 1  Bob
    * 2  Lisa
@@ -297,7 +301,6 @@ public interface Vector extends Serializable, Iterable<Object> {
    * 4  Bob
    * 5  Lisa
    * type: string
-   * }
    * </pre>
    *
    * @param <T> the type of the input value to the mutable aggregation
@@ -313,8 +316,26 @@ public interface Vector extends Serializable, Iterable<Object> {
 
   <R> R collect(Collector<? super Object, ?, R> collector);
 
+  /**
+   * Combine two vectors using the specified combination function. For example, concatenating two
+   * string vectors, or adding two numerical vectors.
+   *
+   * <pre>
+   * Vector a = Vector.of(1, 2, 3, 4);
+   * Vector b = Vector.of(1, 2, 3, 4);
+   * a.combine(String.class, b, (x, y) -> x + y).map(String.class, String::length);
+   * </pre>
+   *
+   * @param cls the class
+   * @param other the other vector
+   * @param combiner the combiner
+   * @param <T> a type
+   * @return a new vector
+   */
   <T> Vector combine(Class<T> cls, Vector other,
       BiFunction<? super T, ? super T, ? extends T> combiner);
+
+  Vector combine(Vector other, BiFunction<? super Object, ? super Object, ?> combiner);
 
   default Vector add(Vector other) {
     return combine(Object.class, other, Combine.add());
@@ -566,10 +587,14 @@ public interface Vector extends Serializable, Iterable<Object> {
 
   Vector copy();
 
-  <T> List<T> asList(Class<T> cls);
+  <T> List<T> toList(Class<T> cls);
 
-  default List<Object> asList() {
-    return asList(Object.class);
+  default <T> Listable<T> toListable(Class<T> cls) {
+    return () -> toList(cls);
+  }
+
+  default List<Object> toList() {
+    return toList(Object.class);
   }
 
   <T> Stream<T> stream(Class<T> cls);
@@ -710,8 +735,8 @@ public interface Vector extends Serializable, Iterable<Object> {
   }
 
   default <T extends Comparable<T>> T min(Class<T> cls) {
-    return collect(cls, Collectors.withFinisher(
-        java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
+    return collect(cls, Collectors
+        .withFinisher(java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
   }
 
   /**
@@ -781,8 +806,6 @@ public interface Vector extends Serializable, Iterable<Object> {
    */
   Builder newBuilder(int size);
 
-
-
   /**
    * <p>
    * Builds a new vector. A builder can incrementally grow, but not allow gaps. For example, if a
@@ -801,6 +824,11 @@ public interface Vector extends Serializable, Iterable<Object> {
    * </p>
    */
   interface Builder {
+
+    /**
+     * Recommended initial capacity
+     */
+    int INITIAL_CAPACITY = 50;
 
     /**
      * Construct a builder for the specified type
@@ -831,11 +859,6 @@ public interface Vector extends Serializable, Iterable<Object> {
     static Builder withCapacity(Class<?> cls, int capacity) {
       return VectorType.of(cls).newBuilderWithCapacity(capacity);
     }
-
-    /**
-     * Recommended initial capacity
-     */
-    int INITIAL_CAPACITY = 50;
 
     Builder setNA(Object key);
 

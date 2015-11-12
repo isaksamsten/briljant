@@ -24,8 +24,17 @@ package org.briljantframework.data;
 /**
  * @author Isak Karlsson
  */
-public enum Logical {
-  FALSE, TRUE, NA;
+public class Logical extends Number {
+
+  public static final Logical TRUE = new Logical((byte) 1);
+  public static final Logical FALSE = new Logical((byte) 0);
+  public static final Logical NA = new Logical((byte) -1);
+
+  private final byte state;
+
+  private Logical(byte state) {
+    this.state = state;
+  }
 
   public static Logical valueOf(boolean value) {
     return value ? TRUE : FALSE;
@@ -40,5 +49,30 @@ public enum Logical {
       default:
         return NA;
     }
+  }
+
+  @Override
+  public int intValue() {
+    return state == -1 ? Na.INT : state;
+  }
+
+  @Override
+  public long longValue() {
+    return state == -1 ? Na.LONG : state;
+  }
+
+  @Override
+  public float floatValue() {
+    return state == -1 ? Na.FLOAT : state;
+  }
+
+  @Override
+  public double doubleValue() {
+    return state == -1 ? Na.DOUBLE : state;
+  }
+
+  @Override
+  public String toString() {
+    return String.valueOf(intValue());
   }
 }

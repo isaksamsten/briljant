@@ -128,7 +128,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     double[] ca = new double[m * n];
     blas.dgemm(transA.asString(), transB.asString(), m, n, k, alpha, self.data(), self.getOffset(),
         Math.max(1, self.stride(1)), b.data(), b.getOffset(), Math.max(1, b.stride(1)), 1.0, ca, 0,
-        Math.max(1, n));
+        Math.max(1, m));
     return new NetlibDoubleArray(getArrayFactory(), ca, m, n);
   }
 

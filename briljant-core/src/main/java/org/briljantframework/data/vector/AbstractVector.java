@@ -22,22 +22,12 @@
 package org.briljantframework.data.vector;
 
 import java.io.IOException;
-import java.util.AbstractList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 import net.mintern.primitive.comparators.IntComparator;
 
@@ -64,9 +54,8 @@ public abstract class AbstractVector implements Vector {
 
   private static final int SUPPRESS_OUTPUT_AFTER = 4;
   private static final int PER_OUTPUT = 8;
-
-  private Index index = null;
   private final VectorLocationGetter locationGetter = new VectorLocationGetterImpl();
+  private Index index = null;
 
   protected AbstractVector(Index index) {
     this.index = index;
@@ -98,7 +87,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <T> Vector map(Class<T> cls, Function<? super T, ?> operator) {
     Vector.Builder builder = new TypeInferenceVectorBuilder();
-    for (Object key : this) {
+    for (Object key : this.getIndex()) {
       builder.set(key, operator.apply(get(cls, key)));
     }
     return builder.build();
@@ -121,7 +110,12 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <T> Vector combine(Class<T> cls, Vector other,
       BiFunction<? super T, ? super T, ? extends T> combiner) {
-    return combineVectors(cls, other, combiner, newBuilder());
+    return combineVectors(cls, other, combiner, Vector.Builder.of(cls));
+  }
+
+  @Override
+  public Vector combine(Vector other, BiFunction<? super Object, ? super Object, ?> combiner) {
+    return combineVectors(Object.class, other, combiner, new TypeInferenceVectorBuilder());
   }
 
   @Override
@@ -149,25 +143,28 @@ public abstract class AbstractVector implements Vector {
       BiFunction<? super T, ? super T, ?> combiner, Builder builder) {
     Index thisIndex = getIndex();
     Index otherIndex = Objects.requireNonNull(other, "require other vector").getIndex();
-    // if (thisIndex instanceof IntIndex && otherIndex instanceof IntIndex) {
-    // TODO: optimize for int indicies
-    // } else {
-    HashSet<Object> keys = new HashSet<>();
-    keys.addAll(thisIndex.keySet());
-    keys.addAll(otherIndex.keySet());
-    for (Object key : keys) {
-      boolean thisIndexContainsKey = thisIndex.contains(key);
-      boolean otherIndexContainsKey = otherIndex.contains(key);
-      if (thisIndexContainsKey && otherIndexContainsKey) {
-        builder.set(key, combiner.apply(get(cls, key), other.get(cls, key)));
-      } else if (thisIndexContainsKey) {
-        builder.set(key, this, key);
-      } else {
-        builder.set(key, other, key);
+    if (otherIndex instanceof IntIndex) {
+      int size = Math.min(size(), other.size());
+      for (int i = 0; i < size; i++) {
+        builder.set(thisIndex.getKey(i),
+            combiner.apply(loc().get(cls, i), other.loc().get(cls, i)));
+      }
+    } else {
+      HashSet<Object> keys = new HashSet<>();
+      keys.addAll(thisIndex.keySet());
+      keys.addAll(otherIndex.keySet());
+      for (Object key : keys) {
+        boolean thisIndexContainsKey = thisIndex.contains(key);
+        boolean otherIndexContainsKey = otherIndex.contains(key);
+        if (thisIndexContainsKey && otherIndexContainsKey) {
+          builder.set(key, combiner.apply(get(cls, key), other.get(cls, key)));
+        } else if (thisIndexContainsKey) {
+          builder.set(key, this, key);
+        } else {
+          builder.set(key, other, key);
+        }
       }
     }
-    // }
-    //
     return builder.build();
   }
 
@@ -293,7 +290,7 @@ public abstract class AbstractVector implements Vector {
     return builder.build();
   }
 
-  @Override
+
   public Iterator<Object> iterator() {
     return getIndex().keySet().iterator();
   }
@@ -415,7 +412,7 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <T> List<T> asList(Class<T> cls) {
+  public <T> List<T> toList(Class<T> cls) {
     return new AbstractList<T>() {
       @Override
       public T get(int index) {
@@ -431,7 +428,7 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public <T> Stream<T> stream(Class<T> cls) {
-    return asList(cls).stream();
+    return toList(cls).stream();
   }
 
   @Override
@@ -455,9 +452,8 @@ public abstract class AbstractVector implements Vector {
     Index index = getIndex();
     int longestKey = String.valueOf(index.size()).length();
     if (!(index instanceof IntIndex)) {
-      longestKey =
-          index.keySet().stream().mapToInt(key -> Is.NA(key) ? 2 : key.toString().length()).max()
-              .orElse(0);
+      longestKey = index.keySet().stream().mapToInt(key -> Is.NA(key) ? 2 : key.toString().length())
+          .max().orElse(0);
     }
 
     int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
@@ -521,54 +517,54 @@ public abstract class AbstractVector implements Vector {
    *    while(index <= buffer.size()) buffer.add(null)
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void setNaAt(int index) { extend(index); buffer.set(index, null); }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void setAt(int index, Object value) {
    *     extend(index);
    *     buffer.set(index, value);
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void setAt(int t, Vector from, int f) {
    *     extend(index);
    *     buffer.set(index, from.loc().get(Object.class, f));
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void setAt(int t, Vector from, Object f) {
    *     extend(index);
    *     buffer.set(index, from.get(Object.class, f));
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void readAt(int i, DataEntry entry) throws IOException {
    *     extend(i);
    *     buffer.set(i, entry.next(Object.class));
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void removeAt(int i) {
    *     buffer.remove(i);
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   protected void swapAt(int a, int b) {
    *     Collections.swap(buffer, a, b);
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   public int size() {
    *     return buffer.size();
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   public Vector getTemporaryVector() {
    *     throw new UnsupportedOperationException("need implementation");
    *   }
    * 
-   *   @Override
+   *   &#64;Override
    *   public Vector build() {
    *     throw new UnsupportedOperationException("need implementation");
    *   }

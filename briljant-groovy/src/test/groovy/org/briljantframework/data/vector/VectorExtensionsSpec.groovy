@@ -33,11 +33,12 @@ class VectorExtensionsSpec extends Specification {
 
   def "Get at return a value"() {
     when:
-    def v = Vector.singleton([1, 2, 3, 4, 5, 6, 7] as int[])
+    def v = Vector.of(1, 2, 3, 4, 5, 6, 7)
 
     then:
-    int i = v[0]
-    i == 1
-    v[1] == 2
+    println v
+    for (int i = 0; i < v.size(); i++) {
+      println v.getAt(i)
+    }
   }
 }

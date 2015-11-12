@@ -25,27 +25,9 @@ import static org.briljantframework.array.Indexer.columnMajor;
 import static org.briljantframework.array.Indexer.rowMajor;
 
 import java.io.IOException;
-import java.util.AbstractList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.PrimitiveIterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleFunction;
-import java.util.function.DoublePredicate;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.DoubleToLongFunction;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.LongToDoubleFunction;
-import java.util.function.ObjDoubleConsumer;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
@@ -61,8 +43,8 @@ import org.briljantframework.primitive.DoubleList;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray> implements
-    DoubleArray {
+public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
+    implements DoubleArray {
 
   protected AbstractDoubleArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
@@ -74,66 +56,58 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray assign(double value) {
+  public void assign(double value) {
     final int size = size();
     for (int i = 0; i < size; i++) {
-      // setElement(i, value);
       set(i, value);
     }
-    return this;
   }
 
   @Override
-  public DoubleArray assign(double[] array) {
+  public void assign(double[] array) {
     Check.size(this.size(), array.length);
     for (int i = 0; i < array.length; i++) {
       set(i, array[i]);
     }
-    return this;
   }
 
   @Override
-  public DoubleArray assign(DoubleSupplier supplier) {
+  public void assign(DoubleSupplier supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.getAsDouble());
     }
-    return this;
   }
 
   @Override
-  public DoubleArray assign(DoubleArray matrix, DoubleUnaryOperator operator) {
+  public void assign(DoubleArray matrix, DoubleUnaryOperator operator) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsDouble(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public DoubleArray assign(DoubleArray matrix, DoubleBinaryOperator combine) {
+  public void assign(DoubleArray matrix, DoubleBinaryOperator combine) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsDouble(get(i), matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public DoubleArray assign(IntArray matrix, IntToDoubleFunction function) {
+  public void assign(IntArray matrix, IntToDoubleFunction function) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public DoubleArray assign(LongArray matrix, LongToDoubleFunction function) {
+  public void assign(LongArray matrix, LongToDoubleFunction function) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
@@ -142,20 +116,18 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray assign(ComplexArray other, ToDoubleFunction<? super Complex> function) {
+  public void assign(ComplexArray other, ToDoubleFunction<? super Complex> function) {
     Check.size(this, other);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsDouble(other.get(i)));
     }
-    return this;
   }
 
   @Override
-  public DoubleArray update(DoubleUnaryOperator operator) {
+  public void update(DoubleUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsDouble(get(i)));
     }
-    return this;
   }
 
   @Override
@@ -244,7 +216,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void forEach(DoubleConsumer consumer) {
+  public void forEachDouble(DoubleConsumer consumer) {
     for (int i = 0; i < size(); i++) {
       consumer.accept(get(i));
     }
@@ -535,58 +507,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     };
   }
 
-  private class IncrementalBuilder {
-
-    private double[] buffer = new double[10];
-    private int size = 0;
-
-    public void add(double value) {
-      buffer = ArrayAllocations.ensureCapacity(buffer, size);
-      buffer[size++] = value;
-    }
-
-    public DoubleArray build() {
-      return bj.array(Arrays.copyOf(buffer, size));
-    }
-  }
-
-  private class DoubleListView extends AbstractList<Double> {
-
-    @Override
-    public Double get(int i) {
-      return AbstractDoubleArray.this.get(i);
-    }
-
-    @Override
-    public Double set(int i, Double value) {
-      Double old = AbstractDoubleArray.this.get(i);
-      AbstractDoubleArray.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public Iterator<Double> iterator() {
-      return new Iterator<Double>() {
-        private int index = 0;
-
-        @Override
-        public boolean hasNext() {
-          return index < size();
-        }
-
-        @Override
-        public Double next() {
-          return get(index++);
-        }
-      };
-    }
-
-    @Override
-    public int size() {
-      return AbstractDoubleArray.this.size();
-    }
-  }
-
   @Override
   public DoubleArray slice(BooleanArray bits) {
     Check.shape(this, bits);
@@ -630,8 +550,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public List<Double> list() {
+  public List<Double> toList() {
     return new DoubleListView();
+  }
+
+  @Override
+  public Iterator<Double> iterator() {
+    return toList().iterator();
   }
 
   @Override
@@ -674,7 +599,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     return mmul(1, a, other, b);
   }
 
-
   @Override
   public DoubleArray mmul(double alpha, Op a, DoubleArray other, Op b) {
     int thisRows = rows();
@@ -699,12 +623,10 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              a.isTrue() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k, thisRows,
-                  thisCols);
-          int otherIndex =
-              b.isTrue() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
-                  otherRows, otherColumns);
+          int thisIndex = a.isTrue() ? rowMajor(row, k, thisRows, thisCols)
+              : columnMajor(0, row, k, thisRows, thisCols);
+          int otherIndex = b.isTrue() ? rowMajor(k, col, otherRows, otherColumns)
+              : columnMajor(0, k, col, otherRows, otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);
@@ -822,5 +744,57 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       n.set(i, -get(i));
     }
     return n;
+  }
+
+  private class IncrementalBuilder {
+
+    private double[] buffer = new double[10];
+    private int size = 0;
+
+    public void add(double value) {
+      buffer = ArrayAllocations.ensureCapacity(buffer, size);
+      buffer[size++] = value;
+    }
+
+    public DoubleArray build() {
+      return bj.array(Arrays.copyOf(buffer, size));
+    }
+  }
+
+  private class DoubleListView extends AbstractList<Double> {
+
+    @Override
+    public Double get(int i) {
+      return AbstractDoubleArray.this.get(i);
+    }
+
+    @Override
+    public Double set(int i, Double value) {
+      Double old = AbstractDoubleArray.this.get(i);
+      AbstractDoubleArray.this.set(i, value);
+      return old;
+    }
+
+    @Override
+    public Iterator<Double> iterator() {
+      return new Iterator<Double>() {
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+          return index < size();
+        }
+
+        @Override
+        public Double next() {
+          return get(index++);
+        }
+      };
+    }
+
+    @Override
+    public int size() {
+      return AbstractDoubleArray.this.size();
+    }
   }
 }

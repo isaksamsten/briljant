@@ -530,20 +530,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     };
   }
 
-  public class IncrementalBuilder {
-
-    private List<Complex> buffer = new ArrayList<>();
-
-    public ComplexArray build() {
-      return bj.array(buffer.toArray(new Complex[buffer.size()]));
-      // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
-    }
-
-    public void add(Complex value) {
-      buffer.add(value);
-    }
-  }
-
   @Override
   public ComplexArray slice(BooleanArray bits) {
     Check.shape(this, bits);
@@ -583,7 +569,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public final List<Complex> asList() {
+  public final List<Complex> toList() {
     return new AbstractList<Complex>() {
       @Override
       public Complex get(int index) {
@@ -793,5 +779,19 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
       m.set(i, other.divide(get(i)));
     }
     return m;
+  }
+
+  public class IncrementalBuilder {
+
+    private List<Complex> buffer = new ArrayList<>();
+
+    public ComplexArray build() {
+      return bj.array(buffer.toArray(new Complex[buffer.size()]));
+      // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
+    }
+
+    public void add(Complex value) {
+      buffer.add(value);
+    }
   }
 }

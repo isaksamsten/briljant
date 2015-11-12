@@ -25,12 +25,9 @@ package org.briljantframework.array.base;
 import static org.briljantframework.array.Indexer.columnMajor;
 import static org.briljantframework.array.Indexer.rowMajor;
 
-import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.function.DoubleConsumer;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
@@ -73,7 +70,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public double var(DoubleArray x) {
     FastStatistics s = new FastStatistics();
-    x.forEach(s::addValue);
+    x.forEachDouble(s::addValue);
     return s.getVariance();
   }
 
@@ -377,7 +374,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y) {
+  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
+      DoubleArray y) {
     throw new UnsupportedOperationException();
   }
 
@@ -417,21 +415,19 @@ public class BaseArrayRoutines implements ArrayRoutines {
     int n = b.size(transB == Op.KEEP ? 1 : 0);
     int dk = a.size(transA == Op.KEEP ? 1 : 0);
     if (m != c.size(0) || n != c.size(1)) {
-      throw new NonConformantException(String.format(
-          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n, c.size(0),
-          c.size(1)));
+      throw new NonConformantException(
+          String.format("a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n,
+              c.size(0), c.size(1)));
     }
 
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              transA.isTrue() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
-                  thisRows, thisCols);
-          int otherIndex =
-              transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
-                  otherRows, otherColumns);
+          int thisIndex = transA.isTrue() ? rowMajor(row, k, thisRows, thisCols)
+              : columnMajor(0, row, k, thisRows, thisCols);
+          int otherIndex = transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns)
+              : columnMajor(0, k, col, otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
         c.set(row, col, alpha * sum + beta * c.get(row, col));
@@ -454,122 +450,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
       c.set(i, x, i);
     }
     return c;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
-    Objects.requireNonNull(array);
-    Check.argument(array.rows() % parts == 0, "Parts does not evenly divide rows.");
-    int partRows = array.rows() / parts;
-    return new AbstractList<T>() {
-      @Override
-      public T get(int index) {
-        Check.elementIndex(index, size());
-        T part = array.newEmptyArray(partRows, array.columns());
-        for (int j = 0; j < part.columns(); j++) {
-          for (int i = 0; i < part.rows(); i++) {
-            part.set(i, j, array, i + partRows * index, j);
-          }
-        }
-        return part;
-      }
-
-      @Override
-      public int size() {
-        return parts;
-      }
-    };
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T vstack(Collection<T> arrays) {
-    Check.argument(arrays.size() > 0);
-    int rows = 0;
-    int columns = 0;
-    T first = null;
-    for (T matrix : arrays) {
-      if (first == null) {
-        first = matrix;
-        columns = first.columns();
-      }
-      Check.argument(columns == matrix.columns(), "Can't vstack %s with %s.", matrix.getShape(),
-          first.getShape());
-      rows += matrix.rows();
-    }
-
-    T newMatrix = first.newEmptyArray(rows, columns);
-    int pad = 0;
-    for (T matrix : arrays) {
-      for (int j = 0; j < matrix.columns(); j++) {
-        for (int i = 0; i < matrix.rows(); i++) {
-          newMatrix.set(i + pad, j, matrix, i, j);
-        }
-      }
-      pad += matrix.rows();
-    }
-    return newMatrix;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
-    Objects.requireNonNull(array);
-    Check.argument(array.rows() % parts == 0, "Parts does not evenly dived columns.");
-    int partColumns = array.columns() / parts;
-    return new AbstractList<T>() {
-
-      @Override
-      public T get(int index) {
-        Check.elementIndex(index, size());
-        T part = array.newEmptyArray(array.rows(), partColumns);
-        for (int j = 0; j < part.columns(); j++) {
-          for (int i = 0; i < part.rows(); i++) {
-            part.set(i, j, array, i, j + partColumns * index);
-          }
-        }
-        return part;
-      }
-
-      @Override
-      public int size() {
-        return parts;
-      }
-    };
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T hstack(Collection<T> arrays) {
-    Check.argument(arrays.size() > 0);
-    int columns = 0;
-    int rows = 0;
-    T first = null;
-    for (T matrix : arrays) {
-      if (first == null) {
-        first = matrix;
-        rows = first.rows();
-      }
-      Check.argument(rows == matrix.rows(), "Can't hstack %s with %s.", matrix.getShape(),
-          first.getShape());
-      columns += matrix.columns();
-    }
-    // First can't be null unless arrays contains null element
-    T newMatrix = first.newEmptyArray(rows, columns);
-    int pad = 0;
-    for (T matrix : arrays) {
-      for (int j = 0; j < matrix.columns(); j++) {
-        for (int i = 0; i < matrix.rows(); i++) {
-          newMatrix.set(i, j + pad, matrix, i, j);
-        }
-      }
-      pad += matrix.columns();
-    }
-    return newMatrix;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T shuffle(T x) {
-    T out = x.copy();
-    out.permute(out.size());
-    return out;
   }
 
   @Override

@@ -434,7 +434,7 @@ abstract class ArrayFactorySpec extends Specification {
     expect:
     def range = bj.range(a, b, c)
     range.size() == d
-    range.list().last() == l
+    range.toList().last() == l
 
     where:
     a << [1, 2, 3, 4]
@@ -449,7 +449,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(1, 10, 2)
 
     when:
-    def last = r.list().last()
+    def last = r.toList().last()
 
     then:
     r.size() == 5
@@ -461,7 +461,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(0, -10, -1)
 
     expect:
-    r.list().last() == -9
+    r.toList().last() == -9
   }
 
 

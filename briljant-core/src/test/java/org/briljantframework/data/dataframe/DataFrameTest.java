@@ -189,8 +189,8 @@ public abstract class DataFrameTest {
       }
     }
     DataFrame df = builder.build();
-    assertEquals(values.get(0), df.loc().get(0).asList(Integer.class));
-    assertEquals(values.get(1), df.loc().get(1).asList(Integer.class));
+    assertEquals(values.get(0), df.loc().get(0).toList(Integer.class));
+    assertEquals(values.get(1), df.loc().get(1).toList(Integer.class));
   }
 
   @Test
@@ -296,7 +296,7 @@ public abstract class DataFrameTest {
     assertEquals(3, df.columns());
     for (int i = 0; i < 3; i++) {
       // For MixedDataFrame the type of a record is always Object
-      assertEquals(actual.asList(String.class), df.getRecord(i).asList(String.class));
+      assertEquals(actual.toList(String.class), df.getRecord(i).toList(String.class));
     }
   }
 
@@ -309,11 +309,11 @@ public abstract class DataFrameTest {
     assertEquals(2, df.rows());
     assertEquals(2, df.columns());
 
-    assertEquals(Vector.of(4, 32).asList(Integer.class), df.getRecord("a").asList(Integer.class));
-    assertEquals(Vector.of(37, 44).asList(Integer.class), df.getRecord("b").asList(Integer.class));
+    assertEquals(Vector.of(4, 32).toList(Integer.class), df.getRecord("a").toList(Integer.class));
+    assertEquals(Vector.of(37, 44).toList(Integer.class), df.getRecord("b").toList(Integer.class));
 
-    assertEquals(Vector.of(4, 37).asList(Integer.class), df.get("id").asList(Integer.class));
-    assertEquals(Vector.of(32, 44).asList(Integer.class), df.get("age").asList(Integer.class));
+    assertEquals(Vector.of(4, 37).toList(Integer.class), df.get("id").toList(Integer.class));
+    assertEquals(Vector.of(32, 44).toList(Integer.class), df.get("age").toList(Integer.class));
   }
 
   @Test
@@ -344,8 +344,8 @@ public abstract class DataFrameTest {
     assertEquals(2, df.rows());
     assertEquals(3, df.columns());
 
-    assertEquals(Arrays.asList("1", "2", "3"), df.getRecord(0).asList(String.class));
-    assertEquals(Arrays.asList("3", "2", "1"), df.getRecord(1).asList(String.class));
+    assertEquals(Arrays.asList("1", "2", "3"), df.getRecord(0).toList(String.class));
+    assertEquals(Arrays.asList("3", "2", "1"), df.getRecord(1).toList(String.class));
   }
 
   @Test
@@ -403,9 +403,9 @@ public abstract class DataFrameTest {
             .set("d", Vector.of(1, 2, 3, 4, 5)).build();
 
     DataFrame dfs = df.map(Integer.class, a -> a * 2);
-    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("i").asList(Integer.class));
-    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("k").asList(Integer.class));
-    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("d").asList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("i").toList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("k").toList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("d").toList(Integer.class));
   }
 
   @Test

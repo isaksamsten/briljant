@@ -49,9 +49,7 @@ public final class Check {
    * <p>
    * 
    * <pre>
-   * {@code
-   * Check.any(x -> x.length() > 3, "a", "b", "c", string);
-   * }
+   * Check.any(x -> x.length() > 3, "a", "b", "c");
    * </pre>
    *
    * @param predicate the predicate to test
@@ -69,10 +67,24 @@ public final class Check {
   /**
    * @see #all(java.util.function.Predicate, Object[])
    */
-  public static <T> void all(Predicate<? super T> predicate, Iterable<? extends T> iterable) {
+  public static <T> void all(Iterable<? extends T> iterable, Predicate<? super T> predicate) {
     for (T t : iterable) {
       if (!predicate.test(t)) {
         throw new IllegalArgumentException(String.format(NON_CONFORMAT_VALUE, t));
+      }
+    }
+  }
+
+  /**
+   * @param iterable list of objects
+   * @param predicate predicate
+   * @param message message
+   */
+  public static <T> void all(Iterable<? extends T> iterable, Predicate<? super T> predicate,
+      String message, Object... args) {
+    for (T t : iterable) {
+      if (!predicate.test(t)) {
+        throw new IllegalArgumentException(String.format(message, args));
       }
     }
   }
@@ -86,8 +98,8 @@ public final class Check {
    */
   public static void inRange(double value, double min, double max) {
     if (value < min || value > max) {
-      throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", value,
-          min, value, max));
+      throw new IllegalArgumentException(
+          String.format("%f < %f (min) || %f > %f (max)", value, min, value, max));
     }
   }
 

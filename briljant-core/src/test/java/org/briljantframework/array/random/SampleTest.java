@@ -33,6 +33,6 @@ public class SampleTest {
   @Test
   public void testSampleWithoutReplacement() throws Exception {
     IntArray sample = Sample.withoutReplacement(new Random(123), 10, 5);
-    ArrayAssert.assertArrayEquals(sample, Arrays.newIntVector(new int[]{0, 1, 5, 3, 4}));
+    ArrayAssert.assertArrayEquals(sample, Arrays.newIntVector(0, 1, 5, 3, 4));
   }
 }

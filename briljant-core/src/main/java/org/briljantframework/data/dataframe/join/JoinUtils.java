@@ -143,7 +143,7 @@ public class JoinUtils {
   }
 
   public static JoinKeys createJoinKeys(Vector a, Vector b) {
-    return createJoinKeys(a.asList(Object.class), b.asList(Object.class));
+    return createJoinKeys(a.toList(Object.class), b.toList(Object.class));
   }
 
 }

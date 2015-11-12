@@ -248,7 +248,7 @@ public abstract class VectorBuilderTest {
 
     Vector expected = Vector.of(1, null, null, 100);
     Vector actual = builder.build();
-    assertEquals(expected.asList(Integer.class), actual.asList(Integer.class));
+    assertEquals(expected.toList(Integer.class), actual.toList(Integer.class));
   }
 
   @Test
@@ -293,9 +293,9 @@ public abstract class VectorBuilderTest {
 
     Vector v = builder.build();
     if (v instanceof GenericVector) {
-      assertEquals(Arrays.asList("1", "2", "4", "10"), v.asList(String.class));
+      assertEquals(Arrays.asList("1", "2", "4", "10"), v.toList(String.class));
     } else {
-      assertEquals(Arrays.asList(1, 2, 4, 10), v.asList(Integer.class));
+      assertEquals(Arrays.asList(1, 2, 4, 10), v.toList(Integer.class));
     }
   }
 

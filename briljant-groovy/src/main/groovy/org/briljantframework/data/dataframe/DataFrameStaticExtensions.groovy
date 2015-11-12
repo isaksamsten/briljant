@@ -25,6 +25,7 @@
 package org.briljantframework.data.dataframe
 
 import org.briljantframework.data.parser.CsvParser
+import org.briljantframework.data.parser.Parser
 import org.briljantframework.data.parser.SqlParser
 
 /**
@@ -47,7 +48,7 @@ class DataFrameStaticExtensions {
    * @see CsvParser.Settings
    */
   static DataFrame readCSV(DataFrame self, @DelegatesTo(CsvParser.Settings) Closure closure = {}) {
-    def parser = new CsvParser()
+    Parser parser = new CsvParser()
     parser.settings.with closure
     return parser.parse()
   }

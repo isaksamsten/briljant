@@ -312,7 +312,7 @@ public class MixedDataFrame extends AbstractDataFrame {
   @Override
   protected DataFrame getRecordsAt(IntArray indexes) {
     Builder builder = newBuilder();
-    for (Integer index : indexes.list()) {
+    for (Integer index : indexes.toList()) {
       builder.set(getIndex().getKey(index), Vectors.transferableBuilder(getRecordAt(index)));
     }
     builder.setColumnIndex(getColumnIndex());

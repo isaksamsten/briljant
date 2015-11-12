@@ -172,7 +172,9 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public DoubleArray ones(int... shape) {
-    return doubleArray(shape).assign(1);
+    DoubleArray array = doubleArray(shape);
+    array.assign(1);
+    return array;
   }
 
   @Override

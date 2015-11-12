@@ -476,11 +476,11 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public Stream<T> stream() {
-    return list().stream();
+    return toList().stream();
   }
 
   @Override
-  public List<T> list() {
+  public List<T> toList() {
     return new AbstractList<T>() {
 
       @Override

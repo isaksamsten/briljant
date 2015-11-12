@@ -35,7 +35,7 @@ class VectorExtensions {
 
   static <T> T asType(Vector self, Class<T> cls) {
     if (Collection.isAssignableFrom(cls)) {
-      return cls.cast(self.asList(Object))
+      return cls.cast(self.toList(Object))
     }
     throw new ClassCastException()
   }
@@ -49,8 +49,8 @@ class VectorExtensions {
     return self.get(Object, name)
   }
 
-  static <T> T getAt(Vector self, Object k) {
-    return self.get(T, k)
+  static Object getAt(Vector self, Object k) {
+    return self.get(k)
   }
 
   static Vector plus(Vector self, Number o) {

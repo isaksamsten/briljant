@@ -91,7 +91,7 @@ public final class ObjectIndex implements Index {
   }
 
   public static ObjectIndex of(Vector vector) {
-    return of(vector.asList(Object.class));
+    return of(vector.toList(Object.class));
   }
 
 
