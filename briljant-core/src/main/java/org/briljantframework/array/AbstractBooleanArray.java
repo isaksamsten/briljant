@@ -197,11 +197,6 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray mmul(BooleanArray o) {
-    return asInt().mmul(o.asInt()).asBoolean().copy();
-  }
-
-  @Override
   public BooleanArray assign(boolean value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);

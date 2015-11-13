@@ -74,8 +74,6 @@ public interface BooleanArray
 
   BooleanArray div(BooleanArray o);
 
-  BooleanArray mmul(BooleanArray o);
-
   Stream<Boolean> stream();
 
   List<Boolean> toList();
