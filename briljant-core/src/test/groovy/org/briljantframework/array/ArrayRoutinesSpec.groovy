@@ -24,6 +24,7 @@
 
 package org.briljantframework.array
 
+import org.apache.commons.math3.util.Precision
 import org.briljantframework.array.api.ArrayFactory
 import org.briljantframework.array.api.ArrayRoutines
 import spock.lang.Shared
@@ -125,7 +126,7 @@ abstract class ArrayRoutinesSpec extends Specification {
 
   def "norm2"() {
     expect:
-    bjr.norm2(a) == Math.sqrt(sum)
+    Precision.equals(bjr.norm2(a), Math.sqrt(sum), 10e-6)
 
     where:
     a << [
