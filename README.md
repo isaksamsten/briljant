@@ -1,3 +1,4 @@
+![Build status](https://travis-ci.org/briljant/briljant.svg?branch=develop)
 # Briljant Framework
 
 Briljant is a [MIT](http://https://opensource.org/licenses/MIT)
