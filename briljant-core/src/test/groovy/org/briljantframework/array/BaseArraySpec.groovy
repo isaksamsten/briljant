@@ -179,7 +179,7 @@ class BaseArraySpec extends Specification {
     def arr = bj.range(10)
 
     when:
-    def i = arr.get(range)
+    def i = arr.get([range])
 
     then:
     i.shape == selected.shape

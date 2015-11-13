@@ -49,13 +49,13 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     a << [
         bj.array([1, 2, 3, 4] as double[]), // simple
-        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)), // slice
+        bj.range(10).asDouble().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 15, 16).reshape(4, 4).getColumn(0)
     ]
 
     b << [
         bj.array([1, 2, 3, 4] as double[]),
-        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)), // slice
+        bj.range(10).asDouble().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
     ]
 
@@ -73,7 +73,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     x << [
         bj.array([1, 2, 3, -5] as double[]),
-        bj.array([1, 2, -3, -4, 10, 2] as double[]).get(bj.range(1, 6, 2))
+        bj.array([1, 2, -3, -4, 10, 2] as double[]).get([bj.range(1, 6, 2)])
     ]
 
     sum << [
@@ -92,7 +92,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     x << [
         bj.array([1, 2, 3, 4] as double[]),
-        bj.array([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get(bj.range(1, 8, 2)),
+        bj.array([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get([bj.range(1, 8, 2)]),
         bj.linspace(0, 4, 10),
         bj.linspace(0, 9, 10).reshape(2, 5).getRow(0).transpose(),
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
