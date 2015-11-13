@@ -22,9 +22,27 @@
 package org.briljantframework.array;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.function.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.PrimitiveIterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleToIntFunction;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.ObjDoubleConsumer;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
@@ -120,7 +138,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void update(DoubleUnaryOperator operator) {
+  public void apply(DoubleUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsDouble(get(i)));
     }
@@ -181,6 +199,15 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
+  public <T> Array<T> mapToObj(DoubleFunction<? extends T> mapper) {
+    Array<T> array = getArrayFactory().referenceArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, mapper.apply(get(i)));
+    }
+    return array;
+  }
+
+  @Override
   public DoubleArray filter(DoublePredicate predicate) {
     DoubleList builder = new DoubleList();
     for (int i = 0; i < size(); i++) {
@@ -226,7 +253,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
-      identity = reduce.applyAsDouble(map.applyAsDouble(get(i)), identity);
+      identity = reduce.applyAsDouble(identity, map.applyAsDouble(get(i)));
     }
     return identity;
   }
@@ -605,6 +632,31 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
+  public void timesAssign(double scalar) {
+    apply(v -> v * scalar);
+  }
+
+  @Override
+  public void timesAssign(DoubleArray array) {
+    assign(array, (a, b) -> a * b);
+  }
+
+  @Override
+  public void minusAssign(double scalar) {
+    apply(v -> v - scalar);
+  }
+
+  @Override
+  public void minusAssign(DoubleArray array) {
+    assign(array, (a, b) -> a - b);
+  }
+
+  @Override
+  public void reverseMinusAssign(double scalar) {
+    apply(v -> scalar - v);
+  }
+
+  @Override
   public DoubleArray plus(DoubleArray other) {
     return plus(1, other, 1);
   }
@@ -689,6 +741,31 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       n.set(i, -get(i));
     }
     return n;
+  }
+
+  @Override
+  public void plusAssign(DoubleArray other) {
+    assign(other, (a, b) -> a + b);
+  }
+
+  @Override
+  public void plusAssign(double scalar) {
+    apply(v -> v + scalar);
+  }
+
+  @Override
+  public void divAssign(DoubleArray other) {
+    assign(other, (x, y) -> x / y);
+  }
+
+  @Override
+  public void divAssign(double value) {
+    apply(v -> v / value);
+  }
+
+  @Override
+  public void reverseDivAssign(double other) {
+    apply(v -> other / v);
   }
 
   private class IncrementalBuilder {

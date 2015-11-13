@@ -152,55 +152,49 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray assign(int value) {
+  public void assign(int value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(int[] data) {
+  public void assign(int[] data) {
     Check.size(this.size(), data.length);
     for (int i = 0; i < data.length; i++) {
       set(i, data[i]);
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(IntSupplier supplier) {
+  public void assign(IntSupplier supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.getAsInt());
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(IntArray matrix, IntUnaryOperator operator) {
+  public void assign(IntArray matrix, IntUnaryOperator operator) {
     Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(IntArray matrix, IntBinaryOperator combine) {
+  public void assign(IntArray matrix, IntBinaryOperator combine) {
     Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsInt(get(i), matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(ComplexArray matrix, ToIntFunction<? super Complex> function) {
+  public void assign(ComplexArray matrix, ToIntFunction<? super Complex> function) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
@@ -209,38 +203,34 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray assign(DoubleArray matrix, DoubleToIntFunction function) {
+  public void assign(DoubleArray matrix, DoubleToIntFunction function) {
     Check.size(this, matrix);
     for (int i = 0; i < matrix.size(); i++) {
       set(i, function.applyAsInt(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(LongArray matrix, LongToIntFunction operator) {
+  public void assign(LongArray matrix, LongToIntFunction operator) {
     Check.size(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
     }
-    return this;
   }
 
   @Override
-  public IntArray assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
+  public void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
     Check.shape(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i), get(i)));
     }
-    return this;
   }
 
   @Override
-  public IntArray update(IntUnaryOperator operator) {
+  public void apply(IntUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(get(i)));
     }
-    return this;
   }
 
   @Override
@@ -530,12 +520,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void update(int index, IntUnaryOperator operator) {
+  public void apply(int index, IntUnaryOperator operator) {
     set(index, operator.applyAsInt(get(index)));
   }
 
   @Override
-  public void update(int i, int j, IntUnaryOperator operator) {
+  public void apply(int i, int j, IntUnaryOperator operator) {
     set(i, j, operator.applyAsInt(get(i, j)));
   }
 
@@ -604,43 +594,43 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray plusAssign(IntArray other) {
-    return assign(other, Integer::sum);
+  public void plusAssign(IntArray other) {
+    assign(other, Integer::sum);
   }
 
   @Override
-  public IntArray plusAssign(int scalar) {
-    return update(i -> i + scalar);
+  public void plusAssign(int scalar) {
+    apply(i -> i + scalar);
   }
 
   @Override
-  public IntArray minusAssign(IntArray other) {
-    return assign(other, (a, b) -> a - b);
+  public void minusAssign(IntArray other) {
+    assign(other, (a, b) -> a - b);
   }
 
   @Override
-  public IntArray minusAssign(int scalar) {
-    return update(i -> i - scalar);
+  public void minusAssign(int scalar) {
+    apply(i -> i - scalar);
   }
 
   @Override
-  public IntArray reverseMinusAssign(int scalar) {
-    return update(i -> scalar - i);
+  public void reverseMinusAssign(int scalar) {
+    apply(i -> scalar - i);
   }
 
   @Override
-  public IntArray divAssign(IntArray other) {
-    return assign(other, (a, b) -> a / b);
+  public void divAssign(IntArray other) {
+    assign(other, (a, b) -> a / b);
   }
 
   @Override
-  public IntArray divAssign(int other) {
-    return update(i -> i / other);
+  public void divAssign(int other) {
+    apply(i -> i / other);
   }
 
   @Override
-  public IntArray reverseDivAssign(int other) {
-    return update(i -> other / i);
+  public void reverseDivAssign(int other) {
+    apply(i -> other / i);
   }
 
   @Override

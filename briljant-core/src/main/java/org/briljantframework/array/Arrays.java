@@ -39,7 +39,6 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
-import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
@@ -276,7 +275,9 @@ public final class Arrays {
 
   public static IntArray randi(int size, int l, int u) {
     RealDistribution distribution = new UniformRealDistribution(l, u);
-    return newIntArray(size).assign(() -> (int) Math.round(distribution.sample()));
+    IntArray array = newIntArray(size);
+    array.assign(() -> (int) Math.round(distribution.sample()));
+    return array;
   }
 
   /**
@@ -1120,7 +1121,9 @@ public final class Arrays {
    */
   public static IntArray select(IntArray a, BooleanArray where, int replace) {
     Check.shape(a, where);
-    return a.copy().assign(where, (b, i) -> b ? replace : i);
+    IntArray copy = a.copy();
+    copy.assign(where, (b, i) -> b ? replace : i);
+    return copy;
   }
 
   public static IntArray order(DoubleArray array, DoubleComparator cmp) {
@@ -1131,7 +1134,7 @@ public final class Arrays {
 
   public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
     int vectors = array.vectors(dim);
-    IntArray order = newIntArray(array.getShape());
+    IntArray order = IntArray.zeros(array.getShape());
     for (int i = 0; i < vectors; i++) {
       order.setVector(dim, i, order(array.getVector(dim, i), cmp));
     }

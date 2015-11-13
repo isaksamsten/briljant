@@ -24,6 +24,7 @@ package org.briljantframework.array;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.briljantframework.Listable;
@@ -34,9 +35,17 @@ import org.briljantframework.Listable;
 public interface BooleanArray
     extends BaseArray<BooleanArray>, Iterable<Boolean>, Listable<Boolean> {
 
-  BooleanArray assign(Supplier<Boolean> supplier);
+  /**
+   * Assign the value of successive cals to the supplier
+   * @param supplier the supplier
+   */
+  void assign(Supplier<Boolean> supplier);
 
-  BooleanArray assign(boolean value);
+  /**
+   * Assign  the scalar value
+   * @param value the value
+   */
+  void assign(boolean value);
 
   void set(int index, boolean value);
 
@@ -50,9 +59,9 @@ public interface BooleanArray
 
   boolean get(int... index);
 
-  Array<Boolean> boxed();
-
   BooleanArray map(Function<Boolean, Boolean> mapper);
+
+  void apply(UnaryOperator<Boolean> operator);
 
   BooleanArray xor(BooleanArray other);
 
@@ -66,13 +75,7 @@ public interface BooleanArray
 
   BooleanArray not();
 
-  BooleanArray add(BooleanArray o);
-
-  BooleanArray sub(BooleanArray o);
-
-  BooleanArray mul(BooleanArray o);
-
-  BooleanArray div(BooleanArray o);
+  Array<Boolean> boxed();
 
   Stream<Boolean> stream();
 

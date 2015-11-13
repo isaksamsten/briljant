@@ -107,14 +107,6 @@ public interface ComplexArray
   /**
    * Perform {@code operator} element wise to receiver.
    *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  ComplexArray update(UnaryOperator<Complex> operator);
-
-  /**
-   * Perform {@code operator} element wise to receiver.
-   *
    * For example, {@code m.map(Complex::sqrt)} is equal to
    *
    * <pre>
@@ -141,6 +133,15 @@ public interface ComplexArray
   LongArray mapToLong(ToLongFunction<Complex> function);
 
   DoubleArray mapToDouble(ToDoubleFunction<Complex> function);
+
+  <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   */
+  void apply(UnaryOperator<Complex> operator);
 
   ComplexArray filter(Predicate<Complex> predicate);
 

@@ -67,6 +67,11 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
+  public double rank(DoubleArray x) {
+    return super.rank(x); // TODO: improve by only computing the singular values
+  }
+
+  @Override
   public LuDecomposition lu(DoubleArray array) {
     Check.argument(array.isMatrix() && array.isSquare(), "require square 2d-array");
     int m = array.size(0);

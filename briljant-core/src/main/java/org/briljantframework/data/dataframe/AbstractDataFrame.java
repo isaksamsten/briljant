@@ -340,13 +340,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     return doCollect(cls, collector, builder);
   }
 
-  @Override
-  public final <T, R, C> Vector collect(Class<T> in, Class<R> out,
-      Collector<? super T, C, ? extends R> collector) {
-    Vector.Builder builder = VectorType.of(out).newBuilder();
-    return doCollect(in, collector, builder);
-  }
-
   private <T, C> Vector doCollect(Class<T> cls, Collector<? super T, C, ?> collector,
       Vector.Builder builder) {
 

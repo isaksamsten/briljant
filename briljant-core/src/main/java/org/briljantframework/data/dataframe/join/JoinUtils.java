@@ -43,7 +43,7 @@ public class JoinUtils {
    * @return retVal[0] := indexer, retVal[1] := counts
    */
   public static IntArray[] groupSortIndexer(IntArray index, int maxGroups) {
-    IntArray counts = Arrays.newIntArray(maxGroups + 1);
+    IntArray counts = IntArray.zeros(maxGroups + 1);
     int n = index.size();
     for (int i = 0; i < n; i++) {
       int idx = index.get(i) + 1;
@@ -55,7 +55,7 @@ public class JoinUtils {
       where[i] = where[i - 1] + counts.get(i - 1);
     }
 
-    IntArray results = Arrays.newIntArray(n);
+    IntArray results = IntArray.zeros(n);
     for (int i = 0; i < n; i++) {
       int label = index.get(i) + 1;
       results.set(where[label], i);

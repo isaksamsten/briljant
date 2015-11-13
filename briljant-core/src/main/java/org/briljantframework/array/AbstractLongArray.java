@@ -56,7 +56,7 @@ import org.briljantframework.primitive.ArrayAllocations;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> implements LongArray {
+public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>implements LongArray {
 
   protected AbstractLongArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
@@ -241,11 +241,10 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray update(LongUnaryOperator operator) {
+  public void apply(LongUnaryOperator operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsLong(get(i)));
     }
-    return this;
   }
 
   @Override
@@ -282,6 +281,15 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       matrix.set(i, map.apply(get(i)));
     }
     return matrix;
+  }
+
+  @Override
+  public <T> Array<T> mapToObj(LongFunction<? extends T> mapper) {
+    Array<T> array = getArrayFactory().referenceArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, mapper.apply(get(i)));
+    }
+    return array;
   }
 
   @Override
@@ -476,12 +484,10 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       for (int col = 0; col < otherColumns; col++) {
         long sum = 0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              a == Op.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
-                  thisRows, thisCols);
-          int otherIndex =
-              b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k,
-                  col, otherRows, otherColumns);
+          int thisIndex = a == Op.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols)
+              : columnMajor(0, row, k, thisRows, thisCols);
+          int otherIndex = b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns)
+              : columnMajor(0, k, col, otherRows, otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);

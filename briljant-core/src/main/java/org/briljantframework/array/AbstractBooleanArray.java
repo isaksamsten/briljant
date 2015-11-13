@@ -22,10 +22,16 @@
 package org.briljantframework.array;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -109,6 +115,13 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
+  public void apply(UnaryOperator<Boolean> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
+  }
+
+  @Override
   public void set(int i, int j, boolean value) {
     Check.argument(isMatrix());
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
@@ -140,11 +153,10 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray assign(Supplier<Boolean> supplier) {
+  public void assign(Supplier<Boolean> supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.get());
     }
-    return this;
   }
 
   @Override
@@ -177,31 +189,10 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray add(BooleanArray o) {
-    return asInt().plus(o.asInt()).asBoolean().copy();
-  }
-
-  @Override
-  public BooleanArray sub(BooleanArray o) {
-    return asInt().minus(o.asInt()).asBoolean().copy();
-  }
-
-  @Override
-  public BooleanArray mul(BooleanArray o) {
-    return asInt().times(o.asInt()).asBoolean().copy();
-  }
-
-  @Override
-  public BooleanArray div(BooleanArray o) {
-    return asInt().div(o.asInt()).asBoolean().copy();
-  }
-
-  @Override
-  public BooleanArray assign(boolean value) {
+  public void assign(boolean value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
     }
-    return this;
   }
 
   @Override

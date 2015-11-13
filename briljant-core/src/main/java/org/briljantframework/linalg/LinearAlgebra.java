@@ -21,11 +21,8 @@
 
 package org.briljantframework.linalg;
 
-import org.briljantframework.Check;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.linalg.decomposition.LuDecomposer;
-import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
@@ -38,18 +35,6 @@ public class LinearAlgebra {
    * The constant MACHINE_EPSILON.
    */
   public final static double MACHINE_EPSILON = Math.ulp(1);
-
-  /**
-   * Lu lu decomposition.
-   *
-   * @param matrix the matrix
-   * @return lu decomposition
-   */
-  public static LuDecomposition lu(DoubleArray matrix) {
-    return new LuDecomposer().decompose(matrix);
-  }
-
-
 
 
   /**

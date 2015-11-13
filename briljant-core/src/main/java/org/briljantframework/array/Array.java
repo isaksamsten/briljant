@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
@@ -179,6 +180,8 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
    * @return a new array
    */
   <U> Array<U> map(Function<? super T, ? extends U> f);
+
+  void apply(UnaryOperator<T> operator);
 
   /**
    * Return a view of this array consisting of the results of lazily applying the {@code to}

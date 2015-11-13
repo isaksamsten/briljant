@@ -48,10 +48,9 @@ public class PcaTransformation implements InvertibleTransformation {
 
   private final int components = 1;
 
-
-
   private SingularValueDecomposition getSingularValueDecomposition(DoubleArray m) {
-    DoubleArray sigma = Arrays.dot(Op.TRANSPOSE, Op.KEEP, m, m).divAssign(m.rows());
+    DoubleArray sigma = Arrays.dot(Op.TRANSPOSE, Op.KEEP, m, m);
+    sigma.divAssign(m.rows());
     return null;
   }
 
@@ -64,15 +63,7 @@ public class PcaTransformation implements InvertibleTransformation {
       @Override
       public DataFrame inverseTransform(DataFrame x) {
         Check.all(x.getColumns(), col -> col.getType() == VectorType.DOUBLE && !col.hasNA());
-        DoubleArray matrix = x.toArray().asDouble();
-
-        // Matrix m = frame.toMatrix();
-        // E copy = factory.copyDataset(frame);
-        // Types types = Types.range(NumericType::new, components(m));
-        // Matrix original = Matrices.mmul(DenseMatrix::new, m, Transpose.NO,
-        // u.getColumns(Range.exclusive(0, components(m))), Transpose.YES);
-        //
-        // copy.setMatrix(types, original);
+        DoubleArray matrix = x.toDoubleArray();
         throw new UnsupportedOperationException();
       }
 

@@ -72,14 +72,6 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
 
   LongArray assign(DoubleArray matrix, DoubleToLongFunction function);
 
-  /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  LongArray update(LongUnaryOperator operator);
-
   // Transform
 
   /**
@@ -111,6 +103,15 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   DoubleArray mapToDouble(LongToDoubleFunction map);
 
   ComplexArray mapToComplex(LongFunction<Complex> map);
+
+  <T> Array<T> mapToObj(LongFunction<? extends T> mapper);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   */
+  void apply(LongUnaryOperator operator);
 
   BooleanArray where(LongPredicate predicate);
 

@@ -23,14 +23,17 @@ package org.briljantframework.linalg.api;
 
 import java.util.Objects;
 
+import org.apache.commons.math3.util.Precision;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
+import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
 /**
  * @author Isak Karlsson
  */
 public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRoutines {
 
+  public static final double EPS = 1e-10;
   private final ArrayBackend arrayBackend;
 
   protected AbstractLinearAlgebraRoutines(ArrayBackend matrixFactory) {
@@ -58,5 +61,12 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     } else {
       throw new IllegalArgumentException("argument must be a square array");
     }
+  }
+
+  @Override
+  public double rank(DoubleArray x) {
+    SingularValueDecomposition svd = svd(x);
+    DoubleArray singular = svd.getDiagonal();
+    return singular.reduce(0, (acc, v) -> Precision.compareTo(v, 0, EPS) > 0 ? acc + 1 : acc);
   }
 }

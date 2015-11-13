@@ -186,6 +186,13 @@ public class NetlibLinearAlgebraRoutinesTest {
   }
 
   @Test
+  public void testRank() throws Exception {
+    DoubleArray x = bj.range(9).reshape(3, 3).asDouble();
+    System.out.println(x);
+    System.out.println(linalg.rank(x));
+  }
+
+  @Test
   public void testInv() throws Exception {
     DoubleArray x = bj.array(new double[] {1.80, 2.88, 2.05, -0.89, 5.25, -2.95, -0.95, -3.80, 1.58,
         -2.69, -2.90, -1.04, -1.11, -0.66, -0.59, 0.80}).reshape(4, 4).transpose();

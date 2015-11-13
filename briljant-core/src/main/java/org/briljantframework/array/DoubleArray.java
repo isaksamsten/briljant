@@ -106,6 +106,14 @@ import org.briljantframework.function.DoubleBiPredicate;
  */
 public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, Listable<Double> {
 
+  static DoubleArray zeros(int... shape) {
+    return Arrays.newDoubleArray(shape);
+  }
+
+  static DoubleArray ones(int... shape) {
+    return Arrays.ones(shape);
+  }
+
   /**
    * Assign {@code value} to {@code this}
    *
@@ -138,13 +146,6 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   void assign(LongArray matrix, LongToDoubleFunction function);
 
   void assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
-
-  /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   */
-  void update(DoubleUnaryOperator operator);
 
   <R, C> R collect(Collector<? super Double, C, R> collector);
 
@@ -187,6 +188,15 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   LongArray mapToLong(DoubleToLongFunction function);
 
   ComplexArray mapToComplex(DoubleFunction<Complex> function);
+
+  <T> Array<T> mapToObj(DoubleFunction<? extends T> mapper);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   */
+  void apply(DoubleUnaryOperator operator);
 
   // Filter
 
@@ -307,6 +317,10 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   DoubleArray times(double scalar);
 
+  void timesAssign(double scalar);
+
+  void timesAssign(DoubleArray array);
+
   DoubleArray plus(DoubleArray other);
 
   /**
@@ -317,15 +331,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   DoubleArray plus(double scalar);
 
-  default DoubleArray plusAssign(DoubleArray other) {
-    assign(other, (a, b) -> a + b);
-    return this;
-  }
+  void plusAssign(DoubleArray other);
 
-  default DoubleArray plusAssign(double scalar) {
-    update(v -> v + scalar);
-    return this;
-  }
+  void plusAssign(double scalar);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -349,6 +357,10 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   DoubleArray minus(DoubleArray other);
 
+  void minusAssign(double scalar);
+
+  void minusAssign(DoubleArray scalar);
+
   /**
    * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
    * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
@@ -369,6 +381,8 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   DoubleArray reverseMinus(double scalar);
 
+  void reverseMinusAssign(double scalar);
+
   /**
    * Element wise division. {@code this / other}.
    *
@@ -380,15 +394,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   DoubleArray div(DoubleArray other);
 
-  default DoubleArray divAssign(DoubleArray other) {
-    assign(other, (x, y) -> x / y);
-    return this;
-  }
+  void divAssign(DoubleArray other);
 
-  default DoubleArray divAssign(double value) {
-    update(v -> v / value);
-    return this;
-  }
+  void divAssign(double value);
 
   /**
    * Element wise division. {@code other / this}.
@@ -399,10 +407,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   DoubleArray reverseDiv(double other);
 
-  default DoubleArray reverseDivAssign(double other) {
-    update(v -> other / v);
-    return this;
-  }
+  void reverseDivAssign(double other);
 
   /**
    * Returns a new matrix with elements negated.

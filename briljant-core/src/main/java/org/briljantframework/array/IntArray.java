@@ -47,15 +47,24 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  */
 public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
+  static IntArray zeros(int... shape) {
+    return Arrays.newIntArray(shape);
+  }
+
+  static IntArray ones(int... shape) {
+    IntArray array = zeros(shape);
+    array.assign(1);
+    return array;
+  }
+
   /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign
-   * @return receiver modified
    */
-  IntArray assign(int value);
+  void assign(int value);
 
-  IntArray assign(int[] data);
+  void assign(int[] data);
 
   /**
    * Assign value returned by {@link #size()} successive calls to
@@ -64,7 +73,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param supplier the supplier
    * @return receiver modified
    */
-  IntArray assign(IntSupplier supplier);
+  void assign(IntSupplier supplier);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
@@ -72,7 +81,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param operator the operator
    * @return receiver modified
    */
-  IntArray assign(IntArray matrix, IntUnaryOperator operator);
+  void assign(IntArray matrix, IntUnaryOperator operator);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
@@ -82,17 +91,17 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param combine the combiner
    * @return receiver modified
    */
-  IntArray assign(IntArray matrix, IntBinaryOperator combine);
+  void assign(IntArray matrix, IntBinaryOperator combine);
 
-  IntArray assign(ComplexArray matrix, ToIntFunction<? super Complex> function);
+  void assign(ComplexArray matrix, ToIntFunction<? super Complex> function);
 
-  IntArray assign(DoubleArray matrix, DoubleToIntFunction function);
+  void assign(DoubleArray matrix, DoubleToIntFunction function);
 
-  IntArray assign(LongArray matrix, LongToIntFunction operator);
+  void assign(LongArray matrix, LongToIntFunction operator);
 
-  IntArray assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function);
+  void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function);
 
-  IntArray update(IntUnaryOperator operator);
+  void apply(IntUnaryOperator operator);
 
   // Transform
 
@@ -182,9 +191,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   int get(int... ix);
 
-  void update(int index, IntUnaryOperator operator);
+  void apply(int index, IntUnaryOperator operator);
 
-  void update(int i, int j, IntUnaryOperator operator);
+  void apply(int i, int j, IntUnaryOperator operator);
 
   IntStream stream();
 
@@ -242,9 +251,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray plus(int scalar);
 
-  IntArray plusAssign(IntArray other);
+  void plusAssign(IntArray other);
 
-  IntArray plusAssign(int scalar);
+  void plusAssign(int scalar);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -284,9 +293,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray minus(int alpha, IntArray other);
 
-  IntArray minusAssign(IntArray other);
+  void minusAssign(IntArray other);
 
-  IntArray minusAssign(int scalar);
+  void minusAssign(int scalar);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -296,7 +305,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray reverseMinus(int scalar);
 
-  IntArray reverseMinusAssign(int scalar);
+  void reverseMinusAssign(int scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -316,9 +325,9 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray div(int other);
 
-  IntArray divAssign(IntArray other);
+  void divAssign(IntArray other);
 
-  IntArray divAssign(int other);
+  void divAssign(int other);
 
   /**
    * Element wise division. {@code other / this}.
@@ -329,7 +338,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    */
   IntArray reverseDiv(int other);
 
-  IntArray reverseDivAssign(int other);
+  void reverseDivAssign(int other);
 
   /**
    * Returns a new matrix with elements negated.

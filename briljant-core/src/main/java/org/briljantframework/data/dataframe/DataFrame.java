@@ -426,11 +426,6 @@ public interface DataFrame extends Iterable<Object> {
    */
   <T, C> Vector collect(Class<T> cls, Collector<? super T, C, ?> collector);
 
-  // TODO: remove when ISSUE#7 is resolved
-  @Deprecated
-  <T, R, C> Vector collect(Class<T> in, Class<R> out,
-      Collector<? super T, C, ? extends R> collector);
-
   /**
    * Group this data frame based on the values of specified column.
    *

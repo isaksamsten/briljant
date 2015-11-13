@@ -52,8 +52,8 @@ import org.briljantframework.array.api.ArrayFactory;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
-    ComplexArray {
+public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray>
+    implements ComplexArray {
 
   protected AbstractComplexArray(ArrayFactory bj, int size) {
     super(bj, new int[] {size});
@@ -205,11 +205,10 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray update(UnaryOperator<Complex> operator) {
+  public void apply(UnaryOperator<Complex> operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(get(i)));
     }
-    return this;
   }
 
   @Override
@@ -290,6 +289,15 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
       matrix.set(i, function.applyAsDouble(get(i)));
     }
     return matrix;
+  }
+
+  @Override
+  public <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper) {
+    Array<T> array = getArrayFactory().referenceArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, mapper.apply(get(i)));
+    }
+    return array;
   }
 
   @Override
@@ -407,7 +415,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map) {
+  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
+      UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.apply(map.apply(get(i)), identity);
     }

@@ -44,24 +44,12 @@ public class SingularValueDecomposition {
    */
   public final DoubleArray v;
 
-  /**
-   * Instantiates a new Singular value decomposition.
-   * 
-   * @param s the s
-   * @param u the u
-   * @param v the v
-   */
   public SingularValueDecomposition(DoubleArray s, DoubleArray u, DoubleArray v) {
     this.s = s;
     this.u = u;
     this.v = v;
   }
 
-  /**
-   * Gets diagonal.
-   *
-   * @return the diagonal
-   */
   public DoubleArray getDiagonal() {
     return s;
   }

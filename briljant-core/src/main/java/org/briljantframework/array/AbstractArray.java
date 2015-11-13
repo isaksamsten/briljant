@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
@@ -372,6 +373,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
       array.set(i, f.apply(get(i)));
     }
     return array;
+  }
+
+  @Override
+  public void apply(UnaryOperator<T> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
   }
 
   @Override
