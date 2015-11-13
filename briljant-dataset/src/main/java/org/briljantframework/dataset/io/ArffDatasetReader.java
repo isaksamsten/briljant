@@ -122,7 +122,7 @@ public class ArffDatasetReader extends DatasetReader {
   }
 
   @Override
-  protected String readColumnName() throws IOException {
+  protected Object readColumnName() throws IOException {
     throw new UnsupportedOperationException();
   }
 

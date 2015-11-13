@@ -3,30 +3,23 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.dataset.io;
-
-import org.briljantframework.data.reader.EntryReader;
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.VectorType;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -35,6 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.reader.EntryReader;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
@@ -78,9 +75,9 @@ import java.util.List;
  * should return {@code [DoubleVector.TYPE, StringVector.TYPE, IntVector.TYPE]}.
  *
  * Then, subsequent calls to {@link #next()} should return a
- * {@link org.briljantframework.data.reader.DataEntry} with {@code [3.2, "hello", 1]}, {@code [2.0 "sx",
- * 3]}
- * and {@code [2, "dds", 100]} in sequence.
+ * {@link org.briljantframework.data.reader.DataEntry} with {@code [3.2, "hello", 1]},
+ * {@code [2.0 "sx",
+ * 3]} and {@code [2, "dds", 100]} in sequence.
  *
  * Hence, summing the columns of
  *
@@ -143,7 +140,7 @@ public abstract class DatasetReader extends FilterInputStream implements EntryRe
    *
    * @return a column name or {@code null}
    */
-  protected abstract String readColumnName() throws IOException;
+  protected abstract Object readColumnName() throws IOException;
 
   /**
    * @return a collection of types
@@ -161,7 +158,7 @@ public abstract class DatasetReader extends FilterInputStream implements EntryRe
    */
   public Collection<Object> readColumnIndex() throws IOException {
     List<Object> names = new ArrayList<>();
-    for (String type = readColumnName(); type != null; type = readColumnName()) {
+    for (Object type = readColumnName(); type != null; type = readColumnName()) {
       names.add(type);
     }
     return Collections.unmodifiableCollection(names);

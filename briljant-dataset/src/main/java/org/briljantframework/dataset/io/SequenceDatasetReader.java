@@ -63,7 +63,7 @@ public class SequenceDatasetReader extends DatasetReader {
   }
 
   @Override
-  public String readColumnName() throws IOException {
+  public Object readColumnName() throws IOException {
     throw new UnsupportedOperationException("Variable data entry sizes");
   }
 

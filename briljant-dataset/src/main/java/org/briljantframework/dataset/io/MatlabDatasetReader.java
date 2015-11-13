@@ -84,9 +84,9 @@ public class MatlabDatasetReader extends DatasetReader {
   }
 
   @Override
-  public String readColumnName() throws IOException {
+  public Object readColumnName() throws IOException {
     initializeValues();
-    return currentName < columns ? String.valueOf(currentName++) : null;
+    return currentName < columns ? currentName++ : null;
   }
 
   @Override
