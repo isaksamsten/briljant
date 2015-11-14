@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.briljantframework.array.Arrays;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
@@ -62,7 +61,7 @@ public class JoinUtils {
       where[label] += 1;
     }
 
-    return new IntArray[] {results, counts};
+    return new IntArray[]{results, counts};
   }
 
   /**
@@ -104,14 +103,17 @@ public class JoinUtils {
   }
 
   public static JoinKeys createJoinKeys(List<?> a, List<?> b) {
-    int aSize = a.size();
-    int bSize = b.size();
-    int[] left = new int[aSize];
-    int[] right = new int[bSize];
+    int[] left = new int[a.size()];
+    int[] right = new int[b.size()];
     Map<Object, Integer> pool = new HashMap<>(Math.max(a.size(), b.size()));
 
-    int j = 0;
-    for (int i = 0; i < aSize; i++) {
+    int j = computeKeys(a, left, pool, 0);
+    computeKeys(b, right, pool, j);
+    return new JoinKeys(IntArray.of(left), IntArray.of(right), pool.size());
+  }
+
+  private static int computeKeys(List<?> a, int[] left, Map<Object, Integer> pool, int j) {
+    for (int i = 0; i < a.size(); i++) {
       Object val = a.get(i);
       int ref = pool.getOrDefault(val, MISSING);
       if (ref != MISSING) {
@@ -122,20 +124,7 @@ public class JoinUtils {
         j += 1;
       }
     }
-
-    for (int i = 0; i < bSize; i++) {
-      Object val = b.get(i);
-      int ref = pool.getOrDefault(val, MISSING);
-      if (ref != MISSING) {
-        right[i] = ref;
-      } else {
-        right[i] = j;
-        pool.put(val, j);
-        j += 1;
-      }
-    }
-
-    return new JoinKeys(Arrays.newIntVector(left), Arrays.newIntVector(right), pool.size());
+    return j;
   }
 
   public static JoinKeys createJoinKeys(Index a, Index b) {

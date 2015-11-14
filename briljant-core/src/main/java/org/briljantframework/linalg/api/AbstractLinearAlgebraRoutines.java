@@ -66,7 +66,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
   @Override
   public double rank(DoubleArray x) {
     SingularValueDecomposition svd = svd(x);
-    DoubleArray singular = svd.getDiagonal();
+    DoubleArray singular = svd.getSingularValues();
     return singular.reduce(0, (acc, v) -> Precision.compareTo(v, 0, EPS) > 0 ? acc + 1 : acc);
   }
 }

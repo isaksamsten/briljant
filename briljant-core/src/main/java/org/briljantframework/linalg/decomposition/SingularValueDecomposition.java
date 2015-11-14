@@ -50,7 +50,7 @@ public class SingularValueDecomposition {
     this.v = v;
   }
 
-  public DoubleArray getDiagonal() {
+  public DoubleArray getSingularValues() {
     return s;
   }
 
@@ -74,10 +74,6 @@ public class SingularValueDecomposition {
 
   @Override
   public String toString() {
-    StringBuilder builder =
-        new StringBuilder("SingularValueDecomposition\n").append(u).append("\n").append(s)
-            .append("\n").append(v).append("\n");
-
-    return builder.toString();
+    return "SingularValueDecomposition{" + "s=" + s + ", u=" + u + ", v=" + v + '}';
   }
 }

@@ -84,6 +84,15 @@ array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
        [-3.727,  0.952,  2.531,  0.440,  5.072]])
 ```
 
+```
+Array<String> x = Array.of("a", "b", "c", "d").reshape(2, 2)
+```
+
+```
+array([[a, c],
+       [b, d]])
+```
+
 ## Installation
 
 ### Pre-compiled binaries

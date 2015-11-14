@@ -35,17 +35,17 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
 
   def "test limited memory optimizer with automatic differentiation"() {
     given:
-    DifferentialFunction d = {x ->
+    DifferentialFunction d = { x ->
       100 * Math.pow(x.get(0) + 3, 4) + Math.pow(x.get(1) - 3, 4);
     }
     def optimizer = new LimitedMemoryBfgsOptimizer(5, 100, 1e-5)
-    def x = Arrays.newDoubleVector(0.0, 0.0 as double)
+    def x = DoubleArray.of(0.0, 0.0)
 
     when:
     optimizer.optimize(d, x)
 
     then:
-    x.mapToLong {it -> Math.round it} == Arrays.newLongVector([-3, 3] as long[])
+    x.mapToLong { it -> Math.round it } == Arrays.newLongVector([-3, 3] as long[])
   }
 
   def "test limited memory optimizer with gradient cost"() {

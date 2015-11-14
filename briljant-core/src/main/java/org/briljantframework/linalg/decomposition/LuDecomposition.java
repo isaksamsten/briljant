@@ -26,67 +26,27 @@ import java.util.Optional;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.netlib.NetlibLapackException;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
-import org.netlib.util.intW;
 
 /**
- * Created by isak on 02/07/14.
+ * @author Isak Karlsson
  */
 public class LuDecomposition {
 
   private final DoubleArray lu;
   private final IntArray pivots;
-  private final LinearAlgebraRoutines linalg;
   private Optional<Boolean> nonSingular = Optional.empty();
   private Optional<DoubleArray> lower = Optional.empty();
   private Optional<DoubleArray> upper = Optional.empty();
 
   private double det = Double.NaN;
 
-  public LuDecomposition(LinearAlgebraRoutines linalg, DoubleArray lu, IntArray pivots) {
-    this.linalg = linalg;
+  public LuDecomposition(DoubleArray lu, IntArray pivots) {
     this.lu = lu;
     this.pivots = pivots;
   }
 
-  public LuDecomposition(DoubleArray lu, IntArray pivots) {
-    this(Arrays.linalg, lu, pivots);
-  }
-
-  public DoubleArray getLu() {
+  public DoubleArray getDecomposition() {
     return lu;
-  }
-
-  public DoubleArray decomposition() {
-    return lu;
-  }
-
-  public DoubleArray inverse() {
-    if (!lu.isSquare()) {
-      throw new IllegalStateException("Matrix must be square.");
-    }
-    // DoubleMatrix inv = lu.copy();
-    int n = lu.rows();
-    int lwork = -1;
-    double[] work = new double[1];
-    intW err = new intW(0);
-    // DoubleStorage invs = (DoubleStorage) inv.getStorage();
-    double[] invs = lu.data();
-    // LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
-    if (err.val != 0) {
-      throw new NetlibLapackException(err.val, "Querying failed");
-    }
-
-    lwork = (int) work[0];
-    work = new double[lwork];
-    // TODO (implement in linalg)
-    // LAPACK.getInstance().dgetri(n, invs, n, pivots, work, lwork, err);
-    if (err.val != 0) {
-      throw new NetlibLapackException(err.val, "Inverse failed.");
-    }
-
-    return Arrays.newDoubleVector(invs).reshape(lu.rows(), lu.columns());
   }
 
   public double getDeterminant() {

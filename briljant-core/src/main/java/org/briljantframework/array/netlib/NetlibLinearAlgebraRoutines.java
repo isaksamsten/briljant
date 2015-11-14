@@ -73,7 +73,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public LuDecomposition lu(DoubleArray array) {
-    Check.argument(array.isMatrix() && array.isSquare(), "require square 2d-array");
+    Check.argument(array.isMatrix(), "require square 2d-array");
     int m = array.size(0);
     int n = array.size(1);
     IntArray pivots = getArrayBackend().getArrayFactory().intArray(Math.min(m, n));
@@ -85,7 +85,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   @Override
   public DoubleArray inv(DoubleArray x) {
     LuDecomposition lu = lu(x);
-    DoubleArray out = lu.getLu();
+    DoubleArray out = lu.getDecomposition();
     getri(out, lu.getPivot());
     return out;
   }
@@ -95,7 +95,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     Check.argument(x.isMatrix(), REQUIRE_2D_ARRAY);
     ArrayFactory bj = getArrayBackend().getArrayFactory();
     SingularValueDecomposition svd = svd(x);
-    DoubleArray d = svd.getDiagonal();
+    DoubleArray d = svd.getSingularValues();
     int r1 = 0;
     for (int i = 0; i < d.size(); i++) {
       if (d.get(i) > MACHINE_EPSILON) {

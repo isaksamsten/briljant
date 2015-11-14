@@ -85,7 +85,7 @@ public class IntList extends AbstractList<Integer> {
   }
 
   public IntArray toIntArray() {
-    return org.briljantframework.array.Arrays.newIntVector(Arrays.copyOf(elementData, size));
+    return IntArray.of(Arrays.copyOf(elementData, size));
   }
 
   /**

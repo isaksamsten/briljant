@@ -1,12 +1,12 @@
 package org.briljantframework;
 
+import java.util.List;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -15,14 +15,14 @@ public class ArraysTest {
 
   @Test
   public void testOrder() throws Exception {
-    DoubleArray array = Arrays.newDoubleVector(2, 3, 1, 9, 1);
+    DoubleArray array = DoubleArray.of(2, 3, 1, 9, 1);
     System.out.println(Arrays.order(array));
 
   }
 
   @Test
   public void testOrderDimension() throws Exception {
-    DoubleArray array = Arrays.newDoubleVector(1, 9, 1, 9, 2, 4).reshape(3, 2);
+    DoubleArray array = DoubleArray.of(1, 9, 1, 9, 2, 4).reshape(3, 2);
     System.out.println(array);
     System.out.println(Arrays.order(0, array));
   }
