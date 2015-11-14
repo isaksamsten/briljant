@@ -45,45 +45,11 @@ import org.briljantframework.Listable;
 public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
+   * @see Arrays#newVector(Object[])
    */
-  static <T> Array<T> of(T[] data) {
+  @SafeVarargs
+  static <T> Array<T> of(T... data) {
     return Arrays.newVector(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
-   */
-  static DoubleArray of(double[] data) {
-    return Arrays.newDoubleVector(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[])
-   */
-  static ComplexArray of(Complex[] data) {
-    return Arrays.newComplexVector(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(int[])
-   */
-  static IntArray of(int[] data) {
-    return Arrays.newIntVector(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(long[])
-   */
-  static LongArray of(long[] data) {
-    return Arrays.newLongVector(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
-   */
-  static BooleanArray of(boolean[] data) {
-    return Arrays.newBooleanVector(data);
   }
 
   /**

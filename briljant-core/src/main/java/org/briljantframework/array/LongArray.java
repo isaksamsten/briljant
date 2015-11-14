@@ -53,6 +53,13 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
     return array;
   }
 
+  /**
+   * @see Arrays#newLongVector(long...)
+   */
+  static LongArray of(long... data) {
+    return Arrays.newLongVector(data);
+  }
+
   // Assignments
 
   /**

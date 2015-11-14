@@ -115,6 +115,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   }
 
   /**
+   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
+   */
+  static DoubleArray of(double... data) {
+    return Arrays.newDoubleVector(data);
+  }
+
+  /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign

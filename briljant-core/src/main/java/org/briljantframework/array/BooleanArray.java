@@ -46,6 +46,13 @@ public interface BooleanArray
   }
 
   /**
+   * @see Arrays#newBooleanVector(boolean[])
+   */
+  static BooleanArray of(boolean... data) {
+    return Arrays.newBooleanVector(data);
+  }
+
+  /**
    * Assign the value of successive cals to the supplier
    * 
    * @param supplier the supplier

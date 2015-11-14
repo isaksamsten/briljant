@@ -58,6 +58,13 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
   }
 
   /**
+   * @see Arrays#newIntVector(int...)
+   */
+  static IntArray of(int... data) {
+    return Arrays.newIntVector(data);
+  }
+
+  /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign

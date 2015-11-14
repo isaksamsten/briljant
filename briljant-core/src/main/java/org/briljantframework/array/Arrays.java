@@ -80,7 +80,8 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
    */
-  public static <T> Array<T> newVector(T[] data) {
+  @SafeVarargs
+  public static <T> Array<T> newVector(T... data) {
     return ARRAY_FACTORY.array(data);
   }
 
