@@ -47,6 +47,16 @@ import org.briljantframework.Listable;
 public interface ComplexArray
     extends BaseArray<ComplexArray>, Iterable<Complex>, Listable<Complex> {
 
+  static ComplexArray zeros(int... shape) {
+    return Arrays.newComplexArray(shape);
+  }
+
+  static ComplexArray ones(int... shape) {
+    ComplexArray array = zeros(shape);
+    array.assign(Complex.ONE);
+    return array;
+  }
+
   /**
    * Assign {@code value} to {@code this}
    *
@@ -64,8 +74,8 @@ public interface ComplexArray
   }
 
   /**
-   * Assign value returned by {@link #size()} successive calls to
-   * {@link java.util.function.DoubleSupplier#getAsDouble()}
+   * Assign value returned by {@link #size()} successive calls to {@link
+   * java.util.function.DoubleSupplier#getAsDouble()}
    *
    * @param supplier the supplier
    * @return receiver modified
@@ -75,7 +85,7 @@ public interface ComplexArray
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param matrix   the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -94,7 +104,7 @@ public interface ComplexArray
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
    *
-   * @param matrix the matrix
+   * @param matrix   the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -152,12 +162,12 @@ public interface ComplexArray
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
   /**
-   * Reduces {@code this} into a real value. For example, summing can be implemented as
-   * {@code matrix.reduce(0, (a, b) -> a + b, x -> x)}
+   * Reduces {@code this} into a real value. For example, summing can be implemented as {@code
+   * matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
    * @param identity the initial value
-   * @param reduce takes two values and reduces them to one
-   * @param map takes a value and possibly transforms it
+   * @param reduce   takes two values and reduces them to one
+   * @param map      takes a value and possibly transforms it
    * @return the result
    */
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map);
@@ -201,25 +211,20 @@ public interface ComplexArray
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix
-   * <p>
+   * column-major order. For example, given the following matrix <p>
    *
    * <pre>
    *     1 2 3
    *     4 5 6
    * </pre>
-   * <p>
-   * this code
-   * <p>
+   * <p> this code <p>
    *
    * <pre>
    * for (int i = 0; i &lt; x.size(); i++) {
    *   System.out.print(x.get(i));
    * }
    * </pre>
-   * <p>
-   * prints
-   * <p>
+   * <p> prints <p>
    *
    * <pre>
    * 142536
@@ -260,7 +265,7 @@ public interface ComplexArray
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   ComplexArray times(Complex alpha, ComplexArray other, Complex beta);
@@ -290,13 +295,12 @@ public interface ComplexArray
   ComplexArray plus(Complex scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
-   * pass.
+   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   ComplexArray plus(Complex alpha, ComplexArray other, Complex beta);
@@ -318,13 +322,12 @@ public interface ComplexArray
   ComplexArray minus(Complex scalar);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
-   * pass.
+   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
+   * @param beta  scaling for {@code other}
    * @return a new matrix
    */
   ComplexArray minus(Complex alpha, ComplexArray other, Complex beta);

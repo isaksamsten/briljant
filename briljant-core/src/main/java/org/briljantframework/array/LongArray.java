@@ -22,7 +22,16 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.DoubleToLongFunction;
+import java.util.function.IntToLongFunction;
+import java.util.function.LongBinaryOperator;
+import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
+import java.util.function.LongToDoubleFunction;
+import java.util.function.LongToIntFunction;
+import java.util.function.LongUnaryOperator;
+import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 
 import org.apache.commons.math3.complex.Complex;
@@ -30,9 +39,19 @@ import org.briljantframework.Listable;
 import org.briljantframework.function.LongBiPredicate;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listable<Long> {
+
+  static LongArray zeros(int... shape) {
+    return Arrays.newLongArray(shape);
+  }
+
+  static LongArray ones(int... shape) {
+    LongArray array = zeros(shape);
+    array.assign(1);
+    return array;
+  }
 
   // Assignments
 
