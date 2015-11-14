@@ -64,6 +64,10 @@ public interface ComplexArray
     return Arrays.newComplexVector(data);
   }
 
+  static ComplexArray of(double... real) {
+    return Arrays.newComplexArray(real);
+  }
+
   /**
    * Assign {@code value} to {@code this}
    *

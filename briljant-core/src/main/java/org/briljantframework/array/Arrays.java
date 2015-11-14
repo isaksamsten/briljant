@@ -1315,13 +1315,12 @@ public final class Arrays {
     return -1;
   }
 
-  public static <S extends BaseArray<S>> S where(BaseArray<?> condition, S x, S y) {
-    Check.size(x.size() == y.size() && x.size() == condition.size(), "Illegal sizes");
+  public static <S extends BaseArray<S>> S where(BooleanArray c, S x, S y) {
+    Check.size(x.size() == y.size() && x.size() == c.size(), "Illegal sizes");
     int size = x.size();
     S selected = x.newEmptyArray(size);
-    BooleanArray z = condition.asBoolean();
     for (int i = 0; i < size; i++) {
-      selected.set(i, z.get(i) ? x : y, i);
+      selected.set(i, c.get(i) ? x : y, i);
     }
     return selected;
   }
