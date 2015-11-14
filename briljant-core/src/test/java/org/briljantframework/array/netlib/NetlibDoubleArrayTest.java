@@ -21,7 +21,6 @@
 
 package org.briljantframework.array.netlib;
 
-import org.briljantframework.array.Array;
 import org.briljantframework.array.ArrayAssert;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;

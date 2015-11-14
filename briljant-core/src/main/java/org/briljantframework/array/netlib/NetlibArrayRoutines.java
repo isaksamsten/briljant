@@ -22,6 +22,7 @@
 package org.briljantframework.array.netlib;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.Op;
 import org.briljantframework.array.base.BaseArrayRoutines;
@@ -36,6 +37,21 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   protected static final String VECTOR_REQUIRED = "vector required";
   private final static BLAS blas = BLAS.getInstance();
+
+  @Override
+  public <T extends BaseArray<T>> void copy(T from, T to) {
+    if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && isView(from)
+        && isView(to)) {
+      System.arraycopy(((NetlibDoubleArray) from).data(), 0, ((NetlibDoubleArray) to).data(), 0,
+          from.size());
+    } else {
+      super.copy(from, to);
+    }
+  }
+
+  private <T extends BaseArray<T>> boolean isView(T array) {
+    return !(array.isContiguous() && array.stride(0) == 1);
+  }
 
   @Override
   public double inner(DoubleArray a, DoubleArray b) {
@@ -112,16 +128,16 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.size(y.size(), a.columns());
     if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray
         && a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1)) {
-      blas.dger(a.rows(), a.columns(), alpha, x.data(), x.getOffset(), x.getMajorStride(),
-          y.data(), y.getOffset(), y.getMajorStride(), a.data(), a.getOffset(),
-          Math.max(1, a.stride(1)));
+      blas.dger(a.rows(), a.columns(), alpha, x.data(), x.getOffset(), x.getMajorStride(), y.data(),
+          y.getOffset(), y.getMajorStride(), a.data(), a.getOffset(), Math.max(1, a.stride(1)));
     } else {
       super.ger(alpha, x, y, a);
     }
   }
 
   @Override
-  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y) {
+  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
+      DoubleArray y) {
     Check.argument(a.isMatrix());
     Check.argument(x.isVector());
     Check.argument(y.isVector());
@@ -159,8 +175,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     int k = a.size(transA == Op.KEEP ? 1 : 0);
 
     if (m != c.size(0) || n != c.size(1)) {
-      throw new NonConformantException(String.format(
-          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, k, k, n,
+      throw new NonConformantException(
+          String.format("a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, k, k, n,
               c.size(0), c.size(1)));
     }
 

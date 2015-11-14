@@ -2,7 +2,6 @@ package org.briljantframework;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;

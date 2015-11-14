@@ -49,14 +49,14 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   @Override
   public double optimize(DifferentialFunction function, DoubleArray x) {
     int n = x.size();
-    DoubleArray currentSolution = Arrays.newDoubleArray(n);
-    DoubleArray currentGradient = Arrays.newDoubleArray(n);
-    DoubleArray direction = Arrays.newDoubleArray(n);
-    DoubleArray solutions = Arrays.newDoubleArray(memory, n);
-    DoubleArray gradients = Arrays.newDoubleArray(memory, n);
-    DoubleArray gradient = Arrays.newDoubleArray(n);
-    DoubleArray scales = Arrays.newDoubleArray(memory);
-    DoubleArray a = Arrays.newDoubleArray(memory);
+    DoubleArray currentSolution = DoubleArray.zeros(n);
+    DoubleArray currentGradient = DoubleArray.zeros(n);
+    DoubleArray direction = DoubleArray.zeros(n);
+    DoubleArray solutions = DoubleArray.zeros(memory, n);
+    DoubleArray gradients = DoubleArray.zeros(memory, n);
+    DoubleArray gradient = DoubleArray.zeros(n);
+    DoubleArray scales = DoubleArray.zeros(memory);
+    DoubleArray a = DoubleArray.zeros(memory);
 
     double f = function.gradientCost(x, gradient);
     double sum = 0;
