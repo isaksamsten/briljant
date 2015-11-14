@@ -27,7 +27,7 @@ import java.util.List;
 import org.briljantframework.data.dataframe.DataFrame;
 
 /**
- * Created by Isak Karlsson on 17/12/14.
+ * @author Isak Karlsson
  */
 public class PipelineTransformer implements Transformer {
 

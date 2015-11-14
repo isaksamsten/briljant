@@ -22,7 +22,7 @@
 package org.briljantframework.data.dataframe.join;
 
 /**
- * Created by isak on 28/03/15.
+ * @author Isak Karlsson
  */
 class ArrayJoiner extends Joiner {
 

@@ -38,12 +38,12 @@ import org.briljantframework.data.vector.Vector;
  */
 public class MinMaxNormalizer implements Transformation {
 
-
   @Override
   public Transformer fit(DataFrame df) {
     Vector.Builder min = Vector.Builder.of(Double.class);
     Vector.Builder max = Vector.Builder.of(Double.class);
     for (Object columnKey : df) {
+      // // TODO: 11/14/15 Only consider numerical vectors
       StatisticalSummary summary = df.get(columnKey).statisticalSummary();
       min.set(columnKey, summary.getMin());
       max.set(columnKey, summary.getMax());
@@ -72,6 +72,7 @@ public class MinMaxNormalizer implements Transformation {
       Check.argument(max.getIndex().equals(x.getColumnIndex()), "Index does not match");
       DataFrame.Builder builder = x.newBuilder();
       for (Object columnKey : x) {
+        // // TODO: 11/14/15 Only consider numerical vectors
         double min = this.min.getAsDouble(columnKey);
         double max = this.max.getAsDouble(columnKey);
         Vector.Builder normalized = Vector.Builder.of(Double.class);

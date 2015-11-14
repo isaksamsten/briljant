@@ -16,9 +16,6 @@ in [Java](https://www.java.com) with bindings for languages such as
 * fast and easy to use n-dimensional arrays for both primitive and
 reference types with bindings to native BLAS and LAPACK routines
 
-* experimental support for machine learning methods such as random
-forest, random shapelet forest
-
 ## Example
 
 ```
@@ -71,6 +68,19 @@ df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
 1980  0.000    4.365    4.349    4.349    3232815.385    
 
 [36 rows x 5 columns]
+```
+
+```
+DoubleArray x = Arrays.randn(20).reshape(4, 5);
+Arrays.dot(x.transpose(), x);
+```
+
+```
+array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
+       [-1.714,  0.932, -0.021, -0.393,  0.952],
+       [-2.135, -0.021,  2.459, -1.203,  2.531],
+       [ 2.017, -0.393, -1.203,  3.823,  0.440],
+       [-3.727,  0.952,  2.531,  0.440,  5.072]])
 ```
 
 ## Installation
