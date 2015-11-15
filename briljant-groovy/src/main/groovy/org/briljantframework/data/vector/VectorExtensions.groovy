@@ -54,27 +54,27 @@ class VectorExtensions {
   }
 
   static Vector plus(Vector self, Number o) {
-    return self.add(o)
+    return self.plus(o)
   }
 
   static Vector plus(Vector self, Vector o) {
-    return self.add(o)
+    return self.plus(o)
   }
 
   static Vector minus(Vector self, Number o) {
-    return self.sub(o)
+    return self.minus(o)
   }
 
   static Vector minus(Vector self, Vector o) {
-    return self.sub(o)
+    return self.minus(o)
   }
 
   static Vector multiply(Vector self, Number o) {
-    return self.mul(o)
+    return self.times(o)
   }
 
   static Vector multiply(Vector self, Vector o) {
-    return self.mul(o)
+    return self.times(o)
   }
 
   static Vector div(Vector self, Number o) {

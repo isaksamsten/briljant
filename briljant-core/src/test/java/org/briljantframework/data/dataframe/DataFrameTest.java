@@ -110,7 +110,7 @@ public abstract class DataFrameTest {
   public void testGroupBy_column() throws Exception {
     DataFrame df = DataFrame.of("A", Vector.of(1, 2, 1, 2), "B", Vector.of(30.0, 2.0, 33.0, 6.0));
     DataFrameGroupBy groups = df.groupBy("A");
-    System.out.println(groups.apply(op -> op.sub(op.mean())));
+    System.out.println(groups.apply(op -> op.minus(op.mean())));
     System.out.println(groups.get(1));
   }
 

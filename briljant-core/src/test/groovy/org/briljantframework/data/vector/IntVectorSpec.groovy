@@ -46,9 +46,9 @@ class IntVectorSpec extends Specification {
     def b = Vector.fromIterable([1, 2, 3, 4])
 
     when:
-    def c = a.add(b)
-    def d = a.sub(b)
-    def e = a.mul(b)
+    def c = a.plus(b)
+    def d = a.minus(b)
+    def e = a.times(b)
     def f = a.div(b)
 
     then:

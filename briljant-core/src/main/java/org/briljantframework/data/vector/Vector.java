@@ -337,20 +337,20 @@ public interface Vector extends Serializable, Listable<Object> {
 
   Vector combine(Vector other, BiFunction<? super Object, ? super Object, ?> combiner);
 
-  default Vector add(Vector other) {
+  default Vector plus(Vector other) {
     return combine(Object.class, other, Combine.add());
   }
 
-  default Vector add(Object other) {
-    return add(singleton(other, size()));
+  default Vector plus(Object other) {
+    return plus(singleton(other, size()));
   }
 
-  default Vector mul(Vector other) {
+  default Vector times(Vector other) {
     return combine(Object.class, other, Combine.mul());
   }
 
-  default Vector mul(Number other) {
-    return mul(singleton(other, size()));
+  default Vector times(Number other) {
+    return times(singleton(other, size()));
   }
 
   default Vector div(Vector other) {
@@ -361,19 +361,19 @@ public interface Vector extends Serializable, Listable<Object> {
     return div(singleton(other, size()));
   }
 
-  default Vector rdiv(Number other) {
+  default Vector reverseDiv(Number other) {
     return singleton(other, size()).combine(Object.class, this, Combine.div());
   }
 
-  default Vector sub(Vector other) {
+  default Vector minus(Vector other) {
     return combine(Object.class, other, Combine.sub());
   }
 
-  default Vector sub(Number other) {
-    return sub(singleton(other, size()));
+  default Vector minus(Number other) {
+    return minus(singleton(other, size()));
   }
 
-  default Vector rsub(Number other) {
+  default Vector reverseMinus(Number other) {
     return singleton(other, size()).combine(Object.class, this, Combine.sub());
   }
 
