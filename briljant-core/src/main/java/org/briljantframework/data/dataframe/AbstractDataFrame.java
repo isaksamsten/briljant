@@ -151,7 +151,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame set(BooleanArray array, Object value) {
     DataFrame.Builder builder = newBuilder();
-    if (array.dims() == 2) { // Select values; setting false values to NA
+    if (array.isMatrix()) { // Select values; setting false values to NA
       Check.argument(array.rows() == rows() && array.columns() == columns(), "Illegal shape");
       for (int j = 0; j < array.columns(); j++) {
         Vector column = loc().get(j);
@@ -166,7 +166,7 @@ public abstract class AbstractDataFrame implements DataFrame {
         builder.set(getColumnIndex().getKey(j), columnBuilder);
       }
       builder.setIndex(getIndex());
-    } else if (array.dims() == 1) { // Select rows;
+    } else if (array.isVector()) { // Select rows;
       for (int i = 0; i < array.size(); i++) {
         Object key = getIndex().getKey(i);
         if (array.get(i)) {
