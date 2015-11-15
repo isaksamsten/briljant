@@ -52,6 +52,14 @@ public interface BooleanArray
     return Arrays.newBooleanVector(data);
   }
 
+  static BooleanArray of(int... data) {
+    BooleanArray array = falses(data.length);
+    for (int i = 0; i < data.length; i++) {
+      array.set(i, data[i] == 1);
+    }
+    return array;
+  }
+
   /**
    * Assign the value of successive cals to the supplier
    * 

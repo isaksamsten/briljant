@@ -48,6 +48,10 @@ import org.briljantframework.primitive.ArrayAllocations;
  */
 public class DoubleVector extends AbstractVector implements Transferable {
 
+  public static DoubleVector of(double... values) {
+    return new DoubleVector(java.util.Arrays.copyOf(values, values.length), values.length);
+  }
+
   private final double[] buffer;
   private final int size;
 

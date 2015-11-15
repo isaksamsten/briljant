@@ -21,6 +21,8 @@
 
 package org.briljantframework.data.dataframe;
 
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -88,7 +90,30 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   @Override
   public Set<Map.Entry<Object, IntArray>> groups() {
-    return groups.entrySet();
+    return new AbstractSet<Map.Entry<Object, IntArray>>() {
+      @Override
+      public Iterator<Map.Entry<Object, IntArray>> iterator() {
+        return new Iterator<Map.Entry<Object, IntArray>>() {
+          Iterator<Map.Entry<Object, IntArray>> it = groups.entrySet().iterator();
+
+          @Override
+          public boolean hasNext() {
+            return it.hasNext();
+          }
+
+          @Override
+          public Map.Entry<Object, IntArray> next() {
+            Map.Entry<Object, IntArray> entry = it.next();
+            return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().copy());
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return groups.size();
+      }
+    };
   }
 
   @Override
@@ -147,7 +172,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   protected boolean dropColumnKey(Object columnKey) {
     return dropKey != NO_DROP_KEY_IDENTITY && (columnKey == dropKey || // columnKey is null and
                                                                        // dropKey is null
-        (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
+    (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
   }
 
   @Override

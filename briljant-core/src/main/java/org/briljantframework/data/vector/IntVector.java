@@ -40,7 +40,11 @@ import org.briljantframework.primitive.ArrayAllocations;
 /**
  * @author Isak Karlsson
  */
-class IntVector extends AbstractVector implements Transferable {
+public class IntVector extends AbstractVector implements Transferable {
+
+  public static IntVector of(int... values) {
+    return new IntVector(java.util.Arrays.copyOf(values, values.length), values.length);
+  }
 
   private final int[] buffer;
   private final int size;
@@ -187,7 +191,7 @@ class IntVector extends AbstractVector implements Transferable {
     return java.util.Arrays.stream(buffer, 0, size());
   }
 
-  static final class Builder extends AbstractBuilder {
+  public static final class Builder extends AbstractBuilder {
 
     private int[] buffer;
     private int size;

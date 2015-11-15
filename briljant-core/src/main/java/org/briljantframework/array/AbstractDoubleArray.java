@@ -48,6 +48,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.function.DoubleBiPredicate;
@@ -481,7 +482,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       }
 
       for (int i = 0; i < size(); i++) {
-        if (get(i) != mat.get(i)) {
+        if (!Precision.equalsIncludingNaN(get(i), mat.get(i))) {
           return false;
         }
       }
