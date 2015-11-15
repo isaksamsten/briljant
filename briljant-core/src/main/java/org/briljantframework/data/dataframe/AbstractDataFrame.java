@@ -113,7 +113,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrame setRecord(Object key, Object value) {
     DataFrame.Builder builder = newCopyBuilder();
     builder.setRecord(key, Vectors.transferableBuilder(Vector.singleton(value, columns())));
-    return null;
+    return builder.build();
   }
 
   @Override
@@ -259,9 +259,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame join(JoinType type, DataFrame other) {
-    Joiner joiner =
-        type.getJoinOperation()
-            .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
+    Joiner joiner = type.getJoinOperation()
+        .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
     return joiner.join(this, other, Collections.emptyList());
   }
 
