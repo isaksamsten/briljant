@@ -78,7 +78,7 @@ class IntVector extends AbstractVector implements Transferable {
 
   @Override
   protected final int getAsIntAt(int i) {
-    Check.elementIndex(i, size);
+    Check.validIndex(i, size);
     return buffer[i];
   }
 

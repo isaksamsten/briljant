@@ -49,7 +49,7 @@ import org.briljantframework.data.index.ObjectComparator;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
+public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implements Array<T> {
 
   private final Comparator<T> comparator = ObjectComparator.getInstance();
 
@@ -77,13 +77,23 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public int compare(int a, int b) {
-    return comparator.compare(get(a), get(b));
+  public Array<T> slice(BooleanArray bits) {
+    Check.size(this, bits);
+    List<T> newData = new ArrayList<>();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        newData.add(get(i));
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    T[] arr = (T[]) new Object[newData.size()];
+    return getArrayFactory().array(newData.toArray(arr));
   }
 
   @Override
-  public Array<T> slice(BooleanArray bits) {
-    return null;
+  public int compare(int a, int b) {
+    return comparator.compare(get(a), get(b));
   }
 
   /**

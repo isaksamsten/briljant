@@ -305,7 +305,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   protected Vector getRecordAt(int index) {
-    Check.elementIndex(index, rows());
+    Check.validIndex(index, rows());
     return new RecordView(this, index, mostSpecificColumnType);
   }
 

@@ -27,7 +27,6 @@ import static org.briljantframework.array.Indexer.rowMajor;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.function.DoubleConsumer;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
@@ -381,7 +380,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
-    Check.all(BaseArray::isVector, x, y);
+    Check.all(x, y).argument(BaseArray::isVector, "x and y must be vectors");
     Check.size(x.size(), a.rows());
     Check.size(y.size(), a.columns());
     for (int i = 0; i < x.size(); i++) {

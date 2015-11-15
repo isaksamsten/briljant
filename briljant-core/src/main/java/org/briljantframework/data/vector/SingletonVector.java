@@ -79,32 +79,32 @@ final class SingletonVector extends AbstractVector implements Transferable {
 
   @Override
   protected <T> T getAt(Class<T> cls, int index) {
-    Check.elementIndex(index, size());
+    Check.validIndex(index, size());
     return Convert.to(cls, value);
   }
 
   @Override
   protected String toStringAt(int index) {
-    Check.elementIndex(index, size());
+    Check.validIndex(index, size());
     return Na.toString(value);
   }
 
   @Override
   protected boolean isNaAt(int index) {
-    Check.elementIndex(index, size());
+    Check.validIndex(index, size());
     return Is.NA(value);
   }
 
   @Override
   protected double getAsDoubleAt(int i) {
-    Check.elementIndex(i, size());
+    Check.validIndex(i, size());
     Number val = Convert.to(Number.class, value);
     return Is.NA(val) ? Na.DOUBLE : val.doubleValue();
   }
 
   @Override
   protected int getAsIntAt(int i) {
-    Check.elementIndex(i, size());
+    Check.validIndex(i, size());
     Number val = Convert.to(Number.class, value);
     return Is.NA(val) ? Na.INT : val.intValue();
   }

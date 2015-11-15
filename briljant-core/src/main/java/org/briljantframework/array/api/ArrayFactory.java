@@ -31,6 +31,8 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
 
+import java.util.List;
+
 
 /**
  * @author Isak Karlsson

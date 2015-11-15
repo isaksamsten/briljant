@@ -372,7 +372,7 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public int getrf(DoubleArray a, IntArray ipiv) {
-    Check.all(BaseArray::isVector, ipiv);
+    Check.argument(ipiv.isVector(), "ipiv must be a vector");
     Check.size(Math.min(a.rows(), a.columns()), ipiv.size());
     double[] aa = getData(a);
     int[] ia = getData(ipiv);

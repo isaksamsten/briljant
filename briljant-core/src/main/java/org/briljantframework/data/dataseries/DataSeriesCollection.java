@@ -40,11 +40,11 @@ import org.briljantframework.data.vector.VectorType;
 /**
  * <p>
  * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
- * {@link org.briljantframework.data.vector.DoubleVector#TYPE}. There are some interesting
- * differences between this implementation and the traditional {@code DataFrame}. It is possible for
- * the data series in the collection to be of different length. Therefore, {@link #columns()} return
- * the maximum data series length and calls to {@code getAs...(n, col)} works as expected only if
- * {@code col < col.getRecord(n).size()}. If not (and {@code index < columns()}), NA is returned.
+ * {@link Double}. There are some interesting differences between this implementation and the
+ * traditional {@code DataFrame}. It is possible for the data series in the collection to be of
+ * different length. Therefore, {@link #columns()} return the maximum data series length and calls
+ * to {@code getAs...(n, col)} works as expected only if {@code col < col.getRecord(n).size()}. If
+ * not (and {@code index < columns()}), NA is returned.
  * </p>
  *
  * @author Isak Karlsson
@@ -56,8 +56,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   private final int columns;
 
-  private DataSeriesCollection(List<Vector> series, VectorType type, int columns,
-      Index columnIndex, Index index) {
+  private DataSeriesCollection(List<Vector> series, VectorType type, int columns, Index columnIndex,
+      Index index) {
     super(columnIndex, index);
     Check.argument(series.size() == index.size());
     Check.argument(columnIndex.size() == columns);
@@ -214,9 +214,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private Builder(DataSeriesCollection df, VectorType type) {
       super(df);
       this.type = type;
-      this.builders =
-          df.series.stream().map(Vector::newCopyBuilder)
-              .collect(Collectors.toCollection(ArrayList::new));
+      this.builders = df.series.stream().map(Vector::newCopyBuilder)
+          .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -275,7 +274,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
     @Override
     public void removeAt(int column) {
-      Check.elementIndex(column, columns());
+      Check.validIndex(column, columns());
       for (int i = 0; i < rows(); i++) {
         Vector.Builder colb = builders.get(i);
         if (column < colb.size()) { // TODO: check?
@@ -327,9 +326,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataFrame getTemporaryDataFrame() {
       int columns = columns();
-      ArrayList<Vector> series =
-          builders.stream().map(Vector.Builder::getTemporaryVector)
-              .collect(Collectors.toCollection(ArrayList::new));
+      ArrayList<Vector> series = builders.stream().map(Vector.Builder::getTemporaryVector)
+          .collect(Collectors.toCollection(ArrayList::new));
       Index index = getIndex(rows());
       Index columnIndex = getColumnIndex(columns);
       return new DataSeriesCollection(series, type, columns, columnIndex, index) {
@@ -343,10 +341,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataSeriesCollection build() {
       int columns = columns();
-      DataSeriesCollection collection =
-          new DataSeriesCollection(builders.stream().map(Vector.Builder::build)
-              .collect(Collectors.toCollection(ArrayList::new)), type, columns,
-              getColumnIndex(columns), getIndex(rows()));
+      DataSeriesCollection collection = new DataSeriesCollection(
+          builders.stream().map(Vector.Builder::build)
+              .collect(Collectors.toCollection(ArrayList::new)),
+          type, columns, getColumnIndex(columns), getIndex(rows()));
       builders = null;
       return collection;
     }

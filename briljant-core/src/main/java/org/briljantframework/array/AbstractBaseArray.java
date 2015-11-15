@@ -135,20 +135,20 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         int size = self.size();
         for (int i = 0; i < subIndex.size(); i++) {
           Integer fromIndex = subIndex.get(i);
-          Check.boxedIndex(fromIndex, size);
+          Check.validBoxedIndex(fromIndex, size);
           array.set(i, self, fromIndex);
         }
       } else {
         for (int j = 0; j < subIndex.size(); j++) {
           Integer fromIndex = subIndex.get(j);
-          Check.boxedIndex(fromIndex, self.size(0));
+          Check.validBoxedIndex(fromIndex, self.size(0));
           array.select(j).assign(self.select(fromIndex));
         }
       }
     } else {
       for (int j = 0; j < subIndex.size(); j++) {
         Integer fromIndex = subIndex.get(j);
-        Check.boxedIndex(fromIndex, self.size(0));
+        Check.validBoxedIndex(fromIndex, self.size(0));
         select(indexes, self.select(fromIndex), array, j, 1);
       }
     }
@@ -160,15 +160,15 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (indexes.size() - 1 == dim) {
       if (to.isVector()) {
         Check.state(from.isVector());
-        Check.boxedIndex(fromIndex, from.size());
+        Check.validBoxedIndex(fromIndex, from.size());
         to.set(j, from, fromIndex);
       } else {
-        Check.boxedIndex(fromIndex, from.size(dim));
+        Check.validBoxedIndex(fromIndex, from.size(dim));
         to.select(j).assign(from.select(fromIndex));
       }
     } else {
-      Check.elementIndex(dim, from.dims());
-      Check.boxedIndex(fromIndex, from.size(dim));
+      Check.validIndex(dim, from.dims());
+      Check.validBoxedIndex(fromIndex, from.size(dim));
       select(indexes, from.select(fromIndex), to, j, dim + 1);
     }
   }
