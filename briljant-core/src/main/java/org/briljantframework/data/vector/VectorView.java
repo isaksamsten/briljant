@@ -25,7 +25,6 @@ import java.util.Objects;
 
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
-import org.briljantframework.exceptions.IllegalTypeException;
 
 /**
  * Created by isak on 1/21/15.
@@ -100,7 +99,7 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
+  public <U> Array<U> toArray(Class<U> cls) {
     return parent.toArray(cls).get(Arrays.range(offset, size())); // TODO: check
   }
 

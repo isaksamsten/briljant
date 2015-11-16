@@ -23,18 +23,29 @@ package org.briljantframework.data.vector;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.*;
+import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Listable;
-import org.briljantframework.array.*;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Na;
@@ -613,17 +624,51 @@ public interface Vector extends Serializable, Listable<Object> {
    * a {@link org.briljantframework.array.DoubleArray} implementation.
    *
    * <pre>
-   * {
-   *   &#064;code
-   *   Vector a = new DoubleVector(1, 2, 3, 4, 5);
-   *   DoubleMatrix mat = a.toArray(Double.class).asDouble();
-   *   double sum = mat.reduce(0, Double::sum);
-   * }
+   * Vector a = new DoubleVector(1, 2, 3, 4, 5);
+   * DoubleMatrix mat = a.toArray(Double.class).asDouble();
+   * double sum = mat.reduce(0, Double::sum);
    * </pre>
    *
    * @return this vector as an {@linkplain org.briljantframework.array.Array array}
    */
-  <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException;
+  <U> Array<U> toArray(Class<U> cls);
+
+  /**
+   * Copies the contents of this vector to the given array.
+   * 
+   * @param cls the type
+   * @param array the array
+   * @param <U> the type
+   */
+  <U> void toArray(Class<U> cls, Array<U> array);
+
+  /**
+   * Copies the contents of this vector to the given array.
+   *
+   * @param array the array
+   */
+  void toArray(Array<Object> array);
+
+  /**
+   * Copies the contents of this vector to the given array.
+   *
+   * @param array the array
+   */
+  void toArray(DoubleArray array);
+
+  /**
+   * Copies the contents of this vector to the given array.
+   *
+   * @param array the array
+   */
+  void toArray(IntArray array);
+
+  /**
+   * Copies the contents of this vector to the given array.
+   *
+   * @param array the array
+   */
+  void toArray(ComplexArray array);
 
   /**
    * The default implementation is equivalent to calling {@code toArray(Double.class).asDouble()}.

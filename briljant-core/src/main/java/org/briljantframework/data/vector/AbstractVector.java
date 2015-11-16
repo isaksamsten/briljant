@@ -22,19 +22,32 @@
 package org.briljantframework.data.vector;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.*;
+import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import net.mintern.primitive.comparators.IntComparator;
 
+import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
@@ -45,7 +58,6 @@ import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.exceptions.IllegalTypeException;
 
 /**
  * @author Isak Karlsson
@@ -306,13 +318,54 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
-  public <U> Array<U> toArray(Class<U> cls) throws IllegalTypeException {
+  public <U> Array<U> toArray(Class<U> cls) {
     final VectorLocationGetter get = loc();
     Array<U> n = Arrays.newArray(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, get.get(cls, i));
     }
     return n;
+  }
+
+  @Override
+  public <U> void toArray(Class<U> cls, Array<U> array) {
+    final VectorLocationGetter get = loc();
+    int size = Math.min(size(), array.size());
+    for (int i = 0; i < size; i++) {
+      array.set(i, get.get(cls, i));
+    }
+  }
+
+  @Override
+  public void toArray(Array<Object> array) {
+    toArray(Object.class, array);
+  }
+
+  @Override
+  public void toArray(DoubleArray array) {
+    final VectorLocationGetter getter = loc();
+    int size = Math.min(size(), array.size());
+    for (int i = 0; i < size; i++) {
+      array.set(i, getter.getAsDouble(i));
+    }
+  }
+
+  @Override
+  public void toArray(IntArray array) {
+    final VectorLocationGetter getter = loc();
+    int size = Math.min(size(), array.size());
+    for (int i = 0; i < size; i++) {
+      array.set(i, getter.getAsInt(i));
+    }
+  }
+
+  @Override
+  public void toArray(ComplexArray array) {
+    final VectorLocationGetter getter = loc();
+    int size = Math.min(size(), array.size());
+    for (int i = 0; i < size; i++) {
+      array.set(i, getter.get(Complex.class, i));
+    }
   }
 
   @Override
