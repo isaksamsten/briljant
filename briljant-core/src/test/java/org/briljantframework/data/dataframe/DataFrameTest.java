@@ -27,7 +27,9 @@ import static org.junit.Assert.assertEquals;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
@@ -46,6 +48,37 @@ import org.junit.Test;
 public abstract class DataFrameTest {
 
   abstract DataFrame.Builder getBuilder();
+
+  @Test
+  public void testSet_column() throws Exception {
+    DataFrame df = getBuilder().set("A", IntVector.of(1, 2, 3, 4)).build();
+    DataFrame expected =
+        getBuilder().set("A", IntVector.of(1, 2, 3, 4)).set("B", IntVector.of(1, 2, 3, 4)).build();
+    DataFrame actual = df.set("B", IntVector.of(1, 2, 3, 4)).set("A", IntVector.of(1, 2, 3, 4));
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testSet_columns() throws Exception {
+    Map<Object, Vector> setter = new HashMap<>();
+    setter.put("A", IntVector.of(1, 2, 3, 4));
+    setter.put("B", IntVector.of(1, 2, 3, 4));
+    DataFrame df = getBuilder().set("A", IntVector.of(1, 2, 3, 4)).build();
+    DataFrame expected =
+        getBuilder().set("A", IntVector.of(1, 2, 3, 4)).set("B", IntVector.of(1, 2, 3, 4)).build();
+    DataFrame actual = df.set(setter);
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testGet_columns() throws Exception {
+    DataFrame df = getBuilder().set("A", IntVector.of(1, 2, 3)).set("B", IntVector.of(1, 2, 3))
+        .set("C", IntVector.of(1, 2, 3)).build();
+    DataFrame expected =
+        getBuilder().set("A", IntVector.of(1, 2, 3)).set("B", IntVector.of(1, 2, 3)).build();
+    DataFrame actual = df.get(Arrays.asList("A", "B"));
+    assertEquals(expected, actual);
+  }
 
   @Test
   public void testWhere() throws Exception {

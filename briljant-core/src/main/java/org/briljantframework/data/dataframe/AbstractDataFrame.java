@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BinaryOperator;
@@ -180,6 +181,32 @@ public abstract class AbstractDataFrame implements DataFrame {
       throw new IllegalArgumentException("Illegal array dimension " + array.dims());
     }
 
+    return builder.build();
+  }
+
+  @Override
+  public DataFrame set(Object key, Vector column) {
+    DataFrame.Builder builder = newCopyBuilder();
+    builder.set(key, Vectors.transferableBuilder(column));
+    return builder.build();
+  }
+
+  @Override
+  public DataFrame set(Map<Object, Vector> columns) {
+    DataFrame.Builder builder = newCopyBuilder();
+    for (Map.Entry<Object, Vector> entry : columns.entrySet()) {
+      builder.set(entry.getKey(), Vectors.transferableBuilder(entry.getValue()));
+    }
+    return builder.build();
+  }
+
+  @Override
+  public DataFrame get(List<Object> keys) {
+    DataFrame.Builder builder = newBuilder();
+    builder.setIndex(getIndex());
+    for (Object key : keys) {
+      builder.set(key, Vectors.transferableBuilder(get(key)));
+    }
     return builder.build();
   }
 

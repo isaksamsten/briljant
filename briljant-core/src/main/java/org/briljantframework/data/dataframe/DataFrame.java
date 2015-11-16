@@ -21,7 +21,11 @@
 
 package org.briljantframework.data.dataframe;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -604,6 +608,10 @@ public interface DataFrame extends Iterable<Object> {
    */
   DataFrame set(Object key, Object value);
 
+  DataFrame set(Object key, Vector column);
+
+  DataFrame set(Map<Object, Vector> columns);
+
   /**
    * Get the specified columns
    *
@@ -612,6 +620,8 @@ public interface DataFrame extends Iterable<Object> {
    * @return a new data frame
    */
   DataFrame get(Object key, Object... keys);
+
+  DataFrame get(List<Object> keys);
 
   /**
    * Drop the column with the specified key
