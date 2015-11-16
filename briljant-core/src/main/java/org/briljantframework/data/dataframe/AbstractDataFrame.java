@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -658,10 +659,15 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final <T> Array<T> toArray(Class<T> type) {
-    Array<T> matrix = Arrays.newArray(rows(), columns());
+    return toArray(type, UnaryOperator.identity());
+  }
+
+  @Override
+  public <T, R> Array<R> toArray(Class<T> type, Function<? super T, ? extends R> function) {
+    Array<R> matrix = Arrays.newArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, getAt(type, i, j));
+        matrix.set(i, j, function.apply(getAt(type, i, j)));
       }
     }
     return matrix;
@@ -669,10 +675,15 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DoubleArray toDoubleArray() {
+    return toDoubleArray(DoubleUnaryOperator.identity());
+  }
+
+  @Override
+  public DoubleArray toDoubleArray(DoubleUnaryOperator operator) {
     DoubleArray matrix = Arrays.newDoubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, getAsDoubleAt(i, j));
+        matrix.set(i, j, operator.applyAsDouble(getAsDoubleAt(i, j)));
       }
     }
     return matrix;

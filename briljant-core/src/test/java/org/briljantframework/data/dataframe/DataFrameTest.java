@@ -34,12 +34,14 @@ import java.util.Map;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.reader.StringDataEntry;
+import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.IntVector;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
@@ -150,11 +152,18 @@ public abstract class DataFrameTest {
 
   @Test
   public void testToArray_with_class() throws Exception {
-    DataFrame df = DataFrame.of("A", Vector.of("a", "b", "c"), "B", Vector.of(1, 2, 3));
-
+    DataFrame df = getBuilder().set("A", Vector.of("a", "b", "c")).set("B", Vector.of(1, 2, 3)).build();
     DoubleArray expected =
         DoubleArray.of(Double.NaN, Double.NaN, Double.NaN, 1, 2, 3).reshape(3, 2);
     DoubleArray actual = df.toDoubleArray();
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testToDoubleArray_operator() throws Exception {
+    DataFrame df = getBuilder().set("A", DoubleVector.of(1, 2, 3, 4)).set("B", DoubleVector.of(1, 2, Na.DOUBLE, 4)).build();
+    DoubleArray expected = DoubleArray.of(1, 2, 3, 4, 1, 2, 3, 4).reshape(4, 2);
+    DoubleArray actual = df.toDoubleArray(i -> Is.NA(i) ? 3 : i);
     assertEquals(expected, actual);
   }
 
@@ -305,7 +314,7 @@ public abstract class DataFrameTest {
 
   @Test
   public void testBuildNewDataFrameFromLocationSetterAndRecords() throws Exception {
-    Vector[] vectors = new Vector[] {Vector.of(1, 2, 3, 4), Vector.of(1, 2, 3, 4)};
+    Vector[] vectors = new Vector[]{Vector.of(1, 2, 3, 4), Vector.of(1, 2, 3, 4)};
     DataFrame.Builder builder = getBuilder();
     for (int i = 0; i < vectors.length; i++) {
       builder.loc().setRecord(i, vectors[i]);
@@ -320,7 +329,7 @@ public abstract class DataFrameTest {
 
   @Test
   public void testBuildNewDataFrameFromLocationSetterAndColumns() throws Exception {
-    Vector[] vectors = new Vector[] {Vector.of(1, 2, 3, 4), Vector.of(1, 2, 3, 4)};
+    Vector[] vectors = new Vector[]{Vector.of(1, 2, 3, 4), Vector.of(1, 2, 3, 4)};
 
     DataFrame.Builder builder = getBuilder();
     for (int i = 0; i < vectors.length; i++) {
@@ -427,7 +436,7 @@ public abstract class DataFrameTest {
   public void testBuildNewDataFrameFromEntryReader() throws Exception {
     EntryReader entryReader = new EntryReader() {
       private final DataEntry[] entries =
-          new DataEntry[] {new StringDataEntry("1", "2", "3"), new StringDataEntry("3", "2", "1")};
+          new DataEntry[]{new StringDataEntry("1", "2", "3"), new StringDataEntry("3", "2", "1")};
       private int current = 0;
 
       @Override

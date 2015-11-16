@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -1035,11 +1036,30 @@ public interface DataFrame extends Iterable<Object> {
   <T> Array<T> toArray(Class<T> type);
 
   /**
+   * Return this data frame as an {@link Array} applying the supplied function to each element.
+   * 
+   * @param type the class
+   * @param function the function
+   * @param <T> the input type
+   * @param <R> the output type
+   * @return a new array
+   */
+  <T, R> Array<R> toArray(Class<T> type, Function<? super T, ? extends R> function);
+
+  /**
    * Return this data frame as a double array
    *
-   * @return this as a double array
+   * @return a new double array
    */
   DoubleArray toDoubleArray();
+
+  /**
+   * Return this data frame as a double array applying the given function to each element
+   * 
+   * @param operator the operator
+   * @return a new double array
+   */
+  DoubleArray toDoubleArray(DoubleUnaryOperator operator);
 
   /**
    * Return a stream over the records in this data frame. For example, we could filter the records
