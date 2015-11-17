@@ -1,35 +1,37 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array.base;
 
 
+import static org.briljantframework.array.Indexer.columnMajor;
+import static org.briljantframework.array.Indexer.rowMajor;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
-import org.briljantframework.Utils;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
@@ -42,16 +44,7 @@ import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
-import org.briljantframework.stat.FastStatistics;
-
-import java.util.AbstractList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import org.briljantframework.statistics.FastStatistics;
 
 /**
  * @author Isak Karlsson
@@ -61,8 +54,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   protected static final double LOG_2 = Math.log(2);
   protected static final double EPS = 1e-10;
 
-  protected BaseArrayRoutines() {
-  }
+  protected BaseArrayRoutines() {}
 
   @Override
   public double mean(DoubleArray x) {
@@ -77,7 +69,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public double var(DoubleArray x) {
     FastStatistics s = new FastStatistics();
-    x.forEach(s::addValue);
+    x.forEachDouble(s::addValue);
     return s.getVariance();
   }
 
@@ -285,7 +277,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public double dot(DoubleArray a, DoubleArray b) {
+  public double inner(DoubleArray a, DoubleArray b) {
     Check.size(a, b);
     double s = 0;
     for (int i = 0; i < a.size(); i++) {
@@ -295,12 +287,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public Complex dotu(ComplexArray a, ComplexArray b) {
+  public Complex conjugateInner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
   @Override
-  public Complex dotc(ComplexArray a, ComplexArray b) {
+  public Complex inner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
@@ -382,13 +374,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
-                   DoubleArray y) {
+      DoubleArray y) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
-    Check.all(BaseArray::isVector, x, y);
+    Check.all(x, y).argument(BaseArray::isVector, "x and y must be vectors");
     Check.size(x.size(), a.rows());
     Check.size(y.size(), a.columns());
     for (int i = 0; i < x.size(); i++) {
@@ -399,9 +391,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void gemm(Op transA, Op transB,
-                   double alpha, DoubleArray a, DoubleArray b,
-                   double beta, DoubleArray c) {
+  public void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b, double beta,
+      DoubleArray c) {
 
     int thisRows = a.rows();
     int thisCols = a.columns();
@@ -419,17 +410,23 @@ public class BaseArrayRoutines implements ArrayRoutines {
     if (thisCols != otherRows) {
       throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
+    int m = a.size(transA == Op.KEEP ? 0 : 1);
+    int n = b.size(transB == Op.KEEP ? 1 : 0);
+    int dk = a.size(transA == Op.KEEP ? 1 : 0);
+    if (m != c.size(0) || n != c.size(1)) {
+      throw new NonConformantException(
+          String.format("a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n,
+              c.size(0), c.size(1)));
+    }
 
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex = transA.isTrue() ?
-                          rowMajor(row, k, thisRows, thisCols) :
-                          columnMajor(0, row, k, thisRows, thisCols);
-          int otherIndex = transB.isTrue() ?
-                           rowMajor(k, col, otherRows, otherColumns) :
-                           columnMajor(0, k, col, otherRows, otherColumns);
+          int thisIndex = transA.isTrue() ? rowMajor(row, k, thisRows, thisCols)
+              : columnMajor(0, row, k, thisRows, thisCols);
+          int otherIndex = transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns)
+              : columnMajor(0, k, col, otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
         c.set(row, col, alpha * sum + beta * c.get(row, col));
@@ -455,124 +452,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
-    Objects.requireNonNull(array);
-    Check.argument(array.rows() % parts == 0, "Parts does not evenly divide rows.");
-    int partRows = array.rows() / parts;
-    return new AbstractList<T>() {
-      @Override
-      public T get(int index) {
-        Check.elementIndex(index, size());
-        T part = array.newEmptyArray(partRows, array.columns());
-        for (int j = 0; j < part.columns(); j++) {
-          for (int i = 0; i < part.rows(); i++) {
-            part.set(i, j, array, i + partRows * index, j);
-          }
-        }
-        return part;
-      }
-
-      @Override
-      public int size() {
-        return parts;
-      }
-    };
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T vstack(Collection<T> arrays) {
-    Check.argument(arrays.size() > 0);
-    int rows = 0;
-    int columns = 0;
-    T first = null;
-    for (T matrix : arrays) {
-      if (first == null) {
-        first = matrix;
-        columns = first.columns();
-      }
-      Check.argument(columns == matrix.columns(),
-                     "Can't vstack %s with %s.", matrix.getShape(), first.getShape());
-      rows += matrix.rows();
-    }
-
-    T newMatrix = first.newEmptyArray(rows, columns);
-    int pad = 0;
-    for (T matrix : arrays) {
-      for (int j = 0; j < matrix.columns(); j++) {
-        for (int i = 0; i < matrix.rows(); i++) {
-          newMatrix.set(i + pad, j, matrix, i, j);
-        }
-      }
-      pad += matrix.rows();
-    }
-    return newMatrix;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
-    Objects.requireNonNull(array);
-    Check.argument(array.rows() % parts == 0, "Parts does not evenly dived columns.");
-    int partColumns = array.columns() / parts;
-    return new AbstractList<T>() {
-
-      @Override
-      public T get(int index) {
-        Check.elementIndex(index, size());
-        T part = array.newEmptyArray(array.rows(), partColumns);
-        for (int j = 0; j < part.columns(); j++) {
-          for (int i = 0; i < part.rows(); i++) {
-            part.set(i, j, array, i, j + partColumns * index);
-          }
-        }
-        return part;
-      }
-
-      @Override
-      public int size() {
-        return parts;
-      }
-    };
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T hstack(Collection<T> arrays) {
-    Check.argument(arrays.size() > 0);
-    int columns = 0;
-    int rows = 0;
-    T first = null;
-    for (T matrix : arrays) {
-      if (first == null) {
-        first = matrix;
-        rows = first.rows();
-      }
-      Check.argument(rows == matrix.rows(),
-                     "Can't hstack %s with %s.", matrix.getShape(), first.getShape());
-      columns += matrix.columns();
-    }
-    T newMatrix = first.newEmptyArray(rows, columns);
-    int pad = 0;
-    for (T matrix : arrays) {
-      for (int j = 0; j < matrix.columns(); j++) {
-        for (int i = 0; i < matrix.rows(); i++) {
-          newMatrix.set(i, j + pad, matrix, i, j);
-        }
-      }
-      pad += matrix.columns();
-    }
-    return newMatrix;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T shuffle(T x) {
-    T out = x.copy();
-    Utils.permute(out.size(), out);
-    return out;
-  }
-
-  @Override
   public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
     T out = x.copy();
-    QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
+    if (x instanceof DoubleArray) {
+      Arrays.sort(((DoubleArray) out).data());
+    } else {
+      QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
+    }
     return out;
   }
 

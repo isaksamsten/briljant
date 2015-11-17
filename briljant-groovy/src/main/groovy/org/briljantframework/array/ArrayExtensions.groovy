@@ -23,12 +23,9 @@
  */
 
 package org.briljantframework.array
-
-import groovy.transform.CompileStatic
-import org.briljantframework.Bj
-
 /**
  * Created by isak on 03/06/15.
+ * TODO: fix me!
  */
 //@CompileStatic
 class ArrayExtensions {
@@ -39,7 +36,7 @@ class ArrayExtensions {
       case IntArray: return cls.cast(self.asInt())
       case LongArray: return cls.cast(self.asLong())
       case ComplexArray: return cls.cast(self.asLong())
-      case BitArray: return cls.cast(self.asBit())
+      case BooleanArray: return cls.cast(self.asBoolean())
       default:
         throw new ClassCastException("Can't convert ${self.getClass()} to $cls")
     }
@@ -58,7 +55,7 @@ class ArrayExtensions {
   }
 
   static <T extends BaseArray<T>> T get(T self, IntRange[] ranges) {
-    return self.get(ranges.collect {IntRange it -> Bj.range(it.fromInt, it.toInt)} as Range[])
+    return self.get(ranges.collect {IntRange it -> Arrays.range(it.fromInt, it.toInt)} as Range[])
   }
 
   static DoubleArray power(DoubleArray self, double power) {
@@ -66,11 +63,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray power(Number self, DoubleArray power) {
-    return power.map {Math.pow(self.doubleValue(), it)}
+    return power.map { Math.pow(self.doubleValue(), it) }
   }
 
   static DoubleArray plus(DoubleArray self, double v) {
-    return self.add(v)
+    return self.plus(v)
   }
 
   static <T extends BaseArray<T>> T plus(T self, T other) {
@@ -78,11 +75,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray plus(Number self, DoubleArray other) {
-    return other.add(self.doubleValue())
+    return other.plus(self.doubleValue())
   }
 
   static DoubleArray minus(DoubleArray self, double v) {
-    return self.sub(v)
+    return self.minus(v)
   }
 
   static <T extends BaseArray<T>> T minus(T self, T other) {
@@ -90,11 +87,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray minus(Number self, DoubleArray other) {
-    return other.rsub(self.doubleValue())
+    return other.reverseMinus(self.doubleValue())
   }
 
   static DoubleArray multiply(DoubleArray self, double v) {
-    return self.mul(v)
+    return self.times(v)
   }
 
   static <T extends BaseArray<T>> T multiply(T self, T other) {
@@ -102,11 +99,11 @@ class ArrayExtensions {
   }
 
   static DoubleArray multiply(Number self, DoubleArray other) {
-    return other.mul(self.doubleValue())
+    return other.times(self.doubleValue())
   }
 
   static DoubleArray div(Number self, DoubleArray other) {
-    return other.rdiv(self.doubleValue())
+    return other.reverseDiv(self.doubleValue())
   }
 
 }

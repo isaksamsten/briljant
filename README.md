@@ -1,284 +1,149 @@
-# ADEB
+# Briljant Framework
 
+![Build status](https://travis-ci.org/briljant/briljant.svg?branch=develop) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-## Building
+Briljant is a [MIT](http://https://opensource.org/licenses/MIT)
+licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
+and [R](https://www.r-project.org/)-like data frames and vectors for
+the [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) written
+in [Java](https://www.java.com) with bindings for languages such as
+[Groovy](http://www.groovy-lang.org/) and
+[Kotlin](http://kotlinlang.org/).
 
-    gradle dependencies
-    gradle compile
-    
-### IDE
-Most of the development is performed in [IntellijIDEA](http://www.jetbrains.com/idea/). The project can (quite easily) be imported using the gradle plugin.
+## Main features
 
- * File > Import Project
- * Import project from external module (select Gradle)
- * Check "use default gradle wrapper"
- * Check "Project format": (.ipr file-based)
-    
-## Sub-projects
+* versatile, simple to use and fast r-like data frame abstraction
+(supporting *split-apply-combine* and other common idioms)
 
-* _core_: contains core components such as data and instance handling and matrix and BLAS operations
-* _stat_: implements of some machine learning techniques
+* fast and easy to use n-dimensional arrays for both primitive and
+reference types with bindings to native BLAS and LAPACK routines
 
-### core
+## Example
 
-So far, this module provides a `DataFrame`s, file input and output, `Matrix` and BLAS operations and `Transformations`.
+```
+CsvParser parser = new CsvParser();
+parser.getSettings().setUrl(new URL("https://www.quandl.com/api/v1/datasets/GOOG/NASDAQ_AAPL.csv"));
 
-Here is an example using the `CsvInputStream` and `DataFrame` to remove cases with missing posterior using the `RemoveIncompleteCases` transformation:
+DataFrame df = parser.parse();
+df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
+  .collect(Vector::mean)
+  .sort(SortOrder.DESC)
+```
 
-    DataFrame iris = Datasets.loadIris();
-    Transformation rm = new RemoveIncompleteCases().fit(iris);
-    iris = rm.transform(iris);
+```
+      Open     High     Low      Close    Volume         
+2015  122.715  123.807  121.366  122.559  54701792.000   
+2014  92.216   93.009   91.482   92.264   63235262.818   
+2013  67.587   68.234   66.893   67.519   101612690.714  
+2012  82.379   83.118   81.412   82.293   131976305.232  
+2011  52.007   52.487   51.467   52.000   123447489.857  
+2010  37.137   37.482   36.693   37.008   145805263.861  
+2009  20.946   21.213   20.708   20.986   139497489.556  
+2008  20.330   20.730   19.837   20.226   280518140.298  
+2007  18.341   18.585   18.027   18.325   246412550.853  
+2006  10.142   10.279   9.973    10.115   215070884.749  
+2005  6.661    6.758    6.566    6.668    181754270.762  
+2004  2.529    2.573    2.495    2.537    121116211.286  
+2003  1.323    1.346    1.301    1.325    70685000.016   
+2002  1.366    1.395    1.336    1.367    73738366.698   
+2001  1.441    1.483    1.401    1.444    92302462.742   
+2000  3.167    3.380    3.160    3.265    110160044.540  
+1999  0.000    2.203    2.099    2.154    130986650.063  
+1998  0.000    3.450    3.288    3.378    55339069.349   
+1997  0.000    2.623    2.518    2.567    16394428.822   
+1996  0.000    3.631    3.501    3.560    13081872.835   
+1995  0.000    5.897    5.700    5.791    18502022.222   
+1994  0.000    4.963    4.773    4.869    14175136.111   
+1993  0.000    5.969    5.752    5.861    13948507.115   
+1992  0.000    7.943    7.709    7.829    10138857.874   
+1991  0.000    7.632    7.358    7.499    14482723.336   
+1990  0.000    5.460    5.260    5.366    10965262.055   
+1989  0.000    6.043    5.854    5.952    12626672.222   
+1988  0.000    6.026    5.841    5.934    10213406.719   
+1987  0.000    7.862    7.528    7.696    10691949.407   
+1986  0.000    4.705    4.551    4.637    6583743.478    
+1985  0.000    2.942    2.875    2.885    5619956.917    
+1984  0.000    3.913    3.816    3.829    5158288.933    
+1983  0.000    5.474    5.333    5.353    5264802.372    
+1982  0.000    2.785    2.732    2.739    2638958.498    
+1981  0.000    3.496    3.473    3.473    1012468.379    
+1980  0.000    4.365    4.349    4.349    3232815.385    
 
-### adeb-learning
+[36 rows x 5 columns]
+```
 
-Two learning algorithms are implemented (to experiment with the API). The first is a simple 
-stochastic gradient descent logistic regression learner which uses `adeb-matrix` and the `Frame`-class. The second 
-algorithm is more general and uses an external classifier which communicates over either sockets or `stdin` and `stdout`.
+```
+DoubleArray x = Arrays.randn(20).reshape(4, 5);
+Arrays.dot(x.transpose(), x);
+```
 
-The following is an example of using the `CSVInputStream` to load a storage and fit a logistic regression model to that
-data source.
+```
+array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
+       [-1.714,  0.932, -0.021, -0.393,  0.952],
+       [-2.135, -0.021,  2.459, -1.203,  2.531],
+       [ 2.017, -0.393, -1.203,  3.823,  0.440],
+       [-3.727,  0.952,  2.531,  0.440,  5.072]])
+```
 
-    StorageInputStream sis = new CSVInputStream(new FileInputStream("erlang/test.txt"));
-    
-    // Logistic regression requires a Frame 
-    Storage<Frame, Target> storage = sis.read(Frame.FACTORY, BasicTarget.FACTORY);
-    
-    // Logistic regression does not support missing posterior, and data should be normalized
-    Transformer<Matrix, Target> normalize = PipelineTransformer.of(
-        new RemoveIncompleteCases(), new MinMaxNormalizer());
-        
-    LogisticRegression lr = LogisticRegression
-        .withIterations(1000)
-        .setLearningRate(0.01)
-        .setRegularization(0.01)
-        .create();
-    Result result = Evaluators.crossValidation(lr, normalize.fitTransform(storage), 10);
-    System.out.println(result)
-    
-While the normalization step biases the result, the example is valid and gives the following result.
+```
+Array<String> x = Array.of("a", "b", "c", "d").reshape(2, 2)
+```
 
-    Average Confusion Matrix
-          0     1     
-    0     99.0  0.0   
-    1     1.0   46.0  
-    Accuracy: 0.99 (0.01)
-    
-    Metrics
-                         Area Under ROC Curve   Error    Accuracy   
-    1                    1.0000                 0.0000   1.0000     
-    2                    1.0000                 0.0000   1.0000     
-    3                    1.0000                 0.0667   0.9333     
-    ..                   ..                     ..       ..
-    9                    1.0000                 0.0000   1.0000     
-    10                   1.0000                 0.0000   1.0000     
-    Average              1.0000                 0.0067   0.9933     
-    Standard Deviation   0.0000                 0.0211   0.0211
-        
-In the second example we are using an `RemoteClassifier` (implemented in [Erlang](http://www.erlang.org/)). 
-This classifier supports any dataset and target (not rejected at runtime). Hence, we 
-can use a [bounded wildcard](http://docs.oracle.com/javase/tutorial/java/generics/upperBounded.html) 
-(i.e. `? extends Dataset`) and load any storage type (in the example a `DenseDataset` is loaded). 
-     
-     StorageInputStream in = new CSVInputStream(new FileInputStream("erlang/adeb-rr/deps/rr/data/iris.txt"));
-     Storage<? extends Dataset, Target> storage = in.read(DenseDataset.FACTORY, BasicTarget.FACTORY);
+```
+array([[a, c],
+       [b, d]])
+```
 
-     RemoteClassifier randomForest = RemoteClassifier
-         .with(ProcessProtocol.create("erlang/adeb-rr/rr_learn"), 
-                  ProcessProtocol.create("erlang/adeb-rr/rr_predict"))
-         .set("no_features", "default")
-         .set("no_trees", 100)
-         .build();
-     Result result = 
-     
-Time series predictions, using KNN with dynamic time warping
+## Installation
 
-     Storage<Frame, Target> syntheticTrain = TimeSeries.load("erlang/synthetic_control_TRAIN.txt", 
-                                                             Frame.FACTORY, BasicTarget.FACTORY);
-     DynamicTimeWarping warp = DynamicTimeWarping.withDistance(Distance.EUCLIDEAN).constraint(10).create()
-     KNearestNeighbors oneNearestNeighbours = KNearestNeighbors
-        .withNeighbors(1)
-        .setDistance(warp)
-        .create();
-        
-     Evaluators.crossValidation(oneNearestNeighbours, syntheticTrain, 10)
-     
-A recent addition is the ability to automatically tune the parameters of a particular machine learning classifier. For
-example, for k-nearest neighbors `k` and the distance-function can be tuned. Given these requirements, the following code
-can be used to tune these parameters.
+### Pre-compiled binaries
 
-      Configurations<KNearestNeighbors> knn = Tuners.crossValidatation(
-              KNearestNeighbors.builder(),                      // The classifier constructor
-              storage,                                          // the storage used for optimization    
-              Configuration.metricComparator(Accuracy.class),   // the comparator
-              10,                                               // the number of optimization folds
-              
-              // The parameters to tune (first the neighbors in the range [1,8])
-              range("K", KNearestNeighbors.Builder::neighbours, 1, 8, 1),
-              // and two distance functions, the euclidean and manhattan (city-block) distance               
-              enumeration("Distance", KNearestNeighbors.Builder::distance, Distance.EUCLIDEAN, Distance.MANHATTAN)
-      );
-      System.out.println(knn);
-      
-The above code type-safely tune the parameters according to the hold-out accuracy estimated using 10-fold cross-validation.
-All possible parameter configurations are investigated. The result is shown below:
+Not yet available
 
-      k-Nearest Neighbors
-      
-      Resampling: Cross-validation with k = 10
-      
-      Results across tuning parameters:
-      
-         K          Distance           Accuracy  Error   Area Under ROC Curve  Precision  Recall  F-Measure  
-         3          ManhattanDistance  0.9133    0.0867  0.9731                0.9204     0.9133  0.9086     
-         1          ManhattanDistance  0.9133    0.0867  0.9474                0.9201     0.9133  0.9097     
-         1          EuclideanDistance  0.9100    0.0900  0.9433                0.9183     0.9100  0.9037     
-         ..         ..                 ..        ..      ..                    ..         ..      ..
-         6          ManhattanDistance  0.8667    0.1333  0.9840                0.8821     0.8667  0.8566     
-         8          EuclideanDistance  0.8667    0.1333  0.9883                0.8834     0.8667  0.8558     
-         6          EuclideanDistance  0.8600    0.1400  0.9840                0.8769     0.8600  0.8492     
-         8          ManhattanDistance  0.8533    0.1467  0.9898                0.8723     0.8533  0.8408    
+### Building from source
 
-If the results above is to be believed, `K=3` using the Manhattan distance yields the highest accuracy on unseen data.
-However, if we chose to optimize for another metric, e.g. area under ROC curve, then `K=8` using the Manhattan distance 
-seems to perform better.
+Since Briljant is built using [Gradle](https://gradle.org/) it is
+simple to build from source and reference the binaries from your
+project. First we need to clone the repository
 
-In recent versions, ADEB is able to plot `Result`s returned from, e.g., `Evaluators#crossValidation`. In this 
-example, a random forest model is built and the results from cross-validation is visualized.
+    git clone https://github.com/isakkarlsson/briljant.git
 
+Then building the source code is as simple as
 
-First we load the data and construct the `Ensemble`-classifier with a random `DecisionTree`
+    gradle install
 
-      CSVInputStream in = new CSVInputStream(new FileInputStream("erlang/adeb-rr/deps/rr/data/sick-euthyroid.txt"));
-      SimpleStorage storage = SimpleStorage.load(in).permute();
+In your `build.gradle` or `pom.xml` reference
 
-      DecisionTree.Builder dt = DecisionTree.withSplitter(
-              RandomSplitter.withMaximumFeatures(3)
-                      .setCriterion(Gain.with(Entropy.INSTANCE))
-      );
-      Ensemble<Dataset> ensemble = Ensemble.withMember(dt)
-              .withSampler(Bootstrap.create())
-              .create();
+    <dependency>
+        <groupId>org.briljantframework</groupId>
+        <artifactId>briljant-core</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </dependency>
 
-Next, we produce the result from cross-validation
+## Contribute
 
-      Result result = Evaluators.crossValidation(ensemble, storage, 10);
-      
-Finally, we create a window and plot the result
-      
-      JPanel grid = new JPanel(new GridLayout(1, 2));
-      grid.add(new ChartPanel(result.getAverageConfusionMatrix().getChart()));
-      grid.add(new ChartPanel(result.getAverageConfusionMatrix().getHeatMap()));
+We would love your contributions! Come talk to us in our [chat
+room](https://gitter.im/isakkarlsson/briljant). Beware that in the current phase
+of development the code is changing rapidly so please talk to use before
+commiting to som major work!
 
-      JPanel master = new JPanel(new GridLayout(2, 1));
-      master.add(new ChartPanel(result.getChart()));
-      master.add(grid);
+We prefer developing in [IntellijIDEA](http://www.jetbrains.com/idea/), to
+import the project use the ``gradle`` importer:
 
-      JFrame frame = new JFrame();
-      frame.add(master);
-      frame.pack();
-      frame.setVisible(true);
-      frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-      
-The result
+* File > Import Project
+* Import project from external module (select Gradle)
+* Check "use default gradle wrapper"
 
-![Result plot](http://people.dsv.su.se/~isak-kar/plot-example.png)
-                      
+### Commit strategy
 
-### adeb-matrix
-
-The Matrix library defines some common BLAS (Basic Linear Algebra Subroutines)-operations. Most of these
-operations are delegated to [highly optimized Fortran](http://www.openblas.net/) subroutines.
-While significantly more work is required before this is production ready, some simple programs can take shape.
-    
-Example (using Java):
-    
-    import org.adeb.matrix.DenseMatrix
-    import org.adeb.matrix.Matrices
-    
-    DenseMatrix ones = Matrices.ones(4, 4)
-    DenseMatrix twos = ones.multiply(2)
-    
-Principal Component Analysis:
-    
-    matrix = DenseMatrix.of(5, 4,
-          0, 2, 0, 1,
-          2, 2, 3, 2,
-          4, -3, 0, 1.,
-          6, 1, -6, -5,
-          1, 2, 3, 4
-    );
-    
-    // Uses SingularValueDecomposition to find the principal components
-    PrincipalComponentAnalyzer pca = new PrincipalComponentAnalyzer()
-    PrincipalComponentAnalysis a = pca.analyze(matrix)
-    System.out.println(a.components())
-    
-Or simpler:
-    
-    import static org.adeb.matrix.math.LinearAlgebra.*
-    
-    pca(matrix).components()
-    pinv(matrix)
-    inv(matrix)
-    rank(matrix)
-    svd(matrix)
-    
-Singular Value Decomposition is implemented in terms of the `LAPACK` operations, i.e. using the
-optimized Openblas library. Hence, it has state-of-the-art performance:
-
-    public SingularValueDecomposition decompose(MutableTensor matrix) {
-        int m = matrix.rows(), n = matrix.columns();
-        double[] work = new double[Math.min(m, n)];
-        double[] sigma = new double[n];
-        double[] u = new double[m * m];
-        double[] vt = new double[n * n];
-        MutableTensor copy = new Matrix(matrix);
-
-        int err = LAPACKE_dgesvd(LAPACK_COL_MAJOR, 'a', 'a', m, n, copy.array(), m, sigma, u, m, vt, n, work);
-        if (err != 0) {
-            throw new BlasException("LAPACKE_dgesvd", err, "SVD failed to converge.");
-        }
-
-        Diagonal sv = Diagonal.of(m, n, sigma);
-        Matrix um = DenseMatrix.fromColumnOrder(m, m, u);
-        Matrix vtm = DenseMatrix.fromRowOrder(n, n, vt);
-        return new SingularValueDecomposition(sv, um, vtm);
-    }
-    
-Using `LAPACK` makes the library easy to use for users familiar with other scientific computing libraries.
-
-#### Installation instructions for the native library:
-
-Windows:
-
-  * Download mingw-builds project - native toolchains using trunk from [here](http://mingw-w64.sourceforge.net/download.php#win-builds).
-    Pick the mingw-w64-install.exe. Go through the installation wizard.
-  * Find the installation directory, mine were found at `C:\Program Files\mingw-w64\x86_64-4.9.0-win32-seh-rt_v3-rev2\mingw64`
-  * Add `${installation directory}/bin` to your environment path, i.e., in my case
-    `C:\Program Files\mingw-w64\x86_64-4.9.0-win32-seh-rt_v3-rev2\mingw64\bin` were added 
-  * Download OpenBLAS binaries from [here](http://www.openblas.net/). Click this [direct link](http://sourceforge.net/projects/openblas/files/)
-    and choose the most current version.
-  * Unzip the files
-  * Inside the `\lib` directory find a file named `libopenblas.dll`. Copy this file to the project root (i.e. where the build.gradle file is located)
- 
-Mac OSX:
-
- * Download and install MacPorts
- * In a terminal windows run `sudo port install openblas +lapack`
-    
-Ubuntu (Debian etc.):
-
- * In a terminal windows run: `sudo apt-get install libopenblas-dev liblapack-dev`
-
-
-## Commit strategy
-
-This project employs this [git branching model](http://nvie.com/posts/a-successful-git-branching-model/). 
-In essence, work shall be committed to the `develop`-branch and once a release version is ready `master` and `develop` are merged. 
-Major features reside in there own branches which are merged to `develop` once completed.
+This project employs this [git branching
+model](http://nvie.com/posts/a-successful-git-branching-model/).  In essence,
+the major work is committed to the `develop`-branch and once a release version
+is ready `master` and `develop` are merged.  Major features reside in there own
+branches which are merged to `develop` once completed.
 
 ## TODO
 
- * Integrate with Hadoop
- * 
- 
+ * Improve testing
+ * Assess the performance
+ * Clean up the API for first release

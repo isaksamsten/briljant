@@ -1,31 +1,28 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.optimize;
 
-import org.briljantframework.Bj;
 import org.briljantframework.Check;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 
 /**
@@ -52,14 +49,14 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   @Override
   public double optimize(DifferentialFunction function, DoubleArray x) {
     int n = x.size();
-    DoubleArray currentSolution = Bj.doubleArray(n);
-    DoubleArray currentGradient = Bj.doubleArray(n);
-    DoubleArray direction = Bj.doubleArray(n);
-    DoubleArray solutions = Bj.doubleArray(memory, n);
-    DoubleArray gradients = Bj.doubleArray(memory, n);
-    DoubleArray gradient = Bj.doubleArray(n);
-    DoubleArray scales = Bj.doubleArray(memory);
-    DoubleArray a = Bj.doubleArray(memory);
+    DoubleArray currentSolution = DoubleArray.zeros(n);
+    DoubleArray currentGradient = DoubleArray.zeros(n);
+    DoubleArray direction = DoubleArray.zeros(n);
+    DoubleArray solutions = DoubleArray.zeros(memory, n);
+    DoubleArray gradients = DoubleArray.zeros(memory, n);
+    DoubleArray gradient = DoubleArray.zeros(n);
+    DoubleArray scales = DoubleArray.zeros(memory);
+    DoubleArray a = DoubleArray.zeros(memory);
 
     double f = function.gradientCost(x, gradient);
     double sum = 0;
@@ -72,8 +69,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
     double maxStepSize = MAXIMUM_STEP + Math.max(Math.sqrt(sum), n);
     int iter = 1, k = 0;
     while (iter <= maxIterations) {
-      if (Double.isNaN(lineSearch.optimize(
-          function, x, f, gradient, direction, currentSolution, maxStepSize))) {
+      if (Double.isNaN(lineSearch.optimize(function, x, f, gradient, direction, currentSolution,
+          maxStepSize))) {
         break;
       }
       f = function.gradientCost(currentSolution, currentGradient);
@@ -110,8 +107,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       }
 
       DoubleArray kGradient = gradients.getRow(k);
-      double ys = Bj.dot(kGradient, solutions.getRow(k));
-      double yy = Bj.dot(kGradient, kGradient);
+      double ys = Arrays.inner(kGradient, solutions.getRow(k));
+      double yy = Arrays.inner(kGradient, kGradient);
       double scalingFactor = ys / yy;
 
       scales.set(k, 1.0 / ys);
@@ -120,20 +117,20 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       int cp = k;
       int bound = iter > memory ? memory : iter;
       for (int i = 0; i < bound; i++) {
-        a.set(cp, scales.get(cp) * Bj.dot(solutions.getRow(cp), direction));
-        Bj.axpy(-a.get(cp), gradients.getRow(cp), direction);
+        a.set(cp, scales.get(cp) * Arrays.inner(solutions.getRow(cp), direction));
+        Arrays.axpy(-a.get(cp), gradients.getRow(cp), direction);
         if (--cp == -1) {
           cp = memory - 1;
         }
       }
-      Bj.scal(scalingFactor, direction);
+      Arrays.scal(scalingFactor, direction);
 
       for (int i = 0; i < bound; i++) {
         if (++cp == memory) {
           cp = 0;
         }
-        double b = scales.get(cp) * Bj.dot(gradients.getRow(cp), direction);
-        Bj.axpy(a.get(cp) - b, solutions.getRow(cp), direction);
+        double b = scales.get(cp) * Arrays.inner(gradients.getRow(cp), direction);
+        Arrays.axpy(a.get(cp) - b, solutions.getRow(cp), direction);
       }
 
       if (++k == memory) {
@@ -146,10 +143,7 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
 
   @Override
   public String toString() {
-    return "LimitedMemoryBfgsOptimizer{" +
-           "memory=" + memory +
-           ", maxIterations=" + maxIterations +
-           ", gradientTolerance=" + gradientTolerance +
-           '}';
+    return "LimitedMemoryBfgsOptimizer{" + "memory=" + memory + ", maxIterations=" + maxIterations
+        + ", gradientTolerance=" + gradientTolerance + '}';
   }
 }

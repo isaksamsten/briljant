@@ -1,32 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
-import org.apache.commons.math3.complex.Complex;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -45,14 +38,20 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.data.index.ObjectComparator;
 
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
+public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implements Array<T> {
 
-  private final Comparator<T> comparator = null;
+  private final Comparator<T> comparator = ObjectComparator.getInstance();
 
   protected AbstractArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
@@ -78,13 +77,23 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public int compare(int a, int b) {
-    return comparator.compare(get(a), get(b));
+  public Array<T> slice(BooleanArray bits) {
+    Check.size(this, bits);
+    List<T> newData = new ArrayList<>();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        newData.add(get(i));
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    T[] arr = (T[]) new Object[newData.size()];
+    return getArrayFactory().array(newData.toArray(arr));
   }
 
   @Override
-  public Array<T> slice(BitArray bits) {
-    return null;
+  public int compare(int a, int b) {
+    return comparator.compare(get(a), get(b));
   }
 
   /**
@@ -100,7 +109,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
     return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                             getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, double value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -131,7 +140,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
     return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                          getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, int value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -165,7 +174,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
     return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                           getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, long value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -192,14 +201,14 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   @SuppressWarnings("unchecked")
-  public BitArray asBit() {
-    return asBit(v -> (Boolean) v, v -> (T) v);
+  public BooleanArray asBoolean() {
+    return asBoolean(v -> (Boolean) v, v -> (T) v);
   }
 
   @Override
-  public BitArray asBit(Function<? super T, Boolean> to, Function<Boolean, T> from) {
-    return new AsBitArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                          getMajorStrideIndex()) {
+  public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, boolean value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -218,8 +227,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray asBit(Function<? super T, Boolean> to) {
-    return asBit(to, v -> {
+  public BooleanArray asBoolean(Function<? super T, Boolean> to) {
+    return asBoolean(to, v -> {
       throw new UnsupportedOperationException();
     });
   }
@@ -233,7 +242,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
     return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                              getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, Complex value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -285,28 +294,28 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray lt(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) < 0);
+  public BooleanArray lt(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) < 0);
   }
 
   @Override
-  public BitArray gt(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) > 0);
+  public BooleanArray gt(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) > 0);
   }
 
   @Override
-  public BitArray eq(Array<T> other) {
-    return satisfies(other, Object::equals);
+  public BooleanArray eq(Array<T> other) {
+    return where(other, Object::equals);
   }
 
   @Override
-  public BitArray lte(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) <= 0);
+  public BooleanArray lte(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) <= 0);
   }
 
   @Override
-  public BitArray gte(Array<T> other) {
-    return satisfies(other, (a, b) -> comparator.compare(a, b) >= 0);
+  public BooleanArray gte(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) >= 0);
   }
 
   @Override
@@ -377,6 +386,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
+  public void apply(UnaryOperator<T> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
+  }
+
+  @Override
   public DoubleArray asDouble(ToDoubleFunction<? super T> to) {
     return asDouble(to, v -> {
       throw new UnsupportedOperationException();
@@ -400,8 +416,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray satisfies(Predicate<T> predicate) {
-    BitArray array = getArrayFactory().booleanArray(getShape());
+  public BooleanArray where(Predicate<T> predicate) {
+    BooleanArray array = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i)));
     }
@@ -409,9 +425,9 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BitArray satisfies(Array<T> other, BiPredicate<T, T> predicate) {
+  public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
     Check.shape(this, other);
-    BitArray array = getArrayFactory().booleanArray(getShape());
+    BooleanArray array = getArrayFactory().booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -478,11 +494,11 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public Stream<T> stream() {
-    return list().stream();
+    return toList().stream();
   }
 
   @Override
-  public List<T> list() {
+  public List<T> toList() {
     return new AbstractList<T>() {
 
       @Override

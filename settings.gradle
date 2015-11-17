@@ -1,5 +1,5 @@
 rootProject.name = 'briljantframework'
 
 include 'briljant-core'
-include 'briljant-stats'
+include 'briljant-dataset'
 include 'briljant-groovy'

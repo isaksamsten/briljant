@@ -31,7 +31,7 @@ import org.briljantframework.array.ArrayFactorySpec
  */
 class NetlibArrayFactorySpec extends ArrayFactorySpec {
 
-  def setupSpec(){
+  def setupSpec() {
     bj = new NetlibArrayBackend().arrayFactory
   }
 

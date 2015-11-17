@@ -179,7 +179,7 @@ class BaseArraySpec extends Specification {
     def arr = bj.range(10)
 
     when:
-    def i = arr.get(range)
+    def i = arr.get([range])
 
     then:
     i.shape == selected.shape
@@ -326,17 +326,10 @@ class BaseArraySpec extends Specification {
     s.select(1).shape == dims2
     s.select(2).shape == dims2
 
-    array.select(0).assign(value)
-    def f = array.select(0)
-    for (int i = 0; i < f.size(); i++) {
-      f.get(i) == value
-    }
-
     where:
     array << getArrays(2, 3, 4);
     dims1 << getShapes([3, 4], 5)
     dims2 << getShapes([4], 5)
-    value << [true, 1, 1.0, 1L, Complex.valueOf(1)]
   }
 
   def "Selecting the current sub-array returns the correct sub-array"() {
@@ -484,7 +477,7 @@ class BaseArraySpec extends Specification {
 
   def getRangeArrays(int length) {
     return [
-        bj.range(length).asBit().copy(),
+        bj.range(length).asBoolean().copy(),
         bj.range(length).asInt().copy(),
         bj.range(length).asDouble().copy(),
         bj.range(length).asLong().copy(),

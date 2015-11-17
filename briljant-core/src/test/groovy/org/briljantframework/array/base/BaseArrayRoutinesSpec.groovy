@@ -25,7 +25,6 @@
 package org.briljantframework.array.base
 
 import org.briljantframework.array.ArrayRoutinesSpec
-import spock.lang.Specification
 
 /**
  * Created by isak on 01/06/15.

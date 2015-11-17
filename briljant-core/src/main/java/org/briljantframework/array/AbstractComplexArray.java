@@ -1,34 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.complex.MutableComplex;
-import org.briljantframework.exceptions.NonConformantException;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -54,8 +45,9 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
@@ -64,7 +56,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     implements ComplexArray {
 
   protected AbstractComplexArray(ArrayFactory bj, int size) {
-    super(bj, new int[]{size});
+    super(bj, new int[] {size});
   }
 
   public AbstractComplexArray(ArrayFactory bj, int[] shape) {
@@ -72,7 +64,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   public AbstractComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
-                              int majorStride) {
+      int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
@@ -111,7 +103,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   /**
    * Sets the element at index {@code i}, ignoring offsets and strides.
    *
-   * @param i     the index
+   * @param i the index
    * @param value the value
    */
   protected abstract void setElement(int i, Complex value);
@@ -130,6 +122,16 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
       set(i, value);
     }
     return this;
+  }
+
+  @Override
+  public void assign(double[] value) {
+    Check.argument(value.length == size() * 2);
+    int j = 0;
+    for (int i = 0; i < size(); i++) {
+      Complex c = Complex.valueOf(value[j], value[j + 1]);
+      j += 2;
+    }
   }
 
   @Override
@@ -203,11 +205,10 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray update(UnaryOperator<Complex> operator) {
+  public void apply(UnaryOperator<Complex> operator) {
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(get(i)));
     }
-    return this;
   }
 
   @Override
@@ -230,8 +231,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       protected void setElement(int i, double value) {
@@ -252,8 +253,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public IntArray asInt() {
-    return new AsIntArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       public int getElement(int index) {
@@ -291,6 +292,15 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
+  public <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper) {
+    Array<T> array = getArrayFactory().referenceArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, mapper.apply(get(i)));
+    }
+    return array;
+  }
+
+  @Override
   public ComplexArray filter(Predicate<Complex> predicate) {
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
@@ -303,17 +313,17 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public BitArray satisfies(Predicate<Complex> predicate) {
-    BitArray bits = bj.booleanArray(getShape());
+  public BooleanArray where(Predicate<Complex> predicate) {
+    BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
     return bits;
   }
 
-  public BitArray satisfies(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
+  public BooleanArray where(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BitArray bits = bj.booleanArray(getShape());
+    BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -354,27 +364,27 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
 
   @Override
-  public BitArray lt(ComplexArray other) {
+  public BooleanArray lt(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray gt(ComplexArray other) {
+  public BooleanArray gt(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray eq(ComplexArray other) {
+  public BooleanArray eq(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray lte(ComplexArray other) {
+  public BooleanArray lte(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public BitArray gte(ComplexArray other) {
+  public BooleanArray gte(ComplexArray other) {
     throw new UnsupportedOperationException();
   }
 
@@ -385,8 +395,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public LongArray asLong() {
-    return new AsLongArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
       @Override
       public long getElement(int index) {
         return (long) AbstractComplexArray.this.getElement(index).getReal();
@@ -406,7 +416,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
-                        UnaryOperator<Complex> map) {
+      UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.apply(map.apply(get(i)), identity);
     }
@@ -458,9 +468,9 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public BitArray asBit() {
-    return new AsBitArray(
-        getArrayFactory(), getOffset(), getShape(), getStride(), getMajorStrideIndex()) {
+  public BooleanArray asBoolean() {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
 
       @Override
       public void setElement(int index, boolean value) {
@@ -524,22 +534,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     };
   }
 
-  public class IncrementalBuilder {
-
-    private List<Complex> buffer = new ArrayList<>();
-
-    public ComplexArray build() {
-      return bj.array(buffer.toArray(new Complex[buffer.size()]));
-      //new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
-    }
-
-    public void add(Complex value) {
-      buffer.add(value);
-    }
-  }
-
   @Override
-  public ComplexArray slice(BitArray bits) {
+  public ComplexArray slice(BooleanArray bits) {
     Check.shape(this, bits);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
@@ -577,7 +573,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public final List<Complex> asList() {
+  public final List<Complex> toList() {
     return new AbstractList<Complex>() {
       @Override
       public Complex get(int index) {
@@ -604,77 +600,25 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray mmul(ComplexArray other) {
-    return mmul(Complex.ONE, other);
-  }
-
-  @Override
-  public ComplexArray mmul(Complex alpha, ComplexArray other) {
-    return mmul(alpha, Op.KEEP, other, Op.KEEP);
-  }
-
-  @Override
-  public ComplexArray mmul(Op a, ComplexArray other, Op b) {
-    return mmul(Complex.ONE, a, other, b);
-  }
-
-  @Override
-  public ComplexArray mmul(Complex alpha, Op a, ComplexArray other, Op b) {
-    int thisRows = rows();
-    int thisCols = columns();
-    if (a.isTrue()) {
-      thisRows = columns();
-      thisCols = rows();
+  public double[] data() {
+    double[] data = new double[size() * 2];
+    int j = 0;
+    for (int i = 0; i < size(); i++) {
+      Complex c = get(i);
+      data[j] = c.getReal();
+      data[j + 1] = c.getImaginary();
+      j += 2;
     }
-
-    int otherRows = other.rows();
-    int otherColumns = other.columns();
-    if (b.isTrue()) {
-      otherRows = other.columns();
-      otherColumns = other.rows();
-    }
-
-    if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
-    }
-
-    ComplexArray result = newEmptyArray(thisRows, otherColumns);
-    for (int row = 0; row < thisRows; row++) {
-      for (int col = 0; col < otherColumns; col++) {
-        MutableComplex sumAcc = new MutableComplex(0);
-        for (int k = 0; k < thisCols; k++) {
-          int thisIndex;
-          int otherIndex;
-          if (a.isTrue()) {
-            thisIndex = rowMajor(row, k, thisRows, thisCols);
-          } else {
-            thisIndex = columnMajor(0, row, k, thisRows, thisCols);
-          }
-          if (b.isTrue()) {
-            otherIndex = rowMajor(k, col, otherRows, otherColumns);
-          } else {
-            otherIndex = columnMajor(0, k, col, otherRows, otherColumns);
-          }
-
-          Complex thisValue = get(thisIndex);
-          Complex otherValue = other.get(otherIndex);
-          thisValue = a == Op.CONJUGATE_TRANSPOSE ? thisValue.conjugate() : thisValue;
-          otherValue = b == Op.CONJUGATE_TRANSPOSE ? otherValue.conjugate() : otherValue;
-          sumAcc.plus(thisValue.multiply(otherValue));
-        }
-        result.set(row, col, sumAcc.multiply(alpha).toComplex());
-      }
-    }
-    return result;
+    return data;
   }
 
   @Override
-  public ComplexArray mul(ComplexArray other) {
-    return mul(Complex.ONE, other, Complex.ONE);
+  public ComplexArray times(ComplexArray other) {
+    return times(Complex.ONE, other, Complex.ONE);
   }
 
   @Override
-  public ComplexArray mul(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray times(Complex alpha, ComplexArray other, Complex beta) {
     Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -684,7 +628,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray mul(Complex scalar) {
+  public ComplexArray times(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).multiply(scalar));
@@ -693,12 +637,12 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray add(ComplexArray other) {
-    return add(Complex.ONE, other, Complex.ONE);
+  public ComplexArray plus(ComplexArray other) {
+    return plus(Complex.ONE, other, Complex.ONE);
   }
 
   @Override
-  public ComplexArray add(Complex scalar) {
+  public ComplexArray plus(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).add(scalar));
@@ -707,7 +651,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray add(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray plus(Complex alpha, ComplexArray other, Complex beta) {
     Check.shape(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -717,12 +661,12 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray sub(ComplexArray other) {
-    return sub(Complex.ONE, other, Complex.ONE);
+  public ComplexArray minus(ComplexArray other) {
+    return minus(Complex.ONE, other, Complex.ONE);
   }
 
   @Override
-  public ComplexArray sub(Complex scalar) {
+  public ComplexArray minus(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).subtract(scalar));
@@ -731,7 +675,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray sub(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray minus(Complex alpha, ComplexArray other, Complex beta) {
     Check.size(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -741,7 +685,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray rsub(Complex scalar) {
+  public ComplexArray reverseMinus(Complex scalar) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, scalar.subtract(get(i)));
@@ -768,11 +712,25 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray rdiv(Complex other) {
+  public ComplexArray reverseDiv(Complex other) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, other.divide(get(i)));
     }
     return m;
+  }
+
+  public class IncrementalBuilder {
+
+    private List<Complex> buffer = new ArrayList<>();
+
+    public ComplexArray build() {
+      return bj.array(buffer.toArray(new Complex[buffer.size()]));
+      // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
+    }
+
+    public void add(Complex value) {
+      buffer.add(value);
+    }
   }
 }

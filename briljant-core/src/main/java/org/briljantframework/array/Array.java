@@ -1,30 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.apache.commons.math3.complex.Complex;
 
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -38,12 +33,24 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Listable;
 
 /**
  * @author Isak Karlsson
  */
-public interface Array<T> extends BaseArray<Array<T>> {
+public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
+
+  /**
+   * @see Arrays#newVector(Object[])
+   */
+  @SafeVarargs
+  static <T> Array<T> of(T... data) {
+    return Arrays.newVector(data);
+  }
 
   /**
    * Assign the given value to each position in {@code this}.
@@ -58,15 +65,18 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * <p>
    * Example:
-   * <pre>{@code
-   * > Array<Double> random = Bj.referenceArray(3, 3);
+   *
+   * <pre>
+   * {@code
+   * > Array<Double> random = Arrays.referenceArray(3, 3);
    * > Random rng = new Random();
    * > random.assign(rng::nextGaussian);
-   *
+   * 
    * array([[     0.6310493305783, 0.8472577240960372, 0.32059848527214957],
    *        [ 0.23032061567663129, 1.4297521011054555,   1.666247841931618],
    *        [-0.47219553601033654,  1.400574394946874, 0.14261753382770095]] type: Double)
-   * }</pre>
+   * }
+   * </pre>
    *
    * @param supplier the value supplier
    */
@@ -77,14 +87,17 @@ public interface Array<T> extends BaseArray<Array<T>> {
    * {@code other}
    * <p>
    * Example
-   * <pre>{@code
-   * > Array<Integer> i = Bj.range(0, 3).boxed();
-   * > Array<String> x = Bj.array(new String[]{"foo", "bar", "baz"});
+   *
+   * <pre>
+   * {@code
+   * > Array<Integer> i = Arrays.range(0, 3).boxed();
+   * > Array<String> x = Arrays.array(new String[]{"foo", "bar", "baz"});
    * > i.assign(x, String::length).mapToInt(Integer::intValue);
    * array([3, 3, 3] type: int)
-   * }</pre>
+   * }
+   * </pre>
    *
-   * @param other    the other array
+   * @param other the other array
    * @param operator the operator to apply to the elements in {@code other}
    */
   <U> void assign(Array<U> other, Function<? super U, ? extends T> operator);
@@ -126,117 +139,127 @@ public interface Array<T> extends BaseArray<Array<T>> {
   ComplexArray mapToComplex(Function<? super T, Complex> f);
 
   /**
-   * Returns an array consisting of the results of applying the given function to the
-   * elements of this array.
+   * Returns an array consisting of the results of applying the given function to the elements of
+   * this array.
    *
    * @param f a function to apply to each element
    * @return a new array
    */
   <U> Array<U> map(Function<? super T, ? extends U> f);
 
+  void apply(UnaryOperator<T> operator);
+
   /**
-   * Return a view of this array consisting of the results of lazily
-   * applying the {@code to} function to each element of this array when accessing the elements and
-   * the {@code from} function when setting the values.
+   * Return a view of this array consisting of the results of lazily applying the {@code to}
+   * function to each element of this array when accessing the elements and the {@code from}
+   * function when setting the values.
    *
-   * @param to   the function to apply to elements when getting
+   * @param to the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToDouble(java.util.function.ToDoubleFunction)
    */
   DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from);
 
   /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the
-   * value) applying the given function to the elements of this array.
+   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
+   * applying the given function to the elements of this array.
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToDouble(java.util.function.ToDoubleFunction)
    */
   DoubleArray asDouble(ToDoubleFunction<? super T> to);
 
   /**
-   * Return a view of this array consisting of the results of lazily
-   * applying the {@code to} function to each element of this array when accessing the elements and
-   * the {@code from} function when setting the values.
+   * Return a view of this array consisting of the results of lazily applying the {@code to}
+   * function to each element of this array when accessing the elements and the {@code from}
+   * function when setting the values.
    *
-   * @param to   the function to apply to elements when getting
+   * @param to the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToInt(java.util.function.ToIntFunction)
    */
   IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from);
 
   /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the
-   * value) applying the given function to the elements of this array.
+   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
+   * applying the given function to the elements of this array.
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToInt(java.util.function.ToIntFunction)
    */
   IntArray asInt(ToIntFunction<? super T> to);
 
   /**
-   * Return a view of this array consisting of the results of lazily
-   * applying the {@code to} function to each element of this array when accessing the elements and
-   * the {@code from} function when setting the values.
+   * Return a view of this array consisting of the results of lazily applying the {@code to}
+   * function to each element of this array when accessing the elements and the {@code from}
+   * function when setting the values.
    *
-   * @param to   the function to apply to elements when getting
+   * @param to the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToLong(java.util.function.ToLongFunction)
    */
   LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from);
 
   /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the
-   * value) applying the given function to the elements of this array.
+   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
+   * applying the given function to the elements of this array.
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToLong(java.util.function.ToLongFunction)
    */
   LongArray asLong(ToLongFunction<? super T> to);
 
   /**
-   * Return a view of this array consisting of the results of lazily
-   * applying the {@code to} function to each element of this array when accessing the elements and
-   * the {@code from} function when setting the values.
+   * Return a view of this array consisting of the results of lazily applying the {@code to}
+   * function to each element of this array when accessing the elements and the {@code from}
+   * function when setting the values.
    *
-   * @param to   the function to apply to elements when getting
+   * @param to the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
    */
-  BitArray asBit(Function<? super T, Boolean> to, Function<Boolean, T> from);
+  BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from);
 
   /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the
-   * value) applying the given function to the elements of this array.
+   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
+   * applying the given function to the elements of this array.
    *
    * @param to the function to apply to each element
    * @return an array view
    */
-  BitArray asBit(Function<? super T, Boolean> to);
+  BooleanArray asBoolean(Function<? super T, Boolean> to);
 
   /**
-   * Return a view of this array consisting of the results of lazily
-   * applying the {@code to} function to each element of this array when accessing the elements and
-   * the {@code from} function when setting the values.
+   * Return a view of this array consisting of the results of lazily applying the {@code to}
+   * function to each element of this array when accessing the elements and the {@code from}
+   * function when setting the values.
    *
-   * @param to   the function to apply to elements when getting
+   * @param to the function to apply to elements when getting
    * @param from the function to apply to the argument when setting
    * @return an array view
+   * @see #mapToComplex(java.util.function.Function)
    */
   ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from);
 
   /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the
-   * value) applying the given function to the elements of this array.
+   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
+   * applying the given function to the elements of this array.
    *
    * @param to the function to apply to each element
    * @return an array view
+   * @see #mapToComplex(java.util.function.Function)
    */
   ComplexArray asComplex(Function<? super T, Complex> to);
 
   /**
-   * Return an array consisting of the elements of this stream that matches the given predicate.
-   * The resulting array always have {@code 1} dimension.
+   * Return an array consisting of the elements of this stream that matches the given predicate. The
+   * resulting array always have {@code 1} dimension.
    *
    * @param predicate the predicate to apply to each element to determine if it should be included
    * @return a new array
@@ -244,22 +267,28 @@ public interface Array<T> extends BaseArray<Array<T>> {
   Array<T> filter(Predicate<T> predicate);
 
   /**
-   * Return an array of the same shape consisting of the value of matching each element to the
-   * given predicate.
+   * Return an array of the same shape consisting of the value of matching each element to the given
+   * predicate.
    *
    * <p>
    * Example
-   * <pre>{@code
-   * > Array<String> x = Bj.array(new String[]{"a", "b", "dd", "ee"}).reshape(2, 2);
-   * > x.satisfies(v -> v.length() > 1);
+   *
+   * <pre>
+   * Array&lt;String&gt; x = Arrays.array(new String[] {&quot;a&quot;, &quot;b&quot;, &quot;dd&quot;, &quot;ee&quot;}).reshape(2, 2);
+   * x.where(v -&gt; v.length() &gt; 1);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
    * array([[0, 1]
    *        [0, 1]] type: int)
-   * }</pre>
+   * </pre>
    *
    * @param predicate the predicate to apply to each element to determine the
    * @return a new array
    */
-  BitArray satisfies(Predicate<T> predicate);
+  BooleanArray where(Predicate<T> predicate);
 
   /**
    * Return an array of the same shape consisting of the the value of the given predicate after
@@ -267,26 +296,28 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * <p>
    * Example
-   * <pre>{@code
-   * > Array<String> x = Bj.array(new String[]{"a", "b", "c"});
-   * > Array<String> y = Bj.array(new String[]{"a", "c", "b"});
-   * > x.satisfies(y, String::equalsIgnoreCase);
-   * array([1, 0, 0] type: int);
-   * }</pre>
    *
-   * @param other     the other array
+   * <pre>
+   * {@code
+   * > Array<String> x = Arrays.array(new String[]{"a", "b", "c"});
+   * > Array<String> y = Arrays.array(new String[]{"a", "c", "b"});
+   * > x.where(y, String::equalsIgnoreCase);
+   * array([1, 0, 0] type: int);
+   * }
+   * </pre>
+   *
+   * @param other the other array
    * @param predicate the predicate to apply to each pair of elements
    * @return a new array
    */
-  BitArray satisfies(Array<T> other, BiPredicate<T, T> predicate);
+  BooleanArray where(Array<T> other, BiPredicate<T, T> predicate);
 
   T reduce(T initial, BinaryOperator<T> accumulator);
 
   Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator);
 
   /**
-   * Get the i:th element of this array. If {@code dims() != 1}, the array is traversed in
-   * flattened
+   * Get the i:th element of this array. If {@code dims() != 1}, the array is traversed in flattened
    * column major order.
    *
    * @param i the index
@@ -297,7 +328,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
   /**
    * Set the i:th element of this array to the given value.
    *
-   * @param i     the index
+   * @param i the index
    * @param value the value
    */
   void set(int i, T value);
@@ -314,8 +345,8 @@ public interface Array<T> extends BaseArray<Array<T>> {
   /**
    * For 2d-arrays, set the element at the i:th row and the j:th column to the given value.
    *
-   * @param i     the row index
-   * @param j     the column index
+   * @param i the row index
+   * @param j the column index
    * @param value the value
    */
   void set(int i, int j, T value);
@@ -337,8 +368,8 @@ public interface Array<T> extends BaseArray<Array<T>> {
   void set(int[] index, T value);
 
   /**
-   * Return this array as a {@code Stream} with the values in the same order as {@linkplain
-   * #get(int)}
+   * Return this array as a {@code Stream} with the values in the same order as
+   * {@linkplain #get(int)}
    *
    * @return a stream
    */
@@ -349,7 +380,7 @@ public interface Array<T> extends BaseArray<Array<T>> {
    *
    * @return a new list
    */
-  List<T> list();
+  List<T> toList();
 
   /**
    * Return the contents of this array as a Java-array. If the array is a view, the returned data

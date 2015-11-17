@@ -1,31 +1,27 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.math.transform;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Bj;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 
@@ -34,8 +30,7 @@ import org.briljantframework.array.DoubleArray;
  */
 public final class DiscreteFourierTransform {
 
-  private DiscreteFourierTransform() {
-  }
+  private DiscreteFourierTransform() {}
 
   private static void fftInplace(ComplexArray a) {
     int n = a.size();
@@ -53,7 +48,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexArray ifft(ComplexArray a) {
-    ComplexArray copy = Bj.complexArray(a.size());
+    ComplexArray copy = ComplexArray.zeros(a.size());
     for (int i = 0; i < a.size(); i++) {
       Complex c = a.get(i);
       copy.set(i, new Complex(c.getImaginary(), c.getReal()));
@@ -83,16 +78,16 @@ public final class DiscreteFourierTransform {
     int m = Integer.highestOneBit(n * 2 + 1) << 1;
 
     // Trigonometric tables
-    DoubleArray cosTable = Bj.doubleArray(n);
-    DoubleArray sinTable = Bj.doubleArray(n);
+    DoubleArray cosTable = DoubleArray.zeros(n);
+    DoubleArray sinTable = DoubleArray.zeros(n);
     for (int i = 0; i < n; i++) {
       int j = (int) ((long) i * i % (n * 2));
       cosTable.set(i, Math.cos(Math.PI * j / n));
       sinTable.set(i, Math.sin(Math.PI * j / n));
     }
 
-    ComplexArray an = Bj.complexArray(m);
-    ComplexArray bn = Bj.complexArray(m);
+    ComplexArray an = ComplexArray.zeros(m);
+    ComplexArray bn = ComplexArray.zeros(m);
 
     bn.set(0, new Complex(cosTable.get(0), sinTable.get(0)));
     for (int i = 0; i < n; i++) {
@@ -144,8 +139,6 @@ public final class DiscreteFourierTransform {
     }
 
     fftInplace(xt); // inverse transform, since xt is reversed above
-    // TODO: implement divi for complex matrices
-    // scaling and reversing back
     for (int i = 0; i < n; i++) {
       Complex c = xt.get(i);
       xt.set(i, Complex.valueOf(c.getImaginary() / n, c.getReal() / n));
@@ -160,8 +153,8 @@ public final class DiscreteFourierTransform {
       throw new IllegalArgumentException();
     }
 
-    DoubleArray cosTable = Bj.doubleArray(n / 2);
-    DoubleArray sinTable = Bj.doubleArray(n / 2);
+    DoubleArray cosTable = DoubleArray.zeros(n / 2);
+    DoubleArray sinTable = DoubleArray.zeros(n / 2);
     final double v = 2 * Math.PI;
     for (int i = 0; i < n / 2; i++) {
       cosTable.set(i, Math.cos(v * i / n));

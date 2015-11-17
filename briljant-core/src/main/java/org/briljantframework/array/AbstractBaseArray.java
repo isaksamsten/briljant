@@ -1,37 +1,34 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * This class provides a skeletal implementation
@@ -40,14 +37,13 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E> {
 
-  protected static final String CHANGED_TOTAL_SIZE =
-      "Total size of new array must be unchanged. (%s, %s)";
-
   public static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
+  protected static final String CHANGED_TOTAL_SIZE =
+      "Total size of new array must be unchanged. (%s, %s)";
   protected static final String ILLEGAL_INDEX = "Illegal index";
-  protected static final String
-      ILLEGAL_DIMENSION_INDEX = "Index %s is out of bounds for dimension %s with size %s";
+  protected static final String ILLEGAL_DIMENSION_INDEX =
+      "Index %s is out of bounds for dimension %s with size %s";
 
   protected final ArrayFactory bj;
 
@@ -76,7 +72,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   protected AbstractBaseArray(ArrayFactory bj, int[] shape) {
     this.bj = Objects.requireNonNull(bj);
-    this.shape = shape;
+    this.shape = shape.clone();
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);
     offset = 0;
@@ -84,7 +80,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   protected AbstractBaseArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
-                              int majorStride) {
+      int majorStride) {
     this.bj = bj;
     this.shape = shape;
     this.stride = stride;
@@ -106,22 +102,16 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(dims() > 1, "Can't select in 1-d array");
     Check.argument(index >= 0 && index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
     int dims = dims();
-    return asView(
-        getOffset() + index * stride(0),
-        Arrays.copyOfRange(getShape(), 1, dims),
-        Arrays.copyOfRange(getStride(), 1, dims)
-    );
+    return asView(getOffset() + index * stride(0), Arrays.copyOfRange(getShape(), 1, dims),
+        Arrays.copyOfRange(getStride(), 1, dims));
   }
 
   @Override
   public E select(int dimension, int index) {
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
-    return asView(
-        getOffset() + index * stride(dimension),
-        Indexer.remove(getShape(), dimension),
-        Indexer.remove(getStride(), dimension)
-    );
+    return asView(getOffset() + index * stride(dimension), Indexer.remove(getShape(), dimension),
+        Indexer.remove(getStride(), dimension));
   }
 
   @Override
@@ -133,8 +123,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     int commonShape = indexes.get(0).size();
     for (int i = 0; i < indexes.size(); i++) {
       List<Integer> index = indexes.get(i);
-      Check.argument(commonShape == index.size(),
-                     "Indexing arrays could not be used together");
+      Check.argument(commonShape == index.size(), "Indexing arrays could not be used together");
       shape[i] = index.size();
     }
     int[] newShape = new int[shape.length - indexes.size() + 1];
@@ -146,20 +135,20 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         int size = self.size();
         for (int i = 0; i < subIndex.size(); i++) {
           Integer fromIndex = subIndex.get(i);
-          Check.boxedIndex(fromIndex, size);
+          Check.validBoxedIndex(fromIndex, size);
           array.set(i, self, fromIndex);
         }
       } else {
         for (int j = 0; j < subIndex.size(); j++) {
           Integer fromIndex = subIndex.get(j);
-          Check.boxedIndex(fromIndex, self.size(0));
+          Check.validBoxedIndex(fromIndex, self.size(0));
           array.select(j).assign(self.select(fromIndex));
         }
       }
     } else {
       for (int j = 0; j < subIndex.size(); j++) {
         Integer fromIndex = subIndex.get(j);
-        Check.boxedIndex(fromIndex, self.size(0));
+        Check.validBoxedIndex(fromIndex, self.size(0));
         select(indexes, self.select(fromIndex), array, j, 1);
       }
     }
@@ -171,15 +160,15 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (indexes.size() - 1 == dim) {
       if (to.isVector()) {
         Check.state(from.isVector());
-        Check.boxedIndex(fromIndex, from.size());
+        Check.validBoxedIndex(fromIndex, from.size());
         to.set(j, from, fromIndex);
       } else {
-        Check.boxedIndex(fromIndex, from.size(dim));
+        Check.validBoxedIndex(fromIndex, from.size(dim));
         to.select(j).assign(from.select(fromIndex));
       }
     } else {
-      Check.elementIndex(dim, from.dims());
-      Check.boxedIndex(fromIndex, from.size(dim));
+      Check.validIndex(dim, from.dims());
+      Check.validBoxedIndex(fromIndex, from.size(dim));
       select(indexes, from.select(fromIndex), to, j, dim + 1);
     }
   }
@@ -213,11 +202,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       offset += (indexMajorStride / stride) * stride * (shape - 1);
     }
 
-    return asView(
-        offset + indexMajorStride,
-        new int[]{size(dimension)},
-        new int[]{stride(dimension)}
-    );
+    return asView(offset + indexMajorStride, new int[] {size(dimension)},
+        new int[] {stride(dimension)});
   }
 
   protected ArrayFactory getArrayFactory() {
@@ -244,23 +230,16 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public E getDiagonal() {
     Check.state(isMatrix(), "Can only get the diagonal of 2d-arrays");
-    return asView(
-        getOffset(),
-        new int[]{Math.min(rows(), columns())},
-        new int[]{rows() + 1}
-    );
+    return asView(getOffset(), new int[] {Math.min(rows(), columns())}, new int[] {rows() + 1});
   }
 
   @Override
   public E getView(int rowOffset, int colOffset, int rows, int columns) {
     Check.state(isMatrix(), "Can only get view from 2d-arrays");
     Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
-                   "Selected view is to large");
-    return asView(
-        getOffset() + rowOffset * stride(0) + colOffset * stride(1),
-        new int[]{rows, columns},
-        getStride(),
-        rows == 1 ? 1 : 0 // change the major stride
+        "Selected view is to large");
+    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1),
+        new int[] {rows, columns}, getStride(), rows == 1 ? 1 : 0 // change the major stride
     );
   }
 
@@ -290,11 +269,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       stride[i] = stride[i] * step;
     }
 
-    return asView(
-        offset,
-        shape,
-        stride
-    );
+    return asView(offset, shape, stride);
+  }
+
+  public E get(IntArray i) {
+    Check.argument(Arrays.equals(getShape(), i.getShape()), "Illegal shape");
+    throw new UnsupportedOperationException("unsupported");
   }
 
   @Override
@@ -343,8 +323,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       }
     }
 
-    Check.size(Indexer.size(this.shape), Indexer.size(shape),
-               CHANGED_TOTAL_SIZE, Arrays.toString(this.shape), Arrays.toString(shape));
+    Check.size(Indexer.size(this.shape), Indexer.size(shape), CHANGED_TOTAL_SIZE,
+        Arrays.toString(this.shape), Arrays.toString(shape));
     if (isContiguous()) {
       return asView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
     } else {
@@ -367,10 +347,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (dims() == 1) {
       return asView(getOffset(), getShape(), getStride());
     } else {
-      return asView(
-          getOffset(),
-          Indexer.reverse(shape),
-          Indexer.reverse(stride),
+      return asView(getOffset(), Indexer.reverse(shape), Indexer.reverse(stride),
           majorStride == 0 ? dims() - 1 : 0 // change the major stride
       );
     }
@@ -405,8 +382,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public boolean isView() {
-    return !(majorStride == 0 && offset == 0 &&
-             Arrays.equals(stride, Indexer.computeStride(1, shape)));
+    return !(majorStride == 0 && offset == 0
+        && Arrays.equals(stride, Indexer.computeStride(1, shape)));
   }
 
   @Override

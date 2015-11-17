@@ -24,8 +24,8 @@
 
 package org.briljantframework.array
 
-import org.briljantframework.array.api.ArrayFactory
 import org.apache.commons.math3.complex.Complex
+import org.briljantframework.array.api.ArrayFactory
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -95,7 +95,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "adding two arrays"() {
     when:
-    def c = a.add(b)
+    def c = a + b
 
     then:
     c == result
@@ -108,7 +108,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "adding an array and a scalar"() {
     when:
-    def c = a.add(b)
+    def c = a + b
 
     then:
     c == result
@@ -121,7 +121,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "multiplying two arrays"() {
     when:
-    def c = a.mul(b)
+    def c = a.times(b)
 
     then:
     c == result
@@ -134,7 +134,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "multiplying an array and a scalar"() {
     when:
-    def c = a.mul(b)
+    def c = a.times(b)
 
     then:
     c == result
@@ -147,7 +147,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "subtracting two arrays"() {
     when:
-    def c = a.sub(b)
+    def c = a.minus(b)
 
     then:
     c == result
@@ -160,7 +160,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "subtracting an array and a scalar"() {
     when:
-    def c = a.sub(b)
+    def c = a - b
 
     then:
     c == result
@@ -173,7 +173,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "subtraction an array from a scalar"() {
     when:
-    def c = a.rsub(b)
+    def c = a.reverseMinus(b)
 
     then:
     c == result
@@ -212,7 +212,7 @@ abstract class ArrayFactorySpec extends Specification {
 
   def "dividing an array from a scalar"() {
     when:
-    def c = a.rdiv(b)
+    def c = a.reverseDiv(b)
 
     then:
     c == result
@@ -221,77 +221,6 @@ abstract class ArrayFactorySpec extends Specification {
     a << getElementArray([3, 3], 10)
     b << getValue(20)
     result << getElementArray([3, 3], 20 / 10)
-  }
-
-  def "for 2d-arrays, multiplying a matrix with a matrix"() {
-    when:
-    def c = a.mmul(b)
-
-    then:
-    c == result
-
-    where:
-    a << getElementArray([2, 3], [1, 2, 3, 4, 5, 6])
-    b << getElementArray([3, 2], [1, 2, 3, 4, 5, 6])
-    result << getElementArray([2, 2], [22, 28, 49, 64])
-  }
-
-  def "for 2d-arrays, multiplying a matrix with a matrix while transposing this"() {
-    when:
-    def c = a.mmul(transA, b, transB)
-
-    then:
-    c == result
-
-    where:
-    a << getElementArray([3, 2], range(6))
-    b << getElementArray([3, 2], range(6))
-    transA << toList(Op.TRANSPOSE, 4)
-    transB << toList(Op.KEEP, 4)
-    result << getElementArray([2, 2], [14, 32, 32, 77])
-  }
-
-  def "for 2d-arrays, multiplying a matrix with a matrix while transposing the argument"() {
-    when:
-    def c = a.mmul(transA, b, transB)
-
-    then:
-    c == result
-
-    where:
-    a << getElementArray([2, 3], range(6))
-    b << getElementArray([2, 3], range(6))
-    transA << toList(Op.KEEP, 4)
-    transB << toList(Op.TRANSPOSE, 4)
-    result << getElementArray([2, 2], [35, 44, 44, 56])
-  }
-
-  def "for 2d-arrays, multiplyign a matrix with a matrix while transposing both"() {
-    when:
-    def c = a.mmul(transA, b, transB)
-
-    then:
-    c == result
-
-    where:
-    a << getElementArray([3, 2], range(6))
-    b << getElementArray([2, 3], range(6))
-    transA << toList(Op.TRANSPOSE, 4)
-    transB << toList(Op.TRANSPOSE, 4)
-    result << getElementArray([2, 2], [22, 49, 28, 64])
-  }
-
-  def "for 2d-arrays, multiplying a matrix with a matrix using slices"() {
-    when:
-    a = a.get(bj.range(1, 3), bj.range(3))
-    def c = a.mmul(b)
-    then:
-    c == result
-
-    where:
-    a << getElementArray([3, 4], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-    b << getElementArray([3, 2], [1, 2, 3, 4, 5, 6])
-    result << getElementArray([2, 2], [36, 42, 81, 96])
   }
 
   def "create new range"() {
@@ -434,7 +363,7 @@ abstract class ArrayFactorySpec extends Specification {
     expect:
     def range = bj.range(a, b, c)
     range.size() == d
-    range.list().last() == l
+    range.toList().last() == l
 
     where:
     a << [1, 2, 3, 4]
@@ -449,7 +378,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(1, 10, 2)
 
     when:
-    def last = r.list().last()
+    def last = r.toList().last()
 
     then:
     r.size() == 5
@@ -461,7 +390,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(0, -10, -1)
 
     expect:
-    r.list().last() == -9
+    r.toList().last() == -9
   }
 
 
@@ -512,7 +441,7 @@ abstract class ArrayFactorySpec extends Specification {
         arr as int[],
         arr as double[],
         arr as long[],
-        (arr.collect {Complex.valueOf(it)}) as Complex[]
+        (arr.collect { Complex.valueOf(it) }) as Complex[]
 
     ]
   }
@@ -536,15 +465,18 @@ abstract class ArrayFactorySpec extends Specification {
           bj.array(value as int[]).reshape(shape),
           bj.array(value as double[]).reshape(shape),
           bj.array(value as long[]).reshape(shape),
-          bj.array(value.collect {Complex.valueOf(it)} as Complex[]).reshape(shape)
+          bj.array(value.collect { Complex.valueOf(it) } as Complex[]).reshape(shape)
       ]
     } else {
-      return [
-          bj.intArray(shape).assign(value as int),
-          bj.doubleArray(shape).assign(value as double),
-          bj.longArray(shape).assign(value as long),
-          bj.complexArray(shape).assign(value as double)
-      ]
+      def intArr = bj.intArray(shape)
+      intArr.assign(value as int)
+      def doubleArr = bj.doubleArray(shape)
+      doubleArr.assign(value as double)
+      def longArr = bj.longArray(shape)
+      longArr.assign(value as long)
+      def complexArr = bj.complexArray(shape)
+      complexArr.assign(value as double)
+      return [intArr, doubleArr, longArr, complexArr]
     }
   }
 

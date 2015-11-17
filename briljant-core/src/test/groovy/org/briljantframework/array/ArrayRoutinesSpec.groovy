@@ -24,6 +24,7 @@
 
 package org.briljantframework.array
 
+import org.apache.commons.math3.util.Precision
 import org.briljantframework.array.api.ArrayFactory
 import org.briljantframework.array.api.ArrayRoutines
 import spock.lang.Shared
@@ -44,18 +45,18 @@ abstract class ArrayRoutinesSpec extends Specification {
 
   def "dot product"() {
     expect:
-    bjr.dot(a, b) == c
+    bjr.inner(a, b) == c
 
     where:
     a << [
         bj.array([1, 2, 3, 4] as double[]), // simple
-        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)), // slice
+        bj.range(10).asDouble().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 15, 16).reshape(4, 4).getColumn(0)
     ]
 
     b << [
         bj.array([1, 2, 3, 4] as double[]),
-        bj.range(10).asDouble().copy().get(bj.range(1, 10, 2)), // slice
+        bj.range(10).asDouble().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
     ]
 
@@ -73,7 +74,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     x << [
         bj.array([1, 2, 3, -5] as double[]),
-        bj.array([1, 2, -3, -4, 10, 2] as double[]).get(bj.range(1, 6, 2))
+        bj.array([1, 2, -3, -4, 10, 2] as double[]).get([bj.range(1, 6, 2)])
     ]
 
     sum << [
@@ -92,7 +93,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     x << [
         bj.array([1, 2, 3, 4] as double[]),
-        bj.array([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get(bj.range(1, 8, 2)),
+        bj.array([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get([bj.range(1, 8, 2)]),
         bj.linspace(0, 4, 10),
         bj.linspace(0, 9, 10).reshape(2, 5).getRow(0).transpose(),
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
@@ -125,7 +126,7 @@ abstract class ArrayRoutinesSpec extends Specification {
 
   def "norm2"() {
     expect:
-    bjr.norm2(a) == Math.sqrt(sum)
+    Precision.equals(bjr.norm2(a), Math.sqrt(sum), 10e-6)
 
     where:
     a << [
@@ -138,6 +139,73 @@ abstract class ArrayRoutinesSpec extends Specification {
         14.0,
         285.0,
         165.0
+    ]
+  }
+
+  def "gemm"() {
+    when:
+    bjr.gemm(transA, transB, alpha, a, b, beta, c)
+
+    then:
+    c == result
+
+    where:
+    [transA, transB, alpha, a, b, beta, c] << [
+        [Op.KEEP, Op.KEEP, 1.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 2, 3],
+                   [1, 2, 3]] as double[][]),
+         0.0,
+         bj.doubleArray(3, 3)
+        ],
+        [Op.TRANSPOSE, Op.KEEP, 1.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         0.0,
+         bj.doubleArray(2, 2)
+        ],
+        [Op.KEEP, Op.TRANSPOSE, 1.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         0.0,
+         bj.intArray(3, 3).asDouble() // test a non-native view as output
+        ],
+        [Op.KEEP, Op.KEEP, 2.0,
+         bj.array([[1, 1],
+                   [2, 2],
+                   [3, 3]] as double[][]),
+         bj.array([[1, 2, 3],
+                   [1, 2, 3]] as double[][]),
+         3.0,
+         bj.ones(3, 3)
+        ]
+    ]
+
+    result << [
+        bj.array([[2, 4, 6],
+                  [4, 8, 12],
+                  [6, 12, 18]] as double[][]),
+
+        bj.array([[14, 14],
+                  [14, 14]] as double[][]),
+
+        bj.array([[2, 4, 6],
+                  [4, 8, 12],
+                  [6, 12, 18]] as double[][]),
+
+        bj.array([[7, 11, 15],
+                  [11, 19, 27],
+                  [15, 27, 39]] as double[][])
     ]
   }
 

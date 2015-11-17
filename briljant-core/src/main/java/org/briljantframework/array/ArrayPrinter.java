@@ -1,34 +1,30 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
 
-import org.apache.commons.math3.complex.ComplexFormat;
-import org.briljantframework.Bj;
-
 import java.io.IOException;
 import java.util.StringJoiner;
+
+import org.apache.commons.math3.complex.ComplexFormat;
 
 /**
  * @author Isak Karlsson
@@ -85,7 +81,7 @@ public final class ArrayPrinter {
     print(out, new DoubleToStringArray(matrix, floatFormat), "[", "]");
   }
 
-  public static void print(BitArray matrix) {
+  public static void print(BooleanArray matrix) {
     try {
       print(System.out, matrix);
     } catch (IOException e) {
@@ -93,7 +89,7 @@ public final class ArrayPrinter {
     }
   }
 
-  public static void print(Appendable out, BitArray matrix) throws IOException {
+  public static void print(Appendable out, BooleanArray matrix) throws IOException {
     print(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
   }
 
@@ -142,17 +138,9 @@ public final class ArrayPrinter {
     } else {
       boolean truncate = minTruncateSize < arr.size() && arr.dims() != 1;
       IntArray maxWidth = computeMaxWidth(arr, truncate);
-      print(
-          out,
-          arr,
-          startChar,
-          endChar,
-          truncate,
-          arr.dims() + 1 + "array(".length(),
-          maxWidth
-      );
+      print(out, arr, startChar, endChar, truncate, arr.dims() + 1 + "array(".length(), maxWidth);
     }
-    out.append(" type: ").append(arr.type()).append(")");
+    out.append(")");
   }
 
   private static IntArray computeMaxWidth(ToStringArray arr, boolean truncate) {
@@ -161,12 +149,12 @@ public final class ArrayPrinter {
     if (truncate) {
       maxPerSlice = visiblePerSlice < 0 ? maxPerSlice : visiblePerSlice;
     }
-    IntArray maxWidth = Bj.intArray(maxPerSlice);
+    IntArray maxWidth = IntArray.zeros(maxPerSlice);
     return computeMaxWidthRecursive(arr, truncate, maxWidth, maxPerSlice);
   }
 
   private static IntArray computeMaxWidthRecursive(ToStringArray arr, boolean truncate,
-                                                   IntArray maxWidth, int maxPerSlice) {
+      IntArray maxWidth, int maxPerSlice) {
     if (arr.dims() == 1) {
       for (int i = 0; i < arr.size(); i++) {
         int index = i % maxPerSlice;
@@ -205,18 +193,12 @@ public final class ArrayPrinter {
   /**
    * Format the {@link org.briljantframework.array.ArrayPrinter.ToStringArray}
    *
-   * @param sb  write resulting string representation to
+   * @param sb write resulting string representation to
    * @param arr the ToStringMatrix
    * @throws java.io.IOException if an IO error occurs
    */
-  public static void print(Appendable sb,
-                           ToStringArray arr,
-                           String startChar,
-                           String endChar,
-                           boolean truncate,
-                           int dims,
-                           IntArray maxWidth)
-      throws IOException {
+  public static void print(Appendable sb, ToStringArray arr, String startChar, String endChar,
+      boolean truncate, int dims, IntArray maxWidth) throws IOException {
     if (arr.size() == 0) {
       sb.append(startChar).append(arr.get(0)).append(endChar);
       return;
@@ -289,7 +271,7 @@ public final class ArrayPrinter {
     ArrayPrinter.intFormat = intFormat;
   }
 
-  public static interface ToStringArray {
+  public interface ToStringArray {
 
     String get(int i);
 

@@ -1,25 +1,22 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
@@ -34,8 +31,7 @@ import java.util.Objects;
  */
 public final class Indexer {
 
-  private Indexer() {
-  }
+  private Indexer() {}
 
   /**
    * Returns a reversed copy of the argument.
@@ -55,8 +51,8 @@ public final class Indexer {
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}
    *
-   * @param row   the row
-   * @param col   the col
+   * @param row the row
+   * @param col the col
    * @param nrows the number or rows
    * @param ncols the number of columns
    * @return the linearized index
@@ -119,9 +115,9 @@ public final class Indexer {
   /**
    * Returns the index of {@code indexe}, if the stride were {@code step}.
    *
-   * @param step  the step size
+   * @param step the step size
    * @param index the index
-   * @param n     the end
+   * @param n the end
    * @return a new index; {@code step * index}, guaranteed to be {@code < n}
    */
   public static int sliceIndex(int step, int index, int n) {
@@ -137,8 +133,8 @@ public final class Indexer {
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}
    *
-   * @param row   the row
-   * @param col   the col
+   * @param row the row
+   * @param col the col
    * @param nrows the number or rows
    * @param ncols the number of columns
    * @return the linearized index
@@ -158,16 +154,16 @@ public final class Indexer {
   /**
    * Given an {@code index}, compute the linearized column major index in a parent matrix.
    *
-   * @param index         the current index
-   * @param rows          the rows of the view
-   * @param colOffset     the column offset
-   * @param rowOffset     the row offset
-   * @param parentRows    the number of rows in the parent
+   * @param index the current index
+   * @param rows the rows of the view
+   * @param colOffset the column offset
+   * @param rowOffset the row offset
+   * @param parentRows the number of rows in the parent
    * @param parentColumns the number of columns in the parent
    * @return the position {@code index} in a view, transformed to the position in the parent matrix.
    */
   public static int computeLinearIndex(int index, int rows, int colOffset, int rowOffset,
-                                       int parentRows, int parentColumns) {
+      int parentRows, int parentColumns) {
     int currentColumn = index / rows + colOffset;
     int currentRow = index % rows + rowOffset;
     return columnMajor(0, currentRow, currentColumn, parentRows, parentColumns);

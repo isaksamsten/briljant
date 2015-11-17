@@ -1,30 +1,25 @@
 /*
  * The MIT License (MIT)
- *
+ * 
  * Copyright (c) 2015 Isak Karlsson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package org.briljantframework.array;
-
-import org.apache.commons.math3.complex.Complex;
 
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -41,12 +36,37 @@ import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Listable;
+
 /**
  * Implements a 2-dimensional matrix of complex numbers.
  *
  * @author Isak Karlsson
  */
-public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex> {
+public interface ComplexArray
+    extends BaseArray<ComplexArray>, Iterable<Complex>, Listable<Complex> {
+
+  static ComplexArray zeros(int... shape) {
+    return Arrays.newComplexArray(shape);
+  }
+
+  static ComplexArray ones(int... shape) {
+    ComplexArray array = zeros(shape);
+    array.assign(Complex.ONE);
+    return array;
+  }
+
+  /**
+   * @see Arrays#newComplexVector(Complex...)
+   */
+  static ComplexArray of(Complex... data) {
+    return Arrays.newComplexVector(data);
+  }
+
+  static ComplexArray of(double... real) {
+    return Arrays.newComplexArray(real);
+  }
 
   /**
    * Assign {@code value} to {@code this}
@@ -56,6 +76,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    */
   ComplexArray assign(Complex value);
 
+  void assign(double[] value);
+
   void assign(Complex[] value);
 
   default ComplexArray assign(double real) {
@@ -63,8 +85,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   }
 
   /**
-   * Assign value returned by {@link #size()} successive calls to {@link
-   * java.util.function.DoubleSupplier#getAsDouble()}
+   * Assign value returned by {@link #size()} successive calls to
+   * {@link java.util.function.DoubleSupplier#getAsDouble()}
    *
    * @param supplier the supplier
    * @return receiver modified
@@ -74,7 +96,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix   the matrix
+   * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -93,7 +115,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
    *
-   * @param matrix   the matrix
+   * @param matrix the matrix
    * @param operator the operator
    * @return receiver modified
    */
@@ -102,14 +124,6 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   ComplexArray assign(LongArray matrix, LongFunction<Complex> operator);
 
   ComplexArray assign(IntArray matrix, IntFunction<Complex> operator);
-
-  /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * @param operator the operator to apply to each element
-   * @return receiver modified
-   */
-  ComplexArray update(UnaryOperator<Complex> operator);
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -141,11 +155,20 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   DoubleArray mapToDouble(ToDoubleFunction<Complex> function);
 
+  <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper);
+
+  /**
+   * Perform {@code operator} element wise to receiver.
+   *
+   * @param operator the operator to apply to each element
+   */
+  void apply(UnaryOperator<Complex> operator);
+
   ComplexArray filter(Predicate<Complex> predicate);
 
-  BitArray satisfies(Predicate<Complex> predicate);
+  BooleanArray where(Predicate<Complex> predicate);
 
-  BitArray satisfies(ComplexArray matrix, BiPredicate<Complex, Complex> predicate);
+  BooleanArray where(ComplexArray matrix, BiPredicate<Complex, Complex> predicate);
 
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce);
 
@@ -154,8 +177,8 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * matrix.reduce(0, (a, b) -> a + b, x -> x)}
    *
    * @param identity the initial value
-   * @param reduce   takes two values and reduces them to one
-   * @param map      takes a value and possibly transforms it
+   * @param reduce takes two values and reduces them to one
+   * @param map takes a value and possibly transforms it
    * @return the result
    */
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map);
@@ -199,20 +222,25 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   /**
    * Flattens the traversal of the matrix in column-major order. The matrix is traversed in
-   * column-major order. For example, given the following matrix <p>
+   * column-major order. For example, given the following matrix
+   * <p>
    *
    * <pre>
    *     1 2 3
    *     4 5 6
    * </pre>
-   * <p> this code <p>
+   * <p>
+   * this code
+   * <p>
    *
    * <pre>
    * for (int i = 0; i &lt; x.size(); i++) {
    *   System.out.print(x.get(i));
    * }
    * </pre>
-   * <p> prints <p>
+   * <p>
+   * prints
+   * <p>
    *
    * <pre>
    * 142536
@@ -236,30 +264,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   Stream<Complex> stream();
 
-  List<Complex> asList();
-
-  /**
-   * <u>m</u>atrix<u>m</u>ultiplication
-   *
-   * @param other the other
-   * @return r r
-   */
-  ComplexArray mmul(ComplexArray other);
-
-  /**
-   * <u>M</u>atrix <u>M</u>atrix <u>M</u>ultiplication. Scaling {@code this} with {@code alpha} and
-   * {@code other} with {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))},
-   * but in one pass.
-   *
-   * @param alpha scaling for {@code this*other}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray mmul(Complex alpha, ComplexArray other);
-
-  ComplexArray mmul(Op a, ComplexArray other, Op b);
-
-  ComplexArray mmul(Complex alpha, Op a, ComplexArray other, Op b);
+  List<Complex> toList();
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -267,19 +272,19 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param other the matrix
    * @return a new matrix
    */
-  ComplexArray mul(ComplexArray other);
+  ComplexArray times(ComplexArray other);
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.mul(alpha).mul(other.mul(beta))}, but in one
+   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
    * pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray mul(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray times(Complex alpha, ComplexArray other, Complex beta);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -287,7 +292,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param scalar the scalar
    * @return a new matrix
    */
-  ComplexArray mul(Complex scalar);
+  ComplexArray times(Complex scalar);
 
   /**
    * Element wise addition.
@@ -295,7 +300,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param other the other matrix
    * @return a new matrix
    */
-  ComplexArray add(ComplexArray other);
+  ComplexArray plus(ComplexArray other);
 
   /**
    * Element wise addition.
@@ -303,18 +308,18 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param scalar the scalar
    * @return a new matrixget(
    */
-  ComplexArray add(Complex scalar);
+  ComplexArray plus(Complex scalar);
 
   /**
    * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with {@code
-   * beta}. Hence, it computes {@code this.mul(alpha).add(other.mul(beta))}, but in one pass.
+   * beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray add(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray plus(Complex alpha, ComplexArray other, Complex beta);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -322,7 +327,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param other the other matrix
    * @return a new matrix
    */
-  ComplexArray sub(ComplexArray other);
+  ComplexArray minus(ComplexArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -330,19 +335,18 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param scalar the scalar
    * @return r r
    */
-  ComplexArray sub(Complex scalar);
+  ComplexArray minus(Complex scalar);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code
-   * beta}. Hence, it computes {@code this.mul(alpha).sub(other.mul(beta))}, but in one pass.
+   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with {@code
+   * beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one pass.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta  scaling for {@code other}
+   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray sub(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray minus(Complex alpha, ComplexArray other, Complex beta);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -350,7 +354,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param scalar the scalar
    * @return a new matrix
    */
-  ComplexArray rsub(Complex scalar);
+  ComplexArray reverseMinus(Complex scalar);
 
   /**
    * Element wise division. {@code this / other}.
@@ -377,8 +381,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @return a new matrix
    * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
    */
-  ComplexArray rdiv(Complex other);
-
+  ComplexArray reverseDiv(Complex other);
 
   /**
    * Returns a new matrix with elements negated.
@@ -386,4 +389,6 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @return a new matrix
    */
   ComplexArray negate();
+
+  double[] data();
 }
