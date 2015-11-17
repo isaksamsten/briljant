@@ -159,6 +159,11 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   void assign(double value);
 
+  /**
+   * Assign the array
+   * 
+   * @param array the array
+   */
   void assign(double[] array);
 
   /**
@@ -177,17 +182,39 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   void assign(DoubleArray matrix, DoubleUnaryOperator operator);
 
-  void assign(DoubleArray matrix, DoubleBinaryOperator combine);
-
   void assign(IntArray matrix, IntToDoubleFunction function);
 
   void assign(LongArray matrix, LongToDoubleFunction function);
 
   void assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
 
+  /**
+   * Combine this with the given array
+   *
+   * @param array the other array
+   * @param combine the combiner
+   */
+  void combine(DoubleArray array, DoubleBinaryOperator combine);
+
+  /**
+   * Collect the array
+   * 
+   * @param collector the collector
+   * @param <R> the return type
+   * @param <C> the mutable reduction container
+   * @return an instance of R
+   */
   <R, C> R collect(Collector<? super Double, C, R> collector);
 
-  <E> E collect(Supplier<E> supplier, ObjDoubleConsumer<E> consumer);
+  /**
+   * Collect the array
+   * 
+   * @param supplier the supplier
+   * @param consumer the consumer
+   * @param <R> the return type
+   * @return an instance of R
+   */
+  <R> R collect(Supplier<R> supplier, ObjDoubleConsumer<R> consumer);
 
   // Transform
 
@@ -223,10 +250,29 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   IntArray mapToInt(DoubleToIntFunction function);
 
+  /**
+   * Map each value to a long
+   * 
+   * @param function the mapper
+   * @return a long array
+   */
   LongArray mapToLong(DoubleToLongFunction function);
 
+  /**
+   * Map each value to a complex
+   * 
+   * @param function the mapper
+   * @return a complex array
+   */
   ComplexArray mapToComplex(DoubleFunction<Complex> function);
 
+  /**
+   * Map each value to an object
+   * 
+   * @param mapper the mapper
+   * @param <T> the type
+   * @return an array
+   */
   <T> Array<T> mapToObj(DoubleFunction<? extends T> mapper);
 
   /**
@@ -238,36 +284,72 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   // Filter
 
+  /**
+   * Return the value for which the predicate returns true
+   * 
+   * @param predicate the predicate
+   * @return a new double array
+   */
   DoubleArray filter(DoublePredicate predicate);
 
+  /**
+   * Return a boolean array of indicator values using the given predicate
+   * 
+   * @param predicate the predicate
+   * @return a boolean array
+   */
   BooleanArray where(DoublePredicate predicate);
 
-  BooleanArray where(DoubleArray matrix, DoubleBiPredicate predicate);
+  /**
+   * Return a boolean array of indicator values for joining this with the given array and the
+   * predicate
+   * 
+   * @param array the array
+   * @param predicate the predicate
+   * @return a boolean array
+   */
+  BooleanArray where(DoubleArray array, DoubleBiPredicate predicate);
 
+  /**
+   * For each double perform the side-effect
+   * 
+   * @param consumer the consumer
+   */
   void forEachDouble(DoubleConsumer consumer);
 
   // Reduce
 
+  /**
+   * Successively apply the given function over the identity and each value
+   * 
+   * <pre>
+   * DoubleArray.of(1,2,3).reduce(0, Double::sum));
+   * </pre>
+   * 
+   * The first argument to the reduce operator is the initial value (and then the accumulator)
+   * 
+   * @param identity the initial value
+   * @param reduce the operator
+   * @return a single value
+   */
   double reduce(double identity, DoubleBinaryOperator reduce);
 
   /**
-   * Reduces {@code this} into a real value. For example, summing can be implemented as
-   * {@code matrix.reduce(0, (a, b) -> a + b, x -> x)}
-   *
-   * @param identity the initial value
-   * @param reduce takes two values and reduces them to one
-   * @param map takes a value and possibly transforms it
-   * @return the result
+   * Perform a reduction over all vectors along the given dimension
+   * 
+   * <pre>
+   * DoubleArray.of(1,2,3,4).reshape(2,2).reduceVectors(0, Double::sum));
+   * </pre>
+   * 
+   * sums each row
+   * 
+   * @param dim the dimension
+   * @param reduce the reduction
+   * @return a new array
    */
-  double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map);
-
   DoubleArray reduceVectors(int dim, ToDoubleFunction<? super DoubleArray> reduce);
 
   // GET SET
-
-  void addTo(int i, double value);
-
-  void addTo(int i, int j, double value);
 
   void set(int index, double value);
 
@@ -320,8 +402,18 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   double get(int... ix);
 
+  /**
+   * Return a double stream
+   * 
+   * @return a double stream
+   */
   DoubleStream stream();
 
+  /**
+   * Convert this array to a (mutable) list.
+   * 
+   * @return a list
+   */
   List<Double> toList();
 
   /**

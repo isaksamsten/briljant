@@ -102,10 +102,10 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void assign(DoubleArray matrix, DoubleBinaryOperator combine) {
-    Check.size(this, matrix);
+  public void combine(DoubleArray array, DoubleBinaryOperator combine) {
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsDouble(get(i), matrix.get(i)));
+      set(i, combine.applyAsDouble(get(i), array.get(i)));
     }
   }
 
@@ -230,11 +230,11 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public BooleanArray where(DoubleArray matrix, DoubleBiPredicate predicate) {
-    Check.shape(this, matrix);
+  public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
+    Check.shape(this, array);
     BooleanArray bits = bj.booleanArray(getShape());
     for (int i = 0; i < size(); i++) {
-      bits.set(i, predicate.test(get(i), matrix.get(i)));
+      bits.set(i, predicate.test(get(i), array.get(i)));
     }
     return bits;
   }
@@ -248,13 +248,8 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public double reduce(double identity, DoubleBinaryOperator reduce) {
-    return reduce(identity, reduce, DoubleUnaryOperator.identity());
-  }
-
-  @Override
-  public double reduce(double identity, DoubleBinaryOperator reduce, DoubleUnaryOperator map) {
     for (int i = 0; i < size(); i++) {
-      identity = reduce.applyAsDouble(identity, map.applyAsDouble(get(i)));
+      identity = reduce.applyAsDouble(identity, get(i));
     }
     return identity;
   }
@@ -312,16 +307,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
         return AbstractDoubleArray.this.elementSize();
       }
     };
-  }
-
-  @Override
-  public void addTo(int i, double value) {
-    set(i, get(i) + value);
-  }
-
-  @Override
-  public void addTo(int i, int j, double value) {
-    set(i, j, get(i, j) + value);
   }
 
   @Override
@@ -639,7 +624,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void timesAssign(DoubleArray array) {
-    assign(array, (a, b) -> a * b);
+    combine(array, (a, b) -> a * b);
   }
 
   @Override
@@ -649,7 +634,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void minusAssign(DoubleArray array) {
-    assign(array, (a, b) -> a - b);
+    combine(array, (a, b) -> a - b);
   }
 
   @Override
@@ -746,7 +731,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void plusAssign(DoubleArray other) {
-    assign(other, (a, b) -> a + b);
+    combine(other, (a, b) -> a + b);
   }
 
   @Override
@@ -756,7 +741,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void divAssign(DoubleArray other) {
-    assign(other, (x, y) -> x / y);
+    combine(other, (x, y) -> x / y);
   }
 
   @Override
