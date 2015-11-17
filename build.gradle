@@ -24,7 +24,7 @@ task createWrapper(type: Wrapper) {
 
 allprojects {
   group = "org.briljantframework"
-  version = "${applicationVersion}-SNAPSHOT"
+  version = "${applicationVersion}"
 }
 
 subprojects {
