@@ -155,10 +155,10 @@ produces
 
 ::
   
-       Price   Size  UnitsInStock  Name         
-    0  200.0   150   10            iPad         
-    1  300.0   250   NA            iPhone       
-    2  3000.0  2000  10            Macbook Pro  
+       Price   Size  UnitsInStock  Name
+    0  200.0   150   10            iPad
+    1  300.0   250   NA            iPhone
+    2  3000.0  2000  10            Macbook Pro
 
     [3 rows x 4 columns]
 
@@ -167,7 +167,7 @@ and the first column denotes the *record index*. Using these indicies,
 one can get a **record** (i.e. a row), a **column** or a
 **value**. Records are retrived using the
 ``DataFrame#getRecord(Object)``-method, columns by the
-``DataFrame#get(Object)` and values by
+``DataFrame#get(Object)`` and values by
 ``DataFrame#get(Class,Object,Object)``. For example,
 
 .. code-block:: java
@@ -209,10 +209,10 @@ the **record index**, producing.
 
 ::
    
-                Price   Size  UnitsInStock  
-   iPad         200.0   150   10            
-   iPhone       300.0   250   NA            
-   Macbook Pro  3000.0  2000  10            
+                Price   Size  UnitsInStock
+   iPad         200.0   150   10
+   iPhone       300.0   250   NA
+   Macbook Pro  3000.0  2000  10
 
    [3 rows x 3 columns]
 
@@ -237,7 +237,7 @@ which will produce
 
           Price     UnitsInStock  Name  
    false  200.000   10.000        NA
-   true   1650.000  10.000        NA   
+   true   1650.000  10.000        NA
 
    [2 rows x 3 columns]
 
@@ -252,21 +252,21 @@ The array
 There are several ways to create matrices, of which most are implemented
 in the ``org.briljantframework.array.Arrays`` class. For example, matrices can be
 created from one and two dimensional arrays. The factory methods in
-``Bj`` is delegated to an instance of
+``Arrays`` is delegated to an instance of
 ``org.briljantframework.matrix.api.MatrixFactory`` and decided based on
 the ``MatrixBackend``. For details, please refer to the discussion on
 `MatrixBackends <reference/matrix.md#backend>`__.
 
 .. note:: In the examples below, `import
-    org.briljantframework.matrix.*` and `import static
-    org.briljantframework.matrix.Doubles.*` are implicit
+    org.briljantframework.array.*` and `import static
+    org.briljantframework.array.Arrays.*` are implicit
 
-.. note:: The choice of array implementation returned by `Bj` is
+.. note:: The choice of array implementation returned by `Arrays` is
     decided by the `org.briljantframework.array.api.ArrayBackend`. The
     `ArrayBackend` is responsible for creating arrays and for
     computing BLAS and linear algebra routines.
 
-.. note:: Briljant implements five difference matrix types for some
+.. note:: Briljant implements five difference array types for some
     common domains including the primitive types: `int`, `double`,
     `long` and `boolean` and for `Complex` numbers. There is also a
     generic array `Array<T>` for arbitary objects, e.g., `String`.
@@ -276,7 +276,7 @@ Creation
 
 .. literalinclude:: code/create-array.java
    :language: java
-                
+
 
 In the example above, ``a`` is created using a range of numbers and
 reshaping it to a 2d-array with 5 rows and 2 columns; ``b`` is created,
@@ -285,14 +285,14 @@ created using a flat array and reshaped to a 5-by-2 array. One thing to
 note is that Briljant arrays are represented in column-major order,
 i.e., the first dimension varies faster.
 
-In essences, ``Bj#range(int, int)`` creates a 1d-array (i.e. a vector)
+In essences, ``Arrays#range(int, int)`` creates a 1d-array (i.e. a vector)
 with values between ``start`` and ``end`` with ``1`` increments. The
-3-arity version, ``Bj#range(int, int, int)`` can be used if another
+3-arity version, ``Arrays#range(int, int, int)`` can be used if another
 ``step``-size is needed. Since it's not possible to predict the number
-of values in floating point ranges, ``Bj#linspace(double, double,
-double)`` should be use instead.  ``Bj#linspace`` receives an
+of values in floating point ranges, ``Arrats#linspace(double, double,
+double)`` should be use instead.  ``Arrays#linspace`` receives an
 additional argument which denotes the number elements returned. For
-example, ``Bj#linspace(0, 10, 50).reshape(10, 5)`` creates a 10-by-5
+example, ``Arrays#linspace(0, 10, 50).reshape(10, 5)`` creates a 10-by-5
 array.
 
 In many cases, the size of a matrix is known but its contents is not.
@@ -315,8 +315,8 @@ allocations).
 .. code-block:: java
 
    NormalDistribution sampler = new NormalDistribution(0, 1);
-   DoubleArray a = Bj.doubleArray(3, 4);
-   DoubleArray b = Bj.rand(3 * 4, sampler).reshape(3, 4);
+   DoubleArray a = DoubleArray.zeros(3, 4);
+   DoubleArray b = Arrays.rand(3 * 4, sampler).reshape(3, 4);
    
    // Assign the values of b to a
    a.assign(b);
@@ -398,7 +398,7 @@ The code example above, would result in something like
 
 .. code-block:: java
        
-   DoubleArray a = Bj.doubleArray(3, 3);
+   DoubleArray a = DoubleArrays.zeros(3, 3);
    a.set(0, 0, 10); 
    a.set(0, 1, 9); 
    a.set(0, 2, 8); 
@@ -431,7 +431,6 @@ column-major order. Hence, the output of the example is
    0.0
 
 
-
 Basic operations
 ^^^^^^^^^^^^^^^^
 
@@ -452,7 +451,7 @@ The most common matrix routines (e.g., BLAS level 1, 2 and 3) are
 provided by the ``org.briljantframework.array.api.ArrayRoutines`` class
 and the most common linear algebra routines are provided by the
 ``org.briljantframework.linalg.api.LinearAlgebraRoutines``. By default,
-``Bj`` delegates to, for the current platform chose,
+``Arrays`` delegates to, for the current platform chose,
 implementation. However, the user can freely choose between
 implementation by constructing an instance of a ``ArrayBackend``. For
 example:
@@ -463,7 +462,7 @@ example:
 which results in the following output
 
 .. literalinclude:: out/array-backend.txt              
-                
+
 Note that the usage of the matrix routines closely resembles
 traditional BLAS implementations, e.g., by the use of output
 parameters (`c` in the example above). To simplify common use-cases,
@@ -471,20 +470,20 @@ Briljant provides many convenience methods over the BLAS routines.
 
 ::
    
-   DoubleArray a = Bj.doubleVector(9).assign(2).reshape(3, 3);
-   DoubleArray b = Bj.rand(9, new NormalDistribution(-1, 1)).reshape(3, 3);
+   DoubleArray a = DoubleArray.ones(9).times(2).reshape(3, 3);
+   DoubleArray b = Arrays.rand(9, new NormalDistribution(-1, 1)).reshape(3, 3);
 
    // element-wise addition
-   b.add(a);
+   b.plus(a);
 
    // element-wise subtraction
-   b.sub(a);
+   b.minus(a);
 
    // element-wise multiplication
-   b.mul(a);
+   b.times(a);
 
    // generalized matrix-matrix multiplication
-   b.mmul(a);
+   Arrays.dot(a, b)
 
    
 Element wise operations
@@ -496,7 +495,7 @@ wise functions and produces new matrices as output.
 
 ::
    
-   DoubleArray a = Bj.linspace(0, 2 * Math.PI, 100);
+   DoubleArray a = Arrays.linspace(0, 2 * Math.PI, 100);
 
    // create a new array with the square root of each element
    a.map(Math::sqrt);
@@ -509,7 +508,12 @@ wise functions and produces new matrices as output.
    a.map(Math::cos);
    a.map(value -> Math.pow(value, 10));
 
-.. note:: Remember that ``assign`` can be used to mutate the matrix.
+   // ... mutate inplace
+   a.apply(Math::exp)
+
+   
+
+.. note:: Remember that ``apply`` can be used to mutate the matrix.
 
           
 .. note::
@@ -520,9 +524,9 @@ wise functions and produces new matrices as output.
    implemented in the ``org.apache.commons.math3.complex.Complex``
    class and arrays of such values are implemented in
    ``org.briljantframework.array.ComplexMatrix``. Given, ``DoubleArray
-   x = rand(10, 10).muli(-10)`` the element wise square root can be
-   calculated (in the complex plane) as ``ComplexMatrix z =
-   Bj.complexMatrix(10, 10).assign(x, Complex::sqrt)``
+   x = Arrays.rand(10, 10).times(-10)`` the element wise square root
+   can be calculated (in the complex plane) as ``ComplexMatrix z =
+   x.mapToComplex(Complex::sqrt)``
 
 
 Example

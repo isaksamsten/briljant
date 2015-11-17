@@ -39,6 +39,7 @@ import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
 import org.briljantframework.Listable;
 import org.briljantframework.function.DoubleBiPredicate;
 
@@ -119,6 +120,36 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   static DoubleArray of(double... data) {
     return Arrays.newDoubleVector(data);
+  }
+
+  /**
+   * Constructs a double array of values in the range [start, end[ with the specified step-value
+   * between consecutive values
+   *
+   * @param start start value (inclusive)
+   * @param end end value (exclusive)
+   * @param step step size
+   * @return a new double array
+   */
+  static DoubleArray range(double start, double end, double step) {
+    Check.argument(step > 0, "Illegal step size");
+    Check.argument(start < end, "Illegal start");
+    int size = (int) Math.round((end - start) / step);
+    Check.argument(size >= 0, "Illegal range");
+    DoubleArray array = zeros(size);
+    double v = start;
+    for (int i = 0; i < size; i++) {
+      array.set(i, v);
+      v += step;
+    }
+    return array;
+  }
+
+  /**
+   * @see Arrays#linspace(double, double, int)
+   */
+  static DoubleArray linspace(double start, double end, int size) {
+    return Arrays.linspace(start, end, size);
   }
 
   /**

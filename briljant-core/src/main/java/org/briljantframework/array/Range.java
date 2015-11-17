@@ -26,6 +26,18 @@ package org.briljantframework.array;
  */
 public interface Range extends IntArray {
 
+  static Range of(int end) {
+    return Arrays.range(end);
+  }
+
+  static Range of(int start, int end) {
+    return Arrays.range(start, end);
+  }
+
+  static Range of(int start, int end, int step) {
+    return Arrays.range(start, end, step);
+  }
+
   /**
    * The start value of this range
    *

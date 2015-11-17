@@ -24,5 +24,5 @@ double sum = bjr.sum(c);
 System.out.println(sum);
 
 // The example above is overly verbose
-x.transpose().mmul(x);
-x.mmul(Op.TRANSPOSE, x, Op.KEEP);
+bjr.dot(Op.TRANSPOSE, Op.KEEP, x,  x);
+bjr.dot(x.transpose(), x)
