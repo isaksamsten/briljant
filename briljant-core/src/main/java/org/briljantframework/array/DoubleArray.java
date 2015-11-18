@@ -189,12 +189,21 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   void assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
 
   /**
-   * Combine this with the given array
+   * Combine this with the given array assigning the results
    *
    * @param array the other array
    * @param combine the combiner
    */
-  void combine(DoubleArray array, DoubleBinaryOperator combine);
+  void combineAssign(DoubleArray array, DoubleBinaryOperator combine);
+
+  /**
+   * Combine this with the given array resulting in a new array
+   *
+   * @param array the array
+   * @param combine the combiner
+   * @return a new array
+   */
+  DoubleArray combine(DoubleArray array, DoubleBinaryOperator combine);
 
   /**
    * Collect the array
