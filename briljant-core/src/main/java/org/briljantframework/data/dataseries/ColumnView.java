@@ -104,11 +104,6 @@ class ColumnView extends AbstractVector {
   }
 
   @Override
-  public int compareAt(int a, Vector other, int b) {
-    return getType().compare(a, this, b, other);
-  }
-
-  @Override
   protected Vector shallowCopy(Index index) {
     Vector vector = newCopyBuilder().build();
     vector.setIndex(index);

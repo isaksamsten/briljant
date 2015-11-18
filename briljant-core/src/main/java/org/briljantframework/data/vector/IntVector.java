@@ -112,7 +112,22 @@ public class IntVector extends AbstractVector implements Transferable {
 
   @Override
   protected final int compareAt(int a, Vector other, int b) {
-    return getType().compare(a, this, b, other);
+    int x = loc().getAsInt(a);
+    int y = other.loc().getAsInt(b);
+    boolean aIsNa = Is.NA(x);
+    boolean bIsNa = Is.NA(y);
+    if (aIsNa && !bIsNa) {
+      return -1;
+    } else if (!aIsNa && bIsNa) {
+      return 1;
+    } else {
+      return Integer.compare(x, y);
+    }
+  }
+
+  @Override
+  protected boolean equalsAt(int a, Vector other, int b) {
+    return getAsIntAt(a) == other.loc().getAsInt(b);
   }
 
   @Override

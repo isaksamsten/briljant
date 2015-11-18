@@ -26,7 +26,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
 import org.briljantframework.data.Scale;
 import org.briljantframework.data.index.ObjectComparator;
@@ -141,35 +140,9 @@ public abstract class VectorType {
   public abstract Class<?> getDataClass();
 
   /**
-   * Compare value at position {@code a} from {@code va} to value at position {@code b} from
-   * {@code ba}.
-   *
-   * @param a the index in va
-   * @param va the vector
-   * @param b the index in ba
-   * @param ba the vector
-   * @return the comparison
-   */
-  public abstract int compare(int a, Vector va, int b, Vector ba);
-
-  /**
    * @return the scale
    */
   public abstract Scale getScale();
-
-  /**
-   * Check if value at position {@code a} from {@code va} and value at position {@code b} from
-   * {@code va} are equal.
-   *
-   * @param a the index in va
-   * @param va the vector
-   * @param b the index in ba
-   * @param ba the vector
-   * @return true if equal false otherwise
-   */
-  public boolean equals(int a, Vector va, int b, Vector ba) {
-    return compare(a, va, b, ba) == 0;
-  }
 
   public boolean isAssignableTo(Class<?> cls) {
     return cls.isAssignableFrom(getDataClass());
@@ -194,14 +167,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return Double.class;
-    }
-
-    @Override
-    public int compare(int a, Vector va, int b, Vector ba) {
-      double dva = va.loc().getAsDouble(a);
-      double dba = ba.loc().getAsDouble(b);
-
-      return !Is.NA(dva) && !Is.NA(dba) ? Double.compare(dva, dba) : 0;
     }
 
     @Override
@@ -235,21 +200,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return Integer.class;
-    }
-
-    @Override
-    public int compare(int a, Vector va, int b, Vector ba) {
-      int x = va.loc().getAsInt(a);
-      int y = ba.loc().getAsInt(b);
-      boolean aIsNa = Is.NA(x);
-      boolean bIsNa = Is.NA(y);
-      if (aIsNa && !bIsNa) {
-        return -1;
-      } else if (!aIsNa && bIsNa) {
-        return 1;
-      } else {
-        return Integer.compare(x, y);
-      }
     }
 
     @Override
@@ -293,13 +243,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return cls;
-    }
-
-    @Override
-    public int compare(int a, Vector va, int b, Vector ba) {
-      Object ca = va.loc().get(Object.class, a);
-      Object cb = ba.loc().get(Object.class, b);
-      return CMP.compare(ca, cb);
     }
 
     @Override

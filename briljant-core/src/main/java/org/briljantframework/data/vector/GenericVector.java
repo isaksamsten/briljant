@@ -32,6 +32,7 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
@@ -109,11 +110,6 @@ class GenericVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public int compareAt(int a, Vector other, int b) {
-    return getType().compare(a, this, b, other);
-  }
-
-  @Override
   protected Vector shallowCopy(Index index) {
     return new GenericVector(cls, values, size, index);
   }
@@ -172,8 +168,8 @@ class GenericVector extends AbstractVector implements Transferable {
 
     private <T> Class<?> ensureValidClass(Class<T> cls) {
       if (INVALID_CLASSES.contains(cls)) {
-        throw new IllegalArgumentException(String.format(
-            "GenericVector should not be used for: %s", cls));
+        throw new IllegalArgumentException(
+            String.format("GenericVector should not be used for: %s", cls));
       }
       return cls;
     }

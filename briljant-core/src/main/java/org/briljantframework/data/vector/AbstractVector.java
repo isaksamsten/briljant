@@ -55,6 +55,7 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
+import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
@@ -420,7 +421,15 @@ public abstract class AbstractVector implements Vector {
 
   protected abstract String toStringAt(int index);
 
-  protected abstract int compareAt(int a, Vector other, int b);
+  protected int compareAt(int a, Vector other, int b) {
+    Object ca = loc().get(Object.class, a);
+    Object cb = other.loc().get(Object.class, b);
+    return ObjectComparator.getInstance().compare(ca, cb);
+  }
+
+  protected boolean equalsAt(int a, Vector other, int b) {
+    return Is.equal(getAt(Object.class, a), other.loc().get(b));
+  }
 
   protected abstract Vector shallowCopy(Index index);
 
@@ -1123,7 +1132,7 @@ public abstract class AbstractVector implements Vector {
 
     @Override
     public boolean equals(int a, Vector other, int b) {
-      return compareAt(a, other, b) == 0;
+      return equalsAt(a, other, b);
     }
 
     @Override
