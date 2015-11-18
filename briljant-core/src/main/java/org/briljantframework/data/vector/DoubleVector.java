@@ -117,6 +117,13 @@ public class DoubleVector extends AbstractVector implements Transferable {
   }
 
   @Override
+  protected boolean equalsAt(int a, Vector other, int b) {
+    double av = getAsDoubleAt(a);
+    double ab = other.loc().getAsDouble(b);
+    return (Is.NA(av) && Is.NA(ab)) || (Double.isNaN(av) && Double.isNaN(ab)) || av == ab;
+  }
+
+  @Override
   protected Vector shallowCopy(Index index) {
     return new DoubleVector(buffer, size, index);
   }

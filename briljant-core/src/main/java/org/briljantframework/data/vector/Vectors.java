@@ -81,7 +81,7 @@ public final class Vectors {
    */
   public static int find(Vector haystack, Vector needleSource, int needle) {
     for (int i = 0; i < haystack.size(); i++) {
-      if (haystack.loc().compare(i, needleSource, needle) == 0) {
+      if (haystack.loc().equals(i, needleSource, needle)) {
         return i;
       }
     }

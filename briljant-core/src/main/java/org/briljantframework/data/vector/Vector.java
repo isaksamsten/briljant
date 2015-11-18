@@ -236,6 +236,10 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   <T> Vector map(Class<T> cls, Function<? super T, ?> operator);
 
+  default Vector map(Function<Object, ?> operator) {
+    return map(Object.class, operator);
+  }
+
   /**
    * Performs a mutable aggregation of the values in this vector, similar to
    * {@linkplain Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its
