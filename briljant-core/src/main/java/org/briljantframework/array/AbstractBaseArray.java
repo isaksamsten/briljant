@@ -258,7 +258,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     for (int i = 0; i < ranges.size(); i++) {
       Range r = ranges.get(i);
       int start = r.start();
-      int end = r.end() == -1 ? size(i) : r.size();
+      int end = r.end() == -1 ? size(i) : r.end();
       int step = r.step() == -1 ? 1 : r.step();
 
       Check.argument(step > 0, "Illegal step size in dimension %s", step);
