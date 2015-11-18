@@ -7,7 +7,7 @@
  * user guide available at http://gradle.org/docs/1.12/userguide/tutorial_java_projects.html
  */
 buildscript {
-  ext.applicationVersion = "0.1.2"
+  ext.applicationVersion = "0.1.4"
   repositories {
     jcenter()
     mavenCentral()
