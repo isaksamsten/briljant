@@ -183,11 +183,6 @@ public class DataSeriesCollection extends AbstractDataFrame {
     return vector; // TODO: rethink indexing?
   }
 
-  @Override
-  protected DataFrame getRecordsAt(IntArray indexes) {
-    return null;
-  }
-
   /**
    * Returns the type of data series in this DataSeries collection
    *

@@ -264,7 +264,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       Check.argument(step > 0, "Illegal step size in dimension %s", step);
       Check.argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i,
           size(i));
-      Check.argument(end >= start && end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
+      Check.argument(end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
       offset += start * stride[i];
       shape[i] = end;
       stride[i] = stride[i] * step;

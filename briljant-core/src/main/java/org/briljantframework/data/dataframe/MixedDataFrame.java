@@ -310,16 +310,6 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  protected DataFrame getRecordsAt(IntArray indexes) {
-    Builder builder = newBuilder();
-    for (Integer index : indexes.toList()) {
-      builder.set(getIndex().getKey(index), Vectors.transferableBuilder(getRecordAt(index)));
-    }
-    builder.setColumnIndex(getColumnIndex());
-    return builder.build();
-  }
-
-  @Override
   public int getAsIntAt(int row, int column) {
     return columns.get(column).loc().getAsInt(row);
   }

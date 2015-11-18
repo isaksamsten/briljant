@@ -111,5 +111,5 @@ public interface DataFrameLocationGetter {
 
   DataFrame getRecord(int... records);
 
-  DataFrame getRecords(IntArray records);
+  DataFrame getRecord(IntArray records);
 }

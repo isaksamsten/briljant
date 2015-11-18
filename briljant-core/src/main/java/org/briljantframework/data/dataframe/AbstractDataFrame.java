@@ -814,7 +814,18 @@ public abstract class AbstractDataFrame implements DataFrame {
     return builder.build();
   }
 
-  protected abstract DataFrame getRecordsAt(IntArray indexes);
+  /**
+   * @param indexes
+   * @return
+   */
+  protected DataFrame getRecordAt(IntArray indexes) {
+    Builder builder = newBuilder();
+    for (Integer index : indexes.toList()) {
+      builder.setRecord(getIndex().getKey(index), Vectors.transferableBuilder(getRecordAt(index)));
+    }
+    builder.setColumnIndex(getColumnIndex());
+    return builder.build();
+  }
 
   /**
    * Get value at {@code row} and {@code column} as {@code double}.
@@ -1454,8 +1465,8 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame getRecords(IntArray records) {
-      return getRecordsAt(records);
+    public DataFrame getRecord(IntArray records) {
+      return getRecordAt(records);
     }
   }
 
