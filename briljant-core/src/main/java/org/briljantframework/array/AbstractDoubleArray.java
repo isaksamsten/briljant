@@ -102,11 +102,19 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void combine(DoubleArray array, DoubleBinaryOperator combine) {
+  public void combineAssign(DoubleArray array, DoubleBinaryOperator combine) {
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsDouble(get(i), array.get(i)));
     }
+  }
+
+  @Override
+  public DoubleArray combine(DoubleArray array, DoubleBinaryOperator combine) {
+    Check.size(this, array);
+    DoubleArray empty = newEmptyArray(getShape());
+    empty.combineAssign(array, combine);
+    return empty;
   }
 
   @Override
@@ -624,7 +632,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void timesAssign(DoubleArray array) {
-    combine(array, (a, b) -> a * b);
+    combineAssign(array, (a, b) -> a * b);
   }
 
   @Override
@@ -634,7 +642,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void minusAssign(DoubleArray array) {
-    combine(array, (a, b) -> a - b);
+    combineAssign(array, (a, b) -> a - b);
   }
 
   @Override
@@ -731,7 +739,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void plusAssign(DoubleArray other) {
-    combine(other, (a, b) -> a + b);
+    combineAssign(other, (a, b) -> a + b);
   }
 
   @Override
@@ -741,7 +749,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void divAssign(DoubleArray other) {
-    combine(other, (x, y) -> x / y);
+    combineAssign(other, (x, y) -> x / y);
   }
 
   @Override
