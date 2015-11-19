@@ -155,8 +155,8 @@ public final class Arrays {
   }
 
   /**
-   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean {@code
-   * 0} and standard deviation {@code 1}.
+   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean
+   * {@code 0} and standard deviation {@code 1}.
    *
    * <p>
    * Example
@@ -880,7 +880,7 @@ public final class Arrays {
   /**
    * Compute the inner product of two arrays. If the arguments are non-{@code vectors}, the
    * arguments are raveled.
-   * 
+   *
    * <pre>
    * Arrays.inner(Arrays.linspace(0, 3, 4), Arrays.linspace(0, 3, 4).reshape(2, 2))
    * </pre>
@@ -1069,9 +1069,9 @@ public final class Arrays {
 
   /**
    * <p>
-   * Changes the values of array copy of {@code array} according to the values of the {@code
-   * mask} and the values in {@code values}. The value at {@code i} in array copy of {@code array}
-   * is set to value at {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is
+   * Changes the values of array copy of {@code array} according to the values of the {@code mask}
+   * and the values in {@code values}. The value at {@code i} in array copy of {@code array} is set
+   * to value at {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is
    * {@code true}.
    * </p>
    *
