@@ -40,6 +40,7 @@ import org.briljantframework.array.Array;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.BoundType;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
 import org.briljantframework.data.index.DataFrameLocationGetter;
@@ -212,8 +213,8 @@ public interface DataFrame extends Iterable<Object> {
    *
    * <pre>
    * {@code
-   *
-   *
+   * 
+   * 
    * }
    * </pre>
    *
@@ -313,7 +314,7 @@ public interface DataFrame extends Iterable<Object> {
    *    A  B
    * 0  4  4
    * 1  6  6
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -341,7 +342,7 @@ public interface DataFrame extends Iterable<Object> {
    * 3  2  2
    * 4  3  3
    * 5  3  3
-   *
+   * 
    * [6 rows x 2 columns]
    * </pre>
    *
@@ -449,13 +450,13 @@ public interface DataFrame extends Iterable<Object> {
    *  1  2  -2.0
    *  2  1  1.5
    *  3  2  2.0
-   *
+   * 
    *  [4 rows x 2 columns]
-   *
+   * 
    *     A  B
    *  0  1  30.0
    *  2  1  33.0
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -480,7 +481,7 @@ public interface DataFrame extends Iterable<Object> {
    *    A   B
    * 2  10  c
    * 3  20  d
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -517,7 +518,7 @@ public interface DataFrame extends Iterable<Object> {
    *      entry(&quot;B&quot;, Vector.of(1, 1, 0, 4)),
    *      entry(&quot;C&quot;, Vector.of(1, 1, 0, 4))
    *  );
-   *
+   * 
    * for (Group group : df.groupBy(Vector::mean, &quot;A&quot;, &quot;B&quot;)) {
    *   System.out.println(&quot;key: &quot; + group.getKey());
    *   System.out.println(group.getData());
@@ -531,20 +532,20 @@ public interface DataFrame extends Iterable<Object> {
    * key: 1.0
    *    A  B  C
    * 0  1  1  1
-   *
+   * 
    * [1 rows x 3 columns]
-   *
+   * 
    * key: 4.0
    *    A  B  C
    * 3  4  4  4
-   *
+   * 
    * [1 rows x 3 columns]
-   *
+   * 
    * key: 1.5
    *    A  B  C
    * 1  2  1  1
    * 2  3  0  0
-   *
+   * 
    * [2 rows x 3 columns]
    * </pre>
    *
@@ -578,7 +579,7 @@ public interface DataFrame extends Iterable<Object> {
    *
    * <pre>
    * df.groupBy(LocalData.class, k -&gt; Is.NA(k) ? 2000 : k.getYear());
-   *
+   * 
    * // or, if we allow the possibility of error
    * df.groupBy(LocalData.class, LocalData::getYear);
    * </pre>
@@ -646,8 +647,8 @@ public interface DataFrame extends Iterable<Object> {
    * Drop the columns for which the specified predicat returns true.
    *
    * <pre>
-   * DataFrame df =
-   *     DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, null, 3)).drop(Vector::hasNA);
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, null, 3))
+   *     .drop(Vector::hasNA);
    * </pre>
    *
    * produces,
@@ -657,7 +658,7 @@ public interface DataFrame extends Iterable<Object> {
    * 0  1
    * 1  2
    * 2  3
-   *
+   * 
    * [1 rows x 3 columns]
    * </pre>
    *
@@ -690,6 +691,23 @@ public interface DataFrame extends Iterable<Object> {
    * @return a boolean array where each value denotes the truth of the predicate for a value
    */
   <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
+
+  /**
+   * Return a boolean array where the value of the predicate applied to each value is stored
+   *
+   * @param predicate the predicate
+   * @return a boolean array
+   */
+  default BooleanArray where(Predicate<Object> predicate) {
+    return where(Object.class, predicate);
+  }
+
+  /**
+   * @return a boolean array indicating if the value is NA
+   */
+  default BooleanArray isNA() {
+    return where(Is::NA);
+  }
 
   /**
    * The result is different depending on the shape of the input array. For vectors of shape
@@ -748,7 +766,7 @@ public interface DataFrame extends Iterable<Object> {
    * 0  1   1
    * 1  30  30
    * 2  30  30
-   *
+   * 
    * [3 rows x 2 columns]
    * </pre>
    *
@@ -855,7 +873,7 @@ public interface DataFrame extends Iterable<Object> {
    * <pre>
    *    a  b  c  d
    * A  1  2  3  4
-   *
+   * 
    * [1 rows x 4 columns]
    * </pre>
    *
@@ -877,7 +895,7 @@ public interface DataFrame extends Iterable<Object> {
    *    A   B
    * 1  2   NA
    * 2  NA  3
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -1018,7 +1036,7 @@ public interface DataFrame extends Iterable<Object> {
    * array([[a, 1],
    *        [b, 2],
    *        [c, 3]])
-   *
+   * 
    * array([[NaN, 1.0],
    *        [NaN, 2.0],
    *        [NaN, 3.0]])
@@ -1076,7 +1094,7 @@ public interface DataFrame extends Iterable<Object> {
    *    0   1
    * 0  b   NA
    * 1  NA  3
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -1114,7 +1132,7 @@ public interface DataFrame extends Iterable<Object> {
    *    index  0  1
    * 0  a      1  2
    * 1  b      1  2
-   *
+   * 
    * [2 rows x 3 columns]
    * </pre>
    *
@@ -1194,8 +1212,10 @@ public interface DataFrame extends Iterable<Object> {
    * @return a vector of the minimum value of each column in the data frame
    */
   default Vector min() {
-    return collect(Object.class, org.briljantframework.data.Collectors
-        .withFinisher(Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
+    return collect(
+        Object.class,
+        org.briljantframework.data.Collectors.withFinisher(
+            Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
   }
 
   /**
@@ -1204,8 +1224,10 @@ public interface DataFrame extends Iterable<Object> {
    * @return a vector of the maximum value of each column in the data frame
    */
   default Vector max() {
-    return collect(Object.class, org.briljantframework.data.Collectors
-        .withFinisher(Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
+    return collect(
+        Object.class,
+        org.briljantframework.data.Collectors.withFinisher(
+            Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
   }
 
   /**
