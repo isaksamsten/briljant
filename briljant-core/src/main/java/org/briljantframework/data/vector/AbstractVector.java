@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -98,10 +99,31 @@ public abstract class AbstractVector implements Vector {
   }
 
   @Override
+  public <T> Vector filterWithIndex(Class<T> cls, BiPredicate<Object, ? super T> predicate) {
+    Vector.Builder builder = newBuilder();
+    for (Object key : getIndex()) {
+      T value = get(cls, key);
+      if (predicate.test(key, value)) {
+        builder.set(key, value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
   public <T> Vector map(Class<T> cls, Function<? super T, ?> operator) {
     Vector.Builder builder = new TypeInferenceVectorBuilder();
     for (Object key : this.getIndex()) {
       builder.set(key, operator.apply(get(cls, key)));
+    }
+    return builder.build();
+  }
+
+  @Override
+  public <T> Vector mapWithIndex(Class<T> cls, BiFunction<Object, ? super T, ?> operator) {
+    Vector.Builder builder = new TypeInferenceVectorBuilder();
+    for (Object key : this.getIndex()) {
+      builder.set(key, operator.apply(key, get(cls, key)));
     }
     return builder.build();
   }
@@ -159,8 +181,8 @@ public abstract class AbstractVector implements Vector {
     if (otherIndex instanceof IntIndex) {
       int size = Math.min(size(), other.size());
       for (int i = 0; i < size; i++) {
-        builder.set(thisIndex.getKey(i),
-            combiner.apply(loc().get(cls, i), other.loc().get(cls, i)));
+        builder
+            .set(thisIndex.getKey(i), combiner.apply(loc().get(cls, i), other.loc().get(cls, i)));
       }
     } else {
       HashSet<Object> keys = new HashSet<>();
@@ -514,8 +536,9 @@ public abstract class AbstractVector implements Vector {
     Index index = getIndex();
     int longestKey = String.valueOf(index.size()).length();
     if (!(index instanceof IntIndex)) {
-      longestKey = index.keySet().stream().mapToInt(key -> Is.NA(key) ? 2 : key.toString().length())
-          .max().orElse(0);
+      longestKey =
+          index.keySet().stream().mapToInt(key -> Is.NA(key) ? 2 : key.toString().length()).max()
+              .orElse(0);
     }
 
     int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;

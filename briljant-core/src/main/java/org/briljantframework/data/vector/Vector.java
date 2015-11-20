@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -203,6 +204,8 @@ public interface Vector extends Serializable, Listable<Object> {
     return filter(Object.class, predicate);
   }
 
+  <T> Vector filterWithIndex(Class<T> cls, BiPredicate<Object, ? super T> predicate);
+
   /**
    * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
    * a new vector with the type inferred from the first value returned by {@code operator}.
@@ -239,6 +242,8 @@ public interface Vector extends Serializable, Listable<Object> {
   default Vector map(Function<Object, ?> operator) {
     return map(Object.class, operator);
   }
+
+  <T> Vector mapWithIndex(Class<T> cls, BiFunction<Object, ? super T, ?> operator);
 
   /**
    * Performs a mutable aggregation of the values in this vector, similar to
