@@ -45,6 +45,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   protected static final String ILLEGAL_DIMENSION_INDEX =
       "Index %s is out of bounds for dimension %s with size %s";
 
+  protected static final String REQUIRE_2D = "Require 2d-array";
+  protected static final String REQUIRE_1D = "Require 2d-array";
+  protected static final String REQUIRE_ND = "Require %dd-array";
+
+
+
   protected final ArrayFactory bj;
 
   protected final int majorStride;

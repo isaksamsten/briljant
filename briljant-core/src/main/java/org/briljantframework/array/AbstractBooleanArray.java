@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -75,12 +76,12 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   public final void set(int[] ix, boolean value) {
-    Check.argument(ix.length == dims());
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
     setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   public final boolean get(int... ix) {
-    Check.argument(ix.length == dims());
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
     return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
   }
 
@@ -101,6 +102,11 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
       @Override
       protected int elementSize() {
         return AbstractBooleanArray.this.elementSize();
+      }
+
+      @Override
+      public BooleanArray asBoolean() {
+        return AbstractBooleanArray.this;
       }
     };
   }
@@ -123,13 +129,13 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public void set(int i, int j, boolean value) {
-    Check.argument(isMatrix());
+    Check.argument(isMatrix(), REQUIRE_2D);
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
   public boolean get(int i, int j) {
-    Check.argument(isMatrix());
+    Check.argument(isMatrix(), REQUIRE_2D);
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
@@ -460,6 +466,52 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
       bm.set(i, !get(i));
     }
     return bm;
+  }
+
+  @Override
+  public boolean reduce(boolean identity, BinaryOperator<Boolean> accumulator) {
+    return stream().reduce(identity, accumulator);
+  }
+
+  @Override
+  public BooleanArray reduceAlong(int dim, Function<? super BooleanArray, Boolean> function) {
+    Check.argument(0 <= dim && dim < dims(), INVALID_DIMENSION, dim, dims());
+    BooleanArray out = newEmptyArray(Indexer.remove(getShape(), dim));
+    int vectors = vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      out.set(i, function.apply(getVector(dim, i)));
+    }
+    return out;
+  }
+
+  @Override
+  public BooleanArray any(int dim) {
+    return reduceAlong(dim, BooleanArray::any);
+  }
+
+  @Override
+  public boolean any() {
+    for (int i = 0; i < size(); i++) {
+      if (get(i)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public BooleanArray all(int dim) {
+    return reduceAlong(dim, BooleanArray::all);
+  }
+
+  @Override
+  public boolean all() {
+    for (int i = 0; i < size(); i++) {
+      if (!get(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public class IncrementalBuilder {

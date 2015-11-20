@@ -22,6 +22,7 @@
 package org.briljantframework.array;
 
 import java.util.List;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -32,8 +33,7 @@ import org.briljantframework.Listable;
 /**
  * @author Isak Karlsson
  */
-public interface BooleanArray
-    extends BaseArray<BooleanArray>, Iterable<Boolean>, Listable<Boolean> {
+public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>, Listable<Boolean> {
 
   static BooleanArray falses(int... shape) {
     return Arrays.newBooleanArray(shape);
@@ -101,6 +101,49 @@ public interface BooleanArray
   BooleanArray andNot(BooleanArray other);
 
   BooleanArray not();
+
+  /**
+   * Perform a reduction using the initial value and the given accumulator
+   * 
+   * @param identity the initial value
+   * @param accumulator the accumulator
+   * @return an accumulated value
+   * @see Stream#reduce(Object, BinaryOperator)
+   */
+  boolean reduce(boolean identity, BinaryOperator<Boolean> accumulator);
+
+  BooleanArray reduceAlong(int dim, Function<? super BooleanArray, Boolean> function);
+
+  /**
+   * Return a boolean array of the test if a given element along a specified dimension evaluates to
+   * true
+   * 
+   * @param dim the dimension
+   * @return a new boolean array
+   */
+  BooleanArray any(int dim);
+
+  /**
+   * Test whether an element in the array evaluates to to true
+   *
+   * @return a boolean
+   */
+  boolean any();
+
+  /**
+   * Test whether all elements along a specified dimension evaluates to true
+   *
+   * @param dim the dimension
+   * @return a new array
+   */
+  BooleanArray all(int dim);
+
+  /**
+   * Test whether all elements evaluates to true
+   * 
+   * @return a boolean
+   */
+  boolean all();
 
   Array<Boolean> boxed();
 
