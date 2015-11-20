@@ -52,8 +52,8 @@ import org.briljantframework.array.api.ArrayFactory;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray>
-    implements ComplexArray {
+public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
+    ComplexArray {
 
   protected AbstractComplexArray(ArrayFactory bj, int size) {
     super(bj, new int[] {size});
@@ -69,24 +69,51 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   public final void set(int[] ix, Complex value) {
-    Check.argument(ix.length == dims(), ILLEGAL_INDEX);
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
     setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   public final Complex get(int... ix) {
-    Check.argument(ix.length == dims(), ILLEGAL_INDEX);
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
     return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
   }
 
   @Override
+  public Array<Complex> boxed() {
+    return new AsArray<Complex>(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStride()) {
+
+      @Override
+      protected Complex getElement(int i) {
+        return AbstractComplexArray.this.getElement(i);
+      }
+
+      @Override
+      protected void setElement(int i, Complex value) {
+        AbstractComplexArray.this.setElement(i, value);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
+
+      @Override
+      public ComplexArray asComplex() {
+        return AbstractComplexArray.this;
+      }
+    };
+  }
+
+  @Override
   public final void set(int i, int j, Complex value) {
-    Check.argument(isMatrix(), ILLEGAL_INDEX);
+    Check.argument(isMatrix(), REQUIRE_2D);
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
   public final Complex get(int i, int j) {
-    Check.argument(isMatrix(), ILLEGAL_INDEX);
+    Check.argument(isMatrix(), REQUIRE_2D);
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
@@ -415,8 +442,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
-      UnaryOperator<Complex> map) {
+  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.apply(map.apply(get(i)), identity);
     }

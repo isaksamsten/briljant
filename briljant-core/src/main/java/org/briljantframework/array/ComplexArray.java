@@ -262,6 +262,8 @@ public interface ComplexArray
 
   Complex get(int... index);
 
+  Array<Complex> boxed();
+
   Stream<Complex> stream();
 
   List<Complex> toList();

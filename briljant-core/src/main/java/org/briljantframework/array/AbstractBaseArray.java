@@ -41,7 +41,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new array must be unchanged. (%s, %s)";
-  protected static final String ILLEGAL_INDEX = "Illegal index";
   protected static final String ILLEGAL_DIMENSION_INDEX =
       "Index %s is out of bounds for dimension %s with size %s";
 

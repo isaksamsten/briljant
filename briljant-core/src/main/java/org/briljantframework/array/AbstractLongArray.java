@@ -237,6 +237,11 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
       protected int elementSize() {
         return AbstractLongArray.this.elementSize();
       }
+
+      @Override
+      public LongArray asLong() {
+        return AbstractLongArray.this;
+      }
     };
   }
 
