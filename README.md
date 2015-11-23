@@ -20,6 +20,8 @@ reference types with bindings to native BLAS and LAPACK routines
 
 ## Example
 
+### DataFrame
+
 ```
 CsvParser parser = new CsvParser();
 parser.getSettings().setUrl(new URL("https://www.quandl.com/api/v1/datasets/GOOG/NASDAQ_AAPL.csv"));
@@ -71,7 +73,7 @@ df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
 
 [36 rows x 5 columns]
 ```
-
+### ND-Array
 ```
 DoubleArray x = Arrays.randn(20).reshape(4, 5);
 Arrays.dot(x.transpose(), x);
