@@ -53,7 +53,6 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
-import org.briljantframework.data.Na;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
@@ -533,51 +532,7 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    Index index = getIndex();
-    int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
-
-    // Compute the longest string representation of a key
-    int longestKey = String.valueOf(index.size() - 1).length();
-    if (!(index instanceof IntIndex)) {
-      for (int i = 0; i < size(); i++) {
-        Object key = index.getKey(i);
-        int length = Is.NA(key) ? 2 : key.toString().length();
-        if (i >= max) {
-          int left = size() - i - 1;
-          if (left > max) {
-            i += left - max - 1;
-          }
-        }
-        if (length > longestKey) {
-          longestKey = length;
-        }
-      }
-    }
-
-    for (int i = 0; i < size(); i++) {
-      Object key = index.getKey(i);
-      String keyString = Is.NA(key) ? "NA" : key.toString();
-      int keyPad = (longestKey - keyString.length()) * 2;
-      builder.append(keyString).append("  ");
-      for (int j = 0; j < keyPad; j++) {
-        builder.append(" ");
-      }
-      builder.append(Na.toString(get(String.class, key))).append("\n");
-      if (i >= max) {
-        int left = size() - i - 1;
-        if (left > max) {
-          builder.append(" ");
-          for (int j = 0; j < keyPad; j++) {
-            builder.append(" ");
-          }
-          builder.append("...\n");
-          i += left - max - 1;
-        }
-      }
-    }
-    builder.append("Length: ").append(size()).append(", type: ").append(getType().toString());
-    return builder.toString();
+    return Vectors.toString(this, 100);
   }
 
   /**

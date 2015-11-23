@@ -57,7 +57,6 @@ import org.briljantframework.primitive.IntList;
 public final class ObjectIndex extends AbstractIndex {
 
   private final IterationOrderKeySet iterationOrderKeySet = new IterationOrderKeySet();
-  private final boolean maintainsOrder;
   private final Map<Object, Integer> keys;
   private final List<Object> locations;
   private final IntList order;
@@ -66,7 +65,6 @@ public final class ObjectIndex extends AbstractIndex {
     keys = new HashMap<>(coll.size());
     locations = new ArrayList<>(coll.size());
     order = new IntList(coll.size());
-    maintainsOrder = true;
     Iterator<?> it = coll.iterator();
     for (int i = 0; it.hasNext(); i++) {
       Object next = it.next();
@@ -79,13 +77,9 @@ public final class ObjectIndex extends AbstractIndex {
   }
 
   private ObjectIndex(Map<Object, Integer> keys, List<Object> locations, IntList order) {
-    this.keys =
-        keys instanceof NavigableMap ? Collections
-            .unmodifiableNavigableMap((NavigableMap<Object, Integer>) keys) : Collections
-            .unmodifiableMap(keys);
+    this.keys = Collections.unmodifiableMap(keys);
     this.locations = locations;
     this.order = order;
-    this.maintainsOrder = this.order != null;
   }
 
   public static ObjectIndex of(Vector vector) {
@@ -167,7 +161,7 @@ public final class ObjectIndex extends AbstractIndex {
 
   @Override
   public Object getKey(int location) {
-    return locations.get(maintainsOrder ? order.get(location) : location);
+    return locations.get(order.get(location));
   }
 
   @Override
@@ -182,9 +176,6 @@ public final class ObjectIndex extends AbstractIndex {
 
   @Override
   public Set<Entry> entrySet() {
-    if (!maintainsOrder) {
-      return new HashOrderEntrySet();
-    }
     return new IterationOrderEntrySet();
   }
 
@@ -272,12 +263,7 @@ public final class ObjectIndex extends AbstractIndex {
     }
 
     private Builder(Map<Object, Integer> keys, List<Object> locations, IntList order) {
-      if (keys instanceof SortedMap) {
-        this.keys = new TreeMap<>(((SortedMap<Object, Integer>) keys).comparator());
-        this.keys.putAll(keys);
-      } else {
-        this.keys = new HashMap<>(keys);
-      }
+      this.keys = new HashMap<>(keys);
       this.locations = new ArrayList<>(locations);
       this.order = new IntList(order);
       this.currentSize = this.locations.size();
@@ -299,11 +285,7 @@ public final class ObjectIndex extends AbstractIndex {
 
     @Override
     public Object getKey(int index) {
-      if (order != null) {
-        return locations.get(order.get(index));
-      } else {
-        return locations.get(index);
-      }
+      return locations.get(order.get(index));
     }
 
     @Override
@@ -318,10 +300,7 @@ public final class ObjectIndex extends AbstractIndex {
 
     @Override
     public void sort(Comparator<Object> cmp) {
-      Map<Object, Integer> treeMap = new TreeMap<>(cmp);
-      treeMap.putAll(getKeys());
-      this.order = null; // ignore order now
-      this.keys = treeMap;
+      sortIterationOrder((a, b) -> cmp.compare(locations.get(a), locations.get(b)));
     }
 
     @Override
@@ -334,9 +313,7 @@ public final class ObjectIndex extends AbstractIndex {
         throw duplicateKey(key);
       }
       locations.add(key);
-      if (order != null) {
-        order.add(index);
-      }
+      order.add(index);
       currentSize++;
     }
 
@@ -367,13 +344,10 @@ public final class ObjectIndex extends AbstractIndex {
 
     @Override
     public Index build() {
-      Map<Object, Integer> immutableKeys;
-      if (getKeys() instanceof NavigableMap) {
-        immutableKeys =
-            Collections.unmodifiableNavigableMap((NavigableMap<Object, Integer>) getKeys());
-      } else {
-        immutableKeys = Collections.unmodifiableMap(getKeys());
+      if (keys == null) {
+        throw new IllegalStateException("Can't reuse builder");
       }
+      Map<Object, Integer> immutableKeys = Collections.unmodifiableMap(getKeys());
       Index index = new ObjectIndex(immutableKeys, Collections.unmodifiableList(locations), order);
       this.keys = null;
       this.locations = null;
@@ -383,9 +357,6 @@ public final class ObjectIndex extends AbstractIndex {
 
     @Override
     public void swap(int a, int b) {
-      if (order == null) {
-        return;
-      }
       Collections.swap(order, a, b);
     }
 
@@ -402,14 +373,12 @@ public final class ObjectIndex extends AbstractIndex {
         getKeys().compute(key, (k, v) -> v - 1);
       }
 
-      if (order != null) {
-        for (ListIterator<Integer> iterator = order.listIterator(); iterator.hasNext();) {
-          int v = iterator.next();
-          if (v > index) {
-            iterator.set(v - 1);
-          } else if (v == index) {
-            iterator.remove();
-          }
+      for (ListIterator<Integer> iterator = order.listIterator(); iterator.hasNext();) {
+        int v = iterator.next();
+        if (v > index) {
+          iterator.set(v - 1);
+        } else if (v == index) {
+          iterator.remove();
         }
       }
     }
@@ -421,33 +390,6 @@ public final class ObjectIndex extends AbstractIndex {
 
     protected Map<Object, Integer> getKeys() {
       return keys;
-    }
-  }
-
-  private class HashOrderEntrySet extends AbstractSet<Entry> {
-
-    @Override
-    public Iterator<Entry> iterator() {
-
-      return new Iterator<Entry>() {
-        final Iterator<Map.Entry<Object, Integer>> it = getKeys().entrySet().iterator();
-
-        @Override
-        public boolean hasNext() {
-          return it.hasNext();
-        }
-
-        @Override
-        public Entry next() {
-          Map.Entry<Object, Integer> entry = it.next();
-          return new Entry(entry.getKey(), entry.getValue());
-        }
-      };
-    }
-
-    @Override
-    public int size() {
-      return ObjectIndex.this.size();
     }
   }
 
@@ -465,8 +407,8 @@ public final class ObjectIndex extends AbstractIndex {
 
         @Override
         public Entry next() {
-          int value = order.get(current++);
-          Object key = getKey(value);
+          int value = order.get(current);
+          Object key = getKey(current++);
           return new Entry(key, value);
         }
       };
@@ -492,7 +434,6 @@ public final class ObjectIndex extends AbstractIndex {
 
         @Override
         public Object next() {
-          // int location = order.get(current++);
           return getKey(current++);
         }
       };

@@ -42,6 +42,8 @@ import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.sort.QuickSort;
@@ -67,6 +69,55 @@ public final class Vectors {
       v.setAt(i, source.sample());
     }
     return v.build();
+  }
+
+  public static String toString(Vector v, int max) {
+    Objects.requireNonNull(v);
+    StringBuilder builder = new StringBuilder();
+    Index index = v.getIndex();
+    max = v.size() < max ? v.size() : 10;
+
+    // Compute the longest string representation of a key
+    int longestKey = String.valueOf(index.size() - 1).length();
+    if (!(index instanceof IntIndex)) {
+      for (int i = 0; i < v.size(); i++) {
+        Object key = index.getKey(i);
+        int length = Is.NA(key) ? 2 : key.toString().length();
+        if (i >= max) {
+          int left = v.size() - i - 1;
+          if (left > max) {
+            i += left - max - 1;
+          }
+        }
+        if (length > longestKey) {
+          longestKey = length;
+        }
+      }
+    }
+
+    for (int i = 0; i < v.size(); i++) {
+      Object key = index.getKey(i);
+      String keyString = Is.NA(key) ? "NA" : key.toString();
+      int keyPad = (longestKey - keyString.length());
+      builder.append(keyString).append("   ");
+      for (int j = 0; j < keyPad; j++) {
+        builder.append(" ");
+      }
+      builder.append(Na.toString(v.get(String.class, key))).append("\n");
+      if (i >= max) {
+        int left = v.size() - i - 1;
+        if (left > max) {
+          builder.append("  ");
+          for (int j = 0; j < longestKey; j++) {
+            builder.append(" ");
+          }
+          builder.append("...\n");
+          i += left - max - 1;
+        }
+      }
+    }
+    builder.append("Length: ").append(v.size()).append(", type: ").append(v.getType().toString());
+    return builder.toString();
   }
 
   /**
