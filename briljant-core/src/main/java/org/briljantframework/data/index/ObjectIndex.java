@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe;
+package org.briljantframework.data.index;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -43,8 +43,6 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.BoundType;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.primitive.IntList;
 
@@ -56,7 +54,7 @@ import org.briljantframework.primitive.IntList;
  *
  * @author Isak Karlsson
  */
-public final class ObjectIndex implements Index {
+public final class ObjectIndex extends AbstractIndex {
 
   private final IterationOrderKeySet iterationOrderKeySet = new IterationOrderKeySet();
   private final boolean maintainsOrder;

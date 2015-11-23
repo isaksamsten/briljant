@@ -34,6 +34,8 @@ public abstract class VectorTest {
     Vector a = getBuilder().addAll(1, 2, 3, 4, 5).build();
     Vector expected = getBuilder().addAll(1, 2, 320, 320, 320).build();
     Vector actual = a.set(a.where(Double.class, v -> v > 2), 320);
+
+    System.out.println(IntVector.range(2000).sort(SortOrder.ASC));
     Assert.assertEquals(expected, actual);
   }
 

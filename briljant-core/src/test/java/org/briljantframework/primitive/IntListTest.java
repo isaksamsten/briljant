@@ -1,7 +1,7 @@
 package org.briljantframework.primitive;
 
-import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectIndex;
 import org.junit.Test;
 
 /**

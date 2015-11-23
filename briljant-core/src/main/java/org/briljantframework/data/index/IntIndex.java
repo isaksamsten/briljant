@@ -34,12 +34,11 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.BoundType;
-import org.briljantframework.data.dataframe.ObjectIndex;
 
 /**
  * @author Isak Karlsson
  */
-public final class IntIndex implements Index {
+public final class IntIndex extends AbstractIndex {
 
   private final int start;
   private final int size;

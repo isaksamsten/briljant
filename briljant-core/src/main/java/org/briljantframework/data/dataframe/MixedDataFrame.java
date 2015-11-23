@@ -35,13 +35,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.briljantframework.Check;
-import org.briljantframework.array.IntArray;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.data.vector.Vectors;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.

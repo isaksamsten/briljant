@@ -21,6 +21,8 @@
 
 package org.briljantframework.data.dataframe;
 
+import org.briljantframework.data.SortOrder;
+import org.briljantframework.data.vector.IntVector;
 import org.briljantframework.data.vector.Vector;
 import org.junit.Test;
 
@@ -39,13 +41,24 @@ public class DataFramesTest {
   }
 
   @Test
+  public void testToString() throws Exception {
+    DataFrame df =
+        DataFrame.of("Abcdef", IntVector.range(1000), "Bcdef", IntVector.range(1000),
+            "S", Vector.singleton(1, 1000), "A", IntVector.range(1000));
+    System.out.println(DataFrames.toString(df, 9));
+
+    System.out.println(IntVector.range(2000).sort(SortOrder.ASC));
+
+
+  }
+
+  @Test
   public void testTable() throws Exception {
     Vector a = Vector.of(1, 2, 3, 3, 3, 3, 5);
     Vector b = Vector.of(1, 2, 2, 2, 3, 3, 1);
     System.out.println(DataFrames.table(a, b));
 
-    System.out.println(DataFrames.table(Vector.of(1, 1, 1, 2, 2, 2),
-                                        Vector.of(1, 2, 3, 1, 2, 2)));
+    System.out.println(DataFrames.table(Vector.of(1, 1, 1, 2, 2, 2), Vector.of(1, 2, 3, 1, 2, 2)));
 
 
   }

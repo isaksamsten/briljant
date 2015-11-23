@@ -21,8 +21,6 @@
 
 package org.briljantframework.data.index;
 
-import org.briljantframework.data.dataframe.ObjectIndex;
-
 /**
  * Created by isak on 11/09/15.
  */

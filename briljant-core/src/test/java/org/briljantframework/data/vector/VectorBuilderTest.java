@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.StringDataEntry;
 import org.junit.Test;

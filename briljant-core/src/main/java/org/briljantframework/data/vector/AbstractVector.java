@@ -53,6 +53,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.IntIndex;
@@ -67,7 +68,7 @@ import org.briljantframework.data.reader.DataEntry;
 public abstract class AbstractVector implements Vector {
 
   private static final int SUPPRESS_OUTPUT_AFTER = 4;
-  private static final int PER_OUTPUT = 8;
+  private static final int PER_OUTPUT = 2;
   private final VectorLocationGetter locationGetter = new VectorLocationGetterImpl();
   private Index index = null;
 
@@ -534,37 +535,48 @@ public abstract class AbstractVector implements Vector {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     Index index = getIndex();
-    int longestKey = String.valueOf(index.size()).length();
+    int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
+
+    // Compute the longest string representation of a key
+    int longestKey = String.valueOf(index.size() - 1).length();
     if (!(index instanceof IntIndex)) {
-      longestKey =
-          index.keySet().stream().mapToInt(key -> Is.NA(key) ? 2 : key.toString().length()).max()
-              .orElse(0);
+      for (int i = 0; i < size(); i++) {
+        Object key = index.getKey(i);
+        int length = Is.NA(key) ? 2 : key.toString().length();
+        if (i >= max) {
+          int left = size() - i - 1;
+          if (left > max) {
+            i += left - max - 1;
+          }
+        }
+        if (length > longestKey) {
+          longestKey = length;
+        }
+      }
     }
 
-    int max = size() < SUPPRESS_OUTPUT_AFTER ? size() : PER_OUTPUT;
-    int i = 0;
-    for (Object key : getIndex().keySet()) {
-      if (i >= size()) {
-        break;
-      }
-      String value = get(String.class, key);
+    for (int i = 0; i < size(); i++) {
+      Object key = index.getKey(i);
       String keyString = Is.NA(key) ? "NA" : key.toString();
-      int keyPad = longestKey - keyString.length();
+      int keyPad = (longestKey - keyString.length()) * 2;
       builder.append(keyString).append("  ");
       for (int j = 0; j < keyPad; j++) {
         builder.append(" ");
       }
-      builder.append(value).append("\n");
+      builder.append(Na.toString(get(String.class, key))).append("\n");
       if (i >= max) {
         int left = size() - i - 1;
         if (left > max) {
-          i += left - max - 1;
+          builder.append(" ");
+          for (int j = 0; j < keyPad; j++) {
+            builder.append(" ");
+          }
           builder.append("...\n");
+          i += left - max - 1;
         }
       }
-      i++;
     }
-    builder.append("type: ").append(getType().toString());
+    builder.append("Length: ").append(size()).append(", type: ").append(getType().toString());
     return builder.toString();
   }
 

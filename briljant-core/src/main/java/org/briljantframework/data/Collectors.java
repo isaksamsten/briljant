@@ -35,7 +35,7 @@ import java.util.stream.Collector;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;

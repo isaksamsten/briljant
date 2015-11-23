@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.CsvEntryReader;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.vector.VectorType;

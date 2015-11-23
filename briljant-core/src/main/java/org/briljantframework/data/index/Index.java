@@ -31,7 +31,6 @@ import java.util.Set;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.data.BoundType;
-import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.sort.Swappable;
 
 /**
@@ -94,6 +93,8 @@ public interface Index extends Iterable<Object> {
   default Iterator<Object> iterator() {
     return keySet().iterator();
   }
+
+  Iterator<Object> reverseIterator();
 
   Builder newBuilder();
 

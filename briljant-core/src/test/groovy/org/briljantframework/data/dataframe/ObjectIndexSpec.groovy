@@ -27,6 +27,7 @@ package org.briljantframework.data.dataframe
 import org.apache.commons.math3.complex.Complex
 import org.briljantframework.data.BoundType
 import org.briljantframework.data.Na
+import org.briljantframework.data.index.ObjectIndex
 import spock.lang.Specification
 
 /**
