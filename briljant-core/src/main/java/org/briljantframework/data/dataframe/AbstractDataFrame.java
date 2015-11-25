@@ -480,10 +480,10 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame select(List<Object> keys) {
     DataFrame.Builder builder = newBuilder();
-    builder.setIndex(getIndex());
     for (Object key : keys) {
       builder.set(key, Vectors.transferableBuilder(get(key)));
     }
+    builder.setIndex(getIndex());
     return builder.build();
   }
 

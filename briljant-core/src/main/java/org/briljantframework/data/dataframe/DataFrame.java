@@ -1460,7 +1460,7 @@ public interface DataFrame extends Iterable<Object> {
     }
 
     /**
-     * Set the record index
+     * Set the record index. The index will be resized to match the builder current size.
      *
      * @param index the index
      * @return this modified
