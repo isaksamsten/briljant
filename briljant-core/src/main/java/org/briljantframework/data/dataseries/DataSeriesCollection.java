@@ -56,8 +56,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   private final int columns;
 
-  private DataSeriesCollection(List<Vector> series, VectorType type, int columns, Index columnIndex,
-      Index index) {
+  private DataSeriesCollection(List<Vector> series, VectorType type, int columns,
+      Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(series.size() == index.size());
     Check.argument(columnIndex.size() == columns);
@@ -160,20 +160,27 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  protected DataFrame dropAt(int[] indexes) {
-    Arrays.sort(indexes);
+  protected DataFrame dropAt(IntArray indexes) {
+    indexes.sort();
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
       Vector row = getRecordAt(i);
       Vector.Builder vecBuilder = row.newBuilder();
       for (int j = 0; j < row.size(); j++) {
-        if (Arrays.binarySearch(indexes, j) < 0) {
+        if (org.briljantframework.array.Arrays.binarySearch(indexes, j) < 0) {
           vecBuilder.add(row, j);
         }
       }
       builder.addRecord(vecBuilder);
     }
-    return builder.build();
+    Index.Builder columnIndex = getColumnIndex().newBuilder();
+    for (int i = 0; i < columns(); i++) {
+      if (org.briljantframework.array.Arrays.binarySearch(indexes, i) < 0) {
+        columnIndex.add(getColumnIndex().get(i));
+      }
+    }
+
+    return builder.setColumnIndex(columnIndex.build()).setIndex(getIndex()).build();
   }
 
   @Override
@@ -209,8 +216,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private Builder(DataSeriesCollection df, VectorType type) {
       super(df);
       this.type = type;
-      this.builders = df.series.stream().map(Vector::newCopyBuilder)
-          .collect(Collectors.toCollection(ArrayList::new));
+      this.builders =
+          df.series.stream().map(Vector::newCopyBuilder)
+              .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -321,8 +329,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataFrame getTemporaryDataFrame() {
       int columns = columns();
-      ArrayList<Vector> series = builders.stream().map(Vector.Builder::getTemporaryVector)
-          .collect(Collectors.toCollection(ArrayList::new));
+      ArrayList<Vector> series =
+          builders.stream().map(Vector.Builder::getTemporaryVector)
+              .collect(Collectors.toCollection(ArrayList::new));
       Index index = getIndex(rows());
       Index columnIndex = getColumnIndex(columns);
       return new DataSeriesCollection(series, type, columns, columnIndex, index) {
@@ -336,10 +345,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataSeriesCollection build() {
       int columns = columns();
-      DataSeriesCollection collection = new DataSeriesCollection(
-          builders.stream().map(Vector.Builder::build)
-              .collect(Collectors.toCollection(ArrayList::new)),
-          type, columns, getColumnIndex(columns), getIndex(rows()));
+      DataSeriesCollection collection =
+          new DataSeriesCollection(builders.stream().map(Vector.Builder::build)
+              .collect(Collectors.toCollection(ArrayList::new)), type, columns,
+              getColumnIndex(columns), getIndex(rows()));
       builders = null;
       return collection;
     }

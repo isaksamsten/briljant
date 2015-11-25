@@ -115,6 +115,14 @@ public interface DataFrame extends Iterable<Object> {
     return MixedDataFrame.builder();
   }
 
+  static DataFrame.Builder builder(Class... cls) {
+    DataFrame.Builder builder = builder();
+    for (Class c : cls) {
+      builder.add(Vector.Builder.of(c));
+    }
+    return builder;
+  }
+
   static KeyVectorHolder entry(Object key, Vector vector) {
     return new KeyVectorHolder(key, vector);
   }
@@ -601,7 +609,8 @@ public interface DataFrame extends Iterable<Object> {
   Vector get(Object key);
 
   /**
-   * Return a new data frame where the values of the
+   * Return a new data frame where the values of the specificed column is replaced with (a vector)
+   * of value
    *
    * @param key the key
    * @param value the value
@@ -609,38 +618,54 @@ public interface DataFrame extends Iterable<Object> {
    */
   DataFrame set(Object key, Object value);
 
+  /**
+   * Set the specified column to the given vector
+   * 
+   * @param key the key
+   * @param column the column
+   * @return a new data frame
+   */
   DataFrame set(Object key, Vector column);
 
+  /**
+   * Set the specified column(s) to the specified vectors
+   * 
+   * @param columns the map of keys to vectors
+   * @return a new data frame
+   */
   DataFrame set(Map<Object, Vector> columns);
 
   /**
-   * Get the specified columns
+   * Select the specified columns
    *
-   * @param key the first key
    * @param keys the column keys
    * @return a new data frame
    */
-  DataFrame get(Object key, Object... keys);
-
-  DataFrame get(List<Object> keys);
+  DataFrame select(Object... keys);
 
   /**
-   * Drop the column with the specified key
-   *
-   * @param key the key
+   * Select the specified columns
+   * 
+   * @param keys the keys
    * @return a new data frame
    */
-  DataFrame drop(Object key);
+  DataFrame select(List<Object> keys);
 
   /**
    * Drop the columns with the specified keys
    *
-   *
-   * @param key
    * @param keys the keys
    * @return a new data frame
    */
-  DataFrame drop(Object key, Object... keys);
+  DataFrame drop(Object... keys);
+
+  /**
+   * Drop the columns with the specified keys
+   * 
+   * @param keys the keys
+   * @return the keys
+   */
+  DataFrame drop(List<Object> keys);
 
   /**
    * Drop the columns for which the specified predicat returns true.
@@ -661,10 +686,43 @@ public interface DataFrame extends Iterable<Object> {
    * [1 rows x 3 columns]
    * </pre>
    *
-   * @param predicate
-   * @return
+   * @param predicate the predicate
+   * @return a new data frame
    */
   DataFrame drop(Predicate<Vector> predicate);
+
+  /**
+   * Get the row with the specified key
+   * 
+   * @param key the key
+   * @return a record
+   */
+  Vector getRecord(Object key);
+
+  DataFrame selectRecords(Object... keys);
+
+  /**
+   * Set the specified record to a the specified value (all columns)
+   * 
+   * @param key the record
+   * @param value the value
+   * @return a new data frame
+   */
+  DataFrame setRecord(Object key, Object value);
+
+  /**
+   * Set the specified record to the specified vector
+   * 
+   * @param key the key
+   * @param vector the vector
+   * @return a new data frame
+   */
+  DataFrame setRecord(Object key, Vector vector);
+
+  /**
+   * @return a vector with the diagonal entries
+   */
+  Vector getDiagonal();
 
   /**
    * Return a boolean array ({@code [n-rows, n-columns]}, where the value of the predicate applied
@@ -774,14 +832,6 @@ public interface DataFrame extends Iterable<Object> {
    * @return a new data frame where the new value is set
    */
   DataFrame set(BooleanArray array, Object value);
-
-  Vector getRecord(Object key);
-
-  DataFrame setRecord(Object key, Object value);
-
-  DataFrame getRecord(Object key, Object... keys);
-
-  Vector getDiagonal();
 
   /**
    * Return a new data frame with the first {@code n} records
@@ -1071,6 +1121,8 @@ public interface DataFrame extends Iterable<Object> {
   default Stream<Vector> parallelStream() {
     return StreamSupport.stream(getRecords().spliterator(), true);
   }
+
+  // / Indexing
 
   /**
    * Reset the index of this data frame. This will create a new data frame with an additional column

@@ -1131,11 +1131,6 @@ public abstract class AbstractVector implements Vector {
     }
 
     @Override
-    public Vector get(int... locations) {
-      return get(Arrays.newIntVector(locations));
-    }
-
-    @Override
     public int compare(int a, int b) {
       return compareAt(a, AbstractVector.this, b);
     }

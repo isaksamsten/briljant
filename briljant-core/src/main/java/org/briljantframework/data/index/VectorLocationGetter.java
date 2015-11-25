@@ -124,8 +124,6 @@ public interface VectorLocationGetter {
 
   Vector get(IntArray index);
 
-  Vector get(int... locations);
-
   /**
    * Follows the conventions from {@link Comparable#compareTo(Object)}.
    *

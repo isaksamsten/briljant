@@ -34,6 +34,8 @@ import java.util.function.Consumer;
 import net.mintern.primitive.Primitive;
 import net.mintern.primitive.comparators.DoubleComparator;
 
+import org.briljantframework.array.DoubleArray;
+
 /**
  * ArrayList backed by a primitive {@code int}-array.
  */
@@ -253,6 +255,15 @@ public class DoubleList extends AbstractList<Double> {
 
   public void primitiveSort(DoubleComparator comparator) {
     Primitive.sort(elementData, 0, size, comparator);
+  }
+
+  /**
+   * Construct a double array from this double list
+   * 
+   * @return a new double array
+   */
+  public DoubleArray toDoubleArray() {
+    return DoubleArray.of(Arrays.copyOf(elementData, size()));
   }
 
   /**

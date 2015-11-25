@@ -91,14 +91,6 @@ public final class ObjectIndex extends AbstractIndex {
     return new ObjectIndex(coll);
   }
 
-  private static UnsupportedOperationException duplicateKey(Object next) {
-    return new UnsupportedOperationException(String.format("Duplicate key: %s", next));
-  }
-
-  private static NoSuchElementException noSuchElement(Object key) {
-    return new NoSuchElementException(String.format("name '%s' not in index", key));
-  }
-
   @Override
   public int getLocation(Object key) {
     Integer idx = getKeys().get(key);
@@ -191,15 +183,6 @@ public final class ObjectIndex extends AbstractIndex {
   @Override
   public int size() {
     return getKeys().size();
-  }
-
-  @Override
-  public int[] locations(Object[] keys) {
-    int[] indicies = new int[keys.length];
-    for (int i = 0; i < keys.length; i++) {
-      indicies[i] = this.getKeys().get(keys[i]);
-    }
-    return indicies;
   }
 
   @Override

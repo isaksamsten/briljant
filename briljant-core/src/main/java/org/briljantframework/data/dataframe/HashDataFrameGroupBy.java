@@ -55,19 +55,19 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   private final HashMap<Object, IntArray> groups;
   private final DataFrame dataFrame;
-  private final Object dropKey;
+  private final Object[] dropKeys;
 
   HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, IntList> groups) {
-    this(dataFrame, groups, NO_DROP_KEY_IDENTITY);
+    this(dataFrame, groups, new Object[0]);
   }
 
-  HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, IntList> groups, Object key) {
+  HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, IntList> groups, Object... keys) {
     this.dataFrame = dataFrame;
     this.groups = new HashMap<>();
     for (Map.Entry<Object, IntList> e : groups.entrySet()) {
       this.groups.put(e.getKey(), e.getValue().toIntArray());
     }
-    this.dropKey = key;
+    this.dropKeys = keys;
   }
 
   @Override
@@ -170,9 +170,14 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   protected boolean dropColumnKey(Object columnKey) {
-    return dropKey != NO_DROP_KEY_IDENTITY && (columnKey == dropKey || // columnKey is null and
-                                                                       // dropKey is null
-    (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
+    if (dropKeys.length != 0) {
+      for (Object dropKey : dropKeys) {
+        if (columnKey == dropKey || (columnKey != null && columnKey.equals(dropKey))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
@@ -203,9 +208,9 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public DataFrame apply(UnaryOperator<Vector> op) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    builder.set(dropKey, Vectors.transferableBuilder(dataFrame.get(dropKey)));
+    builder.set(dropKeys, Vectors.transferableBuilder(dataFrame.get(dropKeys)));
     for (Object columnKey : dataFrame) {
-      if (Is.equal(columnKey, dropKey)) {
+      if (Is.equal(columnKey, dropKeys)) {
         continue;
       }
       Vector column = dataFrame.get(columnKey);

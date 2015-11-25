@@ -38,7 +38,7 @@ public interface DataFrameLocationSetter {
    * ... column}.
    *
    * @param r the row
-   * @param r the column
+   * @param c the column
    */
   void setNA(int r, int c);
 
@@ -52,7 +52,6 @@ public interface DataFrameLocationSetter {
    * @param c the column
    * @param value the value
    * @return a modified builder
-   * @see org.briljantframework.data.vector.Vector.Builder#set(int, Object)
    */
   void set(int r, int c, Object value);
 
@@ -67,8 +66,6 @@ public interface DataFrameLocationSetter {
    * @param df the vector
    * @param fr the row
    * @param fc the column
-   * @see org.briljantframework.data.vector.Vector.Builder#set(int,
-   *      org.briljantframework.data.vector.Vector, int)
    */
   void set(int tr, int tc, DataFrame df, int fr, int fc);
 
@@ -93,7 +90,6 @@ public interface DataFrameLocationSetter {
    *
    * @param c the index {@code index < columns()}
    * @param columnBuilder the builder
-   * @return receiver modified
    */
   void set(int c, Vector.Builder columnBuilder);
 
@@ -120,7 +116,6 @@ public interface DataFrameLocationSetter {
    *
    * @param r the index
    * @param recordBuilder the builder
-   * @return receiver modified
    */
   void setRecord(int r, Vector.Builder recordBuilder);
 

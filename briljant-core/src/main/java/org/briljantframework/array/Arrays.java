@@ -22,6 +22,7 @@
 package org.briljantframework.array;
 
 import java.util.AbstractList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -1148,6 +1149,82 @@ public final class Arrays {
 
   public static IntArray order(int dim, DoubleArray array) {
     return order(dim, array, Double::compare);
+  }
+
+  public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
+    return Collections.binarySearch(array.toList(), x);
+  }
+
+  public static int binarySearch(IntArray array, int x) {
+    return binarySearch(array.boxed(), x);
+  }
+
+  public static int binarySearch(DoubleArray array, double x) {
+    return binarySearch(array.boxed(), x);
+  }
+
+  /**
+   * Locate the insertion point for value in a to maintain sorted order. If value is already present
+   * in the array, the insertion point will be before (to the left of) any existing entries.
+   *
+   * @param array the array
+   * @param value the value
+   * @param <T> the class of objects in the array
+   * @return the insertion point of the value
+   */
+  public static <T> int bisectLeft(Array<? extends Comparable<? super T>> array, T value) {
+    int i = Collections.binarySearch(array.toList(), value);
+    if (i < 0) {
+      return -i - 1;
+    } else {
+      return i;
+    }
+  }
+
+  /**
+   * Locate the insertion point for value in a to maintain sorted order. If value is already present
+   * in the array, the insertion point will be after (to the right of) any existing entries.
+   *
+   * @param array the array
+   * @param value the value
+   * @param <T> the class of objects in the array
+   * @return the insertion point of the value
+   */
+  public static <T> int bisectRight(Array<? extends Comparable<? super T>> array, T value) {
+    int i = Collections.binarySearch(array.toList(), value);
+    if (i < 0) {
+      return -i - 1;
+    } else {
+      return i + 1;
+    }
+  }
+
+  /**
+   * @see #bisectLeft(Array, Object)
+   */
+  public static int bisectLeft(IntArray array, int value) {
+    return bisectLeft(array.boxed(), value);
+  }
+
+  /**
+   * @see #bisectRight(Array, Object)
+   */
+  public static int bisectRight(IntArray array, int value) {
+    return bisectRight(array.boxed(), value);
+  }
+
+  /**
+   * @see #bisectLeft(Array, Object)
+   */
+  public static int bisectLeft(DoubleArray array, double value) {
+    return bisectLeft(array.boxed(), value);
+  }
+
+  /**
+   * @see #bisectRight(Array, Object)
+   */
+  public static int bisectRight(DoubleArray array, double value) {
+    return bisectRight(array.boxed(), value);
   }
 
   public static DoubleArray cos(ComplexArray array) {

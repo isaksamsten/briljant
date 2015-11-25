@@ -101,7 +101,7 @@ public interface Vector extends Serializable, Listable<Object> {
    *
    * @return an empty vector
    */
-  static Vector of() {
+  static Vector empty() {
     return SingletonVector.empty();
   }
 
@@ -137,7 +137,7 @@ public interface Vector extends Serializable, Listable<Object> {
     if (!it.hasNext()) {
       return singleton(null);
     }
-    Vector.Builder builder = new TypeInferenceVectorBuilder();
+    Vector.Builder builder = new GenericVector.Builder(Object.class);
     while (it.hasNext()) {
       builder.add(it.next());
     }

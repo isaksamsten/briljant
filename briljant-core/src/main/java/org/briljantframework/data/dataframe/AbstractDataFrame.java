@@ -27,11 +27,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
@@ -118,6 +120,11 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
+  public DataFrame setRecord(Object key, Vector vector) {
+    return newCopyBuilder().setRecord(key, Vectors.transferableBuilder(vector)).build();
+  }
+
+  @Override
   public DataFrame get(BooleanArray array) {
     DataFrame.Builder builder = newBuilder();
     if (array.isMatrix()) { // Select values; setting false values to NA
@@ -196,16 +203,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     DataFrame.Builder builder = newCopyBuilder();
     for (Map.Entry<Object, Vector> entry : columns.entrySet()) {
       builder.set(entry.getKey(), Vectors.transferableBuilder(entry.getValue()));
-    }
-    return builder.build();
-  }
-
-  @Override
-  public DataFrame get(List<Object> keys) {
-    DataFrame.Builder builder = newBuilder();
-    builder.setIndex(getIndex());
-    for (Object key : keys) {
-      builder.set(key, Vectors.transferableBuilder(get(key)));
     }
     return builder.build();
   }
@@ -417,13 +414,13 @@ public abstract class AbstractDataFrame implements DataFrame {
   public DataFrameGroupBy groupBy(Function<? super Vector, Object> combiner, Object key,
       Object... keys) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
-    Vector.Builder cs = new TypeInferenceVectorBuilder();
     keys = ArrayAllocations.prepend(key, keys);
     for (int i = 0, size = rows(); i < size; i++) {
+      Vector.Builder cs = new TypeInferenceVectorBuilder();
       for (int j = 0; j < keys.length; j++) {
         cs.loc().set(j, get(keys[j]), i);
       }
-      groups.computeIfAbsent(combiner.apply(cs.getTemporaryVector()), a -> new IntList()).add(i);
+      groups.computeIfAbsent(combiner.apply(cs.build()), a -> new IntList()).add(i);
     }
     return new HashDataFrameGroupBy(this, groups, keys);
   }
@@ -476,8 +473,18 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame get(Object key, Object... keys) {
-    return getAt(IntArray.of(getColumnIndex().locations(ArrayAllocations.prepend(key, keys))));
+  public final DataFrame select(Object... keys) {
+    return select(java.util.Arrays.asList(keys));
+  }
+
+  @Override
+  public DataFrame select(List<Object> keys) {
+    DataFrame.Builder builder = newBuilder();
+    builder.setIndex(getIndex());
+    for (Object key : keys) {
+      builder.set(key, Vectors.transferableBuilder(get(key)));
+    }
+    return builder.build();
   }
 
   @Override
@@ -509,13 +516,19 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame drop(Object key) {
-    return dropAt(getColumnIndex().getLocation(key));
+  public DataFrame drop(Object... keys) {
+    return drop(java.util.Arrays.asList(keys));
   }
 
   @Override
-  public DataFrame drop(Object key, Object... keys) {
-    return dropAt(getColumnIndex().locations(ArrayAllocations.prepend(key, keys)));
+  public DataFrame drop(List<Object> keys) {
+    Check.argument(keys.size() > 0, "Can't drop an empty list.");
+    DataFrame.Builder builder = newBuilder();
+    Set<Object> drop = new HashSet<>(keys);
+    getColumnIndex().stream().filter(k -> !drop.contains(k)).forEach(k -> {
+      builder.set(k, Vectors.transferableBuilder(get(k)));
+    });
+    return builder.setIndex(getIndex()).build();
   }
 
   @Override
@@ -539,7 +552,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public Vector getDiagonal() {
-    Vector.Builder builder = new TypeInferenceVectorBuilder();
+    Vector.Builder builder = Vector.Builder.of(Object.class);
     for (int i = 0; i < rows(); i++) {
       builder.loc().set(i, loc().get(Object.class, i, i));
     }
@@ -547,9 +560,9 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final DataFrame getRecord(Object key, Object... keys) {
+  public final DataFrame selectRecords(Object... keys) {
     DataFrame.Builder builder = newBuilder();
-    for (Object recordKey : ArrayAllocations.prepend(key, keys)) {
+    for (Object recordKey : keys) {
       builder.setRecord(recordKey, Vectors.transferableBuilder(getRecord(recordKey)));
     }
     DataFrame df = builder.build();
@@ -749,22 +762,13 @@ public abstract class AbstractDataFrame implements DataFrame {
   protected abstract Vector getAt(int index);
 
   protected DataFrame getAt(IntArray indices) {
-    DataFrame.Builder df = newBuilder();
-    Index.Builder columnIndex = new ObjectIndex.Builder();
-    int newColumn = 0;
-    for (int index : indices) {
-      columnIndex.add(getColumnIndex().get(index));
-      df.add(getTypeAt(index));
-      for (int i = 0; i < rows(); i++) {
-        df.loc().set(i, newColumn, this, i, index);
-      }
-      newColumn++;
+    DataFrame.Builder builder = newBuilder();
+    Index.Builder columnIndex = getColumnIndex().newBuilder();
+    for (int i = 0; i < indices.size(); i++) {
+      columnIndex.add(getColumnIndex().get(indices.get(i)));
+      builder.loc().set(i, getAt(indices.get(i)));
     }
-
-    DataFrame bdf = df.build();
-    bdf.setColumnIndex(columnIndex.build());
-    bdf.setIndex(getIndex());
-    return bdf;
+    return builder.setIndex(getIndex()).setColumnIndex(columnIndex.build()).build();
   }
 
   protected abstract Vector getRecordAt(int index);
@@ -861,19 +865,16 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @param indexes collection of indexes
    * @return a new data frame as created by {@link #newBuilder()}
    */
-  protected DataFrame dropAt(int[] indexes) {
-    java.util.Arrays.sort(indexes);
-
+  protected DataFrame dropAt(IntArray indexes) {
+    indexes.sort();
     Builder builder = newBuilder();
-    Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
-      if (java.util.Arrays.binarySearch(indexes, i) < 0) {
-        columnIndex.add(getColumnIndex().get(i));
-        builder.add(Vectors.transferableBuilder(getAt(i)));
+      if (Arrays.binarySearch(indexes, i) < 0) {
+        builder.set(getColumnIndex().get(i), Vectors.transferableBuilder(getAt(i)));
       }
     }
 
-    return builder.setColumnIndex(columnIndex.build()).setIndex(getIndex()).build();
+    return builder.setIndex(getIndex()).build();
   }
 
   protected abstract DataFrame shallowCopy(Index columnIndex, Index index);
@@ -1123,7 +1124,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       return index;
     }
 
-    private final int getOrCreateIndex(Object key) {
+    private int getOrCreateIndex(Object key) {
       initializeIndexer();
       int index = rows();
       if (this.index.contains(key)) {
@@ -1412,11 +1413,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame get(int... columns) {
-      return get(IntArray.of(columns));
-    }
-
-    @Override
     public DataFrame get(IntArray columns) {
       return getAt(columns);
     }
@@ -1427,7 +1423,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame drop(int... columns) {
+    public DataFrame drop(IntArray columns) {
       return dropAt(columns);
     }
 

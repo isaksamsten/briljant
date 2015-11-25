@@ -104,6 +104,9 @@ public interface Index extends List<Object>, Iterable<Object> {
    */
   int getLocation(Object key);
 
+  @Override
+  Object get(int index);
+
   /**
    * Get the keys in this index as a set of keys
    *

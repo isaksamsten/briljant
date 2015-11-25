@@ -198,7 +198,7 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
       return builder.getTemporaryVector();
     } else {
       if (noNaValues == 0) {
-        return Vector.of();
+        return Vector.empty();
       } else {
         return Vector.singleton(null, noNaValues);
       }
@@ -211,7 +211,7 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
       return builder.build();
     } else {
       if (noNaValues == 0) {
-        return Vector.of();
+        return Vector.empty();
       } else {
         return Vector.singleton(null, noNaValues);
       }

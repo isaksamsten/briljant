@@ -32,7 +32,6 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
@@ -40,7 +39,7 @@ import org.briljantframework.data.resolver.Resolver;
 /**
  * @author Isak Karlsson
  */
-class GenericVector extends AbstractVector implements Transferable {
+public class GenericVector extends AbstractVector implements Transferable {
 
   private final VectorType type;
   private final Class<?> cls;
@@ -48,7 +47,7 @@ class GenericVector extends AbstractVector implements Transferable {
   private final int size;
 
   @SuppressWarnings("unchecked")
-  public <T> GenericVector(Class<T> cls, List<? extends T> values) {
+  protected  <T> GenericVector(Class<T> cls, List<? extends T> values) {
     this(cls, (List<Object>) values, true);
   }
 
@@ -63,7 +62,7 @@ class GenericVector extends AbstractVector implements Transferable {
     this.size = size;
   }
 
-  public GenericVector(Class<?> cls, List<Object> values, int size, Index index) {
+  protected GenericVector(Class<?> cls, List<Object> values, int size, Index index) {
     super(index);
     this.cls = cls;
     this.type = VectorType.of(cls);
@@ -168,8 +167,8 @@ class GenericVector extends AbstractVector implements Transferable {
 
     private <T> Class<?> ensureValidClass(Class<T> cls) {
       if (INVALID_CLASSES.contains(cls)) {
-        throw new IllegalArgumentException(
-            String.format("GenericVector should not be used for: %s", cls));
+        throw new IllegalArgumentException(String.format(
+            "GenericVector should not be used for: %s", cls));
       }
       return cls;
     }

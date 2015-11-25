@@ -108,7 +108,7 @@ class ReferenceArraySpec extends Specification {
     }
     then:
     d.size() == x.size()
-    d.forEach {it == 320}
+    d.forEach {it == 320L}
   }
 
   def "mapping an array to an int array"() {

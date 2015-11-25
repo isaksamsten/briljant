@@ -152,7 +152,7 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
 
   BooleanArray where(IntArray matrix, IntBiPredicate predicate);
 
-  void forEach(IntConsumer consumer);
+  void forEachPrimitive(IntConsumer consumer);
 
   int reduce(int identity, IntBinaryOperator reduce);
 

@@ -332,7 +332,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void forEach(IntConsumer consumer) {
+  public void forEachPrimitive(IntConsumer consumer) {
     for (int i = 0; i < size(); i++) {
       consumer.accept(get(i));
     }

@@ -47,10 +47,6 @@ public final class IntIndex extends AbstractIndex {
     this.size = size;
   }
 
-  private static NoSuchElementException noSuchElement(Object key) {
-    return new NoSuchElementException(String.format("name '%s' not in index", key));
-  }
-
   public int getStart() {
     return start;
   }
@@ -176,15 +172,6 @@ public final class IntIndex extends AbstractIndex {
         return size;
       }
     };
-  }
-
-  @Override
-  public int[] locations(Object[] keys) {
-    int[] indicies = new int[keys.length];
-    for (int i = 0; i < keys.length; i++) {
-      indicies[i] = getLocation(keys[i]);
-    }
-    return indicies;
   }
 
   @Override

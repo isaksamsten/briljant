@@ -14,6 +14,12 @@ import org.junit.Test;
 public class ArraysTest {
 
   @Test
+  public void testBisectLeft() throws Exception {
+    IntArray a = IntArray.of(1, 2, 9, 10, 12);
+    System.out.println(Arrays.bisectLeft(a, 12));
+  }
+
+  @Test
   public void testOrder() throws Exception {
     DoubleArray array = DoubleArray.of(2, 3, 1, 9, 1);
     assertEquals(IntArray.of(2, 4, 0, 1, 3), Arrays.order(array));

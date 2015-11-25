@@ -61,6 +61,10 @@ public interface DataFrameLocationGetter {
    */
   <T> T get(Class<T> cls, int r, int c);
 
+  default Object get(int r, int c) {
+    return get(Object.class, r, c);
+  }
+
   /**
    * Get value at {@code row} and {@code column} as {@code double}.
    *
@@ -101,13 +105,11 @@ public interface DataFrameLocationGetter {
 
   Vector get(int c);
 
-  DataFrame get(int... columns);
-
   DataFrame get(IntArray columns);
 
   DataFrame drop(int index);
 
-  DataFrame drop(int... columns);
+  DataFrame drop(IntArray columns);
 
   Vector getRecord(int r);
 
