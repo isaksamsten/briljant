@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.ObjectIndex;
@@ -259,7 +260,7 @@ public abstract class VectorBuilderTest {
       builder.set(key, key);
     }
     Vector vector = builder.build();
-    Vector selected = vector.loc().get(0, 1, 4);
+    Vector selected = vector.loc().get(IntArray.of(0, 1, 4));
 
     assertEquals(22, selected.getAsInt(22));
     assertEquals(300, selected.getAsInt(300));
@@ -272,15 +273,15 @@ public abstract class VectorBuilderTest {
     select.setIndex(ObjectIndex.of("a", "b", "c", "d"));
     List<Object> keys = Arrays.asList("a", "b", "c", "d");
 
-//    Vector.Builder builder = getBuilder();
-//    for (int i = 0; i < select.size(); i++) {
-//      builder.set(keys.get(i), i * 10);
-//    }
+    // Vector.Builder builder = getBuilder();
+    // for (int i = 0; i < select.size(); i++) {
+    // builder.set(keys.get(i), i * 10);
+    // }
 
-//    Vector actual = builder.build().get(select);
-//
-//    assertEquals(10, actual.getAsInt("b"));
-//    assertEquals(20, actual.getAsInt("c"));
+    // Vector actual = builder.build().get(select);
+    //
+    // assertEquals(10, actual.getAsInt("b"));
+    // assertEquals(20, actual.getAsInt("c"));
   }
 
   @Test
