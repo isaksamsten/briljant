@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -72,7 +71,7 @@ public class JoinUtils {
    * @return a new join key
    */
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b) {
-    return createJoinKeys(a.getIndex().asList(), b.getIndex().asList());
+    return createJoinKeys(a.getIndex(), b.getIndex());
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<?> on) {
@@ -125,10 +124,6 @@ public class JoinUtils {
       }
     }
     return j;
-  }
-
-  public static JoinKeys createJoinKeys(Index a, Index b) {
-    return createJoinKeys(a.asList(), b.asList());
   }
 
   public static JoinKeys createJoinKeys(Vector a, Vector b) {

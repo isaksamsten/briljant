@@ -32,8 +32,7 @@ import java.util.Set;
 
 import net.mintern.primitive.comparators.IntComparator;
 
-import org.briljantframework.Check;
-import org.briljantframework.data.BoundType;
+import org.briljantframework.data.SortOrder;
 
 /**
  * @author Isak Karlsson
@@ -72,17 +71,7 @@ public final class IntIndex extends AbstractIndex {
   }
 
   @Override
-  public Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound) {
-    Check.argument(from instanceof Integer && to instanceof Integer, "Illegal keys");
-    int s = (int) from;
-    int e = (int) to;
-    Check.argument(s >= 0 && e <= size && s < e, "Illegal select");
-    return new SelectSet(fromBound == BoundType.INCLUSIVE ? s : s + 1,
-        toBound == BoundType.EXCLUSIVE ? e : e + 1);
-  }
-
-  @Override
-  public Object getKey(int location) {
+  public Object get(int location) {
     if (location >= 0 && location < size) {
       return location;
     }
@@ -131,7 +120,7 @@ public final class IntIndex extends AbstractIndex {
   }
 
   @Override
-  public Set<Entry> entrySet() {
+  public Set<Entry> indexSet() {
     return new AbstractSet<Entry>() {
 
       @Override
@@ -232,7 +221,7 @@ public final class IntIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return entrySet().toString();
+    return indexSet().toString();
   }
 
   @Override
@@ -285,11 +274,11 @@ public final class IntIndex extends AbstractIndex {
     }
 
     @Override
-    public Object getKey(int index) {
+    public Object get(int index) {
       if (index > currentSize) {
         throw noSuchElement(index);
       }
-      return builder == null ? index : builder.getKey(index);
+      return builder == null ? index : builder.get(index);
     }
 
     @Override
@@ -318,11 +307,13 @@ public final class IntIndex extends AbstractIndex {
     }
 
     @Override
-    public void sort() {
-      if (builder != null) {
+    public void sort(SortOrder order) {
+      if (builder != null && order == SortOrder.ASC) {
         builder.sort();
+      } else {
+        initializeHashBuilder();
+        builder.sort(order);
       }
-      // Nothing. already sorted
     }
 
     private boolean isIntegerKey(Object key) {

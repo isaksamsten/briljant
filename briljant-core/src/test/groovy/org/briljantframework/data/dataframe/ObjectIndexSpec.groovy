@@ -25,7 +25,6 @@
 package org.briljantframework.data.dataframe
 
 import org.apache.commons.math3.complex.Complex
-import org.briljantframework.data.BoundType
 import org.briljantframework.data.Na
 import org.briljantframework.data.index.ObjectIndex
 import spock.lang.Specification
@@ -45,7 +44,7 @@ class ObjectIndexSpec extends Specification {
     i.getLocation("b") == 1
     i.locations(["a", "b"] as Object[]) as ArrayList == [0, 1]
     i.locations() as ArrayList == [0, 1, 2]
-    i.getKey(2) == "c"
+    i.get(2) == "c"
     i.size() == 3
     i.newCopyBuilder().build().getLocation("a") == 0
   }
@@ -56,25 +55,6 @@ class ObjectIndexSpec extends Specification {
 
     where:
     na << [Na.of(Double), Na.of(Integer), Na.of(Object), Na.of(Complex)]
-  }
-
-
-  def "select range of locations from sorted index"() {
-    given:
-    def b = new ObjectIndex.Builder()
-    b.add("a")
-    b.add("b")
-    b.add("c")
-    b.add("d")
-    b.sort()
-    def i = b.build()
-
-    when:
-    Set<Object> range = i.selectRange("a", BoundType.INCLUSIVE, "d", BoundType.EXCLUSIVE)
-
-    then:
-    range == ["a", "b", "c"] as HashSet
-
   }
 
   def "remove element from hash index"() {

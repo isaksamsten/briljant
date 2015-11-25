@@ -29,20 +29,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import net.mintern.primitive.comparators.IntComparator;
 
-import org.briljantframework.Check;
-import org.briljantframework.data.BoundType;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.primitive.IntList;
 
@@ -112,38 +108,6 @@ public final class ObjectIndex extends AbstractIndex {
     return idx;
   }
 
-  @Override
-  public Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound) {
-    Check.argument(shareComparableSupertype(from, to), "keys are not comparable");
-    Check.argument(
-        !fromBound.greaterThan(compare(from, to)) && !toBound.lessThan(compare(to, from)),
-        "Illegal key ordering (to-key is larger than from-key)");
-
-    Map<Object, Integer> includedKeys;
-    if (getKeys() instanceof NavigableMap) {
-      SortedMap<Object, Integer> tmp =
-          ((NavigableMap<Object, Integer>) getKeys()).subMap(from,
-              fromBound == BoundType.INCLUSIVE, to, toBound == BoundType.INCLUSIVE);
-
-      // note: is this a good idea for saving memory?
-      if (tmp.size() / getKeys().size() > 0.5) {
-        includedKeys = new TreeMap<>(tmp.comparator());
-        includedKeys.putAll(tmp);
-      } else {
-        includedKeys = tmp;
-      }
-    } else {
-      includedKeys = new LinkedHashMap<>();
-      for (Entry entry : entrySet()) {
-        Object key = entry.getKey();
-        if (fromBound.greaterThan(compare(key, from)) && toBound.lessThan(compare(key, to))) {
-          includedKeys.put(key, entry.getValue());
-        }
-      }
-    }
-    return includedKeys.keySet();
-  }
-
   protected boolean shareComparableSupertype(Object a, Object b) {
     return a instanceof Comparable && b instanceof Comparable && shareSupertype(a, b);
   }
@@ -160,7 +124,7 @@ public final class ObjectIndex extends AbstractIndex {
   }
 
   @Override
-  public Object getKey(int location) {
+  public Object get(int location) {
     return locations.get(order.get(location));
   }
 
@@ -175,7 +139,7 @@ public final class ObjectIndex extends AbstractIndex {
   }
 
   @Override
-  public Set<Entry> entrySet() {
+  public Set<Entry> indexSet() {
     return new IterationOrderEntrySet();
   }
 
@@ -284,7 +248,7 @@ public final class ObjectIndex extends AbstractIndex {
     }
 
     @Override
-    public Object getKey(int index) {
+    public Object get(int index) {
       return locations.get(order.get(index));
     }
 
@@ -304,8 +268,8 @@ public final class ObjectIndex extends AbstractIndex {
     }
 
     @Override
-    public void sort() {
-      sort(objectComparator);
+    public void sort(SortOrder order) {
+      sort(order.orderComparator(objectComparator));
     }
 
     private void set(Object key, int index) {
@@ -408,7 +372,7 @@ public final class ObjectIndex extends AbstractIndex {
         @Override
         public Entry next() {
           int value = order.get(current);
-          Object key = getKey(current++);
+          Object key = get(current++);
           return new Entry(key, value);
         }
       };
@@ -434,7 +398,7 @@ public final class ObjectIndex extends AbstractIndex {
 
         @Override
         public Object next() {
-          return getKey(current++);
+          return get(current++);
         }
       };
     }

@@ -32,7 +32,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
@@ -48,7 +47,6 @@ import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
@@ -134,13 +132,13 @@ public abstract class AbstractDataFrame implements DataFrame {
             columnBuilder.loc().setNA(i);
           }
         }
-        builder.set(getColumnIndex().getKey(j), columnBuilder);
+        builder.set(getColumnIndex().get(j), columnBuilder);
       }
       builder.setIndex(getIndex());
     } else if (array.isVector()) { // Select rows;
       for (int i = 0; i < array.size(); i++) {
         if (array.get(i)) {
-          builder.setRecord(getIndex().getKey(i), Vectors.transferableBuilder(loc().getRecord(i)));
+          builder.setRecord(getIndex().get(i), Vectors.transferableBuilder(loc().getRecord(i)));
         }
       }
       builder.setColumnIndex(getColumnIndex());
@@ -166,12 +164,12 @@ public abstract class AbstractDataFrame implements DataFrame {
             columnBuilder.loc().set(i, column, i);
           }
         }
-        builder.set(getColumnIndex().getKey(j), columnBuilder);
+        builder.set(getColumnIndex().get(j), columnBuilder);
       }
       builder.setIndex(getIndex());
     } else if (array.isVector()) { // Select rows;
       for (int i = 0; i < array.size(); i++) {
-        Object key = getIndex().getKey(i);
+        Object key = getIndex().get(i);
         if (array.get(i)) {
           builder.setRecord(key, Vectors.transferableBuilder(Vector.singleton(value, columns())));
         } else {
@@ -288,8 +286,9 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame join(JoinType type, DataFrame other) {
-    Joiner joiner = type.getJoinOperation()
-        .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
+    Joiner joiner =
+        type.getJoinOperation()
+            .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
     return joiner.join(this, other, Collections.emptyList());
   }
 
@@ -438,7 +437,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> function) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
 
-    for (Index.Entry entry : getIndex().entrySet()) {
+    for (Index.Entry entry : getIndex().indexSet()) {
       T key = Convert.to(cls, entry.getKey());
       groups.computeIfAbsent(Is.NA(key) ? key : function.apply(key), // ignore NA keys
           a -> new IntList()).add(entry.getValue());
@@ -478,7 +477,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrame get(Object key, Object... keys) {
-    return getAt(getColumnIndex().locations(ArrayAllocations.prepend(key, keys)));
+    return getAt(IntArray.of(getColumnIndex().locations(ArrayAllocations.prepend(key, keys))));
   }
 
   @Override
@@ -487,19 +486,6 @@ public abstract class AbstractDataFrame implements DataFrame {
       columnList = new ColumnList();
     }
     return columnList;
-  }
-
-  @Override
-  public final DataFrame select(Object first, Object last) {
-    DataFrame.Builder builder = newBuilder();
-    Set<Object> selectedRange =
-        getColumnIndex().selectRange(first, BoundType.INCLUSIVE, last, BoundType.EXCLUSIVE);
-    for (Object columnKey : selectedRange) {
-      builder.set(columnKey, Vectors.transferableBuilder(get(columnKey)));
-    }
-    DataFrame df = builder.build();
-    df.setIndex(getIndex());
-    return df;
   }
 
   @Override
@@ -577,21 +563,6 @@ public abstract class AbstractDataFrame implements DataFrame {
       recordList = new RecordList();
     }
     return recordList;
-  }
-
-  @Override
-  public final DataFrame limit(Object from, Object to) {
-    return limit(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
-  }
-
-  @Override
-  public DataFrame limit(Object from, BoundType fromBound, Object to, BoundType toBound) {
-    DataFrame.Builder builder = newBuilder();
-    for (Object record : getIndex().selectRange(from, fromBound, to, toBound)) {
-      builder.setRecord(record, Vectors.transferableBuilder(getRecord(record)));
-    }
-    builder.setColumnIndex(getColumnIndex());
-    return builder.build();
   }
 
   @Override
@@ -777,12 +748,12 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   protected abstract Vector getAt(int index);
 
-  protected DataFrame getAt(int... indices) {
+  protected DataFrame getAt(IntArray indices) {
     DataFrame.Builder df = newBuilder();
     Index.Builder columnIndex = new ObjectIndex.Builder();
     int newColumn = 0;
     for (int index : indices) {
-      columnIndex.add(getColumnIndex().getKey(index));
+      columnIndex.add(getColumnIndex().get(index));
       df.add(getTypeAt(index));
       for (int i = 0; i < rows(); i++) {
         df.loc().set(i, newColumn, this, i, index);
@@ -822,7 +793,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   protected DataFrame getRecordAt(IntArray indexes) {
     Builder builder = newBuilder();
     for (Integer index : indexes.toList()) {
-      builder.setRecord(getIndex().getKey(index), Vectors.transferableBuilder(getRecordAt(index)));
+      builder.setRecord(getIndex().get(index), Vectors.transferableBuilder(getRecordAt(index)));
     }
     builder.setColumnIndex(getColumnIndex());
     return builder.build();
@@ -897,7 +868,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < columns(); i++) {
       if (java.util.Arrays.binarySearch(indexes, i) < 0) {
-        columnIndex.add(getColumnIndex().getKey(i));
+        columnIndex.add(getColumnIndex().get(i));
         builder.add(Vectors.transferableBuilder(getAt(i)));
       }
     }
@@ -1442,6 +1413,11 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public DataFrame get(int... columns) {
+      return get(IntArray.of(columns));
+    }
+
+    @Override
+    public DataFrame get(IntArray columns) {
       return getAt(columns);
     }
 

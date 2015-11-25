@@ -81,7 +81,7 @@ public final class Vectors {
     int longestKey = String.valueOf(index.size() - 1).length();
     if (!(index instanceof IntIndex)) {
       for (int i = 0; i < v.size(); i++) {
-        Object key = index.getKey(i);
+        Object key = index.get(i);
         int length = Is.NA(key) ? 2 : key.toString().length();
         if (i >= max) {
           int left = v.size() - i - 1;
@@ -96,7 +96,7 @@ public final class Vectors {
     }
 
     for (int i = 0; i < v.size(); i++) {
-      Object key = index.getKey(i);
+      Object key = index.get(i);
       String keyString = Is.NA(key) ? "NA" : key.toString();
       int keyPad = (longestKey - keyString.length());
       builder.append(keyString).append("   ");

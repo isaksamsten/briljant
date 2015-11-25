@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Listable;
@@ -47,7 +49,6 @@ import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.SortOrder;
@@ -343,7 +344,7 @@ public interface Vector extends Serializable, Listable<Object> {
    * <pre>
    * Vector a = Vector.of(1, 2, 3, 4);
    * Vector b = Vector.of(1, 2, 3, 4);
-   * a.combine(String.class, b, (x, y) -> x + y).map(String.class, String::length);
+   * a.combine(String.class, b, (x, y) -&gt; x + y).map(String.class, String::length);
    * </pre>
    *
    * @param cls the class
@@ -567,19 +568,6 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   boolean isNA(Object key);
 
-  /**
-   * Select the values in this vector with keys from the given value to the given value
-   * 
-   * @param from the first value (inclusive)
-   * @param to the last value (exclusive)
-   * @return a subset of this vector
-   */
-  default Vector select(Object from, Object to) {
-    return select(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
-  }
-
-  Vector select(Object from, BoundType fromBound, Object to, BoundType toBound);
-
   int compare(Object a, Object b);
 
   /**
@@ -604,6 +592,8 @@ public interface Vector extends Serializable, Listable<Object> {
    * @return the type
    */
   VectorType getType();
+
+  <T> Set<Pair<Object, T>> indexSet(Class<T> cls);
 
   Vector copy();
 
@@ -789,8 +779,8 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   default <T extends Comparable<T>> T min(Class<T> cls) {
-    return collect(cls, Collectors
-        .withFinisher(java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
+    return collect(cls, Collectors.withFinisher(
+        java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
   }
 
   /**

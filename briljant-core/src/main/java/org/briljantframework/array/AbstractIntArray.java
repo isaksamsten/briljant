@@ -24,6 +24,7 @@ package org.briljantframework.array;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
@@ -553,6 +554,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public List<Integer> toList() {
     return new IntListView();
+  }
+
+  @Override
+  public Iterator<Integer> iterator() {
+    return toList().iterator();
   }
 
   public Array<Integer> boxed() {

@@ -103,6 +103,8 @@ public interface DataFrameLocationGetter {
 
   DataFrame get(int... columns);
 
+  DataFrame get(IntArray columns);
+
   DataFrame drop(int index);
 
   DataFrame drop(int... columns);

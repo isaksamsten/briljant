@@ -45,7 +45,7 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
 /**
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
+public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listable<Integer> {
 
   static IntArray zeros(int... shape) {
     return Arrays.newIntArray(shape);

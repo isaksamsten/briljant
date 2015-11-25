@@ -23,12 +23,14 @@ package org.briljantframework.data.vector;
 
 import java.io.IOException;
 import java.util.AbstractList;
+import java.util.AbstractSet;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -42,6 +44,8 @@ import java.util.stream.Stream;
 
 import net.mintern.primitive.comparators.IntComparator;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
@@ -50,7 +54,6 @@ import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
@@ -181,8 +184,7 @@ public abstract class AbstractVector implements Vector {
     if (otherIndex instanceof IntIndex) {
       int size = Math.min(size(), other.size());
       for (int i = 0; i < size; i++) {
-        builder
-            .set(thisIndex.getKey(i), combiner.apply(loc().get(cls, i), other.loc().get(cls, i)));
+        builder.set(thisIndex.get(i), combiner.apply(loc().get(cls, i), other.loc().get(cls, i)));
       }
     } else {
       HashSet<Object> keys = new HashSet<>();
@@ -271,7 +273,7 @@ public abstract class AbstractVector implements Vector {
     Builder builder = newBuilder();
     for (int i = 0; i < array.size(); i++) {
       if (array.get(i)) {
-        builder.set(getIndex().getKey(i), this, i);
+        builder.set(getIndex().get(i), this, i);
       }
     }
     return builder.build();
@@ -291,7 +293,7 @@ public abstract class AbstractVector implements Vector {
     Check.size(size(), array.size());
     Builder builder = newBuilder();
     for (int i = 0; i < array.size(); i++) {
-      Object key = getIndex().getKey(i);
+      Object key = getIndex().get(i);
       if (array.get(i)) {
         builder.set(key, value);
       } else {
@@ -316,16 +318,6 @@ public abstract class AbstractVector implements Vector {
     return false;
   }
 
-  @Override
-  public Vector select(Object from, BoundType fromBound, Object to, BoundType toBound) {
-    Vector.Builder builder = newBuilder();
-    for (Object key : getIndex().selectRange(from, fromBound, to, toBound)) {
-      builder.set(key, this, key);
-    }
-    return builder.build();
-  }
-
-
   public Iterator<Object> iterator() {
     return getIndex().keySet().iterator();
   }
@@ -333,6 +325,34 @@ public abstract class AbstractVector implements Vector {
   @Override
   public int compare(Object a, Object b) {
     return compareAt(getIndex().getLocation(a), this, getIndex().getLocation(b));
+  }
+
+  @Override
+  public <T> Set<Pair<Object, T>> indexSet(Class<T> cls) {
+    return new AbstractSet<Pair<Object, T>>() {
+      @Override
+      public Iterator<Pair<Object, T>> iterator() {
+        return new Iterator<Pair<Object, T>>() {
+          Iterator<Object> keys = getIndex().iterator();
+
+          @Override
+          public boolean hasNext() {
+            return keys.hasNext();
+          }
+
+          @Override
+          public Pair<Object, T> next() {
+            Object key = keys.next();
+            return new ImmutablePair<>(key, get(cls, key));
+          }
+        };
+      }
+
+      @Override
+      public int size() {
+        return AbstractVector.this.size();
+      }
+    };
   }
 
   @Override
@@ -1105,7 +1125,7 @@ public abstract class AbstractVector implements Vector {
       Index index = getIndex();
       for (int i = 0; i < locations.size(); i++) {
         int location = locations.get(i);
-        builder.set(index.getKey(location), AbstractVector.this, location);
+        builder.set(index.get(location), AbstractVector.this, location);
       }
       return builder.build();
     }

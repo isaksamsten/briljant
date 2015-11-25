@@ -298,13 +298,13 @@ public final class DataFrames {
     }
     builder.append("\n");
     for (int i = 0; i < df.rows(); i++) {
-      Object recordKey = index.getKey(i);
+      Object recordKey = index.get(i);
       String safeRecordKey = Na.toString(recordKey);
       builder.append(safeRecordKey);
       padWithSpace(builder, (longestRecordValue - safeRecordKey.length()));
 
       for (int j = 0; j < df.columns(); j++) {
-        Object columnKey = columnIndex.getKey(j);
+        Object columnKey = columnIndex.get(j);
         String str = Na.toString(df.get(String.class, recordKey, columnKey));
         padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
         builder.append(str);
@@ -339,7 +339,7 @@ public final class DataFrames {
     return columnIndex.keySet().stream().map(df::get).mapToInt(v -> {
       int longest = df.rows() > max * 2 ? 3 : 0;
       for (int i = 0; i < df.rows(); i++) {
-        Object recordKey = df.getIndex().getKey(i);
+        Object recordKey = df.getIndex().get(i);
         int length = Na.toString(v.get(String.class, recordKey)).length();
         if (length > longest) {
           longest = length;
@@ -358,7 +358,7 @@ public final class DataFrames {
   private static int longestRecordValue(int max, Index index) {
     int longest = index.size() > max * 2 ? 3 : 0;
     for (int i = 0; i < index.size(); i++) {
-      int length = Na.toString(index.getKey(i)).length();
+      int length = Na.toString(index.get(i)).length();
       if (length > longest) {
         longest = length;
       }

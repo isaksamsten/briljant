@@ -110,17 +110,6 @@ public abstract class DataFrameTest {
   }
 
   @Test
-  public void testLimit_range() throws Exception {
-    DataFrame df =
-        getBuilder().set("A", Vector.of(1, 2, 3, 4)).setIndex(Index.of("a", "b", "c", "d")).build();
-    DataFrame actual = df.limit("a", "c");
-    DataFrame expected =
-        getBuilder().set("A", IntVector.of(1, 2)).setIndex(Index.of("a", "b")).build();
-
-    assertEquals(expected, actual);
-  }
-
-  @Test
   public void testTranspose() throws Exception {
     DataFrame df =
         getBuilder().set("A", Vector.of(1, 2, 3, 4)).setIndex(Index.of("a", "b", "c", "d")).build();
@@ -579,7 +568,7 @@ public abstract class DataFrameTest {
     System.out.println(df2.resetIndex());
     DataFrame actual = df.resetIndex();
     assertEquals(Vector.of("a", "b", "c", "d", "e"), actual.get("index"));
-    assertEquals(Arrays.asList(0, 1, 2, 3, 4), actual.getIndex().asList());
+    assertEquals(Arrays.<Object>asList(0, 1, 2, 3, 4), actual.getIndex());
 
   }
 

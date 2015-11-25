@@ -1,26 +1,16 @@
 package org.briljantframework.data.index;
 
+import java.util.AbstractList;
 import java.util.Iterator;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-abstract class AbstractIndex implements Index {
+abstract class AbstractIndex extends AbstractList<Object> implements Index {
 
   @Override
-  public Iterator<Object> reverseIterator() {
-    return new Iterator<Object>() {
-      private int current = size() - 1;
-
-      @Override
-      public boolean hasNext() {
-        return current >= 0;
-      }
-
-      @Override
-      public Object next() {
-        return getKey(current--);
-      }
-    };
+  public Iterator<Object> iterator() {
+    return keySet().iterator();
   }
+
 }

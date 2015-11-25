@@ -140,7 +140,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     }
     Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
     for (int i = 0; i < size; i++) {
-      recordIndex.add(dataFrame.getIndex().getKey(indices.get(i)));
+      recordIndex.add(dataFrame.getIndex().get(indices.get(i)));
     }
 
     DataFrame df = builder.build();

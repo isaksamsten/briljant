@@ -25,6 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 public abstract class IndexBuilderTest {
@@ -89,6 +92,19 @@ public abstract class IndexBuilderTest {
   @Test
   public void testSort1() throws Exception {
 
+  }
+
+  @Test
+  public void testSortIterationOrder() throws Exception {
+    int[] order = {20, 10, 30};
+    Index.Builder ib = new ObjectIndex.Builder();
+    ib.add("A");
+    ib.add("B");
+    ib.add("C");
+    ib.sortIterationOrder((a, b) -> order[a] - order[b]);
+    List<Object> expected = Arrays.asList("B", "A", "C");
+    List<Object> actual = ib.build();
+    assertEquals(expected, actual);
   }
 
   @Test

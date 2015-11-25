@@ -39,7 +39,6 @@ import java.util.stream.StreamSupport;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.data.BoundType;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
@@ -785,40 +784,6 @@ public interface DataFrame extends Iterable<Object> {
   Vector getDiagonal();
 
   /**
-   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given range.
-   *
-   * <pre>
-   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3, 4));
-   * df.setIndex(Index.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;));
-   * df.limit(0, 2);
-   * </pre>
-   *
-   * produces,
-   *
-   * <pre>
-   *    A
-   * a  1
-   * b  2
-   * </pre>
-   *
-   * @param from from inclusive
-   * @param to to exclusive
-   * @return a newly created {@code DataFrame}
-   */
-  DataFrame limit(Object from, Object to);
-
-  /**
-   * Limit the <em>records</em> of this dataframe to those with an {@code index} in the given range.
-   *
-   * @param from from object
-   * @param fromBound the bound of from
-   * @param to to object
-   * @param toBound the bound of to
-   * @return a newly created {@code DataFrame}
-   */
-  DataFrame limit(Object from, BoundType fromBound, Object to, BoundType toBound);
-
-  /**
    * Return a new data frame with the first {@code n} records
    *
    * <pre>
@@ -849,15 +814,6 @@ public interface DataFrame extends Iterable<Object> {
   default DataFrame limit() {
     return limit(10);
   }
-
-  /**
-   * Select the columns with indices in the specified range.
-   *
-   * @param first the first index
-   * @param last the last index
-   * @return a new data frame with only the columns whose index is in the specified range
-   */
-  DataFrame select(Object first, Object last);
 
   /**
    * Transpose the data frame, i.e. turning its columns into rows and its rows into columns.
