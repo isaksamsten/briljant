@@ -148,7 +148,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <T> Vector combine(Class<T> cls, Vector other,
       BiFunction<? super T, ? super T, ? extends T> combiner) {
-    return combineVectors(cls, other, combiner, Vector.Builder.of(cls));
+    return combineVectors(cls, other, combiner, new TypeInferenceVectorBuilder());
   }
 
   @Override
@@ -429,7 +429,7 @@ public abstract class AbstractVector implements Vector {
     }
     for (Object key : getIndex().keySet()) {
       Object a = get(Object.class, key);
-      Object b = get(Object.class, key);
+      Object b = that.get(Object.class, key);
       if (!Is.NA(a) && !Is.NA(b) && !a.equals(b)) {
         return false;
       }

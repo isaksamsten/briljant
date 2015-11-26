@@ -34,7 +34,7 @@ class IntVectorSpec extends Specification {
 
   def "Vector.of(Integer...) returns an IntVector"() {
     when:
-    def x = Vector.of(1, 2, 3, 4)
+    def x = IntVector.of(1, 2, 3, 4)
 
     then:
     x instanceof IntVector

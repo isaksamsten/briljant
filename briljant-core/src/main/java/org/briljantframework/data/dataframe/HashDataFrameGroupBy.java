@@ -33,7 +33,6 @@ import java.util.stream.Collector;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.Is;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
@@ -208,9 +207,11 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public DataFrame apply(UnaryOperator<Vector> op) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    builder.set(dropKeys, Vectors.transferableBuilder(dataFrame.get(dropKeys)));
+    for (Object dropKey : dropKeys) {
+      builder.set(dropKey, Vectors.transferableBuilder(dataFrame.get(dropKey)));
+    }
     for (Object columnKey : dataFrame) {
-      if (Is.equal(columnKey, dropKeys)) {
+      if (dropColumnKey(columnKey)) {
         continue;
       }
       Vector column = dataFrame.get(columnKey);

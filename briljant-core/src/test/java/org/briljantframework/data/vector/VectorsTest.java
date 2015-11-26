@@ -40,7 +40,7 @@ public class VectorsTest {
 
   @Test
   public void testIndexSort() throws Exception {
-    Vector v = Vector.of(10, 23, 5, 31, 0);
+    Vector v = DoubleVector.of(10, 23, 5, 31, 0);
     int[] order = Vectors.indexSort(v);
     System.out.println(Arrays.toString(order));
     for (int i : order) {
@@ -51,7 +51,7 @@ public class VectorsTest {
 
   @Before
   public void setUp() throws Exception {
-    vec6 = Vector.of(1.0, 2, 3, 4, 5, 6);
+    vec6 = DoubleVector.of(1.0, 2, 3, 4, 5, 6);
     vec8 = Vector.of("a", "sb", "cds", "qdsa", "fdasdsadsa", "dd", "r", "a");
   }
 
@@ -70,7 +70,7 @@ public class VectorsTest {
 
   @Test
   public void testMode() throws Exception {
-    // Vector v = Vector.of("a", "b", "c", "d", "e", "f", "a");
+    // Vector v = DoubleVector.of("a", "b", "c", "d", "e", "f", "a");
     // assertEquals("a", Vec.mode(v));
   }
 
@@ -80,9 +80,9 @@ public class VectorsTest {
     List<Vector> listChunks = new ArrayList<>(chunks);
 
     assertEquals(3, chunks.size());
-    assertEquals(Vector.of(1, 2), listChunks.get(0));
-    assertEquals(Vector.of(3, 4), listChunks.get(1));
-    assertEquals(Vector.of(5, 6), listChunks.get(2));
+    assertEquals(DoubleVector.of(1, 2), listChunks.get(0));
+    assertEquals(DoubleVector.of(3, 4), listChunks.get(1));
+    assertEquals(DoubleVector.of(5, 6), listChunks.get(2));
   }
 
   @Test
@@ -91,7 +91,7 @@ public class VectorsTest {
     List<Vector> listChunks = new ArrayList<>(chunks);
 
     assertEquals(1, chunks.size());
-    assertEquals(Vector.of(1, 2, 3, 4, 5, 6), listChunks.get(0));
+    assertEquals(DoubleVector.of(1, 2, 3, 4, 5, 6), listChunks.get(0));
   }
 
   @Test
@@ -100,9 +100,9 @@ public class VectorsTest {
     List<Vector> listChunks = new ArrayList<>(chunks);
 
     assertEquals(4, chunks.size());
-    assertEquals(Vector.of(1, 2), listChunks.get(0));
-    assertEquals(Vector.of(3, 4), listChunks.get(1));
-    assertEquals(Vector.singleton(5), listChunks.get(2));
-    assertEquals(Vector.singleton(6), listChunks.get(3));
+    assertEquals(DoubleVector.of(1, 2), listChunks.get(0));
+    assertEquals(DoubleVector.of(3, 4), listChunks.get(1));
+    assertEquals(Vector.singleton(5.0), listChunks.get(2));
+    assertEquals(Vector.singleton(6.0), listChunks.get(3));
   }
 }

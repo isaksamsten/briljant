@@ -146,7 +146,7 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
     for (Object key : getIndex().keySet()) {
       double a = getAsDouble(key);
-      double b = getAsDouble(key);
+      double b = that.getAsDouble(key);
       if (!Is.NA(a) && !Is.NA(b) && a != b) {
         return false;
       }

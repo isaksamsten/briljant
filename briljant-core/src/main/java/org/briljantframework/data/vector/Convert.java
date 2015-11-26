@@ -68,10 +68,10 @@ public final class Convert {
         return Na.of(cls);
       } else if (cls.equals(String.class)) {
         return cls.cast(value.toString());
-      } else if (value instanceof Number) {
-        return convertNumber(cls, (Number) value);
       } else if (value instanceof Logical) {
         return convertLogical(cls, (Logical) value);
+      } else if (value instanceof Number) {
+        return convertNumber(cls, (Number) value);
       } else if (value instanceof Complex) {
         return convertNumber(cls, ((Complex) value).getReal());
       } else if (value instanceof Boolean) {

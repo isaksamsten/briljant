@@ -106,7 +106,7 @@ public final class Combine {
 
   private static Object multiplyNumber(Object a, Object b) {
     if (a instanceof Integer && b instanceof Integer || a instanceof Short && b instanceof Short) {
-      return ((Number) a).intValue() * ((Number) a).intValue();
+      return ((Number) a).intValue() * ((Number) b).intValue();
     } else if (a instanceof Complex && b instanceof Complex) {
       return ((Complex) a).multiply((Complex) b);
     } else if (a instanceof Long && b instanceof Long) {

@@ -113,17 +113,17 @@ public class GenericVector extends AbstractVector implements Transferable {
     return new GenericVector(cls, values, size, index);
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof GenericVector) {
-      if (!this.cls.equals(((GenericVector) obj).cls)) {
-        return false;
-      } else {
-        return values.equals(((GenericVector) obj).values);
-      }
-    }
-    return super.equals(obj);
-  }
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (obj instanceof GenericVector) {
+//      if (!this.cls.equals(((GenericVector) obj).cls)) {
+//        return false;
+//      } else {
+//        return values.equals(((GenericVector) obj).values);
+//      }
+//    }
+//    return super.equals(obj);
+//  }
 
   @Override
   public int hashCode() {

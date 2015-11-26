@@ -20,9 +20,9 @@ public class LevelComparator implements Comparator<Object> {
   private final List<Comparator<Object>> orders = new ArrayList<>();
 
   public LevelComparator(List<SortOrder> orders) {
-    for (SortOrder order : orders) {
-      this.orders.add(order.orderComparator(ObjectComparator.getInstance()));
-    }
+//    for (SortOrder order : orders) {
+//      this.orders.add(order.orderComparator(ObjectComparator.getInstance()));
+//    }
   }
 
   @Override

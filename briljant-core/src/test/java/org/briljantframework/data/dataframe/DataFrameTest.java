@@ -21,8 +21,6 @@
 
 package org.briljantframework.data.dataframe;
 
-import groovy.lang.IntRange;
-
 import static org.briljantframework.data.Collectors.toDataFrame;
 import static org.junit.Assert.assertEquals;
 
@@ -89,17 +87,14 @@ public abstract class DataFrameTest {
 
   @Test
   public void testSelect_key_keys() throws Exception {
-    DataFrame df = getBuilder()
-        .set("A", IntVector.of(1,1,1))
-        .set("F", IntVector.of(2,2,2))
-        .set("B", IntVector.of(3,3,3))
-        .set("Q", IntVector.of(4,4,4))
-        .build();
+    DataFrame df =
+        getBuilder().set("A", IntVector.of(1, 1, 1)).set("F", IntVector.of(2, 2, 2))
+            .set("B", IntVector.of(3, 3, 3)).set("Q", IntVector.of(4, 4, 4)).build();
     df = df.sortColumns(ObjectComparator.getInstance());
     System.out.println(df);
 
     System.out.println(df.getColumnIndex());
-    System.out.println(df.loc().get(IntArray.of(1,2,0)));
+    System.out.println(df.loc().get(IntArray.of(1, 2, 0)));
 
   }
 
@@ -126,7 +121,8 @@ public abstract class DataFrameTest {
     DataFrame df = getBuilder().set("A", Vector.of(1, 2, 3)).set("B", Vector.of(1, 2, 3)).build();
     DataFrame expected =
         getBuilder().set("A", IntVector.of(30, 2, 3)).set("B", IntVector.of(30, 2, 3)).build();
-    DataFrame actual = df.set(df.where(Integer.class, i -> i > 1), 30);
+    BooleanArray where = df.where(Integer.class, i -> i < 2);
+    DataFrame actual = df.set(where, 30);
 
     assertEquals(expected, actual);
   }
@@ -147,7 +143,7 @@ public abstract class DataFrameTest {
     DataFrame df =
         getBuilder().set("A", IntVector.of(1, 2, 3)).set("B", IntVector.of(1, 2, 3)).build();
     DataFrame expected =
-        getBuilder().set("A", IntVector.of(2, 4, 6)).set("B", IntVector.of(2, 4, 5)).build();
+        getBuilder().set("A", IntVector.of(2, 4, 6)).set("B", IntVector.of(2, 4, 6)).build();
     DataFrame actual = df.apply(a -> a.times(2));
     assertEquals(expected, actual);
   }
@@ -604,10 +600,11 @@ public abstract class DataFrameTest {
 
     DataFrame join = a.join(JoinType.INNER, b, "a");
     Vector on = Vector.of(1, 2, 2, 3, 5);
-    Vector actualLeftAndRight = Vector.of(10, 20, 20, 30, 20);
+    Vector expectedLeft = Vector.of(10, 20, 20, 30, 20);
+    Vector expectedRight = Vector.of(20, 20, 10, 30, 10);
     assertEquals(on, join.get("a"));
-    assertEquals(actualLeftAndRight, join.get("left"));
-    assertEquals(actualLeftAndRight, join.get("right"));
+    assertEquals(expectedLeft, join.get("left"));
+    assertEquals(expectedRight, join.get("right"));
   }
 
   @Test
@@ -622,7 +619,7 @@ public abstract class DataFrameTest {
     System.out.println(df2.resetIndex());
     DataFrame actual = df.resetIndex();
     assertEquals(Vector.of("a", "b", "c", "d", "e"), actual.get("index"));
-    assertEquals(Arrays.<Object>asList(0, 1, 2, 3, 4), actual.getIndex());
+    assertEquals(Arrays.asList(0, 1, 2, 3, 4), actual.getIndex());
 
   }
 

@@ -172,7 +172,7 @@ public class IntVector extends AbstractVector implements Transferable {
     }
     for (Object key : getIndex().keySet()) {
       int a = getAsInt(key);
-      int b = getAsInt(key);
+      int b = that.getAsInt(key);
       if (!Is.NA(a) && !Is.NA(b) && a != b) {
         return false;
       }
