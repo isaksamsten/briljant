@@ -320,7 +320,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final E reshape(int... shape) {
-    if (shape.length == 1 && shape[0] == -1) {
+    if (shape.length == 0 || (shape.length == 1 && shape[0] == -1)) {
       if (isContiguous()) {
         int[] newShape = {size()};
         return asView(getOffset(), newShape, Indexer.computeStride(1, newShape));

@@ -39,7 +39,7 @@ import org.briljantframework.data.resolver.Resolver;
 /**
  * @author Isak Karlsson
  */
-public class GenericVector extends AbstractVector implements Transferable {
+class GenericVector extends AbstractVector implements Transferable {
 
   private final VectorType type;
   private final Class<?> cls;
@@ -47,7 +47,7 @@ public class GenericVector extends AbstractVector implements Transferable {
   private final int size;
 
   @SuppressWarnings("unchecked")
-  protected  <T> GenericVector(Class<T> cls, List<? extends T> values) {
+  protected <T> GenericVector(Class<T> cls, List<? extends T> values) {
     this(cls, (List<Object>) values, true);
   }
 
@@ -112,18 +112,6 @@ public class GenericVector extends AbstractVector implements Transferable {
   protected Vector shallowCopy(Index index) {
     return new GenericVector(cls, values, size, index);
   }
-
-//  @Override
-//  public boolean equals(Object obj) {
-//    if (obj instanceof GenericVector) {
-//      if (!this.cls.equals(((GenericVector) obj).cls)) {
-//        return false;
-//      } else {
-//        return values.equals(((GenericVector) obj).values);
-//      }
-//    }
-//    return super.equals(obj);
-//  }
 
   @Override
   public int hashCode() {

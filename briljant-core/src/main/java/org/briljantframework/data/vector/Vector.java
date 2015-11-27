@@ -93,7 +93,9 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   @SafeVarargs
   static <T> Vector of(T... array) {
-    return fromIterable(Arrays.asList(array));
+    Vector.Builder builder = Vector.Builder.of(array.getClass().getComponentType());
+    builder.addAll(array);
+    return builder.build();
   }
 
   /**
@@ -132,16 +134,21 @@ public interface Vector extends Serializable, Listable<Object> {
    * @param values the specified values
    * @return a new vector with the specified values
    */
-  static Vector fromIterable(Iterable<Object> values) {
-    Iterator<Object> it = values.iterator();
+  static <T> Vector fromIterable(Class<T> cls, Iterable<T> values) {
+    Iterator<T> it = values.iterator();
     if (!it.hasNext()) {
       return singleton(null);
     }
-    Vector.Builder builder = new GenericVector.Builder(Object.class);
+
+    Vector.Builder builder = new GenericVector.Builder(cls);
     while (it.hasNext()) {
       builder.add(it.next());
     }
     return builder.build();
+  }
+
+  static Vector fromIterable(Iterable<Object> values) {
+    return fromIterable(Object.class, values);
   }
 
   /**
