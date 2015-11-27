@@ -39,8 +39,7 @@ abstract class AsArray<T> extends AbstractArray<T> {
 
   @Override
   public Array<T> asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new AsArray<T>(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+    return new AsArray<T>(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected int elementSize() {
         return AsArray.this.elementSize();
