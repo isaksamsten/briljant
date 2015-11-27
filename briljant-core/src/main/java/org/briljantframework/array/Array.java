@@ -53,6 +53,13 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
   }
 
   /**
+   * @see Arrays#newArray(int...)
+   */
+  static <T> Array<T> empty(int... shape) {
+    return Arrays.newArray(shape);
+  }
+
+  /**
    * Assign the given value to each position in {@code this}.
    *
    * @param value the value
