@@ -22,6 +22,7 @@
 package org.briljantframework.array;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -140,6 +141,41 @@ public final class Arrays {
    */
   public static DoubleArray linspace(double start, double end, int size) {
     return ARRAY_FACTORY.linspace(start, end, size);
+  }
+
+  /**
+   * Return a coordinate array from coordinate vectors (arrays with d > 1 are raveled)
+   * 
+   * @param first the first array
+   * @param rest rest of the arrays
+   * @param <S> the class of arrays
+   * @return a list of coordinate arrays (with shape
+   *         {@code [first.size(), rest[0].size(), ..., rest[rest.length - 1].size()]}
+   */
+  @SafeVarargs
+  public static <S extends BaseArray<S>> List<S> meshgrid(S first, S... rest) {
+    List<S> arrays = new ArrayList<>();
+    arrays.add(first);
+    Collections.addAll(arrays, rest);
+
+    int[] shape = new int[arrays.size()];
+    for (int i = 0; i < arrays.size(); i++) {
+      shape[i] = arrays.get(i).size();
+    }
+
+    List<S> newArrays = new ArrayList<>();
+    for (S array : arrays) {
+      newArrays.add(array.newEmptyArray(shape));
+    }
+
+    for (int i = 0; i < newArrays.size(); i++) {
+      S newArray = newArrays.get(i);
+      S array = arrays.get(i);
+      for (int j = 0, vectors = newArray.vectors(i); j < vectors; j++) {
+        newArray.getVector(i, j).assign(array);
+      }
+    }
+    return Collections.unmodifiableList(newArrays);
   }
 
   /**
