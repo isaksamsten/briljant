@@ -790,6 +790,11 @@ public interface Vector extends Serializable, Listable<Object> {
         java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
   }
 
+  default <T extends Comparable<T>> T max(Class<T> cls) {
+    return collect(cls, Collectors.withFinisher(
+        java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
+  }
+
   /**
    * Return a vector of only {@code non-NA} values
    *
