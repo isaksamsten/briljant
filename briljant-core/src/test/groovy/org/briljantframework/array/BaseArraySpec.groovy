@@ -188,9 +188,9 @@ class BaseArraySpec extends Specification {
 
     where:
     range             | selected
-    bj.range(0, 3)    | bj.array(0, 1, 2)
-    bj.range(1, 5)    | bj.array(1, 2, 3, 4)
-    bj.range(2, 7, 2) | bj.array(2, 4, 6)
+    bj.range(0, 3)    | bj.newVector([0, 1, 2] as int[])
+    bj.range(1, 5)    | bj.newVector([1, 2, 3, 4] as int[])
+    bj.range(2, 7, 2) | bj.newVector([2, 4, 6] as int[])
   }
 
   def "Selecting a range of elements from a 2d-array should return a view of the selected elements"() {
@@ -208,9 +208,9 @@ class BaseArraySpec extends Specification {
 
     where:
     ranges                           | selected
-    [bj.range(2), bj.range(3)]       | bj.array(0, 1, 3, 4, 6, 7).reshape(2, 3)
-    [bj.range(1, 3), bj.range(2)]    | bj.array(1, 2, 4, 5).reshape(2, 2)
-    [bj.range(2), bj.range(0, 5, 2)] | bj.array(0, 1, 6, 7, 12, 13).reshape(2, 3)
+    [bj.range(2), bj.range(3)]       | bj.newVector(0, 1, 3, 4, 6, 7).reshape(2, 3)
+    [bj.range(1, 3), bj.range(2)]    | bj.newVector(1, 2, 4, 5).reshape(2, 2)
+    [bj.range(2), bj.range(0, 5, 2)] | bj.newVector(0, 1, 6, 7, 12, 13).reshape(2, 3)
   }
 
   def "Selecting a range of elements from a nd-array should return a view of the selected elements"() {
@@ -245,15 +245,15 @@ class BaseArraySpec extends Specification {
 
     where:
     indexes                  | result
-    [[1, 1]]                 | bj.array(1, 1, 3, 3,
-                                        5, 5, 7, 7,
-                                        9, 9, 11, 11,
-                                        13, 13, 15, 15,
-                                        17, 17, 19, 19,
-                                        21, 21, 23, 23).reshape(2, 3, 4)
-    [[1, 1], [0, 2]]         | bj.array(1, 5, 7, 11,
-                                        13, 17, 19, 23).reshape(2, 4)
-    [[1, 1], [1, 1], [1, 3]] | bj.array(9, 21)
+    [[1, 1]]                 | bj.newVector(1, 1, 3, 3,
+                                            5, 5, 7, 7,
+                                            9, 9, 11, 11,
+                                            13, 13, 15, 15,
+                                            17, 17, 19, 19,
+                                            21, 21, 23, 23).reshape(2, 3, 4)
+    [[1, 1], [0, 2]]         | bj.newVector(1, 5, 7, 11,
+                                            13, 17, 19, 23).reshape(2, 4)
+    [[1, 1], [1, 1], [1, 3]] | bj.newVector(9, 21)
   }
 
   def "Selecting a set of indexes should work for vectors"() {
@@ -268,8 +268,8 @@ class BaseArraySpec extends Specification {
 
     where:
     indexes              | result
-    [[1, 1, 1, 2]]       | bj.array(1, 1, 1, 2)
-    [[0, 1, 2, 4, 5, 5]] | bj.array(0, 1, 2, 4, 5, 5)
+    [[1, 1, 1, 2]]       | bj.newVector(1, 1, 1, 2)
+    [[0, 1, 2, 4, 5, 5]] | bj.newVector(0, 1, 2, 4, 5, 5)
   }
 
   def "An exception is thrown if a selected index is out of bounds"() {
@@ -415,12 +415,12 @@ class BaseArraySpec extends Specification {
 
     where:
     dim | idx | vector
-    1   | 0   | bj.array(0, 2, 4)
-    1   | 1   | bj.array(1, 3, 5)
+    1   | 0   | bj.newVector(0, 2, 4)
+    1   | 1   | bj.newVector(1, 3, 5)
 
-    0   | 0   | bj.array(0, 1)
-    0   | 1   | bj.array(2, 3)
-    0   | 2   | bj.array(4, 5)
+    0   | 0   | bj.newVector(0, 1)
+    0   | 1   | bj.newVector(2, 3)
+    0   | 2   | bj.newVector(4, 5)
   }
 
   def "Array#getVector returns the correct vector when the array is transposed"() {
@@ -435,24 +435,24 @@ class BaseArraySpec extends Specification {
 
     where:
     dim | idx | vector
-    0   | 0   | bj.array(0, 6)
-    0   | 1   | bj.array(1, 7)
-    0   | 2   | bj.array(2, 8)
-    0   | 3   | bj.array(3, 9)
-    0   | 4   | bj.array(4, 10)
-    0   | 5   | bj.array(5, 11)
+    0   | 0   | bj.newVector(0, 6)
+    0   | 1   | bj.newVector(1, 7)
+    0   | 2   | bj.newVector(2, 8)
+    0   | 3   | bj.newVector(3, 9)
+    0   | 4   | bj.newVector(4, 10)
+    0   | 5   | bj.newVector(5, 11)
 
-    1   | 0   | bj.array(0, 2, 4)
-    1   | 1   | bj.array(1, 3, 5)
-    1   | 2   | bj.array(6, 8, 10)
-    1   | 3   | bj.array(7, 9, 11)
+    1   | 0   | bj.newVector(0, 2, 4)
+    1   | 1   | bj.newVector(1, 3, 5)
+    1   | 2   | bj.newVector(6, 8, 10)
+    1   | 3   | bj.newVector(7, 9, 11)
 
-    2   | 0   | bj.array(0, 1)
-    2   | 1   | bj.array(2, 3)
-    2   | 2   | bj.array(4, 5)
-    2   | 3   | bj.array(6, 7)
-    2   | 4   | bj.array(8, 9)
-    2   | 5   | bj.array(10, 11)
+    2   | 0   | bj.newVector(0, 1)
+    2   | 1   | bj.newVector(2, 3)
+    2   | 2   | bj.newVector(4, 5)
+    2   | 3   | bj.newVector(6, 7)
+    2   | 4   | bj.newVector(8, 9)
+    2   | 5   | bj.newVector(10, 11)
   }
 
   def "Array#getVector returns the correct vector when a slice is selected"() {

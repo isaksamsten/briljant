@@ -431,7 +431,7 @@ public class DoubleVector extends AbstractVector implements Transferable {
 
     @Override
     public Vector getView() {
-      return new DoubleVector(buffer, size(), getIndex()) {
+      return new DoubleVector(buffer, size()) {
         @Override
         public Builder newCopyBuilder() {
           return Builder.this;
@@ -446,7 +446,7 @@ public class DoubleVector extends AbstractVector implements Transferable {
 
     @Override
     public DoubleVector build() {
-      DoubleVector vec = new DoubleVector(buffer, size());
+      DoubleVector vec = new DoubleVector(buffer, size(), getIndex());
       buffer = null;
       return vec;
     }
