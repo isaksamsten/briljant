@@ -34,11 +34,6 @@ abstract class AsComplexArray extends AbstractComplexArray {
   }
 
   @Override
-  public ComplexArray newEmptyArray(int... shape) {
-    return getArrayFactory().complexArray(shape);
-  }
-
-  @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsComplexArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
@@ -56,6 +51,11 @@ abstract class AsComplexArray extends AbstractComplexArray {
         return AsComplexArray.this.elementSize();
       }
     };
+  }
+
+  @Override
+  public ComplexArray newEmptyArray(int... shape) {
+    return getArrayFactory().newComplexArray(shape);
   }
 
   @Override

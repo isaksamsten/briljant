@@ -58,23 +58,18 @@ class BaseComplexArray extends AbstractComplexArray {
   }
 
   @Override
-  public ComplexArray newEmptyArray(int... shape) {
-    return new BaseComplexArray(getArrayFactory(), shape);
-  }
-
-  @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new BaseComplexArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
-  protected int elementSize() {
-    return data.length;
+  public ComplexArray newEmptyArray(int... shape) {
+    return new BaseComplexArray(getArrayFactory(), shape);
   }
 
   @Override
-  protected void setElement(int i, Complex value) {
-    data[i] = value;
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override
@@ -85,5 +80,10 @@ class BaseComplexArray extends AbstractComplexArray {
     } else {
       return r;
     }
+  }
+
+  @Override
+  protected void setElement(int i, Complex value) {
+    data[i] = value;
   }
 }

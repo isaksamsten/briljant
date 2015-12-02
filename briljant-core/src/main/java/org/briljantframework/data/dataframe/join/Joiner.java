@@ -127,6 +127,15 @@ public abstract class Joiner {
     }
   }
 
+  /**
+   * Get the index for the left side of a join. Returns {@code -1}, if the index should not be
+   * included.
+   *
+   * @param i the index {@code 0 ... size()}
+   * @return the index in the resulting container
+   */
+  public abstract int getLeftIndex(int i);
+
   private void appendColumnFromRightIndexIgnoreNA(int size, DataFrame.Builder builder,
       int targetColumn, Vector source) {
     DataFrameLocationSetter loc = builder.loc();
@@ -139,22 +148,6 @@ public abstract class Joiner {
   }
 
   /**
-   * Returns the size of the joiner.
-   *
-   * @return the size
-   */
-  public abstract int size();
-
-  /**
-   * Get the index for the left side of a join. Returns {@code -1}, if the index should not be
-   * included.
-   *
-   * @param i the index {@code 0 ... size()}
-   * @return the index in the resulting container
-   */
-  public abstract int getLeftIndex(int i);
-
-  /**
    * Get the index for the left side of a join. Returns {@code -1}, if the index should not be
    * included.
    *
@@ -162,5 +155,12 @@ public abstract class Joiner {
    * @return the index in the resulting container
    */
   public abstract int getRightIndex(int i);
+
+  /**
+   * Returns the size of the joiner.
+   *
+   * @return the size
+   */
+  public abstract int size();
 
 }

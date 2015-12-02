@@ -31,41 +31,57 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
 
-import java.util.List;
-
 
 /**
  * @author Isak Karlsson
  */
 public interface ArrayFactory {
 
-  <T> Array<T> array(T[] data);
-
-  <T> Array<T> array(T[][] data);
-
   /**
-   * Create an {@code IntMatrix} with the given data
-   *
-   * @param data the data array
-   * @return a new matrix
+   * Create a new array from the given data.
+   * 
+   * @param data the data
+   * @param <T> the class
+   * @return a new array
    */
-  IntArray array(int[][] data);
+  <T> Array<T> newVector(T[] data);
 
   /**
-   * Create a vector with the given data.
+   * Create a new array from the given data.
    *
-   * @param data the data array
-   * @return a new matrix
+   * @param data the data
+   * @param <T> the class
+   * @return a new array
    */
-  IntArray array(int[] data);
+  <T> Array<T> newMatrix(T[][] data);
+
+  <T> Array<T> newArray(int... shape);
 
   /**
-   * Create a {@code LongMatrix} with given data
+   * Create a {@code BitMatrix} with given data
    *
    * @param data the data
    * @return a new matrix
    */
-  LongArray array(long[][] data);
+  BooleanArray newMatrix(boolean[][] data);
+
+  BooleanArray newVector(boolean[] data);
+
+  /**
+   * Create an {@code BitMatrix} with designated shape filled with {@code false}.
+   *
+   * @param shape the rows
+   * @return a new matrix
+   */
+  BooleanArray newBooleanArray(int... shape);
+
+  /**
+   * Create an array with the given data
+   *
+   * @param data the data array
+   * @return a new matrix
+   */
+  IntArray newMatrix(int[][] data);
 
   /**
    * Create a vector with the given data.
@@ -73,20 +89,23 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  LongArray array(long[] data);
+  IntArray newVector(int[] data);
 
   /**
-   * Construct an empty {@code double} are with the given shape. Note that for most implementations
-   * the resulting array is initialized with {@code 0}. This is however no guarantee.
+   * Create an {@code IntMatrix} with designated shape filled with {@code 0}.
    *
-   * @param shape the shape
-   * @return a new array
+   * @param shape the rows
+   * @return a new matrix
    */
-  DoubleArray doubleArray(int... shape);
+  IntArray newIntArray(int... shape);
 
-  DoubleArray ones(int... shape);
-
-  DoubleArray zero(int... shape);
+  /**
+   * Create an array with the given data
+   *
+   * @param data the data
+   * @return a new matrix
+   */
+  LongArray newMatrix(long[][] data);
 
   /**
    * Create a vector with the given data.
@@ -94,14 +113,22 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  DoubleArray array(double[] data);
+  LongArray newVector(long[] data);
+
+  /**
+   * Create an {@code LongMatrix} with designated shape filled with {@code 0}.
+   *
+   * @param shape the rows
+   * @return a new matrix
+   */
+  LongArray newLongArray(int... shape);
 
   /**
    * Create a matrix with given data in row-major order.
    *
    * <p>
    * Example
-   * 
+   *
    * <pre>
    * {@code
    * > double[][] data = {
@@ -118,7 +145,49 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  DoubleArray array(double[][] data);
+  DoubleArray newMatrix(double[][] data);
+
+  /**
+   * Create a vector with the given data.
+   *
+   * @param data the data array
+   * @return a new matrix
+   */
+  DoubleArray newVector(double[] data);
+
+  /**
+   * Construct an empty {@code double} are with the given shape. Note that for most implementations
+   * the resulting array is initialized with {@code 0}. This is however no guarantee.
+   *
+   * @param shape the shape
+   * @return a new array
+   */
+  DoubleArray newDoubleArray(int... shape);
+
+  /**
+   * Create a matrix with given data
+   *
+   * @param data the data
+   * @return a new matrix
+   * @see #newMatrix(double[][])
+   */
+  ComplexArray newArray(Complex[][] data);
+
+  ComplexArray newVector(Complex[] data);
+
+  ComplexArray newComplexVector(double[] data);
+
+  /**
+   * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.
+   *
+   * @param shape the rows
+   * @return a new matrix
+   */
+  ComplexArray newComplexArray(int... shape);
+
+  DoubleArray ones(int... shape);
+
+  DoubleArray zero(int... shape);
 
   /**
    * Extract or create a diagonal matrix
@@ -153,63 +222,6 @@ public interface ArrayFactory {
    * @throws java.lang.IllegalArgumentException if the array has more than 2 dimensions
    */
   <T extends BaseArray<T>> T diag(T data);
-
-  /**
-   * Create a matrix with given data
-   *
-   * @param data the data
-   * @return a new matrix
-   * @see #array(double[][])
-   */
-  ComplexArray array(Complex[][] data);
-
-  ComplexArray array(Complex[] data);
-
-  ComplexArray complexArray(double[] data);
-
-  /**
-   * Create a {@code BitMatrix} with given data
-   *
-   * @param data the data
-   * @return a new matrix
-   */
-  BooleanArray array(boolean[][] data);
-
-  BooleanArray array(boolean[] data);
-
-  /**
-   * Create an {@code IntMatrix} with designated shape filled with {@code 0}.
-   *
-   * @param shape the rows
-   * @return a new matrix
-   */
-  IntArray intArray(int... shape);
-
-  /**
-   * Create an {@code LongMatrix} with designated shape filled with {@code 0}.
-   *
-   * @param shape the rows
-   * @return a new matrix
-   */
-  LongArray longArray(int... shape);
-
-  /**
-   * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.
-   *
-   * @param shape the rows
-   * @return a new matrix
-   */
-  ComplexArray complexArray(int... shape);
-
-  /**
-   * Create an {@code BitMatrix} with designated shape filled with {@code false}.
-   *
-   * @param shape the rows
-   * @return a new matrix
-   */
-  BooleanArray booleanArray(int... shape);
-
-  <T> Array<T> referenceArray(int... shape);
 
   /**
    * Return a row vector of evenly spaced values

@@ -47,9 +47,11 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.data.index.ObjectComparator;
 
 /**
+ * Implements the basic functionality of an array.
+ * 
  * @author Isak Karlsson
  */
-public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implements Array<T> {
+public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
 
   private final Comparator<T> comparator = ObjectComparator.getInstance();
 
@@ -77,6 +79,11 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
   }
 
   @Override
+  public int compare(int a, int b) {
+    return comparator.compare(get(a), get(b));
+  }
+
+  @Override
   public Array<T> slice(BooleanArray bits) {
     Check.size(this, bits);
     List<T> newData = new ArrayList<>();
@@ -88,12 +95,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
 
     @SuppressWarnings("unchecked")
     T[] arr = (T[]) new Object[newData.size()];
-    return getArrayFactory().array(newData.toArray(arr));
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return comparator.compare(get(a), get(b));
+    return getArrayFactory().newVector(newData.toArray(arr));
   }
 
   /**
@@ -104,6 +106,170 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
   @SuppressWarnings("unchecked")
   public DoubleArray asDouble() {
     return asDouble(v -> (Double) v, v -> (T) Double.valueOf(v));
+  }
+
+  /**
+   * @return a view
+   * @throws java.lang.ClassCastException if {@code T} is not {@linkplain Double}
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public IntArray asInt() {
+    return asInt(v -> (Integer) v, v -> (T) Integer.valueOf(v));
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public LongArray asLong() {
+    return asLong(v -> (Long) v, v -> (T) Long.valueOf(v));
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public BooleanArray asBoolean() {
+    return asBoolean(v -> (Boolean) v, v -> (T) v);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public ComplexArray asComplex() {
+    return asComplex(v -> (Complex) v, v -> (T) v);
+  }
+
+  @Override
+  public Array<T> copy() {
+    Array<T> array = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, get(i));
+    }
+    return array;
+  }
+
+  @Override
+  public BooleanArray lt(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) < 0);
+  }
+
+  @Override
+  public BooleanArray gt(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) > 0);
+  }
+
+  @Override
+  public BooleanArray eq(Array<T> other) {
+    return where(other, Object::equals);
+  }
+
+  @Override
+  public BooleanArray lte(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) <= 0);
+  }
+
+  @Override
+  public BooleanArray gte(Array<T> other) {
+    return where(other, (a, b) -> comparator.compare(a, b) >= 0);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Array) {
+      Array<?> o = (Array<?>) obj;
+      if (!Arrays.equals(shape, o.getShape())) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (!get(i).equals(o.get(i))) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    try {
+      ArrayPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
+    }
+    return builder.toString();
+  }
+
+  @Override
+  public void assign(T value) {
+    for (int i = 0; i < size(); i++) {
+      set(i, value);
+    }
+  }
+
+  @Override
+  public void assign(Supplier<T> supplier) {
+    for (int i = 0; i < size(); i++) {
+      set(i, supplier.get());
+    }
+  }
+
+  @Override
+  public <U> void assign(Array<U> other, Function<? super U, ? extends T> operator) {
+    Check.size(this, other);
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(other.get(i)));
+    }
+  }
+
+  @Override
+  public DoubleArray mapToDouble(ToDoubleFunction<? super T> f) {
+    DoubleArray array = getArrayFactory().newDoubleArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, f.applyAsDouble(get(i)));
+    }
+    return array;
+  }
+
+  @Override
+  public LongArray mapToLong(ToLongFunction<? super T> f) {
+    LongArray array = getArrayFactory().newLongArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, f.applyAsLong(get(i)));
+    }
+    return array;
+  }
+
+  @Override
+  public IntArray mapToInt(ToIntFunction<? super T> f) {
+    IntArray array = getArrayFactory().newIntArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, f.applyAsInt(get(i)));
+    }
+    return array;
+  }
+
+  @Override
+  public ComplexArray mapToComplex(Function<? super T, Complex> f) {
+    ComplexArray array = getArrayFactory().newComplexArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, f.apply(get(i)));
+    }
+    return array;
+  }
+
+  @Override
+  public <U> Array<U> map(Function<? super T, ? extends U> f) {
+    Array<U> array = getArrayFactory().newArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, f.apply(get(i)));
+    }
+    return array;
+  }
+
+  @Override
+  public void apply(UnaryOperator<T> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
   }
 
   @Override
@@ -127,14 +293,11 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
     };
   }
 
-  /**
-   * @return a view
-   * @throws java.lang.ClassCastException if {@code T} is not {@linkplain Double}
-   */
   @Override
-  @SuppressWarnings("unchecked")
-  public IntArray asInt() {
-    return asInt(v -> (Integer) v, v -> (T) Integer.valueOf(v));
+  public DoubleArray asDouble(ToDoubleFunction<? super T> to) {
+    return asDouble(to, v -> {
+      throw new UnsupportedOperationException();
+    });
   }
 
   @Override
@@ -166,12 +329,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public LongArray asLong() {
-    return asLong(v -> (Long) v, v -> (T) Long.valueOf(v));
-  }
-
-  @Override
   public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
     return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
@@ -200,23 +357,17 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public BooleanArray asBoolean() {
-    return asBoolean(v -> (Boolean) v, v -> (T) v);
-  }
-
-  @Override
   public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
     return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
-      protected void setElement(int i, boolean value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+      protected boolean getElement(int i) {
+        return to.apply(AbstractArray.this.getElement(i));
       }
 
       @Override
-      protected boolean getElement(int i) {
-        return to.apply(AbstractArray.this.getElement(i));
+      protected void setElement(int i, boolean value) {
+        AbstractArray.this.setElement(i, from.apply(value));
       }
 
       @Override
@@ -231,12 +382,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
     return asBoolean(to, v -> {
       throw new UnsupportedOperationException();
     });
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public ComplexArray asComplex() {
-    return asComplex(v -> (Complex) v, v -> (T) v);
   }
 
   @Override
@@ -268,138 +413,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
   }
 
   @Override
-  public Array<T> copy() {
-    Array<T> array = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, get(i));
-    }
-    return array;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Array) {
-      Array<?> o = (Array<?>) obj;
-      if (!Arrays.equals(shape, o.getShape())) {
-        return false;
-      }
-      for (int i = 0; i < size(); i++) {
-        if (!get(i).equals(o.get(i))) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public BooleanArray lt(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) < 0);
-  }
-
-  @Override
-  public BooleanArray gt(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) > 0);
-  }
-
-  @Override
-  public BooleanArray eq(Array<T> other) {
-    return where(other, Object::equals);
-  }
-
-  @Override
-  public BooleanArray lte(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) <= 0);
-  }
-
-  @Override
-  public BooleanArray gte(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) >= 0);
-  }
-
-  @Override
-  public void assign(T value) {
-    for (int i = 0; i < size(); i++) {
-      set(i, value);
-    }
-  }
-
-  @Override
-  public void assign(Supplier<T> supplier) {
-    for (int i = 0; i < size(); i++) {
-      set(i, supplier.get());
-    }
-  }
-
-  @Override
-  public <U> void assign(Array<U> other, Function<? super U, ? extends T> operator) {
-    Check.size(this, other);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(other.get(i)));
-    }
-  }
-
-  @Override
-  public DoubleArray mapToDouble(ToDoubleFunction<? super T> f) {
-    DoubleArray array = getArrayFactory().doubleArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, f.applyAsDouble(get(i)));
-    }
-    return array;
-  }
-
-  @Override
-  public LongArray mapToLong(ToLongFunction<? super T> f) {
-    LongArray array = getArrayFactory().longArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, f.applyAsLong(get(i)));
-    }
-    return array;
-  }
-
-  @Override
-  public IntArray mapToInt(ToIntFunction<? super T> f) {
-    IntArray array = getArrayFactory().intArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, f.applyAsInt(get(i)));
-    }
-    return array;
-  }
-
-  @Override
-  public ComplexArray mapToComplex(Function<? super T, Complex> f) {
-    ComplexArray array = getArrayFactory().complexArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, f.apply(get(i)));
-    }
-    return array;
-  }
-
-  @Override
-  public <U> Array<U> map(Function<? super T, ? extends U> f) {
-    Array<U> array = getArrayFactory().referenceArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, f.apply(get(i)));
-    }
-    return array;
-  }
-
-  @Override
-  public void apply(UnaryOperator<T> operator) {
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(get(i)));
-    }
-  }
-
-  @Override
-  public DoubleArray asDouble(ToDoubleFunction<? super T> to) {
-    return asDouble(to, v -> {
-      throw new UnsupportedOperationException();
-    });
-  }
-
-  @Override
   public Array<T> filter(Predicate<T> predicate) {
     List<T> list = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
@@ -417,7 +430,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
 
   @Override
   public BooleanArray where(Predicate<T> predicate) {
-    BooleanArray array = getArrayFactory().booleanArray(getShape());
+    BooleanArray array = getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i)));
     }
@@ -427,7 +440,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
   @Override
   public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
     Check.shape(this, other);
-    BooleanArray array = getArrayFactory().booleanArray(getShape());
+    BooleanArray array = getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -488,10 +501,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
     setElement(Indexer.columnMajorStride(index, getOffset(), stride), value);
   }
 
-  protected abstract T getElement(int i);
-
-  protected abstract void setElement(int i, T value);
-
   @Override
   public Stream<T> stream() {
     return toList().stream();
@@ -502,10 +511,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
     return new AbstractList<T>() {
 
       @Override
-      public T set(int index, T element) {
-        T oldElement = get(index);
-        AbstractArray.this.set(index, element);
-        return oldElement;
+      public int size() {
+        return AbstractArray.this.size();
       }
 
       @Override
@@ -514,9 +521,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
       }
 
       @Override
-      public int size() {
-        return AbstractArray.this.size();
+      public T set(int index, T element) {
+        T oldElement = get(index);
+        AbstractArray.this.set(index, element);
+        return oldElement;
       }
+
+
     };
   }
 
@@ -530,21 +541,14 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>>implem
     return (T[]) array;
   }
 
+  protected abstract void setElement(int i, T value);
+
+  protected abstract T getElement(int i);
+
   @Override
   public void swap(int a, int b) {
     T tmp = get(a);
     set(a, get(b));
     set(b, tmp);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    try {
-      ArrayPrinter.print(builder, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return builder.toString();
   }
 }

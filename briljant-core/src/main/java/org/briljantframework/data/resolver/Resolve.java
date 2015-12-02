@@ -50,7 +50,6 @@ import org.briljantframework.data.reader.DataEntry;
  * class
  *
  * <pre>
- * {@code
  * class Employee {
  *   String name, familyName
  *   public Employee(String name, String familyName) {
@@ -62,28 +61,22 @@ import org.briljantframework.data.reader.DataEntry;
  *     return "Employee{name=" +name + ", familyName=" + familyName + "}";
  *   }
  * }
- * }
  * </pre>
  *
  * <pre>
- * {@code
- * Resolver<Employee> employeeResolver = new Resolver<>(Employee.class);
- * emplyeeResolver.put(String.class, v -> new Employee(v.split("\s+")[0], v.split("\s+")[1]));
+ * Resolver&lt;Employee&gt; employeeResolver = new Resolver&lt;&gt;(Employee.class);
+ * employeeResolver.put(String.class, v -&gt; new Employee(v.split(&quot;\\s+&quot;)[0], v.split(&quot;\\s+&quot;)[1]));
  * Resolve.install(Employee.class, employeeResolver);
- * Employee e = Resolve.to(Employee.class, "Foo Bar");
- * }
+ * Employee e = Resolve.to(Employee.class, &quot;Foo Bar&quot;);
  * </pre>
  *
  * Once installed, {@link org.briljantframework.data.vector.Vector.Builder#read(DataEntry)} will
  * pick up the resolver and produce vectors accordingly, e.g., we can produce a vector of employees
  *
  * <pre>
- * {
- *   &#064;code
- *   DataEntry entry = new StringDataEntry(new String[] {&quot;Foo Bar&quot;, &quot;Bob Bobson&quot;, &quot;John Doe&quot;});
- *   Vector vector = Vector.Builder.of(Employee.class).readAll(entry).build();
- *   Employee bob = vector.get(Employee.class, 1);
- * }
+ * DataEntry entry = new StringDataEntry(new String[] {&quot;Foo Bar&quot;, &quot;Bob Bobson&quot;, &quot;John Doe&quot;});
+ * Vector vector = Vector.Builder.of(Employee.class).readAll(entry).build();
+ * Employee bob = vector.get(Employee.class, 1);
  * </pre>
  *
  * which would render the following vector
@@ -92,6 +85,7 @@ import org.briljantframework.data.reader.DataEntry;
  * 0 Employee{name=Foo, familyName=Bar}
  * 1 Employee{name=Bob, familyName=Bobson}
  * 2 Employee{name=John, familyName=Doe}
+ * Length: 3 type: Employee
  * </pre>
  *
  * @author Isak Karlsson
@@ -119,6 +113,8 @@ public final class Resolve {
     install(Object.class, objectResolver);
   }
 
+  private Resolve() {}
+
   private static Resolver<Object> initializeObjectResolver() {
     Resolver<Object> objectResolver = new Resolver<>(Object.class);
     objectResolver.put(Object.class, v -> v);
@@ -141,7 +137,7 @@ public final class Resolve {
     complexResolver.put(Short.class, Complex::valueOf);
     complexResolver.put(Byte.class, Complex::valueOf);
     complexResolver.put(Float.class, Complex::valueOf);
-    complexResolver.put(Logical.class, v -> v == Logical.TRUE ? Complex.ONE : Complex.ZERO);
+    complexResolver.put(Logical.class, v -> Logical.TRUE.equals(v) ? Complex.ONE : Complex.ZERO);
     complexResolver.put(String.class, s -> {
       try {
         return COMPLEX_FORMAT.parse(s);
@@ -169,13 +165,14 @@ public final class Resolve {
     doubleResolver.put(Byte.TYPE, Number::doubleValue);
 
     doubleResolver.put(String.class, s -> {
-      try {
-        return NumberUtils.createNumber(s).doubleValue();
-      } catch (Exception e) {
-        return null;
-      }
+      Number n = toNumber(s);
+      return n != null ? n.doubleValue() : Na.BOXED_DOUBLE;
     });
     return doubleResolver;
+  }
+
+  private static Number toNumber(String str) {
+    return NumberUtils.isNumber(str) ? NumberUtils.createNumber(str) : null;
   }
 
   private static Resolver<String> initializeStringResolver() {
@@ -220,16 +217,8 @@ public final class Resolve {
     return resolver;
   }
 
-  private Resolve() {}
-
   public static <T> void install(Class<T> cls, Resolver<T> resolver) {
     RESOLVERS.put(cls, resolver);
-  }
-
-  public static <T> Resolver<T> find(Class<T> cls) {
-    @SuppressWarnings("unchecked")
-    Resolver<T> resolver = (Resolver<T>) RESOLVERS.get(cls);
-    return resolver;
   }
 
   public static <T> T to(Class<T> cls, Object value) {
@@ -243,6 +232,12 @@ public final class Resolve {
         return Na.of(cls);
       }
     }
+  }
+
+  public static <T> Resolver<T> find(Class<T> cls) {
+    @SuppressWarnings("unchecked")
+    Resolver<T> resolver = (Resolver<T>) RESOLVERS.get(cls);
+    return resolver;
   }
 
 }

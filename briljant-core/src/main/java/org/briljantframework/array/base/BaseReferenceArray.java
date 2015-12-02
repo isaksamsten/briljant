@@ -55,16 +55,6 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
   }
 
   @Override
-  protected T getElement(int i) {
-    return data[i];
-  }
-
-  @Override
-  protected void setElement(int i, T value) {
-    data[i] = value;
-  }
-
-  @Override
   protected int elementSize() {
     return data.length;
   }
@@ -84,5 +74,15 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
   @Override
   public T[] data() {
     return data;
+  }
+
+  @Override
+  protected void setElement(int i, T value) {
+    data[i] = value;
+  }
+
+  @Override
+  protected T getElement(int i) {
+    return data[i];
   }
 }

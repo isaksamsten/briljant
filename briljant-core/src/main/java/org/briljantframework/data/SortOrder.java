@@ -27,7 +27,15 @@ import java.util.Comparator;
  * @author Isak Karlsson
  */
 public enum SortOrder {
-  ASC, DESC;
+  /**
+   * Ascending order
+   */
+  ASC,
+
+  /**
+   * Descending order
+   */
+  DESC;
 
   /**
    * Appropriately reverses a comparator to sort in the order defined by this enum.

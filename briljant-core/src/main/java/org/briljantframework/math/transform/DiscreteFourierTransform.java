@@ -47,6 +47,10 @@ public final class DiscreteFourierTransform {
     return copy;
   }
 
+  public static ComplexArray fft(DoubleArray a) {
+    return fft(a.asComplex());
+  }
+
   public static ComplexArray ifft(ComplexArray a) {
     ComplexArray copy = ComplexArray.zeros(a.size());
     for (int i = 0; i < a.size(); i++) {
@@ -63,10 +67,6 @@ public final class DiscreteFourierTransform {
       copy.set(i, new Complex(c.getImaginary() / n, c.getReal() / n));
     }
     return copy;
-  }
-
-  public static ComplexArray fft(DoubleArray a) {
-    return fft(a.asComplex());
   }
 
   private static void transformBluestein(ComplexArray a) {
@@ -132,7 +132,7 @@ public final class DiscreteFourierTransform {
       xt.set(i, xt.get(i).multiply(yt.get(i)));
     }
 
-    // TODO: do not 'hand-reverse'
+    // TODO: 02/12/15 performance
     for (int i = 0; i < n; i++) {
       Complex complex = xt.get(i);
       xt.set(i, new Complex(complex.getImaginary(), complex.getReal()));

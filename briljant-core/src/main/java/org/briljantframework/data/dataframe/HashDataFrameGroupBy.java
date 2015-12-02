@@ -124,30 +124,6 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     return createDataFrame(indices);
   }
 
-  protected DataFrame createDataFrame(IntArray indices) {
-    final int size = indices.size();
-
-    DataFrame.Builder builder = dataFrame.newBuilder();
-    DataFrameLocationSetter locationSetter = builder.loc();
-    if (indices.size() > 0) {
-      for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
-        builder.add(dataFrame.loc().get(j).getType());
-        for (int i = 0; i < size; i++) {
-          locationSetter.set(i, j, dataFrame, indices.get(i), j);
-        }
-      }
-    }
-    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
-    for (int i = 0; i < size; i++) {
-      recordIndex.add(dataFrame.getIndex().get(indices.get(i)));
-    }
-
-    DataFrame df = builder.build();
-    df.setColumnIndex(dataFrame.getColumnIndex());
-    df.setIndex(recordIndex.build());
-    return df;
-  }
-
   @Override
   public DataFrame collect(Function<Vector, Object> function) {
     DataFrame.Builder builder = dataFrame.newBuilder();
@@ -256,5 +232,29 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     // df.setColumnIndex(dataFrame.getColumnIndex());
     // df.setIndex(recordIndex.build());
     // return df;
+  }
+
+  protected DataFrame createDataFrame(IntArray indices) {
+    final int size = indices.size();
+
+    DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrameLocationSetter locationSetter = builder.loc();
+    if (indices.size() > 0) {
+      for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
+        builder.add(dataFrame.loc().get(j).getType());
+        for (int i = 0; i < size; i++) {
+          locationSetter.set(i, j, dataFrame, indices.get(i), j);
+        }
+      }
+    }
+    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
+    for (int i = 0; i < size; i++) {
+      recordIndex.add(dataFrame.getIndex().get(indices.get(i)));
+    }
+
+    DataFrame df = builder.build();
+    df.setColumnIndex(dataFrame.getColumnIndex());
+    df.setIndex(recordIndex.build());
+    return df;
   }
 }

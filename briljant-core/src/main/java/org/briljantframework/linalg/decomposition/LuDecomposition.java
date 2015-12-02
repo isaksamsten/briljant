@@ -32,6 +32,7 @@ import org.briljantframework.array.IntArray;
  */
 public class LuDecomposition {
 
+  // TODO: 02/12/15 require refactoring to remove optionals
   private final DoubleArray lu;
   private final IntArray pivots;
   private Optional<Boolean> nonSingular = Optional.empty();
@@ -68,6 +69,10 @@ public class LuDecomposition {
       }
     }
     return det;
+  }
+
+  public IntArray getPivot() {
+    return pivots;
   }
 
   public boolean isNonSingular() {
@@ -122,9 +127,5 @@ public class LuDecomposition {
     }
     lower = Optional.of(lowerMatrix);
     return lowerMatrix;
-  }
-
-  public IntArray getPivot() {
-    return pivots;
   }
 }

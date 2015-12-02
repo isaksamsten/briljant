@@ -163,10 +163,6 @@ public class MixedDataFrame extends AbstractDataFrame {
     return new MixedDataFrame(columns);
   }
 
-  public static <T> MixedDataFrame create(Map<T, ? extends Vector> vectors) {
-    return new MixedDataFrame(vectors);
-  }
-
   static MixedDataFrame of(Object name, Vector c) {
     HashMap<Object, Vector> map = new LinkedHashMap<>();
     map.put(name, c);
@@ -174,6 +170,10 @@ public class MixedDataFrame extends AbstractDataFrame {
       throw new IllegalArgumentException("duplicate elements");
     }
     return MixedDataFrame.create(map);
+  }
+
+  public static <T> MixedDataFrame create(Map<T, ? extends Vector> vectors) {
+    return new MixedDataFrame(vectors);
   }
 
   static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
@@ -293,19 +293,8 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public <T> T getAt(Class<T> cls, int row, int column) {
-    return columns.get(column).loc().get(cls, row);
-  }
-
-  @Override
-  public double getAsDoubleAt(int row, int column) {
-    return columns.get(column).loc().getAsDouble(row);
-  }
-
-  @Override
-  protected Vector getRecordAt(int index) {
-    Check.validIndex(index, rows());
-    return new RecordView(this, index, mostSpecificColumnType);
+  public boolean isNaAt(int row, int column) {
+    return columns.get(column).loc().isNA(row);
   }
 
   @Override
@@ -314,28 +303,19 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public String toStringAt(int row, int column) {
-    return columns.get(column).loc().toString(row);
+  public double getAsDoubleAt(int row, int column) {
+    return columns.get(column).loc().getAsDouble(row);
   }
 
   @Override
-  public boolean isNaAt(int row, int column) {
-    return columns.get(column).loc().isNA(row);
+  public <T> T getAt(Class<T> cls, int row, int column) {
+    return columns.get(column).loc().get(cls, row);
   }
 
   @Override
-  protected DataFrame shallowCopy(Index columnIndex, Index index) {
-    return new MixedDataFrame(columns, rows, columnIndex, index);
-  }
-
-  @Override
-  protected VectorType getMostSpecificColumnType() {
-    return mostSpecificColumnType;
-  }
-
-  @Override
-  public VectorType getTypeAt(int index) {
-    return columns.get(index).getType();
+  protected Vector getRecordAt(int index) {
+    Check.validIndex(index, rows());
+    return new RecordView(this, index, mostSpecificColumnType);
   }
 
   @Override
@@ -363,6 +343,26 @@ public class MixedDataFrame extends AbstractDataFrame {
     Vector vector = columns.get(index);
     vector.setIndex(getIndex());
     return vector;
+  }
+
+  @Override
+  protected DataFrame shallowCopy(Index columnIndex, Index index) {
+    return new MixedDataFrame(columns, rows, columnIndex, index);
+  }
+
+  @Override
+  public String toStringAt(int row, int column) {
+    return columns.get(column).loc().toString(row);
+  }
+
+  @Override
+  public VectorType getTypeAt(int index) {
+    return columns.get(index).getType();
+  }
+
+  @Override
+  protected VectorType getMostSpecificColumnType() {
+    return mostSpecificColumnType;
   }
 
   public static final class Builder extends AbstractBuilder {
@@ -470,7 +470,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       // ensureColumnCapacity(builder.size() - 1);
       final int columns = columns();
       final int size = builder.size();
-      final Vector vector = builder.getTemporaryVector();
+      final Vector vector = builder.getView();
       for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
           Object value = vector.loc().get(Object.class, j);
@@ -556,7 +556,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     public DataFrame getTemporaryDataFrame() {
       int rows = rows();
       List<Vector> vectors =
-          buffers.stream().map((builder) -> padVectorWithNA(builder, rows).getTemporaryVector())
+          buffers.stream().map((builder) -> padVectorWithNA(builder, rows).getView())
               .collect(Collectors.toCollection(ArrayList::new));
       return new MixedDataFrame(vectors, rows) {
         @Override

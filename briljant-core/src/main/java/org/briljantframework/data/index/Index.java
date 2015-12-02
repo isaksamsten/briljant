@@ -62,19 +62,9 @@ public interface Index extends List<Object>, Iterable<Object> {
   }
 
   /**
-   * Return an index from the supplied values
-   * 
-   * @param values the values
-   * @return a new index
-   */
-  static Index of(Object... values) {
-    return ObjectIndex.of(values);
-  }
-
-  /**
    * Return an index from the value in the given collection (iteration order is defined by the
    * iteration order of the collection)
-   * 
+   *
    * @param collection a collection
    * @return a new index
    */
@@ -84,7 +74,7 @@ public interface Index extends List<Object>, Iterable<Object> {
 
   /**
    * Return an index from the given listable collection
-   * 
+   *
    * @param listable a listable collection (i.e. a collection which can be transformed into a list)
    * @return a new index
    */
@@ -93,6 +83,16 @@ public interface Index extends List<Object>, Iterable<Object> {
       return new IntIndex(((Range) listable).start(), ((Range) listable).end());
     }
     return of(listable.toList());
+  }
+
+  /**
+   * Return an index from the supplied values
+   *
+   * @param values the values
+   * @return a new index
+   */
+  static Index of(Object... values) {
+    return ObjectIndex.of(values);
   }
 
   /**
@@ -200,11 +200,11 @@ public interface Index extends List<Object>, Iterable<Object> {
 
     void sort(Comparator<Object> cmp);
 
-    void sort(SortOrder order);
-
     default void sort() {
       sort(SortOrder.ASC);
     }
+
+    void sort(SortOrder order);
 
     void extend(int size);
 

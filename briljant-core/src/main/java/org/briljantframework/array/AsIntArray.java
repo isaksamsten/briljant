@@ -33,11 +33,6 @@ abstract class AsIntArray extends AbstractIntArray {
   }
 
   @Override
-  public IntArray newEmptyArray(int... shape) {
-    return getArrayFactory().intArray(shape);
-  }
-
-  @Override
   public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsIntArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
@@ -55,6 +50,11 @@ abstract class AsIntArray extends AbstractIntArray {
         return AsIntArray.this.elementSize();
       }
     };
+  }
+
+  @Override
+  public IntArray newEmptyArray(int... shape) {
+    return getArrayFactory().newIntArray(shape);
   }
 
   @Override

@@ -59,21 +59,21 @@ public class CsvParser implements Parser {
   private List<VectorType> types = null;
   private Reader reader;
 
+  public CsvParser() {
+    this(null);
+  }
+
   public CsvParser(Reader reader) {
     this.csvSettings = new CsvParserSettings();
     this.reader = reader;
   }
 
-  public CsvParser() {
-    this(null);
+  public void set(Consumer<Settings> consumer) {
+    consumer.accept(getSettings());
   }
 
   public Settings getSettings() {
     return settings;
-  }
-
-  public void set(Consumer<Settings> consumer) {
-    consumer.accept(getSettings());
   }
 
   @Override
@@ -121,11 +121,6 @@ public class CsvParser implements Parser {
       return this;
     }
 
-    public Settings setInputStream(InputStream inputStream) {
-      reader = new InputStreamReader(inputStream);
-      return this;
-    }
-
     public Settings setFileName(String fileName) throws FileNotFoundException {
       reader = new FileReader(new File(fileName));
       return this;
@@ -133,6 +128,11 @@ public class CsvParser implements Parser {
 
     public Settings setUrl(URL url) throws IOException {
       return setInputStream(url.openStream());
+    }
+
+    public Settings setInputStream(InputStream inputStream) {
+      reader = new InputStreamReader(inputStream);
+      return this;
     }
 
     /**

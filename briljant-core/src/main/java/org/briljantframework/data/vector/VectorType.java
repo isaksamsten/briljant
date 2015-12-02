@@ -67,6 +67,21 @@ public abstract class VectorType {
   }
 
   /**
+   * Return a new type from the specified class using the class of the specified value. Returns
+   * {@link #OBJECT} if {@code null} is specified.
+   *
+   * @param value the value
+   * @return a new type
+   */
+  public static VectorType of(Object value) {
+    if (value != null) {
+      return of(value.getClass());
+    } else {
+      return OBJECT;
+    }
+  }
+
+  /**
    * Create a new type from the specified class
    *
    * @param cls the specified class
@@ -85,34 +100,11 @@ public abstract class VectorType {
   }
 
   /**
-   * Return a new type from the specified class using the class of the specified value. Returns
-   * {@link #OBJECT} if {@code null} is specified.
-   *
-   * @param value the value
-   * @return a new type
-   */
-  public static VectorType of(Object value) {
-    if (value != null) {
-      return of(value.getClass());
-    } else {
-      return OBJECT;
-    }
-  }
-
-  /**
    * Creates a new builder able to build vectors of this type
    *
    * @return a new builder
    */
   public abstract Vector.Builder newBuilder();
-
-  /**
-   * Creates a new builder able to build vectors of this type
-   *
-   * @param size initial size (the vector is padded with NA)
-   * @return a new builder
-   */
-  public abstract Vector.Builder newBuilder(int size);
 
   /**
    * Creates a new builder with the specified initial capacity
@@ -133,24 +125,32 @@ public abstract class VectorType {
   }
 
   /**
-   * Get the underlying class used to represent values of this vector type
+   * Creates a new builder able to build vectors of this type
    *
-   * @return the class
+   * @param size initial size (the vector is padded with NA)
+   * @return a new builder
    */
-  public abstract Class<?> getDataClass();
+  public abstract Vector.Builder newBuilder(int size);
 
   /**
    * @return the scale
    */
   public abstract Scale getScale();
 
+  public boolean isAssignableTo(VectorType type) {
+    return isAssignableTo(type.getDataClass());
+  }
+
   public boolean isAssignableTo(Class<?> cls) {
     return cls.isAssignableFrom(getDataClass());
   }
 
-  public boolean isAssignableTo(VectorType type) {
-    return isAssignableTo(type.getDataClass());
-  }
+  /**
+   * Get the underlying class used to represent values of this vector type
+   *
+   * @return the class
+   */
+  public abstract Class<?> getDataClass();
 
   private static class DoubleVectorType extends VectorType {
 
@@ -231,9 +231,21 @@ public abstract class VectorType {
     }
 
     @Override
+    public int hashCode() {
+      return cls.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof GenericVectorType && ((GenericVectorType) obj).cls.equals(cls);
+    }
+
+    @Override
     public Vector.Builder newBuilder() {
       return new GenericVector.Builder(cls);
     }
+
+
 
     @Override
     public Vector.Builder newBuilder(int size) {
@@ -255,15 +267,7 @@ public abstract class VectorType {
       return new GenericVector.Builder(cls);
     }
 
-    @Override
-    public int hashCode() {
-      return cls.hashCode();
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-      return obj instanceof GenericVectorType && ((GenericVectorType) obj).cls.equals(cls);
-    }
 
     @Override
     public String toString() {

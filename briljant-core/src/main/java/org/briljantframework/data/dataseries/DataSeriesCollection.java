@@ -22,7 +22,6 @@
 package org.briljantframework.data.dataseries;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -264,7 +263,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     protected void setAt(int c, Vector.Builder builder) {
       final int size = builder.size();
-      final Vector temporaryVector = builder.getTemporaryVector();
+      final Vector temporaryVector = builder.getView();
       for (int i = 0; i < size; i++) {
         setAt(i, c, temporaryVector, i);
       }
@@ -330,7 +329,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     public DataFrame getTemporaryDataFrame() {
       int columns = columns();
       ArrayList<Vector> series =
-          builders.stream().map(Vector.Builder::getTemporaryVector)
+          builders.stream().map(Vector.Builder::getView)
               .collect(Collectors.toCollection(ArrayList::new));
       Index index = getIndex(rows());
       Index columnIndex = getColumnIndex(columns);

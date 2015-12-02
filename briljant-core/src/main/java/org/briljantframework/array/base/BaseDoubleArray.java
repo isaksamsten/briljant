@@ -54,13 +54,13 @@ class BaseDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  protected int elementSize() {
-    return data.length;
+  public DoubleArray newEmptyArray(int... shape) {
+    return new BaseDoubleArray(getArrayFactory(), shape);
   }
 
   @Override
-  public DoubleArray newEmptyArray(int... shape) {
-    return new BaseDoubleArray(getArrayFactory(), shape);
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override

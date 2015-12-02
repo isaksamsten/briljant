@@ -34,7 +34,7 @@ import org.briljantframework.data.reader.DataEntry;
  * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to return
  * based on the first value added value.
  *
- * <p>
+ * <p/>
  * For example, {@code new TypeInferenceVectorBuilder().plus(1.0).build()} returns a {@code double}
  * vector. The builder is unable to infer the correct type if the first call is
  * {@link #setNA(Object)}, {@link #read(DataEntry)} or {@link #readAll(DataEntry)} an {@link Object}
@@ -45,6 +45,12 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   private int noNaValues = 0;
   private Vector.Builder builder = null;
   private VectorLocationSetter locationSetter = new InferringVectorLocationSetter();
+
+  @Override
+  public Vector.Builder addNA() {
+    noNaValues++;
+    return this;
+  }
 
   @Override
   public Vector.Builder setNA(Object key) {
@@ -59,19 +65,6 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     return builder;
   }
 
-  private void initializeBuilder(Object value) {
-    if (builder == null) {
-      if (Is.NA(value)) {
-        noNaValues++;
-      } else {
-        builder = VectorType.of(value).newBuilder();
-        for (int i = 0; i < noNaValues; i++) {
-          builder.addNA();
-        }
-      }
-    }
-  }
-
   private void initializeBuilder(VectorType vectorType) {
     if (builder == null) {
       builder = vectorType.newBuilder();
@@ -79,12 +72,6 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
         builder.addNA();
       }
     }
-  }
-
-  @Override
-  public Vector.Builder addNA() {
-    noNaValues++;
-    return this;
   }
 
   @Override
@@ -128,6 +115,19 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     return this;
   }
 
+  private void initializeBuilder(Object value) {
+    if (builder == null) {
+      if (Is.NA(value)) {
+        noNaValues++;
+      } else {
+        builder = VectorType.of(value).newBuilder();
+        for (int i = 0; i < noNaValues; i++) {
+          builder.addNA();
+        }
+      }
+    }
+  }
+
   @Override
   public Vector.Builder add(Object value) {
     loc().set(size(), value);
@@ -158,17 +158,24 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   }
 
   @Override
+  public Vector getView() {
+    if (builder != null) {
+      return builder.getView();
+    } else {
+      if (noNaValues == 0) {
+        return Vector.empty();
+      } else {
+        return Vector.singleton(null, noNaValues);
+      }
+    }
+  }
+
+  @Override
   public Vector.Builder remove(Object key) {
     if (builder == null) {
       throw new NoSuchElementException(key + "");
     }
     builder.remove(key);
-    return this;
-  }
-
-  @Override
-  public Vector.Builder read(DataEntry entry) {
-    getObjectBuilder().read(entry);
     return this;
   }
 
@@ -184,24 +191,17 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   }
 
   @Override
+  public Vector.Builder read(DataEntry entry) {
+    getObjectBuilder().read(entry);
+    return this;
+  }
+
+  @Override
   public int size() {
     if (builder != null) {
       return builder.size();
     } else {
       return noNaValues;
-    }
-  }
-
-  @Override
-  public Vector getTemporaryVector() {
-    if (builder != null) {
-      return builder.getTemporaryVector();
-    } else {
-      if (noNaValues == 0) {
-        return Vector.empty();
-      } else {
-        return Vector.singleton(null, noNaValues);
-      }
     }
   }
 
@@ -240,6 +240,22 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     }
 
     @Override
+    public void set(int i, double value) {
+      if (builder == null) {
+        builder = VectorType.of(Double.class).newBuilder();
+      }
+      builder.loc().set(i, value);
+    }
+
+    @Override
+    public void set(int i, int value) {
+      if (builder == null) {
+        builder = VectorType.of(Integer.class).newBuilder();
+      }
+      builder.loc().set(i, value);
+    }
+
+    @Override
     public void set(int t, Vector from, int f) {
       initializeBuilder(from.getType());
       if (builder != null) {
@@ -268,22 +284,6 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void swap(int a, int b) {
       getObjectBuilder().loc().swap(a, b);
-    }
-
-    @Override
-    public void set(int i, double value) {
-      if (builder == null) {
-        builder = VectorType.of(Double.class).newBuilder();
-      }
-      builder.loc().set(i, value);
-    }
-
-    @Override
-    public void set(int i, int value) {
-      if (builder == null) {
-        builder = VectorType.of(Integer.class).newBuilder();
-      }
-      builder.loc().set(i, value);
     }
   }
 }

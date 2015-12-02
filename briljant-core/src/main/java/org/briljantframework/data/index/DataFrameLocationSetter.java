@@ -82,6 +82,10 @@ public interface DataFrameLocationSetter {
    */
   void set(int tr, int tc, Vector v, int i);
 
+  default void set(int c, VectorType columnType) {
+    set(c, columnType.newBuilder());
+  }
+
   /**
    * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds empty
    * {@link org.briljantframework.data.vector.GenericVector} columns from {@code columns()
@@ -92,10 +96,6 @@ public interface DataFrameLocationSetter {
    * @param columnBuilder the builder
    */
   void set(int c, Vector.Builder columnBuilder);
-
-  default void set(int c, VectorType columnType) {
-    set(c, columnType.newBuilder());
-  }
 
   default void set(int c, Vector column) {
     set(c, column.newCopyBuilder());
@@ -111,6 +111,10 @@ public interface DataFrameLocationSetter {
    */
   void swap(int a, int b);
 
+  default void setRecord(int index, VectorType type) {
+    setRecord(index, type.newBuilder());
+  }
+
   /**
    * Sets the {@code builder} at {@code index}.
    *
@@ -118,10 +122,6 @@ public interface DataFrameLocationSetter {
    * @param recordBuilder the builder
    */
   void setRecord(int r, Vector.Builder recordBuilder);
-
-  default void setRecord(int index, VectorType type) {
-    setRecord(index, type.newBuilder());
-  }
 
   default void setRecord(int index, Vector vector) {
     setRecord(index, vector.newCopyBuilder());

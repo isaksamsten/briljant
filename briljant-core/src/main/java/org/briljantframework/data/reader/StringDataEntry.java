@@ -28,7 +28,7 @@ import org.briljantframework.data.resolver.Resolve;
 
 /**
  * A string data entry holds string values and tries to convert them to appropriate types. Such
- * failures won't propagate, instead the respective NA value will be returned.
+ * failures won't propagate, instead an appropriate NA value will be returned.
  */
 public final class StringDataEntry implements DataEntry {
 

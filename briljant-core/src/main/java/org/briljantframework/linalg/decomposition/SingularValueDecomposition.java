@@ -24,7 +24,7 @@ package org.briljantframework.linalg.decomposition;
 import org.briljantframework.array.DoubleArray;
 
 /**
- * Created by isak on 23/06/14.
+ * @author Isak Karlsson
  */
 public class SingularValueDecomposition {
 

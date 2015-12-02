@@ -19,26 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.briljantframework.data.dataframe.join;
-
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
+package org.briljantframework.array;
 
 /**
- * Created by isak on 10/05/15.
+ * An indicator for (conjugate) transposition.
+ *
+ * @author Isak Karlsson
  */
-public class Join {
+public enum ArrayOperation {
+  /**
+   * Perform transposition.
+   */
+  TRANSPOSE("t", true),
 
-  private static final Map<JoinType, JoinOperation> JOINERS;
+  /**
+   * Do not perform transposition
+   */
+  KEEP("n", false),
 
-  static {
-    EnumMap<JoinType, JoinOperation> joiners = new EnumMap<>(JoinType.class);
-    joiners.put(JoinType.INNER, InnerJoin.getInstance());
-    joiners.put(JoinType.OUTER, OuterJoin.getInstance());
-    joiners.put(JoinType.LEFT, LeftOuterJoin.getInstance());
-    joiners.put(JoinType.RIGHT, LeftOuterJoin.getInstance());
-    JOINERS = Collections.unmodifiableMap(joiners);
+  /**
+   * Perform conjugate transposition (for complex matrices)
+   */
+  CONJUGATE_TRANSPOSE("c", true);
+
+  private final String string;
+  private final boolean transpose;
+
+  ArrayOperation(String string, boolean transpose) {
+    this.string = string;
+    this.transpose = transpose;
   }
 
+  public boolean isTrue() {
+    return transpose;
+  }
+
+  /**
+   * Cblas transpose.
+   *
+   * @return the int
+   */
+  public String getCblasString() {
+    return string;
+  }
 }

@@ -65,23 +65,13 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  protected double getElement(int i) {
-    return data[i];
-  }
-
-  @Override
-  protected void setElement(int i, double value) {
-    data[i] = value;
+  public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new NetlibDoubleArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public DoubleArray newEmptyArray(int... shape) {
     return new NetlibDoubleArray(getArrayFactory(), shape);
-  }
-
-  @Override
-  public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new NetlibDoubleArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
@@ -95,6 +85,16 @@ class NetlibDoubleArray extends AbstractDoubleArray {
       return new NetlibDoubleArray(getArrayFactory(), Arrays.copyOf(data, size()));
     }
     return super.copy();
+  }
+
+  @Override
+  protected double getElement(int i) {
+    return data[i];
+  }
+
+  @Override
+  protected void setElement(int i, double value) {
+    data[i] = value;
   }
 
   @Override

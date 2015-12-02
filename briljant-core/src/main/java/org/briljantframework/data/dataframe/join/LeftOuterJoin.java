@@ -30,11 +30,11 @@ public final class LeftOuterJoin implements JoinOperation {
 
   private static final LeftOuterJoin INSTANCE = new LeftOuterJoin();
 
+  private LeftOuterJoin() {}
+
   public static LeftOuterJoin getInstance() {
     return INSTANCE;
   }
-
-  private LeftOuterJoin() {}
 
   @Override
   public Joiner createJoiner(JoinKeys keys) {

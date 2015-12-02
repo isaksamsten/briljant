@@ -26,17 +26,17 @@ import java.util.Collection;
 import org.briljantframework.data.dataframe.DataFrame;
 
 /**
- * Created by isak on 01/09/15.
+ * @author Isak Karlsson
  */
 public final class RightOuterJoin implements JoinOperation {
 
   private static final RightOuterJoin INSTANCE = new RightOuterJoin();
 
+  private RightOuterJoin() {}
+
   public static RightOuterJoin getInstance() {
     return INSTANCE;
   }
-
-  private RightOuterJoin() {}
 
   @Override
   public Joiner createJoiner(JoinKeys keys) {
@@ -58,11 +58,6 @@ public final class RightOuterJoin implements JoinOperation {
     }
 
     @Override
-    public int size() {
-      return joiner.size();
-    }
-
-    @Override
     public int getLeftIndex(int i) {
       return joiner.getLeftIndex(i);
     }
@@ -70,6 +65,11 @@ public final class RightOuterJoin implements JoinOperation {
     @Override
     public int getRightIndex(int i) {
       return joiner.getRightIndex(i);
+    }
+
+    @Override
+    public int size() {
+      return joiner.size();
     }
   }
 }

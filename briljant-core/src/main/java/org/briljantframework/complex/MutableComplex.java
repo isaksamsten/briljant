@@ -72,15 +72,15 @@ public class MutableComplex {
   private boolean isNaN;
   private boolean isInfinite;
 
+  public MutableComplex(double real) {
+    this(real, 0);
+  }
+
   public MutableComplex(double real, double imag) {
     this.real = real;
     this.imag = imag;
     this.isNaN = Double.isNaN(real) || Double.isNaN(imag);
     this.isInfinite = !isNaN && (Double.isInfinite(real) || Double.isInfinite(imag));
-  }
-
-  public MutableComplex(double real) {
-    this(real, 0);
   }
 
   public MutableComplex(Complex complex) {
@@ -91,9 +91,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // else if (other.isNaN()) {
-    // setNaN();
-    // }
     real += other.getReal();
     imag += other.getImaginary();
     return this;
@@ -103,9 +100,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // else if (other.isNaN()) {
-    // setNaN();
-    // }
     real += other.getReal();
     imag += other.getImaginary();
     return this;
@@ -115,9 +109,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // } else if (other.isNaN()) {
-    // setNaN();
-    // }
     double oreal = other.getReal();
     double oimag = other.getImaginary();
     real = real * oreal - imag * oimag;
@@ -129,9 +120,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // else if (other.isNaN()) {
-    // setNaN();
-    // }
     double oreal = other.getReal();
     double oimag = other.getImaginary();
     if (Math.abs(oreal) < Math.abs(oimag)) {

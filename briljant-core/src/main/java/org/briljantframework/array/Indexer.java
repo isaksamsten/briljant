@@ -47,28 +47,6 @@ public final class Indexer {
     return copy;
   }
 
-  /**
-   * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
-   * and the size {@code nrows} and {@code ncols}
-   *
-   * @param row the row
-   * @param col the col
-   * @param nrows the number or rows
-   * @param ncols the number of columns
-   * @return the linearized index
-   */
-  public static int columnMajor(int offset, int row, int col, int nrows, int ncols) {
-    if (col >= ncols || col < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", col, ncols));
-    } else if (row >= nrows || row < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", row, nrows));
-    } else {
-      return offset + col * nrows + row;
-    }
-  }
-
   public static int[] computeStride(int st, int[] shape) {
     int[] stride = new int[shape.length];
     for (int i = 0; i < stride.length; i++) {
@@ -169,6 +147,27 @@ public final class Indexer {
     return columnMajor(0, currentRow, currentColumn, parentRows, parentColumns);
   }
 
+  /**
+   * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
+   * and the size {@code nrows} and {@code ncols}
+   *
+   * @param row the row
+   * @param col the col
+   * @param nrows the number or rows
+   * @param ncols the number of columns
+   * @return the linearized index
+   */
+  public static int columnMajor(int offset, int row, int col, int nrows, int ncols) {
+    if (col >= ncols || col < 0) {
+      throw new IllegalArgumentException(String.format(
+          "index out of bounds; value %d out of bound %d", col, ncols));
+    } else if (row >= nrows || row < 0) {
+      throw new IllegalArgumentException(String.format(
+          "index out of bounds; value %d out of bound %d", row, nrows));
+    } else {
+      return offset + col * nrows + row;
+    }
+  }
 
   protected static int linearized(int index, int offset, int[] stride, int[] shape) {
     if (stride.length == 1) {

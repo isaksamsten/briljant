@@ -50,13 +50,13 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  public LongArray newEmptyArray(int... shape) {
-    return new BaseLongArray(getArrayFactory(), shape);
+  public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseLongArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
-  public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseLongArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+  public LongArray newEmptyArray(int... shape) {
+    return new BaseLongArray(getArrayFactory(), shape);
   }
 
   @Override
@@ -65,12 +65,12 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  public long getElement(int index) {
-    return data[index];
+  public void setElement(int index, long value) {
+    data[index] = value;
   }
 
   @Override
-  public void setElement(int index, long value) {
-    data[index] = value;
+  public long getElement(int index) {
+    return data[index];
   }
 }

@@ -25,28 +25,25 @@ import static org.briljantframework.math.transform.DiscreteFourierTransform.fft;
 import static org.briljantframework.math.transform.DiscreteFourierTransform.ifft;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Check;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.transform.InvertibleTransformer;
+import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
 /**
+ * Performs a discrete fourier transformation.
+ * 
  * @author Isak Karlsson
  */
 public class DiscreteFourierTransformer implements InvertibleTransformer {
 
-  /**
-   * @param x data frame to transform
-   * @return a new data frame; each row has type
-   */
   @Override
   public DataFrame transform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(Complex.class);
     for (Vector row : x.getRecords()) {
-      Check.type(row, VectorType.DOUBLE);
       DoubleArray timeDomain = row.toDoubleArray();
       ComplexArray frequencyDomain = fft(timeDomain);
       Vector.Builder rowBuilder = VectorType.of(Complex.class).newBuilder(timeDomain.size());
@@ -60,12 +57,11 @@ public class DiscreteFourierTransformer implements InvertibleTransformer {
 
   @Override
   public DataFrame inverseTransform(DataFrame x) {
-    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(VectorType.DOUBLE);
+    DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(Double.class);
     for (Vector row : x.getRecords()) {
-      Check.type(row, VectorType.of(Complex.class));
       ComplexArray timeDomain = row.toComplexArray();
       DoubleArray frequencyDomain = ifft(timeDomain).asDouble();
-      Vector.Builder rowBuilder = Vector.Builder.of(Double.class);/* (0, frequencyDomain.size()); */
+      Vector.Builder rowBuilder = new DoubleVector.Builder();
       for (int i = 0; i < frequencyDomain.size(); i++) {
         rowBuilder.loc().set(i, frequencyDomain.get(i));
       }

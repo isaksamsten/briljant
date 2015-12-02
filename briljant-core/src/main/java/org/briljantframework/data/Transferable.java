@@ -34,27 +34,4 @@ package org.briljantframework.data;
  * @since 0.1
  */
 public interface Transferable {
-
-  /**
-   * Marker interface for {@linkplain org.briljantframework.data.dataframe.DataFrame data frames}
-   * where columns are transferable
-   *
-   * @author Isak Karlsson
-   * @since 0.1
-   */
-  interface Column {
-
-  }
-
-  /**
-   * Marker interface for {@linkplain org.briljantframework.data.dataframe.DataFrame data frames}
-   * where records are transferable
-   *
-   * @author Isak Karlsson
-   * @since 0.1
-   */
-  interface Record {
-
-  }
-
 }

@@ -32,12 +32,12 @@ public class StringToLocalDate implements Converter<String, LocalDate> {
   public static final StringToLocalDate ISO_DATE = new StringToLocalDate();
   private final DateTimeFormatter format;
 
-  public StringToLocalDate(DateTimeFormatter format) {
-    this.format = format;
-  }
-
   public StringToLocalDate(String pattern) {
     this(DateTimeFormatter.ofPattern(pattern));
+  }
+
+  public StringToLocalDate(DateTimeFormatter format) {
+    this.format = format;
   }
 
   private StringToLocalDate() {

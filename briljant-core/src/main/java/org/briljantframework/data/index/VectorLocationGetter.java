@@ -21,6 +21,7 @@
 
 package org.briljantframework.data.index;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.briljantframework.array.IntArray;
@@ -29,7 +30,7 @@ import org.briljantframework.data.vector.Vector;
 /**
  * Created by isak on 18/08/15.
  */
-public interface VectorLocationGetter {
+public interface VectorLocationGetter extends List<Object> {
 
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is

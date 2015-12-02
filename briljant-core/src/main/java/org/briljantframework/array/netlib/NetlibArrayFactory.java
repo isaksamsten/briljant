@@ -32,12 +32,12 @@ class NetlibArrayFactory extends BaseArrayFactory {
   public NetlibArrayFactory() {}
 
   @Override
-  public DoubleArray array(double[] data) {
-    return new NetlibDoubleArray(this, data);
+  public DoubleArray newDoubleArray(int... shape) {
+    return new NetlibDoubleArray(this, shape);
   }
 
   @Override
-  public DoubleArray doubleArray(int... shape) {
-    return new NetlibDoubleArray(this, shape);
+  public DoubleArray newVector(double[] data) {
+    return new NetlibDoubleArray(this, data);
   }
 }

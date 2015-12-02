@@ -35,14 +35,6 @@ import org.briljantframework.data.dataframe.DataFrame;
 public interface Transformation {
 
   /**
-   * Fit a transformer to data frame
-   *
-   * @param dataFrame the dataset to use in the fit procedure
-   * @return the transformation
-   */
-  Transformer fit(DataFrame dataFrame);
-
-  /**
    * Fit and transform the data frame in a single operation
    *
    * @param dataFrame the data frame
@@ -51,4 +43,12 @@ public interface Transformation {
   default DataFrame fitTransform(DataFrame dataFrame) {
     return fit(dataFrame).transform(dataFrame);
   }
+
+  /**
+   * Fit a transformer to data frame
+   *
+   * @param dataFrame the dataset to use in the fit procedure
+   * @return the transformation
+   */
+  Transformer fit(DataFrame dataFrame);
 }

@@ -22,6 +22,7 @@
 package org.briljantframework.optimize;
 
 import org.briljantframework.array.DoubleArray;
+// TODO: 02/12/15 (1) add observer to monitor the progress of the optimizer
 
 /**
  * Minimize a non-linear multivariate function
@@ -32,7 +33,7 @@ public interface NonlinearOptimizer {
 
   /**
    * @param function cost function to minimize
-   * @param x the initial guess
+   * @param x        the initial guess
    * @return the final cost
    */
   double optimize(DifferentialFunction function, DoubleArray x);

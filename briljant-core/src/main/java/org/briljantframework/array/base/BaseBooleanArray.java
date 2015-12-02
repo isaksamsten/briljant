@@ -61,13 +61,13 @@ class BaseBooleanArray extends AbstractBooleanArray {
   }
 
   @Override
-  protected int elementSize() {
-    return data.length;
+  public BooleanArray newEmptyArray(int... shape) {
+    return new BaseBooleanArray(getArrayFactory(), shape);
   }
 
   @Override
-  public void setElement(int index, boolean value) {
-    data[index] = value;
+  protected int elementSize() {
+    return data.length;
   }
 
   @Override
@@ -76,7 +76,7 @@ class BaseBooleanArray extends AbstractBooleanArray {
   }
 
   @Override
-  public BooleanArray newEmptyArray(int... shape) {
-    return new BaseBooleanArray(getArrayFactory(), shape);
+  public void setElement(int index, boolean value) {
+    data[index] = value;
   }
 }

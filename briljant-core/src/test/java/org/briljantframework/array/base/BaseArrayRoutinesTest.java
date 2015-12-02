@@ -139,7 +139,7 @@ public class BaseArrayRoutinesTest {
 
   @Test
   public void testNorm21() throws Exception {
-    DoubleArray x = bj.array(new double[] {1, 2, 3});
+    DoubleArray x = bj.newVector(new double[] {1, 2, 3});
     // bjr.norm2(x)
   }
 
@@ -175,11 +175,11 @@ public class BaseArrayRoutinesTest {
 
   @Test
   public void testGer() throws Exception {
-    DoubleArray a = bj.array(new double[] {1, 2, 3, 4});
-    DoubleArray b = bj.array(new double[] {1, 2, 3});
-    DoubleArray c = bj.doubleArray(4, 3);
+    DoubleArray a = bj.newVector(new double[] {1, 2, 3, 4});
+    DoubleArray b = bj.newVector(new double[] {1, 2, 3});
+    DoubleArray c = bj.newDoubleArray(4, 3);
     bjr.ger(1, a, b, c);
-    assertEquals(c, bj.array(new double[] {1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12}).reshape(4, 3));
+    assertEquals(c, bj.newVector(new double[] {1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12}).reshape(4, 3));
   }
 
   @Test
@@ -239,8 +239,8 @@ public class BaseArrayRoutinesTest {
   @Test
   public void testRepmat() throws Exception {
     DoubleArray x =
-        bj.array(new double[][] {new double[] {1, 0, 0}, new double[] {0, 1, 0},
-            new double[] {0, 0, 1}});
+        bj.newMatrix(new double[][] {new double[] {1, 0, 0}, new double[] {0, 1, 0},
+                                     new double[] {0, 0, 1}});
     DoubleArray repmat = bjr.repmat(x, 1, 1000);
   }
 

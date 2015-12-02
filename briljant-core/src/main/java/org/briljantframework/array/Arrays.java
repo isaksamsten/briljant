@@ -73,32 +73,25 @@ public final class Arrays {
   private Arrays() {}
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#referenceArray(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#newArray(int...)
    */
   public static <T> Array<T> newArray(int... shape) {
-    return ARRAY_FACTORY.referenceArray(shape);
+    return ARRAY_FACTORY.newArray(shape);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(Object[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(Object[])
    */
   @SafeVarargs
   public static <T> Array<T> newVector(T... data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(Object[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(Object[][])
    */
   public static <T> Array<T> newMatrix(T[][] data) {
-    return ARRAY_FACTORY.array(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#doubleArray(int...)
-   */
-  public static DoubleArray newDoubleArray(int... shape) {
-    return ARRAY_FACTORY.doubleArray(shape);
+    return ARRAY_FACTORY.newMatrix(data);
   }
 
   /**
@@ -123,17 +116,17 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(double[])
    */
   public static DoubleArray newDoubleVector(double... data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(double[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(double[][])
    */
   public static DoubleArray newDoubleMatrix(double[][] data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newMatrix(data);
   }
 
   /**
@@ -145,7 +138,7 @@ public final class Arrays {
 
   /**
    * Return a coordinate array from coordinate vectors (arrays with d > 1 are raveled)
-   * 
+   *
    * @param first the first array
    * @param rest rest of the arrays
    * @param <S> the class of arrays
@@ -179,19 +172,6 @@ public final class Arrays {
   }
 
   /**
-   * Create a 1d-array with values sampled from the specified distribution.
-   *
-   * @param size the size of the array
-   * @param distribution the distribution to sample from
-   * @return a new 1d-array
-   */
-  public static DoubleArray rand(int size, RealDistribution distribution) {
-    DoubleArray array = newDoubleArray(size);
-    array.assign(distribution::sample);
-    return array;
-  }
-
-  /**
    * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean
    * {@code 0} and standard deviation {@code 1}.
    *
@@ -215,6 +195,26 @@ public final class Arrays {
   }
 
   /**
+   * Create a 1d-array with values sampled from the specified distribution.
+   *
+   * @param size the size of the array
+   * @param distribution the distribution to sample from
+   * @return a new 1d-array
+   */
+  public static DoubleArray rand(int size, RealDistribution distribution) {
+    DoubleArray array = newDoubleArray(size);
+    array.assign(distribution::sample);
+    return array;
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#newDoubleArray(int...)
+   */
+  public static DoubleArray newDoubleArray(int... shape) {
+    return ARRAY_FACTORY.newDoubleArray(shape);
+  }
+
+  /**
    * Create a 1d-array with values sampled uniformly from the range {@code [-1, 1]}
    * <p>
    * Example
@@ -235,52 +235,45 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#complexArray(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#newComplexArray(int...)
    */
   public static ComplexArray newComplexArray(int... shape) {
-    return ARRAY_FACTORY.complexArray(shape);
+    return ARRAY_FACTORY.newComplexArray(shape);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#complexArray(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#newComplexVector(double[])
    */
   public static ComplexArray newComplexArray(double[] data) {
-    return ARRAY_FACTORY.complexArray(data);
+    return ARRAY_FACTORY.newComplexVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(org.apache.commons.math3.complex.Complex[])
    */
   public static ComplexArray newComplexVector(Complex... data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(org.apache.commons.math3.complex.Complex[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newArray(org.apache.commons.math3.complex.Complex[][])
    */
   public static ComplexArray newComplexMatrix(Complex[][] data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newArray(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#intArray(int...)
-   */
-  public static IntArray newIntArray(int... shape) {
-    return ARRAY_FACTORY.intArray(shape);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(int[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(int[])
    */
   public static IntArray newIntVector(int... data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(int[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(int[][])
    */
   public static IntArray newIntMatrix(int[][] data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newMatrix(data);
   }
 
   /**
@@ -288,13 +281,6 @@ public final class Arrays {
    */
   public static Range range() {
     return ARRAY_FACTORY.range();
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#range(int)
-   */
-  public static Range range(int end) {
-    return ARRAY_FACTORY.range(end);
   }
 
   /**
@@ -319,45 +305,52 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#longArray(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#newIntArray(int...)
+   */
+  public static IntArray newIntArray(int... shape) {
+    return ARRAY_FACTORY.newIntArray(shape);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#newLongArray(int...)
    */
   public static LongArray newLongArray(int... shape) {
-    return ARRAY_FACTORY.longArray(shape);
+    return ARRAY_FACTORY.newLongArray(shape);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(long[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(long[])
    */
   public static LongArray newLongVector(long... data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(long[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(long[][])
    */
   public static LongArray newLongMatrix(long[][] data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newMatrix(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#booleanArray(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#newBooleanArray(int...)
    */
   public static BooleanArray newBooleanArray(int... shape) {
-    return ARRAY_FACTORY.booleanArray(shape);
+    return ARRAY_FACTORY.newBooleanArray(shape);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(boolean[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(boolean[])
    */
   public static BooleanArray newBooleanVector(boolean[] data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(boolean[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(boolean[][])
    */
   public static BooleanArray newBooleanMatrix(boolean[][] data) {
-    return ARRAY_FACTORY.array(data);
+    return ARRAY_FACTORY.newMatrix(data);
   }
 
   /**
@@ -412,15 +405,15 @@ public final class Arrays {
     return ARRAY_ROUTINES.std(dim, x);
   }
 
+  public static int sum(BooleanArray x) {
+    return sum(x.asInt());
+  }
+
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#sum(org.briljantframework.array.IntArray)
    */
   public static int sum(IntArray x) {
     return ARRAY_ROUTINES.sum(x);
-  }
-
-  public static int sum(BooleanArray x) {
-    return sum(x.asInt());
   }
 
   public static IntArray sum(int dim, BooleanArray x) {
@@ -688,11 +681,24 @@ public final class Arrays {
     return split(array, parts, 1);
   }
 
-  /**
-   */
-  public static <T extends BaseArray<T>> T vstack(List<T> arrays) {
-    arrays.replaceAll(v -> v.isVector() ? v.reshape(v.size(), 1) : v);
-    return concatenate(arrays, 1);
+  public static <T extends BaseArray<T>> List<T> split(T array, int parts, int dim) {
+    Check.argument(array.size(dim) % parts == 0);
+    int[] shape = array.getShape();
+    shape[dim] /= parts;
+
+    return new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        T empty = array.newEmptyArray(shape);
+        empty.assign(array.select(dim, index));
+        return empty;
+      }
+
+      @Override
+      public int size() {
+        return parts;
+      }
+    };
   }
 
   @SafeVarargs
@@ -700,25 +706,11 @@ public final class Arrays {
     return vstack(java.util.Arrays.asList(arrays));
   }
 
-  public static <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
-    if (array.isVector()) {
-      array = array.reshape(1, array.size());
-    }
-    return split(array, parts, 0);
-  }
-
-  public static <T extends BaseArray<T>> T hstack(List<T> arrays) {
-    arrays.replaceAll(a -> a.isVector() ? a.reshape(1, a.size()) : a);
-    return concatenate(arrays, 0);
-  }
-
-  @SafeVarargs
-  public static <T extends BaseArray<T>> T hstack(T... arrays) {
-    return hstack(java.util.Arrays.asList(arrays));
-  }
-
-  public static <T extends BaseArray<T>> T concatenate(List<T> arrays) {
-    return concatenate(arrays, 0);
+  /**
+   */
+  public static <T extends BaseArray<T>> T vstack(List<T> arrays) {
+    arrays.replaceAll(v -> v.isVector() ? v.reshape(v.size(), 1) : v);
+    return concatenate(arrays, 1);
   }
 
   public static <T extends BaseArray<T>> T concatenate(List<T> arrays, int dim) {
@@ -746,24 +738,25 @@ public final class Arrays {
     return empty;
   }
 
-  public static <T extends BaseArray<T>> List<T> split(T array, int parts, int dim) {
-    Check.argument(array.size(dim) % parts == 0);
-    int[] shape = array.getShape();
-    shape[dim] /= parts;
+  public static <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
+    if (array.isVector()) {
+      array = array.reshape(1, array.size());
+    }
+    return split(array, parts, 0);
+  }
 
-    return new AbstractList<T>() {
-      @Override
-      public T get(int index) {
-        T empty = array.newEmptyArray(shape);
-        empty.assign(array.select(dim, index));
-        return empty;
-      }
+  @SafeVarargs
+  public static <T extends BaseArray<T>> T hstack(T... arrays) {
+    return hstack(java.util.Arrays.asList(arrays));
+  }
 
-      @Override
-      public int size() {
-        return parts;
-      }
-    };
+  public static <T extends BaseArray<T>> T hstack(List<T> arrays) {
+    arrays.replaceAll(a -> a.isVector() ? a.reshape(1, a.size()) : a);
+    return concatenate(arrays, 0);
+  }
+
+  public static <T extends BaseArray<T>> T concatenate(List<T> arrays) {
+    return concatenate(arrays, 0);
   }
 
   public static <S extends BaseArray<S>> List<S> split(S array, int parts) {
@@ -885,16 +878,20 @@ public final class Arrays {
     return out;
   }
 
-  public static DoubleArray dot(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b) {
+  public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a, DoubleArray b) {
+    return dot(transA, transB, 1, a, b);
+  }
+
+  public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a, DoubleArray b) {
     Check.argument(a.isMatrix() && b.isMatrix(), "require 2d-arrays");
-    int m = a.size(transA == Op.KEEP ? 0 : 1);
-    int bm = b.size(transB == Op.KEEP ? 0 : 1);
-    int n = b.size(transB == Op.KEEP ? 1 : 0);
-    int k = a.size(transA == Op.KEEP ? 1 : 0);
+    int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
+    int bm = b.size(transB == ArrayOperation.KEEP ? 0 : 1);
+    int n = b.size(transB == ArrayOperation.KEEP ? 1 : 0);
+    int k = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
     if (m == 0 || k == 0 || n == 0 || bm == 0) {
       throw new IllegalArgumentException("empty result");
     }
-    if (b.size(transB == Op.KEEP ? 0 : 1) != a.size(transA == Op.KEEP ? 1 : 0)) {
+    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1 : 0)) {
       throw new NonConformantException(a, b);
     }
     DoubleArray c = newDoubleArray(m, n);
@@ -902,8 +899,9 @@ public final class Arrays {
     return c;
   }
 
-  public static DoubleArray dot(Op transA, Op transB, DoubleArray a, DoubleArray b) {
-    return dot(transA, transB, 1, a, b);
+  public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a, DoubleArray b,
+                          double beta, DoubleArray c) {
+    ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
   }
 
   public static DoubleArray dot(DoubleArray a, DoubleArray b) {
@@ -911,7 +909,7 @@ public final class Arrays {
   }
 
   public static DoubleArray dot(double alpha, DoubleArray a, DoubleArray b) {
-    return dot(Op.KEEP, Op.KEEP, alpha, a, b);
+    return dot(ArrayOperation.KEEP, ArrayOperation.KEEP, alpha, a, b);
   }
 
   /**
@@ -963,6 +961,15 @@ public final class Arrays {
   }
 
   /**
+   * @see org.briljantframework.array.api.ArrayRoutines#ger(double,
+   *      org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray,
+   *      org.briljantframework.array.DoubleArray)
+   */
+  public static void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
+    ARRAY_ROUTINES.ger(alpha, x, y, a);
+  }
+
+  /**
    * @see org.briljantframework.array.api.ArrayRoutines#inner(org.briljantframework.array.ComplexArray,
    *      org.briljantframework.array.ComplexArray)
    */
@@ -995,60 +1002,46 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#ger(double,
-   *      org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray,
-   *      org.briljantframework.array.DoubleArray)
-   */
-  public static void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
-    ARRAY_ROUTINES.ger(alpha, x, y, a);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#gemm(org.briljantframework.array.Op,
-   *      org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
-   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
-   */
-  public static void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
-      DoubleArray y) {
-    ARRAY_ROUTINES.gemv(transA, alpha, a, x, beta, y);
-  }
-
-  /**
    * Delegates to
-   * {@link #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)}
-   * with the first argument {@code Op.KEEP}.
-   *
-   * @see #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
-   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
-   */
-  public static void gemv(double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y) {
-    gemv(Op.KEEP, alpha, a, x, beta, y);
-  }
-
-  /**
-   * Delegates to
-   * {@link #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)}
+   * {@link #gemv(ArrayOperation, double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)}
    * with the first argument {@code Op.KEEP}, {@code alpha
    * = 1} and {@code beta = 1}
    *
-   * @see #gemv(org.briljantframework.array.Op, double, org.briljantframework.array.DoubleArray,
+   * @see #gemv(ArrayOperation, double, org.briljantframework.array.DoubleArray,
    *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
    */
   public static void gemv(DoubleArray a, DoubleArray x, DoubleArray y) {
     gemv(1, a, x, 1, y);
   }
 
-  public static void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b,
-      double beta, DoubleArray c) {
-    ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
+  /**
+   * Delegates to
+   * {@link #gemv(ArrayOperation, double, org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)}
+   * with the first argument {@code Op.KEEP}.
+   *
+   * @see #gemv(ArrayOperation, double, org.briljantframework.array.DoubleArray,
+   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
+   */
+  public static void gemv(double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y) {
+    gemv(ArrayOperation.KEEP, alpha, a, x, beta, y);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayRoutines#gemm(ArrayOperation,
+   *      ArrayOperation, double, org.briljantframework.array.DoubleArray,
+   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
+   */
+  public static void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x, double beta,
+                          DoubleArray y) {
+    ARRAY_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 
   public static void gemm(double alpha, DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
-    gemm(Op.KEEP, Op.KEEP, alpha, a, b, beta, c);
+    gemm(ArrayOperation.KEEP, ArrayOperation.KEEP, alpha, a, b, beta, c);
   }
 
   public static void gemm(DoubleArray a, DoubleArray b, DoubleArray c) {
-    gemm(Op.KEEP, Op.KEEP, 1, a, b, 1, c);
+    gemm(ArrayOperation.KEEP, ArrayOperation.KEEP, 1, a, b, 1, c);
   }
 
   /**
@@ -1164,10 +1157,25 @@ public final class Arrays {
     return copy;
   }
 
+  public static IntArray order(DoubleArray array) {
+    return order(array, Double::compare);
+  }
+
   public static IntArray order(DoubleArray array, DoubleComparator cmp) {
     IntArray order = Arrays.range(array.size()).copy();
     order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
     return order;
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayFactory#range(int)
+   */
+  public static Range range(int end) {
+    return ARRAY_FACTORY.range(end);
+  }
+
+  public static IntArray order(int dim, DoubleArray array) {
+    return order(dim, array, Double::compare);
   }
 
   public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
@@ -1179,24 +1187,23 @@ public final class Arrays {
     return order;
   }
 
-  public static IntArray order(DoubleArray array) {
-    return order(array, Double::compare);
-  }
-
-  public static IntArray order(int dim, DoubleArray array) {
-    return order(dim, array, Double::compare);
+  public static int binarySearch(IntArray array, int x) {
+    return binarySearch(array.boxed(), x);
   }
 
   public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
     return Collections.binarySearch(array.toList(), x);
   }
 
-  public static int binarySearch(IntArray array, int x) {
+  public static int binarySearch(DoubleArray array, double x) {
     return binarySearch(array.boxed(), x);
   }
 
-  public static int binarySearch(DoubleArray array, double x) {
-    return binarySearch(array.boxed(), x);
+  /**
+   * @see #bisectLeft(Array, Object)
+   */
+  public static int bisectLeft(IntArray array, int value) {
+    return bisectLeft(array.boxed(), value);
   }
 
   /**
@@ -1218,6 +1225,13 @@ public final class Arrays {
   }
 
   /**
+   * @see #bisectRight(Array, Object)
+   */
+  public static int bisectRight(IntArray array, int value) {
+    return bisectRight(array.boxed(), value);
+  }
+
+  /**
    * Locate the insertion point for value in a to maintain sorted order. If value is already present
    * in the array, the insertion point will be after (to the right of) any existing entries.
    *
@@ -1233,20 +1247,6 @@ public final class Arrays {
     } else {
       return i + 1;
     }
-  }
-
-  /**
-   * @see #bisectLeft(Array, Object)
-   */
-  public static int bisectLeft(IntArray array, int value) {
-    return bisectLeft(array.boxed(), value);
-  }
-
-  /**
-   * @see #bisectRight(Array, Object)
-   */
-  public static int bisectRight(IntArray array, int value) {
-    return bisectRight(array.boxed(), value);
   }
 
   /**

@@ -44,8 +44,8 @@ import org.briljantframework.primitive.ArrayAllocations;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray>
-    implements BooleanArray {
+public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray> implements
+    BooleanArray {
 
   protected AbstractBooleanArray(ArrayFactory bj, int size) {
     super(bj, new int[] {size});
@@ -75,178 +75,21 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     set(toIndex, from.get(fromIndex));
   }
 
-  public final void set(int[] ix, boolean value) {
-    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
-  }
-
-  public final boolean get(int... ix) {
-    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
-  }
-
-  @Override
-  public Array<Boolean> boxed() {
-    return new AsArray<Boolean>(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStride()) {
-      @Override
-      protected Boolean getElement(int i) {
-        return AbstractBooleanArray.this.getElement(i);
-      }
-
-      @Override
-      protected void setElement(int i, Boolean value) {
-        AbstractBooleanArray.this.setElement(i, value);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractBooleanArray.this.elementSize();
-      }
-
-      @Override
-      public BooleanArray asBoolean() {
-        return AbstractBooleanArray.this;
-      }
-    };
-  }
-
-  @Override
-  public BooleanArray map(Function<Boolean, Boolean> mapper) {
-    BooleanArray empty = newEmptyArray(getShape());
-    for (int i = 0, size = size(); i < size; i++) {
-      empty.set(i, mapper.apply(get(i)));
-    }
-    return empty;
-  }
-
-  @Override
-  public void apply(UnaryOperator<Boolean> operator) {
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(get(i)));
-    }
-  }
-
-  @Override
-  public void set(int i, int j, boolean value) {
-    Check.argument(isMatrix(), REQUIRE_2D);
-    setElement(getOffset() + i * stride(0) + j * stride(1), value);
-  }
-
-  @Override
-  public boolean get(int i, int j) {
-    Check.argument(isMatrix(), REQUIRE_2D);
-    return getElement(getOffset() + i * stride(0) + j * stride(1));
-  }
-
-  @Override
-  public void set(int index, boolean value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
-  }
-
-  @Override
-  public boolean get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
-  }
-
-  protected abstract void setElement(int i, boolean value);
-
-  protected abstract boolean getElement(int i);
-
   @Override
   public int compare(int a, int b) {
     return Boolean.compare(get(a), get(b));
   }
 
   @Override
-  public void assign(Supplier<Boolean> supplier) {
+  public BooleanArray slice(BooleanArray bits) {
+    Check.shape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
-      set(i, supplier.get());
-    }
-  }
-
-  @Override
-  public BooleanArray lt(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public BooleanArray gt(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public BooleanArray eq(BooleanArray other) {
-    BooleanArray bits = getArrayFactory().booleanArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bits.set(i, get(i) == other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray lte(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public BooleanArray gte(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public void assign(boolean value) {
-    for (int i = 0; i < size(); i++) {
-      set(i, value);
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    int value = Objects.hash(getShape(), getStride());
-    for (int i = 0; i < size(); i++) {
-      value = value * 31 + Boolean.hashCode(get(i));
-    }
-    return value;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof BooleanArray) {
-      BooleanArray o = (BooleanArray) obj;
-      if (!Arrays.equals(shape, o.getShape())) {
-        return false;
+      if (bits.get(i)) {
+        builder.add(get(i));
       }
-      for (int i = 0; i < size(); i++) {
-        if (get(i) != o.get(i)) {
-          return false;
-        }
-      }
-    } else {
-      return false;
     }
-    return true;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder a = new StringBuilder();
-    try {
-      ArrayPrinter.print(a, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return a.toString();
-  }
-
-  @Override
-  public void swap(int a, int b) {
-    boolean tmp = get(a);
-    set(a, get(b));
-    set(b, tmp);
+    return builder.build();
   }
 
   @Override
@@ -276,14 +119,14 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
         getMajorStrideIndex()) {
 
       @Override
-      public int getElement(int index) {
-        return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
-
+      public void setElement(int index, int value) {
+        AbstractBooleanArray.this.setElement(index, value == 1);
       }
 
       @Override
-      public void setElement(int index, int value) {
-        AbstractBooleanArray.this.setElement(index, value == 1);
+      public int getElement(int index) {
+        return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
+
       }
 
       @Override
@@ -299,14 +142,14 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
         getMajorStrideIndex()) {
 
       @Override
-      public long getElement(int index) {
-        return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
-
+      public void setElement(int index, long value) {
+        AbstractBooleanArray.this.setElement(index, value == 1);
       }
 
       @Override
-      public void setElement(int index, long value) {
-        AbstractBooleanArray.this.setElement(index, value == 1);
+      public long getElement(int index) {
+        return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
+
       }
 
       @Override
@@ -314,6 +157,11 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
         return AbstractBooleanArray.this.elementSize();
       }
     };
+  }
+
+  @Override
+  public BooleanArray asBoolean() {
+    return this;
   }
 
   @Override
@@ -338,73 +186,103 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return this;
-  }
-
-  @Override
-  public BooleanArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
-  public Stream<Boolean> stream() {
-    return StreamSupport.stream(Spliterators.spliterator(new Iterator<Boolean>() {
-      int current = 0;
-
-      @Override
-      public boolean hasNext() {
-        return current < size();
-      }
-
-      @Override
-      public Boolean next() {
-        return get(current++);
-      }
-    }, size(), Spliterator.SIZED), false);
-  }
-
-  @Override
-  public List<Boolean> toList() {
-    return new AbstractList<Boolean>() {
-      @Override
-      public Boolean get(int index) {
-        return AbstractBooleanArray.this.get(index);
-      }
-
-      @Override
-      public Boolean set(int index, Boolean element) {
-        Boolean old = get(index);
-        AbstractBooleanArray.this.set(index, element);
-        return old;
-      }
-
-      @Override
-      public int size() {
-        return AbstractBooleanArray.this.size();
-      }
-    };
-  }
-
-  @Override
-  public Iterator<Boolean> iterator() {
-    return toList().iterator();
-  }
-
-  @Override
   public BooleanArray copy() {
     BooleanArray n = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       n.set(i, get(i));
     }
     return n;
+  }
+
+  @Override
+  public BooleanArray lt(BooleanArray other) {
+    return eq(other);
+  }
+
+  @Override
+  public BooleanArray gt(BooleanArray other) {
+    return eq(other);
+  }
+
+  @Override
+  public BooleanArray eq(BooleanArray other) {
+    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      bits.set(i, get(i) == other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BooleanArray lte(BooleanArray other) {
+    return eq(other);
+  }
+
+  @Override
+  public BooleanArray gte(BooleanArray other) {
+    return eq(other);
+  }
+
+  @Override
+  public void assign(boolean value) {
+    for (int i = 0; i < size(); i++) {
+      set(i, value);
+    }
+  }
+
+  @Override
+  public void set(int index, boolean value) {
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+  }
+
+  @Override
+  public void assign(Supplier<Boolean> supplier) {
+    for (int i = 0; i < size(); i++) {
+      set(i, supplier.get());
+    }
+  }
+
+  @Override
+  public void set(int i, int j, boolean value) {
+    Check.argument(isMatrix(), REQUIRE_2D);
+    setElement(getOffset() + i * stride(0) + j * stride(1), value);
+  }
+
+  public final void set(int[] ix, boolean value) {
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+  }
+
+  @Override
+  public boolean get(int index) {
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+  }
+
+  @Override
+  public boolean get(int i, int j) {
+    Check.argument(isMatrix(), REQUIRE_2D);
+    return getElement(getOffset() + i * stride(0) + j * stride(1));
+  }
+
+  public final boolean get(int... ix) {
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+  }
+
+  @Override
+  public BooleanArray map(Function<Boolean, Boolean> mapper) {
+    BooleanArray empty = newEmptyArray(getShape());
+    for (int i = 0, size = size(); i < size; i++) {
+      empty.set(i, mapper.apply(get(i)));
+    }
+    return empty;
+  }
+
+  @Override
+  public void apply(UnaryOperator<Boolean> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
   }
 
   @Override
@@ -514,6 +392,130 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     return true;
   }
 
+  @Override
+  public Array<Boolean> boxed() {
+    return new AsArray<Boolean>(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStride()) {
+      @Override
+      public BooleanArray asBoolean() {
+        return AbstractBooleanArray.this;
+      }      @Override
+      protected int elementSize() {
+        return AbstractBooleanArray.this.elementSize();
+      }
+
+      @Override
+      protected void setElement(int i, Boolean value) {
+        AbstractBooleanArray.this.setElement(i, value);
+      }
+
+      @Override
+      protected Boolean getElement(int i) {
+        return AbstractBooleanArray.this.getElement(i);
+      }
+
+
+    };
+  }
+
+  @Override
+  public Stream<Boolean> stream() {
+    return StreamSupport.stream(Spliterators.spliterator(new Iterator<Boolean>() {
+      int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Boolean next() {
+        return get(current++);
+      }
+    }, size(), Spliterator.SIZED), false);
+  }
+
+  @Override
+  public List<Boolean> toList() {
+    return new AbstractList<Boolean>() {
+      @Override
+      public int size() {
+        return AbstractBooleanArray.this.size();
+      }
+
+      @Override
+      public Boolean get(int index) {
+        return AbstractBooleanArray.this.get(index);
+      }
+
+      @Override
+      public Boolean set(int index, Boolean element) {
+        Boolean old = get(index);
+        AbstractBooleanArray.this.set(index, element);
+        return old;
+      }
+
+
+    };
+  }
+
+  protected abstract boolean getElement(int i);
+
+  protected abstract void setElement(int i, boolean value);
+
+  @Override
+  public int hashCode() {
+    int value = Objects.hash(getShape(), getStride());
+    for (int i = 0; i < size(); i++) {
+      value = value * 31 + Boolean.hashCode(get(i));
+    }
+    return value;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof BooleanArray) {
+      BooleanArray o = (BooleanArray) obj;
+      if (!Arrays.equals(shape, o.getShape())) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (get(i) != o.get(i)) {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder a = new StringBuilder();
+    try {
+      ArrayPrinter.print(a, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
+    }
+    return a.toString();
+  }
+
+  @Override
+  public void swap(int a, int b) {
+    boolean tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
+  }
+
+  @Override
+  public Iterator<Boolean> iterator() {
+    return toList().iterator();
+  }
+
   public class IncrementalBuilder {
 
     private boolean[] buffer = new boolean[10];
@@ -525,7 +527,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     }
 
     public BooleanArray build() {
-      return bj.array(Arrays.copyOf(buffer, size));
+      return bj.newVector(Arrays.copyOf(buffer, size));
     }
   }
 

@@ -22,7 +22,9 @@
 package org.briljantframework.data.reader;
 
 /**
- * Created by isak on 10/09/15.
+ * An exception wrapper to avoid checked exceptions for entry readers.
+ * 
+ * @author Isak Karlsson
  */
 public class EntryReaderException extends RuntimeException {
 

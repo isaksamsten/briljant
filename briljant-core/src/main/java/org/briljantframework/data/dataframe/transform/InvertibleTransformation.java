@@ -33,7 +33,7 @@ public interface InvertibleTransformation extends Transformation {
   /**
    * Perform an invertible transformation on {@code x}
    *
-   * @param x dataset to transform
+   * @param x data frame to transform
    * @return the invertible transformation
    */
   @Override

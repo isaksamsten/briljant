@@ -53,8 +53,8 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getArrayFactory(), shape);
+  public void setElement(int index, int value) {
+    data[index] = value;
   }
 
   @Override
@@ -63,13 +63,13 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  public void setElement(int index, int value) {
-    data[index] = value;
+  public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+    return new BaseIntArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
   @Override
-  public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
-    return new BaseIntArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+  public IntArray newEmptyArray(int... shape) {
+    return new BaseIntArray(getArrayFactory(), shape);
   }
 
   @Override

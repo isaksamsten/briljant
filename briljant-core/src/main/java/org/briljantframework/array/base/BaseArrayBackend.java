@@ -27,6 +27,8 @@ import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 
 /**
+ * The base array backend. This backend has the lowest priority.
+ * 
  * @author Isak Karlsson
  */
 public class BaseArrayBackend implements ArrayBackend {

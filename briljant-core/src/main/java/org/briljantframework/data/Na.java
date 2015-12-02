@@ -32,12 +32,6 @@ import org.apache.commons.math3.complex.Complex;
 public final class Na {
 
   /**
-   * The integer NA.
-   */
-  public static final int INT = Integer.MIN_VALUE;
-  private static final Integer BOXED_INT_NA = INT;
-
-  /**
    * The value denoting {@code NA} for a {@code double}. The value lies in a valid IEEE 754 floating
    * point range for {@code NaN} values. Since no floating point operations can distinguish between
    * values in the {@code NaN} range (see {@link Double#longBitsToDouble(long)}, a mask
@@ -58,7 +52,6 @@ public final class Na {
    * TL;DR; DO NOT {@code v == NA.DOUBLE}. DO {@code Is.NA(v);}
    */
   public static final double DOUBLE = Double.longBitsToDouble(0x7ff0000000000009L);
-  private static final Double BOXED_DOUBLE_NA = DOUBLE;
 
   /**
    * The mask used in conjunction with {@link #DOUBLE} and and {@link #DOUBLE_NA_RES} to recognize a
@@ -68,22 +61,28 @@ public final class Na {
   public static final int DOUBLE_NA_RES = 9;
 
   public static final long LONG = Long.MIN_VALUE;
-  private static final Long BOXED_LONG_NA = LONG;
+
+  public static final int INT = Integer.MIN_VALUE;
 
   public static final Complex COMPLEX = new Complex(DOUBLE, DOUBLE);
+
   public static final byte BYTE = Byte.MIN_VALUE;
-  private static final Byte BOXED_BYTE_NA = BYTE;
 
   public static final short SHORT = Short.MIN_VALUE;
-  private static final Short BOXED_SHORT_NA = SHORT;
 
   public static final float FLOAT = Float.intBitsToFloat(0xff800009);
   public static final long FLOAT_NA_MASK = 0x0000000F;
   public static final int FLOAT_NA_RES = 9;
-  private static final Float BOXED_FLOAT_NA = FLOAT;
 
   public static final char CHAR = '\0';
-  private static final Character BOXED_CHAR_NA = CHAR;
+
+  public static final Integer BOXED_INT = INT;
+  public static final Double BOXED_DOUBLE = DOUBLE;
+  public static final Long BOXED_LONG = LONG;
+  public static final Byte BOXED_BYTE = BYTE;
+  public static final Short BOXED_SHORT = SHORT;
+  public static final Float BOXED_FLOAT = FLOAT;
+  public static final Character BOXED_CHAR = CHAR;
 
   private Na() {}
 
@@ -119,19 +118,19 @@ public final class Na {
     if (cls == null) {
       return null;
     } else if (Double.class.equals(cls) || Double.TYPE.equals(cls)) {
-      return (T) BOXED_DOUBLE_NA;
+      return (T) BOXED_DOUBLE;
     } else if (Float.class.equals(cls) || Float.TYPE.equals(cls)) {
-      return (T) BOXED_FLOAT_NA;
+      return (T) BOXED_FLOAT;
     } else if (Long.class.equals(cls) || Long.TYPE.equals(cls)) {
-      return (T) BOXED_LONG_NA;
+      return (T) BOXED_LONG;
     } else if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {
-      return (T) BOXED_INT_NA;
+      return (T) BOXED_INT;
     } else if (Short.class.equals(cls) || Short.TYPE.equals(cls)) {
-      return (T) BOXED_SHORT_NA;
+      return (T) BOXED_SHORT;
     } else if (Byte.class.equals(cls) || Byte.TYPE.equals(cls)) {
-      return (T) BOXED_BYTE_NA;
+      return (T) BOXED_BYTE;
     } else if (Character.class.equals(cls) || Character.TYPE.equals(cls)) {
-      return (T) BOXED_CHAR_NA;
+      return (T) BOXED_CHAR;
     } else if (Logical.class.equals(cls)) {
       return (T) Logical.NA;
     } else if (Complex.class.equals(cls)) {

@@ -46,19 +46,19 @@ abstract class AsArray<T> extends AbstractArray<T> {
       }
 
       @Override
-      protected T getElement(int i) {
-        return AsArray.this.getElement(i);
+      protected void setElement(int i, T value) {
+        AsArray.this.setElement(i, value);
       }
 
       @Override
-      protected void setElement(int i, T value) {
-        AsArray.this.setElement(i, value);
+      protected T getElement(int i) {
+        return AsArray.this.getElement(i);
       }
     };
   }
 
   @Override
   public Array<T> newEmptyArray(int... shape) {
-    return getArrayFactory().referenceArray(shape);
+    return getArrayFactory().newArray(shape);
   }
 }

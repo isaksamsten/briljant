@@ -63,7 +63,9 @@ public class CsvEntryReader implements EntryReader {
     if (types == null) {
       types = new ArrayList<>();
       for (String repr : current) {
-        repr = repr == null ? repr : repr.trim();
+        if (repr != null) {
+          repr = repr.trim();
+        }
         if (repr == null || repr.equals(missingValue)) {
           types.add(Object.class);
         } else if (NumberUtils.isNumber(repr)) {

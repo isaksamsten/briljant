@@ -35,15 +35,22 @@ import org.briljantframework.Listable;
  */
 public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>, Listable<Boolean> {
 
-  static BooleanArray falses(int... shape) {
-    return Arrays.newBooleanArray(shape);
-  }
-
   static BooleanArray trues(int... shape) {
     BooleanArray array = falses(shape);
     array.assign(true);
     return array;
   }
+
+  static BooleanArray falses(int... shape) {
+    return Arrays.newBooleanArray(shape);
+  }
+
+  /**
+   * Assign the scalar value
+   *
+   * @param value the value
+   */
+  void assign(boolean value);
 
   /**
    * @see Arrays#newBooleanVector(boolean[])
@@ -60,21 +67,14 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
     return array;
   }
 
+  void set(int index, boolean value);
+
   /**
    * Assign the value of successive cals to the supplier
-   * 
+   *
    * @param supplier the supplier
    */
   void assign(Supplier<Boolean> supplier);
-
-  /**
-   * Assign the scalar value
-   * 
-   * @param value the value
-   */
-  void assign(boolean value);
-
-  void set(int index, boolean value);
 
   void set(int i, int j, boolean value);
 

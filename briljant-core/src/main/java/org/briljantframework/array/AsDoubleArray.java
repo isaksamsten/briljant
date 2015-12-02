@@ -30,11 +30,6 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public DoubleArray newEmptyArray(int... shape) {
-    return getArrayFactory().doubleArray(shape);
-  }
-
-  @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsDoubleArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
@@ -52,6 +47,11 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
         return AsDoubleArray.this.elementSize();
       }
     };
+  }
+
+  @Override
+  public DoubleArray newEmptyArray(int... shape) {
+    return getArrayFactory().newDoubleArray(shape);
   }
 
   @Override

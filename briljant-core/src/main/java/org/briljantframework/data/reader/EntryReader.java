@@ -28,6 +28,11 @@ import java.util.List;
  */
 public interface EntryReader {
 
+  /**
+   * Get the column types of this entry reader.
+   * 
+   * @return the column types
+   */
   List<Class<?>> getTypes();
 
   /**

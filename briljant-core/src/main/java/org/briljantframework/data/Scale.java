@@ -24,6 +24,7 @@ package org.briljantframework.data;
 /**
  * The expectations on the data stored within this type. If the data is
  */
+@Deprecated
 public enum Scale {
   /**
    * If the scale is categorical

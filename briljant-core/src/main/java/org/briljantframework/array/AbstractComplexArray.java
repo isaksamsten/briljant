@@ -68,81 +68,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     super(bj, offset, shape, stride, majorStride);
   }
 
-  public final void set(int[] ix, Complex value) {
-    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
-  }
-
-  public final Complex get(int... ix) {
-    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
-  }
-
-  @Override
-  public Array<Complex> boxed() {
-    return new AsArray<Complex>(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStride()) {
-
-      @Override
-      protected Complex getElement(int i) {
-        return AbstractComplexArray.this.getElement(i);
-      }
-
-      @Override
-      protected void setElement(int i, Complex value) {
-        AbstractComplexArray.this.setElement(i, value);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractComplexArray.this.elementSize();
-      }
-
-      @Override
-      public ComplexArray asComplex() {
-        return AbstractComplexArray.this;
-      }
-    };
-  }
-
-  @Override
-  public final void set(int i, int j, Complex value) {
-    Check.argument(isMatrix(), REQUIRE_2D);
-    setElement(getOffset() + i * stride(0) + j * stride(1), value);
-  }
-
-  @Override
-  public final Complex get(int i, int j) {
-    Check.argument(isMatrix(), REQUIRE_2D);
-    return getElement(getOffset() + i * stride(0) + j * stride(1));
-  }
-
-  @Override
-  public final void set(int index, Complex value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
-  }
-
-  @Override
-  public final Complex get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
-  }
-
-  /**
-   * Sets the element at index {@code i}, ignoring offsets and strides.
-   *
-   * @param i the index
-   * @param value the value
-   */
-  protected abstract void setElement(int i, Complex value);
-
-  /**
-   * Gets the element at index {@code i}, ignoring offsets and strides.
-   *
-   * @param i the index
-   * @return the value at {@code i}
-   */
-  protected abstract Complex getElement(int i);
-
   @Override
   public ComplexArray assign(Complex value) {
     for (int i = 0; i < size(); i++) {
@@ -232,13 +157,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public void apply(UnaryOperator<Complex> operator) {
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(get(i)));
-    }
-  }
-
-  @Override
   public ComplexArray map(UnaryOperator<Complex> operator) {
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -249,7 +167,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public IntArray mapToInt(ToIntFunction<Complex> function) {
-    IntArray matrix = bj.intArray(getShape());
+    IntArray matrix = bj.newIntArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsInt(get(i)));
     }
@@ -257,52 +175,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-
-      @Override
-      protected void setElement(int i, double value) {
-        AbstractComplexArray.this.setElement(i, Complex.valueOf(value));
-      }
-
-      @Override
-      protected double getElement(int i) {
-        return AbstractComplexArray.this.getElement(i).getReal();
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractComplexArray.this.elementSize();
-      }
-    };
-  }
-
-  @Override
-  public IntArray asInt() {
-    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-
-      @Override
-      public int getElement(int index) {
-        return (int) AbstractComplexArray.this.getElement(index).getReal();
-      }
-
-      @Override
-      public void setElement(int index, int value) {
-        AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractComplexArray.this.elementSize();
-      }
-    };
-  }
-
-  @Override
   public LongArray mapToLong(ToLongFunction<Complex> function) {
-    LongArray matrix = bj.longArray(getShape());
+    LongArray matrix = bj.newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -311,7 +185,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public DoubleArray mapToDouble(ToDoubleFunction<Complex> function) {
-    DoubleArray matrix = bj.doubleArray(getShape());
+    DoubleArray matrix = bj.newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -320,11 +194,18 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper) {
-    Array<T> array = getArrayFactory().referenceArray(getShape());
+    Array<T> array = getArrayFactory().newArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, mapper.apply(get(i)));
     }
     return array;
+  }
+
+  @Override
+  public void apply(UnaryOperator<Complex> operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.apply(get(i)));
+    }
   }
 
   @Override
@@ -341,7 +222,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public BooleanArray where(Predicate<Complex> predicate) {
-    BooleanArray bits = bj.booleanArray(getShape());
+    BooleanArray bits = bj.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -350,7 +231,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   public BooleanArray where(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BooleanArray bits = bj.booleanArray(getShape());
+    BooleanArray bits = bj.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -358,87 +239,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public int hashCode() {
-    int result = 1;
-    for (int i = 0; i < size(); i++) {
-      int bits = get(i).hashCode();
-      result = 31 * result + bits;
-    }
-
-    return Objects.hash(shape, result);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj instanceof ComplexArray) {
-      ComplexArray mat = (ComplexArray) obj;
-      if (!Arrays.equals(shape, mat.getShape())) {
-        return false;
-      }
-      for (int i = 0; i < size(); i++) {
-        if (!get(i).equals(mat.get(i))) {
-          return false;
-        }
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
-  @Override
-  public BooleanArray lt(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray gt(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray eq(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray lte(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray gte(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
     return reduce(identity, reduce, UnaryOperator.identity());
-  }
-
-  @Override
-  public LongArray asLong() {
-    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-      @Override
-      public long getElement(int index) {
-        return (long) AbstractComplexArray.this.getElement(index).getReal();
-      }
-
-      @Override
-      public void setElement(int index, long value) {
-        AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractComplexArray.this.elementSize();
-      }
-    };
   }
 
   @Override
@@ -479,106 +281,62 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public void set(int toIndex, ComplexArray from, int fromIndex) {
-    set(toIndex, from.get(fromIndex));
+  public final void set(int i, int j, Complex value) {
+    Check.argument(isMatrix(), REQUIRE_2D);
+    setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
-  public void set(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
-    set(toRow, toColumn, from.get(fromRow, fromColumn));
+  public final void set(int index, Complex value) {
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+  }
+
+  public final void set(int[] ix, Complex value) {
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
   }
 
   @Override
-  public void set(int[] toIndex, ComplexArray from, int[] fromIndex) {
-    set(toIndex, from.get(fromIndex));
+  public final Complex get(int index) {
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public final Complex get(int i, int j) {
+    Check.argument(isMatrix(), REQUIRE_2D);
+    return getElement(getOffset() + i * stride(0) + j * stride(1));
+  }
 
-      @Override
-      public void setElement(int index, boolean value) {
-        AbstractComplexArray.this.set(index, value ? Complex.ONE : Complex.ZERO);
-      }
+  public final Complex get(int... ix) {
+    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+  }
 
-      @Override
-      public boolean getElement(int index) {
-        return AbstractComplexArray.this.getElement(index).equals(Complex.ONE);
-      }
+  @Override
+  public Array<Complex> boxed() {
+    return new AsArray<Complex>(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStride()) {
 
       @Override
       protected int elementSize() {
         return AbstractComplexArray.this.elementSize();
       }
-    };
-  }
-
-  @Override
-  public int compare(int a, int b) {
-    return Double.compare(get(a).abs(), get(b).abs());
-  }
-
-  @Override
-  public void swap(int a, int b) {
-    Complex tmp = get(a);
-    set(a, get(b));
-    set(b, tmp);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    try {
-      ArrayPrinter.print(builder, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return builder.toString();
-  }
-
-  @Override
-  public ComplexArray asComplex() {
-    return this;
-  }
-
-  @Override
-  public Iterator<Complex> iterator() {
-    return new Iterator<Complex>() {
-      private int current = 0;
 
       @Override
-      public boolean hasNext() {
-        return current < size();
+      public ComplexArray asComplex() {
+        return AbstractComplexArray.this;
       }
 
       @Override
-      public Complex next() {
-        return get(current++);
+      protected void setElement(int i, Complex value) {
+        AbstractComplexArray.this.setElement(i, value);
+      }
+
+      @Override
+      protected Complex getElement(int i) {
+        return AbstractComplexArray.this.getElement(i);
       }
     };
-  }
-
-  @Override
-  public ComplexArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
-  public ComplexArray copy() {
-    ComplexArray n = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      n.set(i, get(i));
-    }
-    return n;
   }
 
   @Override
@@ -602,6 +360,11 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public final List<Complex> toList() {
     return new AbstractList<Complex>() {
       @Override
+      public int size() {
+        return AbstractComplexArray.this.size();
+      }
+
+      @Override
       public Complex get(int index) {
         return AbstractComplexArray.this.get(index);
       }
@@ -613,29 +376,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
         return old;
       }
 
-      @Override
-      public int size() {
-        return AbstractComplexArray.this.size();
-      }
+
     };
-  }
-
-  @Override
-  public ComplexArray negate() {
-    return map(Complex::negate);
-  }
-
-  @Override
-  public double[] data() {
-    double[] data = new double[size() * 2];
-    int j = 0;
-    for (int i = 0; i < size(); i++) {
-      Complex c = get(i);
-      data[j] = c.getReal();
-      data[j + 1] = c.getImaginary();
-      j += 2;
-    }
-    return data;
   }
 
   @Override
@@ -746,12 +488,271 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     return m;
   }
 
+  @Override
+  public ComplexArray negate() {
+    return map(Complex::negate);
+  }
+
+  @Override
+  public double[] data() {
+    double[] data = new double[size() * 2];
+    int j = 0;
+    for (int i = 0; i < size(); i++) {
+      Complex c = get(i);
+      data[j] = c.getReal();
+      data[j + 1] = c.getImaginary();
+      j += 2;
+    }
+    return data;
+  }
+
+  /**
+   * Gets the element at index {@code i}, ignoring offsets and strides.
+   *
+   * @param i the index
+   * @return the value at {@code i}
+   */
+  protected abstract Complex getElement(int i);
+
+  /**
+   * Sets the element at index {@code i}, ignoring offsets and strides.
+   *
+   * @param i the index
+   * @param value the value
+   */
+  protected abstract void setElement(int i, Complex value);
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    for (int i = 0; i < size(); i++) {
+      int bits = get(i).hashCode();
+      result = 31 * result + bits;
+    }
+
+    return Objects.hash(shape, result);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof ComplexArray) {
+      ComplexArray mat = (ComplexArray) obj;
+      if (!Arrays.equals(shape, mat.getShape())) {
+        return false;
+      }
+      for (int i = 0; i < size(); i++) {
+        if (!get(i).equals(mat.get(i))) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    try {
+      ArrayPrinter.print(builder, this);
+    } catch (IOException e) {
+      return getClass().getSimpleName();
+    }
+    return builder.toString();
+  }
+
+  @Override
+  public void set(int toIndex, ComplexArray from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
+  public void set(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
+    set(toRow, toColumn, from.get(fromRow, fromColumn));
+  }
+
+  @Override
+  public void set(int[] toIndex, ComplexArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
+  public int compare(int a, int b) {
+    return Double.compare(get(a).abs(), get(b).abs());
+  }
+
+  @Override
+  public ComplexArray slice(BooleanArray bits) {
+    Check.shape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public DoubleArray asDouble() {
+    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+
+      @Override
+      protected void setElement(int i, double value) {
+        AbstractComplexArray.this.setElement(i, Complex.valueOf(value));
+      }
+
+      @Override
+      protected double getElement(int i) {
+        return AbstractComplexArray.this.getElement(i).getReal();
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public IntArray asInt() {
+    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+
+      @Override
+      public void setElement(int index, int value) {
+        AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
+      }
+
+      @Override
+      public int getElement(int index) {
+        return (int) AbstractComplexArray.this.getElement(index).getReal();
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public LongArray asLong() {
+    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+      @Override
+      public void setElement(int index, long value) {
+        AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
+      }
+
+      @Override
+      public long getElement(int index) {
+        return (long) AbstractComplexArray.this.getElement(index).getReal();
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public BooleanArray asBoolean() {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+
+      @Override
+      public boolean getElement(int index) {
+        return AbstractComplexArray.this.getElement(index).equals(Complex.ONE);
+      }
+
+      @Override
+      public void setElement(int index, boolean value) {
+        AbstractComplexArray.this.set(index, value ? Complex.ONE : Complex.ZERO);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractComplexArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public ComplexArray asComplex() {
+    return this;
+  }
+
+  @Override
+  public ComplexArray copy() {
+    ComplexArray n = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      n.set(i, get(i));
+    }
+    return n;
+  }
+
+  @Override
+  public BooleanArray lt(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BooleanArray gt(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BooleanArray eq(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BooleanArray lte(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public BooleanArray gte(ComplexArray other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void swap(int a, int b) {
+    Complex tmp = get(a);
+    set(a, get(b));
+    set(b, tmp);
+  }
+
+  @Override
+  public Iterator<Complex> iterator() {
+    return new Iterator<Complex>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Complex next() {
+        return get(current++);
+      }
+    };
+  }
+
   public class IncrementalBuilder {
 
     private List<Complex> buffer = new ArrayList<>();
 
     public ComplexArray build() {
-      return bj.array(buffer.toArray(new Complex[buffer.size()]));
+      return bj.newVector(buffer.toArray(new Complex[buffer.size()]));
       // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
     }
 

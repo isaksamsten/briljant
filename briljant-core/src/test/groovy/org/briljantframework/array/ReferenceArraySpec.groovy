@@ -40,7 +40,7 @@ class ReferenceArraySpec extends Specification {
 
   def "assigning a single element"() {
     given:
-    def x = bj.referenceArray(3)
+    def x = bj.newArray(3)
 
     when:
     x.assign("hello world")
@@ -51,7 +51,7 @@ class ReferenceArraySpec extends Specification {
 
   def "assigning a supplied element value"() {
     given:
-    def y = bj.referenceArray(3)
+    def y = bj.newArray(3)
 
     when:
     y.assign(new Supplier() {
@@ -68,8 +68,8 @@ class ReferenceArraySpec extends Specification {
 
   def "assigning another array while transforming the value"() {
     given:
-    def x = bj.referenceArray(3)
-    def y = bj.referenceArray(3)
+    def x = bj.newArray(3)
+    def y = bj.newArray(3)
 
     when:
     x.assign(32)
@@ -82,7 +82,7 @@ class ReferenceArraySpec extends Specification {
 
   def "mapping an array to a double array"() {
     given:
-    Array<String> x = bj.referenceArray(3)
+    Array<String> x = bj.newArray(3)
     x.assign("320")
 
     when:
@@ -99,7 +99,7 @@ class ReferenceArraySpec extends Specification {
 
   def "mapping an array to a long array"() {
     given:
-    Array<String> x = bj.referenceArray(3)
+    Array<String> x = bj.newArray(3)
     x.assign("320")
 
     when:
@@ -113,7 +113,7 @@ class ReferenceArraySpec extends Specification {
 
   def "mapping an array to an int array"() {
     given: "a reference array of strings"
-    Array<String> x = bj.referenceArray(3)
+    Array<String> x = bj.newArray(3)
     x.assign("320")
 
     when: "the array is mapped to an int array"
@@ -126,7 +126,7 @@ class ReferenceArraySpec extends Specification {
 
   def "mapping an array to a complex array"() {
     given:
-    Array<String> x = bj.referenceArray(3)
+    Array<String> x = bj.newArray(3)
     x.assign("320")
 
     when:
@@ -141,7 +141,7 @@ class ReferenceArraySpec extends Specification {
 
   def "mapping an array of value of type T to an array of type U"() {
     given:
-    Array<String> x = bj.referenceArray(3)
+    Array<String> x = bj.newArray(3)
     x.assign("hello")
 
     when:

@@ -56,7 +56,7 @@ import org.briljantframework.primitive.ArrayAllocations;
 /**
  * @author Isak Karlsson
  */
-public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>implements LongArray {
+public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> implements LongArray {
 
   protected AbstractLongArray(ArrayFactory bj, int[] shape) {
     super(bj, shape);
@@ -73,42 +73,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
     set(a, get(b));
     set(b, tmp);
   }
-
-  public final void set(int[] ix, long value) {
-    Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
-  }
-
-  public final long get(int... ix) {
-    Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
-  }
-
-  @Override
-  public final void set(int i, int j, long value) {
-    Check.argument(isMatrix());
-    setElement(getOffset() + i * stride(0) + j * stride(1), value);
-  }
-
-  @Override
-  public final long get(int i, int j) {
-    Check.argument(isMatrix());
-    return getElement(getOffset() + i * stride(0) + j * stride(1));
-  }
-
-  @Override
-  public final void set(int index, long value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
-  }
-
-  @Override
-  public final long get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
-  }
-
-  protected abstract void setElement(int i, long value);
-
-  protected abstract long getElement(int i);
 
   @Override
   public void set(int toIndex, LongArray from, int fromIndex) {
@@ -131,6 +95,177 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   }
 
   @Override
+  public LongArray slice(BooleanArray bits) {
+    Check.shape(this, bits);
+    IncrementalBuilder builder = new IncrementalBuilder();
+    for (int i = 0; i < size(); i++) {
+      if (bits.get(i)) {
+        builder.add(get(i));
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public DoubleArray asDouble() {
+    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+      @Override
+      protected void setElement(int i, double value) {
+        AbstractLongArray.this.setElement(i, (long) value);
+      }
+
+      @Override
+      protected double getElement(int i) {
+        return AbstractLongArray.this.getElement(i);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractLongArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public IntArray asInt() {
+    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+      @Override
+      public LongArray asLong() {
+        return AbstractLongArray.this;
+      }
+
+      @Override
+      public void setElement(int index, int value) {
+        AbstractLongArray.this.setElement(index, value);
+      }
+
+      @Override
+      public int getElement(int index) {
+        return (int) AbstractLongArray.this.getElement(index);
+      }      @Override
+      protected int elementSize() {
+        return AbstractLongArray.this.elementSize();
+      }
+
+
+    };
+  }
+
+  @Override
+  public LongArray asLong() {
+    return this;
+  }
+
+  @Override
+  public BooleanArray asBoolean() {
+    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+
+      @Override
+      public boolean getElement(int index) {
+        return AbstractLongArray.this.getElement(index) == 1;
+      }
+
+      @Override
+      public void setElement(int index, boolean value) {
+        AbstractLongArray.this.setElement(index, value ? 1 : 0);
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractLongArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public ComplexArray asComplex() {
+    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+        getMajorStrideIndex()) {
+      @Override
+      public void setElement(int index, Complex value) {
+        AbstractLongArray.this.setElement(index, (long) value.getReal());
+      }
+
+      @Override
+      public Complex getElement(int index) {
+        return Complex.valueOf(AbstractLongArray.this.getElement(index));
+      }
+
+      @Override
+      protected int elementSize() {
+        return AbstractLongArray.this.elementSize();
+      }
+    };
+  }
+
+  @Override
+  public final LongArray copy() {
+    LongArray matrix = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      matrix.set(i, get(i));
+    }
+    return matrix;
+  }
+
+  @Override
+  public BooleanArray lt(LongArray other) {
+    Check.size(this, other);
+    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) < other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BooleanArray gt(LongArray other) {
+    Check.size(this, other);
+    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) > other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BooleanArray eq(LongArray other) {
+    Check.size(this, other);
+    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) == other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BooleanArray lte(LongArray other) {
+    Check.size(this, other);
+    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) <= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
+  public BooleanArray gte(LongArray other) {
+    Check.size(this, other);
+    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    int m = size();
+    for (int i = 0; i < m; i++) {
+      bits.set(i, get(i) >= other.get(i));
+    }
+    return bits;
+  }
+
+  @Override
   public LongArray assign(long value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
@@ -144,27 +279,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
     for (int i = 0; i < values.length; i++) {
       set(i, values[i]);
     }
-  }
-
-  @Override
-  public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-      @Override
-      protected double getElement(int i) {
-        return AbstractLongArray.this.getElement(i);
-      }
-
-      @Override
-      protected void setElement(int i, double value) {
-        AbstractLongArray.this.setElement(i, (long) value);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractLongArray.this.elementSize();
-      }
-    };
   }
 
   @Override
@@ -220,39 +334,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   }
 
   @Override
-  public IntArray asInt() {
-    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-      @Override
-      public int getElement(int index) {
-        return (int) AbstractLongArray.this.getElement(index);
-      }
-
-      @Override
-      public void setElement(int index, int value) {
-        AbstractLongArray.this.setElement(index, value);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractLongArray.this.elementSize();
-      }
-
-      @Override
-      public LongArray asLong() {
-        return AbstractLongArray.this;
-      }
-    };
-  }
-
-  @Override
-  public void apply(LongUnaryOperator operator) {
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsLong(get(i)));
-    }
-  }
-
-  @Override
   public LongArray map(LongUnaryOperator operator) {
     LongArray mat = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -263,7 +344,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
 
   @Override
   public IntArray mapToInt(LongToIntFunction map) {
-    IntArray matrix = bj.intArray(3, 3);
+    IntArray matrix = bj.newIntArray(3, 3);
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.applyAsInt(get(i)));
     }
@@ -272,7 +353,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
 
   @Override
   public DoubleArray mapToDouble(LongToDoubleFunction map) {
-    DoubleArray matrix = bj.doubleArray(getShape());
+    DoubleArray matrix = bj.newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.applyAsDouble(get(i)));
     }
@@ -281,7 +362,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
 
   @Override
   public ComplexArray mapToComplex(LongFunction<Complex> map) {
-    ComplexArray matrix = bj.complexArray();
+    ComplexArray matrix = bj.newComplexArray();
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.apply(get(i)));
     }
@@ -290,7 +371,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
 
   @Override
   public <T> Array<T> mapToObj(LongFunction<? extends T> mapper) {
-    Array<T> array = getArrayFactory().referenceArray(getShape());
+    Array<T> array = getArrayFactory().newArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, mapper.apply(get(i)));
     }
@@ -298,8 +379,15 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   }
 
   @Override
+  public void apply(LongUnaryOperator operator) {
+    for (int i = 0; i < size(); i++) {
+      set(i, operator.applyAsLong(get(i)));
+    }
+  }
+
+  @Override
   public BooleanArray where(LongPredicate predicate) {
-    BooleanArray bits = bj.booleanArray();
+    BooleanArray bits = bj.newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -309,16 +397,11 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   @Override
   public BooleanArray where(LongArray matrix, LongBiPredicate predicate) {
     Check.shape(this, matrix);
-    BooleanArray bits = bj.booleanArray();
+    BooleanArray bits = bj.newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
     }
     return bits;
-  }
-
-  @Override
-  public LongArray asLong() {
-    return this;
   }
 
   @Override
@@ -359,25 +442,35 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public final long get(int i, int j) {
+    Check.argument(isMatrix());
+    return getElement(getOffset() + i * stride(0) + j * stride(1));
+  }
 
-      @Override
-      public void setElement(int index, boolean value) {
-        AbstractLongArray.this.setElement(index, value ? 1 : 0);
-      }
+  @Override
+  public final long get(int index) {
+    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+  }
 
-      @Override
-      public boolean getElement(int index) {
-        return AbstractLongArray.this.getElement(index) == 1;
-      }
+  @Override
+  public final void set(int index, long value) {
+    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+  }
 
-      @Override
-      protected int elementSize() {
-        return AbstractLongArray.this.elementSize();
-      }
-    };
+  public final void set(int[] ix, long value) {
+    Check.argument(ix.length == dims());
+    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+  }
+
+  public final long get(int... ix) {
+    Check.argument(ix.length == dims());
+    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+  }
+
+  @Override
+  public final void set(int i, int j, long value) {
+    Check.argument(isMatrix());
+    setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
@@ -403,6 +496,9 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   public List<Long> toList() {
     return new AbstractList<Long>() {
       @Override
+      public int size() {
+        return 0;
+      }      @Override
       public Long get(int index) {
         return AbstractLongArray.this.get(index);
       }
@@ -414,10 +510,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
         return old;
       }
 
-      @Override
-      public int size() {
-        return 0;
-      }
+
     };
   }
 
@@ -425,38 +518,13 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
   public Array<Long> boxed() {
     return new AsArray<Long>(this) {
       @Override
-      protected Long getElement(int i) {
-        return AbstractLongArray.this.getElement(i);
-      }
-
-      @Override
       protected void setElement(int i, Long value) {
         AbstractLongArray.this.set(i, value);
       }
 
       @Override
-      protected int elementSize() {
-        return AbstractLongArray.this.elementSize();
-      }
-    };
-  }
-
-  public LongArray mmul(long alpha, LongArray other) {
-    return mmul(alpha, Op.KEEP, other, Op.KEEP);
-  }
-
-  @Override
-  public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-      @Override
-      public void setElement(int index, Complex value) {
-        AbstractLongArray.this.setElement(index, (long) value.getReal());
-      }
-
-      @Override
-      public Complex getElement(int index) {
-        return Complex.valueOf(AbstractLongArray.this.getElement(index));
+      protected Long getElement(int i) {
+        return AbstractLongArray.this.getElement(i);
       }
 
       @Override
@@ -464,41 +532,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
         return AbstractLongArray.this.elementSize();
       }
     };
-  }
-
-  public LongArray mmul(long alpha, Op a, LongArray other, Op b) {
-    int thisRows = rows();
-    int thisCols = columns();
-    if (a == Op.TRANSPOSE) {
-      thisRows = columns();
-      thisCols = rows();
-    }
-    int otherRows = other.rows();
-    int otherColumns = other.columns();
-    if (b == Op.TRANSPOSE) {
-      otherRows = other.columns();
-      otherColumns = other.rows();
-    }
-
-    if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
-    }
-
-    LongArray result = newEmptyArray(thisRows, otherColumns);
-    for (int row = 0; row < thisRows; row++) {
-      for (int col = 0; col < otherColumns; col++) {
-        long sum = 0;
-        for (int k = 0; k < thisCols; k++) {
-          int thisIndex = a == Op.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols)
-              : columnMajor(0, row, k, thisRows, thisCols);
-          int otherIndex = b == Op.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns)
-              : columnMajor(0, k, col, otherRows, otherColumns);
-          sum += get(thisIndex) * other.get(otherIndex);
-        }
-        result.set(row, col, alpha * sum);
-      }
-    }
-    return result;
   }
 
   @Override
@@ -627,59 +660,49 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
     return n;
   }
 
-  @Override
-  public BooleanArray lt(LongArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayFactory().booleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) < other.get(i));
-    }
-    return bits;
+  protected abstract void setElement(int i, long value);
+
+  protected abstract long getElement(int i);
+
+  public LongArray mmul(long alpha, LongArray other) {
+    return mmul(alpha, ArrayOperation.KEEP, other, ArrayOperation.KEEP);
   }
 
-  @Override
-  public BooleanArray gt(LongArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayFactory().booleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) > other.get(i));
+  public LongArray mmul(long alpha, ArrayOperation a, LongArray other, ArrayOperation b) {
+    int thisRows = rows();
+    int thisCols = columns();
+    if (a == ArrayOperation.TRANSPOSE) {
+      thisRows = columns();
+      thisCols = rows();
     }
-    return bits;
-  }
+    int otherRows = other.rows();
+    int otherColumns = other.columns();
+    if (b == ArrayOperation.TRANSPOSE) {
+      otherRows = other.columns();
+      otherColumns = other.rows();
+    }
 
-  @Override
-  public BooleanArray eq(LongArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayFactory().booleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) == other.get(i));
+    if (thisCols != otherRows) {
+      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
-    return bits;
-  }
 
-  @Override
-  public BooleanArray lte(LongArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayFactory().booleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) <= other.get(i));
+    LongArray result = newEmptyArray(thisRows, otherColumns);
+    for (int row = 0; row < thisRows; row++) {
+      for (int col = 0; col < otherColumns; col++) {
+        long sum = 0;
+        for (int k = 0; k < thisCols; k++) {
+          int thisIndex =
+              a == ArrayOperation.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
+                                                                                                 thisRows, thisCols);
+          int otherIndex =
+              b == ArrayOperation.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k,
+                                                                                                      col, otherRows, otherColumns);
+          sum += get(thisIndex) * other.get(otherIndex);
+        }
+        result.set(row, col, alpha * sum);
+      }
     }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray gte(LongArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayFactory().booleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) >= other.get(i));
-    }
-    return bits;
+    return result;
   }
 
   @Override
@@ -742,27 +765,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
     };
   }
 
-  @Override
-  public LongArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
-  public final LongArray copy() {
-    LongArray matrix = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, get(i));
-    }
-    return matrix;
-  }
-
   private class IncrementalBuilder {
 
     private long[] buffer = new long[10];
@@ -774,7 +776,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray>impl
     }
 
     public LongArray build() {
-      return bj.array(Arrays.copyOf(buffer, size));
+      return bj.newVector(Arrays.copyOf(buffer, size));
     }
   }
 }

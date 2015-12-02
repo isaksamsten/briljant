@@ -33,17 +33,18 @@ import java.util.NoSuchElementException;
 import org.briljantframework.data.vector.Convert;
 
 /**
- * Created by isak on 10/09/15.
+ * Converts a {@link ResultSet} to an entry reader.
+ * 
+ * @author Isak Karlsson
  */
 public class SqlEntryReader implements EntryReader {
-
-  private final ResultSet resultSet;
-  private final Class<?>[] types;
-  private int state = READ;
 
   private static final int READ = -1;
   private static final int LEAVE = 0;
   private static final int EMPTY = 1;
+  private final ResultSet resultSet;
+  private final Class<?>[] types;
+  private int state = READ;
 
   public SqlEntryReader(ResultSet resultSet) throws SQLException {
     this.resultSet = resultSet;
@@ -52,6 +53,68 @@ public class SqlEntryReader implements EntryReader {
     for (int i = 1; i <= types.length; i++) {
       types[i - 1] = toClass(metaData.getColumnType(i));
     }
+  }
+
+  /**
+   * Convert the result set column type to a suitable Java class.
+   * 
+   * @param type the type
+   * @return a Java class
+   */
+  private static Class<?> toClass(int type) {
+    Class<?> result = Object.class;
+    switch (type) {
+      case Types.CHAR:
+      case Types.VARCHAR:
+      case Types.LONGVARCHAR:
+        result = String.class;
+        break;
+
+      case Types.NUMERIC:
+      case Types.DECIMAL:
+        result = java.math.BigDecimal.class;
+        break;
+
+      case Types.BIT:
+        result = Boolean.class;
+        break;
+
+      case Types.TINYINT:
+      case Types.SMALLINT:
+      case Types.INTEGER:
+        result = Integer.class;
+        break;
+
+      case Types.BIGINT:
+        result = Long.class;
+        break;
+
+      case Types.REAL:
+      case Types.FLOAT:
+      case Types.DOUBLE:
+        result = Double.class;
+        break;
+
+      case Types.BINARY:
+      case Types.VARBINARY:
+      case Types.LONGVARBINARY:
+        result = Byte[].class;
+        break;
+
+      case Types.DATE:
+        result = java.sql.Date.class;
+        break;
+
+      case Types.TIME:
+        result = java.sql.Time.class;
+        break;
+
+      case Types.TIMESTAMP:
+        result = java.sql.Timestamp.class;
+        break;
+    }
+
+    return result;
   }
 
   @Override
@@ -94,72 +157,6 @@ public class SqlEntryReader implements EntryReader {
     }
   }
 
-  private static Class<?> toClass(int type) {
-    Class<?> result = Object.class;
-
-    switch (type) {
-      case Types.CHAR:
-      case Types.VARCHAR:
-      case Types.LONGVARCHAR:
-        result = String.class;
-        break;
-
-      case Types.NUMERIC:
-      case Types.DECIMAL:
-        result = java.math.BigDecimal.class;
-        break;
-
-      case Types.BIT:
-        result = Boolean.class;
-        break;
-
-      case Types.TINYINT:
-        result = Byte.class;
-        break;
-
-      case Types.SMALLINT:
-        result = Short.class;
-        break;
-
-      case Types.INTEGER:
-        result = Integer.class;
-        break;
-
-      case Types.BIGINT:
-        result = Long.class;
-        break;
-
-      case Types.REAL:
-      case Types.FLOAT:
-        result = Float.class;
-        break;
-
-      case Types.DOUBLE:
-        result = Double.class;
-        break;
-
-      case Types.BINARY:
-      case Types.VARBINARY:
-      case Types.LONGVARBINARY:
-        result = Byte[].class;
-        break;
-
-      case Types.DATE:
-        result = java.sql.Date.class;
-        break;
-
-      case Types.TIME:
-        result = java.sql.Time.class;
-        break;
-
-      case Types.TIMESTAMP:
-        result = java.sql.Timestamp.class;
-        break;
-    }
-
-    return result;
-  }
-
   private static class SqlEntry implements DataEntry {
 
     private final Class<?>[] types;
@@ -169,6 +166,11 @@ public class SqlEntryReader implements EntryReader {
     private SqlEntry(Class<?>[] types, Object[] values) {
       this.types = types;
       this.values = values;
+    }
+
+    @Override
+    public String toString() {
+      return Arrays.toString(values);
     }
 
     @Override
@@ -215,9 +217,6 @@ public class SqlEntryReader implements EntryReader {
       return types.length;
     }
 
-    @Override
-    public String toString() {
-      return Arrays.toString(values);
-    }
+
   }
 }

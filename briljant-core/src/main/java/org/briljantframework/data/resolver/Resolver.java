@@ -57,22 +57,29 @@ public class Resolver<R> {
    * denoting {@code NA} (for the type {@code R}) as returned by
    * {@link org.briljantframework.data.Na#of(Class)}.
    *
-   * <p>
+   * <p/>
    * Use {@link org.briljantframework.data.Is#NA(java.lang.Object)} to check for {@code NA} values.
    *
-   * <p>
-   * The resolves values by sequentially scan the added converters and finds the first converter
-   * where {@link Class#isAssignableFrom(Class)} returns true.
-   *
-   * <p>
-   * If the above becomes a bottleneck, it might be reconsidered (e.g., to only consider exact class
-   * matches)
+   * <p/>
+   * The reslover resolves values by sequentially scan the added converters and finds the first
+   * converter where {@link Class#isAssignableFrom(Class)} returns true. If this becomes a
+   * bottleneck, it might be reconsidered (e.g., to only consider exact class matches)
    *
    * @param value the value to resolve
    * @return the resolved value; or {@code Na.from(value.getClass())} otherwise
    */
   public R resolve(Object value) {
     return resolve(value.getClass(), value);
+  }
+
+  private R resolve(Class<?> cls, Object value) {
+    Converter<Object, R> converter = getConverter(cls);
+    if (converter != null) {
+      R convert = converter.convert(value);
+      return convert == null ? Na.of(this.cls) : convert;
+    } else {
+      return Na.of(this.cls);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -84,16 +91,6 @@ public class Resolver<R> {
       }
     }
     return null;
-  }
-
-  private R resolve(Class<?> cls, Object value) {
-    Converter<Object, R> converter = getConverter(cls);
-    if (converter != null) {
-      R convert = converter.convert(value);
-      return convert == null ? Na.of(this.cls) : convert;
-    } else {
-      return Na.of(this.cls);
-    }
   }
 
   private static class Holder<R> {

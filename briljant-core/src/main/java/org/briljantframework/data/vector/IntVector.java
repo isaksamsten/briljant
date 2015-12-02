@@ -385,7 +385,7 @@ public class IntVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    public Vector getTemporaryVector() {
+    public Vector getView() {
       return new IntVector(buffer, size(), false) {
         @Override
         public Builder newCopyBuilder() {

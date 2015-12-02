@@ -24,16 +24,28 @@ package org.briljantframework.data.parser;
 import java.util.function.Supplier;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
 
 /**
- * Created by isak on 09/09/15.
+ * A parser parsers some data source and produces a data frame
+ * 
+ * @author Isak Karlsson
  */
 public interface Parser {
 
+  /**
+   * Parse the data source and produce a data frame (specified by the {@link DataFrame#builder()}).
+   * 
+   * @return a data frame
+   */
   default DataFrame parse() {
-    return parse(MixedDataFrame.Builder::new);
+    return parse(DataFrame::builder);
   }
 
-  DataFrame parse(Supplier<? extends DataFrame.Builder> dataFrameType);
+  /**
+   * Parse the data source and produce a data frame using the supplied builder.
+   * 
+   * @param builder the builder
+   * @return a data frame
+   */
+  DataFrame parse(Supplier<? extends DataFrame.Builder> builder);
 }

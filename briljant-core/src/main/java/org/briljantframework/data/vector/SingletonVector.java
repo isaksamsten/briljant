@@ -26,11 +26,12 @@ import java.util.Comparator;
 import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.Transferable;
 import org.briljantframework.data.index.Index;
 
 /**
+ * Representing vectors of a single (unique) value repeated n (0 <= n) times
+ * 
  * @author Isak Karlsson
  */
 final class SingletonVector extends AbstractVector implements Transferable {
@@ -58,17 +59,12 @@ final class SingletonVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public <T extends Comparable<T>> Vector sort(Class<T> cls) {
-    return shallowCopy(getIndex());
-  }
-
-  @Override
-  public Vector sort(SortOrder order) {
-    return shallowCopy(getIndex());
-  }
-
-  @Override
   public <T> Vector sort(Class<T> cls, Comparator<T> cmp) {
+    return shallowCopy(getIndex());
+  }
+
+  @Override
+  public <T extends Comparable<T>> Vector sort(Class<T> cls) {
     return shallowCopy(getIndex());
   }
 
@@ -78,28 +74,9 @@ final class SingletonVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  protected <T> T getAt(Class<T> cls, int index) {
-    Check.validIndex(index, size());
-    return Convert.to(cls, value);
-  }
-
-  @Override
-  protected String toStringAt(int index) {
-    Check.validIndex(index, size());
-    return Na.toString(value);
-  }
-
-  @Override
   protected boolean isNaAt(int index) {
     Check.validIndex(index, size());
     return Is.NA(value);
-  }
-
-  @Override
-  protected double getAsDoubleAt(int i) {
-    Check.validIndex(i, size());
-    Number val = Convert.to(Number.class, value);
-    return Is.NA(val) ? Na.DOUBLE : val.doubleValue();
   }
 
   @Override
@@ -110,6 +87,30 @@ final class SingletonVector extends AbstractVector implements Transferable {
   }
 
   @Override
+  protected double getAsDoubleAt(int i) {
+    Check.validIndex(i, size());
+    Number val = Convert.to(Number.class, value);
+    return Is.NA(val) ? Na.DOUBLE : val.doubleValue();
+  }
+
+  @Override
+  protected <T> T getAt(Class<T> cls, int index) {
+    Check.validIndex(index, size());
+    return Convert.to(cls, value);
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    return new SingletonVector(index, value, size);
+  }
+
+  @Override
+  protected String toStringAt(int index) {
+    Check.validIndex(index, size());
+    return Na.toString(value);
+  }
+
+  @Override
   public int size() {
     return size;
   }
@@ -117,10 +118,5 @@ final class SingletonVector extends AbstractVector implements Transferable {
   @Override
   public VectorType getType() {
     return type;
-  }
-
-  @Override
-  protected Vector shallowCopy(Index index) {
-    return new SingletonVector(index, value, size);
   }
 }

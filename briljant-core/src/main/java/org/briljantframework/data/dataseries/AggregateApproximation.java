@@ -47,13 +47,6 @@ public class AggregateApproximation implements Transformer {
   private final Aggregator aggregator;
 
   /**
-   * @param aggregator the aggregator
-   */
-  public AggregateApproximation(Aggregator aggregator) {
-    this.aggregator = Objects.requireNonNull(aggregator, "Requires an aggregator.");
-  }
-
-  /**
    * Piecewise aggregate approximation (PAA) producing a new DataFrame with data series of length
    * {@code size}. Same as {@code new AggregateApproximation(new MeanAggregate(size))}.
    *
@@ -61,6 +54,13 @@ public class AggregateApproximation implements Transformer {
    */
   public AggregateApproximation(int size) {
     this(new MeanAggregator(size));
+  }
+
+  /**
+   * @param aggregator the aggregator
+   */
+  public AggregateApproximation(Aggregator aggregator) {
+    this.aggregator = Objects.requireNonNull(aggregator, "Requires an aggregator.");
   }
 
   /**

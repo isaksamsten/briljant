@@ -21,18 +21,16 @@
 
 package org.briljantframework.array.api;
 
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.Array;
+import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.briljantframework.array.Op;
 import org.briljantframework.sort.IndexComparator;
 
 /**
@@ -241,7 +239,8 @@ public interface ArrayRoutines {
    * @param beta the scalar beta
    * @param y the vector y
    */
-  void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta, DoubleArray y);
+  void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x, double beta,
+      DoubleArray y);
 
   /**
    * Computes a <- alpha*x*y'+a
@@ -264,8 +263,8 @@ public interface ArrayRoutines {
    * @param beta the scalar for c
    * @param c the result matrix c
    */
-  void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b, double beta,
-      DoubleArray c);
+  void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a,
+      DoubleArray b, double beta, DoubleArray c);
 
   /**
    * Return a matrix containing {@code n} copies of {@code x}.
@@ -292,12 +291,6 @@ public interface ArrayRoutines {
     });
   }
 
-  default <T extends BaseArray<T>> T sort(int dim, T array) {
-    return sort(dim, array, (t, a, b) -> {
-      return t.compare(a, b);
-    });
-  }
-
   /**
    * <p>
    * Sorts the source matrix {@code a} in the order specified by {@code comparator}.
@@ -308,6 +301,12 @@ public interface ArrayRoutines {
    * @return a new sorted matrix; the returned matrix has the same type as {@code a}
    */
   <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp);
+
+  default <T extends BaseArray<T>> T sort(int dim, T array) {
+    return sort(dim, array, (t, a, b) -> {
+      return t.compare(a, b);
+    });
+  }
 
   <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp);
 

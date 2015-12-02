@@ -57,10 +57,10 @@ public final class DataFrames {
   public static final String OUTER = "outer";
   public static final String INNER = "inner";
   public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
+  public static final int PER_SLICE = 4;
   private static final Transformer removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformer removeIncompleteCases = new RemoveIncompleteCases();
   private static final Map<String, JoinOperation> joinOperations;
-  public static final int PER_SLICE = 4;
 
   static {
     joinOperations = new HashMap<>();
@@ -188,6 +188,15 @@ public final class DataFrames {
     return bdf;
   }
 
+  public static DataFrame.Builder transferableRecordCopy(DataFrame df) {
+    DataFrame.Builder builder = df.newBuilder();
+    for (Object recordKey : df.getIndex().keySet()) {
+      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
+    }
+    builder.setColumnIndex(df.getColumnIndex());
+    return builder;
+  }
+
   /**
    * Returns a column-permuted shallow copy of {@code in}.
    *
@@ -202,15 +211,6 @@ public final class DataFrames {
       builder.loc().swap(i - 1, random.nextInt(i));
     }
     return builder.build();
-  }
-
-  public static DataFrame.Builder transferableRecordCopy(DataFrame df) {
-    DataFrame.Builder builder = df.newBuilder();
-    for (Object recordKey : df.getIndex().keySet()) {
-      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
-    }
-    builder.setColumnIndex(df.getColumnIndex());
-    return builder;
   }
 
   /**

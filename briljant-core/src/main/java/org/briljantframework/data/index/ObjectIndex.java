@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import net.mintern.primitive.comparators.IntComparator;
@@ -72,6 +71,10 @@ public final class ObjectIndex extends AbstractIndex {
     }
   }
 
+  protected Map<Object, Integer> getKeys() {
+    return keys;
+  }
+
   private ObjectIndex(Map<Object, Integer> keys, List<Object> locations, IntList order) {
     this.keys = Collections.unmodifiableMap(keys);
     this.locations = locations;
@@ -82,13 +85,12 @@ public final class ObjectIndex extends AbstractIndex {
     return of(vector.toList(Object.class));
   }
 
+  public static <T> ObjectIndex of(Collection<? extends T> coll) {
+    return new ObjectIndex(coll);
+  }
 
   public static ObjectIndex of(Object... args) {
     return of(Arrays.asList(args));
-  }
-
-  public static <T> ObjectIndex of(Collection<? extends T> coll) {
-    return new ObjectIndex(coll);
   }
 
   @Override
@@ -98,6 +100,35 @@ public final class ObjectIndex extends AbstractIndex {
       throw noSuchElement(key);
     }
     return idx;
+  }
+
+  @Override
+  public Set<Object> keySet() {
+    if (keys instanceof NavigableMap) {
+      return keys.keySet();
+    } else {
+      return iterationOrderKeySet;
+    }
+  }
+
+  @Override
+  public Collection<Integer> locations() {
+    return getKeys().values();
+  }
+
+  @Override
+  public Set<Entry> indexSet() {
+    return new IterationOrderEntrySet();
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder();
+  }
+
+  @Override
+  public Index.Builder newCopyBuilder() {
+    return new Builder(getKeys(), locations, order);
   }
 
   protected boolean shareComparableSupertype(Object a, Object b) {
@@ -118,21 +149,6 @@ public final class ObjectIndex extends AbstractIndex {
   @Override
   public Object get(int location) {
     return locations.get(order.get(location));
-  }
-
-  @Override
-  public boolean contains(Object key) {
-    return getKeys().containsKey(key);
-  }
-
-  @Override
-  public Collection<Integer> locations() {
-    return getKeys().values();
-  }
-
-  @Override
-  public Set<Entry> indexSet() {
-    return new IterationOrderEntrySet();
   }
 
   @Override
@@ -159,39 +175,6 @@ public final class ObjectIndex extends AbstractIndex {
   @Override
   public int hashCode() {
     return getKeys().hashCode();
-  }
-
-  @Override
-  public Set<Object> keySet() {
-    if (keys instanceof NavigableMap) {
-      return keys.keySet();
-    } else {
-      return iterationOrderKeySet;
-    }
-  }
-
-  @Override
-  public Builder newBuilder() {
-    return new Builder();
-  }
-
-  @Override
-  public Index.Builder newCopyBuilder() {
-    return new Builder(getKeys(), locations, order);
-  }
-
-  @Override
-  public int size() {
-    return getKeys().size();
-  }
-
-  @Override
-  public String toString() {
-    return getKeys().toString();
-  }
-
-  protected Map<Object, Integer> getKeys() {
-    return keys;
   }
 
   public static final class Builder implements Index.Builder {
@@ -245,6 +228,15 @@ public final class ObjectIndex extends AbstractIndex {
       set(key, currentSize);
     }
 
+    private void set(int key, int index) {
+      set((Object) key, index);
+    }
+
+    @Override
+    public void sortIterationOrder(IntComparator cmp) {
+      order.primitiveSort(cmp);
+    }
+
     @Override
     public void sort(Comparator<Object> cmp) {
       sortIterationOrder((a, b) -> cmp.compare(locations.get(a), locations.get(b)));
@@ -253,19 +245,6 @@ public final class ObjectIndex extends AbstractIndex {
     @Override
     public void sort(SortOrder order) {
       sort(order.orderComparator(objectComparator));
-    }
-
-    private void set(Object key, int index) {
-      if (getKeys().put(key, index) != null) {
-        throw duplicateKey(key);
-      }
-      locations.add(key);
-      order.add(index);
-      currentSize++;
-    }
-
-    private void set(int key, int index) {
-      set((Object) key, index);
     }
 
     @Override
@@ -303,11 +282,6 @@ public final class ObjectIndex extends AbstractIndex {
     }
 
     @Override
-    public void swap(int a, int b) {
-      Collections.swap(order, a, b);
-    }
-
-    @Override
     public int size() {
       return getKeys().size();
     }
@@ -330,13 +304,22 @@ public final class ObjectIndex extends AbstractIndex {
       }
     }
 
-    @Override
-    public void sortIterationOrder(IntComparator cmp) {
-      order.primitiveSort(cmp);
+    private void set(Object key, int index) {
+      if (getKeys().put(key, index) != null) {
+        throw duplicateKey(key);
+      }
+      locations.add(key);
+      order.add(index);
+      currentSize++;
     }
 
     protected Map<Object, Integer> getKeys() {
       return keys;
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      Collections.swap(order, a, b);
     }
   }
 
@@ -391,4 +374,26 @@ public final class ObjectIndex extends AbstractIndex {
       return ObjectIndex.this.size();
     }
   }
+
+  @Override
+  public boolean contains(Object key) {
+    return getKeys().containsKey(key);
+  }
+
+
+
+  @Override
+  public int size() {
+    return getKeys().size();
+  }
+
+
+
+  @Override
+  public String toString() {
+    return getKeys().toString();
+  }
+
+
+
 }

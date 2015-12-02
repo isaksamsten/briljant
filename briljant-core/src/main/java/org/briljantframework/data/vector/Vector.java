@@ -107,25 +107,8 @@ public interface Vector extends Serializable, Listable<Object> {
     return SingletonVector.empty();
   }
 
-  /**
-   * Creates a one element vector with the specified value
-   *
-   * @param value the value
-   * @return a one element vector
-   */
-  static Vector singleton(Object value) {
-    return singleton(value, 1);
-  }
-
-  /**
-   * Creates a vector with the specified value and size
-   *
-   * @param value the value
-   * @param size the size of the vector
-   * @return a new vector
-   */
-  static Vector singleton(Object value, int size) {
-    return new SingletonVector(value, size);
+  static Vector fromIterable(Iterable<Object> values) {
+    return fromIterable(Object.class, values);
   }
 
   /**
@@ -147,8 +130,25 @@ public interface Vector extends Serializable, Listable<Object> {
     return builder.build();
   }
 
-  static Vector fromIterable(Iterable<Object> values) {
-    return fromIterable(Object.class, values);
+  /**
+   * Creates a one element vector with the specified value
+   *
+   * @param value the value
+   * @return a one element vector
+   */
+  static Vector singleton(Object value) {
+    return singleton(value, 1);
+  }
+
+  /**
+   * Creates a vector with the specified value and size
+   *
+   * @param value the value
+   * @param size the size of the vector
+   * @return a new vector
+   */
+  static Vector singleton(Object value, int size) {
+    return new SingletonVector(value, size);
   }
 
   /**
@@ -177,6 +177,17 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   /**
+   * Returns a boolean array of the elements for which the predicate return {@code true}.
+   * 
+   * @param predicate the predicate
+   * @return a boolean vector
+   * @see #where(Class, Predicate)
+   */
+  default BooleanArray where(Predicate<? super Object> predicate) {
+    return where(Object.class, predicate);
+  }
+
+  /**
    * Return a boolean array of the elements for which the predicate returns {@code true}
    * 
    * @param <T> the type
@@ -186,15 +197,8 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
 
-  /**
-   * Returns a boolean array of the elements for which the predicate return {@code true}.
-   * 
-   * @param predicate the predicate
-   * @return a boolean vector
-   * @see #where(Class, Predicate)
-   */
-  default BooleanArray where(Predicate<? super Object> predicate) {
-    return where(Object.class, predicate);
+  default Vector filter(Predicate<? super Object> predicate) {
+    return filter(Object.class, predicate);
   }
 
   /**
@@ -208,11 +212,11 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   <T> Vector filter(Class<T> cls, Predicate<? super T> predicate);
 
-  default Vector filter(Predicate<? super Object> predicate) {
-    return filter(Object.class, predicate);
-  }
-
   <T> Vector filterWithIndex(Class<T> cls, BiPredicate<Object, ? super T> predicate);
+
+  default Vector map(Function<Object, ?> operator) {
+    return map(Object.class, operator);
+  }
 
   /**
    * Transform each value (as a value of {@code T}) in the vector using {@code operator}, producing
@@ -247,102 +251,17 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   <T> Vector map(Class<T> cls, Function<? super T, ?> operator);
 
-  default Vector map(Function<Object, ?> operator) {
-    return map(Object.class, operator);
-  }
-
   <T> Vector mapWithIndex(Class<T> cls, BiFunction<Object, ? super T, ?> operator);
 
-  /**
-   * Performs a mutable aggregation of the values in this vector, similar to
-   * {@linkplain Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its
-   * aggregation by mutating and adding values to an aggregation container such as a
-   * {@linkplain List list}.
-   *
-   * <p>
-   * The result produced is equivalent to:
-   *
-   * <pre>
-   * {
-   *   &#064;code
-   *   T container = collector.supplier();
-   *   for (int i = 0; i &lt; size(); i++) {
-   *     collector.accumulator().accept(container, get(in, i));
-   *   }
-   *   return collector.finisher().apply(container);
-   * }
-   * </pre>
-   *
-   * <p>
-   * Example:
-   *
-   * <pre>
-   * {@code
-   * > RealDistribution normal = new NormalDistribution()
-   * > Vector vector = Vector.of(normal::sample, 1000)
-   * 0     -0.862
-   * 1     0.653
-   * 2     0.836
-   * 3     0.196
-   * 4     0.554
-   * 5     1.388
-   * 6     -0.992
-   * 7     -0.453
-   * 8     0.283
-   * ...
-   * 991   -0.778
-   * 992   -0.043
-   * 993   -0.288
-   * 994   0.184
-   * 995   -0.524
-   * 996   -0.391
-   * 997   0.553
-   * 998   -0.856
-   * 999   -0.055
-   * type: double
-   * 
-   * > double mean = vector.collect(Double.class, Aggregates.mean());
-   * > Vector summary = vector.collect(Double.class, Aggregate.summary());
-   * mean  0.029
-   * sum   28.714
-   * std   1.008
-   * var   1.016
-   * min   -3.056
-   * max   3.589
-   * n     1000.000
-   * type: double
-   * }
-   * </pre>
-   *
-   * <pre>
-   * Vector names = Vector.of("Mary", "Bob", "Lisa");
-   * 0  Mary
-   * 1  Bob
-   * 2  Lisa
-   * type: string
-   * 
-   * names.collect(Collectors.repeat(2));
-   * 0  Mary
-   * 1  Bob
-   * 2  Lisa
-   * 3  Mary
-   * 4  Bob
-   * 5  Lisa
-   * type: string
-   * </pre>
-   *
-   * @param <T> the type of the input value to the mutable aggregation
-   * @param <R> the type of the mutable collector
-   * @param <C> the type of the return type of the aggregation
-   * @param in the input type
-   * @param collector the collector
-   * @return a value of type {@code R} (i.e. the result of the aggregation)
-   * @see java.util.stream.Collector
-   * @see java.util.stream.Stream#collect(java.util.stream.Collector)
-   */
-  <T, R, C> R collect(Class<T> in, Collector<? super T, C, ? extends R> collector);
+  Vector combine(Vector other, BiFunction<? super Object, ? super Object, ?> combiner);
 
-  <R> R collect(Collector<? super Object, ?, R> collector);
+  default Vector plus(Object other) {
+    return plus(singleton(other, size()));
+  }
+
+  default Vector plus(Vector other) {
+    return combine(Object.class, other, Combine.add());
+  }
 
   /**
    * Combine two vectors using the specified combination function. For example, concatenating two
@@ -363,42 +282,39 @@ public interface Vector extends Serializable, Listable<Object> {
   <T> Vector combine(Class<T> cls, Vector other,
       BiFunction<? super T, ? super T, ? extends T> combiner);
 
-  Vector combine(Vector other, BiFunction<? super Object, ? super Object, ?> combiner);
+  /**
+   * Returns the size of the vector
+   *
+   * @return size
+   */
+  int size();
 
-  default Vector plus(Vector other) {
-    return combine(Object.class, other, Combine.add());
-  }
-
-  default Vector plus(Object other) {
-    return plus(singleton(other, size()));
+  default Vector times(Number other) {
+    return times(singleton(other, size()));
   }
 
   default Vector times(Vector other) {
     return combine(Object.class, other, Combine.mul());
   }
 
-  default Vector times(Number other) {
-    return times(singleton(other, size()));
+  default Vector div(Number other) {
+    return div(singleton(other, size()));
   }
 
   default Vector div(Vector other) {
     return combine(Object.class, other, Combine.div());
   }
 
-  default Vector div(Number other) {
-    return div(singleton(other, size()));
-  }
-
   default Vector reverseDiv(Number other) {
     return singleton(other, size()).combine(Object.class, this, Combine.div());
   }
 
-  default Vector minus(Vector other) {
-    return combine(Object.class, other, Combine.sub());
-  }
-
   default Vector minus(Number other) {
     return minus(singleton(other, size()));
+  }
+
+  default Vector minus(Vector other) {
+    return combine(Object.class, other, Combine.sub());
   }
 
   default Vector reverseMinus(Number other) {
@@ -496,6 +412,16 @@ public interface Vector extends Serializable, Listable<Object> {
   void setIndex(Index index);
 
   /**
+   * Get the object with the specified key as an object
+   * 
+   * @param key the key
+   * @return an object
+   */
+  default Object get(Object key) {
+    return get(Object.class, key);
+  }
+
+  /**
    * Get the value with the given key as an instance of the specified type
    * 
    * @param cls the type
@@ -505,16 +431,6 @@ public interface Vector extends Serializable, Listable<Object> {
    * @see Convert#to(Class, Object)
    */
   <T> T get(Class<T> cls, Object key);
-
-  /**
-   * Get the object with the specified key as an object
-   * 
-   * @param key the key
-   * @return an object
-   */
-  default Object get(Object key) {
-    return get(Object.class, key);
-  }
 
   /**
    * Get the value with the given key as a double
@@ -578,13 +494,6 @@ public interface Vector extends Serializable, Listable<Object> {
   int compare(Object a, Object b);
 
   /**
-   * Returns the size of the vector
-   *
-   * @return size
-   */
-  int size();
-
-  /**
    * Returns true if the vector is empty
    * 
    * @return true if the vector is empty
@@ -604,11 +513,11 @@ public interface Vector extends Serializable, Listable<Object> {
 
   Vector copy();
 
-  <T> List<T> toList(Class<T> cls);
-
   default <T> Listable<T> toListable(Class<T> cls) {
     return () -> toList(cls);
   }
+
+  <T> List<T> toList(Class<T> cls);
 
   default List<Object> toList() {
     return toList(Object.class);
@@ -621,23 +530,6 @@ public interface Vector extends Serializable, Listable<Object> {
   DoubleStream doubleStream();
 
   LongStream longStream();
-
-  /**
-   * <p>
-   * Copies this vector to a {@link org.briljantframework.array.Array}. An appropriate
-   * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
-   * preferred. For example, a {@link org.briljantframework.data.vector.DoubleVector} should return
-   * a {@link org.briljantframework.array.DoubleArray} implementation.
-   *
-   * <pre>
-   * Vector a = new DoubleVector(1, 2, 3, 4, 5);
-   * DoubleMatrix mat = a.toArray(Double.class).asDouble();
-   * double sum = mat.reduce(0, Double::sum);
-   * </pre>
-   *
-   * @return this vector as an {@linkplain org.briljantframework.array.Array array}
-   */
-  <U> Array<U> toArray(Class<U> cls);
 
   /**
    * Copies the contents of this vector to the given array.
@@ -686,6 +578,23 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   /**
+   * <p>
+   * Copies this vector to a {@link org.briljantframework.array.Array}. An appropriate
+   * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
+   * preferred. For example, a {@link org.briljantframework.data.vector.DoubleVector} should return
+   * a {@link org.briljantframework.array.DoubleArray} implementation.
+   *
+   * <pre>
+   * Vector a = new DoubleVector(1, 2, 3, 4, 5);
+   * DoubleMatrix mat = a.toArray(Double.class).asDouble();
+   * double sum = mat.reduce(0, Double::sum);
+   * </pre>
+   *
+   * @return this vector as an {@linkplain org.briljantframework.array.Array array}
+   */
+  <U> Array<U> toArray(Class<U> cls);
+
+  /**
    * The default implementation is equivalent to calling {@code toArray(Integer.class).asInt()}.
    *
    * @see #toArray(Class)
@@ -723,6 +632,95 @@ public interface Vector extends Serializable, Listable<Object> {
   default double sum() {
     return collect(Double.class, Collectors.sum());
   }
+
+  /**
+   * Performs a mutable aggregation of the values in this vector, similar to
+   * {@linkplain Stream#collect(java.util.stream.Collector)}. A mutable aggregation performs its
+   * aggregation by mutating and adding values to an aggregation container such as a
+   * {@linkplain List list}.
+   *
+   * <p>
+   * The result produced is equivalent to:
+   *
+   * <pre>
+   * {
+   *   &#064;code
+   *   T container = collector.supplier();
+   *   for (int i = 0; i &lt; size(); i++) {
+   *     collector.accumulator().accept(container, get(in, i));
+   *   }
+   *   return collector.finisher().apply(container);
+   * }
+   * </pre>
+   *
+   * <p>
+   * Example:
+   *
+   * <pre>
+   * {@code
+   * > RealDistribution normal = new NormalDistribution()
+   * > Vector vector = Vector.of(normal::sample, 1000)
+   * 0     -0.862
+   * 1     0.653
+   * 2     0.836
+   * 3     0.196
+   * 4     0.554
+   * 5     1.388
+   * 6     -0.992
+   * 7     -0.453
+   * 8     0.283
+   * ...
+   * 991   -0.778
+   * 992   -0.043
+   * 993   -0.288
+   * 994   0.184
+   * 995   -0.524
+   * 996   -0.391
+   * 997   0.553
+   * 998   -0.856
+   * 999   -0.055
+   * type: double
+   * 
+   * > double mean = vector.collect(Double.class, Aggregates.mean());
+   * > Vector summary = vector.collect(Double.class, Aggregate.summary());
+   * mean  0.029
+   * sum   28.714
+   * std   1.008
+   * var   1.016
+   * min   -3.056
+   * max   3.589
+   * n     1000.000
+   * type: double
+   * }
+   * </pre>
+   *
+   * <pre>
+   * Vector names = Vector.of("Mary", "Bob", "Lisa");
+   * 0  Mary
+   * 1  Bob
+   * 2  Lisa
+   * type: string
+   * 
+   * names.collect(Collectors.repeat(2));
+   * 0  Mary
+   * 1  Bob
+   * 2  Lisa
+   * 3  Mary
+   * 4  Bob
+   * 5  Lisa
+   * type: string
+   * </pre>
+   *
+   * @param <T> the type of the input value to the mutable aggregation
+   * @param <R> the type of the mutable collector
+   * @param <C> the type of the return type of the aggregation
+   * @param in the input type
+   * @param collector the collector
+   * @return a value of type {@code R} (i.e. the result of the aggregation)
+   * @see java.util.stream.Collector
+   * @see java.util.stream.Stream#collect(java.util.stream.Collector)
+   */
+  <T, R, C> R collect(Class<T> in, Collector<? super T, C, ? extends R> collector);
 
   /**
    * Returns the mean of the values in this vector or {@code NA}.
@@ -766,6 +764,8 @@ public interface Vector extends Serializable, Listable<Object> {
   default int nunique() {
     return collect(Collectors.nunique());
   }
+
+  <R> R collect(Collector<? super Object, ?, R> collector);
 
   /**
    * Return a vector of value and their counts.
@@ -916,12 +916,12 @@ public interface Vector extends Serializable, Listable<Object> {
       return VectorType.of(cls).newBuilderWithCapacity(capacity);
     }
 
-    Builder setNA(Object key);
-
     /**
      * @return a modified builder
      */
     Builder addNA();
+
+    Builder setNA(Object key);
 
     /**
      * Same as {@code plus(size(), from, fromIndex)}
@@ -952,20 +952,8 @@ public interface Vector extends Serializable, Listable<Object> {
 
     Builder add(int value);
 
-    /**
-     * Add all values in {@code from} to this builder.
-     *
-     * @param from the vector
-     * @return a modified builder
-     */
-    Builder addAll(Vector from);
-
     default Builder addAll(Object... objects) {
       return addAll(Arrays.asList(objects));
-    }
-
-    default Builder addAll(Vector.Builder builder) {
-      return addAll(builder.getTemporaryVector());
     }
 
     /**
@@ -977,6 +965,30 @@ public interface Vector extends Serializable, Listable<Object> {
       iterable.forEach(this::add);
       return this;
     }
+
+    default Builder addAll(Vector.Builder builder) {
+      return addAll(builder.getView());
+    }
+
+    /**
+     * Add all values in {@code from} to this builder.
+     *
+     * @param from the vector
+     * @return a modified builder
+     */
+    Builder addAll(Vector from);
+
+    /**
+     * Returns a view of this builder as a vector. Modifications to the builder is propagated to the
+     * vector, allowing changes to be tracked within the builder.
+     * 
+     * <p/>
+     * Note, however, that the view does NOT track any indexes (hence, only integer based (location)
+     * indexing is supported).
+     *
+     * @return a view of this builder as a vector
+     */
+    Vector getView();
 
     Builder remove(Object key);
 
@@ -998,14 +1010,6 @@ public interface Vector extends Serializable, Listable<Object> {
      * @return the size
      */
     int size();
-
-    /**
-     * Returns a temporary vector. Modifications to the builder is propagated to the temporary
-     * vector, allowing changes to be tracked within the builder.
-     *
-     * @return the temporary vector.
-     */
-    Vector getTemporaryVector();
 
     /**
      * Create a new vector of suitable type. This interface does not provide any guarantees to

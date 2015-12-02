@@ -43,24 +43,15 @@ import org.briljantframework.function.LongBiPredicate;
  */
 public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listable<Long> {
 
-  static LongArray zeros(int... shape) {
-    return Arrays.newLongArray(shape);
-  }
-
   static LongArray ones(int... shape) {
     LongArray array = zeros(shape);
     array.assign(1);
     return array;
   }
 
-  /**
-   * @see Arrays#newLongVector(long...)
-   */
-  static LongArray of(long... data) {
-    return Arrays.newLongVector(data);
+  static LongArray zeros(int... shape) {
+    return Arrays.newLongArray(shape);
   }
-
-  // Assignments
 
   /**
    * Assign {@code value} to {@code this}
@@ -69,6 +60,15 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @return receiver modified
    */
   LongArray assign(long value);
+
+  // Assignments
+
+  /**
+   * @see Arrays#newLongVector(long...)
+   */
+  static LongArray of(long... data) {
+    return Arrays.newLongVector(data);
+  }
 
   void assign(long[] values);
 

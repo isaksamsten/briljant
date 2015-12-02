@@ -22,9 +22,9 @@
 package org.briljantframework.array.netlib;
 
 import org.briljantframework.array.ArrayAssert;
+import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
@@ -48,15 +48,15 @@ public class NetlibArrayRoutinesTest {
 
   @Test
   public void testGemv() throws Exception {
-    DoubleArray a = bj.array(
+    DoubleArray a = bj.newMatrix(
         new double[][] {new double[] {1, 2, 3}, new double[] {1, 2, 3}, new double[] {1, 2, 3}});
 
     DoubleArray b = a.getRow(0);
-    DoubleArray x = bj.array(new double[] {1, 2, 3});
-    DoubleArray y = bj.doubleArray(4);
+    DoubleArray x = bj.newVector(new double[] {1, 2, 3});
+    DoubleArray y = bj.newDoubleArray(4);
     y.assign(3);
     y = y.asView(1, new int[] {3}, new int[] {1});
-    bjr.gemv(Op.TRANSPOSE, 1, a, x, 1, y);
-    ArrayAssert.assertArrayEquals(bj.array(new double[] {9, 15, 21}), y, 0.0);
+    bjr.gemv(ArrayOperation.TRANSPOSE, 1, a, x, 1, y);
+    ArrayAssert.assertArrayEquals(bj.newVector(new double[] {9, 15, 21}), y, 0.0);
   }
 }

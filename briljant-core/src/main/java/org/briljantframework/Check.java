@@ -24,19 +24,17 @@ package org.briljantframework;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.briljantframework.array.BaseArray;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.exceptions.NonConformantException;
 import org.briljantframework.exceptions.SizeMismatchException;
 
 /**
+ * Perform common checks.
+ *
  * @author Isak Karlsson
  */
 public final class Check<T> {
@@ -50,81 +48,31 @@ public final class Check<T> {
     this.values = values;
   }
 
-  @SafeVarargs
-  public static <T> Check<T> all(T... t) {
-    return new Check<>(Arrays.asList(t));
-  }
-
-  public static <T> Check<T> all(List<T> t) {
-    return new Check<>(t);
-  }
-
   /**
-   * If predicate fails, throws runtime exception
+   * Return a checker for all values.
    * 
-   * @param predicate the prediate
+   * @param values the values
+   * @param <T> the value class
+   * @return a checker
    */
-  public void that(Predicate<? super T> predicate) {
-    that(predicate, RuntimeException::new, "Unexpected error.");
+  @SafeVarargs
+  public static <T> Check<T> all(T... values) {
+    return new Check<>(Arrays.asList(values));
   }
 
   /**
-   * Throws an instance of E if the predicate fails
+   * Return a checker for all values.
    *
-   * @param predicate the predicate
-   * @param thrower the exception
-   * @param message the message
-   * @param args the message arguments
-   * @param <E> the type of exception
-   * @throws E the exception
+   * @param values the values
+   * @param <T> the value class
+   * @return a checker
    */
-  public <E extends Exception> void that(Predicate<? super T> predicate,
-      Function<String, ? extends E> thrower, String message, Object... args) throws E {
-    E e = thrower.apply(String.format(message, args));
-    for (T value : values) {
-      if (!predicate.test(value)) {
-        throw e;
-      }
-    }
-  }
-
-
-  /**
-   * Throws an instance of E if the predicate fails
-   *
-   * @param predicate the predicate
-   * @param thrower the exception
-   * @param <E> the type of exception
-   * @throws E the exception
-   */
-  public <E extends Exception> void that(Predicate<? super T> predicate,
-      Supplier<? extends E> thrower) throws E {
-    E e = thrower.get();
-    for (T value : values) {
-      if (!predicate.test(value)) {
-        throw e;
-      }
-    }
-  }
-
-  public void argument(Predicate<? super T> predicate, String message, Object... args) {
-    that(predicate, IllegalArgumentException::new, message, args);
-  }
-
-  public void argument(Predicate<? super T> predicate) {
-    that(predicate, IllegalArgumentException::new);
-  }
-
-  public void state(Predicate<? super T> predicate, String message, Object... args) {
-    that(predicate, IllegalStateException::new, message, args);
-  }
-
-  public void state(Predicate<? super T> predicate) {
-    that(predicate, IllegalStateException::new);
+  public static <T> Check<T> all(List<T> values) {
+    return new Check<>(values);
   }
 
   /**
-   * Throws {@linkplain java.lang.IllegalArgumentException} if {@code value < min || value > max}
+   * Throws {@linkplain java.lang.IllegalArgumentException} if {@code value < min || value > max}.
    *
    * @param value the value to check
    * @param min the minimum range value
@@ -132,8 +80,8 @@ public final class Check<T> {
    */
   public static void inRange(double value, double min, double max) {
     if (value < min || value > max) {
-      throw new IllegalArgumentException(
-          String.format("%f < %f (min) || %f > %f (max)", value, min, value, max));
+      throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", value,
+          min, value, max));
     }
   }
 
@@ -162,6 +110,31 @@ public final class Check<T> {
   }
 
   /**
+   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the arguments
+   * differ.
+   *
+   * @param actual the actual size
+   * @param expected the expected size
+   * @throws SizeMismatchException if {@code actual != expected}
+   */
+  public static void size(int actual, int expected) throws SizeMismatchException {
+    size(actual, expected, "Size does not match. (%d != %d)", actual, expected);
+  }
+
+  /**
+   * Throws exception if {@code actual != expected}.
+   * 
+   * @param actual the actual size
+   * @param expected the expected size
+   * @param msg the error message
+   * @param args the arguments
+   * @throws SizeMismatchException if {@code actual != expected}
+   */
+  public static void size(int actual, int expected, String msg, Object... args) {
+    size(actual == expected, msg, args);
+  }
+
+  /**
    * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if {@code condition}
    * is {@code false}
    *
@@ -177,22 +150,8 @@ public final class Check<T> {
   }
 
   /**
-   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the arguments
-   * differ.
-   *
-   * @param actual the actual size
-   * @param expected the expected size
-   * @throws SizeMismatchException if {@code actual != expected}
-   */
-  public static void size(int actual, int expected) throws SizeMismatchException {
-    size(actual, expected, "Size does not match. (%d != %d)", actual, expected);
-  }
-
-  public static void size(int actual, int expected, String msg, Object... args) {
-    size(actual == expected, msg, args);
-  }
-
-  /**
+   * Check that the index is a valid index.
+   * 
    * @see #validIndex(int, int, String, Object...)
    */
   public static void validBoxedIndex(Integer index, int size) {
@@ -201,13 +160,8 @@ public final class Check<T> {
   }
 
   /**
-   * @see #validIndex(int, int, String, Object...)
-   */
-  public static void validBoxedIndex(Integer index, int size, String message, Object... args) {
-    validIndex(Objects.requireNonNull(index, "index is null"), size, message, args);
-  }
-
-  /**
+   * Check that the index is a valid index.
+   *
    * @see #validIndex(int, int, String, Object...)
    */
   public static void validIndex(int index, int size) {
@@ -225,6 +179,15 @@ public final class Check<T> {
     if (index < 0 || index >= size) {
       throw new IndexOutOfBoundsException(String.format(message, args));
     }
+  }
+
+  /**
+   * Check that the index is a valid index.
+   *
+   * @see #validIndex(int, int, String, Object...)
+   */
+  public static void validBoxedIndex(Integer index, int size, String message, Object... args) {
+    validIndex(Objects.requireNonNull(index, "index is null"), size, message, args);
   }
 
   /**
@@ -278,28 +241,93 @@ public final class Check<T> {
   }
 
   /**
-   * Throws {@linkplain java.lang.IllegalArgumentException} if the boolean condition is false with
-   * the message formatted using {@linkplain String#format(String, Object...)}.
-   *
-   * @param test the boolean condition
-   * @param message the message
-   * @param args the format arguments
+   * If predicate fails, throws runtime exception.
+   * 
+   * @param predicate the prediate
    */
-  public static void type(boolean test, String message, Object... args) {
-    if (!test) {
-      throw new IllegalTypeException(String.format(message, args));
+  public void that(Predicate<? super T> predicate) {
+    that(predicate, RuntimeException::new, "Unexpected error.");
+  }
+
+  /**
+   * Throws an instance of E if the predicate fails.
+   *
+   * @param predicate the predicate
+   * @param thrower the exception
+   * @param message the message
+   * @param args the message arguments
+   * @param <E> the type of exception
+   * @throws E the exception
+   */
+  public <E extends Exception> void that(Predicate<? super T> predicate,
+      Function<String, ? extends E> thrower, String message, Object... args) throws E {
+    E e = thrower.apply(String.format(message, args));
+    for (T value : values) {
+      if (!predicate.test(value)) {
+        throw e;
+      }
     }
   }
 
-  public static void type(Vector vector, VectorType type) throws IllegalTypeException {
-    type(vector.getType(), type);
+  /**
+   * Check that the predicate is true for all values in the checker.
+   * 
+   * @param predicate the predicate
+   * @param message the error message
+   * @param args the error message arguments
+   * @throws IllegalArgumentException if predicate returns false
+   */
+  public void argument(Predicate<? super T> predicate, String message, Object... args) {
+    that(predicate, IllegalArgumentException::new, message, args);
   }
 
-  public static void type(VectorType actual, VectorType expected) throws IllegalTypeException {
-    type(actual.equals(expected), "Require type %s but got %s", expected, actual);
+  /**
+   * Check that the predicate return true for all values in the checker.
+   * 
+   * @param predicate the predicate
+   * @throws IllegalArgumentException if predicate return false
+   */
+  public void argument(Predicate<? super T> predicate) {
+    that(predicate, IllegalArgumentException::new);
   }
 
-  public static void type(Set<VectorType> expected, VectorType actual) throws IllegalTypeException {
-    type(actual.equals(expected), "Require any type of %s but got %s", expected, actual);
+  /**
+   * Throws an instance of E if the predicate fails
+   *
+   * @param predicate the predicate
+   * @param thrower the exception
+   * @param <E> the type of exception
+   * @throws E the exception
+   */
+  public <E extends Exception> void that(Predicate<? super T> predicate,
+      Supplier<? extends E> thrower) throws E {
+    E e = thrower.get();
+    for (T value : values) {
+      if (!predicate.test(value)) {
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * Check that the predicate return true for all values in the checker.
+   * 
+   * @param predicate the predicate
+   * @param message the error message
+   * @param args the error message arguments
+   * @throws IllegalStateException if predicate returns false
+   */
+  public void state(Predicate<? super T> predicate, String message, Object... args) {
+    that(predicate, IllegalStateException::new, message, args);
+  }
+
+  /**
+   * Check that the predicate return true for all values in the checker.
+   *
+   * @param predicate the predicate
+   * @throws IllegalStateException if predicate returns false
+   */
+  public void state(Predicate<? super T> predicate) {
+    that(predicate, IllegalStateException::new);
   }
 }

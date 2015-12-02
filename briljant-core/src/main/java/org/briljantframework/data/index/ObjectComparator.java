@@ -32,12 +32,12 @@ public final class ObjectComparator<T> implements Comparator<T> {
 
   private static final ObjectComparator<Object> INSTANCE = new ObjectComparator<>();
 
+  private ObjectComparator() {}
+
   @SuppressWarnings("unchecked")
   public static <T> ObjectComparator<T> getInstance() {
     return (ObjectComparator<T>) INSTANCE;
   }
-
-  private ObjectComparator() {}
 
   @Override
   @SuppressWarnings("unchecked")

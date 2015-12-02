@@ -27,7 +27,7 @@ import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 
 /**
- * Created by isak on 1/21/15.
+ * @author Isak Karlsson
  */
 public abstract class VectorView extends AbstractVector {
 
@@ -54,38 +54,13 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  protected <T> T getAt(Class<T> cls, int index) {
-    return parent.loc().get(cls, offset + index);
-  }
-
-  @Override
-  protected String toStringAt(int index) {
-    return parent.loc().toString(offset + index);
-  }
-
-  @Override
-  protected boolean isNaAt(int index) {
-    return parent.loc().isNA(offset + index);
-  }
-
-  @Override
-  protected double getAsDoubleAt(int i) {
-    return parent.loc().getAsDouble(offset + i);
-  }
-
-  @Override
-  protected int getAsIntAt(int i) {
-    return parent.loc().getAsInt(offset + i);
-  }
-
-  @Override
-  protected int compareAt(int a, Vector other, int b) {
-    return parent.loc().compare(a, other, b);
-  }
-
-  @Override
   public boolean hasNA() {
     return parent.hasNA();
+  }
+
+  @Override
+  public <U> Array<U> toArray(Class<U> cls) {
+    return parent.toArray(cls).get(Arrays.range(offset, size())); // TODO: check
   }
 
   @Override
@@ -96,11 +71,6 @@ public abstract class VectorView extends AbstractVector {
   @Override
   public VectorType getType() {
     return parent.getType();
-  }
-
-  @Override
-  public <U> Array<U> toArray(Class<U> cls) {
-    return parent.toArray(cls).get(Arrays.range(offset, size())); // TODO: check
   }
 
   @Override
@@ -116,5 +86,35 @@ public abstract class VectorView extends AbstractVector {
   @Override
   public Builder newBuilder(int size) {
     throw new UnsupportedOperationException(OVERRIDE_TO_SUPPORT);
+  }
+
+  @Override
+  protected int compareAt(int a, Vector other, int b) {
+    return parent.loc().compare(a, other, b);
+  }
+
+  @Override
+  protected boolean isNaAt(int index) {
+    return parent.loc().isNA(offset + index);
+  }
+
+  @Override
+  protected int getAsIntAt(int i) {
+    return parent.loc().getAsInt(offset + i);
+  }
+
+  @Override
+  protected double getAsDoubleAt(int i) {
+    return parent.loc().getAsDouble(offset + i);
+  }
+
+  @Override
+  protected <T> T getAt(Class<T> cls, int index) {
+    return parent.loc().get(cls, offset + index);
+  }
+
+  @Override
+  protected String toStringAt(int index) {
+    return parent.loc().toString(offset + index);
   }
 }

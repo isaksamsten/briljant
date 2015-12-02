@@ -31,6 +31,8 @@ import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 
 /**
+ * Provides a backend for netlib arrays.
+ * 
  * @author Isak Karlsson
  */
 public class NetlibArrayBackend implements ArrayBackend {

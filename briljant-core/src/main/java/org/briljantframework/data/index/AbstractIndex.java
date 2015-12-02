@@ -17,7 +17,6 @@ abstract class AbstractIndex extends AbstractList<Object> implements Index {
     return new NoSuchElementException(String.format("name '%s' not in index", key));
   }
 
-
   @Override
   public int[] locations(Object[] keys) {
     int[] indicies = new int[keys.length];

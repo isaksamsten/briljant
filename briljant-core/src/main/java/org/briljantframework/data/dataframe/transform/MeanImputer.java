@@ -38,7 +38,7 @@ public class MeanImputer implements Transformation {
       builder.set(key, Vectors.mean(frame.get(key)));
     }
     Vector means = builder.build();
-    return new MeanImputTransformer(means);
+    return new MeanImputeTransformer(means);
   }
 
   @Override
@@ -46,11 +46,11 @@ public class MeanImputer implements Transformation {
     return "MeanImputer{}";
   }
 
-  private static class MeanImputTransformer implements Transformer {
+  private static class MeanImputeTransformer implements Transformer {
 
     private final Vector means;
 
-    public MeanImputTransformer(Vector means) {
+    public MeanImputeTransformer(Vector means) {
       this.means = means;
     }
 

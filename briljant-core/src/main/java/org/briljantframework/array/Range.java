@@ -26,41 +26,62 @@ package org.briljantframework.array;
  */
 public interface Range extends IntArray {
 
+  /**
+   * Return a range from 0 (inclusive) to end (exclusive).
+   * 
+   * @param end the end
+   * @return a new range
+   */
   static Range of(int end) {
     return Arrays.range(end);
   }
 
+  /**
+   * Return a range from start (inclusive) to end (exclusive).
+   * 
+   * @param start the start
+   * @param end the end
+   * @return a new range
+   */
   static Range of(int start, int end) {
     return Arrays.range(start, end);
   }
 
+  /**
+   * Return a range from start (inclusive) to end (exclusive) with the specified step size.
+   * 
+   * @param start the start
+   * @param end the end
+   * @param step the step size
+   * @return a new range
+   */
   static Range of(int start, int end, int step) {
     return Arrays.range(start, end, step);
   }
 
   /**
-   * The start value of this range
+   * The start value of this range.
    *
    * @return the start value
    */
   int start();
 
   /**
-   * The end value of this range
+   * The end value of this range.
    *
    * @return the end value
    */
   int end();
 
   /**
-   * The step size of this range
+   * The step size of this range.
    *
    * @return the step size
    */
   int step();
 
   /**
-   * Determines if the given value is included in the range
+   * Determines if the given value is included in the range.
    *
    * @param value the value
    * @return true if the given value is included

@@ -33,9 +33,9 @@ import org.briljantframework.data.dataframe.DataFrame;
  */
 public interface JoinOperation {
 
-  Joiner createJoiner(JoinKeys keys);
-
   default Joiner createJoiner(DataFrame a, DataFrame b, Collection<?> columns) {
     return createJoiner(JoinUtils.createJoinKeys(a, b, columns));
   }
+
+  Joiner createJoiner(JoinKeys keys);
 }

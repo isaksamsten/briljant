@@ -47,21 +47,14 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  */
 public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listable<Integer> {
 
-  static IntArray zeros(int... shape) {
-    return Arrays.newIntArray(shape);
-  }
-
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
     array.assign(1);
     return array;
   }
 
-  /**
-   * @see Arrays#newIntVector(int...)
-   */
-  static IntArray of(int... data) {
-    return Arrays.newIntVector(data);
+  static IntArray zeros(int... shape) {
+    return Arrays.newIntArray(shape);
   }
 
   /**
@@ -70,6 +63,13 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
    * @param value the value to assign
    */
   void assign(int value);
+
+  /**
+   * @see Arrays#newIntVector(int...)
+   */
+  static IntArray of(int... data) {
+    return Arrays.newIntVector(data);
+  }
 
   void assign(int[] data);
 

@@ -37,7 +37,7 @@ import net.mintern.primitive.comparators.DoubleComparator;
 import org.briljantframework.array.DoubleArray;
 
 /**
- * ArrayList backed by a primitive {@code int}-array.
+ * ArrayList backed by a primitive {@code double}-array.
  */
 public class DoubleList extends AbstractList<Double> {
 

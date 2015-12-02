@@ -24,7 +24,7 @@ package org.briljantframework.data.dataframe.join;
 import org.briljantframework.array.IntArray;
 
 /**
- * Created by Isak Karlsson on 11/01/15.
+ * @author Isak Karlsson
  */
 public class OuterJoin implements JoinOperation {
 

@@ -47,6 +47,10 @@ import org.briljantframework.data.vector.Vector;
  */
 public interface DataFrameLocationGetter {
 
+  default Object get(int r, int c) {
+    return get(Object.class, r, c);
+  }
+
   /**
    * Get value at {@code row} and {@code column} as an instance of {@code T}. If conversion fails,
    * return {@code NA} as defined by {@link org.briljantframework.data.Na#of(Class)}. The conversion
@@ -60,10 +64,6 @@ public interface DataFrameLocationGetter {
    * @return an instance of {@code T}
    */
   <T> T get(Class<T> cls, int r, int c);
-
-  default Object get(int r, int c) {
-    return get(Object.class, r, c);
-  }
 
   /**
    * Get value at {@code row} and {@code column} as {@code double}.
@@ -112,8 +112,6 @@ public interface DataFrameLocationGetter {
   DataFrame drop(IntArray columns);
 
   Vector getRecord(int r);
-
-  DataFrame getRecord(int... records);
 
   DataFrame getRecord(IntArray records);
 }

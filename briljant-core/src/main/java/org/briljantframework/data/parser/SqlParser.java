@@ -41,14 +41,16 @@ import org.briljantframework.data.reader.SqlEntryReader;
 import org.briljantframework.data.vector.VectorType;
 
 /**
+ * Parse a specified database using a given query.
+ * 
  * @author Isak Karlsson
  */
 public class SqlParser implements Parser {
 
   private final Settings settings = new Settings();
+  private final Properties properties = new Properties();
   private String url;
   private String query;
-  private final Properties properties = new Properties();
   private List<Class<?>> types = null;
   private List<Object> header = null;
   private Map<String, Object> headerReMap = new HashMap<>();
@@ -116,37 +118,84 @@ public class SqlParser implements Parser {
 
     private Settings() {}
 
-    public Settings setUrl(String url) {
-      SqlParser.this.url = url;
+    /**
+     * Set the path to the data base.
+     * 
+     * @param path the path
+     * @return receiver modified
+     */
+    public Settings setPath(String path) {
+      SqlParser.this.url = path;
       return this;
     }
 
+    /**
+     * Set the database query.
+     * 
+     * @param query the query
+     * @return receiver modified
+     */
     public Settings setQuery(String query) {
       SqlParser.this.query = query;
       return this;
     }
 
+    /**
+     * Instead of using the column header given by the database query, use the specified header.
+     * 
+     * @param header the header
+     * @return receiver modified
+     */
     public Settings setHeader(List<Object> header) {
       SqlParser.this.header = header;
       return this;
     }
 
+    /**
+     * A map for remapping column headers from the database to alternative headers.
+     * 
+     * @param map a map of database headers to alternative headers
+     * @return receiver modified
+     */
     public Settings setHeader(Map<String, Object> map) {
       headerReMap = map;
       return this;
     }
 
+    /**
+     * Instead of using the column types specified by the database query, use the specified column
+     * types.
+     *
+     * @param types the column types
+     * @return receiver modified
+     */
     public Settings setTypes(List<Class<?>> types) {
       SqlParser.this.types = types;
       return this;
     }
 
+    /**
+     * Create a single remapping from a database column to a dataframe header.
+     * 
+     * @param column the database column
+     * @param header the new header name
+     * @return receiver modified
+     */
     public Settings remap(String column, Object header) {
       headerReMap.put(column, header);
       return this;
     }
 
-    public Settings set(Object key, Object value) {
+    /**
+     * Set a database property (the specific properties depend on the database driver found in the
+     * database path). For example, MySQL requires
+     * {@code .setProperty("user", "username").setProperty("password", "password");}
+     * 
+     * @param key the property key
+     * @param value the property value
+     * @return receiver modified
+     */
+    public Settings setProperty(Object key, Object value) {
       properties.put(key, value);
       return this;
     }

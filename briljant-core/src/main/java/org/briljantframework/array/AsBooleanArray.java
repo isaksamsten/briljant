@@ -33,21 +33,16 @@ abstract class AsBooleanArray extends AbstractBooleanArray {
   }
 
   @Override
-  public BooleanArray newEmptyArray(int... shape) {
-    return getArrayFactory().booleanArray(shape);
-  }
-
-  @Override
   public BooleanArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     return new AsBooleanArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
-      protected void setElement(int i, boolean value) {
-        AsBooleanArray.this.setElement(i, value);
+      protected boolean getElement(int i) {
+        return AsBooleanArray.this.getElement(i);
       }
 
       @Override
-      protected boolean getElement(int i) {
-        return AsBooleanArray.this.getElement(i);
+      protected void setElement(int i, boolean value) {
+        AsBooleanArray.this.setElement(i, value);
       }
 
       @Override
@@ -55,6 +50,11 @@ abstract class AsBooleanArray extends AbstractBooleanArray {
         return AsBooleanArray.this.elementSize();
       }
     };
+  }
+
+  @Override
+  public BooleanArray newEmptyArray(int... shape) {
+    return getArrayFactory().newBooleanArray(shape);
   }
 
   @Override

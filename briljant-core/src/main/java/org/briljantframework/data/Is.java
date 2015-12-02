@@ -41,12 +41,12 @@ public final class Is {
     return !numeric(value);
   }
 
-  public static boolean nominal(Vector vector) {
-    return !Number.class.isAssignableFrom(vector.getType().getDataClass());
-  }
-
   public static boolean numeric(Object value) {
     return value instanceof Number || value instanceof Complex;
+  }
+
+  public static boolean nominal(Vector vector) {
+    return !Number.class.isAssignableFrom(vector.getType().getDataClass());
   }
 
   public static boolean numeric(Vector v) {
@@ -58,14 +58,29 @@ public final class Is {
     return Is.NA(a) && Is.NA(b) || Objects.equals(a, b);
   }
 
-  /**
-   * Check if vector is NA-vector
-   *
-   * @param vector the vector
-   * @return true/false
-   */
-  public static boolean NA(Vector vector) {
-    return vector.size() == 0 || vector.stream(Logical.class).allMatch(Is::NA);
+  public static boolean NA(Object o) {
+    if (o == null) {
+      return true;
+    } else if (o instanceof Double) {
+      return Is.NA((double) o);
+    } else if (o instanceof Float) {
+      return Is.NA((float) o);
+    } else if (o instanceof Long) {
+      return Is.NA((long) o);
+    } else if (o instanceof Integer) {
+      return Is.NA((int) o);
+    } else if (o instanceof Short) {
+      return Is.NA((short) o);
+    } else if (o instanceof Byte) {
+      return Is.NA((byte) o);
+    } else if (o instanceof Character) {
+      return Is.NA((char) o);
+    } else if (o instanceof Complex) {
+      return Is.NA((Complex) o);
+    } else {
+      Object na = Na.of(o.getClass());
+      return o.equals(na);
+    }
   }
 
   public static boolean NA(char value) {
@@ -150,6 +165,16 @@ public final class Is {
   }
 
   /**
+   * Check if vector is NA-vector
+   *
+   * @param vector the vector
+   * @return true/false
+   */
+  public static boolean NA(Vector vector) {
+    return vector.size() == 0 || vector.stream(Logical.class).allMatch(Is::NA);
+  }
+
+  /**
    * Check if value is NA
    *
    * @param value the value
@@ -157,30 +182,5 @@ public final class Is {
    */
   public static boolean NA(Logical value) {
     return value == null || value == Logical.NA;
-  }
-
-  public static boolean NA(Object o) {
-    if (o == null) {
-      return true;
-    } else if (o instanceof Double) {
-      return Is.NA((double) o);
-    } else if (o instanceof Float) {
-      return Is.NA((float) o);
-    } else if (o instanceof Long) {
-      return Is.NA((long) o);
-    } else if (o instanceof Integer) {
-      return Is.NA((int) o);
-    } else if (o instanceof Short) {
-      return Is.NA((short) o);
-    } else if (o instanceof Byte) {
-      return Is.NA((byte) o);
-    } else if (o instanceof Character) {
-      return Is.NA((char) o);
-    } else if (o instanceof Complex) {
-      return Is.NA((Complex) o);
-    } else {
-      Object na = Na.of(o.getClass());
-      return o.equals(na);
-    }
   }
 }

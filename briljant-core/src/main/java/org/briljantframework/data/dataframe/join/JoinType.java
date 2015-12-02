@@ -25,8 +25,25 @@ package org.briljantframework.data.dataframe.join;
  * @author Isak Karlsson
  */
 public enum JoinType {
-  INNER(InnerJoin.getInstance()), OUTER(OuterJoin.getInstance()), LEFT(LeftOuterJoin.getInstance()), RIGHT(
-      RightOuterJoin.getInstance());
+  /**
+   * Inner join
+   */
+  INNER(InnerJoin.getInstance()),
+
+  /**
+   * Outer (cross) join
+   */
+  OUTER(OuterJoin.getInstance()),
+
+  /**
+   * Left (inner) join
+   */
+  LEFT(LeftOuterJoin.getInstance()),
+
+  /**
+   * Right (outer) join
+   */
+  RIGHT(RightOuterJoin.getInstance());
 
   private final JoinOperation operation;
 
@@ -34,6 +51,11 @@ public enum JoinType {
     this.operation = operation;
   }
 
+  /**
+   * Get a join operation to perform a join of specified type
+   * 
+   * @return a join operation
+   */
   public JoinOperation getJoinOperation() {
     return operation;
   }

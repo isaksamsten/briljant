@@ -52,6 +52,11 @@ public class Logical extends Number {
   }
 
   @Override
+  public String toString() {
+    return String.valueOf(intValue());
+  }
+
+  @Override
   public int intValue() {
     return state == -1 ? Na.INT : state;
   }
@@ -69,10 +74,5 @@ public class Logical extends Number {
   @Override
   public double doubleValue() {
     return state == -1 ? Na.DOUBLE : state;
-  }
-
-  @Override
-  public String toString() {
-    return String.valueOf(intValue());
   }
 }

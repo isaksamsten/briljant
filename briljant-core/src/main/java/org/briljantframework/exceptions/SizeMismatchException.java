@@ -31,8 +31,4 @@ public class SizeMismatchException extends RuntimeException {
   public SizeMismatchException(String message) {
     super(message);
   }
-
-  public SizeMismatchException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }

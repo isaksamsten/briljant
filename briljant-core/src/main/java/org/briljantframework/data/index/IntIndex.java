@@ -67,22 +67,33 @@ public final class IntIndex extends AbstractIndex {
   }
 
   @Override
-  public Object get(int location) {
-    if (location >= 0 && location < size) {
-      return location;
-    }
-    throw noSuchElement(location);
-  }
+  public Set<Object> keySet() {
+    return new AbstractSet<Object>() {
+      @Override
+      public Iterator<Object> iterator() {
+        return new Iterator<Object>() {
+          public int current = 0;
 
-  @Override
-  public boolean contains(Object key) {
-    if (key instanceof Integer) {
-      int k = (int) key;
-      if (k >= 0 && k < size) {
-        return true;
+          @Override
+          public boolean hasNext() {
+            return current < size;
+          }
+
+          @Override
+          public Object next() {
+            if (current >= size) {
+              throw new NoSuchElementException();
+            }
+            return current++;
+          }
+        };
       }
-    }
-    return false;
+
+      @Override
+      public int size() {
+        return size;
+      }
+    };
   }
 
   @Override
@@ -145,33 +156,21 @@ public final class IntIndex extends AbstractIndex {
   }
 
   @Override
-  public Set<Object> keySet() {
-    return new AbstractSet<Object>() {
-      @Override
-      public Iterator<Object> iterator() {
-        return new Iterator<Object>() {
-          public int current = 0;
+  public Index.Builder newBuilder() {
+    return new Builder(0);
+  }
 
-          @Override
-          public boolean hasNext() {
-            return current < size;
-          }
+  @Override
+  public Index.Builder newCopyBuilder() {
+    return new Builder(size());
+  }
 
-          @Override
-          public Object next() {
-            if (current >= size) {
-              throw new NoSuchElementException();
-            }
-            return current++;
-          }
-        };
-      }
-
-      @Override
-      public int size() {
-        return size;
-      }
-    };
+  @Override
+  public Object get(int location) {
+    if (location >= 0 && location < size) {
+      return location;
+    }
+    throw noSuchElement(location);
   }
 
   @Override
@@ -199,26 +198,6 @@ public final class IntIndex extends AbstractIndex {
   @Override
   public int hashCode() {
     return size;
-  }
-
-  @Override
-  public int size() {
-    return size;
-  }
-
-  @Override
-  public String toString() {
-    return indexSet().toString();
-  }
-
-  @Override
-  public Index.Builder newBuilder() {
-    return new Builder(0);
-  }
-
-  @Override
-  public Index.Builder newCopyBuilder() {
-    return new Builder(size());
   }
 
   public static final class Builder implements Index.Builder {
@@ -287,6 +266,16 @@ public final class IntIndex extends AbstractIndex {
       // set(key, currentSize);
     }
 
+    private boolean isMonotonicallyIncreasing(int key) {
+      return builder == null;
+    }
+
+    @Override
+    public void sortIterationOrder(IntComparator cmp) {
+      initializeHashBuilder();
+      builder.sortIterationOrder(cmp);
+    }
+
     @Override
     public void sort(Comparator<Object> cmp) {
       initializeHashBuilder();
@@ -300,35 +289,6 @@ public final class IntIndex extends AbstractIndex {
       } else {
         initializeHashBuilder();
         builder.sort(order);
-      }
-    }
-
-    private boolean isIntegerKey(Object key) {
-      return key instanceof Integer && builder == null;
-    }
-
-    private boolean isMonotonicallyIncreasing(int key) {
-      return builder == null;
-    }
-
-    private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
-      return new UnsupportedOperationException(getMessage(index));
-    }
-
-    private String getMessage(int index) {
-      return "Creating gap in index. current != index " + currentSize + " != " + index;
-    }
-
-    private void set(Object key, int index) {
-      if (index > currentSize) {
-        throw nonMonotonicallyIncreasingIndex(index);
-      }
-      if (!isIntegerKey(key) || !key.equals(index)) {
-        initializeHashBuilder();
-        builder.add(key);
-      }
-      if (index == currentSize) {
-        currentSize++;
       }
     }
 
@@ -364,14 +324,6 @@ public final class IntIndex extends AbstractIndex {
     }
 
     @Override
-    public void swap(int a, int b) {
-      if (a != b) {
-        initializeHashBuilder();
-        builder.swap(a, b);
-      }
-    }
-
-    @Override
     public int size() {
       return builder == null ? currentSize : builder.size();
     }
@@ -382,10 +334,37 @@ public final class IntIndex extends AbstractIndex {
       builder.remove(index);
     }
 
+    private void set(Object key, int index) {
+      if (index > currentSize) {
+        throw nonMonotonicallyIncreasingIndex(index);
+      }
+      if (!isIntegerKey(key) || !key.equals(index)) {
+        initializeHashBuilder();
+        builder.add(key);
+      }
+      if (index == currentSize) {
+        currentSize++;
+      }
+    }
+
+    private RuntimeException nonMonotonicallyIncreasingIndex(int index) {
+      return new UnsupportedOperationException(getMessage(index));
+    }
+
+    private String getMessage(int index) {
+      return "Creating gap in index. current != index " + currentSize + " != " + index;
+    }
+
+    private boolean isIntegerKey(Object key) {
+      return key instanceof Integer && builder == null;
+    }
+
     @Override
-    public void sortIterationOrder(IntComparator cmp) {
-      initializeHashBuilder();
-      builder.sortIterationOrder(cmp);
+    public void swap(int a, int b) {
+      if (a != b) {
+        initializeHashBuilder();
+        builder.swap(a, b);
+      }
     }
   }
 
@@ -421,4 +400,32 @@ public final class IntIndex extends AbstractIndex {
       return e - s;
     }
   }
+
+  @Override
+  public boolean contains(Object key) {
+    if (key instanceof Integer) {
+      int k = (int) key;
+      if (k >= 0 && k < size) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+
+  @Override
+  public int size() {
+    return size;
+  }
+
+
+
+  @Override
+  public String toString() {
+    return indexSet().toString();
+  }
+
+
+
 }

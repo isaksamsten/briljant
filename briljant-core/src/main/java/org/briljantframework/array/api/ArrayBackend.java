@@ -28,13 +28,39 @@ import org.briljantframework.linalg.api.LinearAlgebraRoutines;
  */
 public interface ArrayBackend {
 
+  /**
+   * Returns true if the backend is available.
+   * 
+   * @return true if the backend is available
+   */
   boolean isAvailable();
 
+  /**
+   * Returns the priority of the backend (the larger; the larger priority)
+   * 
+   * @return the priority
+   */
   int getPriority();
 
+  /**
+   * Get the array factory.
+   * 
+   * @return the array factory
+   */
   ArrayFactory getArrayFactory();
 
+  /**
+   * Get the array routines (specialized for performing operations on the arrays returned by the
+   * factory).
+   * 
+   * @return the routines
+   */
   ArrayRoutines getArrayRoutines();
 
+  /**
+   * Get the linear algebra routines (specialized for the arrays returned by the factory).
+   * 
+   * @return the linear algebra routines
+   */
   LinearAlgebraRoutines getLinearAlgebraRoutines();
 }

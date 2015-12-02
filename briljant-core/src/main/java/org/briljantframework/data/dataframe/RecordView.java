@@ -38,15 +38,15 @@ class RecordView extends AbstractVector {
   private final int row;
   private final VectorType type;
 
+  public RecordView(DataFrame parent, int row) {
+    this(parent, row, findUnionType(parent));
+  }
+
   public RecordView(DataFrame parent, int row, VectorType type) {
     super(parent.getColumnIndex());
     this.parent = parent;
     this.type = type;
     this.row = row;
-  }
-
-  public RecordView(DataFrame parent, int row) {
-    this(parent, row, findUnionType(parent));
   }
 
   /**
@@ -62,23 +62,8 @@ class RecordView extends AbstractVector {
   }
 
   @Override
-  public VectorType getType() {
-    return type;
-  }
-
-  @Override
   public <T> T getAt(Class<T> cls, int index) {
     return parent.loc().get(cls, row, index);
-  }
-
-  @Override
-  public String toStringAt(int index) {
-    return parent.loc().get(index).loc().toString(row);
-  }
-
-  @Override
-  public boolean isNaAt(int index) {
-    return parent.loc().isNA(row, index);
   }
 
   @Override
@@ -92,8 +77,20 @@ class RecordView extends AbstractVector {
   }
 
   @Override
-  public int size() {
-    return parent.columns();
+  public boolean isNaAt(int index) {
+    return parent.loc().isNA(row, index);
+  }
+
+  @Override
+  public String toStringAt(int index) {
+    return parent.loc().get(index).loc().toString(row);
+  }
+
+  @Override
+  protected Vector shallowCopy(Index index) {
+    Vector vector = newCopyBuilder().build();
+    vector.setIndex(index);
+    return vector;
   }
 
   @Override
@@ -112,9 +109,12 @@ class RecordView extends AbstractVector {
   }
 
   @Override
-  protected Vector shallowCopy(Index index) {
-    Vector vector = newCopyBuilder().build();
-    vector.setIndex(index);
-    return vector;
+  public int size() {
+    return parent.columns();
+  }
+
+  @Override
+  public VectorType getType() {
+    return type;
   }
 }

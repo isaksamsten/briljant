@@ -21,9 +21,9 @@
 
 package org.briljantframework.array.base;
 
+import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
@@ -65,7 +65,7 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void ormqr(char side, Op transA, DoubleArray a, DoubleArray tau, DoubleArray c) {
+  public void ormqr(char side, ArrayOperation transA, DoubleArray a, DoubleArray tau, DoubleArray c) {
     throw new UnsupportedOperationException();
 
   }
