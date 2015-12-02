@@ -83,7 +83,7 @@ subprojects {thisProject ->
 
 
         pom.project {
-          name 'Briljantframework'
+          name "${project.group}:${thisProject.name}"
           packaging 'jar'
           // optionally artifactId can be defined here
           description 'Briljant framework'

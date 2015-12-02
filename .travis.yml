@@ -1,3 +1,9 @@
 language: java
 jdk:
   - oraclejdk8
+
+install:
+  - ./gradlew -v
+
+script:
+  - ./gradlew test
