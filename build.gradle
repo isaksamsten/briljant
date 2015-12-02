@@ -1,32 +1,115 @@
 buildscript {
   repositories {
-    jcenter()
     mavenCentral()
   }
 }
 
-task createWrapper(type: Wrapper) {
-  gradleVersion = '2.9'
+plugins {
+  id "com.github.hierynomus.license" version "0.12.1"
 }
 
-allprojects {
-  group = "org.briljantframework"
-  version = "${getVersionName()}"
-
-  apply plugin: 'checkstyle'
-  checkstyle {
-    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
-    toolVersion '6.13'
-    showViolations = true
-  }
+allprojects {thisProject ->
+  println("${getVersionName()}")
+  apply plugin: 'idea'
+  apply plugin: 'license'
 }
 
-subprojects {
+subprojects {thisProject ->
   apply plugin: 'java'
   apply plugin: 'maven'
+  apply plugin: 'signing'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
+
+  group = "org.briljantframework"
+  version = "${getVersionName()}"
+  ext.isReleaseVersion = true
+
+  // javadoc is to strict turn doclint of
+  if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+      tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+      }
+    }
+  }
+
+  // Adding license to the project files
+  license {
+    header rootProject.file('LICENSE')
+    strictCheck true
+    excludes(["**/*.txt", "**/*.conf"])
+  }
+
+  assemble {
+    dependsOn licenseFormat
+  }
+
+  // custom tasks for creating source/javadoc jars
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc
+  }
+
+  // add javadoc/source jar tasks as artifacts
+  artifacts {
+    archives sourcesJar, javadocJar
+  }
+
+  signing {
+    sign configurations.archives
+  }
+
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        beforeDeployment {MavenDeployment deployment -> signing.signPom(deployment)}
+
+        repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+          authentication(userName: ossrhUsername, password: ossrhPassword)
+        }
+
+        snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+          authentication(userName: ossrhUsername, password: ossrhPassword)
+        }
+
+        pom.project {
+          name 'Briljantframework'
+          packaging 'jar'
+          // optionally artifactId can be defined here
+          description 'Briljant framework'
+          url 'http://www.briljantframework.org'
+
+          scm {
+            connection 'scm:git:https://github.com/briljant/briljant.git'
+            developerConnection 'scm:git:https://github.com/briljant/briljant.git'
+            url 'https://github.com/briljant/briljant'
+          }
+
+          licenses {
+            license {
+              name 'The MIT License'
+              url 'http://opensource.org/licenses/MIT'
+            }
+          }
+
+          developers {
+            developer {
+              id 'isakkarlsson'
+              name 'Isak Karlsson'
+              email 'isak.karlsson@gmail.com'
+            }
+          }
+        }
+      }
+    }
+  }
 
   repositories {
     mavenCentral()
@@ -37,11 +120,33 @@ subprojects {
   }
 }
 
+/// The gradle wrapper
+task createWrapper(type: Wrapper) {
+  gradleVersion = '2.9'
+}
+
+// Intellij IDEA settings
+idea {
+  module {
+    downloadSources = true
+  }
+  project {
+    jdkName = 1.8
+    languageLevel = 1.8
+    vcs = 'Git'
+  }
+}
+
 def getVersionName() {
   def stdout = new ByteArrayOutputStream()
   exec {
     commandLine 'git', 'describe', '--tags'
     standardOutput = stdout
   }
-  return stdout.toString().trim()
+  def version = stdout.toString().trim()
+  // The version is a snapshot
+  if (version.contains("-")) {
+    version = "${version.substring(0, version.lastIndexOf("-"))}-SNAPSHOT"
+  }
+  return version
 }

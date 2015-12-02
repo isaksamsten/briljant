@@ -7,12 +7,8 @@ buildscript {
   dependencies {
     classpath 'me.champeau.gradle:jmh-gradle-plugin:+'
   }
-
 }
-
 apply plugin: 'me.champeau.gradle.jmh'
-apply plugin: "groovy"
-apply plugin: 'idea'
 
 idea.module {
   scopes.PROVIDED.plus += [configurations.jmh]
