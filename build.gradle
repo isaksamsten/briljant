@@ -71,8 +71,8 @@ subprojects {thisProject ->
       mavenDeployer {
         beforeDeployment {MavenDeployment deployment -> signing.signPom(deployment)}
 
-        def username = hasProperty('ossrhUsername') ? ossrhUsername : System.getenv('ossrhUsername')
-        def password = hasProperty('ossrhPassword') ? ossrhPassword : System.getenv('ossrhPassword')
+        def username = project.hasProperty('ossrhUsername') ? ossrhUsername : System.getenv('ossrhUsername')
+        def password = project.hasProperty('ossrhPassword') ? ossrhPassword : System.getenv('ossrhPassword')
         repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
           authentication(userName: username, password: password)
         }
@@ -149,7 +149,7 @@ def getVersionName() {
   def version = stdout.toString().trim()
   // The version is a snapshot
   if (version.contains("-")) {
-    version = "${version.substring(0, version.lastIndexOf("-"))}-SNAPSHOT"
+    version = "${version.substring(0, version.indexOf("-"))}-SNAPSHOT"
   }
   return version
 }

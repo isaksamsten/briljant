@@ -100,7 +100,22 @@ array([[a, c],
 
 ### Pre-compiled binaries
 
-Not yet available
+Pre-compiled binaries are available in the snapshot repository
+
+In your `build.gradle`
+ 
+     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+
+or `pom.xml`
+
+    <repository>
+         <id>oss.sonatype.org.snapshots</id>
+         <name>OSS Sonatype Snapshot Repository</name>
+         <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+         <snapshots/>
+    </repository>
+    
+The latest version is `0.1.6-SNAPSHOT`.
 
 ### Building from source
 
