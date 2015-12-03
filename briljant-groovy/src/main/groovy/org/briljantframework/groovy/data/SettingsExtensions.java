@@ -32,6 +32,6 @@ import org.briljantframework.data.parser.SqlParser;
 public class SettingsExtensions {
 
   static void propertyMissing(SqlParser.Settings self, String key, Object value) {
-    self.set(key, value);
+    self.setProperty(key, value);
   }
 }

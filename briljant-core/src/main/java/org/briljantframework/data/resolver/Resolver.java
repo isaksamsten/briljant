@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.resolver;
 
 import java.util.List;
@@ -57,22 +59,29 @@ public class Resolver<R> {
    * denoting {@code NA} (for the type {@code R}) as returned by
    * {@link org.briljantframework.data.Na#of(Class)}.
    *
-   * <p>
+   * <p/>
    * Use {@link org.briljantframework.data.Is#NA(java.lang.Object)} to check for {@code NA} values.
    *
-   * <p>
-   * The resolves values by sequentially scan the added converters and finds the first converter
-   * where {@link Class#isAssignableFrom(Class)} returns true.
-   *
-   * <p>
-   * If the above becomes a bottleneck, it might be reconsidered (e.g., to only consider exact class
-   * matches)
+   * <p/>
+   * The reslover resolves values by sequentially scan the added converters and finds the first
+   * converter where {@link Class#isAssignableFrom(Class)} returns true. If this becomes a
+   * bottleneck, it might be reconsidered (e.g., to only consider exact class matches)
    *
    * @param value the value to resolve
    * @return the resolved value; or {@code Na.from(value.getClass())} otherwise
    */
   public R resolve(Object value) {
     return resolve(value.getClass(), value);
+  }
+
+  private R resolve(Class<?> cls, Object value) {
+    Converter<Object, R> converter = getConverter(cls);
+    if (converter != null) {
+      R convert = converter.convert(value);
+      return convert == null ? Na.of(this.cls) : convert;
+    } else {
+      return Na.of(this.cls);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -84,16 +93,6 @@ public class Resolver<R> {
       }
     }
     return null;
-  }
-
-  private R resolve(Class<?> cls, Object value) {
-    Converter<Object, R> converter = getConverter(cls);
-    if (converter != null) {
-      R convert = converter.convert(value);
-      return convert == null ? Na.of(this.cls) : convert;
-    } else {
-      return Na.of(this.cls);
-    }
   }
 
   private static class Holder<R> {

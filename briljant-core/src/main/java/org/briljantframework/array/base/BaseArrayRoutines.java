@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.array.base;
 
 
@@ -33,12 +35,12 @@ import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
+import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.briljantframework.array.Op;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.NonConformantException;
@@ -263,20 +265,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public int iamax(DoubleArray x) {
-    int i = 0;
-    double m = Math.abs(x.get(0));
-    for (int j = 1; j < x.size(); j++) {
-      double d = Math.abs(x.get(j));
-      if (d > m) {
-        i = j;
-        m = d;
-      }
-    }
-    return i;
-  }
-
-  @Override
   public double inner(DoubleArray a, DoubleArray b) {
     Check.size(a, b);
     double s = 0;
@@ -335,6 +323,20 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public int iamax(DoubleArray x) {
+    int i = 0;
+    double m = Math.abs(x.get(0));
+    for (int j = 1; j < x.size(); j++) {
+      double d = Math.abs(x.get(j));
+      if (d > m) {
+        i = j;
+        m = d;
+      }
+    }
+    return i;
+  }
+
+  @Override
   public int iamax(ComplexArray x) {
     return 0;
   }
@@ -373,7 +375,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void gemv(Op transA, double alpha, DoubleArray a, DoubleArray x, double beta,
+  public void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x, double beta,
       DoubleArray y) {
     throw new UnsupportedOperationException();
   }
@@ -391,8 +393,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void gemm(Op transA, Op transB, double alpha, DoubleArray a, DoubleArray b, double beta,
-      DoubleArray c) {
+  public void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a,
+      DoubleArray b, double beta, DoubleArray c) {
 
     int thisRows = a.rows();
     int thisCols = a.columns();
@@ -410,28 +412,53 @@ public class BaseArrayRoutines implements ArrayRoutines {
     if (thisCols != otherRows) {
       throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
     }
-    int m = a.size(transA == Op.KEEP ? 0 : 1);
-    int n = b.size(transB == Op.KEEP ? 1 : 0);
-    int dk = a.size(transA == Op.KEEP ? 1 : 0);
+    int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
+    int n = b.size(transB == ArrayOperation.KEEP ? 1 : 0);
+    int dk = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
     if (m != c.size(0) || n != c.size(1)) {
-      throw new NonConformantException(
-          String.format("a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n,
-              c.size(0), c.size(1)));
+      throw new NonConformantException(String.format(
+          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n, c.size(0),
+          c.size(1)));
     }
 
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex = transA.isTrue() ? rowMajor(row, k, thisRows, thisCols)
-              : columnMajor(0, row, k, thisRows, thisCols);
-          int otherIndex = transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns)
-              : columnMajor(0, k, col, otherRows, otherColumns);
+          int thisIndex =
+              transA.isTrue() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
+                  thisRows, thisCols);
+          int otherIndex =
+              transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
+                  otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
         c.set(row, col, alpha * sum + beta * c.get(row, col));
       }
     }
+  }
+
+  @Override
+  public <T extends BaseArray<T>> T repmat(T x, int n) {
+    return repmat(x, n, n);
+  }
+
+  @Override
+  public <T extends BaseArray<T>> T repmat(T x, int r, int c) {
+    final int m = x.rows();
+    final int n = x.columns();
+    T y = x.newEmptyArray(m * r, n * c);
+    for (int cc = 0; cc < c; cc++) {
+      for (int j = 0; j < n; j++) {
+        int jj = j + (cc * n);
+        for (int rc = 0; rc < r; rc++) {
+          for (int i = 0; i < m; i++) {
+            y.set(i + (rc * m), jj, x, i, j);
+          }
+        }
+      }
+    }
+    return y;
   }
 
   @Override
@@ -472,29 +499,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
     }
 
     return out;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repmat(T x, int n) {
-    return repmat(x, n, n);
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repmat(T x, int r, int c) {
-    final int m = x.rows();
-    final int n = x.columns();
-    T y = x.newEmptyArray(m * r, n * c);
-    for (int cc = 0; cc < c; cc++) {
-      for (int j = 0; j < n; j++) {
-        int jj = j + (cc * n);
-        for (int rc = 0; rc < r; rc++) {
-          for (int i = 0; i < m; i++) {
-            y.set(i + (rc * m), jj, x, i, j);
-          }
-        }
-      }
-    }
-    return y;
   }
 
   @Override
@@ -662,11 +666,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public LongArray round(DoubleArray in) {
-    return in.asLong().newEmptyArray(in.getShape()).assign(in, Math::round);
-  }
-
-  @Override
   public DoubleArray scalb(DoubleArray array, int scaleFactor) {
     return array.map(v -> Math.scalb(v, scaleFactor));
   }
@@ -690,7 +689,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
   public ComplexArray log(ComplexArray array) {
     return array.map(Complex::log);
   }
-
 
   @Override
   public DoubleArray log2(DoubleArray array) {
@@ -718,5 +716,10 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public DoubleArray signum(DoubleArray in) {
     return in.map(Math::signum);
+  }
+
+  @Override
+  public LongArray round(DoubleArray in) {
+    return in.asLong().newEmptyArray(in.getShape()).assign(in, Math::round);
   }
 }

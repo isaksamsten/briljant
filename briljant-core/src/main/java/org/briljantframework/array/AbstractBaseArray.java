@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.array;
 
 import java.util.ArrayList;
@@ -41,9 +43,14 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new array must be unchanged. (%s, %s)";
-  protected static final String ILLEGAL_INDEX = "Illegal index";
   protected static final String ILLEGAL_DIMENSION_INDEX =
       "Index %s is out of bounds for dimension %s with size %s";
+
+  protected static final String REQUIRE_2D = "Require 2d-array";
+  protected static final String REQUIRE_1D = "Require 2d-array";
+  protected static final String REQUIRE_ND = "Require %dd-array";
+
+
 
   protected final ArrayFactory bj;
 
@@ -95,6 +102,61 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     for (int i = 0; i < o.size(); i++) {
       set(i, o, i);
     }
+  }
+
+  @Override
+  public void forEach(int dim, Consumer<E> consumer) {
+    int size = vectors(dim);
+    for (int i = 0; i < size; i++) {
+      consumer.accept(getVector(dim, i));
+    }
+  }
+
+  @Override
+  public void setColumn(int i, E vec) {
+    getColumn(i).assign(vec);
+  }
+
+  @Override
+  public E getColumn(int i) {
+    Check.state(isMatrix(), "Can only get columns from 2d-arrays");
+    return getView(0, i, rows(), 1);
+  }
+
+  @Override
+  public void setRow(int i, E vec) {
+    getRow(i).assign(vec);
+  }
+
+  @Override
+  public E getRow(int i) {
+    Check.state(isMatrix(), "Can only get rows from 2d-arrays");
+    return getView(i, 0, 1, columns());
+  }
+
+  @Override
+  public final E reshape(int... shape) {
+    if (shape.length == 0 || (shape.length == 1 && shape[0] == -1)) {
+      if (isContiguous()) {
+        int[] newShape = {size()};
+        return asView(getOffset(), newShape, Indexer.computeStride(1, newShape));
+      } else {
+        return copy().reshape(shape);
+      }
+    }
+
+    Check.size(Indexer.size(this.shape), Indexer.size(shape), CHANGED_TOTAL_SIZE,
+        Arrays.toString(this.shape), Arrays.toString(shape));
+    if (isContiguous()) {
+      return asView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
+    } else {
+      return copy().reshape(shape);
+    }
+  }
+
+  @Override
+  public E ravel() {
+    return reshape(-1);
   }
 
   @Override
@@ -155,24 +217,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     return array;
   }
 
-  private void select(List<List<Integer>> indexes, E from, E to, int j, int dim) {
-    Integer fromIndex = indexes.get(dim).get(j);
-    if (indexes.size() - 1 == dim) {
-      if (to.isVector()) {
-        Check.state(from.isVector());
-        Check.validBoxedIndex(fromIndex, from.size());
-        to.set(j, from, fromIndex);
-      } else {
-        Check.validBoxedIndex(fromIndex, from.size(dim));
-        to.select(j).assign(from.select(fromIndex));
-      }
-    } else {
-      Check.validIndex(dim, from.dims());
-      Check.validBoxedIndex(fromIndex, from.size(dim));
-      select(indexes, from.select(fromIndex), to, j, dim + 1);
-    }
-  }
-
   @Override
   public E select(int[][] indexes) {
     List<List<Integer>> boxed = new ArrayList<>();
@@ -180,11 +224,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       boxed.add(Indexer.asList(index));
     }
     return select(boxed);
-  }
-
-  @Override
-  public void setVector(int dimension, int index, E other) {
-    getVector(dimension, index).assign(other);
   }
 
   @Override
@@ -206,41 +245,15 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         new int[] {stride(dimension)});
   }
 
-  protected ArrayFactory getArrayFactory() {
-    return bj;
-  }
-
   @Override
-  public int getOffset() {
-    return offset;
-  }
-
-  @Override
-  public E getRow(int i) {
-    Check.state(isMatrix(), "Can only get rows from 2d-arrays");
-    return getView(i, 0, 1, columns());
-  }
-
-  @Override
-  public E getColumn(int i) {
-    Check.state(isMatrix(), "Can only get columns from 2d-arrays");
-    return getView(0, i, rows(), 1);
+  public void setVector(int dimension, int index, E other) {
+    getVector(dimension, index).assign(other);
   }
 
   @Override
   public E getDiagonal() {
     Check.state(isMatrix(), "Can only get the diagonal of 2d-arrays");
     return asView(getOffset(), new int[] {Math.min(rows(), columns())}, new int[] {rows() + 1});
-  }
-
-  @Override
-  public E getView(int rowOffset, int colOffset, int rows, int columns) {
-    Check.state(isMatrix(), "Can only get view from 2d-arrays");
-    Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
-        "Selected view is to large");
-    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1),
-        new int[] {rows, columns}, getStride(), rows == 1 ? 1 : 0 // change the major stride
-    );
   }
 
   @Override
@@ -262,8 +275,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       int step = r.step() == -1 ? 1 : r.step();
 
       Check.argument(step > 0, "Illegal step size in dimension %s", step);
-      Check.argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i,
-          size(i));
+      Check
+          .argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i, size(i));
       Check.argument(end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
       offset += start * stride[i];
       shape[i] = end;
@@ -273,9 +286,82 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     return asView(offset, shape, stride);
   }
 
-  public E get(IntArray i) {
-    Check.argument(Arrays.equals(getShape(), i.getShape()), "Illegal shape");
-    throw new UnsupportedOperationException("unsupported");
+  @Override
+  public E getView(int rowOffset, int colOffset, int rows, int columns) {
+    Check.state(isMatrix(), "Can only get view from 2d-arrays");
+    Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
+        "Selected view is to large");
+    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1), new int[] {rows,
+        columns}, getStride(), rows == 1 ? 1 : 0 // change the major stride
+    );
+  }
+
+  @Override
+  public final int size() {
+    return size;
+  }
+
+  @Override
+  public final int size(int dim) {
+    Check.argument(dim >= 0 && dim < dims(), "dimension out of bounds");
+    return shape[dim];
+  }
+
+  @Override
+  public final int vectors(int i) {
+    return size() / size(i);
+  }
+
+  @Override
+  public final int stride(int i) {
+    return stride[i];
+  }
+
+  @Override
+  public int getOffset() {
+    return offset;
+  }
+
+  @Override
+  public final int[] getShape() {
+    return shape.clone();
+  }
+
+  @Override
+  public final int[] getStride() {
+    return stride.clone();
+  }
+
+  @Override
+  public int getMajorStride() {
+    return stride(majorStride);
+  }
+
+  @Override
+  public final int rows() {
+    Check.state(isMatrix(), "Can only get number of rows of 2-d array");
+    return shape[0];
+  }
+
+  @Override
+  public final int columns() {
+    Check.state(isMatrix(), "Can only get number of columns of 2-d array");
+    return shape[1];
+  }
+
+  @Override
+  public final int dims() {
+    return shape.length;
+  }
+
+  @Override
+  public final boolean isVector() {
+    return dims() == 1 || (dims() == 2 && (rows() == 1 || columns() == 1));
+  }
+
+  @Override
+  public final boolean isMatrix() {
+    return dims() == 2;
   }
 
   @Override
@@ -288,54 +374,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     return asView(offset, shape, stride, 0);
   }
 
-  /**
-   * Return the number of elements in the data source.
-   *
-   * @return the number of elements in the data source
-   */
-  protected abstract int elementSize();
-
   @Override
-  public void forEach(int dim, Consumer<E> consumer) {
-    int size = vectors(dim);
-    for (int i = 0; i < size; i++) {
-      consumer.accept(getVector(dim, i));
-    }
-  }
-
-  @Override
-  public void setRow(int i, E vec) {
-    getRow(i).assign(vec);
-  }
-
-  @Override
-  public void setColumn(int i, E vec) {
-    getColumn(i).assign(vec);
-  }
-
-  @Override
-  public final E reshape(int... shape) {
-    if (shape.length == 1 && shape[0] == -1) {
-      if (isContiguous()) {
-        int[] newShape = {size()};
-        return asView(getOffset(), newShape, Indexer.computeStride(1, newShape));
-      } else {
-        return copy().reshape(shape);
-      }
-    }
-
-    Check.size(Indexer.size(this.shape), Indexer.size(shape), CHANGED_TOTAL_SIZE,
-        Arrays.toString(this.shape), Arrays.toString(shape));
-    if (isContiguous()) {
-      return asView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
-    } else {
-      return copy().reshape(shape);
-    }
-  }
-
-  @Override
-  public E ravel() {
-    return reshape(-1);
+  public boolean isView() {
+    return !(majorStride == 0 && offset == 0 && Arrays.equals(stride,
+        Indexer.computeStride(1, shape)));
   }
 
   @Override
@@ -354,74 +396,39 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
   }
 
-  @Override
-  public final int rows() {
-    Check.state(isMatrix(), "Can only get number of rows of 2-d array");
-    return shape[0];
+  private void select(List<List<Integer>> indexes, E from, E to, int j, int dim) {
+    Integer fromIndex = indexes.get(dim).get(j);
+    if (indexes.size() - 1 == dim) {
+      if (to.isVector()) {
+        Check.state(from.isVector());
+        Check.validBoxedIndex(fromIndex, from.size());
+        to.set(j, from, fromIndex);
+      } else {
+        Check.validBoxedIndex(fromIndex, from.size(dim));
+        to.select(j).assign(from.select(fromIndex));
+      }
+    } else {
+      Check.validIndex(dim, from.dims());
+      Check.validBoxedIndex(fromIndex, from.size(dim));
+      select(indexes, from.select(fromIndex), to, j, dim + 1);
+    }
   }
 
-  @Override
-  public final int columns() {
-    Check.state(isMatrix(), "Can only get number of columns of 2-d array");
-    return shape[1];
+  protected ArrayFactory getArrayFactory() {
+    return bj;
   }
 
-  @Override
-  public final int size() {
-    return size;
+  public E get(IntArray i) {
+    Check.argument(Arrays.equals(getShape(), i.getShape()), "Illegal shape");
+    throw new UnsupportedOperationException("unsupported");
   }
 
-  @Override
-  public final boolean isVector() {
-    return dims() == 1 || (dims() == 2 && (rows() == 1 || columns() == 1));
-  }
-
-  @Override
-  public final boolean isMatrix() {
-    return dims() == 2;
-  }
-
-  @Override
-  public boolean isView() {
-    return !(majorStride == 0 && offset == 0
-        && Arrays.equals(stride, Indexer.computeStride(1, shape)));
-  }
-
-  @Override
-  public final int size(int dim) {
-    Check.argument(dim >= 0 && dim < dims(), "dimension out of bounds");
-    return shape[dim];
-  }
-
-  @Override
-  public final int vectors(int i) {
-    return size() / size(i);
-  }
-
-  @Override
-  public final int dims() {
-    return shape.length;
-  }
-
-  @Override
-  public final int stride(int i) {
-    return stride[i];
-  }
-
-  @Override
-  public int getMajorStride() {
-    return stride(majorStride);
-  }
-
-  @Override
-  public final int[] getShape() {
-    return shape.clone();
-  }
-
-  @Override
-  public final int[] getStride() {
-    return stride.clone();
-  }
+  /**
+   * Return the number of elements in the data source.
+   *
+   * @return the number of elements in the data source
+   */
+  protected abstract int elementSize();
 
   protected int getMajorStrideIndex() {
     return majorStride;

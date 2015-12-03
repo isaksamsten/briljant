@@ -39,6 +39,8 @@ build/
 # IntelliJ
 /out/
 
+gradle.properties
+
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 

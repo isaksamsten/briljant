@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data;
 
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ import java.util.stream.Collector;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
@@ -48,6 +50,10 @@ import org.briljantframework.statistics.FastStatistics;
 public final class Collectors {
 
   private Collectors() {}
+
+  public static Collector<Vector, ?, DataFrame> toDataFrame() {
+    return toDataFrame(MixedDataFrame.Builder::new);
+  }
 
   public static Collector<Vector, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
     return Collector.of(supplier, (DataFrame.Builder acc, Vector record) -> {
@@ -68,8 +74,8 @@ public final class Collectors {
     }, DataFrame.Builder::build);
   }
 
-  public static Collector<Vector, ?, DataFrame> toDataFrame() {
-    return toDataFrame(MixedDataFrame.Builder::new);
+  public static <T, O> Collector<T, ?, Vector> map(Function<? super T, ? extends O> function) {
+    return map(TypeInferenceVectorBuilder::new, function);
   }
 
   /**
@@ -89,10 +95,6 @@ public final class Collectors {
       left.addAll(right);
       return left;
     }, Vector.Builder::build);
-  }
-
-  public static <T, O> Collector<T, ?, Vector> map(Function<? super T, ? extends O> function) {
-    return map(TypeInferenceVectorBuilder::new, function);
   }
 
   /**
@@ -116,6 +118,14 @@ public final class Collectors {
   }
 
   /**
+   * @return an aggregator for testing, and aggregating a bit-vector, for values that are {@code NA}
+   *         .
+   */
+  public static Collector<Object, ?, Vector> isNA() {
+    return test(Is::NA);
+  }
+
+  /**
    * Returns an aggregator the performs a test on each value and returns a bit-vector with the
    * result of the test.
    *
@@ -128,19 +138,15 @@ public final class Collectors {
   }
 
   /**
-   * @return an aggregator for testing, and aggregating a bit-vector, for values that are {@code NA}
-   *         .
-   */
-  public static Collector<Object, ?, Vector> isNA() {
-    return test(Is::NA);
-  }
-
-  /**
    * @return an aggregator for testing, and aggregating a bit-vector, for values that are not
    *         {@code NA}.
    */
   public static Collector<Object, ?, Vector> nonNA() {
     return test(v -> !Is.NA(v));
+  }
+
+  public static <T> Collector<T, ?, Vector> each(int copies) {
+    return each(TypeInferenceVectorBuilder::new, copies);
   }
 
   /**
@@ -158,8 +164,8 @@ public final class Collectors {
     }, Vector.Builder::build);
   }
 
-  public static <T> Collector<T, ?, Vector> each(int copies) {
-    return each(TypeInferenceVectorBuilder::new, copies);
+  public static <T> Collector<T, ?, Vector> repeat(int copies) {
+    return repeat(TypeInferenceVectorBuilder::new, copies);
   }
 
   public static <T> Collector<T, ?, Vector> repeat(Supplier<Vector.Builder> vb, int copies) {
@@ -167,7 +173,7 @@ public final class Collectors {
       left.addAll(right);
       return left;
     }, (v) -> {
-      Vector temp = v.getTemporaryVector();
+      Vector temp = v.getView();
       int size = temp.size();
       for (int i = 1; i < copies; i++) {
         for (int j = 0; j < size; j++) {
@@ -176,10 +182,6 @@ public final class Collectors {
       }
       return v.build();
     });
-  }
-
-  public static <T> Collector<T, ?, Vector> repeat(int copies) {
-    return repeat(TypeInferenceVectorBuilder::new, copies);
   }
 
   public static <T> Collector<T, ?, Vector> valueCounts() {
@@ -264,18 +266,6 @@ public final class Collectors {
     });
   }
 
-  public static Collector<Number, ?, Vector> summary() {
-    return withFinisher(
-        statisticalSummary(),
-        v -> {
-          Vector summary =
-              Vector.of(v.getMean(), v.getSum(), v.getStandardDeviation(), v.getVariance(),
-                  v.getMin(), v.getMax(), v.getN());
-          summary.setIndex(ObjectIndex.of("mean", "sum", "std", "var", "min", "max", "n"));
-          return summary;
-        });
-  }
-
   public static Collector<Number, ?, StatisticalSummary> statisticalSummary() {
     return Collector.of(FastStatistics::new, (FastStatistics a, Number v) -> {
       if (!Is.NA(v)) {
@@ -294,6 +284,18 @@ public final class Collectors {
     Collector.Characteristics[] empty = new Collector.Characteristics[characteristics.size()];
     return Collector.of(collector.supplier(), collector.accumulator(), collector.combiner(),
         f.andThen(finisher), characteristics.toArray(empty));
+  }
+
+  public static Collector<Number, ?, Vector> summary() {
+    return withFinisher(
+        statisticalSummary(),
+        v -> {
+          Vector summary =
+              Vector.of(v.getMean(), v.getSum(), v.getStandardDeviation(), v.getVariance(),
+                  v.getMin(), v.getMax(), v.getN());
+          summary.setIndex(ObjectIndex.of("mean", "sum", "std", "var", "min", "max", "n"));
+          return summary;
+        });
   }
 
   public static Collector<Number, ?, Double> mean() {

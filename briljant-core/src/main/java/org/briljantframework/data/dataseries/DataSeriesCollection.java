@@ -1,28 +1,29 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.dataseries;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +57,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
 
   private final int columns;
 
-  private DataSeriesCollection(List<Vector> series, VectorType type, int columns, Index columnIndex,
-      Index index) {
+  private DataSeriesCollection(List<Vector> series, VectorType type, int columns,
+      Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(series.size() == index.size());
     Check.argument(columnIndex.size() == columns);
@@ -160,20 +161,27 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  protected DataFrame dropAt(int[] indexes) {
-    Arrays.sort(indexes);
+  protected DataFrame dropAt(IntArray indexes) {
+    indexes.sort();
     Builder builder = newBuilder();
     for (int i = 0; i < rows(); i++) {
       Vector row = getRecordAt(i);
       Vector.Builder vecBuilder = row.newBuilder();
       for (int j = 0; j < row.size(); j++) {
-        if (Arrays.binarySearch(indexes, j) < 0) {
+        if (org.briljantframework.array.Arrays.binarySearch(indexes, j) < 0) {
           vecBuilder.add(row, j);
         }
       }
       builder.addRecord(vecBuilder);
     }
-    return builder.build();
+    Index.Builder columnIndex = getColumnIndex().newBuilder();
+    for (int i = 0; i < columns(); i++) {
+      if (org.briljantframework.array.Arrays.binarySearch(indexes, i) < 0) {
+        columnIndex.add(getColumnIndex().get(i));
+      }
+    }
+
+    return builder.setColumnIndex(columnIndex.build()).setIndex(getIndex()).build();
   }
 
   @Override
@@ -209,8 +217,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private Builder(DataSeriesCollection df, VectorType type) {
       super(df);
       this.type = type;
-      this.builders = df.series.stream().map(Vector::newCopyBuilder)
-          .collect(Collectors.toCollection(ArrayList::new));
+      this.builders =
+          df.series.stream().map(Vector::newCopyBuilder)
+              .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -256,7 +265,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     protected void setAt(int c, Vector.Builder builder) {
       final int size = builder.size();
-      final Vector temporaryVector = builder.getTemporaryVector();
+      final Vector temporaryVector = builder.getView();
       for (int i = 0; i < size; i++) {
         setAt(i, c, temporaryVector, i);
       }
@@ -321,8 +330,9 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataFrame getTemporaryDataFrame() {
       int columns = columns();
-      ArrayList<Vector> series = builders.stream().map(Vector.Builder::getTemporaryVector)
-          .collect(Collectors.toCollection(ArrayList::new));
+      ArrayList<Vector> series =
+          builders.stream().map(Vector.Builder::getView)
+              .collect(Collectors.toCollection(ArrayList::new));
       Index index = getIndex(rows());
       Index columnIndex = getColumnIndex(columns);
       return new DataSeriesCollection(series, type, columns, columnIndex, index) {
@@ -336,10 +346,10 @@ public class DataSeriesCollection extends AbstractDataFrame {
     @Override
     public DataSeriesCollection build() {
       int columns = columns();
-      DataSeriesCollection collection = new DataSeriesCollection(
-          builders.stream().map(Vector.Builder::build)
-              .collect(Collectors.toCollection(ArrayList::new)),
-          type, columns, getColumnIndex(columns), getIndex(rows()));
+      DataSeriesCollection collection =
+          new DataSeriesCollection(builders.stream().map(Vector.Builder::build)
+              .collect(Collectors.toCollection(ArrayList::new)), type, columns,
+              getColumnIndex(columns), getIndex(rows()));
       builders = null;
       return collection;
     }

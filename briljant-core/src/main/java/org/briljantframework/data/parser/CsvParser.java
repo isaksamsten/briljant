@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.parser;
 
 import java.io.File;
@@ -37,8 +39,8 @@ import java.util.stream.Collectors;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.CsvEntryReader;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.vector.VectorType;
@@ -59,21 +61,21 @@ public class CsvParser implements Parser {
   private List<VectorType> types = null;
   private Reader reader;
 
+  public CsvParser() {
+    this(null);
+  }
+
   public CsvParser(Reader reader) {
     this.csvSettings = new CsvParserSettings();
     this.reader = reader;
   }
 
-  public CsvParser() {
-    this(null);
+  public void set(Consumer<Settings> consumer) {
+    consumer.accept(getSettings());
   }
 
   public Settings getSettings() {
     return settings;
-  }
-
-  public void set(Consumer<Settings> consumer) {
-    consumer.accept(getSettings());
   }
 
   @Override
@@ -121,11 +123,6 @@ public class CsvParser implements Parser {
       return this;
     }
 
-    public Settings setInputStream(InputStream inputStream) {
-      reader = new InputStreamReader(inputStream);
-      return this;
-    }
-
     public Settings setFileName(String fileName) throws FileNotFoundException {
       reader = new FileReader(new File(fileName));
       return this;
@@ -133,6 +130,11 @@ public class CsvParser implements Parser {
 
     public Settings setUrl(URL url) throws IOException {
       return setInputStream(url.openStream());
+    }
+
+    public Settings setInputStream(InputStream inputStream) {
+      reader = new InputStreamReader(inputStream);
+      return this;
     }
 
     /**

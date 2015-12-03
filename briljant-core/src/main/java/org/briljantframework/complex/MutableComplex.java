@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.complex;
 
 import org.apache.commons.math3.complex.Complex;
@@ -72,15 +74,15 @@ public class MutableComplex {
   private boolean isNaN;
   private boolean isInfinite;
 
+  public MutableComplex(double real) {
+    this(real, 0);
+  }
+
   public MutableComplex(double real, double imag) {
     this.real = real;
     this.imag = imag;
     this.isNaN = Double.isNaN(real) || Double.isNaN(imag);
     this.isInfinite = !isNaN && (Double.isInfinite(real) || Double.isInfinite(imag));
-  }
-
-  public MutableComplex(double real) {
-    this(real, 0);
   }
 
   public MutableComplex(Complex complex) {
@@ -91,9 +93,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // else if (other.isNaN()) {
-    // setNaN();
-    // }
     real += other.getReal();
     imag += other.getImaginary();
     return this;
@@ -103,9 +102,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // else if (other.isNaN()) {
-    // setNaN();
-    // }
     real += other.getReal();
     imag += other.getImaginary();
     return this;
@@ -115,9 +111,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // } else if (other.isNaN()) {
-    // setNaN();
-    // }
     double oreal = other.getReal();
     double oimag = other.getImaginary();
     real = real * oreal - imag * oimag;
@@ -129,9 +122,6 @@ public class MutableComplex {
     if (isNaN) {
       return this;
     }
-    // else if (other.isNaN()) {
-    // setNaN();
-    // }
     double oreal = other.getReal();
     double oimag = other.getImaginary();
     if (Math.abs(oreal) < Math.abs(oimag)) {

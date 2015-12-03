@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.dataframe;
 
 import java.util.HashMap;
@@ -57,6 +59,7 @@ public final class DataFrames {
   public static final String OUTER = "outer";
   public static final String INNER = "inner";
   public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
+  public static final int PER_SLICE = 4;
   private static final Transformer removeIncompleteColumns = new RemoveIncompleteColumns();
   private static final Transformer removeIncompleteCases = new RemoveIncompleteCases();
   private static final Map<String, JoinOperation> joinOperations;
@@ -187,6 +190,15 @@ public final class DataFrames {
     return bdf;
   }
 
+  public static DataFrame.Builder transferableRecordCopy(DataFrame df) {
+    DataFrame.Builder builder = df.newBuilder();
+    for (Object recordKey : df.getIndex().keySet()) {
+      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
+    }
+    builder.setColumnIndex(df.getColumnIndex());
+    return builder;
+  }
+
   /**
    * Returns a column-permuted shallow copy of {@code in}.
    *
@@ -201,15 +213,6 @@ public final class DataFrames {
       builder.loc().swap(i - 1, random.nextInt(i));
     }
     return builder.build();
-  }
-
-  public static DataFrame.Builder transferableRecordCopy(DataFrame df) {
-    DataFrame.Builder builder = df.newBuilder();
-    for (Object recordKey : df.getIndex().keySet()) {
-      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
-    }
-    builder.setColumnIndex(df.getColumnIndex());
-    return builder;
   }
 
   /**
@@ -251,11 +254,11 @@ public final class DataFrames {
   /**
    * Generates a string representation of a maximum of {@code 10} rows.
    *
-   * @param dataFrame the data frame
+   * @param df the data frame
    * @return a tabular string representation
    */
-  public static String toString(DataFrame dataFrame) {
-    return toString(dataFrame, 100);
+  public static String toString(DataFrame df) {
+    return toString(df, 100);
   }
 
   /**
@@ -275,11 +278,12 @@ public final class DataFrames {
    * @return a tabular string representation
    */
   public static String toString(DataFrame df, int max) {
+    max = df.rows() > max ? PER_SLICE : df.rows();
     Index index = df.getIndex();
     Index columnIndex = df.getColumnIndex();
 
     int longestRecordValue = longestRecordValue(max, index);
-    int[] longestColumnValue = longestColumnValues(df, max, columnIndex);
+    int[] longestColumnValue = longestColumnValues(df, max, columnIndex, 2);
 
     StringBuilder builder = new StringBuilder();
     padWithSpace(builder, longestRecordValue);
@@ -287,30 +291,41 @@ public final class DataFrames {
     for (Object columnKey : columnIndex.keySet()) {
       String safeColumnKey = Na.toString(columnKey);
       int columnKeyLength = safeColumnKey.length();
-      if (columnKeyLength + 2 > longestColumnValue[column]) {
-        longestColumnValue[column] = columnKeyLength + 2;
+      if (longestColumnValue[column] < columnKeyLength) {
+        longestColumnValue[column] = columnKeyLength;
       }
-
+      int i = longestColumnValue[column++] - columnKeyLength;
+      padWithSpace(builder, (i + 2));
       builder.append(safeColumnKey);
-      padWithSpace(builder, longestColumnValue[column++] - columnKeyLength);
     }
     builder.append("\n");
-
-    int records = 0;
-    for (Object recordKey : index.keySet()) {
-      if (records++ > max) {
-        break;
-      }
+    for (int i = 0; i < df.rows(); i++) {
+      Object recordKey = index.get(i);
       String safeRecordKey = Na.toString(recordKey);
       builder.append(safeRecordKey);
-      padWithSpace(builder, longestRecordValue - safeRecordKey.length());
-      column = 0;
-      for (Object columnKey : columnIndex.keySet()) {
+      padWithSpace(builder, (longestRecordValue - safeRecordKey.length()));
+
+      for (int j = 0; j < df.columns(); j++) {
+        Object columnKey = columnIndex.get(j);
         String str = Na.toString(df.get(String.class, recordKey, columnKey));
+        padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
         builder.append(str);
-        padWithSpace(builder, longestColumnValue[column++] - str.length());
       }
       builder.append("\n");
+      if (i >= max) {
+        int left = df.rows() - i - 1;
+        if (left > max) {
+          padWithSpace(builder, longestRecordValue);
+          for (int j = 0; j < df.columns(); j++) {
+            String str = "...";
+            padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
+            builder.append(str);
+          }
+          builder.append("\n");
+          i += left - max - 1;
+        }
+      }
+
     }
     return builder.append("\n[").append(df.rows()).append(" rows x ").append(df.columns())
         .append(" columns]").toString();
@@ -322,25 +337,40 @@ public final class DataFrames {
     }
   }
 
-  private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex) {
+  private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex, int padding) {
     return columnIndex.keySet().stream().map(df::get).mapToInt(v -> {
-      int longest = 0;
-      int i = 0;
-      for (Object recordKey : df.getIndex().keySet()) {
-        if (i++ > max) {
-          break;
-        }
+      int longest = df.rows() > max * 2 ? 3 : 0;
+      for (int i = 0; i < df.rows(); i++) {
+        Object recordKey = df.getIndex().get(i);
         int length = Na.toString(v.get(String.class, recordKey)).length();
         if (length > longest) {
           longest = length;
         }
+        if (i >= max) {
+          int left = df.rows() - i - 1;
+          if (left > max) {
+            i += left - max - 1;
+          }
+        }
       }
-      return longest + 2;
+      return longest + padding;
     }).toArray();
   }
 
   private static int longestRecordValue(int max, Index index) {
-    return index.keySet().stream().limit(max).map(Na::toString).mapToInt(String::length).max()
-        .orElse(0) + 2;
+    int longest = index.size() > max * 2 ? 3 : 0;
+    for (int i = 0; i < index.size(); i++) {
+      int length = Na.toString(index.get(i)).length();
+      if (length > longest) {
+        longest = length;
+      }
+      if (i >= max) {
+        int left = index.size() - i - 1;
+        if (left > max) {
+          i += left - max - 1;
+        }
+      }
+    }
+    return longest;
   }
 }

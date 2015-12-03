@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.index;
 
 import org.briljantframework.data.dataframe.DataFrame;
@@ -38,7 +40,7 @@ public interface DataFrameLocationSetter {
    * ... column}.
    *
    * @param r the row
-   * @param r the column
+   * @param c the column
    */
   void setNA(int r, int c);
 
@@ -52,7 +54,6 @@ public interface DataFrameLocationSetter {
    * @param c the column
    * @param value the value
    * @return a modified builder
-   * @see org.briljantframework.data.vector.Vector.Builder#set(int, Object)
    */
   void set(int r, int c, Object value);
 
@@ -67,8 +68,6 @@ public interface DataFrameLocationSetter {
    * @param df the vector
    * @param fr the row
    * @param fc the column
-   * @see org.briljantframework.data.vector.Vector.Builder#set(int,
-   *      org.briljantframework.data.vector.Vector, int)
    */
   void set(int tr, int tc, DataFrame df, int fr, int fc);
 
@@ -85,6 +84,10 @@ public interface DataFrameLocationSetter {
    */
   void set(int tr, int tc, Vector v, int i);
 
+  default void set(int c, VectorType columnType) {
+    set(c, columnType.newBuilder());
+  }
+
   /**
    * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds empty
    * {@link org.briljantframework.data.vector.GenericVector} columns from {@code columns()
@@ -93,13 +96,8 @@ public interface DataFrameLocationSetter {
    *
    * @param c the index {@code index < columns()}
    * @param columnBuilder the builder
-   * @return receiver modified
    */
   void set(int c, Vector.Builder columnBuilder);
-
-  default void set(int c, VectorType columnType) {
-    set(c, columnType.newBuilder());
-  }
 
   default void set(int c, Vector column) {
     set(c, column.newCopyBuilder());
@@ -115,18 +113,17 @@ public interface DataFrameLocationSetter {
    */
   void swap(int a, int b);
 
+  default void setRecord(int index, VectorType type) {
+    setRecord(index, type.newBuilder());
+  }
+
   /**
    * Sets the {@code builder} at {@code index}.
    *
    * @param r the index
    * @param recordBuilder the builder
-   * @return receiver modified
    */
   void setRecord(int r, Vector.Builder recordBuilder);
-
-  default void setRecord(int index, VectorType type) {
-    setRecord(index, type.newBuilder());
-  }
 
   default void setRecord(int index, Vector vector) {
     setRecord(index, vector.newCopyBuilder());

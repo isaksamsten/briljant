@@ -1,4 +1,4 @@
-/*
+/**
  * The MIT License (MIT)
  *
  * Copyright (c) 2015 Isak Karlsson
@@ -21,14 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package org.briljantframework.dataset.io;
-
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.data.dataframe.ObjectIndex;
-import org.briljantframework.data.dataseries.DataSeriesCollection;
-import org.briljantframework.data.vector.VectorType;
 
 import java.io.BufferedInputStream;
 import java.io.IOError;
@@ -38,6 +31,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.dataframe.MixedDataFrame;
+import org.briljantframework.data.dataseries.DataSeriesCollection;
+import org.briljantframework.data.index.ObjectIndex;
+import org.briljantframework.data.vector.VectorType;
 
 /**
  * This class provides some classical benchmarking datasets

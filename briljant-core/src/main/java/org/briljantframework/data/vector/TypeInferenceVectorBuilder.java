@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.vector;
 
 import java.io.IOException;
@@ -34,7 +36,7 @@ import org.briljantframework.data.reader.DataEntry;
  * Creates a new {@code Vector.Builder} which is able to infer the correct {@code Vector} to return
  * based on the first value added value.
  *
- * <p>
+ * <p/>
  * For example, {@code new TypeInferenceVectorBuilder().plus(1.0).build()} returns a {@code double}
  * vector. The builder is unable to infer the correct type if the first call is
  * {@link #setNA(Object)}, {@link #read(DataEntry)} or {@link #readAll(DataEntry)} an {@link Object}
@@ -45,6 +47,12 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   private int noNaValues = 0;
   private Vector.Builder builder = null;
   private VectorLocationSetter locationSetter = new InferringVectorLocationSetter();
+
+  @Override
+  public Vector.Builder addNA() {
+    noNaValues++;
+    return this;
+  }
 
   @Override
   public Vector.Builder setNA(Object key) {
@@ -59,19 +67,6 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     return builder;
   }
 
-  private void initializeBuilder(Object value) {
-    if (builder == null) {
-      if (Is.NA(value)) {
-        noNaValues++;
-      } else {
-        builder = VectorType.of(value).newBuilder();
-        for (int i = 0; i < noNaValues; i++) {
-          builder.addNA();
-        }
-      }
-    }
-  }
-
   private void initializeBuilder(VectorType vectorType) {
     if (builder == null) {
       builder = vectorType.newBuilder();
@@ -79,12 +74,6 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
         builder.addNA();
       }
     }
-  }
-
-  @Override
-  public Vector.Builder addNA() {
-    noNaValues++;
-    return this;
   }
 
   @Override
@@ -128,6 +117,19 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     return this;
   }
 
+  private void initializeBuilder(Object value) {
+    if (builder == null) {
+      if (Is.NA(value)) {
+        noNaValues++;
+      } else {
+        builder = VectorType.of(value).newBuilder();
+        for (int i = 0; i < noNaValues; i++) {
+          builder.addNA();
+        }
+      }
+    }
+  }
+
   @Override
   public Vector.Builder add(Object value) {
     loc().set(size(), value);
@@ -158,17 +160,24 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   }
 
   @Override
+  public Vector getView() {
+    if (builder != null) {
+      return builder.getView();
+    } else {
+      if (noNaValues == 0) {
+        return Vector.empty();
+      } else {
+        return Vector.singleton(null, noNaValues);
+      }
+    }
+  }
+
+  @Override
   public Vector.Builder remove(Object key) {
     if (builder == null) {
       throw new NoSuchElementException(key + "");
     }
     builder.remove(key);
-    return this;
-  }
-
-  @Override
-  public Vector.Builder read(DataEntry entry) {
-    getObjectBuilder().read(entry);
     return this;
   }
 
@@ -184,6 +193,12 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   }
 
   @Override
+  public Vector.Builder read(DataEntry entry) {
+    getObjectBuilder().read(entry);
+    return this;
+  }
+
+  @Override
   public int size() {
     if (builder != null) {
       return builder.size();
@@ -193,25 +208,12 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
   }
 
   @Override
-  public Vector getTemporaryVector() {
-    if (builder != null) {
-      return builder.getTemporaryVector();
-    } else {
-      if (noNaValues == 0) {
-        return Vector.of();
-      } else {
-        return Vector.singleton(null, noNaValues);
-      }
-    }
-  }
-
-  @Override
   public Vector build() {
     if (builder != null) {
       return builder.build();
     } else {
       if (noNaValues == 0) {
-        return Vector.of();
+        return Vector.empty();
       } else {
         return Vector.singleton(null, noNaValues);
       }
@@ -237,6 +239,22 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
       if (builder != null) {
         builder.loc().set(i, value);
       }
+    }
+
+    @Override
+    public void set(int i, double value) {
+      if (builder == null) {
+        builder = VectorType.of(Double.class).newBuilder();
+      }
+      builder.loc().set(i, value);
+    }
+
+    @Override
+    public void set(int i, int value) {
+      if (builder == null) {
+        builder = VectorType.of(Integer.class).newBuilder();
+      }
+      builder.loc().set(i, value);
     }
 
     @Override
@@ -268,22 +286,6 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void swap(int a, int b) {
       getObjectBuilder().loc().swap(a, b);
-    }
-
-    @Override
-    public void set(int i, double value) {
-      if (builder == null) {
-        builder = VectorType.of(Double.class).newBuilder();
-      }
-      builder.loc().set(i, value);
-    }
-
-    @Override
-    public void set(int i, int value) {
-      if (builder == null) {
-        builder = VectorType.of(Integer.class).newBuilder();
-      }
-      builder.loc().set(i, value);
     }
   }
 }

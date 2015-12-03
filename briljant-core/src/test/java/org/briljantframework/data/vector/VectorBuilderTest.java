@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.vector;
 
 import static org.junit.Assert.assertEquals;
@@ -27,9 +29,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.StringDataEntry;
 import org.junit.Test;
@@ -259,7 +262,7 @@ public abstract class VectorBuilderTest {
       builder.set(key, key);
     }
     Vector vector = builder.build();
-    Vector selected = vector.loc().get(0, 1, 4);
+    Vector selected = vector.loc().get(IntArray.of(0, 1, 4));
 
     assertEquals(22, selected.getAsInt(22));
     assertEquals(300, selected.getAsInt(300));
@@ -272,15 +275,15 @@ public abstract class VectorBuilderTest {
     select.setIndex(ObjectIndex.of("a", "b", "c", "d"));
     List<Object> keys = Arrays.asList("a", "b", "c", "d");
 
-//    Vector.Builder builder = getBuilder();
-//    for (int i = 0; i < select.size(); i++) {
-//      builder.set(keys.get(i), i * 10);
-//    }
+    // Vector.Builder builder = getBuilder();
+    // for (int i = 0; i < select.size(); i++) {
+    // builder.set(keys.get(i), i * 10);
+    // }
 
-//    Vector actual = builder.build().get(select);
-//
-//    assertEquals(10, actual.getAsInt("b"));
-//    assertEquals(20, actual.getAsInt("c"));
+    // Vector actual = builder.build().get(select);
+    //
+    // assertEquals(10, actual.getAsInt("b"));
+    // assertEquals(20, actual.getAsInt("c"));
   }
 
   @Test

@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.dataframe;
 
 import java.util.AbstractMap;
@@ -33,7 +35,6 @@ import java.util.stream.Collector;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.Is;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
@@ -55,19 +56,19 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   private final HashMap<Object, IntArray> groups;
   private final DataFrame dataFrame;
-  private final Object dropKey;
+  private final Object[] dropKeys;
 
   HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, IntList> groups) {
-    this(dataFrame, groups, NO_DROP_KEY_IDENTITY);
+    this(dataFrame, groups, new Object[0]);
   }
 
-  HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, IntList> groups, Object key) {
+  HashDataFrameGroupBy(DataFrame dataFrame, HashMap<Object, IntList> groups, Object... keys) {
     this.dataFrame = dataFrame;
     this.groups = new HashMap<>();
     for (Map.Entry<Object, IntList> e : groups.entrySet()) {
       this.groups.put(e.getKey(), e.getValue().toIntArray());
     }
-    this.dropKey = key;
+    this.dropKeys = keys;
   }
 
   @Override
@@ -125,30 +126,6 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     return createDataFrame(indices);
   }
 
-  protected DataFrame createDataFrame(IntArray indices) {
-    final int size = indices.size();
-
-    DataFrame.Builder builder = dataFrame.newBuilder();
-    DataFrameLocationSetter locationSetter = builder.loc();
-    if (indices.size() > 0) {
-      for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
-        builder.add(dataFrame.loc().get(j).getType());
-        for (int i = 0; i < size; i++) {
-          locationSetter.set(i, j, dataFrame, indices.get(i), j);
-        }
-      }
-    }
-    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
-    for (int i = 0; i < size; i++) {
-      recordIndex.add(dataFrame.getIndex().getKey(indices.get(i)));
-    }
-
-    DataFrame df = builder.build();
-    df.setColumnIndex(dataFrame.getColumnIndex());
-    df.setIndex(recordIndex.build());
-    return df;
-  }
-
   @Override
   public DataFrame collect(Function<Vector, Object> function) {
     DataFrame.Builder builder = dataFrame.newBuilder();
@@ -170,9 +147,14 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   }
 
   protected boolean dropColumnKey(Object columnKey) {
-    return dropKey != NO_DROP_KEY_IDENTITY && (columnKey == dropKey || // columnKey is null and
-                                                                       // dropKey is null
-    (columnKey != null && columnKey.equals(dropKey))); // columnKey is not null
+    if (dropKeys.length != 0) {
+      for (Object dropKey : dropKeys) {
+        if (columnKey == dropKey || (columnKey != null && columnKey.equals(dropKey))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
@@ -203,9 +185,11 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public DataFrame apply(UnaryOperator<Vector> op) {
     DataFrame.Builder builder = dataFrame.newBuilder();
-    builder.set(dropKey, Vectors.transferableBuilder(dataFrame.get(dropKey)));
+    for (Object dropKey : dropKeys) {
+      builder.set(dropKey, Vectors.transferableBuilder(dataFrame.get(dropKey)));
+    }
     for (Object columnKey : dataFrame) {
-      if (Is.equal(columnKey, dropKey)) {
+      if (dropColumnKey(columnKey)) {
         continue;
       }
       Vector column = dataFrame.get(columnKey);
@@ -250,5 +234,29 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     // df.setColumnIndex(dataFrame.getColumnIndex());
     // df.setIndex(recordIndex.build());
     // return df;
+  }
+
+  protected DataFrame createDataFrame(IntArray indices) {
+    final int size = indices.size();
+
+    DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrameLocationSetter locationSetter = builder.loc();
+    if (indices.size() > 0) {
+      for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
+        builder.add(dataFrame.loc().get(j).getType());
+        for (int i = 0; i < size; i++) {
+          locationSetter.set(i, j, dataFrame, indices.get(i), j);
+        }
+      }
+    }
+    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
+    for (int i = 0; i < size; i++) {
+      recordIndex.add(dataFrame.getIndex().get(indices.get(i)));
+    }
+
+    DataFrame df = builder.build();
+    df.setColumnIndex(dataFrame.getColumnIndex());
+    df.setIndex(recordIndex.build());
+    return df;
   }
 }

@@ -6,15 +6,9 @@ buildscript {
 
   dependencies {
     classpath 'me.champeau.gradle:jmh-gradle-plugin:+'
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
   }
-
 }
-
 apply plugin: 'me.champeau.gradle.jmh'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: "groovy"
-apply plugin: 'idea'
 
 idea.module {
   scopes.PROVIDED.plus += [configurations.jmh]
@@ -26,8 +20,6 @@ jmh {
   iterations = 4
   batchSize = 1
   fork = 2
-  // Benchmark mode. Available modes are:
-  // [Throughput/thrpt, AverageTime/avgt, SampleTime/sample, SingleShotTime/ss, All/all]
   benchmarkMode = 'avgt'
   forceGC = false
   failOnError = false

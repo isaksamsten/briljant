@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.vector;
 
 import java.io.IOException;
@@ -42,6 +44,8 @@ import org.briljantframework.Check;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.sort.QuickSort;
@@ -56,7 +60,7 @@ public final class Vectors {
 
   public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(Supplier<V> supplier) {
     return Collector.of(supplier, Vector.Builder::add, (left, right) -> {
-      left.addAll(right.getTemporaryVector());
+      left.addAll(right.getView());
       return left;
     }, Vector.Builder::build);
   }
@@ -67,6 +71,62 @@ public final class Vectors {
       v.setAt(i, source.sample());
     }
     return v.build();
+  }
+
+  /**
+   * Return a string representation of a vector
+   * 
+   * @param v the vector
+   * @param max the maximum number of elements to print before truncating
+   * @return a string representation
+   */
+  public static String toString(Vector v, int max) {
+    Objects.requireNonNull(v);
+    StringBuilder builder = new StringBuilder();
+    Index index = v.getIndex();
+    max = v.size() < max ? v.size() : 10;
+
+    // Compute the longest string representation of a key
+    int longestKey = String.valueOf(index.size() - 1).length();
+    if (!(index instanceof IntIndex)) {
+      for (int i = 0; i < v.size(); i++) {
+        Object key = index.get(i);
+        int length = Is.NA(key) ? 2 : key.toString().length();
+        if (i >= max) {
+          int left = v.size() - i - 1;
+          if (left > max) {
+            i += left - max - 1;
+          }
+        }
+        if (length > longestKey) {
+          longestKey = length;
+        }
+      }
+    }
+
+    for (int i = 0; i < v.size(); i++) {
+      Object key = index.get(i);
+      String keyString = Is.NA(key) ? "NA" : key.toString();
+      int keyPad = (longestKey - keyString.length());
+      builder.append(keyString).append("   ");
+      for (int j = 0; j < keyPad; j++) {
+        builder.append(" ");
+      }
+      builder.append(Na.toString(v.get(String.class, key))).append("\n");
+      if (i >= max) {
+        int left = v.size() - i - 1;
+        if (left > max) {
+          builder.append("  ");
+          for (int j = 0; j < longestKey; j++) {
+            builder.append(" ");
+          }
+          builder.append("...\n");
+          i += left - max - 1;
+        }
+      }
+    }
+    builder.append("Length: ").append(v.size()).append(", type: ").append(v.getType().toString());
+    return builder.toString();
   }
 
   /**
@@ -124,6 +184,18 @@ public final class Vectors {
   }
 
   /**
+   * Returns a vector of length {@code 50}. With evenly spaced values in the range {@code start} to
+   * {@code end}.
+   *
+   * @param start the start value
+   * @param stop the end value
+   * @return a vector
+   */
+  public static Vector linspace(double start, double stop) {
+    return linspace(start, stop, 50);
+  }
+
+  /**
    * <p>
    * Create a vector of length {@code num} with evenly spaced values between {@code start} and
    * {@code end}.
@@ -148,18 +220,6 @@ public final class Vectors {
     }
 
     return builder.build();
-  }
-
-  /**
-   * Returns a vector of length {@code 50}. With evenly spaced values in the range {@code start} to
-   * {@code end}.
-   *
-   * @param start the start value
-   * @param stop the end value
-   * @return a vector
-   */
-  public static Vector linspace(double start, double stop) {
-    return linspace(start, stop, 50);
   }
 
   /**
@@ -225,6 +285,20 @@ public final class Vectors {
   }
 
   /**
+   * <p>
+   * Computes the population standard deviation of {@code vector}.
+   *
+   * <p>
+   * A vector of all {@code NA} returns {@code NA}
+   *
+   * @param vector the vector
+   * @return the standard deviation
+   */
+  public static double std(Vector vector) {
+    return statisticalSummary(vector).getStandardDeviation();
+  }
+
+  /**
    * Computes descriptive statistics of {@code vector}
    *
    * @param vector a vector
@@ -243,20 +317,6 @@ public final class Vectors {
 
   /**
    * <p>
-   * Computes the population standard deviation of {@code vector}.
-   *
-   * <p>
-   * A vector of all {@code NA} returns {@code NA}
-   *
-   * @param vector the vector
-   * @return the standard deviation
-   */
-  public static double std(Vector vector) {
-    return statisticalSummary(vector).getStandardDeviation();
-  }
-
-  /**
-   * <p>
    * Computes the population standard deviation of {@code vector} using an already computed
    * {@code mean}.
    *
@@ -270,29 +330,6 @@ public final class Vectors {
   public static double std(Vector vector, double mean) {
     double var = var(vector, mean);
     return Is.NA(var) ? Na.DOUBLE : Math.sqrt(var);
-  }
-
-  /**
-   * <p>
-   * Computes the sample mean of {@code vector}.
-   *
-   * <p>
-   * A vector of all {@code NA} returns {@code NA}
-   *
-   * @param vector the vector
-   * @return the mean; or NA
-   */
-  public static double mean(Vector vector) {
-    double mean = 0;
-    int nonNA = 0;
-    for (int i = 0; i < vector.size(); i++) {
-      if (!vector.loc().isNA(i)) {
-        mean += vector.loc().getAsDouble(i);
-        nonNA += 1;
-      }
-    }
-
-    return nonNA == 0 ? Na.of(Double.class) : mean / (double) nonNA;
   }
 
   /**
@@ -331,6 +368,29 @@ public final class Vectors {
    */
   public static double var(Vector vector) {
     return var(vector, mean(vector));
+  }
+
+  /**
+   * <p>
+   * Computes the sample mean of {@code vector}.
+   *
+   * <p>
+   * A vector of all {@code NA} returns {@code NA}
+   *
+   * @param vector the vector
+   * @return the mean; or NA
+   */
+  public static double mean(Vector vector) {
+    double mean = 0;
+    int nonNA = 0;
+    for (int i = 0; i < vector.size(); i++) {
+      if (!vector.loc().isNA(i)) {
+        mean += vector.loc().getAsDouble(i);
+        nonNA += 1;
+      }
+    }
+
+    return nonNA == 0 ? Na.of(Double.class) : mean / (double) nonNA;
   }
 
   /**
@@ -490,6 +550,17 @@ public final class Vectors {
   }
 
   /**
+   * Compute the sigmoid between a and b, i.e. 1/(1+e^(a'(-b)))
+   *
+   * @param a a vector
+   * @param b a vector
+   * @return the sigmoid
+   */
+  public static double sigmoid(Vector a, Vector b) {
+    return 1.0 / (1 + Math.exp(dot(a, b)));
+  }
+
+  /**
    * Inner product, i.e. the dot product x * y. Handles {@code NA} values by ignoring them.
    *
    * @param x a vector
@@ -508,17 +579,6 @@ public final class Vectors {
       }
     }
     return dot;
-  }
-
-  /**
-   * Compute the sigmoid between a and b, i.e. 1/(1+e^(a'(-b)))
-   *
-   * @param a a vector
-   * @param b a vector
-   * @return the sigmoid
-   */
-  public static double sigmoid(Vector a, Vector b) {
-    return 1.0 / (1 + Math.exp(dot(a, b)));
   }
 
   public static Vector range(int size) {
@@ -568,12 +628,12 @@ public final class Vectors {
     }
 
     @Override
-    public Vector.Builder setNA(Object key) {
+    public Vector.Builder addNA() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Vector.Builder addNA() {
+    public Vector.Builder setNA(Object key) {
       throw new UnsupportedOperationException();
     }
 
@@ -623,6 +683,11 @@ public final class Vectors {
     }
 
     @Override
+    public Vector getView() {
+      return vector;
+    }
+
+    @Override
     public Vector.Builder remove(Object key) {
       throw new UnsupportedOperationException();
     }
@@ -645,11 +710,6 @@ public final class Vectors {
     @Override
     public int size() {
       return vector.size();
-    }
-
-    @Override
-    public Vector getTemporaryVector() {
-      return vector;
     }
 
     @Override

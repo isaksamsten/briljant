@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.dataframe.join;
 
 import java.util.Collection;
@@ -27,16 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.briljantframework.array.IntArray;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 
 /**
- * Created by Isak Karlsson on 09/01/15.
+ * @author Isak Karlsson
  */
 public class JoinUtils {
-
-  public static final int MISSING = Integer.MIN_VALUE;
 
   /**
    * @return retVal[0] := indexer, retVal[1] := counts
@@ -61,7 +61,7 @@ public class JoinUtils {
       where[label] += 1;
     }
 
-    return new IntArray[]{results, counts};
+    return new IntArray[] {results, counts};
   }
 
   /**
@@ -72,7 +72,32 @@ public class JoinUtils {
    * @return a new join key
    */
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b) {
-    return createJoinKeys(a.getIndex().asList(), b.getIndex().asList());
+    return createJoinKeys(a.getIndex(), b.getIndex());
+  }
+
+  public static JoinKeys createJoinKeys(List<?> a, List<?> b) {
+    int[] left = new int[a.size()];
+    int[] right = new int[b.size()];
+    Map<Object, Integer> pool = new HashMap<>(Math.max(a.size(), b.size()));
+
+    int j = computeKeys(a, left, pool, 0);
+    computeKeys(b, right, pool, j);
+    return new JoinKeys(IntArray.of(left), IntArray.of(right), pool.size());
+  }
+
+  private static int computeKeys(List<?> a, int[] left, Map<Object, Integer> pool, int j) {
+    for (int i = 0; i < a.size(); i++) {
+      Object val = a.get(i);
+      int ref = pool.getOrDefault(val, Na.BOXED_INT);
+      if (ref != Na.INT) {
+        left[i] = ref;
+      } else {
+        left[i] = j;
+        pool.put(val, j);
+        j += 1;
+      }
+    }
+    return j;
   }
 
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<?> on) {
@@ -100,35 +125,6 @@ public class JoinUtils {
       noGroups = noGroups * (pool.getMaxGroups() + 1);
     }
     return new JoinKeys(left, right, noGroups);
-  }
-
-  public static JoinKeys createJoinKeys(List<?> a, List<?> b) {
-    int[] left = new int[a.size()];
-    int[] right = new int[b.size()];
-    Map<Object, Integer> pool = new HashMap<>(Math.max(a.size(), b.size()));
-
-    int j = computeKeys(a, left, pool, 0);
-    computeKeys(b, right, pool, j);
-    return new JoinKeys(IntArray.of(left), IntArray.of(right), pool.size());
-  }
-
-  private static int computeKeys(List<?> a, int[] left, Map<Object, Integer> pool, int j) {
-    for (int i = 0; i < a.size(); i++) {
-      Object val = a.get(i);
-      int ref = pool.getOrDefault(val, MISSING);
-      if (ref != MISSING) {
-        left[i] = ref;
-      } else {
-        left[i] = j;
-        pool.put(val, j);
-        j += 1;
-      }
-    }
-    return j;
-  }
-
-  public static JoinKeys createJoinKeys(Index a, Index b) {
-    return createJoinKeys(a.asList(), b.asList());
   }
 
   public static JoinKeys createJoinKeys(Vector a, Vector b) {

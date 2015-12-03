@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.array;
 
 import java.util.List;
@@ -172,7 +174,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * <pre>
    * {@code
    * > DoubleArray a = Arrays.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
-   * > a.forEachDouble(0, x -> System.out.println(x))
+   * > a.forEach(0, x -> System.out.println(x))
    * 
    * array([0.000, 0.091])
    * array([0.182, 0.273])
@@ -328,15 +330,21 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Passing {@code -1} is a shortcut for {@code Array x; x.reshape(x.size())}
    *
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3 * 3).reshape(3, 3).transpose()
+   * IntArray x = Arrays.range(3 * 3).reshape(3, 3).transpose()
+   * </pre>
+   * 
+   * <pre>
    * array([[0, 1, 2],
    *       [3, 4, 5],
    *       [6, 7, 8]])
+   * </pre>
    * 
-   * > x.reshape(-1)
+   * <pre>
+   * x.reshape(-1) // or x.reshape() or x.ravel()
+   * </pre>
+   * 
+   * <pre>
    * array([0, 3, 6, 1, 4, 7, 2, 5, 8])
-   * }
    * </pre>
    *
    * @param shape the new shape must be compatible with the old shape, i.e. {@code shape[0] * ...
@@ -346,6 +354,11 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   S reshape(int... shape);
 
+  /**
+   * Returns a 1d array concatenating all vectors in column major ordering.
+   * 
+   * @return a 1d array
+   */
   S ravel();
 
   /**
@@ -723,20 +736,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S getView(int rowOffset, int colOffset, int rows, int columns);
 
   /**
-   * The number of rows.
-   *
-   * @return number or rows
-   */
-  int rows();
-
-  /**
-   * The number of columns.
-   *
-   * @return number of columns
-   */
-  int columns();
-
-  /**
    * Returns the linearized size of this matrix. If {@code dims() == } 1, then {@code size()} is
    * intuitive. However, if not, size is {@code shape[1] * shape[2] * ... *
    * shape[dims[]-1]} and used when iterating using {@code get(int)}. For matrices, to avoid cache
@@ -779,13 +778,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @return the number of vectors along the dimension
    */
   int vectors(int i);
-
-  /**
-   * The number of dimensions of the array.
-   *
-   * @return the dimensions
-   */
-  int dims();
 
   /**
    * The stride of the i:th dimension
@@ -832,6 +824,27 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   default boolean isSquare() {
     return dims() == 2 && rows() == columns();
   }
+
+  /**
+   * The number of rows.
+   *
+   * @return number or rows
+   */
+  int rows();
+
+  /**
+   * The number of columns.
+   *
+   * @return number of columns
+   */
+  int columns();
+
+  /**
+   * The number of dimensions of the array.
+   *
+   * @return the dimensions
+   */
+  int dims();
 
   /**
    * Return {@code true} if this array is a vector. The definition of vector is a 1d-array or a

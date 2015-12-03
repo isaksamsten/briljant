@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.array;
 
 import java.util.List;
@@ -45,11 +47,7 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
 /**
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
-
-  static IntArray zeros(int... shape) {
-    return Arrays.newIntArray(shape);
-  }
+public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listable<Integer> {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -57,11 +55,8 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
     return array;
   }
 
-  /**
-   * @see Arrays#newIntVector(int...)
-   */
-  static IntArray of(int... data) {
-    return Arrays.newIntVector(data);
+  static IntArray zeros(int... shape) {
+    return Arrays.newIntArray(shape);
   }
 
   /**
@@ -70,6 +65,13 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
    * @param value the value to assign
    */
   void assign(int value);
+
+  /**
+   * @see Arrays#newIntVector(int...)
+   */
+  static IntArray of(int... data) {
+    return Arrays.newIntVector(data);
+  }
 
   void assign(int[] data);
 
@@ -152,7 +154,7 @@ public interface IntArray extends BaseArray<IntArray>, Listable<Integer> {
 
   BooleanArray where(IntArray matrix, IntBiPredicate predicate);
 
-  void forEach(IntConsumer consumer);
+  void forEachPrimitive(IntConsumer consumer);
 
   int reduce(int identity, IntBinaryOperator reduce);
 

@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.array;
 
 import java.util.List;
@@ -107,16 +109,12 @@ import org.briljantframework.function.DoubleBiPredicate;
  */
 public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, Listable<Double> {
 
-  static DoubleArray zeros(int... shape) {
-    return Arrays.newDoubleArray(shape);
-  }
-
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#array(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#newVector(double[])
    */
   static DoubleArray of(double... data) {
     return Arrays.newDoubleVector(data);
@@ -145,6 +143,12 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
     return array;
   }
 
+  static DoubleArray zeros(int... shape) {
+    return Arrays.newDoubleArray(shape);
+  }
+
+  void set(int index, double value);
+
   /**
    * @see Arrays#linspace(double, double, int)
    */
@@ -161,7 +165,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Assign the array
-   * 
+   *
    * @param array the array
    */
   void assign(double[] array);
@@ -207,7 +211,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Collect the array
-   * 
+   *
    * @param collector the collector
    * @param <R> the return type
    * @param <C> the mutable reduction container
@@ -215,17 +219,17 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   <R, C> R collect(Collector<? super Double, C, R> collector);
 
+  // Transform
+
   /**
    * Collect the array
-   * 
+   *
    * @param supplier the supplier
    * @param consumer the consumer
    * @param <R> the return type
    * @return an instance of R
    */
   <R> R collect(Supplier<R> supplier, ObjDoubleConsumer<R> consumer);
-
-  // Transform
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -261,7 +265,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Map each value to a long
-   * 
+   *
    * @param function the mapper
    * @return a long array
    */
@@ -269,7 +273,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Map each value to a complex
-   * 
+   *
    * @param function the mapper
    * @return a complex array
    */
@@ -277,12 +281,14 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Map each value to an object
-   * 
+   *
    * @param mapper the mapper
    * @param <T> the type
    * @return an array
    */
   <T> Array<T> mapToObj(DoubleFunction<? extends T> mapper);
+
+  // Filter
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -291,23 +297,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   void apply(DoubleUnaryOperator operator);
 
-  // Filter
-
   /**
    * Return the value for which the predicate returns true
-   * 
+   *
    * @param predicate the predicate
    * @return a new double array
    */
   DoubleArray filter(DoublePredicate predicate);
-
-  /**
-   * Return a boolean array of indicator values using the given predicate
-   * 
-   * @param predicate the predicate
-   * @return a boolean array
-   */
-  BooleanArray where(DoublePredicate predicate);
 
   /**
    * Return a boolean array of indicator values for joining this with the given array and the
@@ -360,8 +356,6 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   // GET SET
 
-  void set(int index, double value);
-
   void set(int i, int j, double value);
 
   void set(int[] ix, double value);
@@ -413,14 +407,14 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Return a double stream
-   * 
+   *
    * @return a double stream
    */
   DoubleStream stream();
 
   /**
    * Convert this array to a (mutable) list.
-   * 
+   *
    * @return a list
    */
   List<Double> toList();
@@ -432,9 +426,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   Array<Double> boxed();
 
-  // Arithmetical operations ///////////
-
   DoubleArray times(DoubleArray other);
+
+  // Arithmetical operations ///////////
 
   /**
    * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
@@ -558,6 +552,14 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   default BooleanArray gt(double v) {
     return where(x -> x > v);
   }
+
+  /**
+   * Return a boolean array of indicator values using the given predicate
+   *
+   * @param predicate the predicate
+   * @return a boolean array
+   */
+  BooleanArray where(DoublePredicate predicate);
 
   default BooleanArray gte(double v) {
     return where(x -> x >= v);

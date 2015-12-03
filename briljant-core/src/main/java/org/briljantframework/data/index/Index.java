@@ -1,37 +1,38 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.index;
 
-import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import net.mintern.primitive.comparators.IntComparator;
 
-import org.briljantframework.data.BoundType;
-import org.briljantframework.data.dataframe.ObjectIndex;
+import org.briljantframework.Listable;
+import org.briljantframework.array.Range;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.sort.Swappable;
 
 /**
@@ -39,16 +40,59 @@ import org.briljantframework.sort.Swappable;
  *
  * @author Isak Karlsson
  */
-public interface Index extends Iterable<Object> {
+public interface Index extends List<Object>, Iterable<Object> {
 
+  /**
+   * Return an index from 0 to end
+   * 
+   * @param end the end of the range
+   * @return a new index
+   */
   static Index range(int end) {
     return range(0, end);
   }
 
+  /**
+   * Return an index from start (inclusive) to end (exclusive)
+   * 
+   * @param start the start
+   * @param end the end
+   * @return a new index
+   */
   static Index range(int start, int end) {
     return new IntIndex(start, end);
   }
 
+  /**
+   * Return an index from the value in the given collection (iteration order is defined by the
+   * iteration order of the collection)
+   *
+   * @param collection a collection
+   * @return a new index
+   */
+  static Index of(Collection<Object> collection) {
+    return ObjectIndex.of(collection);
+  }
+
+  /**
+   * Return an index from the given listable collection
+   *
+   * @param listable a listable collection (i.e. a collection which can be transformed into a list)
+   * @return a new index
+   */
+  static Index of(Listable<?> listable) {
+    if (listable instanceof Range && ((Range) listable).step() == 1) {
+      return new IntIndex(((Range) listable).start(), ((Range) listable).end());
+    }
+    return of(listable.toList());
+  }
+
+  /**
+   * Return an index from the supplied values
+   *
+   * @param values the values
+   * @return a new index
+   */
   static Index of(Object... values) {
     return ObjectIndex.of(values);
   }
@@ -62,58 +106,52 @@ public interface Index extends Iterable<Object> {
    */
   int getLocation(Object key);
 
-  Set<Object> selectRange(Object from, BoundType fromBound, Object to, BoundType toBound);
-
-  default Set<Object> selectRange(Object from, Object to) {
-    return selectRange(from, BoundType.INCLUSIVE, to, BoundType.EXCLUSIVE);
-  }
+  @Override
+  Object get(int index);
 
   /**
-   * Get the key at the supplied location
+   * Get the keys in this index as a set of keys
    *
-   * @param location the location
-   * @return the key
-   * @throws java.lang.IndexOutOfBoundsException if {@code location >= size() || location < 0}
+   * @return a new key set (with specified iteration order)
    */
-  Object getKey(int location);
-
-  /**
-   * Returns {@code true} if
-   */
-  boolean contains(Object key);
-
   Set<Object> keySet();
 
+  /**
+   * Get a collection of locations include in this index
+   *
+   * @return a collection of locations
+   */
   Collection<Integer> locations();
 
-  Set<Index.Entry> entrySet();
+  /**
+   * Get a set of index entries in this index
+   *
+   * @return a new index set
+   */
+  Set<Index.Entry> indexSet();
 
+  /**
+   * Get the locations associated with the given keys
+   *
+   * @param keys the keys
+   * @return the locations
+   * @throws java.util.NoSuchElementException if any key is missing
+   */
   int[] locations(Object[] keys);
 
-  @Override
-  default Iterator<Object> iterator() {
-    return keySet().iterator();
-  }
-
+  /**
+   * Construct a new index builder
+   *
+   * @return a new builder
+   */
   Builder newBuilder();
 
+  /**
+   * Copy this index into a new builder
+   *
+   * @return a new builder
+   */
   Builder newCopyBuilder();
-
-  default List<Object> asList() {
-    return new AbstractList<Object>() {
-      @Override
-      public Object get(int index) {
-        return getKey(index);
-      }
-
-      @Override
-      public int size() {
-        return Index.this.size();
-      }
-    };
-  }
-
-  int size();
 
   interface Builder extends Swappable {
 
@@ -133,15 +171,42 @@ public interface Index extends Iterable<Object> {
      */
     int getLocation(Object key);
 
-    Object getKey(int index);
+    Object get(int index);
 
     void add(Object key);
 
     void add(int key);
 
+    /**
+     * Sort the iteration order of this index based on some external value.
+     * 
+     * <pre>
+     * int[] order = {20, 10, 30};
+     * Index.Builder ib = new ObjectIndex.Builder();
+     * ib.add(&quot;A&quot;);
+     * ib.add(&quot;B&quot;);
+     * ib.add(&quot;C&quot;);
+     * ib.sortIterationOrder((a, b) -&gt; order[a] - order[b]);
+     * for (Object key : ib.build()) {
+     *   System.out.println(key);
+     * }
+     * // Prints
+     * // B
+     * // A
+     * // C
+     * </pre>
+     * 
+     * @param cmp an external comparison function
+     */
+    void sortIterationOrder(IntComparator cmp);
+
     void sort(Comparator<Object> cmp);
 
-    void sort();
+    default void sort() {
+      sort(SortOrder.ASC);
+    }
+
+    void sort(SortOrder order);
 
     void extend(int size);
 
@@ -152,8 +217,6 @@ public interface Index extends Iterable<Object> {
     int size();
 
     void remove(int index);
-
-    void sortIterationOrder(IntComparator cmp);
   }
 
   final class Entry {

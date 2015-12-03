@@ -462,19 +462,19 @@ abstract class ArrayFactorySpec extends Specification {
     shape = shape as int[]
     if (value instanceof List) {
       return [
-          bj.array(value as int[]).reshape(shape),
-          bj.array(value as double[]).reshape(shape),
-          bj.array(value as long[]).reshape(shape),
-          bj.array(value.collect { Complex.valueOf(it) } as Complex[]).reshape(shape)
+          bj.newVector(value as int[]).reshape(shape),
+          bj.newVector(value as double[]).reshape(shape),
+          bj.newVector(value as long[]).reshape(shape),
+          bj.newVector(value.collect { Complex.valueOf(it) } as Complex[]).reshape(shape)
       ]
     } else {
-      def intArr = bj.intArray(shape)
+      def intArr = bj.newIntArray(shape)
       intArr.assign(value as int)
-      def doubleArr = bj.doubleArray(shape)
+      def doubleArr = bj.newDoubleArray(shape)
       doubleArr.assign(value as double)
-      def longArr = bj.longArray(shape)
+      def longArr = bj.newLongArray(shape)
       longArr.assign(value as long)
-      def complexArr = bj.complexArray(shape)
+      def complexArr = bj.newComplexArray(shape)
       complexArr.assign(value as double)
       return [intArr, doubleArr, longArr, complexArr]
     }

@@ -1,24 +1,26 @@
-/*
+/**
  * The MIT License (MIT)
- * 
+ *
  * Copyright (c) 2015 Isak Karlsson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-
 package org.briljantframework.data.vector;
 
 import java.util.stream.DoubleStream;
@@ -38,19 +40,13 @@ import org.briljantframework.data.resolver.Resolver;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
- * Vector of {@code double} primitives.
- *
- * <p>
- * {@code NA} is represented by the value {@code Double.longBitsToDouble(0x7ff0000000000009L)} which
- * is in the {@code NaN} range, but distinctive from {@code Double.NaN}.
+ * Vector of {@code double} primitives. {@code NA} is represented by the value
+ * {@code Double.longBitsToDouble(0x7ff0000000000009L)} which is in the {@code NaN} range, but
+ * distinct from {@code Double.NaN}.
  *
  * @author Isak Karlsson
  */
 public class DoubleVector extends AbstractVector implements Transferable {
-
-  public static DoubleVector of(double... values) {
-    return new DoubleVector(java.util.Arrays.copyOf(values, values.length), values.length);
-  }
 
   private final double[] buffer;
   private final int size;
@@ -66,21 +62,35 @@ public class DoubleVector extends AbstractVector implements Transferable {
     this.size = size;
   }
 
-  @Override
-  protected final double getAsDoubleAt(int i) {
-    return buffer[i];
+  public static DoubleVector of(double... values) {
+    return new DoubleVector(java.util.Arrays.copyOf(values, values.length), values.length);
   }
 
   @Override
-  protected <T> T getAt(Class<T> cls, int index) {
-    Check.argument(!cls.isPrimitive(), "can't get primitive values");
-    return Convert.to(cls, getAsDoubleAt(index));
+  public DoubleStream doubleStream() {
+    return java.util.Arrays.stream(buffer, 0, size());
   }
 
   @Override
-  protected String toStringAt(int index) {
-    double value = getAsDoubleAt(index);
-    return Is.NA(value) ? "NA" : String.format("%.3f", value);
+  public Vector.Builder newCopyBuilder() {
+    return new DoubleVector.Builder(this);
+  }
+
+  @Override
+  public Vector.Builder newBuilder() {
+    return new DoubleVector.Builder();
+  }
+
+  @Override
+  public Vector.Builder newBuilder(int size) {
+    return new DoubleVector.Builder(size);
+  }
+
+  @Override
+  public int compareAt(int a, Vector other, int b) {
+    double va = getAsDoubleAt(a);
+    double vb = other.loc().getAsDouble(b);
+    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
   }
 
   @Override
@@ -95,37 +105,29 @@ public class DoubleVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public VectorType getType() {
-    return VectorType.DOUBLE;
+  protected final double getAsDoubleAt(int i) {
+    return buffer[i];
   }
 
   @Override
-  public int size() {
-    return size;
-  }
-
-  @Override
-  public DoubleArray toDoubleArray() {
-    return Arrays.newDoubleVector(java.util.Arrays.copyOf(buffer, size()));
-  }
-
-  @Override
-  public int compareAt(int a, Vector other, int b) {
-    double va = getAsDoubleAt(a);
-    double vb = other.loc().getAsDouble(b);
-    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
-  }
-
-  @Override
-  protected boolean equalsAt(int a, Vector other, int b) {
-    double av = getAsDoubleAt(a);
-    double ab = other.loc().getAsDouble(b);
-    return (Is.NA(av) && Is.NA(ab)) || (Double.isNaN(av) && Double.isNaN(ab)) || av == ab;
+  protected <T> T getAt(Class<T> cls, int index) {
+    Check.argument(!cls.isPrimitive(), "can't get primitive values");
+    return Convert.to(cls, getAsDoubleAt(index));
   }
 
   @Override
   protected Vector shallowCopy(Index index) {
     return new DoubleVector(buffer, size, index);
+  }
+
+  @Override
+  public final int hashCode() {
+    int result = 1;
+    for (int i = 0; i < size(); i++) {
+      long v = Double.doubleToLongBits(getAsDoubleAt(i));
+      result = 31 * result + (int) (v ^ v >>> 32);
+    }
+    return result;
   }
 
   @Override
@@ -146,7 +148,7 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
     for (Object key : getIndex().keySet()) {
       double a = getAsDouble(key);
-      double b = getAsDouble(key);
+      double b = that.getAsDouble(key);
       if (!Is.NA(a) && !Is.NA(b) && a != b) {
         return false;
       }
@@ -156,16 +158,34 @@ public class DoubleVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public final int hashCode() {
-    int result = 1;
-    for (int i = 0; i < size(); i++) {
-      long v = Double.doubleToLongBits(getAsDoubleAt(i));
-      result = 31 * result + (int) (v ^ v >>> 32);
-    }
-    return result;
+  protected String toStringAt(int index) {
+    double value = getAsDoubleAt(index);
+    return Is.NA(value) ? "NA" : String.format("%.3f", value);
+  }
+
+  @Override
+  protected boolean equalsAt(int a, Vector other, int b) {
+    double av = getAsDoubleAt(a);
+    double ab = other.loc().getAsDouble(b);
+    return (Is.NA(av) && Is.NA(ab)) || (Double.isNaN(av) && Double.isNaN(ab)) || av == ab;
+  }
+
+  @Override
+  public int size() {
+    return size;
+  }
+
+  @Override
+  public VectorType getType() {
+    return VectorType.DOUBLE;
   }
 
   // Specialized double method
+
+  @Override
+  public DoubleArray toDoubleArray() {
+    return Arrays.newDoubleVector(java.util.Arrays.copyOf(buffer, size()));
+  }
 
   @Override
   public double sum() {
@@ -191,26 +211,6 @@ public class DoubleVector extends AbstractVector implements Transferable {
     return mean.getN() > 0 ? mean.getResult() : Na.DOUBLE;
   }
 
-  @Override
-  public Vector.Builder newCopyBuilder() {
-    return new DoubleVector.Builder(this);
-  }
-
-  @Override
-  public Vector.Builder newBuilder() {
-    return new DoubleVector.Builder();
-  }
-
-  @Override
-  public Vector.Builder newBuilder(int size) {
-    return new DoubleVector.Builder(size);
-  }
-
-  @Override
-  public DoubleStream doubleStream() {
-    return java.util.Arrays.stream(buffer, 0, size());
-  }
-
   public static final class Builder extends AbstractBuilder {
 
     private double[] buffer;
@@ -232,13 +232,13 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
 
     public Builder(DoubleVector vector) {
-      super(getIndexer(vector));
+      super(getIndexBuilder(vector));
       this.buffer = new double[vector.size()];
       System.arraycopy(vector.buffer, 0, this.buffer, 0, vector.size());
       this.size = buffer.length;
     }
 
-    protected static Index.Builder getIndexer(DoubleVector vector) {
+    protected static Index.Builder getIndexBuilder(DoubleVector vector) {
       Index.Builder builder = vector.getIndex().newCopyBuilder();
       if (builder instanceof IntIndex.Builder) {
         return null;
@@ -256,10 +256,20 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    public Vector.Builder add(int value) {
+    public Vector.Builder add(Vector from, int fromIndex) {
+      return add(from.loc().getAsDouble(fromIndex));
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return add(from.getAsInt(key));
+    }
+
+    @Override
+    public Vector.Builder add(Object value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
-      buffer[index] = value;
+      buffer[index] = convert(value);
       extendIndex(index);
       return this;
     }
@@ -274,29 +284,17 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    public Vector.Builder add(Object value) {
+    public Vector.Builder add(int value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
-      buffer[index] = convert(value);
+      buffer[index] = value;
       extendIndex(index);
       return this;
     }
 
     @Override
-    public Vector.Builder add(Vector from, int fromIndex) {
-      return add(from.loc().getAsDouble(fromIndex));
-    }
-
-    @Override
-    public Vector.Builder add(Vector from, Object key) {
-      return add(from.getAsInt(key));
-    }
-
-    @Override
-    protected void setNaAt(int index) {
-      final int oldSize = size;
-      ensureCapacity(index + 1);
-      fillNa(oldSize, size, buffer);
+    protected void readAt(int index, DataEntry entry) {
+      setAt(index, entry.nextDouble());
     }
 
     @Override
@@ -305,11 +303,26 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    protected void setAt(int index, double value) {
+    protected void setAt(int t, Vector from, int f) {
+      final int oldSize = size;
+      ensureCapacity(t + 1);
+      fillNa(oldSize, size, buffer);
+      buffer[t] = from.loc().getAsDouble(f);
+    }
+
+    @Override
+    protected void setAt(int index, Object value) {
       final int oldSize = size;
       ensureCapacity(index + 1);
       fillNa(oldSize, size, buffer);
-      buffer[index] = value;
+      buffer[index] = convert(value);
+    }
+
+    @Override
+    protected void setNaAt(int index) {
+      final int oldSize = size;
+      ensureCapacity(index + 1);
+      fillNa(oldSize, size, buffer);
     }
 
     @Override
@@ -321,35 +334,11 @@ public class DoubleVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    protected void setAt(int index, Object value) {
+    protected void setAt(int index, double value) {
       final int oldSize = size;
       ensureCapacity(index + 1);
       fillNa(oldSize, size, buffer);
-      buffer[index] = convert(value);
-    }
-
-    private double convert(Object value) {
-      double dval = Na.DOUBLE;
-      if (value instanceof Number && !Is.NA(value)) {
-        dval = ((Number) value).doubleValue();
-      } else if (value != null && !Is.NA(value)) {
-        Resolver<Double> resolver = Resolve.find(Double.class);
-        if (resolver != null) {
-          Double resolve = resolver.resolve(value);
-          if (resolve != null) {
-            dval = resolve;
-          }
-        }
-      }
-      return dval;
-    }
-
-    @Override
-    protected void setAt(int t, Vector from, int f) {
-      final int oldSize = size;
-      ensureCapacity(t + 1);
-      fillNa(oldSize, size, buffer);
-      buffer[t] = from.loc().getAsDouble(f);
+      buffer[index] = value;
     }
 
     @Override
@@ -368,31 +357,14 @@ public class DoubleVector extends AbstractVector implements Transferable {
       ArrayAllocations.swap(buffer, a, b);
     }
 
-    @Override
-    protected void readAt(int index, DataEntry entry) {
-      setAt(index, entry.nextDouble());
+    private void rangeCheck(int index) {
+      if (index >= size) {
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+      }
     }
 
-    @Override
-    public final int size() {
-      return size;
-    }
-
-    @Override
-    public Vector getTemporaryVector() {
-      return new DoubleVector(buffer, size()) {
-        @Override
-        public Builder newCopyBuilder() {
-          return Builder.this;
-        }
-      };
-    }
-
-    @Override
-    public DoubleVector build() {
-      DoubleVector vec = new DoubleVector(buffer, size(), getIndex());
-      buffer = null;
-      return vec;
+    private String outOfBoundsMsg(int index) {
+      return "Index: " + index + ", Size: " + size;
     }
 
     /**
@@ -402,6 +374,22 @@ public class DoubleVector extends AbstractVector implements Transferable {
       for (int i = from; i < until; i++) {
         buffer[i] = Na.DOUBLE;
       }
+    }
+
+    private double convert(Object value) {
+      double dval = Na.DOUBLE;
+      if (value instanceof Number && !Is.NA(value)) {
+        dval = ((Number) value).doubleValue();
+      } else if (value != null && !Is.NA(value)) {
+        Resolver<Double> resolver = Resolve.find(Double.class);
+        if (resolver != null) {
+          Double resolve = resolver.resolve(value);
+          if (resolve != null) {
+            dval = resolve;
+          }
+        }
+      }
+      return dval;
     }
 
     /**
@@ -443,15 +431,26 @@ public class DoubleVector extends AbstractVector implements Transferable {
       return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
     }
 
-    private void rangeCheck(int index) {
-      if (index >= size) {
-        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
-      }
+    @Override
+    public Vector getView() {
+      return new DoubleVector(buffer, size()) {
+        @Override
+        public Builder newCopyBuilder() {
+          return Builder.this;
+        }
+      };
     }
 
-    private String outOfBoundsMsg(int index) {
-      return "Index: " + index + ", Size: " + size;
+    @Override
+    public final int size() {
+      return size;
+    }
+
+    @Override
+    public DoubleVector build() {
+      DoubleVector vec = new DoubleVector(buffer, size(), getIndex());
+      buffer = null;
+      return vec;
     }
   }
-
 }

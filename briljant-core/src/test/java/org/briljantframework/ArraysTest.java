@@ -1,6 +1,31 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Isak Karlsson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.briljantframework;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
@@ -12,6 +37,32 @@ import org.junit.Test;
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
 public class ArraysTest {
+
+  @Test
+  public void testMeshgrid() throws Exception {
+    IntArray x = Arrays.range(3);
+    List<IntArray> meshgrid = Arrays.meshgrid(x, x);
+    IntArray x1 = meshgrid.get(1);
+    IntArray x2 = meshgrid.get(0);
+    assertEquals(3, x1.size(0));
+    assertEquals(3, x1.size(1));
+    assertEquals(3, x2.size(0));
+    assertEquals(3, x2.size(1));
+
+    for (int i = 0; i < x2.vectors(0); i++) {
+      assertEquals(x, x2.getVector(0, i));
+    }
+
+    for (int i = 0; i < x1.vectors(1); i++) {
+      assertEquals(x, x1.getVector(1, i));
+    }
+  }
+
+  @Test
+  public void testBisectLeft() throws Exception {
+    IntArray a = IntArray.of(1, 2, 9, 10, 12);
+    System.out.println(Arrays.bisectLeft(a, 12));
+  }
 
   @Test
   public void testOrder() throws Exception {
@@ -33,12 +84,15 @@ public class ArraysTest {
     IntArray concat_1 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 1);
     IntArray concat_2 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 2);
 
-    IntArray expected_0 = IntArray.of(0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 4, 5, 4, 5, 4, 5, 6, 7, 6,
-        7, 6, 7, 8, 9, 8, 9, 8, 9, 10, 11, 10, 11, 10, 11);
-    IntArray expected_1 = IntArray.of(0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 4,
-        5, 6, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11);
-    IntArray expected_2 = IntArray.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+    IntArray expected_0 =
+        IntArray.of(0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 4, 5, 4, 5, 4, 5, 6, 7, 6, 7, 6, 7, 8, 9,
+            8, 9, 8, 9, 10, 11, 10, 11, 10, 11);
+    IntArray expected_1 =
+        IntArray.of(0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, 8, 9,
+            10, 11, 8, 9, 10, 11, 8, 9, 10, 11);
+    IntArray expected_2 =
+        IntArray.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0,
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
 
     assertEquals(expected_0.reshape(6, 2, 3), concat_0);
     assertEquals(expected_1.reshape(2, 6, 3), concat_1);
