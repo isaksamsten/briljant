@@ -1,8 +1,8 @@
 # Briljant Framework
 
-![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.1.5) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.1.6) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-Briljant is a [MIT](http://https://opensource.org/licenses/MIT)
+Briljant (0.1.6) is a [MIT](http://https://opensource.org/licenses/MIT)
 licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
 and [R](https://www.r-project.org/)-like data frames and vectors for
 the [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) written
