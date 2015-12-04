@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -34,7 +35,6 @@ import org.junit.Test;
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
 public class ArraysTest {
-
 
   @Test
   public void testVsplit2d() throws Exception {
@@ -78,24 +78,30 @@ public class ArraysTest {
   @Test
   public void testRepeat() throws Exception {
     IntArray x = Arrays.range(3 * 3).reshape(3, 3);
-    System.out.println(Arrays.repeat(x, 3));
+    assertEquals(Arrays.newIntVector(0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6,
+        7, 7, 7, 8, 8, 8), Arrays.repeat(x, 3));
   }
 
   @Test
   public void testRepeatNd() throws Exception {
-    IntArray x = Arrays.range(3 * 3).reshape(3, 3);
-    System.out.println(x);
+    IntArray x = Arrays.range(3 * 3 * 3).reshape(3, 3, 3);
+    IntArray repeatDim2 = Arrays.repeat(2, x, 3);
+    IntArray repeatDim1 = Arrays.repeat(1, x, 3);
+    assertEquals(Arrays.newIntVector(3, 4, 5), repeatDim2.getVector(0, 1));
+    assertEquals(Arrays.newIntVector(1, 1, 1, 4, 4, 4, 7, 7, 7), repeatDim1.getVector(1, 1));
+  }
 
-    System.out.println(Arrays.repeat(0, x, 3));
-    System.out.println(Arrays.repeat(1, x, 3));
-    System.out.println(Arrays.repeat(0, Arrays.range(3), 3));
-    System.out.println(Arrays.repeat(Arrays.range(2 * 2).reshape(2, 2), 2));
+  @Test
+  public void testTile() throws Exception {
+    ArrayPrinter.setMinimumTruncateSize(100000);
+    IntArray x = Arrays.range(2 * 2 * 2).reshape(2, 2, 2);
+
+//    System.out.println(Arrays.tile(x, 3, 3, 6));
   }
 
   @Test
   public void testHstackedNd() throws Exception {
     IntArray x = Arrays.range(3 * 6 * 3).reshape(3, 6, 3);
-    System.out.println(x);
     List<IntArray> split = Arrays.hsplit(x, 3);
     IntArray hstack = Arrays.hstack(split);
     assertEquals(x, hstack);
@@ -124,7 +130,7 @@ public class ArraysTest {
   @Test
   public void testBisectLeft() throws Exception {
     IntArray a = IntArray.of(1, 2, 9, 10, 12);
-    System.out.println(Arrays.bisectLeft(a, 12));
+    assertEquals(4, Arrays.bisectLeft(a, 12));
   }
 
   @Test

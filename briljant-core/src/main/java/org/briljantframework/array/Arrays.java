@@ -48,15 +48,15 @@ import org.briljantframework.sort.IndexComparator;
 
 /**
  * Utilities for multidimensional arrays. The arrays produces depend on the selected backend.
- * 
+ *
  * <p/>
  * The methods here mostly delegate to appropriate {@link ArrayFactory factory},
  * {@link ArrayRoutines routine} or {@link LinearAlgebraRoutines linear algebra routine} methods.
- * 
+ *
  * <p/>
  * It is unadvised to use these utilities if the array is not created by the factories here. For
  * example,
- * 
+ *
  * <pre>
  * ArrayBackend backend = new BaseArrayBackend();
  * ArrayFactory factory = backend.getArrayFactory();
@@ -71,11 +71,11 @@ import org.briljantframework.sort.IndexComparator;
  * // cannot be used by the NetlibArrayBackend
  * Arrays.dot(x, y);
  * </pre>
- * 
+ *
  * <p/>
  * Note that the static factory methods present in e.g., {@link Array#of(Object[])} delegates to the
  * methods defined here and hence use the default array backend
- * 
+ *
  * @author Isak Karlsson
  * @see ArrayBackend
  * @see ArrayRoutines
@@ -89,7 +89,7 @@ public final class Arrays {
 
   /**
    * A link to the selected linear algebra routines
-   * 
+   *
    * @see LinearAlgebraRoutines
    */
   public static final LinearAlgebraRoutines linalg;
@@ -715,7 +715,7 @@ public final class Arrays {
 
   /**
    * Split an array into multiple sub-arrays vertically (row-wise).
-   * 
+   *
    * <p/>
    * This is equivalent to {@link #split(BaseArray, int, int)} with dim=0 (default), the array is
    * always split along the first axis regardless of the array dimension.
@@ -735,7 +735,7 @@ public final class Arrays {
 
   /**
    * Split an array into multiple sub-arrays of equal size.
-   * 
+   *
    * @param array the array
    * @param parts the number of parts
    * @param dim the dimension along which to split
@@ -770,7 +770,7 @@ public final class Arrays {
 
   /**
    * Split an array along its first dimension into multiple sub-arrays of equal size.
-   * 
+   *
    * @param array the array
    * @param parts the number of parts
    * @param <S> the type of array
@@ -803,7 +803,7 @@ public final class Arrays {
 
   /**
    * Stack arrays in sequence vertially (row wise).
-   * 
+   *
    * @param arrays the arrays
    * @param <T> the type of array
    * @return a new array
@@ -817,7 +817,7 @@ public final class Arrays {
   /**
    * Stack arrays in sequence vertically (row wise). Take a sequence of arrays and stack them
    * vertically to make a single array. Rebuild arrays divided by {@link #vsplit(BaseArray, int)}.
-   * 
+   *
    * @param arrays a list of arrays
    * @param <T> the type of arrays
    * @return a new array
@@ -886,7 +886,7 @@ public final class Arrays {
 
   /**
    * Stack arrays in sequence horizontally (column wise).
-   * 
+   *
    * @param arrays the arrays
    * @param <T> the type of array
    * @return a new array
@@ -900,7 +900,7 @@ public final class Arrays {
   /**
    * Stack arrays in sequence horizontally (column wise). Take a sequence of arrays and stack them
    * horizontally to make a single array. Rebuild arrays divided by {@link #hsplit(BaseArray, int)}.
-   * 
+   *
    * @param arrays the arrays
    * @param <T> the type of array
    * @return a new array
@@ -950,16 +950,16 @@ public final class Arrays {
 
   /**
    * Repeat the elements of an array. Ravels the array and repeate each element.
-   * 
+   *
    * <p/>
    * Example
-   * 
+   *
    * <pre>
    * Arrays.repeat(Arrays.range(2 * 2).reshape(2, 2), 2);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([0, 0, 1, 1, 2, 2, 3, 3])
    * </pre>
@@ -984,13 +984,13 @@ public final class Arrays {
    * Repeat elements of an array.
    * <p/>
    * Examples
-   * 
+   *
    * <pre>
    * IntArray x = Arrays.range(3 * 3).reshape(3, 3);
    * </pre>
-   * 
+   *
    * produces,
-   * 
+   *
    * <pre>
    * array([[0, 3, 6],
    *        [1, 4, 7],
@@ -998,13 +998,13 @@ public final class Arrays {
    * </pre>
    *
    * and
-   * 
+   *
    * <pre>
    * Arrays.repeat(0, x, 3);
    * </pre>
-   * 
+   *
    * produces,
-   * 
+   *
    * <pre>
    * array([[0, 3, 6],
    *        [0, 3, 6],
@@ -1016,23 +1016,23 @@ public final class Arrays {
    *        [2, 5, 8],
    *        [2, 5, 8]])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
    * Arrays.repeat(1, x, 3);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[0, 0, 0, 3, 3, 3, 6, 6, 6],
    *        [1, 1, 1, 4, 4, 4, 7, 7, 7],
    *        [2, 2, 2, 5, 5, 5, 8, 8, 8]])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
    * Arrays.repeat(0, Arrays.range(3), 3);
    * </pre>
@@ -1044,7 +1044,7 @@ public final class Arrays {
    *        [0, 1, 2],
    *        [0, 1, 2]])
    * </pre>
-   * 
+   *
    * @param dim the dimension along which to repeat the elements
    * @param x the array
    * @param num the number of repetitions
@@ -1069,6 +1069,41 @@ public final class Arrays {
     }
 
     return array;
+  }
+
+  public static <S extends BaseArray<S>> S tile(S x, int... dims) {
+    // TODO: 04/12/15 Reshape x to conform with the new dimension
+    Check.argument(x.dims() == dims.length, "Illegal dimensions");
+    int[] shape = new int[x.dims()];
+    for (int i = 0; i < shape.length; i++) {
+      shape[i] = x.size(i) * dims[i];
+    }
+
+    S array = x.newEmptyArray(shape);
+    tile(array, x, 0, dims);
+    return array;
+  }
+
+  /**
+   * Recursivley fill the last dimension with the last dimension of x with repeated copies.
+   */
+  private static <S extends BaseArray<S>> void tile(S array, S x, int dim, int[] reps) {
+    if (dim == reps.length - 1) {
+      for (int j = 0; j < reps[dim]; j++) {
+        int pad = j * x.size();
+        for (int i = 0; i < x.size(); i++) {
+          array.set(pad + i, x, i);
+        }
+      }
+    } else {
+      for (int j = 0; j < reps[dim]; j++) {
+        int pad = x.size(dim) * j;
+        for (int i = 0; i < x.size(dim); i++) {
+          tile(array.select(0, pad + i), x.select(0, i), dim + 1, reps);
+        }
+      }
+    }
+
   }
 
   /**
@@ -1176,7 +1211,7 @@ public final class Arrays {
 
   /**
    * Randomly shuffle the elements in the given array
-   * 
+   *
    * @param x the array
    * @param <T> the array type
    * @return a new (shuffled) array
@@ -1189,7 +1224,7 @@ public final class Arrays {
 
   /**
    * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
-   * 
+   *
    * @param a the first array
    * @param b the second array
    * @return a new array
@@ -1248,7 +1283,7 @@ public final class Arrays {
 
   /**
    * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
-   * 
+   *
    * @param alpha scaling factor for the first array
    * @param a the first array
    * @param b the second array
@@ -1303,9 +1338,9 @@ public final class Arrays {
    * <pre>
    * Arrays.outer(Arrays.linspace(0, 3, 4), Arrays.linspace(0, 3, 4).reshape(2, 2));
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[0.000, 0.000, 0.000, 0.000],
    *        [0.000, 1.000, 2.000, 3.000],
@@ -1412,7 +1447,7 @@ public final class Arrays {
 
   /**
    * Find argument with max value.
-   * 
+   *
    * @param array the array
    * @return the index of the maximum value
    */
@@ -1431,7 +1466,7 @@ public final class Arrays {
 
   /**
    * Find argument with min value.
-   * 
+   *
    * @param array the array
    * @return the index of the minimum value
    */
@@ -1531,7 +1566,7 @@ public final class Arrays {
 
   /**
    * Return the order of the values in the given array (according to the comparator).
-   * 
+   *
    * @param array the array
    * @param cmp the comparator
    * @return the indexes in order
@@ -1551,7 +1586,7 @@ public final class Arrays {
 
   /**
    * The order of elements along the given dimension.
-   * 
+   *
    * @param dim the dimension
    * @param array the array
    * @return the order of each dimension
@@ -1562,7 +1597,7 @@ public final class Arrays {
 
   /**
    * The order of elements along the given dimension.
-   * 
+   *
    * @param dim the dimension
    * @param array the array
    * @param cmp the comparator
@@ -1580,7 +1615,7 @@ public final class Arrays {
   /**
    * Searches the specified array for the specified object using the binary search algorithm. The
    * array must be sorted into ascending order
-   * 
+   *
    * @param array the array
    * @param x the element
    * @return the index of the search key, if it is contained in the list; otherwise,
