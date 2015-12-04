@@ -46,64 +46,7 @@ import org.briljantframework.Listable;
 import org.briljantframework.function.DoubleBiPredicate;
 
 /**
- * A matrix is a n-dimensional array.
- *
- * <p>
- * Every implementation have to ensure that {@link #set(int, double)}, {@link #get(int)} and work in
- * <b>column-major</b> order as fortran and not in <b>row-major</b> order as in e.g., c.
- *
- * More specifically this means that given the matrix {@code m}
- *
- * <pre>
- *     1  2  3
- *     4  5  6
- *     7  8  9
- * </pre>
- *
- * The following must hold:
- * <ul>
- * <li>{@code for(int i = 0; i < m.size(); i++) System.out.print(m.get(i))} produces
- * {@code 147258369}</li>
- * <li>{@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} changes {@code m} to
- *
- * <pre>
- *     1   4   6
- *     8   10  12
- *     14  16  18
- * </pre>
- *
- * </li>
- * </ul>
- * <p>
- * Due to the order in which values are stored and implications such as cache-locality, different
- * implementations might have varying performance characteristics. For example, for element wise
- * operations one should prefer {@link #get(int)} and {@link #set(int, double)} to
- * {@link #get(int, int)} and {@link #set(int, int, double)}.
- *
- * <pre>
- * // Option 1:
- * for (int i = 0; i < m.rows(); i++) {
- *   for (int j = 0; j < m.columns() ; j++) {
- *     m.put(i, j, m.get(i, j) * 2);
- *   }
- * }
- * 
- * // Option 2
- * for (int i = 0; i < m.size(); i++) {
- *   m.put(i, m.get(i) * 2)
- * }
- * 
- * // Option 3
- * for (int j = 0; j < m.columns(); j++) {
- *   for (int i = 0; i < m.rows() ; i++) {
- *     m.put(i, j, m.get(i, j) * 2);
- *   }
- * }
- * </pre>
- *
- * In the example above, prefer <b>Option 2</b> (or simply {@code m.plusAssign(2)}). <b>Option 3</b>
- * can also be an alternative option, that for many implementations preserves cache locality and
- * might be more readable in some cases.
+ * A n-dimensional array of double values.
  *
  * @author Isak Karlsson
  */

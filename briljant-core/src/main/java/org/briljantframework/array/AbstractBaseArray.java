@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -33,14 +30,20 @@ import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
- * This class provides a skeletal implementation
+ * This class provides a skeletal implementation of the {@link BaseArray} interface to minimize the
+ * effort required to implement new array types.
  *
  * @author Isak Karlsson
+ * @see AbstractArray
+ * @see AbstractBooleanArray
+ * @see AbstractIntArray
+ * @see AbstractDoubleArray
+ * @see AbstractComplexArray
  */
 public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E> {
 
-  public static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
-  public static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
+  protected static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
+  protected static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new array must be unchanged. (%s, %s)";
   protected static final String ILLEGAL_DIMENSION_INDEX =
@@ -50,10 +53,14 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   protected static final String REQUIRE_1D = "Require 2d-array";
   protected static final String REQUIRE_ND = "Require %dd-array";
 
+  /**
+   * The array factor associated with this array
+   */
+  protected final ArrayFactory factory;
 
-
-  protected final ArrayFactory bj;
-
+  /**
+   * The index of the major stride
+   */
   protected final int majorStride;
 
   /**
@@ -76,9 +83,14 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
    */
   protected final int[] shape;
 
-
-  protected AbstractBaseArray(ArrayFactory bj, int[] shape) {
-    this.bj = Objects.requireNonNull(bj);
+  /**
+   * Construct an empty base array with the specified shape.
+   *
+   * @param factory the array factor
+   * @param shape the shape
+   */
+  protected AbstractBaseArray(ArrayFactory factory, int[] shape) {
+    this.factory = Objects.requireNonNull(factory);
     this.shape = shape.clone();
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);
@@ -86,9 +98,21 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     this.majorStride = 0;
   }
 
-  protected AbstractBaseArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+  /**
+   * Construct an empty base array with the specified offset (i.e., where elements start), shape,
+   * stride and majorStride
+   *
+   * @param factory the factory
+   * @param offset the offset
+   * @param shape the shape
+   * @param stride the stride
+   * @param majorStride the major stride index
+   */
+  protected AbstractBaseArray(ArrayFactory factory, int offset, int[] shape, int[] stride,
       int majorStride) {
-    this.bj = bj;
+    this.factory = factory;
+    // TODO: 04/12/15 note that this is not copied. We should clarify when the shape needs to be
+    // copied.
     this.shape = shape;
     this.stride = stride;
     this.size = Indexer.size(shape);
@@ -318,7 +342,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public int getOffset() {
+  public final int getOffset() {
     return offset;
   }
 
@@ -333,7 +357,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public int getMajorStride() {
+  public final int getMajorStride() {
     return stride(majorStride);
   }
 
@@ -365,12 +389,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E asView(int[] shape, int[] stride) {
+  public final E asView(int[] shape, int[] stride) {
     return asView(getOffset(), shape, stride);
   }
 
   @Override
-  public E asView(int offset, int[] shape, int[] stride) {
+  public final E asView(int offset, int[] shape, int[] stride) {
     return asView(offset, shape, stride, 0);
   }
 
@@ -381,7 +405,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public boolean isContiguous() {
+  public final boolean isContiguous() {
     return majorStride == 0;
   }
 
@@ -414,8 +438,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
   }
 
-  protected ArrayFactory getArrayFactory() {
-    return bj;
+  protected final ArrayFactory getArrayFactory() {
+    return factory;
   }
 
   public E get(IntArray i) {

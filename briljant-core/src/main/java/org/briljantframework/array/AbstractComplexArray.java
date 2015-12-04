@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -52,6 +49,8 @@ import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
+ * This class provides a skeletal implementation of a comples array.
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
@@ -169,7 +168,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public IntArray mapToInt(ToIntFunction<Complex> function) {
-    IntArray matrix = bj.newIntArray(getShape());
+    IntArray matrix = factory.newIntArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsInt(get(i)));
     }
@@ -178,7 +177,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public LongArray mapToLong(ToLongFunction<Complex> function) {
-    LongArray matrix = bj.newLongArray(getShape());
+    LongArray matrix = factory.newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -187,7 +186,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public DoubleArray mapToDouble(ToDoubleFunction<Complex> function) {
-    DoubleArray matrix = bj.newDoubleArray(getShape());
+    DoubleArray matrix = factory.newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -224,7 +223,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public BooleanArray where(Predicate<Complex> predicate) {
-    BooleanArray bits = bj.newBooleanArray(getShape());
+    BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -233,7 +232,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   public BooleanArray where(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BooleanArray bits = bj.newBooleanArray(getShape());
+    BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -243,6 +242,19 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   @Override
   public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
     return reduce(identity, reduce, UnaryOperator.identity());
+  }
+
+  @Override
+  public ComplexArray reduceVectors(int dim,
+      Function<? super ComplexArray, ? extends Complex> reduce) {
+    Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
+    ComplexArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    int vectors = vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      Complex value = reduce.apply(getVector(dim, i));
+      reduced.set(i, value);
+    }
+    return reduced;
   }
 
   @Override
@@ -588,11 +600,11 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
+  public ComplexArray slice(BooleanArray indicator) {
+    Check.shape(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
+      if (indicator.get(i)) {
         builder.add(get(i));
       }
     }
@@ -605,13 +617,13 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
         getMajorStrideIndex()) {
 
       @Override
-      protected void setElement(int i, double value) {
-        AbstractComplexArray.this.setElement(i, Complex.valueOf(value));
+      protected double getElement(int i) {
+        return AbstractComplexArray.this.getElement(i).getReal();
       }
 
       @Override
-      protected double getElement(int i) {
-        return AbstractComplexArray.this.getElement(i).getReal();
+      protected void setElement(int i, double value) {
+        AbstractComplexArray.this.setElement(i, Complex.valueOf(value));
       }
 
       @Override
@@ -754,7 +766,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     private List<Complex> buffer = new ArrayList<>();
 
     public ComplexArray build() {
-      return bj.newVector(buffer.toArray(new Complex[buffer.size()]));
+      return factory.newVector(buffer.toArray(new Complex[buffer.size()]));
       // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
     }
 

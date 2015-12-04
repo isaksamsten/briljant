@@ -27,6 +27,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
+ * Class for views over complex arrays.
+ *
  * @author Isak Karlsson
  */
 abstract class AsComplexArray extends AbstractComplexArray {

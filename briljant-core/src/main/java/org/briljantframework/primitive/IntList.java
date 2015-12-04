@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.primitive;
 
@@ -40,6 +37,8 @@ import org.briljantframework.array.IntArray;
 
 /**
  * ArrayList backed by a primitive {@code int}-array.
+ * 
+ * @author Isak Karlsson
  */
 public class IntList extends AbstractList<Integer> {
 
@@ -72,6 +71,11 @@ public class IntList extends AbstractList<Integer> {
   public IntList(IntList list) {
     this.elementData = Arrays.copyOf(list.elementData, list.size());
     this.size = elementData.length;
+  }
+
+  @Override
+  public int size() {
+    return size;
   }
 
   public IntList() {
@@ -122,27 +126,6 @@ public class IntList extends AbstractList<Integer> {
     return true;
   }
 
-  /**
-   * Removes the element at the specified position in this list. Shifts any subsequent elements to
-   * the left (subtracts one from their indices).
-   *
-   * @param index the index of the element to be removed
-   * @return the element that was removed from the list
-   * @throws IndexOutOfBoundsException {@inheritDoc}
-   */
-  public Integer remove(int index) {
-    modCount++;
-    int oldValue = elementData[index];
-
-    int numMoved = size - index - 1;
-    if (numMoved > 0) {
-      System.arraycopy(elementData, index + 1, elementData, index, numMoved);
-    }
-    elementData[--size] = -1; // clear to let GC do its work
-
-    return oldValue;
-  }
-
   private void ensureCapacityInternal(int minCapacity) {
     if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
       minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
@@ -189,26 +172,60 @@ public class IntList extends AbstractList<Integer> {
   }
 
   @Override
+  public Integer get(int index) {
+    return elementData[index];
+  }
+
+  @Override
   public Integer set(int index, Integer element) {
     int oldValue = elementData[index];
     elementData[index] = element;
     return oldValue;
   }
 
-  public Integer set(int index, int element) {
+  /**
+   * Removes the element at the specified position in this list. Shifts any subsequent elements to
+   * the left (subtracts one from their indices).
+   *
+   * @param index the index of the element to be removed
+   * @return the element that was removed from the list
+   * @throws IndexOutOfBoundsException {@inheritDoc}
+   */
+  public Integer remove(int index) {
+    modCount++;
     int oldValue = elementData[index];
-    elementData[index] = element;
+
+    int numMoved = size - index - 1;
+    if (numMoved > 0) {
+      System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+    }
+    elementData[--size] = -1; // clear to let GC do its work
+
     return oldValue;
   }
 
-  @Override
-  public Integer get(int index) {
-    return elementData[index];
+  /**
+   * Returns an iterator over the elements in this list in proper sequence.
+   *
+   * <p>
+   * The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   *
+   * @return an iterator over the elements in this list in proper sequence
+   */
+  public Iterator<Integer> iterator() {
+    return new Itr();
   }
 
-  @Override
-  public int size() {
-    return size;
+  /**
+   * Returns a list iterator over the elements in this list (in proper sequence).
+   *
+   * <p>
+   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   *
+   * @see #listIterator(int)
+   */
+  public ListIterator<Integer> listIterator() {
+    return new ListItr(0);
   }
 
   /**
@@ -230,28 +247,10 @@ public class IntList extends AbstractList<Integer> {
     return new ListItr(index);
   }
 
-  /**
-   * Returns a list iterator over the elements in this list (in proper sequence).
-   *
-   * <p>
-   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-   *
-   * @see #listIterator(int)
-   */
-  public ListIterator<Integer> listIterator() {
-    return new ListItr(0);
-  }
-
-  /**
-   * Returns an iterator over the elements in this list in proper sequence.
-   *
-   * <p>
-   * The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-   *
-   * @return an iterator over the elements in this list in proper sequence
-   */
-  public Iterator<Integer> iterator() {
-    return new Itr();
+  public Integer set(int index, int element) {
+    int oldValue = elementData[index];
+    elementData[index] = element;
+    return oldValue;
   }
 
   @Override
@@ -350,14 +349,6 @@ public class IntList extends AbstractList<Integer> {
       return cursor != 0;
     }
 
-    public int nextIndex() {
-      return cursor;
-    }
-
-    public int previousIndex() {
-      return cursor - 1;
-    }
-
     @SuppressWarnings("unchecked")
     public Integer previous() {
       checkForComodification();
@@ -371,6 +362,14 @@ public class IntList extends AbstractList<Integer> {
       }
       cursor = i;
       return elementData[lastRet = i];
+    }
+
+    public int nextIndex() {
+      return cursor;
+    }
+
+    public int previousIndex() {
+      return cursor - 1;
     }
 
     public void set(Integer e) {

@@ -30,6 +30,8 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 
 /**
+ * Represents the LUP-decomposition of a square matrix.
+ *
  * @author Isak Karlsson
  */
 public class LuDecomposition {

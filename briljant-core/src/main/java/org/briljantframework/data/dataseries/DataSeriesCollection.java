@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.dataseries;
 
@@ -39,14 +36,13 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
 /**
- * <p>
  * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
  * {@link Double}. There are some interesting differences between this implementation and the
  * traditional {@code DataFrame}. It is possible for the data series in the collection to be of
  * different length. Therefore, {@link #columns()} return the maximum data series length and calls
  * to {@code getAs...(n, col)} works as expected only if {@code col < col.getRecord(n).size()}. If
  * not (and {@code index < columns()}), NA is returned.
- * </p>
+ * <p/>
  *
  * @author Isak Karlsson
  */
@@ -68,12 +64,17 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public <T> T getAt(Class<T> cls, int row, int column) {
+  public boolean isNaAt(int row, int column) {
+    return series.get(row).loc().isNA(column);
+  }
+
+  @Override
+  public int getAsIntAt(int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.loc().get(cls, column);
+      return rvec.loc().getAsInt(column);
     } else if (column >= 0 && column < columns) {
-      return Na.of(cls);
+      return Na.INT;
     } else {
       throw new IndexOutOfBoundsException();
     }
@@ -92,15 +93,32 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public int getAsIntAt(int row, int column) {
+  public <T> T getAt(Class<T> cls, int row, int column) {
     Vector rvec = series.get(row);
     if (column >= 0 && column < rvec.size()) {
-      return rvec.loc().getAsInt(column);
+      return rvec.loc().get(cls, column);
     } else if (column >= 0 && column < columns) {
-      return Na.INT;
+      return Na.of(cls);
     } else {
       throw new IndexOutOfBoundsException();
     }
+  }
+
+  @Override
+  public Vector getRecordAt(int index) {
+    Vector vector = series.get(index);
+    // vector.setIndex(getColumnIndex());
+    return vector; // TODO: rethink indexing?
+  }
+
+  @Override
+  protected Vector getAt(int index) {
+    return new ColumnView(this, type, index);
+  }
+
+  @Override
+  protected DataFrame shallowCopy(Index columnIndex, Index index) {
+    return new DataSeriesCollection(series, type, columns, columnIndex, index);
   }
 
   @Override
@@ -116,48 +134,8 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public boolean isNaAt(int row, int column) {
-    return series.get(row).loc().isNA(column);
-  }
-
-  @Override
-  protected DataFrame shallowCopy(Index columnIndex, Index index) {
-    return new DataSeriesCollection(series, type, columns, columnIndex, index);
-  }
-
-  @Override
-  protected VectorType getMostSpecificColumnType() {
-    return type;
-  }
-
-  @Override
   public VectorType getTypeAt(int index) {
     return type;
-  }
-
-  @Override
-  public int rows() {
-    return series.size();
-  }
-
-  @Override
-  public int columns() {
-    return columns;
-  }
-
-  @Override
-  public Builder newBuilder() {
-    return new Builder(type);
-  }
-
-  @Override
-  public Builder newCopyBuilder() {
-    return new Builder(this, type);
-  }
-
-  @Override
-  protected Vector getAt(int index) {
-    return new ColumnView(this, type, index);
   }
 
   @Override
@@ -185,10 +163,28 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getRecordAt(int index) {
-    Vector vector = series.get(index);
-    // vector.setIndex(getColumnIndex());
-    return vector; // TODO: rethink indexing?
+  protected VectorType getMostSpecificColumnType() {
+    return type;
+  }
+
+  @Override
+  public int rows() {
+    return series.size();
+  }
+
+  @Override
+  public int columns() {
+    return columns;
+  }
+
+  @Override
+  public Builder newBuilder() {
+    return new Builder(type);
+  }
+
+  @Override
+  public Builder newCopyBuilder() {
+    return new Builder(this, type);
   }
 
   /**
@@ -205,13 +201,13 @@ public class DataSeriesCollection extends AbstractDataFrame {
     private final VectorType type;
     private List<Vector.Builder> builders;
 
+    public Builder(Class<?> cls) {
+      this(VectorType.of(cls));
+    }
+
     public Builder(VectorType type) {
       this.type = type;
       this.builders = new ArrayList<>();
-    }
-
-    public Builder(Class<?> cls) {
-      this(VectorType.of(cls));
     }
 
     private Builder(DataSeriesCollection df, VectorType type) {

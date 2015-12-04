@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array.base;
 
@@ -49,6 +46,8 @@ import org.briljantframework.sort.QuickSort;
 import org.briljantframework.statistics.FastStatistics;
 
 /**
+ * Base array routines implemented in Java.
+ * 
  * @author Isak Karlsson
  */
 public class BaseArrayRoutines implements ArrayRoutines {
@@ -219,12 +218,43 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public long sum(LongArray x) {
+    return x.reduce(0, Long::sum);
+  }
+
+  @Override
+  public Complex sum(ComplexArray x) {
+    MutableComplex sum = new MutableComplex(0);
+    for (int i = 0; i < x.size(); i++) {
+      sum.plus(x.get(i));
+    }
+    return sum.toComplex();
+  }
+
+  @Override
   public DoubleArray sum(int dim, DoubleArray x) {
     return x.reduceVectors(dim, this::sum);
   }
 
   @Override
   public IntArray sum(int dim, IntArray x) {
+    return x.reduceVectors(dim, this::sum);
+  }
+
+  @Override
+  public LongArray sum(int dim, LongArray x) {
+    return x.reduceVector(dim, this::sum);
+  }
+
+  /**
+   * Returns the sum along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
+  @Override
+  public ComplexArray sum(int dim, ComplexArray x) {
     return x.reduceVectors(dim, this::sum);
   }
 
@@ -275,12 +305,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public Complex conjugateInner(ComplexArray a, ComplexArray b) {
+  public Complex inner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
   @Override
-  public Complex inner(ComplexArray a, ComplexArray b) {
+  public Complex conjugateInner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
@@ -436,46 +466,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
         c.set(row, col, alpha * sum + beta * c.get(row, col));
       }
     }
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repmat(T x, int n) {
-    return repmat(x, n, n);
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repmat(T x, int r, int c) {
-    final int m = x.rows();
-    final int n = x.columns();
-    T y = x.newEmptyArray(m * r, n * c);
-    for (int cc = 0; cc < c; cc++) {
-      for (int j = 0; j < n; j++) {
-        int jj = j + (cc * n);
-        for (int rc = 0; rc < r; rc++) {
-          for (int i = 0; i < m; i++) {
-            y.set(i + (rc * m), jj, x, i, j);
-          }
-        }
-      }
-    }
-    return y;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repeat(T x, int num) {
-    return null;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T take(T x, int num) {
-    if (num < 0 || num > x.size()) {
-      throw new IllegalArgumentException();
-    }
-    T c = x.newEmptyArray(num);
-    for (int i = 0; i < num; i++) {
-      c.set(i, x, i);
-    }
-    return c;
   }
 
   @Override

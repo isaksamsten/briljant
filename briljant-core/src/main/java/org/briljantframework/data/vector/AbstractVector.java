@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.vector;
 
@@ -67,6 +64,8 @@ import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 
 /**
+ * Provide a skeletal implementation of a vector.
+ * 
  * @author Isak Karlsson
  */
 public abstract class AbstractVector implements Vector {
@@ -582,58 +581,58 @@ public abstract class AbstractVector implements Vector {
    * {@code
    * class ArrayListVectorBuilder extends AbstractBuilder {
    *   private ArrayList<Object> buffer = new ArrayList<>();
-   *
+   * 
    *   private void extend(int index) {
    *    while(index <= buffer.size()) buffer.add(null)
    *   }
-   *
+   * 
    *   &#64;Override
    *   protected void setNaAt(int index) { extend(index); buffer.set(index, null); }
-   *
+   * 
    *   &#64;Override
    *   protected void setAt(int index, Object value) {
    *     extend(index);
    *     buffer.set(index, value);
    *   }
-   *
+   * 
    *   &#64;Override
    *   protected void setAt(int t, Vector from, int f) {
    *     extend(index);
    *     buffer.set(index, from.loc().get(Object.class, f));
    *   }
-   *
+   * 
    *   &#64;Override
    *   protected void setAt(int t, Vector from, Object f) {
    *     extend(index);
    *     buffer.set(index, from.get(Object.class, f));
    *   }
-   *
+   * 
    *   &#64;Override
    *   protected void readAt(int i, DataEntry entry) throws IOException {
    *     extend(i);
    *     buffer.set(i, entry.next(Object.class));
    *   }
-   *
+   * 
    *   &#64;Override
    *   protected void removeAt(int i) {
    *     buffer.remove(i);
    *   }
-   *
+   * 
    *   &#64;Override
    *   protected void swapAt(int a, int b) {
    *     Collections.swap(buffer, a, b);
    *   }
-   *
+   * 
    *   &#64;Override
    *   public int size() {
    *     return buffer.size();
    *   }
-   *
+   * 
    *   &#64;Override
    *   public Vector getTemporaryVector() {
    *     throw new UnsupportedOperationException("need implementation");
    *   }
-   *
+   * 
    *   &#64;Override
    *   public Vector build() {
    *     throw new UnsupportedOperationException("need implementation");

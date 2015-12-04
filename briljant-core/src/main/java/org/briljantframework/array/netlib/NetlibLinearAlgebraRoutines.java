@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array.netlib;
 
@@ -52,9 +49,8 @@ import com.github.fommil.netlib.LAPACK;
  *
  * @author Isak Karlsson
  */
-public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
+class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
-  public final static double MACHINE_EPSILON = Math.ulp(1);
   protected static final String REQUIRE_2D_ARRAY = "require 2d-array";
   static final List<Character> SYEVR_UPLO = Arrays.asList('l', 'u');
   static final List<Character> ORMQR_SIDE = Arrays.asList('l', 'r');
@@ -78,80 +74,6 @@ public class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   private void assignIfNeeded(ComplexArray a, double[] data) {
     a.assign(data);
-  }
-
-  @Override
-  public LuDecomposition lu(DoubleArray array) {
-    Check.argument(array.isMatrix(), "require square 2d-array");
-    int m = array.size(0);
-    int n = array.size(1);
-    IntArray pivots = getArrayBackend().getArrayFactory().newIntArray(Math.min(m, n));
-    DoubleArray lu = array.copy();
-    getrf(lu, pivots);
-    return new LuDecomposition(lu, pivots);
-  }
-
-
-
-  @Override
-  public DoubleArray inv(DoubleArray x) {
-    LuDecomposition lu = lu(x);
-    DoubleArray out = lu.getDecomposition();
-    getri(out, lu.getPivot());
-    return out;
-  }
-
-  @Override
-  public DoubleArray pinv(DoubleArray x) {
-    Check.argument(x.isMatrix(), REQUIRE_2D_ARRAY);
-    ArrayFactory bj = getArrayBackend().getArrayFactory();
-    SingularValueDecomposition svd = svd(x);
-    DoubleArray d = svd.getSingularValues();
-    int r1 = 0;
-    for (int i = 0; i < d.size(); i++) {
-      if (d.get(i) > MACHINE_EPSILON) {
-        d.set(i, 1 / d.get(i));
-        r1++;
-      }
-    }
-
-    DoubleArray u = svd.getLeftSingularValues();
-    DoubleArray v = svd.getRightSingularValues();
-    u = u.getView(0, 0, u.rows(), r1);
-    v = v.getView(0, 0, v.rows(), r1);
-    d = d.get(bj.range(r1));
-
-    final int vc = v.size(1);
-    final int vr = v.size(0);
-    for (int j = 0; j < vc; j++) {
-      double dv = d.get(j);
-      for (int i = 0; i < vr; i++) {
-        v.set(i, j, dv * v.get(i, j));
-      }
-    }
-
-    DoubleArray pinv = bj.newDoubleArray(x.columns(), x.rows());
-    getArrayBackend().getArrayRoutines().gemm(ArrayOperation.KEEP, ArrayOperation.TRANSPOSE, 1, v,
-        u, 1, pinv);
-    return pinv;
-  }
-
-  @Override
-  public SingularValueDecomposition svd(DoubleArray x) {
-    Check.argument(x.isMatrix(), REQUIRE_2D_ARRAY);
-    ArrayFactory bj = getArrayBackend().getArrayFactory();
-    int m = x.rows();
-    int n = x.columns();
-    DoubleArray s = bj.newDoubleArray(n);
-    DoubleArray u = bj.newDoubleArray(m, m);
-    DoubleArray vt = bj.newDoubleArray(n, n);
-    DoubleArray a = x.copy();
-    if (m > n) {
-      gesdd('a', a, s, u, vt);
-    } else {
-      gesdd('a', a, s, u, vt);
-    }
-    return new SingularValueDecomposition(s, u, vt.transpose());
   }
 
   @Override

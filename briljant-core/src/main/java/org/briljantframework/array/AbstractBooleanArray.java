@@ -44,6 +44,8 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
+ * This class provides a skeletal implementation of a boolean array.
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray> implements
@@ -83,11 +85,11 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
+  public BooleanArray slice(BooleanArray indicator) {
+    Check.shape(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
+      if (indicator.get(i)) {
         builder.add(get(i));
       }
     }
@@ -529,7 +531,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     }
 
     public BooleanArray build() {
-      return bj.newVector(Arrays.copyOf(buffer, size));
+      return factory.newVector(Arrays.copyOf(buffer, size));
     }
   }
 

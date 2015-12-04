@@ -49,8 +49,9 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.data.index.ObjectComparator;
 
 /**
- * Implements the basic functionality of an array.
- * 
+ * Provide a skeletal implementation of an {@link Array} to minimize the effort required to
+ * implement.
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
@@ -86,11 +87,11 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public Array<T> slice(BooleanArray bits) {
-    Check.size(this, bits);
+  public Array<T> slice(BooleanArray indicator) {
+    Check.size(this, indicator);
     List<T> newData = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
+      if (indicator.get(i)) {
         newData.add(get(i));
       }
     }
@@ -277,15 +278,15 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
     return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-      @Override
-      protected void setElement(int i, double value) {
-        AbstractArray.this.setElement(i, from.apply(value));
-      }
-
+                             getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return to.applyAsDouble(AbstractArray.this.getElement(i));
+      }
+
+      @Override
+      protected void setElement(int i, double value) {
+        AbstractArray.this.setElement(i, from.apply(value));
       }
 
       @Override
@@ -305,7 +306,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
     return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+                          getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, int value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -333,7 +334,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
     return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+                           getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, long value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -361,7 +362,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
     return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+                              getMajorStrideIndex()) {
       @Override
       protected boolean getElement(int i) {
         return to.apply(AbstractArray.this.getElement(i));
@@ -389,15 +390,15 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
     return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
-      @Override
-      protected void setElement(int i, Complex value) {
-        AbstractArray.this.setElement(i, from.apply(value));
-      }
-
+                              getMajorStrideIndex()) {
       @Override
       protected Complex getElement(int i) {
         return to.apply(AbstractArray.this.getElement(i));
+      }
+
+      @Override
+      protected void setElement(int i, Complex value) {
+        AbstractArray.this.setElement(i, from.apply(value));
       }
 
       @Override

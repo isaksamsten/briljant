@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.dataseries;
 
@@ -33,6 +30,8 @@ import org.briljantframework.data.dataframe.transform.PipelineTransformer;
 import org.briljantframework.data.dataframe.transform.Transformer;
 
 /**
+ * Utilities for creating aggregated data frames.
+ * 
  * @author Isak Karlsson
  */
 public final class Approximations {
@@ -42,11 +41,6 @@ public final class Approximations {
       "u", "v", "x", "y", "z"));
 
   private Approximations() {}
-
-  public static List<String> getAlphabet(int size) {
-    Check.argument(size < alphabet.size(), "Alphabet size to large.");
-    return alphabet.subList(0, size);
-  }
 
   /**
    * Performs Piecewise Aggregate Approximation, reducing each row of {@code in} to length
@@ -71,6 +65,20 @@ public final class Approximations {
     return new AggregateApproximation(size);
   }
 
+  public static DataFrame sax(DataFrame in, int size) {
+    return sax(in, size, getAlphabet(size));
+  }
+
+  public static List<String> getAlphabet(int size) {
+    Check.argument(size < alphabet.size(), "Alphabet size to large.");
+    return alphabet.subList(0, size);
+  }
+
+  public static DataFrame sax(DataFrame in, int size, List<String> alphabet) {
+    Check.argument(alphabet.size() > 1, "Alphabet size must be larger than 1.");
+    return PipelineTransformer.of(paa(size), sax(alphabet)).transform(in);
+  }
+
   /**
    * Returns a {@link Transformer} that reduces the size and transforms each row in the input data
    * frame to
@@ -79,17 +87,8 @@ public final class Approximations {
     return new AggregateApproximation(new SymbolicAggregator(alphabet));
   }
 
-  public static DataFrame sax(DataFrame in, int size) {
-    return sax(in, size, getAlphabet(size));
-  }
-
   public static DataFrame sax(DataFrame in, int size, String... alphabet) {
     return sax(in, size, Arrays.asList(alphabet));
-  }
-
-  public static DataFrame sax(DataFrame in, int size, List<String> alphabet) {
-    Check.argument(alphabet.size() > 1, "Alphabet size must be larger than 1.");
-    return PipelineTransformer.of(paa(size), sax(alphabet)).transform(in);
   }
 
 }

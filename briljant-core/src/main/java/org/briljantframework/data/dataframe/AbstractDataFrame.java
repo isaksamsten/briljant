@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.dataframe;
 
@@ -75,7 +72,7 @@ import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.IntList;
 
 /**
- * Implement a skeleton data frame
+ * Provides a skeletal implementation of a {@link DataFrame}.
  *
  * @author Isak Karlsson
  */
@@ -986,9 +983,6 @@ public abstract class AbstractDataFrame implements DataFrame {
       } else {
         return index.build();
       }
-    }    @Override
-    public final DataFrameLocationSetter loc() {
-      return loc;
     }
 
     protected Index getColumnIndex(int columns) {
@@ -1007,15 +1001,12 @@ public abstract class AbstractDataFrame implements DataFrame {
      */
     protected abstract void setNaAt(int r, int c);
 
-    protected abstract void removeAt(int c);
-
-    protected abstract void removeRecordAt(int r);    @Override
-    public final Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc) {
-      int r = getOrCreateIndex(tr);
-      int c = getOrCreateColumnIndex(tc);
-      setAt(r, c, from, from.getIndex().getLocation(fr), from.getColumnIndex().getLocation(fc));
-      return this;
+    protected abstract void removeAt(int c);    @Override
+    public final DataFrameLocationSetter loc() {
+      return loc;
     }
+
+    protected abstract void removeRecordAt(int r);
 
     protected abstract void swapAt(int a, int b);
 
@@ -1094,6 +1085,18 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
     }
 
+
+
+    @Override
+    public final Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc) {
+      int r = getOrCreateIndex(tr);
+      int c = getOrCreateColumnIndex(tc);
+      setAt(r, c, from, from.getIndex().getLocation(fr), from.getColumnIndex().getLocation(fc));
+      return this;
+    }
+
+
+
     @Override
     public final Builder set(Object row, Object column, Vector from, Object key) {
       int r = getOrCreateIndex(row);
@@ -1101,8 +1104,6 @@ public abstract class AbstractDataFrame implements DataFrame {
       setAt(r, c, from, from.getIndex().getLocation(key));
       return this;
     }
-
-
 
 
 
@@ -1295,13 +1296,13 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Vector.Builder setNA(Object key) {
-      return delegate.setNA(key);
+    public Vector.Builder addNA() {
+      return delegate.addNA();
     }
 
     @Override
-    public Vector.Builder addNA() {
-      return delegate.addNA();
+    public Vector.Builder setNA(Object key) {
+      return delegate.setNA(key);
     }
 
     @Override
@@ -1345,13 +1346,13 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Vector.Builder addAll(Vector from) {
-      return delegate.addAll(from);
+    public Vector.Builder addAll(Object... objects) {
+      return delegate.addAll(objects);
     }
 
     @Override
-    public Vector.Builder addAll(Object... objects) {
-      return delegate.addAll(objects);
+    public Vector.Builder addAll(Iterable<?> iterable) {
+      return delegate.addAll(iterable);
     }
 
     @Override
@@ -1360,8 +1361,13 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public Vector.Builder addAll(Iterable<?> iterable) {
-      return delegate.addAll(iterable);
+    public Vector.Builder addAll(Vector from) {
+      return delegate.addAll(from);
+    }
+
+    @Override
+    public Vector getView() {
+      return delegate.getView();
     }
 
     @Override
@@ -1387,11 +1393,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     @Override
     public int size() {
       return delegate.size();
-    }
-
-    @Override
-    public Vector getView() {
-      return delegate.getView();
     }
 
     @Override

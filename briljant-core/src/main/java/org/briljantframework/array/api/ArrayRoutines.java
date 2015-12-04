@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array.api;
 
@@ -36,6 +33,8 @@ import org.briljantframework.array.LongArray;
 import org.briljantframework.sort.IndexComparator;
 
 /**
+ * Array routines perform different operations on arrays.
+ * 
  * @author Isak Karlsson
  */
 public interface ArrayRoutines {
@@ -92,23 +91,48 @@ public interface ArrayRoutines {
   DoubleArray std(int dim, DoubleArray x);
 
   /**
-   * Returns the minimum value of {@code x}.
+   * Returns the minimum value.
    *
    * @param x the matrix
    * @return the minimum value
    */
   double min(DoubleArray x);
 
+  /**
+   * Returns the minimum value.
+   *
+   * @param x the matrix
+   * @return the minimum value
+   */
   int min(IntArray x);
 
+  /**
+   * Returns the minimum value.
+   *
+   * @param x the matrix
+   * @return the minimum value
+   */
   long min(LongArray x);
 
+  /**
+   * Returns the minimum value.
+   *
+   * @param x the matrix
+   * @return the minimum value
+   */
   <T extends Comparable<T>> T min(Array<T> x);
 
+  /**
+   * Returns the minimum value.
+   *
+   * @param x the matrix
+   * @param cmp the comparator
+   * @return the minimum value
+   */
   <T> T min(Array<T> x, Comparator<T> cmp);
 
   /**
-   * Returns the minimum value of {@code x} along {@code dim}.
+   * Returns the minimum value along the specified dimension.
    *
    * @param dim the dimension
    * @param x the matrix
@@ -116,33 +140,85 @@ public interface ArrayRoutines {
    */
   DoubleArray min(int dim, DoubleArray x);
 
+  /**
+   * Returns the minimum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   IntArray min(int dim, IntArray x);
 
+  /**
+   * Returns the minimum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   LongArray min(int dim, LongArray x);
 
+  /**
+   * Returns the minimum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   <T extends Comparable<T>> Array<T> min(int dim, Array<T> x);
 
+  /**
+   * Returns the minimum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   <T> Array<T> min(int dim, Array<T> x, Comparator<T> cmp);
 
-
   /**
-   * Returns the maximum value of {@code x}.
+   * Returns the maximum value.
    *
    * @param x the matrix
    * @return the maximum value
    */
   double max(DoubleArray x);
 
+  /**
+   * Returns the maximum value.
+   *
+   * @param x the matrix
+   * @return the maximum value
+   */
   int max(IntArray x);
 
+  /**
+   * Returns the maximum value.
+   *
+   * @param x the matrix
+   * @return the maximum value
+   */
   long max(LongArray x);
 
+  /**
+   * Returns the maximum value.
+   *
+   * @param x the matrix
+   * @return the maximum value
+   */
   <T extends Comparable<T>> T max(Array<T> x);
 
+  /**
+   * Returns the maximum value.
+   *
+   * @param x the matrix
+   * @param cmp the comparator
+   * @return the maximum value
+   */
   <T> T max(Array<T> x, Comparator<T> cmp);
 
   /**
-   * Returns the maximum value of {@code x} along {@code dim}.
+   * Returns the maximum value along the specified dimension.
    *
    * @param dim the dimension
    * @param x the matrix
@@ -150,76 +226,240 @@ public interface ArrayRoutines {
    */
   DoubleArray max(int dim, DoubleArray x);
 
+  /**
+   * Returns the maximum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   IntArray max(int dim, IntArray x);
 
+  /**
+   * Returns the maximum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   LongArray max(int dim, LongArray x);
 
+  /**
+   * Returns the maximum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @return a matrix of minimum values
+   */
   <T extends Comparable<T>> Array<T> max(int dim, Array<T> x);
 
+  /**
+   * Returns the maximum value along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the matrix
+   * @param cmp the comparator
+   * @return a matrix of minimum values
+   */
   <T> Array<T> max(int dim, Array<T> x, Comparator<T> cmp);
 
   /**
-   * Return the sum of {@code x}.
+   * Return the sum.
    *
-   * @param x the matrix
+   * @param x the array
    * @return the sum
    */
   double sum(DoubleArray x);
 
+  /**
+   * Return the sum.
+   *
+   * @param x the array
+   * @return the sum
+   */
   int sum(IntArray x);
 
   /**
-   * Returns the sum of {@code x} along {@code dim}.
+   * Return the sum.
+   *
+   * @param x the array
+   * @return the sum
+   */
+  long sum(LongArray x);
+
+  /**
+   * Return the sum.
+   *
+   * @param x the array
+   * @return the sum
+   */
+  Complex sum(ComplexArray x);
+
+  /**
+   * Returns the sum along the specified dimension.
    *
    * @param dim the dimension
-   * @param x the matrix
-   * @return a matrix of sums
+   * @param x the array
+   * @return an array of sums
    */
   DoubleArray sum(int dim, DoubleArray x);
 
+  /**
+   * Returns the sum along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
   IntArray sum(int dim, IntArray x);
 
   /**
-   * Returns the product of {@code x}.
+   * Returns the sum along the specified dimension.
    *
-   * @param x the matrix
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
+  LongArray sum(int dim, LongArray x);
+
+  /**
+   * Returns the sum along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
+  ComplexArray sum(int dim, ComplexArray x);
+
+  /**
+   * Returns the product.
+   *
+   * @param x the array
    * @return the product
    */
   double prod(DoubleArray x);
 
   /**
-   * Returns the products of {@code x} along {@code dim}.
+   * Returns the products along the specified dimension.
    *
    * @param dim the dimension
-   * @param x the matrix
-   * @return a matrix of products
+   * @param x the array
+   * @return an array of products
    */
   DoubleArray prod(int dim, DoubleArray x);
 
+  /**
+   * Return the cumulative sum.
+   * 
+   * @param x the array
+   * @return an array of cumulative sums
+   */
   DoubleArray cumsum(DoubleArray x);
 
+
+  /**
+   * Return the cumulative sum along the specified dimension.
+   * 
+   * @param x the array
+   * @return an array of cumulative sums
+   */
   DoubleArray cumsum(int dim, DoubleArray x);
 
+  /**
+   * Return the inner product of two vectors.
+   * 
+   * @param a the first vector
+   * @param b the second vector
+   * @return the inner product
+   * @see org.briljantframework.array.Arrays#inner(DoubleArray, DoubleArray)
+   */
   double inner(DoubleArray a, DoubleArray b);
 
-  Complex conjugateInner(ComplexArray a, ComplexArray b);
+  /**
+   * Return the inner product of two vectors.
+   *
+   * @param a the first vector
+   * @param b the second vector
+   * @return the inner product
+   * @see org.briljantframework.array.Arrays#inner(ComplexArray, ComplexArray)
+   * @see #conjugateInner(ComplexArray, ComplexArray)
+   */
 
   Complex inner(ComplexArray a, ComplexArray b);
 
+  /**
+   * Return the dot product of two vectors. The complex conjugate of the first argument is used for
+   * the calculation of the dot product.
+   * 
+   * @param a the first vector
+   * @param b the second vector
+   * @return the inner product
+   * @see org.briljantframework.array.Arrays#conjugateInner(ComplexArray, ComplexArray)
+   */
+  Complex conjugateInner(ComplexArray a, ComplexArray b);
+
+  /**
+   * Return the square norm.
+   * 
+   * @param a the array
+   * @return the norm
+   */
   double norm2(DoubleArray a);
 
+  /**
+   * Return the square norm.
+   *
+   * @param a the array
+   * @return the norm
+   */
   Complex norm2(ComplexArray a);
 
+  /**
+   * Return sum of absolute values.
+   * 
+   * @param a the array
+   * @return the sum
+   */
   double asum(DoubleArray a);
 
+  /**
+   * Return sum of absolute values.
+   * 
+   * @param a the array
+   * @return the sum
+   */
   double asum(ComplexArray a);
 
+  /**
+   * Return the index of the value with the largest absolute value.
+   * 
+   * @param x the array
+   * @return the index
+   */
   int iamax(DoubleArray x);
 
+  /**
+   * Return the index of the value with the largest absolute value.
+   *
+   * @param x the array
+   * @return the index
+   */
   int iamax(ComplexArray x);
 
+  /**
+   * Scale the array with the specified scalar value.
+   * 
+   * @param alpha the scalar
+   * @param x the array
+   */
   void scal(double alpha, DoubleArray x);
 
+  /**
+   * Return the trace (diagonal sum) of the array.
+   * 
+   * @param x the array
+   * @return the diagonal sum
+   */
   double trace(DoubleArray x);
 
   /**
@@ -267,25 +507,6 @@ public interface ArrayRoutines {
    */
   void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a,
       DoubleArray b, double beta, DoubleArray c);
-
-  /**
-   * Return a matrix containing {@code n} copies of {@code x}.
-   *
-   * @param x the matrix
-   * @param n the repetitions of both rows and columns
-   * @return a new matrix
-   */
-  @Deprecated
-  <T extends BaseArray<T>> T repmat(T x, int n);
-
-  @Deprecated
-  <T extends BaseArray<T>> T repmat(T x, int r, int c);
-
-  @Deprecated
-  <T extends BaseArray<T>> T repeat(T x, int num);
-
-  @Deprecated
-  <T extends BaseArray<T>> T take(T x, int num);
 
   default <T extends BaseArray<T>> T sort(T array) {
     return sort(array, (t, a, b) -> {
@@ -458,12 +679,12 @@ public interface ArrayRoutines {
   DoubleArray ceil(DoubleArray array);
 
   /**
-   * Rounds the number to the next largest integer, rounding is applied separately to the real and
+   * Rounds the number to the next smallest integer, rounding is applied separately to the real and
    * the imaginary parts.
    *
-   * @param array the array to ceil
+   * @param array the array
    * @return a new array
-   * @see Math#ceil(double)
+   * @see Math#floor(double)
    */
   ComplexArray ceil(ComplexArray array);
 
@@ -473,12 +694,12 @@ public interface ArrayRoutines {
   DoubleArray floor(DoubleArray array);
 
   /**
-   * /** Rounds the number to the next smallest integer, rounding is applied separately to the real
-   * and the imaginary parts.
+   * Rounds the number to the next largest integer, rounding is applied separately to the real and
+   * the imaginary parts.
    *
    * @param array the array to ceil
    * @return a new array
-   * @see Math#floor(double)
+   * @see Math#floor(double) (double)
    */
   ComplexArray floor(ComplexArray array);
 
@@ -512,6 +733,9 @@ public interface ArrayRoutines {
    */
   DoubleArray sqrt(DoubleArray array);
 
+  /**
+   * @see Complex#sqrt()
+   */
   ComplexArray sqrt(ComplexArray array);
 
   /**

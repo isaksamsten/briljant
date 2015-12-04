@@ -58,6 +58,8 @@ import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.DoubleList;
 
 /**
+ * This class provides a skeletal implementation of a double array.
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray> implements
@@ -93,11 +95,11 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
+  public DoubleArray slice(BooleanArray indicator) {
+    Check.shape(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
+      if (indicator.get(i)) {
         builder.add(get(i));
       }
     }
@@ -364,7 +366,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public IntArray mapToInt(DoubleToIntFunction function) {
-    IntArray m = bj.newIntArray(getShape());
+    IntArray m = factory.newIntArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.applyAsInt(get(i)));
     }
@@ -373,7 +375,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public LongArray mapToLong(DoubleToLongFunction function) {
-    LongArray m = bj.newLongArray(getShape());
+    LongArray m = factory.newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.applyAsLong(get(i)));
     }
@@ -382,7 +384,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public ComplexArray mapToComplex(DoubleFunction<Complex> function) {
-    ComplexArray m = bj.newComplexArray(getShape());
+    ComplexArray m = factory.newComplexArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.apply(get(i)));
     }
@@ -414,13 +416,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
         builder.add(value);
       }
     }
-    return bj.newVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return factory.newVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
   public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
     Check.shape(this, array);
-    BooleanArray bits = bj.newBooleanArray(getShape());
+    BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), array.get(i)));
     }
@@ -699,7 +701,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public BooleanArray where(DoublePredicate predicate) {
-    BooleanArray bits = bj.newBooleanArray(getShape());
+    BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -777,7 +779,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     }
 
     public DoubleArray build() {
-      return bj.newVector(Arrays.copyOf(buffer, size));
+      return factory.newVector(Arrays.copyOf(buffer, size));
     }
   }
 

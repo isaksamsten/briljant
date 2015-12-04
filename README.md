@@ -96,6 +96,27 @@ array([[a, c],
        [b, d]])
 ```
 
+Briljant also provides facilities to adapt arrays to 
+[https://commons.apache.org/proper/commons-math/](Apache Commons Math) matrices and vectors,
+allowing us to leverage a large body of their linear algebra routines. For example, given
+`DoubleArray array = DoubleArray.linspace(-1, 1, 1000000).reshape(1000, 1000);` we can
+decompose it as:
+ 
+```
+RealMatrix x = Matrices.asRealMatrix(array);
+SingularValueDecomposition decomposition = new SingularValueDecomposition(x);
+```
+
+Note that singular value decomposition is also implemented in Briljant (the default implementation 
+delegates to an optimized Fortran implementation):
+
+```
+SingularValueDecomposition decomposition = Arrays.linalg.svd(array);
+```
+
+Measuring the CPU time, one can see that the latter is approximately ten order of magnitudes faster
+than the former.
+
 ## Installation
 
 ### Pre-compiled binaries
@@ -134,8 +155,10 @@ In your `build.gradle` or `pom.xml` reference
     <dependency>
         <groupId>org.briljantframework</groupId>
         <artifactId>briljant-core</artifactId>
-        <version>0.1.5</version>
+        <version>0.1.6-SNAPSHOT</version>
     </dependency>
+
+Also don't forget to include maven local. (`mavenLocal()` in gradle).
 
 ## Contribute
 

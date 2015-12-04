@@ -24,6 +24,8 @@
 package org.briljantframework.function;
 
 /**
+ * A specialization of the {@link java.util.function.BiPredicate} interface.
+ *
  * @author Isak Karlsson
  */
 @FunctionalInterface

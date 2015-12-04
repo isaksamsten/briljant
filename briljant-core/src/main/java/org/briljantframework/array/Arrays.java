@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -29,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.DoublePredicate;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
@@ -49,12 +47,53 @@ import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 
 /**
+ * Utilities for multidimensional arrays. The arrays produces depend on the selected backend.
+ * 
+ * <p/>
+ * The methods here mostly delegate to appropriate {@link ArrayFactory factory},
+ * {@link ArrayRoutines routine} or {@link LinearAlgebraRoutines linear algebra routine} methods.
+ * 
+ * <p/>
+ * It is unadvised to use these utilities if the array is not created by the factories here. For
+ * example,
+ * 
+ * <pre>
+ * ArrayBackend backend = new BaseArrayBackend();
+ * ArrayFactory factory = backend.getArrayFactory();
+ * 
+ * DoubleArray x = factory.newDoubleArray(3, 3);
+ * x.assign(10);
+ * 
+ * // assuming that Arrays are using the default NetlibArrayBackend
+ * DoubleArray y = Arrays.newDoubleArray(3, 3);
+ * 
+ * // This will be slow since the array created by the BaseArrayBackend
+ * // cannot be used by the NetlibArrayBackend
+ * Arrays.dot(x, y);
+ * </pre>
+ * 
+ * <p/>
+ * Note that the static factory methods present in e.g., {@link Array#of(Object[])} delegates to the
+ * methods defined here and hence use the default array backend
+ * 
  * @author Isak Karlsson
+ * @see ArrayBackend
+ * @see ArrayRoutines
+ * @see ArrayFactory
+ * @see LinearAlgebraRoutines
+ * @see NetlibArrayBackend
+ * @see org.briljantframework.array.netlib.NetlibArrayFactory
+ * @see org.briljantframework.array.netlib.NetlibLinearAlgebraRoutines
  */
 public final class Arrays {
 
+  /**
+   * A link to the selected linear algebra routines
+   * 
+   * @see LinearAlgebraRoutines
+   */
   public static final LinearAlgebraRoutines linalg;
-  public static final String VERSION = "0.1";
+
   private static final RealDistribution normalDistribution = new NormalDistribution(0, 1);
   private static final RealDistribution uniformDistribution = new UniformRealDistribution(-1, 1);
   private static final ArrayFactory ARRAY_FACTORY;
@@ -675,14 +714,36 @@ public final class Arrays {
   }
 
   /**
+   * Split an array into multiple sub-arrays vertically (row-wise).
+   * 
+   * <p/>
+   * This is equivalent to {@link #split(BaseArray, int, int)} with dim=0 (default), the array is
+   * always split along the first axis regardless of the array dimension.
+   *
+   * @param array the array
+   * @param parts the number of sub-arrays
+   * @param <T> the array type
+   * @return a list of array parts
+   * @see #split(BaseArray, int)
    */
   public static <T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
     if (array.isVector()) {
       array = array.reshape(array.size(), 1);
     }
-    return split(array, parts, 1);
+    return split(array, parts, 0);
   }
 
+  /**
+   * Split an array into multiple sub-arrays of equal size.
+   * 
+   * @param array the array
+   * @param parts the number of parts
+   * @param dim the dimension along which to split
+   * @param <T> the type of array
+   * @return a (lazy) list of sub-arrays. Each time {@link List#get(int)} is called, the sub-arrays
+   *         are recomputed. If accessing sub-arrays multiple times, consider creating a new
+   *         pre-computed list (e.g., {@code new ArrayList<>(Arrays.split(x, 2, 0)}).
+   */
   public static <T extends BaseArray<T>> List<T> split(T array, int parts, int dim) {
     Check.argument(array.size(dim) % parts == 0);
     int[] shape = array.getShape();
@@ -692,7 +753,11 @@ public final class Arrays {
       @Override
       public T get(int index) {
         T empty = array.newEmptyArray(shape);
-        empty.assign(array.select(dim, index));
+        int size = empty.size(dim);
+        int rowPadding = index * size;
+        for (int i = 0; i < size; i++) {
+          empty.select(dim, i).assign(array.select(dim, rowPadding + i));
+        }
         return empty;
       }
 
@@ -703,22 +768,90 @@ public final class Arrays {
     };
   }
 
+  /**
+   * Split an array along its first dimension into multiple sub-arrays of equal size.
+   * 
+   * @param array the array
+   * @param parts the number of parts
+   * @param <S> the type of array
+   * @return a list of sub-arrays
+   * @see #split(BaseArray, int, int)
+   */
+  public static <S extends BaseArray<S>> List<S> split(S array, int parts) {
+    return split(array, parts, 0);
+  }
+
+  /**
+   * Split an array into multiple sub-arrays vertically (column-wise).
+   *
+   * <p/>
+   * This is equivalent to {@link #split(BaseArray, int, int)} with dim=1 (default), the array is
+   * always split along the second axis regardless of the array dimension.
+   *
+   * @param array the array
+   * @param parts the parts (must be evenly dividable with {@code arrays.size(1))}
+   * @param <T> the array type
+   * @return a list of array parts
+   * @see #split(BaseArray, int, int)
+   */
+  public static <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
+    if (array.isVector()) {
+      array = array.reshape(1, array.size());
+    }
+    return split(array, parts, 1);
+  }
+
+  /**
+   * Stack arrays in sequence vertially (row wise).
+   * 
+   * @param arrays the arrays
+   * @param <T> the type of array
+   * @return a new array
+   * @see #vstack(List)
+   */
   @SafeVarargs
   public static <T extends BaseArray<T>> T vstack(T... arrays) {
     return vstack(java.util.Arrays.asList(arrays));
   }
 
   /**
+   * Stack arrays in sequence vertically (row wise). Take a sequence of arrays and stack them
+   * vertically to make a single array. Rebuild arrays divided by {@link #vsplit(BaseArray, int)}.
+   * 
+   * @param arrays a list of arrays
+   * @param <T> the type of arrays
+   * @return a new array
+   * @see #concatenate(List, int)
    */
   public static <T extends BaseArray<T>> T vstack(List<T> arrays) {
-    arrays.replaceAll(v -> v.isVector() ? v.reshape(v.size(), 1) : v);
-    return concatenate(arrays, 1);
+    return concatenate(new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        T v = arrays.get(index);
+        return v.isVector() ? v.reshape(v.size(), 1) : v;
+      }
+
+      @Override
+      public int size() {
+        return arrays.size();
+      }
+    }, 0);
   }
 
+  /**
+   * Join a sequence of arrays along an existing dimension.
+   *
+   * @param arrays the arrays
+   * @param dim the dimension along which the arrays are concatenated
+   * @param <T> the type of array
+   * @return a new array
+   */
   public static <T extends BaseArray<T>> T concatenate(List<T> arrays, int dim) {
     T prototype = arrays.get(0);
     int[] shape = prototype.getShape();
     shape[dim] = 0;
+
+    // TODO: 03/12/15 this will be a performance bottleneck for large splitted array lists
     for (T array : arrays) {
       Check.argument(prototype.dims() == array.dims(), "illegal dimension");
       for (int i = 0; i < prototype.dims(); i++) {
@@ -740,29 +873,52 @@ public final class Arrays {
     return empty;
   }
 
-  public static <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
-    if (array.isVector()) {
-      array = array.reshape(1, array.size());
-    }
-    return split(array, parts, 0);
+  /**
+   * Join a sequence of arrays along an existing dimension (dim = 1).
+   *
+   * @param arrays the arrays
+   * @param <T> the type of array
+   * @return a new array
+   */
+  public static <T extends BaseArray<T>> T concatenate(List<T> arrays) {
+    return concatenate(arrays, 0);
   }
 
+  /**
+   * Stack arrays in sequence horizontally (column wise).
+   * 
+   * @param arrays the arrays
+   * @param <T> the type of array
+   * @return a new array
+   * @see #hstack(List)
+   */
   @SafeVarargs
   public static <T extends BaseArray<T>> T hstack(T... arrays) {
     return hstack(java.util.Arrays.asList(arrays));
   }
 
+  /**
+   * Stack arrays in sequence horizontally (column wise). Take a sequence of arrays and stack them
+   * horizontally to make a single array. Rebuild arrays divided by {@link #hsplit(BaseArray, int)}.
+   * 
+   * @param arrays the arrays
+   * @param <T> the type of array
+   * @return a new array
+   * @see #concatenate(List, int)
+   */
   public static <T extends BaseArray<T>> T hstack(List<T> arrays) {
-    arrays.replaceAll(a -> a.isVector() ? a.reshape(1, a.size()) : a);
-    return concatenate(arrays, 0);
-  }
+    return concatenate(new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        T a = arrays.get(index);
+        return a.isVector() ? a.reshape(1, a.size()) : a;
+      }
 
-  public static <T extends BaseArray<T>> T concatenate(List<T> arrays) {
-    return concatenate(arrays, 0);
-  }
-
-  public static <S extends BaseArray<S>> List<S> split(S array, int parts) {
-    return split(array, parts, 1);
+      @Override
+      public int size() {
+        return arrays.size();
+      }
+    }, 1);
   }
 
   /**
@@ -781,36 +937,180 @@ public final class Arrays {
     ARRAY_ROUTINES.swap(a, b);
   }
 
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#take(org.briljantframework.array.BaseArray,
-   *      int)
-   */
   public static <T extends BaseArray<T>> T take(T x, int num) {
-    return ARRAY_ROUTINES.take(x, num);
+    if (num < 0 || num > x.size()) {
+      throw new IllegalArgumentException();
+    }
+    T c = x.newEmptyArray(num);
+    for (int i = 0; i < num; i++) {
+      c.set(i, x, i);
+    }
+    return c;
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#repmat(org.briljantframework.array.BaseArray,
-   *      int, int)
-   */
-  public static <T extends BaseArray<T>> T repmat(T x, int r, int c) {
-    return ARRAY_ROUTINES.repmat(x, r, c);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#repmat(org.briljantframework.array.BaseArray,
-   *      int)
-   */
-  public static <T extends BaseArray<T>> T repmat(T x, int n) {
-    return ARRAY_ROUTINES.repmat(x, n);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#repeat(org.briljantframework.array.BaseArray,
-   *      int)
+   * Repeat the elements of an array. Ravels the array and repeate each element.
+   * 
+   * <p/>
+   * Example
+   * 
+   * <pre>
+   * Arrays.repeat(Arrays.range(2 * 2).reshape(2, 2), 2);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([0, 0, 1, 1, 2, 2, 3, 3])
+   * </pre>
+   *
+   * @param x the array
+   * @param num the number of repeats
+   * @param <T> the type of array
+   * @return a new array
    */
   public static <T extends BaseArray<T>> T repeat(T x, int num) {
-    return ARRAY_ROUTINES.repeat(x, num);
+    T array = x.newEmptyArray(x.size() * num);
+    for (int i = 0; i < x.size(); i++) {
+      int pad = i * num;
+      for (int j = 0; j < num; j++) {
+        array.set(pad + j, x, i);
+      }
+    }
+    return array;
+  }
+
+  /**
+   * Repeat elements of an array.
+   * <p/>
+   * Examples
+   * 
+   * <pre>
+   * IntArray x = Arrays.range(3 * 3).reshape(3, 3);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
+   * </pre>
+   *
+   * and
+   * 
+   * <pre>
+   * Arrays.repeat(0, x, 3);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   * array([[0, 3, 6],
+   *        [0, 3, 6],
+   *        [0, 3, 6],
+   *        [1, 4, 7],
+   *        [1, 4, 7],
+   *        [1, 4, 7],
+   *        [2, 5, 8],
+   *        [2, 5, 8],
+   *        [2, 5, 8]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * Arrays.repeat(1, x, 3);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[0, 0, 0, 3, 3, 3, 6, 6, 6],
+   *        [1, 1, 1, 4, 4, 4, 7, 7, 7],
+   *        [2, 2, 2, 5, 5, 5, 8, 8, 8]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * Arrays.repeat(0, Arrays.range(3), 3);
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[0, 1, 2],
+   *        [0, 1, 2],
+   *        [0, 1, 2]])
+   * </pre>
+   * 
+   * @param dim the dimension along which to repeat the elements
+   * @param x the array
+   * @param num the number of repetitions
+   * @param <T> the array type
+   * @return a new array
+   */
+  public static <T extends BaseArray<T>> T repeat(int dim, T x, int num) {
+    if (x.dims() == 1) {
+      int[] reshape = new int[2];
+      reshape[dim] = 1;
+      reshape[Math.abs(1 - dim)] = x.size();
+      x = x.reshape(reshape);
+    }
+    int[] shape = x.getShape();
+    shape[dim] *= num;
+    T array = x.newEmptyArray(shape);
+    for (int i = 0; i < x.size(dim); i++) {
+      int pad = i * num;
+      for (int j = 0; j < num; j++) {
+        array.select(dim, pad + j).assign(x.select(dim, i));
+      }
+    }
+
+    return array;
+  }
+
+  /**
+   * Returns the sum along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
+  public static ComplexArray sum(int dim, ComplexArray x) {
+    return ARRAY_ROUTINES.sum(dim, x);
+  }
+
+  /**
+   * Return the sum.
+   *
+   * @param x the array
+   * @return the sum
+   */
+  public static Complex sum(ComplexArray x) {
+    return ARRAY_ROUTINES.sum(x);
+  }
+
+  /**
+   * Return the sum.
+   *
+   * @param x the array
+   * @return the sum
+   */
+  public static long sum(LongArray x) {
+    return ARRAY_ROUTINES.sum(x);
+  }
+
+  /**
+   * Returns the sum along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
+  public static LongArray sum(int dim, LongArray x) {
+    return ARRAY_ROUTINES.sum(dim, x);
   }
 
   /**
@@ -874,17 +1174,52 @@ public final class Arrays {
     return ARRAY_ROUTINES.sort(dim, x, cmp);
   }
 
+  /**
+   * Randomly shuffle the elements in the given array
+   * 
+   * @param x the array
+   * @param <T> the array type
+   * @return a new (shuffled) array
+   */
   public static <T extends BaseArray<T>> T shuffle(T x) {
     T out = x.copy();
     out.permute(out.size());
     return out;
   }
 
-  public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a, DoubleArray b) {
-    return dot(transA, transB, 1, a, b);
+  /**
+   * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
+   * 
+   * @param a the first array
+   * @param b the second array
+   * @return a new array
+   * @see #dot(ArrayOperation, ArrayOperation, DoubleArray, double, DoubleArray)
+   */
+  public static DoubleArray dot(DoubleArray a, DoubleArray b) {
+    return dot(ArrayOperation.KEEP, ArrayOperation.KEEP, a, 1, b);
   }
 
-  public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a, DoubleArray b) {
+  /**
+   * Dot product of two 2d-arrays. It is equivalent to matrix multiplication
+   *
+   * <p/>
+   * For more control and in some situations better performance consider
+   * {@link #gemm(ArrayOperation, ArrayOperation, double, DoubleArray, DoubleArray, double, DoubleArray)
+   * gemm}, {@link #ger(double, DoubleArray, DoubleArray, DoubleArray) ger}
+   *
+   * <p/>
+   * The inner product is computed using {@link #inner(DoubleArray, DoubleArray)}.
+   *
+   * @param transA the transposition of the first array
+   * @param transB the transposition of the second array
+   * @param a the first array
+   * @param b the second array
+   * @return a new array
+   * @see #gemm(ArrayOperation, ArrayOperation, double, DoubleArray, DoubleArray, double,
+   *      DoubleArray)
+   */
+  public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
+      double alpha, DoubleArray b) {
     Check.argument(a.isMatrix() && b.isMatrix(), "require 2d-arrays");
     int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
     int bm = b.size(transB == ArrayOperation.KEEP ? 0 : 1);
@@ -893,7 +1228,8 @@ public final class Arrays {
     if (m == 0 || k == 0 || n == 0 || bm == 0) {
       throw new IllegalArgumentException("empty result");
     }
-    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1 : 0)) {
+    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1
+        : 0)) {
       throw new NonConformantException(a, b);
     }
     DoubleArray c = newDoubleArray(m, n);
@@ -901,17 +1237,40 @@ public final class Arrays {
     return c;
   }
 
-  public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a, DoubleArray b,
-                          double beta, DoubleArray c) {
+  /**
+   * @see ArrayRoutines#gemm(ArrayOperation, ArrayOperation, double, DoubleArray, DoubleArray,
+   *      double, DoubleArray)
+   */
+  public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha,
+      DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
     ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
   }
 
-  public static DoubleArray dot(DoubleArray a, DoubleArray b) {
-    return dot(1.0, a, b);
+  /**
+   * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
+   * 
+   * @param alpha scaling factor for the first array
+   * @param a the first array
+   * @param b the second array
+   * @return a new array
+   * @see #dot(ArrayOperation, ArrayOperation, DoubleArray, double, DoubleArray)
+   */
+  public static DoubleArray dot(double alpha, DoubleArray a, DoubleArray b) {
+    return dot(ArrayOperation.KEEP, ArrayOperation.KEEP, a, alpha, b);
   }
 
-  public static DoubleArray dot(double alpha, DoubleArray a, DoubleArray b) {
-    return dot(ArrayOperation.KEEP, ArrayOperation.KEEP, alpha, a, b);
+  /**
+   * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
+   *
+   * @param alpha scaling factor for the first array
+   * @param a the first array
+   * @param b the second array
+   * @return a new array
+   * @see #dot(ArrayOperation, ArrayOperation, DoubleArray, double, DoubleArray)
+   */
+  public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
+      DoubleArray b) {
+    return dot(transA, transB, a, 1.0, b);
   }
 
   /**
@@ -929,7 +1288,7 @@ public final class Arrays {
   public static double inner(DoubleArray a, DoubleArray b) {
     a = a.isVector() ? a : a.ravel();
     b = b.isVector() ? b : b.ravel();
-    return ARRAY_ROUTINES.inner(a, b);
+    return ARRAY_ROUTINES.inner(a.ravel(), b.ravel());
   }
 
   /**
@@ -942,11 +1301,16 @@ public final class Arrays {
    * Example
    *
    * <pre>
-   * Arrays.outer(Arrays.linspace(0, 3, 4), Arrays.linspace(0,3,4).reshape(2,2))
+   * Arrays.outer(Arrays.linspace(0, 3, 4), Arrays.linspace(0, 3, 4).reshape(2, 2));
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[0.000, 0.000, 0.000, 0.000],
    *        [0.000, 1.000, 2.000, 3.000],
    *        [0.000, 2.000, 4.000, 6.000],
-   *        [0.000, 3.000, 6.000, 9.000]] type: double)
+   *        [0.000, 3.000, 6.000, 9.000]])
    * </pre>
    *
    * @param a the first argument of size {@code m}
@@ -1029,12 +1393,12 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#gemm(ArrayOperation,
-   *      ArrayOperation, double, org.briljantframework.array.DoubleArray,
-   *      org.briljantframework.array.DoubleArray, double, org.briljantframework.array.DoubleArray)
+   * @see org.briljantframework.array.api.ArrayRoutines#gemm(ArrayOperation, ArrayOperation, double,
+   *      org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray, double,
+   *      org.briljantframework.array.DoubleArray)
    */
-  public static void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x, double beta,
-                          DoubleArray y) {
+  public static void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x,
+      double beta, DoubleArray y) {
     ARRAY_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 
@@ -1047,6 +1411,8 @@ public final class Arrays {
   }
 
   /**
+   * Find argument with max value.
+   * 
    * @param array the array
    * @return the index of the maximum value
    */
@@ -1064,6 +1430,8 @@ public final class Arrays {
   }
 
   /**
+   * Find argument with min value.
+   * 
    * @param array the array
    * @return the index of the minimum value
    */
@@ -1083,9 +1451,7 @@ public final class Arrays {
   }
 
   /**
-   * <p>
    * Take values in {@code array}, using the indexes in {@code indexes}.
-   * </p>
    *
    * @param array the source array
    * @param indexes the indexes of the values to extract
@@ -1100,12 +1466,10 @@ public final class Arrays {
   }
 
   /**
-   * <p>
    * Changes the values of array copy of {@code array} according to the values of the {@code mask}
    * and the values in {@code values}. The value at {@code i} in array copy of {@code array} is set
    * to value at {@code i} from {@code values} if the boolean at {@code i} in {@code mask} is
    * {@code true}.
-   * </p>
    *
    * @param array array source array
    * @param mask the mask; same shape as {@code array}
@@ -1122,10 +1486,8 @@ public final class Arrays {
   }
 
   /**
-   * <p>
    * Changes the values of {@code a} according to the values of the {@code mask} and the values in
    * {@code values}.
-   * </p>
    *
    * @param a the target matrix
    * @param mask the mask; same shape as {@code a}
@@ -1142,10 +1504,8 @@ public final class Arrays {
   }
 
   /**
-   * <p>
    * Selects the values in {@code a} according to the values in {@code where}, replacing those not
    * selected with {@code replace}.
-   * </p>
    *
    * @param a the source matrix
    * @param where the selection matrix; same shape as {@code a}
@@ -1159,10 +1519,23 @@ public final class Arrays {
     return copy;
   }
 
+  /**
+   * Return the order of the values in array (with smallest index first).
+   *
+   * @param array the array
+   * @return the indexes in order
+   */
   public static IntArray order(DoubleArray array) {
     return order(array, Double::compare);
   }
 
+  /**
+   * Return the order of the values in the given array (according to the comparator).
+   * 
+   * @param array the array
+   * @param cmp the comparator
+   * @return the indexes in order
+   */
   public static IntArray order(DoubleArray array, DoubleComparator cmp) {
     IntArray order = Arrays.range(array.size()).copy();
     order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
@@ -1176,10 +1549,25 @@ public final class Arrays {
     return ARRAY_FACTORY.range(end);
   }
 
+  /**
+   * The order of elements along the given dimension.
+   * 
+   * @param dim the dimension
+   * @param array the array
+   * @return the order of each dimension
+   */
   public static IntArray order(int dim, DoubleArray array) {
     return order(dim, array, Double::compare);
   }
 
+  /**
+   * The order of elements along the given dimension.
+   * 
+   * @param dim the dimension
+   * @param array the array
+   * @param cmp the comparator
+   * @return the order of each dimension
+   */
   public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
     int vectors = array.vectors(dim);
     IntArray order = IntArray.zeros(array.getShape());
@@ -1189,14 +1577,44 @@ public final class Arrays {
     return order;
   }
 
+  /**
+   * Searches the specified array for the specified object using the binary search algorithm. The
+   * array must be sorted into ascending order
+   * 
+   * @param array the array
+   * @param x the element
+   * @return the index of the search key, if it is contained in the list; otherwise,
+   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
+   * @see #binarySearch(Array, Object)
+   */
   public static int binarySearch(IntArray array, int x) {
     return binarySearch(array.boxed(), x);
   }
 
+  /**
+   * Searches the specified array for the specified object using the binary search algorithm. The
+   * array must be sorted into ascending order
+   *
+   * @param array the array
+   * @param x the element
+   * @return the index of the search key, if it is contained in the list; otherwise,
+   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
+   * @see Collections#binarySearch(List, Object)
+   */
   public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
     return Collections.binarySearch(array.toList(), x);
   }
 
+  /**
+   * Searches the specified array for the specified object using the binary search algorithm. The
+   * array must be sorted into ascending order
+   *
+   * @param array the array
+   * @param x the element
+   * @return the index of the search key, if it is contained in the list; otherwise,
+   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
+   * @see #binarySearch(Array, Object)
+   */
   public static int binarySearch(DoubleArray array, double x) {
     return binarySearch(array.boxed(), x);
   }
@@ -1210,7 +1628,8 @@ public final class Arrays {
 
   /**
    * Locate the insertion point for value in a to maintain sorted order. If value is already present
-   * in the array, the insertion point will be before (to the left of) any existing entries.
+   * in the array, the insertion point will be before (to the left of) any existing entries. The
+   * array must be sorted in ascending order.
    *
    * @param array the array
    * @param value the value
@@ -1227,6 +1646,13 @@ public final class Arrays {
   }
 
   /**
+   * @see #bisectLeft(Array, Object)
+   */
+  public static int bisectLeft(DoubleArray array, double value) {
+    return bisectLeft(array.boxed(), value);
+  }
+
+  /**
    * @see #bisectRight(Array, Object)
    */
   public static int bisectRight(IntArray array, int value) {
@@ -1235,12 +1661,14 @@ public final class Arrays {
 
   /**
    * Locate the insertion point for value in a to maintain sorted order. If value is already present
-   * in the array, the insertion point will be after (to the right of) any existing entries.
+   * in the array, the insertion point will be after (to the right of) any existing entries. The
+   * array must be sorted in ascending order.
    *
    * @param array the array
    * @param value the value
    * @param <T> the class of objects in the array
    * @return the insertion point of the value
+   * @see #bisectLeft(Array, Object)
    */
   public static <T> int bisectRight(Array<? extends Comparable<? super T>> array, T value) {
     int i = Collections.binarySearch(array.toList(), value);
@@ -1249,13 +1677,6 @@ public final class Arrays {
     } else {
       return i + 1;
     }
-  }
-
-  /**
-   * @see #bisectLeft(Array, Object)
-   */
-  public static int bisectLeft(DoubleArray array, double value) {
-    return bisectLeft(array.boxed(), value);
   }
 
   /**
@@ -1428,6 +1849,15 @@ public final class Arrays {
       }
     }
     return -1;
+  }
+
+  public static boolean any(DoubleArray array, DoublePredicate predicate) {
+    for (int i = 0; i < array.size(); i++) {
+      if (predicate.test(array.get(i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static <S extends BaseArray<S>> S where(BooleanArray c, S x, S y) {

@@ -38,5 +38,5 @@ public interface NonlinearOptimizer {
    * @param x        the initial guess
    * @return the final cost
    */
-  double optimize(DifferentialFunction function, DoubleArray x);
+  double optimize(DifferentialMultivariateFunction function, DoubleArray x);
 }

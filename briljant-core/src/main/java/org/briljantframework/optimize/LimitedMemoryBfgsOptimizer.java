@@ -49,7 +49,7 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   }
 
   @Override
-  public double optimize(DifferentialFunction function, DoubleArray x) {
+  public double optimize(DifferentialMultivariateFunction function, DoubleArray x) {
     int n = x.size();
     DoubleArray currentSolution = DoubleArray.zeros(n);
     DoubleArray currentGradient = DoubleArray.zeros(n);

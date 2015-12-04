@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.vector;
 
@@ -40,13 +37,11 @@ import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
+ * A vector of primitive int values.
+ * 
  * @author Isak Karlsson
  */
 public class IntVector extends AbstractVector implements Transferable {
-
-  public static IntVector of(int... values) {
-    return new IntVector(java.util.Arrays.copyOf(values, values.length), values.length);
-  }
 
   private final int[] buffer;
   private final int size;
@@ -74,6 +69,10 @@ public class IntVector extends AbstractVector implements Transferable {
     this.size = size;
   }
 
+  public static IntVector of(int... values) {
+    return new IntVector(java.util.Arrays.copyOf(values, values.length), values.length);
+  }
+
   public static IntVector range(int end) {
     int[] v = new int[end];
     for (int i = 0; i < v.length; i++) {
@@ -83,33 +82,23 @@ public class IntVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  protected final int getAsIntAt(int i) {
-    Check.validIndex(i, size);
-    return buffer[i];
+  public final IntStream intStream() {
+    return java.util.Arrays.stream(buffer, 0, size());
   }
 
   @Override
-  protected final <T> T getAt(Class<T> cls, int index) {
-    Check.argument(!cls.isPrimitive(), "can't get primitive values");
-    int v = getAsIntAt(index);
-    return Convert.to(cls, v);
+  public Builder newCopyBuilder() {
+    return new Builder(this);
   }
 
   @Override
-  protected final String toStringAt(int index) {
-    int value = getAsIntAt(index);
-    return value == Na.INT ? "NA" : String.valueOf(value);
+  public final Builder newBuilder() {
+    return new Builder();
   }
 
   @Override
-  protected final boolean isNaAt(int index) {
-    return getAsIntAt(index) == Na.INT;
-  }
-
-  @Override
-  protected final double getAsDoubleAt(int i) {
-    int value = getAsIntAt(i);
-    return value == Na.INT ? Na.DOUBLE : value;
+  public final Builder newBuilder(int size) {
+    return new Builder(size, size);
   }
 
   @Override
@@ -128,23 +117,32 @@ public class IntVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  protected boolean equalsAt(int a, Vector other, int b) {
-    return getAsIntAt(a) == other.loc().getAsInt(b);
+  protected final boolean isNaAt(int index) {
+    return getAsIntAt(index) == Na.INT;
+  }
+
+  @Override
+  protected final int getAsIntAt(int i) {
+    Check.validIndex(i, size);
+    return buffer[i];
+  }
+
+  @Override
+  protected final double getAsDoubleAt(int i) {
+    int value = getAsIntAt(i);
+    return value == Na.INT ? Na.DOUBLE : value;
+  }
+
+  @Override
+  protected final <T> T getAt(Class<T> cls, int index) {
+    Check.argument(!cls.isPrimitive(), "can't get primitive values");
+    int v = getAsIntAt(index);
+    return Convert.to(cls, v);
   }
 
   @Override
   protected Vector shallowCopy(Index index) {
     return new IntVector(buffer, size, index);
-  }
-
-  @Override
-  public IntArray toIntArray() throws IllegalTypeException {
-    return Arrays.newIntVector(java.util.Arrays.copyOf(buffer, size()));
-  }
-
-  @Override
-  public final VectorType getType() {
-    return VectorType.INT;
   }
 
   @Override
@@ -184,28 +182,29 @@ public class IntVector extends AbstractVector implements Transferable {
   }
 
   @Override
+  protected final String toStringAt(int index) {
+    int value = getAsIntAt(index);
+    return value == Na.INT ? "NA" : String.valueOf(value);
+  }
+
+  @Override
+  protected boolean equalsAt(int a, Vector other, int b) {
+    return getAsIntAt(a) == other.loc().getAsInt(b);
+  }
+
+  @Override
   public final int size() {
     return size;
   }
 
   @Override
-  public final Builder newBuilder() {
-    return new Builder();
+  public final VectorType getType() {
+    return VectorType.INT;
   }
 
   @Override
-  public final Builder newBuilder(int size) {
-    return new Builder(size, size);
-  }
-
-  @Override
-  public Builder newCopyBuilder() {
-    return new Builder(this);
-  }
-
-  @Override
-  public final IntStream intStream() {
-    return java.util.Arrays.stream(buffer, 0, size());
+  public IntArray toIntArray() throws IllegalTypeException {
+    return Arrays.newIntVector(java.util.Arrays.copyOf(buffer, size()));
   }
 
   public static final class Builder extends AbstractBuilder {
@@ -217,16 +216,16 @@ public class IntVector extends AbstractVector implements Transferable {
       this(0, INITIAL_CAPACITY);
     }
 
-    public Builder(int size) {
-      this(size, size);
-    }
-
     public Builder(int size, int capacity) {
       this.size = size;
       buffer = new int[Math.max(size, capacity)];
       for (int i = 0; i < size; i++) {
         buffer[i] = Na.INT;
       }
+    }
+
+    public Builder(int size) {
+      this(size, size);
     }
 
     private Builder(IntVector vector) {
@@ -253,10 +252,20 @@ public class IntVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    public Vector.Builder add(int value) {
+    public Vector.Builder add(Vector from, int fromIndex) {
+      return add(from.loc().getAsInt(fromIndex));
+    }
+
+    @Override
+    public Vector.Builder add(Vector from, Object key) {
+      return add(from.getAsInt(key));
+    }
+
+    @Override
+    public Vector.Builder add(Object value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
-      buffer[index] = value;
+      buffer[index] = convert(value);
       extendIndex(index);
       return this;
     }
@@ -271,43 +280,30 @@ public class IntVector extends AbstractVector implements Transferable {
     }
 
     @Override
-    public Vector.Builder add(Object value) {
+    public Vector.Builder add(int value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
-      buffer[index] = convert(value);
+      buffer[index] = value;
       extendIndex(index);
       return this;
     }
 
     @Override
-    public Vector.Builder add(Vector from, int fromIndex) {
-      return add(from.loc().getAsInt(fromIndex));
-    }
-
-    @Override
-    public Vector.Builder add(Vector from, Object key) {
-      return add(from.getAsInt(key));
-    }
-
-    /**
-     * Fill with NA from {@code index} until {@code size}
-     */
-    private static void fillNa(final int from, final int until, int[] buffer) {
-      for (int i = from; i < until; i++) {
-        buffer[i] = Na.INT;
-      }
-    }
-
-    @Override
-    public void setNaAt(int index) {
-      final int oldSize = size;
-      ensureCapacity(index + 1);
-      fillNa(oldSize, size, buffer);
+    protected void readAt(int index, DataEntry entry) {
+      setAt(index, entry.nextInt());
     }
 
     @Override
     protected void setAt(int atIndex, Vector from, Object f) {
       setAt(atIndex, from.getAsInt(f));
+    }
+
+    @Override
+    protected void setAt(int t, Vector from, int f) {
+      final int oldSize = size;
+      ensureCapacity(t + 1);
+      fillNa(oldSize, size, buffer);
+      buffer[t] = from.loc().getAsInt(f);
     }
 
     @Override
@@ -319,28 +315,11 @@ public class IntVector extends AbstractVector implements Transferable {
       buffer[index] = dval;
     }
 
-    private int convert(Object value) {
-      int dval = Na.INT;
-      if (value instanceof Number && !Is.NA(value)) {
-        dval = ((Number) value).intValue();
-      } else if (value != null && !Is.NA(value)) {
-        Resolver<Integer> resolver = Resolve.find(Integer.class);
-        if (resolver != null) {
-          Integer resolve = resolver.resolve(value);
-          if (resolve != null) {
-            dval = resolve;
-          }
-        }
-      }
-      return dval;
-    }
-
     @Override
-    protected void setAt(int t, Vector from, int f) {
+    public void setNaAt(int index) {
       final int oldSize = size;
-      ensureCapacity(t + 1);
+      ensureCapacity(index + 1);
       fillNa(oldSize, size, buffer);
-      buffer[t] = from.loc().getAsInt(f);
     }
 
     protected void setAt(int index, int value) {
@@ -348,6 +327,15 @@ public class IntVector extends AbstractVector implements Transferable {
       ensureCapacity(index + 1);
       fillNa(oldSize, size, buffer);
       buffer[index] = value;
+    }
+
+    /**
+     * Fill with NA from {@code index} until {@code size}
+     */
+    private static void fillNa(final int from, final int until, int[] buffer) {
+      for (int i = from; i < until; i++) {
+        buffer[i] = Na.INT;
+      }
     }
 
     @Override
@@ -376,31 +364,30 @@ public class IntVector extends AbstractVector implements Transferable {
       ArrayAllocations.swap(buffer, a, b);
     }
 
-    @Override
-    protected void readAt(int index, DataEntry entry) {
-      setAt(index, entry.nextInt());
+    private void rangeCheck(int index) {
+      if (index >= size) {
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+      }
     }
 
-    @Override
-    public int size() {
-      return size;
+    private String outOfBoundsMsg(int index) {
+      return "Index: " + index + ", Size: " + size;
     }
 
-    @Override
-    public Vector getView() {
-      return new IntVector(buffer, size(), false) {
-        @Override
-        public Builder newCopyBuilder() {
-          return Builder.this;
+    private int convert(Object value) {
+      int dval = Na.INT;
+      if (value instanceof Number && !Is.NA(value)) {
+        dval = ((Number) value).intValue();
+      } else if (value != null && !Is.NA(value)) {
+        Resolver<Integer> resolver = Resolve.find(Integer.class);
+        if (resolver != null) {
+          Integer resolve = resolver.resolve(value);
+          if (resolve != null) {
+            dval = resolve;
+          }
         }
-      };
-    }
-
-    @Override
-    public IntVector build() {
-      IntVector vector = new IntVector(buffer, size(), getIndex());
-      buffer = null;
-      return vector;
+      }
+      return dval;
     }
 
     private void ensureCapacity(final int newSize) {
@@ -410,16 +397,6 @@ public class IntVector extends AbstractVector implements Transferable {
       if (newSize > size) {
         size = newSize;
       }
-    }
-
-    private void rangeCheck(int index) {
-      if (index >= size) {
-        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
-      }
-    }
-
-    private String outOfBoundsMsg(int index) {
-      return "Index: " + index + ", Size: " + size;
     }
 
     /**
@@ -448,6 +425,30 @@ public class IntVector extends AbstractVector implements Transferable {
       }
       return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
     }
+
+    @Override
+    public Vector getView() {
+      return new IntVector(buffer, size(), false) {
+        @Override
+        public Builder newCopyBuilder() {
+          return Builder.this;
+        }
+      };
+    }
+
+    @Override
+    public int size() {
+      return size;
+    }
+
+    @Override
+    public IntVector build() {
+      IntVector vector = new IntVector(buffer, size(), getIndex());
+      buffer = null;
+      return vector;
+    }
   }
+
+
 
 }

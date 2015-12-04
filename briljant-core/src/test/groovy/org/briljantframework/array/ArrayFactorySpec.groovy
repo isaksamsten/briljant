@@ -441,7 +441,7 @@ abstract class ArrayFactorySpec extends Specification {
         arr as int[],
         arr as double[],
         arr as long[],
-        (arr.collect { Complex.valueOf(it) }) as Complex[]
+        (arr.collect {Complex.valueOf(it)}) as Complex[]
 
     ]
   }
@@ -465,7 +465,7 @@ abstract class ArrayFactorySpec extends Specification {
           bj.newVector(value as int[]).reshape(shape),
           bj.newVector(value as double[]).reshape(shape),
           bj.newVector(value as long[]).reshape(shape),
-          bj.newVector(value.collect { Complex.valueOf(it) } as Complex[]).reshape(shape)
+          bj.newVector(value.collect {Complex.valueOf(it)} as Complex[]).reshape(shape)
       ]
     } else {
       def intArr = bj.newIntArray(shape)
