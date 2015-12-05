@@ -1084,6 +1084,62 @@ public final class Arrays {
    * 
    * <p/>
    * If {@code reps.length < x.dims()}, the replication array is prepended with ones.
+   *
+   * <p/>
+   * Example
+   *
+   * <pre>
+   * IntArray a = Range.of(3);
+   * Arrays.tile(a, 2);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   *   array([0, 1, 2, 0, 1, 2])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * Arrays.tile(a, 2, 2);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[0, 1, 2, 0, 1, 2],
+   *        [0, 1, 2, 0, 1, 2]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * DoubleArray b = Arrays.newDoubleMatrix(new double[][] { {1, 2}, {3, 4}});
+   * Arrays.tile(b, 2);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[1.000, 2.000, 1.000, 2.000],
+   *        [3.000, 4.000, 3.000, 4.000]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * Arrays.tile(b, 2, 1);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[1.000, 2.000],
+   *        [3.000, 4.000],
+   *        [1.000, 2.000],
+   *        [3.000, 4.000]])
+   * </pre>
    * 
    * @param x the array
    * @param reps the numer of replications per dimension
@@ -1113,11 +1169,13 @@ public final class Arrays {
    */
   private static int[] prependDimension(int[] arr, int max) {
     int[] newArr = new int[max];
-    for (int i = 0; i < arr.length; i++) {
-      if (i < newArr.length - arr.length) {
+    int diff = Math.abs(max - arr.length);
+    for (int i = 0; i < max; i++) {
+      if (i < diff) {
         newArr[i] = 1;
+      } else {
+        newArr[i] = arr[i - diff];
       }
-      newArr[i + arr.length - 1] = arr[i];
     }
     return newArr;
   }
@@ -1338,7 +1396,8 @@ public final class Arrays {
   /**
    * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
    *
-   * @param alpha scaling factor for the first array
+   * @param transA transposition of the first array
+   * @param transB transposition of the second array
    * @param a the first array
    * @param b the second array
    * @return a new array
