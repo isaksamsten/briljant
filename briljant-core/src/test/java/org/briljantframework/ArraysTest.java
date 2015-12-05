@@ -20,11 +20,11 @@
  */
 package org.briljantframework;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -93,10 +93,15 @@ public class ArraysTest {
 
   @Test
   public void testTile() throws Exception {
-    ArrayPrinter.setMinimumTruncateSize(100000);
-    IntArray x = Arrays.range(2 * 2 * 2).reshape(2, 2, 2);
-
-//    System.out.println(Arrays.tile(x, 3, 3, 6));
+    IntArray x = Arrays.range(2 * 2 * 2).reshape(4, 2);
+    IntArray tile = Arrays.tile(x, 2, 2, 2);
+    assertArrayEquals(new int[] {2, 8, 4}, tile.getShape());
+    assertEquals(Arrays.newIntVector(0, 4, 0, 4), tile.getVector(2, 0));
+    assertEquals(Arrays.newIntVector(1, 5, 1, 5), tile.getVector(2, 2));
+    assertEquals(Arrays.newIntVector(2, 6, 2, 6), tile.getVector(2, 4));
+    assertEquals(Arrays.newIntVector(3, 7, 3, 7), tile.getVector(2, 6));
+    assertEquals(Arrays.newIntVector(0, 4, 0, 4), tile.getVector(2, 8));
+    assertEquals(Arrays.newIntVector(1, 5, 1, 5), tile.getVector(2, 10));
   }
 
   @Test

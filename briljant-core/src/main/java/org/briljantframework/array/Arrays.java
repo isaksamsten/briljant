@@ -1071,34 +1071,75 @@ public final class Arrays {
     return array;
   }
 
-  public static <S extends BaseArray<S>> S tile(S x, int... dims) {
-    // TODO: 04/12/15 Reshape x to conform with the new dimension
-    Check.argument(x.dims() == dims.length, "Illegal dimensions");
-    int[] shape = new int[x.dims()];
+  /**
+   * Construct an array by repeating the given array the given number of times (per dimension).
+   *
+   * <p/>
+   * The constructed array has the same dimension as {@code Math.max(reps.length, x.dims())}.
+   *
+   * <p/>
+   * If {@code x.dims() < reps.length}, {@code x} is promoted to a {@code reps.length}-dimensional
+   * array by prepending dimensions of size {@code 1}. For example, if {@code x} has shape 5 and the
+   * replication is {@code new int[2]} the resulting array is promoted to 2d.
+   * 
+   * <p/>
+   * If {@code reps.length < x.dims()}, the replication array is prepended with ones.
+   * 
+   * @param x the array
+   * @param reps the numer of replications per dimension
+   * @param <S> the array type
+   * @return a new array
+   */
+  public static <S extends BaseArray<S>> S tile(S x, int... reps) {
+    int dims = Math.max(x.dims(), reps.length);
+    if (x.dims() < reps.length) {
+      x = x.reshape(prependDimension(x.getShape(), dims));
+    } else if (reps.length < x.dims()) {
+      reps = prependDimension(reps, dims);
+    }
+
+    int[] shape = new int[dims];
     for (int i = 0; i < shape.length; i++) {
-      shape[i] = x.size(i) * dims[i];
+      shape[i] = x.size(i) * reps[i];
     }
 
     S array = x.newEmptyArray(shape);
-    tile(array, x, 0, dims);
+    tile(array, x, 0, reps);
     return array;
   }
 
-  /**
-   * Recursivley fill the last dimension with the last dimension of x with repeated copies.
+  /*
+   * Prepend ones
+   */
+  private static int[] prependDimension(int[] arr, int max) {
+    int[] newArr = new int[max];
+    for (int i = 0; i < arr.length; i++) {
+      if (i < newArr.length - arr.length) {
+        newArr[i] = 1;
+      }
+      newArr[i + arr.length - 1] = arr[i];
+    }
+    return newArr;
+  }
+
+  /*
+   * Recursively fill the last dimension with the last dimension of x with repeated copies.
    */
   private static <S extends BaseArray<S>> void tile(S array, S x, int dim, int[] reps) {
-    if (dim == reps.length - 1) {
+    Check.argument(array.dims() == x.dims(), "Illegal array sizes to tile.");
+    if (array.dims() == 1 && x.dims() == 1) {
+      int size = x.size();
       for (int j = 0; j < reps[dim]; j++) {
-        int pad = j * x.size();
-        for (int i = 0; i < x.size(); i++) {
+        int pad = j * size;
+        for (int i = 0; i < size; i++) {
           array.set(pad + i, x, i);
         }
       }
     } else {
+      int size = x.size(0);
       for (int j = 0; j < reps[dim]; j++) {
-        int pad = x.size(dim) * j;
-        for (int i = 0; i < x.size(dim); i++) {
+        int pad = size * j;
+        for (int i = 0; i < size; i++) {
           tile(array.select(0, pad + i), x.select(0, i), dim + 1, reps);
         }
       }
