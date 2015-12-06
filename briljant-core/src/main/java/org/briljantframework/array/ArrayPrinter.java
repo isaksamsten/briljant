@@ -460,7 +460,8 @@ public final class ArrayPrinter {
 
     @Override
     public String get(int i) {
-      return array.get(i).toString();
+      T value = array.get(i);
+      return value == null ? "null" : value.toString();
     }
 
     @Override

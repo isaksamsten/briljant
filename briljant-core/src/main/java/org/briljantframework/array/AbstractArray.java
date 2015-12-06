@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -29,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
 import java.util.function.DoubleFunction;
@@ -181,7 +179,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
         return false;
       }
       for (int i = 0; i < size(); i++) {
-        if (!get(i).equals(o.get(i))) {
+        if (!Objects.equals(get(i), o.get(i))) {
           return false;
         }
       }
@@ -278,7 +276,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
     return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                             getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
         return to.applyAsDouble(AbstractArray.this.getElement(i));
@@ -306,7 +304,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
     return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                          getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, int value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -334,7 +332,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
     return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                           getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, long value) {
         AbstractArray.this.setElement(i, from.apply(value));
@@ -362,7 +360,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
     return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                              getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected boolean getElement(int i) {
         return to.apply(AbstractArray.this.getElement(i));
@@ -390,7 +388,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
     return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
-                              getMajorStrideIndex()) {
+        getMajorStrideIndex()) {
       @Override
       protected Complex getElement(int i) {
         return to.apply(AbstractArray.this.getElement(i));
@@ -424,6 +422,16 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
         list.add(v);
       }
     }
+    return convertToArray(list);
+  }
+
+  /**
+   * Converts a list to an array.
+   * 
+   * @param list the list
+   * @return an array (as created by {@link #newEmptyArray(int...)})
+   */
+  protected Array<T> convertToArray(List<T> list) {
     Array<T> array = newEmptyArray(list.size());
     for (int i = 0; i < array.size(); i++) {
       array.set(i, list.get(i));
@@ -502,6 +510,26 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   public void set(int[] index, T value) {
     Check.argument(index.length == dims());
     setElement(Indexer.columnMajorStride(index, getOffset(), stride), value);
+  }
+
+  @Override
+  public void set(BooleanArray array, T value) {
+    Check.dimension(array, this);
+    for (int i = 0; i < this.size(); i++) {
+      this.set(i, array.get(i) ? value : this.get(i));
+    }
+  }
+
+  @Override
+  public Array<T> get(BooleanArray array) {
+    Check.dimension(array, this);
+    List<T> values = new ArrayList<>();
+    for (int i = 0; i < this.size(); i++) {
+      if (array.get(i)) {
+        values.add(get(i));
+      }
+    }
+    return convertToArray(values);
   }
 
   @Override
