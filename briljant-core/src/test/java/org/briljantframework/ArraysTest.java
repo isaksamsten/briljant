@@ -92,7 +92,7 @@ public class ArraysTest {
   }
 
   @Test
-  public void testTile() throws Exception {
+  public void testTile3d() throws Exception {
     IntArray x = Arrays.range(2 * 2 * 2).reshape(4, 2);
     IntArray tile = Arrays.tile(x, 2, 2, 2);
     assertArrayEquals(new int[] {2, 8, 4}, tile.getShape());
@@ -102,6 +102,24 @@ public class ArraysTest {
     assertEquals(Arrays.newIntVector(3, 7, 3, 7), tile.getVector(2, 6));
     assertEquals(Arrays.newIntVector(0, 4, 0, 4), tile.getVector(2, 8));
     assertEquals(Arrays.newIntVector(1, 5, 1, 5), tile.getVector(2, 10));
+  }
+
+  @Test
+  public void testTile() throws Exception {
+    IntArray a = Arrays.newIntVector(0, 1, 2);
+    IntArray a2 = Arrays.newIntVector(0, 1, 2, 0, 1, 2);
+    assertEquals(a2, Arrays.tile(a, 2));
+
+    IntArray a22 = Arrays.tile(a, 2, 2);
+    assertEquals(a2, a22.getVector(1, 0));
+    assertEquals(a2, a22.getVector(1, 1));
+
+    DoubleArray b = Arrays.newDoubleMatrix(new double[][] { {1, 2}, {3, 4}});
+    DoubleArray bexpected =
+        Arrays.newDoubleMatrix(new double[][] { {1, 2, 1, 2}, {3, 4, 3, 4}, {1, 2, 1, 2},
+            {3, 4, 3, 4}});
+
+    assertEquals(bexpected, Arrays.tile(b, 2, 2));
   }
 
   @Test

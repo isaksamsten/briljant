@@ -36,6 +36,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
@@ -1142,7 +1143,7 @@ public final class Arrays {
    * </pre>
    * 
    * @param x the array
-   * @param reps the numer of replications per dimension
+   * @param reps the number of replications per dimension
    * @param <S> the array type
    * @return a new array
    */
@@ -1156,7 +1157,11 @@ public final class Arrays {
 
     int[] shape = new int[dims];
     for (int i = 0; i < shape.length; i++) {
-      shape[i] = x.size(i) * reps[i];
+      int rep = reps[i];
+      if (rep <= 0) {
+        throw new NotStrictlyPositiveException(rep);
+      }
+      shape[i] = x.size(i) * rep;
     }
 
     S array = x.newEmptyArray(shape);
